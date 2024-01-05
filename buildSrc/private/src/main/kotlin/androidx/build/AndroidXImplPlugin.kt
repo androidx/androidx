@@ -116,34 +116,37 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
     override fun apply(project: Project) {
         if (project.isRoot)
             throw Exception("Root project should use AndroidXRootImplPlugin instead")
-        val extension = project.extensions.create<AndroidXExtension>(EXTENSION_NAME, project)
+        val androidXExtension =
+            project.extensions.create<AndroidXExtension>(EXTENSION_NAME, project)
 
-        val kmpExtension =
+        val androidXKmpExtension =
             project.extensions.create<AndroidXMultiplatformExtension>(
                 AndroidXMultiplatformExtension.EXTENSION_NAME,
                 project
             )
+
+        project.configurations.create("samples")
 
         project.tasks.register(BUILD_ON_SERVER_TASK, DefaultTask::class.java)
         // Perform different actions based on which plugins have been applied to the project.
         // Many of the actions overlap, ex. API tracking.
         project.plugins.all { plugin ->
             when (plugin) {
-                is JavaPlugin -> configureWithJavaPlugin(project, extension)
-                is LibraryPlugin -> configureWithLibraryPlugin(project, extension)
-                is AppPlugin -> configureWithAppPlugin(project, extension)
-                is TestPlugin -> configureWithTestPlugin(project, extension)
+                is JavaPlugin -> configureWithJavaPlugin(project, androidXExtension)
+                is LibraryPlugin -> configureWithLibraryPlugin(project, androidXExtension)
+                is AppPlugin -> configureWithAppPlugin(project, androidXExtension)
+                is TestPlugin -> configureWithTestPlugin(project, androidXExtension)
                 is KotlinMultiplatformAndroidPlugin ->
                     configureWithKotlinMultiplatformAndroidPlugin(
                         project,
-                        kmpExtension.agpKmpExtension,
-                        extension
+                        androidXKmpExtension.agpKmpExtension,
+                        androidXExtension
                     )
                 is KotlinBasePluginWrapper -> configureWithKotlinPlugin(
                     project,
-                    extension,
+                    androidXExtension,
                     plugin,
-                    kmpExtension
+                    androidXKmpExtension
                 )
             }
         }
@@ -164,36 +167,33 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
         project.tasks.withType(Test::class.java) { task -> configureJvmTestTask(project, task) }
 
         project.configureTaskTimeouts()
-        project.configureMavenArtifactUpload(extension, kmpExtension, componentFactory) {
-            project.addCreateLibraryBuildInfoFileTasks(extension)
+        project.configureMavenArtifactUpload(
+            androidXExtension, androidXKmpExtension, componentFactory) {
+            project.addCreateLibraryBuildInfoFileTasks(androidXExtension)
         }
         project.publishInspectionArtifacts()
         project.configureExternalDependencyLicenseCheck()
-        project.configureProjectStructureValidation(extension)
-        project.configureProjectVersionValidation(extension)
+        project.configureProjectStructureValidation(androidXExtension)
+        project.configureProjectVersionValidation(androidXExtension)
         project.registerProjectOrArtifact()
-
-        project.configurations.create("samples") { samples ->
-            samples.isCanBeResolved = false
-        }
         project.validateMultiplatformPluginHasNotBeenApplied()
 
         project.tasks.register("printCoordinates", PrintProjectCoordinatesTask::class.java) {
-            it.configureWithAndroidXExtension(extension)
+            it.configureWithAndroidXExtension(androidXExtension)
         }
-        project.configureConstraintsWithinGroup(extension)
-        project.validateProjectParser(extension)
+        project.configureConstraintsWithinGroup(androidXExtension)
+        project.validateProjectParser(androidXExtension)
         project.validateAllArchiveInputsRecognized()
         project.afterEvaluate {
-            if (extension.shouldPublishSbom()) {
+            if (androidXExtension.shouldPublishSbom()) {
                 project.configureSbomPublishing()
             }
-            if (extension.shouldPublish()) {
+            if (androidXExtension.shouldPublish()) {
                 project.validatePublishedMultiplatformHasDefault()
             }
             project.registerValidateMultiplatformSourceSetNamingTask()
         }
-        project.disallowAccidentalAndroidDependenciesInKmpProject(kmpExtension)
+        project.disallowAccidentalAndroidDependenciesInKmpProject(androidXKmpExtension)
         TaskUpToDateValidator.setup(project, registry)
     }
 
@@ -418,7 +418,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
 
     private fun configureWithKotlinPlugin(
         project: Project,
-        extension: AndroidXExtension,
+        androidXExtension: AndroidXExtension,
         plugin: KotlinBasePluginWrapper,
         androidXMultiplatformExtension: AndroidXMultiplatformExtension
     ) {
@@ -426,11 +426,11 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
 
         project.afterEvaluate {
             project.tasks.withType(KotlinCompile::class.java).configureEach { task ->
-                if (extension.type == LibraryType.COMPILER_PLUGIN) {
+                if (androidXExtension.type == LibraryType.COMPILER_PLUGIN) {
                     task.kotlinOptions.jvmTarget = "11"
                 } else if (
-                    extension.type.compilationTarget == CompilationTarget.HOST &&
-                    extension.type != LibraryType.ANNOTATION_PROCESSOR_UTILS
+                    androidXExtension.type.compilationTarget == CompilationTarget.HOST &&
+                    androidXExtension.type != LibraryType.ANNOTATION_PROCESSOR_UTILS
                 ) {
                     task.kotlinOptions.jvmTarget = "17"
                 } else {
@@ -445,7 +445,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
                 if (!project.name.contains("camera-camera2-pipe")) {
                     kotlinCompilerArgs += "-Xjvm-default=all"
                 }
-                if (!extension.targetsJavaConsumers) {
+                if (!androidXExtension.targetsJavaConsumers) {
                     // The Kotlin Compiler adds intrinsic assertions which are only relevant
                     // when the code is consumed by Java users. Therefore we can turn this off
                     // when code is being consumed by Kotlin users.
@@ -468,7 +468,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
                     project.plugins.hasPlugin(AppPlugin::class.java)
             // Explicit API mode is broken for Android projects
             // https://youtrack.jetbrains.com/issue/KT-37652
-            if (extension.shouldEnforceKotlinStrictApiMode() && !isAndroidProject) {
+            if (androidXExtension.shouldEnforceKotlinStrictApiMode() && !isAndroidProject) {
                 project.tasks.withType(KotlinCompile::class.java).configureEach { task ->
                     // Workaround for https://youtrack.jetbrains.com/issue/KT-37652
                     if (task.name.endsWith("TestKotlin")) return@configureEach
@@ -489,7 +489,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
                     // all java-related tasks.
                     // We only need to do this when project does not have Android plugin, which already
                     // configures Java tasks.
-                    configureWithJavaPlugin(project, extension)
+                    configureWithJavaPlugin(project, androidXExtension)
                 }
             }
             project.configureKmp()
@@ -717,20 +717,20 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
         project.buildOnServerDependsOnLint()
     }
 
-    private fun configureWithJavaPlugin(project: Project, extension: AndroidXExtension) {
+    private fun configureWithJavaPlugin(project: Project, androidXExtension: AndroidXExtension) {
         project.configureErrorProneForJava()
 
         // Force Java 1.8 source- and target-compatibility for all Java libraries.
         val javaExtension = project.extensions.getByType<JavaPluginExtension>()
         project.afterEvaluate {
-            if (extension.type == LibraryType.COMPILER_PLUGIN) {
+            if (androidXExtension.type == LibraryType.COMPILER_PLUGIN) {
                 javaExtension.apply {
                     sourceCompatibility = VERSION_11
                     targetCompatibility = VERSION_11
                 }
             } else if (
-                extension.type.compilationTarget == CompilationTarget.HOST &&
-                extension.type != LibraryType.ANNOTATION_PROCESSOR_UTILS
+                androidXExtension.type.compilationTarget == CompilationTarget.HOST &&
+                androidXExtension.type != LibraryType.ANNOTATION_PROCESSOR_UTILS
             ) {
                 javaExtension.apply {
                     sourceCompatibility = VERSION_17
@@ -747,11 +747,11 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
             }
         }
 
-        project.configureJavaCompilationWarnings(extension)
+        project.configureJavaCompilationWarnings(androidXExtension)
 
         project.hideJavadocTask()
 
-        project.configureDependencyVerification(extension) { taskProvider ->
+        project.configureDependencyVerification(androidXExtension) { taskProvider ->
             taskProvider.configure { task ->
                 task.dependsOn(project.tasks.named(JavaPlugin.COMPILE_JAVA_TASK_NAME))
             }
@@ -764,10 +764,10 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
                 JavaApiTaskConfig
             }
 
-        project.configureProjectForApiTasks(apiTaskConfig, extension)
+        project.configureProjectForApiTasks(apiTaskConfig, androidXExtension)
 
         project.afterEvaluate {
-            if (extension.shouldRelease()) {
+            if (androidXExtension.shouldRelease()) {
                 project.extra.set("publish", true)
             }
         }
@@ -790,27 +790,27 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
             }
         }
 
-        project.addToProjectMap(extension)
+        project.addToProjectMap(androidXExtension)
     }
 
-    private fun Project.configureProjectStructureValidation(extension: AndroidXExtension) {
+    private fun Project.configureProjectStructureValidation(androidXExtension: AndroidXExtension) {
         // AndroidXExtension.mavenGroup is not readable until afterEvaluate.
         afterEvaluate {
-            val mavenGroup = extension.mavenGroup
+            val mavenGroup = androidXExtension.mavenGroup
             val isProbablyPublished =
-                extension.type == LibraryType.PUBLISHED_LIBRARY ||
-                    extension.type == LibraryType.UNSET
-            if (mavenGroup != null && isProbablyPublished && extension.shouldPublish()) {
+                androidXExtension.type == LibraryType.PUBLISHED_LIBRARY ||
+                    androidXExtension.type == LibraryType.UNSET
+            if (mavenGroup != null && isProbablyPublished && androidXExtension.shouldPublish()) {
                 validateProjectMavenGroup(mavenGroup.group)
-                validateProjectMavenName(extension.name.get(), mavenGroup.group)
+                validateProjectMavenName(androidXExtension.name.get(), mavenGroup.group)
                 validateProjectStructure(mavenGroup.group)
             }
         }
     }
 
-    private fun Project.configureProjectVersionValidation(extension: AndroidXExtension) {
+    private fun Project.configureProjectVersionValidation(androidXExtension: AndroidXExtension) {
         // AndroidXExtension.mavenGroup is not readable until afterEvaluate.
-        afterEvaluate { extension.validateMavenVersion() }
+        afterEvaluate { androidXExtension.validateMavenVersion() }
     }
 
     private fun BaseExtension.configureAndroidBaseOptions(
@@ -1040,11 +1040,11 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
     }
 
     private fun Project.configureDependencyVerification(
-        extension: AndroidXExtension,
+        androidXExtension: AndroidXExtension,
         taskConfigurator: (TaskProvider<VerifyDependencyVersionsTask>) -> Unit
     ) {
         afterEvaluate {
-            if (extension.type != LibraryType.UNSET && extension.type != LibraryType.SAMPLES) {
+            if (androidXExtension.type !in listOf(LibraryType.UNSET, LibraryType.SAMPLES)) {
                 val verifyDependencyVersionsTask = project.createVerifyDependencyVersionsTask()
                 if (verifyDependencyVersionsTask != null) {
                     taskConfigurator(verifyDependencyVersionsTask)
@@ -1055,13 +1055,13 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
 
     // If this project wants other project in the same group to have the same version,
     // this function configures those constraints.
-    private fun Project.configureConstraintsWithinGroup(extension: AndroidXExtension) {
+    private fun Project.configureConstraintsWithinGroup(androidXExtension: AndroidXExtension) {
         if (!project.shouldAddGroupConstraints().get()) {
             return
         }
         project.afterEvaluate {
             // make sure that the project has a group
-            val projectGroup = extension.mavenGroup ?: return@afterEvaluate
+            val projectGroup = androidXExtension.mavenGroup ?: return@afterEvaluate
             // make sure that this group is configured to use a single version
             projectGroup.atomicGroupVersion ?: return@afterEvaluate
 
@@ -1069,7 +1069,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
             // version see ( isGroupVersionOverrideAllowed ), in which case it's
             // not participating in the versioning policy yet,
             // and we don't assign it any version constraints
-            if (extension.mavenVersion != null) {
+            if (androidXExtension.mavenVersion != null) {
                 return@afterEvaluate
             }
 
@@ -1084,7 +1084,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
                     configuration.extendsFrom(constraintConfiguration)
             }
 
-            val otherProjectsInSameGroup = extension.getOtherProjectsInSameGroup()
+            val otherProjectsInSameGroup = androidXExtension.getOtherProjectsInSameGroup()
             val constraints = project.dependencies.constraints
             val allProjectsExist = buildContainsAllStandardProjects()
             for (otherProject in otherProjectsInSameGroup) {
@@ -1212,11 +1212,11 @@ private fun Project.hideJavadocTask() {
     }
 }
 
-private fun Project.addToProjectMap(extension: AndroidXExtension) {
+private fun Project.addToProjectMap(androidXExtension: AndroidXExtension) {
     // TODO(alanv): Move this out of afterEvaluate
     afterEvaluate {
-        if (extension.shouldRelease()) {
-            val group = extension.mavenGroup?.group
+        if (androidXExtension.shouldRelease()) {
+            val group = androidXExtension.mavenGroup?.group
             if (group != null) {
                 val module = "$group:$name"
 
@@ -1309,8 +1309,8 @@ fun <T : Task> Project.addToCheckTask(task: TaskProvider<T>) {
 /** Expected to be called in afterEvaluate when all extensions are available */
 internal fun Project.hasAndroidTestSourceCode(): Boolean {
     // com.android.test modules keep test code in main sourceset
-    extensions.findByType(TestExtension::class.java)?.let { extension ->
-        extension.sourceSets.findByName("main")?.let { sourceSet ->
+    extensions.findByType(TestExtension::class.java)?.let { testExtension ->
+        testExtension.sourceSets.findByName("main")?.let { sourceSet ->
             if (!sourceSet.java.getSourceFiles().isEmpty) return true
         }
         // check kotlin-android main source set
@@ -1341,8 +1341,8 @@ internal fun Project.hasAndroidTestSourceCode(): Boolean {
         ?.let { if (it.kotlin.files.isNotEmpty()) return true }
 
     // check kotlin-multiplatform androidInstrumentedTest target source sets
-    multiplatformExtension?.let { extension ->
-        val instrumentedTestSourceSets = extension
+    multiplatformExtension?.let { kmpExtension ->
+        val instrumentedTestSourceSets = kmpExtension
             .targets
             .filterIsInstance<KotlinAndroidTarget>()
             .mapNotNull {
@@ -1366,10 +1366,10 @@ fun Project.validateMultiplatformPluginHasNotBeenApplied() {
 
 /** Verifies we don't accidentially write "implementation" instead of "commonMainImplementation" */
 fun Project.disallowAccidentalAndroidDependenciesInKmpProject(
-    kmpExtension: AndroidXMultiplatformExtension
+    androidXKmpExtension: AndroidXMultiplatformExtension
 ) {
     project.afterEvaluate {
-        if (kmpExtension.supportedPlatforms.isNotEmpty()) {
+        if (androidXKmpExtension.supportedPlatforms.isNotEmpty()) {
             val androidConfiguration = project.configurations.findByName("implementation")
             if (androidConfiguration != null) {
                 if (
@@ -1389,33 +1389,33 @@ fun Project.disallowAccidentalAndroidDependenciesInKmpProject(
 }
 
 /** Verifies that ProjectParser computes the correct values for this project */
-fun Project.validateProjectParser(extension: AndroidXExtension) {
+fun Project.validateProjectParser(androidXExtension: AndroidXExtension) {
     // If configuration fails, we don't want to validate the ProjectParser
     // (otherwise it could report a confusing, unnecessary error)
     project.gradle.taskGraph.whenReady {
-        if (!extension.runProjectParser) return@whenReady
+        if (!androidXExtension.runProjectParser) return@whenReady
 
         val parsed = project.parse()
         val errorPrefix = "ProjectParser error parsing ${project.path}."
-        check(extension.type == parsed.libraryType) {
+        check(androidXExtension.type == parsed.libraryType) {
             "$errorPrefix Incorrectly computed libraryType = ${parsed.libraryType} " +
-                "instead of ${extension.type}"
+                "instead of ${androidXExtension.type}"
         }
-        check(extension.publish == parsed.publish) {
+        check(androidXExtension.publish == parsed.publish) {
             "$errorPrefix Incorrectly computed publish = ${parsed.publish} " +
-                "instead of ${extension.publish}"
+                "instead of ${androidXExtension.publish}"
         }
-        check(extension.shouldPublish() == parsed.shouldPublish()) {
+        check(androidXExtension.shouldPublish() == parsed.shouldPublish()) {
             "$errorPrefix Incorrectly computed shouldPublish() = ${parsed.shouldPublish()} " +
-                "instead of ${extension.shouldPublish()}"
+                "instead of ${androidXExtension.shouldPublish()}"
         }
-        check(extension.shouldRelease() == parsed.shouldRelease()) {
+        check(androidXExtension.shouldRelease() == parsed.shouldRelease()) {
             "$errorPrefix Incorrectly computed shouldRelease() = ${parsed.shouldRelease()} " +
-                "instead of ${extension.shouldRelease()}"
+                "instead of ${androidXExtension.shouldRelease()}"
         }
-        check(extension.projectDirectlySpecifiesMavenVersion == parsed.specifiesVersion) {
+        check(androidXExtension.projectDirectlySpecifiesMavenVersion == parsed.specifiesVersion) {
             "$errorPrefix Incorrectly computed specifiesVersion = ${parsed.specifiesVersion} " +
-                " instead of ${extension.projectDirectlySpecifiesMavenVersion}"
+                " instead of ${androidXExtension.projectDirectlySpecifiesMavenVersion}"
         }
     }
 }

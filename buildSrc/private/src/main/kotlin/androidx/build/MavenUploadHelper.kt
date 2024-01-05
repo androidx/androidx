@@ -53,8 +53,8 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinMultiplatformPluginWrapper
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinAndroidTarget
 
 fun Project.configureMavenArtifactUpload(
-    extension: AndroidXExtension,
-    kmpExtension: AndroidXMultiplatformExtension,
+    androidXExtension: AndroidXExtension,
+    androidXKmpExtension: AndroidXMultiplatformExtension,
     componentFactory: SoftwareComponentFactory,
     afterConfigure: () -> Unit
 ) {
@@ -63,18 +63,18 @@ fun Project.configureMavenArtifactUpload(
     fun registerOnFirstPublishableArtifact(component: SoftwareComponent) {
         if (!registered) {
             configureComponentPublishing(
-                extension,
-                kmpExtension,
+                androidXExtension,
+                androidXKmpExtension,
                 component,
                 componentFactory,
                 afterConfigure
             )
-            Release.register(this, extension)
+            Release.register(this, androidXExtension)
             registered = true
         }
     }
     afterEvaluate {
-        if (!extension.shouldPublish()) {
+        if (!androidXExtension.shouldPublish()) {
             return@afterEvaluate
         }
         components.all { component ->
@@ -85,7 +85,7 @@ fun Project.configureMavenArtifactUpload(
     }
     // validate that all libraries that should be published actually get registered.
     gradle.taskGraph.whenReady {
-        if (releaseTaskShouldBeRegistered(extension)) {
+        if (releaseTaskShouldBeRegistered(androidXExtension)) {
             tasks.findByName(Release.PROJECT_ARCHIVE_ZIP_TASK_NAME)
                 ?: throw GradleException(
                     "Project $name is configured for publishing, but a " +
@@ -109,7 +109,7 @@ private fun Project.releaseTaskShouldBeRegistered(extension: AndroidXExtension):
 /** Configure publishing for a [SoftwareComponent]. */
 private fun Project.configureComponentPublishing(
     extension: AndroidXExtension,
-    kmpExtension: AndroidXMultiplatformExtension,
+    androidxKmpExtension: AndroidXMultiplatformExtension,
     component: SoftwareComponent,
     componentFactory: SoftwareComponentFactory,
     afterConfigure: () -> Unit
@@ -165,7 +165,7 @@ private fun Project.configureComponentPublishing(
         }
         publications.withType(MavenPublication::class.java).all { publication ->
             val isKmpAnchor = (publication.name == KMP_ANCHOR_PUBLICATION_NAME)
-            val pomPlatform = kmpExtension.defaultPlatform
+            val pomPlatform = androidxKmpExtension.defaultPlatform
             // b/297355397 If a kmp project has Android as the default platform, there might
             // externally be legacy projects depending on its .pom
             // We advertise a stub .aar in this .pom for backwards compatibility and
