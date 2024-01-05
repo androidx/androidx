@@ -25,6 +25,7 @@ import androidx.build.AndroidXConfig
 import androidx.build.KmpPlatformsKt
 import androidx.build.PlatformIdentifier
 import androidx.build.Publish
+import androidx.build.PrepareSqliteSourcesTask
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.konan.target.Family
 import org.jetbrains.kotlin.konan.target.KonanTarget
@@ -55,15 +56,10 @@ def SQLITE_COMPILE_FLAGS = [
         "-DSQLITE_THREADSAFE=2",
 ]
 
-// Copy SQLite sources into a build directory. Even though this is not needed, it will be
-// nice to have them there so that we can swap them with SQLite amalgamation for Github.
-// TODO(b/306669673): Support GitHub builds
-def copySqliteSourcesTask = tasks.register("copySqliteSources", Copy) {
-    from(new File(AndroidXConfig.getExternalProjectPath(project), "sqlite/dist/orig")) {
-        include "sqlite3.c"
-        include "sqlite3.h"
-    }
-    into(project.layout.buildDirectory.dir("sqlite3/src"))
+def prepareSqliteSourcesTask = tasks.register("prepareSqliteSources", PrepareSqliteSourcesTask) {
+    it.configureRemoteSources(project)
+    it.sqliteVersion = "3.42.0"
+    it.destinationDirectory.set(project.layout.buildDirectory.dir("sqlite3/src"))
 }
 
 configurations {
@@ -99,12 +95,12 @@ androidXMultiplatform {
         configureEachTarget { nativeCompilation ->
             // add SQLite header
             nativeCompilation.includes.from(
-                    copySqliteSourcesTask.map { it.destinationDir }
+                    prepareSqliteSourcesTask.map { it.destinationDirectory }
             )
             // add SQLite sources
             nativeCompilation.sources.from(
-                    copySqliteSourcesTask.map {
-                        fileTree(it.destinationDir).matching { include "**/*.c" }
+                    prepareSqliteSourcesTask.map {
+                        fileTree(it.destinationDirectory).matching { include "**/*.c" }
                     }
             )
             // add SQLite compile flags
@@ -133,7 +129,7 @@ androidXMultiplatform {
             nativeCompilation.addJniHeaders()
             // add SQLite headers
             nativeCompilation.includes.from(
-                    copySqliteSourcesTask.map {it.destinationDir }
+                    prepareSqliteSourcesTask.map {it.destinationDirectory }
             )
             // add our JNI sources, i.e. the SQLite bindings
             nativeCompilation.sources.from(

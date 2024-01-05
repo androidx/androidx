@@ -237,7 +237,6 @@ open class PlaygroundExtension @Inject constructor(
         private val UNSUPPORTED_PROJECTS = listOf(
             ":benchmark:benchmark-common", // requires prebuilts
             ":core:core", // stable aidl, b/270593834
-            ":sqlite:sqlite-bundled", // clang compilation, b/306669673
             ":inspection:inspection", // native compilation
         )
     }

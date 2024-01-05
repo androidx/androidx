@@ -17,6 +17,7 @@
 package androidx.build.clang
 
 import androidx.build.KonanPrebuiltsSetup
+import androidx.build.ProjectLayoutType
 import androidx.build.clang.KonanBuildService.Companion.obtain
 import androidx.build.getKonanPrebuiltsFolder
 import java.io.ByteArrayOutputStream
@@ -29,6 +30,7 @@ import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.services.BuildService
 import org.gradle.api.services.BuildServiceParameters
+import org.gradle.api.tasks.Optional
 import org.gradle.process.ExecOperations
 import org.gradle.process.ExecSpec
 import org.jetbrains.kotlin.gradle.plugin.KotlinMultiplatformPluginWrapper
@@ -52,7 +54,7 @@ abstract class KonanBuildService @Inject constructor(
 ) : BuildService<KonanBuildService.Parameters> {
     private val dist by lazy {
         KonanPrebuiltsSetup.createKonanDistribution(
-            prebuiltsDirectory = parameters.prebuilts.get().asFile,
+            prebuiltsDirectory = parameters.prebuilts.orNull?.asFile,
             konanHome = parameters.konanHome.get().asFile
         )
     }
@@ -75,7 +77,7 @@ abstract class KonanBuildService @Inject constructor(
             add("--compile")
             parameters.includes.files.forEach { includeDirectory ->
                 check(includeDirectory.isDirectory) {
-                    "Include parameter for clang must be a directory"
+                    "Include parameter for clang must be a directory: $includeDirectory"
                 }
                 add("-I${includeDirectory.canonicalPath}")
             }
@@ -207,6 +209,7 @@ abstract class KonanBuildService @Inject constructor(
 
     interface Parameters : BuildServiceParameters {
         val konanHome: DirectoryProperty
+        @get:Optional
         val prebuilts: DirectoryProperty
     }
 
@@ -233,9 +236,14 @@ abstract class KonanBuildService @Inject constructor(
                 it.parameters.konanHome.set(
                     nativeCompilerDownloader.compilerDirectory
                 )
-                it.parameters.prebuilts.set(
-                    project.getKonanPrebuiltsFolder()
-                )
+                if (ProjectLayoutType.isPlayground(project)) {
+
+                } else {
+                    it.parameters.prebuilts.set(
+                        project.getKonanPrebuiltsFolder()
+                    )
+                }
+
             }
         }
     }
