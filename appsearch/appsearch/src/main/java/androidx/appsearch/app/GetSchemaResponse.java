@@ -412,9 +412,9 @@ public final class GetSchemaResponse extends AbstractSafeParcelable {
          *     <li>A querier holds both PermissionA and PermissionC doesn't have access.</li>
          * </ul>
          *
-         * @param schemaType           The schema type to set visibility on.
-         * @param visibleToPermissions The Android permissions that will be required to access
-         *                             the given schema.
+         * @param schemaType              The schema type to set visibility on.
+         * @param visibleToPermissionSets The Sets of Android permissions that will be required to
+         *                                access the given schema.
          * @see android.Manifest.permission#READ_SMS
          * @see android.Manifest.permission#READ_CALENDAR
          * @see android.Manifest.permission#READ_CONTACTS
@@ -429,13 +429,15 @@ public final class GetSchemaResponse extends AbstractSafeParcelable {
         public Builder setRequiredPermissionsForSchemaTypeVisibility(
                 @NonNull String schemaType,
                 @SetSchemaRequest.AppSearchSupportedPermission @NonNull
-                        Set<Set<Integer>> visibleToPermissions) {
+                        Set<Set<Integer>> visibleToPermissionSets) {
             Preconditions.checkNotNull(schemaType);
-            Preconditions.checkNotNull(visibleToPermissions);
+            Preconditions.checkNotNull(visibleToPermissionSets);
             resetIfBuilt();
             VisibilityConfig.Builder visibilityConfigBuilder =
                     getOrCreateVisibilityConfigBuilder(schemaType);
-            visibilityConfigBuilder.setVisibleToPermissions(visibleToPermissions);
+            for (Set<Integer> visibleToPermissions : visibleToPermissionSets) {
+                visibilityConfigBuilder.addVisibleToPermissions(visibleToPermissions);
+            }
             return this;
         }
 

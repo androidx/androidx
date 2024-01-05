@@ -67,7 +67,7 @@ public class VisibilityStoreMigrationHelperFromV1 {
                 visibilityDocumentV1s.add(new VisibilityDocumentV1(appSearchImpl.getDocument(
                         VisibilityStore.VISIBILITY_PACKAGE_NAME,
                         VisibilityStore.VISIBILITY_DATABASE_NAME,
-                        VisibilityConfig.VISIBILITY_DOCUMENT_NAMESPACE,
+                        VisibilityToDocumentConverter.VISIBILITY_DOCUMENT_NAMESPACE,
                         allPrefixedSchemaTypes.get(i),
                         /*typePropertyPaths=*/ Collections.emptyMap())));
             } catch (AppSearchException e) {
@@ -97,7 +97,7 @@ public class VisibilityStoreMigrationHelperFromV1 {
                 new ArrayList<>(visibilityDocumentV1s.size());
         for (int i = 0; i < visibilityDocumentV1s.size(); i++) {
             VisibilityDocumentV1 visibilityDocumentV1 = visibilityDocumentV1s.get(i);
-            Set<Set<Integer>> visibleToPermissions = new ArraySet<>();
+            Set<Set<Integer>> visibleToPermissionSets = new ArraySet<>();
             Set<Integer> deprecatedVisibleToRoles = visibilityDocumentV1.getVisibleToRoles();
             if (deprecatedVisibleToRoles != null) {
                 for (int deprecatedVisibleToRole : deprecatedVisibleToRoles) {
@@ -111,13 +111,13 @@ public class VisibilityStoreMigrationHelperFromV1 {
                                     .READ_ASSISTANT_APP_SEARCH_DATA);
                             break;
                     }
-                    visibleToPermissions.add(visibleToPermission);
+                    visibleToPermissionSets.add(visibleToPermission);
                 }
             }
             Set<Integer> deprecatedVisibleToPermissions =
                     visibilityDocumentV1.getVisibleToPermissions();
             if (deprecatedVisibleToPermissions != null) {
-                visibleToPermissions.add(deprecatedVisibleToPermissions);
+                visibleToPermissionSets.add(deprecatedVisibleToPermissions);
             }
 
             Set<PackageIdentifier> packageIdentifiers = new ArraySet<>();
@@ -132,8 +132,8 @@ public class VisibilityStoreMigrationHelperFromV1 {
                     new VisibilityConfig.Builder(visibilityDocumentV1.getId())
                             .setNotDisplayedBySystem(visibilityDocumentV1.isNotDisplayedBySystem())
                             .addVisibleToPackages(packageIdentifiers);
-            if (!visibleToPermissions.isEmpty()) {
-                latestVisibilityDocumentBuilder.setVisibleToPermissions(visibleToPermissions);
+            for (Set<Integer> visibleToPermissions : visibleToPermissionSets) {
+                latestVisibilityDocumentBuilder.addVisibleToPermissions(visibleToPermissions);
             }
             latestVisibilityDocuments.add(latestVisibilityDocumentBuilder.build());
         }

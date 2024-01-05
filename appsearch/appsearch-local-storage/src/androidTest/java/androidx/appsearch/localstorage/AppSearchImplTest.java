@@ -50,6 +50,7 @@ import androidx.appsearch.localstorage.stats.OptimizeStats;
 import androidx.appsearch.localstorage.util.PrefixUtil;
 import androidx.appsearch.localstorage.visibilitystore.CallerAccess;
 import androidx.appsearch.localstorage.visibilitystore.VisibilityChecker;
+import androidx.appsearch.localstorage.visibilitystore.VisibilityToDocumentConverter;
 import androidx.appsearch.observer.DocumentChangeInfo;
 import androidx.appsearch.observer.ObserverSpec;
 import androidx.appsearch.observer.SchemaChangeInfo;
@@ -4269,10 +4270,10 @@ public class AppSearchImplTest {
                 .isEqualTo(expectedDocument);
         // Verify the VisibilityConfig is saved to AppSearchImpl.
         VisibilityConfig actualDocument =
-                VisibilityConfig.createVisibilityConfig(mAppSearchImpl.getDocument(
+                VisibilityToDocumentConverter.createVisibilityConfig(mAppSearchImpl.getDocument(
                 VISIBILITY_PACKAGE_NAME,
                 VISIBILITY_DATABASE_NAME,
-                VisibilityConfig.VISIBILITY_DOCUMENT_NAMESPACE,
+                VisibilityToDocumentConverter.VISIBILITY_DOCUMENT_NAMESPACE,
                 /*id=*/ prefix + "Email",
                 /*typePropertyPaths=*/ Collections.emptyMap()), null);
         assertThat(actualDocument).isEqualTo(expectedDocument);
@@ -4310,10 +4311,10 @@ public class AppSearchImplTest {
                 .isEqualTo(expectedDocument1);
         // Verify the VisibilityConfig is saved to AppSearchImpl.
         VisibilityConfig actualDocument1 =
-                VisibilityConfig.createVisibilityConfig(mAppSearchImpl.getDocument(
+                VisibilityToDocumentConverter.createVisibilityConfig(mAppSearchImpl.getDocument(
                 VISIBILITY_PACKAGE_NAME,
                 VISIBILITY_DATABASE_NAME,
-                VisibilityConfig.VISIBILITY_DOCUMENT_NAMESPACE,
+                VisibilityToDocumentConverter.VISIBILITY_DOCUMENT_NAMESPACE,
                 /*id=*/ prefix1 + "Email1",
                 /*typePropertyPaths=*/ Collections.emptyMap()), null);
         assertThat(actualDocument1).isEqualTo(expectedDocument1);
@@ -4347,11 +4348,11 @@ public class AppSearchImplTest {
                 .getVisibility(prefix2 + "Email2"))
                 .isEqualTo(expectedDocument2);
         // Verify the VisibilityConfig is saved to AppSearchImpl.
-        VisibilityConfig actualDocument2 = VisibilityConfig.createVisibilityConfig(
+        VisibilityConfig actualDocument2 = VisibilityToDocumentConverter.createVisibilityConfig(
                 mAppSearchImpl.getDocument(
                 VISIBILITY_PACKAGE_NAME,
                 VISIBILITY_DATABASE_NAME,
-                VisibilityConfig.VISIBILITY_DOCUMENT_NAMESPACE,
+                VisibilityToDocumentConverter.VISIBILITY_DOCUMENT_NAMESPACE,
                 /*id=*/ prefix2 + "Email2",
                 /*typePropertyPaths=*/ Collections.emptyMap()), null);
         assertThat(actualDocument2).isEqualTo(expectedDocument2);
@@ -4361,12 +4362,13 @@ public class AppSearchImplTest {
                 .getVisibility(prefix1 + "Email1"))
                 .isEqualTo(expectedDocument1);
         // Verify the VisibilityDocument is saved to AppSearchImpl.
-        actualDocument1 = VisibilityConfig.createVisibilityConfig(mAppSearchImpl.getDocument(
-                VISIBILITY_PACKAGE_NAME,
-                VISIBILITY_DATABASE_NAME,
-                VisibilityConfig.VISIBILITY_DOCUMENT_NAMESPACE,
-                /*id=*/ prefix1 + "Email1",
-                /*typePropertyPaths=*/ Collections.emptyMap()), null);
+        actualDocument1 = VisibilityToDocumentConverter.createVisibilityConfig(
+                mAppSearchImpl.getDocument(
+                        VISIBILITY_PACKAGE_NAME,
+                        VISIBILITY_DATABASE_NAME,
+                        VisibilityToDocumentConverter.VISIBILITY_DOCUMENT_NAMESPACE,
+                        /*id=*/ prefix1 + "Email1",
+                        /*typePropertyPaths=*/ Collections.emptyMap()), null);
         assertThat(actualDocument1).isEqualTo(expectedDocument1);
     }
 
@@ -4400,10 +4402,10 @@ public class AppSearchImplTest {
                 .getVisibility(prefix + "Email"))
                 .isEqualTo(expectedDocument);
         VisibilityConfig actualDocument =
-                VisibilityConfig.createVisibilityConfig(mAppSearchImpl.getDocument(
+                VisibilityToDocumentConverter.createVisibilityConfig(mAppSearchImpl.getDocument(
                 VISIBILITY_PACKAGE_NAME,
                 VISIBILITY_DATABASE_NAME,
-                VisibilityConfig.VISIBILITY_DOCUMENT_NAMESPACE,
+                VisibilityToDocumentConverter.VISIBILITY_DOCUMENT_NAMESPACE,
                 /*id=*/ prefix + "Email",
                 /*typePropertyPaths=*/ Collections.emptyMap()), null);
         assertThat(actualDocument).isEqualTo(expectedDocument);
@@ -4426,7 +4428,7 @@ public class AppSearchImplTest {
                 () -> mAppSearchImpl.getDocument(
                         VISIBILITY_PACKAGE_NAME,
                         VISIBILITY_DATABASE_NAME,
-                        VisibilityConfig.VISIBILITY_DOCUMENT_NAMESPACE,
+                        VisibilityToDocumentConverter.VISIBILITY_DOCUMENT_NAMESPACE,
                         /*id=*/ prefix + "Email",
                         /*typePropertyPaths=*/ Collections.emptyMap()));
         assertThat(e).hasMessageThat().contains(
@@ -4463,10 +4465,10 @@ public class AppSearchImplTest {
                 .isEqualTo(expectedDocument);
         // Verify the VisibilityConfig is saved to AppSearchImpl.
         VisibilityConfig actualDocument =
-                VisibilityConfig.createVisibilityConfig(mAppSearchImpl.getDocument(
+                VisibilityToDocumentConverter.createVisibilityConfig(mAppSearchImpl.getDocument(
                         VISIBILITY_PACKAGE_NAME,
                         VISIBILITY_DATABASE_NAME,
-                VisibilityConfig.VISIBILITY_DOCUMENT_NAMESPACE,
+                VisibilityToDocumentConverter.VISIBILITY_DOCUMENT_NAMESPACE,
                 /*id=*/ prefix + "Email",
                 /*typePropertyPaths=*/ Collections.emptyMap()), null);
         assertThat(actualDocument).isEqualTo(expectedDocument);
@@ -4498,7 +4500,7 @@ public class AppSearchImplTest {
                 () -> mAppSearchImpl.getDocument(
                         VISIBILITY_PACKAGE_NAME,
                         VISIBILITY_DATABASE_NAME,
-                VisibilityConfig.VISIBILITY_DOCUMENT_NAMESPACE,
+                VisibilityToDocumentConverter.VISIBILITY_DOCUMENT_NAMESPACE,
                         /*id=*/ prefix + "Email",
                         /*typePropertyPaths=*/ Collections.emptyMap()));
         assertThat(e).hasMessageThat().contains(
@@ -4547,10 +4549,10 @@ public class AppSearchImplTest {
                 .isEqualTo(expectedDocument);
         // Verify the VisibilityConfig is saved to AppSearchImpl.
         VisibilityConfig actualDocument =
-                VisibilityConfig.createVisibilityConfig(mAppSearchImpl.getDocument(
+                VisibilityToDocumentConverter.createVisibilityConfig(mAppSearchImpl.getDocument(
                         VISIBILITY_PACKAGE_NAME,
                         VISIBILITY_DATABASE_NAME,
-                VisibilityConfig.VISIBILITY_DOCUMENT_NAMESPACE,
+                VisibilityToDocumentConverter.VISIBILITY_DOCUMENT_NAMESPACE,
                 /*id=*/ prefix + "Email",
                 /*typePropertyPaths=*/ Collections.emptyMap()), null);
         assertThat(actualDocument).isEqualTo(expectedDocument);
@@ -4584,7 +4586,7 @@ public class AppSearchImplTest {
                 () -> mAppSearchImpl.getDocument(
                         VISIBILITY_PACKAGE_NAME,
                         VISIBILITY_DATABASE_NAME,
-                        VisibilityConfig.VISIBILITY_DOCUMENT_NAMESPACE,
+                        VisibilityToDocumentConverter.VISIBILITY_DOCUMENT_NAMESPACE,
                         /*id=*/ prefix + "Email",
                         /*typePropertyPaths=*/ Collections.emptyMap()));
         assertThat(e).hasMessageThat().contains(
@@ -4882,15 +4884,24 @@ public class AppSearchImplTest {
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
 
         // Now check for documents
-        GenericDocument visibilityOverlayA = mAppSearchImpl.getDocument(VISIBILITY_PACKAGE_NAME,
-                VISIBILITY_DATABASE_NAME, VisibilityConfig.PUBLIC_ACL_OVERLAY_NAMESPACE,
-                "package$database/PublicTypeA", Collections.emptyMap());
-        GenericDocument visibilityOverlayB = mAppSearchImpl.getDocument(VISIBILITY_PACKAGE_NAME,
-                VISIBILITY_DATABASE_NAME, VisibilityConfig.PUBLIC_ACL_OVERLAY_NAMESPACE,
-                "package$database/PublicTypeB", Collections.emptyMap());
-        GenericDocument visibilityOverlayC = mAppSearchImpl.getDocument(VISIBILITY_PACKAGE_NAME,
-                VISIBILITY_DATABASE_NAME, VisibilityConfig.PUBLIC_ACL_OVERLAY_NAMESPACE,
-                "package$database/PublicTypeC", Collections.emptyMap());
+        GenericDocument visibilityOverlayA = mAppSearchImpl.getDocument(
+                VISIBILITY_PACKAGE_NAME,
+                VISIBILITY_DATABASE_NAME,
+                VisibilityToDocumentConverter.PUBLIC_ACL_OVERLAY_NAMESPACE,
+                "package$database/PublicTypeA",
+                Collections.emptyMap());
+        GenericDocument visibilityOverlayB = mAppSearchImpl.getDocument(
+                VISIBILITY_PACKAGE_NAME,
+                VISIBILITY_DATABASE_NAME,
+                VisibilityToDocumentConverter.PUBLIC_ACL_OVERLAY_NAMESPACE,
+                "package$database/PublicTypeB",
+                Collections.emptyMap());
+        GenericDocument visibilityOverlayC = mAppSearchImpl.getDocument(
+                VISIBILITY_PACKAGE_NAME,
+                VISIBILITY_DATABASE_NAME,
+                VisibilityToDocumentConverter.PUBLIC_ACL_OVERLAY_NAMESPACE,
+                "package$database/PublicTypeC",
+                Collections.emptyMap());
 
         assertThat(visibilityOverlayA.getPropertyString("publiclyVisibleTargetPackage"))
                 .isEqualTo("A");
@@ -4917,17 +4928,17 @@ public class AppSearchImplTest {
         // Now check for documents again
         Exception e = assertThrows(AppSearchException.class, () -> mAppSearchImpl.getDocument(
                 VISIBILITY_PACKAGE_NAME, VISIBILITY_DATABASE_NAME,
-                VisibilityConfig.PUBLIC_ACL_OVERLAY_NAMESPACE,
+                VisibilityToDocumentConverter.PUBLIC_ACL_OVERLAY_NAMESPACE,
                 "package$database/PublicTypeA", Collections.emptyMap()));
         assertThat(e.getMessage()).endsWith("not found.");
         e = assertThrows(AppSearchException.class, () -> mAppSearchImpl.getDocument(
                 VISIBILITY_PACKAGE_NAME, VISIBILITY_DATABASE_NAME,
-                VisibilityConfig.PUBLIC_ACL_OVERLAY_NAMESPACE,
+                VisibilityToDocumentConverter.PUBLIC_ACL_OVERLAY_NAMESPACE,
                 "package$database/PublicTypeB", Collections.emptyMap()));
         assertThat(e.getMessage()).endsWith("not found.");
         e = assertThrows(AppSearchException.class, () -> mAppSearchImpl.getDocument(
                 VISIBILITY_PACKAGE_NAME, VISIBILITY_DATABASE_NAME,
-                VisibilityConfig.PUBLIC_ACL_OVERLAY_NAMESPACE,
+                VisibilityToDocumentConverter.PUBLIC_ACL_OVERLAY_NAMESPACE,
                 "package$database/PublicTypeC", Collections.emptyMap()));
         assertThat(e.getMessage()).endsWith("not found.");
     }

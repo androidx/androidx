@@ -132,11 +132,11 @@ public class VisibilityStoreMigrationHelperFromV1Test {
                 ALWAYS_OPTIMIZE,
                 /*visibilityChecker=*/null);
 
-        VisibilityConfig actualConfig = VisibilityConfig.createVisibilityConfig(
+        VisibilityConfig actualConfig = VisibilityToDocumentConverter.createVisibilityConfig(
                 appSearchImpl.getDocument(
                         VisibilityStore.VISIBILITY_PACKAGE_NAME,
                         VisibilityStore.VISIBILITY_DATABASE_NAME,
-                        VisibilityConfig.VISIBILITY_DOCUMENT_NAMESPACE,
+                        VisibilityToDocumentConverter.VISIBILITY_DOCUMENT_NAMESPACE,
                         /*id=*/ prefix + "Schema",
                         /*typePropertyPaths=*/ Collections.emptyMap()), null);
 

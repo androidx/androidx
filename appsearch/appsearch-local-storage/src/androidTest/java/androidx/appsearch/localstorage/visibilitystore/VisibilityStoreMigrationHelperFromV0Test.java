@@ -82,19 +82,21 @@ public class VisibilityStoreMigrationHelperFromV0Test {
         // "schema1" is accessible to packageFoo and "schema2" is accessible to packageBar.
         String prefix = PrefixUtil.createPrefix("package", "database");
         GenericDocument deprecatedVisibilityToPackageFoo = new GenericDocument.Builder<>(
-                VisibilityConfig.VISIBILITY_DOCUMENT_NAMESPACE, "", DEPRECATED_PACKAGE_SCHEMA_TYPE)
+                VisibilityToDocumentConverter.VISIBILITY_DOCUMENT_NAMESPACE, "",
+                DEPRECATED_PACKAGE_SCHEMA_TYPE)
                 .setPropertyString(DEPRECATED_ACCESSIBLE_SCHEMA_PROPERTY, prefix + "Schema1")
                 .setPropertyString(DEPRECATED_PACKAGE_NAME_PROPERTY, packageNameFoo)
                 .setPropertyBytes(DEPRECATED_SHA_256_CERT_PROPERTY, sha256CertFoo)
                 .build();
         GenericDocument deprecatedVisibilityToPackageBar = new GenericDocument.Builder<>(
-                VisibilityConfig.VISIBILITY_DOCUMENT_NAMESPACE, "", DEPRECATED_PACKAGE_SCHEMA_TYPE)
+                VisibilityToDocumentConverter.VISIBILITY_DOCUMENT_NAMESPACE, "",
+                DEPRECATED_PACKAGE_SCHEMA_TYPE)
                 .setPropertyString(DEPRECATED_ACCESSIBLE_SCHEMA_PROPERTY, prefix + "Schema2")
                 .setPropertyString(DEPRECATED_PACKAGE_NAME_PROPERTY, packageNameBar)
                 .setPropertyBytes(DEPRECATED_SHA_256_CERT_PROPERTY, sha256CertBar)
                 .build();
         GenericDocument deprecatedVisibilityDocument = new GenericDocument.Builder<>(
-                VisibilityConfig.VISIBILITY_DOCUMENT_NAMESPACE,
+                VisibilityToDocumentConverter.VISIBILITY_DOCUMENT_NAMESPACE,
                 VisibilityStoreMigrationHelperFromV0.getDeprecatedVisibilityDocumentId(
                         "package", "database"),
                 DEPRECATED_VISIBILITY_SCHEMA_TYPE)
@@ -138,27 +140,27 @@ public class VisibilityStoreMigrationHelperFromV0Test {
                 appSearchImpl.getDocument(
                         VisibilityStore.VISIBILITY_PACKAGE_NAME,
                         VisibilityStore.VISIBILITY_DATABASE_NAME,
-                        VisibilityConfig.VISIBILITY_DOCUMENT_NAMESPACE,
+                        VisibilityToDocumentConverter.VISIBILITY_DOCUMENT_NAMESPACE,
                         /*id=*/ prefix + "Schema1",
                         /*typePropertyPaths=*/ Collections.emptyMap());
         GenericDocument actualDocument2 =
                 appSearchImpl.getDocument(
                         VisibilityStore.VISIBILITY_PACKAGE_NAME,
                         VisibilityStore.VISIBILITY_DATABASE_NAME,
-                        VisibilityConfig.VISIBILITY_DOCUMENT_NAMESPACE,
+                        VisibilityToDocumentConverter.VISIBILITY_DOCUMENT_NAMESPACE,
                         /*id=*/ prefix + "Schema2",
                         /*typePropertyPaths=*/ Collections.emptyMap());
 
-        GenericDocument expectedDocument1 =
+        GenericDocument expectedDocument1 = VisibilityToDocumentConverter.createVisibilityDocument(
                 new VisibilityConfig.Builder(/*id=*/ prefix + "Schema1")
                         .setNotDisplayedBySystem(true)
                         .addVisibleToPackage(new PackageIdentifier(packageNameFoo, sha256CertFoo))
-                        .build().createVisibilityDocument();
-        GenericDocument expectedDocument2 =
+                        .build());
+        GenericDocument expectedDocument2 = VisibilityToDocumentConverter.createVisibilityDocument(
                 new VisibilityConfig.Builder(/*id=*/ prefix + "Schema2")
                         .setNotDisplayedBySystem(true)
                         .addVisibleToPackage(new PackageIdentifier(packageNameBar, sha256CertBar))
-                        .build().createVisibilityDocument();
+                        .build());
 
         // Ignore the creation timestamp
         actualDocument1 = new GenericDocument.Builder<>(actualDocument1)

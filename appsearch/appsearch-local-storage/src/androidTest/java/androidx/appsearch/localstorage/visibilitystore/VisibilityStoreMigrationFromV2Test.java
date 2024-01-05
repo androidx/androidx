@@ -96,7 +96,7 @@ public class VisibilityStoreMigrationFromV2Test {
                 VisibilityStore.VISIBILITY_DATABASE_NAME,
                 // no overlay schema
                 ImmutableList.of(VisibilityPermissionConfig.SCHEMA,
-                        VisibilityConfig.VISIBILITY_DOCUMENT_SCHEMA),
+                        VisibilityToDocumentConverter.VISIBILITY_DOCUMENT_SCHEMA),
                 /*prefixedVisibilityBundles=*/ Collections.emptyList(),
                 /*forceOverride=*/ true, // force push the old version into disk
                 /*version=*/ 2, //SCHEMA_VERSION_NESTED_PERMISSION_SCHEMA
@@ -107,22 +107,29 @@ public class VisibilityStoreMigrationFromV2Test {
                 VisibilityStore.VISIBILITY_DATABASE_NAME,
                 new CallerAccess(/*callingPackageName=*/VisibilityStore.VISIBILITY_PACKAGE_NAME));
         assertThat(getSchemaResponse.getSchemas()).contains(
-                VisibilityConfig.VISIBILITY_DOCUMENT_SCHEMA);
+                VisibilityToDocumentConverter.VISIBILITY_DOCUMENT_SCHEMA);
         assertThat(getSchemaResponse.getSchemas()).doesNotContain(
-                VisibilityConfig.PUBLIC_ACL_OVERLAY_SCHEMA);
+                VisibilityToDocumentConverter.PUBLIC_ACL_OVERLAY_SCHEMA);
 
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
         // Build deprecated visibility documents in version 2
         String prefix = PrefixUtil.createPrefix("package", "database");
-        GenericDocument visibilityDocumentV2 = new VisibilityConfig.Builder(prefix + "Schema")
+        VisibilityConfig visibilityConfigV2 = new VisibilityConfig.Builder(prefix + "Schema")
                 .setNotDisplayedBySystem(true)
-                .addVisibleToPackage(new PackageIdentifier(packageNameFoo, sha256CertFoo))
-                .addVisibleToPackage(new PackageIdentifier(packageNameBar, sha256CertBar))
-                .setVisibleToPermissions(ImmutableSet.of(
-                        ImmutableSet.of(SetSchemaRequest.READ_SMS, SetSchemaRequest.READ_CALENDAR),
-                        ImmutableSet.of(SetSchemaRequest.READ_ASSISTANT_APP_SEARCH_DATA),
-                        ImmutableSet.of(SetSchemaRequest.READ_HOME_APP_SEARCH_DATA)))
-                .build().createVisibilityDocument();
+                .addVisibleToPackage(
+                        new PackageIdentifier(packageNameFoo, sha256CertFoo))
+                .addVisibleToPackage(
+                        new PackageIdentifier(packageNameBar, sha256CertBar))
+                .addVisibleToPermissions(
+                        ImmutableSet.of(SetSchemaRequest.READ_SMS,
+                                SetSchemaRequest.READ_CALENDAR))
+                .addVisibleToPermissions(
+                        ImmutableSet.of(SetSchemaRequest.READ_ASSISTANT_APP_SEARCH_DATA))
+                .addVisibleToPermissions(
+                        ImmutableSet.of(SetSchemaRequest.READ_HOME_APP_SEARCH_DATA))
+                .build();
+        GenericDocument visibilityDocumentV2 = VisibilityToDocumentConverter
+                .createVisibilityDocument(visibilityConfigV2);
 
         // Set client schema into AppSearchImpl with empty VisibilityDocument since we need to
         // directly put old version of VisibilityDocument.
@@ -153,11 +160,11 @@ public class VisibilityStoreMigrationFromV2Test {
                 ALWAYS_OPTIMIZE,
                 /*visibilityChecker=*/null);
 
-        VisibilityConfig actualConfig = VisibilityConfig.createVisibilityConfig(
+        VisibilityConfig actualConfig = VisibilityToDocumentConverter.createVisibilityConfig(
                 appSearchImpl.getDocument(
                         VisibilityStore.VISIBILITY_PACKAGE_NAME,
                         VisibilityStore.VISIBILITY_DATABASE_NAME,
-                        VisibilityConfig.VISIBILITY_DOCUMENT_NAMESPACE,
+                        VisibilityToDocumentConverter.VISIBILITY_DOCUMENT_NAMESPACE,
                         /*id=*/ prefix + "Schema",
                         /*typePropertyPaths=*/ Collections.emptyMap()), null);
 
@@ -176,16 +183,16 @@ public class VisibilityStoreMigrationFromV2Test {
                 VisibilityStore.VISIBILITY_DATABASE_NAME,
                 new CallerAccess(/*callingPackageName=*/VisibilityStore.VISIBILITY_PACKAGE_NAME));
         assertThat(getSchemaResponse.getSchemas())
-                .contains(VisibilityConfig.VISIBILITY_DOCUMENT_SCHEMA);
+                .contains(VisibilityToDocumentConverter.VISIBILITY_DOCUMENT_SCHEMA);
         assertThat(getSchemaResponse.getSchemas())
-                .contains(VisibilityConfig.PUBLIC_ACL_OVERLAY_SCHEMA);
+                .contains(VisibilityToDocumentConverter.PUBLIC_ACL_OVERLAY_SCHEMA);
 
         // But no overlay document was created.
         AppSearchException e = assertThrows(AppSearchException.class,
                  () -> appSearchImpl.getDocument(
                         VisibilityStore.VISIBILITY_PACKAGE_NAME,
                         VisibilityStore.VISIBILITY_DATABASE_NAME,
-                        VisibilityConfig.PUBLIC_ACL_OVERLAY_NAMESPACE,
+                         VisibilityToDocumentConverter.PUBLIC_ACL_OVERLAY_NAMESPACE,
                         /*id=*/ prefix + "Schema",
                         /*typePropertyPaths=*/ Collections.emptyMap()));
         assertThat(e.getMessage())
