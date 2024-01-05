@@ -363,9 +363,25 @@ private class BaselineProfileProducerAgpPlugin(private val project: Project) : A
 
                 throw GradleException(
                     """
-                    It wasn't possible to determine the test task for managed device `$device`.
-                    Please check the managed devices specified in the baseline profile
-                    configuration.
+                No managed device named `$device` was found. Please check your GMD configuration
+                and make sure that the `baselineProfile.managedDevices` property contains only
+                existing gradle managed devices. Example:
+
+                android {
+                    testOptions.managedDevices.devices {
+                        pixel6Api31(ManagedVirtualDevice) {
+                            device = "Pixel 6"
+                            apiLevel = 31
+                            systemImageSource = "aosp"
+                        }
+                    }
+                }
+
+                baselineProfile {
+                    managedDevices = ["pixel6Api31"]
+                    useConnectedDevices = false
+                }
+
                     """.trimIndent()
                 )
             }
