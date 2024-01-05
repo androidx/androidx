@@ -92,7 +92,7 @@ public class RequestPermissionScreen extends Screen {
 
         List<String> permissions;
         try {
-            permissions = findDeclaredPermissions();
+            permissions = findMissingPermissions();
         } catch (PackageManager.NameNotFoundException e) {
             // Permission lookup failed. Show error.
             return new MessageTemplate.Builder(
@@ -160,31 +160,54 @@ public class RequestPermissionScreen extends Screen {
         return message.toString();
     }
 
-    private List<String> findDeclaredPermissions() throws PackageManager.NameNotFoundException {
-        List<String> permissions = new ArrayList<>();
-        String[] declaredPermissions;
+    private List<String> findMissingPermissions() throws PackageManager.NameNotFoundException {
+        // Possible NameNotFoundException
         PackageInfo info =
                 getCarContext().getPackageManager().getPackageInfo(
                         getCarContext().getPackageName(),
                         PackageManager.GET_PERMISSIONS);
-        declaredPermissions = info.requestedPermissions;
 
-        if (declaredPermissions != null) {
-            for (String declaredPermission : declaredPermissions) {
-                // Don't include permissions against the car app host as they are all normal but
-                // show up as ungranted by the system.
-                if (declaredPermission.startsWith("androidx.car.app")) {
-                    continue;
-                }
-                try {
-                    CarAppPermission.checkHasPermission(getCarContext(), declaredPermission);
-                } catch (SecurityException e) {
-                    permissions.add(declaredPermission);
-                }
-            }
+        String[] declaredPermissions = info.requestedPermissions;
+        if (declaredPermissions == null) {
+            Log.d(TAG, "No permissions found in manifest");
+            return new ArrayList<>();
         }
 
-        return permissions;
+        List<String> missingPermissions = new ArrayList<>();
+        for (String permission : declaredPermissions) {
+            if (isAppHostPermission(permission)) {
+                // Don't include permissions against the car app host as they are all normal but
+                // show up as ungranted by the system.
+                Log.d(TAG, String.format("Permission ignored (belongs to host): %s", permission));
+                continue;
+            }
+
+            if (isPermissionGranted(permission)) {
+                Log.d(TAG, String.format("Permission ignored (already granted): %s", permission));
+                continue;
+            }
+
+            Log.d(TAG, String.format("Found missing permission: %s", permission));
+            missingPermissions.add(permission);
+        }
+
+        return missingPermissions;
+    }
+
+    private boolean isAppHostPermission(String permission) {
+        return permission.startsWith("androidx.car.app");
+    }
+
+    private boolean isPermissionGranted(String permission) {
+        try {
+            CarAppPermission.checkHasPermission(getCarContext(), permission);
+        } catch (SecurityException e) {
+            // Permission not granted
+            return false;
+        }
+
+        // Permission already granted
+        return true;
     }
 
     private boolean needsLocationPermission() {
