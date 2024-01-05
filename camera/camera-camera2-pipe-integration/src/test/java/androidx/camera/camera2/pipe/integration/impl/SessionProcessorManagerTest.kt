@@ -17,6 +17,7 @@
 package androidx.camera.camera2.pipe.integration.impl
 
 import android.hardware.camera2.CameraDevice
+import android.hardware.camera2.CaptureRequest
 import android.os.Build
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraId
@@ -24,19 +25,24 @@ import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.integration.adapter.FakeTestUseCase
 import androidx.camera.camera2.pipe.integration.adapter.RobolectricCameraPipeTestRunner
 import androidx.camera.camera2.pipe.integration.adapter.TestDeferrableSurface
+import androidx.camera.camera2.pipe.integration.interop.CaptureRequestOptions
+import androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop
 import androidx.camera.camera2.pipe.integration.testing.FakeCameraInfoAdapterCreator
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
+import androidx.camera.core.impl.CaptureConfig
 import androidx.camera.core.impl.OutputSurfaceConfiguration
 import androidx.camera.core.impl.RequestProcessor
 import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.SessionProcessor
+import androidx.camera.core.impl.SessionProcessor.CaptureCallback
 import androidx.camera.core.impl.SessionProcessorSurface
 import androidx.camera.core.streamsharing.StreamSharing
 import androidx.camera.testing.impl.fakes.FakeUseCaseConfig
 import androidx.testutils.MainDispatcherRule
+import com.google.common.truth.Truth.assertThat
 import kotlin.test.Test
 import kotlinx.coroutines.asExecutor
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -51,6 +57,7 @@ import org.mockito.kotlin.whenever
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 
+@OptIn(ExperimentalCamera2Interop::class)
 @RunWith(RobolectricCameraPipeTestRunner::class)
 @Config(minSdk = Build.VERSION_CODES.M)
 @DoNotInstrument
@@ -65,6 +72,9 @@ class SessionProcessorManagerTest {
         val previewOutputConfigId = 0
         val imageCaptureOutputConfigId = 1
         val imageAnalysisOutputConfigId = 2
+
+        var lastParameters: androidx.camera.core.impl.Config? = null
+        var startCapturesCount = 0
 
         override fun initSession(
             cameraInfo: CameraInfo,
@@ -105,7 +115,8 @@ class SessionProcessorManagerTest {
         }
 
         override fun setParameters(config: androidx.camera.core.impl.Config) {
-            TODO("Not yet implemented")
+            Log.debug { "$this#setParameters" }
+            lastParameters = config
         }
 
         override fun onCaptureSessionStart(requestProcessor: RequestProcessor) {
@@ -116,7 +127,7 @@ class SessionProcessorManagerTest {
             TODO("Not yet implemented")
         }
 
-        override fun startRepeating(callback: SessionProcessor.CaptureCallback): Int {
+        override fun startRepeating(callback: CaptureCallback): Int {
             TODO("Not yet implemented")
         }
 
@@ -126,9 +137,11 @@ class SessionProcessorManagerTest {
 
         override fun startCapture(
             postviewEnabled: Boolean,
-            callback: SessionProcessor.CaptureCallback
+            callback: CaptureCallback
         ): Int {
-            TODO("Not yet implemented")
+            Log.debug { "$this#startCapture" }
+            startCapturesCount++
+            return 0
         }
 
         override fun abortCapture(captureSequenceId: Int) {
@@ -191,6 +204,51 @@ class SessionProcessorManagerTest {
         ).join()
         verify(useCaseManager).createCameraGraphConfig(any(), any(), any())
         verify(useCaseManager).tryResumeUseCaseManager(any())
+    }
+
+    @Test
+    fun testSubmitCaptureConfigs() = runTest {
+        val useCaseManager: UseCaseManager = mock()
+        whenever(useCaseManager.createCameraGraphConfig(any(), any(), any())).thenReturn(
+            CameraGraph.Config(fakeCameraId, emptyList())
+        )
+        val fakePreviewUseCase = createFakeTestUseCase(
+            "Preview",
+            CameraDevice.TEMPLATE_PREVIEW,
+            Preview::class.java
+        )
+        val fakeImageCaptureUseCase = createFakeTestUseCase(
+            "ImageCapture",
+            CameraDevice.TEMPLATE_STILL_CAPTURE,
+            ImageCapture::class.java
+        )
+
+        sessionProcessorManager.initialize(
+            useCaseManager,
+            listOf(fakePreviewUseCase, fakeImageCaptureUseCase)
+        ).join()
+        sessionProcessorManager.sessionConfig = SessionConfig.Builder().build()
+
+        val jpegRotation = 90
+        val jpegQuality = 95
+        val captureConfig = CaptureConfig.Builder().apply {
+            templateType = CameraDevice.TEMPLATE_STILL_CAPTURE
+            addImplementationOption(CaptureConfig.OPTION_ROTATION, jpegRotation)
+            addImplementationOption(CaptureConfig.OPTION_JPEG_QUALITY, jpegQuality)
+        }.build()
+        sessionProcessorManager.submitCaptureConfigs(
+            listOf(captureConfig),
+            listOf(object : CaptureCallback {})
+        )
+
+        val parameters = fakeSessionProcessor.lastParameters as? CaptureRequestOptions
+        assertThat(parameters).isNotNull()
+        val rotation = parameters!!.getCaptureRequestOption(CaptureRequest.JPEG_ORIENTATION, null)
+        val quality = parameters.getCaptureRequestOption(CaptureRequest.JPEG_QUALITY, null)
+        assertThat(rotation).isEqualTo(jpegRotation)
+        assertThat(quality).isEqualTo(jpegQuality)
+
+        assertThat(fakeSessionProcessor.startCapturesCount).isEqualTo(1)
     }
 
     private fun <T> createFakeTestUseCase(

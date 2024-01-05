@@ -67,8 +67,11 @@ import androidx.camera.core.ImageCapture.FlashMode
 import androidx.camera.core.ImageCapture.FlashType
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.TorchState
+import androidx.camera.core.impl.CameraCaptureFailure
+import androidx.camera.core.impl.CameraCaptureResult
 import androidx.camera.core.impl.CaptureConfig
 import androidx.camera.core.impl.Config
+import androidx.camera.core.impl.SessionProcessor.CaptureCallback
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import kotlinx.coroutines.CancellationException
@@ -107,6 +110,7 @@ class CapturePipelineImpl @Inject constructor(
     cameraProperties: CameraProperties,
     private val useCaseCameraState: UseCaseCameraState,
     useCaseGraphConfig: UseCaseGraphConfig,
+    private val sessionProcessorManager: SessionProcessorManager?,
 ) : CapturePipeline {
     private val graph = useCaseGraphConfig.graph
 
@@ -314,6 +318,10 @@ class CapturePipelineImpl @Inject constructor(
         requestTemplate: RequestTemplate,
         sessionConfigOptions: Config
     ): List<Deferred<Void?>> {
+        if (sessionProcessorManager != null) {
+            return submitRequestInternalWithSessionProcessor(configs)
+        }
+        debug { "CapturePipeline#submitRequestInternal; Submitting $configs with CameraPipe" }
         val deferredList = mutableListOf<CompletableDeferred<Void?>>()
         val requests = configs.map {
             val completeSignal = CompletableDeferred<Void?>().also { deferredList.add(it) }
@@ -399,6 +407,65 @@ class CapturePipelineImpl @Inject constructor(
             }
         }
 
+        return deferredList
+    }
+
+    private fun submitRequestInternalWithSessionProcessor(
+        configs: List<CaptureConfig>
+    ): List<Deferred<Void?>> {
+        debug {
+            "CapturePipeline#submitRequestInternal: Submitting $configs using SessionProcessor"
+        }
+        val deferredList = mutableListOf<CompletableDeferred<Void?>>()
+        val callbacks = configs.map {
+            val completeSignal = CompletableDeferred<Void?>().also { deferredList.add(it) }
+            object : CaptureCallback {
+                override fun onCaptureStarted(captureSequenceId: Int, timestamp: Long) {
+                    for (captureCallback in it.cameraCaptureCallbacks) {
+                        captureCallback.onCaptureStarted()
+                    }
+                }
+
+                override fun onCaptureFailed(captureSequenceId: Int) {
+                    completeSignal.completeExceptionally(
+                        ImageCaptureException(
+                            ERROR_CAPTURE_FAILED, "Capture request failed", null
+                        )
+                    )
+                    for (captureCallback in it.cameraCaptureCallbacks) {
+                        captureCallback.onCaptureFailed(
+                            CameraCaptureFailure(CameraCaptureFailure.Reason.ERROR)
+                        )
+                    }
+                }
+
+                override fun onCaptureSequenceCompleted(captureSequenceId: Int) {
+                    completeSignal.complete(null)
+                    for (captureCallback in it.cameraCaptureCallbacks) {
+                        captureCallback.onCaptureCompleted(
+                            CameraCaptureResult.EmptyCameraCaptureResult()
+                        )
+                    }
+                }
+
+                override fun onCaptureProcessProgressed(progress: Int) {
+                    for (captureCallback in it.cameraCaptureCallbacks) {
+                        captureCallback.onCaptureProcessProgressed(progress)
+                    }
+                }
+
+                override fun onCaptureSequenceAborted(captureSequenceId: Int) {
+                    completeSignal.completeExceptionally(
+                        ImageCaptureException(
+                            ERROR_CAMERA_CLOSED,
+                            "Capture request is cancelled because camera is closed",
+                            null
+                        )
+                    )
+                }
+            }
+        }
+        sessionProcessorManager!!.submitCaptureConfigs(configs, callbacks)
         return deferredList
     }
 
