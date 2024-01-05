@@ -48,11 +48,14 @@ import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 /**
  * Implementation of focus and metering controls exposed by [CameraControlInternal].
  */
+@OptIn(ExperimentalCoroutinesApi::class)
 @CameraScope
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class FocusMeteringControl @Inject constructor(
@@ -165,7 +168,7 @@ class FocusMeteringControl @Inject constructor(
                  * If device does support but a region list is empty, it means any previously
                  * set region should be removed, so the no-op METERING_REGIONS_DEFAULT is used.
                  */
-                val result3A = useCaseCamera.requestControl.startFocusAndMeteringAsync(
+                val deferredResult3A = useCaseCamera.requestControl.startFocusAndMeteringAsync(
                     aeRegions = if (maxAeRegionCount > 0)
                         aeRectangles.ifEmpty { METERING_REGIONS_DEFAULT.toList() }
                     else null,
@@ -176,37 +179,48 @@ class FocusMeteringControl @Inject constructor(
                         awbRectangles.ifEmpty { METERING_REGIONS_DEFAULT.toList() }
                     else null,
                     aeLockBehavior = if (maxAeRegionCount > 0)
-                        Lock3ABehavior.AFTER_NEW_SCAN
+                        Lock3ABehavior.IMMEDIATE
                     else null,
                     afLockBehavior = if (maxAfRegionCount > 0)
-                        Lock3ABehavior.AFTER_NEW_SCAN
+                        Lock3ABehavior.IMMEDIATE
                     else null,
                     awbLockBehavior = if (maxAwbRegionCount > 0)
-                        Lock3ABehavior.AFTER_NEW_SCAN
+                        Lock3ABehavior.IMMEDIATE
                     else null,
                     afTriggerStartAeMode = cameraProperties.getSupportedAeMode(AeMode.ON),
                     timeLimitNs = TimeUnit.NANOSECONDS.convert(
                         timeout,
                         TimeUnit.MILLISECONDS
                     )
-                ).await()
+                )
 
-                if (result3A.status == Result3A.Status.SUBMIT_FAILED) {
-                    signal.completeExceptionally(
-                        OperationCanceledException("Camera is not active.")
-                    )
-                } else if (result3A.status == Result3A.Status.TIME_LIMIT_REACHED) {
-                    if (isCancelEnabled) {
-                        if (signal.isActive) {
-                            cancelFocusAndMeteringNowAsync(useCaseCamera, signal)
-                        }
+                deferredResult3A.invokeOnCompletion { throwable ->
+                    if (throwable != null) {
+                        signal.completeExceptionally(throwable)
                     } else {
-                        signal.complete(FocusMeteringResult.create(false))
+                        val result3A = deferredResult3A.getCompleted()
+                        if (result3A.status == Result3A.Status.SUBMIT_FAILED) {
+                            signal.completeExceptionally(
+                                OperationCanceledException("Camera is not active.")
+                            )
+                        } else if (result3A.status == Result3A.Status.TIME_LIMIT_REACHED) {
+                            if (isCancelEnabled) {
+                                if (signal.isActive) {
+                                    runBlocking {
+                                        cancelFocusAndMeteringNowAsync(useCaseCamera, signal)
+                                    }
+                                }
+                            } else {
+                                signal.complete(FocusMeteringResult.create(false))
+                            }
+                        } else {
+                            signal.complete(
+                                result3A.toFocusMeteringResult(
+                                    shouldTriggerAf = afRectangles.isNotEmpty()
+                                )
+                            )
+                        }
                     }
-                } else {
-                    signal.complete(result3A.toFocusMeteringResult(
-                        shouldTriggerAf = afRectangles.isNotEmpty()
-                    ))
                 }
             }
         } ?: run {
