@@ -20,11 +20,14 @@ import android.Manifest
 import android.content.Context
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.extensions.ExtensionsManager
+import androidx.camera.extensions.internal.ExtensionVersion
+import androidx.camera.extensions.internal.Version
 import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil
 import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil.assumeExtensionModeSupported
 import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil.launchCameraExtensionsActivity
 import androidx.camera.integration.extensions.util.HOME_TIMEOUT_MS
 import androidx.camera.integration.extensions.util.takePictureAndWaitForImageSavedIdle
+import androidx.camera.integration.extensions.util.waitForPreviewViewIdle
 import androidx.camera.integration.extensions.utils.CameraIdExtensionModePair
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.impl.CameraUtil
@@ -35,6 +38,7 @@ import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
 import androidx.test.uiautomator.UiDevice
+import androidx.testutils.withActivity
 import java.util.concurrent.TimeUnit
 import org.junit.After
 import org.junit.Assume.assumeTrue
@@ -120,6 +124,39 @@ class ImageCaptureTest(private val config: CameraIdExtensionModePair) {
         with(activityScenario) {
             use {
                 takePictureAndWaitForImageSavedIdle()
+            }
+        }
+    }
+
+    /**
+     * The following 1.4 interface methods are validated by this test.
+     * <ol>
+     *   <li>ImageCaptureExtenderImpl#getRealtimeCaptureLatency()
+     *   <li>SessionProcessorImpl#getRealtimeCaptureLatency()
+     * </ol>
+     *
+     * According to the javadoc description, this method is guaranteed to be called after the
+     * camera capture session is initialized and camera preview is enabled for the
+     * ImageCaptureExtenderImpl implementation, or, after onCaptureSessionStart is called for the
+     * SessionProcessorImpl implementation. Using ActivityScenario to launch the extensions
+     * activity and waiting for its preview being ready can make sure that the calling timing can
+     * meet the javadoc description.
+     */
+    @Test
+    fun validateRealtimeCaptureLatencySupport_sinceVersion_1_4() {
+        assumeTrue(ExtensionVersion.getRuntimeVersion()!! >= Version.VERSION_1_4)
+        val activityScenario = launchCameraExtensionsActivity(config.cameraId, config.extensionMode)
+
+        with(activityScenario) {
+            use {
+                waitForPreviewViewIdle()
+                val camera = withActivity { mCamera }
+                // Retrieves the session processor from the camera's extended config
+                val sessionProcessor = camera.extendedConfig.sessionProcessor
+                // getRealtimeCaptureLatency is allowed to return null, therefore, we can only try
+                // to invoke this method to make sure that this method correctly exists in the
+                // vendor library implementation.
+                sessionProcessor.realtimeCaptureLatency
             }
         }
     }
