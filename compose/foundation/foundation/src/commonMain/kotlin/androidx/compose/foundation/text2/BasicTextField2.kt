@@ -81,6 +81,8 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.dp
 
 /**
  * Basic text composable that provides an interactive box that accepts text input through software
@@ -507,7 +509,7 @@ internal fun TextFieldCursorHandle(selectionState: TextFieldSelectionState) {
                 .pointerInput(selectionState) {
                     with(selectionState) { cursorHandleGestures() }
                 },
-            content = null
+            minTouchTargetSize = MinTouchTargetSizeForHandles,
         )
     }
 }
@@ -534,7 +536,8 @@ internal fun TextFieldSelectionHandles(
             handlesCrossed = startHandleState.handlesCrossed,
             modifier = Modifier.pointerInput(selectionState) {
                 with(selectionState) { selectionHandleGestures(true) }
-            }
+            },
+            minTouchTargetSize = MinTouchTargetSizeForHandles,
         )
     }
 
@@ -556,10 +559,22 @@ internal fun TextFieldSelectionHandles(
             handlesCrossed = endHandleState.handlesCrossed,
             modifier = Modifier.pointerInput(selectionState) {
                 with(selectionState) { selectionHandleGestures(false) }
-            }
+            },
+            minTouchTargetSize = MinTouchTargetSizeForHandles,
         )
     }
 }
 
 @OptIn(ExperimentalFoundationApi::class)
 private val DefaultTextFieldDecorator = TextFieldDecorator { it() }
+
+/**
+ * Defines a minimum touch target area size for Selection and Cursor handles.
+ *
+ * Although BasicTextField is not part of Material spec, this accessibility feature is important
+ * enough to be included at foundation layer, and also TextField cannot change selection handles
+ * provided by BasicTextField to somehow achieve this accessibility requirement.
+ *
+ * This value is adopted from Android platform's TextView implementation.
+ */
+private val MinTouchTargetSizeForHandles = DpSize(40.dp, 40.dp)

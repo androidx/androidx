@@ -16,7 +16,10 @@
 
 package androidx.compose.foundation.text.selection
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.requiredSizeIn
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.Handle.SelectionEnd
 import androidx.compose.foundation.text.Handle.SelectionStart
@@ -47,10 +50,12 @@ import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.ResolvedTextDirection
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.isSpecified
 import androidx.compose.ui.unit.round
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
@@ -63,29 +68,56 @@ internal actual fun SelectionHandle(
     isStartHandle: Boolean,
     direction: ResolvedTextDirection,
     handlesCrossed: Boolean,
+    minTouchTargetSize: DpSize,
     modifier: Modifier,
 ) {
     val isLeft = isLeft(isStartHandle, direction, handlesCrossed)
     // The left selection handle's top right is placed at the given position, and vice versa.
     val handleReferencePoint = if (isLeft) TopRight else TopLeft
 
+    val semanticsModifier = modifier.semantics {
+        val position = offsetProvider.provide()
+        this[SelectionHandleInfoKey] = SelectionHandleInfo(
+            handle = if (isStartHandle) SelectionStart else SelectionEnd,
+            position = position,
+            anchor = if (isLeft) Left else Right,
+            visible = position.isSpecified,
+        )
+    }
+
     // Propagate the view configuration to the popup.
     val viewConfiguration = LocalViewConfiguration.current
     HandlePopup(positionProvider = offsetProvider, handleReferencePoint = handleReferencePoint) {
         CompositionLocalProvider(LocalViewConfiguration provides viewConfiguration) {
-            SelectionHandleIcon(
-                modifier = modifier.semantics {
-                    val position = offsetProvider.provide()
-                    this[SelectionHandleInfoKey] = SelectionHandleInfo(
-                        handle = if (isStartHandle) SelectionStart else SelectionEnd,
-                        position = position,
-                        anchor = if (isLeft) Left else Right,
-                        visible = position.isSpecified,
+            if (minTouchTargetSize.isSpecified) {
+                // wrap the content in a Row and align it to an edge according to the specified
+                // direction.
+                val arrangement = if (isLeft) {
+                    Arrangement.Absolute.Right
+                } else {
+                    Arrangement.Absolute.Left
+                }
+
+                Row(
+                    horizontalArrangement = arrangement,
+                    modifier = semanticsModifier.requiredSizeIn(
+                        minWidth = minTouchTargetSize.width,
+                        minHeight = minTouchTargetSize.height
                     )
-                },
-                iconVisible = { offsetProvider.provide().isSpecified },
-                isLeft = isLeft,
-            )
+                ) {
+                    SelectionHandleIcon(
+                        modifier = Modifier,
+                        iconVisible = { offsetProvider.provide().isSpecified },
+                        isLeft = isLeft,
+                    )
+                }
+            } else {
+                SelectionHandleIcon(
+                    modifier = semanticsModifier,
+                    iconVisible = { offsetProvider.provide().isSpecified },
+                    isLeft = isLeft,
+                )
+            }
         }
     }
 }
