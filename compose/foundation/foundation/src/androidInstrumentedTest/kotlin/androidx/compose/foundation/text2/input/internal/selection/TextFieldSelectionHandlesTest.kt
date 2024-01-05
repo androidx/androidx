@@ -106,6 +106,37 @@ class TextFieldSelectionHandlesTest : FocusedWindowTest {
     }
 
     @Test
+    fun selectionHandles_haveMinimumTouchSizeArea() = with(rule.density) {
+        state = TextFieldState("hello, world", initialSelectionInChars = TextRange(2, 5))
+        rule.setContent {
+            BasicTextField2(
+                state,
+                textStyle = TextStyle(fontSize = fontSize, fontFamily = TEST_FONT_FAMILY),
+                modifier = Modifier
+                    .testTag(TAG)
+                    .width(100.dp)
+            )
+        }
+
+        focusAndWait()
+
+        var actualStartBottomRight = Offset.Zero
+        var actualEndBottomRight = Offset.Zero
+        rule.onNode(isSelectionHandle(Handle.SelectionStart)).performTouchInput {
+            actualStartBottomRight = bottomRight
+        }
+        rule.onNode(isSelectionHandle(Handle.SelectionEnd)).performTouchInput {
+            actualEndBottomRight = bottomRight
+        }
+
+        val expectedBottomRight = Offset(40.dp.toPx(), 40.dp.toPx())
+        assertThat(actualStartBottomRight.x).isWithin(1f).of(expectedBottomRight.x)
+        assertThat(actualStartBottomRight.y).isWithin(1f).of(expectedBottomRight.y)
+        assertThat(actualEndBottomRight.x).isWithin(1f).of(expectedBottomRight.x)
+        assertThat(actualEndBottomRight.y).isWithin(1f).of(expectedBottomRight.y)
+    }
+
+    @Test
     fun selectionHandles_appears_whenFieldGetsFocused() {
         state = TextFieldState("hello, world", initialSelectionInChars = TextRange(2, 5))
         rule.setTextFieldTestContent {

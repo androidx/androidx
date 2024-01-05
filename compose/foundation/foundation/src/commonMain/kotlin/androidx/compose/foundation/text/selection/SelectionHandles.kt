@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.semantics.SemanticsPropertyKey
 import androidx.compose.ui.text.style.ResolvedTextDirection
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 
 internal val HandleWidth = 25.dp
@@ -70,6 +71,7 @@ internal expect fun SelectionHandle(
     isStartHandle: Boolean,
     direction: ResolvedTextDirection,
     handlesCrossed: Boolean,
+    minTouchTargetSize: DpSize = DpSize.Unspecified,
     modifier: Modifier,
 )
 
