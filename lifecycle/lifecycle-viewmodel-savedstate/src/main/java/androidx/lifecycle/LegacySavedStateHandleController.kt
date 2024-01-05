@@ -44,7 +44,7 @@ internal object LegacySavedStateHandleController {
         registry: SavedStateRegistry,
         lifecycle: Lifecycle
     ) {
-        val controller = viewModel.getTag<SavedStateHandleController>(
+        val controller = viewModel.getCloseable<SavedStateHandleController>(
             TAG_SAVED_STATE_HANDLE_CONTROLLER
         )
         if (controller != null && !controller.isAttached) {
