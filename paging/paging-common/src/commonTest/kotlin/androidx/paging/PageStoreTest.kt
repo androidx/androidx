@@ -440,10 +440,4 @@ class PageStoreTest {
 
         assertEquals(listOf(null, 'a', null, null, null), pageStore.snapshot())
     }
-
-    companion object {
-        val IDLE_EVENTS = listOf<PresenterEvent>(
-            CombinedStateEvent(LoadStates.IDLE, null)
-        )
-    }
 }
