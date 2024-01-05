@@ -29,7 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
+import androidx.wear.compose.integration.demos.common.ScalingLazyColumnWithRSB
 import androidx.wear.compose.material3.ListHeader
 import androidx.wear.compose.material3.SplitRadioButton
 import androidx.wear.compose.material3.Text
@@ -37,7 +37,7 @@ import androidx.wear.compose.material3.Text
 @Composable
 fun SplitRadioButtonDemo() {
     var selectedRadioIndex by remember { mutableIntStateOf(0) }
-    ScalingLazyColumn(
+    ScalingLazyColumnWithRSB(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
