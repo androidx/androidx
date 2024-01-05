@@ -70,4 +70,22 @@ public class SearchResultInternalTest {
                 .build();
         assertThat(searchResult.getJoinedResults()).isEmpty();
     }
+
+    @Test
+    public void testMatchInfoBuilderCopyConstructor() {
+        SearchResult.MatchRange exactMatchRange = new SearchResult.MatchRange(3, 8);
+        SearchResult.MatchRange submatchRange = new SearchResult.MatchRange(3, 5);
+        SearchResult.MatchRange snippetMatchRange = new SearchResult.MatchRange(1, 10);
+        SearchResult.MatchInfo matchInfo =
+                new SearchResult.MatchInfo.Builder("propertyPath1")
+                        .setExactMatchRange(exactMatchRange)
+                        .setSubmatchRange(submatchRange)
+                        .setSnippetRange(snippetMatchRange).build();
+        SearchResult.MatchInfo matchInfoCopy =
+                new SearchResult.MatchInfo.Builder(matchInfo).build();
+        assertThat(matchInfoCopy.getPropertyPath()).isEqualTo("propertyPath1");
+        assertThat(matchInfoCopy.getExactMatchRange()).isEqualTo(exactMatchRange);
+        assertThat(matchInfoCopy.getSubmatchRange()).isEqualTo(submatchRange);
+        assertThat(matchInfoCopy.getSnippetRange()).isEqualTo(snippetMatchRange);
+    }
 }

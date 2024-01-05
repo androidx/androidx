@@ -20,6 +20,9 @@ import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.GetSchemaResponse;
 import androidx.appsearch.app.InternalSetSchemaResponse;
 import androidx.appsearch.app.JoinSpec;
+import androidx.appsearch.app.SearchResult;
+import androidx.appsearch.app.SearchResult.MatchInfo;
+import androidx.appsearch.app.SearchResultPage;
 import androidx.appsearch.app.SearchSpec;
 import androidx.appsearch.app.SearchSuggestionResult;
 import androidx.appsearch.app.SearchSuggestionSpec;
@@ -142,5 +145,17 @@ public class StubCreators {
     /** Stub creator for {@link androidx.appsearch.app.AppSearchSchema}. */
     public static class AppSearchSchemaCreator extends
             AbstractCreator<AppSearchSchema> {
+    }
+
+    /** Stub creator for {@link androidx.appsearch.app.SearchResult}. */
+    public static class SearchResultCreator extends AbstractCreator<SearchResult> {
+    }
+
+    /** Stub creator for {@link androidx.appsearch.app.MatchInfo}. */
+    public static class MatchInfoCreator extends AbstractCreator<MatchInfo> {
+    }
+
+    /** Stub creator for {@link androidx.appsearch.app.SearchResultPage}. */
+    public static class SearchResultPageCreator extends AbstractCreator<SearchResultPage> {
     }
 }
