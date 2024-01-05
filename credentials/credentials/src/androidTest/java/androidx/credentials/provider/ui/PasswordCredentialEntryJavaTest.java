@@ -28,6 +28,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Icon;
 import android.os.Bundle;
+import android.service.credentials.CredentialEntry;
 
 import androidx.credentials.PasswordCredential;
 import androidx.credentials.R;
@@ -176,6 +177,19 @@ public class PasswordCredentialEntryJavaTest {
 
         PasswordCredentialEntry entry = PasswordCredentialEntry.fromSlice(
                 PasswordCredentialEntry.toSlice(originalEntry));
+
+        assertNotNull(entry);
+        assertEntryWithAllParams(entry);
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 34)
+    public void fromCredentialEntry_allParams_success() {
+        PasswordCredentialEntry originalEntry = constructEntryWithAllParams();
+
+        PasswordCredentialEntry entry = PasswordCredentialEntry.fromCredentialEntry(
+                new CredentialEntry("id",
+                        PasswordCredentialEntry.toSlice(originalEntry)));
 
         assertNotNull(entry);
         assertEntryWithAllParams(entry);

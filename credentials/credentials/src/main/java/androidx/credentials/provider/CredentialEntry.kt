@@ -17,6 +17,7 @@
 package androidx.credentials.provider
 
 import android.app.slice.Slice
+import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.credentials.PasswordCredential.Companion.TYPE_PASSWORD_CREDENTIAL
@@ -31,10 +32,41 @@ abstract class CredentialEntry internal constructor(
     open val type: String,
     val beginGetCredentialOption: BeginGetCredentialOption
 ) {
-    internal companion object {
+
+    @RequiresApi(34)
+    private object Api34Impl {
+        @JvmStatic
+        fun fromCredentialEntry(credentialEntry: android.service.credentials.CredentialEntry):
+            CredentialEntry? {
+            val slice = credentialEntry.slice
+            return fromSlice(slice)
+        }
+    }
+    companion object {
+
+        /**
+         * Converts a framework [android.service.credentials.CredentialEntry] class to a Jetpack
+         * [CredentialEntry] class
+         *
+         * Note that this API is not needed in a general credential retrieval flow that is
+         * implemented using this jetpack library, where you are only required to construct
+         * an instance of [CredentialEntry] to populate the [BeginGetCredentialResponse].
+         *
+         * @param credentialEntry the instance of framework class to be converted
+         */
+        @JvmStatic
+        fun fromCredentialEntry(credentialEntry: android.service.credentials.CredentialEntry):
+            CredentialEntry? {
+            if (Build.VERSION.SDK_INT >= 34) {
+                return Api34Impl.fromCredentialEntry(credentialEntry)
+            }
+            return null
+        }
+
         @JvmStatic
         @RequiresApi(28)
-        internal fun createFrom(slice: Slice): CredentialEntry? {
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        internal fun fromSlice(slice: Slice): CredentialEntry? {
             return try {
                 when (slice.spec?.type) {
                     TYPE_PASSWORD_CREDENTIAL -> PasswordCredentialEntry.fromSlice(slice)!!

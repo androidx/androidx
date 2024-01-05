@@ -21,6 +21,7 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.drawable.Icon
 import android.os.Bundle
+import android.service.credentials.CredentialEntry
 import androidx.credentials.PasswordCredential
 import androidx.credentials.R
 import androidx.credentials.equals
@@ -115,15 +116,33 @@ class PasswordCredentialEntryTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 28)
+    @SdkSuppress(minSdkVersion = 34)
     fun fromSlice_success() {
         val originalEntry = constructEntryWithAllParams()
+        val slice = PasswordCredentialEntry.toSlice(originalEntry)
+        assertNotNull(slice)
 
+        val entry = fromSlice(slice!!)
+
+        assertNotNull(entry)
+        entry?.let {
+            assertEntryWithAllParams(entry)
+        }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 34)
+    fun fromCredentialEntry_success() {
+        val originalEntry = constructEntryWithAllParams()
         val slice = PasswordCredentialEntry.toSlice(originalEntry)
 
         assertNotNull(slice)
 
-        val entry = fromSlice(slice!!)
+        val entry = slice?.let { CredentialEntry("id", it) }?.let {
+            PasswordCredentialEntry.fromCredentialEntry(
+                it
+            )
+        }
 
         assertNotNull(entry)
         entry?.let {

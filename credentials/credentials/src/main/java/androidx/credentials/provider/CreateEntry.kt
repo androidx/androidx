@@ -262,6 +262,15 @@ class CreateEntry internal constructor(
         }
     }
 
+    @RequiresApi(34)
+    private object Api34Impl {
+        @JvmStatic
+        fun fromCreateEntry(createEntry: android.service.credentials.CreateEntry): CreateEntry? {
+            val slice = createEntry.slice
+            return fromSlice(slice)
+        }
+    }
+
     @RequiresApi(28)
     private object Api28Impl {
 
@@ -414,7 +423,7 @@ class CreateEntry internal constructor(
         }
     }
 
-    internal companion object {
+    companion object {
         private const val TAG = "CreateEntry"
         private const val DESCRIPTION_MAX_CHAR_LIMIT = 300
 
@@ -456,8 +465,8 @@ class CreateEntry internal constructor(
          * impl, hence returning null for other levels as the
          * visibility is only restricted to the library.
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
         @JvmStatic
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
         fun toSlice(
             createEntry: CreateEntry
         ): Slice? {
@@ -472,13 +481,32 @@ class CreateEntry internal constructor(
          *
          * @param slice the [Slice] object constructed through [toSlice]
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
         @JvmStatic
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
         fun fromSlice(
             slice: Slice
         ): CreateEntry? {
             if (Build.VERSION.SDK_INT >= 28) {
                 return Api28Impl.fromSlice(slice)
+            }
+            return null
+        }
+
+        /**
+         * Converts a framework [android.service.credentials.CreateEntry] class to a Jetpack
+         * [CreateEntry] class
+         *
+         * Note that this API is not needed in a general credential creation
+         * flow that is implemented using this jetpack library, where you are
+         * only required to construct an instance of [CreateEntry]
+         * to populate the [BeginCreateCredentialResponse].
+         *
+         * @param createEntry the instance of framework class to be converted
+         */
+        @JvmStatic
+        fun fromCreateEntry(createEntry: android.service.credentials.CreateEntry): CreateEntry? {
+            if (Build.VERSION.SDK_INT >= 34) {
+                return Api34Impl.fromCreateEntry(createEntry)
             }
             return null
         }
