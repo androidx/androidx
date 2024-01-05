@@ -28,7 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.LayoutDirection
-import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
+import androidx.wear.compose.integration.demos.common.ScalingLazyColumnWithRSB
 import androidx.wear.compose.material3.Checkbox
 import androidx.wear.compose.material3.ListHeader
 import androidx.wear.compose.material3.Switch
@@ -37,7 +37,7 @@ import androidx.wear.compose.material3.ToggleButton
 
 @Composable
 fun CheckboxDemos() {
-    ScalingLazyColumn(
+    ScalingLazyColumnWithRSB(
         modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         item {
@@ -63,7 +63,7 @@ fun CheckboxDemos() {
 
 @Composable
 fun SwitchDemos() {
-    ScalingLazyColumn(
+    ScalingLazyColumnWithRSB(
         modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         item {

@@ -22,8 +22,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
-import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
+import androidx.wear.compose.integration.demos.common.ScalingLazyColumnWithRSB
 import androidx.wear.compose.material3.Button
 import androidx.wear.compose.material3.ButtonDefaults
 import androidx.wear.compose.material3.Icon
@@ -34,7 +34,7 @@ import androidx.wear.compose.material3.Text
 fun SettingsDemo() {
     // TODO: Add Scaffold and TimeText when available
     val scalingLazyListState = rememberScalingLazyListState()
-    ScalingLazyColumn(
+    ScalingLazyColumnWithRSB(
         state = scalingLazyListState,
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
