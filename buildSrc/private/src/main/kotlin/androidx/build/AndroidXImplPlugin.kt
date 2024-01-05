@@ -38,10 +38,13 @@ import androidx.build.testConfiguration.configureTestConfigGeneration
 import androidx.build.uptodatedness.TaskUpToDateValidator
 import com.android.build.api.artifact.SingleArtifact
 import com.android.build.api.dsl.KotlinMultiplatformAndroidTarget
+import com.android.build.api.dsl.KotlinMultiplatformAndroidTestOnDeviceCompilation
+import com.android.build.api.dsl.KotlinMultiplatformAndroidTestOnJvmCompilation
 import com.android.build.api.variant.AndroidComponentsExtension
 import com.android.build.api.variant.ApplicationAndroidComponentsExtension
 import com.android.build.api.variant.HasAndroidTest
 import com.android.build.api.variant.HasUnitTestBuilder
+import com.android.build.api.variant.KotlinMultiplatformAndroidComponentsExtension
 import com.android.build.api.variant.LibraryAndroidComponentsExtension
 import com.android.build.api.variant.Variant
 import com.android.build.gradle.AppExtension
@@ -53,6 +56,7 @@ import com.android.build.gradle.TestExtension
 import com.android.build.gradle.TestPlugin
 import com.android.build.gradle.TestedExtension
 import com.android.build.gradle.api.KotlinMultiplatformAndroidPlugin
+import com.android.build.gradle.tasks.factory.AndroidUnitTest
 import java.io.File
 import java.time.Duration
 import java.util.Locale
@@ -549,9 +553,17 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
 
     private fun configureWithKotlinMultiplatformAndroidPlugin(
         project: Project,
-        @Suppress("UNUSED_PARAMETER") multiplatformAndroidTarget: KotlinMultiplatformAndroidTarget,
+        kotlinMultiplatformAndroidTarget: KotlinMultiplatformAndroidTarget,
         androidXExtension: AndroidXExtension
     ) {
+        val kotlinMultiplatformAndroidComponentsExtension = project
+            .extensions
+            .getByType<KotlinMultiplatformAndroidComponentsExtension>()
+        kotlinMultiplatformAndroidTarget.configureAndroidBaseOptions(
+            project,
+            kotlinMultiplatformAndroidComponentsExtension
+        )
+
         project.configureProjectForApiTasks(
             AndroidMultiplatformApiTaskConfig,
             androidXExtension
@@ -841,15 +853,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
         testOptions.animationsDisabled = true
         testOptions.unitTests.isReturnDefaultValues = true
         testOptions.unitTests.all { task ->
-            // https://github.com/robolectric/robolectric/issues/7456
-            task.jvmArgs =
-                listOf(
-                    "--add-opens=java.base/java.lang=ALL-UNNAMED",
-                    "--add-opens=java.base/java.util=ALL-UNNAMED",
-                    "--add-opens=java.base/java.io=ALL-UNNAMED",
-                )
-            // Robolectric 1.7 increased heap size requirements, see b/207169653.
-            task.maxHeapSize = "3g"
+            task.configureForRobolectric()
         }
 
         // Include resources in Robolectric tests as a workaround for b/184641296
@@ -865,28 +869,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
             ) {
                 "compileSdkVersion must not be explicitly specified, was \"$compileSdkVersion\""
             }
-            project.configurations.all { configuration ->
-                configuration.resolutionStrategy.eachDependency { dep ->
-                    val target = dep.target
-                    val version = target.version
-                    // Enforce the ban on declaring dependencies with version ranges.
-                    // Note: In playground, this ban is exempted to allow unresolvable prebuilts
-                    // to automatically get bumped to snapshot versions via version range
-                    // substitution.
-                    if (
-                        version != null &&
-                            Version.isDependencyRange(version) &&
-                            project.rootProject.rootDir == project.getSupportRootFolder()
-                    ) {
-                        throw IllegalArgumentException(
-                            "Dependency ${dep.target} declares its version as " +
-                                "version range ${dep.target.version} however the use of " +
-                                "version ranges is not allowed, please update the " +
-                                "dependency to list a fixed version."
-                        )
-                    }
-                }
-            }
+           project.enforceBanOnVersionRanges()
 
             if (androidXExtension.type.compilationTarget != CompilationTarget.DEVICE) {
                 throw IllegalStateException(
@@ -916,7 +899,9 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
         }
 
         project.configureTestConfigGeneration(this)
-        project.configureFtlRunner()
+        project.configureFtlRunner(
+            project.extensions.getByType(AndroidComponentsExtension::class.java)
+        )
 
         // AGP warns if we use project.buildDir (or subdirs) for CMake's generated
         // build files (ninja build files, CMakeCache.txt, etc.). Use a staging directory that
@@ -924,6 +909,58 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
         @Suppress("DEPRECATION")
         externalNativeBuild.cmake.buildStagingDirectory =
             File(project.buildDir, "../nativeBuildStaging")
+    }
+
+    private fun KotlinMultiplatformAndroidTarget.configureAndroidBaseOptions(
+        project: Project,
+        componentsExtension: KotlinMultiplatformAndroidComponentsExtension
+    ) {
+        val defaultMinSdkVersion = project.defaultAndroidConfig.minSdk
+        val defaultCompileSdkVersion = project.defaultAndroidConfig.compileSdkInt()
+
+        compileSdk = defaultCompileSdkVersion
+        buildToolsVersion = project.defaultAndroidConfig.buildToolsVersion
+
+        minSdk = defaultMinSdkVersion
+
+        lint.targetSdk = project.defaultAndroidConfig.targetSdk
+        compilations.withType(
+            KotlinMultiplatformAndroidTestOnDeviceCompilation::class.java
+        ).configureEach {
+            it.instrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+            it.animationsDisabled = true
+        }
+        compilations.withType(
+            KotlinMultiplatformAndroidTestOnJvmCompilation::class.java
+        ).configureEach {
+            it.isReturnDefaultValues = true
+            // Include resources in Robolectric tests as a workaround for b/184641296
+            it.isIncludeAndroidResources = true
+        }
+
+        project.tasks.withType(AndroidUnitTest::class.java).configureEach { task ->
+            task.configureForRobolectric()
+        }
+
+        // validate that SDK versions haven't been altered during evaluation
+        project.afterEvaluate {
+            val minSdkVersion = minSdk!!
+            check(minSdkVersion >= defaultMinSdkVersion) {
+                "minSdkVersion $minSdkVersion lower than the default of $defaultMinSdkVersion"
+            }
+            check(
+                compileSdk == defaultCompileSdkVersion || project.isCustomCompileSdkAllowed()
+            ) {
+                "compileSdkVersion must not be explicitly specified, was \"$compileSdk\""
+            }
+            project.enforceBanOnVersionRanges()
+        }
+
+        project.configureTestConfigGeneration(
+            this,
+            componentsExtension
+        )
+        project.configureFtlRunner(componentsExtension)
     }
 
     @Suppress("UnstableApiUsage") // finalizeDsl, minCompileSdkExtension
@@ -1438,6 +1475,45 @@ fun AndroidXExtension.validateMavenVersion() {
             """
                 .trimIndent()
         )
+    }
+}
+
+private fun AndroidConfig.compileSdkInt() = compileSdk.removePrefix("android-").toInt()
+
+private fun Test.configureForRobolectric() {
+    // https://github.com/robolectric/robolectric/issues/7456
+    jvmArgs =
+        listOf(
+            "--add-opens=java.base/java.lang=ALL-UNNAMED",
+            "--add-opens=java.base/java.util=ALL-UNNAMED",
+            "--add-opens=java.base/java.io=ALL-UNNAMED",
+        )
+    // Robolectric 1.7 increased heap size requirements, see b/207169653.
+    maxHeapSize = "3g"
+}
+
+private fun Project.enforceBanOnVersionRanges() {
+    configurations.all { configuration ->
+        configuration.resolutionStrategy.eachDependency { dep ->
+            val target = dep.target
+            val version = target.version
+            // Enforce the ban on declaring dependencies with version ranges.
+            // Note: In playground, this ban is exempted to allow unresolvable prebuilts
+            // to automatically get bumped to snapshot versions via version range
+            // substitution.
+            if (
+                version != null &&
+                Version.isDependencyRange(version) &&
+                project.rootProject.rootDir == project.getSupportRootFolder()
+            ) {
+                throw IllegalArgumentException(
+                    "Dependency ${dep.target} declares its version as " +
+                        "version range ${dep.target.version} however the use of " +
+                        "version ranges is not allowed, please update the " +
+                        "dependency to list a fixed version."
+                )
+            }
+        }
     }
 }
 
