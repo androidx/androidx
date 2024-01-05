@@ -21,12 +21,9 @@ import androidx.benchmark.macro.CompilationMode
 import androidx.benchmark.macro.FrameTimingMetric
 import androidx.benchmark.macro.junit4.MacrobenchmarkRule
 import androidx.test.filters.LargeTest
-import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.Direction
-import androidx.test.uiautomator.UiDevice
 import androidx.testutils.createCompilationParams
-import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -39,12 +36,6 @@ class SwipeBenchmark(
 ) {
     @get:Rule
     val benchmarkRule = MacrobenchmarkRule()
-
-    @Before
-    fun setUp() {
-        val instrumentation = InstrumentationRegistry.getInstrumentation()
-        device = UiDevice.getInstance(instrumentation)
-    }
 
     @Test
     fun start() {
@@ -79,6 +70,5 @@ class SwipeBenchmark(
         fun parameters() = createCompilationParams()
     }
 
-    private lateinit var device: UiDevice
     private val SWIPE_SPEED = 500
 }
