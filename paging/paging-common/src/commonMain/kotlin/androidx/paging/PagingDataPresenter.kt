@@ -477,7 +477,7 @@ public abstract class PagingDataPresenter<T : Any>(
         )
         log(DEBUG) {
             appendMediatorStatesIfNotNull(mediatorLoadStates) {
-                """Presenting data:
+                """Presenting data (
                             |   first item: ${pages.firstOrNull()?.data?.firstOrNull()}
                             |   last item: ${pages.lastOrNull()?.data?.lastOrNull()}
                             |   placeholdersBefore: $placeholdersBefore

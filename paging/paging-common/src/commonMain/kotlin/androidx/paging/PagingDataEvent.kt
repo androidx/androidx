@@ -37,7 +37,30 @@ public sealed class PagingDataEvent<T : Any> {
         val inserted: List<T>,
         val newPlaceholdersBefore: Int,
         val oldPlaceholdersBefore: Int,
-    ) : PagingDataEvent<T>()
+    ) : PagingDataEvent<T>() {
+
+        override fun equals(other: Any?): Boolean {
+            return other is Prepend<*> &&
+                inserted == other.inserted &&
+                newPlaceholdersBefore == other.newPlaceholdersBefore &&
+                oldPlaceholdersBefore == other.oldPlaceholdersBefore
+        }
+
+        override fun hashCode(): Int {
+            return inserted.hashCode() + newPlaceholdersBefore.hashCode() +
+                oldPlaceholdersBefore.hashCode()
+        }
+
+        override fun toString(): String {
+            return """PagingDataEvent.Prepend loaded ${inserted.size} items (
+                    |   first item: ${inserted.firstOrNull()}
+                    |   last item: ${inserted.lastOrNull()}
+                    |   newPlaceholdersBefore: $newPlaceholdersBefore
+                    |   oldPlaceholdersBefore: $oldPlaceholdersBefore
+                    |)
+                    |""".trimMargin()
+        }
+    }
 
     /**
      * An append load event
@@ -56,7 +79,31 @@ public sealed class PagingDataEvent<T : Any> {
         val inserted: List<T>,
         val newPlaceholdersAfter: Int,
         val oldPlaceholdersAfter: Int,
-    ) : PagingDataEvent<T>()
+    ) : PagingDataEvent<T>() {
+        override fun equals(other: Any?): Boolean {
+            return other is Append<*> &&
+                startIndex == other.startIndex &&
+                inserted == other.inserted &&
+                newPlaceholdersAfter == other.newPlaceholdersAfter &&
+                oldPlaceholdersAfter == other.oldPlaceholdersAfter
+        }
+
+        override fun hashCode(): Int {
+            return startIndex.hashCode() + inserted.hashCode() + newPlaceholdersAfter.hashCode() +
+                oldPlaceholdersAfter.hashCode()
+        }
+
+        override fun toString(): String {
+            return """PagingDataEvent.Append loaded ${inserted.size} items (
+                    |   startIndex: $startIndex
+                    |   first item: ${inserted.firstOrNull()}
+                    |   last item: ${inserted.lastOrNull()}
+                    |   newPlaceholdersBefore: $newPlaceholdersAfter
+                    |   oldPlaceholdersBefore: $oldPlaceholdersAfter
+                    |)
+                    |""".trimMargin()
+        }
+    }
 
     /**
      * A refresh load event
@@ -69,7 +116,34 @@ public sealed class PagingDataEvent<T : Any> {
     public class Refresh<T : Any> @RestrictTo(LIBRARY_GROUP) constructor(
         val newList: NullPaddedList<T>,
         val previousList: NullPaddedList<T>,
-    ) : PagingDataEvent<T>()
+    ) : PagingDataEvent<T>() {
+        override fun equals(other: Any?): Boolean {
+            return other is Refresh<*> &&
+                newList == other.newList &&
+                previousList == other.previousList
+        }
+
+        override fun hashCode(): Int {
+            return newList.hashCode() + previousList.hashCode()
+        }
+
+        override fun toString(): String {
+            return """PagingDataEvent.Refresh loaded newList
+                    |   newList (
+                    |       placeholdersBefore: ${newList.placeholdersBefore}
+                    |       placeholdersAfter: ${newList.placeholdersAfter}
+                    |       size: ${newList.size}
+                    |       dataCount: ${newList.dataCount}
+                    |   )
+                    |   previousList (
+                    |       placeholdersBefore: ${previousList.placeholdersBefore}
+                    |       placeholdersAfter: ${previousList.placeholdersAfter}
+                    |       size: ${previousList.size}
+                    |       dataCount: ${previousList.dataCount}
+                    |   )
+                    |""".trimMargin()
+        }
+    }
 
     /**
      * A drop event from the front of the list
@@ -84,7 +158,29 @@ public sealed class PagingDataEvent<T : Any> {
         val dropCount: Int,
         val newPlaceholdersBefore: Int,
         val oldPlaceholdersBefore: Int,
-    ) : PagingDataEvent<T>()
+    ) : PagingDataEvent<T>() {
+
+        override fun equals(other: Any?): Boolean {
+            return other is DropPrepend<*> &&
+                dropCount == other.dropCount &&
+                newPlaceholdersBefore == other.newPlaceholdersBefore &&
+                oldPlaceholdersBefore == other.oldPlaceholdersBefore
+        }
+
+        override fun hashCode(): Int {
+            return dropCount.hashCode() + newPlaceholdersBefore.hashCode() +
+                oldPlaceholdersBefore.hashCode()
+        }
+
+        override fun toString(): String {
+            return """PagingDataEvent.DropPrepend dropped $dropCount items (
+                    |   dropCount: $dropCount
+                    |   newPlaceholdersBefore: $newPlaceholdersBefore
+                    |   oldPlaceholdersBefore: $oldPlaceholdersBefore
+                    |)
+                    |""".trimMargin()
+        }
+    }
 
     /**
      * A drop event from the end of the list
@@ -103,5 +199,29 @@ public sealed class PagingDataEvent<T : Any> {
         val dropCount: Int,
         val newPlaceholdersAfter: Int,
         val oldPlaceholdersAfter: Int,
-    ) : PagingDataEvent<T>()
+    ) : PagingDataEvent<T>() {
+
+        override fun equals(other: Any?): Boolean {
+            return other is DropAppend<*> &&
+                startIndex == other.startIndex &&
+                dropCount == other.dropCount &&
+                newPlaceholdersAfter == other.newPlaceholdersAfter &&
+                oldPlaceholdersAfter == other.oldPlaceholdersAfter
+        }
+
+        override fun hashCode(): Int {
+            return startIndex.hashCode() + dropCount.hashCode() + newPlaceholdersAfter.hashCode() +
+                oldPlaceholdersAfter.hashCode()
+        }
+
+        override fun toString(): String {
+            return """PagingDataEvent.DropAppend dropped $dropCount items (
+                    |   startIndex: $startIndex
+                    |   dropCount: $dropCount
+                    |   newPlaceholdersBefore: $newPlaceholdersAfter
+                    |   oldPlaceholdersBefore: $oldPlaceholdersAfter
+                    |)
+                    |""".trimMargin()
+        }
+    }
 }
