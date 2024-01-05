@@ -49,6 +49,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
+import androidx.wear.compose.integration.demos.common.ScalingLazyColumnWithRSB
 import androidx.wear.compose.material.Chip
 import androidx.wear.compose.material.ChipColors
 import androidx.wear.compose.material.ChipDefaults
