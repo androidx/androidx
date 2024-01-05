@@ -63,13 +63,21 @@ def prepareSqliteSourcesTask = tasks.register("prepareSqliteSources", PrepareSql
 }
 
 configurations {
-    // Configuration for producing an shareable archive file of compiled SQLite. Only the Linux X64
+    // Configuration for producing a shareable archive file of compiled SQLite. Only the Linux X64
     // target of SQLite is produced hence the explicit name and attributes
     linuxSharedArchive {
         canBeConsumed = true
         canBeResolved = false
         attributes {
             attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage, Usage.NATIVE_LINK))
+        }
+    }
+    // Configuration for producing a shareable directory that includes SQLite amalgamation sources.
+    sqliteSources {
+        canBeConsumed = true
+        canBeResolved = false
+        attributes {
+            attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage, "sqlite-amalgamation"))
         }
     }
 }
@@ -121,6 +129,10 @@ androidXMultiplatform {
             sqliteCompilation.sharedArchiveOutputFor(KonanTarget.LINUX_X64.INSTANCE)
         )
     }
+    artifacts.add(
+        "sqliteSources",
+        prepareSqliteSourcesTask.map { it.destinationDirectory }
+    )
 
     // Defince C++ compilation of JNI
     def jvmArtJniImplementation = createNativeCompilation("jvmArtJniImplementation") {
