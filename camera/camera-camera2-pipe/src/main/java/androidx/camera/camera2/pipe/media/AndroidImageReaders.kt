@@ -29,6 +29,7 @@ import androidx.camera.camera2.pipe.StreamFormat
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.compat.Api28Compat
 import androidx.camera.camera2.pipe.compat.Api29Compat
+import androidx.camera.camera2.pipe.compat.Api33Compat
 import androidx.camera.camera2.pipe.core.Log
 import java.util.concurrent.Executor
 import kotlin.reflect.KClass
@@ -89,8 +90,9 @@ class AndroidImageReader private constructor(
     }
 
     override fun toString(): String {
-        return "ImageReader-${StreamFormat(imageReader.imageFormat).name}-" +
-            "w${imageReader.width}h${imageReader.height}"
+        return "ImageReader@${super.hashCode().toString(16)}" +
+            "-${StreamFormat(imageReader.imageFormat).name}" +
+            "-w${imageReader.width}h${imageReader.height}"
     }
 
     companion object {
@@ -117,6 +119,8 @@ class AndroidImageReader private constructor(
             format: Int,
             capacity: Int,
             usageFlags: Long?,
+            defaultDataSpace: Int?,
+            defaultHardwareBufferFormat: Int?,
             streamId: StreamId,
             outputId: OutputId,
             handler: Handler
@@ -130,20 +134,55 @@ class AndroidImageReader private constructor(
                     "are different depending on which device the ImageReader is created on."
             }
 
-            // Create and configure a new ImageReader for this ImageSource
+            // Warnings for unsupported features:
+            if (usageFlags != null && Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+                Log.warn {
+                    "Ignoring ImageReader usage ($usageFlags) " +
+                        "for $outputId. Android ${Build.VERSION.SDK_INT} does not " +
+                        "support creating ImageReaders with usage flags. " +
+                        "This may lead to unexpected behaviors."
+                }
+            }
+            if (defaultDataSpace != null && Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+                Log.warn {
+                    "Ignoring defaultDataSpace ($defaultDataSpace) " +
+                        "for $outputId. Android ${Build.VERSION.SDK_INT} does not " +
+                        "support creating ImageReaders with defaultDataSpace. " +
+                        "This may lead to unexpected behaviors."
+                }
+            }
+            if (defaultHardwareBufferFormat != null &&
+                Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU
+            ) {
+                Log.warn {
+                    "Ignoring defaultHardwareBufferFormat ($defaultHardwareBufferFormat) " +
+                        "for $outputId. Android ${Build.VERSION.SDK_INT} does not " +
+                        "support creating ImageReaders with defaultHardwareBufferFormat. " +
+                        "This may lead to unexpected behaviors."
+                }
+            }
+
+            // Create and configure a new ImageReader based on the current Android SDK
             val imageReader =
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && usageFlags != null) {
-                    Api29Compat.imageReaderNewInstance(
-                        width, height, format, capacity, usageFlags
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    Api33Compat.newImageReaderFromImageReaderBuilder(
+                        width = width,
+                        height = height,
+                        imageFormat = format,
+                        maxImages = capacity,
+                        usage = usageFlags,
+                        defaultDataSpace = defaultDataSpace,
+                        defaultHardwareBufferFormat = defaultHardwareBufferFormat
                     )
-                } else {
+                } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                     if (usageFlags != null) {
-                        Log.warn {
-                            "Ignoring usageFlags ($usageFlags) for $outputId. Android " +
-                                "${Build.VERSION.SDK_INT} does not support creating ImageReaders " +
-                                "with usageFlags. This may lead to unexpected behaviors."
-                        }
+                        Api29Compat.imageReaderNewInstance(
+                            width, height, format, capacity, usageFlags
+                        )
+                    } else {
+                        ImageReader.newInstance(width, height, format, capacity)
                     }
+                } else {
                     ImageReader.newInstance(width, height, format, capacity)
                 }
 
@@ -223,7 +262,12 @@ class AndroidMultiResolutionImageReader(
     }
 
     override fun toString(): String {
-        return "MultiResolutionImageReader-${streamFormat.name}"
+        val sizeString = outputIdMap.keys.joinToString(prefix = "[", postfix = "]") {
+            "${it.physicalCameraId}:w${it.width}h${it.height}"
+        }
+        return "MultiResolutionImageReader@${super.hashCode().toString(16)}" +
+            "-${streamFormat.name}" +
+            "-$sizeString"
     }
 
     companion object {
