@@ -84,6 +84,8 @@ interface ImageSource : UnsafeWrapper, AutoCloseable {
             cameraStream: CameraStream,
             capacity: Int,
             usageFlags: Long?,
+            defaultDataSpace: Int?,
+            defaultHardwareBufferFormat: Int?,
             handlerProvider: () -> Handler,
             executorProvider: () -> Executor
         ): ImageSource {
@@ -111,6 +113,8 @@ interface ImageSource : UnsafeWrapper, AutoCloseable {
                     output.format.value,
                     imageReaderCapacity,
                     usageFlags,
+                    defaultDataSpace,
+                    defaultHardwareBufferFormat,
                     cameraStream.id,
                     output.id,
                     handler
@@ -121,8 +125,23 @@ interface ImageSource : UnsafeWrapper, AutoCloseable {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 if (usageFlags != null) {
                     Log.warn {
-                        "Ignoring usageFlags ($usageFlags) for $cameraStream. " +
-                            "MultiResolutionImageReader does not support usage flags."
+                        "Ignoring usageFlags ($usageFlags) " +
+                            "for $cameraStream. MultiResolutionImageReader does not support " +
+                            "setting usage flags."
+                    }
+                }
+                if (defaultDataSpace != null) {
+                    Log.warn {
+                        "Ignoring DataSpace ($defaultDataSpace) " +
+                            "for $cameraStream. MultiResolutionImageReader does not support " +
+                            "setting the default DataSpace."
+                    }
+                }
+                if (defaultHardwareBufferFormat != null) {
+                    Log.warn {
+                        "Ignoring HardwareBufferFormat ($defaultHardwareBufferFormat) " +
+                            "for $cameraStream. MultiResolutionImageReader does not support " +
+                            "setting the default HardwareBufferFormat."
                     }
                 }
                 val imageReader = AndroidMultiResolutionImageReader.create(
@@ -133,6 +152,8 @@ interface ImageSource : UnsafeWrapper, AutoCloseable {
                 return create(imageReader)
             }
 
+            // If we reach this point, it's likely the user asked for MultiResolutionImageReader
+            // but it was not possible to create it due to the SDK the code is running on.
             throw IllegalStateException("Failed to create an ImageSource for $cameraStream!")
         }
     }
@@ -182,6 +203,8 @@ internal class ImageSourceImpl(
             flushOrCloseIfEmpty()
         }
     }
+
+    override fun toString(): String = "ImageSource($imageReader)"
 
     private fun onImage(streamId: StreamId, outputId: OutputId, image: ImageWrapper) {
         // Always increment the imageCount before acquireNextImage
