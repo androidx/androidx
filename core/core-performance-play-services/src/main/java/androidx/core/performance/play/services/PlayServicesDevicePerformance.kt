@@ -52,6 +52,7 @@ internal constructor(
     private val tag = "PlayServicesDevicePerformance"
 
     private val defaultMpc = DefaultDevicePerformance()
+    private val mpcKey = intPreferencesKey(MPC_PREFERENCE_KEY)
 
     override val mediaPerformanceClass get() = lazyMpc.value
     private val lazyMpc =
@@ -86,8 +87,6 @@ internal constructor(
         PreferenceDataStoreFactory.create(
             produceFile = { context.preferencesDataStoreFile("media_performance_class") })
     )
-
-    private val mpcKey = intPreferencesKey(MPC_PREFERENCE_KEY)
 
     private fun getPerformanceClass(): Flow<Int?> {
         return performanceStore.data.map { values ->
