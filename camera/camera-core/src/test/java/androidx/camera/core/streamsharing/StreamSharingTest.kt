@@ -345,7 +345,7 @@ class StreamSharingTest {
         shadowOf(getMainLooper()).idle()
         assertThat(transformationInfo).isNotNull()
         assertThat(transformationInfo!!.rotationDegrees).isEqualTo(SENSOR_ROTATION)
-        assertThat(transformationInfo!!.mirroring).isTrue()
+        assertThat(transformationInfo!!.isMirroring).isTrue()
         // Act: unbind StreamSharing.
         streamSharing.unbindFromCamera(frontCamera)
         shadowOf(getMainLooper()).idle()

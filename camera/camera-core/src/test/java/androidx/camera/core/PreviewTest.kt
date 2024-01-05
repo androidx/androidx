@@ -396,7 +396,7 @@ class PreviewTest {
         // Act: create pipeline
         val preview = createPreview(effect, backCamera)
         // Assert
-        assertThat(preview.cameraEdge.mirroring).isFalse()
+        assertThat(preview.cameraEdge.isMirroring).isFalse()
     }
 
     @Test
@@ -404,7 +404,7 @@ class PreviewTest {
         // Act: create pipeline
         val preview = createPreview(effect, frontCamera)
         // Assert
-        assertThat(preview.cameraEdge.mirroring).isTrue()
+        assertThat(preview.cameraEdge.isMirroring).isTrue()
     }
 
     @Test
@@ -515,7 +515,7 @@ class PreviewTest {
         )
         // Assert
         assertThat(preview.cameraEdge.hasCameraTransform()).isFalse()
-        assertThat(preview.cameraEdge.mirroring).isFalse()
+        assertThat(preview.cameraEdge.isMirroring).isFalse()
     }
 
     @Test
@@ -528,7 +528,7 @@ class PreviewTest {
             targetRotation = ROTATION_90
         )
         // Assert
-        assertThat(preview.cameraEdge.mirroring).isFalse()
+        assertThat(preview.cameraEdge.isMirroring).isFalse()
     }
 
     @Test

@@ -4,12 +4,12 @@ package androidx.camera.effects {
   @RequiresApi(21) @com.google.auto.value.AutoValue public abstract class Frame {
     ctor public Frame();
     method public abstract android.graphics.Rect getCropRect();
-    method public abstract boolean getMirroring();
     method public android.graphics.Canvas getOverlayCanvas();
     method public abstract int getRotationDegrees();
     method public abstract android.graphics.Matrix getSensorToBufferTransform();
     method public abstract android.util.Size getSize();
     method public abstract long getTimestampNanos();
+    method public abstract boolean isMirroring();
   }
 
   @RequiresApi(21) public class OverlayEffect extends androidx.camera.core.CameraEffect implements java.lang.AutoCloseable {

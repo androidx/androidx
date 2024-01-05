@@ -151,7 +151,7 @@ class SurfaceProcessorImplDeviceTest {
         assertThat(latch.await(TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)).isTrue()
         assertThat(frameReceived!!.size).isEqualTo(size)
         assertThat(frameReceived!!.cropRect).isEqualTo(transformationInfo.cropRect)
-        assertThat(frameReceived!!.mirroring).isEqualTo(transformationInfo.mirroring)
+        assertThat(frameReceived!!.isMirroring).isEqualTo(transformationInfo.isMirroring)
         assertThat(frameReceived!!.sensorToBufferTransform)
             .isEqualTo(transformationInfo.sensorToBufferTransform)
         assertThat(frameReceived!!.rotationDegrees).isEqualTo(ROTATION_DEGREES)

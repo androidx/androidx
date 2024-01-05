@@ -961,11 +961,11 @@ public final class SurfaceRequest {
         /**
          * Returns whether the buffer should be mirrored.
          *
-         * <p>This flag indicates whether the buffer needs to be mirrored vertically. For
-         * example, for front camera preview, the buffer should usually be mirrored. The
+         * <p>This flag indicates whether the buffer needs to be mirrored across the vertical
+         * axis. For example, for front camera preview, the buffer should usually be mirrored. The
          * mirroring should be applied after the {@link #getRotationDegrees()} is applied.
          */
-        public abstract boolean getMirroring();
+        public abstract boolean isMirroring();
 
         /**
          * Creates new {@link TransformationInfo}
