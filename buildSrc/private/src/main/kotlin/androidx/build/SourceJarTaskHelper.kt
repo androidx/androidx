@@ -46,8 +46,8 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation.Companion.MAIN_COMPI
 import org.jetbrains.kotlin.gradle.plugin.KotlinTarget
 
 /** Sets up a source jar task for an Android library project. */
-fun Project.configureSourceJarForAndroid(extension: LibraryExtension) {
-    extension.defaultPublishVariant { variant ->
+fun Project.configureSourceJarForAndroid(libraryExtension: LibraryExtension) {
+    libraryExtension.defaultPublishVariant { variant ->
         val sourceJar =
             tasks.register(
                 "sourceJar${variant.name.replaceFirstChar {
@@ -56,7 +56,7 @@ fun Project.configureSourceJarForAndroid(extension: LibraryExtension) {
                 Jar::class.java
             ) {
                 it.archiveClassifier.set("sources")
-                it.from(extension.sourceSets.getByName("main").java.srcDirs)
+                it.from(libraryExtension.sourceSets.getByName("main").java.srcDirs)
                 // Do not allow source files with duplicate names, information would be lost
                 // otherwise.
                 it.duplicatesStrategy = DuplicatesStrategy.FAIL
@@ -78,7 +78,7 @@ fun Project.configureSourceJarForAndroid(extension: LibraryExtension) {
     project.afterEvaluate {
         // we can only tell if a project is multiplatform after it is configured
         if (it.multiplatformExtension != null && it.extra.has("publish")) {
-            extension.defaultPublishVariant { variant ->
+            libraryExtension.defaultPublishVariant { variant ->
                 val kotlinExt = project.extensions.getByName("kotlin") as KotlinProjectExtension
                 val sourceJar =
                     project.tasks.named(
@@ -116,19 +116,19 @@ fun Project.configureSourceJarForJava() {
             // Different sourceSets in KMP should use different platform infixes, see b/203764756
             task.duplicatesStrategy = DuplicatesStrategy.FAIL
 
-            extensions.findByType(JavaPluginExtension::class.java)?.let { extension ->
+            extensions.findByType(JavaPluginExtension::class.java)?.let { javaExtension ->
                 // Since KotlinPlugin applies JavaPlugin, it's possible for JavaPlugin to exist, but
                 // not to have "main".  Eventually, we should stop expecting to grab sourceSets by
                 // name
                 // (b/235828421)
-                extension.sourceSets.findByName("main")?.let {
+                javaExtension.sourceSets.findByName("main")?.let {
                     task.from(it.allSource.sourceDirectories)
                 }
             }
 
-            extensions.findByType(KotlinMultiplatformExtension::class.java)?.let { extension ->
+            extensions.findByType(KotlinMultiplatformExtension::class.java)?.let { kmpExtension ->
                 for (sourceSetName in listOf("commonMain", "jvmMain")) {
-                    extension.sourceSets.findByName(sourceSetName)?.let { sourceSet ->
+                    kmpExtension.sourceSets.findByName(sourceSetName)?.let { sourceSet ->
                         task.from(sourceSet.kotlin.sourceDirectories)
                     }
                 }
@@ -144,7 +144,7 @@ fun Project.configureSourceJarForJava() {
 }
 
 fun Project.configureSourceJarForMultiplatform() {
-    val extension =
+    val kmpExtension =
         multiplatformExtension
             ?: throw GradleException(
                 "Unable to find multiplatform extension while configuring multiplatform source JAR"
@@ -153,7 +153,7 @@ fun Project.configureSourceJarForMultiplatform() {
     val multiplatformMetadataTask =
         tasks.register("createMultiplatformMetadata", CreateMultiplatformMetadata::class.java) {
             it.metadataFile.set(metadataFile)
-            it.sourceSetMetadata = project.provider { createSourceSetMetadata(extension) }
+            it.sourceSetMetadata = project.provider { createSourceSetMetadata(kmpExtension) }
         }
     val sourceJar =
         tasks.register("multiplatformSourceJar", Jar::class.java) { task ->
@@ -163,7 +163,7 @@ fun Project.configureSourceJarForMultiplatform() {
             // Do not allow source files with duplicate names, information would be lost otherwise.
             // Different sourceSets in KMP should use different platform infixes, see b/203764756
             task.duplicatesStrategy = DuplicatesStrategy.FAIL
-            extension.targets
+            kmpExtension.targets
                 .flatMap { it.mainCompilation().allKotlinSourceSets }
                 .toSet()
                 .forEach { sourceSet ->
@@ -182,11 +182,11 @@ fun Project.configureSourceJarForMultiplatform() {
 }
 
 fun Project.disableUnusedSourceJarTasks(disableNames: Set<String>) {
-    project.tasks.configureEach({ task ->
+    project.tasks.configureEach { task ->
         if (disableNames.contains(task.name)) {
             task.enabled = false
         }
-    })
+    }
 }
 
 internal val Project.multiplatformUsage
@@ -256,8 +256,8 @@ abstract class CreateMultiplatformMetadata : DefaultTask() {
     }
 }
 
-fun createSourceSetMetadata(extension: KotlinMultiplatformExtension): Map<String, Any> {
-    val commonMain = extension.sourceSets.getByName("commonMain")
+fun createSourceSetMetadata(kmpExtension: KotlinMultiplatformExtension): Map<String, Any> {
+    val commonMain = kmpExtension.sourceSets.getByName("commonMain")
     val sourceSetsByName =
         mutableMapOf(
             "commonMain" to
@@ -267,7 +267,7 @@ fun createSourceSetMetadata(extension: KotlinMultiplatformExtension): Map<String
                     "analysisPlatform" to DokkaAnalysisPlatform.COMMON.jsonName
                 )
         )
-    extension.targets.forEach { target ->
+    kmpExtension.targets.forEach { target ->
         target.mainCompilation().allKotlinSourceSets.forEach {
             sourceSetsByName.getOrPut(it.name) {
                 mapOf(
