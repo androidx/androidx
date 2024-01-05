@@ -83,11 +83,13 @@ androidXMultiplatform {
                 api(project(":room:room-common"))
                 api(project(":sqlite:sqlite"))
                 api(projectOrArtifact(":annotation:annotation"))
+                api(libs.kotlinCoroutinesCore)
             }
         }
         commonTest {
             dependencies {
                 implementation(libs.kotlinTest)
+                implementation(libs.kotlinCoroutinesTest)
                 implementation(project(":kruth:kruth"))
             }
         }
@@ -95,6 +97,7 @@ androidXMultiplatform {
             dependsOn(commonMain)
             dependencies {
                 api(project(":sqlite:sqlite-framework"))
+                api(libs.kotlinCoroutinesAndroid)
                 implementation("androidx.arch.core:core-runtime:2.2.0")
                 compileOnly("androidx.collection:collection:1.2.0")
                 compileOnly("androidx.lifecycle:lifecycle-livedata-core:2.0.0")

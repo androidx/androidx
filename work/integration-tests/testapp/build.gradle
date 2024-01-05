@@ -45,6 +45,7 @@ android {
 dependencies {
     annotationProcessor(projectOrArtifact(":room:room-compiler"))
     implementation(projectOrArtifact(":room:room-runtime"))
+    implementation(projectOrArtifact(":room:room-ktx"))
 
     implementation(libs.constraintLayout)
     implementation("androidx.core:core:1.12.0")
