@@ -34,8 +34,8 @@ dependencies {
     implementation("androidx.tracing:tracing:1.0.0")
     api(libs.kotlinStdlib)
 
-    androidTestImplementation(projectOrArtifact(":lifecycle:lifecycle-runtime-testing"))
-    androidTestImplementation(projectOrArtifact(":lifecycle:lifecycle-viewmodel"))
+    androidTestImplementation("androidx.lifecycle:lifecycle-runtime-testing:2.6.1")
+    androidTestImplementation("androidx.lifecycle:lifecycle-viewmodel:2.6.1")
     androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.espressoCore, excludes.espresso)
     androidTestImplementation(libs.leakcanary)

@@ -203,41 +203,44 @@ public abstract class ViewModel {
     }
 
     /**
-     * Sets a tag associated with this viewmodel and a key.
-     * If the given {@code newValue} is {@link Closeable},
-     * it will be closed once {@link #clear()}.
+     * Add a new {@link Closeable} object that will be closed directly before
+     * {@link #onCleared()} is called.
      * <p>
-     * If a value was already set for the given key, this call does nothing and
-     * returns currently associated value, the given {@code newValue} would be ignored
+     * If onCleared() has already been called, the closeable will not be added,
+     * and will instead be closed immediately.
      * <p>
-     * If the ViewModel was already cleared then close() would be called on the returned object if
-     * it implements {@link Closeable}. The same object may receive multiple close calls, so method
-     * should be idempotent.
+     * @param key A key that allows you to retrieve the closeable passed in by using the same
+     *            key with {@link #getCloseable(String)}
+     * @param closeable The object that should be {@link Closeable#close() closed} directly before
+     *                  {@link #onCleared()} is called.
      */
-    @SuppressWarnings("unchecked")
-    <T> T setTagIfAbsent(String key, T newValue) {
-        T previous;
-        synchronized (mBagOfTags) {
-            previous = (T) mBagOfTags.get(key);
-            if (previous == null) {
-                mBagOfTags.put(key, newValue);
+    public final void addCloseable(@NonNull String key, @NonNull Closeable closeable) {
+        // Although no logic should be done after user calls onCleared(), we will
+        // ensure that if it has already been called, the closeable attempting to
+        // be added will be closed immediately to ensure there will be no leaks.
+        if (mCleared) {
+            closeWithRuntimeException(closeable);
+            return;
+        }
+
+        // As this method is final, it will still be called on mock objects even
+        // though mCloseables won't actually be created...we'll just not do anything
+        // in that case.
+        if (mBagOfTags != null) {
+            synchronized (mBagOfTags) {
+                mBagOfTags.put(key, closeable);
             }
         }
-        T result = previous == null ? newValue : previous;
-        if (mCleared) {
-            // It is possible that we'll call close() multiple times on the same object, but
-            // Closeable interface requires close method to be idempotent:
-            // "if the stream is already closed then invoking this method has no effect." (c)
-            closeWithRuntimeException(result);
-        }
-        return result;
     }
 
     /**
-     * Returns the tag associated with this viewmodel and the specified key.
+     * Returns the closeable previously added with {@link #addCloseable(String, Closeable)}
+     * with the given key.
+     * @param key The key that was used to add the Closeable.
      */
     @SuppressWarnings({"TypeParameterUnusedInFormals", "unchecked"})
-    <T> T getTag(String key) {
+    @Nullable
+    public final <T extends Closeable> T getCloseable(@NonNull String key) {
         if (mBagOfTags == null) {
             return null;
         }

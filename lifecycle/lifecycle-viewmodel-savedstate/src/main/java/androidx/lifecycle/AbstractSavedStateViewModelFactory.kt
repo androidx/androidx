@@ -95,7 +95,7 @@ public abstract class AbstractSavedStateViewModelFactory :
         val controller = LegacySavedStateHandleController
             .create(savedStateRegistry!!, lifecycle!!, key, defaultArgs)
         val viewModel = create(key, modelClass, controller.handle)
-        viewModel.setTagIfAbsent(TAG_SAVED_STATE_HANDLE_CONTROLLER, controller)
+        viewModel.addCloseable(TAG_SAVED_STATE_HANDLE_CONTROLLER, controller)
         return viewModel
     }
 

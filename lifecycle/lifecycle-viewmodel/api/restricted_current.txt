@@ -17,6 +17,8 @@ package androidx.lifecycle {
     ctor public ViewModel();
     ctor public ViewModel(java.io.Closeable!...);
     method public void addCloseable(java.io.Closeable);
+    method public final void addCloseable(String, java.io.Closeable);
+    method public final <T extends java.io.Closeable> T? getCloseable(String);
     method protected void onCleared();
   }
 
