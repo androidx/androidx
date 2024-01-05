@@ -19,6 +19,7 @@ package androidx.compose.foundation.pager
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.snapping.MinFlingVelocityDp
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.test.assertIsDisplayed
@@ -197,6 +198,32 @@ class PagerScrollingTest(
         // Assert
         rule.onNodeWithTag("2").assertIsDisplayed()
         confirmPageIsInCorrectPosition(2)
+    }
+
+    @Test
+    fun swipeWithLowVelocity_atTheEndOfTheList_shouldNotMove() {
+        // Arrange
+        createPager(
+            initialPage = DefaultPageCount - 1,
+            modifier = Modifier.size(125.dp),
+            pageSize = { PageSize.Fixed(50.dp) }
+        )
+        val swipeValue = 0.1f
+        val delta = pagerSize * swipeValue * scrollForwardSign * -1 // scroll a bit at the end
+
+        // Act - forward
+        onPager().performTouchInput {
+            swipeWithVelocityAcrossMainAxis(
+                with(rule.density) { 0.5f * MinFlingVelocityDp.toPx() },
+                delta
+            )
+        }
+
+        // Assert
+        rule.runOnIdle {
+            // page is out of snap
+            assertThat(pagerState.currentPageOffsetFraction).isNotEqualTo(0.0f)
+        }
     }
 
     @Test
