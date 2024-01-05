@@ -16,19 +16,24 @@
 
 package androidx.compose.foundation.selection
 
+import androidx.compose.foundation.AbstractClickableNode
+import androidx.compose.foundation.ClickablePointerInputNode
 import androidx.compose.foundation.Indication
 import androidx.compose.foundation.IndicationNodeFactory
 import androidx.compose.foundation.LocalIndication
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.clickableWithIndicationIfNeeded
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
+import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.node.invalidateSemantics
+import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.platform.inspectable
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.semantics.toggleableState
 import androidx.compose.ui.state.ToggleableState
 
@@ -141,14 +146,136 @@ fun Modifier.toggleable(
         properties["onValueChange"] = onValueChange
     }
 ) {
-    Modifier.triStateToggleable(
-        state = ToggleableState(value),
+    clickableWithIndicationIfNeeded(
+        enabled = enabled,
         interactionSource = interactionSource,
-        indication = indication,
+        indication = indication
+    ) { interactionSource, indicationNodeFactory ->
+        ToggleableElement(
+            value = value,
+            interactionSource = interactionSource,
+            indicationNodeFactory = indicationNodeFactory,
+            enabled = enabled,
+            role = role,
+            onValueChange = onValueChange
+        )
+    }
+}
+
+private class ToggleableElement(
+    private val value: Boolean,
+    private val interactionSource: MutableInteractionSource?,
+    private val indicationNodeFactory: IndicationNodeFactory?,
+    private val enabled: Boolean,
+    private val role: Role?,
+    private val onValueChange: (Boolean) -> Unit
+) : ModifierNodeElement<ToggleableNode>() {
+    override fun create() = ToggleableNode(
+        value = value,
+        interactionSource = interactionSource,
+        indicationNodeFactory = indicationNodeFactory,
         enabled = enabled,
         role = role,
-        onClick = { onValueChange(!value) }
+        onValueChange = onValueChange
     )
+
+    override fun update(node: ToggleableNode) {
+        node.update(
+            value = value,
+            interactionSource = interactionSource,
+            indicationNodeFactory = indicationNodeFactory,
+            enabled = enabled,
+            role = role,
+            onValueChange = onValueChange
+        )
+    }
+
+    // Defined in the factory functions with inspectable
+    override fun InspectorInfo.inspectableProperties() = Unit
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other === null) return false
+        if (this::class != other::class) return false
+
+        other as ToggleableElement
+
+        if (value != other.value) return false
+        if (interactionSource != other.interactionSource) return false
+        if (indicationNodeFactory != other.indicationNodeFactory) return false
+        if (enabled != other.enabled) return false
+        if (role != other.role) return false
+        if (onValueChange != other.onValueChange) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = value.hashCode()
+        result = 31 * result + (interactionSource?.hashCode() ?: 0)
+        result = 31 * result + (indicationNodeFactory?.hashCode() ?: 0)
+        result = 31 * result + enabled.hashCode()
+        result = 31 * result + (role?.hashCode() ?: 0)
+        result = 31 * result + onValueChange.hashCode()
+        return result
+    }
+}
+
+private class ToggleableNode(
+    private var value: Boolean,
+    interactionSource: MutableInteractionSource?,
+    indicationNodeFactory: IndicationNodeFactory?,
+    enabled: Boolean,
+    role: Role?,
+    private var onValueChange: (Boolean) -> Unit
+) : AbstractClickableNode(
+    interactionSource = interactionSource,
+    indicationNodeFactory = indicationNodeFactory,
+    enabled = enabled,
+    onClickLabel = null,
+    role = role,
+    onClick = { onValueChange(!value) }
+) {
+    val onClick = { onValueChange(!value) }
+    override val clickablePointerInputNode = delegate(
+        ClickablePointerInputNode(
+            enabled = enabled,
+            interactionSourceProvider = interactionSourceProvider,
+            onClick = onClick,
+            interactionData = interactionData
+        )
+    )
+
+    fun update(
+        value: Boolean,
+        interactionSource: MutableInteractionSource?,
+        indicationNodeFactory: IndicationNodeFactory?,
+        enabled: Boolean,
+        role: Role?,
+        onValueChange: (Boolean) -> Unit
+    ) {
+        if (this.value != value) {
+            this.value = value
+            invalidateSemantics()
+        }
+        this.onValueChange = onValueChange
+        updateCommon(
+            interactionSource = interactionSource,
+            indicationNodeFactory = indicationNodeFactory,
+            enabled = enabled,
+            onClickLabel = null,
+            role = role,
+            onClick = onClick
+        )
+        clickablePointerInputNode.update(
+            enabled = enabled,
+            onClick = onClick
+        )
+    }
+
+    override fun SemanticsPropertyReceiver.applyAdditionalSemantics() {
+        toggleableState = ToggleableState(value)
+    }
 }
 
 /**
@@ -266,13 +393,132 @@ fun Modifier.triStateToggleable(
         properties["onClick"] = onClick
     }
 ) {
-    clickable(
+    clickableWithIndicationIfNeeded(
+        enabled = enabled,
         interactionSource = interactionSource,
-        indication = indication,
+        indication = indication
+    ) { interactionSource, indicationNodeFactory ->
+        TriStateToggleableElement(
+            state = state,
+            interactionSource = interactionSource,
+            indicationNodeFactory = indicationNodeFactory,
+            enabled = enabled,
+            role = role,
+            onClick = onClick
+        )
+    }
+}
+
+private class TriStateToggleableElement(
+    private val state: ToggleableState,
+    private val interactionSource: MutableInteractionSource?,
+    private val indicationNodeFactory: IndicationNodeFactory?,
+    private val enabled: Boolean,
+    private val role: Role?,
+    private val onClick: () -> Unit
+) : ModifierNodeElement<TriStateToggleableNode>() {
+    override fun create() = TriStateToggleableNode(
+        state = state,
+        interactionSource = interactionSource,
+        indicationNodeFactory = indicationNodeFactory,
         enabled = enabled,
         role = role,
         onClick = onClick
-    ).semantics {
-        this.toggleableState = state
+    )
+
+    override fun update(node: TriStateToggleableNode) {
+        node.update(
+            state = state,
+            interactionSource = interactionSource,
+            indicationNodeFactory = indicationNodeFactory,
+            enabled = enabled,
+            role = role,
+            onClick = onClick
+        )
+    }
+
+    // Defined in the factory functions with inspectable
+    override fun InspectorInfo.inspectableProperties() = Unit
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other === null) return false
+        if (this::class != other::class) return false
+
+        other as TriStateToggleableElement
+
+        if (state != other.state) return false
+        if (interactionSource != other.interactionSource) return false
+        if (indicationNodeFactory != other.indicationNodeFactory) return false
+        if (enabled != other.enabled) return false
+        if (role != other.role) return false
+        if (onClick != other.onClick) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = state.hashCode()
+        result = 31 * result + (interactionSource?.hashCode() ?: 0)
+        result = 31 * result + (indicationNodeFactory?.hashCode() ?: 0)
+        result = 31 * result + enabled.hashCode()
+        result = 31 * result + (role?.hashCode() ?: 0)
+        result = 31 * result + onClick.hashCode()
+        return result
+    }
+}
+
+private class TriStateToggleableNode(
+    private var state: ToggleableState,
+    interactionSource: MutableInteractionSource?,
+    indicationNodeFactory: IndicationNodeFactory?,
+    enabled: Boolean,
+    role: Role?,
+    onClick: () -> Unit
+) : AbstractClickableNode(
+    interactionSource = interactionSource,
+    indicationNodeFactory = indicationNodeFactory,
+    enabled = enabled,
+    onClickLabel = null,
+    role = role,
+    onClick = onClick
+) {
+    override val clickablePointerInputNode = delegate(
+        ClickablePointerInputNode(
+            enabled = enabled,
+            interactionSourceProvider = interactionSourceProvider,
+            onClick = onClick,
+            interactionData = interactionData
+        )
+    )
+
+    fun update(
+        state: ToggleableState,
+        interactionSource: MutableInteractionSource?,
+        indicationNodeFactory: IndicationNodeFactory?,
+        enabled: Boolean,
+        role: Role?,
+        onClick: () -> Unit
+    ) {
+        if (this.state != state) {
+            this.state = state
+            invalidateSemantics()
+        }
+        updateCommon(
+            interactionSource = interactionSource,
+            indicationNodeFactory = indicationNodeFactory,
+            enabled = enabled,
+            onClickLabel = null,
+            role = role,
+            onClick = onClick
+        )
+        clickablePointerInputNode.update(
+            enabled = enabled,
+            onClick = onClick
+        )
+    }
+
+    override fun SemanticsPropertyReceiver.applyAdditionalSemantics() {
+        toggleableState = state
     }
 }
