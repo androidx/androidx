@@ -549,6 +549,10 @@ public class LongCaptureAdvancedExtenderImpl implements AdvancedExtenderImpl {
                 @Override
                 public void onCaptureCompleted(@NonNull RequestProcessorImpl.Request request,
                         @NonNull TotalCaptureResult totalCaptureResult) {
+                    // RequestProcessorImpl.Callback.onCaptureSequenceCompleted will be invoked
+                    // when onCaptureFailed happens. SessionProcessorImpl.CaptureCallback
+                    // .onCaptureSequenceCompleted should be invoked only when the capture succeeds.
+                    captureCallback.onCaptureSequenceCompleted(seqId);
                 }
 
                 @Override
@@ -565,7 +569,6 @@ public class LongCaptureAdvancedExtenderImpl implements AdvancedExtenderImpl {
 
                 @Override
                 public void onCaptureSequenceCompleted(int sequenceId, long frameNumber) {
-                    captureCallback.onCaptureSequenceCompleted(seqId);
                 }
 
                 @Override
