@@ -1621,6 +1621,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
             TypedArray a = mContext.obtainStyledAttributes(R.styleable.AppCompatTheme);
             String viewInflaterClassName =
                     a.getString(R.styleable.AppCompatTheme_viewInflaterClass);
+            a.recycle();
             if (viewInflaterClassName == null) {
                 // Set to null (the default in all AppCompat themes). Create the base inflater
                 // (no reflection)
