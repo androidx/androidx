@@ -255,7 +255,7 @@ class SnapshotStateObserver(private val onChangedExecutor: (callback: () -> Unit
         try {
             isPaused = false
             currentMap = scopeMap
-            currentMapThreadId = Thread.currentThread().id
+            currentMapThreadId = currentThreadId()
 
             scopeMap.observe(scope, readObserver, block)
         } finally {

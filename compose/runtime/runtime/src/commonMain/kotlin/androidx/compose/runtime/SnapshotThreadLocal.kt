@@ -30,10 +30,10 @@ internal class SnapshotThreadLocal<T> {
     private val writeMutex = SynchronizedObject()
 
     @Suppress("UNCHECKED_CAST")
-    fun get(): T? = map.get().get(getCurrentThreadId()) as T?
+    fun get(): T? = map.get().get(currentThreadId()) as T?
 
     fun set(value: T?) {
-        val key = getCurrentThreadId()
+        val key = currentThreadId()
         synchronized(writeMutex) {
             val current = map.get()
             if (current.trySet(key, value)) return

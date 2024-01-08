@@ -34,8 +34,6 @@ private val threadCounter = kotlin.concurrent.AtomicLong(0)
 @kotlin.native.concurrent.ThreadLocal
 private var threadId: Long = threadCounter.addAndGet(1)
 
-internal actual fun getCurrentThreadId(): Long = threadId
-
 /**
  * AtomicReference implementation suitable for both single and multi-threaded context.
  */
@@ -123,3 +121,7 @@ internal actual fun logError(message: String, e: Throwable) {
     println(message)
     e.printStackTrace()
 }
+
+internal actual fun currentThreadId(): Long = threadId
+
+internal actual fun currentThreadName(): String = "thread@$threadId"

@@ -20,8 +20,6 @@ import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.runtime.snapshots.SnapshotContextElement
 import kotlinx.coroutines.CancellationException
 
-internal expect fun getCurrentThreadId(): Long
-
 /**
  * Returns the hash code for the given object that is unique across all currently allocated objects.
  * The hash code for the null reference is zero.

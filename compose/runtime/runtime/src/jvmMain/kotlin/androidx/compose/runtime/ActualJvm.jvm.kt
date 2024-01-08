@@ -16,8 +16,6 @@
 
 package androidx.compose.runtime
 
-import androidx.compose.runtime.internal.ThreadMap
-import androidx.compose.runtime.internal.emptyThreadMap
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.runtime.snapshots.SnapshotContextElement
 import kotlin.coroutines.CoroutineContext
@@ -25,8 +23,6 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.ThreadContextElement
 
 internal actual typealias AtomicReference<V> = java.util.concurrent.atomic.AtomicReference<V>
-
-internal actual fun getCurrentThreadId(): Long = Thread.currentThread().id
 
 @InternalComposeApi
 actual fun identityHashCode(instance: Any?): Int = System.identityHashCode(instance)

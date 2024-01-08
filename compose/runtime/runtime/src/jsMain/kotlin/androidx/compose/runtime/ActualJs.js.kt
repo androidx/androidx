@@ -27,8 +27,6 @@ import kotlin.time.DurationUnit
 import kotlin.time.ExperimentalTime
 import kotlin.time.toDuration
 
-internal actual fun getCurrentThreadId(): Long = 0
-
 internal actual class AtomicInt actual constructor(private var value: Int) {
     actual fun get(): Int = value
 
@@ -136,3 +134,7 @@ internal actual fun logError(message: String, e: Throwable) {
     println(message)
     e.printStackTrace()
 }
+
+internal actual fun currentThreadId(): Long = 0
+
+internal actual fun currentThreadName(): String = "main"
