@@ -53,6 +53,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastForEach
 import kotlin.math.abs
 import kotlin.math.absoluteValue
 import kotlin.math.roundToInt
@@ -487,7 +488,7 @@ private fun SnapLayoutInfoProvider(
                     } else {
                         // if we haven't crossed the threshold. but scrolled minimally, we should
                         // bound to the previous bound
-                        if (abs(pagerState.currentPageOffsetFraction) >=
+                        if (abs(offsetFromSnappedPosition) >=
                             abs(pagerState.positionThresholdFraction)
                         ) {
                             debugLog { "Crossed Positional Threshold Fraction" }
@@ -585,45 +586,18 @@ private fun SnapLayoutInfoProvider(
             debugLog { "Calculating Snapping Bounds" }
             var lowerBoundOffset = Float.NEGATIVE_INFINITY
             var upperBoundOffset = Float.POSITIVE_INFINITY
-            val totalPageSize = pagerState.pageSize + pagerState.pageSpacing
-            val layoutInfo = pagerState.layoutInfo
 
-            val currentPage = pagerState.currentPage
-            val currentPageScrollOffset = snapPosition.currentPageOffset(
-                layoutInfo.mainAxisViewportSize,
-                layoutInfo.pageSize,
-                layoutInfo.pageSpacing,
-                layoutInfo.beforeContentPadding,
-                layoutInfo.afterContentPadding,
-                pagerState.currentPage,
-                pagerState.currentPageOffsetFraction,
-                pagerState.pageCount
-            )
-
-            // the closest page should be close to the current page, we'll start from current page
-            // and search both sides.
-            var page = currentPage
-            var currentOffset = currentPageScrollOffset
-
-            debugLog { "Start Search: Page=$currentPage Offset=$currentOffset" }
-
-            // The snapping bounds will be at most visiblePages/2 from the current page.
-            val maxDistanceFromCurrentPage = layoutInfo.visiblePagesInfo.size / 2
-
-            // go back
-            while (page >= (currentPage - maxDistanceFromCurrentPage).coerceAtLeast(0)) {
+            layoutInfo.visiblePagesInfo.fastForEach { page ->
                 val offset = calculateDistanceToDesiredSnapPosition(
                     mainAxisViewPortSize = layoutInfo.mainAxisViewportSize,
                     beforeContentPadding = layoutInfo.beforeContentPadding,
                     afterContentPadding = layoutInfo.afterContentPadding,
                     itemSize = layoutInfo.pageSize,
-                    itemOffset = currentOffset,
-                    itemIndex = page,
+                    itemOffset = page.offset,
+                    itemIndex = page.index,
                     snapPosition = snapPosition,
                     itemCount = pagerState.pageCount
                 )
-
-                debugLog { "Snapping Offset=$offset for page=$page" }
 
                 // Find page that is closest to the snap position, but before it
                 if (offset <= 0 && offset > lowerBoundOffset) {
@@ -634,45 +608,6 @@ private fun SnapLayoutInfoProvider(
                 if (offset >= 0 && offset < upperBoundOffset) {
                     upperBoundOffset = offset
                 }
-
-                currentOffset -= totalPageSize
-                page--
-            }
-
-            page = currentPage + 1
-            currentOffset = currentPageScrollOffset + totalPageSize
-
-            // go forward
-            while (page <= (currentPage + maxDistanceFromCurrentPage)
-                    .coerceAtMost(pagerState.pageCount - 1)
-            ) {
-                val offset = calculateDistanceToDesiredSnapPosition(
-                    mainAxisViewPortSize = layoutInfo.mainAxisViewportSize,
-                    beforeContentPadding = layoutInfo.beforeContentPadding,
-                    afterContentPadding = layoutInfo.afterContentPadding,
-                    itemSize = layoutInfo.pageSize,
-                    itemOffset = currentOffset,
-                    itemIndex = page,
-                    snapPosition = snapPosition,
-                    itemCount = pagerState.pageCount
-                )
-
-                debugLog {
-                    "Snapping Offset=$offset for page=$page"
-                }
-
-                // Find page that is closest to the snap position, but after it
-                if (offset >= 0 && offset < upperBoundOffset) {
-                    upperBoundOffset = offset
-                }
-
-                // Find page that is closest to the snap position, but before it
-                if (offset <= 0 && offset > lowerBoundOffset) {
-                    lowerBoundOffset = offset
-                }
-
-                currentOffset += totalPageSize
-                page++
             }
 
             // If any of the bounds is unavailable, use the other.
@@ -684,6 +619,14 @@ private fun SnapLayoutInfoProvider(
                 upperBoundOffset = lowerBoundOffset
             }
 
+            // Do not move if we can't scroll
+            if (!pagerState.canScrollForward) {
+                upperBoundOffset = 0.0f
+            }
+
+            if (!pagerState.canScrollBackward) {
+                lowerBoundOffset = 0.0f
+            }
             return lowerBoundOffset to upperBoundOffset
         }
     }

@@ -82,7 +82,7 @@ private fun HorizontalCarrouselDemoWithCustomSnapPosition() {
                 val availableLayoutSpace = layoutSize - beforeContentPadding - afterContentPadding
                 return when (itemIndex) {
                     0 -> 0
-                    itemCount - 2 -> availableLayoutSpace - itemSize
+                    itemCount - 1 -> availableLayoutSpace - itemSize
                     else -> availableLayoutSpace / 2 - itemSize / 2
                 }
             }
