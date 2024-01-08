@@ -34,6 +34,7 @@ import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
+import androidx.wear.compose.material3.tokens.MotionTokens
 import androidx.wear.compose.materialcore.animateSelectionColor
 import androidx.wear.compose.materialcore.directionVector
 import androidx.wear.compose.materialcore.toRadians
@@ -608,10 +609,12 @@ private val TICK_BASE_LENGTH = 3.dp
 private val TICK_STICK_LENGTH = 7.dp
 private const val TICK_ROTATION = 15f
 
-private val COLOR_ANIMATION_SPEC: AnimationSpec<Color> = tween(MEDIUM_1, 0, STANDARD_DECELERATE)
-private val PROGRESS_ANIMATION_SPEC: TweenSpec<Float> = tween(MEDIUM_1, 0, STANDARD_DECELERATE)
+private val COLOR_ANIMATION_SPEC: AnimationSpec<Color> =
+    tween(MotionTokens.DurationMedium1, 0, MotionTokens.EasingStandardDecelerate)
+private val PROGRESS_ANIMATION_SPEC: TweenSpec<Float> =
+    tween(MotionTokens.DurationMedium1, 0, MotionTokens.EasingStandardDecelerate)
 private val SWITCH_PROGRESS_ANIMATION_SPEC: TweenSpec<Float> =
-    tween(MEDIUM_2, 0, STANDARD_DECELERATE)
+    tween(MotionTokens.DurationMedium2, 0, MotionTokens.EasingStandardDecelerate)
 
 private val WIDTH = 32.dp
 private val HEIGHT = 24.dp
