@@ -33,6 +33,7 @@ class ConfigBuilder {
     lateinit var testRunner: String
     val additionalApkKeys = mutableListOf<String>()
     val initialSetupApks = mutableListOf<String>()
+    val instrumentationArgsMap = mutableMapOf<String, String>()
 
     fun configName(configName: String) = apply { this.configName = configName }
 
@@ -68,7 +69,11 @@ class ConfigBuilder {
 
     fun buildJson(): String {
         val gson = GsonBuilder().setPrettyPrinting().create()
-        val instrumentationArgs =
+        val instrumentationArgsList = mutableListOf<InstrumentationArg>()
+        instrumentationArgsMap.forEach { (key, value) ->
+            instrumentationArgsList.add(InstrumentationArg(key, value))
+        }
+        instrumentationArgsList.addAll(
             if (isMicrobenchmark && !isPostsubmit) {
                 listOf(
                     InstrumentationArg("notAnnotation", "androidx.test.filters.FlakyTest"),
@@ -77,6 +82,7 @@ class ConfigBuilder {
             } else {
                 listOf(InstrumentationArg("notAnnotation", "androidx.test.filters.FlakyTest"))
             }
+        )
         val values =
             mapOf(
                 "name" to configName,
@@ -86,7 +92,7 @@ class ConfigBuilder {
                 "testApkSha256" to testApkSha256,
                 "appApk" to appApkName,
                 "appApkSha256" to appApkSha256,
-                "instrumentationArgs" to instrumentationArgs,
+                "instrumentationArgs" to instrumentationArgsList,
                 "additionalApkKeys" to additionalApkKeys
             )
         return gson.toJson(values)
@@ -107,6 +113,12 @@ class ConfigBuilder {
             } else {
                 sb.append(MICROBENCHMARK_PRESUBMIT_OPTION)
             }
+        }
+        instrumentationArgsMap.forEach { (key, value) ->
+            sb.append("""
+                <option name="instrumentation-arg" key="$key" value="$value" />
+
+                """.trimIndent())
         }
         if (isMacrobenchmark) {
             sb.append(MACROBENCHMARK_POSTSUBMIT_OPTIONS)

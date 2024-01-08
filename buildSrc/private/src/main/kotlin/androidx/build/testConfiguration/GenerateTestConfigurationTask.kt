@@ -26,6 +26,7 @@ import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.ListProperty
+import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFiles
@@ -87,6 +88,8 @@ constructor(private val objects: ObjectFactory) : DefaultTask() {
     @get:Input abstract val additionalApkKeys: ListProperty<String>
 
     @get:Input abstract val additionalTags: ListProperty<String>
+
+    @get:Input abstract val instrumentationArgs: MapProperty<String, String>
 
     @get:OutputFile abstract val outputXml: RegularFileProperty
 
@@ -184,6 +187,9 @@ constructor(private val objects: ObjectFactory) : DefaultTask() {
         val testApkBuiltArtifact = testApk.elements.single()
         val destinationApk = outputTestApk.get().asFile
         File(testApkBuiltArtifact.outputFile).copyTo(destinationApk, overwrite = true)
+        instrumentationArgs.get().forEach {
+            (key, value) -> configBuilder.instrumentationArgsMap[key] = value
+        }
         configBuilder
             .testApkName(destinationApk.name)
             .applicationId(testApk.applicationId)
