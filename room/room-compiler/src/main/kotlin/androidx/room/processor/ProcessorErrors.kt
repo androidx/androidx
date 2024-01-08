@@ -653,9 +653,6 @@ object ProcessorErrors {
         "add `room-paging-rxjava3` artifact from Room as a dependency. " +
         "androidx.room:room-paging-rxjava3:<version>"
 
-    val MISSING_ROOM_COROUTINE_ARTIFACT = "To use Coroutine features, you must add `ktx`" +
-        " artifact from Room as a dependency. androidx.room:room-ktx:<version>"
-
     fun ambiguousConstructor(
         pojo: String,
         paramName: String,

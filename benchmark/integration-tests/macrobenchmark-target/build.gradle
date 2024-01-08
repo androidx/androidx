@@ -45,4 +45,5 @@ dependencies {
     implementation(project(":work:work-runtime"))
     implementation(project(":work:work-runtime-ktx"))
     implementation(project(":room:room-runtime"))
+    implementation(project(":room:room-ktx"))
 }
