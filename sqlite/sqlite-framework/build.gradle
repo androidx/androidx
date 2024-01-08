@@ -110,8 +110,12 @@ androidXMultiplatform {
                 // See: https://kotlinlang.org/docs/whatsnew19.html#explicit-c-interoperability-stability-guarantees
                 main.compilerOptions.options.optIn.add("kotlinx.cinterop.ExperimentalForeignApi")
                 main.cinterops {
-                    sqlite3 {
+                    sqlite3 { cInteropSettings ->
                         includeDirs(configurations.sqliteSources.incoming.files)
+                        // TODO KT-62795 We shouldn't need this dependency once that issue is fixed.
+                        tasks.named(cInteropSettings.interopProcessingTaskName).configure {
+                            it.dependsOn(configurations.sqliteSources)
+                        }
                     }
                 }
 

@@ -141,6 +141,11 @@ class NativeTargetCompilation internal constructor(
         }
     }
 
+    /**
+     * JDK ships with JNI headers only for the current platform. As a result,we don't have access
+     * to cross-jni headers. They are mostly the same and we don't ship cross compiled code from
+     * GitHub so it is acceptable to use local JNI headers for cross platform compilation on GitHub.
+     */
     private fun findJniHeadersInPlayground(
         javaHome: File
     ): List<File> {

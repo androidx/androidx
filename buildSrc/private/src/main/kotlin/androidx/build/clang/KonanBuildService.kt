@@ -236,14 +236,11 @@ abstract class KonanBuildService @Inject constructor(
                 it.parameters.konanHome.set(
                     nativeCompilerDownloader.compilerDirectory
                 )
-                if (ProjectLayoutType.isPlayground(project)) {
-
-                } else {
+                if (!ProjectLayoutType.isPlayground(project)) {
                     it.parameters.prebuilts.set(
                         project.getKonanPrebuiltsFolder()
                     )
                 }
-
             }
         }
     }
