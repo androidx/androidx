@@ -114,6 +114,8 @@ internal class SlotTable : CompositionData, Iterable<CompositionGroup> {
      */
     private var readers = 0
 
+    private val lock = SynchronizedObject()
+
     /**
      * Tracks whether there is an active writer.
      */
@@ -266,7 +268,7 @@ internal class SlotTable : CompositionData, Iterable<CompositionGroup> {
         runtimeCheck(reader.table === this && readers > 0) { "Unexpected reader close()" }
         readers--
         if (sourceInformationMap != null) {
-            synchronized(this) {
+            synchronized(lock) {
                 val thisMap = this.sourceInformationMap
                 if (thisMap != null) {
                     thisMap.putAll(sourceInformationMap)
