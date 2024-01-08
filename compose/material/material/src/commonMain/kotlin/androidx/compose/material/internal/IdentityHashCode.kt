@@ -16,8 +16,4 @@
 
 package androidx.compose.material.internal
 
-import kotlinx.coroutines.CancellationException
-
-internal actual abstract class PlatformOptimizedCancellationException actual constructor(
-    message: String?
-) : CancellationException(message)
+internal expect fun identityHashCode(instance: Any?): Int
