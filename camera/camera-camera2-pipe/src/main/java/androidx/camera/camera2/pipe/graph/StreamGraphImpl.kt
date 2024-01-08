@@ -78,7 +78,7 @@ constructor(
 
         // Compute groupNumbers for buffer sharing.
         val groupNumbers = mutableMapOf<CameraStream.Config, Int>()
-        for (group in graphConfig.streamSharingGroups) {
+        for (group in graphConfig.exclusiveStreamGroups) {
             check(group.size > 1)
             val surfaceGroupId = computeNextSurfaceGroupId(graphConfig)
             for (config in group) {
