@@ -1,5 +1,167 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.3.0-alpha02" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha02)" variant="all" version="8.3.0-alpha02">
+<issues format="6" by="lint 8.3.0-alpha10" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha10)" variant="all" version="8.3.0-alpha10">
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Logger.d can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        Logger.d(TAG, &quot;Start signal generation.&quot;)"
+        errorLine2="               ~">
+        <location
+            file="src/main/java/androidx/camera/integration/avsync/SignalGeneratorViewModel.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Logger.d can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        Logger.d(TAG, &quot;Start signal generation.&quot;)"
+        errorLine2="                 ~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/avsync/SignalGeneratorViewModel.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Logger.d can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        Logger.d(TAG, &quot;Start signal generation.&quot;)"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/avsync/SignalGeneratorViewModel.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Logger.d can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        Logger.d(TAG, &quot;Stop signal generation.&quot;)"
+        errorLine2="               ~">
+        <location
+            file="src/main/java/androidx/camera/integration/avsync/SignalGeneratorViewModel.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Logger.d can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        Logger.d(TAG, &quot;Stop signal generation.&quot;)"
+        errorLine2="                 ~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/avsync/SignalGeneratorViewModel.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Logger.d can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        Logger.d(TAG, &quot;Stop signal generation.&quot;)"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/avsync/SignalGeneratorViewModel.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Logger.d can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        Logger.d(TAG, &quot;Start recording.&quot;)"
+        errorLine2="               ~">
+        <location
+            file="src/main/java/androidx/camera/integration/avsync/SignalGeneratorViewModel.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Logger.d can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        Logger.d(TAG, &quot;Start recording.&quot;)"
+        errorLine2="                 ~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/avsync/SignalGeneratorViewModel.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Logger.d can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        Logger.d(TAG, &quot;Start recording.&quot;)"
+        errorLine2="                       ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/avsync/SignalGeneratorViewModel.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Logger.d can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        Logger.d(TAG, &quot;Stop recording.&quot;)"
+        errorLine2="               ~">
+        <location
+            file="src/main/java/androidx/camera/integration/avsync/SignalGeneratorViewModel.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Logger.d can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        Logger.d(TAG, &quot;Stop recording.&quot;)"
+        errorLine2="                 ~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/avsync/SignalGeneratorViewModel.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Logger.d can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        Logger.d(TAG, &quot;Stop recording.&quot;)"
+        errorLine2="                       ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/avsync/SignalGeneratorViewModel.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Logger.d can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        Logger.d(TAG, &quot;Pause recording.&quot;)"
+        errorLine2="               ~">
+        <location
+            file="src/main/java/androidx/camera/integration/avsync/SignalGeneratorViewModel.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Logger.d can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        Logger.d(TAG, &quot;Pause recording.&quot;)"
+        errorLine2="                 ~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/avsync/SignalGeneratorViewModel.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Logger.d can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        Logger.d(TAG, &quot;Pause recording.&quot;)"
+        errorLine2="                       ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/avsync/SignalGeneratorViewModel.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Logger.d can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        Logger.d(TAG, &quot;Resume recording.&quot;)"
+        errorLine2="               ~">
+        <location
+            file="src/main/java/androidx/camera/integration/avsync/SignalGeneratorViewModel.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Logger.d can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        Logger.d(TAG, &quot;Resume recording.&quot;)"
+        errorLine2="                 ~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/avsync/SignalGeneratorViewModel.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Logger.d can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        Logger.d(TAG, &quot;Resume recording.&quot;)"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/avsync/SignalGeneratorViewModel.kt"/>
+    </issue>
 
     <issue
         id="RestrictedApiAndroidX"
@@ -269,303 +431,6 @@
         errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/avsync/model/AudioGenerator.kt"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
-        message="Logger.e can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="            Logger.e(TAG, &quot;Camera binding failed&quot;, exception)"
-        errorLine2="                   ~">
-        <location
-            file="src/main/java/androidx/camera/integration/avsync/model/CameraHelper.kt"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
-        message="Logger.e can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="            Logger.e(TAG, &quot;Camera binding failed&quot;, exception)"
-        errorLine2="                     ~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/avsync/model/CameraHelper.kt"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
-        message="Logger.e can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="            Logger.e(TAG, &quot;Camera binding failed&quot;, exception)"
-        errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/avsync/model/CameraHelper.kt"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
-        message="Logger.e can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="            Logger.e(TAG, &quot;Camera binding failed&quot;, exception)"
-        errorLine2="                                                   ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/avsync/model/CameraHelper.kt"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
-        message="DeviceQuirks.get can only be called from within the same library (androidx.camera:camera-video)"
-        errorLine1="        return DeviceQuirks.get(MediaStoreVideoCannotWrite::class.java) == null"
-        errorLine2="                            ~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/avsync/model/CameraHelper.kt"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
-        message="DeviceQuirks.get can only be called from within the same library (androidx.camera:camera-video)"
-        errorLine1="        return DeviceQuirks.get(MediaStoreVideoCannotWrite::class.java) == null"
-        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/avsync/model/CameraHelper.kt"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
-        message="Logger.e can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="            Logger.e(TAG, &quot;Failed to create directory: $videoFolder&quot;)"
-        errorLine2="                   ~">
-        <location
-            file="src/main/java/androidx/camera/integration/avsync/model/CameraHelper.kt"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
-        message="Logger.e can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="            Logger.e(TAG, &quot;Failed to create directory: $videoFolder&quot;)"
-        errorLine2="                     ~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/avsync/model/CameraHelper.kt"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
-        message="Logger.e can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="            Logger.e(TAG, &quot;Failed to create directory: $videoFolder&quot;)"
-        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/avsync/model/CameraHelper.kt"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
-        message="Logger.d can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="                    Logger.d(TAG, &quot;Video saved to: $uri&quot;)"
-        errorLine2="                           ~">
-        <location
-            file="src/main/java/androidx/camera/integration/avsync/model/CameraHelper.kt"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
-        message="Logger.d can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="                    Logger.d(TAG, &quot;Video saved to: $uri&quot;)"
-        errorLine2="                             ~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/avsync/model/CameraHelper.kt"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
-        message="Logger.d can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="                    Logger.d(TAG, &quot;Video saved to: $uri&quot;)"
-        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/avsync/model/CameraHelper.kt"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
-        message="Logger.e can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="                    Logger.e(TAG, &quot;Failed to save video: $msg&quot;)"
-        errorLine2="                           ~">
-        <location
-            file="src/main/java/androidx/camera/integration/avsync/model/CameraHelper.kt"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
-        message="Logger.e can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="                    Logger.e(TAG, &quot;Failed to save video: $msg&quot;)"
-        errorLine2="                             ~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/avsync/model/CameraHelper.kt"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
-        message="Logger.e can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="                    Logger.e(TAG, &quot;Failed to save video: $msg&quot;)"
-        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/avsync/model/CameraHelper.kt"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
-        message="Logger.d can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="        Logger.d(TAG, &quot;Start signal generation.&quot;)"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/camera/integration/avsync/SignalGeneratorViewModel.kt"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
-        message="Logger.d can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="        Logger.d(TAG, &quot;Start signal generation.&quot;)"
-        errorLine2="                 ~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/avsync/SignalGeneratorViewModel.kt"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
-        message="Logger.d can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="        Logger.d(TAG, &quot;Start signal generation.&quot;)"
-        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/avsync/SignalGeneratorViewModel.kt"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
-        message="Logger.d can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="        Logger.d(TAG, &quot;Stop signal generation.&quot;)"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/camera/integration/avsync/SignalGeneratorViewModel.kt"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
-        message="Logger.d can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="        Logger.d(TAG, &quot;Stop signal generation.&quot;)"
-        errorLine2="                 ~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/avsync/SignalGeneratorViewModel.kt"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
-        message="Logger.d can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="        Logger.d(TAG, &quot;Stop signal generation.&quot;)"
-        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/avsync/SignalGeneratorViewModel.kt"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
-        message="Logger.d can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="        Logger.d(TAG, &quot;Start recording.&quot;)"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/camera/integration/avsync/SignalGeneratorViewModel.kt"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
-        message="Logger.d can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="        Logger.d(TAG, &quot;Start recording.&quot;)"
-        errorLine2="                 ~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/avsync/SignalGeneratorViewModel.kt"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
-        message="Logger.d can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="        Logger.d(TAG, &quot;Start recording.&quot;)"
-        errorLine2="                       ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/avsync/SignalGeneratorViewModel.kt"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
-        message="Logger.d can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="        Logger.d(TAG, &quot;Stop recording.&quot;)"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/camera/integration/avsync/SignalGeneratorViewModel.kt"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
-        message="Logger.d can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="        Logger.d(TAG, &quot;Stop recording.&quot;)"
-        errorLine2="                 ~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/avsync/SignalGeneratorViewModel.kt"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
-        message="Logger.d can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="        Logger.d(TAG, &quot;Stop recording.&quot;)"
-        errorLine2="                       ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/avsync/SignalGeneratorViewModel.kt"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
-        message="Logger.d can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="        Logger.d(TAG, &quot;Pause recording.&quot;)"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/camera/integration/avsync/SignalGeneratorViewModel.kt"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
-        message="Logger.d can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="        Logger.d(TAG, &quot;Pause recording.&quot;)"
-        errorLine2="                 ~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/avsync/SignalGeneratorViewModel.kt"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
-        message="Logger.d can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="        Logger.d(TAG, &quot;Pause recording.&quot;)"
-        errorLine2="                       ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/avsync/SignalGeneratorViewModel.kt"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
-        message="Logger.d can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="        Logger.d(TAG, &quot;Resume recording.&quot;)"
-        errorLine2="               ~">
-        <location
-            file="src/main/java/androidx/camera/integration/avsync/SignalGeneratorViewModel.kt"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
-        message="Logger.d can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="        Logger.d(TAG, &quot;Resume recording.&quot;)"
-        errorLine2="                 ~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/avsync/SignalGeneratorViewModel.kt"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
-        message="Logger.d can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="        Logger.d(TAG, &quot;Resume recording.&quot;)"
-        errorLine2="                       ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/avsync/SignalGeneratorViewModel.kt"/>
     </issue>
 
     <issue

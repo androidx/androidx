@@ -1,22 +1,40 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.3.0-alpha04" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha04)" variant="all" version="8.3.0-alpha04">
+<issues format="6" by="lint 8.3.0-alpha10" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha10)" variant="all" version="8.3.0-alpha10">
 
     <issue
-        id="BanThreadSleep"
-        message="Uses Thread.sleep()"
-        errorLine1="        Thread.sleep(10)"
-        errorLine2="               ~~~~~">
+        id="PrimitiveInCollection"
+        message="method isMonotonicBetween has parameter $this$isMonotonicBetween with type List&lt;Float>: replace with FloatList"
+        errorLine1="fun List&lt;Float>.isMonotonicBetween(a: Float, b: Float, tolerance: Float = 1e-3f) {"
+        errorLine2="    ~~~~~~~~~~~">
         <location
-            file="src/androidMain/kotlin/androidx/compose/ui/test/android/WindowCapture.android.kt"/>
+            file="src/androidCommonTest/kotlin/androidx/compose/ui/test/util/Verifications.kt"/>
     </issue>
 
     <issue
-        id="BanThreadSleep"
-        message="Uses Thread.sleep()"
-        errorLine1="                Thread.sleep(10)"
-        errorLine2="                       ~~~~~">
+        id="PrimitiveInCollection"
+        message="method assertSame has parameter $this$assertSame with type List&lt;Float>: replace with FloatList"
+        errorLine1="fun List&lt;Float>.assertSame(tolerance: Float = 0f) {"
+        errorLine2="    ~~~~~~~~~~~">
         <location
-            file="src/androidMain/kotlin/androidx/compose/ui/test/ComposeUiTest.android.kt"/>
+            file="src/androidCommonTest/kotlin/androidx/compose/ui/test/util/Verifications.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method isMonotonicBetween has parameter $this$isMonotonicBetween with type List&lt;Float>: replace with FloatList"
+        errorLine1="fun List&lt;Float>.isMonotonicBetween(a: Float, b: Float, tolerance: Float = 1e-3f) {"
+        errorLine2="    ~~~~~~~~~~~">
+        <location
+            file="src/androidCommonTest/kotlin/androidx/compose/ui/test/util/Verifications.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method assertSame has parameter $this$assertSame with type List&lt;Float>: replace with FloatList"
+        errorLine1="fun List&lt;Float>.assertSame(tolerance: Float = 0f) {"
+        errorLine2="    ~~~~~~~~~~~">
+        <location
+            file="src/androidCommonTest/kotlin/androidx/compose/ui/test/util/Verifications.kt"/>
     </issue>
 
     <issue
@@ -53,6 +71,24 @@
         errorLine2="                    ~~~~~~~~~~">
         <location
             file="src/androidMain/kotlin/androidx/compose/ui/test/AndroidInputDispatcher.android.kt"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="                Thread.sleep(10)"
+        errorLine2="                       ~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/test/ComposeUiTest.android.kt"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(10)"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/test/android/WindowCapture.android.kt"/>
     </issue>
 
     <issue
@@ -174,6 +210,24 @@
 
     <issue
         id="PrimitiveInCollection"
+        message="method swipe has parameter keyTimes with type List&lt;Long>: replace with LongList"
+        errorLine1="    keyTimes: List&lt;Long> = emptyList()"
+        errorLine2="              ~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/test/TouchInjectionScope.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method multiTouchSwipe has parameter keyTimes with type List&lt;Long>: replace with LongList"
+        errorLine1="    keyTimes: List&lt;Long> = emptyList()"
+        errorLine2="              ~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/test/TouchInjectionScope.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
         message="method moveWithHistoryMultiPointer has parameter relativeHistoricalTimes with type List&lt;Long>: replace with LongList"
         errorLine1="        relativeHistoricalTimes: List&lt;Long>,"
         errorLine2="                                 ~~~~~~~~~~">
@@ -197,60 +251,6 @@
         errorLine2="                               ~~~~~~~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/ui/test/TouchInjectionScope.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="method swipe has parameter keyTimes with type List&lt;Long>: replace with LongList"
-        errorLine1="    keyTimes: List&lt;Long> = emptyList()"
-        errorLine2="              ~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/ui/test/TouchInjectionScope.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="method multiTouchSwipe has parameter keyTimes with type List&lt;Long>: replace with LongList"
-        errorLine1="    keyTimes: List&lt;Long> = emptyList()"
-        errorLine2="              ~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/ui/test/TouchInjectionScope.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="method isMonotonicBetween has parameter $this$isMonotonicBetween with type List&lt;Float>: replace with FloatList"
-        errorLine1="fun List&lt;Float>.isMonotonicBetween(a: Float, b: Float, tolerance: Float = 1e-3f) {"
-        errorLine2="    ~~~~~~~~~~~">
-        <location
-            file="src/androidCommonTest/kotlin/androidx/compose/ui/test/util/Verifications.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="method isMonotonicBetween has parameter $this$isMonotonicBetween with type List&lt;Float>: replace with FloatList"
-        errorLine1="fun List&lt;Float>.isMonotonicBetween(a: Float, b: Float, tolerance: Float = 1e-3f) {"
-        errorLine2="    ~~~~~~~~~~~">
-        <location
-            file="src/androidCommonTest/kotlin/androidx/compose/ui/test/util/Verifications.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="method assertSame has parameter $this$assertSame with type List&lt;Float>: replace with FloatList"
-        errorLine1="fun List&lt;Float>.assertSame(tolerance: Float = 0f) {"
-        errorLine2="    ~~~~~~~~~~~">
-        <location
-            file="src/androidCommonTest/kotlin/androidx/compose/ui/test/util/Verifications.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="method assertSame has parameter $this$assertSame with type List&lt;Float>: replace with FloatList"
-        errorLine1="fun List&lt;Float>.assertSame(tolerance: Float = 0f) {"
-        errorLine2="    ~~~~~~~~~~~">
-        <location
-            file="src/androidCommonTest/kotlin/androidx/compose/ui/test/util/Verifications.kt"/>
     </issue>
 
 </issues>

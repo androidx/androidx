@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.3.0-alpha04" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha04)" variant="all" version="8.3.0-alpha04">
+<issues format="6" by="lint 8.3.0-alpha10" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha10)" variant="all" version="8.3.0-alpha10">
 
     <issue
         id="ResourceType"
@@ -209,135 +209,6 @@
     </issue>
 
     <issue
-        id="ResourceType"
-        message="Expected resource of type styleable"
-        errorLine1="                    AndroidResources.STYLEABLE_OVERSHOOT_INTERPOLATOR, 0, 0);"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/animation/OvershootInterpolator.java"/>
-    </issue>
-
-    <issue
-        id="ResourceType"
-        message="Expected resource of type styleable"
-        errorLine1="            a = res.obtainAttributes(attrs, AndroidResources.STYLEABLE_OVERSHOOT_INTERPOLATOR);"
-        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/animation/OvershootInterpolator.java"/>
-    </issue>
-
-    <issue
-        id="ResourceType"
-        message="Expected resource of type styleable"
-        errorLine1="            a = theme.obtainStyledAttributes(attrs, AndroidResources.STYLEABLE_PATH_INTERPOLATOR,"
-        errorLine2="                                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/animation/PathInterpolator.java"/>
-    </issue>
-
-    <issue
-        id="ResourceType"
-        message="Expected resource of type styleable"
-        errorLine1="            a = res.obtainAttributes(attrs, AndroidResources.STYLEABLE_PATH_INTERPOLATOR);"
-        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/animation/PathInterpolator.java"/>
-    </issue>
-
-    <issue
-        id="BanUncheckedReflection"
-        message="Calling `Method.invoke` without an SDK check"
-        errorLine1="                        Object value = convertBack(mGetter.invoke(target));"
-        errorLine2="                                                   ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/animation/PropertyValuesHolder.java"/>
-    </issue>
-
-    <issue
-        id="BanUncheckedReflection"
-        message="Calling `Method.invoke` without an SDK check"
-        errorLine1="                Object value = convertBack(mGetter.invoke(target));"
-        errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/animation/PropertyValuesHolder.java"/>
-    </issue>
-
-    <issue
-        id="BanUncheckedReflection"
-        message="Calling `Method.invoke` without an SDK check"
-        errorLine1="                mSetter.invoke(target, mTmpValueArray);"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/animation/PropertyValuesHolder.java"/>
-    </issue>
-
-    <issue
-        id="BanUncheckedReflection"
-        message="Calling `Method.invoke` without an SDK check"
-        errorLine1="                mSetter.invoke(target, mTmpValueArray);"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/animation/PropertyValuesHolder.java"/>
-    </issue>
-
-    <issue
-        id="BanUncheckedReflection"
-        message="Calling `Method.invoke` without an SDK check"
-        errorLine1="                    mSetter.invoke(target, mTmpValueArray);"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/animation/PropertyValuesHolder.java"/>
-    </issue>
-
-    <issue
-        id="BanUncheckedReflection"
-        message="Calling `Method.invoke` without an SDK check"
-        errorLine1="                    mSetter.invoke(target, boxedValues);"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/animation/PropertyValuesHolder.java"/>
-    </issue>
-
-    <issue
-        id="BanUncheckedReflection"
-        message="Calling `Method.invoke` without an SDK check"
-        errorLine1="                    mSetter.invoke(target, boxedValues);"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/animation/PropertyValuesHolder.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 19"
-        errorLine1="            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/animation/AnimationHandler.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 16"
-        errorLine1="    @RequiresApi(Build.VERSION_CODES.JELLY_BEAN)"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/animation/AnimationHandler.java"/>
-    </issue>
-
-    <issue
-        id="KotlinPropertyAccess"
-        message="The getter return type (`PropertyValuesHolder[]`) and setter parameter type (`PropertyValuesHolder...`) getter and setter methods for property `values` should have exactly the same type to allow be accessed as a property from Kotlin; see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
-        errorLine1="    public PropertyValuesHolder[] getValues() {"
-        errorLine2="                                  ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/animation/ValueAnimator.java"/>
-        <location
-            file="src/main/java/androidx/core/animation/ValueAnimator.java"
-            message="Setter here"/>
-    </issue>
-
-    <issue
         id="LambdaLast"
         message="Functional interface parameters (such as parameter 4, &quot;evaluator&quot;, in androidx.core.animation.ObjectAnimator.ofMultiInt) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
         errorLine1="            @NonNull TypeEvaluator&lt;T> evaluator, @NonNull T... values) {"
@@ -380,6 +251,42 @@
         errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/animation/ObjectAnimator.java"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="                    AndroidResources.STYLEABLE_OVERSHOOT_INTERPOLATOR, 0, 0);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/animation/OvershootInterpolator.java"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="            a = res.obtainAttributes(attrs, AndroidResources.STYLEABLE_OVERSHOOT_INTERPOLATOR);"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/animation/OvershootInterpolator.java"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="            a = theme.obtainStyledAttributes(attrs, AndroidResources.STYLEABLE_PATH_INTERPOLATOR,"
+        errorLine2="                                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/animation/PathInterpolator.java"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="            a = res.obtainAttributes(attrs, AndroidResources.STYLEABLE_PATH_INTERPOLATOR);"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/animation/PathInterpolator.java"/>
     </issue>
 
     <issue
@@ -446,12 +353,87 @@
     </issue>
 
     <issue
+        id="BanUncheckedReflection"
+        message="Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
+        errorLine1="                        Object value = convertBack(mGetter.invoke(target));"
+        errorLine2="                                                   ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/animation/PropertyValuesHolder.java"/>
+    </issue>
+
+    <issue
+        id="BanUncheckedReflection"
+        message="Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
+        errorLine1="                Object value = convertBack(mGetter.invoke(target));"
+        errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/animation/PropertyValuesHolder.java"/>
+    </issue>
+
+    <issue
+        id="BanUncheckedReflection"
+        message="Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
+        errorLine1="                mSetter.invoke(target, mTmpValueArray);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/animation/PropertyValuesHolder.java"/>
+    </issue>
+
+    <issue
+        id="BanUncheckedReflection"
+        message="Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
+        errorLine1="                mSetter.invoke(target, mTmpValueArray);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/animation/PropertyValuesHolder.java"/>
+    </issue>
+
+    <issue
+        id="BanUncheckedReflection"
+        message="Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
+        errorLine1="                    mSetter.invoke(target, mTmpValueArray);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/animation/PropertyValuesHolder.java"/>
+    </issue>
+
+    <issue
+        id="BanUncheckedReflection"
+        message="Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
+        errorLine1="                    mSetter.invoke(target, boxedValues);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/animation/PropertyValuesHolder.java"/>
+    </issue>
+
+    <issue
+        id="BanUncheckedReflection"
+        message="Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
+        errorLine1="                    mSetter.invoke(target, boxedValues);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/animation/PropertyValuesHolder.java"/>
+    </issue>
+
+    <issue
         id="LambdaLast"
         message="Functional interface parameters (such as parameter 1, &quot;evaluator&quot;, in androidx.core.animation.ValueAnimator.ofObject) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
         errorLine1="            @NonNull Object... values) {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/animation/ValueAnimator.java"/>
+    </issue>
+
+    <issue
+        id="KotlinPropertyAccess"
+        message="The getter return type (`PropertyValuesHolder[]`) and setter parameter type (`PropertyValuesHolder...`) getter and setter methods for property `values` should have exactly the same type to allow be accessed as a property from Kotlin; see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
+        errorLine1="    public PropertyValuesHolder[] getValues() {"
+        errorLine2="                                  ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/animation/ValueAnimator.java"/>
+        <location
+            file="src/main/java/androidx/core/animation/ValueAnimator.java"
+            message="Setter here"/>
     </issue>
 
 </issues>

@@ -20,30 +20,12 @@
     </issue>
 
     <issue
-        id="ExperimentalPropertyAnnotation"
-        message="This property does not have all required annotations to correctly mark it as experimental."
-        errorLine1="    @ExperimentalComposeUiApi"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        id="PrimitiveInCollection"
+        message="variable deltas with type List&lt;? extends Offset>: replace with LongList"
+        errorLine1="    val deltas = items.fastZipWithNext { el1, el2 ->"
+        errorLine2="    ^">
         <location
-            file="src/commonMain/kotlin/androidx/compose/ui/semantics/SemanticsProperties.kt"/>
-    </issue>
-
-    <issue
-        id="ExperimentalPropertyAnnotation"
-        message="This property does not have all required annotations to correctly mark it as experimental."
-        errorLine1="    @get:ExperimentalComposeUiApi"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/ui/platform/WindowInfo.kt"/>
-    </issue>
-
-    <issue
-        id="ExperimentalPropertyAnnotation"
-        message="This property does not have all required annotations to correctly mark it as experimental."
-        errorLine1="    @get:ExperimentalComposeUiApi"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/ui/platform/WindowInfo.kt"/>
+            file="src/androidMain/kotlin/androidx/compose/ui/platform/accessibility/CollectionInfo.android.kt"/>
     </issue>
 
     <issue
@@ -62,15 +44,6 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/ui/autofill/AutofillTree.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="variable deltas with type List&lt;? extends Offset>: replace with LongList"
-        errorLine1="    val deltas = items.fastZipWithNext { el1, el2 ->"
-        errorLine2="    ^">
-        <location
-            file="src/androidMain/kotlin/androidx/compose/ui/platform/accessibility/CollectionInfo.android.kt"/>
     </issue>
 
     <issue
@@ -227,12 +200,21 @@
     </issue>
 
     <issue
-        id="PrimitiveInCollection"
-        message="variable alignmentLines with type Map&lt;AlignmentLine, ? extends Integer>: replace with ObjectIntMap"
-        errorLine1="                val alignmentLines = coordinator._measureResult?.alignmentLines"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        id="ExperimentalPropertyAnnotation"
+        message="This property does not have all required annotations to correctly mark it as experimental."
+        errorLine1="    @get:ExperimentalComposeUiApi"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/commonMain/kotlin/androidx/compose/ui/node/NodeCoordinator.kt"/>
+            file="src/commonMain/kotlin/androidx/compose/ui/platform/WindowInfo.kt"/>
+    </issue>
+
+    <issue
+        id="ExperimentalPropertyAnnotation"
+        message="This property does not have all required annotations to correctly mark it as experimental."
+        errorLine1="    @get:ExperimentalComposeUiApi"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/platform/WindowInfo.kt"/>
     </issue>
 
     <issue
@@ -251,6 +233,15 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/ui/semantics/SemanticsOwner.kt"/>
+    </issue>
+
+    <issue
+        id="ExperimentalPropertyAnnotation"
+        message="This property does not have all required annotations to correctly mark it as experimental."
+        errorLine1="    @ExperimentalComposeUiApi"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/semantics/SemanticsProperties.kt"/>
     </issue>
 
 </issues>

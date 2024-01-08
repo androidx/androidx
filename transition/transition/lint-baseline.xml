@@ -1,11 +1,101 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.3.0-alpha04" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha04)" variant="all" version="8.3.0-alpha04">
+<issues format="6" by="lint 8.3.0-alpha10" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha10)" variant="all" version="8.3.0-alpha10">
 
     <issue
         id="ResourceType"
         message="Expected resource of type styleable"
         errorLine1="    static final int[] TRANSITION_TARGET = {"
         errorLine2="                                           ^">
+        <location
+            file="src/main/java/androidx/transition/Styleable.java"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="    static final int[] TRANSITION_MANAGER = {"
+        errorLine2="                                            ^">
+        <location
+            file="src/main/java/androidx/transition/Styleable.java"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="    static final int[] TRANSITION = {"
+        errorLine2="                                    ^">
+        <location
+            file="src/main/java/androidx/transition/Styleable.java"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="    static final int[] CHANGE_BOUNDS = {"
+        errorLine2="                                       ^">
+        <location
+            file="src/main/java/androidx/transition/Styleable.java"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="    static final int[] VISIBILITY_TRANSITION = {"
+        errorLine2="                                               ^">
+        <location
+            file="src/main/java/androidx/transition/Styleable.java"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="    static final int[] FADE = {"
+        errorLine2="                              ^">
+        <location
+            file="src/main/java/androidx/transition/Styleable.java"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="    static final int[] CHANGE_TRANSFORM = {"
+        errorLine2="                                          ^">
+        <location
+            file="src/main/java/androidx/transition/Styleable.java"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="    static final int[] SLIDE = {"
+        errorLine2="                               ^">
+        <location
+            file="src/main/java/androidx/transition/Styleable.java"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="    static final int[] TRANSITION_SET = {"
+        errorLine2="                                        ^">
+        <location
+            file="src/main/java/androidx/transition/Styleable.java"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="    static final int[] ARC_MOTION = {"
+        errorLine2="                                    ^">
+        <location
+            file="src/main/java/androidx/transition/Styleable.java"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="    static final int[] PATTERN_PATH_MOTION = {"
+        errorLine2="                                             ^">
         <location
             file="src/main/java/androidx/transition/Styleable.java"/>
     </issue>
@@ -58,15 +148,6 @@
     <issue
         id="ResourceType"
         message="Expected resource of type styleable"
-        errorLine1="    static final int[] TRANSITION_MANAGER = {"
-        errorLine2="                                            ^">
-        <location
-            file="src/main/java/androidx/transition/Styleable.java"/>
-    </issue>
-
-    <issue
-        id="ResourceType"
-        message="Expected resource of type styleable"
         errorLine1="        int TO_SCENE = 1;"
         errorLine2="                       ~">
         <location
@@ -78,15 +159,6 @@
         message="Expected resource of type styleable"
         errorLine1="        int TRANSITION = 2;"
         errorLine2="                         ~">
-        <location
-            file="src/main/java/androidx/transition/Styleable.java"/>
-    </issue>
-
-    <issue
-        id="ResourceType"
-        message="Expected resource of type styleable"
-        errorLine1="    static final int[] TRANSITION = {"
-        errorLine2="                                    ^">
         <location
             file="src/main/java/androidx/transition/Styleable.java"/>
     </issue>
@@ -121,71 +193,8 @@
     <issue
         id="ResourceType"
         message="Expected resource of type styleable"
-        errorLine1="    static final int[] CHANGE_BOUNDS = {"
-        errorLine2="                                       ^">
-        <location
-            file="src/main/java/androidx/transition/Styleable.java"/>
-    </issue>
-
-    <issue
-        id="ResourceType"
-        message="Expected resource of type styleable"
-        errorLine1="    static final int[] VISIBILITY_TRANSITION = {"
-        errorLine2="                                               ^">
-        <location
-            file="src/main/java/androidx/transition/Styleable.java"/>
-    </issue>
-
-    <issue
-        id="ResourceType"
-        message="Expected resource of type styleable"
-        errorLine1="    static final int[] FADE = {"
-        errorLine2="                              ^">
-        <location
-            file="src/main/java/androidx/transition/Styleable.java"/>
-    </issue>
-
-    <issue
-        id="ResourceType"
-        message="Expected resource of type styleable"
-        errorLine1="    static final int[] CHANGE_TRANSFORM = {"
-        errorLine2="                                          ^">
-        <location
-            file="src/main/java/androidx/transition/Styleable.java"/>
-    </issue>
-
-    <issue
-        id="ResourceType"
-        message="Expected resource of type styleable"
         errorLine1="        int REPARENT_WITH_OVERLAY = 1;"
         errorLine2="                                    ~">
-        <location
-            file="src/main/java/androidx/transition/Styleable.java"/>
-    </issue>
-
-    <issue
-        id="ResourceType"
-        message="Expected resource of type styleable"
-        errorLine1="    static final int[] SLIDE = {"
-        errorLine2="                               ^">
-        <location
-            file="src/main/java/androidx/transition/Styleable.java"/>
-    </issue>
-
-    <issue
-        id="ResourceType"
-        message="Expected resource of type styleable"
-        errorLine1="    static final int[] TRANSITION_SET = {"
-        errorLine2="                                        ^">
-        <location
-            file="src/main/java/androidx/transition/Styleable.java"/>
-    </issue>
-
-    <issue
-        id="ResourceType"
-        message="Expected resource of type styleable"
-        errorLine1="    static final int[] ARC_MOTION = {"
-        errorLine2="                                    ^">
         <location
             file="src/main/java/androidx/transition/Styleable.java"/>
     </issue>
@@ -206,177 +215,6 @@
         errorLine2="                            ~">
         <location
             file="src/main/java/androidx/transition/Styleable.java"/>
-    </issue>
-
-    <issue
-        id="ResourceType"
-        message="Expected resource of type styleable"
-        errorLine1="    static final int[] PATTERN_PATH_MOTION = {"
-        errorLine2="                                             ^">
-        <location
-            file="src/main/java/androidx/transition/Styleable.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 19"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 19) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/transition/AnimatorUtils.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 19"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 19) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/transition/AnimatorUtils.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 19"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 19) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/transition/AnimatorUtils.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 19"
-        errorLine1="    @RequiresApi(19)"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/transition/AnimatorUtils.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 19"
-        errorLine1="            Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/transition/TransitionUtils.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 19"
-        errorLine1="            Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2;"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/transition/TransitionUtils.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 18"
-        errorLine1="    @RequiresApi(18)"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/transition/TransitionUtils.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 19"
-        errorLine1="    @RequiresApi(19)"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/transition/TransitionUtils.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 18"
-        errorLine1="@RequiresApi(18)"
-        errorLine2="~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/transition/ViewGroupOverlayApi18.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 19"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 18) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/transition/ViewGroupUtils.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 19"
-        errorLine1="        } else if (Build.VERSION.SDK_INT >= 18) {"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/transition/ViewGroupUtils.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 18"
-        errorLine1="    @RequiresApi(18)"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/transition/ViewGroupUtils.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 18"
-        errorLine1="@RequiresApi(18)"
-        errorLine2="~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/transition/ViewOverlayApi18.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 19"
-        errorLine1="        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/transition/ViewUtils.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 19"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 18) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/transition/ViewUtils.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 19"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 18) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/transition/ViewUtils.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 19"
-        errorLine1="@RequiresApi(19)"
-        errorLine2="~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/transition/ViewUtilsApi19.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 18"
-        errorLine1="@RequiresApi(18)"
-        errorLine2="~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/transition/WindowIdApi18.java"/>
     </issue>
 
 </issues>

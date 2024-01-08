@@ -1,5 +1,104 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.4.0-alpha08" type="baseline" client="cli" dependencies="false" name="AGP (7.4.0-alpha08)" variant="all" version="7.4.0-alpha08">
+<issues format="6" by="lint 8.3.0-alpha10" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha10)" variant="all" version="8.3.0-alpha10">
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                         ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/transition/SupportTransitionDemos.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected List&lt;Map&lt;String, Object>> getData(String prefix) {"
+        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/transition/SupportTransitionDemos.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected List&lt;Map&lt;String, Object>> getData(String prefix) {"
+        errorLine2="                                                ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/transition/SupportTransitionDemos.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected Intent activityIntent(String pkg, String componentName) {"
+        errorLine2="              ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/transition/SupportTransitionDemos.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected Intent activityIntent(String pkg, String componentName) {"
+        errorLine2="                                    ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/transition/SupportTransitionDemos.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected Intent activityIntent(String pkg, String componentName) {"
+        errorLine2="                                                ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/transition/SupportTransitionDemos.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected Intent browseIntent(String path) {"
+        errorLine2="              ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/transition/SupportTransitionDemos.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected Intent browseIntent(String path) {"
+        errorLine2="                                  ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/transition/SupportTransitionDemos.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void addItem(List&lt;Map&lt;String, Object>> data, String name, Intent intent) {"
+        errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/transition/SupportTransitionDemos.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void addItem(List&lt;Map&lt;String, Object>> data, String name, Intent intent) {"
+        errorLine2="                                                           ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/transition/SupportTransitionDemos.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void addItem(List&lt;Map&lt;String, Object>> data, String name, Intent intent) {"
+        errorLine2="                                                                        ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/transition/SupportTransitionDemos.java"/>
+    </issue>
 
     <issue
         id="UnknownNullness"
@@ -134,105 +233,6 @@
         errorLine2="                            ~~~~~~">
         <location
             file="src/main/java/com/example/android/support/transition/widget/SidePropagationUsage.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public void onCreate(Bundle savedInstanceState) {"
-        errorLine2="                         ~~~~~~">
-        <location
-            file="src/main/java/com/example/android/support/transition/SupportTransitionDemos.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected List&lt;Map&lt;String, Object>> getData(String prefix) {"
-        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/support/transition/SupportTransitionDemos.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected List&lt;Map&lt;String, Object>> getData(String prefix) {"
-        errorLine2="                                                ~~~~~~">
-        <location
-            file="src/main/java/com/example/android/support/transition/SupportTransitionDemos.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected Intent activityIntent(String pkg, String componentName) {"
-        errorLine2="              ~~~~~~">
-        <location
-            file="src/main/java/com/example/android/support/transition/SupportTransitionDemos.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected Intent activityIntent(String pkg, String componentName) {"
-        errorLine2="                                    ~~~~~~">
-        <location
-            file="src/main/java/com/example/android/support/transition/SupportTransitionDemos.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected Intent activityIntent(String pkg, String componentName) {"
-        errorLine2="                                                ~~~~~~">
-        <location
-            file="src/main/java/com/example/android/support/transition/SupportTransitionDemos.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected Intent browseIntent(String path) {"
-        errorLine2="              ~~~~~~">
-        <location
-            file="src/main/java/com/example/android/support/transition/SupportTransitionDemos.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected Intent browseIntent(String path) {"
-        errorLine2="                                  ~~~~~~">
-        <location
-            file="src/main/java/com/example/android/support/transition/SupportTransitionDemos.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected void addItem(List&lt;Map&lt;String, Object>> data, String name, Intent intent) {"
-        errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/support/transition/SupportTransitionDemos.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected void addItem(List&lt;Map&lt;String, Object>> data, String name, Intent intent) {"
-        errorLine2="                                                           ~~~~~~">
-        <location
-            file="src/main/java/com/example/android/support/transition/SupportTransitionDemos.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected void addItem(List&lt;Map&lt;String, Object>> data, String name, Intent intent) {"
-        errorLine2="                                                                        ~~~~~~">
-        <location
-            file="src/main/java/com/example/android/support/transition/SupportTransitionDemos.java"/>
     </issue>
 
 </issues>

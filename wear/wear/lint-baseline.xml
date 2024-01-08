@@ -1,14 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.1.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.0-beta02)" variant="all" version="8.1.0-beta02">
-
-    <issue
-        id="BanThreadSleep"
-        message="Uses Thread.sleep()"
-        errorLine1="            Thread.sleep(time);"
-        errorLine2="                   ~~~~~">
-        <location
-            file="src/androidTest/java/androidx/wear/widget/CircularProgressLayoutTest.java"/>
-    </issue>
+<issues format="6" by="lint 8.3.0-alpha10" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha10)" variant="all" version="8.3.0-alpha10">
 
     <issue
         id="BanThreadSleep"
@@ -47,78 +38,309 @@
     </issue>
 
     <issue
-        id="KotlinPropertyAccess"
-        message="This method should be called `getCircleColor` such that `circleColor` can be accessed as a property from Kotlin; see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
-        errorLine1="    public int getDefaultCircleColor() {"
-        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~">
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(time);"
+        errorLine2="                   ~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/CircledImageView.java"/>
+            file="src/androidTest/java/androidx/wear/widget/CircularProgressLayoutTest.java"/>
     </issue>
 
     <issue
-        id="KotlinPropertyAccess"
-        message="The getter return type (`int[]`) and setter parameter type (`int...`) getter and setter methods for property `colorSchemeColors` should have exactly the same type to allow be accessed as a property from Kotlin; see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
-        errorLine1="    public int[] getColorSchemeColors() {"
-        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~">
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                         ~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/CircularProgressLayout.java"/>
-        <location
-            file="src/main/java/androidx/wear/widget/CircularProgressLayout.java"
-            message="Setter here"/>
+            file="src/main/java/androidx/wear/activity/ConfirmationActivity.java"/>
     </issue>
 
     <issue
-        id="KotlinPropertyAccess"
-        message="The getter return type (`float`) and setter parameter type (`int`) getter and setter methods for property `dotSpacing` should have exactly the same type to allow be accessed as a property from Kotlin; see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
-        errorLine1="    public float getDotSpacing() {"
-        errorLine2="                 ~~~~~~~~~~~~~">
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public WearableActivityController getWearableController(Activity activity,"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/PageIndicatorView.java"/>
-        <location
-            file="src/main/java/androidx/wear/widget/drawer/PageIndicatorView.java"
-            message="Setter here"/>
+            file="src/main/java/androidx/wear/ambient/WearableControllerProvider.java"/>
     </issue>
 
     <issue
-        id="KotlinPropertyAccess"
-        message="The getter return type (`float`) and setter parameter type (`int`) getter and setter methods for property `dotRadius` should have exactly the same type to allow be accessed as a property from Kotlin; see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
-        errorLine1="    public float getDotRadius() {"
-        errorLine2="                 ~~~~~~~~~~~~">
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public WearableActivityController getWearableController(Activity activity,"
+        errorLine2="                                                            ~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/PageIndicatorView.java"/>
-        <location
-            file="src/main/java/androidx/wear/widget/drawer/PageIndicatorView.java"
-            message="Setter here"/>
+            file="src/main/java/androidx/wear/ambient/WearableControllerProvider.java"/>
     </issue>
 
     <issue
-        id="KotlinPropertyAccess"
-        message="The getter return type (`float`) and setter parameter type (`int`) getter and setter methods for property `dotRadiusSelected` should have exactly the same type to allow be accessed as a property from Kotlin; see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
-        errorLine1="    public float getDotRadiusSelected() {"
-        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~">
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="            final AmbientDelegate.AmbientCallback callback) {"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/PageIndicatorView.java"/>
-        <location
-            file="src/main/java/androidx/wear/widget/drawer/PageIndicatorView.java"
-            message="Setter here"/>
+            file="src/main/java/androidx/wear/ambient/WearableControllerProvider.java"/>
     </issue>
 
     <issue
-        id="KotlinPropertyAccess"
-        message="This method should be called `setAutoPeekEnabled` such that (along with the `isAutoPeekEnabled` getter) Kotlin code can access it as a property (`autoPeekEnabled`); see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
-        errorLine1="    public void setIsAutoPeekEnabled(boolean canAutoPeek) {"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~">
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public static int getScreenWidthPx(Context context) {"
+        errorLine2="                                       ~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/WearableDrawerView.java"/>
+            file="src/main/java/androidx/wear/internal/widget/ResourcesUtil.java"/>
     </issue>
 
     <issue
-        id="KotlinPropertyAccess"
-        message="This method should be called `setLocked` such that (along with the `isLocked` getter) Kotlin code can access it as a property (`locked`); see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
-        errorLine1="    public void setIsLocked(boolean locked) {"
-        errorLine2="                ~~~~~~~~~~~">
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public static int getScreenHeightPx(Context context) {"
+        errorLine2="                                        ~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/WearableDrawerView.java"/>
+            file="src/main/java/androidx/wear/internal/widget/ResourcesUtil.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public static int getFractionOfScreenPx(Context context, int screenPx, @FractionRes int resId) {"
+        errorLine2="                                            ~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/internal/widget/ResourcesUtil.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public MultiPagePresenter(WearableNavigationDrawerView drawer, Ui ui,"
+        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/internal/widget/drawer/MultiPagePresenter.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public MultiPagePresenter(WearableNavigationDrawerView drawer, Ui ui,"
+        errorLine2="                                                                   ~~">
+        <location
+            file="src/main/java/androidx/wear/internal/widget/drawer/MultiPagePresenter.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void onNewAdapter(WearableNavigationDrawerAdapter adapter) {"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/internal/widget/drawer/MultiPagePresenter.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        void initialize(WearableNavigationDrawerView drawer,"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/internal/widget/drawer/MultiPagePresenter.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="                WearableNavigationDrawerPresenter presenter);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/internal/widget/drawer/MultiPagePresenter.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        void setNavigationPagerAdapter(WearableNavigationDrawerAdapter adapter);"
+        errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/internal/widget/drawer/MultiPagePresenter.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="            WearableNavigationDrawerView drawer, WearableNavigationDrawerPresenter presenter) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/internal/widget/drawer/MultiPageUi.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="            WearableNavigationDrawerView drawer, WearableNavigationDrawerPresenter presenter) {"
+        errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/internal/widget/drawer/MultiPageUi.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void setNavigationPagerAdapter(final WearableNavigationDrawerAdapter adapter) {"
+        errorLine2="                                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/internal/widget/drawer/MultiPageUi.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public SinglePagePresenter(Ui ui, boolean isAccessibilityEnabled) {"
+        errorLine2="                               ~~">
+        <location
+            file="src/main/java/androidx/wear/internal/widget/drawer/SinglePagePresenter.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void onNewAdapter(WearableNavigationDrawerAdapter adapter) {"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/internal/widget/drawer/SinglePagePresenter.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        void setPresenter(WearableNavigationDrawerPresenter presenter);"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/internal/widget/drawer/SinglePagePresenter.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        void setIcon(int index, Drawable drawable, CharSequence contentDescription);"
+        errorLine2="                                ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/internal/widget/drawer/SinglePagePresenter.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        void setIcon(int index, Drawable drawable, CharSequence contentDescription);"
+        errorLine2="                                                   ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/internal/widget/drawer/SinglePagePresenter.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        void setText(CharSequence itemText, boolean showToastIfNoTextView);"
+        errorLine2="                     ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/internal/widget/drawer/SinglePagePresenter.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public SinglePageUi(WearableNavigationDrawerView navigationDrawer) {"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/internal/widget/drawer/SinglePageUi.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void setPresenter(WearableNavigationDrawerPresenter presenter) {"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/internal/widget/drawer/SinglePageUi.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void setIcon(int index, Drawable drawable, CharSequence contentDescription) {"
+        errorLine2="                                   ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/internal/widget/drawer/SinglePageUi.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void setIcon(int index, Drawable drawable, CharSequence contentDescription) {"
+        errorLine2="                                                      ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/internal/widget/drawer/SinglePageUi.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void setText(CharSequence itemText, boolean showToastIfNoTextView) {"
+        errorLine2="                        ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/internal/widget/drawer/SinglePageUi.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public abstract void onNewAdapter(WearableNavigationDrawerAdapter adapter);"
+        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/internal/widget/drawer/WearableNavigationDrawerPresenter.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void onItemSelectedListenerAdded(OnItemSelectedListener listener) {"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/internal/widget/drawer/WearableNavigationDrawerPresenter.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void onItemSelectedListenerRemoved(OnItemSelectedListener listener) {"
+        errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/internal/widget/drawer/WearableNavigationDrawerPresenter.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public static boolean isStandalone(Context context) {"
+        errorLine2="                                       ~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/utils/MetadataConstants.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public static boolean isNotificationBridgingEnabled(Context context) {"
+        errorLine2="                                                        ~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/utils/MetadataConstants.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public static int getPreviewDrawableResourceId(Context context, boolean circular) {"
+        errorLine2="                                                   ~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/utils/MetadataConstants.java"/>
     </issue>
 
     <issue
@@ -162,6 +384,15 @@
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public CircledImageView(Context context, AttributeSet attrs, int defStyle) {"
         errorLine2="                                             ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/widget/CircledImageView.java"/>
+    </issue>
+
+    <issue
+        id="KotlinPropertyAccess"
+        message="This method should be called `getCircleColor` such that `circleColor` can be accessed as a property from Kotlin; see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
+        errorLine1="    public int getDefaultCircleColor() {"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/widget/CircledImageView.java"/>
     </issue>
@@ -218,15 +449,6 @@
         errorLine2="                                 ~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/widget/CircledImageView.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        void onTimerFinished(CircularProgressLayout layout);"
-        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/widget/CircularProgressLayout.java"/>
     </issue>
 
     <issue
@@ -293,6 +515,18 @@
     </issue>
 
     <issue
+        id="KotlinPropertyAccess"
+        message="The getter return type (`int[]`) and setter parameter type (`int...`) getter and setter methods for property `colorSchemeColors` should have exactly the same type to allow be accessed as a property from Kotlin; see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
+        errorLine1="    public int[] getColorSchemeColors() {"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/widget/CircularProgressLayout.java"/>
+        <location
+            file="src/main/java/androidx/wear/widget/CircularProgressLayout.java"
+            message="Setter here"/>
+    </issue>
+
+    <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public void setColorSchemeColors(int... colors) {"
@@ -313,10 +547,10 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public void onCreate(Bundle savedInstanceState) {"
-        errorLine2="                         ~~~~~~">
+        errorLine1="        void onTimerFinished(CircularProgressLayout layout);"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/activity/ConfirmationActivity.java"/>
+            file="src/main/java/androidx/wear/widget/CircularProgressLayout.java"/>
     </issue>
 
     <issue
@@ -362,222 +596,6 @@
         errorLine2="                                                 ~~~~~~~">
         <location
             file="src/main/java/androidx/wear/widget/CurvingLayoutCallback.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public static boolean isStandalone(Context context) {"
-        errorLine2="                                       ~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/utils/MetadataConstants.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public static boolean isNotificationBridgingEnabled(Context context) {"
-        errorLine2="                                                        ~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/utils/MetadataConstants.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public static int getPreviewDrawableResourceId(Context context, boolean circular) {"
-        errorLine2="                                                   ~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/utils/MetadataConstants.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        void initialize(WearableNavigationDrawerView drawer,"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/internal/widget/drawer/MultiPagePresenter.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="                WearableNavigationDrawerPresenter presenter);"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/internal/widget/drawer/MultiPagePresenter.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        void setNavigationPagerAdapter(WearableNavigationDrawerAdapter adapter);"
-        errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/internal/widget/drawer/MultiPagePresenter.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public MultiPagePresenter(WearableNavigationDrawerView drawer, Ui ui,"
-        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/internal/widget/drawer/MultiPagePresenter.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public MultiPagePresenter(WearableNavigationDrawerView drawer, Ui ui,"
-        errorLine2="                                                                   ~~">
-        <location
-            file="src/main/java/androidx/wear/internal/widget/drawer/MultiPagePresenter.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public void onNewAdapter(WearableNavigationDrawerAdapter adapter) {"
-        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/internal/widget/drawer/MultiPagePresenter.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="            WearableNavigationDrawerView drawer, WearableNavigationDrawerPresenter presenter) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/internal/widget/drawer/MultiPageUi.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="            WearableNavigationDrawerView drawer, WearableNavigationDrawerPresenter presenter) {"
-        errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/internal/widget/drawer/MultiPageUi.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public void setNavigationPagerAdapter(final WearableNavigationDrawerAdapter adapter) {"
-        errorLine2="                                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/internal/widget/drawer/MultiPageUi.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public PageIndicatorView(Context context) {"
-        errorLine2="                             ~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/widget/drawer/PageIndicatorView.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public PageIndicatorView(Context context, AttributeSet attrs) {"
-        errorLine2="                             ~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/widget/drawer/PageIndicatorView.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public PageIndicatorView(Context context, AttributeSet attrs) {"
-        errorLine2="                                              ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/widget/drawer/PageIndicatorView.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public PageIndicatorView(Context context, AttributeSet attrs, int defStyleAttr) {"
-        errorLine2="                             ~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/widget/drawer/PageIndicatorView.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public PageIndicatorView(Context context, AttributeSet attrs, int defStyleAttr) {"
-        errorLine2="                                              ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/widget/drawer/PageIndicatorView.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public void setPager(ViewPager pager) {"
-        errorLine2="                         ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/widget/drawer/PageIndicatorView.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public void setDotFadeOutDuration(int duration, TimeUnit unit) {"
-        errorLine2="                                                    ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/widget/drawer/PageIndicatorView.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public void setDotFadeInDuration(int duration, TimeUnit unit) {"
-        errorLine2="                                                   ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/widget/drawer/PageIndicatorView.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public void setPagerAdapter(PagerAdapter adapter) {"
-        errorLine2="                                ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/widget/drawer/PageIndicatorView.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public static int getScreenWidthPx(Context context) {"
-        errorLine2="                                       ~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/internal/widget/ResourcesUtil.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public static int getScreenHeightPx(Context context) {"
-        errorLine2="                                        ~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/internal/widget/ResourcesUtil.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public static int getFractionOfScreenPx(Context context, int screenPx, @FractionRes int resId) {"
-        errorLine2="                                            ~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/internal/widget/ResourcesUtil.java"/>
     </issue>
 
     <issue
@@ -632,132 +650,6 @@
         errorLine2="                                    ~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/widget/SimpleAnimatorListener.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        void setPresenter(WearableNavigationDrawerPresenter presenter);"
-        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/internal/widget/drawer/SinglePagePresenter.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        void setIcon(int index, Drawable drawable, CharSequence contentDescription);"
-        errorLine2="                                ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/internal/widget/drawer/SinglePagePresenter.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        void setIcon(int index, Drawable drawable, CharSequence contentDescription);"
-        errorLine2="                                                   ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/internal/widget/drawer/SinglePagePresenter.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        void setText(CharSequence itemText, boolean showToastIfNoTextView);"
-        errorLine2="                     ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/internal/widget/drawer/SinglePagePresenter.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public SinglePagePresenter(Ui ui, boolean isAccessibilityEnabled) {"
-        errorLine2="                               ~~">
-        <location
-            file="src/main/java/androidx/wear/internal/widget/drawer/SinglePagePresenter.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public void onNewAdapter(WearableNavigationDrawerAdapter adapter) {"
-        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/internal/widget/drawer/SinglePagePresenter.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public SinglePageUi(WearableNavigationDrawerView navigationDrawer) {"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/internal/widget/drawer/SinglePageUi.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public void setPresenter(WearableNavigationDrawerPresenter presenter) {"
-        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/internal/widget/drawer/SinglePageUi.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public void setIcon(int index, Drawable drawable, CharSequence contentDescription) {"
-        errorLine2="                                   ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/internal/widget/drawer/SinglePageUi.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public void setIcon(int index, Drawable drawable, CharSequence contentDescription) {"
-        errorLine2="                                                      ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/internal/widget/drawer/SinglePageUi.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public void setText(CharSequence itemText, boolean showToastIfNoTextView) {"
-        errorLine2="                        ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/internal/widget/drawer/SinglePageUi.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public void onSwipeStarted(SwipeDismissFrameLayout layout) {"
-        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/widget/SwipeDismissFrameLayout.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public void onSwipeCanceled(SwipeDismissFrameLayout layout) {"
-        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/widget/SwipeDismissFrameLayout.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public void onDismissed(SwipeDismissFrameLayout layout) {"
-        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/widget/SwipeDismissFrameLayout.java"/>
     </issue>
 
     <issue
@@ -839,6 +731,267 @@
         errorLine2="                               ~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/widget/SwipeDismissFrameLayout.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public void onSwipeStarted(SwipeDismissFrameLayout layout) {"
+        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/widget/SwipeDismissFrameLayout.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public void onSwipeCanceled(SwipeDismissFrameLayout layout) {"
+        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/widget/SwipeDismissFrameLayout.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public void onDismissed(SwipeDismissFrameLayout layout) {"
+        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/widget/SwipeDismissFrameLayout.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public WearableLinearLayoutManager(Context context, LayoutCallback layoutCallback) {"
+        errorLine2="                                       ~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/widget/WearableLinearLayoutManager.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public WearableLinearLayoutManager(Context context, LayoutCallback layoutCallback) {"
+        errorLine2="                                                        ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/widget/WearableLinearLayoutManager.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public WearableLinearLayoutManager(Context context) {"
+        errorLine2="                                       ~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/widget/WearableLinearLayoutManager.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="            int dy, RecyclerView.Recycler recycler, RecyclerView.State state) {"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/widget/WearableLinearLayoutManager.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="            int dy, RecyclerView.Recycler recycler, RecyclerView.State state) {"
+        errorLine2="                                                    ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/widget/WearableLinearLayoutManager.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/widget/WearableLinearLayoutManager.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {"
+        errorLine2="                                                                 ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/widget/WearableLinearLayoutManager.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public abstract void onLayoutFinished(View child, RecyclerView parent);"
+        errorLine2="                                              ~~~~">
+        <location
+            file="src/main/java/androidx/wear/widget/WearableLinearLayoutManager.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public abstract void onLayoutFinished(View child, RecyclerView parent);"
+        errorLine2="                                                          ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/widget/WearableLinearLayoutManager.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public WearableRecyclerView(Context context) {"
+        errorLine2="                                ~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/widget/WearableRecyclerView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public WearableRecyclerView(Context context, @Nullable AttributeSet attrs) {"
+        errorLine2="                                ~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/widget/WearableRecyclerView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public WearableRecyclerView(Context context, @Nullable AttributeSet attrs, int defStyle) {"
+        errorLine2="                                ~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/widget/WearableRecyclerView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public WearableRecyclerView(Context context, @Nullable AttributeSet attrs, int defStyle,"
+        errorLine2="                                ~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/widget/WearableRecyclerView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public PageIndicatorView(Context context) {"
+        errorLine2="                             ~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/widget/drawer/PageIndicatorView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public PageIndicatorView(Context context, AttributeSet attrs) {"
+        errorLine2="                             ~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/widget/drawer/PageIndicatorView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public PageIndicatorView(Context context, AttributeSet attrs) {"
+        errorLine2="                                              ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/widget/drawer/PageIndicatorView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public PageIndicatorView(Context context, AttributeSet attrs, int defStyleAttr) {"
+        errorLine2="                             ~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/widget/drawer/PageIndicatorView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public PageIndicatorView(Context context, AttributeSet attrs, int defStyleAttr) {"
+        errorLine2="                                              ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/widget/drawer/PageIndicatorView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void setPager(ViewPager pager) {"
+        errorLine2="                         ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/widget/drawer/PageIndicatorView.java"/>
+    </issue>
+
+    <issue
+        id="KotlinPropertyAccess"
+        message="The getter return type (`float`) and setter parameter type (`int`) getter and setter methods for property `dotSpacing` should have exactly the same type to allow be accessed as a property from Kotlin; see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
+        errorLine1="    public float getDotSpacing() {"
+        errorLine2="                 ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/widget/drawer/PageIndicatorView.java"/>
+        <location
+            file="src/main/java/androidx/wear/widget/drawer/PageIndicatorView.java"
+            message="Setter here"/>
+    </issue>
+
+    <issue
+        id="KotlinPropertyAccess"
+        message="The getter return type (`float`) and setter parameter type (`int`) getter and setter methods for property `dotRadius` should have exactly the same type to allow be accessed as a property from Kotlin; see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
+        errorLine1="    public float getDotRadius() {"
+        errorLine2="                 ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/widget/drawer/PageIndicatorView.java"/>
+        <location
+            file="src/main/java/androidx/wear/widget/drawer/PageIndicatorView.java"
+            message="Setter here"/>
+    </issue>
+
+    <issue
+        id="KotlinPropertyAccess"
+        message="The getter return type (`float`) and setter parameter type (`int`) getter and setter methods for property `dotRadiusSelected` should have exactly the same type to allow be accessed as a property from Kotlin; see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
+        errorLine1="    public float getDotRadiusSelected() {"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/widget/drawer/PageIndicatorView.java"/>
+        <location
+            file="src/main/java/androidx/wear/widget/drawer/PageIndicatorView.java"
+            message="Setter here"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void setDotFadeOutDuration(int duration, TimeUnit unit) {"
+        errorLine2="                                                    ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/widget/drawer/PageIndicatorView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void setDotFadeInDuration(int duration, TimeUnit unit) {"
+        errorLine2="                                                   ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/widget/drawer/PageIndicatorView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void setPagerAdapter(PagerAdapter adapter) {"
+        errorLine2="                                ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/widget/drawer/PageIndicatorView.java"/>
     </issue>
 
     <issue
@@ -1249,33 +1402,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public WearableActivityController getWearableController(Activity activity,"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/ambient/WearableControllerProvider.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public WearableActivityController getWearableController(Activity activity,"
-        errorLine2="                                                            ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/ambient/WearableControllerProvider.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="            final AmbientDelegate.AmbientCallback callback) {"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/ambient/WearableControllerProvider.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public WearableDrawerLayout(Context context) {"
         errorLine2="                                ~~~~~~~">
         <location
@@ -1481,10 +1607,19 @@
     </issue>
 
     <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public WearableDrawerController getController() {"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~">
+        id="KotlinPropertyAccess"
+        message="This method should be called `setAutoPeekEnabled` such that (along with the `isAutoPeekEnabled` getter) Kotlin code can access it as a property (`autoPeekEnabled`); see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
+        errorLine1="    public void setIsAutoPeekEnabled(boolean canAutoPeek) {"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/widget/drawer/WearableDrawerView.java"/>
+    </issue>
+
+    <issue
+        id="KotlinPropertyAccess"
+        message="This method should be called `setLocked` such that (along with the `isLocked` getter) Kotlin code can access it as a property (`locked`); see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
+        errorLine1="    public void setIsLocked(boolean locked) {"
+        errorLine2="                ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/widget/drawer/WearableDrawerView.java"/>
     </issue>
@@ -1492,109 +1627,10 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public abstract void onLayoutFinished(View child, RecyclerView parent);"
-        errorLine2="                                              ~~~~">
+        errorLine1="    public WearableDrawerController getController() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/WearableLinearLayoutManager.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public abstract void onLayoutFinished(View child, RecyclerView parent);"
-        errorLine2="                                                          ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/widget/WearableLinearLayoutManager.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public WearableLinearLayoutManager(Context context, LayoutCallback layoutCallback) {"
-        errorLine2="                                       ~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/widget/WearableLinearLayoutManager.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public WearableLinearLayoutManager(Context context, LayoutCallback layoutCallback) {"
-        errorLine2="                                                        ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/widget/WearableLinearLayoutManager.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public WearableLinearLayoutManager(Context context) {"
-        errorLine2="                                       ~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/widget/WearableLinearLayoutManager.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="            int dy, RecyclerView.Recycler recycler, RecyclerView.State state) {"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/widget/WearableLinearLayoutManager.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="            int dy, RecyclerView.Recycler recycler, RecyclerView.State state) {"
-        errorLine2="                                                    ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/widget/WearableLinearLayoutManager.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {"
-        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/widget/WearableLinearLayoutManager.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {"
-        errorLine2="                                                                 ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/widget/WearableLinearLayoutManager.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public abstract void onNewAdapter(WearableNavigationDrawerAdapter adapter);"
-        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/internal/widget/drawer/WearableNavigationDrawerPresenter.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public void onItemSelectedListenerAdded(OnItemSelectedListener listener) {"
-        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/internal/widget/drawer/WearableNavigationDrawerPresenter.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public void onItemSelectedListenerRemoved(OnItemSelectedListener listener) {"
-        errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/internal/widget/drawer/WearableNavigationDrawerPresenter.java"/>
+            file="src/main/java/androidx/wear/widget/drawer/WearableDrawerView.java"/>
     </issue>
 
     <issue
@@ -1712,42 +1748,6 @@
         errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/widget/drawer/WearableNavigationDrawerView.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public WearableRecyclerView(Context context) {"
-        errorLine2="                                ~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/widget/WearableRecyclerView.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public WearableRecyclerView(Context context, @Nullable AttributeSet attrs) {"
-        errorLine2="                                ~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/widget/WearableRecyclerView.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public WearableRecyclerView(Context context, @Nullable AttributeSet attrs, int defStyle) {"
-        errorLine2="                                ~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/widget/WearableRecyclerView.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public WearableRecyclerView(Context context, @Nullable AttributeSet attrs, int defStyle,"
-        errorLine2="                                ~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/widget/WearableRecyclerView.java"/>
     </issue>
 
 </issues>
