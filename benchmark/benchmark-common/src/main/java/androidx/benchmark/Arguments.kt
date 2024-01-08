@@ -16,6 +16,7 @@
 
 package androidx.benchmark
 
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.annotation.RestrictTo
@@ -92,11 +93,30 @@ object Arguments {
         val argumentName = "profiling.mode"
         val argumentValue = getBenchmarkArgument(argumentName, "DEFAULT_VAL")
         if (argumentValue == "DEFAULT_VAL") {
-            // NOTE: Method tracing currently off by default, as it is unsafe in many OS versions
-            // API 21 (b/300658578) Can corrupt the stack
-            // API 29/30 (b/313868903) causes regressions in subsequent benchmark runs, but no jit
-            // API 31+ (b/303686344) can causes regressions with jit depending on mainline version
-            return null to true
+            return if (Build.VERSION.SDK_INT <= 21) {
+                // Have observed stack corruption on API 21, we haven't spent the time to find out
+                // why, or if it's better on other low API levels. See b/300658578
+                // TODO: consider adding warning here
+                null to true
+            } else if (DeviceInfo.methodTracingAffectsMeasurements) {
+                // We warn here instead of in Errors since this doesn't affect all measurements -
+                // BenchmarkState throws rather than measuring incorrectly, and the first benchmark
+                // can still measure with a trace safely
+                InstrumentationResults.scheduleIdeWarningOnNextReport(
+                    """
+                    NOTE: Your device is running a version of ART where method tracing is known to
+                    affect performance measurement after trace capture, so method tracing is
+                    off by default.
+
+                    To use method tracing, either flash this device, use a different device, or
+                    enable method tracing with MicrobenchmarkConfig / instrumentation argument, and
+                    only run one test at a time.
+
+                    For more information, see https://issuetracker.google.com/issues/316174880
+                    """.trimIndent()
+                )
+                null to true
+            } else MethodTracing to true
         }
 
         val profiler = Profiler.getByName(argumentValue)

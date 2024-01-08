@@ -16,17 +16,27 @@
 
 package androidx.benchmark
 
+import android.os.Build
 import androidx.benchmark.perfetto.PerfettoHelper
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
+import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertTrue
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 class DeviceInfoTest {
+    @Before
+    fun setup() {
+        // clear any process wide warnings, since tests below will capture them
+        InstrumentationResults.clearIdeWarningPrefix()
+    }
+
     @SdkSuppress(minSdkVersion = PerfettoHelper.MIN_SDK_VERSION)
     @Test
     fun misconfiguredForTracing() {
@@ -36,5 +46,32 @@ class DeviceInfoTest {
             "${DeviceInfo.typeLabel} is incorrectly configured for tracing," +
                 " and is not CTS compatible. All Perfetto/Atrace capture will fail."
         )
+    }
+
+    @Test
+    fun artMainlineVersion() {
+        if (Build.VERSION.SDK_INT >= 30) {
+            // validate we have a reasonable looking number
+            if (Build.VERSION.SDK_INT >= 31) {
+                assertTrue(DeviceInfo.artMainlineVersion > 300000000)
+            } else {
+                assertEquals(1, DeviceInfo.artMainlineVersion)
+            }
+            // validate parsing by checking against shell command,
+            // which we don't use at runtime due to cost of shell commands
+            val shellVersion = Shell.executeCommandCaptureStdoutOnly(
+                "cmd package list packages --show-versioncode --apex-only art"
+            ).trim()
+
+            // "google" may or may not be present in package
+            val expectedRegExStr = "package:com(\\.google)?\\.android\\.art" +
+                " versionCode:${DeviceInfo.artMainlineVersion}"
+            assertTrue(
+                expectedRegExStr.toRegex().matches(shellVersion),
+                "Expected shell version ($shellVersion) to match $expectedRegExStr"
+            )
+        } else {
+            assertEquals(-1, DeviceInfo.artMainlineVersion)
+        }
     }
 }
