@@ -33,16 +33,20 @@ import org.gradle.work.DisableCachingByDefault
 
 @DisableCachingByDefault(
     because = """
-    In AndroidX-main, this is simply copying files, not worth caching.
+    In AndroidX repo setup, this is simply copying files from another repository, not worth caching.
     In Playground, we are downloading from remote git repo and we cannot know when it changed.
-    For correctness on Github, it is a bit loose for now but we are using the `sqliteVersion`
-    parameter to invalidate the task.
+    This obviously means we cannot know when to invalidate this task. To help with it, we have a
+    `sqliteVersion` input parameter that can be changed to invalidate the task (for local task
+    invalidation).
+    It is not a great solution but we don't ship from Github builds so it is acceptable trade-off at
+    the expense of making Github CI builds not-reproducible.
 """
 )
 abstract class PrepareSqliteSourcesTask @Inject constructor(
     private val execOperations: ExecOperations,
     private val fileSystemOperations: FileSystemOperations
 ) : DefaultTask() {
+    @Suppress("unused") // used to invalidate the local task
     @get:Input
     abstract val sqliteVersion: Property<String>
 
@@ -58,6 +62,14 @@ abstract class PrepareSqliteSourcesTask @Inject constructor(
     @get:OutputDirectory
     abstract val destinationDirectory: DirectoryProperty
 
+    init {
+        description = """
+            Find the Sqlite sources that are used in AOSP and copies the necessary ones into the
+            destinationDirectory.
+        """.trimIndent()
+        group = "build"
+    }
+
     @TaskAction
     fun prepareSources() {
         val prebuilts = sqlitePrebuiltsDirectory.orNull?.asFile
@@ -67,6 +79,14 @@ abstract class PrepareSqliteSourcesTask @Inject constructor(
             }
             prebuilts
         } else {
+            /**
+             * Here, we checkout the Android's SQLite repo to get the exact same version we use
+             * in AndroidX.
+             *
+             * Because we are checking out head, this makes it not reproducible.
+             * An alternative approach would be downloading SQLite amalgamation but then it is not
+             * necessarily the same with the version we use on Android.
+             */
             val checkoutDir = temporaryCheckoutDirectory.orNull?.asFile
             check(checkoutDir != null) {
                 "Checkout directory must be provided for playground builds"
@@ -79,7 +99,7 @@ abstract class PrepareSqliteSourcesTask @Inject constructor(
                 it.args(
                     "clone",
                     SQLITE_REPO,
-                    checkoutDirectory.canonicalPath, //clone into working dir
+                    checkoutDirectory.canonicalPath,
                     "--branch",
                     "androidx-main",
                     "--depth",
@@ -92,7 +112,7 @@ abstract class PrepareSqliteSourcesTask @Inject constructor(
             it.deleteRecursively()
             it.mkdirs()
         }
-        fileSystemOperations.copy {copySpec ->
+        fileSystemOperations.copy { copySpec ->
             copySpec.from(checkoutDirectory.resolve("dist/orig"))
             copySpec.into(sourceDirectory)
             copySpec.include("sqlite3.c")
@@ -100,6 +120,7 @@ abstract class PrepareSqliteSourcesTask @Inject constructor(
         }
     }
 
+    @Suppress("unused") // used by build.gradle
     fun configureRemoteSources(project: Project) {
         if (ProjectLayoutType.isPlayground(project)) {
             temporaryCheckoutDirectory.set(
@@ -115,6 +136,6 @@ abstract class PrepareSqliteSourcesTask @Inject constructor(
     }
 
     companion object {
-        private val SQLITE_REPO = "https://android.googlesource.com/platform/external/sqlite"
+        private const val SQLITE_REPO = "https://android.googlesource.com/platform/external/sqlite"
     }
 }
