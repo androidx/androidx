@@ -372,44 +372,44 @@ public interface ActivityEmbeddingComponent {
 
     /**
      * Sets a callback that notifies WindowManager Jetpack about changes for a given
-     * {@link Activity} to its {@link EmbeddingActivityWindowInfo}.
+     * {@link Activity} to its {@link EmbeddedActivityWindowInfo}.
      * <p>
-     * The callback will be invoked when the {@link EmbeddingActivityWindowInfo} is changed after
+     * The callback will be invoked when the {@link EmbeddedActivityWindowInfo} is changed after
      * the {@link Activity} is launched. Similar to {@link Activity#onConfigurationChanged}, the
      * callback will only be invoked for visible {@link Activity}.
      *
-     * @param executor the executor to dispatch {@link EmbeddingActivityWindowInfo} change.
-     * @param callback the callback to notify {@link EmbeddingActivityWindowInfo} change.
+     * @param executor the executor to dispatch {@link EmbeddedActivityWindowInfo} change.
+     * @param callback the callback to notify {@link EmbeddedActivityWindowInfo} change.
      */
-    @RequiresVendorApiLevel(level = 5)
-    default void setEmbeddingActivityWindowInfoCallback(@NonNull Executor executor,
-            @NonNull Consumer<EmbeddingActivityWindowInfo> callback) {
+    @RequiresVendorApiLevel(level = 6)
+    default void setEmbeddedActivityWindowInfoCallback(@NonNull Executor executor,
+            @NonNull Consumer<EmbeddedActivityWindowInfo> callback) {
         throw new UnsupportedOperationException("This method must not be called unless there is a"
                 + " corresponding override implementation on the device.");
     }
 
     /**
      * Clears the callback previously set by
-     * {@link #setEmbeddingActivityWindowInfoCallback(Executor, Consumer)}
+     * {@link #setEmbeddedActivityWindowInfoCallback(Executor, Consumer)}
      */
-    @RequiresVendorApiLevel(level = 5)
-    default void clearEmbeddingActivityWindowInfoCallback() {
+    @RequiresVendorApiLevel(level = 6)
+    default void clearEmbeddedActivityWindowInfoCallback() {
         throw new UnsupportedOperationException("This method must not be called unless there is a"
                 + " corresponding override implementation on the device.");
     }
 
     /**
-     * Returns the {@link EmbeddingActivityWindowInfo} of the given {@link Activity}, or
+     * Returns the {@link EmbeddedActivityWindowInfo} of the given {@link Activity}, or
      * {@code null} if the {@link Activity} is not attached.
      * <p>
-     * This API can be used when {@link #setEmbeddingActivityWindowInfoCallback} is not set before
+     * This API can be used when {@link #setEmbeddedActivityWindowInfoCallback} is not set before
      * the Activity is attached.
      *
-     * @param activity the {@link Activity} to get {@link EmbeddingActivityWindowInfo} for.
+     * @param activity the {@link Activity} to get {@link EmbeddedActivityWindowInfo} for.
      */
-    @RequiresVendorApiLevel(level = 5)
+    @RequiresVendorApiLevel(level = 6)
     @Nullable
-    default EmbeddingActivityWindowInfo getEmbeddingActivityWindowInfo(@NonNull Activity activity) {
+    default EmbeddedActivityWindowInfo getEmbeddedActivityWindowInfo(@NonNull Activity activity) {
         throw new UnsupportedOperationException("This method must not be called unless there is a"
                 + " corresponding override implementation on the device.");
     }

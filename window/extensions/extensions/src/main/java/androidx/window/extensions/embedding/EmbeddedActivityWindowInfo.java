@@ -27,10 +27,10 @@ import java.util.Objects;
 /**
  * Describes the embedded window related info of an activity.
  *
- * @see ActivityEmbeddingComponent#setEmbeddingActivityWindowInfoCallback
- * @see ActivityEmbeddingComponent#getEmbeddingActivityWindowInfo
+ * @see ActivityEmbeddingComponent#setEmbeddedActivityWindowInfoCallback
+ * @see ActivityEmbeddingComponent#getEmbeddedActivityWindowInfo
  */
-public class EmbeddingActivityWindowInfo {
+public class EmbeddedActivityWindowInfo {
 
     @NonNull
     private final Activity mActivity;
@@ -42,7 +42,7 @@ public class EmbeddingActivityWindowInfo {
     @NonNull
     private final Rect mActivityStackBounds;
 
-    EmbeddingActivityWindowInfo(@NonNull Activity activity, boolean isEmbedded,
+    EmbeddedActivityWindowInfo(@NonNull Activity activity, boolean isEmbedded,
             @NonNull Rect activityBounds, @NonNull Rect taskBounds,
             @NonNull Rect activityStackBounds) {
         mActivity = Objects.requireNonNull(activity);
@@ -53,9 +53,9 @@ public class EmbeddingActivityWindowInfo {
     }
 
     /**
-     * Returns the {@link Activity} this {@link EmbeddingActivityWindowInfo} is about.
+     * Returns the {@link Activity} this {@link EmbeddedActivityWindowInfo} is about.
      */
-    @RequiresVendorApiLevel(level = 5)
+    @RequiresVendorApiLevel(level = 6)
     @NonNull
     public Activity getActivity() {
         return mActivity;
@@ -65,7 +65,7 @@ public class EmbeddingActivityWindowInfo {
      * Whether this activity is embedded, which means it is in an ActivityStack window that
      * doesn't fill the Task.
      */
-    @RequiresVendorApiLevel(level = 5)
+    @RequiresVendorApiLevel(level = 6)
     public boolean isEmbedded() {
         return mIsEmbedded;
     }
@@ -73,7 +73,7 @@ public class EmbeddingActivityWindowInfo {
     /**
      * Returns the bounds of the Activity window in display space.
      */
-    @RequiresVendorApiLevel(level = 5)
+    @RequiresVendorApiLevel(level = 6)
     @NonNull
     public Rect getActivityBounds() {
         return mActivityBounds;
@@ -82,7 +82,7 @@ public class EmbeddingActivityWindowInfo {
     /**
      * Returns the bounds of the Task window in display space.
      */
-    @RequiresVendorApiLevel(level = 5)
+    @RequiresVendorApiLevel(level = 6)
     @NonNull
     public Rect getTaskBounds() {
         return mTaskBounds;
@@ -93,7 +93,7 @@ public class EmbeddingActivityWindowInfo {
      * This can be referring to the bounds of the same window as {@link #getTaskBounds()} when
      * the activity is not embedded.
      */
-    @RequiresVendorApiLevel(level = 5)
+    @RequiresVendorApiLevel(level = 6)
     @NonNull
     public Rect getActivityStackBounds() {
         return mActivityStackBounds;
@@ -102,8 +102,8 @@ public class EmbeddingActivityWindowInfo {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof EmbeddingActivityWindowInfo)) return false;
-        final EmbeddingActivityWindowInfo that = (EmbeddingActivityWindowInfo) o;
+        if (!(o instanceof EmbeddedActivityWindowInfo)) return false;
+        final EmbeddedActivityWindowInfo that = (EmbeddedActivityWindowInfo) o;
         return mActivity.equals(that.mActivity)
                 && mIsEmbedded == that.mIsEmbedded
                 && mActivityBounds.equals(that.mActivityBounds)
@@ -124,7 +124,7 @@ public class EmbeddingActivityWindowInfo {
     @NonNull
     @Override
     public String toString() {
-        return "EmbeddingActivityWindowInfo{"
+        return "EmbeddedActivityWindowInfo{"
                 + "activity=" + mActivity
                 + ", isEmbedded=" + mIsEmbedded
                 + ", activityBounds=" + mActivityBounds
