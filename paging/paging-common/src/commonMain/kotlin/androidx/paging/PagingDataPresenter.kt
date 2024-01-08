@@ -24,7 +24,6 @@ import androidx.paging.LoadType.REFRESH
 import androidx.paging.PageEvent.Drop
 import androidx.paging.PageEvent.Insert
 import androidx.paging.PageEvent.StaticList
-import androidx.paging.PageStore.ProcessPageEventCallback
 import androidx.paging.internal.CopyOnWriteArrayList
 import androidx.paging.internal.appendMediatorStatesIfNotNull
 import kotlin.coroutines.CoroutineContext
@@ -40,7 +39,6 @@ import kotlinx.coroutines.yield
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public abstract class PagingDataPresenter<T : Any>(
-    private val differCallback: DifferCallback,
     private val mainContext: CoroutineContext = Dispatchers.Main,
     cachedPagingData: PagingData<T>? = null,
 ) {
@@ -73,35 +71,6 @@ public abstract class PagingDataPresenter<T : Any>(
      */
     @Volatile
     private var lastAccessedIndex: Int = 0
-
-    private val processPageEventCallback = object : ProcessPageEventCallback {
-        override fun onChanged(position: Int, count: Int) {
-            differCallback.onChanged(position, count)
-        }
-
-        override fun onInserted(position: Int, count: Int) {
-            differCallback.onInserted(position, count)
-        }
-
-        override fun onRemoved(position: Int, count: Int) {
-            differCallback.onRemoved(position, count)
-        }
-
-        // for state updates from LoadStateUpdate events
-        override fun onStateUpdate(source: LoadStates, mediator: LoadStates?) {
-            combinedLoadStatesCollection.set(source, mediator)
-        }
-
-        // for state updates from Drop events
-        override fun onStateUpdate(
-            loadType: LoadType,
-            fromMediator: Boolean,
-            loadState: LoadState
-        ) {
-            // CombinedLoadStates is de-duplicated within set()
-            combinedLoadStatesCollection.set(loadType, fromMediator, loadState)
-        }
-    }
 
     /**
      * Handler for [PagingDataEvent] emitted by a [PagingData] that was submitted to
@@ -477,7 +446,7 @@ public abstract class PagingDataPresenter<T : Any>(
         )
         log(DEBUG) {
             appendMediatorStatesIfNotNull(mediatorLoadStates) {
-                """Presenting data:
+                """Presenting data (
                             |   first item: ${pages.firstOrNull()?.data?.firstOrNull()}
                             |   last item: ${pages.lastOrNull()?.data?.lastOrNull()}
                             |   placeholdersBefore: $placeholdersBefore
@@ -502,21 +471,6 @@ public abstract class PagingDataPresenter<T : Any>(
             hintReceiver?.accessHint(newPageStore.initializeHint())
         }
     }
-}
-
-/**
- * Callback for the pageStore/adapter to listen to the state of pagination data.
- *
- * Note that these won't map directly to PageEvents, since PageEvents can cause several adapter
- * events that should all be dispatched to the presentation layer at once - as part of the same
- * frame.
- *
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public interface DifferCallback {
-    public fun onChanged(position: Int, count: Int)
-    public fun onInserted(position: Int, count: Int)
-    public fun onRemoved(position: Int, count: Int)
 }
 
 /**

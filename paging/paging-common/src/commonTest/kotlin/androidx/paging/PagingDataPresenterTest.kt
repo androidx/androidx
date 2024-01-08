@@ -61,7 +61,7 @@ class PagingDataPresenterTest {
 
     @Test
     fun collectFrom_static() = testScope.runTest {
-        val presenter = SimplePresenter(dummyDifferCallback)
+        val presenter = SimplePresenter()
         val receiver = UiReceiverFake()
 
         val job1 = launch {
@@ -87,7 +87,7 @@ class PagingDataPresenterTest {
 
     @Test
     fun collectFrom_twice() = testScope.runTest {
-        val presenter = SimplePresenter(dummyDifferCallback)
+        val presenter = SimplePresenter()
 
         launch { presenter.collectFrom(infinitelySuspendingPagingData()) }
             .cancel()
@@ -97,7 +97,7 @@ class PagingDataPresenterTest {
 
     @Test
     fun collectFrom_twiceConcurrently() = testScope.runTest {
-        val presenter = SimplePresenter(dummyDifferCallback)
+        val presenter = SimplePresenter()
 
         val job1 = launch {
             presenter.collectFrom(infinitelySuspendingPagingData())
@@ -118,7 +118,7 @@ class PagingDataPresenterTest {
 
     @Test
     fun retry() = testScope.runTest {
-        val presenter = SimplePresenter(dummyDifferCallback)
+        val presenter = SimplePresenter()
         val receiver = UiReceiverFake()
 
         val job = launch {
@@ -133,7 +133,7 @@ class PagingDataPresenterTest {
 
     @Test
     fun refresh() = testScope.runTest {
-        val presenter = SimplePresenter(dummyDifferCallback)
+        val presenter = SimplePresenter()
         val receiver = UiReceiverFake()
 
         val job = launch {
@@ -149,7 +149,7 @@ class PagingDataPresenterTest {
 
     @Test
     fun uiReceiverSetImmediately() = testScope.runTest {
-        val presenter = SimplePresenter(differCallback = dummyDifferCallback)
+        val presenter = SimplePresenter()
         val receiver = UiReceiverFake()
         val pagingData1 = infinitelySuspendingPagingData(uiReceiver = receiver)
 
@@ -170,7 +170,7 @@ class PagingDataPresenterTest {
 
     @Test
     fun hintReceiverSetAfterNewListPresented() = testScope.runTest {
-        val presenter = SimplePresenter(differCallback = dummyDifferCallback)
+        val presenter = SimplePresenter()
 
         // first generation, load something so next gen can access index to trigger hint
         val hintReceiver1 = HintReceiverFake()
@@ -358,7 +358,7 @@ class PagingDataPresenterTest {
 
     @Test
     fun refreshAfterStaticList() = testScope.runTest {
-        val presenter = SimplePresenter(dummyDifferCallback)
+        val presenter = SimplePresenter()
 
         val pagingData1 = PagingData.from(listOf(1, 2, 3))
         val job1 = launch { presenter.collectFrom(pagingData1) }
@@ -379,7 +379,7 @@ class PagingDataPresenterTest {
 
     @Test
     fun retryAfterStaticList() = testScope.runTest {
-        val presenter = SimplePresenter(dummyDifferCallback)
+        val presenter = SimplePresenter()
 
         val pagingData1 = PagingData.from(listOf(1, 2, 3))
         val job1 = launch { presenter.collectFrom(pagingData1) }
@@ -400,7 +400,7 @@ class PagingDataPresenterTest {
 
     @Test
     fun hintCalculationBasedOnCurrentGeneration() = testScope.runTest {
-        val presenter = SimplePresenter(differCallback = dummyDifferCallback)
+        val presenter = SimplePresenter()
 
         // first generation
         val hintReceiver1 = HintReceiverFake()
@@ -517,7 +517,7 @@ class PagingDataPresenterTest {
 
     @Test
     fun fetch_loadHintResentWhenUnfulfilled() = testScope.runTest {
-        val presenter = SimplePresenter(dummyDifferCallback)
+        val presenter = SimplePresenter()
 
         val pageEventCh = Channel<PageEvent<Int>>(Channel.UNLIMITED)
         pageEventCh.trySend(
@@ -649,7 +649,7 @@ class PagingDataPresenterTest {
 
     @Test
     fun fetch_loadHintResentUnlessPageDropped() = testScope.runTest {
-        val presenter = SimplePresenter(dummyDifferCallback)
+        val presenter = SimplePresenter()
 
         val pageEventCh = Channel<PageEvent<Int>>(Channel.UNLIMITED)
         pageEventCh.trySend(
@@ -743,7 +743,7 @@ class PagingDataPresenterTest {
 
     @Test
     fun peek() = testScope.runTest {
-        val presenter = SimplePresenter(dummyDifferCallback)
+        val presenter = SimplePresenter()
         val pageEventCh = Channel<PageEvent<Int>>(Channel.UNLIMITED)
         pageEventCh.trySend(
             localRefresh(
@@ -787,7 +787,7 @@ class PagingDataPresenterTest {
 
     @Test
     fun onPagingDataPresentedListener_empty() = testScope.runTest {
-        val presenter = SimplePresenter(dummyDifferCallback)
+        val presenter = SimplePresenter()
         val listenerEvents = mutableListOf<Unit>()
         presenter.addOnPagesUpdatedListener {
             listenerEvents.add(Unit)
@@ -816,7 +816,7 @@ class PagingDataPresenterTest {
 
     @Test
     fun onPagingDataPresentedListener_insertDrop() = testScope.runTest {
-        val presenter = SimplePresenter(dummyDifferCallback)
+        val presenter = SimplePresenter()
         val listenerEvents = mutableListOf<Unit>()
         presenter.addOnPagesUpdatedListener {
             listenerEvents.add(Unit)
@@ -852,7 +852,7 @@ class PagingDataPresenterTest {
 
     @Test
     fun onPagingDataPresentedFlow_empty() = testScope.runTest {
-        val presenter = SimplePresenter(dummyDifferCallback)
+        val presenter = SimplePresenter()
         val listenerEvents = mutableListOf<Unit>()
         val job1 = launch {
             presenter.onPagesUpdatedFlow.collect {
@@ -884,7 +884,7 @@ class PagingDataPresenterTest {
 
     @Test
     fun onPagingDataPresentedFlow_insertDrop() = testScope.runTest {
-        val presenter = SimplePresenter(dummyDifferCallback)
+        val presenter = SimplePresenter()
         val listenerEvents = mutableListOf<Unit>()
         val job1 = launch {
             presenter.onPagesUpdatedFlow.collect {
@@ -923,7 +923,7 @@ class PagingDataPresenterTest {
 
     @Test
     fun onPagingDataPresentedFlow_buffer() = testScope.runTest {
-        val presenter = SimplePresenter(dummyDifferCallback)
+        val presenter = SimplePresenter()
         val listenerEvents = mutableListOf<Unit>()
 
         // Trigger update, which should get ignored due to onPagesUpdatedFlow being hot.
@@ -959,7 +959,7 @@ class PagingDataPresenterTest {
 
     @Test
     fun loadStateFlow_synchronouslyUpdates() = testScope.runTest {
-        val presenter = SimplePresenter(dummyDifferCallback)
+        val presenter = SimplePresenter()
         var combinedLoadStates: CombinedLoadStates? = null
         var itemCount = -1
         val loadStateJob = launch {
@@ -1008,7 +1008,7 @@ class PagingDataPresenterTest {
 
     @Test
     fun loadStateFlow_hasNoInitialValue() = testScope.runTest {
-        val presenter = SimplePresenter(dummyDifferCallback)
+        val presenter = SimplePresenter()
 
         // Should not immediately emit without a real value to a new collector.
         val combinedLoadStates = mutableListOf<CombinedLoadStates>()
@@ -1055,7 +1055,7 @@ class PagingDataPresenterTest {
 
     @Test
     fun loadStateFlow_preservesLoadStatesOnEmptyList() = testScope.runTest {
-        val presenter = SimplePresenter(dummyDifferCallback)
+        val presenter = SimplePresenter()
 
         // Should not immediately emit without a real value to a new collector.
         val combinedLoadStates = mutableListOf<CombinedLoadStates>()
@@ -1132,7 +1132,7 @@ class PagingDataPresenterTest {
 
     @Test
     fun loadStateFlow_preservesLoadStatesOnStaticList() = testScope.runTest {
-        val presenter = SimplePresenter(dummyDifferCallback)
+        val presenter = SimplePresenter()
 
         // Should not immediately emit without a real value to a new collector.
         val combinedLoadStates = mutableListOf<CombinedLoadStates>()
@@ -1209,7 +1209,7 @@ class PagingDataPresenterTest {
 
     @Test
     fun loadStateFlow_deduplicate() = testScope.runTest {
-        val presenter = SimplePresenter(dummyDifferCallback)
+        val presenter = SimplePresenter()
 
         val combinedLoadStates = mutableListOf<CombinedLoadStates>()
         backgroundScope.launch {
@@ -1251,7 +1251,7 @@ class PagingDataPresenterTest {
 
     @Test
     fun loadStateFlowListeners_deduplicate() = testScope.runTest {
-        val presenter = SimplePresenter(dummyDifferCallback)
+        val presenter = SimplePresenter()
         val combinedLoadStates = mutableListOf<CombinedLoadStates>()
 
         presenter.addLoadStateListener {
@@ -1291,7 +1291,7 @@ class PagingDataPresenterTest {
 
     @Test
     fun addLoadStateListener_SynchronouslyUpdates() = testScope.runTest {
-        val presenter = SimplePresenter(dummyDifferCallback)
+        val presenter = SimplePresenter()
         var combinedLoadStates: CombinedLoadStates? = null
         var itemCount = -1
         presenter.addLoadStateListener {
@@ -1337,7 +1337,7 @@ class PagingDataPresenterTest {
 
     @Test
     fun addLoadStateListener_hasNoInitialValue() = testScope.runTest {
-        val presenter = SimplePresenter(dummyDifferCallback)
+        val presenter = SimplePresenter()
         val combinedLoadStateCapture = CombinedLoadStatesCapture()
 
         // Adding a new listener without a real value should not trigger it.
@@ -1373,7 +1373,7 @@ class PagingDataPresenterTest {
 
     @Test
     fun uncaughtException() = testScope.runTest {
-        val presenter = SimplePresenter(dummyDifferCallback)
+        val presenter = SimplePresenter()
         val pager = Pager(
             PagingConfig(1),
         ) {
@@ -1397,7 +1397,7 @@ class PagingDataPresenterTest {
 
     @Test
     fun handledLoadResultInvalid() = testScope.runTest {
-        val presenter = SimplePresenter(dummyDifferCallback)
+        val presenter = SimplePresenter()
         var generation = 0
         val pager = Pager(
             PagingConfig(1),
@@ -2018,7 +2018,7 @@ class PagingDataPresenterTest {
 
     @Test
     fun remoteRefresh_refreshStatePersists() = testScope.runTest {
-        val presenter = SimplePresenter(dummyDifferCallback)
+        val presenter = SimplePresenter()
         val remoteMediator = RemoteMediatorMock(loadDelay = 1500).apply {
             initializeResult = RemoteMediator.InitializeAction.LAUNCH_INITIAL_REFRESH
         }
@@ -2124,9 +2124,7 @@ class PagingDataPresenterTest {
             pagingSourceFactory = { TestPagingSource() }
         ).flow.cachedIn(this)
 
-        val presenter = SimplePresenter(
-            differCallback = dummyDifferCallback,
-        )
+        val presenter = SimplePresenter()
         backgroundScope.launch { presenter.collectLoadStates() }
 
         val job = launch {
@@ -2142,9 +2140,7 @@ class PagingDataPresenterTest {
         )
 
         // we start a separate presenter to recollect on cached Pager.flow
-        val presenter2 = SimplePresenter(
-            differCallback = dummyDifferCallback,
-        )
+        val presenter2 = SimplePresenter()
         backgroundScope.launch { presenter2.collectLoadStates() }
 
         val job2 = launch {
@@ -2167,7 +2163,7 @@ class PagingDataPresenterTest {
     fun cachedData() {
         val data = List(50) { it }
         val cachedPagingData = createCachedPagingData(data)
-        val simplePresenter = SimplePresenter(dummyDifferCallback, cachedPagingData)
+        val simplePresenter = SimplePresenter(cachedPagingData)
         assertThat(simplePresenter.snapshot()).isEqualTo(data)
         assertThat(simplePresenter.size).isEqualTo(data.size)
     }
@@ -2175,7 +2171,7 @@ class PagingDataPresenterTest {
     @Test
     fun emptyCachedData() {
         val cachedPagingData = createCachedPagingData(emptyList())
-        val simplePresenter = SimplePresenter(dummyDifferCallback, cachedPagingData)
+        val simplePresenter = SimplePresenter(cachedPagingData)
         assertThat(simplePresenter.snapshot()).isEmpty()
         assertThat(simplePresenter.size).isEqualTo(0)
     }
@@ -2190,7 +2186,7 @@ class PagingDataPresenterTest {
             sourceLoadStates = localStates,
             mediatorLoadStates = mediatorStates
         )
-        val simplePresenter = SimplePresenter(dummyDifferCallback, cachedPagingData)
+        val simplePresenter = SimplePresenter(cachedPagingData)
         val expected = simplePresenter.loadStateFlow.value
         assertThat(expected).isNotNull()
         assertThat(expected!!.source).isEqualTo(localStates)
@@ -2207,7 +2203,7 @@ class PagingDataPresenterTest {
             mediatorLoadStates = null,
             hintReceiver = hintReceiver
         )
-        val presenter = SimplePresenter(dummyDifferCallback, cachedPagingData)
+        val presenter = SimplePresenter(cachedPagingData)
 
         // access item
         presenter[5]
@@ -2239,7 +2235,7 @@ class PagingDataPresenterTest {
             mediatorLoadStates = null,
             uiReceiver = uiReceiver
         )
-        val presenter = SimplePresenter(dummyDifferCallback, cachedPagingData)
+        val presenter = SimplePresenter(cachedPagingData)
         presenter.refresh()
         advanceUntilIdle()
         assertThat(uiReceiver.refreshEvents).hasSize(0)
@@ -2265,7 +2261,7 @@ class PagingDataPresenterTest {
             sourceLoadStates = loadStates(refresh = Loading),
             mediatorLoadStates = null,
         )
-        val presenter = SimplePresenter(dummyDifferCallback, cachedPagingData)
+        val presenter = SimplePresenter(cachedPagingData)
         val data2 = List(10) { it }
         val flow = flowOf(
             localRefresh(pages = listOf(TransformablePage(data2))),
@@ -2286,7 +2282,7 @@ class PagingDataPresenterTest {
             sourceLoadStates = loadStates(refresh = Loading),
             mediatorLoadStates = null,
         )
-        val presenter = SimplePresenter(dummyDifferCallback, cachedPagingData)
+        val presenter = SimplePresenter(cachedPagingData)
 
         val channel = Channel<PageEvent<Int>>(Channel.UNLIMITED)
         val hintReceiver = HintReceiverFake()
@@ -2334,9 +2330,7 @@ class PagingDataPresenterTest {
                 ).also { pagingSources.add(it) }
             }
         )
-        val presenter = SimplePresenter(
-            differCallback = dummyDifferCallback,
-        )
+        val presenter = SimplePresenter()
         val uiReceivers = mutableListOf<TrackableUiReceiverWrapper>()
         val hintReceivers = mutableListOf<TrackableHintReceiverWrapper>()
 
@@ -2466,10 +2460,8 @@ private class TrackableHintReceiverWrapper(
 }
 
 private class SimplePresenter(
-    differCallback: DifferCallback,
     cachedPagingData: PagingData<Int>? = null,
 ) : PagingDataPresenter<Int>(
-    differCallback = differCallback,
     mainContext = EmptyCoroutineContext,
     cachedPagingData = cachedPagingData
 ) {
@@ -2499,12 +2491,4 @@ internal val dummyUiReceiver = object : UiReceiver {
 
 internal val dummyHintReceiver = object : HintReceiver {
     override fun accessHint(viewportHint: ViewportHint) {}
-}
-
-private val dummyDifferCallback = object : DifferCallback {
-    override fun onInserted(position: Int, count: Int) {}
-
-    override fun onChanged(position: Int, count: Int) {}
-
-    override fun onRemoved(position: Int, count: Int) {}
 }

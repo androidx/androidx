@@ -17,7 +17,6 @@
 package androidx.paging.testing
 
 import androidx.annotation.VisibleForTesting
-import androidx.paging.DifferCallback
 import androidx.paging.LoadType.APPEND
 import androidx.paging.LoadType.PREPEND
 import androidx.paging.PagingConfig
@@ -38,7 +37,7 @@ import kotlinx.coroutines.launch
 /**
  * Contains the public APIs for load operations in tests.
  *
- * Tracks generational information and provides the listener to [DifferCallback] on
+ * Tracks generational information and provides the listener to [LoaderCallback] on
  * [PagingDataPresenter] operations.
  */
 @VisibleForTesting
@@ -401,7 +400,7 @@ public class SnapshotLoader<Value : Any> internal constructor(
      * [PREPEND] operation would call presenter[1+3 = 4] to properly load next item(11).
      *
      * This method is essentially no-op unless the callback meets three conditions:
-     * - is type [DifferCallback.onChanged]
+     * - the [LoaderCallback.loadType] is [LoadType.PREPEND]
      * - position is 0 as we only care about item prepended to front of list
      * - inserted count > 0
      */
@@ -455,7 +454,7 @@ internal data class Generation(
     val id: Int = -1,
 
     /**
-     * Temporarily stores the latest [DifferCallback] to track prepends to the beginning of list.
+     * Temporarily stores the latest [LoaderCallback] to track prepends to the beginning of list.
      * Value is reset to null once read.
      */
     val callbackState: AtomicRef<LoaderCallback?> = AtomicRef(null),
