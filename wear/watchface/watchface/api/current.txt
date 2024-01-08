@@ -314,6 +314,32 @@ package androidx.wear.watchface {
     ctor public RoundRectComplicationTapFilter();
   }
 
+  public abstract class StatefulWatchFaceRuntimeService<Extra> extends androidx.wear.watchface.WatchFaceService {
+    ctor public StatefulWatchFaceRuntimeService();
+    method protected final androidx.wear.watchface.ComplicationSlotsManager createComplicationSlotsManager(androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository);
+    method @WorkerThread protected abstract androidx.wear.watchface.ComplicationSlotsManager createComplicationSlotsManager(androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, String resourceOnlyWatchFacePackageName, Extra extra);
+    method protected abstract Extra createExtra();
+    method protected final androidx.wear.watchface.style.UserStyleFlavors createUserStyleFlavors(androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, androidx.wear.watchface.ComplicationSlotsManager complicationSlotsManager);
+    method @WorkerThread protected abstract androidx.wear.watchface.style.UserStyleFlavors createUserStyleFlavors(androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, androidx.wear.watchface.ComplicationSlotsManager complicationSlotsManager, String resourceOnlyWatchFacePackageName, Extra extra);
+    method protected final androidx.wear.watchface.style.UserStyleSchema createUserStyleSchema();
+    method @WorkerThread protected abstract androidx.wear.watchface.style.UserStyleSchema createUserStyleSchema(String resourceOnlyWatchFacePackageName, Extra extra);
+    method @WorkerThread protected abstract suspend Object? createWatchFace(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.WatchState watchState, androidx.wear.watchface.ComplicationSlotsManager complicationSlotsManager, androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, String resourceOnlyWatchFacePackageName, Extra extra, kotlin.coroutines.Continuation<? super androidx.wear.watchface.WatchFace>);
+    method protected final suspend Object? createWatchFace(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.WatchState watchState, androidx.wear.watchface.ComplicationSlotsManager complicationSlotsManager, androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, kotlin.coroutines.Continuation<? super androidx.wear.watchface.WatchFace>);
+  }
+
+  public abstract class StatefulWatchFaceService<Extra> extends androidx.wear.watchface.WatchFaceService {
+    ctor public StatefulWatchFaceService();
+    method protected final androidx.wear.watchface.ComplicationSlotsManager createComplicationSlotsManager(androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository);
+    method @WorkerThread protected androidx.wear.watchface.ComplicationSlotsManager createComplicationSlotsManager(androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, Extra extra);
+    method protected abstract Extra createExtra();
+    method protected final androidx.wear.watchface.style.UserStyleFlavors createUserStyleFlavors(androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, androidx.wear.watchface.ComplicationSlotsManager complicationSlotsManager);
+    method @WorkerThread protected androidx.wear.watchface.style.UserStyleFlavors createUserStyleFlavors(androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, androidx.wear.watchface.ComplicationSlotsManager complicationSlotsManager, Extra extra);
+    method protected final androidx.wear.watchface.style.UserStyleSchema createUserStyleSchema();
+    method @WorkerThread protected androidx.wear.watchface.style.UserStyleSchema createUserStyleSchema(Extra extra);
+    method @WorkerThread protected abstract suspend Object? createWatchFace(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.WatchState watchState, androidx.wear.watchface.ComplicationSlotsManager complicationSlotsManager, androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, Extra extra, kotlin.coroutines.Continuation<? super androidx.wear.watchface.WatchFace>);
+    method protected final suspend Object? createWatchFace(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.WatchState watchState, androidx.wear.watchface.ComplicationSlotsManager complicationSlotsManager, androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, kotlin.coroutines.Continuation<? super androidx.wear.watchface.WatchFace>);
+  }
+
   public final class TapEvent {
     ctor public TapEvent(@Px int xPos, @Px int yPos, java.time.Instant tapTime);
     method public java.time.Instant getTapTime();

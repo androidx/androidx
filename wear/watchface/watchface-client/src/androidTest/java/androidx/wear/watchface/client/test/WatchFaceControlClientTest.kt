@@ -552,6 +552,50 @@ class WatchFaceControlClientTest : WatchFaceControlClientTestBase() {
     }
 
     @Test
+    @Suppress("deprecation") // getOrCreateInteractiveWatchFaceClient
+    fun resourceOnlyWatchFacePackageNameWithExtra() {
+        val watchFaceService = TestStatefulWatchFaceRuntimeService(context, surfaceHolder)
+        val service = runBlocking {
+            WatchFaceControlClient.createWatchFaceControlClientImpl(
+                context,
+                Intent(context, WatchFaceControlTestService::class.java).apply {
+                    action = WatchFaceControlService.ACTION_WATCHFACE_CONTROL_SERVICE
+                },
+                resourceOnlyWatchFacePackageName = "com.example.watchface"
+            )
+        }
+
+        val deferredInteractiveInstance = handlerCoroutineScope.async {
+            service.getOrCreateInteractiveWatchFaceClient(
+                "testId",
+                deviceConfig,
+                systemState,
+                userStyle = null,
+                complications
+            )
+        }
+
+        // Create the engine which triggers construction of the interactive instance.
+        handler.post {
+            engine = watchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper
+        }
+
+        // Wait for the instance to be created.
+        val interactiveInstance = awaitWithTimeout(deferredInteractiveInstance)
+
+        // Make sure watch face init has completed.
+        assertTrue(
+            watchFaceService.lastResourceOnlyWatchFacePackageNameLatch
+                .await(UPDATE_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)
+        )
+
+        assertThat(watchFaceService.lastResourceOnlyWatchFacePackageName)
+            .isEqualTo("com.example.watchface")
+
+        interactiveInstance.close()
+    }
+
+    @Test
     @Suppress("Deprecation")
     fun getInteractiveWatchFaceInstance() {
         val testId = "testId"
