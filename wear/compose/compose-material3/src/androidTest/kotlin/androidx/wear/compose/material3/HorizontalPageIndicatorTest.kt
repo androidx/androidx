@@ -144,8 +144,8 @@ class HorizontalPageIndicatorTest {
             selectedPage: Int = 1,
             pageCount: Int = 4
         ) = object : PageIndicatorState {
-            override val selectedPageWithOffset: () -> Float
-                get() = { selectedPage + pageOffset }
+            override fun selectedPageWithOffsetFraction(): Float =
+                selectedPage + pageOffset
             override val pageCount: Int
                 get() = pageCount
         }
