@@ -27,12 +27,15 @@ import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.params.OutputConfiguration
 import android.hardware.camera2.params.SessionConfiguration
 import android.media.ImageReader
+import android.util.Rational
 import android.util.Size
 import android.view.Surface
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.internal.compat.params.SessionConfigurationCompat
 import androidx.camera.camera2.interop.Camera2CameraInfo
+import androidx.camera.core.impl.utils.AspectRatioUtil
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
+import androidx.camera.core.internal.utils.SizeUtil
 import androidx.camera.extensions.ExtensionsManager
 import androidx.camera.extensions.impl.advanced.AdvancedExtenderImpl
 import androidx.camera.extensions.impl.advanced.Camera2OutputConfigImpl
@@ -44,6 +47,7 @@ import androidx.camera.extensions.impl.advanced.SurfaceOutputConfigImpl
 import androidx.camera.extensions.internal.ExtensionVersion
 import androidx.camera.extensions.internal.Version
 import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil
+import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil.getImageCaptureSupportedResolutions
 import androidx.camera.integration.extensions.utils.CameraSelectorUtil
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
@@ -137,6 +141,63 @@ class AdvancedExtenderValidation(
     fun getAvailableCaptureResultKeys_existAfter1_3() {
         assumeTrue(ExtensionVersion.getRuntimeVersion()!! >= Version.VERSION_1_3)
         advancedImpl.getAvailableCaptureResultKeys()
+    }
+
+    /**
+     * The following 1.4 interface methods are validated by this test.
+     * <ol>
+     *   <li>AdvancedExtenderImpl#isPostviewAvailable()
+     *   <li>AdvancedExtenderImpl#getSupportedPostviewResolutions()
+     * </ol>
+     */
+    // Test
+    fun validatePostviewSupport_sinceVersion_1_4() {
+        // Runs the test only when the vendor library implementation is 1.4 or above
+        assumeTrue(ExtensionVersion.getRuntimeVersion()!! >= Version.VERSION_1_4)
+
+        // Runs the test only when postview is available
+        assumeTrue(advancedImpl.isPostviewAvailable)
+
+        var anyPostViewSupported = false
+
+        getImageCaptureSupportedResolutions(
+            advancedImpl,
+            cameraId,
+            cameraCharacteristicsMap[cameraId]!!
+        )
+            .forEach { captureSize ->
+                anyPostViewSupported = true
+                var captureSizeSupported = false
+                var yuvFormatSupported = false
+                advancedImpl.getSupportedPostviewResolutions(captureSize).forEach { entry ->
+                    captureSizeSupported = true
+                    if (entry.key == ImageFormat.YUV_420_888) {
+                        yuvFormatSupported = true
+                    }
+
+                    entry.value.forEach { postviewSize ->
+                        // The postview size be smaller than or equal to the provided capture size.
+                        assertThat(SizeUtil.getArea(postviewSize))
+                            .isAtMost(SizeUtil.getArea(captureSize))
+                        // The postview size must have the same aspect ratio as the given capture
+                        // size.
+                        assertThat(
+                            AspectRatioUtil.hasMatchingAspectRatio(
+                                postviewSize,
+                                Rational(captureSize.width, captureSize.height)
+                            )
+                        ).isTrue()
+                    }
+                }
+                // When postview is supported for the capture size, as the javadoc description,
+                // YUV_420_888 format must be supported.
+                if (captureSizeSupported) {
+                    assertThat(yuvFormatSupported).isTrue()
+                }
+            }
+
+        // At least one postview size must be supported when isPostviewAvailable returns true.
+        assertThat(anyPostViewSupported).isTrue()
     }
 
     enum class SizeCategory {
