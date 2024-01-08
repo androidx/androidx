@@ -1089,7 +1089,6 @@ public class NotificationCompat {
                     .setSubText(NotificationCompat.getSubText(notification))
                     .setSettingsText(NotificationCompat.getSettingsText(notification))
                     .setStyle(style)
-                    .setContentIntent(notification.contentIntent)
                     .setGroup(NotificationCompat.getGroup(notification))
                     .setGroupSummary(NotificationCompat.isGroupSummary(notification))
                     .setLocusId(NotificationCompat.getLocusId(notification))
