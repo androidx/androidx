@@ -40,6 +40,7 @@ import androidx.compose.ui.text.style.TextIndent
 import androidx.compose.ui.text.style.TextMotion
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.TextUnit
+import kotlin.jvm.JvmName
 
 /**
  * Styling configuration for a `Text`.

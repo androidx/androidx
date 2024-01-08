@@ -19,6 +19,7 @@
 package androidx.compose.animation.core
 
 import androidx.annotation.FloatRange
+import androidx.compose.animation.core.internal.JvmDefaultWithCompatibility
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -42,6 +43,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.util.fastFold
 import androidx.compose.ui.util.fastForEach
+import kotlin.jvm.JvmName
 import kotlin.math.max
 import kotlin.math.roundToLong
 

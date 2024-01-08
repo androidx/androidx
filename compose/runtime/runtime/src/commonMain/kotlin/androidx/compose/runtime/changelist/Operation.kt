@@ -44,6 +44,7 @@ import androidx.compose.runtime.movableContentKey
 import androidx.compose.runtime.removeCurrentGroup
 import androidx.compose.runtime.runtimeCheck
 import androidx.compose.runtime.snapshots.fastForEachIndexed
+import kotlin.jvm.JvmInline
 
 internal sealed class Operation(
     val ints: Int = 0,

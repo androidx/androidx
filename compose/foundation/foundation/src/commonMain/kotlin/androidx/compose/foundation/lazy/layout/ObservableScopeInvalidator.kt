@@ -19,6 +19,7 @@ package androidx.compose.foundation.lazy.layout
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.neverEqualPolicy
+import kotlin.jvm.JvmInline
 
 /**
  * Simple wrapper over a mutable state which allows to invalidate an observable scope.
