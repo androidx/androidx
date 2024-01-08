@@ -16,6 +16,9 @@
 
 package androidx.compose.runtime
 
+import androidx.compose.runtime.snapshots.Snapshot
+import androidx.compose.runtime.snapshots.SnapshotContextElement
+
 // TODO(aelias): Mark the typealiases internal when https://youtrack.jetbrains.com/issue/KT-36695 is
 //  fixed.
 //  Currently, they behave as internal because the actual is internal, even though the expect is
@@ -130,3 +133,8 @@ internal expect fun logError(message: String, e: Throwable)
 internal expect fun currentThreadId(): Long
 
 internal expect fun currentThreadName(): String
+
+@OptIn(ExperimentalComposeApi::class)
+internal expect class SnapshotContextElementImpl(
+    snapshot: Snapshot
+) : SnapshotContextElement
