@@ -16,9 +16,12 @@
 
 package androidx.compose.runtime.collection
 
-internal actual class IntMap<E> actual constructor() {
+// Kotlin doesn't support setting initialCapacity, so we ignore it
+internal actual class IntMap<E> actual constructor(initialCapacity: Int) {
 
-    // TODO(o.k.): IntMap is supposed to avoid Integer boxing!
+    // TODO(https://youtrack.jetbrains.com/issue/COMPOSE-764):
+    //  IntMap is supposed to avoid Integer boxing!
+    //  Replace by MutableIntObjectMap(initialCapacity)
     // but after merging 1.4 changes we faced a crash in some iOS samples.
     // For reproducer, see dima.avdeev/reproduce-lazy-column-crash
     // The initial implementation (supplied from upstream) was not tested
