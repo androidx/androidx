@@ -22,7 +22,6 @@ import android.text.format.DateFormat
 /**
  * Returns a [CalendarModel] to be used by the date picker.
  */
-@ExperimentalMaterial3Api
 internal actual fun createCalendarModel(locale: CalendarLocale): CalendarModel {
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
         CalendarModelImpl(locale)
@@ -45,8 +44,7 @@ internal actual fun createCalendarModel(locale: CalendarLocale): CalendarModel {
  * @param locale the [CalendarLocale] to use when formatting the given timestamp
  * @param cache a [MutableMap] for caching formatter related results for better performance
  */
-@ExperimentalMaterial3Api
-actual fun formatWithSkeleton(
+internal actual fun formatWithSkeleton(
     utcTimeMillis: Long,
     skeleton: String,
     locale: CalendarLocale,

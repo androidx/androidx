@@ -23,7 +23,7 @@ import androidx.compose.runtime.Immutable
  *
  * @param locale a [CalendarLocale] that will be used by the created model
  */
-@ExperimentalMaterial3Api
+@OptIn(ExperimentalMaterial3Api::class)
 internal expect fun createCalendarModel(locale: CalendarLocale): CalendarModel
 
 /**
@@ -40,8 +40,8 @@ internal expect fun createCalendarModel(locale: CalendarLocale): CalendarModel
  * @param locale the [CalendarLocale] to use when formatting the given timestamp
  * @param cache a [MutableMap] for caching formatter related results for better performance
  */
-@ExperimentalMaterial3Api
-expect fun formatWithSkeleton(
+@OptIn(ExperimentalMaterial3Api::class)
+internal expect fun formatWithSkeleton(
     utcTimeMillis: Long,
     skeleton: String,
     locale: CalendarLocale,
@@ -53,7 +53,7 @@ expect fun formatWithSkeleton(
  *
  * @param locale a [CalendarLocale] to be used by this model
  */
-@ExperimentalMaterial3Api
+@OptIn(ExperimentalMaterial3Api::class)
 internal abstract class CalendarModel(val locale: CalendarLocale) {
 
     // A map for caching formatter related results for better performance
@@ -218,7 +218,7 @@ internal abstract class CalendarModel(val locale: CalendarLocale) {
  * @param dayOfMonth the date's day of month
  * @param utcTimeMillis the date representation in _UTC_ milliseconds from the epoch
  */
-@ExperimentalMaterial3Api
+@OptIn(ExperimentalMaterial3Api::class)
 internal data class CalendarDate(
     val year: Int,
     val month: Int,
@@ -248,7 +248,7 @@ internal data class CalendarDate(
  * first day of the month
  * @param startUtcTimeMillis the first day of the month in _UTC_ milliseconds from the epoch
  */
-@ExperimentalMaterial3Api
+@OptIn(ExperimentalMaterial3Api::class)
 internal data class CalendarMonth(
     val year: Int,
     val month: Int,
@@ -286,7 +286,6 @@ internal data class CalendarMonth(
  * This data class hold the delimiter that is used by the current [CalendarLocale] when representing
  * dates in a short format, as well as a date pattern with and without a delimiter.
  */
-@ExperimentalMaterial3Api
 @Immutable
 internal data class DateInputFormat(
     val patternWithDelimiters: String,
@@ -313,7 +312,6 @@ internal data class DateInputFormat(
  *  - dd.MM.yyyy
  *  - MM/dd/yyyy
  */
-@ExperimentalMaterial3Api
 internal fun datePatternAsInputFormat(localeFormat: String): DateInputFormat {
     val patternWithDelimiters = localeFormat.replace(Regex("[^dMy/\\-.]"), "")
         .replace(Regex("d{1,2}"), "dd")
