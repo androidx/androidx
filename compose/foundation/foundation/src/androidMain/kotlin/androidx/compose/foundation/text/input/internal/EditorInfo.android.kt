@@ -28,7 +28,12 @@ import androidx.core.view.inputmethod.EditorInfoCompat
 /**
  * Fills necessary info of EditorInfo.
  */
-internal fun EditorInfo.update(text: CharSequence, selection: TextRange, imeOptions: ImeOptions) {
+internal fun EditorInfo.update(
+    text: CharSequence,
+    selection: TextRange,
+    imeOptions: ImeOptions,
+    acceptedMimeTypes: Set<String>? = null
+) {
     this.imeOptions = when (imeOptions.imeAction) {
         ImeAction.Default -> {
             if (imeOptions.singleLine) {
@@ -133,6 +138,10 @@ internal fun EditorInfo.update(text: CharSequence, selection: TextRange, imeOpti
     this.initialSelEnd = selection.end
 
     EditorInfoCompat.setInitialSurroundingText(this, text)
+
+    if (acceptedMimeTypes != null) {
+        EditorInfoCompat.setContentMimeTypes(this, acceptedMimeTypes.toTypedArray())
+    }
 
     this.imeOptions = this.imeOptions or EditorInfo.IME_FLAG_NO_FULLSCREEN
 }
