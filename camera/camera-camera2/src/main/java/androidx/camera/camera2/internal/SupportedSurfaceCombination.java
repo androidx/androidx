@@ -19,6 +19,7 @@ package androidx.camera.camera2.internal;
 import static android.content.pm.PackageManager.FEATURE_CAMERA_CONCURRENT;
 import static android.hardware.camera2.CameraCharacteristics.CONTROL_AE_AVAILABLE_TARGET_FPS_RANGES;
 
+import static androidx.camera.core.impl.StreamSpec.FRAME_RATE_RANGE_UNSPECIFIED;
 import static androidx.camera.core.internal.utils.SizeUtil.RESOLUTION_1080P;
 import static androidx.camera.core.internal.utils.SizeUtil.RESOLUTION_480P;
 import static androidx.camera.core.internal.utils.SizeUtil.RESOLUTION_VGA;
@@ -407,12 +408,11 @@ final class SupportedSurfaceCombination {
      *                        and incoming new use cases
      * @return a frame rate range supported by the device that is closest to targetFrameRate
      */
-
     @NonNull
-    private Range<Integer> getClosestSupportedDeviceFrameRate(Range<Integer> targetFrameRate,
-            int maxFps) {
-        if (targetFrameRate == null) {
-            return StreamSpec.FRAME_RATE_RANGE_UNSPECIFIED;
+    private Range<Integer> getClosestSupportedDeviceFrameRate(
+            @Nullable Range<Integer> targetFrameRate, int maxFps) {
+        if (targetFrameRate == null || targetFrameRate.equals(FRAME_RATE_RANGE_UNSPECIFIED)) {
+            return FRAME_RATE_RANGE_UNSPECIFIED;
         }
 
         // get all fps ranges supported by device
@@ -420,7 +420,7 @@ final class SupportedSurfaceCombination {
                 mCharacteristics.get(CONTROL_AE_AVAILABLE_TARGET_FPS_RANGES);
 
         if (availableFpsRanges == null) {
-            return StreamSpec.FRAME_RATE_RANGE_UNSPECIFIED;
+            return FRAME_RATE_RANGE_UNSPECIFIED;
         }
         // if  whole target framerate range > maxFps of configuration, the target for this
         // calculation will be [max,max].
@@ -432,14 +432,14 @@ final class SupportedSurfaceCombination {
                 Math.min(targetFrameRate.getUpper(), maxFps)
         );
 
-        Range<Integer> bestRange = StreamSpec.FRAME_RATE_RANGE_UNSPECIFIED;
+        Range<Integer> bestRange = FRAME_RATE_RANGE_UNSPECIFIED;
         int currentIntersectSize = 0;
 
 
         for (Range<Integer> potentialRange : availableFpsRanges) {
             // ignore ranges completely larger than configuration's maximum fps
             if (maxFps >= potentialRange.getLower()) {
-                if (bestRange.equals(StreamSpec.FRAME_RATE_RANGE_UNSPECIFIED)) {
+                if (bestRange.equals(FRAME_RATE_RANGE_UNSPECIFIED)) {
                     bestRange = potentialRange;
                 }
                 // take if range is a perfect match
