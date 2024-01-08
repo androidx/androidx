@@ -18,7 +18,6 @@ package androidx.paging.testing
 
 import androidx.annotation.VisibleForTesting
 import androidx.paging.CombinedLoadStates
-import androidx.paging.DifferCallback
 import androidx.paging.ItemSnapshotList
 import androidx.paging.LoadState
 import androidx.paging.LoadStates
@@ -60,17 +59,8 @@ public suspend fun <Value : Any> Flow<PagingData<Value>>.asSnapshot(
 
     lateinit var loader: SnapshotLoader<Value>
 
-    // TODO to be removed when all load types have switched to presentPagingDataEvent callback
-    val callback = object : DifferCallback {
-        override fun onChanged(position: Int, count: Int) { }
-        override fun onInserted(position: Int, count: Int) { }
-        override fun onRemoved(position: Int, count: Int) { }
-    }
-
     // PagingDataPresenter will collect from coroutineContext instead of main dispatcher
-    val presenter = object : CompletablePagingDataPresenter<Value>(
-        callback, coroutineContext
-    ) {
+    val presenter = object : CompletablePagingDataPresenter<Value>(coroutineContext) {
         override suspend fun presentPagingDataEvent(event: PagingDataEvent<Value>) {
             if (event is PagingDataEvent.Refresh) {
                 /**
@@ -156,9 +146,8 @@ public suspend fun <Value : Any> Flow<PagingData<Value>>.asSnapshot(
 }
 
 internal abstract class CompletablePagingDataPresenter<Value : Any>(
-    differCallback: DifferCallback,
     mainContext: CoroutineContext,
-) : PagingDataPresenter<Value>(differCallback, mainContext) {
+) : PagingDataPresenter<Value>(mainContext) {
     /**
      * Marker that the underlying Flow<PagingData> has completed - e.g., every possible generation
      * of data has been loaded completely.

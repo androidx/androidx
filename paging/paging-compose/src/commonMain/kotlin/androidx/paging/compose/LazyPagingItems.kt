@@ -25,7 +25,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.AndroidUiDispatcher
 import androidx.paging.CombinedLoadStates
-import androidx.paging.DifferCallback
 import androidx.paging.ItemSnapshotList
 import androidx.paging.LoadState
 import androidx.paging.LoadStates
@@ -62,13 +61,6 @@ public class LazyPagingItems<T : Any> internal constructor(
 ) {
     private val mainDispatcher = AndroidUiDispatcher.Main
 
-    // TODO to be removed when cleaning up PagingDataPresenter class
-    private val differCallback: DifferCallback = object : DifferCallback {
-        override fun onChanged(position: Int, count: Int) { }
-        override fun onInserted(position: Int, count: Int) { }
-        override fun onRemoved(position: Int, count: Int) { }
-    }
-
     /**
      * If the [flow] is a SharedFlow, it is expected to be the flow returned by from
      * pager.flow.cachedIn(scope) which could contain a cached PagingData. We pass the cached
@@ -76,7 +68,6 @@ public class LazyPagingItems<T : Any> internal constructor(
      * can be initialized with the data prior to collection on pager.
      */
     private val pagingDataPresenter = object : PagingDataPresenter<T>(
-        differCallback = differCallback,
         mainContext = mainDispatcher,
         cachedPagingData =
             if (flow is SharedFlow<PagingData<T>>) flow.replayCache.firstOrNull() else null

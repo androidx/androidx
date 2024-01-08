@@ -132,65 +132,26 @@ constructor(
         workerDispatcher = workerDispatcher
     )
 
-    @Suppress("MemberVisibilityCanBePrivate") // synthetic access
-    internal val differCallback = object : DifferCallback {
-        override fun onInserted(position: Int, count: Int) {
-            // Ignore if count == 0 as it makes this event a no-op.
-            if (count > 0) {
-                updateCallback.onInserted(position, count)
-            }
-        }
-
-        override fun onRemoved(position: Int, count: Int) {
-            // Ignore if count == 0 as it makes this event a no-op.
-            if (count > 0) {
-                updateCallback.onRemoved(position, count)
-            }
-        }
-
-        override fun onChanged(position: Int, count: Int) {
-            // Ignore if count == 0 as it makes this event a no-op.
-            if (count > 0) {
-                // NOTE: pass a null payload to convey null -> item, or item -> null
-                updateCallback.onChanged(position, count, null)
-            }
-        }
-    }
-
     /** True if we're currently executing [getItem] */
     @Suppress("MemberVisibilityCanBePrivate") // synthetic access
     internal var inGetItem: Boolean = false
 
-    internal val presenter = object : PagingDataPresenter<T>(differCallback, mainDispatcher) {
-        /**
-         * Insert the event's page to the storage, and dispatch associated callbacks for
-         * change (placeholder becomes real item) or insert (real item is appended).
-         *
-         * For each insert (or removal) there are three potential events:
-         *
-         * 1) change
-         *     this covers any placeholder/item conversions, and is done first
-         *
-         * 2) item insert/remove
-         *     this covers any remaining items that are inserted/removed, but aren't swapping with
-         *     placeholders
-         *
-         * 3) placeholder insert/remove
-         *     after the above, placeholder count can be wrong for a number of reasons - approximate
-         *     counting or filtering are the most common. In either case, we adjust placeholders at
-         *     the far end of the list, so that they don't trigger animations near the user.
-         */
+    internal val presenter = object : PagingDataPresenter<T>(mainDispatcher) {
         override suspend fun presentPagingDataEvent(event: PagingDataEvent<T>) {
             when (event) {
                 is PagingDataEvent.Refresh -> event.apply {
                     when {
                         // fast path for no items -> some items
                         previousList.size == 0 -> {
-                            differCallback.onInserted(0, newList.size)
+                            if (newList.size > 0) {
+                                updateCallback.onInserted(0, newList.size)
+                            }
                         }
                         // fast path for some items -> no items
                         newList.size == 0 -> {
-                            differCallback.onRemoved(0, previousList.size)
+                            if (previousList.size > 0) {
+                                updateCallback.onRemoved(0, previousList.size)
+                            }
                         }
                         else -> {
                             val diffResult = withContext(workerDispatcher) {
@@ -200,6 +161,20 @@ constructor(
                         }
                     }
                 }
+                /**
+                 * For each [PagingDataEvent.Prepend] or [PagingDataEvent.Append] there are
+                 * three potential events handled in the following order:
+                 *
+                 * 1) change
+                 *     this covers any placeholder/item conversions, and is done first
+                 * 2) item insert/remove
+                 *     this covers any remaining items that are inserted/removed, but aren't swapping with
+                 *     placeholders
+                 * 3) placeholder insert/remove
+                 *     after the above, placeholder count can be wrong for a number of reasons - approximate
+                 *     counting or filtering are the most common. In either case, we adjust placeholders at
+                 *     the far end of the list, so that they don't trigger animations near the user.
+                 */
                 is PagingDataEvent.Prepend -> event.apply {
                     val insertSize = inserted.size
 
@@ -253,6 +228,23 @@ constructor(
                         updateCallback.onRemoved(newTotalSize, -placeholderInsertedCount)
                     }
                 }
+                /**
+                 * For [PagingDataEvent.DropPrepend] or [PagingDataEvent.DropAppend] events
+                 * there are two potential events handled in the following order
+                 *
+                 * 1) placeholder insert/remove
+                 *     We first adjust placeholders at the far end of the list, so that they
+                 *     don't trigger animations near the user.
+                 * 2) change
+                 *     this covers any placeholder/item conversions, and is done after placeholders
+                 *     are trimmed/inserted to match new expected size
+                 *
+                 * Note: For drops we never run DiffUtil because it is safe to assume
+                 * that empty pages can never become non-empty no matter what transformations they
+                 * go through. [ListUpdateCallback] events generated by this helper always
+                 * drop contiguous sets of items because pages that depend on multiple
+                 * originalPageOffsets will always be the next closest page that's non-empty.
+                 */
                 is PagingDataEvent.DropPrepend -> event.apply {
                     // Trim or insert placeholders to match expected newSize.
                     val placeholdersToInsert = newPlaceholdersBefore - dropCount -
