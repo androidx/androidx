@@ -19,6 +19,7 @@ package androidx.wear.protolayout.renderer.inflater;
 import static android.util.TypedValue.COMPLEX_UNIT_SP;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
+import static androidx.wear.protolayout.proto.LayoutElementProto.ArcDirection.ARC_DIRECTION_CLOCKWISE_VALUE;
 
 import static androidx.core.util.Preconditions.checkNotNull;
 import static androidx.wear.protolayout.renderer.common.ProtoLayoutDiffer.FIRST_CHILD_INDEX;
@@ -197,6 +198,11 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
 import java.util.function.Consumer;
 import java.util.function.Function;
+
+import static android.view.View.LAYOUT_DIRECTION_LTR;
+import static android.view.View.LAYOUT_DIRECTION_RTL;
+import android.text.TextUtils;
+import java.util.Locale;
 
 /**
  * Renderer for ProtoLayout.
@@ -2770,6 +2776,21 @@ public final class ProtoLayoutInflater {
         // immediately overridden.
         textView.setTextColor(extractTextColorArgb(text.getFontStyle()));
 
+        if (text.hasArcDirection()) {
+            switch (text.getArcDirection().getValue()) {
+                case ARC_DIRECTION_NORMAL:
+                    textView.setClockwise(!isRtlLayoutDirectionFromLocale());
+                    break;
+                case ARC_DIRECTION_COUNTER_CLOCKWISE:
+                    textView.setClockwise(false);
+                    break;
+                case ARC_DIRECTION_CLOCKWISE:
+                case UNRECOGNIZED:
+                    textView.setClockwise(true);
+                    break;
+            }
+        }
+
         View wrappedView =
                 applyModifiersToArcLayoutView(textView, text.getModifiers(), posId, pipelineMaker);
         parentViewWrapper.maybeAddView(wrappedView, layoutParams);
@@ -3133,7 +3154,11 @@ public final class ProtoLayoutInflater {
                         LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
         @Nullable Float sizeForLayout = resolveSizeForLayoutIfNeeded(length);
         if (sizeForLayout != null) {
-            sizeWrapper = new SizedArcContainer(mUiContext);
+            int arcDirection =
+                    line.hasArcDirection()
+                            ? line.getArcDirection().getValueValue()
+                            : ARC_DIRECTION_CLOCKWISE_VALUE;
+            sizeWrapper = new SizedArcContainer(mUiContext, arcDirection);
             if (sizeForLayout <= 0f) {
                 Log.w(
                         TAG,
@@ -3180,6 +3205,23 @@ public final class ProtoLayoutInflater {
             LayoutInfo.Builder layoutInfoBuilder,
             Optional<ProtoLayoutDynamicDataPipeline.PipelineMaker> pipelineMaker) {
         ArcLayout arcLayout = new ArcLayout(mUiContext);
+
+        if (arc.hasArcDirection()) {
+            switch (arc.getArcDirection().getValue()) {
+                case ARC_DIRECTION_CLOCKWISE:
+                    arcLayout.setLayoutDirection(LAYOUT_DIRECTION_LTR);
+                    break;
+                case ARC_DIRECTION_COUNTER_CLOCKWISE:
+                    arcLayout.setLayoutDirection(LAYOUT_DIRECTION_RTL);
+                    break;
+                case ARC_DIRECTION_NORMAL:
+                case UNRECOGNIZED:
+                    arcLayout.setLayoutDirection(
+                            isRtlLayoutDirectionFromLocale() ?
+                                    LAYOUT_DIRECTION_RTL : LAYOUT_DIRECTION_LTR);
+                    break;
+            }
+        }
 
         LayoutParams layoutParams = generateDefaultLayoutParams();
         layoutParams.width = LayoutParams.MATCH_PARENT;
@@ -3247,6 +3289,10 @@ public final class ProtoLayoutInflater {
                 parentViewWrapper.getParentProperties().applyPendingChildLayoutParams(layoutParams),
                 NO_OP_PENDING_LAYOUT_PARAMS,
                 numMissingChildren);
+    }
+
+    static boolean isRtlLayoutDirectionFromLocale() {
+        return TextUtils.getLayoutDirectionFromLocale(Locale.getDefault()) == LAYOUT_DIRECTION_RTL;
     }
 
     private void applyStylesToSpan(

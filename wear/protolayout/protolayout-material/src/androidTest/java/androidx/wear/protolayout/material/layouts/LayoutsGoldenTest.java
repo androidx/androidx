@@ -99,6 +99,9 @@ public class LayoutsGoldenTest {
 
     @Test
     public void test() {
-        runSingleScreenshotTest(mScreenshotRule, mLayoutElement, mExpected);
+        runSingleScreenshotTest(
+                mScreenshotRule, mLayoutElement, mExpected, /* isRtlDirection= */ false);
+        runSingleScreenshotTest(
+                mScreenshotRule, mLayoutElement, mExpected + "_rtl", /* isRtlDirection= */ true);
     }
 }
