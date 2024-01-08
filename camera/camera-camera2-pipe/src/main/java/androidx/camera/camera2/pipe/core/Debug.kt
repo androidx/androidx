@@ -84,7 +84,7 @@ object Debug {
                     }
                 parametersString
                     .sortedBy { it.first }
-                    .forEach { append("  ${it.first.padEnd(50, ' ')}${it.second}\n") }
+                    .forEach { append("  ${it.first.padEnd(50, ' ')} ${it.second}\n") }
             }
         }
     }
