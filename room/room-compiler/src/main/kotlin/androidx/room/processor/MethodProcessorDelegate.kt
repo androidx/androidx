@@ -111,11 +111,6 @@ abstract class MethodProcessorDelegate(
         ): MethodProcessorDelegate {
             val asMember = executableElement.asMemberOf(containing)
             return if (asMember.isSuspendFunction()) {
-                val hasCoroutineArtifact = context.processingEnv
-                    .findTypeElement(COROUTINES_ROOM.canonicalName) != null
-                if (!hasCoroutineArtifact) {
-                    context.logger.e(ProcessorErrors.MISSING_ROOM_COROUTINE_ARTIFACT)
-                }
                 SuspendMethodProcessorDelegate(
                     context,
                     containing,
