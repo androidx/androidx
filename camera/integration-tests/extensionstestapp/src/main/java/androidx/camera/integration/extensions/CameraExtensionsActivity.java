@@ -80,7 +80,6 @@ import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.FocusMeteringResult;
-import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.MeteringPoint;
@@ -342,15 +341,6 @@ public class CameraExtensionsActivity extends AppCompatActivity
             Recorder recorder = new Recorder.Builder().build();
             mVideoCapture = VideoCapture.withOutput(recorder);
             useCaseGroupBuilder.addUseCase(checkNotNull(mVideoCapture));
-        }
-
-        if (mExtensionsManager.isImageAnalysisSupported(cameraSelector,
-                mCurrentExtensionMode)) {
-            ImageAnalysis imageAnalysis = new ImageAnalysis.Builder().build();
-            imageAnalysis.setAnalyzer(CameraXExecutors.ioExecutor(), img -> {
-                img.close();
-            });
-            useCaseGroupBuilder.addUseCase(imageAnalysis);
         }
 
         mCamera = mCameraProvider.bindToLifecycle(this, cameraSelector,

@@ -89,7 +89,7 @@ public class AdvancedSessionProcessor extends SessionProcessorBase {
             @NonNull String cameraId,
             @NonNull Map<String, CameraCharacteristics> cameraCharacteristicsMap,
             @NonNull OutputSurfaceConfiguration outputSurfaceConfig) {
-        Camera2SessionConfigImpl sessionConfigImpl;
+        Camera2SessionConfigImpl sessionConfigImpl = null;
         if (ClientVersion.isMinimumCompatibleVersion(Version.VERSION_1_4)
                 && ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_4)) {
             sessionConfigImpl =
@@ -99,7 +99,11 @@ public class AdvancedSessionProcessor extends SessionProcessorBase {
                             mContext,
                             new OutputSurfaceConfigurationImplAdapter(outputSurfaceConfig));
 
-        } else {
+        }
+
+        // In case of OEM doesn't implement the v1.4 version of initSession, we fallback to invoke
+        // prior version.
+        if (sessionConfigImpl == null) {
             sessionConfigImpl =
                     mImpl.initSession(
                             cameraId,
