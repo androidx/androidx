@@ -20,6 +20,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.util.DisplayMetrics;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -41,7 +42,8 @@ public class RunnerUtils {
     public static void runSingleScreenshotTest(
             @NonNull AndroidXScreenshotTestRule rule,
             @NonNull LayoutElementBuilders.LayoutElement layoutElement,
-            @NonNull String expected) {
+            @NonNull String expected,
+            boolean isRtlDirection) {
         LayoutElementBuilders.Layout layout =
                 LayoutElementBuilders.Layout.fromLayoutElement(layoutElement);
         byte[] layoutPayload = layout.toByteArray();
@@ -51,6 +53,7 @@ public class RunnerUtils {
                         InstrumentationRegistry.getInstrumentation().getTargetContext(),
                         GoldenTestActivity.class);
         startIntent.putExtra("layout", layoutPayload);
+        startIntent.putExtra(GoldenTestActivity.USE_RTL_DIRECTION, isRtlDirection);
 
         ActivityScenario<GoldenTestActivity> scenario = ActivityScenario.launch(startIntent);
         InstrumentationRegistry.getInstrumentation().waitForIdleSync();
@@ -66,12 +69,19 @@ public class RunnerUtils {
             Log.e("MaterialGoldenTest", "Error sleeping", ex);
         }
 
+        DisplayMetrics displayMetrics =
+                InstrumentationRegistry.getInstrumentation().getTargetContext()
+                        .getResources().getDisplayMetrics();
+
+        // RTL will put the View on the right side.
+        int screenWidthStart = isRtlDirection ? displayMetrics.widthPixels - SCREEN_WIDTH : 0;
+
         Bitmap bitmap =
                 Bitmap.createBitmap(
                         InstrumentationRegistry.getInstrumentation()
                                 .getUiAutomation()
                                 .takeScreenshot(),
-                        0,
+                        screenWidthStart,
                         0,
                         SCREEN_WIDTH,
                         SCREEN_HEIGHT);
