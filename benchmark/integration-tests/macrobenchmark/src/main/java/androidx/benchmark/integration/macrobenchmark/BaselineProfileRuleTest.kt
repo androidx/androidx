@@ -18,7 +18,6 @@ package androidx.benchmark.integration.macrobenchmark
 
 import android.content.Intent
 import android.os.Build
-import androidx.benchmark.Arguments
 import androidx.benchmark.Outputs
 import androidx.benchmark.Shell
 import androidx.benchmark.macro.junit4.BaselineProfileRule
@@ -61,7 +60,7 @@ class BaselineProfileRuleTest {
 
         // Collects the baseline profile
         baselineRule.collect(
-            packageName = Arguments.getTargetPackageNameOrThrow(),
+            packageName = PACKAGE_NAME,
             filterPredicate = { it.contains(PROFILE_LINE_EMPTY_ACTIVITY) },
             maxIterations = 1,
             profileBlock = {
@@ -89,7 +88,7 @@ class BaselineProfileRuleTest {
 
         // Collects the baseline profile
         baselineRule.collect(
-            packageName = Arguments.getTargetPackageNameOrThrow(),
+            packageName = PACKAGE_NAME,
             filterPredicate = { it.contains(PROFILE_LINE_EMPTY_ACTIVITY) },
             includeInStartupProfile = true,
             maxIterations = 1,
@@ -103,7 +102,6 @@ class BaselineProfileRuleTest {
 
         File(Outputs.outputDirectory, "BaselineProfileRuleTest_startupProfile-startup-prof.txt")
             .readLines()
-            .sorted()
             .assertContainsInOrder(
                 PROFILE_LINE_EMPTY_ACTIVITY,
                 "$PROFILE_LINE_EMPTY_ACTIVITY-><init>()V",
@@ -116,6 +114,8 @@ class BaselineProfileRuleTest {
             "androidx.benchmark.integration.macrobenchmark.target.EMPTY_ACTIVITY"
         private const val PROFILE_LINE_EMPTY_ACTIVITY =
             "androidx/benchmark/integration/macrobenchmark/target/EmptyActivity;"
+        private const val PACKAGE_NAME =
+            "androidx.benchmark.integration.macrobenchmark.target"
     }
 
     private fun List<String>.assertContainsInOrder(
@@ -125,7 +125,6 @@ class BaselineProfileRuleTest {
         val remaining = toFind.filter { it.isNotBlank() }.toMutableList()
         for (line in this) {
             val next = remaining.firstOrNull() ?: return
-            println("MAAL: Next: $next, Line: $line")
             if (predicate(line, next)) remaining.removeFirst()
         }
         if (remaining.size > 0) {
