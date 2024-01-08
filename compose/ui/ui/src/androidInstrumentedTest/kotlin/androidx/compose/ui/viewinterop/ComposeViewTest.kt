@@ -820,6 +820,11 @@ class ComposeViewTest {
                 with(Density(newDensity)) { 100.dp.roundToPx() }
             )
         }
+
+        rule.runOnUiThread {
+            // reset density to initial value to prevent it leaking to other tests
+            rule.activity.resources.displayMetrics.density = density.density
+        }
     }
 }
 
