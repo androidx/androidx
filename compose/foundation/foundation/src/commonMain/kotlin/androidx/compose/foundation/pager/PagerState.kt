@@ -189,6 +189,9 @@ abstract class PagerState(
     private var maxScrollOffset: Float = Float.MAX_VALUE
         private set
 
+    private var minScrollOffset: Float = 0.0f
+        private set
+
     private var accumulator: Float = 0f
 
     /**
@@ -217,7 +220,7 @@ abstract class PagerState(
         }
 
         val absolute = (currentScrollPosition + delta + accumulator)
-        val newValue = absolute.coerceIn(0.0f, maxScrollOffset)
+        val newValue = absolute.coerceIn(minScrollOffset, maxScrollOffset)
         val changed = absolute != newValue
         val consumed = newValue - currentScrollPosition
         previousPassDelta = consumed
@@ -636,6 +639,7 @@ abstract class PagerState(
         firstVisiblePageOffset = result.firstVisiblePageScrollOffset
         tryRunPrefetch(result)
         maxScrollOffset = result.calculateNewMaxScrollOffset(pageCount)
+        minScrollOffset = result.calculateNewMinScrollOffset(pageCount)
         debugLog {
             "Finished Applying Measure Result" +
                 "\nNew maxScrollOffset=$maxScrollOffset"
@@ -799,9 +803,46 @@ private inline fun debugLog(generateMsg: () -> String) {
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 private fun PagerMeasureResult.calculateNewMaxScrollOffset(pageCount: Int): Float {
-    return (beforeContentPadding +
-        (pageCount - 1) * (pageSpacing + pageSize).toFloat() +
-        afterContentPadding).coerceAtLeast(0.0f)
+    val pageSizeWithSpacing = (pageSpacing + pageSize).toFloat()
+    val maxScrollPossible =
+        (pageCount) * pageSizeWithSpacing + beforeContentPadding + afterContentPadding
+    val layoutSize =
+        if (orientation == Orientation.Horizontal) viewportSize.width else viewportSize.height
+
+    /**
+     * We need to take into consideration the snap position for max scroll position.
+     * For instance, if SnapPosition.Start, the max scroll position is
+     * pageCount * pageSize - viewport. Now if SnapPosition.End, it should be pageCount * pageSize.
+     * Therefore, the snap position discount varies between 0 and viewport.
+     */
+    val snapPositionDiscount = layoutSize - (snapPosition.position(
+        layoutSize = layoutSize,
+        itemSize = pageSize,
+        itemIndex = pageCount - 1,
+        beforeContentPadding = beforeContentPadding,
+        afterContentPadding = afterContentPadding,
+        itemCount = pageCount
+    )).coerceIn(0, layoutSize)
+
+    debugLog {
+        "maxScrollPossible=$maxScrollPossible" +
+            "\nsnapPositionDiscount=$snapPositionDiscount" +
+            "\nlayoutSize=$layoutSize"
+    }
+    return (maxScrollPossible - snapPositionDiscount).coerceAtLeast(0.0f)
+}
+
+private fun PagerMeasureResult.calculateNewMinScrollOffset(pageCount: Int): Float {
+    val layoutSize =
+        if (orientation == Orientation.Horizontal) viewportSize.width else viewportSize.height
+
+    return snapPosition.position(
+        layoutSize = layoutSize,
+        itemSize = pageSize,
+        itemIndex = 0,
+        beforeContentPadding = beforeContentPadding,
+        afterContentPadding = afterContentPadding,
+        itemCount = pageCount
+    ).coerceIn(0, layoutSize).toFloat()
 }
