@@ -370,6 +370,11 @@ public class ResolutionsMerger {
         result.put(ASPECT_RATIO_4_3, new ArrayList<>());
         result.put(ASPECT_RATIO_16_9, new ArrayList<>());
 
+        // Add 4:3 and 16:9 first so that sizes won't be grouped to other close aspect-ratios.
+        List<Rational> ratios = new ArrayList<>();
+        ratios.add(ASPECT_RATIO_4_3);
+        ratios.add(ASPECT_RATIO_16_9);
+
         // Group sizes by aspect-ratio with mod-16 considered.
         for (Size size : sizes) {
             if (size.getHeight() <= 0) {
@@ -378,7 +383,7 @@ public class ResolutionsMerger {
 
             // Get the aspect-ratio group if it is ready existed.
             List<Size> group = null;
-            for (Rational ratio : result.keySet()) {
+            for (Rational ratio : ratios) {
                 if (hasMatchingAspectRatio(size, ratio)) {
                     group = result.get(ratio);
                     break;
@@ -388,7 +393,9 @@ public class ResolutionsMerger {
             // Create a new aspect-ratio group if it is not existed.
             if (group == null) {
                 group = new ArrayList<>();
-                result.put(toRational(size), group);
+                Rational newRatio = toRational(size);
+                ratios.add(newRatio);
+                result.put(newRatio, group);
             }
 
             Objects.requireNonNull(group).add(size);
@@ -468,12 +475,13 @@ public class ResolutionsMerger {
         return areCroppingInDifferentDirection(
                 mSensorAspectRatio.floatValue(),
                 parentRatio.floatValue(),
-                toRational(childSize).floatValue()
+                toRationalWithMod16Considered(childSize).floatValue()
         );
     }
 
     private boolean isDoubleCropping(@NonNull Size parentSize, @NonNull Size childSize) {
-        return isDoubleCropping(toRational(parentSize), childSize);
+        Rational parentRatio = toRationalWithMod16Considered(parentSize);
+        return isDoubleCropping(parentRatio, childSize);
     }
 
     private boolean areCroppingInDifferentDirection(float sensorRatioValue, float parentRatioValue,
@@ -721,7 +729,7 @@ public class ResolutionsMerger {
     }
 
     @NonNull
-    private static Rational toRational(@NonNull Size size) {
+    private static Rational toRationalWithMod16Considered(@NonNull Size size) {
         // For 4:3 and 16:9, use hasMatchingAspectRatio to take "mod 16 calculation" into
         // consideration. For example, a standard 16:9 supported size is 1920x1080. It may become
         // 1920x1088 on some devices because 1088 is multiple of 16.
@@ -730,8 +738,13 @@ public class ResolutionsMerger {
         } else if (hasMatchingAspectRatio(size, ASPECT_RATIO_16_9)) {
             return ASPECT_RATIO_16_9;
         } else {
-            return new Rational(size.getWidth(), size.getHeight());
+            return toRational(size);
         }
+    }
+
+    @NonNull
+    private static Rational toRational(@NonNull Size size) {
+        return new Rational(size.getWidth(), size.getHeight());
     }
 
     private static float computeAreaOverlapping(@NonNull Rational croppingRatio,
