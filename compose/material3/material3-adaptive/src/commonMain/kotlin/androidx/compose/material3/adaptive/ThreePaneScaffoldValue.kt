@@ -46,19 +46,19 @@ private inline fun buildThreePaneScaffoldValue(
  *        how many expanded panes can be shown at the same time.
  * @param adaptStrategies The adapt strategies of each pane role that [ThreePaneScaffold] supports,
  *        the default value will be [ThreePaneScaffoldDefaults.threePaneScaffoldAdaptStrategies].
- * @param currentDestination The current pane destination, which will be treated as having
+ * @param currentDestination The current destination item, which will be treated as having
  *        the highest priority, can be `null`.
  */
 @ExperimentalMaterial3AdaptiveApi
 fun calculateThreePaneScaffoldValue(
     maxHorizontalPartitions: Int,
     adaptStrategies: ThreePaneScaffoldAdaptStrategies,
-    currentDestination: ThreePaneScaffoldRole?,
+    currentDestination: ThreePaneScaffoldDestinationItem<*>?,
 ): ThreePaneScaffoldValue {
     var expandedCount = if (currentDestination != null) 1 else 0
     return buildThreePaneScaffoldValue { role ->
         when {
-            role == currentDestination -> PaneAdaptedValue.Expanded
+            role == currentDestination?.pane -> PaneAdaptedValue.Expanded
             expandedCount < maxHorizontalPartitions -> {
                 expandedCount++
                 PaneAdaptedValue.Expanded
@@ -84,16 +84,16 @@ fun calculateThreePaneScaffoldValue(
  *        how many expanded panes can be shown at the same time.
  * @param adaptStrategies The adapt strategies of each pane role that [ThreePaneScaffold] supports,
  *        the default value will be [ThreePaneScaffoldDefaults.threePaneScaffoldAdaptStrategies].
- * @param destinationHistory The history of past destination panes, the last destination will have
+ * @param destinationHistory The history of past destination items. The last destination will have
  *        the highest priority, and the second last destination will have the second highest
- *        priority, and so forth until all panes has a priority assigned. Note that the last
+ *        priority, and so forth until all panes have a priority assigned. Note that the last
  *        destination is supposed to be the last item of the provided list.
  */
 @ExperimentalMaterial3AdaptiveApi
 fun calculateThreePaneScaffoldValue(
     maxHorizontalPartitions: Int,
     adaptStrategies: ThreePaneScaffoldAdaptStrategies,
-    destinationHistory: List<ThreePaneScaffoldRole>,
+    destinationHistory: List<ThreePaneScaffoldDestinationItem<*>>,
 ): ThreePaneScaffoldValue {
     var expandedCount = 0
     var primaryPaneAdaptedValue: PaneAdaptedValue? = null
@@ -103,7 +103,7 @@ fun calculateThreePaneScaffoldValue(
         if (expandedCount >= maxHorizontalPartitions) {
             return@fastForEachReversed
         }
-        when (it) {
+        when (it.pane) {
             ThreePaneScaffoldRole.Primary -> {
                 if (primaryPaneAdaptedValue == null) {
                     primaryPaneAdaptedValue = PaneAdaptedValue.Expanded

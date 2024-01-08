@@ -37,7 +37,7 @@ class ListDetailPaneScaffoldNavigatorTest {
 
     @Test
     fun singlePaneLayout_navigateTo_makeDestinationPaneExpanded() {
-        lateinit var scaffoldNavigator: ThreePaneScaffoldNavigator
+        lateinit var scaffoldNavigator: ThreePaneScaffoldNavigator<Int>
         var canNavigateBack by Delegates.notNull<Boolean>()
 
         composeRule.setContent {
@@ -51,20 +51,24 @@ class ListDetailPaneScaffoldNavigatorTest {
             assertThat(
                 scaffoldNavigator.scaffoldState.scaffoldValue[ListDetailPaneScaffoldRole.Detail]
             ).isEqualTo(PaneAdaptedValue.Hidden)
-            scaffoldNavigator.navigateTo(ListDetailPaneScaffoldRole.Detail)
+            scaffoldNavigator.navigateTo(ListDetailPaneScaffoldRole.Detail, 0)
         }
 
         composeRule.runOnIdle {
             assertThat(
                 scaffoldNavigator.scaffoldState.scaffoldValue[ListDetailPaneScaffoldRole.Detail]
             ).isEqualTo(PaneAdaptedValue.Expanded)
+            assertThat(
+                scaffoldNavigator.currentDestination?.pane
+            ).isEqualTo(ListDetailPaneScaffoldRole.Detail)
+            assertThat(scaffoldNavigator.currentDestination?.content).isEqualTo(0)
             assertThat(canNavigateBack).isTrue()
         }
     }
 
     @Test
     fun dualPaneLayout_navigateTo_keepDestinationPaneExpanded() {
-        lateinit var scaffoldNavigator: ThreePaneScaffoldNavigator
+        lateinit var scaffoldNavigator: ThreePaneScaffoldNavigator<Int>
         var canNavigateBack by Delegates.notNull<Boolean>()
 
         composeRule.setContent {
@@ -78,20 +82,24 @@ class ListDetailPaneScaffoldNavigatorTest {
             assertThat(
                 scaffoldNavigator.scaffoldState.scaffoldValue[ListDetailPaneScaffoldRole.Detail]
             ).isEqualTo(PaneAdaptedValue.Expanded)
-            scaffoldNavigator.navigateTo(ListDetailPaneScaffoldRole.Detail)
+            scaffoldNavigator.navigateTo(ListDetailPaneScaffoldRole.Detail, 0)
         }
 
         composeRule.runOnIdle {
             assertThat(
                 scaffoldNavigator.scaffoldState.scaffoldValue[ListDetailPaneScaffoldRole.Detail]
             ).isEqualTo(PaneAdaptedValue.Expanded)
+            assertThat(
+                scaffoldNavigator.currentDestination?.pane
+            ).isEqualTo(ListDetailPaneScaffoldRole.Detail)
+            assertThat(scaffoldNavigator.currentDestination?.content).isEqualTo(0)
             assertThat(canNavigateBack).isFalse()
         }
     }
 
     @Test
     fun dualPaneLayout_navigateToExtra_hideListWhenNotHistoryAware() {
-        lateinit var scaffoldNavigator: ThreePaneScaffoldNavigator
+        lateinit var scaffoldNavigator: ThreePaneScaffoldNavigator<Int>
         var canNavigateBack by Delegates.notNull<Boolean>()
 
         composeRule.setContent {
@@ -106,20 +114,24 @@ class ListDetailPaneScaffoldNavigatorTest {
             assertThat(
                 scaffoldNavigator.scaffoldState.scaffoldValue[ListDetailPaneScaffoldRole.List]
             ).isEqualTo(PaneAdaptedValue.Expanded)
-            scaffoldNavigator.navigateTo(ListDetailPaneScaffoldRole.Extra)
+            scaffoldNavigator.navigateTo(ListDetailPaneScaffoldRole.Extra, 0)
         }
 
         composeRule.runOnIdle {
             assertThat(
                 scaffoldNavigator.scaffoldState.scaffoldValue[ListDetailPaneScaffoldRole.List]
             ).isEqualTo(PaneAdaptedValue.Hidden)
+            assertThat(
+                scaffoldNavigator.currentDestination?.pane
+            ).isEqualTo(ListDetailPaneScaffoldRole.Extra)
+            assertThat(scaffoldNavigator.currentDestination?.content).isEqualTo(0)
             assertThat(canNavigateBack).isTrue()
         }
     }
 
     @Test
     fun dualPaneLayout_navigateToExtra_keepListExpandedWhenHistoryAware() {
-        lateinit var scaffoldNavigator: ThreePaneScaffoldNavigator
+        lateinit var scaffoldNavigator: ThreePaneScaffoldNavigator<Int>
         var canNavigateBack by Delegates.notNull<Boolean>()
 
         composeRule.setContent {
@@ -134,20 +146,24 @@ class ListDetailPaneScaffoldNavigatorTest {
             assertThat(
                 scaffoldNavigator.scaffoldState.scaffoldValue[ListDetailPaneScaffoldRole.List]
             ).isEqualTo(PaneAdaptedValue.Expanded)
-            scaffoldNavigator.navigateTo(ListDetailPaneScaffoldRole.Extra)
+            scaffoldNavigator.navigateTo(ListDetailPaneScaffoldRole.Extra, 0)
         }
 
         composeRule.runOnIdle {
             assertThat(
                 scaffoldNavigator.scaffoldState.scaffoldValue[ListDetailPaneScaffoldRole.List]
             ).isEqualTo(PaneAdaptedValue.Expanded)
+            assertThat(
+                scaffoldNavigator.currentDestination?.pane
+            ).isEqualTo(ListDetailPaneScaffoldRole.Extra)
+            assertThat(scaffoldNavigator.currentDestination?.content).isEqualTo(0)
             assertThat(canNavigateBack).isTrue()
         }
     }
 
     @Test
     fun singlePaneLayout_navigateBack_makeDestinationPaneHidden() {
-        lateinit var scaffoldNavigator: ThreePaneScaffoldNavigator
+        lateinit var scaffoldNavigator: ThreePaneScaffoldNavigator<Int>
         var canNavigateBack by Delegates.notNull<Boolean>()
 
         composeRule.setContent {
@@ -158,13 +174,17 @@ class ListDetailPaneScaffoldNavigatorTest {
         }
 
         composeRule.runOnIdle {
-            scaffoldNavigator.navigateTo(ListDetailPaneScaffoldRole.Detail)
+            scaffoldNavigator.navigateTo(ListDetailPaneScaffoldRole.Detail, 0)
         }
 
         composeRule.runOnIdle {
             assertThat(
                 scaffoldNavigator.scaffoldState.scaffoldValue[ListDetailPaneScaffoldRole.Detail]
             ).isEqualTo(PaneAdaptedValue.Expanded)
+            assertThat(
+                scaffoldNavigator.currentDestination?.pane
+            ).isEqualTo(ListDetailPaneScaffoldRole.Detail)
+            assertThat(scaffoldNavigator.currentDestination?.content).isEqualTo(0)
             assertThat(canNavigateBack).isTrue()
             scaffoldNavigator.navigateBack()
         }
@@ -173,39 +193,47 @@ class ListDetailPaneScaffoldNavigatorTest {
             assertThat(
                 scaffoldNavigator.scaffoldState.scaffoldValue[ListDetailPaneScaffoldRole.Detail]
             ).isEqualTo(PaneAdaptedValue.Hidden)
+            assertThat(
+                scaffoldNavigator.currentDestination?.pane
+            ).isEqualTo(ListDetailPaneScaffoldRole.List)
+            assertThat(scaffoldNavigator.currentDestination?.content).isNull()
             assertThat(canNavigateBack).isFalse()
         }
     }
 
     @Test
     fun dualPaneLayout_enforceScaffoldValueChange_cannotNavigateBack() {
-        lateinit var scaffoldNavigator: ThreePaneScaffoldNavigator
+        lateinit var scaffoldNavigator: ThreePaneScaffoldNavigator<Int>
 
         composeRule.setContent {
             scaffoldNavigator = rememberListDetailPaneScaffoldNavigator(
                 scaffoldDirective = MockDualPaneScaffoldDirective,
                 initialDestinationHistory = listOf(
-                    ListDetailPaneScaffoldRole.List,
-                    ListDetailPaneScaffoldRole.Detail,
+                    ThreePaneScaffoldDestinationItem(ListDetailPaneScaffoldRole.List),
+                    ThreePaneScaffoldDestinationItem(ListDetailPaneScaffoldRole.Detail, 0),
                 )
             )
         }
 
         composeRule.runOnIdle {
+            assertThat(
+                scaffoldNavigator.currentDestination?.pane
+            ).isEqualTo(ListDetailPaneScaffoldRole.Detail)
+            assertThat(scaffoldNavigator.currentDestination?.content).isEqualTo(0)
             assertThat(scaffoldNavigator.canNavigateBack()).isFalse()
         }
     }
 
     @Test
     fun dualPaneLayout_notEnforceScaffoldValueChange_canNavigateBack() {
-        lateinit var scaffoldNavigator: ThreePaneScaffoldNavigator
+        lateinit var scaffoldNavigator: ThreePaneScaffoldNavigator<Int>
 
         composeRule.setContent {
             scaffoldNavigator = rememberListDetailPaneScaffoldNavigator(
                 scaffoldDirective = MockDualPaneScaffoldDirective,
                 initialDestinationHistory = listOf(
-                    ListDetailPaneScaffoldRole.List,
-                    ListDetailPaneScaffoldRole.Detail,
+                    ThreePaneScaffoldDestinationItem(ListDetailPaneScaffoldRole.List),
+                    ThreePaneScaffoldDestinationItem(ListDetailPaneScaffoldRole.Detail, 0),
                 )
             )
         }
@@ -214,6 +242,10 @@ class ListDetailPaneScaffoldNavigatorTest {
             assertThat(
                 scaffoldNavigator.scaffoldState.scaffoldValue[ListDetailPaneScaffoldRole.Detail]
             ).isEqualTo(PaneAdaptedValue.Expanded)
+            assertThat(
+                scaffoldNavigator.currentDestination?.pane
+            ).isEqualTo(ListDetailPaneScaffoldRole.Detail)
+            assertThat(scaffoldNavigator.currentDestination?.content).isEqualTo(0)
             assertThat(scaffoldNavigator.canNavigateBack(false)).isTrue()
             scaffoldNavigator.navigateBack(false)
         }
@@ -222,19 +254,23 @@ class ListDetailPaneScaffoldNavigatorTest {
             assertThat(
                 scaffoldNavigator.scaffoldState.scaffoldValue[ListDetailPaneScaffoldRole.Detail]
             ).isEqualTo(PaneAdaptedValue.Expanded)
+            assertThat(
+                scaffoldNavigator.currentDestination?.pane
+            ).isEqualTo(ListDetailPaneScaffoldRole.List)
+            assertThat(scaffoldNavigator.currentDestination?.content).isNull()
         }
     }
 
     @Test
     fun dualPaneLayout_enforceScaffoldChangeWhenHistoryAware_notSkipBackstackEntry() {
-        lateinit var scaffoldNavigator: ThreePaneScaffoldNavigator
+        lateinit var scaffoldNavigator: ThreePaneScaffoldNavigator<Int>
 
         composeRule.setContent {
             scaffoldNavigator = rememberListDetailPaneScaffoldNavigator(
                 scaffoldDirective = MockDualPaneScaffoldDirective,
                 initialDestinationHistory = listOf(
-                    ListDetailPaneScaffoldRole.Extra,
-                    ListDetailPaneScaffoldRole.List,
+                    ThreePaneScaffoldDestinationItem(ListDetailPaneScaffoldRole.Extra, 0),
+                    ThreePaneScaffoldDestinationItem(ListDetailPaneScaffoldRole.List),
                 ),
                 isDestinationHistoryAware = true
             )
@@ -246,7 +282,11 @@ class ListDetailPaneScaffoldNavigatorTest {
                 PaneAdaptedValue.Expanded,
                 PaneAdaptedValue.Expanded
             )
-            scaffoldNavigator.navigateTo(ListDetailPaneScaffoldRole.Detail)
+            assertThat(
+                scaffoldNavigator.currentDestination?.pane
+            ).isEqualTo(ListDetailPaneScaffoldRole.List)
+            assertThat(scaffoldNavigator.currentDestination?.content).isNull()
+            scaffoldNavigator.navigateTo(ListDetailPaneScaffoldRole.Detail, 0)
         }
 
         composeRule.runOnIdle {
@@ -255,6 +295,10 @@ class ListDetailPaneScaffoldNavigatorTest {
                 PaneAdaptedValue.Expanded,
                 PaneAdaptedValue.Hidden
             )
+            assertThat(
+                scaffoldNavigator.currentDestination?.pane
+            ).isEqualTo(ListDetailPaneScaffoldRole.Detail)
+            assertThat(scaffoldNavigator.currentDestination?.content).isEqualTo(0)
             scaffoldNavigator.navigateBack()
         }
 
@@ -264,19 +308,23 @@ class ListDetailPaneScaffoldNavigatorTest {
                 PaneAdaptedValue.Expanded,
                 PaneAdaptedValue.Expanded
             )
+            assertThat(
+                scaffoldNavigator.currentDestination?.pane
+            ).isEqualTo(ListDetailPaneScaffoldRole.List)
+            assertThat(scaffoldNavigator.currentDestination?.content).isNull()
         }
     }
 
     @Test
     fun dualPaneLayout_enforceScaffoldChangeWhenNotHistoryAware_skipBackstackEntry() {
-        lateinit var scaffoldNavigator: ThreePaneScaffoldNavigator
+        lateinit var scaffoldNavigator: ThreePaneScaffoldNavigator<Int>
 
         composeRule.setContent {
             scaffoldNavigator = rememberListDetailPaneScaffoldNavigator(
                 scaffoldDirective = MockDualPaneScaffoldDirective,
                 initialDestinationHistory = listOf(
-                    ListDetailPaneScaffoldRole.Extra,
-                    ListDetailPaneScaffoldRole.List,
+                    ThreePaneScaffoldDestinationItem(ListDetailPaneScaffoldRole.Extra, 0),
+                    ThreePaneScaffoldDestinationItem(ListDetailPaneScaffoldRole.List),
                 ),
                 isDestinationHistoryAware = false
             )
@@ -288,7 +336,11 @@ class ListDetailPaneScaffoldNavigatorTest {
                 PaneAdaptedValue.Expanded,
                 PaneAdaptedValue.Hidden
             )
-            scaffoldNavigator.navigateTo(ListDetailPaneScaffoldRole.Detail)
+            assertThat(
+                scaffoldNavigator.currentDestination?.pane
+            ).isEqualTo(ListDetailPaneScaffoldRole.List)
+            assertThat(scaffoldNavigator.currentDestination?.content).isNull()
+            scaffoldNavigator.navigateTo(ListDetailPaneScaffoldRole.Detail, 0)
         }
 
         composeRule.runOnIdle {
@@ -297,6 +349,10 @@ class ListDetailPaneScaffoldNavigatorTest {
                 PaneAdaptedValue.Expanded,
                 PaneAdaptedValue.Hidden
             )
+            assertThat(
+                scaffoldNavigator.currentDestination?.pane
+            ).isEqualTo(ListDetailPaneScaffoldRole.Detail)
+            assertThat(scaffoldNavigator.currentDestination?.content).isEqualTo(0)
             scaffoldNavigator.navigateBack()
         }
 
@@ -306,20 +362,24 @@ class ListDetailPaneScaffoldNavigatorTest {
                 PaneAdaptedValue.Hidden,
                 PaneAdaptedValue.Expanded
             )
+            assertThat(
+                scaffoldNavigator.currentDestination?.pane
+            ).isEqualTo(ListDetailPaneScaffoldRole.Extra)
+            assertThat(scaffoldNavigator.currentDestination?.content).isEqualTo(0)
         }
     }
 
     @Test
     fun singlePaneToDualPaneLayout_enforceScaffoldValueChange_cannotNavigateBack() {
-        lateinit var scaffoldNavigator: ThreePaneScaffoldNavigator
+        lateinit var scaffoldNavigator: ThreePaneScaffoldNavigator<Int>
         val mockCurrentScaffoldDirective = mutableStateOf(MockSinglePaneScaffoldDirective)
 
         composeRule.setContent {
             scaffoldNavigator = rememberListDetailPaneScaffoldNavigator(
                 scaffoldDirective = mockCurrentScaffoldDirective.value,
                 initialDestinationHistory = listOf(
-                    ListDetailPaneScaffoldRole.List,
-                    ListDetailPaneScaffoldRole.Detail,
+                    ThreePaneScaffoldDestinationItem(ListDetailPaneScaffoldRole.List),
+                    ThreePaneScaffoldDestinationItem(ListDetailPaneScaffoldRole.Detail, 0),
                 )
             )
         }
@@ -327,12 +387,20 @@ class ListDetailPaneScaffoldNavigatorTest {
             assertThat(
                 scaffoldNavigator.scaffoldState.scaffoldValue[ListDetailPaneScaffoldRole.Detail]
             ).isEqualTo(PaneAdaptedValue.Expanded)
+            assertThat(
+                scaffoldNavigator.currentDestination?.pane
+            ).isEqualTo(ListDetailPaneScaffoldRole.Detail)
+            assertThat(scaffoldNavigator.currentDestination?.content).isEqualTo(0)
             // Switches to dual pane
             mockCurrentScaffoldDirective.value = MockDualPaneScaffoldDirective
         }
 
         composeRule.runOnIdle {
             assertThat(scaffoldNavigator.canNavigateBack()).isFalse()
+            assertThat(
+                scaffoldNavigator.currentDestination?.pane
+            ).isEqualTo(ListDetailPaneScaffoldRole.Detail)
+            assertThat(scaffoldNavigator.currentDestination?.content).isEqualTo(0)
         }
     }
 }

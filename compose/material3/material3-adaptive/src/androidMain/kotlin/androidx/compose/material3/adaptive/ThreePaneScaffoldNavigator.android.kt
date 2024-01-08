@@ -26,6 +26,7 @@ import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.util.fastMap
 
 /**
  * The common interface of the default navigation implementations for different [ThreePaneScaffold].
@@ -40,15 +41,28 @@ import androidx.compose.runtime.setValue
  * recommended, instead of implementing this interface. But we recommend you refer to the API design
  * and the default implementation to get better understanding and address the intricacies of
  * navigation in an adaptive scenario.
+ *
+ * @param T the type representing the content (or id of the content) for a navigation destination.
+ * This type must be storable in a Bundle.
  */
 @ExperimentalMaterial3AdaptiveApi
 @Stable
-interface ThreePaneScaffoldNavigator {
+interface ThreePaneScaffoldNavigator<T> {
     /**
-     * The current scaffold state provided by the navigator. It's supposed to be auto-updated
-     * whenever a navigation operation is performed when implementing the interface.
+     * The current scaffold state provided by the navigator.
+     *
+     * Implementors of this interface should ensure this value is updated whenever a navigation
+     * operation is performed.
      */
     val scaffoldState: ThreePaneScaffoldState
+
+    /**
+     * The current destination as tracked by the navigator.
+     *
+     * Implementors of this interface should ensure this value is updated whenever a navigation
+     * operation is performed.
+     */
+    val currentDestination: ThreePaneScaffoldDestinationItem<T>?
 
     /**
      * Indicates if the navigator should be aware of pane destination history when deciding the
@@ -60,14 +74,16 @@ interface ThreePaneScaffoldNavigator {
     var isDestinationHistoryAware: Boolean
 
     /**
-     * Navigates to a new pane destination. The new destination is supposed to have the highest
+     * Navigates to a new destination. The new destination is supposed to have the highest
      * priority when calculating the new [scaffoldState]. When implementing this method, please
      * ensure the new destination pane will be expanded or adapted in a reasonable way so it
      * provides users the sense that the new destination is the pane under current usage.
      *
-     * @param pane the new destination.
+     * @param pane the new destination pane.
+     * @param content the optional content, or an id representing the content of the new
+     * destination.
      */
-    fun navigateTo(pane: ThreePaneScaffoldRole)
+    fun navigateTo(pane: ThreePaneScaffoldRole, content: T? = null)
 
     /**
      * Returns `true` if there is a previous destination to navigate back to. When implementing this
@@ -112,14 +128,15 @@ interface ThreePaneScaffoldNavigator {
  */
 @ExperimentalMaterial3AdaptiveApi
 @Composable
-fun rememberListDetailPaneScaffoldNavigator(
+fun <T> rememberListDetailPaneScaffoldNavigator(
     scaffoldDirective: PaneScaffoldDirective =
         calculateStandardPaneScaffoldDirective(currentWindowAdaptiveInfo()),
     adaptStrategies: ThreePaneScaffoldAdaptStrategies =
         ListDetailPaneScaffoldDefaults.adaptStrategies(),
     isDestinationHistoryAware: Boolean = true,
-    initialDestinationHistory: List<ThreePaneScaffoldRole> = listOf(ListDetailPaneScaffoldRole.List)
-): ThreePaneScaffoldNavigator =
+    initialDestinationHistory: List<ThreePaneScaffoldDestinationItem<T>> =
+        DefaultListDetailPaneHistory,
+): ThreePaneScaffoldNavigator<T> =
     rememberThreePaneScaffoldNavigator(
         scaffoldDirective,
         adaptStrategies,
@@ -145,15 +162,15 @@ fun rememberListDetailPaneScaffoldNavigator(
  */
 @ExperimentalMaterial3AdaptiveApi
 @Composable
-fun rememberSupportingPaneScaffoldNavigator(
+fun <T> rememberSupportingPaneScaffoldNavigator(
     scaffoldDirective: PaneScaffoldDirective =
         calculateStandardPaneScaffoldDirective(currentWindowAdaptiveInfo()),
     adaptStrategies: ThreePaneScaffoldAdaptStrategies =
         SupportingPaneScaffoldDefaults.adaptStrategies(),
     isDestinationHistoryAware: Boolean = true,
-    initialDestinationHistory: List<ThreePaneScaffoldRole> =
-        listOf(SupportingPaneScaffoldRole.Main)
-): ThreePaneScaffoldNavigator =
+    initialDestinationHistory: List<ThreePaneScaffoldDestinationItem<T>> =
+        DefaultSupportingPaneHistory,
+): ThreePaneScaffoldNavigator<T> =
     rememberThreePaneScaffoldNavigator(
         scaffoldDirective,
         adaptStrategies,
@@ -163,12 +180,12 @@ fun rememberSupportingPaneScaffoldNavigator(
 
 @ExperimentalMaterial3AdaptiveApi
 @Composable
-internal fun rememberThreePaneScaffoldNavigator(
+internal fun <T> rememberThreePaneScaffoldNavigator(
     scaffoldDirective: PaneScaffoldDirective,
     adaptStrategies: ThreePaneScaffoldAdaptStrategies,
     isDestinationHistoryAware: Boolean,
-    initialDestinationHistory: List<ThreePaneScaffoldRole>
-): ThreePaneScaffoldNavigator =
+    initialDestinationHistory: List<ThreePaneScaffoldDestinationItem<T>>
+): ThreePaneScaffoldNavigator<T> =
     rememberSaveable(
         saver = DefaultThreePaneScaffoldNavigator.saver(
             scaffoldDirective,
@@ -189,16 +206,17 @@ internal fun rememberThreePaneScaffoldNavigator(
     }
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
-internal class DefaultThreePaneScaffoldNavigator(
-    initialDestinationHistory: List<ThreePaneScaffoldRole>,
+internal class DefaultThreePaneScaffoldNavigator<T>(
+    initialDestinationHistory: List<ThreePaneScaffoldDestinationItem<T>>,
     initialScaffoldDirective: PaneScaffoldDirective,
     initialAdaptStrategies: ThreePaneScaffoldAdaptStrategies,
     initialIsDestinationHistoryAware: Boolean
-) : ThreePaneScaffoldNavigator, ThreePaneScaffoldState {
+) : ThreePaneScaffoldNavigator<T>, ThreePaneScaffoldState {
 
-    private val destinationHistory = mutableStateListOf<ThreePaneScaffoldRole>().apply {
-        addAll(initialDestinationHistory)
-    }
+    private val destinationHistory =
+        mutableStateListOf<ThreePaneScaffoldDestinationItem<T>>().apply {
+            addAll(initialDestinationHistory)
+        }
 
     override val scaffoldState = this
 
@@ -208,14 +226,14 @@ internal class DefaultThreePaneScaffoldNavigator(
 
     var adaptStrategies by mutableStateOf(initialAdaptStrategies)
 
-    val currentDestination: ThreePaneScaffoldRole? get() = destinationHistory.lastOrNull()
+    override val currentDestination get() = destinationHistory.lastOrNull()
 
     override val scaffoldValue by derivedStateOf {
         calculateScaffoldValue(destinationHistory.lastIndex)
     }
 
-    override fun navigateTo(pane: ThreePaneScaffoldRole) {
-        destinationHistory.add(pane)
+    override fun navigateTo(pane: ThreePaneScaffoldRole, content: T?) {
+        destinationHistory.add(ThreePaneScaffoldDestinationItem(pane, content))
     }
 
     override fun canNavigateBack(scaffoldValueMustChange: Boolean): Boolean =
@@ -276,22 +294,37 @@ internal class DefaultThreePaneScaffoldNavigator(
         /**
          * To keep destination history saved
          */
-        fun saver(
+        fun <T> saver(
             initialScaffoldDirective: PaneScaffoldDirective,
             initialAdaptStrategies: ThreePaneScaffoldAdaptStrategies,
             initialDestinationHistoryAware: Boolean
-        ): Saver<DefaultThreePaneScaffoldNavigator, *> = listSaver(
-            save = {
-                it.destinationHistory
-            },
-            restore = {
-                DefaultThreePaneScaffoldNavigator(
-                    initialDestinationHistory = it,
-                    initialScaffoldDirective = initialScaffoldDirective,
-                    initialAdaptStrategies = initialAdaptStrategies,
-                    initialIsDestinationHistoryAware = initialDestinationHistoryAware
-                )
-            }
-        )
+        ): Saver<DefaultThreePaneScaffoldNavigator<T>, *> {
+            val destinationItemSaver = ThreePaneScaffoldDestinationItem.saver<T>()
+            return listSaver(
+                save = {
+                    it.destinationHistory.fastMap { destination ->
+                        with(destinationItemSaver) { save(destination) }
+                    }
+                },
+                restore = {
+                    DefaultThreePaneScaffoldNavigator(
+                        initialDestinationHistory = it.fastMap { savedDestination ->
+                            destinationItemSaver.restore(savedDestination!!)!!
+                        },
+                        initialScaffoldDirective = initialScaffoldDirective,
+                        initialAdaptStrategies = initialAdaptStrategies,
+                        initialIsDestinationHistoryAware = initialDestinationHistoryAware
+                    )
+                }
+            )
+        }
     }
 }
+
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
+private val DefaultListDetailPaneHistory: List<ThreePaneScaffoldDestinationItem<Nothing>> =
+    listOf(ThreePaneScaffoldDestinationItem(ListDetailPaneScaffoldRole.List))
+
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
+private val DefaultSupportingPaneHistory: List<ThreePaneScaffoldDestinationItem<Nothing>> =
+    listOf(ThreePaneScaffoldDestinationItem(SupportingPaneScaffoldRole.Main))

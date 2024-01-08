@@ -64,7 +64,7 @@ fun SupportingPaneScaffold(
  * [ThreePaneScaffoldAdaptStrategies], and the current pane destination of a
  * [SupportingPaneScaffold].
  *
- * @param currentPaneDestination the current pane destination, which will be guaranteed to have the
+ * @param currentDestination the current destination item, which will be guaranteed to have the
  *        highest priority when deciding pane visibilities.
  * @param scaffoldDirective the layout directives that the associated [SupportingPaneScaffold]
  *        needs to follow. The default value will be the calculation result from
@@ -75,7 +75,8 @@ fun SupportingPaneScaffold(
 @ExperimentalMaterial3AdaptiveApi
 @Composable
 fun calculateSupportingPaneScaffoldState(
-    currentPaneDestination: ThreePaneScaffoldRole = SupportingPaneScaffoldRole.Main,
+    currentDestination: ThreePaneScaffoldDestinationItem<*> =
+        ThreePaneScaffoldDestinationItem(SupportingPaneScaffoldRole.Main, null),
     scaffoldDirective: PaneScaffoldDirective =
         calculateStandardPaneScaffoldDirective(currentWindowAdaptiveInfo()),
     adaptStrategies: ThreePaneScaffoldAdaptStrategies =
@@ -85,7 +86,7 @@ fun calculateSupportingPaneScaffoldState(
     calculateThreePaneScaffoldValue(
         scaffoldDirective.maxHorizontalPartitions,
         adaptStrategies,
-        currentPaneDestination
+        currentDestination
     )
 )
 
@@ -94,9 +95,9 @@ fun calculateSupportingPaneScaffoldState(
  * [ThreePaneScaffoldAdaptStrategies], and the pane destination history of a
  * [SupportingPaneScaffold].
  *
- * @param paneDestinationHistory The history of past pane destinations, the last destination will
+ * @param destinationHistory The history of past destination items. The last destination will
  *        have the highest priority, and the second last destination will have the second highest
- *        priority, and so forth until all panes has a priority assigned. Note that the last
+ *        priority, and so forth until all panes have a priority assigned. Note that the last
  *        destination is supposed to be the last item of the provided list. When the history is
  *        empty or there are panes left unassigned, default priorities will be assigned to those
  *        panes in the order of Main > Supporting > Extra.
@@ -109,7 +110,7 @@ fun calculateSupportingPaneScaffoldState(
 @ExperimentalMaterial3AdaptiveApi
 @Composable
 fun calculateSupportingPaneScaffoldState(
-    paneDestinationHistory: List<ThreePaneScaffoldRole>,
+    destinationHistory: List<ThreePaneScaffoldDestinationItem<*>>,
     scaffoldDirective: PaneScaffoldDirective =
         calculateStandardPaneScaffoldDirective(currentWindowAdaptiveInfo()),
     adaptStrategies: ThreePaneScaffoldAdaptStrategies =
@@ -119,7 +120,7 @@ fun calculateSupportingPaneScaffoldState(
     calculateThreePaneScaffoldValue(
         scaffoldDirective.maxHorizontalPartitions,
         adaptStrategies,
-        paneDestinationHistory
+        destinationHistory
     )
 )
 

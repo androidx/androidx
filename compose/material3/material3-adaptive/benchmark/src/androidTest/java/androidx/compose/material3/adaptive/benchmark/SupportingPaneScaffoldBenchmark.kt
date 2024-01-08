@@ -19,6 +19,7 @@ package androidx.compose.material3.adaptive.benchmark
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.SupportingPaneScaffold
 import androidx.compose.material3.adaptive.SupportingPaneScaffoldRole
+import androidx.compose.material3.adaptive.ThreePaneScaffoldDestinationItem
 import androidx.compose.material3.adaptive.calculateSupportingPaneScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -79,12 +80,13 @@ class SupportingPaneScaffoldBenchmark {
             {
                 object : SupportingPaneScaffoldTestCase() {
                     override fun toggleState() {
-                        currentDestination =
-                            if (currentDestination == SupportingPaneScaffoldRole.Main) {
+                        val newPane =
+                            if (currentDestination.pane == SupportingPaneScaffoldRole.Main) {
                                 SupportingPaneScaffoldRole.Supporting
                             } else {
                                 SupportingPaneScaffoldRole.Main
                             }
+                        currentDestination = ThreePaneScaffoldDestinationItem(newPane, 0)
                     }
                 }.apply {
                     currentScaffoldDirective = singlePaneDirective
@@ -99,12 +101,13 @@ class SupportingPaneScaffoldBenchmark {
             {
                 object : SupportingPaneScaffoldTestCase() {
                     override fun toggleState() {
-                        currentDestination =
-                            if (currentDestination == SupportingPaneScaffoldRole.Main) {
+                        val newPane =
+                            if (currentDestination.pane == SupportingPaneScaffoldRole.Main) {
                                 SupportingPaneScaffoldRole.Extra
                             } else {
                                 SupportingPaneScaffoldRole.Main
                             }
+                        currentDestination = ThreePaneScaffoldDestinationItem(newPane, 0)
                     }
                 }.apply {
                     currentScaffoldDirective = dualPaneDirective
@@ -119,12 +122,13 @@ class SupportingPaneScaffoldBenchmark {
             {
                 object : SupportingPaneScaffoldTestCase(animated = true) {
                     override fun toggleState() {
-                        currentDestination =
-                            if (currentDestination == SupportingPaneScaffoldRole.Main) {
+                        val newPane =
+                            if (currentDestination.pane == SupportingPaneScaffoldRole.Main) {
                                 SupportingPaneScaffoldRole.Supporting
                             } else {
                                 SupportingPaneScaffoldRole.Main
                             }
+                        currentDestination = ThreePaneScaffoldDestinationItem(newPane, 0)
                     }
                 }.apply {
                     currentScaffoldDirective = singlePaneDirective
@@ -141,12 +145,13 @@ class SupportingPaneScaffoldBenchmark {
             {
                 object : SupportingPaneScaffoldTestCase(animated = true) {
                     override fun toggleState() {
-                        currentDestination =
-                            if (currentDestination == SupportingPaneScaffoldRole.Main) {
+                        val newPane =
+                            if (currentDestination.pane == SupportingPaneScaffoldRole.Main) {
                                 SupportingPaneScaffoldRole.Extra
                             } else {
                                 SupportingPaneScaffoldRole.Main
                             }
+                        currentDestination = ThreePaneScaffoldDestinationItem(newPane, 0)
                     }
                 }.apply {
                     currentScaffoldDirective = dualPaneDirective
@@ -162,14 +167,16 @@ class SupportingPaneScaffoldBenchmark {
 internal open class SupportingPaneScaffoldTestCase(
     animated: Boolean = false
 ) : ThreePaneScaffoldTestCase(animated) {
-    override var currentDestination by mutableStateOf(SupportingPaneScaffoldRole.Main)
+    override var currentDestination by mutableStateOf(
+        ThreePaneScaffoldDestinationItem(SupportingPaneScaffoldRole.Main, 0)
+    )
 
     @Composable
     override fun MeasuredContent() {
         SupportingPaneScaffold(
             scaffoldState = calculateSupportingPaneScaffoldState(
                 scaffoldDirective = currentScaffoldDirective,
-                currentPaneDestination = currentDestination
+                currentDestination = currentDestination
             ),
             supportingPane = { TestPane(Color.Red) },
             extraPane = { TestPane(Color.Blue) }
