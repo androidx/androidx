@@ -24,6 +24,7 @@ import androidx.compose.runtime.State
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.wear.compose.material3.tokens.MotionTokens
 import androidx.wear.compose.materialcore.animateSelectionColor
 
 /**
@@ -59,10 +60,12 @@ fun SelectionControlScope.Radio(
     },
     onClick = null,
     interactionSource = null,
-    dotRadiusProgressDuration = { isSelected -> if (isSelected) MEDIUM_1 else SHORT_3 },
-    dotAlphaProgressDuration = SHORT_3,
-    dotAlphaProgressDelay = SHORT_2,
-    easing = STANDARD_DECELERATE,
+    dotRadiusProgressDuration = {
+        isSelected -> if (isSelected) MotionTokens.DurationMedium1 else MotionTokens.DurationShort3
+    },
+    dotAlphaProgressDuration = MotionTokens.DurationShort3,
+    dotAlphaProgressDelay = MotionTokens.DurationShort2,
+    easing = MotionTokens.EasingStandardDecelerate,
     width = WIDTH,
     height = HEIGHT,
     ripple = rippleOrFallbackImplementation()
@@ -139,7 +142,8 @@ object RadioDefaults {
     }
 }
 
-private val COLOR_ANIMATION_SPEC: AnimationSpec<Color> = tween(MEDIUM_1, 0, STANDARD_DECELERATE)
+private val COLOR_ANIMATION_SPEC: AnimationSpec<Color> =
+    tween(MotionTokens.DurationMedium1, 0, MotionTokens.EasingStandardDecelerate)
 
 private val WIDTH = 32.dp
 private val HEIGHT = 24.dp
