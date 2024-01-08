@@ -75,5 +75,12 @@ internal fun ViewInfo.hashCodeCommon(): Int {
 }
 
 internal fun ViewInfo.toStringCommon(): String {
-    return "ViewInfo{name='$name', sql='$sql'}"
+    return (
+        """
+            |ViewInfo {
+            |   name = '$name',
+            |   sql = '$sql'
+            |}
+        """.trimMargin()
+    )
 }

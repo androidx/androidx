@@ -480,11 +480,16 @@ open class MigrationTestHelper : TestWatcher {
                     if (expected != found) {
                         return androidx.room.RoomOpenHelper.ValidationResult(
                             false,
-                            """
-                                ${expected.name}
-                                Expected: $expected
-                                Found: $found
-                            """.trimIndent()
+                            """ ${expected.name.trimEnd()}
+                                |
+                                |Expected:
+                                |
+                                |$expected
+                                |
+                                |Found:
+                                |
+                                |$found
+                            """.trimMargin()
                         )
                     }
                 } else {
@@ -493,11 +498,16 @@ open class MigrationTestHelper : TestWatcher {
                     if (expected != found) {
                         return androidx.room.RoomOpenHelper.ValidationResult(
                             false,
-                            """
-                                ${expected.name}
-                                Expected: $expected
-                                found: $found
-                            """.trimIndent()
+                            """ ${expected.name.trimEnd()}
+                                |
+                                |Expected:
+                                |
+                                |$expected
+                                |
+                                |Found:
+                                |
+                                |$found
+                            """.trimMargin()
                         )
                     }
                 }
@@ -508,11 +518,12 @@ open class MigrationTestHelper : TestWatcher {
                 if (expected != found) {
                     return androidx.room.RoomOpenHelper.ValidationResult(
                         false,
-                            """
-                                ${expected.name}
-                                Expected: $expected
-                                Found: $found
-                            """.trimIndent()
+                        """ ${expected.name.trimEnd()}
+                                |
+                                |Expected: $expected
+                                |
+                                |Found: $found
+                            """.trimMargin()
                     )
                 }
             }
