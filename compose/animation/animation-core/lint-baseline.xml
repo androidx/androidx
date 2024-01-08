@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.3.0-alpha04" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha04)" variant="all" version="8.3.0-alpha04">
+<issues format="6" by="lint 8.3.0-alpha10" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha10)" variant="all" version="8.3.0-alpha10">
 
     <issue
         id="BanSuppressTag"
@@ -40,6 +40,15 @@
     <issue
         id="BanSuppressTag"
         message="@suppress is not allowed in documentation"
+        errorLine1="fun &lt;S, T, V : AnimationVector> Transition&lt;S>.createDeferredAnimation("
+        errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/animation/core/Transition.kt"/>
+    </issue>
+
+    <issue
+        id="BanSuppressTag"
+        message="@suppress is not allowed in documentation"
         errorLine1="    var playTimeNanos by mutableLongStateOf(0L)"
         errorLine2="        ~~~~~~~~~~~~~">
         <location
@@ -58,15 +67,6 @@
     <issue
         id="BanSuppressTag"
         message="@suppress is not allowed in documentation"
-        errorLine1="    fun setPlaytimeAfterInitialAndTargetStateEstablished("
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/animation/core/Transition.kt"/>
-    </issue>
-
-    <issue
-        id="BanSuppressTag"
-        message="@suppress is not allowed in documentation"
         errorLine1="    inner class DeferredAnimation&lt;T, V : AnimationVector> internal constructor("
         errorLine2="                ~~~~~~~~~~~~~~~~~">
         <location
@@ -74,17 +74,8 @@
     </issue>
 
     <issue
-        id="BanSuppressTag"
-        message="@suppress is not allowed in documentation"
-        errorLine1="fun &lt;S, T, V : AnimationVector> Transition&lt;S>.createDeferredAnimation("
-        errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/animation/core/Transition.kt"/>
-    </issue>
-
-    <issue
         id="PrimitiveInCollection"
-        message="constructor VectorizedKeyframesSpec has parameter keyframes with type Map&lt;Integer, ? extends Pair&lt;? extends V, ? extends Easing>>: replace with IntObjectMap"
+        message="field keyframes with type Map&lt;Integer, Pair&lt;V, Easing>>: replace with IntObjectMap"
         errorLine1="    private val keyframes: Map&lt;Int, Pair&lt;V, Easing>>,"
         errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -93,7 +84,7 @@
 
     <issue
         id="PrimitiveInCollection"
-        message="field keyframes with type Map&lt;Integer, Pair&lt;V, Easing>>: replace with IntObjectMap"
+        message="constructor VectorizedKeyframesSpec has parameter keyframes with type Map&lt;Integer, ? extends Pair&lt;? extends V, ? extends Easing>>: replace with IntObjectMap"
         errorLine1="    private val keyframes: Map&lt;Int, Pair&lt;V, Easing>>,"
         errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location

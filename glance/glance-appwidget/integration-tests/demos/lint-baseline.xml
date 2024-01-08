@@ -1,5 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.3.0-alpha02" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha02)" variant="all" version="8.3.0-alpha02">
+<issues format="6" by="lint 8.3.0-alpha10" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha10)" variant="all" version="8.3.0-alpha10">
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field sizes with type List&lt;DpSize>: replace with LongList"
+        errorLine1="    val sizes: List&lt;DpSize>,"
+        errorLine2="               ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/demos/GlanceAppWidgetDemoActivity.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="return type List&lt;DpSize> of getSizes: replace with LongList"
+        errorLine1="    val sizes: List&lt;DpSize>,"
+        errorLine2="               ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/demos/GlanceAppWidgetDemoActivity.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="constructor AppWidgetDesc has parameter sizes with type List&lt;DpSize>: replace with LongList"
+        errorLine1="    val sizes: List&lt;DpSize>,"
+        errorLine2="               ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/demos/GlanceAppWidgetDemoActivity.kt"/>
+    </issue>
 
     <issue
         id="RestrictedApiAndroidX"
@@ -26,33 +53,6 @@
         errorLine2="                                  ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/glance/appwidget/demos/ProgressIndicatorAppWidget.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="constructor AppWidgetDesc has parameter sizes with type List&lt;DpSize>: replace with LongList"
-        errorLine1="    val sizes: List&lt;DpSize>,"
-        errorLine2="               ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/glance/appwidget/demos/GlanceAppWidgetDemoActivity.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="field sizes with type List&lt;DpSize>: replace with LongList"
-        errorLine1="    val sizes: List&lt;DpSize>,"
-        errorLine2="               ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/glance/appwidget/demos/GlanceAppWidgetDemoActivity.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="return type List&lt;DpSize> of getSizes: replace with LongList"
-        errorLine1="    val sizes: List&lt;DpSize>,"
-        errorLine2="               ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/glance/appwidget/demos/GlanceAppWidgetDemoActivity.kt"/>
     </issue>
 
     <issue

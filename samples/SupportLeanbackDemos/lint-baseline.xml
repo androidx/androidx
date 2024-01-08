@@ -1,23 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.3.0-alpha02" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha02)" variant="all" version="8.3.0-alpha02">
-
-    <issue
-        id="MissingSuperCall"
-        message="Overriding method should call `super.onPictureInPictureModeChanged`"
-        errorLine1="    public void onPictureInPictureModeChanged(boolean isInPictureInPictureMode) {"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/PlaybackSupportActivity.java"/>
-    </issue>
-
-    <issue
-        id="MissingSuperCall"
-        message="Overriding method should call `super.onPictureInPictureModeChanged`"
-        errorLine1="    public void onPictureInPictureModeChanged(boolean isInPictureInPictureMode) {"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/PlaybackTransportControlSupportActivity.java"/>
-    </issue>
+<issues format="6" by="lint 8.3.0-alpha10" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha10)" variant="all" version="8.3.0-alpha10">
 
     <issue
         id="MissingClass"
@@ -35,618 +17,6 @@
         errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/layout/playback_controls_support.xml"/>
-    </issue>
-
-    <issue
-        id="BanSynchronizedMethods"
-        message="Use of synchronized methods is not recommended"
-        errorLine1="    /**"
-        errorLine2="    ^">
-        <location
-            file="src/main/java/com/example/android/leanback/room/PhotoDatabase.java"/>
-    </issue>
-
-    <issue
-        id="BanThreadSleep"
-        message="Uses Thread.sleep()"
-        errorLine1="            Thread.sleep(100);"
-        errorLine2="                   ~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/PlaybackSeekDataProviderSample.java"/>
-    </issue>
-
-    <issue
-        id="BanThreadSleep"
-        message="Uses Thread.sleep()"
-        errorLine1="            Thread.sleep(100);"
-        errorLine2="                   ~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/PlaybackSeekDiskDataProvider.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 23; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
-        errorLine2="                        ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/MediaSessionService.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 23; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
-        errorLine2="                                                  ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/MediaSessionService.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 23; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
-        errorLine2="                                                                      ~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/MediaSessionService.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 23; however, the containing class com.example.android.leanback.MediaSessionService is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            if (mPlayer.getPlaybackParams().getSpeed() != NORMAL_SPEED) {"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/MediaSessionService.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 23; however, the containing class com.example.android.leanback.MediaSessionService is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            if (mPlayer.getPlaybackParams().getSpeed() != NORMAL_SPEED) {"
-        errorLine2="                                            ~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/MediaSessionService.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 23; however, the containing class com.example.android.leanback.MediaSessionService is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
-        errorLine2="                ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/MediaSessionService.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 23; however, the containing class com.example.android.leanback.MediaSessionService is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
-        errorLine2="                                          ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/MediaSessionService.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 23; however, the containing class com.example.android.leanback.MediaSessionService is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
-        errorLine2="                                                              ~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/MediaSessionService.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 23; however, the containing class com.example.android.leanback.MediaSessionService is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
-        errorLine2="                ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/MediaSessionService.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 23; however, the containing class com.example.android.leanback.MediaSessionService is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
-        errorLine2="                                          ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/MediaSessionService.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 23; however, the containing class com.example.android.leanback.MediaSessionService is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
-        errorLine2="                                                              ~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/MediaSessionService.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 23; however, the containing class com.example.android.leanback.MediaSessionService is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
-        errorLine2="                ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/MediaSessionService.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 23; however, the containing class com.example.android.leanback.MediaSessionService is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
-        errorLine2="                                          ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/MediaSessionService.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 23; however, the containing class com.example.android.leanback.MediaSessionService is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
-        errorLine2="                                                              ~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/MediaSessionService.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 23; however, the containing class com.example.android.leanback.MediaSessionService is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
-        errorLine2="                ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/MediaSessionService.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 23; however, the containing class com.example.android.leanback.MediaSessionService is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
-        errorLine2="                                          ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/MediaSessionService.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 23; however, the containing class com.example.android.leanback.MediaSessionService is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
-        errorLine2="                                                              ~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/MediaSessionService.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 24; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                        getActivity().enterPictureInPictureMode();"
-        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/PlaybackFragment.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 24; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                        getActivity().enterPictureInPictureMode();"
-        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/PlaybackSupportFragment.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 24; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                        getActivity().enterPictureInPictureMode();"
-        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/PlaybackTransportControlFragment.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 24; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                        getActivity().enterPictureInPictureMode();"
-        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/PlaybackTransportControlSupportFragment.java"/>
-    </issue>
-
-    <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 32 (leanback.BrowseAnimationFragment)"
-        errorLine1="        Log.i(TAG, &quot;onCreate&quot;);"
-        errorLine2="              ~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/BrowseAnimationFragment.java"/>
-    </issue>
-
-    <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 30 (leanback.BrowseSupportFragment)"
-        errorLine1="        Log.i(TAG, &quot;onCreate&quot;);"
-        errorLine2="              ~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/BrowseSupportFragment.java"/>
-    </issue>
-
-    <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 30 (leanback.BrowseSupportFragment)"
-        errorLine1="                Log.i(TAG, &quot;onItemSelected: &quot; + item + &quot; row &quot; + row);"
-        errorLine2="                      ~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/BrowseSupportFragment.java"/>
-    </issue>
-
-    <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 24 (leanback.DetailsFragment)"
-        errorLine1="        Log.i(TAG, &quot;onCreate&quot;);"
-        errorLine2="              ~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/DetailsFragment.java"/>
-    </issue>
-
-    <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 24 (leanback.DetailsFragment)"
-        errorLine1="                Log.i(TAG, &quot;onItemClicked: &quot; + item + &quot; row &quot; + row);"
-        errorLine2="                      ~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/DetailsFragment.java"/>
-    </issue>
-
-    <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 24 (leanback.DetailsFragment)"
-        errorLine1="                Log.i(TAG, &quot;onItemSelected: &quot; + item + &quot; row &quot; + row);"
-        errorLine2="                      ~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/DetailsFragment.java"/>
-    </issue>
-
-    <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 31 (leanback.DetailsSupportFragment)"
-        errorLine1="        Log.i(TAG, &quot;onCreate&quot;);"
-        errorLine2="              ~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/DetailsSupportFragment.java"/>
-    </issue>
-
-    <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 31 (leanback.DetailsSupportFragment)"
-        errorLine1="                Log.i(TAG, &quot;onItemClicked: &quot; + item + &quot; row &quot; + row);"
-        errorLine2="                      ~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/DetailsSupportFragment.java"/>
-    </issue>
-
-    <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 31 (leanback.DetailsSupportFragment)"
-        errorLine1="                Log.i(TAG, &quot;onItemSelected: &quot; + item + &quot; row &quot; + row);"
-        errorLine2="                      ~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/DetailsSupportFragment.java"/>
-    </issue>
-
-    <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 29 (leanback.ErrorSupportFragment)"
-        errorLine1="        Log.i(TAG, &quot;onCreate&quot;);"
-        errorLine2="              ~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/ErrorSupportFragment.java"/>
-    </issue>
-
-    <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 29 (leanback.ErrorSupportFragment)"
-        errorLine1="                Log.i(TAG, &quot;button clicked&quot;);"
-        errorLine2="                      ~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/ErrorSupportFragment.java"/>
-    </issue>
-
-    <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 44 (leanback.GuidedStepSupportHalfScreenActivity)"
-        errorLine1="        Log.v(TAG, &quot;onCreate&quot;);"
-        errorLine2="              ~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/GuidedStepHalfScreenActivity.java"/>
-    </issue>
-
-    <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 44 (leanback.GuidedStepSupportHalfScreenActivity)"
-        errorLine1="        Log.v(TAG, &quot;onCreate&quot;);"
-        errorLine2="              ~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/GuidedStepSupportHalfScreenActivity.java"/>
-    </issue>
-
-    <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 26 (HorizontalGridTestActivity)"
-        errorLine1="                Log.v(TAG, &quot;onScrollStateChanged &quot;"
-        errorLine2="                      ~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/HorizontalGridTestActivity.java"/>
-    </issue>
-
-    <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 26 (HorizontalGridTestActivity)"
-        errorLine1="                        if (DEBUG) Log.d(TAG, &quot;onChildSelected position=&quot; + position);"
-        errorLine2="                                         ~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/HorizontalGridTestActivity.java"/>
-    </issue>
-
-    <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 26 (HorizontalGridTestActivity)"
-        errorLine1="        if (DEBUG) Log.v(TAG, &quot;onCreate&quot;);"
-        errorLine2="                         ~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/HorizontalGridTestActivity.java"/>
-    </issue>
-
-    <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 26 (HorizontalGridTestActivity)"
-        errorLine1="        if (DEBUG) Log.v(TAG, &quot;onNewIntent &quot; + intent);"
-        errorLine2="                         ~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/HorizontalGridTestActivity.java"/>
-    </issue>
-
-    <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 26 (HorizontalGridTestActivity)"
-        errorLine1="            if (DEBUG) Log.v(TAG, &quot;createViewHolder &quot; + viewType);"
-        errorLine2="                             ~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/HorizontalGridTestActivity.java"/>
-    </issue>
-
-    <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 26 (HorizontalGridTestActivity)"
-        errorLine1="            if (DEBUG) Log.v(TAG, &quot;bindViewHolder &quot; + position + &quot; &quot; + baseHolder);"
-        errorLine2="                             ~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/HorizontalGridTestActivity.java"/>
-    </issue>
-
-    <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 24 (leanback.DetailsFragment)"
-        errorLine1="        Log.i(TAG, &quot;onCreate&quot;);"
-        errorLine2="              ~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/NewDetailsFragment.java"/>
-    </issue>
-
-    <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 24 (leanback.DetailsFragment)"
-        errorLine1="                Log.i(TAG, &quot;onItemClicked: &quot; + item + &quot; row &quot; + row);"
-        errorLine2="                      ~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/NewDetailsFragment.java"/>
-    </issue>
-
-    <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 24 (leanback.DetailsFragment)"
-        errorLine1="                Log.i(TAG, &quot;onItemSelected: &quot; + item + &quot; row &quot; + row);"
-        errorLine2="                      ~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/NewDetailsFragment.java"/>
-    </issue>
-
-    <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 31 (leanback.DetailsSupportFragment)"
-        errorLine1="        Log.i(TAG, &quot;onCreate&quot;);"
-        errorLine2="              ~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/NewDetailsSupportFragment.java"/>
-    </issue>
-
-    <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 31 (leanback.DetailsSupportFragment)"
-        errorLine1="                Log.i(TAG, &quot;onItemClicked: &quot; + item + &quot; row &quot; + row);"
-        errorLine2="                      ~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/NewDetailsSupportFragment.java"/>
-    </issue>
-
-    <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 31 (leanback.DetailsSupportFragment)"
-        errorLine1="                Log.i(TAG, &quot;onItemSelected: &quot; + item + &quot; row &quot; + row);"
-        errorLine2="                      ~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/NewDetailsSupportFragment.java"/>
-    </issue>
-
-    <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 33 (leanback.PlaybackControlsFragment)"
-        errorLine1="        Log.i(TAG, &quot;onCreate&quot;);"
-        errorLine2="              ~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/PlaybackFragment.java"/>
-    </issue>
-
-    <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 33 (leanback.PlaybackControlsFragment)"
-        errorLine1="        Log.i(TAG, &quot;onCreate&quot;);"
-        errorLine2="              ~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/PlaybackSupportFragment.java"/>
-    </issue>
-
-    <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 28 (PlaybackTransportControlGlue)"
-        errorLine1="            Log.e(TAG, &quot;disconnectToMediaSession: Media session disconnected&quot;);"
-        errorLine2="                  ~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/PlaybackTransportControlGlueSample.java"/>
-    </issue>
-
-    <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 28 (leanback.RowsSupportFragment)"
-        errorLine1="        Log.i(TAG, &quot;onCreate&quot;);"
-        errorLine2="              ~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/RowsSupportFragment.java"/>
-    </issue>
-
-    <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 28 (leanback.RowsSupportFragment)"
-        errorLine1="                Log.i(TAG, &quot;onItemSelected: &quot; + item + &quot; row &quot; + row);"
-        errorLine2="                      ~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/RowsSupportFragment.java"/>
-    </issue>
-
-    <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 30 (leanback.SearchSupportFragment)"
-        errorLine1="        Log.i(TAG, String.format(&quot;Search Query Text Change %s&quot;, newQuery));"
-        errorLine2="              ~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/SearchSupportFragment.java"/>
-    </issue>
-
-    <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 30 (leanback.SearchSupportFragment)"
-        errorLine1="        Log.i(TAG, String.format(&quot;Search Query Text Submit %s&quot;, query));"
-        errorLine2="              ~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/SearchSupportFragment.java"/>
-    </issue>
-
-    <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 29 (leanback.VerticalGridFragment)"
-        errorLine1="        Log.i(TAG, &quot;onCreate&quot;);"
-        errorLine2="              ~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/VerticalGridFragment.java"/>
-    </issue>
-
-    <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 29 (leanback.VerticalGridFragment)"
-        errorLine1="                Log.i(TAG, &quot;onItemSelected: &quot; + item + &quot; row &quot; + row);"
-        errorLine2="                      ~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/VerticalGridFragment.java"/>
-    </issue>
-
-    <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 29 (leanback.VerticalGridFragment)"
-        errorLine1="                Log.i(TAG, &quot;onItemClicked: &quot; + item + &quot; row &quot; + row);"
-        errorLine2="                      ~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/VerticalGridFragment.java"/>
-    </issue>
-
-    <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 36 (leanback.VerticalGridSupportFragment)"
-        errorLine1="        Log.i(TAG, &quot;onCreate&quot;);"
-        errorLine2="              ~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/VerticalGridSupportFragment.java"/>
-    </issue>
-
-    <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 36 (leanback.VerticalGridSupportFragment)"
-        errorLine1="                Log.i(TAG, &quot;onItemSelected: &quot; + item + &quot; row &quot; + row);"
-        errorLine2="                      ~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/VerticalGridSupportFragment.java"/>
-    </issue>
-
-    <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 36 (leanback.VerticalGridSupportFragment)"
-        errorLine1="                Log.i(TAG, &quot;onItemClicked: &quot; + item + &quot; row &quot; + row);"
-        errorLine2="                      ~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/VerticalGridSupportFragment.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public Bitmap getCache(Object token) {"
-        errorLine2="               ~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/BackgroundHelper.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public Bitmap getCache(Object token) {"
-        errorLine2="                               ~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/BackgroundHelper.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public void putCache(Object token, Bitmap bitmap) {"
-        errorLine2="                             ~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/BackgroundHelper.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public void putCache(Object token, Bitmap bitmap) {"
-        errorLine2="                                           ~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/BackgroundHelper.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public static BitmapCache getInstance() {"
-        errorLine2="                      ~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/BackgroundHelper.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public abstract void onBitmapLoaded(Bitmap bitmap);"
-        errorLine2="                                            ~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/BackgroundHelper.java"/>
     </issue>
 
     <issue
@@ -699,6 +69,60 @@
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public void loadBitmap(Object imageToken, BitmapLoadCallback callback) {"
         errorLine2="                                              ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/BackgroundHelper.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public Bitmap getCache(Object token) {"
+        errorLine2="               ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/BackgroundHelper.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public Bitmap getCache(Object token) {"
+        errorLine2="                               ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/BackgroundHelper.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public void putCache(Object token, Bitmap bitmap) {"
+        errorLine2="                             ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/BackgroundHelper.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public void putCache(Object token, Bitmap bitmap) {"
+        errorLine2="                                           ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/BackgroundHelper.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public static BitmapCache getInstance() {"
+        errorLine2="                      ~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/BackgroundHelper.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public abstract void onBitmapLoaded(Bitmap bitmap);"
+        errorLine2="                                            ~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/BackgroundHelper.java"/>
     </issue>
@@ -1550,10 +974,163 @@
     </issue>
 
     <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
+        errorLine2="                        ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/MediaSessionService.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
+        errorLine2="                                                  ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/MediaSessionService.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
+        errorLine2="                                                                      ~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/MediaSessionService.java"/>
+    </issue>
+
+    <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public void registerCallback(MediaPlayerListener listener) {"
         errorLine2="                                 ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/MediaSessionService.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class com.example.android.leanback.MediaSessionService is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            if (mPlayer.getPlaybackParams().getSpeed() != NORMAL_SPEED) {"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/MediaSessionService.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class com.example.android.leanback.MediaSessionService is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            if (mPlayer.getPlaybackParams().getSpeed() != NORMAL_SPEED) {"
+        errorLine2="                                            ~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/MediaSessionService.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class com.example.android.leanback.MediaSessionService is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
+        errorLine2="                ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/MediaSessionService.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class com.example.android.leanback.MediaSessionService is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
+        errorLine2="                                          ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/MediaSessionService.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class com.example.android.leanback.MediaSessionService is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
+        errorLine2="                                                              ~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/MediaSessionService.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class com.example.android.leanback.MediaSessionService is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
+        errorLine2="                ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/MediaSessionService.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class com.example.android.leanback.MediaSessionService is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
+        errorLine2="                                          ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/MediaSessionService.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class com.example.android.leanback.MediaSessionService is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
+        errorLine2="                                                              ~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/MediaSessionService.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class com.example.android.leanback.MediaSessionService is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
+        errorLine2="                ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/MediaSessionService.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class com.example.android.leanback.MediaSessionService is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
+        errorLine2="                                          ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/MediaSessionService.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class com.example.android.leanback.MediaSessionService is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
+        errorLine2="                                                              ~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/MediaSessionService.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class com.example.android.leanback.MediaSessionService is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
+        errorLine2="                ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/MediaSessionService.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class com.example.android.leanback.MediaSessionService is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
+        errorLine2="                                          ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/MediaSessionService.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class com.example.android.leanback.MediaSessionService is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
+        errorLine2="                                                              ~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/MediaSessionService.java"/>
     </issue>
@@ -1912,51 +1489,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public String getTitle() {"
-        errorLine2="           ~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/room/Photo.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    PagingSource&lt;Integer, Photo> fetchPhotos();"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/room/PhotoDao.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public static synchronized PhotoDatabase getInstance("
-        errorLine2="                               ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/room/PhotoDatabase.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="            Context context) {"
-        errorLine2="            ~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/room/PhotoDatabase.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public abstract PhotoDao photoDao();"
-        errorLine2="                    ~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/room/PhotoDatabase.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public PhotoItem(String title, int imageResourceId) {"
         errorLine2="                     ~~~~~~">
         <location
@@ -2108,6 +1640,15 @@
     </issue>
 
     <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 24; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                        getActivity().enterPictureInPictureMode();"
+        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/PlaybackFragment.java"/>
+    </issue>
+
+    <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    protected boolean isCancelled(Object task) {"
@@ -2162,10 +1703,37 @@
     </issue>
 
     <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(100);"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/PlaybackSeekDataProviderSample.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(100);"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/PlaybackSeekDiskDataProvider.java"/>
+    </issue>
+
+    <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public void onCreate(Bundle savedInstanceState) {"
         errorLine2="                         ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/PlaybackSupportActivity.java"/>
+    </issue>
+
+    <issue
+        id="MissingSuperCall"
+        message="Overriding method should call `super.onPictureInPictureModeChanged`"
+        errorLine1="    public void onPictureInPictureModeChanged(boolean isInPictureInPictureMode) {"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/PlaybackSupportActivity.java"/>
     </issue>
@@ -2202,6 +1770,15 @@
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public void onCreate(Bundle savedInstanceState) {"
         errorLine2="                         ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/PlaybackSupportFragment.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 24; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                        getActivity().enterPictureInPictureMode();"
+        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/PlaybackSupportFragment.java"/>
     </issue>
@@ -2252,10 +1829,28 @@
     </issue>
 
     <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 24; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                        getActivity().enterPictureInPictureMode();"
+        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/PlaybackTransportControlFragment.java"/>
+    </issue>
+
+    <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public void onCreate(Bundle savedInstanceState) {"
         errorLine2="                         ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/PlaybackTransportControlSupportActivity.java"/>
+    </issue>
+
+    <issue
+        id="MissingSuperCall"
+        message="Overriding method should call `super.onPictureInPictureModeChanged`"
+        errorLine1="    public void onPictureInPictureModeChanged(boolean isInPictureInPictureMode) {"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/PlaybackTransportControlSupportActivity.java"/>
     </issue>
@@ -2292,6 +1887,15 @@
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public void onCreate(Bundle savedInstanceState) {"
         errorLine2="                         ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/PlaybackTransportControlSupportFragment.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 24; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                        getActivity().enterPictureInPictureMode();"
+        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/PlaybackTransportControlSupportFragment.java"/>
     </issue>
@@ -2717,6 +2321,402 @@
         errorLine2="                            ~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/VideoSupportAppCompatActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public String getTitle() {"
+        errorLine2="           ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/room/Photo.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    PagingSource&lt;Integer, Photo> fetchPhotos();"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/room/PhotoDao.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public static synchronized PhotoDatabase getInstance("
+        errorLine2="                               ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/room/PhotoDatabase.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="            Context context) {"
+        errorLine2="            ~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/room/PhotoDatabase.java"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    /**"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/example/android/leanback/room/PhotoDatabase.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public abstract PhotoDao photoDao();"
+        errorLine2="                    ~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/room/PhotoDatabase.java"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 32 (leanback.BrowseAnimationFragment)"
+        errorLine1="        Log.i(TAG, &quot;onCreate&quot;);"
+        errorLine2="              ~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/BrowseAnimationFragment.java"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 30 (leanback.BrowseSupportFragment)"
+        errorLine1="        Log.i(TAG, &quot;onCreate&quot;);"
+        errorLine2="              ~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/BrowseSupportFragment.java"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 30 (leanback.BrowseSupportFragment)"
+        errorLine1="                Log.i(TAG, &quot;onItemSelected: &quot; + item + &quot; row &quot; + row);"
+        errorLine2="                      ~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/BrowseSupportFragment.java"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 24 (leanback.DetailsFragment)"
+        errorLine1="        Log.i(TAG, &quot;onCreate&quot;);"
+        errorLine2="              ~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/DetailsFragment.java"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 24 (leanback.DetailsFragment)"
+        errorLine1="                Log.i(TAG, &quot;onItemClicked: &quot; + item + &quot; row &quot; + row);"
+        errorLine2="                      ~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/DetailsFragment.java"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 24 (leanback.DetailsFragment)"
+        errorLine1="                Log.i(TAG, &quot;onItemSelected: &quot; + item + &quot; row &quot; + row);"
+        errorLine2="                      ~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/DetailsFragment.java"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 31 (leanback.DetailsSupportFragment)"
+        errorLine1="        Log.i(TAG, &quot;onCreate&quot;);"
+        errorLine2="              ~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/DetailsSupportFragment.java"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 31 (leanback.DetailsSupportFragment)"
+        errorLine1="                Log.i(TAG, &quot;onItemClicked: &quot; + item + &quot; row &quot; + row);"
+        errorLine2="                      ~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/DetailsSupportFragment.java"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 31 (leanback.DetailsSupportFragment)"
+        errorLine1="                Log.i(TAG, &quot;onItemSelected: &quot; + item + &quot; row &quot; + row);"
+        errorLine2="                      ~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/DetailsSupportFragment.java"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 29 (leanback.ErrorSupportFragment)"
+        errorLine1="        Log.i(TAG, &quot;onCreate&quot;);"
+        errorLine2="              ~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/ErrorSupportFragment.java"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 29 (leanback.ErrorSupportFragment)"
+        errorLine1="                Log.i(TAG, &quot;button clicked&quot;);"
+        errorLine2="                      ~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/ErrorSupportFragment.java"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 44 (leanback.GuidedStepSupportHalfScreenActivity)"
+        errorLine1="        Log.v(TAG, &quot;onCreate&quot;);"
+        errorLine2="              ~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/GuidedStepHalfScreenActivity.java"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 44 (leanback.GuidedStepSupportHalfScreenActivity)"
+        errorLine1="        Log.v(TAG, &quot;onCreate&quot;);"
+        errorLine2="              ~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/GuidedStepSupportHalfScreenActivity.java"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 26 (HorizontalGridTestActivity)"
+        errorLine1="                Log.v(TAG, &quot;onScrollStateChanged &quot;"
+        errorLine2="                      ~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/HorizontalGridTestActivity.java"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 26 (HorizontalGridTestActivity)"
+        errorLine1="                        if (DEBUG) Log.d(TAG, &quot;onChildSelected position=&quot; + position);"
+        errorLine2="                                         ~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/HorizontalGridTestActivity.java"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 26 (HorizontalGridTestActivity)"
+        errorLine1="        if (DEBUG) Log.v(TAG, &quot;onCreate&quot;);"
+        errorLine2="                         ~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/HorizontalGridTestActivity.java"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 26 (HorizontalGridTestActivity)"
+        errorLine1="        if (DEBUG) Log.v(TAG, &quot;onNewIntent &quot; + intent);"
+        errorLine2="                         ~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/HorizontalGridTestActivity.java"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 26 (HorizontalGridTestActivity)"
+        errorLine1="            if (DEBUG) Log.v(TAG, &quot;createViewHolder &quot; + viewType);"
+        errorLine2="                             ~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/HorizontalGridTestActivity.java"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 26 (HorizontalGridTestActivity)"
+        errorLine1="            if (DEBUG) Log.v(TAG, &quot;bindViewHolder &quot; + position + &quot; &quot; + baseHolder);"
+        errorLine2="                             ~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/HorizontalGridTestActivity.java"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 24 (leanback.DetailsFragment)"
+        errorLine1="        Log.i(TAG, &quot;onCreate&quot;);"
+        errorLine2="              ~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/NewDetailsFragment.java"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 24 (leanback.DetailsFragment)"
+        errorLine1="                Log.i(TAG, &quot;onItemClicked: &quot; + item + &quot; row &quot; + row);"
+        errorLine2="                      ~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/NewDetailsFragment.java"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 24 (leanback.DetailsFragment)"
+        errorLine1="                Log.i(TAG, &quot;onItemSelected: &quot; + item + &quot; row &quot; + row);"
+        errorLine2="                      ~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/NewDetailsFragment.java"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 31 (leanback.DetailsSupportFragment)"
+        errorLine1="        Log.i(TAG, &quot;onCreate&quot;);"
+        errorLine2="              ~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/NewDetailsSupportFragment.java"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 31 (leanback.DetailsSupportFragment)"
+        errorLine1="                Log.i(TAG, &quot;onItemClicked: &quot; + item + &quot; row &quot; + row);"
+        errorLine2="                      ~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/NewDetailsSupportFragment.java"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 31 (leanback.DetailsSupportFragment)"
+        errorLine1="                Log.i(TAG, &quot;onItemSelected: &quot; + item + &quot; row &quot; + row);"
+        errorLine2="                      ~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/NewDetailsSupportFragment.java"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 33 (leanback.PlaybackControlsFragment)"
+        errorLine1="        Log.i(TAG, &quot;onCreate&quot;);"
+        errorLine2="              ~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/PlaybackFragment.java"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 33 (leanback.PlaybackControlsFragment)"
+        errorLine1="        Log.i(TAG, &quot;onCreate&quot;);"
+        errorLine2="              ~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/PlaybackSupportFragment.java"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 28 (PlaybackTransportControlGlue)"
+        errorLine1="            Log.e(TAG, &quot;disconnectToMediaSession: Media session disconnected&quot;);"
+        errorLine2="                  ~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/PlaybackTransportControlGlueSample.java"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 28 (leanback.RowsSupportFragment)"
+        errorLine1="        Log.i(TAG, &quot;onCreate&quot;);"
+        errorLine2="              ~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/RowsSupportFragment.java"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 28 (leanback.RowsSupportFragment)"
+        errorLine1="                Log.i(TAG, &quot;onItemSelected: &quot; + item + &quot; row &quot; + row);"
+        errorLine2="                      ~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/RowsSupportFragment.java"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 30 (leanback.SearchSupportFragment)"
+        errorLine1="        Log.i(TAG, String.format(&quot;Search Query Text Change %s&quot;, newQuery));"
+        errorLine2="              ~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/SearchSupportFragment.java"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 30 (leanback.SearchSupportFragment)"
+        errorLine1="        Log.i(TAG, String.format(&quot;Search Query Text Submit %s&quot;, query));"
+        errorLine2="              ~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/SearchSupportFragment.java"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 29 (leanback.VerticalGridFragment)"
+        errorLine1="        Log.i(TAG, &quot;onCreate&quot;);"
+        errorLine2="              ~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/VerticalGridFragment.java"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 29 (leanback.VerticalGridFragment)"
+        errorLine1="                Log.i(TAG, &quot;onItemSelected: &quot; + item + &quot; row &quot; + row);"
+        errorLine2="                      ~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/VerticalGridFragment.java"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 29 (leanback.VerticalGridFragment)"
+        errorLine1="                Log.i(TAG, &quot;onItemClicked: &quot; + item + &quot; row &quot; + row);"
+        errorLine2="                      ~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/VerticalGridFragment.java"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 36 (leanback.VerticalGridSupportFragment)"
+        errorLine1="        Log.i(TAG, &quot;onCreate&quot;);"
+        errorLine2="              ~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/VerticalGridSupportFragment.java"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 36 (leanback.VerticalGridSupportFragment)"
+        errorLine1="                Log.i(TAG, &quot;onItemSelected: &quot; + item + &quot; row &quot; + row);"
+        errorLine2="                      ~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/VerticalGridSupportFragment.java"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 36 (leanback.VerticalGridSupportFragment)"
+        errorLine1="                Log.i(TAG, &quot;onItemClicked: &quot; + item + &quot; row &quot; + row);"
+        errorLine2="                      ~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/VerticalGridSupportFragment.java"/>
     </issue>
 
 </issues>

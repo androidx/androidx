@@ -1,257 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.3.0-alpha04" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha04)" variant="all" version="8.3.0-alpha04">
-
-    <issue
-        id="NewApi"
-        message="`&lt;animated-vector>` requires API level 21 (current min is 19)"
-        errorLine1="&lt;animated-vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2=" ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/drawable/animation_vector_drawable_grouping_1.xml"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="`&lt;animated-vector>` requires API level 21 (current min is 19)"
-        errorLine1="&lt;animated-vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2=" ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/drawable/animation_vector_drawable_grouping_1_path_motion.xml"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="`&lt;animated-vector>` requires API level 21 (current min is 19)"
-        errorLine1="&lt;animated-vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2=" ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/drawable/animation_vector_drawable_grouping_1_path_motion_object.xml"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="`&lt;animated-vector>` requires API level 21 (current min is 19)"
-        errorLine1="&lt;animated-vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2=" ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/drawable/animation_vector_drawable_grouping_accelerate.xml"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="`&lt;animated-vector>` requires API level 21 (current min is 19)"
-        errorLine1="&lt;animated-vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2=" ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/drawable/animation_vector_drawable_grouping_decelerate.xml"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="`&lt;animated-vector>` requires API level 21 (current min is 19)"
-        errorLine1="&lt;animated-vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2=" ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/drawable/animation_vector_progress_bar.xml"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="`&lt;animated-vector>` requires API level 21 (current min is 19)"
-        errorLine1="&lt;animated-vector xmlns:aapt=&quot;http://schemas.android.com/aapt&quot;"
-        errorLine2=" ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/drawable/btn_radio_on_to_off_bundle.xml"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="`&lt;animated-vector>` requires API level 21 (current min is 19)"
-        errorLine1="&lt;animated-vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2=" ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/drawable/ic_hourglass_animation.xml"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="`&lt;animated-vector>` requires API level 21 (current min is 19)"
-        errorLine1="&lt;animated-vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2=" ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/drawable/ic_signal_airplane_v2_animation.xml"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Using theme references in XML drawables requires API level 21 (current min is 19)"
-        errorLine1="                        android:fillColor=&quot;?android:attr/colorForeground&quot;"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/drawable/vector_drawable23.xml"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Using theme references in XML drawables requires API level 21 (current min is 19)"
-        errorLine1="                        android:strokeColor=&quot;?android:attr/colorForeground&quot;"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/drawable/vector_drawable23.xml"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Using theme references in XML drawables requires API level 21 (current min is 19)"
-        errorLine1="                        android:fillColor=&quot;?android:attr/colorForeground&quot;"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/drawable/vector_drawable24.xml"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Using theme references in XML drawables requires API level 21 (current min is 19)"
-        errorLine1="                        android:strokeColor=&quot;?android:attr/colorForeground&quot;"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/drawable/vector_drawable24.xml"/>
-    </issue>
-
-    <issue
-        id="InvalidVectorPath"
-        message="Use -0.001 instead of -.001 to avoid crashes on some devices"
-        errorLine1="                M 3.65, 6.125"
-        errorLine2="          ~~~~~">
-        <location
-            file="src/main/res/drawable/vector_drawable04.xml"/>
-    </issue>
-
-    <issue
-        id="InvalidVectorPath"
-        message="Use 0.001 instead of .001 to avoid crashes on some devices"
-        errorLine1="                m-.001, 0"
-        errorLine2="       ~~~~">
-        <location
-            file="src/main/res/drawable/vector_drawable04.xml"/>
-    </issue>
-
-    <issue
-        id="InvalidVectorPath"
-        message="Use 0.001 instead of .001 to avoid crashes on some devices"
-        errorLine1="                m-.001, 0"
-        errorLine2="            ~~~~">
-        <location
-            file="src/main/res/drawable/vector_drawable04.xml"/>
-    </issue>
-
-    <issue
-        id="InvalidVectorPath"
-        message="Use 0.002 instead of .002 to avoid crashes on some devices"
-        errorLine1="                m-.001, 0"
-        errorLine2="                       ^">
-        <location
-            file="src/main/res/drawable/vector_drawable04.xml"/>
-    </issue>
-
-    <issue
-        id="InvalidVectorPath"
-        message="Use -0.002 instead of -.002 to avoid crashes on some devices"
-        errorLine1="                a .001,.001 0 1,0 .002,0"
-        errorLine2="                                     ^">
-        <location
-            file="src/main/res/drawable/vector_drawable04.xml"/>
-    </issue>
-
-    <issue
-        id="InvalidVectorPath"
-        message="Use 0.001 instead of .001 to avoid crashes on some devices"
-        errorLine1="                a .001,.001 0 1,0 .002,0"
-        errorLine2="                      ~~~~">
-        <location
-            file="src/main/res/drawable/vector_drawable04.xml"/>
-    </issue>
-
-    <issue
-        id="InvalidVectorPath"
-        message="Use 0.001 instead of .001 to avoid crashes on some devices"
-        errorLine1="                a .001,.001 0 1,0 .002,0"
-        errorLine2="                           ~~~~">
-        <location
-            file="src/main/res/drawable/vector_drawable04.xml"/>
-    </issue>
-
-    <issue
-        id="InvalidVectorPath"
-        message="Use -0.5 instead of -.5 to avoid crashes on some devices"
-        errorLine1="            android:pathData=&quot;l0.0.0.5.0.0.5-0.5.0.0-.5z&quot;"
-        errorLine2="                                                    ~~~">
-        <location
-            file="src/main/res/drawable/vector_drawable29.xml"/>
-    </issue>
-
-    <issue
-        id="InvalidVectorPath"
-        message="Use 0.0 instead of .0 to avoid crashes on some devices"
-        errorLine1="            android:pathData=&quot;l0.0.0.5.0.0.5-0.5.0.0-.5z&quot;"
-        errorLine2="                                  ~~">
-        <location
-            file="src/main/res/drawable/vector_drawable29.xml"/>
-    </issue>
-
-    <issue
-        id="InvalidVectorPath"
-        message="Use 0.0 instead of .0 to avoid crashes on some devices"
-        errorLine1="            android:pathData=&quot;l0.0.0.5.0.0.5-0.5.0.0-.5z&quot;"
-        errorLine2="                                      ~~">
-        <location
-            file="src/main/res/drawable/vector_drawable29.xml"/>
-    </issue>
-
-    <issue
-        id="InvalidVectorPath"
-        message="Use 0.0 instead of .0 to avoid crashes on some devices"
-        errorLine1="            android:pathData=&quot;l0.0.0.5.0.0.5-0.5.0.0-.5z&quot;"
-        errorLine2="                                        ~~">
-        <location
-            file="src/main/res/drawable/vector_drawable29.xml"/>
-    </issue>
-
-    <issue
-        id="InvalidVectorPath"
-        message="Use 0.0 instead of .0 to avoid crashes on some devices"
-        errorLine1="            android:pathData=&quot;l0.0.0.5.0.0.5-0.5.0.0-.5z&quot;"
-        errorLine2="                                                ~~">
-        <location
-            file="src/main/res/drawable/vector_drawable29.xml"/>
-    </issue>
-
-    <issue
-        id="InvalidVectorPath"
-        message="Use 0.0 instead of .0 to avoid crashes on some devices"
-        errorLine1="            android:pathData=&quot;l0.0.0.5.0.0.5-0.5.0.0-.5z&quot;"
-        errorLine2="                                                  ~~">
-        <location
-            file="src/main/res/drawable/vector_drawable29.xml"/>
-    </issue>
-
-    <issue
-        id="InvalidVectorPath"
-        message="Use 0.5 instead of .5 to avoid crashes on some devices"
-        errorLine1="            android:pathData=&quot;l0.0.0.5.0.0.5-0.5.0.0-.5z&quot;"
-        errorLine2="                                    ~~">
-        <location
-            file="src/main/res/drawable/vector_drawable29.xml"/>
-    </issue>
-
-    <issue
-        id="InvalidVectorPath"
-        message="Use 0.5 instead of .5 to avoid crashes on some devices"
-        errorLine1="            android:pathData=&quot;l0.0.0.5.0.0.5-0.5.0.0-.5z&quot;"
-        errorLine2="                                          ~~">
-        <location
-            file="src/main/res/drawable/vector_drawable29.xml"/>
-    </issue>
+<issues format="6" by="lint 8.3.0-alpha10" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha10)" variant="all" version="8.3.0-alpha10">
 
     <issue
         id="UnknownNullness"
@@ -395,6 +143,258 @@
         errorLine2="                                                                        ~~~~~~">
         <location
             file="src/main/java/com/example/android/support/vectordrawable/app/SupportVectorDrawableDemos.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="`&lt;animated-vector>` requires API level 21 (current min is 19)"
+        errorLine1="&lt;animated-vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2=" ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/drawable/animation_vector_drawable_grouping_1.xml"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="`&lt;animated-vector>` requires API level 21 (current min is 19)"
+        errorLine1="&lt;animated-vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2=" ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/drawable/animation_vector_drawable_grouping_1_path_motion.xml"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="`&lt;animated-vector>` requires API level 21 (current min is 19)"
+        errorLine1="&lt;animated-vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2=" ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/drawable/animation_vector_drawable_grouping_1_path_motion_object.xml"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="`&lt;animated-vector>` requires API level 21 (current min is 19)"
+        errorLine1="&lt;animated-vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2=" ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/drawable/animation_vector_drawable_grouping_accelerate.xml"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="`&lt;animated-vector>` requires API level 21 (current min is 19)"
+        errorLine1="&lt;animated-vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2=" ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/drawable/animation_vector_drawable_grouping_decelerate.xml"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="`&lt;animated-vector>` requires API level 21 (current min is 19)"
+        errorLine1="&lt;animated-vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2=" ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/drawable/animation_vector_progress_bar.xml"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="`&lt;animated-vector>` requires API level 21 (current min is 19)"
+        errorLine1="&lt;animated-vector xmlns:aapt=&quot;http://schemas.android.com/aapt&quot;"
+        errorLine2=" ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/drawable/btn_radio_on_to_off_bundle.xml"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="`&lt;animated-vector>` requires API level 21 (current min is 19)"
+        errorLine1="&lt;animated-vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2=" ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/drawable/ic_hourglass_animation.xml"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="`&lt;animated-vector>` requires API level 21 (current min is 19)"
+        errorLine1="&lt;animated-vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2=" ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/drawable/ic_signal_airplane_v2_animation.xml"/>
+    </issue>
+
+    <issue
+        id="InvalidVectorPath"
+        message="Use -0.001 instead of -.001 to avoid crashes on some devices"
+        errorLine1="                M 3.65, 6.125"
+        errorLine2="          ~~~~~">
+        <location
+            file="src/main/res/drawable/vector_drawable04.xml"/>
+    </issue>
+
+    <issue
+        id="InvalidVectorPath"
+        message="Use 0.001 instead of .001 to avoid crashes on some devices"
+        errorLine1="                m-.001, 0"
+        errorLine2="       ~~~~">
+        <location
+            file="src/main/res/drawable/vector_drawable04.xml"/>
+    </issue>
+
+    <issue
+        id="InvalidVectorPath"
+        message="Use 0.001 instead of .001 to avoid crashes on some devices"
+        errorLine1="                m-.001, 0"
+        errorLine2="            ~~~~">
+        <location
+            file="src/main/res/drawable/vector_drawable04.xml"/>
+    </issue>
+
+    <issue
+        id="InvalidVectorPath"
+        message="Use 0.002 instead of .002 to avoid crashes on some devices"
+        errorLine1="                m-.001, 0"
+        errorLine2="                       ^">
+        <location
+            file="src/main/res/drawable/vector_drawable04.xml"/>
+    </issue>
+
+    <issue
+        id="InvalidVectorPath"
+        message="Use 0.001 instead of .001 to avoid crashes on some devices"
+        errorLine1="                a .001,.001 0 1,0 .002,0"
+        errorLine2="                      ~~~~">
+        <location
+            file="src/main/res/drawable/vector_drawable04.xml"/>
+    </issue>
+
+    <issue
+        id="InvalidVectorPath"
+        message="Use 0.001 instead of .001 to avoid crashes on some devices"
+        errorLine1="                a .001,.001 0 1,0 .002,0"
+        errorLine2="                           ~~~~">
+        <location
+            file="src/main/res/drawable/vector_drawable04.xml"/>
+    </issue>
+
+    <issue
+        id="InvalidVectorPath"
+        message="Use -0.002 instead of -.002 to avoid crashes on some devices"
+        errorLine1="                a .001,.001 0 1,0 .002,0"
+        errorLine2="                                     ^">
+        <location
+            file="src/main/res/drawable/vector_drawable04.xml"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Using theme references in XML drawables requires API level 21 (current min is 19)"
+        errorLine1="                        android:fillColor=&quot;?android:attr/colorForeground&quot;"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/drawable/vector_drawable23.xml"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Using theme references in XML drawables requires API level 21 (current min is 19)"
+        errorLine1="                        android:strokeColor=&quot;?android:attr/colorForeground&quot;"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/drawable/vector_drawable23.xml"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Using theme references in XML drawables requires API level 21 (current min is 19)"
+        errorLine1="                        android:fillColor=&quot;?android:attr/colorForeground&quot;"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/drawable/vector_drawable24.xml"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Using theme references in XML drawables requires API level 21 (current min is 19)"
+        errorLine1="                        android:strokeColor=&quot;?android:attr/colorForeground&quot;"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/drawable/vector_drawable24.xml"/>
+    </issue>
+
+    <issue
+        id="InvalidVectorPath"
+        message="Use 0.0 instead of .0 to avoid crashes on some devices"
+        errorLine1="            android:pathData=&quot;l0.0.0.5.0.0.5-0.5.0.0-.5z&quot;"
+        errorLine2="                                  ~~">
+        <location
+            file="src/main/res/drawable/vector_drawable29.xml"/>
+    </issue>
+
+    <issue
+        id="InvalidVectorPath"
+        message="Use 0.5 instead of .5 to avoid crashes on some devices"
+        errorLine1="            android:pathData=&quot;l0.0.0.5.0.0.5-0.5.0.0-.5z&quot;"
+        errorLine2="                                    ~~">
+        <location
+            file="src/main/res/drawable/vector_drawable29.xml"/>
+    </issue>
+
+    <issue
+        id="InvalidVectorPath"
+        message="Use 0.0 instead of .0 to avoid crashes on some devices"
+        errorLine1="            android:pathData=&quot;l0.0.0.5.0.0.5-0.5.0.0-.5z&quot;"
+        errorLine2="                                      ~~">
+        <location
+            file="src/main/res/drawable/vector_drawable29.xml"/>
+    </issue>
+
+    <issue
+        id="InvalidVectorPath"
+        message="Use 0.0 instead of .0 to avoid crashes on some devices"
+        errorLine1="            android:pathData=&quot;l0.0.0.5.0.0.5-0.5.0.0-.5z&quot;"
+        errorLine2="                                        ~~">
+        <location
+            file="src/main/res/drawable/vector_drawable29.xml"/>
+    </issue>
+
+    <issue
+        id="InvalidVectorPath"
+        message="Use 0.5 instead of .5 to avoid crashes on some devices"
+        errorLine1="            android:pathData=&quot;l0.0.0.5.0.0.5-0.5.0.0-.5z&quot;"
+        errorLine2="                                          ~~">
+        <location
+            file="src/main/res/drawable/vector_drawable29.xml"/>
+    </issue>
+
+    <issue
+        id="InvalidVectorPath"
+        message="Use 0.0 instead of .0 to avoid crashes on some devices"
+        errorLine1="            android:pathData=&quot;l0.0.0.5.0.0.5-0.5.0.0-.5z&quot;"
+        errorLine2="                                                ~~">
+        <location
+            file="src/main/res/drawable/vector_drawable29.xml"/>
+    </issue>
+
+    <issue
+        id="InvalidVectorPath"
+        message="Use 0.0 instead of .0 to avoid crashes on some devices"
+        errorLine1="            android:pathData=&quot;l0.0.0.5.0.0.5-0.5.0.0-.5z&quot;"
+        errorLine2="                                                  ~~">
+        <location
+            file="src/main/res/drawable/vector_drawable29.xml"/>
+    </issue>
+
+    <issue
+        id="InvalidVectorPath"
+        message="Use -0.5 instead of -.5 to avoid crashes on some devices"
+        errorLine1="            android:pathData=&quot;l0.0.0.5.0.0.5-0.5.0.0-.5z&quot;"
+        errorLine2="                                                    ~~~">
+        <location
+            file="src/main/res/drawable/vector_drawable29.xml"/>
     </issue>
 
 </issues>

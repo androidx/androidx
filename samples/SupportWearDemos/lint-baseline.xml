@@ -1,14 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.2.0-alpha14" type="baseline" client="gradle" dependencies="false" name="AGP (8.2.0-alpha14)" variant="all" version="8.2.0-alpha14">
-
-    <issue
-        id="WearStandaloneAppFlag"
-        message="Missing `&lt;meta-data android:name=&quot;com.google.android.wearable.standalone&quot; ../>` element"
-        errorLine1="    &lt;application"
-        errorLine2="     ~~~~~~~~~~~">
-        <location
-            file="src/main/AndroidManifest.xml"/>
-    </issue>
+<issues format="6" by="lint 8.3.0-alpha10" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha10)" variant="all" version="8.3.0-alpha10">
 
     <issue
         id="UnknownNullness"
@@ -26,6 +17,33 @@
         errorLine2="                            ~~~~~~">
         <location
             file="src/main/java/com/example/android/support/wear/app/ConfirmationOverlayDemo.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/wear/app/MainDemoActivity.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/wear/app/SimpleWearableRecyclerViewDemo.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/wear/app/WearableSwitchDemo.java"/>
     </issue>
 
     <issue
@@ -71,15 +89,6 @@
         errorLine2="                                                      ~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/support/wear/app/drawers/FrameLayoutFragment.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
-        errorLine2="                            ~~~~~~">
-        <location
-            file="src/main/java/com/example/android/support/wear/app/MainDemoActivity.java"/>
     </issue>
 
     <issue
@@ -160,25 +169,16 @@
         errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
         errorLine2="                            ~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/wear/app/SimpleWearableRecyclerViewDemo.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
-        errorLine2="                            ~~~~~~">
-        <location
             file="src/main/java/com/example/android/support/wear/app/drawers/WearableDrawersDemo.java"/>
     </issue>
 
     <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
-        errorLine2="                            ~~~~~~">
+        id="WearStandaloneAppFlag"
+        message="Missing `&lt;meta-data android:name=&quot;com.google.android.wearable.standalone&quot; ../>` element"
+        errorLine1="    &lt;application"
+        errorLine2="     ~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/wear/app/WearableSwitchDemo.java"/>
+            file="src/main/AndroidManifest.xml"/>
     </issue>
 
 </issues>

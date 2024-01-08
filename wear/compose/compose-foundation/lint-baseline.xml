@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.3.0-alpha04" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha04)" variant="all" version="8.3.0-alpha04">
+<issues format="6" by="lint 8.3.0-alpha10" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha10)" variant="all" version="8.3.0-alpha10">
 
     <issue
         id="PrimitiveInCollection"
@@ -57,9 +57,9 @@
 
     <issue
         id="PrimitiveInCollection"
-        message="constructor RevealState has parameter anchors with type Map&lt;RevealValue, Float>: replace with IntFloatMap"
-        errorLine1="    internal val anchors: Map&lt;RevealValue, Float>,"
-        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~">
+        message="method rememberRevealState has parameter anchors with type Map&lt;RevealValue, Float>: replace with IntFloatMap"
+        errorLine1="    anchors: Map&lt;RevealValue, Float> = createAnchors(),"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/compose/foundation/SwipeToReveal.kt"/>
     </issue>
@@ -67,15 +67,6 @@
     <issue
         id="PrimitiveInCollection"
         message="field anchors with type Map&lt;RevealValue, Float>: replace with IntFloatMap"
-        errorLine1="    internal val anchors: Map&lt;RevealValue, Float>,"
-        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/compose/foundation/SwipeToReveal.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="return type Map&lt;RevealValue, Float> of getAnchors$lint_module: replace with IntFloatMap"
         errorLine1="    internal val anchors: Map&lt;RevealValue, Float>,"
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -93,9 +84,18 @@
 
     <issue
         id="PrimitiveInCollection"
-        message="method rememberRevealState has parameter anchors with type Map&lt;RevealValue, Float>: replace with IntFloatMap"
-        errorLine1="    anchors: Map&lt;RevealValue, Float> = createAnchors(),"
-        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~">
+        message="return type Map&lt;RevealValue, Float> of getAnchors$lint_module: replace with IntFloatMap"
+        errorLine1="    internal val anchors: Map&lt;RevealValue, Float>,"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/foundation/SwipeToReveal.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="constructor RevealState has parameter anchors with type Map&lt;RevealValue, Float>: replace with IntFloatMap"
+        errorLine1="    internal val anchors: Map&lt;RevealValue, Float>,"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/compose/foundation/SwipeToReveal.kt"/>
     </issue>
@@ -120,9 +120,27 @@
 
     <issue
         id="PrimitiveInCollection"
-        message="method setAnchors$lint_module has parameter &lt;set-?> with type Map&lt;T, Float>: replace with ObjectFloatMap"
-        errorLine1="    internal var anchors by mutableStateOf(emptyMap&lt;T, Float>())"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        message="method closestAnchor has parameter $this$closestAnchor with type Map&lt;T, Float>: replace with ObjectFloatMap"
+        errorLine1="private fun &lt;T> Map&lt;T, Float>.closestAnchor("
+        errorLine2="                ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/foundation/SwipeableV2.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method minOrNull has parameter $this$minOrNull with type Map&lt;T, Float>: replace with ObjectFloatMap"
+        errorLine1="private fun &lt;T> Map&lt;T, Float>.minOrNull() = minOfOrNull { (_, offset) -> offset }"
+        errorLine2="                ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/foundation/SwipeableV2.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method maxOrNull has parameter $this$maxOrNull with type Map&lt;T, Float>: replace with ObjectFloatMap"
+        errorLine1="private fun &lt;T> Map&lt;T, Float>.maxOrNull() = maxOfOrNull { (_, offset) -> offset }"
+        errorLine2="                ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/compose/foundation/SwipeableV2.kt"/>
     </issue>
@@ -132,6 +150,15 @@
         message="return type Map&lt;T, Float> of getAnchors$lint_module: replace with ObjectFloatMap"
         errorLine1="    internal var anchors by mutableStateOf(emptyMap&lt;T, Float>())"
         errorLine2="                 ~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/foundation/SwipeableV2.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method setAnchors$lint_module has parameter &lt;set-?> with type Map&lt;T, Float>: replace with ObjectFloatMap"
+        errorLine1="    internal var anchors by mutableStateOf(emptyMap&lt;T, Float>())"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/compose/foundation/SwipeableV2.kt"/>
     </issue>
@@ -168,33 +195,6 @@
         message="method onAnchorsChanged has parameter newAnchors with type Map&lt;T, Float>: replace with ObjectFloatMap"
         errorLine1="        newAnchors: Map&lt;T, Float>"
         errorLine2="                    ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/compose/foundation/SwipeableV2.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="method closestAnchor has parameter $this$closestAnchor with type Map&lt;T, Float>: replace with ObjectFloatMap"
-        errorLine1="private fun &lt;T> Map&lt;T, Float>.closestAnchor("
-        errorLine2="                ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/compose/foundation/SwipeableV2.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="method minOrNull has parameter $this$minOrNull with type Map&lt;T, Float>: replace with ObjectFloatMap"
-        errorLine1="private fun &lt;T> Map&lt;T, Float>.minOrNull() = minOfOrNull { (_, offset) -> offset }"
-        errorLine2="                ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/compose/foundation/SwipeableV2.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="method maxOrNull has parameter $this$maxOrNull with type Map&lt;T, Float>: replace with ObjectFloatMap"
-        errorLine1="private fun &lt;T> Map&lt;T, Float>.maxOrNull() = maxOfOrNull { (_, offset) -> offset }"
-        errorLine2="                ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/compose/foundation/SwipeableV2.kt"/>
     </issue>

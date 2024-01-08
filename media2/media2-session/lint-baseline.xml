@@ -1,23 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.3.0-alpha04" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha04)" variant="all" version="8.3.0-alpha04">
-
-    <issue
-        id="WrongConstant"
-        message="Must be one of: VolumeProviderCompat.VOLUME_CONTROL_FIXED, VolumeProviderCompat.VOLUME_CONTROL_RELATIVE, VolumeProviderCompat.VOLUME_CONTROL_ABSOLUTE"
-        errorLine1="        return new VolumeProviderCompat(player.getVolumeControlType(), player.getMaxVolume(),"
-        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/session/MediaSessionLegacyStub.java"/>
-    </issue>
-
-    <issue
-        id="WrongConstant"
-        message="Must be one of: SessionResult.RESULT_SUCCESS, BaseResult.RESULT_ERROR_UNKNOWN, BaseResult.RESULT_ERROR_INVALID_STATE, BaseResult.RESULT_ERROR_BAD_VALUE, BaseResult.RESULT_ERROR_PERMISSION_DENIED, BaseResult.RESULT_ERROR_IO, BaseResult.RESULT_INFO_SKIPPED, RemoteResult.RESULT_ERROR_SESSION_DISCONNECTED, BaseResult.RESULT_ERROR_NOT_SUPPORTED, RemoteResult.RESULT_ERROR_SESSION_AUTHENTICATION_EXPIRED, RemoteResult.RESULT_ERROR_SESSION_PREMIUM_ACCOUNT_REQUIRED, RemoteResult.RESULT_ERROR_SESSION_CONCURRENT_STREAM_LIMIT, RemoteResult.RESULT_ERROR_SESSION_PARENTAL_CONTROL_RESTRICTED, RemoteResult.RESULT_ERROR_SESSION_NOT_AVAILABLE_IN_REGION, RemoteResult.RESULT_ERROR_SESSION_SKIP_LIMIT_REACHED, RemoteResult.RESULT_ERROR_SESSION_SETUP_REQUIRED, but could be BaseResult.RESULT_SUCCESS"
-        errorLine1="        return new SessionResult(result.getResultCode(), null, result.getMediaItem(),"
-        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/session/SessionResult.java"/>
-    </issue>
+<issues format="6" by="lint 8.3.0-alpha10" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha10)" variant="all" version="8.3.0-alpha10">
 
     <issue
         id="BanThreadSleep"
@@ -35,15 +17,6 @@
         errorLine2="               ~~~~~">
         <location
             file="src/androidTest/java/androidx/media2/session/MediaBrowserLegacyTest.java"/>
-    </issue>
-
-    <issue
-        id="UnspecifiedRegisterReceiverFlag"
-        message="`mBroadcastReceiver` \&#xA;is missing `RECEIVER_EXPORTED` or `RECEIVER_NOT_EXPORTED` flag for unprotected \&#xA;broadcasts registered for android.intent.action.MEDIA_BUTTON"
-        errorLine1="                context.registerReceiver(mBroadcastReceiver, filter);"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/session/MediaSessionImplBase.java"/>
     </issue>
 
     <issue
@@ -65,66 +38,12 @@
     </issue>
 
     <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 19"
-        errorLine1="            if (Build.VERSION.SDK_INT >= 18) {"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        id="WrongConstant"
+        message="Must be one of: VolumeProviderCompat.VOLUME_CONTROL_FIXED, VolumeProviderCompat.VOLUME_CONTROL_RELATIVE, VolumeProviderCompat.VOLUME_CONTROL_ABSOLUTE"
+        errorLine1="        return new VolumeProviderCompat(player.getVolumeControlType(), player.getMaxVolume(),"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/session/MediaControllerImplLegacy.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 19"
-        errorLine1="            if (Build.VERSION.SDK_INT >= 18) {"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/session/MediaSessionImplBase.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 19"
-        errorLine1="                    || (Build.VERSION.SDK_INT >= 19 &amp;&amp; value instanceof android.media.Rating)) {"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/session/MediaUtils.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 19"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 18) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/session/SessionToken.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public void setTimeDiff(Long timeDiff) {"
-        errorLine2="                            ~~~~">
-        <location
-            file="src/main/java/androidx/media2/session/MediaController.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public IBinder onBind(@NonNull Intent intent) {"
-        errorLine2="           ~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/session/MediaLibraryService.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public MediaSessionCompat getSessionCompat() {"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/session/MediaSession.java"/>
+            file="src/main/java/androidx/media2/session/MediaSessionLegacyStub.java"/>
     </issue>
 
     <issue
@@ -425,39 +344,21 @@
     </issue>
 
     <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public ComponentName getComponentName() {"
-        errorLine2="           ~~~~~~~~~~~~~">
+        id="WrongConstant"
+        message="Must be one of: SessionResult.RESULT_SUCCESS, BaseResult.RESULT_ERROR_UNKNOWN, BaseResult.RESULT_ERROR_INVALID_STATE, BaseResult.RESULT_ERROR_BAD_VALUE, BaseResult.RESULT_ERROR_PERMISSION_DENIED, BaseResult.RESULT_ERROR_IO, BaseResult.RESULT_INFO_SKIPPED, RemoteResult.RESULT_ERROR_SESSION_DISCONNECTED, BaseResult.RESULT_ERROR_NOT_SUPPORTED, RemoteResult.RESULT_ERROR_SESSION_AUTHENTICATION_EXPIRED, RemoteResult.RESULT_ERROR_SESSION_PREMIUM_ACCOUNT_REQUIRED, RemoteResult.RESULT_ERROR_SESSION_CONCURRENT_STREAM_LIMIT, RemoteResult.RESULT_ERROR_SESSION_PARENTAL_CONTROL_RESTRICTED, RemoteResult.RESULT_ERROR_SESSION_NOT_AVAILABLE_IN_REGION, RemoteResult.RESULT_ERROR_SESSION_SKIP_LIMIT_REACHED, RemoteResult.RESULT_ERROR_SESSION_SETUP_REQUIRED, but could be BaseResult.RESULT_SUCCESS"
+        errorLine1="        return new SessionResult(result.getResultCode(), null, result.getMediaItem(),"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/session/SessionToken.java"/>
+            file="src/main/java/androidx/media2/session/SessionResult.java"/>
     </issue>
 
     <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public Object getBinder() {"
-        errorLine2="           ~~~~~~">
+        id="UnspecifiedRegisterReceiverFlag"
+        message="`mBroadcastReceiver` \&#xA;is missing `RECEIVER_EXPORTED` or `RECEIVER_NOT_EXPORTED` flag for unprotected \&#xA;broadcasts registered for android.intent.action.MEDIA_BUTTON"
+        errorLine1="                context.registerReceiver(mBroadcastReceiver, filter);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/session/SessionToken.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        void onSessionTokenCreated(MediaSessionCompat.Token compatToken, SessionToken sessionToken);"
-        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/session/SessionToken.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        void onSessionTokenCreated(MediaSessionCompat.Token compatToken, SessionToken sessionToken);"
-        errorLine2="                                                                         ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/session/SessionToken.java"/>
+            file="src/main/java/androidx/media2/session/MediaSessionImplBase.java"/>
     </issue>
 
 </issues>
