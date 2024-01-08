@@ -55,6 +55,7 @@ import java.awt.Point
 import java.awt.event.FocusEvent
 import java.awt.event.FocusListener
 import java.awt.event.MouseEvent
+import java.awt.event.MouseWheelEvent
 import javax.swing.JPanel
 import javax.swing.LayoutFocusTraversalPolicy
 import javax.swing.SwingUtilities
@@ -366,14 +367,32 @@ private class InteropPointerInputModifier<T : Component>(
 private fun MouseEvent.copy(
     component: Component,
     point: Point
-) = MouseEvent(
-    /* source = */ component,
-    /* id = */ id,
-    /* when = */ `when`,
-    /* modifiers = */ modifiersEx,
-    /* x = */ point.x,
-    /* y = */ point.y,
-    /* clickCount = */ clickCount,
-    /* popupTrigger = */ isPopupTrigger,
-    /* button = */ button
-)
+) = when(this) {
+    is MouseWheelEvent -> MouseWheelEvent(
+        /* source = */ component,
+        /* id = */ id,
+        /* when = */ `when`,
+        /* modifiers = */ modifiersEx,
+        /* x = */ point.x,
+        /* y = */ point.y,
+        /* xAbs = */ xOnScreen,
+        /* yAbs = */ yOnScreen,
+        /* clickCount = */ clickCount,
+        /* popupTrigger = */ isPopupTrigger,
+        /* scrollType = */ scrollType,
+        /* scrollAmount = */ scrollAmount,
+        /* wheelRotation = */ wheelRotation,
+        /* preciseWheelRotation = */ preciseWheelRotation
+    )
+    else -> MouseEvent(
+        /* source = */ component,
+        /* id = */ id,
+        /* when = */ `when`,
+        /* modifiers = */ modifiersEx,
+        /* x = */ point.x,
+        /* y = */ point.y,
+        /* clickCount = */ clickCount,
+        /* popupTrigger = */ isPopupTrigger,
+        /* button = */ button
+    )
+}
