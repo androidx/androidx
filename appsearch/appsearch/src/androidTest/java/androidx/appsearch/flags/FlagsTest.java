@@ -68,4 +68,11 @@ public class FlagsTest {
         assertThat(Flags.FLAG_ENABLE_GENERIC_DOCUMENT_BUILDER_HIDDEN_METHODS).isEqualTo("com"
                 + ".android.appsearch.flags.enable_generic_document_builder_hidden_methods");
     }
+
+    @Test
+    public void testFlagValue_enableSetPubliclyVisibleSchema() {
+        assertThat(Flags.FLAG_ENABLE_SET_PUBLICLY_VISIBLE_SCHEMA)
+                .isEqualTo(
+                        "com.android.appsearch.flags.enable_set_publicly_visible_schema");
+    }
 }
