@@ -18,11 +18,16 @@ package androidx.benchmark
 
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.pm.ApplicationInfo
+import android.content.pm.PackageManager
 import android.os.BatteryManager
 import android.os.Build
+import android.util.Printer
+import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.test.platform.app.InstrumentationRegistry
 import java.io.File
+import java.lang.IllegalStateException
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 object DeviceInfo {
@@ -90,6 +95,71 @@ object DeviceInfo {
      */
     val misconfiguredForTracing = !File("/sys/kernel/tracing/trace_marker").exists() &&
         !File("/sys/kernel/debug/tracing/trace_marker").exists()
+
+    val artMainlineVersion = when {
+        Build.VERSION.SDK_INT >= 31 ->
+            queryArtMainlineVersion()
+        Build.VERSION.SDK_INT == 30 ->
+            1
+        else ->
+            -1
+    }
+
+    /**
+     * Starting with the first Android U release, ART mainline drops optimizations after method
+     * tracing occurs, so we disable tracing on those mainline versions.
+     *
+     * TODO: update max value once a fix is released to mainline
+     * See b/303660864
+     */
+    private val ART_MAINLINE_MIN_VERSIONS_AFFECTING_METHOD_TRACING = 340000000L..Long.MAX_VALUE
+
+    val methodTracingAffectsMeasurements =
+        Build.VERSION.SDK_INT in 26..30 || // b/313868903
+            artMainlineVersion in ART_MAINLINE_MIN_VERSIONS_AFFECTING_METHOD_TRACING // b/303660864
+
+    private fun getMainlineAppInfo(packageName: String): ApplicationInfo? {
+        return try {
+            InstrumentationRegistry.getInstrumentation().context.packageManager
+                .getApplicationInfo(packageName, PackageManager.MATCH_APEX)
+        } catch (notFoundException: PackageManager.NameNotFoundException) {
+            null
+        }
+    }
+
+    @RequiresApi(31)
+    private fun queryArtMainlineVersion(): Long {
+        val artMainlinePackage = getMainlineAppInfo("com.google.android.art")
+            ?: getMainlineAppInfo("com.android.art")
+            ?: throw IllegalStateException("Unable to find installed ART mainline module")
+
+        // This is an EXTREMELY SILLY way to find out ART's versions, but I couldn't find a better
+        // one without reflecting into ApplicationInfo.longVersionCode (not allowed in jetpack)
+        // or shell commands (slower)
+        var versionCode = -1L
+        val printer = object : Printer {
+            override fun println(x: String?) {
+                if (x == null || versionCode != -1L) return
+                // We're looking to a line like the following:
+                // `enabled=true minSdkVersion=31 targetSdkVersion=34 versionCode=340818022 targetSandboxVersion=1`
+                // See https://cs.android.com/android/platform/superproject/main/+/main:frameworks/base/core/java/android/content/pm/ApplicationInfo.java;l=1680;drc=5f97e1c49d341d58d971abef4b30de2d58a706aa
+                val prefix = " versionCode="
+                val offset = x.indexOf(prefix)
+                if (offset >= 0) {
+                    val versionString = x.substring(
+                        startIndex = offset + prefix.length,
+                        endIndex = x.indexOf(' ', offset + prefix.length)
+                    )
+                    versionCode = versionString.toLong()
+                }
+            }
+        }
+        artMainlinePackage.dump(printer, "")
+        check(versionCode > 0) {
+            "Unable to parse ART version code"
+        }
+        return versionCode
+    }
 
     init {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
