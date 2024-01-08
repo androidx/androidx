@@ -658,7 +658,7 @@ internal constructor(
                 disconnectListeners.put(listener, executor)
                 disconnectReason
             }
-        disconnectReasonCopy?.let { listener.onClientDisconnected(it) }
+        disconnectReasonCopy?.let { executor.execute { listener.onClientDisconnected(it) } }
     }
 
     override fun removeClientDisconnectListener(
@@ -760,7 +760,7 @@ internal constructor(
                 lastWatchFaceColors
             }
 
-        listener.accept(colors)
+        executor.execute { listener.accept(colors) }
     }
 
     @WatchFaceClientExperimental
