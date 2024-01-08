@@ -57,6 +57,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import androidx.wear.compose.material3.tokens.MotionTokens
 import androidx.wear.compose.materialcore.animateSelectionColor
 
 /**
@@ -861,7 +862,7 @@ private fun PaddingValues.splitHorizontally() =
     )
 
 private val COLOR_ANIMATION_SPEC: AnimationSpec<Color> =
-    tween(MEDIUM_1, 0, STANDARD_DECELERATE)
+    tween(MotionTokens.DurationMedium1, 0, MotionTokens.EasingStandardDecelerate)
 private val SELECTION_CONTROL_WIDTH = 32.dp
 private val SELECTION_CONTROL_HEIGHT = 24.dp
 private val SELECTION_CONTROL_SPACING = 4.dp

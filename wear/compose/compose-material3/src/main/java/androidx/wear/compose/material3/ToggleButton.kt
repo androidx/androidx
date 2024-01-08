@@ -35,6 +35,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
+import androidx.wear.compose.material3.tokens.MotionTokens
 import androidx.wear.compose.materialcore.animateSelectionColor
 
 /**
@@ -807,4 +808,4 @@ private val TOGGLE_CONTROL_HEIGHT = 24.dp
 private val MIN_HEIGHT = 52.dp
 
 private val COLOR_ANIMATION_SPEC: AnimationSpec<Color> =
-    tween(MEDIUM_1, 0, STANDARD_DECELERATE)
+    tween(MotionTokens.DurationMedium1, 0, MotionTokens.EasingStandardDecelerate)
