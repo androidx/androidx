@@ -18,8 +18,10 @@ package androidx.camera.integration.extensions.util
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.ImageFormat
 import android.hardware.camera2.CameraCharacteristics
 import android.os.Build
+import android.util.Size
 import androidx.camera.camera2.interop.Camera2CameraInfo
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.ImageAnalysis
@@ -269,6 +271,56 @@ object CameraXExtensionsTestUtil {
         }
 
         return activityScenario
+    }
+
+    /**
+     * Obtains the ImageCapture supported resolutions according to the provided
+     * ImageCaptureExtenderImpl.
+     */
+    @JvmStatic
+    fun getImageCaptureSupportedResolutions(
+        impl: ImageCaptureExtenderImpl,
+        cameraCharacteristics: CameraCharacteristics
+    ): List<Size> {
+        // Returns the supported resolutions list from ImageCaptureExtenderImpl if it provides the
+        // info.
+        impl.supportedResolutions?.forEach {
+            // When there is no capture processor, the image format is JPEG.
+            // When there is capture processor for post-processing, the image format is YUV_420_888.
+            if ((impl.captureProcessor == null && it.first == ImageFormat.JPEG) ||
+                (impl.captureProcessor != null && it.first == ImageFormat.YUV_420_888)) {
+                return it.second.toList()
+            }
+        }
+
+        // Returns the supported resolutions list from StreamConfigurationMap if
+        // ImageCaptureExtenderImpl doesn't provide the info.
+        val map = cameraCharacteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)
+        return map!!.getOutputSizes(ImageFormat.JPEG).toList()
+    }
+
+    /**
+     * Obtains the ImageCapture supported resolutions according to the provided
+     * AdvancedExtenderImpl.
+     */
+    @JvmStatic
+    fun getImageCaptureSupportedResolutions(
+        impl: AdvancedExtenderImpl,
+        cameraId: String,
+        cameraCharacteristics: CameraCharacteristics
+    ): List<Size> {
+        // Returns the supported resolutions list from AdvancedExtenderImpl if it provides the
+        // info.
+        impl.getSupportedCaptureOutputResolutions(cameraId).forEach {
+            if (it.key == ImageFormat.JPEG) {
+                return it.value
+            }
+        }
+
+        // Returns the supported resolutions list from StreamConfigurationMap if
+        // ImageCaptureExtenderImpl doesn't provide the info.
+        val map = cameraCharacteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)
+        return map!!.getOutputSizes(ImageFormat.JPEG).toList()
     }
 
     @JvmStatic
