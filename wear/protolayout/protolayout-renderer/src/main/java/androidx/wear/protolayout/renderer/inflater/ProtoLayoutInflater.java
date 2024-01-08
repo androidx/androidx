@@ -18,10 +18,12 @@ package androidx.wear.protolayout.renderer.inflater;
 
 import static android.util.TypedValue.COMPLEX_UNIT_SP;
 import static android.view.View.INVISIBLE;
+import static android.view.View.LAYOUT_DIRECTION_LTR;
+import static android.view.View.LAYOUT_DIRECTION_RTL;
 import static android.view.View.VISIBLE;
-import static androidx.wear.protolayout.proto.LayoutElementProto.ArcDirection.ARC_DIRECTION_CLOCKWISE_VALUE;
 
 import static androidx.core.util.Preconditions.checkNotNull;
+import static androidx.wear.protolayout.proto.LayoutElementProto.ArcDirection.ARC_DIRECTION_CLOCKWISE_VALUE;
 import static androidx.wear.protolayout.renderer.common.ProtoLayoutDiffer.FIRST_CHILD_INDEX;
 import static androidx.wear.protolayout.renderer.common.ProtoLayoutDiffer.ROOT_NODE_ID;
 import static androidx.wear.protolayout.renderer.common.ProtoLayoutDiffer.getParentNodePosId;
@@ -53,6 +55,7 @@ import android.graphics.drawable.GradientDrawable;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.TextPaint;
+import android.text.TextUtils;
 import android.text.TextUtils.TruncateAt;
 import android.text.method.LinkMovementMethod;
 import android.text.style.AbsoluteSizeSpan;
@@ -190,6 +193,7 @@ import com.google.common.util.concurrent.SettableFuture;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CancellationException;
@@ -198,11 +202,6 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
 import java.util.function.Consumer;
 import java.util.function.Function;
-
-import static android.view.View.LAYOUT_DIRECTION_LTR;
-import static android.view.View.LAYOUT_DIRECTION_RTL;
-import android.text.TextUtils;
-import java.util.Locale;
 
 /**
  * Renderer for ProtoLayout.
@@ -3205,6 +3204,7 @@ public final class ProtoLayoutInflater {
             LayoutInfo.Builder layoutInfoBuilder,
             Optional<ProtoLayoutDynamicDataPipeline.PipelineMaker> pipelineMaker) {
         ArcLayout arcLayout = new ArcLayout(mUiContext);
+        int anchorAngleSign = 1;
 
         if (arc.hasArcDirection()) {
             switch (arc.getArcDirection().getValue()) {
@@ -3213,12 +3213,17 @@ public final class ProtoLayoutInflater {
                     break;
                 case ARC_DIRECTION_COUNTER_CLOCKWISE:
                     arcLayout.setLayoutDirection(LAYOUT_DIRECTION_RTL);
+                    anchorAngleSign = -1;
                     break;
                 case ARC_DIRECTION_NORMAL:
-                case UNRECOGNIZED:
+                    boolean isRtl = isRtlLayoutDirectionFromLocale();
                     arcLayout.setLayoutDirection(
-                            isRtlLayoutDirectionFromLocale() ?
-                                    LAYOUT_DIRECTION_RTL : LAYOUT_DIRECTION_LTR);
+                            isRtl ? LAYOUT_DIRECTION_RTL : LAYOUT_DIRECTION_LTR);
+                    if (isRtl) {
+                        anchorAngleSign = -1;
+                    }
+                    break;
+                case UNRECOGNIZED:
                     break;
             }
         }
@@ -3227,17 +3232,18 @@ public final class ProtoLayoutInflater {
         layoutParams.width = LayoutParams.MATCH_PARENT;
         layoutParams.height = LayoutParams.MATCH_PARENT;
 
+        int finalAnchorAngleSign = anchorAngleSign;
         handleProp(
                 arc.getAnchorAngle(),
                 angle -> {
-                    arcLayout.setAnchorAngleDegrees(angle);
+                    arcLayout.setAnchorAngleDegrees(finalAnchorAngleSign * angle);
                     // Invalidating arcLayout isn't enough. AnchorAngleDegrees change should trigger
                     // child requestLayout.
                     arcLayout.requestLayout();
                 },
                 arcPosId,
                 pipelineMaker);
-        arcLayout.setAnchorAngleDegrees(arc.getAnchorAngle().getValue());
+        arcLayout.setAnchorAngleDegrees(finalAnchorAngleSign * arc.getAnchorAngle().getValue());
         arcLayout.setAnchorType(anchorTypeToAnchorPos(arc.getAnchorType().getValue()));
 
         if (arc.hasMaxAngle()) {
