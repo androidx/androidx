@@ -42,7 +42,7 @@ android {
         main {
             res.srcDirs += "src/commonMain/resources"
             res.srcDirs += "src/androidMain/res"
-            java.srcDirs += "src/commonMain/java"
+            java.srcDirs += "src/androidMain/java"
             assets.srcDirs += "src/androidMain/assets"
         }
     }
