@@ -81,7 +81,7 @@ class FakeSessionProcessor(
     private val stopRepeatingCalled = CompletableDeferred<Long>()
     private var latestParameters: Config = OptionsBundle.emptyBundle()
     private var blockRunAfterInitSession: () -> Unit = {}
-
+    private var failStillCaptureImmediately = false
     private var rotationDegrees = 0
     private var jpegQuality = 100
 
@@ -95,6 +95,10 @@ class FakeSessionProcessor(
 
     fun runAfterInitSession(block: () -> Unit) {
         blockRunAfterInitSession = block
+    }
+
+    fun setStillCaptureFailedImmediately(failedImmediately: Boolean) {
+        failStillCaptureImmediately = failedImmediately
     }
 
     override fun initSession(
@@ -301,12 +305,18 @@ class FakeSessionProcessor(
     ): Int {
         startCaptureCalled.complete(SystemClock.elapsedRealtimeNanos())
         startCapturePostviewEnabled.complete(postviewEnabled)
+        if (failStillCaptureImmediately) {
+            callback.onCaptureFailed(FAKE_CAPTURE_SEQUENCE_ID)
+            return FAKE_CAPTURE_SEQUENCE_ID
+        }
+
         val request = RequestProcessorRequest.Builder().apply {
             addTargetOutputConfigId(captureOutputConfigId)
             setParameters(latestParameters)
             setTemplateId(CameraDevice.TEMPLATE_STILL_CAPTURE)
         }.build()
 
+        callback.onCaptureProcessProgressed(0)
         requestProcessor!!.submit(
             request,
             object : RequestProcessor.Callback {
@@ -314,14 +324,16 @@ class FakeSessionProcessor(
                     request: RequestProcessor.Request,
                     captureResult: CameraCaptureResult
                 ) {
-                    callback.onCaptureSequenceCompleted(1)
+                    callback.onCaptureSequenceCompleted(FAKE_CAPTURE_SEQUENCE_ID)
                 }
 
                 override fun onCaptureStarted(
                     request: RequestProcessor.Request,
                     frameNumber: Long,
                     timestamp: Long
-                ) {}
+                ) {
+                    callback.onCaptureStarted(FAKE_CAPTURE_SEQUENCE_ID, timestamp)
+                }
 
                 override fun onCaptureProgressed(
                     request: RequestProcessor.Request,
@@ -332,7 +344,7 @@ class FakeSessionProcessor(
                     request: RequestProcessor.Request,
                     captureFailure: CameraCaptureFailure
                 ) {
-                    callback.onCaptureFailed(1)
+                    callback.onCaptureFailed(FAKE_CAPTURE_SEQUENCE_ID)
                 }
 
                 override fun onCaptureBufferLost(

@@ -18,6 +18,8 @@ package androidx.camera.core.impl;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -74,9 +76,10 @@ public class UseCaseAttachStateTest {
         verify(fakeUseCase.mSessionStateCallback, times(1)).onConfigured(mMockCameraCaptureSession);
 
         for (CameraCaptureCallback callback : sessionConfig.getRepeatingCameraCaptureCallbacks()) {
-            callback.onCaptureCompleted(null);
+            callback.onCaptureCompleted(CaptureConfig.DEFAULT_ID, null);
         }
-        verify(fakeUseCase.mCameraCaptureCallback, times(1)).onCaptureCompleted(null);
+        verify(fakeUseCase.mCameraCaptureCallback, times(1))
+                .onCaptureCompleted(anyInt(), eq(null));
     }
 
     @Test
@@ -111,10 +114,12 @@ public class UseCaseAttachStateTest {
                 mMockCameraCaptureSession);
 
         for (CameraCaptureCallback callback : sessionConfig.getRepeatingCameraCaptureCallbacks()) {
-            callback.onCaptureCompleted(null);
+            callback.onCaptureCompleted(CaptureConfig.DEFAULT_ID, null);
         }
-        verify(fakeUseCase0.mCameraCaptureCallback, times(1)).onCaptureCompleted(null);
-        verify(fakeUseCase1.mCameraCaptureCallback, times(1)).onCaptureCompleted(null);
+        verify(fakeUseCase0.mCameraCaptureCallback, times(1))
+                .onCaptureCompleted(anyInt(), eq(null));
+        verify(fakeUseCase1.mCameraCaptureCallback, times(1))
+                .onCaptureCompleted(anyInt(), eq(null));
     }
 
     @Test
@@ -144,9 +149,10 @@ public class UseCaseAttachStateTest {
         verify(fakeUseCase.mSessionStateCallback, never()).onConfigured(mMockCameraCaptureSession);
 
         for (CameraCaptureCallback callback : sessionConfig.getRepeatingCameraCaptureCallbacks()) {
-            callback.onCaptureCompleted(null);
+            callback.onCaptureCompleted(CaptureConfig.DEFAULT_ID, null);
         }
-        verify(fakeUseCase.mCameraCaptureCallback, never()).onCaptureCompleted(null);
+        verify(fakeUseCase.mCameraCaptureCallback, never()).onCaptureCompleted(anyInt(),
+                eq(null));
     }
 
     @Test
@@ -182,9 +188,10 @@ public class UseCaseAttachStateTest {
         verify(fakeUseCase.mSessionStateCallback, times(1)).onConfigured(mMockCameraCaptureSession);
 
         for (CameraCaptureCallback callback : sessionConfig.getRepeatingCameraCaptureCallbacks()) {
-            callback.onCaptureCompleted(null);
+            callback.onCaptureCompleted(CaptureConfig.DEFAULT_ID, null);
         }
-        verify(fakeUseCase.mCameraCaptureCallback, times(1)).onCaptureCompleted(null);
+        verify(fakeUseCase.mCameraCaptureCallback, times(1))
+                .onCaptureCompleted(anyInt(), eq(null));
     }
 
     @Test
@@ -216,9 +223,10 @@ public class UseCaseAttachStateTest {
                 mMockCameraCaptureSession);
 
         for (CameraCaptureCallback callback : sessionConfig.getRepeatingCameraCaptureCallbacks()) {
-            callback.onCaptureCompleted(null);
+            callback.onCaptureCompleted(CaptureConfig.DEFAULT_ID, null);
         }
-        verify(testUseCaseDataProvider.mCameraCaptureCallback, never()).onCaptureCompleted(null);
+        verify(testUseCaseDataProvider.mCameraCaptureCallback, never()).onCaptureCompleted(anyInt(),
+                eq(null));
     }
 
     @Test
@@ -255,9 +263,10 @@ public class UseCaseAttachStateTest {
                 mMockCameraCaptureSession);
 
         for (CameraCaptureCallback callback : sessionConfig.getRepeatingCameraCaptureCallbacks()) {
-            callback.onCaptureCompleted(null);
+            callback.onCaptureCompleted(CaptureConfig.DEFAULT_ID, null);
         }
-        verify(testUseCaseDataProvider.mCameraCaptureCallback, never()).onCaptureCompleted(null);
+        verify(testUseCaseDataProvider.mCameraCaptureCallback, never()).onCaptureCompleted(anyInt(),
+                eq(null));
     }
 
     @Test

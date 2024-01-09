@@ -292,7 +292,7 @@ final class ProcessingCaptureSession implements CaptureSessionInterface {
         for (CaptureConfig captureConfig : captureConfigs) {
             for (CameraCaptureCallback cameraCaptureCallback :
                     captureConfig.getCameraCaptureCallbacks()) {
-                cameraCaptureCallback.onCaptureCancelled();
+                cameraCaptureCallback.onCaptureCancelled(captureConfig.getId());
             }
         }
     }
@@ -323,7 +323,8 @@ final class ProcessingCaptureSession implements CaptureSessionInterface {
             return;
         }
         mSessionProcessor.startTrigger(options,
-                new CaptureCallbackAdapter(captureConfig.getCameraCaptureCallbacks()));
+                new CaptureCallbackAdapter(captureConfig.getId(),
+                        captureConfig.getCameraCaptureCallbacks()));
     }
 
     /**
@@ -401,20 +402,24 @@ final class ProcessingCaptureSession implements CaptureSessionInterface {
         mStillCaptureOptions = builder.build();
         updateParameters(mSessionOptions, mStillCaptureOptions);
         mSessionProcessor.startCapture(captureConfig.isPostviewEnabled(),
-                  new CaptureCallbackAdapter(captureConfig.getCameraCaptureCallbacks()));
+                  new CaptureCallbackAdapter(captureConfig.getId(),
+                          captureConfig.getCameraCaptureCallbacks()));
     }
 
     private static class CaptureCallbackAdapter implements SessionProcessor.CaptureCallback {
         private List<CameraCaptureCallback> mCameraCaptureCallbacks;
+        private final int mCaptureConfigId;
 
-        private CaptureCallbackAdapter(List<CameraCaptureCallback> cameraCaptureCallbacks) {
+        private CaptureCallbackAdapter(int captureConfigId,
+                List<CameraCaptureCallback> cameraCaptureCallbacks) {
+            mCaptureConfigId = captureConfigId;
             mCameraCaptureCallbacks = cameraCaptureCallbacks;
         }
 
         @Override
         public void onCaptureStarted(int captureSequenceId, long timestamp) {
             for (CameraCaptureCallback cameraCaptureCallback : mCameraCaptureCallbacks) {
-                cameraCaptureCallback.onCaptureStarted();
+                cameraCaptureCallback.onCaptureStarted(mCaptureConfigId);
             }
         }
 
@@ -422,7 +427,7 @@ final class ProcessingCaptureSession implements CaptureSessionInterface {
         public void onCaptureFailed(
                 int captureSequenceId) {
             for (CameraCaptureCallback cameraCaptureCallback : mCameraCaptureCallbacks) {
-                cameraCaptureCallback.onCaptureFailed(new CameraCaptureFailure(
+                cameraCaptureCallback.onCaptureFailed(mCaptureConfigId, new CameraCaptureFailure(
                         CameraCaptureFailure.Reason.ERROR));
             }
         }
@@ -430,7 +435,7 @@ final class ProcessingCaptureSession implements CaptureSessionInterface {
         @Override
         public void onCaptureSequenceCompleted(int captureSequenceId) {
             for (CameraCaptureCallback cameraCaptureCallback : mCameraCaptureCallbacks) {
-                cameraCaptureCallback.onCaptureCompleted(
+                cameraCaptureCallback.onCaptureCompleted(mCaptureConfigId,
                         new CameraCaptureResult.EmptyCameraCaptureResult());
             }
         }
@@ -438,7 +443,7 @@ final class ProcessingCaptureSession implements CaptureSessionInterface {
         @Override
         public void onCaptureProcessProgressed(int progress) {
             for (CameraCaptureCallback cameraCaptureCallback : mCameraCaptureCallbacks) {
-                cameraCaptureCallback.onCaptureProcessProgressed(progress);
+                cameraCaptureCallback.onCaptureProcessProgressed(mCaptureConfigId, progress);
             }
         }
     }
@@ -529,7 +534,7 @@ final class ProcessingCaptureSession implements CaptureSessionInterface {
             for (CaptureConfig captureConfig : mPendingCaptureConfigs) {
                 for (CameraCaptureCallback cameraCaptureCallback :
                         captureConfig.getCameraCaptureCallbacks()) {
-                    cameraCaptureCallback.onCaptureCancelled();
+                    cameraCaptureCallback.onCaptureCancelled(captureConfig.getId());
                 }
             }
             mPendingCaptureConfigs = null;

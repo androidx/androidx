@@ -330,12 +330,14 @@ class Camera2CapturePipeline {
                 futureList.add(CallbackToFutureAdapter.getFuture(completer -> {
                     configBuilder.addCameraCaptureCallback(new CameraCaptureCallback() {
                         @Override
-                        public void onCaptureCompleted(@NonNull CameraCaptureResult result) {
+                        public void onCaptureCompleted(int captureConfigId,
+                                @NonNull CameraCaptureResult result) {
                             completer.set(null);
                         }
 
                         @Override
-                        public void onCaptureFailed(@NonNull CameraCaptureFailure failure) {
+                        public void onCaptureFailed(int captureConfigId,
+                                @NonNull CameraCaptureFailure failure) {
                             String msg =
                                     "Capture request failed with reason " + failure.getReason();
                             completer.setException(
@@ -343,7 +345,7 @@ class Camera2CapturePipeline {
                         }
 
                         @Override
-                        public void onCaptureCancelled() {
+                        public void onCaptureCancelled(int captureConfigId) {
                             String msg = "Capture request is cancelled because camera is closed";
                             completer.setException(
                                     new ImageCaptureException(ERROR_CAMERA_CLOSED, msg, null));

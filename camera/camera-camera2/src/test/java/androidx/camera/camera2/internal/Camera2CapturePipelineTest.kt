@@ -838,6 +838,7 @@ class Camera2CapturePipelineTest {
                     captureConfigs.forEach { captureConfig ->
                         captureConfig.cameraCaptureCallbacks.forEach {
                             it.onCaptureFailed(
+                                CaptureConfig.DEFAULT_ID,
                                 CameraCaptureFailure(
                                     CameraCaptureFailure.Reason.ERROR
                                 )
@@ -879,7 +880,7 @@ class Camera2CapturePipelineTest {
                 ) {
                     captureConfigs.forEach { captureConfig ->
                         captureConfig.cameraCaptureCallbacks.forEach {
-                            it.onCaptureCancelled()
+                            it.onCaptureCancelled(CaptureConfig.DEFAULT_ID)
                         }
                     }
                 }
@@ -1419,7 +1420,8 @@ class Camera2CapturePipelineTest {
                 // Complete the single capture with an empty result.
                 captureConfigs.forEach { captureConfig ->
                     captureConfig.cameraCaptureCallbacks.forEach {
-                        it.onCaptureCompleted(CameraCaptureResult.EmptyCameraCaptureResult())
+                        it.onCaptureCompleted(CaptureConfig.DEFAULT_ID,
+                            CameraCaptureResult.EmptyCameraCaptureResult())
                     }
                 }
             }

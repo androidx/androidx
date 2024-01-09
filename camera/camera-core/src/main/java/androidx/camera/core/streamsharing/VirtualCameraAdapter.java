@@ -431,11 +431,12 @@ class VirtualCameraAdapter implements UseCase.StateChangeCallback {
     CameraCaptureCallback createCameraCaptureCallback() {
         return new CameraCaptureCallback() {
             @Override
-            public void onCaptureCompleted(@NonNull CameraCaptureResult cameraCaptureResult) {
-                super.onCaptureCompleted(cameraCaptureResult);
+            public void onCaptureCompleted(int captureConfigId,
+                    @NonNull CameraCaptureResult cameraCaptureResult) {
+                super.onCaptureCompleted(captureConfigId, cameraCaptureResult);
                 for (UseCase child : mChildren) {
                     sendCameraCaptureResultToChild(cameraCaptureResult,
-                            child.getSessionConfig());
+                            child.getSessionConfig(), captureConfigId);
                 }
             }
         };
@@ -443,10 +444,11 @@ class VirtualCameraAdapter implements UseCase.StateChangeCallback {
 
     static void sendCameraCaptureResultToChild(
             @NonNull CameraCaptureResult cameraCaptureResult,
-            @NonNull SessionConfig sessionConfig) {
+            @NonNull SessionConfig sessionConfig,
+            int captureConfigId) {
         for (CameraCaptureCallback callback :
                 sessionConfig.getRepeatingCameraCaptureCallbacks()) {
-            callback.onCaptureCompleted(new VirtualCameraCaptureResult(
+            callback.onCaptureCompleted(captureConfigId, new VirtualCameraCaptureResult(
                     sessionConfig.getRepeatingCaptureConfig().getTagBundle(),
                     cameraCaptureResult));
         }
