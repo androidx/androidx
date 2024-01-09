@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,19 +17,16 @@
 package androidx.work.worker;
 
 import android.content.Context;
-
-import androidx.annotation.NonNull;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
-public class ExceptionWorker extends Worker {
-
-    public ExceptionWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
-        super(context, workerParams);
+class ExceptionInConstructionWorker(
+    context: Context,
+    workerParams: WorkerParameters
+) : Worker(context, workerParams) {
+    init {
+        throw IllegalStateException("Thrown in constructor Exception");
     }
 
-    @Override
-    public @NonNull Result doWork() {
-        throw new IllegalStateException("Thrown in doWork Exception");
-    }
+    override fun doWork(): Result = Result.success()
 }

@@ -26,6 +26,7 @@ import static androidx.work.WorkInfo.State.RUNNING;
 import static androidx.work.WorkInfo.State.SUCCEEDED;
 
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -46,6 +47,7 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.util.Consumer;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
@@ -66,6 +68,8 @@ import androidx.work.ProgressUpdater;
 import androidx.work.WorkInfo;
 import androidx.work.WorkRequest;
 import androidx.work.Worker;
+import androidx.work.WorkerExceptionInfo;
+import androidx.work.WorkerFactory;
 import androidx.work.WorkerParameters;
 import androidx.work.impl.foreground.ForegroundProcessor;
 import androidx.work.impl.model.Dependency;
@@ -79,6 +83,7 @@ import androidx.work.impl.utils.taskexecutor.InstantWorkTaskExecutor;
 import androidx.work.impl.utils.taskexecutor.TaskExecutor;
 import androidx.work.worker.ChainedArgumentWorker;
 import androidx.work.worker.EchoingWorker;
+import androidx.work.worker.ExceptionInConstructionWorker;
 import androidx.work.worker.ExceptionWorker;
 import androidx.work.worker.FailureWorker;
 import androidx.work.worker.InterruptionAwareWorker;
@@ -96,6 +101,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -120,14 +126,18 @@ public class WorkerWrapperTest extends DatabaseTest {
     private ForegroundUpdater mMockForegroundUpdater;
     private Executor mSynchronousExecutor = new SynchronousExecutor();
     private final ExecutorService mExecutorService = Executors.newSingleThreadExecutor();
+    private TestWorkerExceptionHandler mWorkerExceptionHandler;
 
     @Before
     public void setUp() {
         mContext = ApplicationProvider.getApplicationContext();
+        mWorkerExceptionHandler = new TestWorkerExceptionHandler();
         mConfiguration = new Configuration.Builder()
                 .setExecutor(new SynchronousExecutor())
                 .setMinimumLoggingLevel(Log.VERBOSE)
                 .setClock(mTestClock)
+                .setWorkerInitializationExceptionHandler(mWorkerExceptionHandler)
+                .setWorkerExecutionExceptionHandler(mWorkerExceptionHandler)
                 .build();
         mWorkTaskExecutor = new InstantWorkTaskExecutor();
         mWorkSpecDao = mDatabase.workSpecDao();
@@ -1181,16 +1191,87 @@ public class WorkerWrapperTest extends DatabaseTest {
     @Test
     @SmallTest
     public void testWorkerThatThrowsAnException() {
-        OneTimeWorkRequest work =
-                new OneTimeWorkRequest.Builder(ExceptionWorker.class).build();
+        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(ExceptionWorker.class)
+                .setInputData(new Data.Builder().putString("foo", "bar").build()).build();
         insertWork(work);
         WorkerWrapper workerWrapper = createBuilder(work.getStringId()).build();
         FutureListener listener = createAndAddFutureListener(workerWrapper);
         workerWrapper.run();
         assertThat(listener.mResult, is(false));
         assertThat(mWorkSpecDao.getState(work.getStringId()), is(FAILED));
+        assertThat(mWorkerExceptionHandler.mWorkerClassName,
+                is("androidx.work.worker.ExceptionWorker"));
+        assertThat(mWorkerExceptionHandler.mWorkerParameters.getInputData().getString("foo"),
+                is("bar"));
+        assertThat(mWorkerExceptionHandler.mThrowable, instanceOf(IllegalStateException.class));
+        assertThat(mWorkerExceptionHandler.mThrowable.getMessage(), is(
+                "Thrown in doWork Exception"));
     }
 
+    @Test
+    @SmallTest
+    public void testWorkerThatThrowsAnExceptionInConstruction() {
+        OneTimeWorkRequest work =
+                new OneTimeWorkRequest.Builder(ExceptionInConstructionWorker.class)
+                .setInputData(new Data.Builder().putString("foo", "bar").build()).build();
+        insertWork(work);
+        WorkerWrapper workerWrapper = createBuilder(work.getStringId()).build();
+        FutureListener listener = createAndAddFutureListener(workerWrapper);
+        workerWrapper.run();
+        assertThat(listener.mResult, is(false));
+        assertThat(mWorkSpecDao.getState(work.getStringId()), is(FAILED));
+        assertThat(mWorkerExceptionHandler.mWorkerClassName,
+                is("androidx.work.worker.ExceptionInConstructionWorker"));
+        assertThat(mWorkerExceptionHandler.mWorkerParameters.getInputData().getString("foo"),
+                is("bar"));
+        assertThat(mWorkerExceptionHandler.mThrowable,
+                is(instanceOf(InvocationTargetException.class)));
+        Throwable e = ((InvocationTargetException) mWorkerExceptionHandler.mThrowable)
+                .getTargetException();
+        assertThat(e, instanceOf(IllegalStateException.class));
+        assertThat(e.getMessage(), is("Thrown in constructor Exception"));
+    }
+
+    @Test
+    @SmallTest
+    public void testExceptionInWorkerFactory() {
+        OneTimeWorkRequest work =
+                new OneTimeWorkRequest.Builder(TestWorker.class)
+                        .setInputData(new Data.Builder().putString("foo", "bar").build()).build();
+        insertWork(work);
+        WorkerFactory factory = new WorkerFactory() {
+            @Nullable
+            @Override
+            public ListenableWorker createWorker(@NonNull Context appContext,
+                    @NonNull String workerClassName, @NonNull WorkerParameters workerParameters) {
+                throw new IllegalStateException("Thrown in WorkerFactory Exception");
+            }
+        };
+        Configuration configuration = new Configuration.Builder(mConfiguration)
+                .setWorkerFactory(factory)
+                .build();
+        WorkerWrapper workerWrapper = new WorkerWrapper.Builder(
+                mContext,
+                configuration,
+                mWorkTaskExecutor,
+                mMockForegroundProcessor,
+                mDatabase,
+                mWorkSpecDao.getWorkSpec(work.getStringId()),
+                mDatabase.workTagDao().getWorkSpecIdsWithTag(work.getStringId())
+        ).build();
+        FutureListener listener = createAndAddFutureListener(workerWrapper);
+        workerWrapper.run();
+        assertThat(listener.mResult, is(false));
+        assertThat(mWorkSpecDao.getState(work.getStringId()), is(FAILED));
+        assertThat(mWorkerExceptionHandler.mWorkerClassName,
+                is("androidx.work.worker.TestWorker"));
+        assertThat(mWorkerExceptionHandler.mWorkerParameters.getInputData().getString("foo"),
+                is("bar"));
+        assertThat(mWorkerExceptionHandler.mThrowable,
+                is(instanceOf(IllegalStateException.class)));
+        assertThat(mWorkerExceptionHandler.mThrowable.getMessage(),
+                is("Thrown in WorkerFactory Exception"));
+    }
 
     @SuppressLint("NewApi")
     @Test
@@ -1328,4 +1409,17 @@ public class WorkerWrapperTest extends DatabaseTest {
             }
         }
     }
+
+    private static class TestWorkerExceptionHandler implements Consumer<WorkerExceptionInfo> {
+        String mWorkerClassName;
+        WorkerParameters mWorkerParameters;
+        Throwable mThrowable;
+
+        @Override
+        public void accept(WorkerExceptionInfo params) {
+            this.mWorkerClassName = params.getWorkerClassName();
+            this.mWorkerParameters = params.getWorkerParameters();
+            this.mThrowable = params.getThrowable();
+        }
+    };
 }
