@@ -540,8 +540,8 @@ class AnnotatedString internal constructor(
          * When clicking on the text in [range], the corresponding URL from the [url] annotation
          * will be opened using [androidx.compose.ui.platform.UriHandler].
          *
-         * URLs may be treated specially by screen readers, including being identified while reading text with an audio icon or being
-         * summarized in a links menu. When the text
+         * URLs may be treated specially by screen readers, including being identified while
+         * reading text with an audio icon or being summarized in a links menu.
          *
          * @param url A [LinkAnnotation.Url] object that stores the URL being linked to.
          * @param start the inclusive starting offset of the range
@@ -556,8 +556,12 @@ class AnnotatedString internal constructor(
         /**
          * Set a [LinkAnnotation.Clickable] for the given [range].
          *
-         * When clicking on the text in [range], the handler will be triggered with the tag
+         * When clicking on the text in [range], the
+         * [androidx.compose.foundation.TextLinkClickHandler] will be triggered with the tag
          * corresponding to the [clickable] object.
+         *
+         * Clickable link may be treated specially by screen readers, including being identified
+         * while reading text with an audio icon or being summarized in a links menu.
          *
          * @param clickable A [LinkAnnotation.Clickable] object that stores the tag being linked to.
          * @param start the inclusive starting offset of the range
