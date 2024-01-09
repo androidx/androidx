@@ -16,12 +16,10 @@
 
 package androidx.compose.material3.carousel
 
-import androidx.annotation.VisibleForTesting
 import androidx.collection.FloatList
 import androidx.collection.mutableFloatListOf
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.util.fastForEach
-import androidx.compose.ui.util.fastMapIndexed
 import androidx.compose.ui.util.lerp
 import kotlin.math.roundToInt
 
@@ -84,6 +82,11 @@ internal class Strategy private constructor(
     private val startShiftPoints: FloatList,
     private val endShiftPoints: FloatList
 ) {
+
+    /**
+     * The size of items when in focus and fully unmasked.
+     */
+    internal val itemMainAxisSize = defaultKeylines.firstFocal.size
 
     /**
      * Returns the [KeylineList] that should be used for the current [scrollOffset].
@@ -163,7 +166,7 @@ internal class Strategy private constructor(
          * @param carouselMainAxisSize the size of the carousel container in scrolling axis
          * @param keylineList the default keylines that will be used to create the strategy
          */
-        internal fun create(
+        fun create(
             /** The size of the carousel in the main axis. */
             carouselMainAxisSize: Float,
             /** The keylines along the main axis */
@@ -453,42 +456,6 @@ internal class Strategy private constructor(
             return this
         }
     }
-}
-
-/**
- * Returns an interpolated [Keyline] whose values are all interpolated based on [fraction]
- * between the [start] and [end] keylines.
- */
-@VisibleForTesting
-internal fun lerp(start: Keyline, end: Keyline, fraction: Float): Keyline {
-    return Keyline(
-        size = lerp(start.size, end.size, fraction),
-        offset = lerp(start.offset, end.offset, fraction),
-        unadjustedOffset = lerp(start.unadjustedOffset, end.unadjustedOffset, fraction),
-        isFocal = if (fraction < .5f) start.isFocal else end.isFocal,
-        isAnchor = if (fraction < .5f) start.isAnchor else end.isAnchor,
-        isPivot = if (fraction < .5f) start.isPivot else end.isPivot,
-        cutoff = lerp(start.cutoff, end.cutoff, fraction)
-    )
-}
-
-/**
- * Returns an interpolated KeylineList between [from] and [to].
- *
- * Unlike creating a [KeylineList] using [keylineListOf], this method does not set unadjusted
- * offsets by calculating them from a pivot index. This method simply interpolates all values of
- * all keylines between the given pair.
- */
-@VisibleForTesting
-internal fun lerp(
-    from: KeylineList,
-    to: KeylineList,
-    fraction: Float
-): KeylineList {
-    val interpolatedKeylines = from.fastMapIndexed { i, k ->
-        lerp(k, to[i], fraction)
-    }
-    return KeylineList(interpolatedKeylines)
 }
 
 private fun lerp(
