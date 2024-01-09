@@ -718,6 +718,10 @@ internal class LayoutNodeLayoutDelegate(
                 }
             }
 
+            checkPrecondition(lookaheadPassDelegate?.placedOnce != false) {
+                "Error: Placement happened before lookahead."
+            }
+
             // Post-lookahead (if any) placement
             placeOuterCoordinator(position, zIndex, layerBlock)
         }
@@ -1035,7 +1039,7 @@ internal class LayoutNodeLayoutDelegate(
         internal val measurePassDelegate: MeasurePassDelegate
             get() = this@LayoutNodeLayoutDelegate.measurePassDelegate
         internal var duringAlignmentLinesQuery: Boolean = false
-        private var placedOnce: Boolean = false
+        internal var placedOnce: Boolean = false
         private var measuredOnce: Boolean = false
         val lastConstraints: Constraints?
             get() = lookaheadConstraints
