@@ -22,6 +22,7 @@ import androidx.compose.animation.core.animate
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.MutatePriority
 import androidx.compose.foundation.MutatorMutex
+import androidx.compose.foundation.PlatformOptimizedCancellationException
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.offset
 import androidx.compose.runtime.Stable
@@ -696,12 +697,7 @@ suspend fun <T> AnchoredDraggableState<T>.animateTo(
     }
 }
 
-private class AnchoredDragFinishedSignal : CancellationException() {
-    override fun fillInStackTrace(): Throwable {
-        stackTrace = emptyArray()
-        return this
-    }
-}
+private class AnchoredDragFinishedSignal : PlatformOptimizedCancellationException()
 
 private suspend fun <I> restartable(inputs: () -> I, block: suspend (I) -> Unit) {
     try {
