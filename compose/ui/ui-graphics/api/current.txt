@@ -751,6 +751,11 @@ package androidx.compose.ui.graphics {
     enum_constant public static final androidx.compose.ui.graphics.PathIterator.ConicEvaluation AsQuadratics;
   }
 
+  public final class PathKt {
+    method public static androidx.compose.ui.graphics.Path Path();
+    method public static androidx.compose.ui.graphics.Path copy(androidx.compose.ui.graphics.Path);
+  }
+
   @kotlin.jvm.JvmDefaultWithCompatibility public interface PathMeasure {
     method public float getLength();
     method public long getPosition(float distance);
