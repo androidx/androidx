@@ -98,6 +98,16 @@ private fun doSetContent(
             owner.view.setTag(R.id.wrapped_composition_tag, it)
         }
     wrapped.setContent(content)
+
+    // When the CoroutineContext between the owner and parent doesn't match, we need to reset it
+    // to this new parent's CoroutineContext, because the previous CoroutineContext was cancelled.
+    // This usually happens when the owner (AndroidComposeView) wasn't completely torn down during a
+    // config change. That expected scenario occurs when the manifest's configChanges includes
+    // 'screenLayout' and the user selects a pop-up view for the app.
+    if (owner.coroutineContext != parent.effectCoroutineContext) {
+        owner.coroutineContext = parent.effectCoroutineContext
+    }
+
     return wrapped
 }
 
