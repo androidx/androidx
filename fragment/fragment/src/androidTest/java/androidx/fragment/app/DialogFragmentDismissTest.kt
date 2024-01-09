@@ -19,7 +19,6 @@ package androidx.fragment.app
 import android.app.AlertDialog
 import android.app.Dialog
 import android.content.DialogInterface
-import android.os.Build
 import android.os.Bundle
 import android.os.Looper
 import androidx.fragment.app.test.EmptyFragmentTestActivity
@@ -112,12 +111,6 @@ class DialogFragmentDismissTest(
 
     @Test
     fun testDialogFragmentDismiss() {
-        // There is a leak in API 30 InputMethodManager that causes this test to be flaky.
-        // Once https://github.com/square/leakcanary/issues/2592 is addressed we can upgrade
-        // leak canary and remove this.
-        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.R) {
-            return
-        }
         val fragment = TestDialogFragment()
         activityTestRule.runOnUiThread {
             fragment.showNow(activityTestRule.activity.supportFragmentManager, null)

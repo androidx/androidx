@@ -19,7 +19,6 @@ package androidx.activity
 import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultLauncher
@@ -92,12 +91,6 @@ class ComponentActivityResultTest {
 
     @Test
     fun registerInInitTest() {
-        // There is a leak in API 30 InputMethodManager that causes this test to be flaky.
-        // Once https://github.com/square/leakcanary/issues/2592 is addressed we can upgrade
-        // leak canary and remove this.
-        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.R) {
-            return
-        }
         ActivityScenario.launch(RegisterInInitActivity::class.java).use { scenario ->
             scenario.withActivity {
                 recreate()
