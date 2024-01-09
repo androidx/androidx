@@ -1412,14 +1412,25 @@ class TextFieldTest : FocusedWindowTest {
         val shortText = "Text".repeat(2)
 
         var tfv by mutableStateOf(TextFieldValue(shortText))
-        lateinit var clipboardManager: ClipboardManager
+        val clipboardManager = object : ClipboardManager {
+            var contents: AnnotatedString? = null
+
+            override fun setText(annotatedString: AnnotatedString) {
+                contents = annotatedString
+            }
+
+            override fun getText(): AnnotatedString? {
+                return contents
+            }
+        }
         rule.setTextFieldTestContent {
-            clipboardManager = LocalClipboardManager.current
-            BasicTextField(
-                value = tfv,
-                onValueChange = { tfv = it },
-                modifier = Modifier.testTag(Tag)
-            )
+            CompositionLocalProvider(LocalClipboardManager provides clipboardManager) {
+                BasicTextField(
+                    value = tfv,
+                    onValueChange = { tfv = it },
+                    modifier = Modifier.testTag(Tag)
+                )
+            }
         }
         clipboardManager.setText(AnnotatedString(longText))
         rule.waitForIdle()
