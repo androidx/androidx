@@ -26,6 +26,7 @@ import androidx.window.extensions.WindowExtensions
 import androidx.window.extensions.core.util.function.Consumer
 import androidx.window.extensions.core.util.function.Function
 import androidx.window.extensions.embedding.ActivityEmbeddingComponent
+import androidx.window.extensions.embedding.AnimationBackground
 import androidx.window.extensions.embedding.SplitAttributes
 import androidx.window.reflection.ReflectionUtils.doesReturn
 import androidx.window.reflection.ReflectionUtils.isPublic
@@ -66,7 +67,8 @@ internal class SafeActivityEmbeddingComponentProvider(
         return when (ExtensionsUtil.safeVendorApiLevel) {
             1 -> hasValidVendorApiLevel1()
             2 -> hasValidVendorApiLevel2()
-            in 3..Int.MAX_VALUE -> hasValidVendorApiLevel3()
+            in 3..4 -> hasValidVendorApiLevel3() // No additional API in 4.
+            in 5..Int.MAX_VALUE -> hasValidVendorApiLevel5()
             else -> false
         }
     }
@@ -118,10 +120,20 @@ internal class SafeActivityEmbeddingComponentProvider(
      */
     @VisibleForTesting
     internal fun hasValidVendorApiLevel3(): Boolean =
-        hasValidVendorApiLevel1() &&
-            hasValidVendorApiLevel2() &&
+        hasValidVendorApiLevel2() &&
             isMethodInvalidateTopVisibleSplitAttributesValid() &&
             isMethodUpdateSplitAttributesValid()
+
+    /**
+     * Vendor API level 5 includes the following methods:
+     * - [AnimationBackground.createColorBackground]
+     * - [AnimationBackground.ANIMATION_BACKGROUND_DEFAULT]
+     * // TODO(b/316493273): Guard other AEComponentMethods
+     */
+    @VisibleForTesting
+    internal fun hasValidVendorApiLevel5(): Boolean =
+        hasValidVendorApiLevel3() &&
+            isClassAnimationBackgroundValid()
 
     private fun isMethodSetEmbeddingRulesValid(): Boolean {
         return validateReflection("ActivityEmbeddingComponent#setEmbeddingRules is not valid") {
@@ -206,6 +218,27 @@ internal class SafeActivityEmbeddingComponentProvider(
                 SplitAttributes::class.java
             )
             updateSplitAttributesMethod.isPublic
+        }
+
+    private fun isClassAnimationBackgroundValid(): Boolean =
+        validateReflection("Class AnimationBackground is not valid") {
+            val animationBackgroundClass = AnimationBackground::class.java
+            val colorBackgroudClass = AnimationBackground.ColorBackground::class.java
+            val createColorBackgroundMethod = animationBackgroundClass.getMethod(
+                "createColorBackground",
+                Int::class.javaPrimitiveType
+            )
+            val animationBackgroundDefaultField = animationBackgroundClass.getDeclaredField(
+                "ANIMATION_BACKGROUND_DEFAULT"
+            )
+            val colorBackgroundGetColor = colorBackgroudClass.getMethod(
+                "getColor"
+            )
+            createColorBackgroundMethod.isPublic &&
+                createColorBackgroundMethod.doesReturn(colorBackgroudClass) &&
+                animationBackgroundDefaultField.isPublic
+            colorBackgroundGetColor.isPublic &&
+                colorBackgroundGetColor.doesReturn(Int::class.javaPrimitiveType!!)
         }
 
     private fun isActivityEmbeddingComponentValid(): Boolean {

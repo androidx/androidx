@@ -70,7 +70,8 @@ class SafeActivityEmbeddingComponentProviderTest {
                 when (WindowSdkExtensions.getInstance().extensionVersion) {
                     1 -> assertTrue(safeProvider.hasValidVendorApiLevel1())
                     2 -> assertTrue(safeProvider.hasValidVendorApiLevel2())
-                    else -> assertTrue(safeProvider.hasValidVendorApiLevel3())
+                    in 3..4 -> assertTrue(safeProvider.hasValidVendorApiLevel3())
+                    5 -> assertTrue(safeProvider.hasValidVendorApiLevel5())
                 }
             }
         } catch (e: UnsupportedOperationException) {
