@@ -18,9 +18,12 @@ package androidx.wear.protolayout.material;
 
 import static androidx.wear.protolayout.material.RunnerUtils.SCREEN_HEIGHT;
 import static androidx.wear.protolayout.material.RunnerUtils.SCREEN_WIDTH;
+import static androidx.wear.protolayout.material.RunnerUtils.convertToTestParameters;
 import static androidx.wear.protolayout.material.RunnerUtils.runSingleScreenshotTest;
 import static androidx.wear.protolayout.material.RunnerUtils.waitForNotificationToDisappears;
 import static androidx.wear.protolayout.material.TestCasesGenerator.generateTestCases;
+import static androidx.wear.protolayout.material.TestCasesGenerator.generateTextTestCasesLtrOnly;
+import static androidx.wear.protolayout.material.TestCasesGenerator.generateTextTestCasesRtlOnly;
 
 import android.content.Context;
 import android.util.DisplayMetrics;
@@ -31,29 +34,29 @@ import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.screenshot.AndroidXScreenshotTestRule;
 import androidx.wear.protolayout.DeviceParametersBuilders;
 import androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters;
-import androidx.wear.protolayout.LayoutElementBuilders.LayoutElement;
+import androidx.wear.protolayout.material.RunnerUtils.TestCase;
 
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.List;
 
 @RunWith(Parameterized.class)
 @LargeTest
 public class MaterialGoldenTest {
-    private final LayoutElement mLayoutElement;
+    private final TestCase mTestCase;
     private final String mExpected;
 
     @Rule
     public AndroidXScreenshotTestRule mScreenshotRule =
             new AndroidXScreenshotTestRule("wear/wear-protolayout-material");
 
-    public MaterialGoldenTest(String expected, LayoutElement layoutElement) {
-        mLayoutElement = layoutElement;
+    public MaterialGoldenTest(String expected, TestCase testCase) {
+        mTestCase = testCase;
         mExpected = expected;
     }
 
@@ -88,20 +91,30 @@ public class MaterialGoldenTest {
                         .setScreenShape(DeviceParametersBuilders.SCREEN_SHAPE_RECT)
                         .build();
 
-        Map<String, LayoutElement> testCases = generateTestCases(context, deviceParameters, "");
+        List<Object[]> testCaseList = new ArrayList<>();
+        testCaseList.addAll(
+                convertToTestParameters(
+                        generateTestCases(context, deviceParameters, ""),
+                        /* isForRtl= */ true,
+                        /* isForLtr= */ true));
+        testCaseList.addAll(
+                convertToTestParameters(
+                        generateTextTestCasesRtlOnly(context, deviceParameters, ""),
+                        /* isForRtl= */ true,
+                        /* isForLtr= */ false));
+        testCaseList.addAll(
+                convertToTestParameters(
+                        generateTextTestCasesLtrOnly(context, deviceParameters, ""),
+                        /* isForRtl= */ false,
+                        /* isForLtr= */ true));
 
         waitForNotificationToDisappears();
 
-        return testCases.entrySet().stream()
-                .map(test -> new Object[] {test.getKey(), test.getValue()})
-                .collect(Collectors.toList());
+        return testCaseList;
     }
 
     @Test
     public void test() {
-        runSingleScreenshotTest(
-                mScreenshotRule, mLayoutElement, mExpected, /* isRtlDirection= */ false);
-        runSingleScreenshotTest(
-                mScreenshotRule, mLayoutElement, mExpected + "_rtl", /* isRtlDirection= */ true);
+        runSingleScreenshotTest(mScreenshotRule, mTestCase, mExpected);
     }
 }
