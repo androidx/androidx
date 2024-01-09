@@ -32,10 +32,10 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-/** Tests for {@link EmbeddingActivityWindowInfo} class. */
+/** Tests for {@link EmbeddedActivityWindowInfo} class. */
 @SmallTest
 @RunWith(AndroidJUnit4.class)
-public class EmbeddingActivityWindowInfoTest {
+public class EmbeddedActivityWindowInfoTest {
 
     @Mock
     private Activity mActivity;
@@ -52,7 +52,7 @@ public class EmbeddingActivityWindowInfoTest {
         final Rect activityBounds = new Rect(0, 0, 500, 1000);
         final Rect taskBounds = new Rect(0, 0, 1000, 2000);
         final Rect activityStackBounds = new Rect(0, 0, 1000, 1000);
-        final EmbeddingActivityWindowInfo info = new EmbeddingActivityWindowInfo(mActivity,
+        final EmbeddedActivityWindowInfo info = new EmbeddedActivityWindowInfo(mActivity,
                 true /* isEmbedded */, activityBounds, taskBounds, activityStackBounds);
 
         assertEquals(mActivity, info.getActivity());
@@ -64,37 +64,37 @@ public class EmbeddingActivityWindowInfoTest {
 
     @Test
     public void testEqualsAndHashCode() {
-        final EmbeddingActivityWindowInfo info1 = new EmbeddingActivityWindowInfo(mActivity,
+        final EmbeddedActivityWindowInfo info1 = new EmbeddedActivityWindowInfo(mActivity,
                 true /* isEmbedded */,
                 new Rect(0, 0, 500, 1000),
                 new Rect(0, 0, 1000, 2000),
                 new Rect(0, 0, 1000, 1000));
-        final EmbeddingActivityWindowInfo info2 = new EmbeddingActivityWindowInfo(mActivity2,
+        final EmbeddedActivityWindowInfo info2 = new EmbeddedActivityWindowInfo(mActivity2,
                 true /* isEmbedded */,
                 new Rect(0, 0, 500, 1000),
                 new Rect(0, 0, 1000, 2000),
                 new Rect(0, 0, 1000, 1000));
-        final EmbeddingActivityWindowInfo info3 = new EmbeddingActivityWindowInfo(mActivity,
+        final EmbeddedActivityWindowInfo info3 = new EmbeddedActivityWindowInfo(mActivity,
                 false /* isEmbedded */,
                 new Rect(0, 0, 500, 1000),
                 new Rect(0, 0, 1000, 2000),
                 new Rect(0, 0, 1000, 1000));
-        final EmbeddingActivityWindowInfo info4 = new EmbeddingActivityWindowInfo(mActivity,
+        final EmbeddedActivityWindowInfo info4 = new EmbeddedActivityWindowInfo(mActivity,
                 true /* isEmbedded */,
                 new Rect(0, 0, 1000, 1000),
                 new Rect(0, 0, 1000, 2000),
                 new Rect(0, 0, 1000, 1000));
-        final EmbeddingActivityWindowInfo info5 = new EmbeddingActivityWindowInfo(mActivity,
+        final EmbeddedActivityWindowInfo info5 = new EmbeddedActivityWindowInfo(mActivity,
                 true /* isEmbedded */,
                 new Rect(0, 0, 500, 1000),
                 new Rect(0, 0, 1000, 1000),
                 new Rect(0, 0, 1000, 1000));
-        final EmbeddingActivityWindowInfo info6 = new EmbeddingActivityWindowInfo(mActivity,
+        final EmbeddedActivityWindowInfo info6 = new EmbeddedActivityWindowInfo(mActivity,
                 true /* isEmbedded */,
                 new Rect(0, 0, 500, 1000),
                 new Rect(0, 0, 1000, 2000),
                 new Rect(0, 0, 1000, 1500));
-        final EmbeddingActivityWindowInfo info7 = new EmbeddingActivityWindowInfo(mActivity,
+        final EmbeddedActivityWindowInfo info7 = new EmbeddedActivityWindowInfo(mActivity,
                 true /* isEmbedded */,
                 new Rect(0, 0, 500, 1000),
                 new Rect(0, 0, 1000, 2000),
