@@ -21,6 +21,15 @@ package androidx.compose.material3.adaptive {
     method @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Composable public static long currentWindowSize();
   }
 
+  @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public enum BackNavigationBehavior {
+    method public static androidx.compose.material3.adaptive.BackNavigationBehavior valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
+    method public static androidx.compose.material3.adaptive.BackNavigationBehavior[] values();
+    enum_constant public static final androidx.compose.material3.adaptive.BackNavigationBehavior PopLatest;
+    enum_constant public static final androidx.compose.material3.adaptive.BackNavigationBehavior PopUntilContentChange;
+    enum_constant public static final androidx.compose.material3.adaptive.BackNavigationBehavior PopUntilCurrentDestinationChange;
+    enum_constant public static final androidx.compose.material3.adaptive.BackNavigationBehavior PopUntilScaffoldValueChange;
+  }
+
   @SuppressCompatibility @kotlin.RequiresOptIn(message="This material3-adaptive API is experimental and is likely to change or to be" + "removed in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalMaterial3AdaptiveApi {
   }
 
@@ -172,11 +181,11 @@ package androidx.compose.material3.adaptive {
   }
 
   @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Stable public interface ThreePaneScaffoldNavigator<T> {
-    method public boolean canNavigateBack(optional boolean scaffoldValueMustChange);
+    method public boolean canNavigateBack(optional androidx.compose.material3.adaptive.BackNavigationBehavior backNavigationBehavior);
     method public androidx.compose.material3.adaptive.ThreePaneScaffoldDestinationItem<T>? getCurrentDestination();
     method public androidx.compose.material3.adaptive.ThreePaneScaffoldState getScaffoldState();
     method public boolean isDestinationHistoryAware();
-    method public boolean navigateBack(optional boolean popUntilScaffoldValueChange);
+    method public boolean navigateBack(optional androidx.compose.material3.adaptive.BackNavigationBehavior backNavigationBehavior);
     method public void navigateTo(androidx.compose.material3.adaptive.ThreePaneScaffoldRole pane, optional T? content);
     method public void setDestinationHistoryAware(boolean);
     property public abstract androidx.compose.material3.adaptive.ThreePaneScaffoldDestinationItem<T>? currentDestination;

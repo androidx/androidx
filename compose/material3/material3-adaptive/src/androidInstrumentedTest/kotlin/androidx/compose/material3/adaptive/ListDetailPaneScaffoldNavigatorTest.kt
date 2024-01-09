@@ -225,7 +225,7 @@ class ListDetailPaneScaffoldNavigatorTest {
     }
 
     @Test
-    fun dualPaneLayout_notEnforceScaffoldValueChange_canNavigateBack() {
+    fun dualPaneLayout_withSimplePop_canNavigateBack() {
         lateinit var scaffoldNavigator: ThreePaneScaffoldNavigator<Int>
 
         composeRule.setContent {
@@ -246,8 +246,8 @@ class ListDetailPaneScaffoldNavigatorTest {
                 scaffoldNavigator.currentDestination?.pane
             ).isEqualTo(ListDetailPaneScaffoldRole.Detail)
             assertThat(scaffoldNavigator.currentDestination?.content).isEqualTo(0)
-            assertThat(scaffoldNavigator.canNavigateBack(false)).isTrue()
-            scaffoldNavigator.navigateBack(false)
+            assertThat(scaffoldNavigator.canNavigateBack(BackNavigationBehavior.PopLatest)).isTrue()
+            scaffoldNavigator.navigateBack(BackNavigationBehavior.PopLatest)
         }
 
         composeRule.runOnIdle {
@@ -258,6 +258,162 @@ class ListDetailPaneScaffoldNavigatorTest {
                 scaffoldNavigator.currentDestination?.pane
             ).isEqualTo(ListDetailPaneScaffoldRole.List)
             assertThat(scaffoldNavigator.currentDestination?.content).isNull()
+        }
+    }
+
+    @Test
+    fun dualPaneLayout_enforceCurrentDestinationChange_canNavigateBack() {
+        lateinit var scaffoldNavigator: ThreePaneScaffoldNavigator<Int>
+
+        composeRule.setContent {
+            scaffoldNavigator = rememberListDetailPaneScaffoldNavigator(
+                scaffoldDirective = MockDualPaneScaffoldDirective,
+                initialDestinationHistory = listOf(
+                    ThreePaneScaffoldDestinationItem(ListDetailPaneScaffoldRole.List, null),
+                    ThreePaneScaffoldDestinationItem(ListDetailPaneScaffoldRole.Detail, 0),
+                    ThreePaneScaffoldDestinationItem(ListDetailPaneScaffoldRole.Detail, 1),
+                )
+            )
+        }
+
+        composeRule.runOnIdle {
+            assertThat(
+                scaffoldNavigator.currentDestination?.pane
+            ).isEqualTo(ListDetailPaneScaffoldRole.Detail)
+            assertThat(scaffoldNavigator.currentDestination?.content).isEqualTo(1)
+            assertThat(
+                scaffoldNavigator.canNavigateBack(
+                    BackNavigationBehavior.PopUntilCurrentDestinationChange
+                )
+            ).isTrue()
+            scaffoldNavigator.navigateBack(BackNavigationBehavior.PopUntilCurrentDestinationChange)
+        }
+
+        composeRule.runOnIdle {
+            assertThat(
+                scaffoldNavigator.currentDestination?.pane
+            ).isEqualTo(ListDetailPaneScaffoldRole.List)
+            assertThat(scaffoldNavigator.currentDestination?.content).isNull()
+        }
+    }
+
+    @Test
+    fun dualPaneLayout_enforceCurrentDestinationChange_cannotNavigateBack() {
+        lateinit var scaffoldNavigator: ThreePaneScaffoldNavigator<Int>
+
+        composeRule.setContent {
+            scaffoldNavigator = rememberListDetailPaneScaffoldNavigator(
+                scaffoldDirective = MockDualPaneScaffoldDirective,
+                initialDestinationHistory = listOf(
+                    ThreePaneScaffoldDestinationItem(ListDetailPaneScaffoldRole.Detail, 0),
+                    ThreePaneScaffoldDestinationItem(ListDetailPaneScaffoldRole.Detail, 1),
+                )
+            )
+        }
+
+        composeRule.runOnIdle {
+            assertThat(
+                scaffoldNavigator.currentDestination?.pane
+            ).isEqualTo(ListDetailPaneScaffoldRole.Detail)
+            assertThat(scaffoldNavigator.currentDestination?.content).isEqualTo(1)
+            assertThat(
+                scaffoldNavigator.canNavigateBack(
+                    BackNavigationBehavior.PopUntilCurrentDestinationChange
+                )
+            ).isFalse()
+        }
+    }
+
+    @Test
+    fun dualPaneLayout_enforceContentChange_canNavigateBack() {
+        lateinit var scaffoldNavigator: ThreePaneScaffoldNavigator<Int>
+
+        composeRule.setContent {
+            scaffoldNavigator = rememberListDetailPaneScaffoldNavigator(
+                scaffoldDirective = MockDualPaneScaffoldDirective,
+                initialDestinationHistory = listOf(
+                    ThreePaneScaffoldDestinationItem(ListDetailPaneScaffoldRole.List, null),
+                    ThreePaneScaffoldDestinationItem(ListDetailPaneScaffoldRole.Detail, 0),
+                    ThreePaneScaffoldDestinationItem(ListDetailPaneScaffoldRole.Detail, 1),
+                )
+            )
+        }
+
+        composeRule.runOnIdle {
+            assertThat(
+                scaffoldNavigator.currentDestination?.pane
+            ).isEqualTo(ListDetailPaneScaffoldRole.Detail)
+            assertThat(scaffoldNavigator.currentDestination?.content).isEqualTo(1)
+            assertThat(
+                scaffoldNavigator.canNavigateBack(BackNavigationBehavior.PopUntilContentChange)
+            ).isTrue()
+            scaffoldNavigator.navigateBack(BackNavigationBehavior.PopUntilContentChange)
+        }
+
+        composeRule.runOnIdle {
+            assertThat(
+                scaffoldNavigator.currentDestination?.pane
+            ).isEqualTo(ListDetailPaneScaffoldRole.Detail)
+            assertThat(scaffoldNavigator.currentDestination?.content).isEqualTo(0)
+        }
+    }
+
+    @Test
+    fun dualPaneLayout_enforceContentChange_canNavigateBack_withOnlyScaffoldValueChange() {
+        lateinit var scaffoldNavigator: ThreePaneScaffoldNavigator<Int>
+
+        composeRule.setContent {
+            scaffoldNavigator = rememberListDetailPaneScaffoldNavigator(
+                scaffoldDirective = MockDualPaneScaffoldDirective,
+                initialDestinationHistory = listOf(
+                    ThreePaneScaffoldDestinationItem(ListDetailPaneScaffoldRole.List, 0),
+                    ThreePaneScaffoldDestinationItem(ListDetailPaneScaffoldRole.Detail, 0),
+                    ThreePaneScaffoldDestinationItem(ListDetailPaneScaffoldRole.Extra, 0),
+                )
+            )
+        }
+
+        composeRule.runOnIdle {
+            assertThat(
+                scaffoldNavigator.currentDestination?.pane
+            ).isEqualTo(ListDetailPaneScaffoldRole.Extra)
+            assertThat(scaffoldNavigator.currentDestination?.content).isEqualTo(0)
+            assertThat(
+                scaffoldNavigator.canNavigateBack(BackNavigationBehavior.PopUntilContentChange)
+            ).isTrue()
+            scaffoldNavigator.navigateBack(BackNavigationBehavior.PopUntilContentChange)
+        }
+
+        composeRule.runOnIdle {
+            assertThat(
+                scaffoldNavigator.currentDestination?.pane
+            ).isEqualTo(ListDetailPaneScaffoldRole.Detail)
+            assertThat(scaffoldNavigator.currentDestination?.content).isEqualTo(0)
+        }
+    }
+
+    @Test
+    fun dualPaneLayout_enforceContentChange_cannotNavigateBack() {
+        lateinit var scaffoldNavigator: ThreePaneScaffoldNavigator<Int>
+
+        composeRule.setContent {
+            scaffoldNavigator = rememberListDetailPaneScaffoldNavigator(
+                scaffoldDirective = MockDualPaneScaffoldDirective,
+                initialDestinationHistory = listOf(
+                    ThreePaneScaffoldDestinationItem(ListDetailPaneScaffoldRole.List, 0),
+                    ThreePaneScaffoldDestinationItem(ListDetailPaneScaffoldRole.Detail, 0),
+                )
+            )
+        }
+
+        composeRule.runOnIdle {
+            assertThat(
+                scaffoldNavigator.currentDestination?.pane
+            ).isEqualTo(ListDetailPaneScaffoldRole.Detail)
+            assertThat(scaffoldNavigator.currentDestination?.content).isEqualTo(0)
+            assertThat(
+                scaffoldNavigator.canNavigateBack(BackNavigationBehavior.PopUntilContentChange)
+            ).isFalse()
         }
     }
 

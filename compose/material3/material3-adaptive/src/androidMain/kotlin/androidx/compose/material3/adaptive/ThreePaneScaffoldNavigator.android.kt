@@ -86,28 +86,34 @@ interface ThreePaneScaffoldNavigator<T> {
     fun navigateTo(pane: ThreePaneScaffoldRole, content: T? = null)
 
     /**
-     * Returns `true` if there is a previous destination to navigate back to. When implementing this
-     * function, please make sure the logic is consistent with [navigateBack].
+     * Returns `true` if there is a previous destination to navigate back to.
      *
-     * @param scaffoldValueMustChange `true` if we should skip all backstack entries without any
-     *        scaffold value changes and if there's no backstack entry can provide a different
-     *        scaffold value, the function should return `false`. See [navigateBack] for more
-     *        detailed info.
+     * Implementors of this interface should ensure the logic of this function is consistent with
+     * [navigateBack].
+     *
+     * @param backNavigationBehavior the behavior describing which backstack entries may be skipped
+     * during the back navigation. See [BackNavigationBehavior].
      */
-    fun canNavigateBack(scaffoldValueMustChange: Boolean = true): Boolean
+    fun canNavigateBack(
+        backNavigationBehavior: BackNavigationBehavior =
+            BackNavigationBehavior.PopUntilScaffoldValueChange
+    ): Boolean
 
     /**
      * Navigates to the previous destination. Returns `true` if there is a previous destination to
      * navigate back to. When implementing this function, please make sure the logic is consistent
      * with [canNavigateBack].
      *
-     * @param popUntilScaffoldValueChange `true` if we should skip all backstack entries without any
-     *        scaffold value changes. This may happen in a multi-pane scenario that both the current
-     *        destination and the last destination are both shown and just popping one backstack
-     *        entry won't cause scaffold value change. In this case, people may want to keep popping
-     *        backstack entries until there's a value change.
+     * Implementors of this interface should ensure the logic of this function is consistent with
+     * [canNavigateBack].
+     *
+     * @param backNavigationBehavior the behavior describing which backstack entries may be skipped
+     * during the back navigation. See [BackNavigationBehavior].
      */
-    fun navigateBack(popUntilScaffoldValueChange: Boolean = true): Boolean
+    fun navigateBack(
+        backNavigationBehavior: BackNavigationBehavior =
+            BackNavigationBehavior.PopUntilScaffoldValueChange
+    ): Boolean
 }
 
 /**
@@ -236,11 +242,11 @@ internal class DefaultThreePaneScaffoldNavigator<T>(
         destinationHistory.add(ThreePaneScaffoldDestinationItem(pane, content))
     }
 
-    override fun canNavigateBack(scaffoldValueMustChange: Boolean): Boolean =
-        getPreviousDestinationIndex(scaffoldValueMustChange) >= 0
+    override fun canNavigateBack(backNavigationBehavior: BackNavigationBehavior): Boolean =
+        getPreviousDestinationIndex(backNavigationBehavior) >= 0
 
-    override fun navigateBack(popUntilScaffoldValueChange: Boolean): Boolean {
-        val previousDestinationIndex = getPreviousDestinationIndex(popUntilScaffoldValueChange)
+    override fun navigateBack(backNavigationBehavior: BackNavigationBehavior): Boolean {
+        val previousDestinationIndex = getPreviousDestinationIndex(backNavigationBehavior)
         if (previousDestinationIndex < 0) {
             destinationHistory.clear()
             return false
@@ -252,20 +258,44 @@ internal class DefaultThreePaneScaffoldNavigator<T>(
         return true
     }
 
-    private fun getPreviousDestinationIndex(withScaffoldValueChange: Boolean): Int {
+    private fun getPreviousDestinationIndex(backNavBehavior: BackNavigationBehavior): Int {
         if (destinationHistory.size <= 1) {
             // No previous destination
             return -1
         }
-        if (!withScaffoldValueChange) {
-            return destinationHistory.lastIndex - 1
+        when (backNavBehavior) {
+            BackNavigationBehavior.PopLatest -> return destinationHistory.lastIndex - 1
+
+            BackNavigationBehavior.PopUntilScaffoldValueChange ->
+                for (previousDestinationIndex in destinationHistory.lastIndex - 1 downTo 0) {
+                    val previousValue = calculateScaffoldValue(previousDestinationIndex)
+                    if (previousValue != scaffoldValue) {
+                        return previousDestinationIndex
+                    }
+                }
+
+            BackNavigationBehavior.PopUntilCurrentDestinationChange ->
+                for (previousDestinationIndex in destinationHistory.lastIndex - 1 downTo 0) {
+                    val destination = destinationHistory[previousDestinationIndex].pane
+                    if (destination != currentDestination?.pane) {
+                        return previousDestinationIndex
+                    }
+                }
+
+            BackNavigationBehavior.PopUntilContentChange ->
+                for (previousDestinationIndex in destinationHistory.lastIndex - 1 downTo 0) {
+                    val content = destinationHistory[previousDestinationIndex].content
+                    if (content != currentDestination?.content) {
+                        return previousDestinationIndex
+                    }
+                    // A scaffold value change also counts as a content change.
+                    val previousValue = calculateScaffoldValue(previousDestinationIndex)
+                    if (previousValue != scaffoldValue) {
+                        return previousDestinationIndex
+                    }
+                }
         }
-        for (previousDestinationIndex in destinationHistory.lastIndex - 1 downTo 0) {
-            val newValue = calculateScaffoldValue(previousDestinationIndex)
-            if (newValue != scaffoldValue) {
-                return previousDestinationIndex
-            }
-        }
+
         return -1
     }
 
