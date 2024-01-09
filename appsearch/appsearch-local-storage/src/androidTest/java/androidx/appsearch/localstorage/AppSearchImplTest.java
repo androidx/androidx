@@ -20,6 +20,7 @@ import static androidx.appsearch.app.AppSearchResult.RESULT_INVALID_ARGUMENT;
 import static androidx.appsearch.localstorage.util.PrefixUtil.addPrefixToDocument;
 import static androidx.appsearch.localstorage.util.PrefixUtil.createPrefix;
 import static androidx.appsearch.localstorage.util.PrefixUtil.removePrefixesFromDocument;
+import static androidx.appsearch.localstorage.visibilitystore.VisibilityStore.ANDROID_V_OVERLAY_DATABASE_NAME;
 import static androidx.appsearch.localstorage.visibilitystore.VisibilityStore.VISIBILITY_DATABASE_NAME;
 import static androidx.appsearch.localstorage.visibilitystore.VisibilityStore.VISIBILITY_PACKAGE_NAME;
 
@@ -2434,7 +2435,9 @@ public class AppSearchImplTest {
                 "package2$database1/type3",
                 "VS#Pkg$VS#Db/VisibilityType",  // plus the stored Visibility schema
                 "VS#Pkg$VS#Db/VisibilityPermissionType",
-                "VS#Pkg$VS#Db/PublicAclOverlayType");
+                "VS#Pkg$VS#AndroidVDb/AndroidVOverlayType",
+                "VS#Pkg$VS#AndroidVDb/VisibleToConfigType",
+                "VS#Pkg$VS#AndroidVDb/VisibilityPermissionType");
     }
 
     @FlakyTest(bugId = 204186664)
@@ -3082,7 +3085,7 @@ public class AppSearchImplTest {
                 .isEqualTo(2);
         assertThat(
                 storageInfo.getSchemaStoreStorageInfo().getNumSchemaTypes())
-                .isEqualTo(4); // +2 for VisibilitySchema, +1 for VisibilityOverlay
+                .isEqualTo(6); // +2 for VisibilitySchema, +3 for VisibilityOverlay
     }
 
     @Test
@@ -3127,7 +3130,7 @@ public class AppSearchImplTest {
                 debugInfo.getDocumentInfo().getDocumentStorageInfo().getNumAliveDocuments())
                 .isEqualTo(2);
         assertThat(debugInfo.getSchemaInfo().getSchema().getTypesList())
-                .hasSize(4); // +2 for VisibilitySchema, +1 for VisibilityOverlay
+                .hasSize(6); // +2 for VisibilitySchema, +3 for VisibilityOverlay
     }
 
     @Test
@@ -4277,8 +4280,7 @@ public class AppSearchImplTest {
                 VisibilityToDocumentConverter.VISIBILITY_DOCUMENT_NAMESPACE,
                 /*id=*/ prefix + "Email",
                 /*typePropertyPaths=*/ Collections.emptyMap()),
-                        /*publicAclDocument=*/null,
-                        /*visibleToConfigDocument=*/null);
+                        /*androidVOverlayDocument=*/null);
         assertThat(actualDocument).isEqualTo(expectedDocument);
     }
 
@@ -4320,8 +4322,7 @@ public class AppSearchImplTest {
                         VisibilityToDocumentConverter.VISIBILITY_DOCUMENT_NAMESPACE,
                         /*id=*/ prefix1 + "Email1",
                         /*typePropertyPaths=*/ Collections.emptyMap()),
-                /*publicAclDocument=*/null,
-                /*visibleToConfigDocument=*/null);
+                /*androidVOverlayDocument=*/null);
 
         assertThat(actualDocument1).isEqualTo(expectedDocument1);
 
@@ -4361,8 +4362,7 @@ public class AppSearchImplTest {
                 VisibilityToDocumentConverter.VISIBILITY_DOCUMENT_NAMESPACE,
                 /*id=*/ prefix2 + "Email2",
                 /*typePropertyPaths=*/ Collections.emptyMap()),
-                /*publicAclDocument=*/null,
-                /*visibleToConfigDocument=*/null);
+                /*androidVOverlayDocument=*/null);
         assertThat(actualDocument2).isEqualTo(expectedDocument2);
 
         // Check the existing visibility document retains.
@@ -4377,8 +4377,7 @@ public class AppSearchImplTest {
                         VisibilityToDocumentConverter.VISIBILITY_DOCUMENT_NAMESPACE,
                         /*id=*/ prefix1 + "Email1",
                         /*typePropertyPaths=*/ Collections.emptyMap()),
-                /*publicAclDocument=*/null,
-                /*visibleToConfigDocument=*/null);
+                /*androidVOverlayDocument=*/null);
         assertThat(actualDocument1).isEqualTo(expectedDocument1);
     }
 
@@ -4418,8 +4417,7 @@ public class AppSearchImplTest {
                 VisibilityToDocumentConverter.VISIBILITY_DOCUMENT_NAMESPACE,
                 /*id=*/ prefix + "Email",
                 /*typePropertyPaths=*/ Collections.emptyMap()),
-                        /*publicAclDocument=*/null,
-                        /*visibleToConfigDocument=*/null);
+                        /*androidVOverlayDocument=*/null);
         assertThat(actualDocument).isEqualTo(expectedDocument);
 
         // Set schema Email and its all-default visibility document to AppSearch database1
@@ -4483,8 +4481,7 @@ public class AppSearchImplTest {
                 VisibilityToDocumentConverter.VISIBILITY_DOCUMENT_NAMESPACE,
                 /*id=*/ prefix + "Email",
                 /*typePropertyPaths=*/ Collections.emptyMap()),
-                        /*publicAclDocument=*/null,
-                        /*visibleToConfigDocument=*/null);
+                        /*androidVOverlayDocument=*/null);
         assertThat(actualDocument).isEqualTo(expectedDocument);
 
         // remove the schema and visibility setting from AppSearch
@@ -4569,8 +4566,7 @@ public class AppSearchImplTest {
                 VisibilityToDocumentConverter.VISIBILITY_DOCUMENT_NAMESPACE,
                 /*id=*/ prefix + "Email",
                 /*typePropertyPaths=*/ Collections.emptyMap()),
-                        /*publicAclDocument=*/null,
-                        /*visibleToConfigDocument=*/null);
+                        /*androidVOverlayDocument=*/null);
         assertThat(actualDocument).isEqualTo(expectedDocument);
 
         // remove schema and visibility document
@@ -4902,20 +4898,20 @@ public class AppSearchImplTest {
         // Now check for documents
         GenericDocument visibilityOverlayA = mAppSearchImpl.getDocument(
                 VISIBILITY_PACKAGE_NAME,
-                VISIBILITY_DATABASE_NAME,
-                VisibilityToDocumentConverter.PUBLIC_ACL_OVERLAY_NAMESPACE,
+                ANDROID_V_OVERLAY_DATABASE_NAME,
+                VisibilityToDocumentConverter.ANDROID_V_OVERLAY_NAMESPACE,
                 "package$database/PublicTypeA",
                 Collections.emptyMap());
         GenericDocument visibilityOverlayB = mAppSearchImpl.getDocument(
                 VISIBILITY_PACKAGE_NAME,
-                VISIBILITY_DATABASE_NAME,
-                VisibilityToDocumentConverter.PUBLIC_ACL_OVERLAY_NAMESPACE,
+                ANDROID_V_OVERLAY_DATABASE_NAME,
+                VisibilityToDocumentConverter.ANDROID_V_OVERLAY_NAMESPACE,
                 "package$database/PublicTypeB",
                 Collections.emptyMap());
         GenericDocument visibilityOverlayC = mAppSearchImpl.getDocument(
                 VISIBILITY_PACKAGE_NAME,
-                VISIBILITY_DATABASE_NAME,
-                VisibilityToDocumentConverter.PUBLIC_ACL_OVERLAY_NAMESPACE,
+                ANDROID_V_OVERLAY_DATABASE_NAME,
+                VisibilityToDocumentConverter.ANDROID_V_OVERLAY_NAMESPACE,
                 "package$database/PublicTypeC",
                 Collections.emptyMap());
 
@@ -4944,17 +4940,17 @@ public class AppSearchImplTest {
         // Now check for documents again
         Exception e = assertThrows(AppSearchException.class, () -> mAppSearchImpl.getDocument(
                 VISIBILITY_PACKAGE_NAME, VISIBILITY_DATABASE_NAME,
-                VisibilityToDocumentConverter.PUBLIC_ACL_OVERLAY_NAMESPACE,
+                VisibilityToDocumentConverter.ANDROID_V_OVERLAY_NAMESPACE,
                 "package$database/PublicTypeA", Collections.emptyMap()));
         assertThat(e.getMessage()).endsWith("not found.");
         e = assertThrows(AppSearchException.class, () -> mAppSearchImpl.getDocument(
                 VISIBILITY_PACKAGE_NAME, VISIBILITY_DATABASE_NAME,
-                VisibilityToDocumentConverter.PUBLIC_ACL_OVERLAY_NAMESPACE,
+                VisibilityToDocumentConverter.ANDROID_V_OVERLAY_NAMESPACE,
                 "package$database/PublicTypeB", Collections.emptyMap()));
         assertThat(e.getMessage()).endsWith("not found.");
         e = assertThrows(AppSearchException.class, () -> mAppSearchImpl.getDocument(
                 VISIBILITY_PACKAGE_NAME, VISIBILITY_DATABASE_NAME,
-                VisibilityToDocumentConverter.PUBLIC_ACL_OVERLAY_NAMESPACE,
+                VisibilityToDocumentConverter.ANDROID_V_OVERLAY_NAMESPACE,
                 "package$database/PublicTypeC", Collections.emptyMap()));
         assertThat(e.getMessage()).endsWith("not found.");
     }

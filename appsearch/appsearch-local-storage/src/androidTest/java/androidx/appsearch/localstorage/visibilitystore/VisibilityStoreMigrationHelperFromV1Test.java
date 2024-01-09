@@ -139,8 +139,7 @@ public class VisibilityStoreMigrationHelperFromV1Test {
                         VisibilityToDocumentConverter.VISIBILITY_DOCUMENT_NAMESPACE,
                         /*id=*/ prefix + "Schema",
                         /*typePropertyPaths=*/ Collections.emptyMap()),
-                /*publicAclDocument=*/null,
-                /*visibleToConfigDocument=*/null);
+                /*androidVOverlayDocument=*/null);
 
         assertThat(actualConfig.isNotDisplayedBySystem()).isTrue();
         assertThat(actualConfig.getVisibleToPackages())

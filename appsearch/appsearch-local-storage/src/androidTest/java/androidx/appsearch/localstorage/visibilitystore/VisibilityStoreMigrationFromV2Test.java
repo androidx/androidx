@@ -91,27 +91,31 @@ public class VisibilityStoreMigrationFromV2Test {
                 ALWAYS_OPTIMIZE,
                 /*visibilityChecker=*/null);
 
-        InternalSetSchemaResponse internalSetSchemaResponse = appSearchImplInV2.setSchema(
+        // Erase overlay schemas since it doesn't exist in released V2 schema.
+        InternalSetSchemaResponse internalSetAndroidVSchemaResponse = appSearchImplInV2.setSchema(
                 VisibilityStore.VISIBILITY_PACKAGE_NAME,
-                VisibilityStore.VISIBILITY_DATABASE_NAME,
+                VisibilityStore.ANDROID_V_OVERLAY_DATABASE_NAME,
                 // no overlay schema
-                ImmutableList.of(VisibilityPermissionConfig.SCHEMA,
-                        VisibilityToDocumentConverter.VISIBILITY_DOCUMENT_SCHEMA),
+                ImmutableList.of(),
                 /*prefixedVisibilityBundles=*/ Collections.emptyList(),
                 /*forceOverride=*/ true, // force push the old version into disk
-                /*version=*/ 2, //SCHEMA_VERSION_NESTED_PERMISSION_SCHEMA
+                VisibilityToDocumentConverter.ANDROID_V_OVERLAY_SCHEMA_VERSION,
                 /*setSchemaStatsBuilder=*/ null);
+        assertThat(internalSetAndroidVSchemaResponse.isSuccess()).isTrue();
 
         GetSchemaResponse getSchemaResponse = appSearchImplInV2.getSchema(
                 VisibilityStore.VISIBILITY_PACKAGE_NAME,
                 VisibilityStore.VISIBILITY_DATABASE_NAME,
                 new CallerAccess(/*callingPackageName=*/VisibilityStore.VISIBILITY_PACKAGE_NAME));
-        assertThat(getSchemaResponse.getSchemas()).contains(
-                VisibilityToDocumentConverter.VISIBILITY_DOCUMENT_SCHEMA);
-        assertThat(getSchemaResponse.getSchemas()).doesNotContain(
-                VisibilityToDocumentConverter.PUBLIC_ACL_OVERLAY_SCHEMA);
+        assertThat(getSchemaResponse.getSchemas()).containsExactly(
+                VisibilityToDocumentConverter.VISIBILITY_DOCUMENT_SCHEMA,
+                VisibilityPermissionConfig.SCHEMA);
+        GetSchemaResponse getAndroidVOverlaySchemaResponse = appSearchImplInV2.getSchema(
+                VisibilityStore.VISIBILITY_PACKAGE_NAME,
+                VisibilityStore.ANDROID_V_OVERLAY_DATABASE_NAME,
+                new CallerAccess(/*callingPackageName=*/VisibilityStore.VISIBILITY_PACKAGE_NAME));
+        assertThat(getAndroidVOverlaySchemaResponse.getSchemas()).isEmpty();
 
-        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
         // Build deprecated visibility documents in version 2
         String prefix = PrefixUtil.createPrefix("package", "database");
         VisibilityConfig visibilityConfigV2 = new VisibilityConfig.Builder(prefix + "Schema")
@@ -133,7 +137,7 @@ public class VisibilityStoreMigrationFromV2Test {
 
         // Set client schema into AppSearchImpl with empty VisibilityDocument since we need to
         // directly put old version of VisibilityDocument.
-        internalSetSchemaResponse = appSearchImplInV2.setSchema(
+        InternalSetSchemaResponse internalSetSchemaResponse = appSearchImplInV2.setSchema(
                 "package",
                 "database",
                 ImmutableList.of(
@@ -167,8 +171,7 @@ public class VisibilityStoreMigrationFromV2Test {
                         VisibilityToDocumentConverter.VISIBILITY_DOCUMENT_NAMESPACE,
                         /*id=*/ prefix + "Schema",
                         /*typePropertyPaths=*/ Collections.emptyMap()),
-                /*publicAclDocument=*/null,
-                /*visibleToConfigDocument=*/null);
+                /*androidVOverlayDocument=*/null);
 
         assertThat(actualConfig.isNotDisplayedBySystem()).isTrue();
         assertThat(actualConfig.getVisibleToPackages())
@@ -184,21 +187,27 @@ public class VisibilityStoreMigrationFromV2Test {
                 VisibilityStore.VISIBILITY_PACKAGE_NAME,
                 VisibilityStore.VISIBILITY_DATABASE_NAME,
                 new CallerAccess(/*callingPackageName=*/VisibilityStore.VISIBILITY_PACKAGE_NAME));
-        assertThat(getSchemaResponse.getSchemas())
-                .contains(VisibilityToDocumentConverter.VISIBILITY_DOCUMENT_SCHEMA);
-        assertThat(getSchemaResponse.getSchemas())
-                .contains(VisibilityToDocumentConverter.PUBLIC_ACL_OVERLAY_SCHEMA);
+        assertThat(getSchemaResponse.getSchemas()).containsExactly(
+                VisibilityToDocumentConverter.VISIBILITY_DOCUMENT_SCHEMA,
+                VisibilityPermissionConfig.SCHEMA);
+        getAndroidVOverlaySchemaResponse = appSearchImpl.getSchema(
+                VisibilityStore.VISIBILITY_PACKAGE_NAME,
+                VisibilityStore.ANDROID_V_OVERLAY_DATABASE_NAME,
+                new CallerAccess(/*callingPackageName=*/VisibilityStore.VISIBILITY_PACKAGE_NAME));
+        assertThat(getAndroidVOverlaySchemaResponse.getSchemas()).containsExactly(
+                VisibilityToDocumentConverter.ANDROID_V_OVERLAY_SCHEMA,
+                VisibilityToDocumentConverter.VISIBLE_TO_CONFIG_SCHEMA,
+                VisibilityPermissionConfig.SCHEMA);
 
         // But no overlay document was created.
         AppSearchException e = assertThrows(AppSearchException.class,
                  () -> appSearchImpl.getDocument(
                         VisibilityStore.VISIBILITY_PACKAGE_NAME,
-                        VisibilityStore.VISIBILITY_DATABASE_NAME,
-                         VisibilityToDocumentConverter.PUBLIC_ACL_OVERLAY_NAMESPACE,
+                        VisibilityStore.ANDROID_V_OVERLAY_DATABASE_NAME,
+                         VisibilityToDocumentConverter.ANDROID_V_OVERLAY_NAMESPACE,
                         /*id=*/ prefix + "Schema",
                         /*typePropertyPaths=*/ Collections.emptyMap()));
-        assertThat(e.getMessage()).isEqualTo(
-                "Document (VS#Pkg$VS#Db/publicAclOverlay, package$database/Schema) not found.");
+        assertThat(e).hasMessageThat().contains("not found");
 
         appSearchImpl.close();
     }
