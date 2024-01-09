@@ -28,6 +28,7 @@ import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.camera2.pipe.integration.compat.quirk.DeviceQuirks as PipeDeviceQuirks
 import androidx.camera.camera2.pipe.integration.compat.quirk.ExtraCroppingQuirk as PipeExtraCroppingQuirk
 import androidx.camera.core.CameraInfo
+import androidx.camera.core.UseCase
 import androidx.camera.video.internal.compat.quirk.DeviceQuirks
 import androidx.camera.video.internal.compat.quirk.StopCodecAfterSurfaceRemovalCrashMediaServerQuirk
 import com.google.common.truth.Truth.assertThat
@@ -82,3 +83,10 @@ fun verifyVideoResolution(context: Context, file: File, expectedResolution: Size
         assertThat(it.getRotatedResolution()).isEqualTo(expectedResolution)
     }
 }
+
+@RequiresApi(21)
+fun isStreamSharingEnabled(useCase: UseCase) = !useCase.camera!!.hasTransform
+
+@RequiresApi(21)
+fun isSurfaceProcessingEnabled(videoCapture: VideoCapture<*>) =
+    videoCapture.node != null || isStreamSharingEnabled(videoCapture)

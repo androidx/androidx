@@ -44,6 +44,7 @@ import static androidx.camera.core.internal.ThreadConfig.OPTION_BACKGROUND_EXECU
 import static androidx.camera.core.internal.UseCaseEventConfig.OPTION_USE_CASE_EVENT_CALLBACK;
 import static androidx.camera.video.QualitySelector.getQualityToResolutionMap;
 import static androidx.camera.video.StreamInfo.STREAM_ID_ERROR;
+import static androidx.camera.video.impl.VideoCaptureConfig.OPTION_FORCE_ENABLE_SURFACE_PROCESSING;
 import static androidx.camera.video.impl.VideoCaptureConfig.OPTION_VIDEO_ENCODER_INFO_FINDER;
 import static androidx.camera.video.impl.VideoCaptureConfig.OPTION_VIDEO_OUTPUT;
 import static androidx.camera.video.internal.config.VideoConfigUtil.resolveVideoEncoderConfig;
@@ -620,7 +621,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             // pipeline when the transformation becomes invalid.
             mHasCompensatingTransformation = true;
         }
-        mNode = createNodeIfNeeded(camera, mCropRect, resolution, dynamicRange);
+        mNode = createNodeIfNeeded(camera, config, mCropRect, resolution, dynamicRange);
         // Choose Timebase based on the whether the buffer is copied.
         Timebase timebase;
         if (mNode != null || !camera.getHasTransform()) {
@@ -901,10 +902,12 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
 
     @Nullable
     private SurfaceProcessorNode createNodeIfNeeded(@NonNull CameraInternal camera,
+            @NonNull VideoCaptureConfig<T> config,
             @NonNull Rect cropRect,
             @NonNull Size resolution,
             @NonNull DynamicRange dynamicRange) {
         if (getEffect() != null
+                || shouldEnableSurfaceProcessingByConfig(camera, config)
                 || shouldEnableSurfaceProcessingByQuirk(camera)
                 || shouldCrop(cropRect, resolution)
                 || shouldMirror(camera)
@@ -1090,6 +1093,13 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     private static boolean shouldCrop(@NonNull Rect cropRect, @NonNull Size resolution) {
         return resolution.getWidth() != cropRect.width()
                 || resolution.getHeight() != cropRect.height();
+    }
+
+    private static <T extends VideoOutput> boolean shouldEnableSurfaceProcessingByConfig(
+            @NonNull CameraInternal camera, @NonNull VideoCaptureConfig<T> config) {
+        // If there has been a buffer copy, it means the surface processing is already enabled on
+        // input stream. Otherwise, enable it as needed.
+        return camera.getHasTransform() && config.isSurfaceProcessingForceEnabled();
     }
 
     private static boolean shouldEnableSurfaceProcessingByQuirk(@NonNull CameraInternal camera) {
@@ -1872,6 +1882,27 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         @Override
         public Builder<T> setCaptureType(@NonNull UseCaseConfigFactory.CaptureType captureType) {
             getMutableConfig().insertOption(OPTION_CAPTURE_TYPE, captureType);
+            return this;
+        }
+
+        /**
+         * Forces surface processing to be enabled.
+         *
+         * <p>Typically, surface processing is automatically enabled only when required for a
+         * specific effect. However, calling this method will force it to be enabled even if no
+         * effect is required. Surface processing creates additional processing through the OpenGL
+         * pipeline, affecting performance and memory usage. Camera service may treat the surface
+         * differently, potentially impacting video quality and stabilization. So it is generally
+         * not recommended to enable it.
+         *
+         * <p>One example where it might be useful is to work around device compatibility issues.
+         * For example, UHD video recording might not work on some devices, but enabling surface
+         * processing could work around the issue.
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public Builder<T> setSurfaceProcessingForceEnabled() {
+            getMutableConfig().insertOption(OPTION_FORCE_ENABLE_SURFACE_PROCESSING, true);
             return this;
         }
     }
