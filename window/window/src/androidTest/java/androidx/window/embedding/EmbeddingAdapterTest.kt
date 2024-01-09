@@ -17,6 +17,7 @@
 package androidx.window.embedding
 
 import android.app.Activity
+import android.graphics.Color
 import android.os.Binder
 import android.os.IBinder
 import androidx.window.WindowTestUtils
@@ -27,6 +28,7 @@ import androidx.window.embedding.EmbeddingAdapter.Companion.INVALID_SPLIT_INFO_T
 import androidx.window.embedding.SplitAttributes.SplitType
 import androidx.window.embedding.SplitAttributes.SplitType.Companion.SPLIT_TYPE_HINGE
 import androidx.window.extensions.embedding.ActivityStack as OEMActivityStack
+import androidx.window.extensions.embedding.AnimationBackground as OEMEmbeddingAnimationBackground
 import androidx.window.extensions.embedding.SplitAttributes as OEMSplitAttributes
 import androidx.window.extensions.embedding.SplitAttributes.LayoutDirection.TOP_TO_BOTTOM
 import androidx.window.extensions.embedding.SplitAttributes.SplitType.RatioSplitType
@@ -166,6 +168,58 @@ class EmbeddingAdapterTest {
             testSplitInfoToken,
         )
         assertEquals(listOf(expectedSplitInfo), adapter.translate(listOf(oemSplitInfo)))
+    }
+
+    @Test
+    fun testTranslateAnimationBackgroundWithApiLevel5() {
+        WindowTestUtils.assumeAtLeastVendorApiLevel(5)
+
+        val colorBackground = EmbeddingAnimationBackground.createColorBackground(Color.BLUE)
+        val splitAttributesWithColorBackground = SplitAttributes.Builder()
+            .setAnimationBackground(colorBackground)
+            .build()
+        val splitAttributesWithDefaultBackground = SplitAttributes.Builder()
+            .setAnimationBackground(EmbeddingAnimationBackground.DEFAULT)
+            .build()
+
+        val extensionsColorBackground =
+            OEMEmbeddingAnimationBackground.createColorBackground(Color.BLUE)
+        val extensionsSplitAttributesWithColorBackground = OEMSplitAttributes.Builder()
+            .setAnimationBackground(extensionsColorBackground)
+            .build()
+        val extensionsSplitAttributesWithDefaultBackground = OEMSplitAttributes.Builder()
+            .setAnimationBackground(OEMEmbeddingAnimationBackground.ANIMATION_BACKGROUND_DEFAULT)
+            .build()
+
+        // Translate from Window to Extensions
+        assertEquals(extensionsColorBackground,
+            adapter.translateSplitAttributes(splitAttributesWithColorBackground))
+        assertEquals(extensionsSplitAttributesWithDefaultBackground,
+            adapter.translateSplitAttributes(splitAttributesWithDefaultBackground))
+
+        // Translate from Extensions to Window
+        assertEquals(splitAttributesWithColorBackground,
+            adapter.translate(extensionsSplitAttributesWithColorBackground))
+        assertEquals(splitAttributesWithDefaultBackground,
+            adapter.translate(extensionsSplitAttributesWithDefaultBackground))
+    }
+
+    @Test
+    fun testTranslateAnimationBackgroundBeforeApiLevel5() {
+        WindowTestUtils.assumeAtLeastVendorApiLevel(2)
+        WindowTestUtils.assumeBeforeVendorApiLevel(5)
+
+        val colorBackground = EmbeddingAnimationBackground.createColorBackground(Color.BLUE)
+        val splitAttributesWithColorBackground = SplitAttributes.Builder()
+            .setAnimationBackground(colorBackground)
+            .build()
+        val splitAttributesWithDefaultBackground = SplitAttributes.Builder()
+            .setAnimationBackground(EmbeddingAnimationBackground.DEFAULT)
+            .build()
+
+        // No difference after translate before API level 5
+        assertEquals(adapter.translateSplitAttributes(splitAttributesWithColorBackground),
+            adapter.translateSplitAttributes(splitAttributesWithDefaultBackground))
     }
 
     private fun createTestOEMSplitInfo(
