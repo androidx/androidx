@@ -347,6 +347,36 @@ class AdvancedExtenderValidation(
         )
     }
 
+    // Test
+    fun validateSessionTypeSupport_sinceVersion_1_4() {
+        // Runs the test only when the vendor library implementation is 1.4 or above
+        assumeTrue(ExtensionVersion.getRuntimeVersion()!! >= Version.VERSION_1_4)
+        val camera2SessionConfigImpl = initSession(
+            previewOutputSizeCategory = SizeCategory.MAXIMUM,
+            captureOutputSizeCategory = SizeCategory.MAXIMUM
+        )
+        // getSessionType is allowed to return any OEM customized session type, therefore, we can
+        // only try to invoke this method to make sure that this method correctly exists in the
+        // vendor library implementation.
+        camera2SessionConfigImpl.sessionType
+    }
+
+    // Test
+    fun validateSessionTypeSupportWithOutputSurfaceConfigurationImpl_sinceVersion_1_4() {
+        // Runs the test only when the vendor library implementation is 1.4 or above
+        assumeTrue(ExtensionVersion.getRuntimeVersion()!! >= Version.VERSION_1_4)
+        val camera2SessionConfigImpl = initSession(
+            previewOutputSizeCategory = SizeCategory.MAXIMUM,
+            captureOutputSizeCategory = SizeCategory.MAXIMUM,
+            enablePostview = advancedImpl.isPostviewAvailable,
+            useOutputSurfaceConfigurationImpl = true
+        )
+        // getSessionType is allowed to return any OEM customized session type, therefore, we can
+        // only try to invoke this method to make sure that this method correctly exists in the
+        // vendor library implementation.
+        camera2SessionConfigImpl.sessionType
+    }
+
     fun initSessionTest(
         previewOutputSizeCategory: SizeCategory,
         captureOutputSizeCategory: SizeCategory,
