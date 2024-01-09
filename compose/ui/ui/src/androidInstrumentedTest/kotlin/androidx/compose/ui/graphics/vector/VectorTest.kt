@@ -36,6 +36,7 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -173,6 +174,50 @@ class VectorTest {
         takeScreenShot(450).apply {
             assertEquals(getPixel(430, 430), Color.Cyan.toArgb())
         }
+    }
+
+    @Test
+    fun testVectorSkipsRecompositionOnNoChange() {
+        val state = mutableIntStateOf(0)
+        var composeCount = 0
+        var vectorComposeCount = 0
+
+        val composeVector: @Composable @VectorComposable (Float, Float) -> Unit = {
+                viewportWidth, viewportHeight ->
+
+            vectorComposeCount++
+            Path(
+                fill = SolidColor(Color.Blue),
+                pathData = PathData {
+                    lineTo(viewportWidth, 0f)
+                    lineTo(viewportWidth, viewportHeight)
+                    lineTo(0f, viewportHeight)
+                    close()
+                }
+            )
+        }
+
+        rule.setContent {
+            composeCount++
+            // Arbitrary read to force composition here and verify the subcomposition below skips
+            state.value
+            val vectorPainter = rememberVectorPainter(
+                defaultWidth = 10.dp,
+                defaultHeight = 10.dp,
+                autoMirror = false,
+                content = composeVector
+            )
+            Image(
+                vectorPainter,
+                null,
+                modifier = Modifier.size(20.dp)
+            )
+        }
+
+        state.value = 1
+        rule.waitForIdle()
+        assertEquals(2, composeCount) // Arbitrary state read should compose twice
+        assertEquals(1, vectorComposeCount) // Vector is identical so should compose once
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
