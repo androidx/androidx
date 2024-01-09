@@ -48,7 +48,6 @@ fun runMetalavaWithArgs(
     val allArgs =
         args +
             listOf(
-                "--update-kotlin-nulls", // b/309149849: temporary feature flag
                 "--hide",
                 "HiddenSuperclass", // We allow having a hidden parent class
                 "--hide",
