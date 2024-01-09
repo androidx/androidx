@@ -76,6 +76,7 @@ androidXMultiplatform {
                 //implementation("androidx.graphics:graphics-path:1.0.0-beta01")
                 implementation(project(":graphics:graphics-path"))
                 api(libs.androidx.annotation)
+                api(project(":annotation:annotation-experimental"))
             }
         }
 

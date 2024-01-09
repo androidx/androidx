@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.3.0-alpha10" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha10)" variant="all" version="8.3.0-alpha10">
+<issues format="6" by="lint 8.3.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-beta01)" variant="all" version="8.3.0-beta01">
 
     <issue
         id="UnknownNullness"
@@ -60,6 +60,96 @@
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public void setPrinter(Printer printer) {"
         errorLine2="                           ~~~~~~~">
+        <location
+            file="src/main/java/androidx/gridlayout/widget/GridLayout.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public Spec rowSpec = Spec.UNDEFINED;"
+        errorLine2="               ~~~~">
+        <location
+            file="src/main/java/androidx/gridlayout/widget/GridLayout.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public Spec columnSpec = Spec.UNDEFINED;"
+        errorLine2="               ~~~~">
+        <location
+            file="src/main/java/androidx/gridlayout/widget/GridLayout.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public LayoutParams(Spec rowSpec, Spec columnSpec) {"
+        errorLine2="                            ~~~~">
+        <location
+            file="src/main/java/androidx/gridlayout/widget/GridLayout.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public LayoutParams(Spec rowSpec, Spec columnSpec) {"
+        errorLine2="                                          ~~~~">
+        <location
+            file="src/main/java/androidx/gridlayout/widget/GridLayout.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public LayoutParams(ViewGroup.LayoutParams params) {"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/gridlayout/widget/GridLayout.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public LayoutParams(MarginLayoutParams params) {"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/gridlayout/widget/GridLayout.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public LayoutParams(LayoutParams source) {"
+        errorLine2="                            ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/gridlayout/widget/GridLayout.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public LayoutParams(Context context, AttributeSet attrs) {"
+        errorLine2="                            ~~~~~~~">
+        <location
+            file="src/main/java/androidx/gridlayout/widget/GridLayout.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public LayoutParams(Context context, AttributeSet attrs) {"
+        errorLine2="                                             ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/gridlayout/widget/GridLayout.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public Alignment getAbsoluteAlignment(boolean horizontal) {"
+        errorLine2="               ~~~~~~~~~">
         <location
             file="src/main/java/androidx/gridlayout/widget/GridLayout.java"/>
     </issue>
@@ -168,96 +258,6 @@
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public static Spec spec(int start) {"
         errorLine2="                  ~~~~">
-        <location
-            file="src/main/java/androidx/gridlayout/widget/GridLayout.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public Spec rowSpec = Spec.UNDEFINED;"
-        errorLine2="               ~~~~">
-        <location
-            file="src/main/java/androidx/gridlayout/widget/GridLayout.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public Spec columnSpec = Spec.UNDEFINED;"
-        errorLine2="               ~~~~">
-        <location
-            file="src/main/java/androidx/gridlayout/widget/GridLayout.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public LayoutParams(Spec rowSpec, Spec columnSpec) {"
-        errorLine2="                            ~~~~">
-        <location
-            file="src/main/java/androidx/gridlayout/widget/GridLayout.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public LayoutParams(Spec rowSpec, Spec columnSpec) {"
-        errorLine2="                                          ~~~~">
-        <location
-            file="src/main/java/androidx/gridlayout/widget/GridLayout.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public LayoutParams(ViewGroup.LayoutParams params) {"
-        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/gridlayout/widget/GridLayout.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public LayoutParams(MarginLayoutParams params) {"
-        errorLine2="                            ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/gridlayout/widget/GridLayout.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public LayoutParams(LayoutParams source) {"
-        errorLine2="                            ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/gridlayout/widget/GridLayout.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public LayoutParams(Context context, AttributeSet attrs) {"
-        errorLine2="                            ~~~~~~~">
-        <location
-            file="src/main/java/androidx/gridlayout/widget/GridLayout.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public LayoutParams(Context context, AttributeSet attrs) {"
-        errorLine2="                                             ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/gridlayout/widget/GridLayout.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public Alignment getAbsoluteAlignment(boolean horizontal) {"
-        errorLine2="               ~~~~~~~~~">
         <location
             file="src/main/java/androidx/gridlayout/widget/GridLayout.java"/>
     </issue>

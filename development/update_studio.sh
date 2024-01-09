@@ -7,8 +7,8 @@ function echoAndDo() {
 
 # Versions that the user should update when running this script
 echo Getting Studio version and link
-AGP_VERSION=${1:-8.3.0-alpha10}
-STUDIO_VERSION_STRING=${2:-"Android Studio Iguana | 2023.2.1 Canary 10"}
+AGP_VERSION=${1:-8.3.0-beta01}
+STUDIO_VERSION_STRING=${2:-"Android Studio Iguana | 2023.2.1 Beta 1"}
 
 # Get studio version number from version name
 STUDIO_IFRAME_LINK=`curl "https://developer.android.com/studio/archive.html" | grep "<iframe " | sed "s/.* src=\"\([^\"]*\)\".*/\1/g"`
@@ -56,7 +56,7 @@ while read line
              | tail -n +3 \
              | head -n -1)
 
-ATP_VERSION=${4:-0.0.9-alpha01}
+ATP_VERSION=${4:-0.0.9-alpha02}
 ARTIFACTS_TO_DOWNLOAD+="com.google.testing.platform:android-test-plugin:$ATP_VERSION,"
 ARTIFACTS_TO_DOWNLOAD+="com.google.testing.platform:launcher:$ATP_VERSION,"
 ARTIFACTS_TO_DOWNLOAD+="com.google.testing.platform:android-driver-instrumentation:$ATP_VERSION,"
