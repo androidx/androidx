@@ -262,4 +262,20 @@ class ImageCaptureExtenderValidationTest(private val config: CameraIdExtensionMo
         // PreviewExtenderImpl are the same.
         assertThat(imageCaptureSessionType).isEqualTo(previewSessionType)
     }
+
+    @Test
+    fun validateProcessProgressSupport_sinceVersion_1_4() {
+        // Runs the test only when the vendor library implementation is 1.4 or above
+        assumeTrue(ExtensionVersion.getRuntimeVersion()!! >= Version.VERSION_1_4)
+
+        val imageCaptureExtenderImpl = CameraXExtensionsTestUtil.createImageCaptureExtenderImpl(
+            config.extensionMode,
+            config.cameraId,
+            cameraCharacteristics
+        )
+
+        // Makes sure isCaptureProcessProgressAvailable API can be called without any exception
+        // occurring when the vendor library is 1.4 or above
+        imageCaptureExtenderImpl.isCaptureProcessProgressAvailable
+    }
 }

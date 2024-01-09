@@ -116,4 +116,8 @@ class AdvancedExtenderValidationTest(config: CameraIdExtensionModePair) {
     @Test
     fun validatePostviewSupport_sinceVersion_1_4() =
         validation.validatePostviewSupport_sinceVersion_1_4()
+
+    @Test
+    fun validateProcessProgressSupport_sinceVersion_1_4() =
+        validation.validateProcessProgressSupport_sinceVersion_1_4()
 }

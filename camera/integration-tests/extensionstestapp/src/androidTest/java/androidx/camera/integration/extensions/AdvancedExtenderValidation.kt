@@ -201,6 +201,15 @@ class AdvancedExtenderValidation(
         assertThat(anyPostViewSupported).isTrue()
     }
 
+    // Test
+    fun validateProcessProgressSupport_sinceVersion_1_4() {
+        // Runs the test only when the vendor library implementation is 1.4 or above
+        assumeTrue(ExtensionVersion.getRuntimeVersion()!! >= Version.VERSION_1_4)
+        // Makes sure isCaptureProcessProgressAvailable API can be called without any exception
+        // occurring when the vendor library implementation is version 1.4 or above
+        advancedImpl.isCaptureProcessProgressAvailable
+    }
+
     enum class SizeCategory {
         MAXIMUM,
         MEDIAN,
