@@ -23,6 +23,11 @@ import androidx.compose.ui.graphics.internal.JvmDefaultWithCompatibility
 
 expect fun Path(): Path
 
+/**
+ * Create a new path, copying the contents from the src path.
+ */
+fun Path.copy(): Path = Path().apply { addPath(this@copy) }
+
 @JvmDefaultWithCompatibility
 /* expect class */ interface Path {
     /**
