@@ -16,10 +16,8 @@
 
 package androidx.window.embedding
 
-import androidx.annotation.RestrictTo
 import java.util.UUID
 
-// TODO(295803704): Pending unhide.
 /**
  * The parameter container to create an overlay [ActivityStack].
  *
@@ -36,7 +34,6 @@ import java.util.UUID
  * the default value of [OverlayAttributes].
  * @constructor creates a parameter container to launch an overlay [ActivityStack].
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class OverlayCreateParams @JvmOverloads constructor(
     val tag: String = generateOverlayTag(),
     val overlayAttributes: OverlayAttributes = OverlayAttributes.Builder().build(),
@@ -81,8 +78,13 @@ class OverlayCreateParams @JvmOverloads constructor(
         )
     }
 
-    private companion object {
-        private fun generateOverlayTag(): String =
+    companion object {
+
+        /**
+         * A helper function to generate a random unique identifier.
+         */
+        @JvmStatic
+        fun generateOverlayTag(): String =
             UUID.randomUUID().toString().substring(IntRange(0, 32))
     }
 }

@@ -298,7 +298,7 @@ internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
     }
 
     /**
-     * Extension callback implementation of the split information. Keeps track of last reported
+     * Extension callback implementation of the embedding information. Keeps track of last reported
      * values.
      */
     internal inner class EmbeddingCallbackImpl : EmbeddingCallbackInterface {
@@ -444,6 +444,28 @@ internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
     @RequiresWindowSdkExtension(5)
     override fun updateOverlayAttributes(overlayTag: String, overlayAttributes: OverlayAttributes) {
         embeddingExtension?.updateOverlayAttributes(overlayTag, overlayAttributes)
+    }
+
+    @RequiresWindowSdkExtension(5)
+    override fun addOverlayInfoCallback(
+        overlayTag: String,
+        executor: Executor,
+        overlayInfoCallback: Consumer<OverlayInfo>,
+    ) {
+        embeddingExtension?.addOverlayInfoCallback(overlayTag, executor, overlayInfoCallback)
+        // Send an empty OverlayInfo if the extension does not exist.
+            ?: overlayInfoCallback.accept(
+                OverlayInfo(
+                    overlayTag,
+                    currentOverlayAttributes = null,
+                    activityStack = null,
+                )
+            )
+    }
+
+    @RequiresWindowSdkExtension(5)
+    override fun removeOverlayInfoCallback(overlayInfoCallback: Consumer<OverlayInfo>) {
+        embeddingExtension?.removeOverlayInfoCallback(overlayInfoCallback)
     }
 
     @RequiresApi(31)

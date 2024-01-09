@@ -20,7 +20,6 @@ import android.graphics.Rect
 import androidx.annotation.FloatRange
 import androidx.annotation.IntRange
 import androidx.annotation.Px
-import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.window.core.Bounds
 import androidx.window.embedding.EmbeddingBounds.Alignment.Companion.ALIGN_BOTTOM
@@ -34,7 +33,6 @@ import androidx.window.layout.FoldingFeature
 import androidx.window.layout.WindowLayoutInfo
 import kotlin.math.min
 
-// TODO(295803704): Pending unhide.
 /**
  * The bounds of a standalone [ActivityStack].
  *
@@ -50,7 +48,6 @@ import kotlin.math.min
  * @property height The height of the bounds.
  * @constructor creates an embedding bounds.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class EmbeddingBounds(val alignment: Alignment, val width: Dimension, val height: Dimension) {
     override fun toString(): String {
         return "Bounds:{alignment=$alignment, width=$width, height=$height}"

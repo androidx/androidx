@@ -16,14 +16,15 @@
 
 package androidx.window.embedding
 
-import android.annotation.SuppressLint
 import android.content.res.Configuration
 import android.util.ArrayMap
 import androidx.annotation.GuardedBy
 import androidx.annotation.VisibleForTesting
+import androidx.core.util.Consumer as JetpackConsumer
 import androidx.window.RequiresWindowSdkExtension
 import androidx.window.WindowSdkExtensions
 import androidx.window.embedding.ActivityEmbeddingOptionsImpl.getOverlayAttributes
+import androidx.window.extensions.core.util.function.Consumer
 import androidx.window.extensions.embedding.ActivityEmbeddingComponent
 import androidx.window.extensions.embedding.ActivityStack
 import androidx.window.extensions.embedding.ActivityStackAttributes
@@ -32,6 +33,7 @@ import androidx.window.layout.WindowLayoutInfo
 import androidx.window.layout.WindowMetrics
 import androidx.window.layout.WindowMetricsCalculator
 import androidx.window.layout.adapter.extensions.ExtensionsWindowLayoutInfoAdapter
+import java.util.concurrent.Executor
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 
@@ -39,7 +41,7 @@ import kotlin.concurrent.withLock
  * The core implementation of [OverlayController] APIs, which is implemented by [ActivityStack]
  * operations in WM Extensions.
  */
-@SuppressLint("NewApi")
+@Suppress("NewApi") // Suppress #translateWindowMetrics, which requires R.
 @RequiresWindowSdkExtension(5)
 internal open class OverlayControllerImpl(
     private val embeddingExtension: ActivityEmbeddingComponent,
@@ -53,11 +55,30 @@ internal open class OverlayControllerImpl(
         get() = globalLock.withLock { field }
         set(value) { globalLock.withLock { field = value } }
 
+    /**
+     * Mapping between the overlay container tag and its default [OverlayAttributes].
+     * It's to record the [OverlayAttributes] updated through [updateOverlayAttributes] and
+     * report in [OverlayAttributesCalculatorParams].
+     */
     @GuardedBy("globalLock")
-    private val overlayTagToAttributesMap: MutableMap<String, OverlayAttributes> = ArrayMap()
+    private val overlayTagToDefaultAttributesMap: MutableMap<String, OverlayAttributes> = ArrayMap()
+
+    /**
+     * Mapping between the overlay container tag and its current [OverlayAttributes] to provide
+     * the [OverlayInfo] updates.
+     */
+    @GuardedBy("globalLock")
+    private val overlayTagToCurrentAttributesMap = ArrayMap<String, OverlayAttributes>()
 
     @GuardedBy("globalLock")
     private val overlayTagToContainerMap = ArrayMap<String, ActivityStack>()
+
+    /**
+     * The mapping from [OverlayInfo] callback to [activityStacks][ActivityStack] callback.
+     */
+    @GuardedBy("globalLock")
+    private val overlayInfoToActivityStackCallbackMap =
+        ArrayMap<JetpackConsumer<OverlayInfo>, Consumer<List<ActivityStack>>>()
 
     init {
         WindowSdkExtensions.getInstance().requireExtensionVersion(5)
@@ -87,13 +108,54 @@ internal open class OverlayControllerImpl(
 
         embeddingExtension.registerActivityStackCallback(Runnable::run) { activityStacks ->
             globalLock.withLock {
+                val lastOverlayTags = overlayTagToContainerMap.keys
+
                 overlayTagToContainerMap.clear()
                 overlayTagToContainerMap.putAll(
                     activityStacks.getOverlayContainers().map { overlayContainer ->
                         Pair(overlayContainer.tag!!, overlayContainer)
                     }
                 )
+
+                cleanUpDismissedOverlayContainerRecords(lastOverlayTags)
             }
+        }
+    }
+
+    /**
+     * Clean up records associated with dismissed overlay [activityStacks][ActivityStack] when
+     * there's a [ActivityStack] state update.
+     *
+     * The dismissed overlay [activityStacks][ActivityStack] are identified by comparing the
+     * differences of [ActivityStack] state before and after update.
+     *
+     * @param lastOverlayTags Overlay containers' tag before applying [ActivityStack] state update.
+     */
+    @GuardedBy("globalLock")
+    private fun cleanUpDismissedOverlayContainerRecords(lastOverlayTags: Set<String>) {
+        if (lastOverlayTags.isEmpty()) {
+            // If there's no last overlay container, return.
+            return
+        }
+
+        val dismissedOverlayTags = ArrayList<String>()
+        val currentOverlayTags = overlayTagToContainerMap.keys
+
+        for (overlayTag in lastOverlayTags) {
+            if (overlayTag !in currentOverlayTags &&
+                // If an overlay activityStack is not in the current overlay container list, check
+                // whether the activityStack does really not exist in WM Extensions in case
+                // an overlay container is just launched, but th WM Jetpack hasn't received the
+                // update yet.
+                embeddingExtension.getActivityStackToken(overlayTag) == null
+            ) {
+                dismissedOverlayTags.add(overlayTag)
+            }
+        }
+
+        for (overlayTag in dismissedOverlayTags) {
+            overlayTagToDefaultAttributesMap.remove(overlayTag)
+            overlayTagToCurrentAttributesMap.remove(overlayTag)
         }
     }
 
@@ -123,22 +185,24 @@ internal open class OverlayControllerImpl(
             ?: throw IllegalArgumentException(
                 "Can't retrieve overlay attributes from launch options"
             )
+        val currentOverlayAttrs = overlayAttributesCalculator?.invoke(
+            OverlayAttributesCalculatorParams(
+                windowMetrics,
+                configuration,
+                windowLayoutInfo,
+                tag,
+                defaultOverlayAttrs,
+            )
+        ) ?: defaultOverlayAttrs
 
-        return overlayAttributesCalculator
-            ?.invoke(
-                OverlayAttributesCalculatorParams(
-                    windowMetrics,
-                    configuration,
-                    windowLayoutInfo,
-                    tag,
-                    defaultOverlayAttrs,
-                )
-            ) ?: defaultOverlayAttrs
+        overlayTagToCurrentAttributesMap[tag] = currentOverlayAttrs
+
+        return currentOverlayAttrs
     }
 
     @VisibleForTesting
     internal open fun getUpdatedOverlayAttributes(overlayTag: String): OverlayAttributes? =
-        overlayTagToAttributesMap[overlayTag]
+        overlayTagToDefaultAttributesMap[overlayTag]
 
     internal open fun updateOverlayAttributes(
         overlayTag: String,
@@ -159,10 +223,10 @@ internal open class OverlayControllerImpl(
                 )
             )
 
-            // TODO(b/243518738): Clear the mapping when the overlayContainer is dismissed.
             // Update the tag-overlayAttributes map, which will be treated as the default
             // overlayAttributes in calculator.
-            overlayTagToAttributesMap[overlayTag] = overlayAttributes
+            overlayTagToDefaultAttributesMap[overlayTag] = overlayAttributes
+            overlayTagToCurrentAttributesMap[overlayTag] = overlayAttributes
         }
     }
 
@@ -179,4 +243,51 @@ internal open class OverlayControllerImpl(
 
     private fun List<ActivityStack>.getOverlayContainers(): List<ActivityStack> =
         filter { activityStack -> activityStack.tag != null }.toList()
+
+    fun addOverlayInfoCallback(
+        overlayTag: String,
+        executor: Executor,
+        overlayInfoCallback: JetpackConsumer<OverlayInfo>,
+    ) {
+        globalLock.withLock {
+            val callback = Consumer<List<ActivityStack>> { activityStacks ->
+                val overlayInfoList = activityStacks.filter { activityStack ->
+                    activityStack.tag == overlayTag
+                }
+                if (overlayInfoList.size > 1) {
+                    throw IllegalStateException(
+                        "There must be at most one overlay ActivityStack with $overlayTag"
+                    )
+                }
+                val overlayInfo = if (overlayInfoList.isEmpty()) {
+                    OverlayInfo(
+                        overlayTag,
+                        currentOverlayAttributes = null,
+                        activityStack = null,
+                    )
+                } else {
+                    overlayInfoList.first().toOverlayInfo()
+                }
+                overlayInfoCallback.accept(overlayInfo)
+            }
+            overlayInfoToActivityStackCallbackMap[overlayInfoCallback] = callback
+
+            embeddingExtension.registerActivityStackCallback(executor, callback)
+        }
+    }
+
+    private fun ActivityStack.toOverlayInfo(): OverlayInfo = OverlayInfo(
+        tag!!,
+        overlayTagToCurrentAttributesMap[tag!!],
+        adapter.translate(this),
+    )
+
+    fun removeOverlayInfoCallback(overlayInfoCallback: JetpackConsumer<OverlayInfo>) {
+        globalLock.withLock {
+            val callback = overlayInfoToActivityStackCallbackMap.remove(overlayInfoCallback)
+            if (callback != null) {
+                embeddingExtension.unregisterActivityStackCallback(callback)
+            }
+        }
+    }
 }

@@ -16,14 +16,17 @@
 
 package androidx.window.embedding
 
+import android.app.Activity
 import android.content.Context
 import android.os.Bundle
-import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
+import androidx.core.util.Consumer
 import androidx.window.RequiresWindowSdkExtension
 import androidx.window.WindowSdkExtensions
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
 
-// TODO(b/295804279): Un-hide after APIs are ready
 /**
  * The controller to manage overlay [ActivityStack], which is launched by
  * the activityOptions that [setOverlayCreateParams].
@@ -37,7 +40,6 @@ import androidx.window.WindowSdkExtensions
  *
  * @sample androidx.window.samples.embedding.launchOverlayActivityStackSample
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class OverlayController @VisibleForTesting internal constructor(
     private val backend: EmbeddingBackend
 ) {
@@ -110,6 +112,28 @@ class OverlayController @VisibleForTesting internal constructor(
     @RequiresWindowSdkExtension(5)
     fun updateOverlayAttributes(overlayTag: String, overlayAttributes: OverlayAttributes) {
         backend.updateOverlayAttributes(overlayTag, overlayAttributes)
+    }
+
+    /**
+     * A [Flow] of [OverlayInfo] that [overlayTag] is associated with.
+     *
+     * If there's an active overlay [ActivityStack] associated with [overlayTag], it will be
+     * reported in [OverlayInfo.activityStack]. Otherwise, [OverlayInfo.activityStack] is `null`.
+     *
+     * Note that launching an overlay [ActivityStack] only supports on the device with
+     * [WindowSdkExtensions.extensionVersion] equal to or larger than 5.
+     * If [WindowSdkExtensions.extensionVersion] is less than 5, this flow will always
+     * report [OverlayInfo] without associated [OverlayInfo.activityStack].
+     *
+     * @param overlayTag The overlay [ActivityStack]'s tag which is set through
+     * [OverlayCreateParams]
+     * @return a [Flow] of [OverlayInfo] this [overlayTag] is associated with
+     */
+    @RequiresWindowSdkExtension(5)
+    fun overlayInfo(overlayTag: String): Flow<OverlayInfo> = callbackFlow {
+        val listener = Consumer { info: OverlayInfo -> trySend(info) }
+        backend.addOverlayInfoCallback(overlayTag, Runnable::run, listener)
+        awaitClose { backend.removeOverlayInfoCallback(listener) }
     }
 
     companion object {

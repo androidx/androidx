@@ -100,6 +100,16 @@ interface EmbeddingBackend {
     @RequiresWindowSdkExtension(5)
     fun updateOverlayAttributes(overlayTag: String, overlayAttributes: OverlayAttributes)
 
+    @RequiresWindowSdkExtension(5)
+    fun addOverlayInfoCallback(
+        overlayTag: String,
+        executor: Executor,
+        overlayInfoCallback: Consumer<OverlayInfo>,
+    )
+
+    @RequiresWindowSdkExtension(5)
+    fun removeOverlayInfoCallback(overlayInfoCallback: Consumer<OverlayInfo>)
+
     companion object {
 
         private var decorator: (EmbeddingBackend) -> EmbeddingBackend =

@@ -17,18 +17,14 @@
 package androidx.window.embedding
 
 import android.content.res.Configuration
-import androidx.annotation.RestrictTo
 import androidx.window.layout.WindowLayoutInfo
 import androidx.window.layout.WindowMetrics
-
-// TODO(b/295804279): Un-hide after APIs are ready
 
 /**
  * The parameter container used to report the current device and window state in
  * [OverlayController.setOverlayAttributesCalculator] and references the corresponding overlay
  * [ActivityStack] by [overlayTag].
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class OverlayAttributesCalculatorParams internal constructor(
     /** The parent container's [WindowMetrics] */
     val parentWindowMetrics: WindowMetrics,

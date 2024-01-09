@@ -22,6 +22,7 @@ import android.content.Context
 import android.os.Bundle
 import android.os.IBinder
 import android.util.Log
+import androidx.core.util.Consumer as JetpackConsumer
 import androidx.window.RequiresWindowSdkExtension
 import androidx.window.WindowSdkExtensions
 import androidx.window.core.BuildConfig
@@ -37,6 +38,7 @@ import androidx.window.extensions.embedding.ActivityStack as OEMActivityStack
 import androidx.window.extensions.embedding.ActivityStackAttributes
 import androidx.window.extensions.embedding.SplitInfo as OEMSplitInfo
 import java.lang.reflect.Proxy
+import java.util.concurrent.Executor
 
 /**
  * Adapter implementation for different historical versions of activity embedding OEM interface in
@@ -179,6 +181,7 @@ internal class EmbeddingCompat(
         windowSdkExtensions.requireExtensionVersion(5)
         adapter.embeddingConfiguration = embeddingConfig
         setDefaultSplitAttributeCalculatorIfNeeded()
+
         embeddingExtension.invalidateTopVisibleSplitAttributes()
     }
 
@@ -262,6 +265,34 @@ internal class EmbeddingCompat(
         windowSdkExtensions.requireExtensionVersion(5)
 
         overlayController!!.updateOverlayAttributes(overlayTag, overlayAttributes)
+    }
+
+    @RequiresWindowSdkExtension(5)
+    override fun addOverlayInfoCallback(
+        overlayTag: String,
+        executor: Executor,
+        overlayInfoCallback: JetpackConsumer<OverlayInfo>,
+    ) {
+        overlayController?.addOverlayInfoCallback(
+            overlayTag,
+            executor,
+            overlayInfoCallback,
+        ) ?: apply {
+            Log.w(TAG, "overlayInfo is not supported on device less than version 5")
+
+            overlayInfoCallback.accept(
+                OverlayInfo(
+                    overlayTag,
+                    currentOverlayAttributes = null,
+                    activityStack = null,
+                )
+            )
+        }
+    }
+
+    @RequiresWindowSdkExtension(5)
+    override fun removeOverlayInfoCallback(overlayInfoCallback: JetpackConsumer<OverlayInfo>) {
+        overlayController?.removeOverlayInfoCallback(overlayInfoCallback)
     }
 
     companion object {
