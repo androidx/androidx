@@ -106,7 +106,7 @@ internal class UwbManagerImpl(private val context: Context) : UwbManager {
             val nearbyLocalAddress = uwbClient.localAddress.await()
             val nearbyRangingCapabilities = uwbClient.rangingCapabilities.await()
             val localAddress = UwbAddress(nearbyLocalAddress.address)
-            val supportedConfigIds = nearbyRangingCapabilities.supportedConfigIds
+            val supportedConfigIds = nearbyRangingCapabilities.supportedConfigIds.toMutableList()
             supportedConfigIds.retainAll(PUBLIC_AVAILABLE_CONFIG_IDS)
             val rangingCapabilities = RangingCapabilities(
                 nearbyRangingCapabilities.supportsDistance(),
@@ -161,7 +161,8 @@ internal class UwbManagerImpl(private val context: Context) : UwbManager {
                     it.minRangingInterval,
                     it.supportedChannels.toSet(),
                     it.supportedNtfConfigs.toSet(),
-                    it.supportedConfigIds.filter { it in PUBLIC_AVAILABLE_CONFIG_IDS }.toSet(),
+                    it.supportedConfigIds.toMutableList()
+                        .filter { it in PUBLIC_AVAILABLE_CONFIG_IDS }.toSet(),
                     it.supportedSlotDurations.toSet(),
                     it.supportedRangingUpdateRates.toSet(),
                     it.supportsRangingIntervalReconfigure,
