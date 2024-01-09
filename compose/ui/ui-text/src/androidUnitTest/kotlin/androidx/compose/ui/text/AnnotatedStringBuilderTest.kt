@@ -1125,6 +1125,44 @@ class AnnotatedStringBuilderTest {
         assertThat(buildResult.getStringAnnotations(tag, 10, 11)).isEmpty()
     }
 
+    @OptIn(ExperimentalTextApi::class)
+    @Test
+    fun getAnnotation_separates_linkAnnotation_and_stringAnnotation() {
+        val annotation1 = LinkAnnotation.Url("url")
+        val annotation2 = LinkAnnotation.Clickable("clickable tag")
+        val annotation3 = "annotation"
+        val tag = "tag"
+        val buildResult = AnnotatedString.Builder().apply {
+            pushLink(annotation1)
+            append("ab")
+            pushLink(annotation2)
+            append("cd")
+            pushStringAnnotation(tag, annotation3)
+            append("ef")
+            pop()
+        }.toAnnotatedString()
+
+        // The final result is abcdef
+        //                     [    ] LinkAnnotation.Url
+        //                       [  ] LinkAnnotation.Clickable
+        //                         [] Range<String>
+        assertThat(buildResult.getLinkAnnotations(0, 2)).isEqualTo(
+            listOf(Range(annotation1, 0, 6, ""))
+        )
+        assertThat(buildResult.getLinkAnnotations(3, 5)).isEqualTo(
+            listOf(
+                Range(annotation1, 0, 6, ""),
+                Range(annotation2, 2, 6, "")
+            )
+        )
+
+        assertThat(buildResult.getStringAnnotations(0, 4)).isEmpty()
+        assertThat(buildResult.getStringAnnotations(4, 6)).isEqualTo(
+            listOf(Range(annotation3, 4, 6, tag))
+        )
+        assertThat(buildResult.getStringAnnotations("another tag", 4, 6)).isEmpty()
+    }
+
     private fun createAnnotatedString(
         text: String,
         color: Color = Color.Red,

@@ -21,6 +21,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.text.ExperimentalTextApi
+import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.ParagraphStyle
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextRange
@@ -177,6 +178,8 @@ class TextFieldValueTest {
             withAnnotation(VerbatimTtsAnnotation("verbatim2")) { append("6") }
             withAnnotation(UrlAnnotation("url1")) { append("7") }
             withAnnotation(UrlAnnotation("url2")) { append("8") }
+            withAnnotation(LinkAnnotation.Url("url3")) { append("9") }
+            withAnnotation(LinkAnnotation.Clickable("tag3")) { append("10") }
             withStyle(
                 SpanStyle(
                     color = Color.Red,
