@@ -30,6 +30,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsProperties
@@ -131,7 +132,10 @@ class IconButtonTest {
         rule.setMaterialContent(lightColorScheme()) {
             Box {
                 IconButton(onClick = {}) {
-                    Box(Modifier.size(IconSize).testTag(IconTestTag))
+                    Box(
+                        Modifier
+                            .size(IconSize)
+                            .testTag(IconTestTag))
                 }
             }
         }
@@ -149,7 +153,10 @@ class IconButtonTest {
         rule.setMaterialContent(lightColorScheme()) {
             Box {
                 IconButton(onClick = {}) {
-                    Box(Modifier.size(width, height).testTag(IconTestTag))
+                    Box(
+                        Modifier
+                            .size(width, height)
+                            .testTag(IconTestTag))
                 }
             }
         }
@@ -158,6 +165,32 @@ class IconButtonTest {
         rule.onNodeWithTag(IconTestTag, useUnmergedTree = true)
             .assertLeftPositionInRootIsEqualTo((IconButtonAccessibilitySize - width) / 2)
             .assertTopPositionInRootIsEqualTo((IconButtonAccessibilitySize - height) / 2)
+    }
+
+    @Test
+    fun iconButtonColor_localContentColor() {
+        rule.setMaterialContent(lightColorScheme()) {
+            CompositionLocalProvider(LocalContentColor provides Color.Blue) {
+                val colors = IconButtonDefaults.iconButtonColors()
+                assert(colors.contentColor == Color.Blue)
+            }
+
+            CompositionLocalProvider(LocalContentColor provides Color.Red) {
+                val colors = IconButtonDefaults.iconButtonColors(
+                    containerColor = Color.Green
+                )
+                assert(colors.containerColor == Color.Green)
+                assert(colors.contentColor == Color.Red)
+            }
+        }
+    }
+
+    @Test
+    fun iconButtonColor_copy() {
+        rule.setMaterialContent(lightColorScheme()) {
+            val colors = IconButtonDefaults.iconButtonColors().copy()
+            assert(colors == IconButtonDefaults.iconButtonColors())
+        }
     }
 
     @Test
@@ -226,7 +259,10 @@ class IconButtonTest {
         rule.setMaterialContent(lightColorScheme()) {
             Box {
                 IconToggleButton(checked = false, onCheckedChange = {}) {
-                    Box(Modifier.size(IconSize).testTag(IconTestTag))
+                    Box(
+                        Modifier
+                            .size(IconSize)
+                            .testTag(IconTestTag))
                 }
             }
         }
@@ -244,7 +280,10 @@ class IconButtonTest {
         rule.setMaterialContent(lightColorScheme()) {
             Box {
                 IconToggleButton(checked = false, onCheckedChange = {}) {
-                    Box(Modifier.size(width, height).testTag(IconTestTag))
+                    Box(
+                        Modifier
+                            .size(width, height)
+                            .testTag(IconTestTag))
                 }
             }
         }
@@ -265,7 +304,10 @@ class IconButtonTest {
                 IconToggleButton(
                     checked = checked,
                     onCheckedChange = { checked = it },
-                    modifier = Modifier.align(Alignment.Center).requiredSize(2.dp).testTag(tag)
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .requiredSize(2.dp)
+                        .testTag(tag)
                 ) {
                     Box(Modifier.size(2.dp))
                 }
@@ -343,7 +385,10 @@ class IconButtonTest {
         rule.setMaterialContent(lightColorScheme()) {
             Box {
                 FilledIconButton(onClick = {}) {
-                    Box(Modifier.size(IconSize).testTag(IconTestTag))
+                    Box(
+                        Modifier
+                            .size(IconSize)
+                            .testTag(IconTestTag))
                 }
             }
         }
@@ -361,7 +406,10 @@ class IconButtonTest {
         rule.setMaterialContent(lightColorScheme()) {
             Box {
                 FilledIconButton(onClick = {}) {
-                    Box(Modifier.size(width, height).testTag(IconTestTag))
+                    Box(
+                        Modifier
+                            .size(width, height)
+                            .testTag(IconTestTag))
                 }
             }
         }
@@ -466,7 +514,10 @@ class IconButtonTest {
         rule.setMaterialContent(lightColorScheme()) {
             Box {
                 FilledIconToggleButton(checked = false, onCheckedChange = {}) {
-                    Box(Modifier.size(IconSize).testTag(IconTestTag))
+                    Box(
+                        Modifier
+                            .size(IconSize)
+                            .testTag(IconTestTag))
                 }
             }
         }
@@ -484,7 +535,10 @@ class IconButtonTest {
         rule.setMaterialContent(lightColorScheme()) {
             Box {
                 FilledIconToggleButton(checked = false, onCheckedChange = {}) {
-                    Box(Modifier.size(width, height).testTag(IconTestTag))
+                    Box(
+                        Modifier
+                            .size(width, height)
+                            .testTag(IconTestTag))
                 }
             }
         }
@@ -562,7 +616,10 @@ class IconButtonTest {
         rule.setMaterialContent(lightColorScheme()) {
             Box {
                 OutlinedIconButton(onClick = {}) {
-                    Box(Modifier.size(IconSize).testTag(IconTestTag))
+                    Box(
+                        Modifier
+                            .size(IconSize)
+                            .testTag(IconTestTag))
                 }
             }
         }
@@ -580,7 +637,10 @@ class IconButtonTest {
         rule.setMaterialContent(lightColorScheme()) {
             Box {
                 OutlinedIconButton(onClick = {}) {
-                    Box(Modifier.size(width, height).testTag(IconTestTag))
+                    Box(
+                        Modifier
+                            .size(width, height)
+                            .testTag(IconTestTag))
                 }
             }
         }
@@ -667,7 +727,10 @@ class IconButtonTest {
         rule.setMaterialContent(lightColorScheme()) {
             Box {
                 OutlinedIconToggleButton(checked = false, onCheckedChange = {}) {
-                    Box(Modifier.size(IconSize).testTag(IconTestTag))
+                    Box(
+                        Modifier
+                            .size(IconSize)
+                            .testTag(IconTestTag))
                 }
             }
         }
@@ -685,7 +748,10 @@ class IconButtonTest {
         rule.setMaterialContent(lightColorScheme()) {
             Box {
                 OutlinedIconToggleButton(checked = false, onCheckedChange = {}) {
-                    Box(Modifier.size(width, height).testTag(IconTestTag))
+                    Box(
+                        Modifier
+                            .size(width, height)
+                            .testTag(IconTestTag))
                 }
             }
         }
