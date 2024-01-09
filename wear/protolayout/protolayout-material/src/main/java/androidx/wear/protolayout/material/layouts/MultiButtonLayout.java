@@ -136,7 +136,12 @@ public class MultiButtonLayout implements LayoutElement {
             return this;
         }
 
-        /** Constructs and returns {@link MultiButtonLayout} with the provided content and look. */
+        /**
+         * Constructs and returns {@link MultiButtonLayout} with the provided content and look.
+         *
+         * @throws IllegalArgumentException if no buttons are added or the number of buttons added
+         *      is larger than {@link LayoutDefaults.MultiButtonLayoutDefaults#MAX_BUTTONS}.
+         */
         @NonNull
         @Override
         public MultiButtonLayout build() {
@@ -144,6 +149,9 @@ public class MultiButtonLayout implements LayoutElement {
             if (buttonNum > MAX_BUTTONS) {
                 throw new IllegalArgumentException(
                         "Too many buttons are added. Maximum number is " + MAX_BUTTONS + ".");
+            }
+            if (buttonNum == 0) {
+                throw new IllegalArgumentException("No buttons are added. Minimum number is 1.");
             }
 
             LayoutElement buttons = buildButtons(buttonNum);
@@ -247,8 +255,9 @@ public class MultiButtonLayout implements LayoutElement {
                                             BUTTON_SIZE_FOR_3_PLUS_BUTTONS))
                             .build();
                 default:
-                    throw new IllegalArgumentException(
-                            "Too many buttons are added. Maximum number is " + MAX_BUTTONS + ".");
+                    // This shouldn't happen as we have min/max checks above.
+                    throw new IllegalStateException(
+                            "Incorrect number of buttons when building MultiButtonLayout.");
             }
         }
 
