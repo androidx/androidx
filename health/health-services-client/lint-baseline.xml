@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.3.0-alpha10" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha10)" variant="all" version="8.3.0-alpha10">
+<issues format="6" by="lint 8.3.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-beta01)" variant="all" version="8.3.0-beta01">
+
+    <issue
+        id="BanParcelableUsage"
+        message="Class implements android.os.Parcelable"
+        errorLine1="public data class ExerciseGoalRequest(val packageName: String, val exerciseGoal: ExerciseGoal&lt;*>) :"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/health/services/client/impl/request/ExerciseGoalRequest.kt"/>
+    </issue>
 
     <issue
         id="BanSynchronizedMethods"
@@ -17,6 +26,78 @@
         errorLine2="        ^">
         <location
             file="src/main/java/androidx/health/services/client/impl/MeasureCallbackStub.kt"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    private synchronized void handleRetriableDisconnection(Throwable throwable) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/health/services/client/impl/ipc/internal/ServiceConnection.java"/>
+    </issue>
+
+    <issue
+        id="LambdaLast"
+        message="Functional interface parameters (such as parameter 1, &quot;operation&quot;, in androidx.health.services.client.impl.ipc.Client.executeWithVersionCheck) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
+        errorLine1="            RemoteFutureOperation&lt;S, R> operation, int minApiVersion) {"
+        errorLine2="                                                   ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/health/services/client/impl/ipc/Client.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public BaseQueueOperation(ConnectionConfiguration connectionConfiguration) {"
+        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/health/services/client/impl/ipc/internal/BaseQueueOperation.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void execute(IBinder binder) throws RemoteException {}"
+        errorLine2="                        ~~~~~~~">
+        <location
+            file="src/main/java/androidx/health/services/client/impl/ipc/internal/BaseQueueOperation.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void setException(Throwable exception) {}"
+        errorLine2="                             ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/health/services/client/impl/ipc/internal/BaseQueueOperation.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public QueueOperation trackExecution(ExecutionTracker tracker) {"
+        errorLine2="           ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/health/services/client/impl/ipc/internal/BaseQueueOperation.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public QueueOperation trackExecution(ExecutionTracker tracker) {"
+        errorLine2="                                         ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/health/services/client/impl/ipc/internal/BaseQueueOperation.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public ConnectionConfiguration getConnectionConfiguration() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/health/services/client/impl/ipc/internal/BaseQueueOperation.java"/>
     </issue>
 
     <issue
@@ -87,15 +168,6 @@
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    protected &lt;R> ListenableFuture&lt;R> execute(RemoteFutureOperation&lt;S, R> operation) {"
         errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/health/services/client/impl/ipc/Client.java"/>
-    </issue>
-
-    <issue
-        id="LambdaLast"
-        message="Functional interface parameters (such as parameter 1, &quot;operation&quot;, in androidx.health.services.client.impl.ipc.Client.executeWithVersionCheck) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
-        errorLine1="            RemoteFutureOperation&lt;S, R> operation, int minApiVersion) {"
-        errorLine2="                                                   ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/health/services/client/impl/ipc/Client.java"/>
     </issue>
@@ -287,69 +359,6 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/androidx/health/services/client/impl/ipc/ClientConfiguration.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    void execute(S service, SettableFuture&lt;R> resultFuture) throws RemoteException;"
-        errorLine2="                            ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/health/services/client/impl/ipc/RemoteFutureOperation.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public BaseQueueOperation(ConnectionConfiguration connectionConfiguration) {"
-        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/health/services/client/impl/ipc/internal/BaseQueueOperation.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public void execute(IBinder binder) throws RemoteException {}"
-        errorLine2="                        ~~~~~~~">
-        <location
-            file="src/main/java/androidx/health/services/client/impl/ipc/internal/BaseQueueOperation.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public void setException(Throwable exception) {}"
-        errorLine2="                             ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/health/services/client/impl/ipc/internal/BaseQueueOperation.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public QueueOperation trackExecution(ExecutionTracker tracker) {"
-        errorLine2="           ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/health/services/client/impl/ipc/internal/BaseQueueOperation.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public QueueOperation trackExecution(ExecutionTracker tracker) {"
-        errorLine2="                                         ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/health/services/client/impl/ipc/internal/BaseQueueOperation.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public ConnectionConfiguration getConnectionConfiguration() {"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/health/services/client/impl/ipc/internal/BaseQueueOperation.java"/>
     </issue>
 
     <issue
@@ -569,12 +578,12 @@
     </issue>
 
     <issue
-        id="BanSynchronizedMethods"
-        message="Use of synchronized methods is not recommended"
-        errorLine1="    private synchronized void handleRetriableDisconnection(Throwable throwable) {"
-        errorLine2="    ^">
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    void execute(S service, SettableFuture&lt;R> resultFuture) throws RemoteException;"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/health/services/client/impl/ipc/internal/ServiceConnection.java"/>
+            file="src/main/java/androidx/health/services/client/impl/ipc/RemoteFutureOperation.java"/>
     </issue>
 
     <issue
@@ -593,15 +602,6 @@
         errorLine2="                            ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/health/services/client/impl/ipc/internal/ServiceConnection.java"/>
-    </issue>
-
-    <issue
-        id="BanParcelableUsage"
-        message="Class implements android.os.Parcelable"
-        errorLine1="public data class ExerciseGoalRequest(val packageName: String, val exerciseGoal: ExerciseGoal&lt;*>) :"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/health/services/client/impl/request/ExerciseGoalRequest.kt"/>
     </issue>
 
 </issues>

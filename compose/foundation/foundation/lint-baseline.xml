@@ -1,5 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.3.0-alpha10" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha10)" variant="all" version="8.3.0-alpha10">
+<issues format="6" by="lint 8.3.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-beta01)" variant="all" version="8.3.0-beta01">
+
+    <issue
+        id="BanSuppressTag"
+        message="@suppress is not allowed in documentation"
+        errorLine1="class TextDelegate("
+        errorLine2="      ~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/text/TextDelegate.kt"/>
+    </issue>
+
+    <issue
+        id="BanSuppressTag"
+        message="@suppress is not allowed in documentation"
+        errorLine1="        fun applyCompositionDecoration("
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/text/TextFieldDelegate.kt"/>
+    </issue>
 
     <issue
         id="BanThreadSleep"
@@ -26,6 +44,69 @@
         errorLine2="                   ~~~~~">
         <location
             file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/lazy/staggeredgrid/LazyStaggeredGridAnimatedScrollTest.kt"/>
+    </issue>
+
+    <issue
+        id="IllegalExperimentalApiUsage"
+        message="`Experimental` and `RequiresOptIn` APIs may only be used within the same-version group where they were defined."
+        errorLine1="@OptIn(ExperimentalTextApi::class)"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/text/BasicText.kt"/>
+    </issue>
+
+    <issue
+        id="IllegalExperimentalApiUsage"
+        message="`Experimental` and `RequiresOptIn` APIs may only be used within the same-version group where they were defined."
+        errorLine1="@OptIn(ExperimentalTextApi::class)"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/text/modifiers/TextAnnotatedStringNode.kt"/>
+    </issue>
+
+    <issue
+        id="IllegalExperimentalApiUsage"
+        message="`Experimental` and `RequiresOptIn` APIs may only be used within the same-version group where they were defined."
+        errorLine1="@OptIn(ExperimentalTextApi::class)"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/text/TextLinkScope.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field anchors with type Map&lt;T, Float>: replace with ObjectFloatMap"
+        errorLine1="    internal val anchors = mutableMapOf&lt;T, Float>()"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/AnchoredDraggable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="return type Map&lt;T, Float> of getAnchors$lint_module: replace with ObjectFloatMap"
+        errorLine1="    internal val anchors = mutableMapOf&lt;T, Float>()"
+        errorLine2="                 ~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/AnchoredDraggable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="constructor MapDraggableAnchors has parameter anchors with type Map&lt;T, Float>: replace with ObjectFloatMap"
+        errorLine1="private class MapDraggableAnchors&lt;T>(private val anchors: Map&lt;T, Float>) : DraggableAnchors&lt;T> {"
+        errorLine2="                                                          ~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/AnchoredDraggable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field anchors with type Map&lt;T, Float>: replace with ObjectFloatMap"
+        errorLine1="private class MapDraggableAnchors&lt;T>(private val anchors: Map&lt;T, Float>) : DraggableAnchors&lt;T> {"
+        errorLine2="                                                          ~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/AnchoredDraggable.kt"/>
     </issue>
 
     <issue
@@ -57,38 +138,173 @@
 
     <issue
         id="PrimitiveInCollection"
-        message="field anchors with type Map&lt;T, Float>: replace with ObjectFloatMap"
-        errorLine1="    internal val anchors = mutableMapOf&lt;T, Float>()"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        message="variable pinnedItems with type List&lt;? extends Integer>: replace with IntList"
+        errorLine1="        val pinnedItems = itemProvider.calculateLazyLayoutPinnedIndices("
+        errorLine2="        ^">
         <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/AnchoredDraggable.kt"/>
+            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGrid.kt"/>
     </issue>
 
     <issue
         id="PrimitiveInCollection"
-        message="return type Map&lt;T, Float> of getAnchors$lint_module: replace with ObjectFloatMap"
-        errorLine1="    internal val anchors = mutableMapOf&lt;T, Float>()"
-        errorLine2="                 ~~~~~~~">
+        message="return type List&lt;Integer> of calculateCrossAxisCellSizes: replace with IntList"
+        errorLine1="    fun Density.calculateCrossAxisCellSizes(availableSize: Int, spacing: Int): List&lt;Int>"
+        errorLine2="                                                                               ~~~~~~~~~">
         <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/AnchoredDraggable.kt"/>
+            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridDsl.kt"/>
     </issue>
 
     <issue
         id="PrimitiveInCollection"
-        message="field anchors with type Map&lt;T, Float>: replace with ObjectFloatMap"
-        errorLine1="private class MapDraggableAnchors&lt;T>(private val anchors: Map&lt;T, Float>) : DraggableAnchors&lt;T> {"
-        errorLine2="                                                          ~~~~~~~~~~~~~">
+        message="return type List&lt;Integer> of calculateCellsCrossAxisSizeImpl: replace with IntList"
+        errorLine1="): List&lt;Int> {"
+        errorLine2="   ~~~~~~~~~">
         <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/AnchoredDraggable.kt"/>
+            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridDsl.kt"/>
     </issue>
 
     <issue
         id="PrimitiveInCollection"
-        message="constructor MapDraggableAnchors has parameter anchors with type Map&lt;T, Float>: replace with ObjectFloatMap"
-        errorLine1="private class MapDraggableAnchors&lt;T>(private val anchors: Map&lt;T, Float>) : DraggableAnchors&lt;T> {"
-        errorLine2="                                                          ~~~~~~~~~~~~~">
+        message="method measureLazyGrid has parameter pinnedItems with type List&lt;Integer>: replace with IntList"
+        errorLine1="    pinnedItems: List&lt;Int>,"
+        errorLine2="                 ~~~~~~~~~">
         <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/AnchoredDraggable.kt"/>
+            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridMeasure.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method calculateExtraItems has parameter pinnedItems with type List&lt;Integer>: replace with IntList"
+        errorLine1="    pinnedItems: List&lt;Int>,"
+        errorLine2="                 ~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridMeasure.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="constructor LazyGridMeasuredLine has parameter spans with type List&lt;GridItemSpan>: replace with LongList"
+        errorLine1="    private val spans: List&lt;GridItemSpan>,"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridMeasuredLine.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field spans with type List&lt;GridItemSpan>: replace with LongList"
+        errorLine1="    private val spans: List&lt;GridItemSpan>,"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridMeasuredLine.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method createLine has parameter spans with type List&lt;GridItemSpan>: replace with LongList"
+        errorLine1="        spans: List&lt;GridItemSpan>,"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridMeasuredLineProvider.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="constructor LineConfiguration has parameter spans with type List&lt;GridItemSpan>: replace with LongList"
+        errorLine1="    class LineConfiguration(val firstItemIndex: Int, val spans: List&lt;GridItemSpan>)"
+        errorLine2="                                                                ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridSpanLayoutProvider.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field spans with type List&lt;GridItemSpan>: replace with LongList"
+        errorLine1="    class LineConfiguration(val firstItemIndex: Int, val spans: List&lt;GridItemSpan>)"
+        errorLine2="                                                                ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridSpanLayoutProvider.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="return type List&lt;GridItemSpan> of getSpans: replace with LongList"
+        errorLine1="    class LineConfiguration(val firstItemIndex: Int, val spans: List&lt;GridItemSpan>)"
+        errorLine2="                                                                ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridSpanLayoutProvider.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field cachedBucket with type List&lt;Integer>: replace with IntList"
+        errorLine1="    /**"
+        errorLine2="    ^">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridSpanLayoutProvider.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field previousDefaultSpans with type List&lt;GridItemSpan>: replace with LongList"
+        errorLine1="    /**"
+        errorLine2="    ^">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridSpanLayoutProvider.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="return type List&lt;GridItemSpan> of getDefaultSpans: replace with LongList"
+        errorLine1="    private fun getDefaultSpans(currentSlotsPerLine: Int) ="
+        errorLine2="                ~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridSpanLayoutProvider.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable spans with type List&lt;GridItemSpan>: replace with LongList"
+        errorLine1="        val spans = mutableListOf&lt;GridItemSpan>()"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridSpanLayoutProvider.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field countPerType with type Map&lt;Object, Integer>: replace with ObjectIntMap"
+        errorLine1="    private val countPerType = mutableMapOf&lt;Any?, Int>()"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/layout/LazyLayout.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="return type List&lt;Integer> of calculateLazyLayoutPinnedIndices: replace with IntList"
+        errorLine1="): List&lt;Int> {"
+        errorLine2="   ~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/layout/LazyLayoutBeyondBoundsState.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable pinnedItems with type List&lt;Integer>: replace with IntList"
+        errorLine1="        val pinnedItems = mutableListOf&lt;Int>()"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/layout/LazyLayoutBeyondBoundsState.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field placeablesCache with type HashMap&lt;Integer, List&lt;Placeable>>: replace with IntObjectMap"
+        errorLine1="    /**"
+        errorLine2="    ^">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/layout/LazyLayoutMeasureScope.kt"/>
     </issue>
 
     <issue
@@ -201,180 +417,18 @@
 
     <issue
         id="PrimitiveInCollection"
-        message="variable pinnedItems with type List&lt;? extends Integer>: replace with IntList"
-        errorLine1="        val pinnedItems = itemProvider.calculateLazyLayoutPinnedIndices("
-        errorLine2="        ^">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGrid.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="return type List&lt;Integer> of calculateCellsCrossAxisSizeImpl: replace with IntList"
-        errorLine1="): List&lt;Int> {"
-        errorLine2="   ~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridDsl.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="return type List&lt;Integer> of calculateCrossAxisCellSizes: replace with IntList"
-        errorLine1="    fun Density.calculateCrossAxisCellSizes(availableSize: Int, spacing: Int): List&lt;Int>"
-        errorLine2="                                                                               ~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridDsl.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="method measureLazyGrid has parameter pinnedItems with type List&lt;Integer>: replace with IntList"
-        errorLine1="    pinnedItems: List&lt;Int>,"
-        errorLine2="                 ~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridMeasure.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="method calculateExtraItems has parameter pinnedItems with type List&lt;Integer>: replace with IntList"
-        errorLine1="    pinnedItems: List&lt;Int>,"
-        errorLine2="                 ~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridMeasure.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="field spans with type List&lt;GridItemSpan>: replace with LongList"
-        errorLine1="    private val spans: List&lt;GridItemSpan>,"
-        errorLine2="                       ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridMeasuredLine.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="constructor LazyGridMeasuredLine has parameter spans with type List&lt;GridItemSpan>: replace with LongList"
-        errorLine1="    private val spans: List&lt;GridItemSpan>,"
-        errorLine2="                       ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridMeasuredLine.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="method createLine has parameter spans with type List&lt;GridItemSpan>: replace with LongList"
-        errorLine1="        spans: List&lt;GridItemSpan>,"
-        errorLine2="               ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridMeasuredLineProvider.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="field cachedBucket with type List&lt;Integer>: replace with IntList"
-        errorLine1="    /**"
-        errorLine2="    ^">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridSpanLayoutProvider.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="field previousDefaultSpans with type List&lt;GridItemSpan>: replace with LongList"
-        errorLine1="    /**"
-        errorLine2="    ^">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridSpanLayoutProvider.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="return type List&lt;GridItemSpan> of getDefaultSpans: replace with LongList"
-        errorLine1="    private fun getDefaultSpans(currentSlotsPerLine: Int) ="
-        errorLine2="                ~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridSpanLayoutProvider.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="variable spans with type List&lt;GridItemSpan>: replace with LongList"
-        errorLine1="        val spans = mutableListOf&lt;GridItemSpan>()"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridSpanLayoutProvider.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="field spans with type List&lt;GridItemSpan>: replace with LongList"
-        errorLine1="    class LineConfiguration(val firstItemIndex: Int, val spans: List&lt;GridItemSpan>)"
-        errorLine2="                                                                ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridSpanLayoutProvider.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="return type List&lt;GridItemSpan> of getSpans: replace with LongList"
-        errorLine1="    class LineConfiguration(val firstItemIndex: Int, val spans: List&lt;GridItemSpan>)"
-        errorLine2="                                                                ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridSpanLayoutProvider.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="constructor LineConfiguration has parameter spans with type List&lt;GridItemSpan>: replace with LongList"
-        errorLine1="    class LineConfiguration(val firstItemIndex: Int, val spans: List&lt;GridItemSpan>)"
-        errorLine2="                                                                ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/grid/LazyGridSpanLayoutProvider.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="field countPerType with type Map&lt;Object, Integer>: replace with ObjectIntMap"
-        errorLine1="    private val countPerType = mutableMapOf&lt;Any?, Int>()"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/layout/LazyLayout.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="return type List&lt;Integer> of calculateLazyLayoutPinnedIndices: replace with IntList"
-        errorLine1="): List&lt;Int> {"
-        errorLine2="   ~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/layout/LazyLayoutBeyondBoundsState.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="variable pinnedItems with type List&lt;Integer>: replace with IntList"
-        errorLine1="        val pinnedItems = mutableListOf&lt;Int>()"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/layout/LazyLayoutBeyondBoundsState.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="field placeablesCache with type HashMap&lt;Integer, List&lt;Placeable>>: replace with IntObjectMap"
-        errorLine1="    /**"
-        errorLine2="    ^">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/layout/LazyLayoutMeasureScope.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
         message="method measureStaggeredGrid has parameter pinnedItems with type List&lt;Integer>: replace with IntList"
         errorLine1="    pinnedItems: List&lt;Int>,"
         errorLine2="                 ~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/staggeredgrid/LazyStaggeredGridMeasure.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="constructor LazyStaggeredGridMeasureContext has parameter pinnedItems with type List&lt;Integer>: replace with IntList"
+        errorLine1="    val pinnedItems: List&lt;Int>,"
+        errorLine2="                     ~~~~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/foundation/lazy/staggeredgrid/LazyStaggeredGridMeasure.kt"/>
     </issue>
@@ -391,15 +445,6 @@
     <issue
         id="PrimitiveInCollection"
         message="return type List&lt;Integer> of getPinnedItems: replace with IntList"
-        errorLine1="    val pinnedItems: List&lt;Int>,"
-        errorLine2="                     ~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/staggeredgrid/LazyStaggeredGridMeasure.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="constructor LazyStaggeredGridMeasureContext has parameter pinnedItems with type List&lt;Integer>: replace with IntList"
         errorLine1="    val pinnedItems: List&lt;Int>,"
         errorLine2="                     ~~~~~~~~~">
         <location
@@ -479,78 +524,6 @@
     </issue>
 
     <issue
-        id="IllegalExperimentalApiUsage"
-        message="`Experimental` and `RequiresOptIn` APIs may only be used within the same-version group where they were defined."
-        errorLine1="@OptIn(ExperimentalTextApi::class)"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/text/BasicText.kt"/>
-    </issue>
-
-    <issue
-        id="BanSuppressTag"
-        message="@suppress is not allowed in documentation"
-        errorLine1="class TextDelegate("
-        errorLine2="      ~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/text/TextDelegate.kt"/>
-    </issue>
-
-    <issue
-        id="BanSuppressTag"
-        message="@suppress is not allowed in documentation"
-        errorLine1="        fun applyCompositionDecoration("
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/text/TextFieldDelegate.kt"/>
-    </issue>
-
-    <issue
-        id="IllegalExperimentalApiUsage"
-        message="`Experimental` and `RequiresOptIn` APIs may only be used within the same-version group where they were defined."
-        errorLine1="@OptIn(ExperimentalTextApi::class)"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/text/TextLinkScope.kt"/>
-    </issue>
-
-    <issue
-        id="IllegalExperimentalApiUsage"
-        message="`Experimental` and `RequiresOptIn` APIs may only be used within the same-version group where they were defined."
-        errorLine1="@OptIn(ExperimentalTextApi::class)"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/text/modifiers/TextAnnotatedStringNode.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="field baselineCache with type Map&lt;AlignmentLine, Integer>: replace with ObjectIntMap"
-        errorLine1="    private var baselineCache: Map&lt;AlignmentLine, Int>? = null"
-        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/text/modifiers/TextAnnotatedStringNode.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="field baselineCache with type Map&lt;AlignmentLine, Integer>: replace with ObjectIntMap"
-        errorLine1="    private var baselineCache: MutableMap&lt;AlignmentLine, Int>? = null"
-        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/text/modifiers/TextStringSimpleNode.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="variable cache with type Map&lt;AlignmentLine, Integer>: replace with ObjectIntMap"
-        errorLine1="            var cache = baselineCache"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/text/modifiers/TextStringSimpleNode.kt"/>
-    </issue>
-
-    <issue
         id="PrimitiveInCollection"
         message="return type Map&lt;Long, Selection> of createSubSelections: replace with LongObjectMap"
         errorLine1="    fun createSubSelections(selection: Selection): Map&lt;Long, Selection>"
@@ -561,7 +534,25 @@
 
     <issue
         id="PrimitiveInCollection"
+        message="constructor MultiSelectionLayout has parameter selectableIdToInfoListIndex with type Map&lt;Long, Integer>: replace with LongIntMap"
+        errorLine1="    val selectableIdToInfoListIndex: Map&lt;Long, Int>,"
+        errorLine2="                                     ~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/text/selection/SelectionLayout.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
         message="field selectableIdToInfoListIndex with type Map&lt;Long, Integer>: replace with LongIntMap"
+        errorLine1="    val selectableIdToInfoListIndex: Map&lt;Long, Int>,"
+        errorLine2="                                     ~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/text/selection/SelectionLayout.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="return type Map&lt;Long, Integer> of getSelectableIdToInfoListIndex: replace with LongIntMap"
         errorLine1="    val selectableIdToInfoListIndex: Map&lt;Long, Int>,"
         errorLine2="                                     ~~~~~~~~~~~~~~">
         <location
@@ -579,29 +570,20 @@
 
     <issue
         id="PrimitiveInCollection"
-        message="return type Map&lt;Long, Integer> of getSelectableIdToInfoListIndex: replace with LongIntMap"
-        errorLine1="    val selectableIdToInfoListIndex: Map&lt;Long, Int>,"
-        errorLine2="                                     ~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/text/selection/SelectionLayout.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="constructor MultiSelectionLayout has parameter selectableIdToInfoListIndex with type Map&lt;Long, Integer>: replace with LongIntMap"
-        errorLine1="    val selectableIdToInfoListIndex: Map&lt;Long, Int>,"
-        errorLine2="                                     ~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/text/selection/SelectionLayout.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
         message="field selectableIdToInfoListIndex with type Map&lt;Long, Integer>: replace with LongIntMap"
         errorLine1="    private val selectableIdToInfoListIndex: MutableMap&lt;Long, Int> = mutableMapOf()"
         errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/foundation/text/selection/SelectionLayout.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable newSubselection with type Map&lt;Long, ? extends Selection>: replace with LongObjectMap"
+        errorLine1="                val (newSelection, newSubselection) = selectAll("
+        errorLine2="                                   ~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/text/selection/SelectionManager.kt"/>
     </issue>
 
     <issue
@@ -618,15 +600,6 @@
         message="variable idToIndexMap with type Map&lt;Long, Integer>: replace with LongIntMap"
         errorLine1="        val idToIndexMap = mutableMapOf&lt;Long, Int>()"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/text/selection/SelectionManager.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="variable newSubselection with type Map&lt;Long, ? extends Selection>: replace with LongObjectMap"
-        errorLine1="                val (newSelection, newSubselection) = selectAll("
-        errorLine2="                                   ~~~~~~~~~~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/foundation/text/selection/SelectionManager.kt"/>
     </issue>
@@ -665,6 +638,33 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/foundation/text/selection/SelectionRegistrarImpl.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field baselineCache with type Map&lt;AlignmentLine, Integer>: replace with ObjectIntMap"
+        errorLine1="    private var baselineCache: Map&lt;AlignmentLine, Int>? = null"
+        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/text/modifiers/TextAnnotatedStringNode.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field baselineCache with type Map&lt;AlignmentLine, Integer>: replace with ObjectIntMap"
+        errorLine1="    private var baselineCache: MutableMap&lt;AlignmentLine, Int>? = null"
+        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/text/modifiers/TextStringSimpleNode.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable cache with type Map&lt;AlignmentLine, Integer>: replace with ObjectIntMap"
+        errorLine1="            var cache = baselineCache"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/text/modifiers/TextStringSimpleNode.kt"/>
     </issue>
 
 </issues>

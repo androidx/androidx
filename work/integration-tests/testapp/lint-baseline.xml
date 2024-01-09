@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.3.0-alpha10" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha10)" variant="all" version="8.3.0-alpha10">
+<issues format="6" by="lint 8.3.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-beta01)" variant="all" version="8.3.0-beta01">
 
     <issue
         id="BanThreadSleep"
@@ -11,12 +11,12 @@
     </issue>
 
     <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public static String TAG = &quot;RecursiveWorker&quot;;"
-        errorLine2="                  ~~~~~~">
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(200);"
+        errorLine2="                   ~~~~~">
         <location
-            file="src/main/java/androidx/work/integration/testapp/RecursiveWorker.java"/>
+            file="src/main/java/androidx/work/integration/testapp/SleepWorker.java"/>
     </issue>
 
     <issue
@@ -92,30 +92,12 @@
     </issue>
 
     <issue
-        id="BanThreadSleep"
-        message="Uses Thread.sleep()"
-        errorLine1="            Thread.sleep(200);"
-        errorLine2="                   ~~~~~">
-        <location
-            file="src/main/java/androidx/work/integration/testapp/SleepWorker.java"/>
-    </issue>
-
-    <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public static OneTimeWorkRequest.Builder create(String message) {"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="    protected void onCreate(final Bundle savedInstanceState) {"
+        errorLine2="                                  ~~~~~~">
         <location
-            file="src/main/java/androidx/work/integration/testapp/ToastWorker.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public static OneTimeWorkRequest.Builder create(String message) {"
-        errorLine2="                                                    ~~~~~~">
-        <location
-            file="src/main/java/androidx/work/integration/testapp/ToastWorker.java"/>
+            file="src/main/java/androidx/work/integration/testapp/sherlockholmes/AnalyzeSherlockHolmesActivity.java"/>
     </issue>
 
     <issue
@@ -184,60 +166,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public static TestDatabase getInstance(Context context) {"
-        errorLine2="                  ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/integration/testapp/db/TestDatabase.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public static TestDatabase getInstance(Context context) {"
-        errorLine2="                                           ~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/integration/testapp/db/TestDatabase.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public abstract WordCountDao getWordCountDao();"
-        errorLine2="                    ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/integration/testapp/db/TestDatabase.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public abstract ImageDao getImageDao();"
-        errorLine2="                    ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/integration/testapp/db/TestDatabase.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    void insertWordCount(WordCount wordCount);"
-        errorLine2="                         ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/integration/testapp/db/WordCountDao.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    LiveData&lt;List&lt;WordCount>> getWordCounts();"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/integration/testapp/db/WordCountDao.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
         errorLine2="                            ~~~~~~">
         <location
@@ -283,10 +211,46 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected void onCreate(final Bundle savedInstanceState) {"
-        errorLine2="                                  ~~~~~~">
+        errorLine1="    public static String TAG = &quot;RecursiveWorker&quot;;"
+        errorLine2="                  ~~~~~~">
         <location
-            file="src/main/java/androidx/work/integration/testapp/sherlockholmes/AnalyzeSherlockHolmesActivity.java"/>
+            file="src/main/java/androidx/work/integration/testapp/RecursiveWorker.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public static TestDatabase getInstance(Context context) {"
+        errorLine2="                  ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/work/integration/testapp/db/TestDatabase.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public static TestDatabase getInstance(Context context) {"
+        errorLine2="                                           ~~~~~~~">
+        <location
+            file="src/main/java/androidx/work/integration/testapp/db/TestDatabase.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public abstract WordCountDao getWordCountDao();"
+        errorLine2="                    ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/work/integration/testapp/db/TestDatabase.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public abstract ImageDao getImageDao();"
+        errorLine2="                    ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/work/integration/testapp/db/TestDatabase.java"/>
     </issue>
 
     <issue
@@ -305,6 +269,42 @@
         errorLine2="                                                    ~~~~~~">
         <location
             file="src/main/java/androidx/work/integration/testapp/sherlockholmes/TextMappingWorker.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public static OneTimeWorkRequest.Builder create(String message) {"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/work/integration/testapp/ToastWorker.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public static OneTimeWorkRequest.Builder create(String message) {"
+        errorLine2="                                                    ~~~~~~">
+        <location
+            file="src/main/java/androidx/work/integration/testapp/ToastWorker.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    void insertWordCount(WordCount wordCount);"
+        errorLine2="                         ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/work/integration/testapp/db/WordCountDao.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    LiveData&lt;List&lt;WordCount>> getWordCounts();"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/work/integration/testapp/db/WordCountDao.java"/>
     </issue>
 
 </issues>

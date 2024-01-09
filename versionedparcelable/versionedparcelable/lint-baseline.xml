@@ -1,14 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.3.0-alpha10" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha10)" variant="all" version="8.3.0-alpha10">
-
-    <issue
-        id="LambdaLast"
-        message="Functional interface parameters (such as parameter 1, &quot;val&quot;, in androidx.versionedparcelable.VersionedParcel.writeStrongInterface) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
-        errorLine1="    public void writeStrongInterface(@Nullable IInterface val, int fieldId) {"
-        errorLine2="                                                               ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"/>
-    </issue>
+<issues format="6" by="lint 8.3.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-beta01)" variant="all" version="8.3.0-beta01">
 
     <issue
         id="BanUncheckedReflection"
@@ -24,6 +15,15 @@
         message="Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
         errorLine1="            m.invoke(null, val, versionedParcel);"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"/>
+    </issue>
+
+    <issue
+        id="LambdaLast"
+        message="Functional interface parameters (such as parameter 1, &quot;val&quot;, in androidx.versionedparcelable.VersionedParcel.writeStrongInterface) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
+        errorLine1="    public void writeStrongInterface(@Nullable IInterface val, int fieldId) {"
+        errorLine2="                                                               ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"/>
     </issue>

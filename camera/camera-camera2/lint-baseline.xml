@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.3.0-alpha10" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha10)" variant="all" version="8.3.0-alpha10">
+<issues format="6" by="lint 8.3.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-beta01)" variant="all" version="8.3.0-beta01">
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 30 (current min is 21): `android.hardware.camera2.CameraCharacteristics#CONTROL_ZOOM_RATIO_RANGE`"
+        errorLine1="                    CameraCharacteristics.CONTROL_ZOOM_RATIO_RANGE).getUpper();"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/camera/camera2/internal/ZoomControlDeviceTest.java"/>
+    </issue>
 
     <issue
         id="BanThreadSleep"
@@ -26,51 +35,6 @@
         errorLine2="               ~~~~~">
         <location
             file="src/androidTest/java/androidx/camera/camera2/internal/Camera2ImplCameraXTest.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Field requires API level 30 (current min is 21): `android.hardware.camera2.CameraCharacteristics#CONTROL_ZOOM_RATIO_RANGE`"
-        errorLine1="                    CameraCharacteristics.CONTROL_ZOOM_RATIO_RANGE).getUpper();"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/camera/camera2/internal/ZoomControlDeviceTest.java"/>
-    </issue>
-
-    <issue
-        id="UnsafeOptInUsageError"
-        message="This declaration is opt-in and its usage should be marked with&#xA;&apos;@androidx.camera.core.ExperimentalZeroShutterLag&apos; or &apos;@OptIn(markerClass = androidx.camera.core.ExperimentalZeroShutterLag.class)&apos;"
-        errorLine1="        return Build.VERSION.SDK_INT >= 23 &amp;&amp; isPrivateReprocessingSupported()"
-        errorLine2="               ^">
-        <location
-            file="src/main/java/androidx/camera/camera2/internal/Camera2CameraInfoImpl.java"/>
-    </issue>
-
-    <issue
-        id="UnsafeOptInUsageError"
-        message="This declaration is opt-in and its usage should be marked with&#xA;&apos;@androidx.camera.core.ExperimentalZeroShutterLag&apos; or &apos;@OptIn(markerClass = androidx.camera.core.ExperimentalZeroShutterLag.class)&apos;"
-        errorLine1="    public boolean isZslSupported() {"
-        errorLine2="                   ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/internal/Camera2CameraInfoImpl.java"/>
-    </issue>
-
-    <issue
-        id="UnsafeOptInUsageError"
-        message="This declaration is opt-in and its usage should be marked with&#xA;&apos;@androidx.camera.camera2.interop.ExperimentalCamera2Interop&apos; or &apos;@OptIn(markerClass = androidx.camera.camera2.interop.ExperimentalCamera2Interop.class)&apos;"
-        errorLine1="        Camera2ImplConfig.Builder camera2ConfigBuilder = new Camera2ImplConfig.Builder();"
-        errorLine2="                                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/internal/ImageCaptureOptionUnpacker.java"/>
-    </issue>
-
-    <issue
-        id="UnsafeOptInUsageError"
-        message="This declaration is opt-in and its usage should be marked with&#xA;&apos;@androidx.camera.camera2.interop.ExperimentalCamera2Interop&apos; or &apos;@OptIn(markerClass = androidx.camera.camera2.interop.ExperimentalCamera2Interop.class)&apos;"
-        errorLine1="        builder.addImplementationOptions(camera2ConfigBuilder.build());"
-        errorLine2="                                                              ~~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/internal/ImageCaptureOptionUnpacker.java"/>
     </issue>
 
     <issue

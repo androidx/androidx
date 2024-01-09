@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.3.0-alpha10" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha10)" variant="all" version="8.3.0-alpha10">
+<issues format="6" by="lint 8.3.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-beta01)" variant="all" version="8.3.0-beta01">
 
     <issue
         id="BanThreadSleep"
@@ -146,33 +146,6 @@
     </issue>
 
     <issue
-        id="PrimitiveInCollection"
-        message="field LayoutMap with type Map&lt;LayoutType, Integer>: replace with ObjectIntMap"
-        errorLine1="/** Mapping from layout type to fixed layout (if any). */"
-        errorLine2="^">
-        <location
-            file="src/main/java/androidx/glance/appwidget/LayoutSelection.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="variable children with type Map&lt;SizeSelector, ? extends Integer>: replace with ObjectIntMap"
-        errorLine1="    val children = translationContext.parentContext.children[pos]"
-        errorLine2="    ^">
-        <location
-            file="src/main/java/androidx/glance/appwidget/LayoutSelection.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="variable var6b5ab7c1 with type Map&lt;SizeSelector, ? extends Integer>: replace with ObjectIntMap"
-        errorLine1="    val children = translationContext.parentContext.children[pos]"
-        errorLine2="                   ^">
-        <location
-            file="src/main/java/androidx/glance/appwidget/LayoutSelection.kt"/>
-    </issue>
-
-    <issue
         id="ListIterator"
         message="Creating an unnecessary Iterator to iterate through a List"
         errorLine1="        .forEach {"
@@ -182,48 +155,75 @@
     </issue>
 
     <issue
-        id="PrimitiveInCollection"
-        message="variable childrenMapping with type Map&lt;Integer, ? extends Map&lt;SizeSelector, ? extends Integer>>: replace with IntObjectMap"
-        errorLine1="    val childrenMapping = generatedChildren[type]"
-        errorLine2="    ^">
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        itemList.forEachIndexed { index, (itemId, composable) ->"
+        errorLine2="                 ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/glance/appwidget/LayoutSelection.kt"/>
+            file="src/main/java/androidx/glance/appwidget/lazy/LazyList.kt"/>
     </issue>
 
     <issue
-        id="PrimitiveInCollection"
-        message="variable var405c8518 with type Map&lt;Integer, ? extends Map&lt;SizeSelector, ? extends Integer>>: replace with IntObjectMap"
-        errorLine1="    val childrenMapping = generatedChildren[type]"
-        errorLine2="                          ^">
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        it.children.addAll(children.map { it.copy() })"
+        errorLine2="                                    ~~~">
         <location
-            file="src/main/java/androidx/glance/appwidget/LayoutSelection.kt"/>
+            file="src/main/java/androidx/glance/appwidget/lazy/LazyList.kt"/>
     </issue>
 
     <issue
-        id="PrimitiveInCollection"
-        message="field children with type Map&lt;Integer, Map&lt;SizeSelector, Integer>>: replace with IntObjectMap"
-        errorLine1="    val children: Map&lt;Int, Map&lt;SizeSelector, Int>> = emptyMap(),"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        it.children.addAll(children.map { it.copy() })"
+        errorLine2="                                    ~~~">
         <location
-            file="src/main/java/androidx/glance/appwidget/LayoutSelection.kt"/>
+            file="src/main/java/androidx/glance/appwidget/lazy/LazyList.kt"/>
     </issue>
 
     <issue
-        id="PrimitiveInCollection"
-        message="return type Map&lt;Integer, Map&lt;SizeSelector, Integer>> of getChildren: replace with IntObjectMap"
-        errorLine1="    val children: Map&lt;Int, Map&lt;SizeSelector, Int>> = emptyMap(),"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        element.children.foldIndexed(false) { position, previous, itemEmittable ->"
+        errorLine2="                         ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/glance/appwidget/LayoutSelection.kt"/>
+            file="src/main/java/androidx/glance/appwidget/translators/LazyListTranslator.kt"/>
     </issue>
 
     <issue
-        id="PrimitiveInCollection"
-        message="constructor InsertedViewInfo has parameter children with type Map&lt;Integer, ? extends Map&lt;SizeSelector, Integer>>: replace with IntObjectMap"
-        errorLine1="    val children: Map&lt;Int, Map&lt;SizeSelector, Int>> = emptyMap(),"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        itemList.forEachIndexed { index, (itemId, composable) ->"
+        errorLine2="                 ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/glance/appwidget/LayoutSelection.kt"/>
+            file="src/main/java/androidx/glance/appwidget/lazy/LazyVerticalGrid.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        it.children.addAll(children.map { it.copy() })"
+        errorLine2="                                    ~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/lazy/LazyVerticalGrid.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        it.children.addAll(children.map { it.copy() })"
+        errorLine2="                                    ~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/lazy/LazyVerticalGrid.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        element.children.foldIndexed(false) { position, previous, itemEmittable ->"
+        errorLine2="                         ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/translators/LazyVerticalGridTranslator.kt"/>
     </issue>
 
     <issue
@@ -303,15 +303,6 @@
         message="Creating an unnecessary Iterator to iterate through a List"
         errorLine1="        val layoutIdCount = views.map { it.layoutId }.distinct().count()"
         errorLine2="                                                      ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/glance/appwidget/RemoteCollectionItems.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="field ids with type ArrayList&lt;Long>: replace with LongList"
-        errorLine1="        private val ids = arrayListOf&lt;Long>()"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/glance/appwidget/RemoteCollectionItems.kt"/>
     </issue>
@@ -427,6 +418,15 @@
     <issue
         id="ListIterator"
         message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        it.children.addAll(children.map { it.copy() })"
+        errorLine2="                                    ~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/SizeBox.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
         errorLine1="                .map { findBestSize(it, sizeMode.sizes) ?: smallestSize }"
         errorLine2="                 ~~~">
         <location
@@ -445,10 +445,118 @@
     <issue
         id="ListIterator"
         message="Creating an unnecessary Iterator to iterate through a List"
-        errorLine1="        it.children.addAll(children.map { it.copy() })"
-        errorLine2="                                    ~~~">
+        errorLine1="    spans.forEach { span ->"
+        errorLine2="          ~~~~~~~">
         <location
-            file="src/main/java/androidx/glance/appwidget/SizeBox.kt"/>
+            file="src/main/java/androidx/glance/appwidget/translators/TextTranslator.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            val layouts = config.layoutList.associate {"
+        errorLine2="                                            ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/WidgetLayout.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            addAllChildren(element.children.map { createNode(context, it) })"
+        errorLine2="                                            ~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/WidgetLayout.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="constructor InsertedViewInfo has parameter children with type Map&lt;Integer, ? extends Map&lt;SizeSelector, Integer>>: replace with IntObjectMap"
+        errorLine1="    val children: Map&lt;Int, Map&lt;SizeSelector, Int>> = emptyMap(),"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/LayoutSelection.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field children with type Map&lt;Integer, Map&lt;SizeSelector, Integer>>: replace with IntObjectMap"
+        errorLine1="    val children: Map&lt;Int, Map&lt;SizeSelector, Int>> = emptyMap(),"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/LayoutSelection.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="return type Map&lt;Integer, Map&lt;SizeSelector, Integer>> of getChildren: replace with IntObjectMap"
+        errorLine1="    val children: Map&lt;Int, Map&lt;SizeSelector, Int>> = emptyMap(),"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/LayoutSelection.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field LayoutMap with type Map&lt;LayoutType, Integer>: replace with ObjectIntMap"
+        errorLine1="/** Mapping from layout type to fixed layout (if any). */"
+        errorLine2="^">
+        <location
+            file="src/main/java/androidx/glance/appwidget/LayoutSelection.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable children with type Map&lt;SizeSelector, ? extends Integer>: replace with ObjectIntMap"
+        errorLine1="    val children = translationContext.parentContext.children[pos]"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/glance/appwidget/LayoutSelection.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable var6b5ab7c1 with type Map&lt;SizeSelector, ? extends Integer>: replace with ObjectIntMap"
+        errorLine1="    val children = translationContext.parentContext.children[pos]"
+        errorLine2="                   ^">
+        <location
+            file="src/main/java/androidx/glance/appwidget/LayoutSelection.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable childrenMapping with type Map&lt;Integer, ? extends Map&lt;SizeSelector, ? extends Integer>>: replace with IntObjectMap"
+        errorLine1="    val childrenMapping = generatedChildren[type]"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/glance/appwidget/LayoutSelection.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable var405c8518 with type Map&lt;Integer, ? extends Map&lt;SizeSelector, ? extends Integer>>: replace with IntObjectMap"
+        errorLine1="    val childrenMapping = generatedChildren[type]"
+        errorLine2="                          ^">
+        <location
+            file="src/main/java/androidx/glance/appwidget/LayoutSelection.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field ids with type ArrayList&lt;Long>: replace with LongList"
+        errorLine1="        private val ids = arrayListOf&lt;Long>()"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/RemoteCollectionItems.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="constructor Responsive has parameter sizes with type Set&lt;DpSize>: replace with LongSet"
+        errorLine1="    class Responsive(val sizes: Set&lt;DpSize>) : SizeMode {"
+        errorLine2="                                ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/SizeMode.kt"/>
     </issue>
 
     <issue
@@ -471,25 +579,7 @@
 
     <issue
         id="PrimitiveInCollection"
-        message="constructor Responsive has parameter sizes with type Set&lt;DpSize>: replace with LongSet"
-        errorLine1="    class Responsive(val sizes: Set&lt;DpSize>) : SizeMode {"
-        errorLine2="                                ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/glance/appwidget/SizeMode.kt"/>
-    </issue>
-
-    <issue
-        id="ListIterator"
-        message="Creating an unnecessary Iterator to iterate through a List"
-        errorLine1="            addAllChildren(element.children.map { createNode(context, it) })"
-        errorLine2="                                            ~~~">
-        <location
-            file="src/main/java/androidx/glance/appwidget/WidgetLayout.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="field layoutConfig with type Map&lt;LayoutNode, Integer>: replace with ObjectIntMap"
+        message="constructor LayoutConfiguration has parameter layoutConfig with type Map&lt;LayoutNode, Integer>: replace with ObjectIntMap"
         errorLine1="    private val layoutConfig: MutableMap&lt;LayoutNode, Int>,"
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -498,25 +588,7 @@
 
     <issue
         id="PrimitiveInCollection"
-        message="field usedLayoutIds with type Set&lt;Integer>: replace with IntSet"
-        errorLine1="    private val usedLayoutIds: MutableSet&lt;Int> = mutableSetOf(),"
-        errorLine2="                               ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/glance/appwidget/WidgetLayout.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="field existingLayoutIds with type Set&lt;Integer>: replace with IntSet"
-        errorLine1="    private val existingLayoutIds: MutableSet&lt;Int> = mutableSetOf(),"
-        errorLine2="                                   ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/glance/appwidget/WidgetLayout.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="constructor LayoutConfiguration has parameter layoutConfig with type Map&lt;LayoutNode, Integer>: replace with ObjectIntMap"
+        message="field layoutConfig with type Map&lt;LayoutNode, Integer>: replace with ObjectIntMap"
         errorLine1="    private val layoutConfig: MutableMap&lt;LayoutNode, Int>,"
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -534,7 +606,25 @@
 
     <issue
         id="PrimitiveInCollection"
+        message="field usedLayoutIds with type Set&lt;Integer>: replace with IntSet"
+        errorLine1="    private val usedLayoutIds: MutableSet&lt;Int> = mutableSetOf(),"
+        errorLine2="                               ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/WidgetLayout.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
         message="constructor LayoutConfiguration has parameter existingLayoutIds with type Set&lt;Integer>: replace with IntSet"
+        errorLine1="    private val existingLayoutIds: MutableSet&lt;Int> = mutableSetOf(),"
+        errorLine2="                                   ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/WidgetLayout.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field existingLayoutIds with type Set&lt;Integer>: replace with IntSet"
         errorLine1="    private val existingLayoutIds: MutableSet&lt;Int> = mutableSetOf(),"
         errorLine2="                                   ~~~~~~~~~~~~~~~">
         <location
@@ -548,96 +638,6 @@
         errorLine2="            ^">
         <location
             file="src/main/java/androidx/glance/appwidget/WidgetLayout.kt"/>
-    </issue>
-
-    <issue
-        id="ListIterator"
-        message="Creating an unnecessary Iterator to iterate through a List"
-        errorLine1="            val layouts = config.layoutList.associate {"
-        errorLine2="                                            ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/glance/appwidget/WidgetLayout.kt"/>
-    </issue>
-
-    <issue
-        id="ListIterator"
-        message="Creating an unnecessary Iterator to iterate through a List"
-        errorLine1="        itemList.forEachIndexed { index, (itemId, composable) ->"
-        errorLine2="                 ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/glance/appwidget/lazy/LazyList.kt"/>
-    </issue>
-
-    <issue
-        id="ListIterator"
-        message="Creating an unnecessary Iterator to iterate through a List"
-        errorLine1="        it.children.addAll(children.map { it.copy() })"
-        errorLine2="                                    ~~~">
-        <location
-            file="src/main/java/androidx/glance/appwidget/lazy/LazyList.kt"/>
-    </issue>
-
-    <issue
-        id="ListIterator"
-        message="Creating an unnecessary Iterator to iterate through a List"
-        errorLine1="        it.children.addAll(children.map { it.copy() })"
-        errorLine2="                                    ~~~">
-        <location
-            file="src/main/java/androidx/glance/appwidget/lazy/LazyList.kt"/>
-    </issue>
-
-    <issue
-        id="ListIterator"
-        message="Creating an unnecessary Iterator to iterate through a List"
-        errorLine1="        itemList.forEachIndexed { index, (itemId, composable) ->"
-        errorLine2="                 ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/glance/appwidget/lazy/LazyVerticalGrid.kt"/>
-    </issue>
-
-    <issue
-        id="ListIterator"
-        message="Creating an unnecessary Iterator to iterate through a List"
-        errorLine1="        it.children.addAll(children.map { it.copy() })"
-        errorLine2="                                    ~~~">
-        <location
-            file="src/main/java/androidx/glance/appwidget/lazy/LazyVerticalGrid.kt"/>
-    </issue>
-
-    <issue
-        id="ListIterator"
-        message="Creating an unnecessary Iterator to iterate through a List"
-        errorLine1="        it.children.addAll(children.map { it.copy() })"
-        errorLine2="                                    ~~~">
-        <location
-            file="src/main/java/androidx/glance/appwidget/lazy/LazyVerticalGrid.kt"/>
-    </issue>
-
-    <issue
-        id="ListIterator"
-        message="Creating an unnecessary Iterator to iterate through a List"
-        errorLine1="        element.children.foldIndexed(false) { position, previous, itemEmittable ->"
-        errorLine2="                         ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/glance/appwidget/translators/LazyListTranslator.kt"/>
-    </issue>
-
-    <issue
-        id="ListIterator"
-        message="Creating an unnecessary Iterator to iterate through a List"
-        errorLine1="        element.children.foldIndexed(false) { position, previous, itemEmittable ->"
-        errorLine2="                         ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/glance/appwidget/translators/LazyVerticalGridTranslator.kt"/>
-    </issue>
-
-    <issue
-        id="ListIterator"
-        message="Creating an unnecessary Iterator to iterate through a List"
-        errorLine1="    spans.forEach { span ->"
-        errorLine2="          ~~~~~~~">
-        <location
-            file="src/main/java/androidx/glance/appwidget/translators/TextTranslator.kt"/>
     </issue>
 
 </issues>

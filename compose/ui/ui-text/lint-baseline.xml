@@ -1,14 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.3.0-alpha10" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha10)" variant="all" version="8.3.0-alpha10">
-
-    <issue
-        id="NewApi"
-        message="Cast from `BlendMode` to `Comparable` requires API level 29 (current min is 21)"
-        errorLine1="        assertThat(paragraph.textPaint.blendMode).isEqualTo(BlendMode.SrcOver)"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/ui/text/AndroidParagraphTest.kt"/>
-    </issue>
+<issues format="6" by="lint 8.3.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-beta01)" variant="all" version="8.3.0-beta01">
 
     <issue
         id="NewApi"
@@ -40,10 +31,10 @@
     <issue
         id="NewApi"
         message="Cast from `BlendMode` to `Comparable` requires API level 29 (current min is 21)"
-        errorLine1="        assertThat(textPaint.blendMode).isEqualTo(BlendMode.SrcOver)"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~">
+        errorLine1="        assertThat(paragraph.textPaint.blendMode).isEqualTo(BlendMode.SrcOver)"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/ui/text/platform/AndroidTextPaintTest.kt"/>
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/ui/text/AndroidParagraphTest.kt"/>
     </issue>
 
     <issue
@@ -51,6 +42,15 @@
         message="Call requires API level 29 (current min is 21): `android.graphics.Paint#getBlendMode`"
         errorLine1="        assertThat(textPaint.blendMode).isEqualTo(BlendMode.SrcOver)"
         errorLine2="                             ~~~~~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/ui/text/platform/AndroidTextPaintTest.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Cast from `BlendMode` to `Comparable` requires API level 29 (current min is 21)"
+        errorLine1="        assertThat(textPaint.blendMode).isEqualTo(BlendMode.SrcOver)"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidInstrumentedTest/kotlin/androidx/compose/ui/text/platform/AndroidTextPaintTest.kt"/>
     </issue>
@@ -66,6 +66,15 @@
 
     <issue
         id="NewApi"
+        message="Call requires API level 29 (current min is 21): `android.graphics.Paint#getBlendMode`"
+        errorLine1="        assertThat(textPaint.blendMode).isEqualTo(BlendMode.DstOver)"
+        errorLine2="                             ~~~~~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/ui/text/platform/AndroidTextPaintTest.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
         message="Cast from `BlendMode` to `Comparable` requires API level 29 (current min is 21)"
         errorLine1="        assertThat(textPaint.blendMode).isEqualTo(BlendMode.DstOver)"
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~">
@@ -74,12 +83,48 @@
     </issue>
 
     <issue
-        id="NewApi"
-        message="Call requires API level 29 (current min is 21): `android.graphics.Paint#getBlendMode`"
-        errorLine1="        assertThat(textPaint.blendMode).isEqualTo(BlendMode.DstOver)"
-        errorLine2="                             ~~~~~~~~~">
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="                        &quot;&apos;$key&apos; must be unique. Actual [ [${value.joinToString()}]&quot;"
+        errorLine2="                                                                  ~~~~~~~~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/ui/text/platform/AndroidTextPaintTest.kt"/>
+            file="src/commonMain/kotlin/androidx/compose/ui/text/font/FontVariation.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="return type List&lt;FontStyle> of values: replace with IntList"
+        errorLine1="        fun values(): List&lt;FontStyle> = listOf(Normal, Italic)"
+        errorLine2="                      ~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/text/font/FontStyle.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable transitions with type TreeSet&lt;Integer>: replace with IntSet"
+        errorLine1="    val transitions = sortedSetOf(0, text.length)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/jvmMain/kotlin/androidx/compose/ui/text/JvmAnnotatedString.jvm.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable offsetMap with type Map&lt;Integer, Integer>: replace with IntIntMap"
+        errorLine1="    val offsetMap = mutableMapOf(0 to 0)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/jvmMain/kotlin/androidx/compose/ui/text/JvmAnnotatedString.jvm.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method collectRangeTransitions has parameter target with type SortedSet&lt;Integer>: replace with IntSet"
+        errorLine1="    target: SortedSet&lt;Int>"
+        errorLine2="            ~~~~~~~~~~~~~~">
+        <location
+            file="src/jvmMain/kotlin/androidx/compose/ui/text/JvmAnnotatedString.jvm.kt"/>
     </issue>
 
     <issue
@@ -98,6 +143,15 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="${:compose:ui:ui-text*debug*MAIN*sourceProvider*0*javaDir*4}/androidx/compose/ui/text/android/LayoutHelper.android.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable list with type List&lt;? extends Float>: replace with FloatList"
+        errorLine1="        @Suppress(&quot;UNCHECKED_CAST&quot;)"
+        errorLine2="        ^">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/text/Savers.kt"/>
     </issue>
 
     <issue
@@ -156,65 +210,11 @@
 
     <issue
         id="PrimitiveInCollection"
-        message="variable list with type List&lt;? extends Float>: replace with FloatList"
-        errorLine1="        @Suppress(&quot;UNCHECKED_CAST&quot;)"
-        errorLine2="        ^">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/ui/text/Savers.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="return type List&lt;FontStyle> of values: replace with IntList"
-        errorLine1="        fun values(): List&lt;FontStyle> = listOf(Normal, Italic)"
-        errorLine2="                      ~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/ui/text/font/FontStyle.kt"/>
-    </issue>
-
-    <issue
-        id="ListIterator"
-        message="Creating an unnecessary Iterator to iterate through a List"
-        errorLine1="                        &quot;&apos;$key&apos; must be unique. Actual [ [${value.joinToString()}]&quot;"
-        errorLine2="                                                                  ~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/ui/text/font/FontVariation.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
         message="return type List&lt;TextAlign> of values: replace with IntList"
         errorLine1="        fun values(): List&lt;TextAlign> = listOf(Left, Right, Center, Justify, Start, End)"
         errorLine2="                      ~~~~~~~~~~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/ui/text/style/TextAlign.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="variable transitions with type TreeSet&lt;Integer>: replace with IntSet"
-        errorLine1="    val transitions = sortedSetOf(0, text.length)"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/jvmMain/kotlin/androidx/compose/ui/text/JvmAnnotatedString.jvm.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="variable offsetMap with type Map&lt;Integer, Integer>: replace with IntIntMap"
-        errorLine1="    val offsetMap = mutableMapOf(0 to 0)"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/jvmMain/kotlin/androidx/compose/ui/text/JvmAnnotatedString.jvm.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="method collectRangeTransitions has parameter target with type SortedSet&lt;Integer>: replace with IntSet"
-        errorLine1="    target: SortedSet&lt;Int>"
-        errorLine2="            ~~~~~~~~~~~~~~">
-        <location
-            file="src/jvmMain/kotlin/androidx/compose/ui/text/JvmAnnotatedString.jvm.kt"/>
     </issue>
 
 </issues>
