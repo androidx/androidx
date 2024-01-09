@@ -25,60 +25,46 @@ import androidx.window.RequiresWindowSdkExtension
 import androidx.window.WindowSdkExtensions
 import androidx.window.core.ExperimentalWindowApi
 
-// TODO(b/295993745): Migrate to use bundle
 /**
- * Sets the target launching [ActivityStack] to the given [android.app.ActivityOptions].
+ * Sets the target launching [ActivityStack] to the given [Bundle].
  *
- * If the device doesn't support setting launching, [UnsupportedOperationException] will be thrown.
+ * The [Bundle] then could be used to launch an [Activity] to the top of the [ActivityStack] through
+ * [Activity.startActivity]. If there's a bundle used for customizing how the [Activity] should be
+ * started by [ActivityOptions.toBundle] or [androidx.core.app.ActivityOptionsCompat.toBundle],
+ * it's suggested to use the bundle to call this method.
+ *
+ * It is suggested to use a visible [ActivityStack] reported by [SplitController.splitInfoList]
+ * or [OverlayController.overlayInfo], or the launching activity will be launched on the default
+ * target if the [activityStack] no longer exists in the host task. The default target could be
+ * the top of the visible split's secondary [ActivityStack], or the top of the host task.
+ *
+ * Below samples are use cases to specify the launching [ActivityStack].
+ *
+ * @sample androidx.window.samples.embedding.launchingOnPrimaryActivityStack
+ * @sample androidx.window.samples.embedding.launchingOnOverlayActivityStack
  *
  * @param context The [android.content.Context] that is going to be used for launching
- * activity with this [android.app.ActivityOptions], which is usually be the [android.app.Activity]
- * of the app that hosts the task.
+ * activity with this [Bundle], which is usually be the [android.app.Activity] of the app that
+ * hosts the task.
  * @param activityStack The target [ActivityStack] for launching.
  * @throws UnsupportedOperationException if [WindowSdkExtensions.extensionVersion] is less than 5.
  */
 @ExperimentalWindowApi
 @RequiresWindowSdkExtension(5)
-fun ActivityOptions.setLaunchingActivityStack(
+fun Bundle.setLaunchingActivityStack(
     context: Context,
     activityStack: ActivityStack
-): ActivityOptions = let {
-    ActivityEmbeddingController.getInstance(context)
+): Bundle = ActivityEmbeddingController.getInstance(context)
         .setLaunchingActivityStack(this, activityStack)
-}
-
-// TODO(b/295993745): Migrate to use bundle
-/**
- * Sets [android.app.ActivityOptions] target launching [ActivityStack] to match the one that the
- * provided [activity] is in. That is, the [ActivityStack] of the given [activity] is the
- * [ActivityStack] used for launching.
- *
- * If the device doesn't support setting target launching [ActivityStack] or no available
- * [ActivityStack] can be found from the given [activity], [UnsupportedOperationException] will be
- * thrown.
- *
- * @param activity The existing [android.app.Activity] which [ActivityStack] should be used.
- * @throws UnsupportedOperationException if [WindowSdkExtensions.extensionVersion] is less than 5.
- */
-@ExperimentalWindowApi
-@RequiresWindowSdkExtension(5)
-fun ActivityOptions.setLaunchingActivityStack(activity: Activity): ActivityOptions {
-    val activityStack =
-        ActivityEmbeddingController.getInstance(activity).getActivityStack(activity)
-    return if (activityStack != null) {
-        setLaunchingActivityStack(activity, activityStack)
-    } else {
-        throw UnsupportedOperationException("No available ActivityStack found. " +
-            "The given activity may not be embedded.")
-    }
-}
 
 /**
- * Puts [OverlayCreateParams] to [ActivityOptions] bundle to create a singleton-per-task overlay
- * [ActivityStack].
+ * Puts [OverlayCreateParams] to [Bundle] to create a singleton-per-task overlay [ActivityStack].
  *
- * To launch an overlay [ActivityStack], callers should call [Activity.startActivity] with the
- * [ActivityOptions] contains [OverlayCreateParams].
+ * The [Bundle] then could be used to launch an [Activity] to the [ActivityStack] through
+ * [Activity.startActivity]. If there's a bundle used for customizing how the [Activity] should be
+ * started by [ActivityOptions.toBundle] or [androidx.core.app.ActivityOptionsCompat.toBundle],
+ * it's suggested to use the bundle to call this method.
+ *
  * Below sample shows how to launch an overlay [ActivityStack].
  *
  * If there's an existing overlay [ActivityStack] shown, the existing overlay container may be
@@ -91,7 +77,8 @@ fun ActivityOptions.setLaunchingActivityStack(activity: Activity): ActivityOptio
  *
  * 1. If there's an overlay container with the same `tag` as [OverlayCreateParams.tag] in the same
  *   task as [activity], the overlay container's [OverlayAttributes]
- *   will be updated to [OverlayCreateParams.overlayAttributes].
+ *   will be updated to [OverlayCreateParams.overlayAttributes], and the activity will be launched
+ *   on the top of the overlay [ActivityStack].
  *
  * 2. If there's an overlay container with different `tag` from [OverlayCreateParams.tag] in the
  *   same task as [activity], the existing overlay container will be dismissed, and a new overlay

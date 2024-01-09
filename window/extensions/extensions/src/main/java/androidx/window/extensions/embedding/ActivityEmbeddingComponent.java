@@ -29,6 +29,7 @@ import androidx.window.extensions.core.util.function.Consumer;
 import androidx.window.extensions.core.util.function.Function;
 import androidx.window.extensions.util.SetCompat;
 
+
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Executor;
@@ -174,8 +175,7 @@ public interface ActivityEmbeddingComponent {
     void clearSplitAttributesCalculator();
 
     /**
-     * @deprecated Use {@link #setLaunchingActivityStack(ActivityOptions, ActivityStack.Token)}
-     * instead.
+     * @deprecated Use {@link ActivityEmbeddingOptionsProperties#KEY_ACTIVITY_STACK_TOKEN} instead.
      */
     @Deprecated
     @RequiresVendorApiLevel(level = 3, deprecatedSince = 5)
@@ -184,21 +184,6 @@ public interface ActivityEmbeddingComponent {
             @NonNull IBinder token) {
         throw new UnsupportedOperationException("This method must not be called unless there is a"
                 + " corresponding override implementation on the device.");
-    }
-
-    /**
-     * Sets the launching {@link ActivityStack} to the given {@link ActivityOptions}.
-     *
-     * @param options The {@link ActivityOptions} to be updated.
-     * @param token The {@link ActivityStack#getToken()} to represent the {@link ActivityStack}
-     */
-    @SuppressWarnings("deprecation") // Use setLaunchingActivityStack(ActivityOptions, IBinder) as
-    // its core implementation.
-    @RequiresVendorApiLevel(level = 5)
-    @NonNull
-    default ActivityOptions setLaunchingActivityStack(@NonNull ActivityOptions options,
-            @NonNull ActivityStack.Token token) {
-        return setLaunchingActivityStack(options, token.getRawToken());
     }
 
     /**

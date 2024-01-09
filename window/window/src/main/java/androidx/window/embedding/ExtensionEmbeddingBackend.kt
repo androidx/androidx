@@ -17,7 +17,6 @@
 package androidx.window.embedding
 
 import android.app.Activity
-import android.app.ActivityOptions
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
@@ -393,10 +392,9 @@ internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
 
     @RequiresWindowSdkExtension(5)
     override fun setLaunchingActivityStack(
-        options: ActivityOptions,
+        options: Bundle,
         activityStack: ActivityStack
-    ): ActivityOptions = embeddingExtension
-        ?.setLaunchingActivityStack(options, activityStack) ?: options
+    ): Bundle = embeddingExtension?.setLaunchingActivityStack(options, activityStack) ?: options
 
     @RequiresWindowSdkExtension(5)
     override fun setOverlayCreateParams(

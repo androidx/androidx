@@ -16,8 +16,8 @@
 
 package androidx.window.embedding
 
-import android.app.ActivityOptions
 import android.content.Context
+import android.os.Bundle
 import android.os.IBinder
 import androidx.window.RequiresWindowSdkExtension
 import androidx.window.WindowSdkExtensions
@@ -27,6 +27,7 @@ import androidx.window.core.PredicateAdapter
 import androidx.window.embedding.EmbeddingAdapter.Companion.INVALID_SPLIT_INFO_TOKEN
 import androidx.window.extensions.core.util.function.Function
 import androidx.window.extensions.embedding.ActivityEmbeddingComponent
+import androidx.window.extensions.embedding.ActivityEmbeddingOptionsProperties
 import androidx.window.extensions.embedding.ActivityStack.Token as ActivityStackToken
 import androidx.window.extensions.embedding.SplitAttributes as OemSplitAttributes
 import androidx.window.extensions.embedding.SplitAttributesCalculatorParams as OemSplitAttributesCalculatorParams
@@ -39,10 +40,9 @@ import org.junit.Test
 import org.mockito.Mock
 import org.mockito.MockitoAnnotations
 import org.mockito.kotlin.any
-import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.eq
 import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
-import org.mockito.kotlin.whenever
 
 /**
  * Verifies the behavior of [RequiresWindowSdkExtension]
@@ -64,7 +64,7 @@ class RequiresWindowSdkExtensionTests {
     @Mock
     private lateinit var applicationContext: Context
     @Mock
-    private lateinit var activityOptions: ActivityOptions
+    private lateinit var options: Bundle
 
     private lateinit var mockAnnotations: AutoCloseable
     private lateinit var embeddingCompat: EmbeddingCompat
@@ -75,18 +75,13 @@ class RequiresWindowSdkExtensionTests {
     @Before
     fun setUp() {
         mockAnnotations = MockitoAnnotations.openMocks(this)
+        activityStack = ActivityStack(emptyList(), isEmpty = true, activityStackToken)
         embeddingCompat = EmbeddingCompat(
             embeddingExtension,
             EmbeddingAdapter(PredicateAdapter(classLoader)),
             ConsumerAdapter(classLoader),
             applicationContext
         )
-
-        doReturn(activityOptions).whenever(embeddingExtension).setLaunchingActivityStack(
-            any(),
-            any<ActivityStackToken>(),
-        )
-        activityStack = ActivityStack(emptyList(), isEmpty = false, activityStackToken)
     }
 
     @After
@@ -109,12 +104,9 @@ class RequiresWindowSdkExtensionTests {
         verify(embeddingExtension, never()).clearSplitAttributesCalculator()
 
         assertThrows(UnsupportedOperationException::class.java) {
-            embeddingCompat.setLaunchingActivityStack(activityOptions, activityStack)
+            embeddingCompat.setLaunchingActivityStack(options, activityStack)
         }
-        verify(embeddingExtension, never()).setLaunchingActivityStack(
-            any(),
-            any<ActivityStackToken>()
-        )
+        verify(options, never()).putBinder(any(), any())
 
         assertThrows(UnsupportedOperationException::class.java) {
             embeddingCompat.finishActivityStacks(emptySet())
@@ -147,12 +139,9 @@ class RequiresWindowSdkExtensionTests {
         verify(embeddingExtension).clearSplitAttributesCalculator()
 
         assertThrows(UnsupportedOperationException::class.java) {
-            embeddingCompat.setLaunchingActivityStack(activityOptions, activityStack)
+            embeddingCompat.setLaunchingActivityStack(options, activityStack)
         }
-        verify(embeddingExtension, never()).setLaunchingActivityStack(
-            any(),
-            any<ActivityStackToken>()
-        )
+        verify(options, never()).putBundle(any(), any())
 
         assertThrows(UnsupportedOperationException::class.java) {
             embeddingCompat.finishActivityStacks(emptySet())
@@ -192,12 +181,9 @@ class RequiresWindowSdkExtensionTests {
         verify(embeddingExtension).clearSplitAttributesCalculator()
 
         assertThrows(UnsupportedOperationException::class.java) {
-            embeddingCompat.setLaunchingActivityStack(activityOptions, activityStack)
+            embeddingCompat.setLaunchingActivityStack(options, activityStack)
         }
-        verify(embeddingExtension, never()).setLaunchingActivityStack(
-            any(),
-            any<ActivityStackToken>()
-        )
+        verify(options, never()).putBundle(any(), any())
 
         assertThrows(UnsupportedOperationException::class.java) {
             embeddingCompat.finishActivityStacks(emptySet())
@@ -236,12 +222,9 @@ class RequiresWindowSdkExtensionTests {
         verify(embeddingExtension).clearSplitAttributesCalculator()
 
         assertThrows(UnsupportedOperationException::class.java) {
-            embeddingCompat.setLaunchingActivityStack(activityOptions, activityStack)
+            embeddingCompat.setLaunchingActivityStack(options, activityStack)
         }
-        verify(embeddingExtension, never()).setLaunchingActivityStack(
-            any(),
-            any<ActivityStackToken>()
-        )
+        verify(options, never()).putBinder(any(), any())
 
         assertThrows(UnsupportedOperationException::class.java) {
             embeddingCompat.finishActivityStacks(emptySet())
@@ -279,9 +262,11 @@ class RequiresWindowSdkExtensionTests {
         embeddingCompat.clearSplitAttributesCalculator()
         verify(embeddingExtension).clearSplitAttributesCalculator()
 
-        embeddingCompat.setLaunchingActivityStack(activityOptions, activityStack)
-
-        verify(embeddingExtension).setLaunchingActivityStack(activityOptions, activityStackToken)
+        embeddingCompat.setLaunchingActivityStack(options, activityStack)
+        verify(options).putBundle(
+            eq(ActivityEmbeddingOptionsProperties.KEY_ACTIVITY_STACK_TOKEN),
+            any()
+        )
 
         embeddingCompat.finishActivityStacks(emptySet())
         verify(embeddingExtension).finishActivityStacksWithTokens(emptySet())

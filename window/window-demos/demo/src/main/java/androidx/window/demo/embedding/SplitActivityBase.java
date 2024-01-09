@@ -105,9 +105,10 @@ public class SplitActivityBase extends AppCompatActivity
             Bundle bundle = null;
             if (mViewBinding.setLaunchingEInActivityStack.isChecked()) {
                 try {
-                    final ActivityOptions options = ActivityEmbeddingOptions
-                            .setLaunchingActivityStack(ActivityOptions.makeBasic(), this);
-                    bundle = options.toBundle();
+                    bundle = ActivityEmbeddingOptions.setLaunchingActivityStack(
+                            ActivityOptions.makeBasic().toBundle(), this,
+                            ActivityEmbeddingController.getInstance(this)
+                                    .getActivityStack(this));
                 } catch (UnsupportedOperationException ex) {
                     Log.w(TAG, "#setLaunchingActivityStack is not supported", ex);
                 }

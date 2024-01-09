@@ -69,7 +69,6 @@ package androidx.window.extensions.embedding {
     method public default void setEmbeddedActivityWindowInfoCallback(java.util.concurrent.Executor, androidx.window.extensions.core.util.function.Consumer<androidx.window.extensions.embedding.EmbeddedActivityWindowInfo!>);
     method public void setEmbeddingRules(java.util.Set<androidx.window.extensions.embedding.EmbeddingRule!>);
     method @Deprecated public default android.app.ActivityOptions setLaunchingActivityStack(android.app.ActivityOptions, android.os.IBinder);
-    method public default android.app.ActivityOptions setLaunchingActivityStack(android.app.ActivityOptions, androidx.window.extensions.embedding.ActivityStack.Token);
     method public void setSplitAttributesCalculator(androidx.window.extensions.core.util.function.Function<androidx.window.extensions.embedding.SplitAttributesCalculatorParams!,androidx.window.extensions.embedding.SplitAttributes!>);
     method public default void setSplitInfoCallback(androidx.window.extensions.core.util.function.Consumer<java.util.List<androidx.window.extensions.embedding.SplitInfo!>!>);
     method @Deprecated public void setSplitInfoCallback(java.util.function.Consumer<java.util.List<androidx.window.extensions.embedding.SplitInfo!>!>);
@@ -81,6 +80,7 @@ package androidx.window.extensions.embedding {
   }
 
   public class ActivityEmbeddingOptionsProperties {
+    field public static final String KEY_ACTIVITY_STACK_TOKEN = "androidx.window.extensions.embedding.ActivityStackToken";
     field public static final String KEY_OVERLAY_TAG = "androidx.window.extensions.embedding.OverlayTag";
   }
 

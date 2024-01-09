@@ -17,8 +17,8 @@
 package androidx.window.embedding
 
 import android.app.Activity
-import android.app.ActivityOptions
 import android.content.Context
+import android.os.Bundle
 import androidx.window.RequiresWindowSdkExtension
 import androidx.window.WindowSdkExtensions
 import androidx.window.core.ExperimentalWindowApi
@@ -55,20 +55,20 @@ class ActivityEmbeddingController internal constructor(private val backend: Embe
     fun getActivityStack(activity: Activity): ActivityStack? =
         backend.getActivityStack(activity)
 
-    // TODO(b/295993745): Migrate to use bundle
     /**
-     * Sets the launching [ActivityStack] to the given [android.app.ActivityOptions].
+     * Sets the launching [ActivityStack] to the given [Bundle].
      *
-     * @param options The [android.app.ActivityOptions] to be updated.
+     * Apps can launch an [Activity] into the [ActivityStack] associated with [token] by
+     * [Activity.startActivity].
+     *
+     * @param options The [Bundle] to be updated.
      * @param token The token of the [ActivityStack] to be set.
      */
     @RequiresWindowSdkExtension(5)
     internal fun setLaunchingActivityStack(
-        options: ActivityOptions,
+        options: Bundle,
         activityStack: ActivityStack
-    ): ActivityOptions {
-        return backend.setLaunchingActivityStack(options, activityStack)
-    }
+    ): Bundle = backend.setLaunchingActivityStack(options, activityStack)
 
     /**
      * Finishes a set of [activityStacks][ActivityStack] from the lowest to the highest z-order
