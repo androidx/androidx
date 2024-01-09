@@ -20,6 +20,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text2.input.TextFieldBuffer.ChangeList
 import androidx.compose.foundation.text2.input.internal.ChangeTracker
 import androidx.compose.foundation.text2.input.internal.PartialGapBuffer
+import androidx.compose.foundation.text2.input.internal.codePointCount
 import androidx.compose.ui.text.TextRange
 
 /**
@@ -73,7 +74,7 @@ class TextFieldBuffer internal constructor(
     /**
      * The number of codepoints in the text field. This will be equal to or less than [length].
      */
-    val codepointLength: Int get() = Character.codePointCount(buffer, 0, length)
+    val codepointLength: Int get() = buffer.codePointCount()
 
     /**
      * The [ChangeList] represents the changes made to this value and is inherently mutable. This
@@ -323,7 +324,7 @@ class TextFieldBuffer internal constructor(
      * @see placeCursorAfterCharAt
      * @see placeCursorBeforeCodepointAt
      */
-    fun placeCursorAfterCodepointAt(index: Int) {
+    fun placeCursorAfterFCodepointAt(index: Int) {
         requireValidIndex(index, startExclusive = false, endExclusive = true, inCodepoints = true)
         val charIndex = codepointIndexToCharIndex((index + 1).coerceAtMost(codepointLength))
         selectionInChars = TextRange(charIndex)

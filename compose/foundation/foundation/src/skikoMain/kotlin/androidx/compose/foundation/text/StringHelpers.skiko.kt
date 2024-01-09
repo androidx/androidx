@@ -66,7 +66,7 @@ internal val String.codePoints
 /**
  * Returns the character (Unicode code point) at the specified index.
  */
-internal fun String.codePointAt(index: Int): CodePoint {
+internal fun CharSequence.codePointAt(index: Int): CodePoint {
     val high = this[index]
     if (high.isHighSurrogate() && index + 1 < this.length) {
         val low = this[index + 1]
@@ -77,6 +77,22 @@ internal fun String.codePointAt(index: Int): CodePoint {
     return high.code
 }
 
+/**
+ * Returns the count of Unicode code points.
+ */
+internal fun CharSequence.codePointCount(): Int {
+    var count = length
+    var i = 0
+    while (i < length - 1) {
+        if (this[i].isHighSurrogate() && this[i + 1].isLowSurrogate()) {
+            count--
+            i += 2
+        } else {
+            i++
+        }
+    }
+    return count
+}
 
 /**
  * Finds the offset of the next non-whitespace symbols subsequence (word) in the given text
