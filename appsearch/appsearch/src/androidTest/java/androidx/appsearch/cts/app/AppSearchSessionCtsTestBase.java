@@ -673,6 +673,58 @@ public abstract class AppSearchSessionCtsTestBase {
     }
 
     @Test
+    public void testGetSchema_visibilitySetting_oneSharedSchema() throws Exception {
+        assumeTrue(mDb1.getFeatures().isFeatureSupported(
+                Features.ADD_PERMISSIONS_AND_GET_VISIBILITY));
+
+        AppSearchSchema noteSchema = new AppSearchSchema.Builder("Note")
+                .addProperty(new StringPropertyConfig.Builder("subject").build()).build();
+        SetSchemaRequest.Builder requestBuilder = new SetSchemaRequest.Builder()
+                .addSchemas(AppSearchEmail.SCHEMA, noteSchema)
+                .setSchemaTypeDisplayedBySystem(noteSchema.getSchemaType(), false)
+                .setSchemaTypeVisibilityForPackage(
+                        noteSchema.getSchemaType(),
+                        true,
+                        new PackageIdentifier("com.some.package1", new byte[32]))
+                .addRequiredPermissionsForSchemaTypeVisibility(
+                        noteSchema.getSchemaType(),
+                        Collections.singleton(SetSchemaRequest.READ_SMS));
+        if (mDb1.getFeatures().isFeatureSupported(
+                Features.SET_SCHEMA_REQUEST_SET_PUBLICLY_VISIBLE)) {
+            requestBuilder.setPubliclyVisibleSchema(
+                    noteSchema.getSchemaType(),
+                    new PackageIdentifier("com.some.package2", new byte[32]));
+        }
+        SetSchemaRequest request = requestBuilder.build();
+        mDb1.setSchemaAsync(request).get();
+
+        GetSchemaResponse getSchemaResponse = mDb1.getSchemaAsync().get();
+        Set<AppSearchSchema> actual = getSchemaResponse.getSchemas();
+        assertThat(actual).hasSize(2);
+        assertThat(actual).isEqualTo(request.getSchemas());
+
+        // Check visibility settings. Schemas without settings shouldn't appear in the result at
+        // all, even with empty maps as values.
+        assertThat(getSchemaResponse.getSchemaTypesNotDisplayedBySystem())
+                .containsExactly(noteSchema.getSchemaType());
+        assertThat(getSchemaResponse.getSchemaTypesVisibleToPackages())
+                .containsExactly(
+                        noteSchema.getSchemaType(),
+                        ImmutableSet.of(new PackageIdentifier("com.some.package1", new byte[32])));
+        assertThat(getSchemaResponse.getRequiredPermissionsForSchemaTypeVisibility())
+                .containsExactly(
+                        noteSchema.getSchemaType(),
+                        ImmutableSet.of(ImmutableSet.of(SetSchemaRequest.READ_SMS)));
+        if (mDb1.getFeatures().isFeatureSupported(
+                Features.SET_SCHEMA_REQUEST_SET_PUBLICLY_VISIBLE)) {
+            assertThat(getSchemaResponse.getPubliclyVisibleSchemas())
+                    .containsExactly(
+                            noteSchema.getSchemaType(),
+                            new PackageIdentifier("com.some.package2", new byte[32]));
+        }
+    }
+
+    @Test
     public void testGetSchema_visibilitySetting_notSupported() throws Exception {
         assumeFalse(mDb1.getFeatures().isFeatureSupported(
                 Features.ADD_PERMISSIONS_AND_GET_VISIBILITY));
