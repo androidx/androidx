@@ -87,7 +87,7 @@ public class VisibilityStore {
                 new CallerAccess(/*callingPackageName=*/VISIBILITY_PACKAGE_NAME));
         List<VisibilityDocumentV1> visibilityDocumentsV1s = null;
         switch (getSchemaResponse.getVersion()) {
-            case VisibilityConfig.SCHEMA_VERSION_DOC_PER_PACKAGE:
+            case VisibilityToDocumentConverter.SCHEMA_VERSION_DOC_PER_PACKAGE:
                 // TODO (b/202194495) add VisibilityDocument in version 0 back instead of using
                 //  GenericDocument.
                 List<GenericDocument> visibilityDocumentsV0s =
@@ -96,7 +96,7 @@ public class VisibilityStore {
                 visibilityDocumentsV1s = VisibilityStoreMigrationHelperFromV0
                         .toVisibilityDocumentV1(visibilityDocumentsV0s);
                 // fall through
-            case VisibilityConfig.SCHEMA_VERSION_DOC_PER_SCHEMA:
+            case VisibilityToDocumentConverter.SCHEMA_VERSION_DOC_PER_SCHEMA:
                 if (visibilityDocumentsV1s == null) {
                     // We need to read VisibilityDocument in Version 1 from AppSearch instead of
                     // taking from the above step.
@@ -107,16 +107,17 @@ public class VisibilityStore {
                 setLatestSchemaAndDocuments(VisibilityStoreMigrationHelperFromV1
                         .toVisibilityDocumentsV2(visibilityDocumentsV1s));
                 break;
-            case VisibilityConfig.SCHEMA_VERSION_LATEST:
+            case VisibilityToDocumentConverter.SCHEMA_VERSION_LATEST:
                 // We cannot change the schema version past 2 as detecting version "3" would hit the
                 // default block and throw an AppSearchException. This is why we added
                 // VisibilityOverlay.
 
                 Set<AppSearchSchema> existingVisibilitySchema = getSchemaResponse.getSchemas();
-                if (existingVisibilitySchema.contains(VisibilityConfig.VISIBILITY_DOCUMENT_SCHEMA)
+                if (existingVisibilitySchema.contains(
+                        VisibilityToDocumentConverter.VISIBILITY_DOCUMENT_SCHEMA)
                         && existingVisibilitySchema.contains(VisibilityPermissionConfig.SCHEMA)
                         && existingVisibilitySchema.contains(
-                        VisibilityConfig.PUBLIC_ACL_OVERLAY_SCHEMA)) {
+                        VisibilityToDocumentConverter.PUBLIC_ACL_OVERLAY_SCHEMA)) {
                     // The latest Visibility schema is in AppSearch, we must find our schema type.
                     // Extract all stored Visibility Document into mVisibilityConfigMap.
                     loadVisibilityConfigMap();
@@ -126,12 +127,12 @@ public class VisibilityStore {
                     InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
                             VISIBILITY_PACKAGE_NAME,
                             VISIBILITY_DATABASE_NAME,
-                            Arrays.asList(VisibilityConfig.VISIBILITY_DOCUMENT_SCHEMA,
+                            Arrays.asList(VisibilityToDocumentConverter.VISIBILITY_DOCUMENT_SCHEMA,
                                     VisibilityPermissionConfig.SCHEMA,
-                                    VisibilityConfig.PUBLIC_ACL_OVERLAY_SCHEMA),
+                                    VisibilityToDocumentConverter.PUBLIC_ACL_OVERLAY_SCHEMA),
                             /*visibilityConfigs=*/ Collections.emptyList(),
                             /*forceOverride=*/ false,
-                            /*version=*/ VisibilityConfig.SCHEMA_VERSION_LATEST,
+                            /*version=*/ VisibilityToDocumentConverter.SCHEMA_VERSION_LATEST,
                             /*setSchemaStatsBuilder=*/ null);
                     if (!internalSetSchemaResponse.isSuccess()) {
                         // If you hit problem here it means you made a incompatible change in
@@ -175,11 +176,12 @@ public class VisibilityStore {
             mAppSearchImpl.putDocument(
                     VISIBILITY_PACKAGE_NAME,
                     VISIBILITY_DATABASE_NAME,
-                    prefixedVisibilityConfig.createVisibilityDocument(),
+                    VisibilityToDocumentConverter.createVisibilityDocument(
+                            prefixedVisibilityConfig),
                     /*sendChangeNotifications=*/ false,
                     /*logger=*/ null);
             GenericDocument publicAclOverlay =
-                    prefixedVisibilityConfig.createPublicAclOverlay();
+                    VisibilityToDocumentConverter.createPublicAclOverlay(prefixedVisibilityConfig);
             if (publicAclOverlay != null) {
                 mAppSearchImpl.putDocument(
                         VISIBILITY_PACKAGE_NAME,
@@ -192,7 +194,7 @@ public class VisibilityStore {
                 // VisibilityConfig does not have a VisibilityOverlay.
                 try {
                     mAppSearchImpl.remove(VISIBILITY_PACKAGE_NAME, VISIBILITY_DATABASE_NAME,
-                            VisibilityConfig.PUBLIC_ACL_OVERLAY_NAMESPACE,
+                            VisibilityToDocumentConverter.PUBLIC_ACL_OVERLAY_NAMESPACE,
                             prefixedVisibilityConfig.getSchemaType(),
                             /*removeStatsBuilder=*/null);
                 } catch (AppSearchException e) {
@@ -221,7 +223,8 @@ public class VisibilityStore {
                 // VisibilityDocument from Icing.
                 try {
                     mAppSearchImpl.remove(VISIBILITY_PACKAGE_NAME, VISIBILITY_DATABASE_NAME,
-                            VisibilityConfig.VISIBILITY_DOCUMENT_NAMESPACE, prefixedSchemaType,
+                            VisibilityToDocumentConverter.VISIBILITY_DOCUMENT_NAMESPACE,
+                            prefixedSchemaType,
                             /*removeStatsBuilder=*/null);
                 } catch (AppSearchException e) {
                     if (e.getResultCode() == RESULT_NOT_FOUND) {
@@ -236,7 +239,8 @@ public class VisibilityStore {
 
                 try {
                     mAppSearchImpl.remove(VISIBILITY_PACKAGE_NAME, VISIBILITY_DATABASE_NAME,
-                            VisibilityConfig.PUBLIC_ACL_OVERLAY_NAMESPACE, prefixedSchemaType,
+                            VisibilityToDocumentConverter.PUBLIC_ACL_OVERLAY_NAMESPACE,
+                            prefixedSchemaType,
                             /*removeStatsBuilder=*/null);
                 } catch (AppSearchException e) {
                     if (e.getResultCode() == RESULT_NOT_FOUND) {
@@ -280,7 +284,7 @@ public class VisibilityStore {
                 visibilityDocument = mAppSearchImpl.getDocument(
                         VISIBILITY_PACKAGE_NAME,
                         VISIBILITY_DATABASE_NAME,
-                        VisibilityConfig.VISIBILITY_DOCUMENT_NAMESPACE,
+                        VisibilityToDocumentConverter.VISIBILITY_DOCUMENT_NAMESPACE,
                         /*id=*/ prefixedSchemaType,
                         /*typePropertyPaths=*/ Collections.emptyMap());
             } catch (AppSearchException e) {
@@ -297,7 +301,7 @@ public class VisibilityStore {
                 visibilityOverlay = mAppSearchImpl.getDocument(
                         VISIBILITY_PACKAGE_NAME,
                         VISIBILITY_DATABASE_NAME,
-                        VisibilityConfig.PUBLIC_ACL_OVERLAY_NAMESPACE,
+                        VisibilityToDocumentConverter.PUBLIC_ACL_OVERLAY_NAMESPACE,
                         /*id=*/ prefixedSchemaType,
                         /*typePropertyPaths=*/ Collections.emptyMap());
             } catch (AppSearchException e) {
@@ -310,7 +314,8 @@ public class VisibilityStore {
             }
 
             mVisibilityConfigMap.put(prefixedSchemaType,
-                    VisibilityConfig.createVisibilityConfig(visibilityDocument, visibilityOverlay));
+                    VisibilityToDocumentConverter.createVisibilityConfig(visibilityDocument,
+                            visibilityOverlay));
         }
     }
 
@@ -324,12 +329,12 @@ public class VisibilityStore {
         InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 VISIBILITY_PACKAGE_NAME,
                 VISIBILITY_DATABASE_NAME,
-                Arrays.asList(VisibilityConfig.VISIBILITY_DOCUMENT_SCHEMA,
+                Arrays.asList(VisibilityToDocumentConverter.VISIBILITY_DOCUMENT_SCHEMA,
                         VisibilityPermissionConfig.SCHEMA,
-                        VisibilityConfig.PUBLIC_ACL_OVERLAY_SCHEMA),
+                        VisibilityToDocumentConverter.PUBLIC_ACL_OVERLAY_SCHEMA),
                 /*visibilityConfigs=*/ Collections.emptyList(),
                 /*forceOverride=*/ true,
-                /*version=*/ VisibilityConfig.SCHEMA_VERSION_LATEST,
+                /*version=*/ VisibilityToDocumentConverter.SCHEMA_VERSION_LATEST,
                 /*setSchemaStatsBuilder=*/ null);
         if (!internalSetSchemaResponse.isSuccess()) {
             // Impossible case, we just set forceOverride to be true, we should never
@@ -343,7 +348,7 @@ public class VisibilityStore {
             mAppSearchImpl.putDocument(
                     VISIBILITY_PACKAGE_NAME,
                     VISIBILITY_DATABASE_NAME,
-                    migratedDocument.createVisibilityDocument(),
+                    VisibilityToDocumentConverter.createVisibilityDocument(migratedDocument),
                     /*sendChangeNotifications=*/ false,
                     /*logger=*/ null);
         }

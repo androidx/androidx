@@ -24,7 +24,6 @@ import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.GetSchemaResponse;
 import androidx.appsearch.app.PackageIdentifier;
-import androidx.appsearch.app.VisibilityConfig;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.localstorage.AppSearchImpl;
 import androidx.appsearch.localstorage.util.PrefixUtil;
@@ -153,7 +152,7 @@ public class VisibilityStoreMigrationHelperFromV0 {
                     deprecatedDocuments.add(appSearchImpl.getDocument(
                             VisibilityStore.VISIBILITY_PACKAGE_NAME,
                             VisibilityStore.VISIBILITY_DATABASE_NAME,
-                            VisibilityConfig.VISIBILITY_DOCUMENT_NAMESPACE,
+                            VisibilityToDocumentConverter.VISIBILITY_DOCUMENT_NAMESPACE,
                             getDeprecatedVisibilityDocumentId(packageName, databaseName),
                             /*typePropertyPaths=*/ Collections.emptyMap()));
                 } catch (AppSearchException e) {

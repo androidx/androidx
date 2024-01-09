@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,8 @@
 
 package androidx.appsearch.localstorage.visibilitystore;
 
-import static com.google.common.truth.Truth.assertThat;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import androidx.appsearch.app.AppSearchSchema;
@@ -37,7 +34,7 @@ import org.junit.Test;
 import java.util.Collections;
 import java.util.List;
 
-public class VisibilityConfigTest {
+public class VisibilityToDocumentConverterTest {
 
     @Test
     public void testVisibilityConfigInitialization() {
@@ -60,12 +57,14 @@ public class VisibilityConfigTest {
                         .build();
 
         // Create a VisibilityConfig using the Builder
-        VisibilityConfig visibilityConfig =
-                VisibilityConfig.createVisibilityConfig(visibilityDocument, visibilityOverlay);
+        VisibilityConfig visibilityConfig = VisibilityToDocumentConverter.createVisibilityConfig(
+                visibilityDocument, visibilityOverlay);
 
         // Check if the properties are set correctly
-        assertEquals(visibilityDocument, visibilityConfig.createVisibilityDocument());
-        assertEquals(visibilityOverlay, visibilityConfig.createPublicAclOverlay());
+        assertEquals(visibilityDocument,
+                VisibilityToDocumentConverter.createVisibilityDocument(visibilityConfig));
+        assertEquals(visibilityOverlay,
+                VisibilityToDocumentConverter.createPublicAclOverlay(visibilityConfig));
     }
 
     @Test
@@ -103,69 +102,16 @@ public class VisibilityConfigTest {
         assertEquals(1, visibilityConfigs.size());
         VisibilityConfig visibilityConfig = visibilityConfigs.get(0);
 
-        assertEquals(visibilityConfig.createVisibilityDocument(), expectedDocument);
-        assertEquals(visibilityConfig.createPublicAclOverlay(), expectedOverlay);
+        assertEquals(
+                VisibilityToDocumentConverter.createVisibilityDocument(visibilityConfig),
+                expectedDocument);
+        assertEquals(
+                VisibilityToDocumentConverter.createPublicAclOverlay(visibilityConfig),
+                expectedOverlay);
     }
 
     @Test
-    public void testVisibilityConfigEquals() {
-        // Create two VisibilityConfig instances with the same properties
-        GenericDocument visibilityDocument =
-                new GenericDocument.Builder<GenericDocument.Builder<?>>("namespace", "id1",
-                        "visibilityDocument")
-                        .setPropertyString("packageName", "")
-                        .setPropertyBytes("sha256Cert", new byte[32]).build();
-
-        // Create a VisibilityOverlay for testing
-        GenericDocument visibilityOverlay =
-                new GenericDocument.Builder<GenericDocument.Builder<?>>("namespace", "id1",
-                        "visibilityDocumentOverlay")
-                        .setPropertyString("stringKey1", "com.example.test")
-                        .setPropertyBytes("byteKey1", new byte[32])
-                        .build();
-
-        VisibilityConfig param1 = VisibilityConfig.createVisibilityConfig(visibilityDocument,
-                visibilityOverlay);
-        VisibilityConfig param2 = VisibilityConfig.createVisibilityConfig(visibilityDocument,
-                visibilityOverlay);
-
-        // Test equals method
-        assertTrue(param1.equals(param2));
-        assertTrue(param2.equals(param1));
-    }
-
-    @Test
-    public void testToVisibilityConfig_publicAcl() {
-        byte[] packageSha256Cert = new byte[32];
-        packageSha256Cert[0] = 24;
-        packageSha256Cert[8] = 23;
-        packageSha256Cert[16] = 22;
-        packageSha256Cert[24] = 21;
-
-        // Create a SetSchemaRequest for testing
-        SetSchemaRequest setSchemaRequest = new SetSchemaRequest.Builder()
-                .addSchemas(new AppSearchSchema.Builder("testSchema").build())
-                .setPubliclyVisibleSchema("testSchema",
-                        new PackageIdentifier("com.example.test", packageSha256Cert))
-                .build();
-
-        // Convert the SetSchemaRequest to GenericDocument map
-        List<VisibilityConfig> visibilityConfigs =
-                VisibilityConfig.toVisibilityConfigs(setSchemaRequest);
-
-        // Check if the conversion is correct
-        assertThat(visibilityConfigs).hasSize(1);
-        VisibilityConfig visibilityConfig = visibilityConfigs.get(0);
-        assertEquals(visibilityConfig.getSchemaType(), "testSchema");
-        assertNotNull(visibilityConfig.getPubliclyVisibleTargetPackage());
-        assertEquals("com.example.test",
-                visibilityConfig.getPubliclyVisibleTargetPackage().getPackageName());
-        assertEquals(packageSha256Cert,
-                visibilityConfig.getPubliclyVisibleTargetPackage().getSha256Certificate());
-    }
-
-    @Test
-    public void testVisibilityConfig_rebuild() {
+    public void testToVisibilityConfig() {
         String visibleToPackage = "com.example.package";
         byte[] visibleToPackageCert = new byte[32];
 
@@ -192,12 +138,14 @@ public class VisibilityConfigTest {
                         .build();
 
         // Create a VisibilityConfig using the Builder
-        VisibilityConfig visibilityConfig =
-                VisibilityConfig.createVisibilityConfig(visibilityDocument, visibilityOverlay);
+        VisibilityConfig visibilityConfig = VisibilityToDocumentConverter.createVisibilityConfig(
+                visibilityDocument, visibilityOverlay);
 
         // Check if the properties are set correctly
-        assertEquals(visibilityDocument, visibilityConfig.createVisibilityDocument());
-        assertEquals(visibilityOverlay, visibilityConfig.createPublicAclOverlay());
+        assertEquals(visibilityDocument, VisibilityToDocumentConverter
+                .createVisibilityDocument(visibilityConfig));
+        assertEquals(visibilityOverlay, VisibilityToDocumentConverter
+                .createPublicAclOverlay(visibilityConfig));
 
         VisibilityConfig.Builder builder = new VisibilityConfig.Builder(visibilityConfig);
 
@@ -207,8 +155,8 @@ public class VisibilityConfigTest {
         VisibilityConfig modifiedConfig = builder
                 .setSchemaType("prefixedSchema")
                 .setNotDisplayedBySystem(true)
-                .setVisibleToPermissions(ImmutableSet.of(ImmutableSet.of(SetSchemaRequest.READ_SMS,
-                        SetSchemaRequest.READ_CALENDAR)))
+                .addVisibleToPermissions(ImmutableSet.of(SetSchemaRequest.READ_SMS,
+                        SetSchemaRequest.READ_CALENDAR))
                 .clearVisibleToPackages()
                 .addVisibleToPackage(
                         new PackageIdentifier("com.example.other", new byte[32]))
