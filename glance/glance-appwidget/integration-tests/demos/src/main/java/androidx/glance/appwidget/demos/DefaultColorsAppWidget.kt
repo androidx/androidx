@@ -76,7 +76,7 @@ class DefaultColorsAppWidget : GlanceAppWidget() {
             Column(
                 GlanceModifier
                     .padding(8.dp)
-                    .background(GlanceTheme.colors.background)
+                    .background(GlanceTheme.colors.widgetBackground)
             ) {
                 Button(
                     text = "Theme: $currentScheme",

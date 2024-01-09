@@ -17,6 +17,10 @@
 package androidx.glance.material3
 
 import androidx.compose.material3.ColorScheme
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
+import androidx.core.graphics.ColorUtils.M3HCTToColor
+import androidx.core.graphics.ColorUtils.colorToM3HCT
 import androidx.glance.color.ColorProvider
 import androidx.glance.color.ColorProviders
 import androidx.glance.color.colorProviders
@@ -81,6 +85,12 @@ fun ColorProviders(light: ColorScheme, dark: ColorScheme): ColorProviders {
         ),
         inverseSurface = ColorProvider(day = light.inverseSurface, night = dark.inverseSurface),
         inversePrimary = ColorProvider(day = light.inversePrimary, night = dark.inversePrimary),
+        // Widget background is a widget / glace specific token it is generally derived from the
+        // secondary container color.
+        widgetBackground = ColorProvider(
+            day = adjustColorToneForWidgetBackground(light.secondaryContainer),
+            night = adjustColorToneForWidgetBackground(dark.secondaryContainer)
+        ),
     )
 }
 
@@ -116,5 +126,33 @@ fun ColorProviders(scheme: ColorScheme): ColorProviders {
         inverseOnSurface = ColorProvider(color = scheme.inverseOnSurface),
         inverseSurface = ColorProvider(color = scheme.inverseSurface),
         inversePrimary = ColorProvider(color = scheme.inversePrimary),
+
+        // Widget background is a widget / glace specific token it is generally derived from the
+        // secondary container color.
+        widgetBackground = ColorProvider(
+            color = adjustColorToneForWidgetBackground(scheme.secondaryContainer))
     )
+}
+
+private const val WIDGET_BG_TONE_ADJUSTMENT_LIGHT = 5f
+private const val WIDGET_BG_TONE_ADJUSTMENT_DARK = -10f
+
+/**
+ * Adjusts the input color to work as a widgetBackground token.
+ *
+ * widgetBackground is a Widgets / Glance specific role so won't be present in the original Scheme.
+ * In the system it is defined as being a variation on the secondaryContainer, lighter for light
+ * themes and darker for dark themes.
+ */
+private fun adjustColorToneForWidgetBackground(input: Color): Color {
+    val hctColor = floatArrayOf(0f, 0f, 0f)
+    colorToM3HCT(input.toArgb(), hctColor)
+    // Check the Tone of the input color, if it is "light" (greater than 50) lighten it, otherwise
+    // darken it.
+    val adjustment =
+        if (hctColor[2] > 50) WIDGET_BG_TONE_ADJUSTMENT_LIGHT else WIDGET_BG_TONE_ADJUSTMENT_DARK
+
+    // Tone should be defined in the 0 - 100 range, ok to clamp here.
+    val tone = (hctColor[2] + adjustment).coerceIn(0f, 100f)
+    return Color(M3HCTToColor(hctColor[0], hctColor[1], tone))
 }
