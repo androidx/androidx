@@ -20,7 +20,6 @@ import android.app.AlertDialog
 import android.app.Dialog
 import android.content.Context
 import android.content.DialogInterface
-import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -534,12 +533,6 @@ class DialogFragmentTest {
 
     @Test
     fun testRequireDialog() {
-        // There is a leak in API 30 InputMethodManager that causes this test to be flaky.
-        // Once https://github.com/square/leakcanary/issues/2592 is addressed we can upgrade
-        // leak canary and remove this.
-        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.R) {
-            return
-        }
         val dialogFragment = TestDialogFragment()
         val fm = activityTestRule.activity.supportFragmentManager
 
