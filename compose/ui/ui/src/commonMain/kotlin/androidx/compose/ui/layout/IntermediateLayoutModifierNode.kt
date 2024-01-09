@@ -22,6 +22,7 @@ import androidx.compose.ui.graphics.GraphicsLayerScope
 import androidx.compose.ui.node.LayoutModifierNode
 import androidx.compose.ui.node.NodeMeasuringIntrinsics
 import androidx.compose.ui.node.Nodes
+import androidx.compose.ui.node.checkMeasuredSize
 import androidx.compose.ui.node.requireLayoutNode
 import androidx.compose.ui.node.visitAncestors
 import androidx.compose.ui.unit.Constraints
@@ -287,12 +288,15 @@ internal class IntermediateLayoutModifierNode(
             height: Int,
             alignmentLines: Map<AlignmentLine, Int>,
             placementBlock: Placeable.PlacementScope.() -> Unit
-        ) = object : MeasureResult {
-            override val width = width
-            override val height = height
-            override val alignmentLines = alignmentLines
-            override fun placeChildren() {
-                coordinator!!.placementScope.placementBlock()
+        ): MeasureResult {
+            checkMeasuredSize(width, height)
+            return object : MeasureResult {
+                override val width = width
+                override val height = height
+                override val alignmentLines = alignmentLines
+                override fun placeChildren() {
+                    coordinator!!.placementScope.placementBlock()
+                }
             }
         }
 
