@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,10 @@ package androidx.compose.ui.graphics
 
 import androidx.compose.ui.graphics.colorspace.ColorSpaces
 import androidx.compose.ui.util.lerp
+import androidx.core.graphics.blue
+import androidx.core.graphics.green
+import androidx.core.graphics.red
+import kotlin.math.abs
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -510,7 +514,7 @@ class ColorTest {
             0xff5649cd, 0xff5649ce, 0xff5649ce, 0xff5549ce, 0xff5549ce, 0xff5549ce, 0xff5549cf,
             0xff5449cf, 0xff5448cf, 0xff5448cf, 0xff5448cf, 0xff5348cf, 0xff5348d0, 0xff5348d0,
             0xff5348d0, 0xff5248d0, 0xff5248d0, 0xff5248d1, 0xff5247d1, 0xff5147d1, 0xff5147d1,
-            0xff5147d1, 0xff5147d2, 0xff5047d2, 0xff5047d2, 0xff5047d2, 0xff5047d2, 0xff4f47d2,
+            0xff5147d1, 0xff5147d1, 0xff5047d2, 0xff5047d2, 0xff5047d2, 0xff5047d2, 0xff4f47d2,
             0xff4f46d3, 0xff4f46d3, 0xff4f46d3, 0xff4e46d3, 0xff4e46d3, 0xff4e46d4, 0xff4e46d4,
             0xff4d46d4, 0xff4d46d4, 0xff4d46d4, 0xff4d45d4, 0xff4c45d5, 0xff4c45d5, 0xff4c45d5,
             0xff4c45d5, 0xff4b45d5, 0xff4b45d5, 0xff4b45d6, 0xff4b45d6, 0xff4a44d6, 0xff4a44d6,
@@ -551,7 +555,17 @@ class ColorTest {
         repeat(1001) {
             val color = lerp(Color.Red, Color.Blue, it / 1000f)
             val colorLong = color.toArgb().toLong() and 0xFFFFFFFFL
-            assertEquals(expected[it], colorLong,
+            // Check individual color channels to account for possible float and half-float
+            // precision issues across devices. We allow up to 1/255 of difference
+            assertTrue(abs(expected[it].toInt().red - color.toArgb().red) < 2,
+                "Expected fraction $it/1000 to have color " +
+                    "0x${expected[it].toString(16)}, but was 0x${colorLong.toString(16)}"
+            )
+            assertTrue(abs(expected[it].toInt().green - color.toArgb().green) < 2,
+                "Expected fraction $it/1000 to have color " +
+                    "0x${expected[it].toString(16)}, but was 0x${colorLong.toString(16)}"
+            )
+            assertTrue(abs(expected[it].toInt().blue - color.toArgb().blue) < 2,
                 "Expected fraction $it/1000 to have color " +
                     "0x${expected[it].toString(16)}, but was 0x${colorLong.toString(16)}"
             )

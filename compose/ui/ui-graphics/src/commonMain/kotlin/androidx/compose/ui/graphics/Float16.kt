@@ -147,37 +147,7 @@ internal value class Float16(val halfValue: Short) : Comparable<Float16> {
      * @return The half-precision float value represented by this object
      * converted to type `Float`
      */
-    fun toFloat(): Float {
-        val bits = halfValue.toInt() and 0xffff
-        val s = bits and Fp16SignMask
-        val e = bits.ushr(Fp16ExponentShift) and Fp16ExponentMask
-        val m = bits and Fp16SignificandMask
-
-        var outE = 0
-        var outM = 0
-
-        if (e == 0) { // Denormal or 0
-            if (m != 0) {
-                // Convert denorm fp16 into normalized fp32
-                var o = floatFromBits(Fp32DenormalMagic + m)
-                o -= Fp32DenormalFloat
-                return if (s == 0) o else -o
-            }
-        } else {
-            outM = m shl 13
-            if (e == 0x1f) { // Infinite or NaN
-                outE = 0xff
-                if (outM != 0) { // SNaNs are quieted
-                    outM = outM or Fp32QNaNMask
-                }
-            } else {
-                outE = e - Fp16ExponentBias + Fp32ExponentBias
-            }
-        }
-
-        val out = s shl 16 or (outE shl Fp32ExponentShift) or outM
-        return floatFromBits(out)
-    }
+    fun toFloat(): Float = halfToFloat(halfValue)
 
     /**
      * Returns the value of this `Float16` as a `Double` after
@@ -629,7 +599,11 @@ private inline fun toCompareValue(value: Short): Int {
  * Convert a single-precision float to a half-precision float, stored as
  * [Short] data type to hold its 16 bits.
  */
-internal fun floatToHalf(f: Float): Short {
+internal expect fun floatToHalf(f: Float): Short
+
+// Provided here as a convenience for `actual` implementations
+@Suppress("NOTHING_TO_INLINE")
+internal inline fun softwareFloatToHalf(f: Float): Short {
     val bits = f.toRawBits()
     val s = bits.ushr(Fp32SignShift)
     var e = bits.ushr(Fp32ExponentShift) and Fp32ExponentMask
@@ -673,7 +647,11 @@ internal fun floatToHalf(f: Float): Short {
 /**
  * Convert a half-precision float to a single-precision float.
  */
-internal fun halfToFloat(h: Short): Float {
+internal expect fun halfToFloat(h: Short): Float
+
+// Provided here as a convenience for `actual` implementations
+@Suppress("NOTHING_TO_INLINE")
+internal inline fun softwareHalfToFloat(h: Short): Float {
     val bits = h.toInt() and 0xffff
     val s = bits and Fp16SignMask
     val e = bits.ushr(Fp16ExponentShift) and Fp16ExponentMask
