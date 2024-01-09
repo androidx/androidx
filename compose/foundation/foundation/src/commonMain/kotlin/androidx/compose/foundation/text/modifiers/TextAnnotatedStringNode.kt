@@ -82,7 +82,8 @@ internal class TextAnnotatedStringNode(
     private var placeholders: List<AnnotatedString.Range<Placeholder>>? = null,
     private var onPlaceholderLayout: ((List<Rect?>) -> Unit)? = null,
     private var selectionController: SelectionController? = null,
-    private var overrideColor: ColorProducer? = null
+    private var overrideColor: ColorProducer? = null,
+    private var onShowTranslation: ((TextSubstitutionValue) -> Unit)? = null
 ) : Modifier.Node(), LayoutModifierNode, DrawModifierNode, SemanticsModifierNode {
     private var baselineCache: Map<AlignmentLine, Int>? = null
 
@@ -194,7 +195,8 @@ internal class TextAnnotatedStringNode(
     fun updateCallbacks(
         onTextLayout: ((TextLayoutResult) -> Unit)?,
         onPlaceholderLayout: ((List<Rect?>) -> Unit)?,
-        selectionController: SelectionController?
+        selectionController: SelectionController?,
+        onShowTranslation: ((TextSubstitutionValue) -> Unit)?
     ): Boolean {
         var changed = false
 
@@ -210,6 +212,11 @@ internal class TextAnnotatedStringNode(
 
         if (this.selectionController != selectionController) {
             this.selectionController = selectionController
+            changed = true
+        }
+
+        if (this.onShowTranslation != onShowTranslation) {
+            this.onShowTranslation = onShowTranslation
             changed = true
         }
         return changed
@@ -347,6 +354,7 @@ internal class TextAnnotatedStringNode(
             if (this@TextAnnotatedStringNode.textSubstitution == null) {
                 return@showTextSubstitution false
             }
+            onShowTranslation?.invoke(this@TextAnnotatedStringNode.textSubstitution!!)
 
             this@TextAnnotatedStringNode.textSubstitution?.isShowingSubstitution = it
 
@@ -534,7 +542,12 @@ internal class TextAnnotatedStringNode(
             }
 
             // draw inline content and links indication
-            if (text.hasLinks() || !placeholders.isNullOrEmpty()) {
+            val hasLinks = if (textSubstitution?.isShowingSubstitution == true) {
+                false
+            } else {
+                text.hasLinks()
+            }
+            if (hasLinks || !placeholders.isNullOrEmpty()) {
                 drawContent()
             }
         }

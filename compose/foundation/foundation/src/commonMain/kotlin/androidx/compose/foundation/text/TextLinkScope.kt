@@ -57,6 +57,12 @@ internal typealias LinkRange = AnnotatedString.Range<UrlAnnotation>
 internal class TextLinkScope(val text: AnnotatedString) {
     var textLayoutResult: TextLayoutResult? by mutableStateOf(null)
 
+    // indicates whether the links should be measured or not. The latter needed to handle
+    // case where translated string forces measurement before the recomposition. Recomposition in
+    // this case will dispose the links altogether because translator returns plain text
+    val shouldMeasureLinks: () -> Boolean
+        get() = { text == textLayoutResult?.layoutInput?.text }
+
     /**
      * Causes the modified element to be measured with fixed constraints equal to the bounds of the
      * text range [[start], [end]) and placed over that range of text.
@@ -106,9 +112,14 @@ internal class TextLinkScope(val text: AnnotatedString) {
 
     @OptIn(ExperimentalFoundationApi::class)
     @Composable
-    fun LinksComposables() = with(this) {
+    fun LinksComposables() {
+        // we might be out of sync if translation happened but BasicText's children weren't
+        // recomposed yet
+        if (!shouldMeasureLinks()) return
+
         val indication = LocalIndication.current
         val uriHandler = LocalUriHandler.current
+
         val links = text.getUrlAnnotations(0, text.length)
         links.fastForEach { range ->
             val interactionSource = remember(range) { MutableInteractionSource() }
