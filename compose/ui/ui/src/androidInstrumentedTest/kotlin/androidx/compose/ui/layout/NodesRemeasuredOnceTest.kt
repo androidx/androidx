@@ -245,7 +245,10 @@ private fun WrapChildMeasureDuringLayout(
     content: @Composable () -> Unit
 ) {
     Layout(content = content) { measurables, constraints ->
-        layout(constraints.maxWidth, constraints.maxHeight) {
+        val width = if (constraints.hasBoundedWidth) constraints.maxWidth else constraints.minWidth
+        val height =
+            if (constraints.hasBoundedHeight) constraints.maxHeight else constraints.minHeight
+        layout(width, height) {
             val placeable = measurables.first()
                 .measure(constraints.copy(minHeight = 0, maxHeight = Constraints.Infinity))
             onMeasured(placeable.height)
@@ -274,7 +277,10 @@ private fun IntrinsicSizeAndMeasureDuringLayout(
 @Composable
 private fun NotPlaceChild(height: State<Int>, content: @Composable () -> Unit) {
     Layout(content = content) { measurables, constraints ->
-        layout(constraints.maxWidth, height.value) {
+        layout(
+            if (constraints.hasBoundedWidth) constraints.maxWidth else constraints.minWidth,
+            height.value
+        ) {
             measurables.first()
                 .measure(constraints.copy(minHeight = 0, maxHeight = Constraints.Infinity))
         }
@@ -284,6 +290,9 @@ private fun NotPlaceChild(height: State<Int>, content: @Composable () -> Unit) {
 @Composable
 private fun Child(height: State<Int>) {
     Layout { _, constraints ->
-        layout(constraints.maxWidth, height.value) {}
+        layout(
+            if (constraints.hasBoundedWidth) constraints.maxWidth else constraints.minWidth,
+            height.value
+        ) {}
     }
 }

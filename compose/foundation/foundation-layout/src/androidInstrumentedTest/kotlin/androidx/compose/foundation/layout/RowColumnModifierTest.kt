@@ -16,22 +16,17 @@
 
 package androidx.compose.foundation.layout
 
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.Measured
 import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.unit.Constraints
-import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth
@@ -339,24 +334,6 @@ class RowColumnModifierTest() {
 
         rule.runOnIdle {
             Truth.assertThat(positionInParentX).isEqualTo(5)
-        }
-    }
-
-    @Test
-    fun testColumn_doesNotCrashOnInfinity() {
-        rule.setContent {
-            Column(
-                Modifier
-                    .width(IntrinsicSize.Min)
-                    .verticalScroll(rememberScrollState())
-            ) {
-                Box(Modifier.height(20.dp)) {}
-                Layout(
-                    content = {},
-                ) { _, _ ->
-                    layout(200, Constraints.Infinity) {}
-                }
-            }
         }
     }
 
