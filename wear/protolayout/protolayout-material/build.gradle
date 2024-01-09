@@ -34,7 +34,7 @@ dependencies {
     api("androidx.annotation:annotation:1.2.0")
     api(project(":wear:protolayout:protolayout"))
     implementation(project(":wear:protolayout:protolayout-material-core"))
-    implementation(project(":wear:protolayout:protolayout-proto"))
+    implementation(project(path: ":wear:protolayout:protolayout-proto", configuration: "shadow"))
     implementation(project(":annotation:annotation-experimental"))
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.testCore)
