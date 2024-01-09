@@ -1458,6 +1458,47 @@ class AnchoredDraggableStateTest {
             assertThat(tweenAnimationSpec.animationWasExecutions).isEqualTo(1)
         }
 
+    @Test
+    fun anchoredDraggable_settleWhenOffsetEqualsTargetOffset() =
+        runBlocking(AutoTestFrameClock()) {
+            val inspectDecayAnimationSpec =
+                InspectSplineAnimationSpec(SplineBasedFloatDecayAnimationSpec(rule.density))
+            val decayAnimationSpec: DecayAnimationSpec<Float> =
+                inspectDecayAnimationSpec.generateDecayAnimationSpec()
+            val tweenAnimationSpec = InspectSpringAnimationSpec(tween(easing = LinearEasing))
+            val state = AnchoredDraggableState(
+                initialValue = A,
+                positionalThreshold = defaultPositionalThreshold,
+                velocityThreshold = defaultVelocityThreshold,
+                snapAnimationSpec = tweenAnimationSpec,
+                decayAnimationSpec = decayAnimationSpec,
+                anchors = DraggableAnchors {
+                    A at 0f
+                    B at 250f
+                }
+            )
+
+            val positionA = state.anchors.positionOf(A)
+            val positionB = state.anchors.positionOf(B)
+            val distance = abs(positionA - positionB)
+
+            assertThat(state.currentValue).isEqualTo(A)
+            assertThat(state.offset).isEqualTo(positionA)
+
+            state.dispatchRawDelta(distance)
+
+            assertThat(state.offset).isEqualTo(positionB)
+
+            state.settle(velocity = 1000f)
+
+            // Assert that the component settled at positionB (anchor B)
+            assertThat(state.offset).isEqualTo(positionB)
+
+            // since offset == positionB, decay animation is used
+            assertThat(inspectDecayAnimationSpec.animationWasExecutions).isEqualTo(1)
+            assertThat(tweenAnimationSpec.animationWasExecutions).isEqualTo(0)
+        }
+
     private suspend fun suspendIndefinitely() = suspendCancellableCoroutine<Unit> { }
 
     private class HandPumpTestFrameClock : MonotonicFrameClock {
