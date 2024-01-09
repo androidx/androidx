@@ -18,6 +18,7 @@ package androidx.compose.ui.focus
 
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection.Companion.Exit
 import androidx.compose.ui.focus.FocusRequester.Companion.Default
 import androidx.compose.ui.focus.FocusStateImpl.Active
 import androidx.compose.ui.focus.FocusStateImpl.ActiveParent
@@ -89,7 +90,8 @@ internal class FocusTargetNode :
                 requireOwner().focusOwner.clearFocus(
                     force = true,
                     refreshFocusEvents = true,
-                    clearOwnerFocus = false
+                    clearOwnerFocus = false,
+                    focusDirection = @OptIn(ExperimentalComposeUiApi::class) Exit
                 )
                 // We don't clear the owner's focus yet, because this could trigger an initial
                 // focus scenario after the focus is cleared. Instead, we schedule invalidation

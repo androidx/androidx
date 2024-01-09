@@ -127,8 +127,10 @@ internal class SkiaBasedOwner(
     override val focusOwner: FocusOwner = FocusOwnerImpl(
         onRequestApplyChangesListener = ::registerOnEndApplyChangesListener,
         onRequestFocusForOwner = { _, _ -> true }, // TODO request focus from framework.
+        onMoveFocusInterop = { _ -> true },
         onClearFocusForOwner = {}, // TODO clear focus from framework.
-        layoutDirection = { layoutDirection } // TODO(demin): support RTL [onRtlPropertiesChanged].
+        onFocusRectInterop = { null },
+        onLayoutDirection = { layoutDirection } // TODO(demin): RTL [onRtlPropertiesChanged].
     )
 
     // TODO: Set the input mode. For now we don't support touch mode, (always in Key mode).
