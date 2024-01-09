@@ -525,7 +525,7 @@ class KeyframesSpec<T>(val config: KeyframesSpecConfig<T>) : DurationBasedAnimat
     override fun <V : AnimationVector> vectorize(
         converter: TwoWayConverter<T, V>
     ): VectorizedKeyframesSpec<V> {
-        @SuppressWarnings("PrimitiveInCollection") // Consumed by stable public API
+        @Suppress("PrimitiveInCollection") // Consumed by stable public API
         val vectorizedKeyframes = mutableMapOf<Int, Pair<V, Easing>>()
         config.keyframes.forEach { key, value ->
             vectorizedKeyframes[key] = value.toPair(converter.convertToVector)
