@@ -23,6 +23,7 @@ import androidx.compose.ui.ComposeFeatureFlags
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.asComposeCanvas
 import androidx.compose.ui.input.pointer.*
 import androidx.compose.ui.platform.*
@@ -32,6 +33,7 @@ import androidx.compose.ui.text.input.PlatformTextInputService
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toOffset
@@ -439,7 +441,11 @@ internal class ComposeSceneMediator(
         val size = sceneBoundsInPx?.size ?: container.sizeInPx
         val boundsInWindow = IntRect(
             offset = offsetInWindow,
-            size = size
+            size = IntSize(
+                // container.sizeInPx can be negative
+                width = size.width.coerceAtLeast(0),
+                height = size.height.coerceAtLeast(0)
+            )
         )
         if (scene.boundsInWindow != boundsInWindow) {
             scene.boundsInWindow = boundsInWindow

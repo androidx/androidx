@@ -68,8 +68,8 @@ import kotlinx.coroutines.Dispatchers
  *
  * @param density Initial density of the content which will be used to convert [Dp] units.
  * @param layoutDirection Initial layout direction of the content.
- * @param bounds The bounds of the ComposeScene. Default value is `null`, which means the size will
- * be determined by the content.
+ * @param boundsInWindow The bounds of the ComposeScene. Default value is `null`, which means
+ * the size will be determined by the content.
  * @param coroutineContext Context which will be used to launch effects ([LaunchedEffect],
  * [rememberCoroutineScope]) and run recompositions.
  * @param composeSceneContext The context to share resources between multiple scenes and provide
@@ -81,19 +81,18 @@ import kotlinx.coroutines.Dispatchers
  *
  * @see ComposeScene
  */
-@Suppress("FunctionName")
 @InternalComposeUiApi
 fun MultiLayerComposeScene(
     density: Density = Density(1f),
     layoutDirection: LayoutDirection = LayoutDirection.Ltr,
-    bounds: IntRect? = null,
+    boundsInWindow: IntRect? = null,
     coroutineContext: CoroutineContext = Dispatchers.Unconfined,
     composeSceneContext: ComposeSceneContext = ComposeSceneContext.Empty,
     invalidate: () -> Unit = {},
 ): ComposeScene = MultiLayerComposeSceneImpl(
     density = density,
     layoutDirection = layoutDirection,
-    bounds = bounds,
+    boundsInWindow = boundsInWindow,
     coroutineContext = coroutineContext,
     composeSceneContext = composeSceneContext,
     invalidate = invalidate
@@ -102,7 +101,7 @@ fun MultiLayerComposeScene(
 private class MultiLayerComposeSceneImpl(
     density: Density,
     layoutDirection: LayoutDirection,
-    bounds: IntRect?,
+    boundsInWindow: IntRect?,
     coroutineContext: CoroutineContext,
     composeSceneContext: ComposeSceneContext,
     invalidate: () -> Unit = {},
@@ -114,7 +113,7 @@ private class MultiLayerComposeSceneImpl(
     private val mainOwner = RootNodeOwner(
         density = density,
         layoutDirection = layoutDirection,
-        bounds = bounds,
+        bounds = boundsInWindow,
         coroutineContext = compositionContext.effectCoroutineContext,
         platformContext = composeSceneContext.platformContext,
         snapshotInvalidationTracker = snapshotInvalidationTracker,
@@ -135,9 +134,12 @@ private class MultiLayerComposeSceneImpl(
             mainOwner.layoutDirection = value
         }
 
-    override var boundsInWindow: IntRect? = bounds
+    override var boundsInWindow: IntRect? = boundsInWindow
         set(value) {
             check(!isClosed) { "ComposeScene is closed" }
+            check(value == null || (value.size.width >= 0 && value.size.height >= 0)) {
+                "Size of ComposeScene cannot be negative"
+            }
             field = value
             mainOwner.bounds = value
             forEachLayer { it.owner.bounds = value }
