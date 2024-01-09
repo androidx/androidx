@@ -170,7 +170,9 @@ private fun SampleThreePaneScaffoldStandardMode() {
         currentWindowAdaptiveInfo()
     )
     val scaffoldValue = calculateThreePaneScaffoldValue(
-        scaffoldDirective.maxHorizontalPartitions
+        scaffoldDirective.maxHorizontalPartitions,
+        ThreePaneScaffoldDefaults.adaptStrategies(),
+        null
     )
     SampleThreePaneScaffold(
         scaffoldDirective,
@@ -186,7 +188,9 @@ private fun SampleThreePaneScaffoldDenseMode() {
         currentWindowAdaptiveInfo()
     )
     val scaffoldValue = calculateThreePaneScaffoldValue(
-        scaffoldDirective.maxHorizontalPartitions
+        scaffoldDirective.maxHorizontalPartitions,
+        ThreePaneScaffoldDefaults.adaptStrategies(),
+        null
     )
     SampleThreePaneScaffold(
         scaffoldDirective,
@@ -204,7 +208,9 @@ private fun SampleThreePaneScaffoldWithInsets(
         currentWindowAdaptiveInfo()
     )
     val scaffoldValue = calculateThreePaneScaffoldValue(
-        scaffoldDirective.maxHorizontalPartitions
+        scaffoldDirective.maxHorizontalPartitions,
+        ThreePaneScaffoldDefaults.adaptStrategies(),
+        null
     )
     SampleThreePaneScaffold(
         scaffoldDirective,

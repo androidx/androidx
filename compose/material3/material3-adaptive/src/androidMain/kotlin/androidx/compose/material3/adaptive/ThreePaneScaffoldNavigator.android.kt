@@ -51,6 +51,15 @@ interface ThreePaneScaffoldNavigator {
     val scaffoldState: ThreePaneScaffoldState
 
     /**
+     * Indicates if the navigator should be aware of pane destination history when deciding the
+     * result [ThreePaneScaffoldValue] by a navigation operation. If the value is `false`, only
+     * the current destination will be considered in the scaffold value calculation.
+     *
+     * @see calculateThreePaneScaffoldValue for more detailed explanation about history awareness.
+     */
+    var isDestinationHistoryAware: Boolean
+
+    /**
      * Navigates to a new pane destination. The new destination is supposed to have the highest
      * priority when calculating the new [scaffoldState]. When implementing this method, please
      * ensure the new destination pane will be expanded or adapted in a reasonable way so it
@@ -93,6 +102,9 @@ interface ThreePaneScaffoldNavigator {
  *        calculated with [calculateStandardPaneScaffoldDirective] using [WindowAdaptiveInfo]
  *        retrieved from the current context.
  * @param adaptStrategies adaptation strategies of each pane.
+ * @param isDestinationHistoryAware `true` if the scaffold value calculation should be aware of the
+ *        full destination history, instead of just the current destination. See
+ *        [calculateThreePaneScaffoldValue] for more relevant details.
  * @param initialDestinationHistory the initial pane destination history of the scaffold, by default
  *        it will be just the list pane.
  */
@@ -103,11 +115,13 @@ fun rememberListDetailPaneScaffoldNavigator(
         calculateStandardPaneScaffoldDirective(currentWindowAdaptiveInfo()),
     adaptStrategies: ThreePaneScaffoldAdaptStrategies =
         ListDetailPaneScaffoldDefaults.adaptStrategies(),
+    isDestinationHistoryAware: Boolean = true,
     initialDestinationHistory: List<ThreePaneScaffoldRole> = listOf(ListDetailPaneScaffoldRole.List)
 ): ThreePaneScaffoldNavigator =
     rememberThreePaneScaffoldNavigator(
         scaffoldDirective,
         adaptStrategies,
+        isDestinationHistoryAware,
         initialDestinationHistory
     )
 
@@ -121,6 +135,9 @@ fun rememberListDetailPaneScaffoldNavigator(
  *        calculated with [calculateStandardPaneScaffoldDirective] using [WindowAdaptiveInfo]
  *        retrieved from the current context.
  * @param adaptStrategies adaptation strategies of each pane.
+ * @param isDestinationHistoryAware `true` if the scaffold value calculation should be aware of the
+ *        full destination history, instead of just the current destination. See
+ *        [calculateThreePaneScaffoldValue] for more relevant details.
  * @param initialDestinationHistory the initial destination history of the scaffold, by default it
  *        will be just the main pane.
  */
@@ -131,12 +148,14 @@ fun rememberSupportingPaneScaffoldNavigator(
         calculateStandardPaneScaffoldDirective(currentWindowAdaptiveInfo()),
     adaptStrategies: ThreePaneScaffoldAdaptStrategies =
         SupportingPaneScaffoldDefaults.adaptStrategies(),
+    isDestinationHistoryAware: Boolean = true,
     initialDestinationHistory: List<ThreePaneScaffoldRole> =
         listOf(SupportingPaneScaffoldRole.Main)
 ): ThreePaneScaffoldNavigator =
     rememberThreePaneScaffoldNavigator(
         scaffoldDirective,
         adaptStrategies,
+        isDestinationHistoryAware,
         initialDestinationHistory
     )
 
@@ -145,19 +164,26 @@ fun rememberSupportingPaneScaffoldNavigator(
 internal fun rememberThreePaneScaffoldNavigator(
     scaffoldDirective: PaneScaffoldDirective,
     adaptStrategies: ThreePaneScaffoldAdaptStrategies,
+    isDestinationHistoryAware: Boolean,
     initialDestinationHistory: List<ThreePaneScaffoldRole>
 ): ThreePaneScaffoldNavigator =
     rememberSaveable(
-        saver = DefaultThreePaneScaffoldNavigator.saver(scaffoldDirective, adaptStrategies)
+        saver = DefaultThreePaneScaffoldNavigator.saver(
+            scaffoldDirective,
+            adaptStrategies,
+            isDestinationHistoryAware
+        )
     ) {
         DefaultThreePaneScaffoldNavigator(
             initialDestinationHistory = initialDestinationHistory,
             initialScaffoldDirective = scaffoldDirective,
-            initialAdaptStrategies = adaptStrategies
+            initialAdaptStrategies = adaptStrategies,
+            initialIsDestinationHistoryAware = isDestinationHistoryAware
         )
     }.apply {
         this.scaffoldDirective = scaffoldDirective
         this.adaptStrategies = adaptStrategies
+        this.isDestinationHistoryAware = isDestinationHistoryAware
     }
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
@@ -165,6 +191,7 @@ internal class DefaultThreePaneScaffoldNavigator(
     initialDestinationHistory: List<ThreePaneScaffoldRole>,
     initialScaffoldDirective: PaneScaffoldDirective,
     initialAdaptStrategies: ThreePaneScaffoldAdaptStrategies,
+    initialIsDestinationHistoryAware: Boolean
 ) : ThreePaneScaffoldNavigator, ThreePaneScaffoldState {
 
     private val destinationHistory = mutableStateListOf<ThreePaneScaffoldRole>().apply {
@@ -175,12 +202,14 @@ internal class DefaultThreePaneScaffoldNavigator(
 
     override var scaffoldDirective by mutableStateOf(initialScaffoldDirective)
 
+    override var isDestinationHistoryAware by mutableStateOf(initialIsDestinationHistoryAware)
+
     var adaptStrategies by mutableStateOf(initialAdaptStrategies)
 
     val currentDestination: ThreePaneScaffoldRole? get() = destinationHistory.lastOrNull()
 
     override val scaffoldValue by derivedStateOf {
-        calculateScaffoldValue(currentDestination)
+        calculateScaffoldValue(destinationHistory.lastIndex)
     }
 
     override fun navigateTo(pane: ThreePaneScaffoldRole) {
@@ -212,7 +241,7 @@ internal class DefaultThreePaneScaffoldNavigator(
             return destinationHistory.lastIndex - 1
         }
         for (previousDestinationIndex in destinationHistory.lastIndex - 1 downTo 0) {
-            val newValue = calculateScaffoldValue(destinationHistory[previousDestinationIndex])
+            val newValue = calculateScaffoldValue(previousDestinationIndex)
             if (newValue != scaffoldValue) {
                 return previousDestinationIndex
             }
@@ -220,14 +249,26 @@ internal class DefaultThreePaneScaffoldNavigator(
         return -1
     }
 
-    private fun calculateScaffoldValue(
-        destination: ThreePaneScaffoldRole?
-    ): ThreePaneScaffoldValue =
-        calculateThreePaneScaffoldValue(
-            scaffoldDirective.maxHorizontalPartitions,
-            adaptStrategies,
-            destination
-        )
+    private fun calculateScaffoldValue(destinationIndex: Int) =
+        if (destinationIndex == -1) {
+            calculateThreePaneScaffoldValue(
+                scaffoldDirective.maxHorizontalPartitions,
+                adaptStrategies,
+                null
+            )
+        } else if (isDestinationHistoryAware) {
+            calculateThreePaneScaffoldValue(
+                scaffoldDirective.maxHorizontalPartitions,
+                adaptStrategies,
+                destinationHistory.subList(0, destinationIndex + 1)
+            )
+        } else {
+            calculateThreePaneScaffoldValue(
+                scaffoldDirective.maxHorizontalPartitions,
+                adaptStrategies,
+                destinationHistory[destinationIndex]
+            )
+        }
 
     companion object {
         /**
@@ -235,7 +276,8 @@ internal class DefaultThreePaneScaffoldNavigator(
          */
         fun saver(
             initialScaffoldDirective: PaneScaffoldDirective,
-            initialAdaptStrategies: ThreePaneScaffoldAdaptStrategies
+            initialAdaptStrategies: ThreePaneScaffoldAdaptStrategies,
+            initialDestinationHistoryAware: Boolean
         ): Saver<DefaultThreePaneScaffoldNavigator, *> = listSaver(
             save = {
                 it.destinationHistory
@@ -244,7 +286,8 @@ internal class DefaultThreePaneScaffoldNavigator(
                 DefaultThreePaneScaffoldNavigator(
                     initialDestinationHistory = it,
                     initialScaffoldDirective = initialScaffoldDirective,
-                    initialAdaptStrategies = initialAdaptStrategies
+                    initialAdaptStrategies = initialAdaptStrategies,
+                    initialIsDestinationHistoryAware = initialDestinationHistoryAware
                 )
             }
         )
