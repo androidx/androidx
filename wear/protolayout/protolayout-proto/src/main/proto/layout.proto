@@ -150,8 +150,11 @@ enum TextOverflow {
   TEXT_OVERFLOW_TRUNCATE = 1;
 
   // Truncate the text to fit in the Text element's bounds, but add an ellipsis
-  // (i.e. ...) to the end of the text if it has been truncated.
-  // @deprecated Use TEXT_OVERFLOW_ELLIPSIZE instead.
+  // (i.e. ...) to the end of the text if it has been truncated. Note that this will not add an
+  // ellipsis if the number of lines that fits into the available space is less than the
+  // {@code setMaxLines} in Text.
+  //
+  // DEPRECATED: Use {@link #TEXT_OVERFLOW_ELLIPSIZE} instead.
   TEXT_OVERFLOW_ELLIPSIZE_END = 2;
 
   // Enable marquee animation for texts that don't fit inside the Text element.
@@ -163,13 +166,9 @@ enum TextOverflow {
 
   // Truncate the text to fit in the Text element's parent bounds, but add an
   // ellipsis (i.e. ...) to the end of the text if it has been truncated.
-  // This will truncate the text even before {@code setMaxLines} in Text is
-  // reached if there's not enough space in the parent container.
-  // Note that, when this is used, the parent of the Text element this
-  // corresponds to shouldn't have its width and height set to wrapped, as it
-  // can lead to unexpected results.
-  // <p>Note that, on SpanText, this will behave exactly the same way as
-  // TEXT_OVERFLOW_ELLIPSIZE_END.
+  //
+  // <p>Note that, when this is used, the parent of the Text element this corresponds to shouldn't
+  // have its width and height set to wrapped, as it can lead to unexpected results.
   TEXT_OVERFLOW_ELLIPSIZE = 4;
 }
 
