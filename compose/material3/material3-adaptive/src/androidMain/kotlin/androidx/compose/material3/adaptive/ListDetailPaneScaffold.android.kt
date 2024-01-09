@@ -63,28 +63,62 @@ fun ListDetailPaneScaffold(
  * [ThreePaneScaffoldAdaptStrategies], and the current pane destination of a
  * [ListDetailPaneScaffold].
  *
+ * @param currentPaneDestination the current pane destination, which will be guaranteed to have the
+ *        highest priority when deciding pane visibilities.
  * @param scaffoldDirective the layout directives that the associated [ListDetailPaneScaffold]
  *        needs to follow. The default value will be the calculation result from
  *        [calculateStandardPaneScaffoldDirective] with the current window configuration, and
  *        will be automatically updated when the window configuration changes.
  * @param adaptStrategies the [ThreePaneScaffoldAdaptStrategies] should be used by scaffold panes.
- * @param currentPaneDestination the current pane destination, which will be guaranteed to have
- *        highest priority when deciding pane visibility.
  */
 @ExperimentalMaterial3AdaptiveApi
 @Composable
 fun calculateListDetailPaneScaffoldState(
+    currentPaneDestination: ThreePaneScaffoldRole = ListDetailPaneScaffoldRole.List,
     scaffoldDirective: PaneScaffoldDirective =
         calculateStandardPaneScaffoldDirective(currentWindowAdaptiveInfo()),
     adaptStrategies: ThreePaneScaffoldAdaptStrategies =
-        ListDetailPaneScaffoldDefaults.adaptStrategies(),
-    currentPaneDestination: ThreePaneScaffoldRole = ListDetailPaneScaffoldRole.List
+        ListDetailPaneScaffoldDefaults.adaptStrategies()
 ): ThreePaneScaffoldState = ThreePaneScaffoldStateImpl(
     scaffoldDirective,
     calculateThreePaneScaffoldValue(
         scaffoldDirective.maxHorizontalPartitions,
         adaptStrategies,
         currentPaneDestination
+    )
+)
+
+/**
+ * This function calculates [ThreePaneScaffoldValue] based on the given [PaneScaffoldDirective],
+ * [ThreePaneScaffoldAdaptStrategies], and the pane destination history of a
+ * [ListDetailPaneScaffold].
+ *
+ * @param paneDestinationHistory The history of past pane destinations, the last destination will
+ *        have the highest priority, and the second last destination will have the second highest
+ *        priority, and so forth until all panes has a priority assigned. Note that the last
+ *        destination is supposed to be the last item of the provided list. When the history is
+ *        empty or there are panes left unassigned, default priorities will be assigned to those
+ *        panes in the order of Detail > List > Extra.
+ * @param scaffoldDirective the layout directives that the associated [ListDetailPaneScaffold]
+ *        needs to follow. The default value will be the calculation result from
+ *        [calculateStandardPaneScaffoldDirective] with the current window configuration, and
+ *        will be automatically updated when the window configuration changes.
+ * @param adaptStrategies the [ThreePaneScaffoldAdaptStrategies] should be used by scaffold panes.
+ */
+@ExperimentalMaterial3AdaptiveApi
+@Composable
+fun calculateListDetailPaneScaffoldState(
+    paneDestinationHistory: List<ThreePaneScaffoldRole>,
+    scaffoldDirective: PaneScaffoldDirective =
+        calculateStandardPaneScaffoldDirective(currentWindowAdaptiveInfo()),
+    adaptStrategies: ThreePaneScaffoldAdaptStrategies =
+        ListDetailPaneScaffoldDefaults.adaptStrategies()
+): ThreePaneScaffoldState = ThreePaneScaffoldStateImpl(
+    scaffoldDirective,
+    calculateThreePaneScaffoldValue(
+        scaffoldDirective.maxHorizontalPartitions,
+        adaptStrategies,
+        paneDestinationHistory
     )
 )
 
