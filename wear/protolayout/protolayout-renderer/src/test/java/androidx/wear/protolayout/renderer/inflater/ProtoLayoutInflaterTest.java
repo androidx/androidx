@@ -47,6 +47,7 @@ import static org.mockito.Mockito.verify;
 import static org.robolectric.Shadows.shadowOf;
 
 import static java.lang.Integer.MAX_VALUE;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 import android.app.Activity;
 import android.app.Application;
@@ -224,7 +225,6 @@ import org.robolectric.shadows.ShadowPackageManager;
 import org.robolectric.shadows.ShadowSystemClock;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -533,6 +533,54 @@ public class ProtoLayoutInflaterTest {
 
         // Check that the outer box is not displayed.
         assertThat(rootLayout.getChildCount()).isEqualTo(0);
+    }
+
+    @Test
+    public void inflate_box_withExtensionElement() {
+        int width = 10;
+        int height = 12;
+        byte[] payload = "Hello World".getBytes(UTF_8);
+        LayoutElement root =
+                LayoutElement.newBuilder()
+                    .setBox(
+                        Box.newBuilder()
+                            // Outer box's width and height left at default value of "wrap"
+                            .addContents(
+                                LayoutElement.newBuilder()
+                                    .setExtension(
+                                        ExtensionLayoutElement.newBuilder()
+                                            .setExtensionId("foo")
+                                            .setPayload(ByteString.copyFrom(payload))
+                                            .setWidth(
+                                                ExtensionDimension.newBuilder()
+                                                    .setLinearDimension(dp(width))
+                                                    .build())
+                                            .setHeight(
+                                                ExtensionDimension.newBuilder()
+                                                    .setLinearDimension(dp(height))
+                                                    .build()))))
+                        .build();
+
+        FrameLayout rootLayout =
+                renderer(
+                    newRendererConfigBuilder(fingerprintedLayout(root))
+                        .setExtensionViewProvider(
+                            (extensionPayload, id) -> {
+                                TextView returnedView = new TextView(getApplicationContext());
+                                returnedView.setText("testing");
+
+                                return returnedView;
+                            }))
+                        .inflate();
+
+        // Check that the outer box is displayed and it has a child.
+        assertThat(rootLayout.getChildCount()).isEqualTo(1);
+
+        ViewGroup boxView = (ViewGroup) rootLayout.getChildAt(0);
+        assertThat(boxView.getChildCount()).isEqualTo(1);
+
+        assertThat(boxView.getMeasuredWidth()).isEqualTo(width);
+        assertThat(boxView.getMeasuredHeight()).isEqualTo(height);
     }
 
     @Test
@@ -3601,7 +3649,7 @@ public class ProtoLayoutInflaterTest {
 
     @Test
     public void inflate_extension_onlySpaceIfNoExtension() {
-        byte[] payload = "Hello World".getBytes(StandardCharsets.UTF_8);
+        byte[] payload = "Hello World".getBytes(UTF_8);
         int size = 5;
 
         ExtensionDimension dim =
@@ -3630,7 +3678,7 @@ public class ProtoLayoutInflaterTest {
     public void inflate_rendererExtension_withExtension_callsExtension() {
         List<Pair<byte[], String>> invokedExtensions = new ArrayList<>();
 
-        final byte[] payload = "Hello World".getBytes(StandardCharsets.UTF_8);
+        final byte[] payload = "Hello World".getBytes(UTF_8);
         final int size = 5;
         final String extensionId = "foo";
 

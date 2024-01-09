@@ -117,6 +117,7 @@ import androidx.wear.protolayout.proto.DimensionProto.DegreesProp;
 import androidx.wear.protolayout.proto.DimensionProto.DpProp;
 import androidx.wear.protolayout.proto.DimensionProto.ExpandedAngularDimensionProp;
 import androidx.wear.protolayout.proto.DimensionProto.ExpandedDimensionProp;
+import androidx.wear.protolayout.proto.DimensionProto.ExtensionDimension;
 import androidx.wear.protolayout.proto.DimensionProto.ImageDimension;
 import androidx.wear.protolayout.proto.DimensionProto.ProportionalDimensionProp;
 import androidx.wear.protolayout.proto.DimensionProto.SpProp;
@@ -1656,8 +1657,6 @@ public final class ProtoLayoutInflater {
                 case SlideDirection.SLIDE_DIRECTION_BOTTOM_TO_TOP_VALUE:
                     fromYDelta = getInitialOffsetOrDefaultY(slideIn, view);
                     break;
-                default:
-                    break;
             }
 
             TranslateAnimation translateAnimation =
@@ -1709,8 +1708,6 @@ public final class ProtoLayoutInflater {
                     case SlideDirection.SLIDE_DIRECTION_TOP_TO_BOTTOM_VALUE:
                     case SlideDirection.SLIDE_DIRECTION_BOTTOM_TO_TOP_VALUE:
                         toYDelta = getTargetOffsetOrDefaultY(slideOut, view);
-                        break;
-                    default:
                         break;
                 }
 
@@ -3117,7 +3114,7 @@ public final class ProtoLayoutInflater {
 
         lineView.setThickness(thicknessPx);
 
-        DegreesProp length;
+        DegreesProp length = DegreesProp.getDefaultInstance();
         if (line.hasAngularLength()) {
             final ArcLineLength angularLength = line.getAngularLength();
             switch (angularLength.getInnerCase()) {
@@ -3138,8 +3135,7 @@ public final class ProtoLayoutInflater {
                         break;
                     }
 
-                default:
-                    length = DegreesProp.getDefaultInstance();
+                case INNER_NOT_SET:
                     break;
             }
         } else {
@@ -3531,7 +3527,7 @@ public final class ProtoLayoutInflater {
                         excludeFontPadding = true;
                     }
                     break;
-                default:
+                case INNER_NOT_SET:
                     Log.w(TAG, "Unknown Span child type.");
                     break;
             }
@@ -4049,11 +4045,12 @@ public final class ProtoLayoutInflater {
             case TEXT:
             case SPANNABLE:
                 return true;
+            case EXTENSION:
+                return isMeasurable(element.getExtension().getWidth());
             case INNER_NOT_SET:
                 return false;
-            default: // TODO(b/276703002): Remove default case
-                return false;
         }
+        return false;
     }
 
     private boolean isHeightMeasurable(LayoutElement element, ContainerDimension containerWidth) {
@@ -4084,11 +4081,12 @@ public final class ProtoLayoutInflater {
             case TEXT:
             case SPANNABLE:
                 return true;
+            case EXTENSION:
+                return isMeasurable(element.getExtension().getHeight());
             case INNER_NOT_SET:
                 return false;
-            default: // TODO(b/276703002): Remove default case
-                return false;
         }
+        return false;
     }
 
     private boolean isMeasurable(ContainerDimension dimension) {
@@ -4113,6 +4111,16 @@ public final class ProtoLayoutInflater {
                 return true;
             case EXPANDED_DIMENSION:
                 return false;
+            case INNER_NOT_SET:
+                return false;
+        }
+        return false;
+    }
+
+    private static boolean isMeasurable(ExtensionDimension dimension) {
+        switch (dimension.getInnerCase()) {
+            case LINEAR_DIMENSION:
+                return true;
             case INNER_NOT_SET:
                 return false;
         }
@@ -4464,9 +4472,11 @@ public final class ProtoLayoutInflater {
                 return "android.widget.Switch";
             case SEMANTICS_ROLE_RADIOBUTTON:
                 return "android.widget.RadioButton";
-            default:
+            case SEMANTICS_ROLE_NONE:
+            case UNRECOGNIZED:
                 return "";
         }
+        return "";
     }
 
     // getObsoleteContentDescription is used for backward compatibility
