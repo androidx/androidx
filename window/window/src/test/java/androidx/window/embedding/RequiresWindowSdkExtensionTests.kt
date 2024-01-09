@@ -118,7 +118,7 @@ class RequiresWindowSdkExtensionTests {
         verify(embeddingExtension, never()).updateSplitAttributes(any(), any())
 
         assertThrows(UnsupportedOperationException::class.java) {
-            embeddingCompat.invalidateTopVisibleSplitAttributes()
+            embeddingCompat.invalidateVisibleActivityStacks()
         }
         verify(embeddingExtension, never()).invalidateTopVisibleSplitAttributes()
     }
@@ -151,7 +151,7 @@ class RequiresWindowSdkExtensionTests {
         verify(embeddingExtension, never()).updateSplitAttributes(any(), any())
 
         assertThrows(UnsupportedOperationException::class.java) {
-            embeddingCompat.invalidateTopVisibleSplitAttributes()
+            embeddingCompat.invalidateVisibleActivityStacks()
         }
         verify(embeddingExtension, never()).invalidateTopVisibleSplitAttributes()
     }
@@ -184,7 +184,7 @@ class RequiresWindowSdkExtensionTests {
             OemSplitAttributes.Builder().build()
         )
 
-        embeddingCompat.invalidateTopVisibleSplitAttributes()
+        embeddingCompat.invalidateVisibleActivityStacks()
         verify(embeddingExtension).invalidateTopVisibleSplitAttributes()
     }
 
@@ -216,7 +216,7 @@ class RequiresWindowSdkExtensionTests {
             OemSplitAttributes.Builder().build()
         )
 
-        embeddingCompat.invalidateTopVisibleSplitAttributes()
+        embeddingCompat.invalidateVisibleActivityStacks()
         verify(embeddingExtension).invalidateTopVisibleSplitAttributes()
     }
 
@@ -248,7 +248,7 @@ class RequiresWindowSdkExtensionTests {
             OemSplitAttributes.Builder().build()
         )
 
-        embeddingCompat.invalidateTopVisibleSplitAttributes()
+        embeddingCompat.invalidateVisibleActivityStacks()
         verify(embeddingExtension).invalidateTopVisibleSplitAttributes()
     }
 

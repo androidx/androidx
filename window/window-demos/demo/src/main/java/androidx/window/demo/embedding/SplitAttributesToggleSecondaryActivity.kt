@@ -165,7 +165,7 @@ open class SplitAttributesToggleSecondaryActivity : SplitAttributesToggleActivit
                     val enableFullscreenMode = DemoActivityEmbeddingController.getInstance()
                         .shouldExpandSecondaryContainer
                     enableFullscreenMode.set(!enableFullscreenMode.get())
-                    splitController.invalidateTopVisibleSplitAttributes()
+                    activityEmbeddingController.invalidateTopVisibleActivityStacks()
                 } else {
                     // Update the top splitInfo if single default split Attributes is used.
                     splitController.updateSplitAttributes(
@@ -192,7 +192,7 @@ open class SplitAttributesToggleSecondaryActivity : SplitAttributesToggleActivit
                 demoActivityEmbeddingController.customizedLayoutDirection =
                     CUSTOMIZED_LAYOUT_DIRECTIONS_VALUE[position]
         }
-        splitController.invalidateTopVisibleSplitAttributes()
+        activityEmbeddingController.invalidateTopVisibleActivityStacks()
     }
 
     override fun onNothingSelected(view: AdapterView<*>?) {

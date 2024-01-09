@@ -98,11 +98,14 @@ class OverlayController @VisibleForTesting internal constructor(
      * will be passed by [OverlayAttributesCalculatorParams.defaultOverlayAttributes] when the
      * calculator function applies to the overlay [ActivityStack] specified by [overlayTag].
      *
+     * In most cases it is suggested to use
+     * [ActivityEmbeddingController.invalidateTopVisibleActivityStacks] if a calculator has been set
+     * through [OverlayController.setOverlayAttributesCalculator].
+     *
      * @param overlayTag The overlay [ActivityStack]'s tag
      * @param overlayAttributes The [OverlayAttributes] to update
      * @throws UnsupportedOperationException if [WindowSdkExtensions.extensionVersion]
      *                                       is less than 5.
-     * @see androidx.window.embedding.OverlayController.setOverlayAttributesCalculator
      */
     @RequiresWindowSdkExtension(5)
     fun updateOverlayAttributes(overlayTag: String, overlayAttributes: OverlayAttributes) {

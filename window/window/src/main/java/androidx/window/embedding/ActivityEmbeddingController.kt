@@ -126,6 +126,35 @@ class ActivityEmbeddingController internal constructor(private val backend: Embe
         backend.setEmbeddingConfiguration(embeddingConfiguration)
     }
 
+    /**
+     * Triggers calculator functions set through [SplitController.setSplitAttributesCalculator] and
+     * [OverlayController.setOverlayAttributesCalculator] to update attributes for visible
+     * [activityStacks][ActivityStack].
+     *
+     * This method can be used when the application wants to update the embedding presentation based
+     * on the application state.
+     *
+     * This method is not needed for changes that are driven by window and device state changes or
+     * new activity starts, because those will invoke the calculator functions
+     * automatically.
+     *
+     * Visible [activityStacks][ActivityStack] are usually the last element of [SplitInfo]
+     * list which was received from the callback registered in [SplitController.splitInfoList] and
+     * an active overlay [ActivityStack] if exists.
+     *
+     * The call will be no-op if there is no visible [activityStacks][ActivityStack] or there's no
+     * calculator set.
+     *
+     * @throws UnsupportedOperationException if [WindowSdkExtensions.extensionVersion]
+     *                                       is less than 3.
+     * @see androidx.window.embedding.OverlayController.setOverlayAttributesCalculator
+     * @see androidx.window.embedding.SplitController.setSplitAttributesCalculator
+     */
+    @RequiresWindowSdkExtension(3)
+    fun invalidateTopVisibleActivityStacks() {
+        backend.invalidateVisibleActivityStacks()
+    }
+
     companion object {
         /**
          * Obtains an instance of [ActivityEmbeddingController].

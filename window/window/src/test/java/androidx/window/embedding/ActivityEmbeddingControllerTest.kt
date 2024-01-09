@@ -81,6 +81,13 @@ class ActivityEmbeddingControllerTest {
 
     @Test
     @OptIn(ExperimentalWindowApi::class)
+    fun test_invalidateTopVisibleSplitAttributes_delegates() {
+        activityEmbeddingController.invalidateTopVisibleActivityStacks()
+        verify(mockEmbeddingBackend).invalidateVisibleActivityStacks()
+    }
+
+    @Test
+    @OptIn(ExperimentalWindowApi::class)
     fun testGetInstance() {
         EmbeddingBackend.overrideDecorator(object : EmbeddingBackendDecorator {
             override fun decorate(embeddingBackend: EmbeddingBackend): EmbeddingBackend =

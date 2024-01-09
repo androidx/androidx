@@ -201,27 +201,6 @@ class SplitController internal constructor(private val embeddingBackend: Embeddi
     }
 
     /**
-     * Triggers a [SplitAttributes] update callback for the current topmost and visible split layout
-     * if there is one. This method can be used when a change to the split presentation originates
-     * from an application state change. Changes that are driven by parent window changes or new
-     * activity starts invoke the callback provided in [setSplitAttributesCalculator] automatically
-     * without the need to call this function.
-     *
-     * The top [SplitInfo] is usually the last element of [SplitInfo] list which was received from
-     * the callback registered in [splitInfoList].
-     *
-     * The call will be ignored if there is no visible split.
-     *
-     * @throws UnsupportedOperationException if [WindowSdkExtensions.extensionVersion]
-     *                                       is less than 3.
-     */
-    @ExperimentalWindowApi
-    @RequiresWindowSdkExtension(3)
-    fun invalidateTopVisibleSplitAttributes() {
-        embeddingBackend.invalidateTopVisibleSplitAttributes()
-    }
-
-    /**
      * Updates the [SplitAttributes] of a split pair. This is an alternative to using
      * a split attributes calculator callback set in [setSplitAttributesCalculator], useful when
      * apps only need to update the splits in a few cases proactively but rely on the default split
@@ -236,8 +215,9 @@ class SplitController internal constructor(private val embeddingBackend: Embeddi
      * - A new Activity being launched.
      * - A window or device state updates (e,g. due to screen rotation or folding state update).
      *
-     * In most cases it is suggested to use [invalidateTopVisibleSplitAttributes] if
-     * [SplitAttributes] calculator callback is used.
+     * In most cases it is suggested to use
+     * [ActivityEmbeddingController.invalidateTopVisibleActivityStacks] if a calculator has been set
+     * through [setSplitAttributesCalculator].
      *
      * @param splitInfo the split pair to update
      * @param splitAttributes the [SplitAttributes] to be applied
