@@ -19,6 +19,7 @@ package androidx.compose.foundation.text
 import androidx.compose.foundation.text.modifiers.SelectableTextAnnotatedStringElement
 import androidx.compose.foundation.text.modifiers.SelectionController
 import androidx.compose.foundation.text.modifiers.TextAnnotatedStringElement
+import androidx.compose.foundation.text.modifiers.TextAnnotatedStringNode
 import androidx.compose.foundation.text.modifiers.TextStringSimpleElement
 import androidx.compose.foundation.text.modifiers.hasLinks
 import androidx.compose.foundation.text.selection.LocalSelectionRegistrar
@@ -27,10 +28,12 @@ import androidx.compose.foundation.text.selection.SelectionRegistrar
 import androidx.compose.foundation.text.selection.hasSelection
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.ColorProducer
@@ -129,7 +132,8 @@ fun BasicText(
                 placeholders = null,
                 onPlaceholderLayout = null,
                 selectionController = selectionController,
-                color = color
+                color = color,
+                onShowTranslation = null
             )
     } else {
         modifier
@@ -228,16 +232,20 @@ fun BasicText(
                     placeholders = null,
                     onPlaceholderLayout = null,
                     selectionController = selectionController,
-                    color = color
+                    color = color,
+                    onShowTranslation = null
                 ),
             EmptyMeasurePolicy
         )
     } else {
+        // takes into account text substitution (for translation) that is happening inside the
+        // TextAnnotatedStringNode
+        var displayedText by remember(text) { mutableStateOf(text) }
+
         LayoutWithLinksAndInlineContent(
             modifier = modifier,
-            text = text,
+            text = displayedText,
             onTextLayout = onTextLayout,
-            hasLinks = hasLinks,
             hasInlineContent = hasInlineContent,
             inlineContent = inlineContent,
             style = style,
@@ -247,7 +255,14 @@ fun BasicText(
             minLines = minLines,
             fontFamilyResolver = LocalFontFamilyResolver.current,
             selectionController = selectionController,
-            color = color
+            color = color,
+            onShowTranslation = { substitutionValue ->
+                displayedText = if (substitutionValue.isShowingSubstitution) {
+                    substitutionValue.substitution
+                } else {
+                    substitutionValue.original
+                }
+            }
         )
     }
 }
@@ -359,6 +374,7 @@ private object EmptyMeasurePolicy : MeasurePolicy {
 
 /** Measure policy for inline content and links */
 private class TextMeasurePolicy(
+    private val shouldMeasureLinks: () -> Boolean,
     private val placements: () -> List<Rect?>?
 ) : MeasurePolicy {
     override fun MeasureScope.measure(
@@ -389,7 +405,10 @@ private class TextMeasurePolicy(
         val linksMeasurables = measurables.fastFilter {
             it.parentData is TextRangeLayoutModifier
         }
-        val linksToPlace = measureWithTextRangeMeasureConstraints(linksMeasurables)
+        val linksToPlace = measureWithTextRangeMeasureConstraints(
+            measurables = linksMeasurables,
+            shouldMeasureLinks = shouldMeasureLinks
+        )
 
         return layout(constraints.maxWidth, constraints.maxHeight) {
             // inline content
@@ -397,7 +416,7 @@ private class TextMeasurePolicy(
                 placeable.place(position)
             }
             // links
-            linksToPlace.fastForEach { (placeable, measureResult) ->
+            linksToPlace?.fastForEach { (placeable, measureResult) ->
                 placeable.place(measureResult?.invoke() ?: IntOffset.Zero)
             }
         }
@@ -405,14 +424,19 @@ private class TextMeasurePolicy(
 }
 
 /** Measure policy for links only */
-private object LinksTextMeasurePolicy : MeasurePolicy {
+private class LinksTextMeasurePolicy(
+    private val shouldMeasureLinks: () -> Boolean
+) : MeasurePolicy {
     override fun MeasureScope.measure(
         measurables: List<Measurable>,
         constraints: Constraints
     ): MeasureResult {
-        val linksToPlace = measureWithTextRangeMeasureConstraints(measurables)
         return layout(constraints.maxWidth, constraints.maxHeight) {
-            linksToPlace.fastForEach { (placeable, measureResult) ->
+            val linksToPlace = measureWithTextRangeMeasureConstraints(
+                measurables = measurables,
+                shouldMeasureLinks = shouldMeasureLinks
+            )
+            linksToPlace?.fastForEach { (placeable, measureResult) ->
                 placeable.place(measureResult?.invoke() ?: IntOffset.Zero)
             }
         }
@@ -420,18 +444,24 @@ private object LinksTextMeasurePolicy : MeasurePolicy {
 }
 
 private fun measureWithTextRangeMeasureConstraints(
-    measurables: List<Measurable>
-): List<Pair<Placeable, (() -> IntOffset)?>> {
-    val textRangeLayoutMeasureScope = TextRangeLayoutMeasureScope()
-    return measurables.fastMapIndexedNotNull { _, measurable ->
-        val rangeMeasurePolicy = (measurable.parentData as TextRangeLayoutModifier).measurePolicy
-        val rangeMeasureResult = with(rangeMeasurePolicy) {
-            textRangeLayoutMeasureScope.measure()
+    measurables: List<Measurable>,
+    shouldMeasureLinks: () -> Boolean,
+): List<Pair<Placeable, (() -> IntOffset)?>>? {
+    return if (shouldMeasureLinks()) {
+        val textRangeLayoutMeasureScope = TextRangeLayoutMeasureScope()
+        measurables.fastMapIndexedNotNull { _, measurable ->
+            val rangeMeasurePolicy =
+                (measurable.parentData as TextRangeLayoutModifier).measurePolicy
+            val rangeMeasureResult = with(rangeMeasurePolicy) {
+                textRangeLayoutMeasureScope.measure()
+            }
+            val placeable = measurable.measure(
+                Constraints.fixed(rangeMeasureResult.width, rangeMeasureResult.height)
+            )
+            Pair(placeable, rangeMeasureResult.place)
         }
-        val placeable = measurable.measure(
-            Constraints.fixed(rangeMeasureResult.width, rangeMeasureResult.height)
-        )
-        Pair(placeable, rangeMeasureResult.place)
+    } else {
+        null
     }
 }
 
@@ -447,7 +477,8 @@ private fun Modifier.textModifier(
     placeholders: List<AnnotatedString.Range<Placeholder>>?,
     onPlaceholderLayout: ((List<Rect?>) -> Unit)?,
     selectionController: SelectionController?,
-    color: ColorProducer?
+    color: ColorProducer?,
+    onShowTranslation: ((TextAnnotatedStringNode.TextSubstitutionValue) -> Unit)?
 ): Modifier {
     if (selectionController == null) {
         val staticTextModifier = TextAnnotatedStringElement(
@@ -462,7 +493,8 @@ private fun Modifier.textModifier(
             placeholders,
             onPlaceholderLayout,
             null,
-            color
+            color,
+            onShowTranslation
         )
         return this then Modifier /* selection position */ then staticTextModifier
     } else {
@@ -489,7 +521,6 @@ private fun LayoutWithLinksAndInlineContent(
     modifier: Modifier,
     text: AnnotatedString,
     onTextLayout: ((TextLayoutResult) -> Unit)?,
-    hasLinks: Boolean,
     hasInlineContent: Boolean,
     inlineContent: Map<String, InlineTextContent> = mapOf(),
     style: TextStyle,
@@ -499,9 +530,10 @@ private fun LayoutWithLinksAndInlineContent(
     minLines: Int,
     fontFamilyResolver: FontFamily.Resolver,
     selectionController: SelectionController?,
-    color: ColorProducer?
+    color: ColorProducer?,
+    onShowTranslation: ((TextAnnotatedStringNode.TextSubstitutionValue) -> Unit)?
 ) {
-    val textScope = if (hasLinks) {
+    val textScope = if (text.hasLinks()) {
         remember(text) { TextLinkScope(text) }
     } else null
 
@@ -545,12 +577,18 @@ private fun LayoutWithLinksAndInlineContent(
                 placeholders = placeholders,
                 onPlaceholderLayout = onPlaceholderLayout,
                 selectionController = selectionController,
-                color = color
+                color = color,
+                onShowTranslation = onShowTranslation
             ),
         measurePolicy = if (!hasInlineContent) {
-            LinksTextMeasurePolicy
+            LinksTextMeasurePolicy(
+                shouldMeasureLinks = { textScope?.let { it.shouldMeasureLinks() } ?: false }
+            )
         } else {
-            TextMeasurePolicy { measuredPlaceholderPositions?.value }
+            TextMeasurePolicy(
+                shouldMeasureLinks = { textScope?.let { it.shouldMeasureLinks() } ?: false },
+                placements = { measuredPlaceholderPositions?.value }
+            )
         }
     )
 }

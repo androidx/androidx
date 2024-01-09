@@ -35,6 +35,7 @@ import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.SemanticsNodeInteractionsProvider
 import androidx.compose.ui.test.assertIsFocused
@@ -245,6 +246,39 @@ class BasicTextLinkTest {
         rule.onNodeWithTag("box").assertExists()
         rule.runOnIdle {
             assertThat(openedUri).isEqualTo(Url1)
+        }
+    }
+
+    @Test
+    fun link_withTranslatedString() {
+        val originalText = buildAnnotatedString {
+            append("text ")
+            withAnnotation(UrlAnnotation(Url1)) {
+                append("link")
+            }
+        }
+        setupContent { BasicText(originalText) }
+
+        // set translated string
+        val node = rule.onFirstText().fetchSemanticsNode()
+        rule.runOnUiThread {
+            val translatedText = buildAnnotatedString { append("text") }
+            node.config[SemanticsActions.SetTextSubstitution].action?.invoke(translatedText)
+        }
+        rule.waitForIdle()
+
+        rule.runOnUiThread {
+            // show the translated text
+            node.config[SemanticsActions.ShowTextSubstitution].action?.invoke(true)
+        }
+        rule.waitForIdle()
+
+        // check that there no link anymore
+        rule.onNode(hasClickAction()).assertDoesNotExist()
+
+        rule.onFirstText().performClick()
+        rule.runOnIdle {
+            assertThat(openedUri).isEqualTo(null)
         }
     }
 
