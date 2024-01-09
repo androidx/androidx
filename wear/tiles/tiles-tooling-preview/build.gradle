@@ -32,7 +32,7 @@ plugins {
 
 dependencies {
     implementation(libs.kotlinStdlib)
-    implementation(project(":wear:protolayout:protolayout-proto"))
+    implementation(project(path: ":wear:protolayout:protolayout-proto", configuration: "shadow"))
     implementation(project(":wear:tiles:tiles"))
 
     api("androidx.wear:wear-tooling-preview:1.0.0")
