@@ -16,6 +16,10 @@
 
 package androidx.camera.video.impl;
 
+import static androidx.core.util.Preconditions.checkArgument;
+
+import static java.util.Objects.requireNonNull;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.arch.core.util.Function;
@@ -29,8 +33,6 @@ import androidx.camera.video.VideoCapture;
 import androidx.camera.video.VideoOutput;
 import androidx.camera.video.internal.encoder.VideoEncoderConfig;
 import androidx.camera.video.internal.encoder.VideoEncoderInfo;
-
-import java.util.Objects;
 
 /**
  * Config for a video capture use case.
@@ -55,23 +57,31 @@ public final class VideoCaptureConfig<T extends VideoOutput>
             OPTION_VIDEO_ENCODER_INFO_FINDER =
             Option.create("camerax.video.VideoCapture.videoEncoderInfoFinder", Function.class);
 
+    public static final Option<Boolean> OPTION_FORCE_ENABLE_SURFACE_PROCESSING = Option.create(
+            "camerax.video.VideoCapture.forceEnableSurfaceProcessing", Boolean.class);
+
     // *********************************************************************************************
 
     private final OptionsBundle mConfig;
 
     public VideoCaptureConfig(@NonNull OptionsBundle config) {
+        checkArgument(config.containsOption(OPTION_VIDEO_OUTPUT));
         mConfig = config;
     }
 
     @SuppressWarnings("unchecked")
     @NonNull
     public T getVideoOutput() {
-        return (T) retrieveOption(OPTION_VIDEO_OUTPUT);
+        return (T) requireNonNull(retrieveOption(OPTION_VIDEO_OUTPUT));
     }
 
     @NonNull
     public Function<VideoEncoderConfig, VideoEncoderInfo> getVideoEncoderInfoFinder() {
-        return Objects.requireNonNull(retrieveOption(OPTION_VIDEO_ENCODER_INFO_FINDER));
+        return requireNonNull(retrieveOption(OPTION_VIDEO_ENCODER_INFO_FINDER));
+    }
+
+    public boolean isSurfaceProcessingForceEnabled() {
+        return requireNonNull(retrieveOption(OPTION_FORCE_ENABLE_SURFACE_PROCESSING, false));
     }
 
     /**

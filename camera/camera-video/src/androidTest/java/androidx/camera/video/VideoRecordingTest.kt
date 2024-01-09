@@ -40,7 +40,6 @@ import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.Preview
-import androidx.camera.core.UseCase
 import androidx.camera.core.impl.utils.AspectRatioUtil.ASPECT_RATIO_16_9
 import androidx.camera.core.impl.utils.AspectRatioUtil.ASPECT_RATIO_3_4
 import androidx.camera.core.impl.utils.AspectRatioUtil.ASPECT_RATIO_4_3
@@ -1229,11 +1228,6 @@ class VideoRecordingTest(
     private fun assumeExtraCroppingQuirk() {
         assumeExtraCroppingQuirk(implName)
     }
-
-    private fun isStreamSharingEnabled(useCase: UseCase) = !useCase.camera!!.hasTransform
-
-    private fun isSurfaceProcessingEnabled(videoCapture: VideoCapture<*>) =
-        videoCapture.node != null || isStreamSharingEnabled(videoCapture)
 
     private class ImageSavedCallback :
         ImageCapture.OnImageSavedCallback {
