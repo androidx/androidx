@@ -345,7 +345,7 @@
 
     <issue
         id="RestrictedApiAndroidX"
-        message="Companion.create-bSQo6-Q can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        message="Companion.create-vBYXiEU can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="            val viewfinderStreamConfig = Config.create("
         errorLine2="                                                ~~~~~~">
         <location
@@ -354,7 +354,7 @@
 
     <issue
         id="RestrictedApiAndroidX"
-        message="Companion.create-bSQo6-Q can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        message="Companion.create-vBYXiEU can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="                yuvSize,"
         errorLine2="                ~~~~~~~">
         <location
@@ -372,7 +372,7 @@
 
     <issue
         id="RestrictedApiAndroidX"
-        message="Companion.create-bSQo6-Q can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        message="Companion.create-vBYXiEU can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="                outputType = OutputStream.OutputType.SURFACE_VIEW"
         errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -399,7 +399,7 @@
 
     <issue
         id="RestrictedApiAndroidX"
-        message="Companion.create-bSQo6-Q can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        message="Companion.create-vBYXiEU can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="            val privateStreamConfig = Config.create("
         errorLine2="                                             ~~~~~~">
         <location
@@ -408,7 +408,7 @@
 
     <issue
         id="RestrictedApiAndroidX"
-        message="Companion.create-bSQo6-Q can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        message="Companion.create-vBYXiEU can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="                privateOutputSize,"
         errorLine2="                ~~~~~~~~~~~~~~~~~">
         <location
@@ -426,7 +426,7 @@
 
     <issue
         id="RestrictedApiAndroidX"
-        message="Companion.create-bSQo6-Q can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        message="Companion.create-vBYXiEU can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="                outputType = OutputStream.OutputType.SURFACE_VIEW,"
         errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -444,7 +444,7 @@
 
     <issue
         id="RestrictedApiAndroidX"
-        message="Companion.create-bSQo6-Q can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        message="Companion.create-vBYXiEU can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="                streamUseCase = OutputStream.StreamUseCase.PREVIEW"
         errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -499,7 +499,7 @@
     <issue
         id="RestrictedApiAndroidX"
         message="CameraGraph.getStreams can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="            val viewfinderStream = cameraGraph.streams[privateStreamConfig]!!"
+        errorLine1="            val viewfinderStream = cameraGraph.streams[viewfinderStreamConfig]!!"
         errorLine2="                                               ~~~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/camera2/pipe/SimpleCamera.kt"/>
@@ -508,7 +508,7 @@
     <issue
         id="RestrictedApiAndroidX"
         message="StreamGraph.get can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="            val viewfinderStream = cameraGraph.streams[privateStreamConfig]!!"
+        errorLine1="            val viewfinderStream = cameraGraph.streams[viewfinderStreamConfig]!!"
         errorLine2="                                                      ~">
         <location
             file="src/main/java/androidx/camera/integration/camera2/pipe/SimpleCamera.kt"/>
@@ -517,8 +517,8 @@
     <issue
         id="RestrictedApiAndroidX"
         message="StreamGraph.get can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="            val viewfinderStream = cameraGraph.streams[privateStreamConfig]!!"
-        errorLine2="                                                       ~~~~~~~~~~~~~~~~~~~">
+        errorLine1="            val viewfinderStream = cameraGraph.streams[viewfinderStreamConfig]!!"
+        errorLine2="                                                       ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/camera2/pipe/SimpleCamera.kt"/>
     </issue>
@@ -813,7 +813,7 @@
 
     <issue
         id="RestrictedApiAndroidX"
-        message="Companion.create-bSQo6-Q can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        message="Companion.create-vBYXiEU can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="            val viewfinderStreamConfig = Config.create("
         errorLine2="                                                ~~~~~~">
         <location
@@ -822,7 +822,7 @@
 
     <issue
         id="RestrictedApiAndroidX"
-        message="Companion.create-bSQo6-Q can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        message="Companion.create-vBYXiEU can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="                yuvSize,"
         errorLine2="                ~~~~~~~">
         <location
@@ -840,7 +840,7 @@
 
     <issue
         id="RestrictedApiAndroidX"
-        message="Companion.create-bSQo6-Q can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        message="Companion.create-vBYXiEU can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="                outputType = OutputStream.OutputType.SURFACE_VIEW"
         errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -867,7 +867,7 @@
 
     <issue
         id="RestrictedApiAndroidX"
-        message="Companion.create-bSQo6-Q can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        message="Companion.create-vBYXiEU can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="            val yuvStreamConfig = Config.create("
         errorLine2="                                         ~~~~~~">
         <location
@@ -876,7 +876,7 @@
 
     <issue
         id="RestrictedApiAndroidX"
-        message="Companion.create-bSQo6-Q can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        message="Companion.create-vBYXiEU can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="                yuvSize,"
         errorLine2="                ~~~~~~~">
         <location
@@ -1173,7 +1173,7 @@
 
     <issue
         id="RestrictedApiAndroidX"
-        message="Companion.create-bSQo6-Q can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        message="Companion.create-vBYXiEU can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="                Config.create("
         errorLine2="                       ~~~~~~">
         <location
@@ -1182,7 +1182,7 @@
 
     <issue
         id="RestrictedApiAndroidX"
-        message="Companion.create-bSQo6-Q can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        message="Companion.create-vBYXiEU can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="                    size,"
         errorLine2="                    ~~~~">
         <location
@@ -1200,7 +1200,7 @@
 
     <issue
         id="RestrictedApiAndroidX"
-        message="Companion.create-bSQo6-Q can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        message="Companion.create-vBYXiEU can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="                    outputType = OutputStream.OutputType.SURFACE_VIEW,"
         errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location

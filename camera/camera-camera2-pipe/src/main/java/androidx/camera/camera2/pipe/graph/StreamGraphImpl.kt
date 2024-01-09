@@ -113,7 +113,8 @@ constructor(
                         dynamicRangeProfile = output.dynamicRangeProfile,
                         streamUseCase = output.streamUseCase,
                         streamUseHint = output.streamUseHint,
-                        externalOutputConfig = getOutputConfigurationOrNull(output)
+                        sensorPixelModes = output.sensorPixelModes,
+                        externalOutputConfig = getOutputConfigurationOrNull(output),
                     )
                 outputConfigMap[output] = outputConfig
                 outputConfigListBuilder.add(outputConfig)
@@ -179,7 +180,8 @@ constructor(
         val timestampBase: OutputStream.TimestampBase?,
         val dynamicRangeProfile: OutputStream.DynamicRangeProfile?,
         val streamUseCase: OutputStream.StreamUseCase?,
-        val streamUseHint: OutputStream.StreamUseHint?
+        val streamUseHint: OutputStream.StreamUseHint?,
+        val sensorPixelModes: List<OutputStream.SensorPixelMode>,
     ) {
         internal val streamBuilder = mutableListOf<CameraStream>()
         val streams: List<CameraStream>
