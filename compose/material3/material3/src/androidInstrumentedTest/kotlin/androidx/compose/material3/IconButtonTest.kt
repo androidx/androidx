@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
+import androidx.compose.material3.tokens.IconButtonTokens
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -168,7 +169,7 @@ class IconButtonTest {
     }
 
     @Test
-    fun iconButtonColor_localContentColor() {
+    fun iconButtonColors_localContentColor() {
         rule.setMaterialContent(lightColorScheme()) {
             CompositionLocalProvider(LocalContentColor provides Color.Blue) {
                 val colors = IconButtonDefaults.iconButtonColors()
@@ -186,7 +187,30 @@ class IconButtonTest {
     }
 
     @Test
-    fun iconButtonColor_copy() {
+    fun iconButtonColors_customValues() {
+        rule.setMaterialContent(lightColorScheme()) {
+            CompositionLocalProvider(LocalContentColor provides Color.Blue) {
+                val colors = IconButtonDefaults.iconButtonColors()
+                assert(colors.contentColor == Color.Blue)
+                assert(colors.disabledContentColor
+                    == Color.Blue.copy(IconButtonTokens.DisabledIconOpacity))
+            }
+
+            CompositionLocalProvider(LocalContentColor provides Color.Red) {
+                val colors = IconButtonDefaults.iconButtonColors(
+                    containerColor = Color.Blue,
+                    contentColor = Color.Green
+                )
+                assert(colors.containerColor == Color.Blue)
+                assert(colors.contentColor == Color.Green)
+                assert(colors.disabledContentColor
+                    == Color.Green.copy(IconButtonTokens.DisabledIconOpacity))
+            }
+        }
+    }
+
+    @Test
+    fun iconButtonColors_copy() {
         rule.setMaterialContent(lightColorScheme()) {
             val colors = IconButtonDefaults.iconButtonColors().copy()
             assert(colors == IconButtonDefaults.iconButtonColors())
