@@ -94,6 +94,70 @@ package androidx.collection {
     property public final int last;
   }
 
+  public abstract sealed class DoubleList {
+    method public final boolean any();
+    method public final inline boolean any(kotlin.jvm.functions.Function1<? super java.lang.Double,java.lang.Boolean> predicate);
+    method public final operator boolean contains(double element);
+    method public final boolean containsAll(androidx.collection.DoubleList elements);
+    method public final int count();
+    method public final inline int count(kotlin.jvm.functions.Function1<? super java.lang.Double,java.lang.Boolean> predicate);
+    method public final double elementAt(@IntRange(from=0L) int index);
+    method public final inline double elementAtOrElse(@IntRange(from=0L) int index, kotlin.jvm.functions.Function1<? super java.lang.Integer,java.lang.Double> defaultValue);
+    method public final double first();
+    method public final inline double first(kotlin.jvm.functions.Function1<? super java.lang.Double,java.lang.Boolean> predicate);
+    method public final inline <R> R fold(R initial, kotlin.jvm.functions.Function2<? super R,? super java.lang.Double,? extends R> operation);
+    method public final inline <R> R foldIndexed(R initial, kotlin.jvm.functions.Function3<? super java.lang.Integer,? super R,? super java.lang.Double,? extends R> operation);
+    method public final inline <R> R foldRight(R initial, kotlin.jvm.functions.Function2<? super java.lang.Double,? super R,? extends R> operation);
+    method public final inline <R> R foldRightIndexed(R initial, kotlin.jvm.functions.Function3<? super java.lang.Integer,? super java.lang.Double,? super R,? extends R> operation);
+    method public final inline void forEach(kotlin.jvm.functions.Function1<? super java.lang.Double,kotlin.Unit> block);
+    method public final inline void forEachIndexed(kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Double,kotlin.Unit> block);
+    method public final inline void forEachReversed(kotlin.jvm.functions.Function1<? super java.lang.Double,kotlin.Unit> block);
+    method public final inline void forEachReversedIndexed(kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Double,kotlin.Unit> block);
+    method public final operator double get(@IntRange(from=0L) int index);
+    method public final inline kotlin.ranges.IntRange getIndices();
+    method @IntRange(from=-1L) public final inline int getLastIndex();
+    method @IntRange(from=0L) public final int getSize();
+    method public final int indexOf(double element);
+    method public final inline int indexOfFirst(kotlin.jvm.functions.Function1<? super java.lang.Double,java.lang.Boolean> predicate);
+    method public final inline int indexOfLast(kotlin.jvm.functions.Function1<? super java.lang.Double,java.lang.Boolean> predicate);
+    method public final boolean isEmpty();
+    method public final boolean isNotEmpty();
+    method public final String joinToString();
+    method public final String joinToString(optional CharSequence separator);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit, optional CharSequence truncated);
+    method public final inline String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit, optional CharSequence truncated, kotlin.jvm.functions.Function1<? super java.lang.Double,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit, kotlin.jvm.functions.Function1<? super java.lang.Double,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, kotlin.jvm.functions.Function1<? super java.lang.Double,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(optional CharSequence separator, optional CharSequence prefix, kotlin.jvm.functions.Function1<? super java.lang.Double,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(optional CharSequence separator, kotlin.jvm.functions.Function1<? super java.lang.Double,? extends java.lang.CharSequence> transform);
+    method public final inline String joinToString(kotlin.jvm.functions.Function1<? super java.lang.Double,? extends java.lang.CharSequence> transform);
+    method public final double last();
+    method public final inline double last(kotlin.jvm.functions.Function1<? super java.lang.Double,java.lang.Boolean> predicate);
+    method public final int lastIndexOf(double element);
+    method public final boolean none();
+    method public final inline boolean reversedAny(kotlin.jvm.functions.Function1<? super java.lang.Double,java.lang.Boolean> predicate);
+    property public final inline kotlin.ranges.IntRange indices;
+    property @IntRange(from=-1L) public final inline int lastIndex;
+    property @IntRange(from=0L) public final int size;
+  }
+
+  public final class DoubleListKt {
+    method public static androidx.collection.DoubleList doubleListOf();
+    method public static androidx.collection.DoubleList doubleListOf(double element1);
+    method public static androidx.collection.DoubleList doubleListOf(double element1, double element2);
+    method public static androidx.collection.DoubleList doubleListOf(double element1, double element2, double element3);
+    method public static androidx.collection.DoubleList doubleListOf(double... elements);
+    method public static androidx.collection.DoubleList emptyDoubleList();
+    method public static inline androidx.collection.MutableDoubleList mutableDoubleListOf();
+    method public static androidx.collection.MutableDoubleList mutableDoubleListOf(double element1);
+    method public static androidx.collection.MutableDoubleList mutableDoubleListOf(double element1, double element2);
+    method public static androidx.collection.MutableDoubleList mutableDoubleListOf(double element1, double element2, double element3);
+    method public static inline androidx.collection.MutableDoubleList mutableDoubleListOf(double... elements);
+  }
+
   public abstract sealed class FloatFloatMap {
     method public final inline boolean all(kotlin.jvm.functions.Function2<? super java.lang.Float,? super java.lang.Float,java.lang.Boolean> predicate);
     method public final boolean any();
@@ -1140,6 +1204,37 @@ package androidx.collection {
 
   public final class LruCacheKt {
     method public static inline <K, V> androidx.collection.LruCache<K,V> lruCache(int maxSize, optional kotlin.jvm.functions.Function2<? super K,? super V,java.lang.Integer> sizeOf, optional kotlin.jvm.functions.Function1<? super K,? extends V?> create, optional kotlin.jvm.functions.Function4<? super java.lang.Boolean,? super K,? super V,? super V?,kotlin.Unit> onEntryRemoved);
+  }
+
+  public final class MutableDoubleList extends androidx.collection.DoubleList {
+    ctor public MutableDoubleList(optional int initialCapacity);
+    method public boolean add(double element);
+    method public void add(@IntRange(from=0L) int index, double element);
+    method public boolean addAll(androidx.collection.DoubleList elements);
+    method public boolean addAll(double[] elements);
+    method public boolean addAll(@IntRange(from=0L) int index, androidx.collection.DoubleList elements);
+    method public boolean addAll(@IntRange(from=0L) int index, double[] elements);
+    method public void clear();
+    method public void ensureCapacity(int capacity);
+    method public inline int getCapacity();
+    method public operator void minusAssign(androidx.collection.DoubleList elements);
+    method public inline operator void minusAssign(double element);
+    method public operator void minusAssign(double[] elements);
+    method public operator void plusAssign(androidx.collection.DoubleList elements);
+    method public inline operator void plusAssign(double element);
+    method public operator void plusAssign(double[] elements);
+    method public boolean remove(double element);
+    method public boolean removeAll(androidx.collection.DoubleList elements);
+    method public boolean removeAll(double[] elements);
+    method public double removeAt(@IntRange(from=0L) int index);
+    method public void removeRange(@IntRange(from=0L) int start, @IntRange(from=0L) int end);
+    method public boolean retainAll(androidx.collection.DoubleList elements);
+    method public boolean retainAll(double[] elements);
+    method public operator double set(@IntRange(from=0L) int index, double element);
+    method public void sort();
+    method public void sortDescending();
+    method public void trim(optional int minCapacity);
+    property public final inline int capacity;
   }
 
   public final class MutableFloatFloatMap extends androidx.collection.FloatFloatMap {
