@@ -55,30 +55,30 @@ class ButtonBenchmark(private val type: ButtonType) {
 
     @Ignore
     @Test
-    fun fab_first_compose() {
+    fun button_first_compose() {
         benchmarkRule.benchmarkFirstCompose(buttonTestCaseFactory)
     }
 
     @Ignore
     @Test
-    fun fab_measure() {
+    fun button_measure() {
         benchmarkRule.benchmarkFirstMeasure(buttonTestCaseFactory)
     }
 
     @Ignore
     @Test
-    fun fab_layout() {
+    fun button_layout() {
         benchmarkRule.benchmarkFirstLayout(buttonTestCaseFactory)
     }
 
     @Ignore
     @Test
-    fun fab_draw() {
+    fun button_draw() {
         benchmarkRule.benchmarkFirstDraw(buttonTestCaseFactory)
     }
 
     @Test
-    fun fab_firstPixel() {
+    fun button_firstPixel() {
         benchmarkRule.benchmarkToFirstPixel(buttonTestCaseFactory)
     }
 }
