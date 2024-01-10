@@ -16,8 +16,7 @@
 
 package androidx.compose.foundation.selection
 
-import androidx.compose.foundation.AbstractClickableNode
-import androidx.compose.foundation.ClickablePointerInputNode
+import androidx.compose.foundation.ClickableNode
 import androidx.compose.foundation.Indication
 import androidx.compose.foundation.IndicationNodeFactory
 import androidx.compose.foundation.LocalIndication
@@ -228,7 +227,7 @@ private class ToggleableNode(
     enabled: Boolean,
     role: Role?,
     private var onValueChange: (Boolean) -> Unit
-) : AbstractClickableNode(
+) : ClickableNode(
     interactionSource = interactionSource,
     indicationNodeFactory = indicationNodeFactory,
     enabled = enabled,
@@ -236,15 +235,13 @@ private class ToggleableNode(
     role = role,
     onClick = { onValueChange(!value) }
 ) {
-    val onClick = { onValueChange(!value) }
-    override val clickablePointerInputNode = delegate(
-        ClickablePointerInputNode(
-            enabled = enabled,
-            interactionSourceProvider = interactionSourceProvider,
-            onClick = onClick,
-            interactionData = interactionData
-        )
-    )
+    // the onClick passed in the constructor captures onValueChanged and value as passed to the
+    // constructor, so we need to define a new lambda that references the properties. When these
+    // change, update will be called, which will set this as the new onClick, so it doesn't matter
+    // that we are pointing to the wrong lambda before the first toggle. (Additionally changing
+    // onClick does not cause any invalidations / side effects, so there is no cost from setting
+    // it up this way).
+    val _onClick = { onValueChange(!value) }
 
     fun update(
         value: Boolean,
@@ -259,17 +256,13 @@ private class ToggleableNode(
             invalidateSemantics()
         }
         this.onValueChange = onValueChange
-        updateCommon(
+        super.update(
             interactionSource = interactionSource,
             indicationNodeFactory = indicationNodeFactory,
             enabled = enabled,
             onClickLabel = null,
             role = role,
-            onClick = onClick
-        )
-        clickablePointerInputNode.update(
-            enabled = enabled,
-            onClick = onClick
+            onClick = _onClick
         )
     }
 
@@ -475,7 +468,7 @@ private class TriStateToggleableNode(
     enabled: Boolean,
     role: Role?,
     onClick: () -> Unit
-) : AbstractClickableNode(
+) : ClickableNode(
     interactionSource = interactionSource,
     indicationNodeFactory = indicationNodeFactory,
     enabled = enabled,
@@ -483,15 +476,6 @@ private class TriStateToggleableNode(
     role = role,
     onClick = onClick
 ) {
-    override val clickablePointerInputNode = delegate(
-        ClickablePointerInputNode(
-            enabled = enabled,
-            interactionSourceProvider = interactionSourceProvider,
-            onClick = onClick,
-            interactionData = interactionData
-        )
-    )
-
     fun update(
         state: ToggleableState,
         interactionSource: MutableInteractionSource?,
@@ -504,16 +488,12 @@ private class TriStateToggleableNode(
             this.state = state
             invalidateSemantics()
         }
-        updateCommon(
+        super.update(
             interactionSource = interactionSource,
             indicationNodeFactory = indicationNodeFactory,
             enabled = enabled,
             onClickLabel = null,
             role = role,
-            onClick = onClick
-        )
-        clickablePointerInputNode.update(
-            enabled = enabled,
             onClick = onClick
         )
     }
