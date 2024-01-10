@@ -17,7 +17,9 @@
 package androidx.window.embedding
 
 import android.app.Activity
+import android.content.res.Configuration
 import android.os.IBinder
+import android.view.WindowMetrics
 import androidx.annotation.VisibleForTesting
 import androidx.window.SafeWindowExtensionsProvider
 import androidx.window.core.ConsumerAdapter
@@ -26,12 +28,16 @@ import androidx.window.extensions.WindowExtensions
 import androidx.window.extensions.core.util.function.Consumer
 import androidx.window.extensions.core.util.function.Function
 import androidx.window.extensions.embedding.ActivityEmbeddingComponent
+import androidx.window.extensions.embedding.ActivityStack
 import androidx.window.extensions.embedding.AnimationBackground
+import androidx.window.extensions.embedding.ParentContainerInfo
 import androidx.window.extensions.embedding.SplitAttributes
+import androidx.window.extensions.layout.WindowLayoutInfo
 import androidx.window.reflection.ReflectionUtils.doesReturn
 import androidx.window.reflection.ReflectionUtils.isPublic
 import androidx.window.reflection.ReflectionUtils.validateReflection
 import androidx.window.reflection.WindowExtensionsConstants.ACTIVITY_EMBEDDING_COMPONENT_CLASS
+import java.util.concurrent.Executor
 
 /**
  * Reflection Guard for [ActivityEmbeddingComponent].
@@ -126,14 +132,32 @@ internal class SafeActivityEmbeddingComponentProvider(
 
     /**
      * Vendor API level 5 includes the following methods:
+     * - [ActivityEmbeddingComponent.clearActivityStackAttributesCalculator]
+     * - [ActivityEmbeddingComponent.getActivityStackToken]
+     * - [ActivityEmbeddingComponent.getParentContainerInfo]
+     * - [ActivityEmbeddingComponent.setActivityStackAttributesCalculator]
+     * - [ActivityEmbeddingComponent.registerActivityStackCallback]
+     * - [ActivityEmbeddingComponent.unregisterActivityStackCallback]
+     * - [ActivityStack.getTag]
+     * - [ActivityStack.getToken]
      * - [AnimationBackground.createColorBackground]
      * - [AnimationBackground.ANIMATION_BACKGROUND_DEFAULT]
+     * - [ParentContainerInfo]
      * // TODO(b/316493273): Guard other AEComponentMethods
      */
     @VisibleForTesting
     internal fun hasValidVendorApiLevel5(): Boolean =
         hasValidVendorApiLevel3() &&
-            isClassAnimationBackgroundValid()
+            isClassAnimationBackgroundValid() &&
+            isClassParentContainerInfoValid() &&
+            isActivityStackGetTagValid() &&
+            isActivityStackGetTokenValid() &&
+            isMethodGetActivityStackTokenValid() &&
+            isMethodGetParentContainerInfoValid() &&
+            isMethodSetActivityStackAttributesCalculatorValid() &&
+            isMethodClearActivityStackAttributesCalculatorValid() &&
+            isMethodRegisterActivityStackCallbackValid() &&
+            isMethodUnregisterActivityStackCallbackValid()
 
     private fun isMethodSetEmbeddingRulesValid(): Boolean {
         return validateReflection("ActivityEmbeddingComponent#setEmbeddingRules is not valid") {
@@ -239,6 +263,94 @@ internal class SafeActivityEmbeddingComponentProvider(
                 animationBackgroundDefaultField.isPublic &&
                 colorBackgroundGetColor.isPublic &&
                 colorBackgroundGetColor.doesReturn(Int::class.javaPrimitiveType!!)
+        }
+
+    private fun isActivityStackGetTokenValid(): Boolean =
+        validateReflection("ActivityStack#getToken is not valid") {
+            val activityStackClass = ActivityStack::class.java
+            val getTokenMethod = activityStackClass.getMethod("getToken")
+
+            getTokenMethod.isPublic && getTokenMethod.doesReturn(IBinder::class.java)
+        }
+
+    private fun isActivityStackGetTagValid(): Boolean =
+        validateReflection("ActivityStack#getTag is not valid") {
+            val activityStackClass = ActivityStack::class.java
+            val getTokenMethod = activityStackClass.getMethod("getTag")
+
+            getTokenMethod.isPublic && getTokenMethod.doesReturn(String::class.java)
+        }
+
+    @Suppress("newApi") // Suppress lint check for WindowMetrics
+    private fun isClassParentContainerInfoValid(): Boolean =
+        validateReflection("ParentContainerInfo is not valid") {
+            val parentContainerInfoClass = ParentContainerInfo::class.java
+            val getWindowMetricsMethod = parentContainerInfoClass.getMethod("getWindowMetrics")
+            val getConfigurationMethod = parentContainerInfoClass.getMethod("getConfiguration")
+            val getWindowLayoutInfoMethod = parentContainerInfoClass
+                .getMethod("getWindowLayoutInfo")
+
+            getWindowMetricsMethod.isPublic &&
+                getWindowMetricsMethod.doesReturn(WindowMetrics::class.java) &&
+                getConfigurationMethod.isPublic &&
+                getConfigurationMethod.doesReturn(Configuration::class.java) &&
+                getWindowLayoutInfoMethod.isPublic &&
+                getWindowLayoutInfoMethod.doesReturn(WindowLayoutInfo::class.java)
+        }
+
+    private fun isMethodGetParentContainerInfoValid(): Boolean =
+        validateReflection {
+            val getParentContainerInfoMethod = activityEmbeddingComponentClass.getMethod(
+                "getParentContainerInfo",
+                IBinder::class.java
+            )
+            getParentContainerInfoMethod.isPublic &&
+                getParentContainerInfoMethod.doesReturn(ParentContainerInfo::class.java)
+        }
+
+    private fun isMethodGetActivityStackTokenValid(): Boolean =
+        validateReflection("getActivityStackToken is not valid") {
+            val getActivityStackTokenMethod = activityEmbeddingComponentClass.getMethod(
+                "getActivityStackToken",
+                String::class.java
+            )
+            getActivityStackTokenMethod.isPublic &&
+                getActivityStackTokenMethod.doesReturn(IBinder::class.java)
+        }
+
+    private fun isMethodSetActivityStackAttributesCalculatorValid(): Boolean =
+        validateReflection("setActivityStackAttributesCalculator is not valid") {
+            val setActivityStackAttributesCalculatorMethod = activityEmbeddingComponentClass
+                .getMethod("setActivityStackAttributesCalculator", Function::class.java)
+            setActivityStackAttributesCalculatorMethod.isPublic
+        }
+
+    private fun isMethodClearActivityStackAttributesCalculatorValid(): Boolean =
+        validateReflection("clearActivityStackAttributesCalculator is not valid") {
+            val setActivityStackAttributesCalculatorMethod = activityEmbeddingComponentClass
+                .getMethod("clearActivityStackAttributesCalculator")
+            setActivityStackAttributesCalculatorMethod.isPublic
+        }
+
+    private fun isMethodRegisterActivityStackCallbackValid(): Boolean =
+        validateReflection("registerActivityStackCallback is not valid") {
+            val registerActivityStackCallbackMethod = activityEmbeddingComponentClass
+                .getMethod(
+                    "registerActivityStackCallback",
+                    Executor::class.java,
+                    Consumer::class.java
+                )
+            registerActivityStackCallbackMethod.isPublic
+        }
+
+    private fun isMethodUnregisterActivityStackCallbackValid(): Boolean =
+        validateReflection("unregisterActivityStackCallback is not valid") {
+            val unregisterActivityStackCallbackMethod = activityEmbeddingComponentClass
+                .getMethod(
+                    "unregisterActivityStackCallback",
+                    Consumer::class.java
+                )
+            unregisterActivityStackCallbackMethod.isPublic
         }
 
     private fun isActivityEmbeddingComponentValid(): Boolean {
