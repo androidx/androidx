@@ -99,8 +99,10 @@ package androidx.compose.ui.text {
   }
 
   public static final class EmojiSupportMatch.Companion {
+    method public int getAll();
     method public int getDefault();
     method public int getNone();
+    property public final int All;
     property public final int Default;
     property public final int None;
   }
