@@ -366,6 +366,15 @@ internal object Api31Compat {
 
     @JvmStatic
     @DoNotInline
+    fun addSensorPixelModeUsed(
+        outputConfiguration: OutputConfiguration,
+        sensorPixelMode: Int,
+    ) {
+        outputConfiguration.addSensorPixelModeUsed(sensorPixelMode)
+    }
+
+    @JvmStatic
+    @DoNotInline
     fun createExtensionCaptureSession(
         cameraDevice: CameraDevice,
         extensionConfiguration: ExtensionSessionConfiguration

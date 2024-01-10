@@ -29,6 +29,7 @@ import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.OutputStream.DynamicRangeProfile
 import androidx.camera.camera2.pipe.OutputStream.MirrorMode
 import androidx.camera.camera2.pipe.OutputStream.OutputType
+import androidx.camera.camera2.pipe.OutputStream.SensorPixelMode
 import androidx.camera.camera2.pipe.OutputStream.StreamUseCase
 import androidx.camera.camera2.pipe.OutputStream.TimestampBase
 import androidx.camera.camera2.pipe.UnsafeWrapper
@@ -142,6 +143,7 @@ internal class AndroidOutputConfiguration(
             timestampBase: TimestampBase? = null,
             dynamicRangeProfile: DynamicRangeProfile? = null,
             streamUseCase: StreamUseCase? = null,
+            sensorPixelModes: List<SensorPixelMode> = emptyList(),
             size: Size? = null,
             surfaceSharing: Boolean = false,
             surfaceGroupId: Int = SURFACE_GROUP_ID_NONE,
@@ -253,6 +255,19 @@ internal class AndroidOutputConfiguration(
                         Api33Compat.getAvailableStreamUseCases(cameraMetadata)
                     if (availableStreamUseCases?.contains(streamUseCase.value) == true) {
                         Api33Compat.setStreamUseCase(configuration, streamUseCase.value)
+                    }
+                }
+            }
+
+            if (sensorPixelModes.isNotEmpty()) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    for (sensorPixelMode in sensorPixelModes) {
+                        Api31Compat.addSensorPixelModeUsed(configuration, sensorPixelMode.value)
+                    }
+                } else {
+                    Log.warn {
+                        "Cannot add sensorPixelModeUsed value on API ${Build.VERSION.SDK_INT}. " +
+                            "This may result in unexpected behavior. Requested $sensorPixelModes"
                     }
                 }
             }
