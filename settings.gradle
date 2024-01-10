@@ -109,6 +109,8 @@ def includeProject(name, filePath) {
     }
 }
 
+includeProject(":annotation:annotation")
+includeProject(":annotation:annotation-sampled")
 includeProject(":collection:collection")
 includeProject(":compose:animation")
 includeProject(":compose:animation:animation")

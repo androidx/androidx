@@ -94,7 +94,7 @@ if (AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                 implementation(project(":compose:ui:ui-util"))
                 implementation(libs.kotlinStdlibCommon)
                 api(libs.kotlinCoroutinesCore)
-                compileOnly("androidx.annotation:annotation:1.1.0")
+                implementation(project(":annotation:annotation"))
             }
 
             androidMain {

@@ -59,7 +59,7 @@ kotlin {
         commonMain {
             dependencies {
                 api(libs.kotlinStdlib)
-                compileOnly("androidx.annotation:annotation:1.1.0")
+                implementation(project(":annotation:annotation"))
                 implementation(libs.atomicFu)
             }
         }

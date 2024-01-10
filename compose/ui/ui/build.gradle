@@ -165,7 +165,7 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                 api project(":compose:ui:ui-text")
                 api project(":compose:ui:ui-unit")
                 api project(":compose:ui:ui-util")
-                compileOnly("androidx.annotation:annotation:1.1.0")
+                implementation(project(":annotation:annotation"))
             }
 
             androidMain.dependencies {
