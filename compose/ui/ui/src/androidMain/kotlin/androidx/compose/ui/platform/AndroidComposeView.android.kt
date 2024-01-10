@@ -73,6 +73,7 @@ import androidx.compose.ui.autofill.AutofillCallback
 import androidx.compose.ui.autofill.AutofillTree
 import androidx.compose.ui.autofill.performAutofill
 import androidx.compose.ui.autofill.populateViewStructure
+import androidx.compose.ui.contentcapture.AndroidContentCaptureManager
 import androidx.compose.ui.draganddrop.ComposeDragShadowBuilder
 import androidx.compose.ui.draganddrop.DragAndDropEvent
 import androidx.compose.ui.draganddrop.DragAndDropManager
@@ -157,6 +158,8 @@ import androidx.compose.ui.node.OwnerSnapshotObserver
 import androidx.compose.ui.node.RootForTest
 import androidx.compose.ui.node.visitSubtree
 import androidx.compose.ui.platform.MotionEventVerifierApi29.isValidMotionEvent
+import androidx.compose.ui.platform.coreshims.ContentCaptureSessionCompat
+import androidx.compose.ui.platform.coreshims.ViewCompatShims
 import androidx.compose.ui.semantics.EmptySemanticsElement
 import androidx.compose.ui.semantics.SemanticsOwner
 import androidx.compose.ui.semantics.findClosestParentNode
@@ -305,7 +308,12 @@ internal class AndroidComposeView(
     override val rootForTest: RootForTest = this
 
     override val semanticsOwner: SemanticsOwner = SemanticsOwner(root)
-    private val composeAccessibilityDelegate = AndroidComposeViewAccessibilityDelegateCompat(this)
+    private val composeAccessibilityDelegate =
+        AndroidComposeViewAccessibilityDelegateCompat(this)
+    internal var contentCaptureManager = AndroidContentCaptureManager(
+        view = this,
+        onContentCaptureSession = ::getContentCaptureSessionCompat
+    )
 
     /**
      * Provide accessibility manager to the user. Use the Android version of accessibility manager.
@@ -652,6 +660,7 @@ internal class AndroidComposeView(
     private var keyboardModifiersRequireUpdate = false
 
     init {
+        addOnAttachStateChangeListener(contentCaptureManager)
         setWillNotDraw(false)
         isFocusable = true
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -954,7 +963,7 @@ internal class AndroidComposeView(
                     // This also prevents UIAutomator from finding nodes, so don't
                     // do it if there are no enabled a11y services (which implies that
                     // UIAutomator is the one requesting an AccessibilityNodeInfo).
-                    if (composeAccessibilityDelegate.isEnabledForAccessibility) {
+                    if (composeAccessibilityDelegate.isEnabled) {
                         info.isVisibleToUser = false
                     }
 
@@ -1295,10 +1304,12 @@ internal class AndroidComposeView(
 
     override fun onSemanticsChange() {
         composeAccessibilityDelegate.onSemanticsChange()
+        contentCaptureManager.onSemanticsChange()
     }
 
     override fun onLayoutChange(layoutNode: LayoutNode) {
         composeAccessibilityDelegate.onLayoutChange(layoutNode)
+        contentCaptureManager.onLayoutChange(layoutNode)
     }
 
     override fun registerOnLayoutCompletedListener(listener: Owner.OnLayoutCompletedListener) {
@@ -1399,7 +1410,12 @@ internal class AndroidComposeView(
         }
     }
 
-    suspend fun boundsUpdatesEventLoop() {
+    // TODO(mnuzen): combine both event loops into one larger one
+    suspend fun boundsUpdatesContentCaptureEventLoop() {
+        contentCaptureManager.boundsUpdatesEventLoop()
+    }
+
+    suspend fun boundsUpdatesAccessibilityEventLoop() {
         composeAccessibilityDelegate.boundsUpdatesEventLoop()
     }
 
@@ -1474,8 +1490,11 @@ internal class AndroidComposeView(
 
         _inputModeManager.inputMode = if (isInTouchMode) Touch else Keyboard
 
-        viewTreeOwners!!.lifecycleOwner.lifecycle.addObserver(this)
-        viewTreeOwners!!.lifecycleOwner.lifecycle.addObserver(composeAccessibilityDelegate)
+        val lifecycle = checkNotNull(viewTreeOwners?.lifecycleOwner?.lifecycle) {
+            "No lifecycle owner exists"
+        }
+        lifecycle.addObserver(this)
+        lifecycle.addObserver(contentCaptureManager)
         viewTreeObserver.addOnGlobalLayoutListener(globalLayoutListener)
         viewTreeObserver.addOnScrollChangedListener(scrollChangedListener)
         viewTreeObserver.addOnTouchModeChangeListener(touchModeChangeListener)
@@ -1491,8 +1510,11 @@ internal class AndroidComposeView(
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
         snapshotObserver.stopObserving()
-        viewTreeOwners?.lifecycleOwner?.lifecycle?.removeObserver(this)
-        viewTreeOwners?.lifecycleOwner?.lifecycle?.removeObserver(composeAccessibilityDelegate)
+        val lifecycle = checkNotNull(viewTreeOwners?.lifecycleOwner?.lifecycle) {
+            "No lifecycle owner exists"
+        }
+        lifecycle.removeObserver(contentCaptureManager)
+        lifecycle.removeObserver(this)
         ifDebug {
             if (autofillSupported()) {
                 _autofill?.let { AutofillCallback.unregister(it) }
@@ -1521,15 +1543,18 @@ internal class AndroidComposeView(
         supportedFormats: IntArray,
         requestsCollector: Consumer<ViewTranslationRequest?>
     ) {
-        composeAccessibilityDelegate.onCreateVirtualViewTranslationRequests(
-            virtualIds, supportedFormats, requestsCollector)
+        contentCaptureManager.onCreateVirtualViewTranslationRequests(
+            virtualIds, supportedFormats, requestsCollector
+        )
     }
 
     @RequiresApi(Build.VERSION_CODES.S)
     override fun onVirtualViewTranslationResponses(
         response: LongSparseArray<ViewTranslationResponse?>
     ) {
-        composeAccessibilityDelegate.onVirtualViewTranslationResponses(response)
+        contentCaptureManager.onVirtualViewTranslationResponses(
+            contentCaptureManager, response
+        )
     }
 
     override fun dispatchGenericMotionEvent(event: MotionEvent) = when (event.actionMasked) {
@@ -2103,19 +2128,19 @@ internal class AndroidComposeView(
     private class AndroidComposeViewTranslationCallback : ViewTranslationCallback {
         override fun onShowTranslation(view: View): Boolean {
             val androidComposeView = view as AndroidComposeView
-            androidComposeView.composeAccessibilityDelegate.onShowTranslation()
+            androidComposeView.contentCaptureManager.onShowTranslation()
             return true
         }
 
         override fun onHideTranslation(view: View): Boolean {
             val androidComposeView = view as AndroidComposeView
-            androidComposeView.composeAccessibilityDelegate.onHideTranslation()
+            androidComposeView.contentCaptureManager.onHideTranslation()
             return true
         }
 
         override fun onClearTranslation(view: View): Boolean {
             val androidComposeView = view as AndroidComposeView
-            androidComposeView.composeAccessibilityDelegate.onClearTranslation()
+            androidComposeView.contentCaptureManager.onClearTranslation()
             return true
         }
     }
@@ -2429,4 +2454,12 @@ private class DragAndDropModifierOnDragListener(
     override fun isInterestedNode(node: DragAndDropModifierNode): Boolean {
         return interestedNodes.contains(node)
     }
+}
+
+private fun View.getContentCaptureSessionCompat(): ContentCaptureSessionCompat? {
+    ViewCompatShims.setImportantForContentCapture(
+        this,
+        ViewCompatShims.IMPORTANT_FOR_CONTENT_CAPTURE_YES
+    )
+    return ViewCompatShims.getContentCaptureSession(this)
 }
