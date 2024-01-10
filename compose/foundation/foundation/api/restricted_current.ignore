@@ -3,6 +3,8 @@ AddedAbstractMethod: androidx.compose.foundation.pager.PageInfo#getKey():
     Added method androidx.compose.foundation.pager.PageInfo.getKey()
 
 
+RemovedClass: androidx.compose.foundation.lazy.layout.LazyLayoutItemProviderKt:
+    Removed class androidx.compose.foundation.lazy.layout.LazyLayoutItemProviderKt
 RemovedClass: androidx.compose.foundation.text2.input.AllCapsTransformationKt:
     Removed class androidx.compose.foundation.text2.input.AllCapsTransformationKt
 RemovedClass: androidx.compose.foundation.text2.input.MaxLengthTransformationKt:
