@@ -16,7 +16,6 @@ androidx.compose.foundation.text
 androidx.compose.foundation.text.selection
 androidx.compose.foundation.text2
 androidx.compose.foundation.text2.input
-androidx.compose.foundation.text2.input.internal.selection
 androidx.compose.foundation.window
 androidx.compose.material
 androidx.compose.material.internal
@@ -25,8 +24,9 @@ androidx.compose.material.ripple
 androidx.compose.material3
 androidx.compose.material3.adaptive
 androidx.compose.material3.adaptive.navigation.suite
+androidx.compose.material3.common
 androidx.compose.material3.internal
-androidx.compose.material3.pullrefresh
+androidx.compose.material3.pulltorefresh
 androidx.compose.material3.windowsizeclass
 androidx.compose.runtime
 androidx.compose.runtime.livedata
@@ -45,3 +45,4 @@ androidx.compose.ui.text
 androidx.compose.ui.util
 androidx.compose.ui.viewinterop
 androidx.compose.ui.window
+androidx.navigation.compose
