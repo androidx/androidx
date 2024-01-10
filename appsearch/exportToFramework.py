@@ -378,6 +378,32 @@ class ExportToFramework:
         print('Wrote "%s"' % file_path)
         return old_sha
 
+    def FormatCommitMessage(self, old_sha, new_sha):
+        print('\nCommand to diff old version to new version:')
+        print('  git log --pretty=format:"* %h %s" {}..{} -- appsearch/'.format(old_sha, new_sha))
+        pretty_log = subprocess.check_output([
+            'git',
+            'log',
+            '--pretty=format:* %h %s',
+            '{}..{}'.format(old_sha, new_sha),
+            '--',
+            'appsearch/'
+        ]).decode("utf-8")
+        bug_output = subprocess.check_output([
+            '/bin/sh',
+            '-c',
+            'git log {}..{} -- appsearch/ | grep Bug: | sort | uniq'.format(old_sha, new_sha)
+        ]).decode("utf-8")
+
+        print('\n--------------------------------------------------')
+        print('Update Framework from Jetpack.\n')
+        print(pretty_log)
+        print()
+        for line in bug_output.splitlines():
+            print(line.strip())
+        print('Test: Presubmit\n')
+        print('--------------------------------------------------\n')
+
 
 if __name__ == '__main__':
     if len(sys.argv) != 3:
@@ -406,5 +432,4 @@ if __name__ == '__main__':
     new_sha = sys.argv[2]
     old_sha = exporter.WriteShaFile(new_sha)
     if old_sha and old_sha != new_sha:
-      print('Command to diff old version to new version:')
-      print('  git log %s..%s -- appsearch/' % (old_sha, new_sha))
+        exporter.FormatCommitMessage(old_sha, new_sha)
