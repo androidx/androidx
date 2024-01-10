@@ -77,6 +77,7 @@ open class SplitAttributesToggleMainActivity : SplitAttributesToggleActivityBase
             splitRuleFoldingAwareAttrsRadioButton.isEnabled = false
             viewBinding.splitRuleUseCustomizedSplitAttributes.isEnabled = false
         }
+
         viewBinding.startPrimaryActivityButton.setOnClickListener(this)
         viewBinding.useStickyPlaceholderCheckBox.setOnCheckedChangeListener(this)
         viewBinding.usePlaceholderCheckBox.setOnCheckedChangeListener(this)
@@ -412,6 +413,9 @@ open class SplitAttributesToggleMainActivity : SplitAttributesToggleActivityBase
             R.id.placeholder_layout_direction_spinner, R.id.split_rule_layout_direction_spinner ->
                 demoActivityEmbeddingController.customizedLayoutDirection =
                     CUSTOMIZED_LAYOUT_DIRECTIONS_VALUE[position]
+            R.id.animation_background_dropdown ->
+                demoActivityEmbeddingController.animationBackground =
+                    DemoActivityEmbeddingController.ANIMATION_BACKGROUND_VALUES[position]
         }
         activityEmbeddingController.invalidateTopVisibleActivityStacks()
     }

@@ -21,6 +21,7 @@ import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.view.View
+import android.widget.ArrayAdapter
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -69,6 +70,20 @@ class SplitAttributesTogglePrimaryActivity : SplitAttributesToggleMainActivity()
                     setOnClickListener(this@SplitAttributesTogglePrimaryActivity)
                 }
             }
+
+        // Animation background
+        if (WindowSdkExtensions.getInstance().extensionVersion >= 5) {
+            val animationBackgroundDropdown = viewBinding.animationBackgroundDropdown
+            animationBackgroundDropdown.visibility = View.VISIBLE
+            viewBinding.animationBackgroundDivider.visibility = View.VISIBLE
+            viewBinding.animationBackgroundTextView.visibility = View.VISIBLE
+            animationBackgroundDropdown.adapter = ArrayAdapter(
+                this,
+                android.R.layout.simple_spinner_dropdown_item,
+                DemoActivityEmbeddingController.ANIMATION_BACKGROUND_TEXTS
+            )
+            animationBackgroundDropdown.onItemSelectedListener = this
+        }
 
         lifecycleScope.launch {
             // The block passed to repeatOnLifecycle is executed when the lifecycle

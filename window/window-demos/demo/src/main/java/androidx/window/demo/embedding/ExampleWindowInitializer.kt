@@ -104,10 +104,12 @@ class ExampleWindowInitializer : Initializer<RuleController> {
         val config = params.parentConfiguration
         val shouldReversed = tag?.contains(SUFFIX_REVERSED) ?: false
         // Make a copy of the default splitAttributes, but replace the animation background
-        // color to what is configured in the Demo app.
+        // to what is configured in the Demo app.
+        val animationBackground = mDemoActivityEmbeddingController.animationBackground
         val defaultSplitAttributes = SplitAttributes.Builder()
             .setLayoutDirection(params.defaultSplitAttributes.layoutDirection)
             .setSplitType(params.defaultSplitAttributes.splitType)
+            .setAnimationBackground(animationBackground)
             .build()
         when (tag
             ?.removePrefix(PREFIX_FULLSCREEN_TOGGLE)
@@ -137,6 +139,7 @@ class ExampleWindowInitializer : Initializer<RuleController> {
                                 TOP_TO_BOTTOM
                             }
                         )
+                        .setAnimationBackground(animationBackground)
                         .build()
                 } else if (isPortrait) {
                     return expandContainersAttrs
@@ -153,6 +156,7 @@ class ExampleWindowInitializer : Initializer<RuleController> {
                                 TOP_TO_BOTTOM
                             }
                         )
+                        .setAnimationBackground(animationBackground)
                         .build()
                 }
             }
@@ -167,6 +171,7 @@ class ExampleWindowInitializer : Initializer<RuleController> {
                                 TOP_TO_BOTTOM
                             }
                         )
+                        .setAnimationBackground(animationBackground)
                         .build()
                 } else {
                     SplitAttributes.Builder()
@@ -178,6 +183,7 @@ class ExampleWindowInitializer : Initializer<RuleController> {
                                 LEFT_TO_RIGHT
                             }
                         )
+                        .setAnimationBackground(animationBackground)
                         .build()
                 }
             }
@@ -194,6 +200,7 @@ class ExampleWindowInitializer : Initializer<RuleController> {
                                 TOP_TO_BOTTOM
                             }
                         )
+                        .setAnimationBackground(animationBackground)
                         .build()
                 } else {
                     SplitAttributes.Builder()
@@ -205,6 +212,7 @@ class ExampleWindowInitializer : Initializer<RuleController> {
                                 LEFT_TO_RIGHT
                             }
                         )
+                        .setAnimationBackground(animationBackground)
                         .build()
                 }
             }
@@ -228,6 +236,7 @@ class ExampleWindowInitializer : Initializer<RuleController> {
                                 if (shouldReversed) RIGHT_TO_LEFT else LEFT_TO_RIGHT
                             }
                         )
+                        .setAnimationBackground(animationBackground)
                         .build()
                 }
             }
@@ -235,6 +244,7 @@ class ExampleWindowInitializer : Initializer<RuleController> {
                 return SplitAttributes.Builder()
                     .setSplitType(mDemoActivityEmbeddingController.customizedSplitType)
                     .setLayoutDirection(mDemoActivityEmbeddingController.customizedLayoutDirection)
+                    .setAnimationBackground(animationBackground)
                     .build()
             }
         }

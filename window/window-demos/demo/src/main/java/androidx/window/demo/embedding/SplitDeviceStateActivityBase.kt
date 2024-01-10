@@ -21,6 +21,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.CompoundButton
 import android.widget.RadioGroup
 import android.widget.Toast
@@ -60,6 +61,8 @@ open class SplitDeviceStateActivityBase : AppCompatActivity(), View.OnClickListe
     private lateinit var viewBinding: ActivitySplitDeviceStateLayoutBinding
     private lateinit var activityA: ComponentName
     private lateinit var activityB: ComponentName
+
+    private val demoActivityEmbeddingController = DemoActivityEmbeddingController.getInstance()
 
     /** The last selected split rule id. */
     private var lastCheckedRuleId = 0
@@ -118,6 +121,21 @@ open class SplitDeviceStateActivityBase : AppCompatActivity(), View.OnClickListe
                 .getString(R.string.split_attributes_calculator_not_supported)
         }
 
+        // Animation background
+        if (WindowSdkExtensions.getInstance().extensionVersion >= 5 && componentName == activityA) {
+            // Show on only the primary activity.
+            val animationBackgroundDropdown = viewBinding.animationBackgroundDropdown
+            animationBackgroundDropdown.visibility = View.VISIBLE
+            viewBinding.animationBackgroundDivider.visibility = View.VISIBLE
+            viewBinding.animationBackgroundTextView.visibility = View.VISIBLE
+            animationBackgroundDropdown.adapter = ArrayAdapter(
+                this,
+                android.R.layout.simple_spinner_dropdown_item,
+                DemoActivityEmbeddingController.ANIMATION_BACKGROUND_TEXTS
+            )
+            animationBackgroundDropdown.onItemSelectedListener = this
+        }
+
         lifecycleScope.launch {
             // The block passed to repeatOnLifecycle is executed when the lifecycle
             // is at least STARTED and is cancelled when the lifecycle is STOPPED.
@@ -173,6 +191,8 @@ open class SplitDeviceStateActivityBase : AppCompatActivity(), View.OnClickListe
     }
 
     override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+        demoActivityEmbeddingController.animationBackground =
+            DemoActivityEmbeddingController.ANIMATION_BACKGROUND_VALUES[position]
         updateSplitPairRuleWithRadioButtonId(lastCheckedRuleId)
     }
 
@@ -250,6 +270,7 @@ open class SplitDeviceStateActivityBase : AppCompatActivity(), View.OnClickListe
         val defaultSplitAttributes = SplitAttributes.Builder()
             .setSplitType(SPLIT_TYPE_EQUAL)
             .setLayoutDirection(SplitAttributes.LayoutDirection.LOCALE)
+            .setAnimationBackground(demoActivityEmbeddingController.animationBackground)
             .build()
         // Use the tag to control the rule how to change split attributes with the current state
         var tag = when (id) {
@@ -295,6 +316,7 @@ open class SplitDeviceStateActivityBase : AppCompatActivity(), View.OnClickListe
     private suspend fun updateSplitAttributesText(newSplitInfos: List<SplitInfo>) {
         var splitAttributes: SplitAttributes = SplitAttributes.Builder()
             .setSplitType(SPLIT_TYPE_EXPAND)
+            .setAnimationBackground(demoActivityEmbeddingController.animationBackground)
             .build()
         var suggestToFinishItself = false
 
