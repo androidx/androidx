@@ -123,8 +123,10 @@ class JankStats private constructor(
          */
         @UiThread
         set(value) {
-            implementation.setupFrameTimer(value)
-            field = value
+            if (value != field) {
+                implementation.setupFrameTimer(value)
+                field = value
+            }
         }
 
     /**
