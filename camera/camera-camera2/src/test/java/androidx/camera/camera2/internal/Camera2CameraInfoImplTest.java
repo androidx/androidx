@@ -32,6 +32,7 @@ import static androidx.camera.core.DynamicRange.UNSPECIFIED;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -815,12 +816,13 @@ public class Camera2CameraInfoImplTest {
     }
 
     @Test
-    public void queryDynamicRangeWithEmptySet_returnsEmptySet() throws CameraAccessExceptionCompat {
+    public void queryDynamicRangeWithEmptySet_throwsException() throws CameraAccessExceptionCompat {
         init(/* hasAvailableCapabilities = */ true);
 
         final CameraInfo cameraInfo = new Camera2CameraInfoImpl(CAMERA0_ID, mCameraManagerCompat);
 
-        assertThat(cameraInfo.querySupportedDynamicRanges(Collections.emptySet())).isEmpty();
+        assertThrows(IllegalArgumentException.class, () ->
+                cameraInfo.querySupportedDynamicRanges(Collections.emptySet()));
     }
 
     @Test

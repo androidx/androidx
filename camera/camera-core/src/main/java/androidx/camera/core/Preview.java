@@ -683,7 +683,6 @@ public final class Preview extends UseCase {
     // that will be sent to the SurfaceProvider. That should always be retrieved from the StreamSpec
     // since that will be the final DynamicRange chosen by the camera based on other use case
     // combinations.
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     public DynamicRange getDynamicRange() {
         return getCurrentConfig().hasDynamicRange() ? getCurrentConfig().getDynamicRange() :
@@ -1167,28 +1166,29 @@ public final class Preview extends UseCase {
          * ranges of the camera can be queried using
          * {@link CameraInfo#querySupportedDynamicRanges(Set)}.
          *
-         * <p>As an example, if the {@link Surface} provided by {@link Preview.SurfaceProvider}
-         * comes from a {@link SurfaceView}, such as with
-         * {@link androidx.camera.viewfinder.CameraViewfinder CameraViewfinder} set to
-         * implementation mode
-         * {@link androidx.camera.viewfinder.CameraViewfinder.ImplementationMode#PERFORMANCE
-         * PERFORMANCE}, you may want to query the dynamic ranges supported by the display:
+         * <p>As an example, having written an OpenGL frame processing pipeline that can properly
+         * handle input dynamic ranges {@link DynamicRange#SDR}, {@link DynamicRange#HLG_10_BIT} and
+         * {@link DynamicRange#HDR10_10_BIT}, it's possible to filter those dynamic
+         * ranges based on which dynamic ranges the camera can produce via the {@link Preview}
+         * use case:
          * <pre>
          *   <code>
          *
-         *        // Get supported HDR dynamic ranges from the display
-         *        Display display = requireContext().getDisplay();
-         *        List&lt;Integer&gt; displayHdrTypes =
-         *                display.getHdrCapabilities().getSupportedHdrTypes();
-         *        Set&lt;DynamicRange&gt; displayHighDynamicRanges =
-         *                // Simple map of Display.HdrCapabilities enums to CameraX DynamicRange
-         *                convertToDynamicRangeSet(displayHdrTypes);
+         *        // Constant defining the dynamic ranges supported as input for
+         *        // my OpenGL processing pipeline. These will either be outputted
+         *        // in the same dynamic range as the input or will be tone-mapped
+         *        // to another dynamic range by my pipeline.
+         *        List&lt;DynamicRange&gt; MY_SUPPORTED_DYNAMIC_RANGES = Set.of(
+         *                DynamicRange.SDR,
+         *                DynamicRange.HLG_10_BIT,
+         *                DynamicRange.HDR10_10_BIT);
+         *        ...
          *
-         *        // Query dynamic ranges supported by the camera from our
-         *        // dynamic ranges supported by the display.
+         *        // Query dynamic ranges supported by the camera from the
+         *        // dynamic ranges supported by my processing pipeline.
          *        mSupportedHighDynamicRanges =
          *                mCameraInfo.querySupportedDynamicRanges(
-         *                        displayHighDynamicRanges);
+         *                        mySupportedDynamicRanges);
          *
          *        // Update our UI picker for dynamic range.
          *        ...
@@ -1226,7 +1226,6 @@ public final class Preview extends UseCase {
          * @see DynamicRange
          * @see CameraInfo#querySupportedDynamicRanges(Set)
          */
-        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         @Override
         public Builder setDynamicRange(@NonNull DynamicRange dynamicRange) {

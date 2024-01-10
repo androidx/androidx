@@ -55,6 +55,7 @@ package androidx.camera.core {
     method public default boolean isFocusMeteringSupported(androidx.camera.core.FocusMeteringAction);
     method @SuppressCompatibility @androidx.camera.core.ExperimentalZeroShutterLag public default boolean isZslSupported();
     method public static boolean mustPlayShutterSound();
+    method public default java.util.Set<androidx.camera.core.DynamicRange!> querySupportedDynamicRanges(java.util.Set<androidx.camera.core.DynamicRange!>);
   }
 
   @RequiresApi(21) public final class CameraInfoUnavailableException extends java.lang.Exception {
@@ -466,6 +467,7 @@ package androidx.camera.core {
   }
 
   @RequiresApi(21) public final class Preview extends androidx.camera.core.UseCase {
+    method public androidx.camera.core.DynamicRange getDynamicRange();
     method public static androidx.camera.core.PreviewCapabilities getPreviewCapabilities(androidx.camera.core.CameraInfo);
     method public androidx.camera.core.ResolutionInfo? getResolutionInfo();
     method public androidx.camera.core.resolutionselector.ResolutionSelector? getResolutionSelector();
@@ -480,6 +482,7 @@ package androidx.camera.core {
   public static final class Preview.Builder implements androidx.camera.core.ExtendableBuilder<androidx.camera.core.Preview> {
     ctor public Preview.Builder();
     method public androidx.camera.core.Preview build();
+    method public androidx.camera.core.Preview.Builder setDynamicRange(androidx.camera.core.DynamicRange);
     method public androidx.camera.core.Preview.Builder setPreviewStabilizationEnabled(boolean);
     method public androidx.camera.core.Preview.Builder setResolutionSelector(androidx.camera.core.resolutionselector.ResolutionSelector);
     method @Deprecated public androidx.camera.core.Preview.Builder setTargetAspectRatio(int);

@@ -64,6 +64,10 @@ object DynamicRanges {
         dynamicRangesToTest: Set<DynamicRange>,
         fullySpecifiedDynamicRanges: Set<DynamicRange>
     ): Set<DynamicRange> {
+        if (dynamicRangesToTest.isEmpty()) {
+            throw IllegalArgumentException(
+                "Candidate dynamic range set must contain at least 1 candidate dynamic range.")
+        }
         return buildSet {
             dynamicRangesToTest.forEach {
                 if (it.isFullySpecified) {
