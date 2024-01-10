@@ -32,6 +32,7 @@ import androidx.window.extensions.embedding.ActivityStack
 import androidx.window.extensions.embedding.AnimationBackground
 import androidx.window.extensions.embedding.ParentContainerInfo
 import androidx.window.extensions.embedding.SplitAttributes
+import androidx.window.extensions.embedding.WindowAttributes
 import androidx.window.extensions.layout.WindowLayoutInfo
 import androidx.window.reflection.ReflectionUtils.doesReturn
 import androidx.window.reflection.ReflectionUtils.isPublic
@@ -143,6 +144,9 @@ internal class SafeActivityEmbeddingComponentProvider(
      * - [AnimationBackground.createColorBackground]
      * - [AnimationBackground.ANIMATION_BACKGROUND_DEFAULT]
      * - [ParentContainerInfo]
+     * - [WindowAttributes.getDimArea]
+     * - [SplitAttributes.getWindowAttributes]
+     * - [SplitAttributes.Builder.setWindowAttributes]
      * // TODO(b/316493273): Guard other AEComponentMethods
      */
     @VisibleForTesting
@@ -157,7 +161,8 @@ internal class SafeActivityEmbeddingComponentProvider(
             isMethodSetActivityStackAttributesCalculatorValid() &&
             isMethodClearActivityStackAttributesCalculatorValid() &&
             isMethodRegisterActivityStackCallbackValid() &&
-            isMethodUnregisterActivityStackCallbackValid()
+            isMethodUnregisterActivityStackCallbackValid() &&
+            isClassWindowAttributesValid()
 
     private fun isMethodSetEmbeddingRulesValid(): Boolean {
         return validateReflection("ActivityEmbeddingComponent#setEmbeddingRules is not valid") {
@@ -351,6 +356,31 @@ internal class SafeActivityEmbeddingComponentProvider(
                     Consumer::class.java
                 )
             unregisterActivityStackCallbackMethod.isPublic
+        }
+
+    private fun isClassWindowAttributesValid(): Boolean =
+        validateReflection("Class WindowAttributes is not valid") {
+            val windowAttributesClass = WindowAttributes::class.java
+            val getDimAreaMethod = windowAttributesClass.getMethod(
+                "getDimArea"
+            )
+
+            val splitAttributesClass = SplitAttributes::class.java
+            val getWindowAttributesMethod = splitAttributesClass.getMethod(
+                "getWindowAttributes"
+            )
+
+            val splitAttributesBuilderClass = SplitAttributes.Builder::class.java
+            val setWindowAttributesMethod = splitAttributesBuilderClass.getMethod(
+                "setWindowAttributes",
+                WindowAttributes::class.java
+            )
+
+            getDimAreaMethod.isPublic &&
+                getDimAreaMethod.doesReturn(Int::class.javaPrimitiveType!!) &&
+                getWindowAttributesMethod.isPublic &&
+                getWindowAttributesMethod.doesReturn(windowAttributesClass) &&
+                setWindowAttributesMethod.isPublic
         }
 
     private fun isActivityEmbeddingComponentValid(): Boolean {

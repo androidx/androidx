@@ -222,6 +222,18 @@ class EmbeddingAdapterTest {
             adapter.translateSplitAttributes(splitAttributesWithDefaultBackground))
     }
 
+    @OptIn(androidx.window.core.ExperimentalWindowApi::class)
+    @Test
+    fun testTranslateEmbeddingConfigurationToWindowAttributes() {
+        WindowTestUtils.assumeAtLeastVendorApiLevel(5)
+
+        val dimArea = EmbeddingConfiguration.DimArea.ON_TASK
+        adapter.embeddingConfiguration = EmbeddingConfiguration(dimArea)
+        val oemSplitAttributes = adapter.translateSplitAttributes(SplitAttributes.Builder().build())
+
+        assertEquals(dimArea.value, oemSplitAttributes.windowAttributes.dimArea)
+    }
+
     private fun createTestOEMSplitInfo(
         testPrimaryActivityStack: OEMActivityStack,
         testSecondaryActivityStack: OEMActivityStack,
