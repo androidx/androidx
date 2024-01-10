@@ -20,6 +20,7 @@ import android.text.InputType
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.content.TransferableContent
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
@@ -217,7 +218,9 @@ class AndroidTextInputSessionTest {
     private suspend fun PlatformTextInputSession.inputSessionWithDefaultsForTest(
         state: TextFieldState = TextFieldState(),
         imeOptions: ImeOptions = ImeOptions.Default,
-        onImeAction: (ImeAction) -> Unit = {}
+        onImeAction: (ImeAction) -> Unit = {},
+        acceptedMimeTypes: Set<String>? = null,
+        onCommitContent: ((TransferableContent) -> Boolean)? = null
     ): Nothing = platformSpecificTextInputSession(
         state = TransformedTextFieldState(
             textFieldState = state,
@@ -226,7 +229,9 @@ class AndroidTextInputSessionTest {
         ),
         layoutState = TextLayoutState(),
         imeOptions = imeOptions,
-        onImeAction = onImeAction
+        acceptedMimeTypes = acceptedMimeTypes,
+        onImeAction = onImeAction,
+        onCommitContent = onCommitContent
     )
 
     private inner class TestTextElement : ModifierNodeElement<TestTextNode>() {
