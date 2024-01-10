@@ -103,6 +103,8 @@ public final class SetSchemaRequest {
             READ_EXTERNAL_STORAGE,
             READ_HOME_APP_SEARCH_DATA,
             READ_ASSISTANT_APP_SEARCH_DATA,
+            ENTERPRISE_ACCESS,
+            ENTERPRISE_CONTACTS_DEVICE_POLICY,
     })
     @Retention(RetentionPolicy.SOURCE)
     // @exportToFramework:startStrip()
@@ -178,6 +180,28 @@ public final class SetSchemaRequest {
             name = Features.ADD_PERMISSIONS_AND_GET_VISIBILITY)
     // @exportToFramework:endStrip()
     public static final int READ_ASSISTANT_APP_SEARCH_DATA = 6;
+
+    /**
+     * A schema without this permission set through {@link
+     * SetSchemaRequest.Builder#addRequiredPermissionsForSchemaTypeVisibility} will not be visible
+     * to an Enterprise global search session. This permission does not affect regular global search
+     * sessions.
+     *
+     * @exportToFramework:hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final int ENTERPRISE_ACCESS = 7;
+
+    /**
+     * A schema with this permission set through {@link
+     * SetSchemaRequest.Builder#addRequiredPermissionsForSchemaTypeVisibility} requires either
+     * managed profile caller id or contacts access to be visible to an Enterprise global search
+     * session. This permission does not affect regular global search sessions.
+     *
+     * @exportToFramework:hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final int ENTERPRISE_CONTACTS_DEVICE_POLICY = 8;
 
     private final Set<AppSearchSchema> mSchemas;
     private final Set<String> mSchemasNotDisplayedBySystem;
@@ -264,6 +288,7 @@ public final class SetSchemaRequest {
      *         {@link SetSchemaRequest#READ_HOME_APP_SEARCH_DATA} and
      *         {@link SetSchemaRequest#READ_ASSISTANT_APP_SEARCH_DATA}.
      */
+    // TODO(b/237388235): add enterprise permissions to javadocs after they're unhidden
     @NonNull
     public Map<String, Set<Set<Integer>>> getRequiredPermissionsForSchemaTypeVisibility() {
         return deepCopy(mSchemasVisibleToPermissions);
@@ -484,6 +509,7 @@ public final class SetSchemaRequest {
          *                         schema.
          * @throws IllegalArgumentException – if input unsupported permission.
          */
+        // TODO(b/237388235): add enterprise permissions to javadocs after they're unhidden
         // Merged list available from getRequiredPermissionsForSchemaTypeVisibility
         @CanIgnoreReturnValue
         @SuppressLint("MissingGetterMatchingBuilder")
@@ -499,7 +525,7 @@ public final class SetSchemaRequest {
             Preconditions.checkNotNull(permissions);
             for (int permission : permissions) {
                 Preconditions.checkArgumentInRange(permission, READ_SMS,
-                        READ_ASSISTANT_APP_SEARCH_DATA, "permission");
+                        ENTERPRISE_CONTACTS_DEVICE_POLICY, "permission");
             }
             resetIfBuilt();
             Set<Set<Integer>> visibleToPermissions = mSchemasVisibleToPermissions.get(schemaType);
