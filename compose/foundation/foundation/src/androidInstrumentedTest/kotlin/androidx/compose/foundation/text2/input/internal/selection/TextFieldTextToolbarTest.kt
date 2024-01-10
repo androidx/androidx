@@ -17,6 +17,9 @@
 package androidx.compose.foundation.text2.input.internal.selection
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.content.MediaType
+import androidx.compose.foundation.content.createClipData
+import androidx.compose.foundation.content.receiveContent
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -52,6 +55,8 @@ import androidx.compose.ui.platform.LocalTextToolbar
 import androidx.compose.ui.platform.TextToolbar
 import androidx.compose.ui.platform.TextToolbarStatus
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.platform.toClipEntry
+import androidx.compose.ui.platform.toClipMetadata
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsNodeInteraction
@@ -516,7 +521,7 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
     }
 
     @Test
-    fun toolbarShowsPaste_whenClipboardHasContent() {
+    fun toolbarShowsPaste_whenClipboardHasText() {
         var pasteOptionAvailable = false
         val textToolbar = FakeTextToolbar(
             onShowMenu = { _, _, onPasteRequested, _, _ ->
@@ -527,6 +532,58 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
         val clipboardManager = FakeClipboardManager("world")
         val state = TextFieldState("Hello")
         setupContent(state, textToolbar, true, clipboardManager)
+
+        rule.onNodeWithTag(TAG).performTouchInput { click() }
+        rule.onNode(isSelectionHandle(Handle.Cursor)).performClick()
+
+        rule.runOnIdle {
+            assertThat(pasteOptionAvailable).isTrue()
+        }
+    }
+
+    @Test
+    fun toolbarDoesNotShowPaste_whenClipboardHasContent_butNoReceiveContentConfigured() {
+        var pasteOptionAvailable = false
+        val textToolbar = FakeTextToolbar(
+            onShowMenu = { _, _, onPasteRequested, _, _ ->
+                pasteOptionAvailable = onPasteRequested != null
+            },
+            onHideMenu = {}
+        )
+        val clipboardManager = FakeClipboardManager(supportsClipEntry = true).apply {
+            setClip(createClipData().toClipEntry())
+        }
+        val state = TextFieldState("Hello")
+        setupContent(state, textToolbar, true, clipboardManager)
+
+        rule.onNodeWithTag(TAG).performTouchInput { click() }
+        rule.onNode(isSelectionHandle(Handle.Cursor)).performClick()
+
+        rule.runOnIdle {
+            assertThat(pasteOptionAvailable).isFalse()
+        }
+    }
+
+    @Test
+    fun toolbarShowsPaste_whenClipboardHasContent_andReceiveContentConfigured() {
+        var pasteOptionAvailable = false
+        val textToolbar = FakeTextToolbar(
+            onShowMenu = { _, _, onPasteRequested, _, _ ->
+                pasteOptionAvailable = onPasteRequested != null
+            },
+            onHideMenu = {}
+        )
+        val clipboardManager = FakeClipboardManager(supportsClipEntry = true).apply {
+            setClip(createClipData().toClipEntry())
+        }
+        val state = TextFieldState("Hello")
+        setupContent(
+            state = state,
+            toolbar = textToolbar,
+            singleLine = true,
+            clipboardManager = clipboardManager,
+            modifier = Modifier.receiveContent(MediaType.Image) { null }
+        )
 
         rule.onNodeWithTag(TAG).performTouchInput { click() }
         rule.onNode(isSelectionHandle(Handle.Cursor)).performClick()
@@ -833,7 +890,8 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
         toolbar: TextToolbar = FakeTextToolbar(),
         singleLine: Boolean = false,
         clipboardManager: ClipboardManager = FakeClipboardManager(),
-        filter: InputTransformation? = null
+        modifier: Modifier = Modifier,
+        filter: InputTransformation? = null,
     ) {
         rule.setTextFieldTestContent {
             CompositionLocalProvider(
@@ -842,7 +900,7 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
             ) {
                 BasicTextField2(
                     state = state,
-                    modifier = Modifier
+                    modifier = modifier
                         .width(100.dp)
                         .testTag(TAG),
                     textStyle = TextStyle(
@@ -891,8 +949,10 @@ internal class RectSubject private constructor(
 
 internal fun FakeClipboardManager(
     initialText: String? = null,
+    supportsClipEntry: Boolean = false,
 ) = object : ClipboardManager {
     private var currentText: AnnotatedString? = initialText?.let { AnnotatedString(it) }
+    private var currentClipEntry: ClipEntry? = null
 
     override fun setText(annotatedString: AnnotatedString) {
         currentText = annotatedString
@@ -903,19 +963,35 @@ internal fun FakeClipboardManager(
     }
 
     override fun getClip(): ClipEntry? {
-        throw NotImplementedError("This clipboard does not support clip entries")
+        if (supportsClipEntry) {
+            return currentClipEntry
+        } else {
+            throw NotImplementedError("This clipboard does not support clip entries")
+        }
     }
 
     override fun getClipMetadata(): ClipMetadata? {
-        throw NotImplementedError("This clipboard does not support clip entries")
+        if (supportsClipEntry) {
+            return currentClipEntry?.clipData?.description?.toClipMetadata()
+        } else {
+            throw NotImplementedError("This clipboard does not support clip entries")
+        }
     }
 
     override fun hasClip(): Boolean {
-        throw NotImplementedError("This clipboard does not support clip entries")
+        if (supportsClipEntry) {
+            return currentClipEntry != null
+        } else {
+            throw NotImplementedError("This clipboard does not support clip entries")
+        }
     }
 
     override fun setClip(clipEntry: ClipEntry, clipMetadata: ClipMetadata?) {
-        throw NotImplementedError("This clipboard does not support clip entries")
+        if (supportsClipEntry) {
+            currentClipEntry = clipEntry
+        } else {
+            throw NotImplementedError("This clipboard does not support clip entries")
+        }
     }
 }
 

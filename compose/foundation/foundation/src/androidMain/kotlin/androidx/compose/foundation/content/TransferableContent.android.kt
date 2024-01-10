@@ -109,3 +109,28 @@ fun TransferableContent.consumeEach(predicate: (ClipData.Item) -> Boolean): Tran
 actual fun TransferableContent.hasMediaType(mediaType: MediaType): Boolean {
     return clipMetadata.clipDescription.hasMimeType(mediaType.representation)
 }
+
+@OptIn(ExperimentalFoundationApi::class)
+internal actual fun TransferableContent.readPlainText(): String? {
+    var seenText = false
+    for (i in 0 until clipEntry.clipData.itemCount) {
+        seenText = seenText || (clipEntry.clipData.getItemAt(i).text != null)
+    }
+    return if (seenText) {
+        // note: text may be null, ensure this is null-safe
+        buildString {
+            var seenFirstItem = false
+            for (i in 0 until clipEntry.clipData.itemCount) {
+                clipEntry.clipData.getItemAt(i).text?.let { text ->
+                    if (seenFirstItem) {
+                        append("\n")
+                    }
+                    append(text)
+                    seenFirstItem = true
+                }
+            }
+        }
+    } else {
+        null
+    }
+}

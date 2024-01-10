@@ -23,7 +23,7 @@ import com.google.common.truth.Subject
 import com.google.common.truth.Truth
 
 /**
- * Truth extension for Bitmap.
+ * Truth extension for ClipDescription.
  */
 internal class ClipDescriptionSubject private constructor(
     failureMetadata: FailureMetadata?,
