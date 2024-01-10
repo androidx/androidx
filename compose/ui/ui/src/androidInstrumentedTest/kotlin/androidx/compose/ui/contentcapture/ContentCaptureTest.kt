@@ -1,6 +1,6 @@
 
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,13 +15,11 @@
  * limitations under the License.
  */
 
-package androidx.compose.ui
+package androidx.compose.ui.contentcapture
 
 import android.os.Build
 import android.util.LongSparseArray
-import android.view.View
 import android.view.ViewStructure
-import android.view.accessibility.AccessibilityEvent
 import android.view.translation.TranslationRequestValue
 import android.view.translation.TranslationResponseValue
 import android.view.translation.ViewTranslationRequest
@@ -35,8 +33,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.AndroidComposeView
-import androidx.compose.ui.platform.AndroidComposeViewAccessibilityDelegateCompat
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.coreshims.ContentCaptureSessionCompat
 import androidx.compose.ui.platform.coreshims.ViewStructureCompat
@@ -55,7 +54,6 @@ import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
-import androidx.core.view.ViewCompat
 import androidx.core.view.doOnDetach
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -74,7 +72,9 @@ import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoMoreInteractions
 import org.mockito.kotlin.whenever
 
+// TODO(mnuzen): move this test file to a sub package androidx.compose.ui.contentcapture
 @MediumTest
+@SdkSuppress(minSdkVersion = 31)
 @RunWith(AndroidJUnit4::class)
 class ContentCaptureTest {
     @get:Rule
@@ -84,7 +84,6 @@ class ContentCaptureTest {
     private lateinit var androidComposeView: AndroidComposeView
     private lateinit var contentCaptureSessionCompat: ContentCaptureSessionCompat
     private lateinit var viewStructureCompat: ViewStructureCompat
-    private val dispatchedAccessibilityEvents = mutableListOf<AccessibilityEvent>()
     private val contentCaptureEventLoopIntervalMs = 100L
 
     @Test
@@ -372,7 +371,7 @@ class ContentCaptureTest {
                 }
             }
         }
-        rule.runOnIdle { androidComposeView.composeAccessibilityDelegate.onHideTranslation() }
+        rule.runOnIdle { androidComposeView.contentCaptureManager.onHideTranslation() }
 
         // Act.
         rule.runOnIdle { appeared = true }
@@ -412,7 +411,7 @@ class ContentCaptureTest {
                 }
             }
         }
-        rule.runOnIdle { androidComposeView.composeAccessibilityDelegate.onShowTranslation() }
+        rule.runOnIdle { androidComposeView.contentCaptureManager.onShowTranslation() }
 
         // Act.
         rule.runOnIdle { appeared = true }
@@ -549,7 +548,7 @@ class ContentCaptureTest {
         }
 
         // Act.
-        rule.runOnIdle { androidComposeView.composeAccessibilityDelegate.onShowTranslation() }
+        rule.runOnIdle { androidComposeView.contentCaptureManager.onShowTranslation() }
 
         // Assert.
         rule.runOnIdle { assertThat(result).isTrue() }
@@ -584,8 +583,7 @@ class ContentCaptureTest {
         }
 
         // Act.
-        rule.runOnIdle { androidComposeView.composeAccessibilityDelegate.onHideTranslation() }
-
+        rule.runOnIdle { androidComposeView.contentCaptureManager.onHideTranslation() }
         // Assert.
         rule.runOnIdle { assertThat(result).isFalse() }
     }
@@ -618,12 +616,12 @@ class ContentCaptureTest {
         }
 
         // Act.
-        rule.runOnIdle { androidComposeView.composeAccessibilityDelegate.onClearTranslation() }
-
+        rule.runOnIdle { androidComposeView.contentCaptureManager.onClearTranslation() }
         // Assert.
         rule.runOnIdle { assertThat(result).isTrue() }
     }
 
+    @OptIn(ExperimentalComposeUiApi::class)
     @RequiresApi(Build.VERSION_CODES.O)
     private fun ComposeContentTestRule.setContentWithContentCaptureEnabled(
         retainInteractionsDuringInitialization: Boolean = false,
@@ -638,14 +636,13 @@ class ContentCaptureTest {
         whenever(viewStructureCompat.toViewStructure())
             .thenReturn(viewStructure)
 
+        // TODO(mnuzen): provideContentCaptureManager as a compositionLocal so that instead of
+        //  casting view and getting ContentCaptureManager, retrieve it via
+        //  `LocalContentCaptureManager.current`
         setContent {
             androidComposeView = LocalView.current as AndroidComposeView
-            with(androidComposeView.composeAccessibilityDelegate) {
-                accessibilityForceEnabledForTesting = true
-                contentCaptureForceEnabledForTesting = true
-                contentCaptureSession = contentCaptureSessionCompat
-                onSendAccessibilityEvent = { dispatchedAccessibilityEvents += it; false }
-            }
+            androidComposeView.contentCaptureManager.onContentCaptureSession =
+                { contentCaptureSessionCompat }
 
             whenever(contentCaptureSessionCompat.newAutofillId(any())).thenAnswer {
                 androidComposeView.autofillId
@@ -664,10 +661,6 @@ class ContentCaptureTest {
             }
         }
     }
-
-    private val View.composeAccessibilityDelegate: AndroidComposeViewAccessibilityDelegateCompat
-        get() = ViewCompat.getAccessibilityDelegate(this)
-            as AndroidComposeViewAccessibilityDelegateCompat
 
     // TODO(b/272068594): Add api to fetch the semantics id from SemanticsNodeInteraction directly.
     private val SemanticsNodeInteraction.semanticsId: Int get() = fetchSemanticsNode().id

@@ -143,7 +143,13 @@ private class WrappedComposition(
                             currentComposer.collectParameterInformation()
                         }
 
-                        LaunchedEffect(owner) { owner.boundsUpdatesEventLoop() }
+                        // TODO(mnuzen): Combine the two boundsUpdatesLoop() into one LaunchedEffect
+                        LaunchedEffect(owner) {
+                            owner.boundsUpdatesAccessibilityEventLoop()
+                        }
+                        LaunchedEffect(owner) {
+                            owner.boundsUpdatesContentCaptureEventLoop()
+                        }
 
                         CompositionLocalProvider(LocalInspectionTables provides inspectionTable) {
                             ProvideAndroidCompositionLocals(owner, content)
