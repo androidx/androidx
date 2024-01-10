@@ -308,6 +308,7 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
             mCameraXConfigProvider = null;
             mCameraXInitializeFuture = null;
             mCameraXShutdownFuture = shutdownFuture;
+            mCameraInfoMap.clear();
         }
         mCameraX = null;
         mContext = null;
