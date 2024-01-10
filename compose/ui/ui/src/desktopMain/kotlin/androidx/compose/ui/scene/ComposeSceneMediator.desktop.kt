@@ -228,11 +228,16 @@ internal class ComposeSceneMediator(
         get() = if (useInteropBlending) 0 else 20
 
     init {
+        /*
+         * Transparency is used during redrawer creation that triggered by [addNotify], so
+         * it must be set to correct value before adding to the hierarchy to handle cases
+         * when [container] is already [isDisplayable].
+         */
+        skiaLayerComponent.transparency = useInteropBlending
+
         container.addToLayer(invisibleComponent, contentLayer)
         container.addToLayer(contentComponent, contentLayer)
         container.addContainerListener(containerListener)
-
-        skiaLayerComponent.transparency = useInteropBlending
 
         // It will be enabled dynamically. See DesktopPlatformComponent
         contentComponent.enableInputMethods(false)
