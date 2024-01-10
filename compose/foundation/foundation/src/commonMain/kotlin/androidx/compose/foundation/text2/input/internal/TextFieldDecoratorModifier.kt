@@ -17,6 +17,8 @@
 package androidx.compose.foundation.text2.input.internal
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.content.TransferableContent
+import androidx.compose.foundation.content.internal.mergeReceiveContentConfiguration
 import androidx.compose.foundation.interaction.HoverInteraction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.text.Handle
@@ -538,6 +540,8 @@ internal class TextFieldDecoratorModifierNode(
     private fun startInputSession(fromTap: Boolean) {
         if (!fromTap && !keyboardOptions.shouldShowKeyboardOnFocus) return
 
+        val (acceptedMimeTypes, onCommitContent) = mergeReceiveContentConfiguration()
+
         inputSessionJob = coroutineScope.launch {
             // This will automatically cancel the previous session, if any, so we don't need to
             // cancel the inputSessionJob ourselves.
@@ -551,7 +555,9 @@ internal class TextFieldDecoratorModifierNode(
                     textFieldState,
                     textLayoutState,
                     keyboardOptions.toImeOptions(singleLine),
-                    onImeAction = onImeActionPerformed
+                    acceptedMimeTypes = acceptedMimeTypes,
+                    onImeAction = onImeActionPerformed,
+                    onCommitContent = onCommitContent
                 )
             }
         }
@@ -586,11 +592,14 @@ internal class TextFieldDecoratorModifierNode(
 /**
  * Runs platform-specific text input logic.
  */
+@OptIn(ExperimentalFoundationApi::class)
 internal expect suspend fun PlatformTextInputSession.platformSpecificTextInputSession(
     state: TransformedTextFieldState,
     layoutState: TextLayoutState,
     imeOptions: ImeOptions,
-    onImeAction: ((ImeAction) -> Unit)?
+    acceptedMimeTypes: Set<String>?,
+    onImeAction: ((ImeAction) -> Unit)?,
+    onCommitContent: ((TransferableContent) -> Boolean)?
 ): Nothing
 
 /**

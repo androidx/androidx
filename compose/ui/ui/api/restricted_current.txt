@@ -2750,6 +2750,11 @@ package androidx.compose.ui.platform {
     method public long calculateRecommendedTimeoutMillis(long originalTimeoutMillis, optional boolean containsIcons, optional boolean containsText, optional boolean containsControls);
   }
 
+  public final class AndroidClipboardManager_androidKt {
+    method public static androidx.compose.ui.platform.ClipEntry toClipEntry(android.content.ClipData);
+    method public static androidx.compose.ui.platform.ClipMetadata toClipMetadata(android.content.ClipDescription);
+  }
+
   public final class AndroidComposeViewAccessibilityDelegateCompat_androidKt {
     method @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public static boolean getDisableContentCapture();
     method @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public static void setDisableContentCapture(boolean);
@@ -2810,10 +2815,32 @@ package androidx.compose.ui.platform {
     property public float touchSlop;
   }
 
+  public final class ClipEntry {
+    ctor public ClipEntry(android.content.ClipData clipData);
+    method public android.content.ClipData getClipData();
+    property public final android.content.ClipData clipData;
+  }
+
+  public final class ClipMetadata {
+    ctor public ClipMetadata(android.content.ClipDescription clipDescription);
+    method public android.content.ClipDescription getClipDescription();
+    property public final android.content.ClipDescription clipDescription;
+  }
+
+  public final class ClipboardExtensions_androidKt {
+    method @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public static android.net.Uri? firstUriOrNull(androidx.compose.ui.platform.ClipEntry);
+  }
+
   public interface ClipboardManager {
+    method public default androidx.compose.ui.platform.ClipEntry? getClip();
+    method public default androidx.compose.ui.platform.ClipMetadata? getClipMetadata();
+    method public default android.content.ClipboardManager getNativeClipboard();
     method public androidx.compose.ui.text.AnnotatedString? getText();
+    method public default boolean hasClip();
     method public default boolean hasText();
+    method public default void setClip(androidx.compose.ui.platform.ClipEntry clipEntry, optional androidx.compose.ui.platform.ClipMetadata? clipMetadata);
     method public void setText(androidx.compose.ui.text.AnnotatedString annotatedString);
+    property public default android.content.ClipboardManager nativeClipboard;
   }
 
   public final class ComposeView extends androidx.compose.ui.platform.AbstractComposeView {

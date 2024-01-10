@@ -22,6 +22,7 @@ import android.util.Log
 import android.view.KeyEvent
 import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.content.TransferableContent
 import androidx.compose.foundation.text.input.internal.update
 import androidx.compose.foundation.text2.input.TextFieldCharSequence
 import androidx.compose.ui.platform.PlatformTextInputSession
@@ -41,13 +42,17 @@ internal actual suspend fun PlatformTextInputSession.platformSpecificTextInputSe
     state: TransformedTextFieldState,
     layoutState: TextLayoutState,
     imeOptions: ImeOptions,
-    onImeAction: ((ImeAction) -> Unit)?
+    acceptedMimeTypes: Set<String>?,
+    onImeAction: ((ImeAction) -> Unit)?,
+    onCommitContent: ((TransferableContent) -> Boolean)?,
 ): Nothing {
     platformSpecificTextInputSession(
         state = state,
         layoutState = layoutState,
         imeOptions = imeOptions,
+        acceptedMimeTypes = acceptedMimeTypes,
         onImeAction = onImeAction,
+        onCommitContent = onCommitContent,
         composeImm = ComposeInputMethodManager(view)
     )
 }
@@ -57,7 +62,9 @@ internal suspend fun PlatformTextInputSession.platformSpecificTextInputSession(
     state: TransformedTextFieldState,
     layoutState: TextLayoutState,
     imeOptions: ImeOptions,
+    acceptedMimeTypes: Set<String>?,
     onImeAction: ((ImeAction) -> Unit)?,
+    onCommitContent: ((TransferableContent) -> Boolean)?,
     composeImm: ComposeInputMethodManager
 ): Nothing {
     coroutineScope {
@@ -112,12 +119,21 @@ internal suspend fun PlatformTextInputSession.platformSpecificTextInputSession(
                     onImeAction?.invoke(imeAction)
                 }
 
+                override fun onCommitContent(transferableContent: TransferableContent): Boolean {
+                    return onCommitContent?.invoke(transferableContent) ?: false
+                }
+
                 override fun requestCursorUpdates(cursorUpdateMode: Int) {
                     cursorUpdatesController.requestUpdates(cursorUpdateMode)
                 }
             }
-            outAttrs.update(state.visualText, state.visualText.selectionInChars, imeOptions)
-            StatelessInputConnection(textInputSession)
+            outAttrs.update(
+                text = state.visualText,
+                selection = state.visualText.selectionInChars,
+                imeOptions = imeOptions,
+                acceptedMimeTypes = acceptedMimeTypes
+            )
+            StatelessInputConnection(textInputSession, outAttrs)
         }
     }
 }

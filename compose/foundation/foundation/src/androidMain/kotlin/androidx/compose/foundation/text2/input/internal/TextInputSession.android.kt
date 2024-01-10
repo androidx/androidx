@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-@file:OptIn(ExperimentalFoundationApi::class)
-
 package androidx.compose.foundation.text2.input.internal
 
 import android.view.KeyEvent
 import android.view.inputmethod.InputConnection
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.content.TransferableContent
 import androidx.compose.foundation.text2.input.TextFieldCharSequence
 import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.ui.text.input.ImeAction
@@ -30,6 +29,7 @@ import androidx.compose.ui.text.input.TextFieldValue
  * The dependencies and actions required by a [StatelessInputConnection] connection. Decouples
  * [StatelessInputConnection] from [TextFieldState] for testability.
  */
+@OptIn(ExperimentalFoundationApi::class)
 internal interface TextInputSession {
 
     /**
@@ -52,6 +52,11 @@ internal interface TextInputSession {
      * Callback to run when IME sends an action via [InputConnection.performEditorAction]
      */
     fun onImeAction(imeAction: ImeAction)
+
+    /**
+     * Callback to run when IME sends a content via [InputConnection.commitContent]
+     */
+    fun onCommitContent(transferableContent: TransferableContent): Boolean
 
     /**
      * Called from [InputConnection.requestCursorUpdates].

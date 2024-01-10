@@ -275,5 +275,6 @@ val CoreDemos = DemoCategory(
         RecyclerViewDemos,
         AccessibilityDemos,
         ComposableDemo("Screen coordinates") { ScreenCoordinatesDemo(it) },
+        ComposableDemo("Clipboard") { ClipboardDemo() }
     )
 )

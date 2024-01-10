@@ -44,6 +44,8 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.platform.ClipEntry
+import androidx.compose.ui.platform.ClipMetadata
 import androidx.compose.ui.platform.ClipboardManager
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalTextToolbar
@@ -888,15 +890,32 @@ internal class RectSubject private constructor(
 }
 
 internal fun FakeClipboardManager(
-    initialText: String? = null
+    initialText: String? = null,
 ) = object : ClipboardManager {
     private var currentText: AnnotatedString? = initialText?.let { AnnotatedString(it) }
+
     override fun setText(annotatedString: AnnotatedString) {
         currentText = annotatedString
     }
 
     override fun getText(): AnnotatedString? {
         return currentText
+    }
+
+    override fun getClip(): ClipEntry? {
+        throw NotImplementedError("This clipboard does not support clip entries")
+    }
+
+    override fun getClipMetadata(): ClipMetadata? {
+        throw NotImplementedError("This clipboard does not support clip entries")
+    }
+
+    override fun hasClip(): Boolean {
+        throw NotImplementedError("This clipboard does not support clip entries")
+    }
+
+    override fun setClip(clipEntry: ClipEntry, clipMetadata: ClipMetadata?) {
+        throw NotImplementedError("This clipboard does not support clip entries")
     }
 }
 
