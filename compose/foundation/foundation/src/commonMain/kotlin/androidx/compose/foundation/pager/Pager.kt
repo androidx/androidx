@@ -896,7 +896,7 @@ private class DefaultPagerNestedScrollConnection(
         source: NestedScrollSource
     ): Offset {
         if (source == NestedScrollSource.Fling && available != Offset.Zero) {
-            throw CancellationException()
+            throw CancellationException("")
         }
         return Offset.Zero
     }
