@@ -374,8 +374,7 @@ public interface CameraInfo {
      *
      * <p>Because SDR is always supported, including {@link DynamicRange#SDR} in {@code
      * candidateDynamicRanges} will always result in {@code SDR} being present in the result set.
-     * If an empty candidate set is provided, it is treated as a no-op, and an empty set will be
-     * returned.
+     * If an empty candidate set is provided, an {@link IllegalArgumentException} will be thrown.
      *
      * @param candidateDynamicRanges a set of dynamic ranges representing the dynamic ranges the
      *                               consumer of frames can support. Note that each use case may
@@ -393,11 +392,11 @@ public interface CameraInfo {
      *                               RecorderVideoCapabilities.getSupportedDynamicRanges()}
      *                               instead.
      * @return a set of dynamic ranges supported by the camera based on the candidate dynamic ranges
+     * @throws IllegalArgumentException if an empty candidate dynamic range set is provided.
      *
      * @see Preview.Builder#setDynamicRange(DynamicRange)
      * @see androidx.camera.video.RecorderVideoCapabilities#getSupportedDynamicRanges()
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     default Set<DynamicRange> querySupportedDynamicRanges(
             @NonNull Set<DynamicRange> candidateDynamicRanges) {

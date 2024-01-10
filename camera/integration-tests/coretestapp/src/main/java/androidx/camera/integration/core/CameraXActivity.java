@@ -1791,7 +1791,6 @@ public class CameraXActivity extends AppCompatActivity {
         return useCases;
     }
 
-    @SuppressLint("RestrictedApiAndroidX")
     private void updateDynamicRangeConfiguration() {
         mSelectableDynamicRanges.clear();
 

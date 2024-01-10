@@ -300,7 +300,6 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
      *
      * @see androidx.camera.core.CameraInfo#querySupportedDynamicRanges(Set)
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull
     @Override
     public Set<DynamicRange> querySupportedDynamicRanges(
