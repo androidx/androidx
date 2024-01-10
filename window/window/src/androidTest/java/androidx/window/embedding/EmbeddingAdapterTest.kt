@@ -192,7 +192,7 @@ class EmbeddingAdapterTest {
             .build()
 
         // Translate from Window to Extensions
-        assertEquals(extensionsColorBackground,
+        assertEquals(extensionsSplitAttributesWithColorBackground,
             adapter.translateSplitAttributes(splitAttributesWithColorBackground))
         assertEquals(extensionsSplitAttributesWithDefaultBackground,
             adapter.translateSplitAttributes(splitAttributesWithDefaultBackground))

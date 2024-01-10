@@ -236,8 +236,8 @@ internal class SafeActivityEmbeddingComponentProvider(
             )
             createColorBackgroundMethod.isPublic &&
                 createColorBackgroundMethod.doesReturn(colorBackgroudClass) &&
-                animationBackgroundDefaultField.isPublic
-            colorBackgroundGetColor.isPublic &&
+                animationBackgroundDefaultField.isPublic &&
+                colorBackgroundGetColor.isPublic &&
                 colorBackgroundGetColor.doesReturn(Int::class.javaPrimitiveType!!)
         }
 
