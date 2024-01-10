@@ -26,6 +26,7 @@ val composeProperties = ComposeProperties(project)
 
 val mainComponents =
     listOf(
+        ComposeComponent(":collection:collection", supportedPlatforms = ComposePlatforms.ALL - ComposePlatforms.ANDROID),
         ComposeComponent(":compose:animation:animation"),
         ComposeComponent(":compose:animation:animation-core"),
         ComposeComponent(":compose:animation:animation-graphics"),
