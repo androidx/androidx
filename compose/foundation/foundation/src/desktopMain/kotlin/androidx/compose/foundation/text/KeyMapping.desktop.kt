@@ -56,6 +56,7 @@ internal actual object MappedKeys {
     actual val MoveEnd: Key = Key(AwtKeyEvent.VK_END)
     actual val Insert: Key = Key(AwtKeyEvent.VK_INSERT)
     actual val Enter: Key = Key(AwtKeyEvent.VK_ENTER)
+    actual val NumPadEnter = Key(AwtKeyEvent.VK_ENTER, AwtKeyEvent.KEY_LOCATION_NUMPAD)
     actual val Backspace: Key = Key(AwtKeyEvent.VK_BACK_SPACE)
     actual val Delete: Key = Key(AwtKeyEvent.VK_DELETE)
     actual val Paste: Key = Key(AwtKeyEvent.VK_PASTE)
