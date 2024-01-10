@@ -23,7 +23,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.setValue
-import kotlin.math.roundToInt
+import kotlin.math.roundToLong
 
 /**
  * Contains the current scroll position represented by the first visible page  and the first
@@ -110,9 +110,10 @@ internal class PagerScrollPosition(
         currentPageOffsetFraction = offsetFraction
     }
 
-    fun currentAbsoluteScrollOffset(): Int {
-        return ((currentPage +
-            currentPageOffsetFraction) * state.pageSizeWithSpacing).roundToInt()
+    fun currentAbsoluteScrollOffset(): Long {
+        val currentPageOffset = currentPage.toLong() * state.pageSizeWithSpacing
+        val offsetFraction = (currentPageOffsetFraction * state.pageSizeWithSpacing).roundToLong()
+        return currentPageOffset + offsetFraction
     }
 
     fun applyScrollDelta(delta: Int) {

@@ -82,7 +82,10 @@ internal class PagerSnapDistanceMaxPages(private val pagesLimit: Int) : PagerSna
                 "pageSize=$pageSize " +
                 "pageSpacing$pageSpacing"
         }
-        return suggestedTargetPage.coerceIn(startPage - pagesLimit, startPage + pagesLimit)
+        val startPageLong = startPage.toLong()
+        val minRange = (startPageLong - pagesLimit).coerceAtLeast(0).toInt()
+        val maxRange = (startPageLong + pagesLimit).coerceAtMost(Int.MAX_VALUE.toLong()).toInt()
+        return suggestedTargetPage.coerceIn(minRange, maxRange)
     }
 
     override fun equals(other: Any?): Boolean {
