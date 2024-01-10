@@ -381,7 +381,10 @@ internal class BasicTextField2Test {
             BasicTextField2(
                 state = state,
                 keyboardOptions = KeyboardOptions(shouldShowKeyboardOnFocus = false),
-                modifier = Modifier.fillMaxSize().testTag(Tag).focusRequester(focusRequester)
+                modifier = Modifier
+                    .fillMaxSize()
+                    .testTag(Tag)
+                    .focusRequester(focusRequester)
             )
         }
         rule.runOnUiThread {
@@ -401,7 +404,10 @@ internal class BasicTextField2Test {
             BasicTextField2(
                 state = state,
                 keyboardOptions = KeyboardOptions(shouldShowKeyboardOnFocus = false),
-                modifier = Modifier.fillMaxSize().testTag(Tag).focusRequester(focusRequester)
+                modifier = Modifier
+                    .fillMaxSize()
+                    .testTag(Tag)
+                    .focusRequester(focusRequester)
             )
         }
         rule.runOnUiThread {
@@ -1265,14 +1271,25 @@ internal class BasicTextField2Test {
         val shortText = "Text".repeat(2)
 
         lateinit var tfs: TextFieldState
-        lateinit var clipboardManager: ClipboardManager
+        val clipboardManager = object : ClipboardManager {
+            var contents: AnnotatedString? = null
+
+            override fun setText(annotatedString: AnnotatedString) {
+                contents = annotatedString
+            }
+
+            override fun getText(): AnnotatedString? {
+                return contents
+            }
+        }
         inputMethodInterceptor.setTextFieldTestContent {
             tfs = rememberTextFieldState(shortText)
-            clipboardManager = LocalClipboardManager.current
-            BasicTextField2(
-                state = tfs,
-                modifier = Modifier.testTag(Tag),
-            )
+            CompositionLocalProvider(LocalClipboardManager provides clipboardManager) {
+                BasicTextField2(
+                    state = tfs,
+                    modifier = Modifier.testTag(Tag),
+                )
+            }
         }
         clipboardManager.setText(AnnotatedString(longText))
         rule.waitForIdle()
