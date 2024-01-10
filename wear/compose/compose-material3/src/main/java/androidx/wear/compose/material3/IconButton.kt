@@ -22,8 +22,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.State
-import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.Stable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
@@ -90,7 +89,7 @@ fun IconButton(
         backgroundColor = { colors.containerColor(enabled = it) },
         interactionSource = interactionSource,
         shape = shape,
-        border = { rememberUpdatedState(border) },
+        border = { border },
         buttonSize = IconButtonDefaults.DefaultButtonSize,
         ripple = rippleOrFallbackImplementation(),
         content = provideScopeContent(
@@ -312,7 +311,7 @@ fun IconToggleButton(
         backgroundColor = { isEnabled, isChecked ->
             colors.containerColor(enabled = isEnabled, checked = isChecked)
         },
-        border = { _, _ -> rememberUpdatedState(newValue = border) },
+        border = { _, _ -> border },
         toggleButtonSize = IconButtonDefaults.DefaultButtonSize,
         interactionSource = interactionSource,
         shape = shape,
@@ -455,7 +454,7 @@ object IconButtonDefaults {
      * Creates a [ToggleButtonColors] for a [IconToggleButton]
      * - by default, a colored background with a contrasting content color.
      * If the button is disabled, then the colors will have an alpha
-     * ([ContentAlpha.disabled]) value applied.
+     * ([DisabledContentAlpha] and [DisabledContainerAlpha]) value applied.
      *
      * @param checkedContainerColor The container color of this [IconToggleButton] when enabled
      * and checked
@@ -572,9 +571,9 @@ class IconButtonColors constructor(
      *
      * @param enabled whether the icon button is enabled
      */
-    @Composable
-    internal fun containerColor(enabled: Boolean): State<Color> {
-        return rememberUpdatedState(if (enabled) containerColor else disabledContainerColor)
+    @Stable
+    internal fun containerColor(enabled: Boolean): Color {
+        return if (enabled) containerColor else disabledContainerColor
     }
 
     /**
@@ -582,9 +581,9 @@ class IconButtonColors constructor(
      *
      * @param enabled whether the icon button is enabled
      */
-    @Composable
-    internal fun contentColor(enabled: Boolean): State<Color> {
-        return rememberUpdatedState(if (enabled) contentColor else disabledContentColor)
+    @Stable
+    internal fun contentColor(enabled: Boolean): Color {
+        return if (enabled) contentColor else disabledContentColor
     }
 
     override fun equals(other: Any?): Boolean {

@@ -94,7 +94,7 @@ fun ToggleButton(
     modifier: Modifier,
     enabled: Boolean,
     backgroundColor: @Composable (enabled: Boolean, checked: Boolean) -> State<Color>,
-    border: @Composable (enabled: Boolean, checked: Boolean) -> State<BorderStroke?>?,
+    border: @Composable (enabled: Boolean, checked: Boolean) -> BorderStroke?,
     toggleButtonSize: Dp,
     interactionSource: MutableInteractionSource?,
     shape: Shape,
@@ -102,7 +102,7 @@ fun ToggleButton(
     content: @Composable BoxScope.() -> Unit,
 ) {
     // Round toggle button
-    val borderStroke = border(enabled, checked)?.value
+    val borderStroke = border(enabled, checked)
     Box(
         contentAlignment = Alignment.Center,
         modifier = modifier

@@ -27,7 +27,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.State
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -68,15 +67,15 @@ fun Button(
     onClick: () -> Unit,
     modifier: Modifier,
     enabled: Boolean,
-    backgroundColor: @Composable (enabled: Boolean) -> State<Color>,
+    backgroundColor: @Composable (enabled: Boolean) -> Color,
     interactionSource: MutableInteractionSource?,
     shape: Shape,
-    border: @Composable (enabled: Boolean) -> State<BorderStroke?>?,
+    border: @Composable (enabled: Boolean) -> BorderStroke?,
     buttonSize: Dp,
     ripple: Indication,
     content: @Composable BoxScope.() -> Unit,
 ) {
-    val borderStroke = border(enabled)?.value
+    val borderStroke = border(enabled)
     Box(
         contentAlignment = Alignment.Center,
         modifier = modifier
@@ -94,7 +93,7 @@ fun Button(
                 else Modifier
             )
             .background(
-                color = backgroundColor(enabled).value,
+                color = backgroundColor(enabled),
                 shape = shape
             ),
         content = content
