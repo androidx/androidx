@@ -80,9 +80,8 @@ class ActivityEmbeddingControllerTest {
     }
 
     @Test
-    @OptIn(ExperimentalWindowApi::class)
     fun test_invalidateTopVisibleSplitAttributes_delegates() {
-        activityEmbeddingController.invalidateTopVisibleActivityStacks()
+        activityEmbeddingController.invalidateVisibleActivityStacks()
         verify(mockEmbeddingBackend).invalidateVisibleActivityStacks()
     }
 

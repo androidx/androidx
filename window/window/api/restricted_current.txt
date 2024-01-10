@@ -130,7 +130,7 @@ package androidx.window.embedding {
     method @SuppressCompatibility @androidx.window.RequiresWindowSdkExtension(version=5) @androidx.window.core.ExperimentalWindowApi public void finishActivityStacks(java.util.Set<androidx.window.embedding.ActivityStack> activityStacks);
     method @SuppressCompatibility @androidx.window.core.ExperimentalWindowApi public androidx.window.embedding.ActivityStack? getActivityStack(android.app.Activity activity);
     method public static androidx.window.embedding.ActivityEmbeddingController getInstance(android.content.Context context);
-    method @androidx.window.RequiresWindowSdkExtension(version=3) public void invalidateTopVisibleActivityStacks();
+    method @androidx.window.RequiresWindowSdkExtension(version=3) public void invalidateVisibleActivityStacks();
     method public boolean isActivityEmbedded(android.app.Activity activity);
     method @SuppressCompatibility @androidx.window.RequiresWindowSdkExtension(version=5) @androidx.window.core.ExperimentalWindowApi public void setEmbeddingConfiguration(androidx.window.embedding.EmbeddingConfiguration embeddingConfiguration);
     field public static final androidx.window.embedding.ActivityEmbeddingController.Companion Companion;

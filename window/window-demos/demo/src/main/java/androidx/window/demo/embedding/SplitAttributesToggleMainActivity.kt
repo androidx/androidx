@@ -417,7 +417,7 @@ open class SplitAttributesToggleMainActivity : SplitAttributesToggleActivityBase
                 demoActivityEmbeddingController.animationBackground =
                     DemoActivityEmbeddingController.ANIMATION_BACKGROUND_VALUES[position]
         }
-        activityEmbeddingController.invalidateTopVisibleActivityStacks()
+        activityEmbeddingController.invalidateVisibleActivityStacks()
     }
 
     override fun onNothingSelected(view: AdapterView<*>?) {

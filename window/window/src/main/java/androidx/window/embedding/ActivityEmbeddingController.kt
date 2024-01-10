@@ -151,7 +151,7 @@ class ActivityEmbeddingController internal constructor(private val backend: Embe
      * @see androidx.window.embedding.SplitController.setSplitAttributesCalculator
      */
     @RequiresWindowSdkExtension(3)
-    fun invalidateTopVisibleActivityStacks() {
+    fun invalidateVisibleActivityStacks() {
         backend.invalidateVisibleActivityStacks()
     }
 
