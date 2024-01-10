@@ -1759,11 +1759,8 @@ package androidx.compose.ui.input.pointer {
     method @Deprecated public static void consumeAllChanges(androidx.compose.ui.input.pointer.PointerInputChange);
     method @Deprecated public static void consumeDownChange(androidx.compose.ui.input.pointer.PointerInputChange);
     method @Deprecated public static void consumePositionChange(androidx.compose.ui.input.pointer.PointerInputChange);
-    method public static int indexOfFirstPressed(int);
-    method public static int indexOfLastPressed(int);
     method @Deprecated public static boolean isOutOfBounds(androidx.compose.ui.input.pointer.PointerInputChange, long size);
     method public static boolean isOutOfBounds(androidx.compose.ui.input.pointer.PointerInputChange, long size, long extendedTouchPadding);
-    method public static boolean isPressed(int, int buttonIndex);
     method public static long positionChange(androidx.compose.ui.input.pointer.PointerInputChange);
     method @Deprecated public static boolean positionChangeConsumed(androidx.compose.ui.input.pointer.PointerInputChange);
     method public static long positionChangeIgnoreConsumed(androidx.compose.ui.input.pointer.PointerInputChange);

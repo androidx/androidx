@@ -1,3 +1,7 @@
 // Baseline format: 1.0
 AddedAbstractMethod: androidx.compose.runtime.ControlledComposition#abandonChanges():
     Added method androidx.compose.runtime.ControlledComposition.abandonChanges()
+
+
+RemovedMethod: androidx.compose.runtime.ExpectKt#synchronized(Object, kotlin.jvm.functions.Function0<? extends R>):
+    Removed method androidx.compose.runtime.ExpectKt.synchronized(Object,kotlin.jvm.functions.Function0<? extends R>)

@@ -5,3 +5,7 @@ AddedAbstractMethod: androidx.compose.ui.graphics.Path#addRect(androidx.compose.
     Added method androidx.compose.ui.graphics.Path.addRect(androidx.compose.ui.geometry.Rect,androidx.compose.ui.graphics.Path.Direction)
 AddedAbstractMethod: androidx.compose.ui.graphics.Path#addRoundRect(androidx.compose.ui.geometry.RoundRect, androidx.compose.ui.graphics.Path.Direction):
     Added method androidx.compose.ui.graphics.Path.addRoundRect(androidx.compose.ui.geometry.RoundRect,androidx.compose.ui.graphics.Path.Direction)
+
+
+RemovedMethod: androidx.compose.ui.graphics.PaintKt#Paint():
+    Removed method androidx.compose.ui.graphics.PaintKt.Paint()

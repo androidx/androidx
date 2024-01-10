@@ -16,10 +16,6 @@ package androidx.compose.ui.util {
   }
 
   public final class InlineClassHelperKt {
-    method public static double doubleFromBits(long bits);
-    method public static int fastRoundToInt(double);
-    method public static int fastRoundToInt(float);
-    method public static float floatFromBits(int bits);
     method public static inline long packFloats(float val1, float val2);
     method public static inline long packInts(int val1, int val2);
     method public static inline float unpackAbsFloat1(long value);
