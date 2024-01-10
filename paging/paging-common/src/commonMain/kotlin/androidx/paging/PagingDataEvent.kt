@@ -119,8 +119,14 @@ public sealed class PagingDataEvent<T : Any> {
     ) : PagingDataEvent<T>() {
         override fun equals(other: Any?): Boolean {
             return other is Refresh<*> &&
-                newList == other.newList &&
-                previousList == other.previousList
+                newList.placeholdersBefore == other.newList.placeholdersBefore &&
+                newList.placeholdersAfter == other.newList.placeholdersAfter &&
+                newList.size == other.newList.size &&
+                newList.dataCount == other.newList.dataCount &&
+                previousList.placeholdersBefore == other.previousList.placeholdersBefore &&
+                previousList.placeholdersAfter == other.previousList.placeholdersAfter &&
+                previousList.size == other.previousList.size &&
+                previousList.dataCount == other.previousList.dataCount
         }
 
         override fun hashCode(): Int {

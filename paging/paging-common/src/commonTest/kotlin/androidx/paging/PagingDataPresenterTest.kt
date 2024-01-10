@@ -1423,6 +1423,220 @@ class PagingDataPresenterTest {
     }
 
     @Test
+    fun refresh_pagingDataEvent() = refresh_pagingDataEvent(false)
+
+    @Test
+    fun refresh_pagingDataEvent_collectWithCachedIn() = refresh_pagingDataEvent(true)
+
+    private fun refresh_pagingDataEvent(collectWithCachedIn: Boolean) =
+        runTest(collectWithCachedIn, initialKey = 50) { presenter, _, _, _ ->
+            // execute queued initial REFRESH
+            advanceUntilIdle()
+
+            val event = PageStore(
+                pages = listOf(
+                    TransformablePage(
+                        originalPageOffsets = intArrayOf(0),
+                        data = listOf(50, 51, 52, 53, 54, 55, 56, 57, 58),
+                        hintOriginalPageOffset = 0,
+                        hintOriginalIndices = null,
+                    )
+                ),
+                placeholdersBefore = 0,
+                placeholdersAfter = 0,
+            ) as NullPaddedList<Int>
+
+            assertThat(presenter.snapshot()).containsExactlyElementsIn(50 until 59)
+            assertThat(presenter.newEvents()).containsExactly(
+                PagingDataEvent.Refresh(
+                    previousList = PageStore.initial<Int>(null) as NullPaddedList<Int>,
+                    newList = event
+                )
+            )
+
+            presenter.refresh()
+
+            // execute second REFRESH load
+            advanceUntilIdle()
+
+            // // second refresh loads from initialKey = 0 because anchorPosition/refreshKey is null
+            assertThat(presenter.snapshot()).containsExactlyElementsIn(0 until 9)
+            assertThat(presenter.newEvents()).containsExactly(
+                PagingDataEvent.Refresh(
+                    previousList = event,
+                    newList = PageStore(
+                        pages = listOf(
+                            TransformablePage(
+                                originalPageOffsets = intArrayOf(0),
+                                data = listOf(0, 1, 2, 3, 4, 5, 6, 7, 8),
+                                hintOriginalPageOffset = 0,
+                                hintOriginalIndices = null,
+                            )
+                        ),
+                        placeholdersBefore = 0,
+                        placeholdersAfter = 0,
+                    ) as NullPaddedList<Int>
+                )
+            )
+        }
+
+    @Test
+    fun append_pagingDataEvent() = append_pagingDataEvent(false)
+
+    @Test
+    fun append_pagingDataEvent_collectWithCachedIn() = append_pagingDataEvent(true)
+
+    private fun append_pagingDataEvent(collectWithCachedIn: Boolean) =
+        runTest(collectWithCachedIn) { presenter, _, _, _ ->
+
+            // initial REFRESH
+            advanceUntilIdle()
+
+            assertThat(presenter.snapshot()).containsExactlyElementsIn(0 until 9)
+
+            // trigger append
+            presenter[7]
+            advanceUntilIdle()
+
+            assertThat(presenter.snapshot()).containsExactlyElementsIn(0 until 12)
+            assertThat(presenter.newEvents().last()).isEqualTo(
+                PagingDataEvent.Append(
+                    startIndex = 9,
+                    inserted = listOf(9, 10, 11),
+                    newPlaceholdersAfter = 0,
+                    oldPlaceholdersAfter = 0
+                )
+            )
+        }
+
+    @Test
+    fun appendDrop_pagingDataEvent() = appendDrop_pagingDataEvent(false)
+
+    @Test
+    fun appendDrop_pagingDataEvent_collectWithCachedIn() = appendDrop_pagingDataEvent(true)
+
+    private fun appendDrop_pagingDataEvent(collectWithCachedIn: Boolean) =
+        runTest(
+            collectWithCachedIn,
+            initialKey = 96,
+            config = PagingConfig(
+                pageSize = 1,
+                maxSize = 4,
+                enablePlaceholders = false
+            )
+        ) { presenter, _, _, _ ->
+            // initial REFRESH
+            advanceUntilIdle()
+
+            assertThat(presenter.snapshot()).containsExactlyElementsIn(96 until 99)
+
+            // trigger append to reach max page size
+            presenter[2]
+            advanceUntilIdle()
+
+            assertThat(presenter.snapshot()).containsExactlyElementsIn(96 until 100)
+            assertThat(presenter.newEvents().last()).isEqualTo(
+                PagingDataEvent.Append(
+                    startIndex = 3,
+                    inserted = listOf(99),
+                    newPlaceholdersAfter = 0,
+                    oldPlaceholdersAfter = 0
+                )
+            )
+            // trigger prepend and drop from append direction
+            presenter[0]
+            advanceUntilIdle()
+
+            assertThat(presenter.snapshot()).containsExactlyElementsIn(95 until 99)
+            // drop is processed before inserts
+            assertThat(presenter.newEvents().first()).isEqualTo(
+                PagingDataEvent.DropAppend<Int>(
+                    startIndex = 3,
+                    dropCount = 1,
+                    newPlaceholdersAfter = 0,
+                    oldPlaceholdersAfter = 0
+                )
+            )
+        }
+
+    @Test
+    fun prepend_pagingDataEvent() = prepend_pagingDataEvent(false)
+
+    @Test
+    fun prepend_pagingDataEvent_collectWithCachedIn() = prepend_pagingDataEvent(true)
+
+    private fun prepend_pagingDataEvent(collectWithCachedIn: Boolean) =
+        runTest(collectWithCachedIn, initialKey = 50) { presenter, _, _, _ ->
+
+            // initial REFRESH
+            advanceUntilIdle()
+
+            assertThat(presenter.snapshot()).containsExactlyElementsIn(50 until 59)
+
+            // trigger prepend
+            presenter[0]
+            advanceUntilIdle()
+
+            assertThat(presenter.snapshot()).containsExactlyElementsIn(47 until 59)
+            assertThat(presenter.newEvents().last()).isEqualTo(
+                PagingDataEvent.Prepend(
+                    inserted = listOf(47, 48, 49),
+                    newPlaceholdersBefore = 0,
+                    oldPlaceholdersBefore = 0
+                )
+            )
+        }
+
+    @Test
+    fun prependDrop_pagingDataEvent() = prependDrop_pagingDataEvent(false)
+
+    @Test
+    fun prependDrop_pagingDataEvent_collectWithCachedIn() = prependDrop_pagingDataEvent(true)
+
+    private fun prependDrop_pagingDataEvent(collectWithCachedIn: Boolean) =
+        runTest(
+            collectWithCachedIn,
+            initialKey = 1,
+            config = PagingConfig(
+                pageSize = 1,
+                maxSize = 4,
+                enablePlaceholders = false
+            )
+        ) { presenter, _, _, _ ->
+            // initial REFRESH
+            advanceUntilIdle()
+
+            assertThat(presenter.snapshot()).containsExactlyElementsIn(1 until 4)
+
+            // trigger prepend to reach max page size
+            presenter[0]
+            advanceUntilIdle()
+
+            assertThat(presenter.snapshot()).containsExactlyElementsIn(0 until 4)
+            assertThat(presenter.newEvents().last()).isEqualTo(
+                PagingDataEvent.Prepend(
+                    inserted = listOf(0),
+                    newPlaceholdersBefore = 0,
+                    oldPlaceholdersBefore = 0
+                )
+            )
+
+            // trigger append and drop from prepend direction
+            presenter[3]
+            advanceUntilIdle()
+
+            assertThat(presenter.snapshot()).containsExactlyElementsIn(1 until 5)
+            // drop is processed before insert
+            assertThat(presenter.newEvents().first()).isEqualTo(
+                PagingDataEvent.DropPrepend<Int>(
+                    dropCount = 1,
+                    newPlaceholdersBefore = 0,
+                    oldPlaceholdersBefore = 0
+                )
+            )
+        }
+
+    @Test
     fun refresh_loadStates() = refresh_loadStates(false)
 
     @Test
@@ -1447,7 +1661,7 @@ class PagingDataPresenterTest {
         // execute second REFRESH load
         advanceUntilIdle()
 
-        // second refresh still loads from initialKey = 50 because anchorPosition/refreshKey is null
+        // second refresh loads from initialKey = 0 because anchorPosition/refreshKey is null
         assertThat(pagingSources.size).isEqualTo(2)
         assertThat(presenter.snapshot()).containsExactlyElementsIn(0 until 9)
         assertThat(presenter.newCombinedLoadStates()).containsExactly(
@@ -2481,7 +2695,17 @@ private class SimplePresenter(
         }
     }
 
-    override suspend fun presentPagingDataEvent(event: PagingDataEvent<Int>) { }
+    private val _pagingDataEvents = mutableListOf<PagingDataEvent<Int>>()
+
+    fun newEvents(): List<PagingDataEvent<Int>> {
+        val newEvents = _pagingDataEvents.toList()
+        _pagingDataEvents.clear()
+        return newEvents
+    }
+
+    override suspend fun presentPagingDataEvent(event: PagingDataEvent<Int>) {
+        _pagingDataEvents.add(event)
+    }
 }
 
 internal val dummyUiReceiver = object : UiReceiver {
