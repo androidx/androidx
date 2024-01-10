@@ -81,7 +81,10 @@ package androidx.graphics.shapes {
   }
 
   public final class RoundedPolygon {
+    method public float[] calculateBounds();
     method public float[] calculateBounds(optional float[] bounds);
+    method public float[] calculateBounds(optional float[] bounds, optional boolean approximate);
+    method public float[] calculateMaxBounds(optional float[] bounds);
     method public float getCenterX();
     method public float getCenterY();
     method public java.util.List<androidx.graphics.shapes.Cubic> getCubics();

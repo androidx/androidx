@@ -29,6 +29,8 @@ import kotlin.math.sqrt
 
 internal fun distance(x: Float, y: Float) = sqrt(x * x + y * y)
 
+internal fun distanceSquared(x: Float, y: Float) = x * x + y * y
+
 /**
  * Returns unit vector representing the direction to this point from (0, 0)
  */
