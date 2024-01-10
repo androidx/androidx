@@ -757,7 +757,6 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
      * triggers to open the camera and capture session to start the preview with the extension mode
      * enabled.
      */
-    @Suppress("DEPRECATION") /* defaultDisplay */
     private fun setupAndStartPreview(cameraId: String, extensionMode: Int) {
         if (!textureView.isAvailable) {
             Toast.makeText(
@@ -768,6 +767,12 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
             return
         }
 
+        updatePreviewSize(cameraId, extensionMode)
+        startPreview(cameraId, extensionMode)
+    }
+
+    @Suppress("DEPRECATION") /* defaultDisplay */
+    private fun updatePreviewSize(cameraId: String, extensionMode: Int) {
         val previewResolution = pickPreviewResolution(
             cameraManager,
             cameraId,
@@ -808,10 +813,7 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
             cameraSensorRotationDegrees,
             lensFacing == CameraCharacteristics.LENS_FACING_BACK
         )
-
-        startPreview(cameraId, extensionMode)
     }
-
     /**
      * Opens the camera and capture session to start the preview with the extension mode enabled.
      */
@@ -1058,6 +1060,8 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
         restartPreview = false
 
         val newExtensionMode = currentExtensionMode
+
+        updatePreviewSize(currentCameraId, newExtensionMode)
 
         lifecycleScope.launch(cameraTaskDispatcher) {
             cameraCaptureSession =
