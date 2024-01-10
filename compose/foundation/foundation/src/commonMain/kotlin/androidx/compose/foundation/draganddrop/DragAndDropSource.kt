@@ -61,10 +61,14 @@ interface DragAndDropSourceScope : PointerInputScope {
 fun Modifier.dragAndDropSource(
     drawDragDecoration: DrawScope.() -> Unit,
     block: suspend DragAndDropSourceScope.() -> Unit
-): Modifier = this then DragAndDropSourceElement(
-    drawDragDecoration = drawDragDecoration,
-    dragAndDropSourceHandler = block,
-)
+): Modifier {
+    // TODO https://youtrack.jetbrains.com/issue/COMPOSE-743/Implement-commonMain-Dragdrop-developed-in-AOSP
+    println("Compose Multiplatform doesn't support Modifier.dragAndDropSource yet")
+    return this then DragAndDropSourceElement(
+        drawDragDecoration = drawDragDecoration,
+        dragAndDropSourceHandler = block,
+    )
+}
 
 @ExperimentalFoundationApi
 private data class DragAndDropSourceElement(
