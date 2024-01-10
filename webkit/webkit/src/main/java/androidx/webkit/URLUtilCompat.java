@@ -21,7 +21,6 @@ import android.webkit.MimeTypeMap;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -32,9 +31,13 @@ import java.util.regex.Pattern;
 
 /**
  * Compatibility versions of methods in {@link android.webkit.URLUtil}.
+ *
+ * @see android.webkit.URLUtil
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@SuppressWarnings("AcronymName") // Compat class for similarly named URLUtil in Android SDK
 public class URLUtilCompat {
+
+    private URLUtilCompat() {} // Class should not be instantiated
 
     /**
      * Guesses canonical filename that a download would have, using the URL and contentDisposition.
@@ -178,7 +181,8 @@ public class URLUtilCompat {
      * <p>
      * The pattern will attempt to parse the value as either single- double- or unquoted.
      * For the single- and double-quoted options, the pattern allows escaped quotes as part of
-     * the value, as per https://datatracker.ietf.org/doc/html/rfc2616#section-2.2
+     * the value, as per
+     * <a href="https://datatracker.ietf.org/doc/html/rfc2616#section-2.2">RFC 2616 section 2.2</a>
      * @noinspection RegExpRepeatedSpace Spaces are ignored by parser, there for readability.
      */
     private static final Pattern DISPOSITION_PATTERN = Pattern.compile(

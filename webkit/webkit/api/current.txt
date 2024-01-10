@@ -144,6 +144,11 @@ package androidx.webkit {
     method public abstract boolean stop(java.io.OutputStream?, java.util.concurrent.Executor);
   }
 
+  public class URLUtilCompat {
+    method public static String? getFilenameFromContentDisposition(String);
+    method public static String guessFileName(String, String?, String?);
+  }
+
   public final class UserAgentMetadata {
     method public String? getArchitecture();
     method public int getBitness();
