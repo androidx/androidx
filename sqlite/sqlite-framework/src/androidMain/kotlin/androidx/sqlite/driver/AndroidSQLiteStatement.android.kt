@@ -169,13 +169,17 @@ internal sealed class AndroidSQLiteStatement(
 
         override fun reset() {
             throwIfClosed()
+            cursor?.close()
+            cursor = null
+        }
+
+        override fun clearBindings() {
+            throwIfClosed()
             bindingTypes = IntArray(0)
             longBindings = LongArray(0)
             doubleBindings = DoubleArray(0)
             stringBindings = emptyArray()
             blobBindings = emptyArray()
-            cursor?.close()
-            cursor = null
         }
 
         override fun close() {
@@ -319,6 +323,10 @@ internal sealed class AndroidSQLiteStatement(
         }
 
         override fun reset() {
+            // Android executes and releases non-query statements, so there is nothing to 'reset'.
+        }
+
+        override fun clearBindings() {
             throwIfClosed()
             delegate.clearBindings()
         }

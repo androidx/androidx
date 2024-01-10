@@ -257,6 +257,19 @@ abstract class BaseConformanceTest {
         }
     }
 
+    @Test
+    fun clearBindings() = testWithConnection {
+        it.execSQL("CREATE TABLE Foo (id)")
+        it.execSQL("INSERT INTO Foo (id) VALUES (1)")
+        it.prepare("SELECT * FROM Foo WHERE id = ?").use {
+            it.bindLong(1, 1)
+            assertThat(it.step()).isTrue()
+            it.reset()
+            it.clearBindings()
+            assertThat(it.step()).isFalse()
+        }
+    }
+
     private inline fun testWithConnection(block: (SQLiteConnection) -> Unit) {
         val driver = getDriver()
         val connection = driver.open()

@@ -41,6 +41,7 @@ import sqlite3.sqlite3_bind_double
 import sqlite3.sqlite3_bind_int64
 import sqlite3.sqlite3_bind_null
 import sqlite3.sqlite3_bind_text16
+import sqlite3.sqlite3_clear_bindings
 import sqlite3.sqlite3_column_blob
 import sqlite3.sqlite3_column_bytes
 import sqlite3.sqlite3_column_count
@@ -191,6 +192,14 @@ class NativeSQLiteStatement(
     override fun reset() {
         throwIfClosed()
         val resultCode = sqlite3_reset(stmtPointer)
+        if (resultCode != SQLITE_OK) {
+            throwSQLiteException(resultCode, dbPointer.getErrorMsg())
+        }
+    }
+
+    override fun clearBindings() {
+        throwIfClosed()
+        val resultCode = sqlite3_clear_bindings(stmtPointer)
         if (resultCode != SQLITE_OK) {
             throwSQLiteException(resultCode, dbPointer.getErrorMsg())
         }

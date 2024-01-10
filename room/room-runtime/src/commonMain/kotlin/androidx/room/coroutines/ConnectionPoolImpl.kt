@@ -495,6 +495,10 @@ private class PooledConnectionImpl(
             delegate.reset()
         }
 
+        override fun clearBindings() = withStateCheck {
+            delegate.clearBindings()
+        }
+
         override fun close() = withStateCheck {
             delegate.close()
         }
