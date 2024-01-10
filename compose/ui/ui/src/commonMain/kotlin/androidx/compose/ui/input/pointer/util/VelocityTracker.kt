@@ -16,9 +16,6 @@
 
 package androidx.compose.ui.input.pointer.util
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.PointerInputChange
@@ -36,17 +33,6 @@ private const val HistorySize: Int = 20
 
 // TODO(b/204895043): Keep value in sync with VelocityPathFinder.HorizonMilliSeconds
 private const val HorizonMilliseconds: Int = 100
-
-/**
- * Selecting flag to enable impulse strategy for the velocity trackers.
- * This should be removed before the next RC release
- */
-@Suppress("GetterSetterNames", "OPT_IN_MARKER_ON_WRONG_TARGET")
-@get:Suppress("GetterSetterNames")
-@get:ExperimentalComposeUiApi
-@set:ExperimentalComposeUiApi
-@ExperimentalComposeUiApi
-var VelocityTrackerStrategyUseImpulse by mutableStateOf(false)
 
 /**
  * Computes a pointer's velocity.
@@ -257,7 +243,7 @@ class VelocityTracker1D internal constructor(
             val delta: Float =
                 abs(sample.time - previousSample.time).toFloat()
             previousSample = if (strategy == Strategy.Lsq2 || isDataDifferential) {
-               sample
+                sample
             } else {
                 newestSample
             }
@@ -739,12 +725,28 @@ private inline operator fun Matrix.set(row: Int, col: Int, value: Float) {
 /**
  * A flag to indicate that we'll use the fix of how we add points to the velocity tracker.
  *
- * This flag will be removed by 1.6 beta01. If you find any issues with the new fix, flip this
- * flag to false to confirm they are newly introduced then file a bug.
+ * This is an experiment flag and will be removed once the experiments with the fix a finished. The
+ * final goal is that we will use the true path once the flag is removed. If you find any issues
+ * with the new fix, flip this flag to false to confirm they are newly introduced then file a bug.
+ * Tracking bug: (b/318621681)
  */
 @Suppress("GetterSetterNames", "OPT_IN_MARKER_ON_WRONG_TARGET")
 @get:Suppress("GetterSetterNames")
 @get:ExperimentalComposeUiApi
 @set:ExperimentalComposeUiApi
 @ExperimentalComposeUiApi
-var VelocityTrackerAddPointsFix: Boolean by mutableStateOf(false)
+var VelocityTrackerAddPointsFix: Boolean = false
+
+/**
+ * Selecting flag to enable impulse strategy for the velocity trackers.
+ * This is an experiment flag and will be removed once the experiments with the fix a finished. The
+ * final goal is that we will use the true path once the flag is removed. If you find any issues
+ * with the new fix, flip this flag to false to confirm they are newly introduced then file a bug.
+ * Tracking bug: (b/318621681)
+ */
+@Suppress("GetterSetterNames", "OPT_IN_MARKER_ON_WRONG_TARGET")
+@get:Suppress("GetterSetterNames")
+@get:ExperimentalComposeUiApi
+@set:ExperimentalComposeUiApi
+@ExperimentalComposeUiApi
+var VelocityTrackerStrategyUseImpulse = false
