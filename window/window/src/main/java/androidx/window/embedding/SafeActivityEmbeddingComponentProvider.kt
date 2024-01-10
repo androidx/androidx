@@ -32,6 +32,7 @@ import androidx.window.extensions.embedding.ActivityStack
 import androidx.window.extensions.embedding.AnimationBackground
 import androidx.window.extensions.embedding.ParentContainerInfo
 import androidx.window.extensions.embedding.SplitAttributes
+import androidx.window.extensions.embedding.SplitPinRule
 import androidx.window.extensions.embedding.WindowAttributes
 import androidx.window.extensions.layout.WindowLayoutInfo
 import androidx.window.reflection.ReflectionUtils.doesReturn
@@ -147,6 +148,9 @@ internal class SafeActivityEmbeddingComponentProvider(
      * - [WindowAttributes.getDimArea]
      * - [SplitAttributes.getWindowAttributes]
      * - [SplitAttributes.Builder.setWindowAttributes]
+     * - [SplitPinRule.isSticky]
+     * - [ActivityEmbeddingComponent.pinTopActivityStack]
+     * - [ActivityEmbeddingComponent.unpinTopActivityStack]
      * // TODO(b/316493273): Guard other AEComponentMethods
      */
     @VisibleForTesting
@@ -162,7 +166,8 @@ internal class SafeActivityEmbeddingComponentProvider(
             isMethodClearActivityStackAttributesCalculatorValid() &&
             isMethodRegisterActivityStackCallbackValid() &&
             isMethodUnregisterActivityStackCallbackValid() &&
-            isClassWindowAttributesValid()
+            isClassWindowAttributesValid() &&
+            isMethodPinUnpinTopActivityStackValid()
 
     private fun isMethodSetEmbeddingRulesValid(): Boolean {
         return validateReflection("ActivityEmbeddingComponent#setEmbeddingRules is not valid") {
@@ -381,6 +386,30 @@ internal class SafeActivityEmbeddingComponentProvider(
                 getWindowAttributesMethod.isPublic &&
                 getWindowAttributesMethod.doesReturn(windowAttributesClass) &&
                 setWindowAttributesMethod.isPublic
+        }
+
+    private fun isMethodPinUnpinTopActivityStackValid(): Boolean =
+        validateReflection("#pin(unPin)TopActivityStack is not valid") {
+            val splitPinRuleClass = SplitPinRule::class.java
+            val isStickyMethod = splitPinRuleClass.getMethod(
+                "isSticky"
+            )
+            val pinTopActivityStackMethod = activityEmbeddingComponentClass.getMethod(
+                "pinTopActivityStack",
+                Int::class.javaPrimitiveType,
+                SplitPinRule::class.java
+            )
+
+            val unpinTopActivityStackMethod = activityEmbeddingComponentClass.getMethod(
+                "unpinTopActivityStack",
+                Int::class.javaPrimitiveType
+            )
+
+            isStickyMethod.isPublic &&
+                isStickyMethod.doesReturn(Boolean::class.javaPrimitiveType!!) &&
+                pinTopActivityStackMethod.isPublic &&
+                pinTopActivityStackMethod.doesReturn(Boolean::class.javaPrimitiveType!!) &&
+                unpinTopActivityStackMethod.isPublic
         }
 
     private fun isActivityEmbeddingComponentValid(): Boolean {
