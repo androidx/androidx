@@ -23,6 +23,7 @@ import com.android.build.gradle.internal.lint.AndroidLintAnalysisTask
 import com.android.build.gradle.internal.lint.LintModelWriterTask
 import com.android.build.gradle.internal.lint.VariantInputs
 import java.io.File
+import java.lang.reflect.Field
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.file.ConfigurableFileCollection
@@ -381,11 +382,33 @@ private fun Project.configureLint(lint: Lint, isLibrary: Boolean) {
 private fun ConfigurableFileCollection.withChangesAllowed(
     block: ConfigurableFileCollection.() -> Unit
 ) {
-    val disallowChanges = this::class.java.getDeclaredField("disallowChanges")
-    disallowChanges.isAccessible = true
-    disallowChanges.set(this, false)
+    // The `disallowChanges` field is defined on `ConfigurableFileCollection` prior to Gradle 8.6
+    // and on the inner ValueState in later versions.
+    val (target, field) =
+        findDeclaredFieldOnClass("disallowChanges")?.let { field -> Pair(this, field) }
+            ?: findDeclaredFieldOnClass("valueState")?.let { valueState ->
+                valueState.isAccessible = true
+                val target = valueState.get(this)
+                target.findDeclaredFieldOnClass("disallowChanges")?.let { field ->
+                    // For Gradle 8.6 and later,
+                    Pair(target, field)
+                }
+            }
+            ?: throw NoSuchFieldException()
+
+    // Make the field temporarily accessible while we run the `block`.
+    field.isAccessible = true
+    field.set(target, false)
     block()
-    disallowChanges.set(this, true)
+    field.set(target, true)
+}
+
+private fun Any.findDeclaredFieldOnClass(name: String): Field? {
+    try {
+        return this::class.java.getDeclaredField(name)
+    } catch (e: NoSuchFieldException) {
+        return null
+    }
 }
 
 private val Project.lintBaseline: RegularFileProperty
