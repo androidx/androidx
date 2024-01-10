@@ -25,6 +25,10 @@ SCRIPT_NAME = 'generate_compose_packages.py'
 # The file is formatted as one package per line.
 COMPOSE_PACKAGES_LIST_FILE = 'compose_packages_list.txt'
 
+# `frameworks/support/compose/` and `frameworks/support/navigation/`, relative to this script
+# directory, should be the root directories where we search for composables.
+TARGET_DIRECTORIES = ['../../..', '../../../../navigation']
+
 # Reads a source file with the given file_path and adds its package to the current set of packages
 # if the file contains at least one Composable.
 def add_package_if_composable(file_path, packages):
@@ -50,6 +54,14 @@ def extract_packages_from_directory(directory):
             if filename.endswith('.java') or filename.endswith('.kt'):
                 add_package_if_composable(os.path.join(root, filename), packages)
     return packages
+
+# Searches the given directories and returns a sorted list of all the packages that contain
+# Composable functions.
+def sorted_packages_from_directories(directories):
+    packages = []
+    for directory in directories:
+        packages.extend(extract_packages_from_directory(directory))
+    return sorted(packages)
 
 # Verifies that the given the list of packages match the ones currently listed on the
 # compose_packages_list.txt file
@@ -131,9 +143,7 @@ if __name__ == '__main__':
 
     # cd into directory of script
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
-    # root should be `frameworks/support/compose/`, relative to the script directory
-    compose_root_directory = '../../..'
-    current_packages = sorted(extract_packages_from_directory(compose_root_directory))
+    current_packages = sorted_packages_from_directories(TARGET_DIRECTORIES)
 
     if args.regenerate:
         regenerate_packages_file(current_packages)
