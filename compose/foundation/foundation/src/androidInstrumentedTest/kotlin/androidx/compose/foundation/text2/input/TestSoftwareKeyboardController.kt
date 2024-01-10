@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.foundation.text2
+package androidx.compose.foundation.text2.input
 
 import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.test.junit4.ComposeTestRule

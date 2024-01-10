@@ -36,8 +36,8 @@ import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.CoreTextField
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.text2.InputMethodInterceptor
-import androidx.compose.foundation.text2.TestSoftwareKeyboardController
+import androidx.compose.foundation.text2.input.InputMethodInterceptor
+import androidx.compose.foundation.text2.input.TestSoftwareKeyboardController
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider

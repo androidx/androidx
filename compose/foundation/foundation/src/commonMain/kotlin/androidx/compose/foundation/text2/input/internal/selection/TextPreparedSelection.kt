@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.foundation.text2.input.internal
+package androidx.compose.foundation.text2.input.internal.selection
 
 import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -26,7 +26,11 @@ import androidx.compose.foundation.text2.input.internal.IndexTransformationType.
 import androidx.compose.foundation.text2.input.internal.IndexTransformationType.Insertion
 import androidx.compose.foundation.text2.input.internal.IndexTransformationType.Replacement
 import androidx.compose.foundation.text2.input.internal.IndexTransformationType.Untransformed
-import androidx.compose.foundation.text2.input.internal.TextFieldPreparedSelection.Companion.NoCharacterFound
+import androidx.compose.foundation.text2.input.internal.SelectionWedgeAffinity
+import androidx.compose.foundation.text2.input.internal.TransformedTextFieldState
+import androidx.compose.foundation.text2.input.internal.WedgeAffinity
+import androidx.compose.foundation.text2.input.internal.getIndexTransformationType
+import androidx.compose.foundation.text2.input.internal.selection.TextFieldPreparedSelection.Companion.NoCharacterFound
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.text.TextLayoutResult

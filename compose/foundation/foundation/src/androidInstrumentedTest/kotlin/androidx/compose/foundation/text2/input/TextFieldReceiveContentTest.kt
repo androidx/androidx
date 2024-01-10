@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.foundation.text2
+package androidx.compose.foundation.text2.input
 
 import android.content.ClipDescription
 import android.net.Uri
@@ -28,7 +28,7 @@ import androidx.compose.foundation.content.TransferableContent
 import androidx.compose.foundation.content.receiveContent
 import androidx.compose.foundation.draganddrop.dragAndDropTarget
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.text2.input.rememberTextFieldState
+import androidx.compose.foundation.text2.BasicTextField2
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draganddrop.DragAndDropEvent
 import androidx.compose.ui.draganddrop.DragAndDropTarget

@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.foundation.text2
+package androidx.compose.foundation.text2.input
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.focusable
@@ -23,10 +23,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.selection.FakeTextToolbar
 import androidx.compose.foundation.text.selection.fetchTextLayoutResult
-import androidx.compose.foundation.text2.input.TextFieldState
-import androidx.compose.foundation.text2.input.TextObfuscationMode
+import androidx.compose.foundation.text2.BasicSecureTextField
 import androidx.compose.foundation.text2.input.internal.selection.FakeClipboardManager
-import androidx.compose.foundation.text2.input.rememberTextFieldState
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf

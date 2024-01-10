@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.foundation.text2
+package androidx.compose.foundation.text2.input
 
 import android.text.InputType
 import android.view.inputmethod.EditorInfo
@@ -32,12 +32,8 @@ import androidx.compose.foundation.text.KeyboardHelper
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.TEST_FONT_FAMILY
 import androidx.compose.foundation.text.selection.fetchTextLayoutResult
-import androidx.compose.foundation.text2.input.InputTransformation
-import androidx.compose.foundation.text2.input.TextFieldBuffer
+import androidx.compose.foundation.text2.BasicTextField2
 import androidx.compose.foundation.text2.input.TextFieldBuffer.ChangeList
-import androidx.compose.foundation.text2.input.TextFieldCharSequence
-import androidx.compose.foundation.text2.input.TextFieldState
-import androidx.compose.foundation.text2.input.rememberTextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect

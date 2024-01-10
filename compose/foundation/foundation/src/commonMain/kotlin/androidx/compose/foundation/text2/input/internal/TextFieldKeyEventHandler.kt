@@ -24,7 +24,9 @@ import androidx.compose.foundation.text.cancelsTextSelection
 import androidx.compose.foundation.text.isTypedEvent
 import androidx.compose.foundation.text.platformDefaultKeyMapping
 import androidx.compose.foundation.text.showCharacterPalette
-import androidx.compose.foundation.text2.input.internal.TextFieldPreparedSelection.Companion.NoCharacterFound
+import androidx.compose.foundation.text2.input.internal.selection.TextFieldPreparedSelection
+import androidx.compose.foundation.text2.input.internal.selection.TextFieldPreparedSelection.Companion.NoCharacterFound
+import androidx.compose.foundation.text2.input.internal.selection.TextFieldPreparedSelectionState
 import androidx.compose.foundation.text2.input.internal.selection.TextFieldSelectionState
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.input.key.KeyEvent
