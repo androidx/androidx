@@ -27,6 +27,7 @@ import android.widget.TextView
 import androidx.annotation.RequiresExtension
 import androidx.appcompat.app.AppCompatActivity
 import androidx.privacysandbox.sdkruntime.client.SdkSandboxManagerCompat
+import androidx.privacysandbox.sdkruntime.core.AppOwnedSdkSandboxInterfaceCompat
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat
 import androidx.privacysandbox.ui.client.SandboxedUiAdapterFactory
@@ -53,6 +54,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var resizeSdkButton: Button
     private lateinit var mediationSwitch: SwitchMaterial
     private lateinit var localWebViewToggle: SwitchMaterial
+    private lateinit var appOwnedMediateeToggleButton: SwitchMaterial
 
     // TODO(b/257429573): Remove this line once fixed.
     @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 5)
@@ -68,6 +70,13 @@ class MainActivity : AppCompatActivity() {
                 try {
                     mSdkSandboxManager.loadSdk(MEDIATEE_SDK_NAME, Bundle())
                     val loadedSdk = mSdkSandboxManager.loadSdk(SDK_NAME, Bundle())
+                    mSdkSandboxManager.registerAppOwnedSdkSandboxInterface(
+                        AppOwnedSdkSandboxInterfaceCompat(
+                            MEDIATEE_SDK_NAME,
+                            /*version=*/ 0,
+                            AppOwnedMediateeSdkApi(applicationContext)
+                        )
+                    )
                     onLoadedSdk(loadedSdk)
                 } catch (e: LoadSdkCompatException) {
                     Log.i(TAG, "loadSdk failed with errorCode: " + e.loadSdkErrorCode +
@@ -90,6 +99,7 @@ class MainActivity : AppCompatActivity() {
         resizeSdkButton = findViewById(R.id.resize_sdk_button)
         mediationSwitch = findViewById(R.id.mediation_switch)
         localWebViewToggle = findViewById(R.id.local_to_internet_switch)
+        appOwnedMediateeToggleButton = findViewById(R.id.app_owned_mediatee_switch)
 
         loadWebViewBannerAd()
         loadBottomBannerAd()
@@ -135,11 +145,15 @@ class MainActivity : AppCompatActivity() {
         ))
 
         var count = 1
+        var loadMediateeFromApp = false
+        appOwnedMediateeToggleButton.setOnCheckedChangeListener { _, isChecked ->
+            loadMediateeFromApp = isChecked
+        }
         newAdButton.setOnClickListener {
             if (mediationSwitch.isChecked) {
                 resizableBannerView.setAdapter(
                     SandboxedUiAdapterFactory.createFromCoreLibInfo(
-                        sdkApi.loadMediatedTestAd(count)
+                        sdkApi.loadMediatedTestAd(count, loadMediateeFromApp)
                 ))
             } else {
                 resizableBannerView.setAdapter(

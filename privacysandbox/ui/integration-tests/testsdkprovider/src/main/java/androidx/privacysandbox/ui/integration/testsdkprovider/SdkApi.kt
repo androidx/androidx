@@ -36,11 +36,11 @@ import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
 import android.webkit.WebSettings
 import android.webkit.WebView
-import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat
 import androidx.privacysandbox.sdkruntime.core.controller.SdkSandboxControllerCompat
 import androidx.privacysandbox.ui.client.SandboxedUiAdapterFactory
 import androidx.privacysandbox.ui.client.view.SandboxedSdkView
 import androidx.privacysandbox.ui.core.SandboxedUiAdapter
+import androidx.privacysandbox.ui.integration.testaidl.IAppOwnedMediateeSdkApi
 import androidx.privacysandbox.ui.integration.testaidl.IMediateeSdkApi
 import androidx.privacysandbox.ui.integration.testaidl.ISdkApi
 import androidx.privacysandbox.ui.provider.toCoreLibInfo
@@ -68,8 +68,9 @@ class SdkApi(val sdkContext: Context) : ISdkApi.Stub() {
         return TestBannerAdWithWaitInsideOnDraw(text).toCoreLibInfo(sdkContext)
     }
 
-    override fun loadMediatedTestAd(count: Int): Bundle {
-        return MediatedBannerAd(count).toCoreLibInfo(sdkContext)
+    override fun loadMediatedTestAd(count: Int, isAppMediatee: Boolean): Bundle {
+        val mediateeBannerAdBundle = getMediateeBannerAdBundle(count, isAppMediatee)
+        return MediatedBannerAd(mediateeBannerAdBundle).toCoreLibInfo(sdkContext)
     }
 
     override fun requestResize(width: Int, height: Int) {
@@ -181,31 +182,46 @@ class SdkApi(val sdkContext: Context) : ISdkApi.Stub() {
         }
     }
 
-    private inner class MediatedBannerAd(private val count: Int) : BannerAd() {
-        val mMediateeSandboxedSdkCompat: SandboxedSdkCompat?
-
-        init {
-            val sdkSandboxControllerCompat = SdkSandboxControllerCompat.from(sdkContext)
-            val sandboxedSdks = sdkSandboxControllerCompat.getSandboxedSdks()
-            mMediateeSandboxedSdkCompat =
-                sandboxedSdks.find {
-                    sandboxedSdkCompat ->
-                    sandboxedSdkCompat.getSdkInfo()?.name.equals(MEDIATEE_SDK)
+    private fun getMediateeBannerAdBundle(
+        count: Int,
+        isAppMediatee: Boolean
+    ): Bundle? {
+        val sdkSandboxControllerCompat = SdkSandboxControllerCompat.from(sdkContext)
+        if (isAppMediatee) {
+            val appOwnedSdkSandboxInterfaces = sdkSandboxControllerCompat
+                .getAppOwnedSdkSandboxInterfaces()
+            appOwnedSdkSandboxInterfaces.forEach {
+                appOwnedSdkSandboxInterfaceCompat ->
+                if (appOwnedSdkSandboxInterfaceCompat.getName().equals(MEDIATEE_SDK)) {
+                    val appOwnedMediateeSdkApi = IAppOwnedMediateeSdkApi.Stub
+                        .asInterface(appOwnedSdkSandboxInterfaceCompat.getInterface())
+                    return appOwnedMediateeSdkApi.loadTestAdWithWaitInsideOnDraw(count)
                 }
+            }
+        } else {
+            val sandboxedSdks = sdkSandboxControllerCompat.getSandboxedSdks()
+            sandboxedSdks.forEach {
+                sandboxedSdkCompat ->
+                if (sandboxedSdkCompat.getSdkInfo()?.name.equals(MEDIATEE_SDK)) {
+                    val mediateeSdkApi = IMediateeSdkApi.Stub
+                        .asInterface(sandboxedSdkCompat.getInterface())
+                    return mediateeSdkApi.loadTestAdWithWaitInsideOnDraw(count)
+                }
+            }
         }
+        return null
+    }
 
+    private inner class MediatedBannerAd(private val mediateeBannerAdBundle: Bundle?) : BannerAd() {
         override fun buildAdView(sessionContext: Context): View {
-            if (mMediateeSandboxedSdkCompat == null) {
+            if (mediateeBannerAdBundle == null) {
                 return TestBannerAdWithWaitInsideOnDraw(
                     "Mediated SDK is not loaded, this is a mediator Ad!"
                 ).buildAdView(sdkContext)
             }
 
-            val mediateeSdkApi: IMediateeSdkApi = IMediateeSdkApi.Stub.asInterface(
-                mMediateeSandboxedSdkCompat.getInterface())
-            val bundle = mediateeSdkApi.loadTestAdWithWaitInsideOnDraw(count)
             val view = SandboxedSdkView(sdkContext)
-            val adapter = SandboxedUiAdapterFactory.createFromCoreLibInfo(bundle)
+            val adapter = SandboxedUiAdapterFactory.createFromCoreLibInfo(mediateeBannerAdBundle)
             view.setAdapter(adapter)
             return view
         }
@@ -287,6 +303,5 @@ class SdkApi(val sdkContext: Context) : ISdkApi.Stub() {
             "https://appassets.androidplatform.net/assets/www/webview-test.html"
         private const val MEDIATEE_SDK =
             "androidx.privacysandbox.ui.integration.mediateesdkprovider"
-        private const val UPSIDE_DOWN_CAKE = 34
     }
 }
