@@ -3,3 +3,11 @@ RemovedClass: androidx.compose.ui.draganddrop.DragAndDropKt:
     Removed class androidx.compose.ui.draganddrop.DragAndDropKt
 RemovedClass: androidx.compose.ui.platform.AndroidComposeViewAccessibilityDelegateCompat_androidKt:
     Removed class androidx.compose.ui.platform.AndroidComposeViewAccessibilityDelegateCompat_androidKt
+
+
+RemovedMethod: androidx.compose.ui.input.pointer.PointerEventKt#indexOfFirstPressed(int):
+    Removed method androidx.compose.ui.input.pointer.PointerEventKt.indexOfFirstPressed(int)
+RemovedMethod: androidx.compose.ui.input.pointer.PointerEventKt#indexOfLastPressed(int):
+    Removed method androidx.compose.ui.input.pointer.PointerEventKt.indexOfLastPressed(int)
+RemovedMethod: androidx.compose.ui.input.pointer.PointerEventKt#isPressed(int, int):
+    Removed method androidx.compose.ui.input.pointer.PointerEventKt.isPressed(int,int)
