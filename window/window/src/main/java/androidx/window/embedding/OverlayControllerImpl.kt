@@ -244,7 +244,7 @@ internal open class OverlayControllerImpl(
     private fun List<ActivityStack>.getOverlayContainers(): List<ActivityStack> =
         filter { activityStack -> activityStack.tag != null }.toList()
 
-    fun addOverlayInfoCallback(
+    open fun addOverlayInfoCallback(
         overlayTag: String,
         executor: Executor,
         overlayInfoCallback: JetpackConsumer<OverlayInfo>,
@@ -282,7 +282,7 @@ internal open class OverlayControllerImpl(
         adapter.translate(this),
     )
 
-    fun removeOverlayInfoCallback(overlayInfoCallback: JetpackConsumer<OverlayInfo>) {
+    open fun removeOverlayInfoCallback(overlayInfoCallback: JetpackConsumer<OverlayInfo>) {
         globalLock.withLock {
             val callback = overlayInfoToActivityStackCallbackMap.remove(overlayInfoCallback)
             if (callback != null) {

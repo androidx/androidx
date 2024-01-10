@@ -32,7 +32,10 @@ import androidx.window.extensions.embedding.ActivityStack.Token as ActivityStack
 import androidx.window.extensions.embedding.SplitAttributes as OemSplitAttributes
 import androidx.window.extensions.embedding.SplitAttributesCalculatorParams as OemSplitAttributesCalculatorParams
 import androidx.window.extensions.embedding.SplitInfo.Token as SplitInfoToken
+import java.util.concurrent.Executor
 import org.junit.After
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertThrows
 import org.junit.Before
 import org.junit.Rule
@@ -40,9 +43,13 @@ import org.junit.Test
 import org.mockito.Mock
 import org.mockito.MockitoAnnotations
 import org.mockito.kotlin.any
+import org.mockito.kotlin.doNothing
 import org.mockito.kotlin.eq
+import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
+import org.mockito.kotlin.spy
 import org.mockito.kotlin.verify
+import org.mockito.kotlin.whenever
 
 /**
  * Verifies the behavior of [RequiresWindowSdkExtension]
@@ -76,12 +83,6 @@ class RequiresWindowSdkExtensionTests {
     fun setUp() {
         mockAnnotations = MockitoAnnotations.openMocks(this)
         activityStack = ActivityStack(emptyList(), isEmpty = true, activityStackToken)
-        embeddingCompat = EmbeddingCompat(
-            embeddingExtension,
-            EmbeddingAdapter(PredicateAdapter(classLoader)),
-            ConsumerAdapter(classLoader),
-            applicationContext
-        )
     }
 
     @After
@@ -92,6 +93,7 @@ class RequiresWindowSdkExtensionTests {
     @Test
     fun testVendorApiLevel1() {
         testRule.overrideExtensionVersion(1)
+        createTestEmbeddingCompat()
 
         assertThrows(UnsupportedOperationException::class.java) {
             embeddingCompat.setSplitAttributesCalculator { _ -> TEST_SPLIT_ATTRIBUTES }
@@ -124,11 +126,14 @@ class RequiresWindowSdkExtensionTests {
             embeddingCompat.invalidateVisibleActivityStacks()
         }
         verify(embeddingExtension, never()).invalidateTopVisibleSplitAttributes()
+
+        verifyOverlayFeatureApis()
     }
 
     @Test
     fun testVendorApiLevel2() {
         testRule.overrideExtensionVersion(2)
+        createTestEmbeddingCompat()
 
         embeddingCompat.setSplitAttributesCalculator { _ -> TEST_SPLIT_ATTRIBUTES }
         verify(embeddingExtension).setSplitAttributesCalculator(
@@ -159,11 +164,14 @@ class RequiresWindowSdkExtensionTests {
             embeddingCompat.invalidateVisibleActivityStacks()
         }
         verify(embeddingExtension, never()).invalidateTopVisibleSplitAttributes()
+
+        verifyOverlayFeatureApis()
     }
 
     @Test
     fun testVendorApiLevel3() {
         testRule.overrideExtensionVersion(3)
+        createTestEmbeddingCompat()
 
         val splitInfo = SplitInfo(
             ActivityStack(emptyList(), isEmpty = true),
@@ -200,11 +208,14 @@ class RequiresWindowSdkExtensionTests {
 
         embeddingCompat.invalidateVisibleActivityStacks()
         verify(embeddingExtension).invalidateTopVisibleSplitAttributes()
+
+        verifyOverlayFeatureApis()
     }
 
     @Test
     fun testVendorApiLevel4() {
         testRule.overrideExtensionVersion(4)
+        createTestEmbeddingCompat()
 
         val splitInfo = SplitInfo(
             ActivityStack(emptyList(), isEmpty = true),
@@ -241,11 +252,14 @@ class RequiresWindowSdkExtensionTests {
 
         embeddingCompat.invalidateVisibleActivityStacks()
         verify(embeddingExtension).invalidateTopVisibleSplitAttributes()
+
+        verifyOverlayFeatureApis()
     }
 
     @Test
     fun testVendorApiLevel5() {
         testRule.overrideExtensionVersion(5)
+        createTestEmbeddingCompat()
 
         val splitInfo = SplitInfo(
             ActivityStack(emptyList(), isEmpty = true),
@@ -279,6 +293,86 @@ class RequiresWindowSdkExtensionTests {
 
         embeddingCompat.invalidateVisibleActivityStacks()
         verify(embeddingExtension).invalidateTopVisibleSplitAttributes()
+
+        verifyOverlayFeatureApis()
+    }
+
+    private fun verifyOverlayFeatureApis() {
+        if (WindowSdkExtensions.getInstance().extensionVersion >= 5) {
+            embeddingCompat.setOverlayCreateParams(options, OverlayCreateParams())
+            // Verify if the overlay tag is put to the activityOptions bundle
+            verify(options).putString(any(), any())
+
+            val calculator = { _: OverlayAttributesCalculatorParams -> OverlayAttributes() }
+            embeddingCompat.setOverlayAttributesCalculator(calculator)
+            assertEquals(
+                calculator,
+                embeddingCompat.overlayController!!.overlayAttributesCalculator
+            )
+
+            embeddingCompat.updateOverlayAttributes("", OverlayAttributes())
+            verify(embeddingCompat.overlayController)!!
+                .updateOverlayAttributes("", OverlayAttributes())
+
+            val executor = mock<Executor>()
+            embeddingCompat.addOverlayInfoCallback("", executor) {}
+            verify(embeddingCompat.overlayController)!!.addOverlayInfoCallback(
+                eq(""),
+                eq(executor),
+                any()
+            )
+
+            embeddingCompat.removeOverlayInfoCallback {}
+            verify(embeddingCompat.overlayController)!!.removeOverlayInfoCallback(any())
+        } else {
+            assertThrows(UnsupportedOperationException::class.java) {
+                embeddingCompat.setOverlayCreateParams(options, OverlayCreateParams())
+            }
+            // Verify if the overlay tag is put to the activityOptions bundle
+            verify(options, never()).putString(any(), any())
+
+            assertThrows(UnsupportedOperationException::class.java) {
+                embeddingCompat.setOverlayAttributesCalculator { _ -> OverlayAttributes() }
+            }
+            assertNull(embeddingCompat.overlayController)
+
+            assertThrows(UnsupportedOperationException::class.java) {
+                embeddingCompat.updateOverlayAttributes("", OverlayAttributes())
+            }
+            verify(embeddingExtension, never()).updateActivityStackAttributes(any(), any())
+
+            embeddingCompat.addOverlayInfoCallback("", Runnable::run) {}
+            verify(embeddingExtension, never()).registerActivityStackCallback(any(), any())
+
+            embeddingCompat.removeOverlayInfoCallback {}
+            verify(embeddingExtension, never()).unregisterActivityStackCallback(any())
+        }
+    }
+
+    private fun createTestEmbeddingCompat() {
+        val overlayController = if (WindowSdkExtensions.getInstance().extensionVersion >= 5) {
+            spy(
+                OverlayControllerImpl(
+                    embeddingExtension,
+                    EmbeddingAdapter(PredicateAdapter(classLoader))
+                )
+            )
+        } else {
+            null
+        }
+        overlayController?.apply {
+            doNothing().whenever(this).updateOverlayAttributes(any(), any())
+            doNothing().whenever(this).addOverlayInfoCallback(any(), any(), any())
+            doNothing().whenever(this).removeOverlayInfoCallback(any())
+        }
+
+        embeddingCompat = EmbeddingCompat(
+            embeddingExtension,
+            EmbeddingAdapter(PredicateAdapter(classLoader)),
+            ConsumerAdapter(classLoader),
+            applicationContext,
+            overlayController,
+        )
     }
 
     companion object {
