@@ -28,6 +28,7 @@ import androidx.compose.ui.node.requireLayoutNode
 import androidx.compose.ui.node.requireOwner
 import androidx.compose.ui.node.traverseChildren
 import androidx.compose.ui.node.traverseDescendants
+import kotlin.js.JsName
 
 /**
  * A [Modifier.Node] providing low level access to platform drag and drop operations.
@@ -71,6 +72,8 @@ interface DragAndDropModifierNode : DelegatableNode, DragAndDropTarget {
  * Creates a [Modifier.Node] for starting platform drag and drop sessions with the intention of
  * transferring data. A drag and stop session is started by calling [DragAndDropModifierNode.drag].
  */
+
+@JsName("funDragAndDropModifierNode")
 fun DragAndDropModifierNode(): DragAndDropModifierNode = DragAndDropNode { null }
 
 /**
