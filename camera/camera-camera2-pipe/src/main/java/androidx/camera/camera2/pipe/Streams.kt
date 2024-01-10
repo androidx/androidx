@@ -85,7 +85,8 @@ internal constructor(val id: StreamId, val outputs: List<OutputStream>) {
                 timestampBase: OutputStream.TimestampBase? = null,
                 dynamicRangeProfile: OutputStream.DynamicRangeProfile? = null,
                 streamUseCase: OutputStream.StreamUseCase? = null,
-                streamUseHint: OutputStream.StreamUseHint? = null
+                streamUseHint: OutputStream.StreamUseHint? = null,
+                sensorPixelModes: List<OutputStream.SensorPixelMode> = emptyList(),
             ): Config =
                 create(
                     OutputStream.Config.create(
@@ -97,7 +98,8 @@ internal constructor(val id: StreamId, val outputs: List<OutputStream>) {
                         timestampBase,
                         dynamicRangeProfile,
                         streamUseCase,
-                        streamUseHint
+                        streamUseHint,
+                        sensorPixelModes,
                     )
                 )
 
@@ -162,7 +164,8 @@ interface OutputStream {
         val timestampBase: TimestampBase?,
         val dynamicRangeProfile: DynamicRangeProfile?,
         val streamUseCase: StreamUseCase?,
-        val streamUseHint: StreamUseHint?
+        val streamUseHint: StreamUseHint?,
+        val sensorPixelModes: List<SensorPixelMode>,
     ) {
         companion object {
             fun create(
@@ -174,7 +177,8 @@ interface OutputStream {
                 timestampBase: TimestampBase? = null,
                 dynamicRangeProfile: DynamicRangeProfile? = null,
                 streamUseCase: StreamUseCase? = null,
-                streamUseHint: StreamUseHint? = null
+                streamUseHint: StreamUseHint? = null,
+                sensorPixelModes: List<SensorPixelMode> = emptyList(),
             ): Config =
                 if (outputType == OutputType.SURFACE_TEXTURE ||
                     outputType == OutputType.SURFACE_VIEW
@@ -188,7 +192,8 @@ interface OutputStream {
                         timestampBase,
                         dynamicRangeProfile,
                         streamUseCase,
-                        streamUseHint
+                        streamUseHint,
+                        sensorPixelModes,
                     )
                 } else {
                     check(outputType == OutputType.SURFACE)
@@ -200,7 +205,8 @@ interface OutputStream {
                         timestampBase,
                         dynamicRangeProfile,
                         streamUseCase,
-                        streamUseHint
+                        streamUseHint,
+                        sensorPixelModes,
                     )
                 }
 
@@ -211,14 +217,16 @@ interface OutputStream {
                 format: StreamFormat,
                 camera: CameraId? = null,
                 externalOutputConfig: OutputConfiguration,
-                streamUseHint: StreamUseHint?
+                streamUseHint: StreamUseHint?,
+                sensorPixelModes: List<SensorPixelMode> = emptyList(),
             ): Config {
                 return ExternalOutputConfig(
                     size,
                     format,
                     camera,
                     output = externalOutputConfig,
-                    streamUseHint
+                    streamUseHint,
+                    sensorPixelModes,
                 )
             }
         }
@@ -232,7 +240,8 @@ interface OutputStream {
             timestampBase: TimestampBase?,
             dynamicRangeProfile: DynamicRangeProfile?,
             streamUseCase: StreamUseCase?,
-            streamUseHint: StreamUseHint?
+            streamUseHint: StreamUseHint?,
+            sensorPixelModes: List<SensorPixelMode>,
         ) :
             Config(
                 size,
@@ -242,7 +251,8 @@ interface OutputStream {
                 timestampBase,
                 dynamicRangeProfile,
                 streamUseCase,
-                streamUseHint
+                streamUseHint,
+                sensorPixelModes,
             )
 
         /**
@@ -263,7 +273,8 @@ interface OutputStream {
             timestampBase: TimestampBase?,
             dynamicRangeProfile: DynamicRangeProfile?,
             streamUseCase: StreamUseCase?,
-            streamUseHint: StreamUseHint?
+            streamUseHint: StreamUseHint?,
+            sensorPixelModes: List<SensorPixelMode>,
         ) :
             Config(
                 size,
@@ -273,7 +284,8 @@ interface OutputStream {
                 timestampBase,
                 dynamicRangeProfile,
                 streamUseCase,
-                streamUseHint
+                streamUseHint,
+                sensorPixelModes,
             )
 
         /**
@@ -292,7 +304,8 @@ interface OutputStream {
             format: StreamFormat,
             camera: CameraId?,
             val output: OutputConfiguration,
-            streamUseHint: StreamUseHint?
+            streamUseHint: StreamUseHint?,
+            sensorPixelModes: List<SensorPixelMode>,
         ) :
             Config(
                 size,
@@ -302,7 +315,8 @@ interface OutputStream {
                 TimestampBase(Api33Compat.getTimestampBase(output)),
                 DynamicRangeProfile(Api33Compat.getDynamicRangeProfile(output)),
                 StreamUseCase(Api33Compat.getStreamUseCase(output)),
-                streamUseHint
+                streamUseHint,
+                sensorPixelModes,
             )
     }
 
@@ -407,6 +421,19 @@ interface OutputStream {
             val VIDEO_RECORD = StreamUseCase(3)
             val PREVIEW_VIDEO_STILL = StreamUseCase(4)
             val VIDEO_CALL = StreamUseCase(5)
+        }
+    }
+
+    /**
+     * Used to set the sensor pixel mode the OutputStream will be used in.
+     *
+     * See the documentation on [OutputConfiguration.addSensorPixelModeUsed] for more details.
+     */
+    @JvmInline
+    value class SensorPixelMode(val value: Int) {
+        companion object {
+            val DEFAULT = SensorPixelMode(0)
+            val MAXIMUM_RESOLUTION = SensorPixelMode(1)
         }
     }
 }

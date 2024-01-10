@@ -163,7 +163,7 @@ class SimpleCamera(
 
             val cameraGraph = cameraPipe.create(config)
 
-            val viewfinderStream = cameraGraph.streams[privateStreamConfig]!!
+            val viewfinderStream = cameraGraph.streams[viewfinderStreamConfig]!!
             val viewfinderOutput = viewfinderStream.outputs.single()
 
             viewfinder.configure(
