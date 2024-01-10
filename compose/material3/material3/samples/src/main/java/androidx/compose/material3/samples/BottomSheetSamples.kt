@@ -80,9 +80,8 @@ fun ModalBottomSheetSample() {
 
     // App content
     Column(
-        modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        horizontalAlignment = Alignment.Start,
+        verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
         Row(
             Modifier.toggleable(
@@ -104,9 +103,12 @@ fun ModalBottomSheetSample() {
         ) {
             Checkbox(checked = edgeToEdgeEnabled, onCheckedChange = null)
             Spacer(Modifier.width(16.dp))
-            Text("Toggle edge to edge enabled.")
+            Text("Toggle edge to edge enabled")
         }
-        Button(onClick = { openBottomSheet = !openBottomSheet }) {
+        Button(
+            onClick = { openBottomSheet = !openBottomSheet },
+            modifier = Modifier.align(Alignment.CenterHorizontally)
+        ) {
             Text(text = "Show Bottom Sheet")
         }
     }
@@ -121,6 +123,7 @@ fun ModalBottomSheetSample() {
             sheetState = bottomSheetState,
             windowInsets = windowInsets
         ) {
+
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
                 Button(
                     // Note: If you provide logic outside of onDismissRequest to remove the sheet,
@@ -137,9 +140,14 @@ fun ModalBottomSheetSample() {
                 }
             }
             var text by remember { mutableStateOf("") }
-            OutlinedTextField(value = text, onValueChange = { text = it })
+            OutlinedTextField(
+                value = text,
+                onValueChange = { text = it },
+                modifier = Modifier.padding(horizontal = 16.dp),
+                label = { Text("Text field") }
+            )
             LazyColumn {
-                items(50) {
+                items(25) {
                     ListItem(
                         headlineContent = { Text("Item $it") },
                         leadingContent = {
@@ -167,32 +175,37 @@ fun SimpleBottomSheetScaffoldSample() {
         scaffoldState = scaffoldState,
         sheetPeekHeight = 128.dp,
         sheetContent = {
+            Box(
+                Modifier
+                    .fillMaxWidth()
+                    .height(128.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text("Swipe up to expand sheet")
+            }
+            Column(
+                Modifier
+                    .fillMaxWidth()
+                    .padding(64.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text("Sheet content")
+                Spacer(Modifier.height(20.dp))
+                Button(
+                    onClick = {
+                        scope.launch { scaffoldState.bottomSheetState.partialExpand() }
+                    }
+                ) {
+                    Text("Click to collapse sheet")
+                }
+            }
+        }) { innerPadding ->
         Box(
-            Modifier
-                .fillMaxWidth()
-                .height(128.dp),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding),
             contentAlignment = Alignment.Center
         ) {
-            Text("Swipe up to expand sheet")
-        }
-        Column(
-            Modifier
-                .fillMaxWidth()
-                .padding(64.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text("Sheet content")
-            Spacer(Modifier.height(20.dp))
-            Button(
-                onClick = {
-                    scope.launch { scaffoldState.bottomSheetState.partialExpand() }
-                }
-            ) {
-                Text("Click to collapse sheet")
-            }
-        }
-    }) { innerPadding ->
-        Box(Modifier.padding(innerPadding)) {
             Text("Scaffold Content")
         }
     }
