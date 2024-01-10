@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.glance.material3
+package androidx.glance.appwidget.components
 
 import android.os.Build
 import androidx.annotation.DimenRes
@@ -34,6 +34,7 @@ import androidx.glance.action.Action
 import androidx.glance.action.NoRippleOverride
 import androidx.glance.action.action
 import androidx.glance.action.clickable
+import androidx.glance.appwidget.R
 import androidx.glance.appwidget.cornerRadius
 import androidx.glance.appwidget.enabled
 import androidx.glance.background
