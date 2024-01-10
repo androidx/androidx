@@ -19,7 +19,8 @@ package androidx.camera.camera2.pipe.media
 import android.os.Build
 import androidx.camera.camera2.pipe.CameraTimestamp
 import androidx.camera.camera2.pipe.FrameNumber
-import androidx.camera.camera2.pipe.media.OutputDistributor.OutputCompleteListener
+import androidx.camera.camera2.pipe.OutputStatus
+import androidx.camera.camera2.pipe.media.OutputDistributor.OutputListener
 import com.google.common.truth.Truth.assertThat
 import kotlinx.atomicfu.atomic
 import org.junit.Test
@@ -149,6 +150,7 @@ class OutputDistributorTest {
 
         assertThat(pendingOutput1.isComplete).isTrue()
         assertThat(pendingOutput1.output).isEqualTo(fakeOutput1)
+        assertThat(pendingOutput1.outputStatus).isEqualTo(OutputStatus.AVAILABLE)
     }
 
     @Test
@@ -167,6 +169,7 @@ class OutputDistributorTest {
 
         assertThat(pendingOutput1.isComplete).isTrue()
         assertThat(pendingOutput1.output).isNull()
+        assertThat(pendingOutput1.outputStatus).isEqualTo(OutputStatus.ERROR_OUTPUT_DROPPED)
     }
 
     @Test
@@ -187,6 +190,9 @@ class OutputDistributorTest {
         assertThat(pendingOutput2.output).isNull() // #2 is Canceled
         assertThat(pendingOutput3.output).isEqualTo(fakeOutput3)
         assertThat(pendingOutput4.output).isNull() // #4 is still pending
+
+        assertThat(pendingOutput1.outputStatus).isEqualTo(OutputStatus.ERROR_OUTPUT_MISSING)
+        assertThat(pendingOutput2.outputStatus).isEqualTo(OutputStatus.ERROR_OUTPUT_MISSING)
     }
 
     @Test
@@ -200,6 +206,8 @@ class OutputDistributorTest {
 
         assertThat(pendingOutput1.isComplete).isTrue()
         assertThat(pendingOutput2.isComplete).isTrue()
+        assertThat(pendingOutput1.outputStatus).isEqualTo(OutputStatus.ERROR_OUTPUT_ABORTED)
+        assertThat(pendingOutput2.outputStatus).isEqualTo(OutputStatus.ERROR_OUTPUT_ABORTED)
         assertThat(pendingOutput1.output).isNull()
         assertThat(pendingOutput2.output).isNull()
     }
@@ -215,6 +223,8 @@ class OutputDistributorTest {
 
         assertThat(pendingOutput1.isComplete).isTrue()
         assertThat(pendingOutput2.isComplete).isTrue()
+        assertThat(pendingOutput1.outputStatus).isEqualTo(OutputStatus.ERROR_OUTPUT_ABORTED)
+        assertThat(pendingOutput2.outputStatus).isEqualTo(OutputStatus.ERROR_OUTPUT_ABORTED)
         assertThat(pendingOutput1.output).isNull()
         assertThat(pendingOutput2.output).isNull()
     }
@@ -232,8 +242,12 @@ class OutputDistributorTest {
 
         assertThat(pendingOutput1.isComplete).isTrue()
         assertThat(pendingOutput2.isComplete).isTrue()
+
         assertThat(pendingOutput1.output).isNull()
         assertThat(pendingOutput2.output).isNull()
+
+        assertThat(pendingOutput1.outputStatus).isEqualTo(OutputStatus.ERROR_OUTPUT_ABORTED)
+        assertThat(pendingOutput2.outputStatus).isEqualTo(OutputStatus.ERROR_OUTPUT_ABORTED)
 
         assertThat(fakeOutput1.finalized).isTrue()
         assertThat(fakeOutput2.finalized).isTrue()
@@ -252,8 +266,12 @@ class OutputDistributorTest {
 
         assertThat(pendingOutput1.isComplete).isTrue()
         assertThat(pendingOutput2.isComplete).isTrue()
+
         assertThat(pendingOutput1.output).isNull()
         assertThat(pendingOutput2.output).isNull()
+
+        assertThat(pendingOutput1.outputStatus).isEqualTo(OutputStatus.ERROR_OUTPUT_ABORTED)
+        assertThat(pendingOutput2.outputStatus).isEqualTo(OutputStatus.ERROR_OUTPUT_ABORTED)
 
         assertThat(fakeOutput1.finalized).isTrue()
         assertThat(fakeOutput2.finalized).isTrue()
@@ -299,6 +317,10 @@ class OutputDistributorTest {
         assertThat(pendingOutput1.output).isNull()
         assertThat(pendingOutput2.output).isNull()
         assertThat(pendingOutput3.output).isEqualTo(fakeOutput3)
+
+        assertThat(pendingOutput1.outputStatus).isEqualTo(OutputStatus.ERROR_OUTPUT_MISSING)
+        assertThat(pendingOutput2.outputStatus).isEqualTo(OutputStatus.ERROR_OUTPUT_MISSING)
+        assertThat(pendingOutput3.outputStatus).isEqualTo(OutputStatus.AVAILABLE)
     }
 
     @Test
@@ -347,6 +369,7 @@ class OutputDistributorTest {
         assertThat(pendingOutput3.isComplete).isFalse()
 
         assertThat(pendingOutput2.output).isNull()
+        assertThat(pendingOutput2.outputStatus).isEqualTo(OutputStatus.ERROR_OUTPUT_FAILED)
     }
 
     @Test
@@ -366,6 +389,10 @@ class OutputDistributorTest {
         assertThat(pendingOutput1.output).isNull()
         assertThat(pendingOutput2.output).isNull()
         assertThat(pendingOutput3.output).isNull()
+
+        assertThat(pendingOutput1.outputStatus).isEqualTo(OutputStatus.ERROR_OUTPUT_FAILED)
+        assertThat(pendingOutput2.outputStatus).isEqualTo(OutputStatus.ERROR_OUTPUT_FAILED)
+        assertThat(pendingOutput3.outputStatus).isEqualTo(OutputStatus.ERROR_OUTPUT_FAILED)
     }
 
     @Test
@@ -381,6 +408,7 @@ class OutputDistributorTest {
         assertThat(pendingOutput3.isComplete).isFalse()
 
         assertThat(pendingOutput2.output).isNull()
+        assertThat(pendingOutput2.outputStatus).isEqualTo(OutputStatus.ERROR_OUTPUT_DROPPED)
     }
 
     @Test
@@ -397,29 +425,32 @@ class OutputDistributorTest {
         assertThat(fakeOutput1.finalized).isTrue()
         assertThat(pendingOutput1.isComplete).isTrue()
         assertThat(pendingOutput1.output).isNull()
+        assertThat(pendingOutput1.outputStatus).isEqualTo(OutputStatus.ERROR_OUTPUT_DROPPED)
     }
 
     /**
-     * Utility class that implements [OutputCompleteListener] and can be used to observe when an
+     * Utility class that implements [OutputListener] and can be used to observe when an
      * output is complete and the callback is invoked.
      */
     private class PendingOutput(
         val cameraFrameNumber: FrameNumber,
         val cameraTimestamp: CameraTimestamp,
         val outputNumber: Long
-    ) : OutputCompleteListener<FakeOutput> {
+    ) : OutputListener<FakeOutput> {
         private val _complete = atomic(false)
         val isComplete: Boolean
             get() = _complete.value
 
         var outputSequence: Long? = null
         var output: FakeOutput? = null
+        var outputStatus: OutputStatus? = null
 
         override fun onOutputComplete(
             cameraFrameNumber: FrameNumber,
             cameraTimestamp: CameraTimestamp,
             outputSequence: Long,
             outputNumber: Long,
+            outputStatus: OutputStatus,
             output: FakeOutput?
         ) {
             // Assert that this callback has only been invoked once.
@@ -432,6 +463,7 @@ class OutputDistributorTest {
 
             // Record the actual output and outputSequence for future checks.
             this.outputSequence = outputSequence
+            this.outputStatus = outputStatus
             this.output = output
         }
     }
