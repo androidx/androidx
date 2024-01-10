@@ -66,7 +66,10 @@ fun DatePickerSample() {
         val datePickerState = rememberDatePickerState(initialSelectedDateMillis = 1578096000000)
         DatePicker(state = datePickerState, modifier = Modifier.padding(16.dp))
 
-        Text("Selected date timestamp: ${datePickerState.selectedDateMillis ?: "no selection"}")
+        Text(
+            "Selected date timestamp: ${datePickerState.selectedDateMillis ?: "no selection"}",
+            modifier = Modifier.align(Alignment.CenterHorizontally)
+        )
     }
 }
 
@@ -154,7 +157,10 @@ fun DatePickerWithDateSelectableDatesSample() {
 
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         DatePicker(state = datePickerState)
-        Text("Selected date timestamp: ${datePickerState.selectedDateMillis ?: "no selection"}")
+        Text(
+            "Selected date timestamp: ${datePickerState.selectedDateMillis ?: "no selection"}",
+            modifier = Modifier.align(Alignment.CenterHorizontally)
+        )
     }
 }
 
@@ -167,7 +173,10 @@ fun DateInputSample() {
         val state = rememberDatePickerState(initialDisplayMode = DisplayMode.Input)
         DatePicker(state = state, modifier = Modifier.padding(16.dp))
 
-        Text("Entered date timestamp: ${state.selectedDateMillis ?: "no input"}")
+        Text(
+            "Entered date timestamp: ${state.selectedDateMillis ?: "no input"}",
+            modifier = Modifier.align(Alignment.CenterHorizontally)
+        )
     }
 }
 
