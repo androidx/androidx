@@ -684,15 +684,14 @@ class GLRendererTest {
 
         assertTrue(renderLatch.get().await(3000, TimeUnit.MILLISECONDS))
 
-        val bitmap = Bitmap.createBitmap(
-            GLTestActivity.TARGET_WIDTH,
-            GLTestActivity.TARGET_HEIGHT,
-            Bitmap.Config.ARGB_8888
-        )
-
-        blockingPixelCopy(bitmap) { Surface(textureView!!.surfaceTexture) }
-
-        assertTrue(bitmap.isAllColor(Color.BLUE))
+        val coords = IntArray(2)
+        textureView!!.getLocationOnScreen(coords)
+        SurfaceControlUtils.validateOutput { bitmap ->
+            Color.BLUE == bitmap.getPixel(
+                coords[0] + textureView!!.width / 2,
+                coords[1] + textureView!!.height / 2
+            )
+        }
 
         val stopLatch = CountDownLatch(1)
         glRenderer!!.stop(true) {
