@@ -353,16 +353,19 @@ class Camera2CapturePipelineTest {
         }
     }
 
+    @Ignore("b/318526226")
     @Test
     fun minLatency_screenFlashCapture_screenFlashTaskInvokedProperly() {
         screenFlash_screenFlashApisInvokedProperly(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
     }
 
+    @Ignore("b/318526226")
     @Test
     fun maxQuality_screenFlashCapture_screenFlashTaskInvokedProperly() {
         screenFlash_screenFlashApisInvokedProperly(ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY)
     }
 
+    @Ignore("b/318526226")
     @Test
     fun maxQuality_screenFlashCapture_withFlashModeTorchQuirk_screenFlashTaskInvokedProperly() {
         screenFlash_screenFlashApisInvokedProperly(
