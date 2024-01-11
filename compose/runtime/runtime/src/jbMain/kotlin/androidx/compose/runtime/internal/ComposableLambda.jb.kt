@@ -105,7 +105,7 @@ internal actual class ComposableLambdaImpl actual constructor(
         trackRead(c)
         val dirty = changed or if (c.changed(this)) differentBits(0) else sameBits(0)
         val result = (_block as (c: Composer, changed: Int) -> Any?)(c, dirty)
-        c.endRestartGroup()?.updateScope(this as (Composer, Int) -> Unit)
+        c.endRestartGroup()?.updateScope(this::invoke)
         return result
     }
 
