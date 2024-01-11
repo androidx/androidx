@@ -23,6 +23,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.DeviceConfigurationOverride
+import androidx.compose.ui.test.RoundScreen
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -38,7 +40,9 @@ class HorizontalPageIndicatorTest {
     @Test
     public fun supports_testtag_circular() {
         rule.setContentWithTheme {
-            ConfiguredShapeScreen(isRound = true) {
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.RoundScreen(isScreenRound = true)
+            ) {
                 HorizontalPageIndicator(
                     modifier = Modifier.testTag(TEST_TAG),
                     pageIndicatorState = pageIndicatorState()
@@ -51,7 +55,9 @@ class HorizontalPageIndicatorTest {
     @Test
     public fun supports_testtag_linear() {
         rule.setContentWithTheme {
-            ConfiguredShapeScreen(isRound = false) {
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.RoundScreen(isScreenRound = false)
+            ) {
                 HorizontalPageIndicator(
                     modifier = Modifier.testTag(TEST_TAG),
                     pageIndicatorState = pageIndicatorState()
@@ -83,7 +89,7 @@ class HorizontalPageIndicatorTest {
 
     private fun position_is_selected(isRound: Boolean) {
         rule.setContentWithTheme {
-            ConfiguredShapeScreen(isRound) {
+            DeviceConfigurationOverride(DeviceConfigurationOverride.RoundScreen(isRound)) {
                 HorizontalPageIndicator(
                     modifier = Modifier
                         .testTag(TEST_TAG)
@@ -109,7 +115,7 @@ class HorizontalPageIndicatorTest {
 
     private fun in_between_positions(isRound: Boolean) {
         rule.setContentWithTheme {
-            ConfiguredShapeScreen(isRound) {
+            DeviceConfigurationOverride(DeviceConfigurationOverride.RoundScreen(isRound)) {
                 HorizontalPageIndicator(
                     modifier = Modifier
                         .testTag(TEST_TAG)
