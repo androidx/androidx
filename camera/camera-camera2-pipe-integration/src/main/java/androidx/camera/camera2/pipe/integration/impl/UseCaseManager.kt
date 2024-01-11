@@ -56,6 +56,7 @@ import androidx.camera.core.impl.CameraMode
 import androidx.camera.core.impl.DeferrableSurface
 import androidx.camera.core.impl.PreviewConfig
 import androidx.camera.core.impl.SessionConfig
+import androidx.camera.core.impl.SessionConfig.OutputConfig.SURFACE_GROUP_ID_NONE
 import androidx.camera.core.impl.SessionConfig.ValidatingBuilder
 import androidx.camera.core.impl.SessionProcessor
 import androidx.camera.core.impl.SessionProcessorSurface
@@ -616,10 +617,22 @@ class UseCaseManager @Inject constructor(
             var containsVideo = false
             // TODO: b/314207980 - Translate [SessionConfig.getSessionType], including highspeed
             //     sessions and custom session types.
-            // TODO: b/314412743 - Translate [SessionConfig.OutputConfig] and handle stream sharing.
+            val streamGroupMap = mutableMapOf<Int, MutableList<CameraStream.Config>>()
             sessionConfigAdapter.getValidSessionConfigOrNull()?.let { sessionConfig ->
-                sessionConfig.surfaces.forEach { deferrableSurface ->
-                    val outputConfig = CameraStream.Config.create(
+                val physicalCameraIdForAllStreams =
+                    sessionConfig.toCamera2ImplConfig().getPhysicalCameraId(null)
+                for (outputConfig in sessionConfig.outputConfigs) {
+                    val deferrableSurface = outputConfig.surface
+                    val physicalCameraId =
+                        physicalCameraIdForAllStreams ?: outputConfig.physicalCameraId
+                    val outputStreamConfig = OutputStream.Config.create(
+                        size = deferrableSurface.prescribedSize,
+                        format = StreamFormat(deferrableSurface.prescribedStreamFormat),
+                        camera = if (physicalCameraId == null) {
+                            null
+                        } else {
+                            CameraId.fromCamera2Id(physicalCameraId)
+                        },
                         streamUseCase = getStreamUseCase(
                             deferrableSurface,
                             sessionConfigAdapter.surfaceToStreamUseCaseMap
@@ -628,22 +641,23 @@ class UseCaseManager @Inject constructor(
                             deferrableSurface,
                             sessionConfigAdapter.surfaceToStreamUseHintMap
                         ),
-                        size = deferrableSurface.prescribedSize,
-                        format = StreamFormat(deferrableSurface.prescribedStreamFormat),
-                        camera = CameraId(
-                            sessionConfig.toCamera2ImplConfig().getPhysicalCameraId(
-                                cameraConfig.cameraId.value
-                            )!!
-                        )
                     )
-                    streamConfigMap[outputConfig] = deferrableSurface
-                    Log.debug {
-                        "Prepare config for: $deferrableSurface (" +
-                            "${deferrableSurface.prescribedSize}," +
-                            " ${deferrableSurface.prescribedStreamFormat})"
-                    }
-                    if (deferrableSurface.containerClass == MediaCodec::class.java) {
-                        containsVideo = true
+                    val surfaces = outputConfig.sharedSurfaces + deferrableSurface
+                    for (surface in surfaces) {
+                        val stream = CameraStream.Config.create(outputStreamConfig)
+                        streamConfigMap[stream] = surface
+                        if (outputConfig.surfaceGroupId != SURFACE_GROUP_ID_NONE) {
+                            val streamList = streamGroupMap[outputConfig.surfaceGroupId]
+                            if (streamList == null) {
+                                streamGroupMap[outputConfig.surfaceGroupId] =
+                                    mutableListOf(stream)
+                            } else {
+                                streamList.add(stream)
+                            }
+                        }
+                        if (surface.containerClass == MediaCodec::class.java) {
+                            containsVideo = true
+                        }
                     }
                 }
             }
@@ -699,6 +713,7 @@ class UseCaseManager @Inject constructor(
             return CameraGraph.Config(
                 camera = cameraConfig.cameraId,
                 streams = streamConfigMap.keys.toList(),
+                exclusiveStreamGroups = streamGroupMap.values.toList(),
                 defaultListeners = listOf(callbackMap, requestListener),
                 defaultParameters = defaultParameters + mapOf(
                     CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE to videoStabilizationMode
