@@ -28,6 +28,8 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
+import androidx.camera.core.CameraControl;
+import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraProvider;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.DynamicRange;
@@ -36,14 +38,19 @@ import androidx.camera.core.ImageCapture;
 import androidx.camera.core.Logger;
 import androidx.camera.core.Preview;
 import androidx.camera.core.impl.ExtendedCameraConfigProviderStore;
+import androidx.camera.core.impl.RestrictedCameraControl;
+import androidx.camera.core.impl.RestrictedCameraInfo;
 import androidx.camera.core.impl.utils.ContextUtil;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.extensions.impl.InitializerImpl;
+import androidx.camera.extensions.internal.CameraExtensionsControlImpl;
+import androidx.camera.extensions.internal.CameraExtensionsInfoImpl;
 import androidx.camera.extensions.internal.ClientVersion;
 import androidx.camera.extensions.internal.ExtensionVersion;
 import androidx.camera.extensions.internal.Version;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
+import androidx.core.util.Preconditions;
 import androidx.lifecycle.LifecycleOwner;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -510,6 +517,50 @@ public final class ExtensionsManager {
         }
 
         return mExtensionsInfo.isImageAnalysisSupported(cameraSelector, mode);
+    }
+
+    /**
+     * Retrieves a {@link CameraExtensionsControl} object that allows customization of capture
+     * request settings for supported camera extensions.
+     *
+     * <p>If the provided {@link CameraControl} doesn't represent a camera with enabled
+     * extensions, a no-op {@link CameraExtensionsControl} will be returned.
+     *
+     * @param cameraControl the camera control for a camera with a specific extension mode turned
+     *                     on.
+     * @return a {@link CameraExtensionsControl} object to manage extension-related settings.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @NonNull
+    public CameraExtensionsControl getCameraExtensionsControl(
+            @NonNull CameraControl cameraControl) {
+        Preconditions.checkArgument(cameraControl instanceof RestrictedCameraControl, "The input "
+                + "camera control must be an instance retrieved from the camera that is returned "
+                + "by invoking CameraProvider#bindToLifecycle() with an extension enabled camera "
+                + "selector.");
+        return new CameraExtensionsControlImpl((RestrictedCameraControl) cameraControl);
+    }
+
+    /**
+     * Retrieves a {@link CameraExtensionsInfo} object that allows to observe or monitor capture
+     * request settings and results for supported camera extensions.
+     *
+     * <p>If the provided {@link CameraControl} doesn't represent a camera with enabled
+     * extensions, a placeholder {@link CameraExtensionsInfo} object will be returned, indicating
+     * no extension strength support and a fixed strength value of 0.
+     *
+     * @param cameraInfo the camera info for a camera with a specific extension mode turned on.
+     * @return a {@link CameraExtensionsInfo} object for observing extension-specific capture
+     * request settings and results.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @NonNull
+    public CameraExtensionsInfo getCameraExtensionsInfo(@NonNull CameraInfo cameraInfo) {
+        Preconditions.checkArgument(cameraInfo instanceof RestrictedCameraInfo, "The input camera"
+                + " info must be an instance retrieved from the camera that is returned "
+                + "by invoking CameraProvider#bindToLifecycle() with an extension enabled camera "
+                + "selector.");
+        return new CameraExtensionsInfoImpl((RestrictedCameraInfo) cameraInfo);
     }
 
     @VisibleForTesting

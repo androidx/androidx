@@ -28,6 +28,7 @@ import androidx.camera.core.CameraXConfig
 import androidx.camera.core.SurfaceRequest
 import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.impl.MutableStateObservable
+import androidx.camera.core.impl.RestrictedCameraControl
 import androidx.camera.extensions.impl.ExtensionsTestlibControl
 import androidx.camera.extensions.internal.ClientVersion
 import androidx.camera.extensions.internal.ExtensionVersion
@@ -652,6 +653,50 @@ class ExtensionsManagerTest(
         assertThat(currentType.value).isEqualTo(extensionMode)
     }
 
+    @Test
+    fun returnsCorrectExtensionTypeFromCameraExtensionsInfo() = runBlocking {
+        val extensionCameraSelector = checkExtensionAvailabilityAndInit()
+
+        val camera = withContext(Dispatchers.Main) {
+            cameraProvider.bindToLifecycle(FakeLifecycleOwner(), extensionCameraSelector)
+        }
+
+        val cameraExtensionsInfo = extensionsManager.getCameraExtensionsInfo(camera.cameraInfo)
+
+        assertThat(cameraExtensionsInfo.currentExtensionType.value).isEqualTo(
+            extensionMode
+        )
+    }
+
+    @Test
+    fun returnsCorrectExtensionStrengthAvailabilityFromCameraExtensionsInfo() = runBlocking {
+        val extensionCameraSelector = checkExtensionAvailabilityAndInit()
+
+        val camera = withContext(Dispatchers.Main) {
+            cameraProvider.bindToLifecycle(FakeLifecycleOwner(), extensionCameraSelector)
+        }
+
+        val cameraExtensionsInfo = extensionsManager.getCameraExtensionsInfo(camera.cameraInfo)
+
+        assertThat(cameraExtensionsInfo.isExtensionStrengthAvailable).isEqualTo(
+            camera.extendedConfig.sessionProcessor.supportedCameraOperations.contains(
+                RestrictedCameraControl.EXTENSION_STRENGTH
+            )
+        )
+    }
+
+    @Test
+    fun returnsCorrectInitialExtensionStrengthFromCameraExtensionsInfo() = runBlocking {
+        val extensionCameraSelector = checkExtensionAvailabilityAndInit()
+
+        val camera = withContext(Dispatchers.Main) {
+            cameraProvider.bindToLifecycle(FakeLifecycleOwner(), extensionCameraSelector)
+        }
+
+        val cameraExtensionsInfo = extensionsManager.getCameraExtensionsInfo(camera.cameraInfo)
+        assertThat(cameraExtensionsInfo.extensionStrength.value).isEqualTo(100)
+    }
+
     private fun checkExtensionAvailabilityAndInit(): CameraSelector {
         extensionsManager = ExtensionsManager.getInstanceAsync(
             context,
@@ -669,6 +714,23 @@ class ExtensionsManagerTest(
             baseCameraSelector,
             extensionMode
         )
+    }
+
+    @Test
+    fun returnsCorrectExtensionStrengthFromCameraExtensionsInfoForNormalMode() = runBlocking {
+        // Runs the test only when the parameterized extension mode is BOKEH to avoid wasting time
+        assumeTrue(extensionMode == ExtensionMode.BOKEH)
+        extensionsManager = ExtensionsManager.getInstanceAsync(
+            context,
+            cameraProvider
+        )[10000, TimeUnit.MILLISECONDS]
+
+        val camera = withContext(Dispatchers.Main) {
+            cameraProvider.bindToLifecycle(FakeLifecycleOwner(), baseCameraSelector)
+        }
+
+        val cameraExtensionsInfo = extensionsManager.getCameraExtensionsInfo(camera.cameraInfo)
+        assertThat(cameraExtensionsInfo.extensionStrength.value).isEqualTo(0)
     }
 
     private fun isExtensionAvailableByCameraInfo(cameraInfo: CameraInfo): Boolean {
