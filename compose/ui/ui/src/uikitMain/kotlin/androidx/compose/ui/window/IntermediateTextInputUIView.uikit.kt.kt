@@ -39,6 +39,7 @@ import platform.Foundation.NSSelectorFromString
 import platform.Foundation.dictionary
 import platform.UIKit.NSWritingDirection
 import platform.UIKit.NSWritingDirectionLeftToRight
+import platform.UIKit.UIEvent
 import platform.UIKit.UIKeyInputProtocol
 import platform.UIKit.UIKeyboardAppearance
 import platform.UIKit.UIKeyboardType
@@ -91,6 +92,14 @@ internal class IntermediateTextInputUIView(
     override fun pressesEnded(presses: Set<*>, withEvent: UIPressesEvent?) {
         handleUIViewPressesEnded(keyboardEventHandler, presses, withEvent)
         super.pressesEnded(presses, withEvent)
+    }
+
+    override fun hitTest(point: CValue<CGPoint>, withEvent: UIEvent?): UIView? {
+        return if (input == null) {
+            null
+        } else {
+            super.hitTest(point, withEvent)
+        }
     }
 
     /**

@@ -21,6 +21,7 @@ import androidx.compose.ui.scene.ComposeSceneFocusManager
 import androidx.compose.ui.scene.ComposeSceneMediator
 import androidx.compose.ui.uikit.ComposeUIViewControllerConfiguration
 import androidx.compose.ui.uikit.OnFocusBehavior
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.DpRect
 import androidx.compose.ui.unit.toDpRect
 import kotlinx.cinterop.ObjCAction
@@ -52,7 +53,7 @@ internal class KeyboardVisibilityListenerImpl(
     private val configuration: ComposeUIViewControllerConfiguration,
     private val keyboardOverlapHeightState: MutableState<Float>,
     private val viewProvider: () -> UIView,
-    private val densityProvider: DensityProvider,
+    private val densityProvider: () -> Density,
     private val composeSceneMediatorProvider: () -> ComposeSceneMediator,
     private val focusManager: ComposeSceneFocusManager,
 ) : KeyboardVisibilityListener {

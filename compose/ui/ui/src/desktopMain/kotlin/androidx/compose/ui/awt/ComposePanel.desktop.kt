@@ -16,12 +16,12 @@
 package androidx.compose.ui.awt
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.ComposeFeatureFlags
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.LayerType
 import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.scene.ComposeContainer
 import androidx.compose.ui.window.WindowExceptionHandler
-import androidx.compose.ui.window.layoutDirectionFor
 import java.awt.Color
 import java.awt.Component
 import java.awt.ComponentOrientation
@@ -30,14 +30,11 @@ import java.awt.Dimension
 import java.awt.FocusTraversalPolicy
 import java.awt.event.FocusEvent
 import java.awt.event.FocusListener
-import java.util.Locale
+import java.util.*
 import javax.swing.JLayeredPane
 import javax.swing.SwingUtilities.isEventDispatchThread
-import org.jetbrains.skiko.ClipComponent
 import org.jetbrains.skiko.GraphicsApi
-import org.jetbrains.skiko.OS
 import org.jetbrains.skiko.SkiaLayerAnalytics
-import org.jetbrains.skiko.hostOs
 
 /**
  * ComposePanel is a panel for building UI using Compose for Desktop.
@@ -88,8 +85,9 @@ class ComposePanel @ExperimentalComposeUiApi constructor(
     private val _focusListeners = mutableSetOf<FocusListener?>()
     private var _isFocusable = true
     private var _isRequestFocusEnabled = false
-    private var bridge: ComposeBridge? = null
-    private var content: (@Composable () -> Unit)? = null
+
+    private var _composeContainer: ComposeContainer? = null
+    private var _composeContent: (@Composable () -> Unit)? = null
 
     /**
      * Determines whether the Compose state in [ComposePanel] should be disposed
@@ -118,21 +116,19 @@ class ComposePanel @ExperimentalComposeUiApi constructor(
      */
     @ExperimentalComposeUiApi
     fun dispose() {
-        if (bridge != null) {
-            bridge!!.dispose()
-            super.remove(bridge!!.component)
-            super.remove(bridge!!.invisibleComponent)
-            bridge = null
-        }
+        _composeContainer?.dispose()
+        _composeContainer = null
     }
 
     override fun setBounds(x: Int, y: Int, width: Int, height: Int) {
-        bridge?.component?.setSize(width, height)
+        _composeContainer?.setBounds(0, 0, width, height)
         super.setBounds(x, y, width, height)
     }
 
-    override fun getPreferredSize(): Dimension? {
-        return if (isPreferredSizeSet) super.getPreferredSize() else bridge?.component?.preferredSize
+    override fun getPreferredSize(): Dimension? = if (isPreferredSizeSet) {
+        super.getPreferredSize()
+    } else  {
+        _composeContainer?.preferredSize
     }
 
     /**
@@ -145,8 +141,8 @@ class ComposePanel @ExperimentalComposeUiApi constructor(
         // to keep the lambda describing composable content and set the content only when
         // everything is ready to avoid accidental crashes and memory leaks on all supported OS
         // types.
-        this.content = content
-        initContent()
+        _composeContent = content
+        _composeContainer?.setContent(content)
     }
 
     /**
@@ -158,93 +154,68 @@ class ComposePanel @ExperimentalComposeUiApi constructor(
     var exceptionHandler: WindowExceptionHandler? = null
         set(value) {
             field = value
-            bridge?.exceptionHandler = value
+            _composeContainer?.exceptionHandler = value
         }
 
-    private fun initContent() {
-        if (bridge != null && content != null) {
-            bridge!!.setContent {
-                CompositionLocalProvider(
-                    LocalLayerContainer provides this,
-                    content = content!!
-                )
-            }
+    /**
+     * A container used for additional layers. It's used with [LayerType.OnComponent]
+     *
+     * See [ComposeFeatureFlags.layerType]
+     * TODO: Make it public with @ExperimentalComposeUiApi
+     */
+    internal var layersContainer: JLayeredPane? = null
+        set(value) {
+            field = value
+            _composeContainer?.layersContainer = value
         }
-    }
 
     override fun add(component: Component): Component {
-        addToLayer(component, componentLayer)
-        if (!interopBlending) {
-            bridge?.addClipComponent(component)
-        }
+        _composeContainer?.addToComponentLayer(component)
         return component
     }
 
     override fun remove(component: Component) {
-        bridge?.removeClipComponent(component)
         super.remove(component)
     }
-
-    private fun addToLayer(component: Component, layer: Int) {
-        if (renderApi == GraphicsApi.METAL && bridge !is SwingComposeBridge) {
-            // Applying layer on macOS makes our bridge non-transparent
-            // But it draws always on top, so we can just add it as-is
-            // TODO: Figure out why it makes difference in transparency
-            super.add(component, 0)
-        } else {
-            super.setLayer(component, layer)
-            super.add(component)
-        }
-    }
-
-    private val bridgeLayer: Int = 10
-    private val componentLayer: Int
-        get() = if (interopBlending) 0 else 20
-
-    private val interopBlending: Boolean
-        get() = ComposeFeatureFlags.useInteropBlending &&
-            (ComposeFeatureFlags.useSwingGraphics || requireNotNull(bridge).interopBlendingSupported)
 
     override fun addNotify() {
         super.addNotify()
 
         // After [super.addNotify] is called we can safely initialize the bridge and composable
         // content.
-        if (this.bridge == null) {
-            val bridge = createComposeBridge()
-            this.bridge = bridge
-            initContent()
-            addToLayer(bridge.invisibleComponent, bridgeLayer)
-            addToLayer(bridge.component, bridgeLayer)
+        val composeContainer = _composeContainer ?: createComposeContainer().also {
+            _composeContainer = it
+            val composeContent = _composeContent
+            if (composeContent != null) {
+                it.setContent(composeContent)
+            }
         }
+        composeContainer.addNotify()
     }
 
-    private fun createComposeBridge(): ComposeBridge {
-        val bridge: ComposeBridge = if (ComposeFeatureFlags.useSwingGraphics) {
-            SwingComposeBridge(skiaLayerAnalytics, layoutDirectionFor(this))
-        } else {
-            WindowComposeBridge(skiaLayerAnalytics, layoutDirectionFor(this))
-        }
-        return bridge.apply {
-            scene.focusManager.releaseFocus()
-            component.setSize(width, height)
-            component.isFocusable = _isFocusable
-            component.isRequestFocusEnabled = _isRequestFocusEnabled
-            _focusListeners.forEach(component::addFocusListener)
+    private fun createComposeContainer(): ComposeContainer {
+        return ComposeContainer(this, skiaLayerAnalytics).apply {
+            focusManager.releaseFocus()
+            setBounds(0, 0, width, height)
+            contentComponent.isFocusable = _isFocusable
+            contentComponent.isRequestFocusEnabled = _isRequestFocusEnabled
             exceptionHandler = this@ComposePanel.exceptionHandler
-            component.addFocusListener(object : FocusListener {
+            layersContainer = this@ComposePanel.layersContainer
+
+            _focusListeners.forEach(contentComponent::addFocusListener)
+            contentComponent.addFocusListener(object : FocusListener {
                 override fun focusGained(e: FocusEvent) {
                     // The focus can be switched from the child component inside SwingPanel.
                     // In that case, SwingPanel will take care of it.
                     if (!isParentOf(e.oppositeComponent)) {
-                        bridge.scene.focusManager.requestFocus()
+                        focusManager.requestFocus()
                         when (e.cause) {
                             FocusEvent.Cause.TRAVERSAL_FORWARD -> {
-                                bridge.scene.focusManager.moveFocus(FocusDirection.Next)
+                                focusManager.moveFocus(FocusDirection.Next)
                             }
 
                             FocusEvent.Cause.TRAVERSAL_BACKWARD -> {
-                                bridge.scene.focusManager.moveFocus(FocusDirection.Previous)
+                                focusManager.moveFocus(FocusDirection.Previous)
                             }
 
                             else -> Unit
@@ -258,6 +229,7 @@ class ComposePanel @ExperimentalComposeUiApi constructor(
     }
 
     override fun removeNotify() {
+        _composeContainer?.removeNotify()
         if (isDisposeOnRemove) {
             dispose()
         }
@@ -267,26 +239,22 @@ class ComposePanel @ExperimentalComposeUiApi constructor(
     override fun setComponentOrientation(o: ComponentOrientation?) {
         super.setComponentOrientation(o)
 
-        updateLayoutDirection()
+        _composeContainer?.onChangeLayoutDirection(this)
     }
 
     override fun setLocale(l: Locale?) {
         super.setLocale(l)
 
-        updateLayoutDirection()
-    }
-
-    private fun updateLayoutDirection() {
-        bridge?.scene?.layoutDirection = layoutDirectionFor(this)
+        _composeContainer?.onChangeLayoutDirection(this)
     }
 
     override fun addFocusListener(l: FocusListener?) {
-        bridge?.component?.addFocusListener(l)
+        _composeContainer?.contentComponent?.addFocusListener(l)
         _focusListeners.add(l)
     }
 
     override fun removeFocusListener(l: FocusListener?) {
-        bridge?.component?.removeFocusListener(l)
+        _composeContainer?.contentComponent?.removeFocusListener(l)
         _focusListeners.remove(l)
     }
 
@@ -294,46 +262,46 @@ class ComposePanel @ExperimentalComposeUiApi constructor(
 
     override fun setFocusable(focusable: Boolean) {
         _isFocusable = focusable
-        bridge?.component?.isFocusable = focusable
+        _composeContainer?.contentComponent?.isFocusable = focusable
     }
 
     override fun isRequestFocusEnabled(): Boolean = _isRequestFocusEnabled
 
     override fun setRequestFocusEnabled(requestFocusEnabled: Boolean) {
         _isRequestFocusEnabled = requestFocusEnabled
-        bridge?.component?.isRequestFocusEnabled = requestFocusEnabled
+        _composeContainer?.contentComponent?.isRequestFocusEnabled = requestFocusEnabled
     }
 
     override fun hasFocus(): Boolean {
-        return bridge?.component?.hasFocus() ?: false
+        return _composeContainer?.contentComponent?.hasFocus() ?: false
     }
 
     override fun isFocusOwner(): Boolean {
-        return bridge?.component?.isFocusOwner ?: false
+        return _composeContainer?.contentComponent?.isFocusOwner ?: false
     }
 
     override fun requestFocus() {
-        bridge?.component?.requestFocus()
+        _composeContainer?.contentComponent?.requestFocus()
     }
 
     override fun requestFocus(temporary: Boolean): Boolean {
-        return bridge?.component?.requestFocus(temporary) ?: false
+        return _composeContainer?.contentComponent?.requestFocus(temporary) ?: false
     }
 
     override fun requestFocus(cause: FocusEvent.Cause?) {
-        bridge?.component?.requestFocus(cause)
+        _composeContainer?.contentComponent?.requestFocus(cause)
     }
 
     override fun requestFocusInWindow(): Boolean {
-        return bridge?.component?.requestFocusInWindow() ?: false
+        return _composeContainer?.contentComponent?.requestFocusInWindow() ?: false
     }
 
     override fun requestFocusInWindow(cause: FocusEvent.Cause?): Boolean {
-        return bridge?.component?.requestFocusInWindow(cause) ?: false
+        return _composeContainer?.contentComponent?.requestFocusInWindow(cause) ?: false
     }
 
     override fun setFocusTraversalKeysEnabled(focusTraversalKeysEnabled: Boolean) {
-        // ignore, traversal keys should always be handled by ComposeBridge
+        // ignore, traversal keys should always be handled by ComposeContainer
     }
 
     override fun getFocusTraversalKeysEnabled(): Boolean {
@@ -346,5 +314,5 @@ class ComposePanel @ExperimentalComposeUiApi constructor(
      * environment variable.
      */
     val renderApi: GraphicsApi
-        get() = bridge?.renderApi ?: GraphicsApi.UNKNOWN
+        get() = _composeContainer?.renderApi ?: GraphicsApi.UNKNOWN
 }

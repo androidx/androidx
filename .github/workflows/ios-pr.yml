@@ -1,0 +1,40 @@
+name: iOS Unit tests
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+    branches:
+      - "jb-main"
+
+concurrency: 
+  group: ${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  actions: read
+  checks: write
+  pull-requests: write
+
+jobs:
+  unit-tests:
+    runs-on: macos-13
+    name: iOS Unit tests on MacOS-13
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'zulu'
+      - name: install Android SDK
+        run: ./jbdeps/android-sdk/downloadAndroidSdk
+      - name: Run UIKit tests
+        run: ./gradlew :mpp:testUIKit --info
+      - name: Generate report (Test Reporter)
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: iOS Unit tests results
+          path: out/androidx/compose/**/**/build/test-results/**/TEST*.xml
+          reporter: java-junit

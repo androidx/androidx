@@ -21,7 +21,6 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.layout.layoutId
-import androidx.compose.ui.scene.ComposeScene
 import androidx.compose.ui.semantics.dialog
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.window.DialogWindowScope
@@ -48,8 +47,6 @@ class ComposeDialog : JDialog {
     private val skiaLayerAnalytics: SkiaLayerAnalytics
     private val composePanel: ComposeWindowPanel
 
-    internal val scene: ComposeScene
-        get() = composePanel.scene
     internal var rootForTestListener
         get() = composePanel.rootForTestListener
         set(value) { composePanel.rootForTestListener = value }

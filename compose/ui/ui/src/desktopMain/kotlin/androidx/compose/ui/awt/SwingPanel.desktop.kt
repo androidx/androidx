@@ -38,9 +38,9 @@ import androidx.compose.ui.input.pointer.PointerInputModifier
 import androidx.compose.ui.input.pointer.changedToDownIgnoreConsumed
 import androidx.compose.ui.input.pointer.changedToUpIgnoreConsumed
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.boundsInWindow
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.Density
@@ -55,12 +55,13 @@ import java.awt.Point
 import java.awt.event.FocusEvent
 import java.awt.event.FocusListener
 import java.awt.event.MouseEvent
-import java.util.concurrent.atomic.AtomicBoolean
+import java.awt.event.MouseWheelEvent
 import javax.swing.JPanel
 import javax.swing.LayoutFocusTraversalPolicy
 import javax.swing.SwingUtilities
 import kotlin.math.ceil
 import kotlin.math.floor
+import kotlinx.atomicfu.atomic
 
 val NoOpUpdate: Component.() -> Unit = {}
 
@@ -99,7 +100,7 @@ public fun <T : Component> SwingPanel(
 
     Box(
         modifier = modifier.onGloballyPositioned { coordinates ->
-            val bounds = coordinates.boundsInWindow().round(density)
+            val bounds = coordinates.boundsInRoot().round(density)
             componentInfo.container.setBounds(bounds.left, bounds.top, bounds.width, bounds.height)
             componentInfo.container.validate()
             componentInfo.container.repaint()
@@ -159,7 +160,7 @@ public fun <T : Component> SwingPanel(
     }
 
     SideEffect {
-        componentInfo.container.background = parseColor(background)
+        componentInfo.container.background = background.toAwtColor()
         componentInfo.updater.update = update
     }
 }
@@ -250,15 +251,6 @@ private fun Box(modifier: Modifier, content: @Composable () -> Unit = {}) {
     )
 }
 
-private fun parseColor(color: Color): java.awt.Color {
-    return java.awt.Color(
-        color.component1(),
-        color.component2(),
-        color.component3(),
-        color.component4()
-    )
-}
-
 private class ComponentInfo<T : Component> {
     lateinit var container: Container
     lateinit var component: T
@@ -270,7 +262,7 @@ private class Updater<T : Component>(
     update: (T) -> Unit,
 ) {
     private var isDisposed = false
-    private val isUpdateScheduled = AtomicBoolean()
+    private val isUpdateScheduled = atomic(false)
     private val snapshotObserver = SnapshotStateObserver { command ->
         command()
     }
@@ -278,7 +270,7 @@ private class Updater<T : Component>(
     private val scheduleUpdate = { _: T ->
         if (!isUpdateScheduled.getAndSet(true)) {
             SwingUtilities.invokeLater {
-                isUpdateScheduled.set(false)
+                isUpdateScheduled.value = false
                 if (!isDisposed) {
                     performUpdate()
                 }
@@ -375,14 +367,32 @@ private class InteropPointerInputModifier<T : Component>(
 private fun MouseEvent.copy(
     component: Component,
     point: Point
-) = MouseEvent(
-    /* source = */ component,
-    /* id = */ id,
-    /* when = */ `when`,
-    /* modifiers = */ modifiersEx,
-    /* x = */ point.x,
-    /* y = */ point.y,
-    /* clickCount = */ clickCount,
-    /* popupTrigger = */ isPopupTrigger,
-    /* button = */ button
-)
+) = when(this) {
+    is MouseWheelEvent -> MouseWheelEvent(
+        /* source = */ component,
+        /* id = */ id,
+        /* when = */ `when`,
+        /* modifiers = */ modifiersEx,
+        /* x = */ point.x,
+        /* y = */ point.y,
+        /* xAbs = */ xOnScreen,
+        /* yAbs = */ yOnScreen,
+        /* clickCount = */ clickCount,
+        /* popupTrigger = */ isPopupTrigger,
+        /* scrollType = */ scrollType,
+        /* scrollAmount = */ scrollAmount,
+        /* wheelRotation = */ wheelRotation,
+        /* preciseWheelRotation = */ preciseWheelRotation
+    )
+    else -> MouseEvent(
+        /* source = */ component,
+        /* id = */ id,
+        /* when = */ `when`,
+        /* modifiers = */ modifiersEx,
+        /* x = */ point.x,
+        /* y = */ point.y,
+        /* clickCount = */ clickCount,
+        /* popupTrigger = */ isPopupTrigger,
+        /* button = */ button
+    )
+}

@@ -15,6 +15,8 @@
  */
 
 import androidx.build.AndroidXComposePlugin
+import java.util.*
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.jetbrains.kotlin.gradle.plugin.mpp.NativeBuildType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig
@@ -144,7 +146,7 @@ kotlin {
     }
     sourceSets {
         val commonMain by getting {
-             dependencies {
+            dependencies {
                 implementation(project(":compose:foundation:foundation"))
                 implementation(project(":compose:foundation:foundation-layout"))
                 implementation(project(":compose:material3:material3"))
@@ -202,7 +204,9 @@ kotlin {
 }
 
 enum class Target(val simulator: Boolean, val key: String) {
-    UIKIT_X64(true, "uikitX64"), UIKIT_ARM64(false, "uikitArm64"), UIKIT_SIM_ARM64(true, "uikitSimArm64"),
+    UIKIT_X64(true, "uikitX64"),
+    UIKIT_ARM64(false, "uikitArm64"),
+    UIKIT_SIM_ARM64(true, "uikitSimArm64"),
 }
 
 if (System.getProperty("os.name") == "Mac OS X") {
@@ -219,17 +223,18 @@ if (System.getProperty("os.name") == "Mac OS X") {
                     Target.UIKIT_X64
                 }
             }
+
             else -> Target.UIKIT_X64
         }
     }
 
     val targetBuildDir: String? = System.getenv("TARGET_BUILD_DIR")
     val executablePath: String? = System.getenv("EXECUTABLE_PATH")
-    val buildType = System.getenv("CONFIGURATION")?.let {
-        org.jetbrains.kotlin.gradle.plugin.mpp.NativeBuildType.valueOf(it.toUpperCase())
-    } ?: org.jetbrains.kotlin.gradle.plugin.mpp.NativeBuildType.DEBUG
+    val buildType = System.getenv("CONFIGURATION")
+        ?.let { NativeBuildType.valueOf(it.uppercase(Locale.getDefault())) }
+        ?: NativeBuildType.DEBUG
 
-    val currentTarget = kotlin.targets[target.key] as org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
+    val currentTarget = kotlin.targets[target.key] as KotlinNativeTarget
     val kotlinBinary = currentTarget.binaries.getExecutable(buildType)
     val xcodeIntegrationGroup = "Xcode integration"
 
@@ -237,6 +242,7 @@ if (System.getProperty("os.name") == "Mac OS X") {
         // The build is launched not by Xcode ->
         // We cannot create a copy task and just show a meaningful error message.
         tasks.create("packForXCode").doLast {
+            group = xcodeIntegrationGroup
             throw IllegalStateException("Please run the task from Xcode")
         }
     } else {
@@ -244,6 +250,7 @@ if (System.getProperty("os.name") == "Mac OS X") {
         tasks.create("packForXCode", Copy::class.java) {
             dependsOn(kotlinBinary.linkTask)
 
+            group = xcodeIntegrationGroup
             destinationDir = file(targetBuildDir)
 
             val dsymSource = kotlinBinary.outputFile.absolutePath + ".dSYM"
@@ -273,6 +280,7 @@ tasks.create("runDesktop", JavaExec::class.java) {
         compilation.output.allOutputs +
             compilation.runtimeDependencyFiles
 }
+
 
 project.tasks.withType<org.jetbrains.kotlin.gradle.dsl.KotlinJsCompile>().configureEach {
     kotlinOptions.freeCompilerArgs += listOf(

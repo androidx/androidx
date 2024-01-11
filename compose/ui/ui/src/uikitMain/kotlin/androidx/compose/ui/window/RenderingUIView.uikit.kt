@@ -55,12 +55,12 @@ internal class RenderingUIView(
     private val _isReadyToShowContent: MutableState<Boolean> = mutableStateOf(false)
     val isReadyToShowContent: State<Boolean> = _isReadyToShowContent
 
-    private val _device: MTLDeviceProtocol =
+    private val device: MTLDeviceProtocol =
         MTLCreateSystemDefaultDevice()
             ?: throw IllegalStateException("Metal is not supported on this system")
-    private val _metalLayer: CAMetalLayer get() = layer as CAMetalLayer
+    private val metalLayer: CAMetalLayer get() = layer as CAMetalLayer
     internal val redrawer: MetalRedrawer = MetalRedrawer(
-        _metalLayer,
+        metalLayer,
         callbacks = object : MetalRedrawerCallbacks {
             override fun render(canvas: Canvas, targetTimestamp: NSTimeInterval) {
                 renderDelegate.render(canvas, targetTimestamp)
@@ -76,11 +76,11 @@ internal class RenderingUIView(
         userInteractionEnabled = false
         opaque = !transparency
 
-        _metalLayer.also {
+        metalLayer.also {
             // Workaround for KN compiler bug
             // Type mismatch: inferred type is platform.Metal.MTLDeviceProtocol but objcnames.protocols.MTLDeviceProtocol? was expected
             @Suppress("USELESS_CAST")
-            it.device = _device as objcnames.protocols.MTLDeviceProtocol?
+            it.device = device as objcnames.protocols.MTLDeviceProtocol?
 
             it.pixelFormat = MTLPixelFormatBGRA8Unorm
             doubleArrayOf(0.0, 0.0, 0.0, 0.0).usePinned { pinned ->
@@ -102,15 +102,14 @@ internal class RenderingUIView(
 
     override fun didMoveToWindow() {
         super.didMoveToWindow()
+        val window = window ?: return
 
-        window?.screen?.let {
-            contentScaleFactor = it.scale
-            redrawer.maximumFramesPerSecond = it.maximumFramesPerSecond
-        }
-        if (window != null) {
-            onAttachedToWindow?.invoke()
-            _isReadyToShowContent.value = true
-        }
+        val screen = window.screen
+        contentScaleFactor = screen.scale
+        redrawer.maximumFramesPerSecond = screen.maximumFramesPerSecond
+        onAttachedToWindow?.invoke()
+        _isReadyToShowContent.value = true
+        updateMetalLayerSize()
     }
 
     override fun layoutSubviews() {
@@ -118,7 +117,10 @@ internal class RenderingUIView(
         updateMetalLayerSize()
     }
 
-    internal fun updateMetalLayerSize() {
+    private fun updateMetalLayerSize() {
+        if (window == null || CGRectIsEmpty(bounds)) {
+            return
+        }
         val scaledSize = bounds.useContents {
             CGSizeMake(size.width * contentScaleFactor, size.height * contentScaleFactor)
         }
@@ -126,11 +128,11 @@ internal class RenderingUIView(
         // If drawableSize is zero in any dimension it means that it's a first layout
         // we need to synchronously dispatch first draw and block until it's presented
         // so user doesn't have a flicker
-        val needsSynchronousDraw = _metalLayer.drawableSize.useContents {
+        val needsSynchronousDraw = metalLayer.drawableSize.useContents {
             width == 0.0 || height == 0.0
         }
 
-        _metalLayer.drawableSize = scaledSize
+        metalLayer.drawableSize = scaledSize
 
         if (needsSynchronousDraw) {
             redrawer.drawSynchronously()

@@ -39,6 +39,7 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.setContent
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.window.Dialog
@@ -85,12 +86,15 @@ interface ComposeScene {
     var layoutDirection: LayoutDirection
 
     /**
-     * Represents the scene size in scaled pixels ([Dp]).
-     * This is used to impose constraints on the content. If the size is undefined, it can be
+     * Represents the scene bounds relatively to window in pixels.
+     *
+     * The position is used to convert local coordinates to window ones.
+     *
+     * The size is used to impose constraints on the content. If the size is undefined, it can be
      * set to `null`. In such a case, the content will be laid out without any restrictions and
      * the window size will be utilized to bounds verification.
      */
-    var size: IntSize?
+    var boundsInWindow: IntRect?
 
     /**
      * Top-level composition locals, which will be provided for the Composable content, which is set by [setContent].

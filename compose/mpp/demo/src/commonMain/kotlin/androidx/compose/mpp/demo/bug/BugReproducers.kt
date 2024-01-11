@@ -25,4 +25,6 @@ val BugReproducers = Screen.Selection(
     CodeViewerReproducer,
     IOSSelectionContainerCrash,
     IOSDynamicKeyboardType,
+    NoPressInteractionInOutlinedTextField,
+    WebBaselineAlways0
 )

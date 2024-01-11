@@ -16,15 +16,6 @@
 
 package androidx.compose.ui.platform
 
-internal class AtomicIntWrapper(value_: Int) {
-
-    private val delegate = java.util.concurrent.atomic.AtomicInteger(value_)
-    fun addAndGet(delta: Int): Int = delegate.addAndGet(delta)
-    fun compareAndSet(expected: Int, new: Int): Boolean = delegate.compareAndSet(expected, new)
-}
-
-internal actual typealias AtomicInt = AtomicIntWrapper
-
 internal actual fun simpleIdentityToString(obj: Any, name: String?): String {
     val className = name ?: if (obj::class.java.isAnonymousClass) {
         obj::class.java.name

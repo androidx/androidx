@@ -38,7 +38,6 @@ import java.awt.image.MultiResolutionImage
 import java.text.AttributedString
 import javax.swing.Icon
 import javax.swing.ImageIcon
-import kotlin.math.floor
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.yield
 import org.jetbrains.skiko.MainUIDispatcher
@@ -115,11 +114,46 @@ fun Window.sendInputEvent(
     return event.isConsumed
 }
 
+fun Container.sendMousePress(
+    button: Int = MouseEvent.BUTTON1,
+    x: Int,
+    y: Int
+): Boolean {
+    val modifiers = when (button) {
+        MouseEvent.BUTTON1 -> MouseEvent.BUTTON1_DOWN_MASK
+        MouseEvent.BUTTON2 -> MouseEvent.BUTTON2_DOWN_MASK
+        MouseEvent.BUTTON3 -> MouseEvent.BUTTON3_DOWN_MASK
+        else -> 0
+    }
+    return sendMouseEvent(
+        id = MouseEvent.MOUSE_PRESSED,
+        x = x,
+        y = y,
+        modifiers = modifiers,
+        button = button
+    )
+}
+
+fun Container.sendMouseRelease(
+    button: Int = MouseEvent.BUTTON1,
+    x: Int,
+    y: Int,
+): Boolean {
+    return sendMouseEvent(
+        id = MouseEvent.MOUSE_RELEASED,
+        x = x,
+        y = y,
+        modifiers = 0,
+        button = button
+    )
+}
+
 fun Container.sendMouseEvent(
     id: Int,
     x: Int,
     y: Int,
-    modifiers: Int = 0
+    modifiers: Int = 0,
+    button: Int = MouseEvent.NOBUTTON,
 ): Boolean {
     // we use width and height instead of x and y because we can send (-1, -1), but still need
     // the component inside window
@@ -132,7 +166,8 @@ fun Container.sendMouseEvent(
         x,
         y,
         1,
-        false
+        false,
+        button
     )
     component.dispatchEvent(event)
     return event.isConsumed

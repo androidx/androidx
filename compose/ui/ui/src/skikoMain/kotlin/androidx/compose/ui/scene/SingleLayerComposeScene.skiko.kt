@@ -33,6 +33,7 @@ import androidx.compose.ui.platform.setContent
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.toIntRect
@@ -47,8 +48,8 @@ import kotlinx.coroutines.Dispatchers
  *
  * @param density Initial density of the content which will be used to convert [Dp] units.
  * @param layoutDirection Initial layout direction of the content.
- * @param size The size of the ComposeScene. Default value is `null`, which means the size will be
- * determined by the contents.
+ * @param boundsInWindow The bounds of the [ComposeScene]. Default value is `null`, which means
+ * the size will be determined by the content.
  * @param coroutineContext Context which will be used to launch effects ([LaunchedEffect],
  * [rememberCoroutineScope]) and run recompositions.
  * @param composeSceneContext The context to share resources between multiple scenes and provide
@@ -60,19 +61,18 @@ import kotlinx.coroutines.Dispatchers
  *
  * @see ComposeScene
  */
-@Suppress("FunctionName")
 @InternalComposeUiApi
 fun SingleLayerComposeScene(
     density: Density = Density(1f),
     layoutDirection: LayoutDirection = LayoutDirection.Ltr,
-    size: IntSize? = null,
+    boundsInWindow: IntRect? = null,
     coroutineContext: CoroutineContext = Dispatchers.Unconfined,
     composeSceneContext: ComposeSceneContext = ComposeSceneContext.Empty,
     invalidate: () -> Unit = {},
 ): ComposeScene = SingleLayerComposeSceneImpl(
     density = density,
     layoutDirection = layoutDirection,
-    size = size,
+    boundsInWindow = boundsInWindow,
     coroutineContext = coroutineContext,
     composeSceneContext = composeSceneContext,
     invalidate = invalidate
@@ -81,7 +81,7 @@ fun SingleLayerComposeScene(
 private class SingleLayerComposeSceneImpl(
     density: Density,
     layoutDirection: LayoutDirection,
-    size: IntSize?,
+    boundsInWindow: IntRect?,
     coroutineContext: CoroutineContext,
     composeSceneContext: ComposeSceneContext,
     invalidate: () -> Unit = {},
@@ -95,7 +95,7 @@ private class SingleLayerComposeSceneImpl(
             density = density,
             layoutDirection = layoutDirection,
             coroutineContext = compositionContext.effectCoroutineContext,
-            bounds = size?.toIntRect(),
+            bounds = boundsInWindow,
             platformContext = composeSceneContext.platformContext,
             snapshotInvalidationTracker = snapshotInvalidationTracker,
             inputHandler = inputHandler,
@@ -116,11 +116,14 @@ private class SingleLayerComposeSceneImpl(
             mainOwner.layoutDirection = value
         }
 
-    override var size: IntSize? = size
+    override var boundsInWindow: IntRect? = boundsInWindow
         set(value) {
             check(!isClosed) { "ComposeScene is closed" }
+            check(value == null || (value.size.width >= 0 && value.size.height >= 0)) {
+                "Size of ComposeScene cannot be negative"
+            }
             field = value
-            mainOwner.bounds = value?.toIntRect()
+            mainOwner.bounds = value
         }
 
     override val focusManager: ComposeSceneFocusManager =

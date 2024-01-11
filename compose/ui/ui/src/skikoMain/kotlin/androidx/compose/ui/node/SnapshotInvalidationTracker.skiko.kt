@@ -18,7 +18,9 @@ package androidx.compose.ui.node
 
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.createSynchronizedObject
+import androidx.compose.ui.getCurrentThreadId
 import androidx.compose.ui.synchronized
+import kotlinx.atomicfu.atomic
 
 /**
  * SnapshotCommandList is a class that manages commands and invalidations for snapshot-based recomposition.
@@ -33,6 +35,13 @@ internal class SnapshotInvalidationTracker(
     private var needLayout = true
     private var needDraw = true
 
+    /**
+     * The id of the thread currently inside [performSnapshotChangesSynchronously].
+     *
+     * Note that it's not valid to have more than one thread calling it at the same time.
+     */
+    private var renderingThreadId: Long? by atomic(null)
+
     val hasInvalidations: Boolean
         get() = needLayout || needDraw || snapshotChanges.hasCommands
 
@@ -42,9 +51,6 @@ internal class SnapshotInvalidationTracker(
     }
 
     fun onLayout() {
-        // Apply changes from recomposition phase to layout phase
-        sendAndPerformSnapshotChanges()
-
         needLayout = false
     }
 
@@ -54,9 +60,6 @@ internal class SnapshotInvalidationTracker(
     }
 
     fun onDraw() {
-        // Apply changes from layout phase to draw phase
-        sendAndPerformSnapshotChanges()
-
         needDraw = false
     }
 
@@ -66,7 +69,10 @@ internal class SnapshotInvalidationTracker(
      * @return the observer for monitoring snapshot changes
      */
     fun snapshotObserver() = OwnerSnapshotObserver { command ->
-        snapshotChanges.add(command)
+        if (renderingThreadId == getCurrentThreadId())
+            command()
+        else
+            snapshotChanges.add(command)
     }
 
     /**
@@ -75,6 +81,20 @@ internal class SnapshotInvalidationTracker(
     fun sendAndPerformSnapshotChanges() {
         Snapshot.sendApplyNotifications()
         snapshotChanges.perform()
+    }
+
+    /**
+     * Runs [block], performing any snapshot changes it generates synchronously.
+     *
+     * See [OwnerSnapshotObserverTest.observeReadsChangedBeforeDisposeEffect] for more details.
+     */
+    inline fun <T> performSnapshotChangesSynchronously(block: () -> T): T {
+        return try {
+            renderingThreadId = getCurrentThreadId()
+            block()
+        } finally {
+            renderingThreadId = null
+        }
     }
 }
 

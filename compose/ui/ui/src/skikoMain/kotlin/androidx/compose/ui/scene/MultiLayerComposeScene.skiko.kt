@@ -51,7 +51,6 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
-import androidx.compose.ui.unit.toIntRect
 import androidx.compose.ui.util.fastAny
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastForEachReversed
@@ -69,8 +68,8 @@ import kotlinx.coroutines.Dispatchers
  *
  * @param density Initial density of the content which will be used to convert [Dp] units.
  * @param layoutDirection Initial layout direction of the content.
- * @param size The size of the ComposeScene. Default value is `null`, which means the size will be
- * determined by the contents.
+ * @param boundsInWindow The bounds of the ComposeScene. Default value is `null`, which means
+ * the size will be determined by the content.
  * @param coroutineContext Context which will be used to launch effects ([LaunchedEffect],
  * [rememberCoroutineScope]) and run recompositions.
  * @param composeSceneContext The context to share resources between multiple scenes and provide
@@ -82,19 +81,18 @@ import kotlinx.coroutines.Dispatchers
  *
  * @see ComposeScene
  */
-@Suppress("FunctionName")
 @InternalComposeUiApi
 fun MultiLayerComposeScene(
     density: Density = Density(1f),
     layoutDirection: LayoutDirection = LayoutDirection.Ltr,
-    size: IntSize? = null,
+    boundsInWindow: IntRect? = null,
     coroutineContext: CoroutineContext = Dispatchers.Unconfined,
     composeSceneContext: ComposeSceneContext = ComposeSceneContext.Empty,
     invalidate: () -> Unit = {},
 ): ComposeScene = MultiLayerComposeSceneImpl(
     density = density,
     layoutDirection = layoutDirection,
-    size = size,
+    boundsInWindow = boundsInWindow,
     coroutineContext = coroutineContext,
     composeSceneContext = composeSceneContext,
     invalidate = invalidate
@@ -103,7 +101,7 @@ fun MultiLayerComposeScene(
 private class MultiLayerComposeSceneImpl(
     density: Density,
     layoutDirection: LayoutDirection,
-    size: IntSize?,
+    boundsInWindow: IntRect?,
     coroutineContext: CoroutineContext,
     composeSceneContext: ComposeSceneContext,
     invalidate: () -> Unit = {},
@@ -115,7 +113,7 @@ private class MultiLayerComposeSceneImpl(
     private val mainOwner = RootNodeOwner(
         density = density,
         layoutDirection = layoutDirection,
-        bounds = size?.toIntRect(),
+        bounds = boundsInWindow,
         coroutineContext = compositionContext.effectCoroutineContext,
         platformContext = composeSceneContext.platformContext,
         snapshotInvalidationTracker = snapshotInvalidationTracker,
@@ -136,12 +134,15 @@ private class MultiLayerComposeSceneImpl(
             mainOwner.layoutDirection = value
         }
 
-    override var size: IntSize? = size
+    override var boundsInWindow: IntRect? = boundsInWindow
         set(value) {
             check(!isClosed) { "ComposeScene is closed" }
+            check(value == null || (value.size.width >= 0 && value.size.height >= 0)) {
+                "Size of ComposeScene cannot be negative"
+            }
             field = value
-            mainOwner.bounds = value?.toIntRect()
-            forEachLayer { it.size = value }
+            mainOwner.bounds = value
+            forEachLayer { it.owner.bounds = value }
         }
 
     private val _focusManager = ComposeSceneFocusManagerImpl()
@@ -289,6 +290,8 @@ private class MultiLayerComposeSceneImpl(
 
             // If the position of in bounds of the owner - send event to it and stop processing
             if (layer.isInBounds(position)) {
+                // The layer doesn't have any offset from [mainOwner], so we don't need to
+                // convert event coordinates here.
                 layer.owner.onPointerInput(event)
                 gestureOwner = layer.owner
                 return
@@ -386,7 +389,7 @@ private class MultiLayerComposeSceneImpl(
     ): ComposeSceneLayer = AttachedComposeSceneLayer(
         density = density,
         layoutDirection = layoutDirection,
-        size = size,
+        bounds = boundsInWindow,
         focusable = focusable,
         compositionContext = compositionContext,
     )
@@ -472,7 +475,7 @@ private class MultiLayerComposeSceneImpl(
     private inner class AttachedComposeSceneLayer(
         density: Density,
         layoutDirection: LayoutDirection,
-        size: IntSize?,
+        bounds: IntRect?,
         focusable: Boolean,
         private val compositionContext: CompositionContext,
     ) : ComposeSceneLayer {
@@ -480,7 +483,7 @@ private class MultiLayerComposeSceneImpl(
             density = density,
             layoutDirection = layoutDirection,
             coroutineContext = compositionContext.effectCoroutineContext,
-            bounds = size?.toIntRect(),
+            bounds = bounds,
             platformContext = object : PlatformContext by composeSceneContext.platformContext {
 
                 /**
@@ -496,18 +499,18 @@ private class MultiLayerComposeSceneImpl(
             inputHandler = inputHandler,
         )
         private var composition: Composition? = null
-        private var callback: ((Boolean) -> Unit)? = null
+        private var outsidePointerCallback: ((Boolean) -> Unit)? = null
         private var isClosed = false
-
-        var size: IntSize? = size
-            set(value) {
-                field = value
-                owner.bounds = value?.toIntRect()
-            }
 
         override var density: Density by owner::density
         override var layoutDirection: LayoutDirection by owner::layoutDirection
-        override var bounds: IntRect by mutableStateOf(owner.bounds ?: IntRect.Zero)
+
+        /*
+         * We cannot set [owner.bounds] as default value because real bounds will be available
+         * not immediately, so it will change [lastHoverOwner] for a few frames.
+         * This scenario is important when user code relies on hover events to show tooltips.
+         */
+        override var boundsInWindow: IntRect by mutableStateOf(IntRect.Zero)
         override var scrimColor: Color? by mutableStateOf(null)
         override var focusable: Boolean = focusable
             set(value) {
@@ -570,7 +573,7 @@ private class MultiLayerComposeSceneImpl(
         override fun setOutsidePointerEventListener(
             onOutsidePointerEvent: ((Boolean) -> Unit)?,
         ) {
-            callback = onOutsidePointerEvent
+            outsidePointerCallback = onOutsidePointerEvent
         }
 
         override fun setContent(content: @Composable () -> Unit) {
@@ -582,13 +585,19 @@ private class MultiLayerComposeSceneImpl(
             }
         }
 
-        fun isInBounds(point: Offset): Boolean {
-            val intOffset = IntOffset(point.x.toInt(), point.y.toInt())
-            return bounds.contains(intOffset)
+        override fun calculateLocalPosition(positionInWindow: IntOffset): IntOffset {
+            val offset = owner.bounds?.topLeft ?: IntOffset.Zero
+            return positionInWindow - offset
+        }
+
+        fun isInBounds(position: Offset): Boolean {
+            val offset = owner.bounds?.topLeft ?: IntOffset.Zero
+            val positionInWindow = IntOffset(position.x.toInt(), position.y.toInt()) + offset
+            return boundsInWindow.contains(positionInWindow)
         }
 
         fun onOutsidePointerEvent(event: PointerInputEvent) {
-            callback?.invoke(event.isDismissRequest())
+            outsidePointerCallback?.invoke(event.isDismissRequest())
         }
     }
 }

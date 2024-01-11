@@ -14,14 +14,15 @@
  * limitations under the License.
  */
 
+
 import androidx.build.AndroidXComposePlugin
 import androidx.build.LibraryType
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXComposePlugin")
+    id("kotlinx-atomicfu")
 }
 
 AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project)
@@ -255,5 +256,11 @@ android {
 project.tasks.configureEach {
     if (name == "compileJsWasmMainKotlinMetadata") {
         enabled = false
+    }
+}
+
+afterEvaluate {
+    tasks.withType(Test) { t ->
+        t.jvmArgs += ["--add-opens=java.desktop/sun.font=ALL-UNNAMED"]
     }
 }

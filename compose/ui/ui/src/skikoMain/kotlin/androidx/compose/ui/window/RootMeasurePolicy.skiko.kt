@@ -34,19 +34,18 @@ import kotlin.math.min
 internal fun RootMeasurePolicy(
     platformInsets: PlatformInsets,
     usePlatformDefaultWidth: Boolean,
-    calculatePosition: MeasureScope.(windowSize: IntSize, contentSize: IntSize) -> IntOffset,
+    calculatePosition: MeasureScope.(contentSize: IntSize) -> IntOffset,
 ) = MeasurePolicy {measurables, constraints ->
     val platformConstraints = applyPlatformConstrains(
         constraints, platformInsets, usePlatformDefaultWidth
     )
     val placeables = measurables.fastMap { it.measure(platformConstraints) }
-    val windowSize = IntSize(constraints.maxWidth, constraints.maxHeight)
     val contentSize = IntSize(
         width = placeables.fastMaxBy { it.width }?.width ?: constraints.minWidth,
         height = placeables.fastMaxBy { it.height }?.height ?: constraints.minHeight
     )
-    val position = calculatePosition(windowSize, contentSize)
-    layout(windowSize.width, windowSize.height) {
+    val position = calculatePosition(contentSize)
+    layout(constraints.maxWidth, constraints.maxHeight) {
         placeables.fastForEach {
             it.place(position.x, position.y)
         }
@@ -73,15 +72,15 @@ private fun Density.applyPlatformConstrains(
 internal fun MeasureScope.positionWithInsets(
     insets: PlatformInsets,
     size: IntSize,
-    calculatePosition: (size: IntSize) -> IntOffset,
+    calculatePosition: (sizeWithoutInsets: IntSize) -> IntOffset,
 ): IntOffset {
     val horizontal = insets.left.roundToPx() + insets.right.roundToPx()
     val vertical = insets.top.roundToPx() + insets.bottom.roundToPx()
-    val sizeWithPadding = IntSize(
+    val sizeWithoutInsets = IntSize(
         width = size.width - horizontal,
         height = size.height - vertical
     )
-    val position = calculatePosition(sizeWithPadding)
+    val position = calculatePosition(sizeWithoutInsets)
     val offset = IntOffset(
         x = insets.left.roundToPx(),
         y = insets.top.roundToPx()

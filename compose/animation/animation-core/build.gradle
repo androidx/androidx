@@ -23,6 +23,7 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXComposePlugin")
+    id("kotlinx-atomicfu")
 }
 
 AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project)
@@ -116,11 +117,22 @@ if (AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                 dependsOn(jsWasmMain)
             }
 
+            jbMain {
+                dependsOn(commonMain)
+                dependencies {
+                    implementation(libs.atomicFu)
+                }
+            }
+            desktopMain.dependsOn(jbMain)
+            jsNativeMain.dependsOn(jbMain)
+
             if (project.kotlinWasmEnabled.toBoolean()) {
                 wasmJsMain {
                     dependsOn(jsWasmMain)
                 }
             }
+
+
 
             // TODO(b/214407011): These dependencies leak into instrumented tests as well. If you
             //  need to add Robolectric (which must be kept out of androidAndroidTest), use a top

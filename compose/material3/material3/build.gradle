@@ -22,6 +22,7 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXComposePlugin")
+    id("kotlinx-atomicfu")
     //id("AndroidXPaparazziPlugin") // isn't supported on Windows
 }
 
@@ -123,6 +124,7 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                 dependsOn(commonMain)
                 dependencies {
                     implementation(libs.datetime)
+                    implementation(libs.atomicFu)
                 }
             }
 

@@ -20,6 +20,9 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.PointerMatcher
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.ImageComposeScene
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -30,6 +33,12 @@ import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.PointerType
 import androidx.compose.ui.platform.PlatformContext
 import androidx.compose.ui.platform.ViewConfiguration
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.MouseButton
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performMouseInput
+import androidx.compose.ui.test.runComposeUiTest
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.use
@@ -461,6 +470,37 @@ class DragGestureTest {
             assertFalse(dragCanceled)
             assertEquals(3, onDragCounter)
         }
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun dragGestureDoesNotRestartOnMatcherChange() = runComposeUiTest {
+        var matcher by mutableStateOf(PointerMatcher.Primary)
+        var dragCount = 0
+        setContent {
+            Box(Modifier
+                .testTag("box")
+                .size(100.dp)
+                .onDrag(matcher = matcher) {
+                    dragCount += 1
+                }
+            )
+        }
+
+        onNodeWithTag("box").performMouseInput {
+            moveTo(Offset(10f, 10f))
+            press(MouseButton.Primary)
+            moveTo(Offset(20f, 20f))
+        }
+        assertEquals(expected = 1, actual = dragCount)
+
+        dragCount = 0
+        matcher = PointerMatcher.Primary + PointerMatcher.mouse(PointerButton.Secondary)
+        onNodeWithTag("box").performMouseInput {
+            moveTo(Offset(30f, 30f))
+            release(MouseButton.Primary)
+        }
+        assertEquals(expected = 1, actual = dragCount)
     }
 }
 

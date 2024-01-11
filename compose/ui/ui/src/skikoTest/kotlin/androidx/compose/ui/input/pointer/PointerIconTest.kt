@@ -99,7 +99,7 @@ class PointerIconTest {
         )
 
         try {
-            scene.size = IntSize(surface.width, surface.height)
+            scene.boundsInWindow = IntRect(0, 0, surface.width, surface.height)
             scene.setContent {
                 Box(
                     modifier = Modifier
@@ -129,7 +129,7 @@ class PointerIconTest {
         )
 
         try {
-            scene.size = IntSize(surface.width, surface.height)
+            scene.boundsInWindow = IntRect(0, 0, surface.width, surface.height)
             scene.setContent {
                 Box(
                     modifier = Modifier
@@ -234,7 +234,7 @@ class PointerIconTest {
         val recomposeChannel = Channel<Int>(Channel.CONFLATED) // helps with waiting for recomposition
         var count = 0
         try {
-            scene.size = IntSize(surface.width, surface.height)
+            scene.boundsInWindow = IntRect(0, 0, surface.width, surface.height)
             scene.setContent {
                 Box(
                     modifier = Modifier.pointerHoverIcon(iconState.value).size(30.dp, 30.dp)
@@ -278,7 +278,7 @@ class PointerIconTest {
         val recomposeChannel = Channel<Int>(Channel.CONFLATED) // helps with waiting for recomposition
         var count = 0
         try {
-            scene.size = IntSize(surface.width, surface.height)
+            scene.boundsInWindow = IntRect(0, 0, surface.width, surface.height)
             scene.setContent {
                 Box(
                     modifier = Modifier.size(100.dp, 100.dp).pointerHoverIcon(PointerIcon.Default)

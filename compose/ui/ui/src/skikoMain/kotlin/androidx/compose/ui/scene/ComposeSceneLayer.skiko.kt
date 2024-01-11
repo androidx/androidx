@@ -29,6 +29,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.window.Dialog
@@ -62,7 +63,7 @@ interface ComposeSceneLayer {
      * The implementation should be ready to react on the changes in size/position that can
      * happen during recompositions.
      */
-    var bounds: IntRect
+    var boundsInWindow: IntRect
 
     /**
      * The color of the background fill. It can be set to null if no background drawing is necessary.
@@ -123,18 +124,24 @@ interface ComposeSceneLayer {
 
     /**
      * Establishes a callback function that is triggered when a pointer event occurs outside
-     * of [bounds]. It's important to note that any gestures initiated within the [bounds] should
-     * be entirely handled by this layer, without activating this event.
+     * of [boundsInWindow]. It's important to note that any gestures initiated within
+     * the [boundsInWindow] should be entirely handled by this layer, without activating this event.
      *
      * @param onOutsidePointerEvent The callback function that is invoked when a pointer event
      * occurs outside. It accepts a boolean parameter to denote if the event is intended to close
      * this layer. When the parameter is true, it typically signifies that it's the primary (left)
      * mouse button or single pointer that executed a full click (press and release) outside
-     * of [bounds], and false in all other cases.
+     * of [boundsInWindow], and false in all other cases.
      */
     fun setOutsidePointerEventListener(
         onOutsidePointerEvent: ((dismissRequest: Boolean) -> Unit)? = null,
     )
+
+    /**
+     * Returns the position relative to the [ComposeScene] of the [positionInWindow],
+     * the position relative to the window.
+     */
+    fun calculateLocalPosition(positionInWindow: IntOffset): IntOffset
 }
 
 /**

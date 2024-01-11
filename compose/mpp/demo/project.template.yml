@@ -29,7 +29,9 @@ targets:
         UILaunchStoryboardName: "LaunchStoryboard" # needs for proper iOS app size and modern features
         CADisableMinimumFrameDurationOnPhone: true
     sources:
-      - "src/"
+      # we don't have swift sources, but need a real path here (it doesn't matter what folder).
+      # Xcode copies the files from this path. We need to ensure no file duplicates.
+      - "src/swift"
     settings:
       LIBRARY_SEARCH_PATHS: "$(inherited)"
       ENABLE_BITCODE: "YES"

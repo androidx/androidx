@@ -16,7 +16,11 @@
 
 package androidx.compose.ui.window
 
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import java.awt.Component
 import java.awt.ComponentOrientation
@@ -39,6 +43,15 @@ internal val GlobalDensity get() = GraphicsEnvironment.getLocalGraphicsEnvironme
     .density
 
 internal val Component.density: Density get() = graphicsConfiguration.density
+
+internal val Component.sizeInPx: IntSize
+    get() {
+        val scale = density.density
+        return IntSize(
+            width = (width * scale).toInt(),
+            height = (height * scale).toInt()
+        )
+    }
 
 private val GraphicsConfiguration.density: Density get() = Density(
     defaultTransform.scaleX.toFloat(),

@@ -74,6 +74,7 @@ import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.round
+import androidx.compose.ui.unit.toOffset
 import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.awaitCancellation
 
@@ -116,6 +117,10 @@ internal class RootNodeOwner(
         }
     val owner: Owner = OwnerImpl(layoutDirection, coroutineContext)
     val semanticsOwner = SemanticsOwner(owner.root)
+
+    /**
+     * Bounds of [Owner] in window coordinates.
+     */
     var bounds by mutableStateOf(bounds)
     var density: Density by mutableStateOf(density)
 
@@ -362,9 +367,15 @@ internal class RootNodeOwner(
             }
         }
 
-        override fun calculatePositionInWindow(localPosition: Offset): Offset = localPosition
+        override fun calculatePositionInWindow(localPosition: Offset): Offset {
+            val offset = bounds?.topLeft?.toOffset() ?: Offset.Zero
+            return localPosition + offset
+        }
 
-        override fun calculateLocalPosition(positionInWindow: Offset): Offset = positionInWindow
+        override fun calculateLocalPosition(positionInWindow: Offset): Offset {
+            val offset = bounds?.topLeft?.toOffset() ?: Offset.Zero
+            return positionInWindow - offset
+        }
 
         private val endApplyChangesListeners = mutableVectorOf<(() -> Unit)?>()
 

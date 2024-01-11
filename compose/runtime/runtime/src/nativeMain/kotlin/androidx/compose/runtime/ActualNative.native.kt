@@ -18,53 +18,18 @@ package androidx.compose.runtime
 
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.runtime.snapshots.SnapshotContextElement
-import androidx.compose.runtime.snapshots.SnapshotMutableState
 import kotlin.coroutines.CoroutineContext
 import kotlin.experimental.ExperimentalNativeApi
-import kotlinx.coroutines.yield
 import kotlin.native.identityHashCode
 import kotlin.system.getTimeNanos
 import kotlin.time.ExperimentalTime
-import kotlin.native.concurrent.isFrozen
-import kotlin.native.concurrent.freeze
-import kotlin.native.concurrent.ensureNeverFrozen
+import kotlinx.atomicfu.atomic
+import kotlinx.coroutines.yield
 
-private val threadCounter = kotlin.concurrent.AtomicLong(0)
+private val threadCounter = atomic(0L)
 
 @kotlin.native.concurrent.ThreadLocal
 private var threadId: Long = threadCounter.addAndGet(1)
-
-/**
- * AtomicReference implementation suitable for both single and multi-threaded context.
- */
-actual class AtomicReference<V> actual constructor(value: V) {
-    private val delegate = kotlin.concurrent.AtomicReference(value)
-
-    actual fun get(): V = delegate.value
-
-    actual fun set(value: V) {
-        delegate.value = value
-    }
-
-    actual fun getAndSet(value: V): V {
-        var old = delegate.value
-        while (!delegate.compareAndSet(old, value)) { old = delegate.value }
-        return old
-    }
-
-    actual fun compareAndSet(expect: V, newValue: V): Boolean {
-        return delegate.compareAndSet(expect, newValue)
-    }
-}
-
-internal actual class AtomicInt actual constructor(value: Int) {
-    private val delegate = kotlin.concurrent.AtomicInt(value)
-    actual fun get(): Int = delegate.value
-    actual fun set(value: Int) {
-        delegate.value = value
-    }
-    actual fun add(amount: Int): Int = delegate.addAndGet(amount)
-}
 
 @OptIn(ExperimentalNativeApi::class)
 internal actual class WeakReference<T : Any> actual constructor(reference: T) {

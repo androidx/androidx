@@ -16,23 +16,6 @@
 
 package androidx.compose.ui.platform
 
-internal actual class AtomicInt actual constructor(value_: Int) {
-    private var delegate: Int = value_
-
-    actual fun addAndGet(delta: Int): Int {
-        delegate += delta
-        return delegate
-    }
-    actual fun compareAndSet(expected: Int, new: Int): Boolean {
-        return if (delegate == expected) {
-            delegate = new
-            true
-        } else {
-            false
-        }
-    }
-}
-
 internal actual fun Any.nativeClass(): Any = this::class
 
 internal actual fun simpleIdentityToString(obj: Any, name: String?): String {

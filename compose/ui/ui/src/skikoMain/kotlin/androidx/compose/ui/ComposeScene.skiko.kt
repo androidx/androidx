@@ -193,8 +193,8 @@ class ComposeScene internal constructor(
      * Constraints used to measure and layout content.
      */
     var constraints: Constraints
-        get() = replacement.size?.toConstraints() ?: Constraints()
-        set(value) { replacement.size = value.toSize() }
+        get() = replacement.boundsInWindow?.size?.toConstraints() ?: Constraints()
+        set(value) { replacement.boundsInWindow = value.toSize()?.toIntRect() }
 
     /**
      * Returns the current content size

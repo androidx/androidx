@@ -53,6 +53,7 @@ internal expect object MappedKeys {
     val MoveEnd: Key
     val Insert: Key
     val Enter: Key
+    val NumPadEnter: Key
     val Backspace: Key
     val Delete: Key
     val Paste: Key
@@ -107,7 +108,7 @@ internal fun commonKeyMapping(
                         MappedKeys.PageDown -> KeyCommand.PAGE_DOWN
                         MappedKeys.MoveHome -> KeyCommand.LINE_START
                         MappedKeys.MoveEnd -> KeyCommand.LINE_END
-                        MappedKeys.Enter -> KeyCommand.NEW_LINE
+                        MappedKeys.Enter, MappedKeys.NumPadEnter -> KeyCommand.NEW_LINE
                         MappedKeys.Backspace -> KeyCommand.DELETE_PREV_CHAR
                         MappedKeys.Delete -> KeyCommand.DELETE_NEXT_CHAR
                         MappedKeys.Paste -> KeyCommand.PASTE

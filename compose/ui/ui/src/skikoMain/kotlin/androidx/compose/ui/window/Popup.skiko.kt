@@ -35,6 +35,7 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.InsetsConfig
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.PlatformInsets
 import androidx.compose.ui.platform.PlatformInsetsConfig
 import androidx.compose.ui.platform.ZeroInsetsConfig
@@ -44,6 +45,7 @@ import androidx.compose.ui.semantics.popup
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.round
 
@@ -435,17 +437,18 @@ private fun PopupLayout(
     layer.setKeyEventListener(onPreviewKeyEvent, onKeyEvent)
     layer.setOutsidePointerEventListener(onOutsidePointerEvent)
     rememberLayerContent(layer) {
-        val parentBounds = layoutParentBoundsInWindow ?: return@rememberLayerContent
+        val parentBoundsInWindow = layoutParentBoundsInWindow ?: return@rememberLayerContent
+        val containerSize = LocalWindowInfo.current.containerSize
         val layoutDirection = LocalLayoutDirection.current
         val measurePolicy = rememberPopupMeasurePolicy(
+            layer = layer,
             popupPositionProvider = popupPositionProvider,
             properties = properties,
+            containerSize = containerSize,
             platformInsets = platformInsets,
             layoutDirection = layoutDirection,
-            parentBounds = parentBounds
-        ) {
-            layer.bounds = it
-        }
+            parentBoundsInWindow = parentBoundsInWindow
+        )
         properties.insetsConfig.excludeSafeInsets {
             Layout(
                 content = content,
@@ -487,37 +490,38 @@ private fun Modifier.parentBoundsInWindow(
 
 @Composable
 private fun rememberPopupMeasurePolicy(
+    layer: ComposeSceneLayer,
     popupPositionProvider: PopupPositionProvider,
     properties: PopupProperties,
+    containerSize: IntSize,
     platformInsets: PlatformInsets,
     layoutDirection: LayoutDirection,
-    parentBounds: IntRect,
-    onBoundsChanged: (IntRect) -> Unit
-) = remember(popupPositionProvider, properties, platformInsets, layoutDirection, parentBounds, onBoundsChanged) {
+    parentBoundsInWindow: IntRect,
+) = remember(layer, popupPositionProvider, properties, containerSize, platformInsets, layoutDirection, parentBoundsInWindow) {
     RootMeasurePolicy(
         platformInsets = platformInsets,
         usePlatformDefaultWidth = properties.usePlatformDefaultWidth
-    ) { windowSize, contentSize ->
-        val position = positionWithInsets(platformInsets, windowSize) {
-            // Position provider should work with local coordinates.
-            val localBounds = parentBounds.translate(
+    ) { contentSize ->
+        val positionWithInsets = positionWithInsets(platformInsets, containerSize) { sizeWithoutInsets ->
+            // Position provider works in coordinates without insets.
+            val boundsWithoutInsets = parentBoundsInWindow.translate(
                 -platformInsets.left.roundToPx(),
                 -platformInsets.top.roundToPx()
             )
-            val localPosition = popupPositionProvider.calculatePosition(
-                localBounds, it, layoutDirection, contentSize
+            val positionInWindow = popupPositionProvider.calculatePosition(
+                boundsWithoutInsets, sizeWithoutInsets, layoutDirection, contentSize
             )
             if (properties.clippingEnabled) {
                 IntOffset(
-                    x = localPosition.x.coerceIn(0, it.width - contentSize.width),
-                    y = localPosition.y.coerceIn(0, it.height - contentSize.height)
+                    x = positionInWindow.x.coerceIn(0, sizeWithoutInsets.width - contentSize.width),
+                    y = positionInWindow.y.coerceIn(0, sizeWithoutInsets.height - contentSize.height)
                 )
             } else {
-                localPosition
+                positionInWindow
             }
         }
-        onBoundsChanged(IntRect(position, contentSize))
-        position
+        layer.boundsInWindow = IntRect(positionWithInsets, contentSize)
+        layer.calculateLocalPosition(positionWithInsets)
     }
 }
 

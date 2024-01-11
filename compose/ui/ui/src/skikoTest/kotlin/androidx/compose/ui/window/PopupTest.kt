@@ -621,4 +621,37 @@ class PopupTest {
         onNodeWithTag("box2")
             .assertPositionInRootIsEqualTo(30.dp, 100.dp) // Matches parent position (if inside bounds)
     }
+
+    @Test
+    fun doNotLoseHoverOutsideOfPopup() = runSkikoComposeUiTest(
+        size = Size(100f, 100f)
+    ) {
+        val openPopup = mutableStateOf(false)
+        val background = FillBox()
+        val popup = PopupState(
+            IntRect(20, 20, 60, 60),
+            focusable = false,
+            onDismissRequest = {
+                openPopup.value = false
+            }
+        )
+
+        setContent {
+            background.Content()
+            if (openPopup.value) {
+                popup.Content()
+            }
+        }
+
+        // Moving without popup generates Enter because it's in bounds
+        scene.sendPointerEvent(PointerEventType.Move, Offset(5f, 5f))
+        background.events.assertReceivedLast(PointerEventType.Enter, Offset(5f, 5f))
+
+        // Open popup
+        openPopup.value = true
+        onNodeWithTag(popup.tag).assertIsDisplayed()
+
+        // It should not generate extra Exit/Enter events
+        background.events.assertReceivedNoEvents()
+    }
 }

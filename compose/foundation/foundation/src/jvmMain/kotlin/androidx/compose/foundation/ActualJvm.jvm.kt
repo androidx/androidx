@@ -20,10 +20,6 @@ package androidx.compose.foundation
 
 import kotlinx.coroutines.CancellationException
 
-internal actual typealias AtomicReference<V> = java.util.concurrent.atomic.AtomicReference<V>
-
-internal actual typealias AtomicLong = java.util.concurrent.atomic.AtomicLong
-
 internal actual abstract class PlatformOptimizedCancellationException actual constructor(
     message: String?
 ) : CancellationException(message) {

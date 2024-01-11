@@ -75,7 +75,7 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
     kotlin {
         // Not all modules can have these targets, so declare them here instead of androidXComposeMultiplatform.
         // We can support the kotlin-native targets supported by kotlin coroutines:
-        // https://github.com/Kotlin/kotlinx.coroutines/blob/master/gradle/compile-native-multiplatform.gradle
+        // https://github.com/Kotlin/kotlinx.coroutines/blob/master/buildSrc/src/main/kotlin/kotlin-multiplatform-conventions.gradle.kts
         // NOTE: Keep this list in sync with runtime's targets.
         watchosArm64()
         watchosArm32()
@@ -85,6 +85,7 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
         tvosX64()
         tvosSimulatorArm64()
         mingwX64()
+        linuxArm64()
         linuxX64()
 
         /* When updating dependencies, make sure to make the an an analogous update in the

@@ -29,6 +29,7 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.InsetsConfig
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.PlatformInsets
 import androidx.compose.ui.platform.PlatformInsetsConfig
 import androidx.compose.ui.platform.ZeroInsetsConfig
@@ -37,6 +38,7 @@ import androidx.compose.ui.scene.rememberComposeSceneLayer
 import androidx.compose.ui.semantics.dialog
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.IntRect
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.center
 
 /**
@@ -178,12 +180,13 @@ private fun DialogLayout(
     layer.setKeyEventListener(onPreviewKeyEvent, onKeyEvent)
     layer.setOutsidePointerEventListener(onOutsidePointerEvent)
     rememberLayerContent(layer) {
+        val containerSize = LocalWindowInfo.current.containerSize
         val measurePolicy = rememberDialogMeasurePolicy(
+            layer = layer,
             properties = properties,
+            containerSize = containerSize,
             platformInsets = platformInsets
-        ) {
-            layer.bounds = it
-        }
+        )
         properties.insetsConfig.excludeSafeInsets {
             Layout(
                 content = content,
@@ -206,19 +209,20 @@ private val DialogProperties.insetsConfig: InsetsConfig
 
 @Composable
 private fun rememberDialogMeasurePolicy(
+    layer: ComposeSceneLayer,
     properties: DialogProperties,
-    platformInsets: PlatformInsets,
-    onBoundsChanged: (IntRect) -> Unit
-) = remember(properties, platformInsets, onBoundsChanged) {
+    containerSize: IntSize,
+    platformInsets: PlatformInsets
+) = remember(layer, properties, containerSize, platformInsets) {
     RootMeasurePolicy(
         platformInsets = platformInsets,
         usePlatformDefaultWidth = properties.usePlatformDefaultWidth
-    ) { windowSize, contentSize ->
-        val position = positionWithInsets(platformInsets, windowSize) {
-            it.center - contentSize.center
+    ) { contentSize ->
+        val positionWithInsets = positionWithInsets(platformInsets, containerSize) { sizeWithoutInsets ->
+            sizeWithoutInsets.center - contentSize.center
         }
-        onBoundsChanged(IntRect(position, contentSize))
-        position
+        layer.boundsInWindow = IntRect(positionWithInsets, contentSize)
+        layer.calculateLocalPosition(positionWithInsets)
     }
 }
 

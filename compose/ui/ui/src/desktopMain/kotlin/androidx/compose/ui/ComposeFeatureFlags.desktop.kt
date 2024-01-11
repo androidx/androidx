@@ -16,11 +16,39 @@
 
 package androidx.compose.ui
 
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.Popup
+
+internal enum class LayerType {
+    OnSameCanvas,
+    OnComponent,
+    OnWindow;
+
+    companion object {
+        fun parse(property: String?): LayerType {
+            return when (property) {
+                "COMPONENT" -> OnComponent
+                "WINDOW" -> OnWindow
+                else -> OnSameCanvas
+            }
+        }
+    }
+}
+
 /**
  * The helper singleton object that provides the access to feature flags that
  * configure Compose behaviour.
  */
 internal object ComposeFeatureFlags {
+
+    /**
+     * Indicates how the layers will be created.
+     * The default value is `OnSameCanvas`, implying that new layers
+     * (such as for [Popup] and [Dialog]) are created within the initial canvas.
+     */
+    val layerType: LayerType
+        get() = LayerType.parse(System.getProperty("compose.layers.type"))
+
     /**
      * Indicates whether the Compose should use Swing graphics for rendering.
      * This prevents transitional rendering issues when panels are being shown, hidden, or resized.

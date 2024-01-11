@@ -31,6 +31,8 @@ import androidx.compose.ui.platform.WindowInfo
 import androidx.compose.ui.scene.BaseComposeScene
 import androidx.compose.ui.scene.ComposeScene
 import androidx.compose.ui.sendMouseEvent
+import androidx.compose.ui.sendMousePress
+import androidx.compose.ui.sendMouseRelease
 import androidx.compose.ui.window.WindowExceptionHandler
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntSize
@@ -40,11 +42,9 @@ import androidx.compose.ui.window.runApplicationTest
 import com.google.common.truth.Truth.assertThat
 import java.awt.Dimension
 import java.awt.GraphicsEnvironment
-import java.awt.event.MouseEvent.BUTTON1_DOWN_MASK
+import java.awt.event.MouseEvent.BUTTON1
 import java.awt.event.MouseEvent.MOUSE_ENTERED
 import java.awt.event.MouseEvent.MOUSE_MOVED
-import java.awt.event.MouseEvent.MOUSE_PRESSED
-import java.awt.event.MouseEvent.MOUSE_RELEASED
 import java.awt.event.WindowEvent
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.skiko.ExperimentalSkikoApi
@@ -134,7 +134,7 @@ class ComposeWindowTest {
 
             window.isVisible = true
             awaitIdle()
-            window.sendMouseEvent(MOUSE_PRESSED, x = 100, y = 50)
+            window.sendMousePress(BUTTON1, x = 100, y = 50)
             awaitIdle()
             assertThat(caughtExceptions.size).isEqualTo(1)
             assertThat(caughtExceptions.last()).isInstanceOf(TestException::class.java)
@@ -156,7 +156,7 @@ class ComposeWindowTest {
                 window.pack()
                 assertThat(window.size).isEqualTo(Dimension(234, 345))
 
-                assertThat(window.scene.windowInfo.containerSize)
+                assertThat(window.windowContext.windowInfo.containerSize)
                     .isEqualTo(IntSize(
                         width = (234 * window.density.density).toInt(),
                         height = (345 * window.density.density).toInt(),
@@ -187,7 +187,7 @@ class ComposeWindowTest {
                 assertThat(window.preferredSize).isEqualTo(Dimension(300, 400))
                 assertThat(window.size).isEqualTo(Dimension(300, 400))
 
-                assertThat(window.scene.windowInfo.containerSize)
+                assertThat(window.windowContext.windowInfo.containerSize)
                     .isEqualTo(IntSize(
                         width = (300 * window.density.density).toInt(),
                         height = (400 * window.density.density).toInt(),
@@ -227,7 +227,7 @@ class ComposeWindowTest {
                     )
                 )
                 
-                assertThat(window.scene.windowInfo.containerSize)
+                assertThat(window.windowContext.windowInfo.containerSize)
                     .isEqualTo(IntSize(
                         width = (300 * window.density.density).toInt(),
                         height = (400 * window.density.density).toInt(),
@@ -256,9 +256,9 @@ class ComposeWindowTest {
             awaitIdle()
             window.sendMouseEvent(MOUSE_MOVED, 100, 50)
             awaitIdle()
-            window.sendMouseEvent(MOUSE_PRESSED, 100, 50, modifiers = BUTTON1_DOWN_MASK)
+            window.sendMousePress(BUTTON1, 100, 50)
             awaitIdle()
-            window.sendMouseEvent(MOUSE_RELEASED, 100, 50)
+            window.sendMouseRelease(BUTTON1, 100, 50)
             awaitIdle()
             assertThat(isClickHappened).isTrue()
         } finally {
