@@ -18,6 +18,7 @@ package androidx.appsearch.localstorage.visibilitystore;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.CanIgnoreReturnValue;
 import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.PackageIdentifier;
@@ -143,6 +144,7 @@ class VisibilityDocumentV1 extends GenericDocument {
         }
 
         /** Sets whether this schema has opted out of platform surfacing. */
+        @CanIgnoreReturnValue
         @NonNull
         Builder setNotDisplayedBySystem(boolean notDisplayedBySystem) {
             return setPropertyBoolean(NOT_DISPLAYED_BY_SYSTEM_PROPERTY,
@@ -150,6 +152,7 @@ class VisibilityDocumentV1 extends GenericDocument {
         }
 
         /** Add {@link PackageIdentifier} of packages which has access to this schema. */
+        @CanIgnoreReturnValue
         @NonNull
         Builder addVisibleToPackages(@NonNull Set<PackageIdentifier> packageIdentifiers) {
             Preconditions.checkNotNull(packageIdentifiers);
@@ -158,6 +161,7 @@ class VisibilityDocumentV1 extends GenericDocument {
         }
 
         /** Add {@link PackageIdentifier} of packages which has access to this schema. */
+        @CanIgnoreReturnValue
         @NonNull
         Builder addVisibleToPackage(@NonNull PackageIdentifier packageIdentifier) {
             Preconditions.checkNotNull(packageIdentifier);
@@ -167,6 +171,7 @@ class VisibilityDocumentV1 extends GenericDocument {
 
         /** Add a set of Android role that has access to the schema this
          * {@link VisibilityDocumentV1} represents. */
+        @CanIgnoreReturnValue
         @NonNull
         Builder setVisibleToRoles(@NonNull Set<Integer> visibleToRoles) {
             Preconditions.checkNotNull(visibleToRoles);
@@ -176,6 +181,7 @@ class VisibilityDocumentV1 extends GenericDocument {
 
         /** Add a set of Android role that has access to the schema this
          * {@link VisibilityDocumentV1} represents. */
+        @CanIgnoreReturnValue
         @NonNull
         Builder setVisibleToPermissions(@NonNull Set<Integer> visibleToPermissions) {
             Preconditions.checkNotNull(visibleToPermissions);

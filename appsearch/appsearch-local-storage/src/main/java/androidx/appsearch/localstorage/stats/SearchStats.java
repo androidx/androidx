@@ -613,6 +613,7 @@ public final class SearchStats {
         }
 
         /** Sets whether or not this is a join query */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder setJoinType(@JoinableValueType int joinType) {
             mJoinType = joinType;
@@ -620,6 +621,7 @@ public final class SearchStats {
         }
 
         /** Set the total number of joined documents in a page. */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder setNativeNumJoinedResultsCurrentPage(int nativeNumJoinedResultsCurrentPage) {
             mNativeNumJoinedResultsCurrentPage = nativeNumJoinedResultsCurrentPage;
@@ -627,6 +629,7 @@ public final class SearchStats {
         }
 
         /** Sets time it takes to join documents together in icing. */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder setNativeJoinLatencyMillis(int nativeJoinLatencyMillis) {
             mNativeJoinLatencyMillis = nativeJoinLatencyMillis;
@@ -634,6 +637,7 @@ public final class SearchStats {
         }
 
         /** Sets a tag to indicate the source of this search. */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder setSearchSourceLogTag(@NonNull String searchSourceLogTag) {
             mSearchSourceLogTag = searchSourceLogTag;

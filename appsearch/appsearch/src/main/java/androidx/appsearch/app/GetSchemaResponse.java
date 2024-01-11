@@ -518,6 +518,7 @@ public final class GetSchemaResponse extends AbstractSafeParcelable {
          * @exportToFramework:hide
          */
          // Visibility setting is determined by SDK version, so it won't be needed in framework
+        @CanIgnoreReturnValue
         @SuppressLint("MissingGetterMatchingBuilder")
         @NonNull
         public Builder setVisibilitySettingSupported(boolean visibilitySettingSupported) {
