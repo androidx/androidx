@@ -19,6 +19,6 @@ package androidx.baselineprofile.gradle.utils
 enum class TestAgpVersion(val versionString: String?) {
     TEST_AGP_VERSION_8_0_0("8.0.0"),
     TEST_AGP_VERSION_8_1_0("8.1.0"),
-    TEST_AGP_VERSION_8_2_0("8.2.0-alpha04"),
+    // TODO: add back `TEST_AGP_VERSION_8_2_0("8.2.0")` after b/309493780,
     TEST_AGP_VERSION_CURRENT(null)
 }
