@@ -41,6 +41,7 @@ import androidx.compose.foundation.text.selection.SelectionHandleInfoKey
 import androidx.compose.foundation.text.textFieldMinSize
 import androidx.compose.foundation.text2.input.CodepointTransformation
 import androidx.compose.foundation.text2.input.InputTransformation
+import androidx.compose.foundation.text2.input.OutputTransformation
 import androidx.compose.foundation.text2.input.SingleLineCodepointTransformation
 import androidx.compose.foundation.text2.input.TextFieldLineLimits
 import androidx.compose.foundation.text2.input.TextFieldLineLimits.MultiLine
@@ -143,7 +144,7 @@ import androidx.compose.ui.unit.dp
  * [KeyboardOptions.imeAction].
  * @param lineLimits Whether the text field should be [SingleLine], scroll horizontally, and
  * ignore newlines; or [MultiLine] and grow and scroll vertically. If [SingleLine] is passed without
- * specifying the [codepointTransformation] parameter, a [CodepointTransformation] is automatically
+ * specifying the [outputTransformation] parameter, a [CodepointTransformation] is automatically
  * applied. This transformation replaces any newline characters ('\n') within the text with regular
  * whitespace (' '), ensuring that the contents of the text field are presented in a single line.
  * @param onTextLayout Callback that is executed when the text layout becomes queryable. The
@@ -162,11 +163,15 @@ import androidx.compose.ui.unit.dp
  * provided, then no cursor will be drawn.
  * @param codepointTransformation Visual transformation interface that provides a 1-to-1 mapping of
  * codepoints.
+ * @param outputTransformation An [OutputTransformation] that transforms how the contents of the
+ * text field are presented.
  * @param decorator Allows to add decorations around text field, such as icon, placeholder, helper
  * messages or similar, and automatically increase the hit target area of the text field.
  * @param scrollState Scroll state that manages either horizontal or vertical scroll of TextField.
  * If [lineLimits] is [SingleLine], this text field is treated as single line with horizontal
  * scroll behavior. In other cases the text field becomes vertically scrollable.
+ * @param outputTransformation An [OutputTransformation] that transforms how the contents of the
+ * text field are presented.
  */
 @ExperimentalFoundationApi
 // This takes a composable lambda, but it is not primarily a container.
@@ -187,6 +192,7 @@ fun BasicTextField2(
     interactionSource: MutableInteractionSource? = null,
     cursorBrush: Brush = SolidColor(Color.Black),
     codepointTransformation: CodepointTransformation? = null,
+    outputTransformation: OutputTransformation? = null,
     decorator: TextFieldDecorator? = null,
     scrollState: ScrollState = rememberScrollState(),
     // Last parameter must not be a function unless it's intended to be commonly used as a trailing
@@ -238,6 +244,7 @@ fun BasicTextField2(
         cursorBrush = cursorBrush,
         scrollState = scrollState,
         codepointTransformation = codepointTransformation,
+        outputTransformation = outputTransformation,
         decorator = decorator,
     )
 }
@@ -308,6 +315,8 @@ fun BasicTextField2(
  * provided, then no cursor will be drawn.
  * @param codepointTransformation Visual transformation interface that provides a 1-to-1 mapping of
  * codepoints.
+ * @param outputTransformation An [OutputTransformation] that transforms how the contents of the
+ * text field are presented.
  * @param decorator Allows to add decorations around text field, such as icon, placeholder, helper
  * messages or similar, and automatically increase the hit target area of the text field.
  * @param scrollState Scroll state that manages either horizontal or vertical scroll of TextField.
@@ -332,6 +341,7 @@ fun BasicTextField2(
     interactionSource: MutableInteractionSource? = null,
     cursorBrush: Brush = SolidColor(Color.Black),
     codepointTransformation: CodepointTransformation? = null,
+    outputTransformation: OutputTransformation? = null,
     decorator: TextFieldDecorator? = null,
     scrollState: ScrollState = rememberScrollState(),
     // Last parameter must not be a function unless it's intended to be commonly used as a trailing
@@ -349,13 +359,23 @@ fun BasicTextField2(
     val isDragHovered = interactionSource.collectIsHoveredAsState().value
     val isWindowFocused = windowInfo.isWindowFocused
 
-    val transformedState = remember(state, inputTransformation, codepointTransformation) {
+    val transformedState = remember(
+        state,
+        inputTransformation,
+        codepointTransformation,
+        outputTransformation
+    ) {
         // First prefer provided codepointTransformation if not null, e.g. BasicSecureTextField
         // would send PasswordTransformation. Second, apply a SingleLineCodepointTransformation if
         // text field is configured to be single line. Else, don't apply any visual transformation.
         val appliedCodepointTransformation = codepointTransformation
             ?: SingleLineCodepointTransformation.takeIf { singleLine }
-        TransformedTextFieldState(state, inputTransformation, appliedCodepointTransformation)
+        TransformedTextFieldState(
+            textFieldState = state,
+            inputTransformation = inputTransformation,
+            codepointTransformation = appliedCodepointTransformation,
+            outputTransformation = outputTransformation
+        )
     }
 
     // Invalidate textLayoutState if TextFieldState itself has changed, since TextLayoutState

@@ -21,6 +21,7 @@ import androidx.compose.foundation.demos.text2.BasicTextField2CustomPinFieldDemo
 import androidx.compose.foundation.demos.text2.BasicTextField2Demos
 import androidx.compose.foundation.demos.text2.BasicTextField2FilterDemos
 import androidx.compose.foundation.demos.text2.BasicTextField2LongTextDemo
+import androidx.compose.foundation.demos.text2.BasicTextField2OutputTransformationDemos
 import androidx.compose.foundation.demos.text2.BasicTextField2ValueCallbackDemo
 import androidx.compose.foundation.demos.text2.DecorationBoxDemos
 import androidx.compose.foundation.demos.text2.KeyboardActionsDemos
@@ -161,6 +162,9 @@ val TextDemos = DemoCategory(
                 )),
                 ComposableDemo("Filters") { BasicTextField2FilterDemos() },
                 ComposableDemo("Receive Content") { ReceiveContentBasicTextField2() },
+                ComposableDemo("Output transformation") {
+                    BasicTextField2OutputTransformationDemos()
+                },
                 ComposableDemo("Secure Field") { BasicSecureTextFieldDemos() },
                 ComposableDemo("Swap the field but reuse the state") { SwapFieldSameStateDemo() },
                 ComposableDemo("Custom PIN field") { BasicTextField2CustomPinFieldDemo() },
