@@ -286,14 +286,14 @@ public abstract class TileService extends Service {
      *     behavior.
      */
     @NonNull
-    public static ListenableFuture<List<ActiveTileIdentifier>> getActiveTilesSnapshotAsync(
+    public static ListenableFuture<List<ActiveTileIdentifier>> getActiveTilesAsync(
             @NonNull Context context, @NonNull Executor executor) {
-        return getActiveTilesSnapshotAsync(context, executor, sTimeSourceClock);
+        return getActiveTilesAsync(context, executor, sTimeSourceClock);
     }
 
     @VisibleForTesting
     @NonNull
-    static ListenableFuture<List<ActiveTileIdentifier>> getActiveTilesSnapshotAsync(
+    static ListenableFuture<List<ActiveTileIdentifier>> getActiveTilesAsync(
             @NonNull Context context,
             @NonNull Executor executor,
             @NonNull TimeSourceClock timeSourceClock) {
