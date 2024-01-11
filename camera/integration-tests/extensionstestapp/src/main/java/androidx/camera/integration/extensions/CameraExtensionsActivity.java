@@ -579,6 +579,7 @@ public class CameraExtensionsActivity extends AppCompatActivity
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_camera_extensions);
+        setTitle(R.string.camerax_extensions);
 
         mInitializationIdlingResource.increment();
 
