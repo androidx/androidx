@@ -70,6 +70,7 @@ class PasswordCredentialEntryTest {
     }
 
     @Test
+    @Suppress("DEPRECATION")
     fun constructor_emptyUsername_throwsIAE() {
         assertThrows(
             "Expected empty username to throw IllegalArgumentException",
@@ -95,6 +96,7 @@ class PasswordCredentialEntryTest {
     }
 
     @Test
+    @Suppress("DEPRECATION")
     fun constructor_nullTypeDisplayName_defaultDisplayNameSet() {
         val entry = PasswordCredentialEntry(
             mContext, USERNAME, mPendingIntent, BEGIN_OPTION)
@@ -150,6 +152,7 @@ class PasswordCredentialEntryTest {
         }
     }
 
+    @Suppress("DEPRECATION")
     private fun constructEntryWithRequiredParamsOnly(): PasswordCredentialEntry {
         return PasswordCredentialEntry(
             mContext,
@@ -159,6 +162,7 @@ class PasswordCredentialEntryTest {
         )
     }
 
+    @Suppress("DEPRECATION")
     private fun constructEntryWithAllParams(): PasswordCredentialEntry {
         return PasswordCredentialEntry(
             mContext,

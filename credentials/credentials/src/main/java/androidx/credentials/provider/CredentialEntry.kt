@@ -30,7 +30,8 @@ import androidx.credentials.PublicKeyCredential.Companion.TYPE_PUBLIC_KEY_CREDEN
 abstract class CredentialEntry internal constructor(
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     open val type: String,
-    val beginGetCredentialOption: BeginGetCredentialOption
+    val beginGetCredentialOption: BeginGetCredentialOption,
+    val affiliatedDomain: CharSequence? = null,
 ) {
 
     @RequiresApi(34)
