@@ -26,6 +26,7 @@ import androidx.compose.runtime.internal.IntRef
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.runtime.snapshots.StateFactoryMarker
 import androidx.compose.runtime.snapshots.StateObject
+import androidx.compose.runtime.snapshots.StateObjectImpl
 import androidx.compose.runtime.snapshots.StateRecord
 import androidx.compose.runtime.snapshots.current
 import androidx.compose.runtime.snapshots.newWritableRecord
@@ -80,7 +81,7 @@ private inline fun <T> withCalculationNestedLevel(block: (IntRef) -> T): T {
 private class DerivedSnapshotState<T>(
     private val calculation: () -> T,
     override val policy: SnapshotMutationPolicy<T>?
-) : StateObject, DerivedState<T> {
+) : StateObjectImpl(), DerivedState<T> {
     private var first: ResultRecord<T> = ResultRecord()
 
     class ResultRecord<T> : StateRecord(), DerivedState.Record<T> {

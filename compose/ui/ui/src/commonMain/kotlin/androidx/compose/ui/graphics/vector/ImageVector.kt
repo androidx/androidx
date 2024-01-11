@@ -77,7 +77,13 @@ class ImageVector internal constructor(
     /**
      * Determines if the vector asset should automatically be mirrored for right to left locales
      */
-    val autoMirror: Boolean
+    val autoMirror: Boolean,
+
+    /**
+     * Identifier used to disambiguate between different ImageVector instances in a more efficient
+     * manner than equality. This can be used as a key for caching instances of ImageVectors.
+     */
+    internal val genId: Int = generateImageVectorId(),
 ) {
     /**
      * Builder used to construct a Vector graphic tree.
@@ -401,10 +407,15 @@ class ImageVector internal constructor(
         )
     }
 
-    /**
-     * Provide an empty companion object to hang platform-specific companion extensions onto.
-     */
-    companion object { } // ktlint-disable no-empty-class-body
+    companion object {
+        private var imageVectorCount = 0
+
+        internal fun generateImageVectorId(): Int {
+            synchronized(this) {
+                return imageVectorCount++
+            }
+        }
+    }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

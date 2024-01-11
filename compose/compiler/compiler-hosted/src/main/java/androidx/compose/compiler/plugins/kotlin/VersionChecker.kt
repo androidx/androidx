@@ -133,6 +133,7 @@ class VersionChecker(val context: IrPluginContext) {
             11800 to "1.6.0-beta01",
             11900 to "1.6.0-beta02",
             12000 to "1.6.0-beta02",
+            12010 to "1.6.0-rc01",
         )
 
         /**

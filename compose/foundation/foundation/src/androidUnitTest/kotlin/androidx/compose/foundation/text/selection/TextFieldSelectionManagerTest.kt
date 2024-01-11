@@ -44,12 +44,14 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.util.packFloats
 import androidx.compose.ui.util.packInts
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import org.mockito.Mockito
 import org.mockito.invocation.InvocationOnMock
 import org.mockito.kotlin.any
 import org.mockito.kotlin.anyOrNull
@@ -132,8 +134,18 @@ class TextFieldSelectionManagerTest {
             layoutResultProxy.getOffsetForPosition(dragBeginPosition, false)
         ).thenReturn(beginOffset)
         whenever(
+            layoutResultProxy.getOffsetForPosition(dragBeginPosition, true)
+        ).thenReturn(beginOffset)
+        whenever(
             layoutResultProxy.getOffsetForPosition(dragBeginPosition + dragDistance, false)
         ).thenReturn(dragOffset)
+        whenever(
+            layoutResultProxy.getOffsetForPosition(dragBeginPosition + dragDistance, true)
+        ).thenReturn(dragOffset)
+
+        whenever(
+            layoutResultProxy.translateInnerToDecorationCoordinates(matchesOffset(dragDistance))
+        ).thenAnswer(OffsetAnswer(dragDistance))
 
         whenever(layoutResultProxy.value).thenReturn(layoutResult)
 
@@ -230,8 +242,8 @@ class TextFieldSelectionManagerTest {
     }
 
     @Test
-    fun TextFieldSelectionManager_handleDragObserver_onStart_startHandle() {
-        manager.handleDragObserver(isStartHandle = true).onStart(Offset.Zero)
+    fun TextFieldSelectionManager_handleDragObserver_onDown_startHandle() {
+        manager.handleDragObserver(isStartHandle = true).onDown(Offset.Zero)
 
         assertThat(manager.draggingHandle).isNotNull()
         assertThat(state.showFloatingToolbar).isFalse()
@@ -243,8 +255,8 @@ class TextFieldSelectionManagerTest {
     }
 
     @Test
-    fun TextFieldSelectionManager_handleDragObserver_onStart_endHandle() {
-        manager.handleDragObserver(isStartHandle = false).onStart(Offset.Zero)
+    fun TextFieldSelectionManager_handleDragObserver_onDown_endHandle() {
+        manager.handleDragObserver(isStartHandle = false).onDown(Offset.Zero)
 
         assertThat(manager.draggingHandle).isNotNull()
         assertThat(state.showFloatingToolbar).isFalse()
@@ -632,3 +644,19 @@ internal class TextRangeAnswer(private val textRange: TextRange) : Answer<Any> {
     override fun answer(invocation: InvocationOnMock?): Any =
         packInts(textRange.start, textRange.end)
 }
+
+internal class OffsetAnswer(private val offset: Offset) : Answer<Any> {
+    override fun answer(invocation: InvocationOnMock?): Any =
+        packFloats(offset.x, offset.y)
+}
+
+// Another workaround for matching an Offset
+// (https://github.com/nhaarman/mockito-kotlin/issues/309).
+private fun matchesOffset(offset: Offset): Offset =
+    Mockito.argThat { arg: Any ->
+        if (arg is Long) {
+            arg == packFloats(offset.x, offset.y)
+        } else {
+            arg == offset
+        }
+    } as Offset? ?: offset

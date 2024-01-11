@@ -32,7 +32,7 @@ import kotlin.jvm.JvmName
  * @see androidx.compose.runtime.mutableStateMapOf
  */
 @Stable
-class SnapshotStateMap<K, V> : MutableMap<K, V>, StateObject {
+class SnapshotStateMap<K, V> : StateObject, MutableMap<K, V> {
     override var firstStateRecord: StateRecord =
         StateMapStateRecord<K, V>(persistentHashMapOf())
         private set
