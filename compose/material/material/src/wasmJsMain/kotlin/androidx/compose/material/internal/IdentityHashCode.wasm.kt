@@ -16,6 +16,7 @@
 
 package androidx.compose.material.internal
 
+// TODO https://youtrack.jetbrains.com/issue/COMPOSE-789/CfW-properly-implement-identityHashCode-for-k-wasm
 internal actual fun identityHashCode(instance: Any?): Int {
     if (instance == null) {
         return 0

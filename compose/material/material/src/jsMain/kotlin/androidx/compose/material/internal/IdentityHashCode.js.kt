@@ -18,7 +18,7 @@ package androidx.compose.material.internal
 
 import androidx.compose.runtime.NoLiveLiterals
 
-// a copu from compose/runtime/runtime/src/commonMain/kotlin/androidx/compose/runtime/Expect.kt
+// a copy from compose/runtime/runtime/src/commonMain/kotlin/androidx/compose/runtime/Expect.kt
 
 private var nextHash = 1
 private const val IDENTITY_HASHCODE_FIELD = "kotlinIdentityHashcodeValue$"

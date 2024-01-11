@@ -33,6 +33,7 @@ private external fun dynamicGetInt(obj: JsAny, index: String): Int?
 @JsFun("(obj) => typeof obj")
 private external fun jsTypeOf(a: JsAny?): String
 
+// TODO https://youtrack.jetbrains.com/issue/COMPOSE-789/CfW-properly-implement-identityHashCode-for-k-wasm
 @InternalComposeApi
 actual fun identityHashCode(instance: Any?): Int {
     if (instance == null) {
