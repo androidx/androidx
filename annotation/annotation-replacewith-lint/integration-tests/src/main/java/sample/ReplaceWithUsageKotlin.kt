@@ -14,9 +14,13 @@
  * limitations under the License.
  */
 
+@file:Suppress("unused")
+
 package sample
 
-class ReplaceMethodKotlin {
+import android.view.View
+
+class ReplaceWithUsageKotlin {
     companion object {
         /**
          * Calls the method on the object.
@@ -28,5 +32,15 @@ class ReplaceMethodKotlin {
         fun toString(obj: Any) {
             obj.toString()
         }
+
+        /**
+         * String constant.
+         */
+        @Deprecated(
+            message = "Use {@link View#AUTOFILL_HINT_NAME} directly.",
+            ReplaceWith(expression = "View.AUTOFILL_HINT_NAME")
+        )
+        @JvmStatic
+        val AUTOFILL_HINT_NAME = View.AUTOFILL_HINT_NAME
     }
 }

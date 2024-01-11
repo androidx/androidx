@@ -31,10 +31,13 @@ import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
 import com.intellij.psi.PsiElement
+import com.intellij.psi.PsiField
 import com.intellij.psi.PsiMethod
 import org.jetbrains.uast.UAnnotation
 import org.jetbrains.uast.UCallExpression
 import org.jetbrains.uast.UElement
+import org.jetbrains.uast.UQualifiedReferenceExpression
+import org.jetbrains.uast.USimpleNameReferenceExpression
 
 class ReplaceWithDetector : Detector(), SourceCodeScanner {
 
@@ -56,12 +59,18 @@ class ReplaceWithDetector : Detector(), SourceCodeScanner {
         allClassAnnotations: List<UAnnotation>,
         allPackageAnnotations: List<UAnnotation>
     ) {
+        // Ignore callbacks for assignment on the original declaration of an annotated field.
+        if (type == AnnotationUsageType.ASSIGNMENT_RHS && usage.uastParent == referenced) return
+
         when (qualifiedName) {
             JAVA_REPLACE_WITH_ANNOTATION -> {
                 var location = context.getLocation(usage)
                 var expression = annotation.findAttributeValue("expression") ?.let { expr ->
                     ConstantEvaluator.evaluate(context, expr)
                 } as? String ?: return
+
+                val includeReceiver = Regex("^\\w+\\.\\w+.*\$").matches(expression)
+                val includeArguments = Regex("^.*\\w+\\(.*\\)$").matches(expression)
 
                 if (method != null && usage is UCallExpression) {
                     // Per Kotlin documentation for ReplaceWith: For function calls, the replacement
@@ -88,9 +97,17 @@ class ReplaceWithDetector : Detector(), SourceCodeScanner {
 
                     // The expression may optionally specify a receiver or arguments, in which case
                     // we should include the originals in the replacement range.
-                    val includeReceiver = Regex("^\\w+\\.\\w+.*\$").matches(expression)
-                    val includeArguments = Regex("^.*\\w+\\(.*\\)$").matches(expression)
                     location = context.getCallLocation(usage, includeReceiver, includeArguments)
+                } else if (referenced is PsiField && usage is USimpleNameReferenceExpression) {
+                    // The expression may optionally specify a receiver, in which case we should
+                    // include the original in the replacement range.
+                    if (includeReceiver) {
+                        // If this is a qualified reference and we're including the "receiver" then
+                        // we should replace the fully-qualified expression.
+                        (usage.uastParent as? UQualifiedReferenceExpression)?.let { reference ->
+                            location = context.getLocation(reference)
+                        }
+                    }
                 }
 
                 reportLintFix(context, usage, location, expression)

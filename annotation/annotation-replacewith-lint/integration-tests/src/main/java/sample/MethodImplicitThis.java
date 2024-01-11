@@ -16,12 +16,20 @@
 
 package sample;
 
+import androidx.annotation.ReplaceWith;
+
 /**
- * Usage of a static method with an explicit class.
+ * Usage with implicit "this" receiver.
  */
 @SuppressWarnings({"deprecation", "unused"})
-class StaticMethodExplicitClass {
-    void main() {
-        ReplaceWithUsageJava.toString(this);
+class MethodImplicitThis {
+    @Deprecated
+    @ReplaceWith(expression = "newMethod(obj)")
+    void oldMethod(Object obj) {}
+
+    void newMethod(Object obj) {}
+
+    void usage() {
+        oldMethod(null);
     }
 }

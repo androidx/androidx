@@ -18,20 +18,18 @@ package sample;
 
 import androidx.annotation.ReplaceWith;
 
-public class ReplaceMethodJava {
-    /**
-     * Calls the method on the object.
-     *
-     * @param obj The object on which to call the method.
-     * @deprecated Use {@link Object#toString()} directly.
-     */
+/**
+ * Usage with explicit "this" receiver.
+ */
+@SuppressWarnings({"deprecation", "unused"})
+class MethodExplicitThis {
     @Deprecated
-    @ReplaceWith(expression = "obj.toString()")
-    public static void toString(Object obj) {
-        // Stub.
-    }
+    @ReplaceWith(expression = "newMethod(obj)")
+    void oldMethod(Object obj) {}
 
-    private ReplaceMethodJava() {
-        // This class is not instantiable.
+    void newMethod(Object obj) {}
+
+    void usage() {
+        this.oldMethod(null);
     }
 }

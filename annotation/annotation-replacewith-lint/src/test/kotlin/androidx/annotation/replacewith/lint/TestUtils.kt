@@ -18,13 +18,25 @@ package androidx.annotation.replacewith.lint
 
 import com.android.tools.lint.checks.infrastructure.TestFile
 import com.android.tools.lint.checks.infrastructure.TestFiles
+import com.android.tools.lint.checks.infrastructure.TestLintResult
+import com.android.tools.lint.checks.infrastructure.TestLintTask
+
+fun check(vararg testFiles: TestFile): TestLintResult {
+    return TestLintTask.lint()
+        .files(
+            ANDROIDX_REPLACE_WITH_KT,
+            *testFiles
+        )
+        .issues(ReplaceWithDetector.ISSUE)
+        .run()
+}
 
 /**
  * Loads a [TestFile] from Java source code included in the JAR resources.
  */
 fun javaSample(className: String): TestFile {
     return TestFiles.java(
-        ReplaceWithDetectorTest::class.java.getResource(
+        ReplaceWithDetectorMethodTest::class.java.getResource(
             "/java/${className.replace('.', '/')}.java"
         )!!.readText()
     )
@@ -35,8 +47,42 @@ fun javaSample(className: String): TestFile {
  */
 fun ktSample(className: String): TestFile {
     return TestFiles.kotlin(
-        ReplaceWithDetectorTest::class.java.getResource(
+        ReplaceWithDetectorMethodTest::class.java.getResource(
             "/java/${className.replace('.', '/')}.kt"
         )!!.readText()
     )
 }
+
+/**
+ * [TestFile] containing ReplaceWith.kt from the ReplaceWith annotation library.
+ *
+ * This is a workaround for IntelliJ failing to recognize source files if they are also
+ * included as resources.
+ */
+val ANDROIDX_REPLACE_WITH_KT: TestFile = TestFiles.kotlin(
+    """
+            package androidx.annotation
+
+            @Retention(AnnotationRetention.BINARY)
+            @Target(
+                AnnotationTarget.CLASS,
+                AnnotationTarget.FUNCTION,
+                AnnotationTarget.PROPERTY,
+                AnnotationTarget.ANNOTATION_CLASS,
+                AnnotationTarget.CONSTRUCTOR,
+                AnnotationTarget.PROPERTY_SETTER,
+                AnnotationTarget.PROPERTY_GETTER,
+                AnnotationTarget.TYPEALIAS
+            )
+            @java.lang.annotation.Target(
+                ElementType.CONSTRUCTOR,
+                ElementType.FIELD,
+                ElementType.METHOD,
+                ElementType.TYPE,
+            )
+            annotation class ReplaceWith(
+                val expression: String,
+                vararg val imports: String
+            )
+            """.trimIndent()
+)
