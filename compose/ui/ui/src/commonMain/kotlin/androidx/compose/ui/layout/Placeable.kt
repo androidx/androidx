@@ -170,6 +170,13 @@ abstract class Placeable : Measured {
             get() = null
 
         /**
+         * Returns the value for this [Ruler] or [defaultValue] if it wasn't
+         * [provided][RulerScope.provides]. [Ruler] values are unavailable while calculating
+         * [AlignmentLine]s.
+         */
+        open fun Ruler.current(defaultValue: Float): Float = defaultValue
+
+        /**
          * Place a [Placeable] at [position] in its parent's coordinate system.
          * If the layout direction is right-to-left, the given [position] will be horizontally
          * mirrored so that the position of the [Placeable] implicitly reacts to RTL layout
@@ -387,6 +394,9 @@ private class LookaheadCapablePlacementScope(
             }
             return coords
         }
+
+    override fun Ruler.current(defaultValue: Float): Float =
+        within.findRulerValue(this, defaultValue)
 }
 
 /**

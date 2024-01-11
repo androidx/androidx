@@ -331,6 +331,9 @@ internal abstract class NodeCoordinator(
             layoutNode.owner?.onLayoutChange(layoutNode)
         }
         this.zIndex = zIndex
+        if (!isPlacingForAlignment) {
+            captureRulers(measureResult)
+        }
     }
 
     fun placeSelfApparentToRealOffset(
