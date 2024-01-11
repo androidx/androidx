@@ -254,7 +254,10 @@ class UseCaseCameraRequestControlTest {
         val testRequestListener1 = TestRequestListener()
         val testCaptureCallback = object : CameraCaptureCallback() {
             val latch = CountDownLatch(1)
-            override fun onCaptureCompleted(cameraCaptureResult: CameraCaptureResult) {
+            override fun onCaptureCompleted(
+                captureConfigId: Int,
+                cameraCaptureResult: CameraCaptureResult
+            ) {
                 latch.countDown()
             }
         }

@@ -112,7 +112,7 @@ class CaptureNode implements Node<CaptureNode.In, CaptureNode.Out> {
         boolean hasMetadata = !inputEdge.isVirtualCamera();
         CameraCaptureCallback progressCallback = new CameraCaptureCallback() {
             @Override
-            public void onCaptureStarted() {
+            public void onCaptureStarted(int captureConfigId) {
                 mainThreadExecutor().execute(() -> {
                     if (mCurrentRequest != null) {
                         mCurrentRequest.onCaptureStarted();
@@ -120,7 +120,7 @@ class CaptureNode implements Node<CaptureNode.In, CaptureNode.Out> {
                 });
             }
             @Override
-            public void onCaptureProcessProgressed(int progress) {
+            public void onCaptureProcessProgressed(int captureConfigId, int progress) {
                 mainThreadExecutor().execute(() -> {
                     if (mCurrentRequest != null) {
                         mCurrentRequest.onCaptureProcessProgressed(progress);

@@ -66,6 +66,11 @@ public final class CaptureConfig {
     public static final Config.Option<Integer> OPTION_JPEG_QUALITY =
             Config.Option.create("camerax.core.captureConfig.jpegQuality", Integer.class);
 
+    /** Key to get/set the CaptureConfig ID from the TagBundle */
+    public static final String CAPTURE_CONFIG_ID_TAG_KEY = "CAPTURE_CONFIG_ID_KEY";
+
+    public static final int DEFAULT_ID = -1;
+
     /** The set of {@link Surface} that data from the camera will be put into. */
     final List<DeferrableSurface> mSurfaces;
 
@@ -180,6 +185,21 @@ public final class CaptureConfig {
      */
     public int getTemplateType() {
         return mTemplateType;
+    }
+
+    /**
+     * Returns the ID of the {@link CaptureConfig} that identifies which {@link CaptureConfig} is
+     * triggering the {@link CameraCaptureCallback} callback methods upon its submission.
+     *
+     * <p>The ID will be passed in every methods in {@link CameraCaptureCallback}. Callers have
+     * to set the ID explicitly otherwise it returns {@link #DEFAULT_ID} by default.
+     */
+    public int getId() {
+        Object id = mTagBundle.getTag(CAPTURE_CONFIG_ID_TAG_KEY);
+        if (id == null) {
+            return DEFAULT_ID;
+        }
+        return (int) id;
     }
 
     @NonNull
@@ -462,6 +482,18 @@ public final class CaptureConfig {
             mMutableTagBundle.putTag(key, tag);
         }
 
+        /**
+         * Sets the ID of the {@link CaptureConfig} that helps identify which
+         * {@link CaptureConfig} is triggering the {@link CameraCaptureCallback} callback methods
+         * upon its submission.
+         *
+         * <p>The ID will be passed in every methods in {@link CameraCaptureCallback}. To ensure
+         * it uniquely identifies the {@link CaptureConfig}, set a unique ID for every
+         * CaptureConfig.
+         */
+        public void setId(int id) {
+            mMutableTagBundle.putTag(CAPTURE_CONFIG_ID_TAG_KEY, id);
+        }
         /**
          * Adds a TagBundle to CaptureConfig.
          */
