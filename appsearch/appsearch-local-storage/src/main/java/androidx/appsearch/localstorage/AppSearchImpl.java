@@ -2764,8 +2764,8 @@ public final class AppSearchImpl implements Closeable {
         }
         if (LogUtil.DEBUG) {
             if (Log.isLoggable(icingTag, Log.VERBOSE)) {
-                IcingSearchEngine.setLoggingLevel(LogSeverity.Code.VERBOSE, /*verbosity=*/
-                        (short) 1);
+                boolean unused = IcingSearchEngine.setLoggingLevel(LogSeverity.Code.VERBOSE,
+                        /*verbosity=*/ (short) 1);
                 return;
             } else if (Log.isLoggable(icingTag, Log.DEBUG)) {
                 IcingSearchEngine.setLoggingLevel(LogSeverity.Code.DBG);
@@ -2773,13 +2773,13 @@ public final class AppSearchImpl implements Closeable {
             }
         }
         if (Log.isLoggable(icingTag, Log.INFO)) {
-            IcingSearchEngine.setLoggingLevel(LogSeverity.Code.INFO);
+            boolean unused = IcingSearchEngine.setLoggingLevel(LogSeverity.Code.INFO);
         } else if (Log.isLoggable(icingTag, Log.WARN)) {
-            IcingSearchEngine.setLoggingLevel(LogSeverity.Code.WARNING);
+            boolean unused = IcingSearchEngine.setLoggingLevel(LogSeverity.Code.WARNING);
         } else if (Log.isLoggable(icingTag, Log.ERROR)) {
-            IcingSearchEngine.setLoggingLevel(LogSeverity.Code.ERROR);
+            boolean unused = IcingSearchEngine.setLoggingLevel(LogSeverity.Code.ERROR);
         } else {
-            IcingSearchEngine.setLoggingLevel(LogSeverity.Code.FATAL);
+            boolean unused = IcingSearchEngine.setLoggingLevel(LogSeverity.Code.FATAL);
         }
     }
 
