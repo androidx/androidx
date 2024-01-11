@@ -242,7 +242,11 @@ public class CircularProgressIndicator implements LayoutElement {
             DegreesProp length = getLength();
             Modifiers.Builder modifiers =
                     new Modifiers.Builder()
-                            .setPadding(new Padding.Builder().setAll(DEFAULT_PADDING).build())
+                            .setPadding(
+                                    new Padding.Builder()
+                                            .setRtlAware(true)
+                                            .setAll(DEFAULT_PADDING)
+                                            .build())
                             .setMetadata(
                                     new ElementMetadata.Builder()
                                             .setTagData(getTagBytes(METADATA_TAG))
