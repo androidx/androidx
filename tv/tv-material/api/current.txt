@@ -302,8 +302,8 @@ package androidx.tv.material3 {
   }
 
   public final class ContentColorKt {
-    method @SuppressCompatibility @androidx.tv.material3.ExperimentalTvMaterial3Api public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.graphics.Color> getLocalContentColor();
-    property @SuppressCompatibility @androidx.tv.material3.ExperimentalTvMaterial3Api public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.graphics.Color> LocalContentColor;
+    method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.graphics.Color> getLocalContentColor();
+    property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.graphics.Color> LocalContentColor;
   }
 
   @SuppressCompatibility @androidx.tv.material3.ExperimentalTvMaterial3Api public final class DrawerState {
