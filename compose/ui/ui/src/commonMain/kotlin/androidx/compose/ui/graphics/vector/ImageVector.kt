@@ -26,7 +26,6 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.synchronized
 import androidx.compose.ui.unit.Dp
-import kotlinx.coroutines.internal.synchronized
 
 /**
  * Vector graphics object that is generated as a result of [ImageVector.Builder]
