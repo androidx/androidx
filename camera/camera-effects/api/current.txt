@@ -6,7 +6,7 @@ package androidx.camera.effects {
     method public abstract android.graphics.Rect getCropRect();
     method public abstract boolean getMirroring();
     method public android.graphics.Canvas getOverlayCanvas();
-    method public abstract int getRotationDegrees();
+    method @IntRange(from=0, to=359) public abstract int getRotationDegrees();
     method public abstract android.graphics.Matrix getSensorToBufferTransform();
     method public abstract android.util.Size getSize();
     method public abstract long getTimestampNanos();
