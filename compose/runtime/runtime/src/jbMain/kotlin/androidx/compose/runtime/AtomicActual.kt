@@ -36,4 +36,5 @@ internal actual class AtomicInt actual constructor(value: Int) {
         delegate.value = value
     }
     actual fun add(amount: Int): Int = delegate.addAndGet(amount)
+    actual fun compareAndSet(expect: Int, newValue: Int) = delegate.compareAndSet(expect, newValue)
 }
