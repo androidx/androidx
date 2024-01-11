@@ -45,18 +45,18 @@ internal class MouseWheelScrollNode(
     private var _enabled: Boolean,
 ) : DelegatingNode(), CompositionLocalConsumerModifierNode, ObserverModifierNode {
     private lateinit var mouseWheelScrollConfig: ScrollConfig
-    private lateinit var density: Density
     private lateinit var physics: ScrollPhysics
 
     override fun onAttach() {
         mouseWheelScrollConfig = platformScrollConfig()
-        observeReads {
-            density = currentValueOf(LocalDensity)
-        }
         physics = if (mouseWheelScrollConfig.isSmoothScrollingEnabled) {
-            AnimatedMouseWheelScrollPhysics(mouseWheelScrollConfig, scrollingLogic, density)
+            AnimatedMouseWheelScrollPhysics(
+                mouseWheelScrollConfig,
+                scrollingLogic,
+                density = { currentValueOf(LocalDensity) }
+            )
         } else {
-            RawMouseWheelScrollPhysics(mouseWheelScrollConfig, scrollingLogic, density)
+            RawMouseWheelScrollPhysics(mouseWheelScrollConfig, scrollingLogic)
         }
         coroutineScope.launch {
             physics.launch()
@@ -66,10 +66,8 @@ internal class MouseWheelScrollNode(
     // TODO(https://youtrack.jetbrains.com/issue/COMPOSE-731/Scrollable-doesnt-react-on-density-changes)
     //  it isn't called, because LocalDensity is staticCompositionLocalOf
     override fun onObservedReadsChanged() {
-        density = currentValueOf(LocalDensity)
         physics.mouseWheelScrollConfig = mouseWheelScrollConfig
         physics.scrollingLogic = scrollingLogic
-        physics.density = density
     }
 
     private val pointerInputNode = delegate(SuspendingPointerInputModifierNode {
@@ -114,7 +112,6 @@ internal class MouseWheelScrollNode(
 private abstract class ScrollPhysics {
     abstract var mouseWheelScrollConfig: ScrollConfig
     abstract var scrollingLogic: ScrollingLogic
-    abstract var density: Density
 
     open suspend fun launch() = Unit
     abstract fun PointerInputScope.onMouseWheel(pointerEvent: PointerEvent): Boolean
@@ -123,7 +120,6 @@ private abstract class ScrollPhysics {
 private class RawMouseWheelScrollPhysics(
     override var mouseWheelScrollConfig: ScrollConfig,
     override var scrollingLogic: ScrollingLogic,
-    override var density: Density,
 ) : ScrollPhysics() {
     override fun PointerInputScope.onMouseWheel(pointerEvent: PointerEvent): Boolean {
         val delta = with(mouseWheelScrollConfig) {
@@ -136,7 +132,7 @@ private class RawMouseWheelScrollPhysics(
 private class AnimatedMouseWheelScrollPhysics(
     override var mouseWheelScrollConfig: ScrollConfig,
     override var scrollingLogic: ScrollingLogic,
-    override var density: Density,
+    val density: () -> Density,
 ) : ScrollPhysics() {
     private var isAnimationRunning = false
     private val channel = Channel<Float>(capacity = Channel.UNLIMITED)
@@ -146,7 +142,7 @@ private class AnimatedMouseWheelScrollPhysics(
             val event = channel.receive()
             isAnimationRunning = true
             try {
-                scrollingLogic.animatedDispatchScroll(event, speed = 1f * density.density) {
+                scrollingLogic.animatedDispatchScroll(event, speed = 1f * density().density) {
                     // Sum delta from all pending events to avoid multiple animation restarts.
                     channel.sumOrNull()
                 }
