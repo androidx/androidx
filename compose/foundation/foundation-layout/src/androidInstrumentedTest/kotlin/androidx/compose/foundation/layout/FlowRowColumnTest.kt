@@ -25,7 +25,8 @@ import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.test.DeviceConfigurationOverride
+import androidx.compose.ui.test.LayoutDirection
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
@@ -1682,8 +1683,8 @@ class FlowRowColumnTest {
 
         val xPositions = FloatArray(6)
         rule.setContent {
-            CompositionLocalProvider(
-                LocalLayoutDirection provides LayoutDirection.Rtl
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.LayoutDirection(LayoutDirection.Rtl)
             ) {
                 with(LocalDensity.current) {
                     Box(Modifier.size(size.toDp())) {
@@ -1732,8 +1733,8 @@ class FlowRowColumnTest {
 
         val xYPositions = Array(10) { Pair(0f, 0f) }
         rule.setContent {
-            CompositionLocalProvider(
-                LocalLayoutDirection provides LayoutDirection.Rtl
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.LayoutDirection(LayoutDirection.Rtl)
             ) {
                 with(LocalDensity.current) {
                     Box(Modifier.size(size.toDp())) {
@@ -1795,8 +1796,8 @@ class FlowRowColumnTest {
         var width = 0
         val xYPositions = Array(10) { Pair(0f, 0f) }
         rule.setContent {
-            CompositionLocalProvider(
-                LocalLayoutDirection provides LayoutDirection.Rtl
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.LayoutDirection(LayoutDirection.Rtl)
             ) {
                 with(LocalDensity.current) {
                     Box(Modifier.size(size.toDp())) {
@@ -1865,8 +1866,8 @@ class FlowRowColumnTest {
 
         val xPositions = FloatArray(6)
         rule.setContent {
-            CompositionLocalProvider(
-                LocalLayoutDirection provides LayoutDirection.Rtl
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.LayoutDirection(LayoutDirection.Rtl)
             ) {
                 with(LocalDensity.current) {
                     Box(Modifier.size(200.toDp())) {
@@ -1908,8 +1909,8 @@ class FlowRowColumnTest {
     fun testFlowRow_minIntrinsicWidth() {
         var width = 0
         rule.setContent {
-            CompositionLocalProvider(
-                LocalLayoutDirection provides LayoutDirection.Rtl
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.LayoutDirection(LayoutDirection.Rtl)
             ) {
                 with(LocalDensity.current) {
                     Box(Modifier.size(200.toDp())) {
@@ -1941,8 +1942,8 @@ class FlowRowColumnTest {
     fun testFlowColumn_minIntrinsicWidth() {
         var width = 0
         rule.setContent {
-            CompositionLocalProvider(
-                LocalLayoutDirection provides LayoutDirection.Rtl
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.LayoutDirection(LayoutDirection.Rtl)
             ) {
                 with(LocalDensity.current) {
                     Box(Modifier.size(200.toDp())) {
@@ -1973,8 +1974,8 @@ class FlowRowColumnTest {
     fun testFlowColumn_minIntrinsicWidth_wrap() {
         var width = 0
         rule.setContent {
-            CompositionLocalProvider(
-                LocalLayoutDirection provides LayoutDirection.Rtl
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.LayoutDirection(LayoutDirection.Rtl)
             ) {
                 with(LocalDensity.current) {
                     Box(Modifier.size(200.toDp())) {
@@ -2005,8 +2006,8 @@ class FlowRowColumnTest {
     fun testFlowRow_maxIntrinsicWidth() {
         var width = 0
         rule.setContent {
-            CompositionLocalProvider(
-                LocalLayoutDirection provides LayoutDirection.Rtl
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.LayoutDirection(LayoutDirection.Rtl)
             ) {
                 with(LocalDensity.current) {
                     Box(Modifier.size(200.toDp())) {
@@ -2037,8 +2038,8 @@ class FlowRowColumnTest {
     fun testFlowColumn_maxIntrinsicWidth() {
         var width = 0
         rule.setContent {
-            CompositionLocalProvider(
-                LocalLayoutDirection provides LayoutDirection.Rtl
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.LayoutDirection(LayoutDirection.Rtl)
             ) {
                 with(LocalDensity.current) {
                     Box(Modifier.size(200.toDp())) {
@@ -2068,8 +2069,8 @@ class FlowRowColumnTest {
     fun testFlowRow_minIntrinsicWidth_withSpaceBy() {
         var width = 0
         rule.setContent {
-            CompositionLocalProvider(
-                LocalLayoutDirection provides LayoutDirection.Rtl
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.LayoutDirection(LayoutDirection.Rtl)
             ) {
                 with(LocalDensity.current) {
                     Box(Modifier.size(200.toDp())) {
@@ -2101,8 +2102,8 @@ class FlowRowColumnTest {
     fun testFlowColumn_minIntrinsicWidth_withSpaceBy() {
         var width = 0
         rule.setContent {
-            CompositionLocalProvider(
-                LocalLayoutDirection provides LayoutDirection.Rtl
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.LayoutDirection(LayoutDirection.Rtl)
             ) {
                 with(LocalDensity.current) {
                     Box(Modifier.size(80.toDp())) {
@@ -2133,8 +2134,8 @@ class FlowRowColumnTest {
     fun testFlowColumn_minIntrinsicWidth_horizontalArrangement_withSpaceBy_MultipleRows() {
         var width = 0
         rule.setContent {
-            CompositionLocalProvider(
-                LocalLayoutDirection provides LayoutDirection.Rtl
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.LayoutDirection(LayoutDirection.Rtl)
             ) {
                 with(LocalDensity.current) {
                     Box(Modifier.size(200.toDp())) {
@@ -2166,8 +2167,8 @@ class FlowRowColumnTest {
     fun testFlowColumn_minIntrinsicWidth_horizontalArrangement_withSpaceBy() {
         var width = 0
         rule.setContent {
-            CompositionLocalProvider(
-                LocalLayoutDirection provides LayoutDirection.Rtl
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.LayoutDirection(LayoutDirection.Rtl)
             ) {
                 with(LocalDensity.current) {
                     Box(Modifier.size(200.toDp())) {
@@ -2199,8 +2200,8 @@ class FlowRowColumnTest {
     fun testFlowRow_maxIntrinsicWidth_withSpaceBy() {
         var width = 0
         rule.setContent {
-            CompositionLocalProvider(
-                LocalLayoutDirection provides LayoutDirection.Rtl
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.LayoutDirection(LayoutDirection.Rtl)
             ) {
                 with(LocalDensity.current) {
                     Box(Modifier.size(200.toDp())) {
@@ -2231,8 +2232,8 @@ class FlowRowColumnTest {
     fun testFlowColumn_maxIntrinsicWidth_withSpaceBy() {
         var width = 0
         rule.setContent {
-            CompositionLocalProvider(
-                LocalLayoutDirection provides LayoutDirection.Rtl
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.LayoutDirection(LayoutDirection.Rtl)
             ) {
                 with(LocalDensity.current) {
                     Box(Modifier.size(200.toDp())) {
@@ -2264,8 +2265,8 @@ class FlowRowColumnTest {
         var width = 0
         var height = 0
         rule.setContent {
-            CompositionLocalProvider(
-                LocalLayoutDirection provides LayoutDirection.Rtl
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.LayoutDirection(LayoutDirection.Rtl)
             ) {
                 with(LocalDensity.current) {
                     Box(Modifier.size(200.toDp())) {
@@ -2300,8 +2301,8 @@ class FlowRowColumnTest {
         var width = 0
         var height = 0
         rule.setContent {
-            CompositionLocalProvider(
-                LocalLayoutDirection provides LayoutDirection.Rtl
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.LayoutDirection(LayoutDirection.Rtl)
             ) {
                 with(LocalDensity.current) {
                     Box(Modifier.size(200.toDp())) {
@@ -2336,8 +2337,8 @@ class FlowRowColumnTest {
         var width = 0
         var height = 0
         rule.setContent {
-            CompositionLocalProvider(
-                LocalLayoutDirection provides LayoutDirection.Rtl
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.LayoutDirection(LayoutDirection.Rtl)
             ) {
                 with(LocalDensity.current) {
                     Box(Modifier.size(200.toDp())) {
@@ -2373,8 +2374,8 @@ class FlowRowColumnTest {
         var width = 0
         var height = 0
         rule.setContent {
-            CompositionLocalProvider(
-                LocalLayoutDirection provides LayoutDirection.Rtl
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.LayoutDirection(LayoutDirection.Rtl)
             ) {
                 with(LocalDensity.current) {
                     Box(Modifier.size(200.toDp())) {
@@ -2409,8 +2410,8 @@ class FlowRowColumnTest {
     fun testFlowRow_minIntrinsicWidth_withMaxItems() {
         var width = 0
         rule.setContent {
-            CompositionLocalProvider(
-                LocalLayoutDirection provides LayoutDirection.Rtl
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.LayoutDirection(LayoutDirection.Rtl)
             ) {
                 with(LocalDensity.current) {
                     Box(Modifier.size(200.toDp())) {
@@ -2441,8 +2442,8 @@ class FlowRowColumnTest {
     fun testFlowColumn_minIntrinsicWidth_withMaxItems() {
         var width = 0
         rule.setContent {
-            CompositionLocalProvider(
-                LocalLayoutDirection provides LayoutDirection.Rtl
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.LayoutDirection(LayoutDirection.Rtl)
             ) {
                 with(LocalDensity.current) {
                     Box(Modifier.size(200.toDp())) {
@@ -2473,8 +2474,8 @@ class FlowRowColumnTest {
     fun testFlowRow_maxIntrinsicWidth_withMaxItems() {
         var width = 0
         rule.setContent {
-            CompositionLocalProvider(
-                LocalLayoutDirection provides LayoutDirection.Rtl
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.LayoutDirection(LayoutDirection.Rtl)
             ) {
                 with(LocalDensity.current) {
                     Box(Modifier.size(200.toDp())) {
@@ -2505,8 +2506,8 @@ class FlowRowColumnTest {
     fun testFlowColumn_maxIntrinsicWidth_withMaxItems() {
         var width = 0
         rule.setContent {
-            CompositionLocalProvider(
-                LocalLayoutDirection provides LayoutDirection.Rtl
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.LayoutDirection(LayoutDirection.Rtl)
             ) {
                 with(LocalDensity.current) {
                     Box(Modifier.size(200.toDp())) {
@@ -2538,8 +2539,8 @@ class FlowRowColumnTest {
         var width = 0
         var height = 0
         rule.setContent {
-            CompositionLocalProvider(
-                LocalLayoutDirection provides LayoutDirection.Rtl
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.LayoutDirection(LayoutDirection.Rtl)
             ) {
                 with(LocalDensity.current) {
                     Box(Modifier.size(200.toDp())) {
@@ -2574,8 +2575,8 @@ class FlowRowColumnTest {
         var width = 0
         var height = 0
         rule.setContent {
-            CompositionLocalProvider(
-                LocalLayoutDirection provides LayoutDirection.Rtl
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.LayoutDirection(LayoutDirection.Rtl)
             ) {
                 with(LocalDensity.current) {
                     Box(Modifier.size(200.toDp())) {
@@ -2609,8 +2610,8 @@ class FlowRowColumnTest {
     fun testFlowRow_minIntrinsicHeight() {
         var height = 0
         rule.setContent {
-            CompositionLocalProvider(
-                LocalLayoutDirection provides LayoutDirection.Rtl
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.LayoutDirection(LayoutDirection.Rtl)
             ) {
                 with(LocalDensity.current) {
                     Box(Modifier.size(200.toDp())) {
@@ -2640,8 +2641,8 @@ class FlowRowColumnTest {
     fun testFlowRow_maxIntrinsicHeight() {
         var height = 0
         rule.setContent {
-            CompositionLocalProvider(
-                LocalLayoutDirection provides LayoutDirection.Rtl
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.LayoutDirection(LayoutDirection.Rtl)
             ) {
                 with(LocalDensity.current) {
                     Box(Modifier.size(200.toDp())) {
@@ -2672,8 +2673,8 @@ class FlowRowColumnTest {
     fun testFlowRow_maxIntrinsicHeight_withSpacedBy() {
         var height = 0
         rule.setContent {
-            CompositionLocalProvider(
-                LocalLayoutDirection provides LayoutDirection.Rtl
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.LayoutDirection(LayoutDirection.Rtl)
             ) {
                 with(LocalDensity.current) {
                     Box(Modifier.size(200.toDp())) {
@@ -2705,8 +2706,8 @@ class FlowRowColumnTest {
     fun testFlowRow_minIntrinsicHeight_withSpaceBy_MultipleRows() {
         var height = 0
         rule.setContent {
-            CompositionLocalProvider(
-                LocalLayoutDirection provides LayoutDirection.Rtl
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.LayoutDirection(LayoutDirection.Rtl)
             ) {
                 with(LocalDensity.current) {
                     Box(Modifier.size(200.toDp())) {
@@ -2738,8 +2739,8 @@ class FlowRowColumnTest {
     fun testFlowRow_minIntrinsicHeight_withSpaceBy() {
         var height = 0
         rule.setContent {
-            CompositionLocalProvider(
-                LocalLayoutDirection provides LayoutDirection.Rtl
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.LayoutDirection(LayoutDirection.Rtl)
             ) {
                 with(LocalDensity.current) {
                     Box(Modifier.size(200.toDp())) {
@@ -2770,8 +2771,8 @@ class FlowRowColumnTest {
     fun testFlowColumn_minIntrinsicHeight() {
         var height = 0
         rule.setContent {
-            CompositionLocalProvider(
-                LocalLayoutDirection provides LayoutDirection.Rtl
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.LayoutDirection(LayoutDirection.Rtl)
             ) {
                 with(LocalDensity.current) {
                     Box(Modifier.size(200.toDp())) {
@@ -2802,8 +2803,8 @@ class FlowRowColumnTest {
     fun testFlowColumn_maxIntrinsicHeight() {
         var height = 0
         rule.setContent {
-            CompositionLocalProvider(
-                LocalLayoutDirection provides LayoutDirection.Rtl
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.LayoutDirection(LayoutDirection.Rtl)
             ) {
                 with(LocalDensity.current) {
                     Box(Modifier.size(200.toDp())) {
@@ -2835,8 +2836,8 @@ class FlowRowColumnTest {
     fun testFlowColumn_maxIntrinsicHeight_withSpacedByOnMainAxis() {
         var height = 0
         rule.setContent {
-            CompositionLocalProvider(
-                LocalLayoutDirection provides LayoutDirection.Rtl
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.LayoutDirection(LayoutDirection.Rtl)
             ) {
                 with(LocalDensity.current) {
                     Box(Modifier.size(200.toDp())) {
