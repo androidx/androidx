@@ -23,11 +23,11 @@
 
     <application
         android:name=".ExtensionsApplication"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme"
+        android:label="@string/app_name">
         <activity
             android:name=".CameraExtensionsActivity"
-            android:exported="true"
-            android:label="CameraX Extensions">
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -37,7 +37,7 @@
         <activity
             android:name=".Camera2ExtensionsActivity"
             android:exported="false"
-            android:label="Camera2 Extensions">
+            android:label="@string/camera2_extensions">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.DEFAULT" />
