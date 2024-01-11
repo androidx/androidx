@@ -114,7 +114,7 @@ class GLRendererTest {
 
         val width = 5
         val height = 8
-        val reader = ImageReader.newInstance(width, height, PixelFormat.RGBA_8888, 1)
+        val reader = createImageReader(width, height)
         val glRenderer = GLRenderer()
         glRenderer.start()
 
@@ -124,11 +124,9 @@ class GLRendererTest {
         }
 
         assertTrue(latch.await(3000, TimeUnit.MILLISECONDS))
-        val plane = reader.acquireLatestImage().planes[0]
-        assertEquals(4, plane.pixelStride)
-
         val targetColor = Color.argb(255, 255, 0, 255)
-        verifyPlaneContent(width, height, plane, targetColor)
+
+        verifyImageContent(width, height, reader.acquireLatestImage(), targetColor)
 
         target.detach(true)
 
@@ -147,7 +145,7 @@ class GLRendererTest {
 
         val width = 5
         val height = 8
-        val reader = ImageReader.newInstance(width, height, PixelFormat.RGBA_8888, 1)
+        val reader = createImageReader(width, height)
         val glRenderer = GLRenderer()
         glRenderer.start()
 
@@ -158,11 +156,9 @@ class GLRendererTest {
         target.detach(false) // RequestRender Call should still execute
 
         assertTrue(latch.await(3000, TimeUnit.MILLISECONDS))
-        val plane = reader.acquireLatestImage().planes[0]
-        assertEquals(4, plane.pixelStride)
 
         val targetColor = Color.argb(255, 255, 0, 255)
-        verifyPlaneContent(width, height, plane, targetColor)
+        verifyImageContent(width, height, reader.acquireLatestImage(), targetColor)
 
         glRenderer.stop(true)
     }
@@ -182,7 +178,7 @@ class GLRendererTest {
             }
         }
 
-        val reader = ImageReader.newInstance(surfaceWidth, surfaceHeight, PixelFormat.RGBA_8888, 1)
+        val reader = createImageReader(surfaceWidth, surfaceHeight)
         val glRenderer = GLRenderer()
         glRenderer.start()
 
@@ -193,11 +189,9 @@ class GLRendererTest {
         glRenderer.stop(false) // RequestRender call should still execute
 
         assertTrue(latch.await(3000, TimeUnit.MILLISECONDS))
-        val plane = reader.acquireLatestImage().planes[0]
-        assertEquals(4, plane.pixelStride)
 
         val targetColor = Color.argb(255, 255, 0, 255)
-        verifyPlaneContent(surfaceWidth, surfaceHeight, plane, targetColor)
+        verifyImageContent(surfaceWidth, surfaceHeight, reader.acquireLatestImage(), targetColor)
     }
 
     @Test
@@ -228,7 +222,7 @@ class GLRendererTest {
 
         val width = 5
         val height = 8
-        val reader = ImageReader.newInstance(width, height, PixelFormat.RGBA_8888, 1)
+        val reader = createImageReader(width, height)
         val glRenderer = GLRenderer()
         glRenderer.start()
 
@@ -246,11 +240,9 @@ class GLRendererTest {
 
         assertTrue(latch.await(3000, TimeUnit.MILLISECONDS))
         assertEquals(numRenders, renderCount.get())
-        val plane = reader.acquireLatestImage().planes[0]
-        assertEquals(4, plane.pixelStride)
 
         val targetColor = Color.argb(255, 0, 0, 255)
-        verifyPlaneContent(width, height, plane, targetColor)
+        verifyImageContent(width, height, reader.acquireLatestImage(), targetColor)
 
         glRenderer.stop(true)
     }
@@ -267,7 +259,7 @@ class GLRendererTest {
 
         val width = 5
         val height = 8
-        val reader = ImageReader.newInstance(width, height, PixelFormat.RGBA_8888, 1)
+        val reader = createImageReader(width, height)
         val glRenderer = GLRenderer()
         glRenderer.start()
 
@@ -303,9 +295,9 @@ class GLRendererTest {
 
         val width2 = 11
         val height2 = 23
-        val reader1 = ImageReader.newInstance(width1, height1, PixelFormat.RGBA_8888, 1)
+        val reader1 = createImageReader(width1, height1)
 
-        val reader2 = ImageReader.newInstance(width2, height2, PixelFormat.RGBA_8888, 1)
+        val reader2 = createImageReader(width2, height2)
 
         val glRenderer = GLRenderer()
         glRenderer.start()
@@ -320,11 +312,19 @@ class GLRendererTest {
         }
 
         assertTrue(latch.await(3000, TimeUnit.MILLISECONDS))
-        val plane1 = reader1.acquireLatestImage().planes[0]
-        val plane2 = reader2.acquireLatestImage().planes[0]
 
-        verifyPlaneContent(width1, height1, plane1, Color.argb(255, 255, 0, 0))
-        verifyPlaneContent(width2, height2, plane2, Color.argb(255, 0, 0, 255))
+        verifyImageContent(
+            width1,
+            height1,
+            reader1.acquireLatestImage(),
+            Color.argb(255, 255, 0, 0)
+        )
+        verifyImageContent(
+            width2,
+            height2,
+            reader2.acquireLatestImage(),
+            Color.argb(255, 0, 0, 255)
+        )
 
         target1.detach(true)
         target2.detach(true)
@@ -337,6 +337,19 @@ class GLRendererTest {
         assertTrue(attachLatch.await(3000, TimeUnit.MILLISECONDS))
     }
 
+    private fun createImageReader(width: Int, height: Int): ImageReader =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            ImageReader.newInstance(
+                width,
+                height,
+                PixelFormat.RGBA_8888,
+                1,
+                HardwareBuffer.USAGE_GPU_SAMPLED_IMAGE or HardwareBuffer.USAGE_GPU_COLOR_OUTPUT
+            )
+        } else {
+            ImageReader.newInstance(width, height, PixelFormat.RGBA_8888, 1)
+        }
+
     /**
      * Helper class for test methods that refer to APIs that may not exist on earlier API levels.
      * This must be broken out into a separate class instead of being defined within the
@@ -345,20 +358,34 @@ class GLRendererTest {
      * there are corresponding @SdkSuppress and @RequiresApi
      * See https://b.corp.google.com/issues/221485597
      */
-    private fun verifyPlaneContent(width: Int, height: Int, plane: Image.Plane, targetColor: Int) {
-        val rowPadding = plane.rowStride - plane.pixelStride * width
-        var offset = 0
-        for (y in 0 until height) {
-            for (x in 0 until width) {
-                val red = plane.buffer[offset].toInt() and 0xff
-                val green = plane.buffer[offset + 1].toInt() and 0xff
-                val blue = plane.buffer[offset + 2].toInt() and 0xff
-                val alpha = plane.buffer[offset + 3].toInt() and 0xff
-                val packedColor = Color.argb(alpha, red, green, blue)
-                assertEquals("Index: $x, $y", targetColor, packedColor)
-                offset += plane.pixelStride
+    private fun verifyImageContent(width: Int, height: Int, image: Image, targetColor: Int) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            val bitmap = Bitmap.wrapHardwareBuffer(
+                image.hardwareBuffer!!,
+                null
+            )!!.copy(Bitmap.Config.ARGB_8888, false)
+            for (y in 0 until height) {
+                for (x in 0 until width) {
+                    assertEquals("Index: $x, $y", targetColor, bitmap.getPixel(x, y))
+                }
             }
-            offset += rowPadding
+        } else {
+            val plane = image.planes[0]
+            assertEquals(4, plane.pixelStride)
+            val rowPadding = plane.rowStride - plane.pixelStride * width
+            var offset = 0
+            for (y in 0 until height) {
+                for (x in 0 until width) {
+                    val red = plane.buffer[offset].toInt() and 0xff
+                    val green = plane.buffer[offset + 1].toInt() and 0xff
+                    val blue = plane.buffer[offset + 2].toInt() and 0xff
+                    val alpha = plane.buffer[offset + 3].toInt() and 0xff
+                    val packedColor = Color.argb(alpha, red, green, blue)
+                    assertEquals("Index: $x, $y", targetColor, packedColor)
+                    offset += plane.pixelStride
+                }
+                offset += rowPadding
+            }
         }
     }
 
@@ -512,6 +539,7 @@ class GLRendererTest {
         var glRenderer: GLRenderer? = null
         var target: GLRenderer.RenderTarget? = null
         val renderLatch = AtomicReference<CountDownLatch>(CountDownLatch(1))
+        val targetColor = Color.BLUE
         val scenario = ActivityScenario.launch(GLTestActivity::class.java)
             .moveToState(State.CREATED)
             .onActivity {
@@ -520,7 +548,7 @@ class GLRendererTest {
                 assertNotNull(surfaceView)
 
                 glRenderer = GLRenderer().apply { start() }
-                target = glRenderer!!.attach(it.surfaceView, ColorRenderCallback(Color.BLUE) {
+                target = glRenderer!!.attach(it.surfaceView, ColorRenderCallback(targetColor) {
                     renderLatch.get().countDown()
                 })
             }
@@ -539,15 +567,28 @@ class GLRendererTest {
         scenario.moveToState(State.RESUMED)
 
         assertTrue(renderLatch.get().await(3000, TimeUnit.MILLISECONDS))
-        val bitmap = Bitmap.createBitmap(
-            GLTestActivity.TARGET_WIDTH,
-            GLTestActivity.TARGET_HEIGHT,
-            Bitmap.Config.ARGB_8888
-        )
 
-        blockingPixelCopy(bitmap) { surfaceView!!.holder.surface }
+        val coords = IntArray(2)
+        surfaceView!!.getLocationOnScreen(coords)
+        val surfaceWidth = surfaceView!!.width
+        val surfaceHeight = surfaceView!!.height
+        SurfaceControlUtils.validateOutput { bitmap ->
+            val pixel = bitmap.getPixel(
+                coords[0] + surfaceWidth / 2,
+                coords[1] + surfaceHeight / 2
+            )
+            val red = Color.red(pixel)
+            val green = Color.green(pixel)
+            val blue = Color.blue(pixel)
 
-        assertTrue(bitmap.isAllColor(Color.BLUE))
+            val redExpected = Color.red(targetColor)
+            val greenExpected = Color.green(targetColor)
+            val blueExpected = Color.blue(targetColor)
+
+            Math.abs(red - redExpected) / 255f < 0.2f &&
+                Math.abs(green - greenExpected) / 255f < 0.2f &&
+                Math.abs(blue - blueExpected) / 255f < 0.2f
+        }
 
         val stopLatch = CountDownLatch(1)
         glRenderer!!.stop(true) {
