@@ -87,6 +87,26 @@ constructor(
     val slotDurationMillis: Long = RANGING_SLOT_DURATION_2_MILLIS,
     val isAoaDisabled: Boolean = false
 ) {
+    init {
+        if (uwbConfigType == CONFIG_UNICAST_DS_TWR ||
+            uwbConfigType == CONFIG_MULTICAST_DS_TWR ||
+            uwbConfigType == CONFIG_UNICAST_DS_TWR_NO_AOA) {
+            require(sessionKeyInfo != null && sessionKeyInfo.size == 8) {
+                throw IllegalArgumentException(
+                    "Session key should be 8 bytes in length for static STS.")
+            }
+        }
+        if (uwbConfigType == CONFIG_PROVISIONED_UNICAST_DS_TWR ||
+            uwbConfigType == CONFIG_PROVISIONED_MULTICAST_DS_TWR ||
+            uwbConfigType == CONFIG_PROVISIONED_UNICAST_DS_TWR_NO_AOA ||
+            uwbConfigType == CONFIG_PROVISIONED_INDIVIDUAL_MULTICAST_DS_TWR) {
+            require(sessionKeyInfo != null && sessionKeyInfo.size == 16) {
+                throw IllegalArgumentException(
+                    "At present, only 16 byte session key is supported for provisioned STS.")
+            }
+        }
+    }
+
     companion object {
 
         /**

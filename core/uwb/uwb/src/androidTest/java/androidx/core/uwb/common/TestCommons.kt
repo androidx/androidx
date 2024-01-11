@@ -39,7 +39,9 @@ internal class TestCommons {
             RangingParameters.CONFIG_UNICAST_DS_TWR,
             sessionId = 0,
             subSessionId = 0,
-            sessionKeyInfo = null,
+            sessionKeyInfo = byteArrayOf(
+                /* Vendor ID */ 0x07, 0x08,
+                /* Static STS IV */ 0x01, 0x02, 0x03, 0x04, 0x05, 0x06),
             subSessionKeyInfo = null,
             complexChannel = null,
             listOf(UWB_DEVICE),
