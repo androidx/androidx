@@ -75,7 +75,6 @@ import androidx.tv.material3.tokens.TypographyTokens
  * @property labelSmall labelSmall is one of the smallest font sizes. It is used sparingly to
  * annotate imagery or to introduce a headline.
  */
-@ExperimentalTvMaterial3Api
 @Immutable
 class Typography(
     val displayLarge: TextStyle = TypographyTokens.DisplayLarge,
@@ -186,7 +185,6 @@ class Typography(
 /**
  * Helper function for component typography tokens.
  */
-@OptIn(ExperimentalTvMaterial3Api::class)
 internal fun Typography.fromToken(value: TypographyKeyTokens): TextStyle {
     return when (value) {
         TypographyKeyTokens.DisplayLarge -> displayLarge
@@ -207,5 +205,4 @@ internal fun Typography.fromToken(value: TypographyKeyTokens): TextStyle {
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 internal val LocalTypography = staticCompositionLocalOf { Typography() }
