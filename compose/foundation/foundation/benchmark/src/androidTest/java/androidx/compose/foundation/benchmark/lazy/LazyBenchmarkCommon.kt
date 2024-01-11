@@ -20,13 +20,17 @@ import android.view.MotionEvent
 import android.view.View
 import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.ScrollScope
+import androidx.compose.runtime.Composable
 import androidx.compose.testutils.ComposeExecutionControl
 import androidx.compose.testutils.ComposeTestCase
 import androidx.compose.testutils.benchmark.ComposeBenchmarkRule
 import androidx.compose.testutils.doFramesUntilNoChangesPending
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.platform.ViewRootForTest
+import kotlinx.coroutines.runBlocking
 
 internal object NoFlingBehavior : FlingBehavior {
     override suspend fun ScrollScope.performFling(initialVelocity: Float): Float {
@@ -176,8 +180,88 @@ internal fun ComposeBenchmarkRule.toggleStateBenchmarkDraw(
     }
 }
 
-interface LazyBenchmarkTestCase : ComposeTestCase {
-    fun beforeToggle()
-    fun toggle()
-    fun afterToggle()
+abstract class LazyBenchmarkTestCase(
+    private val isVertical: Boolean,
+    private val usePointerInput: Boolean
+) : ComposeTestCase {
+
+    lateinit var scrollingHelper: ScrollingHelper
+
+    fun beforeToggle() {
+        setUp()
+        scrollingHelper.onBeforeScroll()
+        beforeToggleCheck()
+    }
+
+    fun toggle() {
+        scrollingHelper.onScroll()
+    }
+
+    fun afterToggle() {
+        afterToggleCheck()
+        scrollingHelper.onAfterScroll()
+        tearDown()
+    }
+
+    @Composable
+    fun InitializeScrollHelper(scrollAmount: Int) {
+        val view = LocalView.current
+        val touchSlop = LocalViewConfiguration.current.touchSlop
+
+        if (!::scrollingHelper.isInitialized) scrollingHelper = ScrollingHelper(
+            view,
+            MotionEventHelper(view),
+            touchSlop,
+            scrollAmount,
+            isVertical,
+            usePointerInput,
+            ::programmaticScroll
+        )
+    }
+
+    abstract fun beforeToggleCheck()
+    abstract fun afterToggleCheck()
+
+    abstract suspend fun programmaticScroll(amount: Int)
+
+    // first instruction to run in the before toggle cycle
+    abstract fun setUp()
+
+    // last instruction to run at the end of the after toggle cycke
+    abstract fun tearDown()
+}
+
+class ScrollingHelper(
+    private val view: View,
+    private val motionEventHelper: MotionEventHelper,
+    private val touchSlop: Float,
+    val scrollAmount: Int,
+    private val isVertical: Boolean,
+    private val usePointerInput: Boolean,
+    private val programmaticScroll: suspend (scrollAmount: Int) -> Unit
+) {
+
+    fun onBeforeScroll() {
+        if (!usePointerInput) return
+        val size = if (isVertical) view.measuredHeight else view.measuredWidth
+        motionEventHelper.sendEvent(MotionEvent.ACTION_DOWN, (size / 2f).toSingleAxisOffset())
+        motionEventHelper.sendEvent(MotionEvent.ACTION_MOVE, touchSlop.toSingleAxisOffset())
+    }
+
+    fun onScroll() {
+        if (usePointerInput) {
+            motionEventHelper
+                .sendEvent(MotionEvent.ACTION_MOVE, -scrollAmount.toFloat().toSingleAxisOffset())
+        } else {
+            runBlocking { programmaticScroll.invoke(scrollAmount) }
+        }
+    }
+
+    fun onAfterScroll() {
+        if (!usePointerInput) return
+        motionEventHelper.sendEvent(MotionEvent.ACTION_UP, Offset.Zero)
+    }
+
+    private fun Float.toSingleAxisOffset(): Offset =
+        Offset(x = if (isVertical) 0f else this, y = if (isVertical) this else 0f)
 }
