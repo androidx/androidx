@@ -17,8 +17,6 @@
 package androidx.compose.foundation.benchmark.lazy
 
 import android.os.Build
-import android.view.MotionEvent
-import android.view.View
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.Box
@@ -37,11 +35,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.testutils.benchmark.ComposeBenchmarkRule
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalView
-import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.unit.dp
 import androidx.test.filters.LargeTest
 import kotlinx.coroutines.runBlocking
@@ -167,7 +162,9 @@ private val Vertical = LazyGridScrollingTestCase(
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
         state = state,
-        modifier = Modifier.requiredHeight(400.dp).fillMaxWidth(),
+        modifier = Modifier
+            .requiredHeight(400.dp)
+            .fillMaxWidth(),
         flingBehavior = NoFlingBehavior
     ) {
         items(2) {
@@ -186,7 +183,9 @@ private val Horizontal = LazyGridScrollingTestCase(
     LazyHorizontalGrid(
         rows = GridCells.Fixed(2),
         state = state,
-        modifier = Modifier.requiredWidth(400.dp).fillMaxHeight(),
+        modifier = Modifier
+            .requiredWidth(400.dp)
+            .fillMaxHeight(),
         flingBehavior = NoFlingBehavior
     ) {
         items(2) {
@@ -203,15 +202,11 @@ class GridRemeasureTestCase(
     val content: @Composable GridRemeasureTestCase.(LazyGridState) -> Unit,
     val isVertical: Boolean,
     val usePointerInput: Boolean = false
-) : LazyBenchmarkTestCase {
+) : LazyBenchmarkTestCase(isVertical, usePointerInput) {
 
     val items = List(300) { LazyItem(it) }
 
     private lateinit var state: LazyGridState
-    private lateinit var view: View
-    private lateinit var motionEventHelper: MotionEventHelper
-    private var touchSlop: Float = 0f
-    private var scrollBy: Int = 0
 
     @Composable
     fun FirstLargeItem() {
@@ -220,55 +215,48 @@ class GridRemeasureTestCase(
 
     @Composable
     override fun Content() {
-        scrollBy = if (addNewItemOnToggle) {
+        val scrollBy = if (addNewItemOnToggle) {
             with(LocalDensity.current) { 15.dp.roundToPx() }
         } else {
             5
         }
-        view = LocalView.current
-        if (!::motionEventHelper.isInitialized) motionEventHelper = MotionEventHelper(view)
-        touchSlop = LocalViewConfiguration.current.touchSlop
+        InitializeScrollHelper(scrollAmount = scrollBy)
         state = rememberLazyGridState()
         content(state)
     }
 
     @Composable
     fun RegularItem() {
-        Box(Modifier.requiredSize(20.dp).background(Color.Red, RoundedCornerShape(8.dp)))
+        Box(
+            Modifier
+                .requiredSize(20.dp)
+                .background(Color.Red, RoundedCornerShape(8.dp))
+        )
     }
 
-    override fun beforeToggle() {
-        runBlocking {
-            state.scrollToItem(0, 0)
-        }
-        if (usePointerInput) {
-            val size = if (isVertical) view.measuredHeight else view.measuredWidth
-            motionEventHelper.sendEvent(MotionEvent.ACTION_DOWN, (size / 2f).toSingleAxisOffset())
-            motionEventHelper.sendEvent(MotionEvent.ACTION_MOVE, touchSlop.toSingleAxisOffset())
-        }
+    override fun beforeToggleCheck() {
         assertEquals(0, state.firstVisibleItemIndex)
         assertEquals(0, state.firstVisibleItemScrollOffset)
     }
 
-    override fun toggle() {
-        if (usePointerInput) {
-            motionEventHelper
-                .sendEvent(MotionEvent.ACTION_MOVE, -scrollBy.toFloat().toSingleAxisOffset())
-        } else {
-            runBlocking {
-                state.scrollBy(scrollBy.toFloat())
-            }
-        }
-    }
-
-    override fun afterToggle() {
+    override fun afterToggleCheck() {
         assertEquals(0, state.firstVisibleItemIndex)
-        assertEquals(scrollBy, state.firstVisibleItemScrollOffset)
-        if (usePointerInput) {
-            motionEventHelper.sendEvent(MotionEvent.ACTION_UP, Offset.Zero)
+        assertEquals(scrollingHelper.scrollAmount, state.firstVisibleItemScrollOffset)
+    }
+
+    override suspend fun programmaticScroll(amount: Int) {
+        runBlocking {
+            state.scrollBy(amount.toFloat())
         }
     }
 
-    private fun Float.toSingleAxisOffset(): Offset =
-        Offset(x = if (isVertical) 0f else this, y = if (isVertical) this else 0f)
+    override fun setUp() {
+        runBlocking {
+            state.scrollToItem(0, 0)
+        }
+    }
+
+    override fun tearDown() {
+        // No Op
+    }
 }
