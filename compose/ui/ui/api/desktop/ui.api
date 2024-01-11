@@ -303,18 +303,18 @@ public final class androidx/compose/ui/MotionDurationScale$Key : kotlin/coroutin
 }
 
 public final class androidx/compose/ui/SessionMutex {
-	public static final synthetic fun box-impl (Ljava/util/concurrent/atomic/AtomicReference;)Landroidx/compose/ui/SessionMutex;
-	public static fun constructor-impl ()Ljava/util/concurrent/atomic/AtomicReference;
+	public static final synthetic fun box-impl (Landroidx/compose/ui/AtomicReference;)Landroidx/compose/ui/SessionMutex;
+	public static fun constructor-impl ()Landroidx/compose/ui/AtomicReference;
 	public fun equals (Ljava/lang/Object;)Z
-	public static fun equals-impl (Ljava/util/concurrent/atomic/AtomicReference;Ljava/lang/Object;)Z
-	public static final fun equals-impl0 (Ljava/util/concurrent/atomic/AtomicReference;Ljava/util/concurrent/atomic/AtomicReference;)Z
-	public static final fun getCurrentSession-impl (Ljava/util/concurrent/atomic/AtomicReference;)Ljava/lang/Object;
+	public static fun equals-impl (Landroidx/compose/ui/AtomicReference;Ljava/lang/Object;)Z
+	public static final fun equals-impl0 (Landroidx/compose/ui/AtomicReference;Landroidx/compose/ui/AtomicReference;)Z
+	public static final fun getCurrentSession-impl (Landroidx/compose/ui/AtomicReference;)Ljava/lang/Object;
 	public fun hashCode ()I
-	public static fun hashCode-impl (Ljava/util/concurrent/atomic/AtomicReference;)I
+	public static fun hashCode-impl (Landroidx/compose/ui/AtomicReference;)I
 	public fun toString ()Ljava/lang/String;
-	public static fun toString-impl (Ljava/util/concurrent/atomic/AtomicReference;)Ljava/lang/String;
-	public final synthetic fun unbox-impl ()Ljava/util/concurrent/atomic/AtomicReference;
-	public static final fun withSessionCancellingPrevious-impl (Ljava/util/concurrent/atomic/AtomicReference;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static fun toString-impl (Landroidx/compose/ui/AtomicReference;)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()Landroidx/compose/ui/AtomicReference;
+	public static final fun withSessionCancellingPrevious-impl (Landroidx/compose/ui/AtomicReference;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
 public final class androidx/compose/ui/SynchronizationKt {
@@ -543,11 +543,6 @@ public final class androidx/compose/ui/awt/SwingPanel_desktopKt {
 public final class androidx/compose/ui/draganddrop/DragAndDropEvent {
 	public static final field $stable I
 	public fun <init> ()V
-}
-
-public final class androidx/compose/ui/draganddrop/DragAndDropKt {
-	public static final fun DragAndDropTarget (Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)Landroidx/compose/ui/draganddrop/DragAndDropTarget;
-	public static synthetic fun DragAndDropTarget$default (Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Landroidx/compose/ui/draganddrop/DragAndDropTarget;
 }
 
 public abstract interface class androidx/compose/ui/draganddrop/DragAndDropModifierNode : androidx/compose/ui/draganddrop/DragAndDropTarget, androidx/compose/ui/node/DelegatableNode {
@@ -1041,6 +1036,7 @@ public final class androidx/compose/ui/graphics/TransformOriginKt {
 public final class androidx/compose/ui/graphics/vector/ImageVector {
 	public static final field $stable I
 	public static final field Companion Landroidx/compose/ui/graphics/vector/ImageVector$Companion;
+	public synthetic fun <init> (Ljava/lang/String;FFFFLandroidx/compose/ui/graphics/vector/VectorGroup;JIZIILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getAutoMirror ()Z
 	public final fun getDefaultHeight-D9Ej5fM ()F
@@ -1161,6 +1157,7 @@ public abstract class androidx/compose/ui/graphics/vector/VectorNode {
 
 public final class androidx/compose/ui/graphics/vector/VectorPainter : androidx/compose/ui/graphics/painter/Painter {
 	public static final field $stable I
+	public fun <init> ()V
 	public fun getIntrinsicSize-NH-jbRc ()J
 }
 
