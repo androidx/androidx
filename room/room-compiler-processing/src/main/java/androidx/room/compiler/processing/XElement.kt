@@ -154,7 +154,7 @@ fun XElement.isConstructor(): Boolean {
  * that allows us to pass originating elements to JavaPoet and KotlinPoet, and later extract
  * the KSP file when writing with [XFiler].
  */
-internal fun XElement.originatingElementForPoet(): Element? {
+internal fun XElement.originatingElementForPoet(): Element {
     return when (this) {
         is JavacElement -> element
         is KspElement -> {
@@ -166,6 +166,6 @@ internal fun XElement.originatingElementForPoet(): Element? {
         is KspMemberContainer -> {
             declaration?.wrapAsOriginatingElement()
         }
-        else -> error("Originating element is not implemented for ${this.javaClass}")
-    }
+        else -> null
+    } ?: error("Originating element is not implemented for ${this.javaClass}")
 }
