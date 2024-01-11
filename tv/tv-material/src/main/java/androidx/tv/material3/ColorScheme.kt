@@ -37,7 +37,6 @@ import kotlin.math.ln
 /**
  * Returns a light Material color scheme.
  */
-@ExperimentalTvMaterial3Api
 fun lightColorScheme(
     primary: Color = ColorLightTokens.Primary,
     onPrimary: Color = ColorLightTokens.OnPrimary,
@@ -163,7 +162,6 @@ fun lightColorScheme(
  * contrast is not required.
  * @property scrim Color of a scrim that obscures content.
  */
-@ExperimentalTvMaterial3Api
 @Stable
 class ColorScheme(
     primary: Color,
@@ -357,7 +355,6 @@ class ColorScheme(
 /**
  * Returns a dark Material color scheme.
  */
-@ExperimentalTvMaterial3Api
 fun darkColorScheme(
     primary: Color = ColorDarkTokens.Primary,
     onPrimary: Color = ColorDarkTokens.OnPrimary,
@@ -438,7 +435,6 @@ fun darkColorScheme(
  *
  * @see contentColorFor
  */
-@ExperimentalTvMaterial3Api
 fun ColorScheme.contentColorFor(backgroundColor: Color): Color =
     when (backgroundColor) {
         primary -> onPrimary
@@ -486,7 +482,6 @@ fun contentColorFor(backgroundColor: Color) =
  * overlay corresponding to [elevation] applied. The overlay will only be applied to
  * [ColorScheme.surface].
  */
-@OptIn(ExperimentalTvMaterial3Api::class)
 internal fun ColorScheme.applyTonalElevation(backgroundColor: Color, elevation: Dp): Color {
     return if (backgroundColor == surface) {
         surfaceColorAtElevation(elevation)
@@ -504,7 +499,6 @@ internal fun ColorScheme.applyTonalElevation(backgroundColor: Color, elevation: 
  * overlaid on top of it.
 
  */
-@ExperimentalTvMaterial3Api
 fun ColorScheme.surfaceColorAtElevation(
     elevation: Dp
 ): Color {
@@ -527,7 +521,6 @@ fun ColorScheme.surfaceColorAtElevation(
  * changes will mutate the internal state of [this], and only cause composables that are reading the
  * specific changed value to recompose.
  */
-@OptIn(ExperimentalTvMaterial3Api::class)
 internal fun ColorScheme.updateColorSchemeFrom(other: ColorScheme) {
     primary = other.primary
     onPrimary = other.onPrimary
@@ -608,7 +601,6 @@ internal fun ColorScheme.fromToken(value: ColorSchemeKeyTokens): Color {
  * [ColorScheme.updateColorSchemeFrom]. To retrieve the current value of this CompositionLocal, use
  * [MaterialTheme.colorScheme].
  */
-@OptIn(ExperimentalTvMaterial3Api::class)
 internal val LocalColorScheme = staticCompositionLocalOf { lightColorScheme() }
 
 /**
