@@ -23,6 +23,7 @@ import androidx.compose.mpp.demo.bug.DropdownMenuIssue
 val IosBugs = Screen.Selection(
     "IosBugs",
     UIKitViewAndDropDownMenu,
+    UIKitViewMatryoshka,
     KeyboardEmptyWhiteSpace,
     KeyboardPasswordType,
     UIKitRenderSync,
