@@ -16,7 +16,6 @@
 
 package androidx.compose.material3.carousel
 
-import androidx.annotation.FloatRange
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
@@ -29,11 +28,11 @@ import kotlin.math.min
 internal class Arrangement(
     private val priority: Int,
     val smallSize: Float,
-    private val smallCount: Int,
+    val smallCount: Int,
     val mediumSize: Float,
-    private val mediumCount: Int,
+    val mediumCount: Int,
     val largeSize: Float,
-    private val largeCount: Int
+    val largeCount: Int
 ) {
 
     private fun isValid(): Boolean {
@@ -79,7 +78,8 @@ internal class Arrangement(
          *
          * @param availableSpace the space the arrangement needs to fit
          * @param targetSmallSize the size small items would like to be
-         * @param smallSizeRange the range of which small item sizes are allowed to be
+         * @param minSmallSize the minimum size of which small item sizes are allowed to be
+         * @param maxSmallSize the maximum size of which small item sizes are allowed to be
          * @param smallCounts an array of small item counts for a valid arrangement ordered by
          * priority
          * @param targetMediumSize the size medium items would like to be
@@ -94,7 +94,8 @@ internal class Arrangement(
         fun findLowestCostArrangement(
             availableSpace: Float,
             targetSmallSize: Float,
-            smallSizeRange: FloatRange,
+            minSmallSize: Float,
+            maxSmallSize: Float,
             smallCounts: IntArray,
             targetMediumSize: Float,
             mediumCounts: IntArray,
@@ -111,7 +112,8 @@ internal class Arrangement(
                             availableSpace = availableSpace,
                             smallCount = smallCount,
                             smallSize = targetSmallSize,
-                            smallSizeRange = smallSizeRange,
+                            minSmallSize = minSmallSize,
+                            maxSmallSize = maxSmallSize,
                             mediumCount = mediumCount,
                             mediumSize = targetMediumSize,
                             largeCount = largeCount,
@@ -150,6 +152,8 @@ internal class Arrangement(
          * @param availableSpace The space in which to fit the arrangement
          * @param smallCount the number of small items to fit
          * @param smallSize the size of each small item
+         * @param minSmallSize the minimum size a small item is allowed to be
+         * @param maxSmallSize the maximum size a small item is allowed to be
          * @param mediumCount the number of medium items to fit
          * @param mediumSize the size of each medium item
          * @param largeCount the number of large items to fit
@@ -161,15 +165,16 @@ internal class Arrangement(
             availableSpace: Float,
             smallCount: Int,
             smallSize: Float,
-            smallSizeRange: FloatRange,
+            minSmallSize: Float,
+            maxSmallSize: Float,
             mediumCount: Int,
             mediumSize: Float,
             largeCount: Int,
             largeSize: Float
         ): Arrangement {
             var arrangedSmallSize = smallSize.coerceIn(
-                smallSizeRange.from.toFloat(),
-                smallSizeRange.to.toFloat()
+                minSmallSize,
+                maxSmallSize
             )
             var arrangedMediumSize = mediumSize
             var arrangedLargeSize = largeSize
@@ -183,13 +188,13 @@ internal class Arrangement(
                 // grow the small items
                 arrangedSmallSize += min(
                     delta / smallCount,
-                    smallSizeRange.to.toFloat() - arrangedSmallSize
+                    maxSmallSize - arrangedSmallSize
                 )
             } else if (smallCount > 0 && delta < 0) {
                 // shrink the small items
                 arrangedSmallSize += max(
                     delta / smallCount,
-                    smallSizeRange.from.toFloat() - arrangedSmallSize
+                    minSmallSize - arrangedSmallSize
                 )
             }
 

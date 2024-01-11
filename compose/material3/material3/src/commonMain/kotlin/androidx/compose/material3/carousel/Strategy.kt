@@ -16,33 +16,73 @@
 
 package androidx.compose.material3.carousel
 
+import androidx.annotation.VisibleForTesting
 import androidx.collection.FloatList
 import androidx.collection.mutableFloatListOf
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.lerp
 import kotlin.math.roundToInt
 
 /**
- * An interface which provides [Strategy] instances to a scrollable component.
+ * Contains default values used across Strategies
+ */
+internal object StrategyDefaults {
+    val minSmallSize = 40.dp
+    val maxSmallSize = 56.dp
+    val anchorSize = 10.dp
+}
+
+/**
+ * Helper method to create a default start-aligned [Strategy] contained within the bounds of
+ * [availableSpace] and based on the given [Arrangement].
+ *
+ * @param availableSpace the available space to contain the [Strategy] within
+ * @param arrangement the arrangement containing information on the sizes and counts of the
+ * items in the [Strategy].
+ * @param anchorSize the size that the anchor keylines should be in the strategy. The smaller
+ * this is, the more the item will shrink as it moves off-screen.
+ */
+internal fun createStartAlignedStrategy(
+    availableSpace: Float,
+    arrangement: Arrangement,
+    anchorSize: Float,
+): Strategy {
+    val keylineList = keylineListOf(availableSpace, CarouselAlignment.Start) {
+        add(anchorSize, isAnchor = true)
+
+        repeat(arrangement.largeCount) { add(arrangement.largeSize) }
+        repeat(arrangement.mediumCount) { add(arrangement.mediumSize) }
+        repeat(arrangement.smallCount) { add(arrangement.smallSize) }
+
+        add(anchorSize, isAnchor = true)
+    }
+
+    return Strategy.create(availableSpace, keylineList)
+}
+
+/**
+ * A class that provides [Strategy] instances to a scrollable component.
  *
  * [StrategyProvider.createStrategy] will be called any time properties which affect a carousel's
  * arrangement change. It is the implementation's responsibility to create an arrangement for the
  * given parameters and return a [Strategy] by calling [Strategy.create].
  */
-internal interface StrategyProvider {
+internal sealed class StrategyProvider() {
+
     /**
      * Create and return a new [Strategy] for the given carousel size.
      *
-     * TODO: Add additional parameters like alignment and item count.
-     *
-     * @param density The [Density] object that provides pixel density information of the device
+     * @param density The current density value
      * @param carouselMainAxisSize the size of the carousel in the main axis in pixels
+     * @param itemSpacing The spacing in between the items that are not a part of the item size
      */
-    fun createStrategy(
+    internal abstract fun createStrategy(
         density: Density,
         carouselMainAxisSize: Float,
-    ): Strategy
+        itemSpacing: Int,
+    ): Strategy?
 }
 
 /**
@@ -150,6 +190,11 @@ internal class Strategy private constructor(
             steps[shiftPointRange.toStepIndex],
             shiftPointRange.steppedInterpolation
         )
+    }
+
+    @VisibleForTesting
+    internal fun getDefaultKeylines(): KeylineList {
+        return defaultKeylines
     }
 
     companion object {

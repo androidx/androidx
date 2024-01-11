@@ -16,7 +16,6 @@
 
 package androidx.compose.material3.carousel
 
-import androidx.annotation.FloatRange
 import com.google.common.truth.Truth.assertThat
 import kotlin.math.roundToInt
 import org.junit.Test
@@ -35,7 +34,8 @@ class ArrangementTest {
         val arrangement = Arrangement.findLowestCostArrangement(
             availableSpace = targetLargeSize + targetMediumSize + targetSmallSize,
             targetSmallSize = targetSmallSize,
-            smallSizeRange = FloatRange(40.0, 56.0),
+            minSmallSize = 40f,
+            maxSmallSize = 56f,
             smallCounts = intArrayOf(1),
             targetMediumSize = targetMediumSize,
             mediumCounts = intArrayOf(1),
@@ -55,7 +55,8 @@ class ArrangementTest {
         val arrangement = Arrangement.findLowestCostArrangement(
             availableSpace = targetLargeSize + targetMediumSize + targetSmallSize - 10f,
             targetSmallSize = targetSmallSize,
-            smallSizeRange = FloatRange(40.0, 56.0),
+            minSmallSize = 40f,
+            maxSmallSize = 56f,
             smallCounts = intArrayOf(1),
             targetMediumSize = targetMediumSize,
             mediumCounts = intArrayOf(1),
@@ -75,7 +76,8 @@ class ArrangementTest {
         val arrangement = Arrangement.findLowestCostArrangement(
             availableSpace = targetLargeSize + targetMediumSize + targetSmallSize + 10f,
             targetSmallSize = targetSmallSize,
-            smallSizeRange = FloatRange(40.0, 56.0),
+            minSmallSize = 40f,
+            maxSmallSize = 56f,
             smallCounts = intArrayOf(1),
             targetMediumSize = targetMediumSize,
             mediumCounts = intArrayOf(1),
@@ -98,7 +100,8 @@ class ArrangementTest {
                 targetMediumSize +
                 targetSmallSize - mediumAdjustment,
             targetSmallSize = targetSmallSize,
-            smallSizeRange = FloatRange(40.0, 56.0),
+            minSmallSize = 40f,
+            maxSmallSize = 56f,
             smallCounts = intArrayOf(1),
             targetMediumSize = targetMediumSize,
             mediumCounts = intArrayOf(1),
@@ -122,7 +125,8 @@ class ArrangementTest {
                 targetMediumSize +
                 targetSmallSize + mediumAdjustment,
             targetSmallSize = targetSmallSize,
-            smallSizeRange = FloatRange(40.0, 56.0),
+            minSmallSize = 40f,
+            maxSmallSize = 56f,
             smallCounts = intArrayOf(1),
             targetMediumSize = targetMediumSize,
             mediumCounts = intArrayOf(1),
@@ -147,7 +151,8 @@ class ArrangementTest {
                 (targetSmallSize * 2) +
                 (smallAdjustment * 2),
             targetSmallSize = targetSmallSize,
-            smallSizeRange = FloatRange(40.0, 56.0),
+            minSmallSize = 40f,
+            maxSmallSize = 56f,
             smallCounts = intArrayOf(2),
             targetMediumSize = targetMediumSize,
             mediumCounts = intArrayOf(1),
@@ -171,7 +176,8 @@ class ArrangementTest {
                 targetMediumSize +
                 (targetSmallSize * 2) - (smallAdjustment * 2),
             targetSmallSize = targetSmallSize,
-            smallSizeRange = FloatRange(40.0, 56.0),
+            minSmallSize = 40f,
+            maxSmallSize = 56f,
             smallCounts = intArrayOf(2),
             targetMediumSize = targetMediumSize,
             mediumCounts = intArrayOf(1),
@@ -195,7 +201,8 @@ class ArrangementTest {
                 (targetSmallSize * 2) +
                 (mediumAdjustment * 2),
             targetSmallSize = targetSmallSize,
-            smallSizeRange = FloatRange(40.0, 56.0),
+            minSmallSize = 40f,
+            maxSmallSize = 56f,
             smallCounts = intArrayOf(2),
             targetMediumSize = targetMediumSize,
             mediumCounts = intArrayOf(2),
@@ -219,7 +226,8 @@ class ArrangementTest {
                 (targetMediumSize * 2) +
                 (targetSmallSize * 2) - (mediumAdjustment * 2),
             targetSmallSize = targetSmallSize,
-            smallSizeRange = FloatRange(40.0, 56.0),
+            minSmallSize = 40f,
+            maxSmallSize = 56f,
             smallCounts = intArrayOf(2),
             targetMediumSize = targetMediumSize,
             mediumCounts = intArrayOf(2),
