@@ -354,6 +354,7 @@ internal class IntrinsicsMeasureScope(
         width: Int,
         height: Int,
         alignmentLines: Map<AlignmentLine, Int>,
+        rulers: (RulerScope.() -> Unit)?,
         placementBlock: Placeable.PlacementScope.() -> Unit
     ): MeasureResult {
         return object : MeasureResult {
@@ -363,6 +364,8 @@ internal class IntrinsicsMeasureScope(
                 get() = height
             override val alignmentLines: Map<AlignmentLine, Int>
                 get() = alignmentLines
+            override val rulers: (RulerScope.() -> Unit)?
+                get() = rulers
 
             override fun placeChildren() {
                 // Intrinsics should never be placed

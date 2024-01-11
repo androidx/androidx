@@ -56,16 +56,18 @@ internal class LayoutModifierNodeCoordinator(
      * IntermediateLayoutModifier. This impl will invoke [LayoutModifier.measure] for
      * the lookahead measurement.
      */
-    private inner class LookaheadDelegateForLayoutModifierNode : LookaheadDelegate(this) {
+    private inner class LookaheadDelegateForLayoutModifierNode :
+        LookaheadDelegate(this@LayoutModifierNodeCoordinator) {
         // LookaheadMeasure
         override fun measure(constraints: Constraints): Placeable =
             performingMeasure(constraints) {
-                lookaheadConstraints = constraints
-                with(layoutModifierNode) {
+                this@LayoutModifierNodeCoordinator.lookaheadConstraints = constraints
+                with(this@LayoutModifierNodeCoordinator.layoutModifierNode) {
                     measure(
                         // This allows `measure` calls in the modifier to be redirected to
                         // calling lookaheadMeasure in wrapped.
-                        wrappedNonNull.lookaheadDelegate!!, constraints
+                        this@LayoutModifierNodeCoordinator.wrappedNonNull.lookaheadDelegate!!,
+                        constraints
                     )
                 }
             }
@@ -77,23 +79,35 @@ internal class LayoutModifierNodeCoordinator(
         }
 
         override fun minIntrinsicWidth(height: Int): Int =
-            with(layoutModifierNode) {
-                minIntrinsicWidth(wrappedNonNull.lookaheadDelegate!!, height)
+            with(this@LayoutModifierNodeCoordinator.layoutModifierNode) {
+                minIntrinsicWidth(
+                    this@LayoutModifierNodeCoordinator.wrappedNonNull.lookaheadDelegate!!,
+                    height
+                )
             }
 
         override fun maxIntrinsicWidth(height: Int): Int =
-            with(layoutModifierNode) {
-                maxIntrinsicWidth(wrappedNonNull.lookaheadDelegate!!, height)
+            with(this@LayoutModifierNodeCoordinator.layoutModifierNode) {
+                maxIntrinsicWidth(
+                    this@LayoutModifierNodeCoordinator.wrappedNonNull.lookaheadDelegate!!,
+                    height
+                )
             }
 
         override fun minIntrinsicHeight(width: Int): Int =
-            with(layoutModifierNode) {
-                minIntrinsicHeight(wrappedNonNull.lookaheadDelegate!!, width)
+            with(this@LayoutModifierNodeCoordinator.layoutModifierNode) {
+                minIntrinsicHeight(
+                    this@LayoutModifierNodeCoordinator.wrappedNonNull.lookaheadDelegate!!,
+                    width
+                )
             }
 
         override fun maxIntrinsicHeight(width: Int): Int =
-            with(layoutModifierNode) {
-                maxIntrinsicHeight(wrappedNonNull.lookaheadDelegate!!, width)
+            with(this@LayoutModifierNodeCoordinator.layoutModifierNode) {
+                maxIntrinsicHeight(
+                    this@LayoutModifierNodeCoordinator.wrappedNonNull.lookaheadDelegate!!,
+                    width
+                )
             }
     }
 
