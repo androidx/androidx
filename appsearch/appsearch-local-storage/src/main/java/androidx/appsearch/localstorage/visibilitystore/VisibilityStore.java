@@ -137,6 +137,8 @@ public class VisibilityStore {
             // VisibilityConfig with same prefixed schema exists, it will be replaced by new
             // VisibilityConfig in both AppSearch and memory look up map.
             VisibilityConfig prefixedVisibilityConfig = prefixedVisibilityConfigs.get(i);
+            VisibilityConfig oldVisibilityConfig =
+                    mVisibilityConfigMap.get(prefixedVisibilityConfig.getSchemaType());
             mAppSearchImpl.putDocument(
                     VISIBILITY_PACKAGE_NAME,
                     VISIBILITY_DATABASE_NAME,
@@ -155,9 +157,11 @@ public class VisibilityStore {
                         androidVOverlay,
                         /*sendChangeNotifications=*/ false,
                         /*logger=*/ null);
-            } else {
+            } else if (isConfigContainsAndroidVOverlay(oldVisibilityConfig)) {
                 // We need to make sure to remove the VisibilityOverlay on disk as the current
                 // VisibilityConfig does not have a VisibilityOverlay.
+                // For performance improvement, we should only make the remove call if the old
+                // VisibilityConfig contains the overlay settings.
                 try {
                     mAppSearchImpl.remove(VISIBILITY_PACKAGE_NAME,
                             ANDROID_V_OVERLAY_DATABASE_NAME,
@@ -408,5 +412,17 @@ public class VisibilityStore {
                                 + "You may need to create new overlay schema.");
             }
         }
+    }
+
+    /**
+     * Whether the given {@link VisibilityConfig} contains Android V overlay settings.
+     *
+     * <p> Android V overlay {@link VisibilityToDocumentConverter#ANDROID_V_OVERLAY_SCHEMA}
+     * contains public acl and visible to config.
+     */
+    private static boolean isConfigContainsAndroidVOverlay(@Nullable VisibilityConfig config) {
+        return config != null
+                && (config.getPubliclyVisibleTargetPackage() != null
+                || !config.getVisibleToConfigs().isEmpty());
     }
 }
