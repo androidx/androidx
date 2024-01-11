@@ -20,7 +20,7 @@ import androidx.compose.foundation.assertThat
 import androidx.compose.foundation.isEqualTo
 import androidx.compose.foundation.hasSize
 import androidx.compose.foundation.isNull
-import androidx.compose.foundation.containsExactly
+import androidx.compose.foundation.containsExactlyInOrder
 import androidx.compose.foundation.hoverable
 import androidx.compose.foundation.interaction.HoverInteraction
 import androidx.compose.foundation.interaction.Interaction
@@ -78,7 +78,7 @@ class HoverableTest {
             assertThat(modifier.nameFallback).isEqualTo("hoverable")
             assertThat(modifier.valueOverride).isNull()
             assertThat(modifier.inspectableElements.map { it.name }.asIterable())
-                .containsExactly(
+                .containsExactlyInOrder(
                     "interactionSource",
                 )
         }

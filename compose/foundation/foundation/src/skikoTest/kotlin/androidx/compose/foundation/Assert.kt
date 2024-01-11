@@ -68,9 +68,14 @@ internal fun AssertThat<Boolean>.isTrue() = assertTrue(t == true, message)
 
 internal fun AssertThat<Boolean>.isFalse() = assertTrue(t == false, message)
 
-internal fun <K, T : Iterable<K>> AssertThat<T>.containsExactly(vararg any: K) {
+internal fun <K, T : Iterable<K>> AssertThat<T>.containsExactlyInOrder(vararg any: K) {
     require(t != null)
     assertContentEquals(t, any.toList(), message)
+}
+
+internal fun <K : Comparable<K>, T : Iterable<K>> AssertThat<T>.containsExactly(vararg any: K) {
+    require(t != null)
+    assertContentEquals(t.sorted(), any.sorted(), message)
 }
 
 internal fun <K, T : Iterable<K>> AssertThat<T>.containsAtLeast(vararg any: K) {

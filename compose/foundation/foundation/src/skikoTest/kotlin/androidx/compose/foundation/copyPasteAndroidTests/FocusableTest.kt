@@ -338,7 +338,7 @@ class FocusableTest {
         assertThat(modifier.nameFallback).isEqualTo("focusable")
         assertThat(modifier.valueOverride).isNull()
         assertThat(modifier.inspectableElements.map { it.name }.asIterable())
-            .containsExactly(
+            .containsExactlyInOrder(
                 "enabled",
                 "interactionSource"
             )
@@ -374,7 +374,7 @@ class FocusableTest {
         }
 
         runOnIdle {
-            assertThat(requestedRects).containsExactly(Rect(Offset.Zero, Size(1f, 1f)))
+            assertThat(requestedRects).containsExactlyInOrder(Rect(Offset.Zero, Size(1f, 1f)))
         }
     }
 

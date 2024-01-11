@@ -18,7 +18,7 @@ package androidx.compose.foundation.copyPasteAndroidTests
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.assertThat
-import androidx.compose.foundation.containsExactly
+import androidx.compose.foundation.containsExactlyInOrder
 import androidx.compose.foundation.interaction.DragInteraction
 import androidx.compose.foundation.interaction.FocusInteraction
 import androidx.compose.foundation.interaction.Interaction
@@ -70,7 +70,7 @@ class InteractionSourceTest {
         }
 
         runOnIdle {
-            assertThat(interactions).containsExactly(TestInteraction1, TestInteraction2)
+            assertThat(interactions).containsExactlyInOrder(TestInteraction1, TestInteraction2)
         }
 
         scope.launch {
@@ -78,7 +78,7 @@ class InteractionSourceTest {
         }
 
         runOnIdle {
-            assertThat(interactions).containsExactly(TestInteraction1, TestInteraction2, TestInteraction3)
+            assertThat(interactions).containsExactlyInOrder(TestInteraction1, TestInteraction2, TestInteraction3)
         }
     }
 

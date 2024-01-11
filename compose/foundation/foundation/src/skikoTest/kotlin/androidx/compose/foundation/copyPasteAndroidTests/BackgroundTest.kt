@@ -20,7 +20,7 @@ package androidx.compose.foundation.copyPasteAndroidTests
 import androidx.compose.foundation.assertShape
 import androidx.compose.foundation.assertThat
 import androidx.compose.foundation.isEqualTo
-import androidx.compose.foundation.containsExactly
+import androidx.compose.foundation.containsExactlyInOrder
 import androidx.compose.foundation.isNull
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -248,7 +248,7 @@ class BackgroundTest {
         val modifier = Modifier.background(Color.Magenta) as InspectableValue
         assertThat(modifier.nameFallback).isEqualTo("background")
         assertThat(modifier.valueOverride).isEqualTo(Color.Magenta)
-        assertThat(modifier.inspectableElements.asIterable()).containsExactly(
+        assertThat(modifier.inspectableElements.asIterable()).containsExactlyInOrder(
             ValueElement("color", Color.Magenta),
             ValueElement("shape", RectangleShape)
         )
@@ -259,7 +259,7 @@ class BackgroundTest {
         val modifier = Modifier.background(SolidColor(Color.Red)) as InspectableValue
         assertThat(modifier.nameFallback).isEqualTo("background")
         assertThat(modifier.valueOverride).isNull()
-        assertThat(modifier.inspectableElements.asIterable()).containsExactly(
+        assertThat(modifier.inspectableElements.asIterable()).containsExactlyInOrder(
             ValueElement("alpha", 1.0f),
             ValueElement("brush", SolidColor(Color.Red)),
             ValueElement("shape", RectangleShape)

@@ -18,7 +18,7 @@ package androidx.compose.foundation.copyPasteAndroidTests
 
 import androidx.compose.foundation.MutatePriority
 import androidx.compose.foundation.assertThat
-import androidx.compose.foundation.containsExactly
+import androidx.compose.foundation.containsExactlyInOrder
 import androidx.compose.foundation.isGreaterThan
 import androidx.compose.foundation.isNull
 import androidx.compose.foundation.isLessThan
@@ -705,7 +705,7 @@ class DraggableTest {
             ) as InspectableValue
             assertThat(modifier.nameFallback).isEqualTo("draggable")
             assertThat(modifier.valueOverride).isNull()
-            assertThat(modifier.inspectableElements.map { it.name }.asIterable()).containsExactly(
+            assertThat(modifier.inspectableElements.map { it.name }.asIterable()).containsExactlyInOrder(
                 "orientation",
                 "enabled",
                 "canDrag",

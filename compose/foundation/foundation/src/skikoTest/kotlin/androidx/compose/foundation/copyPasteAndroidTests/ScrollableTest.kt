@@ -2139,7 +2139,7 @@ class ScrollableTest {
             val modifier = Modifier.scrollable(controller, Orientation.Vertical) as InspectableValue
             assertThat(modifier.nameFallback).isEqualTo("scrollable")
             assertThat(modifier.valueOverride).isNull()
-            assertThat(modifier.inspectableElements.map { it.name }.asIterable()).containsExactly(
+            assertThat(modifier.inspectableElements.map { it.name }.asIterable()).containsExactlyInOrder(
                 "orientation",
                 "state",
                 "overscrollEffect",
