@@ -17,13 +17,16 @@
 package androidx.compose.ui.graphics.vector
 
 import androidx.compose.runtime.Immutable
+import androidx.compose.ui.SynchronizedObject
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathFillType
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.synchronized
 import androidx.compose.ui.unit.Dp
+import kotlinx.coroutines.internal.synchronized
 
 /**
  * Vector graphics object that is generated as a result of [ImageVector.Builder]
@@ -410,8 +413,10 @@ class ImageVector internal constructor(
     companion object {
         private var imageVectorCount = 0
 
+        private val lock = SynchronizedObject()
+
         internal fun generateImageVectorId(): Int {
-            synchronized(this) {
+            synchronized(lock) {
                 return imageVectorCount++
             }
         }
