@@ -19,6 +19,7 @@ package androidx.compose.foundation.text2.input
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text2.input.TextFieldBuffer.ChangeList
 import androidx.compose.foundation.text2.input.internal.ChangeTracker
+import androidx.compose.foundation.text2.input.internal.OffsetMappingCalculator
 import androidx.compose.foundation.text2.input.internal.PartialGapBuffer
 import androidx.compose.ui.text.TextRange
 
@@ -54,6 +55,7 @@ class TextFieldBuffer internal constructor(
      * applied to it.
      */
     private val sourceValue: TextFieldCharSequence = initialValue,
+    private val offsetMappingCalculator: OffsetMappingCalculator? = null,
 ) : Appendable {
 
     private val buffer = PartialGapBuffer(initialValue)
@@ -197,6 +199,7 @@ class TextFieldBuffer internal constructor(
     private fun onTextWillChange(replaceStart: Int, replaceEnd: Int, newLength: Int) {
         (changeTracker ?: ChangeTracker().also { changeTracker = it })
             .trackChange(replaceStart, replaceEnd, newLength)
+        offsetMappingCalculator?.recordEditOperation(replaceStart, replaceEnd, newLength)
 
         // Adjust selection.
         val start = minOf(replaceStart, replaceEnd)
@@ -391,11 +394,21 @@ class TextFieldBuffer internal constructor(
         selectionInChars = range
     }
 
+    /**
+     * Returns an immutable [TextFieldCharSequence] that has the same contents of this buffer.
+     *
+     * @param selection The selection for the returned [TextFieldCharSequence]. Default value is
+     * this buffer's selection. Passing a different value in here _only_ affects the return value,
+     * it does not change the current selection in the buffer.
+     * @param composition The composition range for the returned [TextFieldCharSequence]. Default
+     * value is no composition (null).
+     */
     internal fun toTextFieldCharSequence(
+        selection: TextRange = selectionInChars,
         composition: TextRange? = null
     ): TextFieldCharSequence = TextFieldCharSequence(
         buffer.toString(),
-        selection = selectionInChars,
+        selection = selection,
         composition = composition
     )
 
