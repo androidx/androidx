@@ -66,10 +66,23 @@ internal actual fun SemanticsNode.isInScreenBounds(assertIsFullyVisible: Boolean
     }
 
     // Window relative bounds of our compose root view that are visible on the screen
-    return nodeBoundsInWindow.top >= visibleBounds.top &&
-        nodeBoundsInWindow.left >= visibleBounds.left &&
-        nodeBoundsInWindow.right <= visibleBounds.right &&
-        nodeBoundsInWindow.bottom <= visibleBounds.bottom
+    return if (assertIsFullyVisible) {
+        // assertIsNotDisplayed only throws if the element is fully onscreen
+        return nodeBoundsInWindow.top >= visibleBounds.top &&
+            nodeBoundsInWindow.left >= visibleBounds.left &&
+            nodeBoundsInWindow.right <= visibleBounds.right &&
+            nodeBoundsInWindow.bottom <= visibleBounds.bottom
+    } else {
+        // assertIsDisplayed only throws if the element is fully offscreen
+        !nodeBoundsInWindow.intersect(
+            Rect(
+                visibleBounds.left.toFloat(),
+                visibleBounds.top.toFloat(),
+                visibleBounds.right.toFloat(),
+                visibleBounds.bottom.toFloat()
+            )
+        ).isEmpty
+    }
 }
 
 /**
