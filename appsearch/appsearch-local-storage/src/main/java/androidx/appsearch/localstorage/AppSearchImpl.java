@@ -918,7 +918,7 @@ public final class AppSearchImpl implements Closeable {
                         }
                         Set<Set<Integer>> visibleToPermissions =
                                 visibilityConfig.getVisibleToPermissions();
-                        if (visibleToPermissions != null) {
+                        if (!visibleToPermissions.isEmpty()) {
                             Set<Set<Integer>> visibleToPermissionsSet =
                                     new ArraySet<>(visibleToPermissions.size());
                             for (Set<Integer> permissionList : visibleToPermissions) {
