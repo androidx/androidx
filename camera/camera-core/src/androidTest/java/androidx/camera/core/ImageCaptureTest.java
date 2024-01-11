@@ -321,7 +321,9 @@ public class ImageCaptureTest {
             repeatingScheduledExecutorService.scheduleAtFixedRate(() -> {
                 for (CameraCaptureCallback callback :
                         imageCapture.getSessionConfig().getRepeatingCameraCaptureCallbacks()) {
-                    callback.onCaptureCompleted(fakeCameraCaptureResult);
+                    int captureConfigId =
+                            imageCapture.getSessionConfig().getRepeatingCaptureConfig().getId();
+                    callback.onCaptureCompleted(captureConfigId, fakeCameraCaptureResult);
                 }
             }, 0, 50, TimeUnit.MILLISECONDS);
         }

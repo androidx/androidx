@@ -422,7 +422,7 @@ class CapturePipelineImpl @Inject constructor(
             object : CaptureCallback {
                 override fun onCaptureStarted(captureSequenceId: Int, timestamp: Long) {
                     for (captureCallback in it.cameraCaptureCallbacks) {
-                        captureCallback.onCaptureStarted()
+                        captureCallback.onCaptureStarted(it.id)
                     }
                 }
 
@@ -433,7 +433,7 @@ class CapturePipelineImpl @Inject constructor(
                         )
                     )
                     for (captureCallback in it.cameraCaptureCallbacks) {
-                        captureCallback.onCaptureFailed(
+                        captureCallback.onCaptureFailed(it.id,
                             CameraCaptureFailure(CameraCaptureFailure.Reason.ERROR)
                         )
                     }
@@ -442,7 +442,7 @@ class CapturePipelineImpl @Inject constructor(
                 override fun onCaptureSequenceCompleted(captureSequenceId: Int) {
                     completeSignal.complete(null)
                     for (captureCallback in it.cameraCaptureCallbacks) {
-                        captureCallback.onCaptureCompleted(
+                        captureCallback.onCaptureCompleted(it.id,
                             CameraCaptureResult.EmptyCameraCaptureResult()
                         )
                     }
@@ -450,7 +450,7 @@ class CapturePipelineImpl @Inject constructor(
 
                 override fun onCaptureProcessProgressed(progress: Int) {
                     for (captureCallback in it.cameraCaptureCallbacks) {
-                        captureCallback.onCaptureProcessProgressed(progress)
+                        captureCallback.onCaptureProcessProgressed(it.id, progress)
                     }
                 }
 

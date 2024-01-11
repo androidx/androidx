@@ -1217,9 +1217,9 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
                             new CameraCaptureCallback() {
                                 private boolean mIsFirstCaptureResult = true;
                                 @Override
-                                public void onCaptureCompleted(
+                                public void onCaptureCompleted(int captureConfigId,
                                         @NonNull CameraCaptureResult cameraCaptureResult) {
-                                    super.onCaptureCompleted(cameraCaptureResult);
+                                    super.onCaptureCompleted(captureConfigId, cameraCaptureResult);
                                     // Only print the first result to avoid flooding the log.
                                     if (mIsFirstCaptureResult) {
                                         mIsFirstCaptureResult = false;

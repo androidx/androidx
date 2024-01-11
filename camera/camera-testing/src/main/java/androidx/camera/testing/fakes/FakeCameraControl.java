@@ -146,7 +146,9 @@ public final class FakeCameraControl implements CameraControlInternal {
         for (CaptureConfig captureConfig : mSubmittedCaptureRequests) {
             for (CameraCaptureCallback cameraCaptureCallback :
                     captureConfig.getCameraCaptureCallbacks()) {
-                mExecutor.execute(cameraCaptureCallback::onCaptureCancelled);
+                mExecutor.execute(() -> {
+                    cameraCaptureCallback.onCaptureCancelled(captureConfig.getId());
+                });
             }
         }
         for (CallbackToFutureAdapter.Completer<Void> completer : mSubmittedCompleterList) {
@@ -167,6 +169,7 @@ public final class FakeCameraControl implements CameraControlInternal {
             for (CameraCaptureCallback cameraCaptureCallback :
                     captureConfig.getCameraCaptureCallbacks()) {
                 mExecutor.execute(() -> cameraCaptureCallback.onCaptureFailed(
+                        captureConfig.getId(),
                         new CameraCaptureFailure(CameraCaptureFailure.Reason.ERROR)));
             }
         }
@@ -188,7 +191,8 @@ public final class FakeCameraControl implements CameraControlInternal {
         for (CaptureConfig captureConfig : mSubmittedCaptureRequests) {
             for (CameraCaptureCallback cameraCaptureCallback :
                     captureConfig.getCameraCaptureCallbacks()) {
-                mExecutor.execute(() -> cameraCaptureCallback.onCaptureCompleted(result));
+                mExecutor.execute(() -> cameraCaptureCallback.onCaptureCompleted(
+                        captureConfig.getId(), result));
             }
         }
         for (CallbackToFutureAdapter.Completer<Void> completer : mSubmittedCompleterList) {

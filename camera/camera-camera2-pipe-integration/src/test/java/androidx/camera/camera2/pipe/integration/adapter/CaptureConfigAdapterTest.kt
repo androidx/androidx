@@ -32,6 +32,7 @@ import androidx.camera.core.impl.CameraCaptureCallback
 import androidx.camera.core.impl.CaptureConfig
 import androidx.camera.core.impl.TagBundle
 import androidx.testutils.assertThrows
+import com.google.common.truth.Truth
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.Executors
 import kotlinx.coroutines.CompletableDeferred
@@ -39,6 +40,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeoutOrNull
 import org.junit.After
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -118,16 +120,18 @@ class CaptureConfigAdapterTest {
     @Test
     fun shouldReturnRequestThatIncludesCaptureCallbacks() {
         // Arrange
-        val callbackAborted = CompletableDeferred<Unit>()
+        val callbackAborted = CompletableDeferred<Int>()
         val captureCallback = object : CameraCaptureCallback() {
-            override fun onCaptureCancelled() {
-                callbackAborted.complete(Unit)
+            override fun onCaptureCancelled(captureConfigId: Int) {
+                callbackAborted.complete(captureConfigId)
             }
         }
+        val expectedCaptureConfigId = 101
         val captureConfig = CaptureConfig.Builder()
             .apply {
                 addSurface(surface)
                 addCameraCaptureCallback(captureCallback)
+                setId(expectedCaptureConfigId)
             }
             .build()
         val sessionConfigOptions = Camera2ImplConfig.Builder().build()
@@ -144,7 +148,11 @@ class CaptureConfigAdapterTest {
 
         // Assert
         runBlocking {
-            callbackAborted.await()
+            Truth.assertThat(
+                withTimeoutOrNull(timeMillis = 5000) {
+                    callbackAborted.await()
+                }
+            ).isEqualTo(expectedCaptureConfigId)
         }
     }
 

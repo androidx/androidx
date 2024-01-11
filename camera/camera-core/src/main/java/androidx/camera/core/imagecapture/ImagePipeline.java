@@ -65,6 +65,8 @@ public class ImagePipeline {
     static final byte JPEG_QUALITY_MAX_QUALITY = 100;
     static final byte JPEG_QUALITY_MIN_LATENCY = 95;
 
+    private static int sNextRequestId = 0;
+
     static final ExifRotationAvailability EXIF_ROTATION_AVAILABILITY =
             new ExifRotationAvailability();
     // Use case configs.
@@ -209,12 +211,17 @@ public class ImagePipeline {
             @NonNull ListenableFuture<Void> captureFuture) {
         checkMainThread();
         CaptureBundle captureBundle = createCaptureBundle();
+        // sNextRequestId is not thread-safe. Changed it to use AtomicInteger if thread safety is
+        // needed in the future.
+        int requestId = sNextRequestId++;
         return new Pair<>(
                 createCameraRequest(
+                        requestId,
                         captureBundle,
                         takePictureRequest,
                         takePictureCallback),
                 createProcessingRequest(
+                        requestId,
                         captureBundle,
                         takePictureRequest,
                         takePictureCallback,
@@ -252,6 +259,7 @@ public class ImagePipeline {
 
     @NonNull
     private ProcessingRequest createProcessingRequest(
+            int requestId,
             @NonNull CaptureBundle captureBundle,
             @NonNull TakePictureRequest takePictureRequest,
             @NonNull TakePictureCallback takePictureCallback,
@@ -264,7 +272,8 @@ public class ImagePipeline {
                 takePictureRequest.getJpegQuality(),
                 takePictureRequest.getSensorToBufferTransform(),
                 takePictureCallback,
-                captureFuture);
+                captureFuture,
+                requestId);
     }
 
     private boolean shouldEnablePostview() {
@@ -278,6 +287,7 @@ public class ImagePipeline {
     }
 
     private CameraRequest createCameraRequest(
+            int requestId,
             @NonNull CaptureBundle captureBundle,
             @NonNull TakePictureRequest takePictureRequest,
             @NonNull TakePictureCallback takePictureCallback) {
@@ -311,6 +321,7 @@ public class ImagePipeline {
 
             // Use CaptureBundle object as the key for TagBundle
             builder.addTag(tagBundleKey, captureStage.getId());
+            builder.setId(requestId);
             builder.addCameraCaptureCallback(mPipelineIn.getCameraCaptureCallback());
             captureConfigs.add(builder.build());
         }

@@ -410,14 +410,16 @@ class FocusMeteringControl {
         builder.addImplementationOptions(configBuilder.build());
         builder.addCameraCaptureCallback(new CameraCaptureCallback() {
             @Override
-            public void onCaptureCompleted(@NonNull CameraCaptureResult cameraCaptureResult) {
+            public void onCaptureCompleted(int captureConfigId,
+                    @NonNull CameraCaptureResult cameraCaptureResult) {
                 if (completer != null) {
                     completer.set(cameraCaptureResult);
                 }
             }
 
             @Override
-            public void onCaptureFailed(@NonNull CameraCaptureFailure failure) {
+            public void onCaptureFailed(int captureConfigId,
+                    @NonNull CameraCaptureFailure failure) {
                 if (completer != null) {
                     completer.setException(
                             new CameraControlInternal.CameraControlException(failure));
@@ -425,7 +427,7 @@ class FocusMeteringControl {
             }
 
             @Override
-            public void onCaptureCancelled() {
+            public void onCaptureCancelled(int captureConfigId) {
                 if (completer != null) {
                     completer.setException(
                             new CameraControl.OperationCanceledException("Camera is closed"));
@@ -473,7 +475,8 @@ class FocusMeteringControl {
         builder.addImplementationOptions(configBuilder.build());
         builder.addCameraCaptureCallback(new CameraCaptureCallback() {
             @Override
-            public void onCaptureCompleted(@NonNull CameraCaptureResult cameraCaptureResult) {
+            public void onCaptureCompleted(int captureConfigId,
+                    @NonNull CameraCaptureResult cameraCaptureResult) {
                 if (completer != null) {
                     Logger.d(TAG, "triggerAePrecapture: triggering capture request completed");
                     completer.set(null);
@@ -481,7 +484,8 @@ class FocusMeteringControl {
             }
 
             @Override
-            public void onCaptureFailed(@NonNull CameraCaptureFailure failure) {
+            public void onCaptureFailed(int captureConfigId,
+                    @NonNull CameraCaptureFailure failure) {
                 if (completer != null) {
                     completer.setException(
                             new CameraControlInternal.CameraControlException(failure));
@@ -489,7 +493,7 @@ class FocusMeteringControl {
             }
 
             @Override
-            public void onCaptureCancelled() {
+            public void onCaptureCancelled(int captureConfigId) {
                 if (completer != null) {
                     completer.setException(
                             new CameraControl.OperationCanceledException("Camera is closed"));

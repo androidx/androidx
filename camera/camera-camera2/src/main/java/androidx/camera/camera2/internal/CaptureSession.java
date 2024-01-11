@@ -853,7 +853,7 @@ final class CaptureSession implements CaptureSessionInterface {
             for (CaptureConfig captureConfig : captureConfigs) {
                 for (CameraCaptureCallback cameraCaptureCallback :
                         captureConfig.getCameraCaptureCallbacks()) {
-                    cameraCaptureCallback.onCaptureCancelled();
+                    cameraCaptureCallback.onCaptureCancelled(captureConfig.getId());
                 }
             }
         }

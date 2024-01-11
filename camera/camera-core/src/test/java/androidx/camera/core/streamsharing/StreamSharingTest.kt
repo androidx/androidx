@@ -42,6 +42,7 @@ import androidx.camera.core.Preview
 import androidx.camera.core.SurfaceRequest
 import androidx.camera.core.impl.CameraCaptureCallback
 import androidx.camera.core.impl.CameraCaptureResult
+import androidx.camera.core.impl.CaptureConfig
 import androidx.camera.core.impl.DeferrableSurface
 import androidx.camera.core.impl.MutableOptionsBundle
 import androidx.camera.core.impl.SessionConfig
@@ -368,7 +369,7 @@ class StreamSharingTest {
 
         // Act: feed metadata to the parent.
         streamSharing.sessionConfig.repeatingCameraCaptureCallbacks.single()
-            .onCaptureCompleted(FakeCameraCaptureResult())
+            .onCaptureCompleted(CaptureConfig.DEFAULT_ID, FakeCameraCaptureResult())
 
         // Assert: children receives the metadata with the tag bundle overridden.
         assertThat(result1.getCompleted().tagBundle.getTag(key)).isEqualTo(value)
@@ -452,7 +453,10 @@ class StreamSharingTest {
             val builder = SessionConfig.Builder()
             builder.addTag(key, value)
             builder.addRepeatingCameraCaptureCallback(object : CameraCaptureCallback() {
-                override fun onCaptureCompleted(cameraCaptureResult: CameraCaptureResult) {
+                override fun onCaptureCompleted(
+                    captureConfig: Int,
+                    cameraCaptureResult: CameraCaptureResult
+                ) {
                     deferredResult.complete(cameraCaptureResult)
                 }
             })
