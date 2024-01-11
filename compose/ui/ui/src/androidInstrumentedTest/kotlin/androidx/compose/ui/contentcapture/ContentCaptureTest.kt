@@ -99,6 +99,7 @@ class ContentCaptureTest {
             verify(contentCaptureSessionCompat).newVirtualViewStructure(any(), any())
             verify(contentCaptureSessionCompat).notifyViewsAppeared(any())
             verify(viewStructureCompat).setDimens(any(), any(), any(), any(), any(), any())
+            verify(viewStructureCompat).extras
             verify(viewStructureCompat).toViewStructure()
             verifyNoMoreInteractions(contentCaptureSessionCompat)
             verifyNoMoreInteractions(viewStructureCompat)
