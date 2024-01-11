@@ -330,6 +330,7 @@ public class PrimaryLayout implements LayoutElement {
                             new Modifiers.Builder()
                                     .setPadding(
                                             new Padding.Builder()
+                                                    .setRtlAware(true)
                                                     .setStart(dp(horizontalPadding))
                                                     .setEnd(dp(horizontalPadding))
                                                     .setTop(dp(topPadding))
@@ -352,6 +353,7 @@ public class PrimaryLayout implements LayoutElement {
                                         new Modifiers.Builder()
                                                 .setPadding(
                                                         new Padding.Builder()
+                                                                .setRtlAware(true)
                                                                 .setStart(dp(horizontalChipPadding))
                                                                 .setEnd(dp(horizontalChipPadding))
                                                                 .build())
