@@ -251,6 +251,7 @@ public class EdgeContentLayout implements LayoutElement {
                     new Modifiers.Builder()
                             .setPadding(
                                     new Padding.Builder()
+                                            .setRtlAware(true)
                                             .setStart(dp(horizontalPaddingDp))
                                             .setEnd(dp(horizontalPaddingDp))
                                             .build())
