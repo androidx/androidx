@@ -133,6 +133,7 @@ public final class androidx/compose/ui/geometry/Rect {
 	public final fun getWidth ()F
 	public fun hashCode ()I
 	public final fun inflate (F)Landroidx/compose/ui/geometry/Rect;
+	public final fun intersect (FFFF)Landroidx/compose/ui/geometry/Rect;
 	public final fun intersect (Landroidx/compose/ui/geometry/Rect;)Landroidx/compose/ui/geometry/Rect;
 	public final fun isEmpty ()Z
 	public final fun isFinite ()Z

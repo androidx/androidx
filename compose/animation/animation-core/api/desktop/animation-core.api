@@ -120,6 +120,7 @@ public final class androidx/compose/animation/core/AnimationSpecKt {
 	public static final fun infiniteRepeatable-9IiC70o (Landroidx/compose/animation/core/DurationBasedAnimationSpec;Landroidx/compose/animation/core/RepeatMode;J)Landroidx/compose/animation/core/InfiniteRepeatableSpec;
 	public static synthetic fun infiniteRepeatable-9IiC70o$default (Landroidx/compose/animation/core/DurationBasedAnimationSpec;Landroidx/compose/animation/core/RepeatMode;JILjava/lang/Object;)Landroidx/compose/animation/core/InfiniteRepeatableSpec;
 	public static final fun keyframes (Lkotlin/jvm/functions/Function1;)Landroidx/compose/animation/core/KeyframesSpec;
+	public static final fun keyframesWithSpline (Lkotlin/jvm/functions/Function1;)Landroidx/compose/animation/core/KeyframesWithSplineSpec;
 	public static final synthetic fun repeatable (ILandroidx/compose/animation/core/DurationBasedAnimationSpec;Landroidx/compose/animation/core/RepeatMode;)Landroidx/compose/animation/core/RepeatableSpec;
 	public static synthetic fun repeatable$default (ILandroidx/compose/animation/core/DurationBasedAnimationSpec;Landroidx/compose/animation/core/RepeatMode;ILjava/lang/Object;)Landroidx/compose/animation/core/RepeatableSpec;
 	public static final fun repeatable-91I0pcU (ILandroidx/compose/animation/core/DurationBasedAnimationSpec;Landroidx/compose/animation/core/RepeatMode;J)Landroidx/compose/animation/core/RepeatableSpec;
@@ -303,6 +304,9 @@ public final class androidx/compose/animation/core/EasingKt {
 	public static final fun getLinearOutSlowInEasing ()Landroidx/compose/animation/core/Easing;
 }
 
+public abstract interface annotation class androidx/compose/animation/core/ExperimentalAnimationSpecApi : java/lang/annotation/Annotation {
+}
+
 public abstract interface annotation class androidx/compose/animation/core/ExperimentalTransitionApi : java/lang/annotation/Annotation {
 }
 
@@ -414,45 +418,73 @@ public final class androidx/compose/animation/core/InfiniteTransitionKt {
 public abstract interface annotation class androidx/compose/animation/core/InternalAnimationApi : java/lang/annotation/Annotation {
 }
 
+public abstract class androidx/compose/animation/core/KeyframeBaseEntity {
+	public static final field $stable I
+	public synthetic fun <init> (Ljava/lang/Object;Landroidx/compose/animation/core/Easing;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+}
+
 public final class androidx/compose/animation/core/KeyframesSpec : androidx/compose/animation/core/DurationBasedAnimationSpec {
 	public static final field $stable I
 	public fun <init> (Landroidx/compose/animation/core/KeyframesSpec$KeyframesSpecConfig;)V
-	public fun equals (Ljava/lang/Object;)Z
 	public final fun getConfig ()Landroidx/compose/animation/core/KeyframesSpec$KeyframesSpecConfig;
-	public fun hashCode ()I
 	public synthetic fun vectorize (Landroidx/compose/animation/core/TwoWayConverter;)Landroidx/compose/animation/core/VectorizedAnimationSpec;
 	public synthetic fun vectorize (Landroidx/compose/animation/core/TwoWayConverter;)Landroidx/compose/animation/core/VectorizedDurationBasedAnimationSpec;
 	public synthetic fun vectorize (Landroidx/compose/animation/core/TwoWayConverter;)Landroidx/compose/animation/core/VectorizedFiniteAnimationSpec;
 	public fun vectorize (Landroidx/compose/animation/core/TwoWayConverter;)Landroidx/compose/animation/core/VectorizedKeyframesSpec;
 }
 
-public final class androidx/compose/animation/core/KeyframesSpec$KeyframeEntity {
+public final class androidx/compose/animation/core/KeyframesSpec$KeyframeEntity : androidx/compose/animation/core/KeyframeBaseEntity {
 	public static final field $stable I
 	public fun equals (Ljava/lang/Object;)Z
 	public fun hashCode ()I
 }
 
-public final class androidx/compose/animation/core/KeyframesSpec$KeyframesSpecConfig {
+public final class androidx/compose/animation/core/KeyframesSpec$KeyframesSpecConfig : androidx/compose/animation/core/KeyframesSpecBaseConfig {
 	public static final field $stable I
 	public fun <init> ()V
-	public final fun at (Ljava/lang/Object;I)Landroidx/compose/animation/core/KeyframesSpec$KeyframeEntity;
-	public final fun atFraction (Ljava/lang/Object;F)Landroidx/compose/animation/core/KeyframesSpec$KeyframeEntity;
-	public fun equals (Ljava/lang/Object;)Z
-	public final fun getDelayMillis ()I
-	public final fun getDurationMillis ()I
-	public fun hashCode ()I
-	public final fun setDelayMillis (I)V
-	public final fun setDurationMillis (I)V
+	public synthetic fun createEntityFor$animation_core (Ljava/lang/Object;)Landroidx/compose/animation/core/KeyframeBaseEntity;
 	public final fun with (Landroidx/compose/animation/core/KeyframesSpec$KeyframeEntity;Landroidx/compose/animation/core/Easing;)V
 }
 
-public final class androidx/compose/animation/core/MutableTransitionState {
+public abstract class androidx/compose/animation/core/KeyframesSpecBaseConfig {
+	public static final field $stable I
+	public final fun at (Ljava/lang/Object;I)Landroidx/compose/animation/core/KeyframeBaseEntity;
+	public final fun atFraction (Ljava/lang/Object;F)Landroidx/compose/animation/core/KeyframeBaseEntity;
+	public final fun getDelayMillis ()I
+	public final fun getDurationMillis ()I
+	public final fun setDelayMillis (I)V
+	public final fun setDurationMillis (I)V
+	public final fun using (Landroidx/compose/animation/core/KeyframeBaseEntity;Landroidx/compose/animation/core/Easing;)Landroidx/compose/animation/core/KeyframeBaseEntity;
+}
+
+public final class androidx/compose/animation/core/KeyframesWithSplineSpec : androidx/compose/animation/core/DurationBasedAnimationSpec {
+	public static final field $stable I
+	public fun <init> (Landroidx/compose/animation/core/KeyframesWithSplineSpec$KeyframesWithSplineSpecConfig;)V
+	public final fun getConfig ()Landroidx/compose/animation/core/KeyframesWithSplineSpec$KeyframesWithSplineSpecConfig;
+	public synthetic fun vectorize (Landroidx/compose/animation/core/TwoWayConverter;)Landroidx/compose/animation/core/VectorizedAnimationSpec;
+	public fun vectorize (Landroidx/compose/animation/core/TwoWayConverter;)Landroidx/compose/animation/core/VectorizedDurationBasedAnimationSpec;
+	public synthetic fun vectorize (Landroidx/compose/animation/core/TwoWayConverter;)Landroidx/compose/animation/core/VectorizedFiniteAnimationSpec;
+}
+
+public final class androidx/compose/animation/core/KeyframesWithSplineSpec$KeyframesWithSplineSpecConfig : androidx/compose/animation/core/KeyframesSpecBaseConfig {
+	public static final field $stable I
+	public fun <init> ()V
+	public synthetic fun createEntityFor$animation_core (Ljava/lang/Object;)Landroidx/compose/animation/core/KeyframeBaseEntity;
+}
+
+public final class androidx/compose/animation/core/MutableTransitionState : androidx/compose/animation/core/TransitionState {
 	public static final field $stable I
 	public fun <init> (Ljava/lang/Object;)V
-	public final fun getCurrentState ()Ljava/lang/Object;
-	public final fun getTargetState ()Ljava/lang/Object;
+	public fun getCurrentState ()Ljava/lang/Object;
+	public fun getTargetState ()Ljava/lang/Object;
 	public final fun isIdle ()Z
-	public final fun setTargetState (Ljava/lang/Object;)V
+	public fun setTargetState (Ljava/lang/Object;)V
+}
+
+public final class androidx/compose/animation/core/PathEasing : androidx/compose/animation/core/Easing {
+	public static final field $stable I
+	public fun <init> (Landroidx/compose/ui/graphics/Path;)V
+	public fun transform (F)F
 }
 
 public final class androidx/compose/animation/core/RepeatMode : java/lang/Enum {
@@ -477,6 +509,19 @@ public final class androidx/compose/animation/core/RepeatableSpec : androidx/com
 	public fun hashCode ()I
 	public synthetic fun vectorize (Landroidx/compose/animation/core/TwoWayConverter;)Landroidx/compose/animation/core/VectorizedAnimationSpec;
 	public fun vectorize (Landroidx/compose/animation/core/TwoWayConverter;)Landroidx/compose/animation/core/VectorizedFiniteAnimationSpec;
+}
+
+public final class androidx/compose/animation/core/SeekableTransitionState : androidx/compose/animation/core/TransitionState {
+	public static final field $stable I
+	public fun <init> (Ljava/lang/Object;Ljava/lang/Object;)V
+	public final fun animateToCurrentState (Landroidx/compose/animation/core/FiniteAnimationSpec;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun animateToCurrentState$default (Landroidx/compose/animation/core/SeekableTransitionState;Landroidx/compose/animation/core/FiniteAnimationSpec;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public final fun animateToTargetState (Landroidx/compose/animation/core/FiniteAnimationSpec;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun animateToTargetState$default (Landroidx/compose/animation/core/SeekableTransitionState;Landroidx/compose/animation/core/FiniteAnimationSpec;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public fun getCurrentState ()Ljava/lang/Object;
+	public final fun getFraction ()F
+	public fun getTargetState ()Ljava/lang/Object;
+	public final fun snapToFraction (FLkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
 public final class androidx/compose/animation/core/SnapSpec : androidx/compose/animation/core/DurationBasedAnimationSpec {
@@ -592,6 +637,8 @@ public final class androidx/compose/animation/core/Transition {
 	public static final field $stable I
 	public fun <init> (Landroidx/compose/animation/core/MutableTransitionState;Ljava/lang/String;)V
 	public synthetic fun <init> (Landroidx/compose/animation/core/MutableTransitionState;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Landroidx/compose/animation/core/TransitionState;Ljava/lang/String;)V
+	public synthetic fun <init> (Landroidx/compose/animation/core/TransitionState;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun getAnimations ()Ljava/util/List;
 	public final fun getCurrentState ()Ljava/lang/Object;
 	public final fun getLabel ()Ljava/lang/String;
@@ -604,6 +651,7 @@ public final class androidx/compose/animation/core/Transition {
 	public final fun isSeeking ()Z
 	public final fun seek (Ljava/lang/Object;Ljava/lang/Object;J)V
 	public final fun setPlayTimeNanos (J)V
+	public fun toString ()Ljava/lang/String;
 }
 
 public final class androidx/compose/animation/core/Transition$DeferredAnimation {
@@ -628,6 +676,7 @@ public final class androidx/compose/animation/core/Transition$TransitionAnimatio
 	public final fun getLabel ()Ljava/lang/String;
 	public final fun getTypeConverter ()Landroidx/compose/animation/core/TwoWayConverter;
 	public fun getValue ()Ljava/lang/Object;
+	public fun toString ()Ljava/lang/String;
 }
 
 public final class androidx/compose/animation/core/TransitionKt {
@@ -644,8 +693,15 @@ public final class androidx/compose/animation/core/TransitionKt {
 	public static final fun createChildTransitionInternal (Landroidx/compose/animation/core/Transition;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/String;Landroidx/compose/runtime/Composer;I)Landroidx/compose/animation/core/Transition;
 	public static final fun createDeferredAnimation (Landroidx/compose/animation/core/Transition;Landroidx/compose/animation/core/TwoWayConverter;Ljava/lang/String;Landroidx/compose/runtime/Composer;II)Landroidx/compose/animation/core/Transition$DeferredAnimation;
 	public static final fun createTransitionAnimation (Landroidx/compose/animation/core/Transition;Ljava/lang/Object;Ljava/lang/Object;Landroidx/compose/animation/core/FiniteAnimationSpec;Landroidx/compose/animation/core/TwoWayConverter;Ljava/lang/String;Landroidx/compose/runtime/Composer;I)Landroidx/compose/runtime/State;
+	public static final fun rememberTransition (Landroidx/compose/animation/core/TransitionState;Ljava/lang/String;Landroidx/compose/runtime/Composer;II)Landroidx/compose/animation/core/Transition;
 	public static final fun updateTransition (Landroidx/compose/animation/core/MutableTransitionState;Ljava/lang/String;Landroidx/compose/runtime/Composer;II)Landroidx/compose/animation/core/Transition;
 	public static final fun updateTransition (Ljava/lang/Object;Ljava/lang/String;Landroidx/compose/runtime/Composer;II)Landroidx/compose/animation/core/Transition;
+}
+
+public abstract class androidx/compose/animation/core/TransitionState {
+	public static final field $stable I
+	public abstract fun getCurrentState ()Ljava/lang/Object;
+	public abstract fun getTargetState ()Ljava/lang/Object;
 }
 
 public final class androidx/compose/animation/core/TweenSpec : androidx/compose/animation/core/DurationBasedAnimationSpec {

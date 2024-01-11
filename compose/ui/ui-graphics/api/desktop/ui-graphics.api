@@ -43,6 +43,15 @@ public final class androidx/compose/ui/graphics/BlendMode$Companion {
 	public final fun getXor-0nO6VwU ()I
 }
 
+public final class androidx/compose/ui/graphics/BlendModeColorFilter : androidx/compose/ui/graphics/ColorFilter {
+	public synthetic fun <init> (JILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getBlendMode-0nO6VwU ()I
+	public final fun getColor-0d7_KjU ()J
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
 public final class androidx/compose/ui/graphics/BlurEffect : androidx/compose/ui/graphics/RenderEffect {
 	public static final field Companion Landroidx/compose/ui/graphics/BlurEffect$Companion;
 	public synthetic fun <init> (Landroidx/compose/ui/graphics/RenderEffect;FFIILkotlin/jvm/internal/DefaultConstructorMarker;)V
@@ -219,7 +228,7 @@ public final class androidx/compose/ui/graphics/Color$Companion {
 	public static synthetic fun hsv-JlNiLsg$default (Landroidx/compose/ui/graphics/Color$Companion;FFFFLandroidx/compose/ui/graphics/colorspace/Rgb;ILjava/lang/Object;)J
 }
 
-public final class androidx/compose/ui/graphics/ColorFilter {
+public class androidx/compose/ui/graphics/ColorFilter {
 	public static final field Companion Landroidx/compose/ui/graphics/ColorFilter$Companion;
 }
 
@@ -271,6 +280,15 @@ public final class androidx/compose/ui/graphics/ColorMatrix {
 	public fun toString ()Ljava/lang/String;
 	public static fun toString-impl ([F)Ljava/lang/String;
 	public final synthetic fun unbox-impl ()[F
+}
+
+public final class androidx/compose/ui/graphics/ColorMatrixColorFilter : androidx/compose/ui/graphics/ColorFilter {
+	public synthetic fun <init> ([FLkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun copyColorMatrix-gBh15pI ([F)[F
+	public static synthetic fun copyColorMatrix-gBh15pI$default (Landroidx/compose/ui/graphics/ColorMatrixColorFilter;[FILjava/lang/Object;)[F
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
 }
 
 public abstract interface class androidx/compose/ui/graphics/ColorProducer {
@@ -383,6 +401,15 @@ public final class androidx/compose/ui/graphics/ImageBitmapKt {
 	public static synthetic fun ImageBitmap-x__-hDU$default (IIIZLandroidx/compose/ui/graphics/colorspace/ColorSpace;ILjava/lang/Object;)Landroidx/compose/ui/graphics/ImageBitmap;
 	public static final fun toPixelMap (Landroidx/compose/ui/graphics/ImageBitmap;IIII[III)Landroidx/compose/ui/graphics/PixelMap;
 	public static synthetic fun toPixelMap$default (Landroidx/compose/ui/graphics/ImageBitmap;IIII[IIIILjava/lang/Object;)Landroidx/compose/ui/graphics/PixelMap;
+}
+
+public final class androidx/compose/ui/graphics/LightingColorFilter : androidx/compose/ui/graphics/ColorFilter {
+	public synthetic fun <init> (JJLkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getAdd-0d7_KjU ()J
+	public final fun getMultiply-0d7_KjU ()J
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
 }
 
 public final class androidx/compose/ui/graphics/LinearGradient : androidx/compose/ui/graphics/ShaderBrush {
@@ -1198,9 +1225,14 @@ public final class androidx/compose/ui/graphics/drawscope/ContentDrawScope$Defau
 }
 
 public abstract interface class androidx/compose/ui/graphics/drawscope/DrawContext {
-	public abstract fun getCanvas ()Landroidx/compose/ui/graphics/Canvas;
+	public fun getCanvas ()Landroidx/compose/ui/graphics/Canvas;
+	public fun getDensity ()Landroidx/compose/ui/unit/Density;
+	public fun getLayoutDirection ()Landroidx/compose/ui/unit/LayoutDirection;
 	public abstract fun getSize-NH-jbRc ()J
 	public abstract fun getTransform ()Landroidx/compose/ui/graphics/drawscope/DrawTransform;
+	public fun setCanvas (Landroidx/compose/ui/graphics/Canvas;)V
+	public fun setDensity (Landroidx/compose/ui/unit/Density;)V
+	public fun setLayoutDirection (Landroidx/compose/ui/unit/LayoutDirection;)V
 	public abstract fun setSize-uvyYCjk (J)V
 }
 
@@ -1298,6 +1330,7 @@ public final class androidx/compose/ui/graphics/drawscope/DrawScopeKt {
 	public static synthetic fun clipPath-KD09W0M$default (Landroidx/compose/ui/graphics/drawscope/DrawScope;Landroidx/compose/ui/graphics/Path;ILkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
 	public static final fun clipRect-rOu3jXo (Landroidx/compose/ui/graphics/drawscope/DrawScope;FFFFILkotlin/jvm/functions/Function1;)V
 	public static synthetic fun clipRect-rOu3jXo$default (Landroidx/compose/ui/graphics/drawscope/DrawScope;FFFFILkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
+	public static final fun draw-GRGpd60 (Landroidx/compose/ui/graphics/drawscope/DrawScope;Landroidx/compose/ui/unit/Density;Landroidx/compose/ui/unit/LayoutDirection;Landroidx/compose/ui/graphics/Canvas;JLkotlin/jvm/functions/Function1;)V
 	public static final fun drawIntoCanvas (Landroidx/compose/ui/graphics/drawscope/DrawScope;Lkotlin/jvm/functions/Function1;)V
 	public static final fun inset (Landroidx/compose/ui/graphics/drawscope/DrawScope;FFFFLkotlin/jvm/functions/Function1;)V
 	public static final fun inset (Landroidx/compose/ui/graphics/drawscope/DrawScope;FFLkotlin/jvm/functions/Function1;)V

@@ -11,6 +11,8 @@ public abstract interface class androidx/compose/animation/AnimatedContentScope 
 }
 
 public abstract interface class androidx/compose/animation/AnimatedContentTransitionScope : androidx/compose/animation/core/Transition$Segment {
+	public abstract fun getContentAlignment ()Landroidx/compose/ui/Alignment;
+	public fun getKeepUntilTransitionsFinished (Landroidx/compose/animation/ExitTransition$Companion;)Landroidx/compose/animation/ExitTransition;
 	public abstract fun slideIntoContainer-mOhB8PU (ILandroidx/compose/animation/core/FiniteAnimationSpec;Lkotlin/jvm/functions/Function1;)Landroidx/compose/animation/EnterTransition;
 	public static synthetic fun slideIntoContainer-mOhB8PU$default (Landroidx/compose/animation/AnimatedContentTransitionScope;ILandroidx/compose/animation/core/FiniteAnimationSpec;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Landroidx/compose/animation/EnterTransition;
 	public abstract fun slideOutOfContainer-mOhB8PU (ILandroidx/compose/animation/core/FiniteAnimationSpec;Lkotlin/jvm/functions/Function1;)Landroidx/compose/animation/ExitTransition;

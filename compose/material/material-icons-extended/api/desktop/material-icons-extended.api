@@ -1,3 +1,2763 @@
+public final class androidx/compose/material/icons/automirrored/filled/AccessibleForwardKt {
+	public static final fun getAccessibleForward (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/AccessibleKt {
+	public static final fun getAccessible (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/AddToHomeScreenKt {
+	public static final fun getAddToHomeScreen (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/AirplaneTicketKt {
+	public static final fun getAirplaneTicket (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/AlignHorizontalLeftKt {
+	public static final fun getAlignHorizontalLeft (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/AlignHorizontalRightKt {
+	public static final fun getAlignHorizontalRight (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/AltRouteKt {
+	public static final fun getAltRoute (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/AnnouncementKt {
+	public static final fun getAnnouncement (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/ArrowBackIosKt {
+	public static final fun getArrowBackIos (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/ArrowForwardIosKt {
+	public static final fun getArrowForwardIos (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/ArrowLeftKt {
+	public static final fun getArrowLeft (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/ArrowRightAltKt {
+	public static final fun getArrowRightAlt (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/ArrowRightKt {
+	public static final fun getArrowRight (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/ArticleKt {
+	public static final fun getArticle (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/AssignmentKt {
+	public static final fun getAssignment (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/AssignmentReturnKt {
+	public static final fun getAssignmentReturn (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/AssistantDirectionKt {
+	public static final fun getAssistantDirection (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/BackspaceKt {
+	public static final fun getBackspace (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/BatteryUnknownKt {
+	public static final fun getBatteryUnknown (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/BluetoothSearchingKt {
+	public static final fun getBluetoothSearching (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/BrandingWatermarkKt {
+	public static final fun getBrandingWatermark (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/CallMadeKt {
+	public static final fun getCallMade (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/CallMergeKt {
+	public static final fun getCallMerge (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/CallMissedKt {
+	public static final fun getCallMissed (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/CallMissedOutgoingKt {
+	public static final fun getCallMissedOutgoing (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/CallReceivedKt {
+	public static final fun getCallReceived (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/CallSplitKt {
+	public static final fun getCallSplit (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/ChatKt {
+	public static final fun getChat (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/ChromeReaderModeKt {
+	public static final fun getChromeReaderMode (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/CommentKt {
+	public static final fun getComment (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/CompareArrowsKt {
+	public static final fun getCompareArrows (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/ContactSupportKt {
+	public static final fun getContactSupport (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/DirectionsBikeKt {
+	public static final fun getDirectionsBike (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/DirectionsRunKt {
+	public static final fun getDirectionsRun (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/DirectionsWalkKt {
+	public static final fun getDirectionsWalk (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/DriveFileMoveKt {
+	public static final fun getDriveFileMove (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/DvrKt {
+	public static final fun getDvr (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/EventNoteKt {
+	public static final fun getEventNote (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/FactCheckKt {
+	public static final fun getFactCheck (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/FeaturedPlayListKt {
+	public static final fun getFeaturedPlayList (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/FeaturedVideoKt {
+	public static final fun getFeaturedVideo (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/FeedKt {
+	public static final fun getFeed (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/FollowTheSignsKt {
+	public static final fun getFollowTheSigns (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/FormatAlignLeftKt {
+	public static final fun getFormatAlignLeft (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/FormatAlignRightKt {
+	public static final fun getFormatAlignRight (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/FormatIndentDecreaseKt {
+	public static final fun getFormatIndentDecrease (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/FormatIndentIncreaseKt {
+	public static final fun getFormatIndentIncrease (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/FormatListBulletedKt {
+	public static final fun getFormatListBulleted (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/FormatTextdirectionLToRKt {
+	public static final fun getFormatTextdirectionLToR (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/FormatTextdirectionRToLKt {
+	public static final fun getFormatTextdirectionRToL (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/ForwardKt {
+	public static final fun getForward (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/ForwardToInboxKt {
+	public static final fun getForwardToInbox (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/GradingKt {
+	public static final fun getGrading (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/HelpCenterKt {
+	public static final fun getHelpCenter (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/HelpKt {
+	public static final fun getHelp (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/HelpOutlineKt {
+	public static final fun getHelpOutline (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/InputKt {
+	public static final fun getInput (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/InsertCommentKt {
+	public static final fun getInsertComment (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/InsertDriveFileKt {
+	public static final fun getInsertDriveFile (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/KeyboardBackspaceKt {
+	public static final fun getKeyboardBackspace (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/KeyboardReturnKt {
+	public static final fun getKeyboardReturn (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/KeyboardTabKt {
+	public static final fun getKeyboardTab (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/LabelImportantKt {
+	public static final fun getLabelImportant (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/LabelKt {
+	public static final fun getLabel (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/LabelOffKt {
+	public static final fun getLabelOff (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/LastPageKt {
+	public static final fun getLastPage (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/LaunchKt {
+	public static final fun getLaunch (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/LibraryBooksKt {
+	public static final fun getLibraryBooks (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/ListAltKt {
+	public static final fun getListAlt (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/LiveHelpKt {
+	public static final fun getLiveHelp (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/LoginKt {
+	public static final fun getLogin (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/LogoutKt {
+	public static final fun getLogout (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/ManageSearchKt {
+	public static final fun getManageSearch (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/MenuBookKt {
+	public static final fun getMenuBook (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/MenuOpenKt {
+	public static final fun getMenuOpen (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/MergeTypeKt {
+	public static final fun getMergeType (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/MessageKt {
+	public static final fun getMessage (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/MissedVideoCallKt {
+	public static final fun getMissedVideoCall (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/MobileScreenShareKt {
+	public static final fun getMobileScreenShare (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/MoreKt {
+	public static final fun getMore (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/MultilineChartKt {
+	public static final fun getMultilineChart (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/NavigateBeforeKt {
+	public static final fun getNavigateBefore (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/NavigateNextKt {
+	public static final fun getNavigateNext (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/NextPlanKt {
+	public static final fun getNextPlan (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/NextWeekKt {
+	public static final fun getNextWeek (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/NotListedLocationKt {
+	public static final fun getNotListedLocation (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/NoteAddKt {
+	public static final fun getNoteAdd (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/NoteKt {
+	public static final fun getNote (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/NotesKt {
+	public static final fun getNotes (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/OfflineShareKt {
+	public static final fun getOfflineShare (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/OpenInNewKt {
+	public static final fun getOpenInNew (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/OutboundKt {
+	public static final fun getOutbound (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/PhoneCallbackKt {
+	public static final fun getPhoneCallback (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/PhoneForwardedKt {
+	public static final fun getPhoneForwarded (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/PhoneMissedKt {
+	public static final fun getPhoneMissed (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/PlaylistAddCheckKt {
+	public static final fun getPlaylistAddCheck (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/PlaylistAddKt {
+	public static final fun getPlaylistAdd (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/PlaylistPlayKt {
+	public static final fun getPlaylistPlay (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/QueueMusicKt {
+	public static final fun getQueueMusic (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/ReadMoreKt {
+	public static final fun getReadMore (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/ReceiptLongKt {
+	public static final fun getReceiptLong (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/RedoKt {
+	public static final fun getRedo (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/ReplyAllKt {
+	public static final fun getReplyAll (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/ReplyKt {
+	public static final fun getReply (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/RotateLeftKt {
+	public static final fun getRotateLeft (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/RotateRightKt {
+	public static final fun getRotateRight (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/RttKt {
+	public static final fun getRtt (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/RuleKt {
+	public static final fun getRule (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/ScheduleSendKt {
+	public static final fun getScheduleSend (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/ScreenShareKt {
+	public static final fun getScreenShare (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/SegmentKt {
+	public static final fun getSegment (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/SendAndArchiveKt {
+	public static final fun getSendAndArchive (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/SendToMobileKt {
+	public static final fun getSendToMobile (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/ShortTextKt {
+	public static final fun getShortText (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/ShortcutKt {
+	public static final fun getShortcut (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/ShowChartKt {
+	public static final fun getShowChart (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/SortKt {
+	public static final fun getSort (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/SpeakerNotesKt {
+	public static final fun getSpeakerNotes (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/StarHalfKt {
+	public static final fun getStarHalf (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/StickyNote2Kt {
+	public static final fun getStickyNote2 (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/StopScreenShareKt {
+	public static final fun getStopScreenShare (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/SubjectKt {
+	public static final fun getSubject (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/TextSnippetKt {
+	public static final fun getTextSnippet (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/TocKt {
+	public static final fun getToc (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/TrendingDownKt {
+	public static final fun getTrendingDown (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/TrendingFlatKt {
+	public static final fun getTrendingFlat (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/TrendingUpKt {
+	public static final fun getTrendingUp (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/UndoKt {
+	public static final fun getUndo (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/ViewListKt {
+	public static final fun getViewList (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/ViewQuiltKt {
+	public static final fun getViewQuilt (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/ViewSidebarKt {
+	public static final fun getViewSidebar (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/VolumeDownKt {
+	public static final fun getVolumeDown (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/VolumeMuteKt {
+	public static final fun getVolumeMute (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/VolumeOffKt {
+	public static final fun getVolumeOff (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/VolumeUpKt {
+	public static final fun getVolumeUp (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/WrapTextKt {
+	public static final fun getWrapText (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/WysiwygKt {
+	public static final fun getWysiwyg (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/_360Kt {
+	public static final fun get_360 (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/AccessibleForwardKt {
+	public static final fun getAccessibleForward (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/AccessibleKt {
+	public static final fun getAccessible (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/AddToHomeScreenKt {
+	public static final fun getAddToHomeScreen (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/AirplaneTicketKt {
+	public static final fun getAirplaneTicket (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/AlignHorizontalLeftKt {
+	public static final fun getAlignHorizontalLeft (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/AlignHorizontalRightKt {
+	public static final fun getAlignHorizontalRight (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/AltRouteKt {
+	public static final fun getAltRoute (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/AnnouncementKt {
+	public static final fun getAnnouncement (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/ArrowBackIosKt {
+	public static final fun getArrowBackIos (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/ArrowForwardIosKt {
+	public static final fun getArrowForwardIos (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/ArrowLeftKt {
+	public static final fun getArrowLeft (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/ArrowRightAltKt {
+	public static final fun getArrowRightAlt (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/ArrowRightKt {
+	public static final fun getArrowRight (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/ArticleKt {
+	public static final fun getArticle (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/AssignmentKt {
+	public static final fun getAssignment (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/AssignmentReturnKt {
+	public static final fun getAssignmentReturn (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/AssistantDirectionKt {
+	public static final fun getAssistantDirection (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/BackspaceKt {
+	public static final fun getBackspace (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/BatteryUnknownKt {
+	public static final fun getBatteryUnknown (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/BluetoothSearchingKt {
+	public static final fun getBluetoothSearching (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/BrandingWatermarkKt {
+	public static final fun getBrandingWatermark (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/CallMadeKt {
+	public static final fun getCallMade (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/CallMergeKt {
+	public static final fun getCallMerge (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/CallMissedKt {
+	public static final fun getCallMissed (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/CallMissedOutgoingKt {
+	public static final fun getCallMissedOutgoing (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/CallReceivedKt {
+	public static final fun getCallReceived (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/CallSplitKt {
+	public static final fun getCallSplit (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/ChatKt {
+	public static final fun getChat (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/ChromeReaderModeKt {
+	public static final fun getChromeReaderMode (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/CommentKt {
+	public static final fun getComment (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/CompareArrowsKt {
+	public static final fun getCompareArrows (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/ContactSupportKt {
+	public static final fun getContactSupport (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/DirectionsBikeKt {
+	public static final fun getDirectionsBike (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/DirectionsRunKt {
+	public static final fun getDirectionsRun (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/DirectionsWalkKt {
+	public static final fun getDirectionsWalk (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/DriveFileMoveKt {
+	public static final fun getDriveFileMove (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/DvrKt {
+	public static final fun getDvr (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/EventNoteKt {
+	public static final fun getEventNote (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/FactCheckKt {
+	public static final fun getFactCheck (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/FeaturedPlayListKt {
+	public static final fun getFeaturedPlayList (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/FeaturedVideoKt {
+	public static final fun getFeaturedVideo (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/FeedKt {
+	public static final fun getFeed (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/FollowTheSignsKt {
+	public static final fun getFollowTheSigns (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/FormatAlignLeftKt {
+	public static final fun getFormatAlignLeft (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/FormatAlignRightKt {
+	public static final fun getFormatAlignRight (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/FormatIndentDecreaseKt {
+	public static final fun getFormatIndentDecrease (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/FormatIndentIncreaseKt {
+	public static final fun getFormatIndentIncrease (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/FormatListBulletedKt {
+	public static final fun getFormatListBulleted (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/FormatTextdirectionLToRKt {
+	public static final fun getFormatTextdirectionLToR (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/FormatTextdirectionRToLKt {
+	public static final fun getFormatTextdirectionRToL (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/ForwardKt {
+	public static final fun getForward (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/ForwardToInboxKt {
+	public static final fun getForwardToInbox (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/GradingKt {
+	public static final fun getGrading (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/HelpCenterKt {
+	public static final fun getHelpCenter (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/HelpKt {
+	public static final fun getHelp (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/HelpOutlineKt {
+	public static final fun getHelpOutline (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/InputKt {
+	public static final fun getInput (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/InsertCommentKt {
+	public static final fun getInsertComment (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/InsertDriveFileKt {
+	public static final fun getInsertDriveFile (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/KeyboardBackspaceKt {
+	public static final fun getKeyboardBackspace (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/KeyboardReturnKt {
+	public static final fun getKeyboardReturn (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/KeyboardTabKt {
+	public static final fun getKeyboardTab (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/LabelImportantKt {
+	public static final fun getLabelImportant (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/LabelKt {
+	public static final fun getLabel (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/LabelOffKt {
+	public static final fun getLabelOff (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/LastPageKt {
+	public static final fun getLastPage (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/LaunchKt {
+	public static final fun getLaunch (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/LibraryBooksKt {
+	public static final fun getLibraryBooks (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/ListAltKt {
+	public static final fun getListAlt (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/LiveHelpKt {
+	public static final fun getLiveHelp (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/LoginKt {
+	public static final fun getLogin (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/LogoutKt {
+	public static final fun getLogout (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/ManageSearchKt {
+	public static final fun getManageSearch (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/MenuBookKt {
+	public static final fun getMenuBook (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/MenuOpenKt {
+	public static final fun getMenuOpen (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/MergeTypeKt {
+	public static final fun getMergeType (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/MessageKt {
+	public static final fun getMessage (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/MissedVideoCallKt {
+	public static final fun getMissedVideoCall (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/MobileScreenShareKt {
+	public static final fun getMobileScreenShare (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/MoreKt {
+	public static final fun getMore (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/MultilineChartKt {
+	public static final fun getMultilineChart (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/NavigateBeforeKt {
+	public static final fun getNavigateBefore (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/NavigateNextKt {
+	public static final fun getNavigateNext (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/NextPlanKt {
+	public static final fun getNextPlan (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/NextWeekKt {
+	public static final fun getNextWeek (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/NotListedLocationKt {
+	public static final fun getNotListedLocation (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/NoteAddKt {
+	public static final fun getNoteAdd (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/NoteKt {
+	public static final fun getNote (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/NotesKt {
+	public static final fun getNotes (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/OfflineShareKt {
+	public static final fun getOfflineShare (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/OpenInNewKt {
+	public static final fun getOpenInNew (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/OutboundKt {
+	public static final fun getOutbound (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/PhoneCallbackKt {
+	public static final fun getPhoneCallback (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/PhoneForwardedKt {
+	public static final fun getPhoneForwarded (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/PhoneMissedKt {
+	public static final fun getPhoneMissed (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/PlaylistAddCheckKt {
+	public static final fun getPlaylistAddCheck (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/PlaylistAddKt {
+	public static final fun getPlaylistAdd (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/PlaylistPlayKt {
+	public static final fun getPlaylistPlay (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/QueueMusicKt {
+	public static final fun getQueueMusic (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/ReadMoreKt {
+	public static final fun getReadMore (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/ReceiptLongKt {
+	public static final fun getReceiptLong (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/RedoKt {
+	public static final fun getRedo (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/ReplyAllKt {
+	public static final fun getReplyAll (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/ReplyKt {
+	public static final fun getReply (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/RotateLeftKt {
+	public static final fun getRotateLeft (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/RotateRightKt {
+	public static final fun getRotateRight (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/RttKt {
+	public static final fun getRtt (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/RuleKt {
+	public static final fun getRule (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/ScheduleSendKt {
+	public static final fun getScheduleSend (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/ScreenShareKt {
+	public static final fun getScreenShare (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/SegmentKt {
+	public static final fun getSegment (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/SendAndArchiveKt {
+	public static final fun getSendAndArchive (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/SendToMobileKt {
+	public static final fun getSendToMobile (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/ShortTextKt {
+	public static final fun getShortText (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/ShortcutKt {
+	public static final fun getShortcut (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/ShowChartKt {
+	public static final fun getShowChart (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/SortKt {
+	public static final fun getSort (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/SpeakerNotesKt {
+	public static final fun getSpeakerNotes (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/StarHalfKt {
+	public static final fun getStarHalf (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/StickyNote2Kt {
+	public static final fun getStickyNote2 (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/StopScreenShareKt {
+	public static final fun getStopScreenShare (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/SubjectKt {
+	public static final fun getSubject (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/TextSnippetKt {
+	public static final fun getTextSnippet (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/TocKt {
+	public static final fun getToc (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/TrendingDownKt {
+	public static final fun getTrendingDown (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/TrendingFlatKt {
+	public static final fun getTrendingFlat (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/TrendingUpKt {
+	public static final fun getTrendingUp (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/UndoKt {
+	public static final fun getUndo (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/ViewListKt {
+	public static final fun getViewList (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/ViewQuiltKt {
+	public static final fun getViewQuilt (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/ViewSidebarKt {
+	public static final fun getViewSidebar (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/VolumeDownKt {
+	public static final fun getVolumeDown (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/VolumeMuteKt {
+	public static final fun getVolumeMute (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/VolumeOffKt {
+	public static final fun getVolumeOff (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/VolumeUpKt {
+	public static final fun getVolumeUp (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/WrapTextKt {
+	public static final fun getWrapText (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/WysiwygKt {
+	public static final fun getWysiwyg (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/_360Kt {
+	public static final fun get_360 (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/AccessibleForwardKt {
+	public static final fun getAccessibleForward (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/AccessibleKt {
+	public static final fun getAccessible (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/AddToHomeScreenKt {
+	public static final fun getAddToHomeScreen (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/AirplaneTicketKt {
+	public static final fun getAirplaneTicket (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/AlignHorizontalLeftKt {
+	public static final fun getAlignHorizontalLeft (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/AlignHorizontalRightKt {
+	public static final fun getAlignHorizontalRight (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/AltRouteKt {
+	public static final fun getAltRoute (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/AnnouncementKt {
+	public static final fun getAnnouncement (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/ArrowBackIosKt {
+	public static final fun getArrowBackIos (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/ArrowForwardIosKt {
+	public static final fun getArrowForwardIos (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/ArrowLeftKt {
+	public static final fun getArrowLeft (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/ArrowRightAltKt {
+	public static final fun getArrowRightAlt (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/ArrowRightKt {
+	public static final fun getArrowRight (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/ArticleKt {
+	public static final fun getArticle (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/AssignmentKt {
+	public static final fun getAssignment (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/AssignmentReturnKt {
+	public static final fun getAssignmentReturn (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/AssistantDirectionKt {
+	public static final fun getAssistantDirection (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/BackspaceKt {
+	public static final fun getBackspace (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/BatteryUnknownKt {
+	public static final fun getBatteryUnknown (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/BluetoothSearchingKt {
+	public static final fun getBluetoothSearching (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/BrandingWatermarkKt {
+	public static final fun getBrandingWatermark (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/CallMadeKt {
+	public static final fun getCallMade (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/CallMergeKt {
+	public static final fun getCallMerge (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/CallMissedKt {
+	public static final fun getCallMissed (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/CallMissedOutgoingKt {
+	public static final fun getCallMissedOutgoing (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/CallReceivedKt {
+	public static final fun getCallReceived (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/CallSplitKt {
+	public static final fun getCallSplit (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/ChatKt {
+	public static final fun getChat (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/ChromeReaderModeKt {
+	public static final fun getChromeReaderMode (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/CommentKt {
+	public static final fun getComment (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/CompareArrowsKt {
+	public static final fun getCompareArrows (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/ContactSupportKt {
+	public static final fun getContactSupport (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/DirectionsBikeKt {
+	public static final fun getDirectionsBike (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/DirectionsRunKt {
+	public static final fun getDirectionsRun (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/DirectionsWalkKt {
+	public static final fun getDirectionsWalk (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/DriveFileMoveKt {
+	public static final fun getDriveFileMove (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/DvrKt {
+	public static final fun getDvr (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/EventNoteKt {
+	public static final fun getEventNote (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/FactCheckKt {
+	public static final fun getFactCheck (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/FeaturedPlayListKt {
+	public static final fun getFeaturedPlayList (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/FeaturedVideoKt {
+	public static final fun getFeaturedVideo (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/FeedKt {
+	public static final fun getFeed (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/FollowTheSignsKt {
+	public static final fun getFollowTheSigns (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/FormatAlignLeftKt {
+	public static final fun getFormatAlignLeft (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/FormatAlignRightKt {
+	public static final fun getFormatAlignRight (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/FormatIndentDecreaseKt {
+	public static final fun getFormatIndentDecrease (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/FormatIndentIncreaseKt {
+	public static final fun getFormatIndentIncrease (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/FormatListBulletedKt {
+	public static final fun getFormatListBulleted (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/FormatTextdirectionLToRKt {
+	public static final fun getFormatTextdirectionLToR (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/FormatTextdirectionRToLKt {
+	public static final fun getFormatTextdirectionRToL (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/ForwardKt {
+	public static final fun getForward (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/ForwardToInboxKt {
+	public static final fun getForwardToInbox (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/GradingKt {
+	public static final fun getGrading (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/HelpCenterKt {
+	public static final fun getHelpCenter (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/HelpKt {
+	public static final fun getHelp (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/HelpOutlineKt {
+	public static final fun getHelpOutline (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/InputKt {
+	public static final fun getInput (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/InsertCommentKt {
+	public static final fun getInsertComment (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/InsertDriveFileKt {
+	public static final fun getInsertDriveFile (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/KeyboardBackspaceKt {
+	public static final fun getKeyboardBackspace (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/KeyboardReturnKt {
+	public static final fun getKeyboardReturn (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/KeyboardTabKt {
+	public static final fun getKeyboardTab (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/LabelImportantKt {
+	public static final fun getLabelImportant (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/LabelKt {
+	public static final fun getLabel (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/LabelOffKt {
+	public static final fun getLabelOff (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/LastPageKt {
+	public static final fun getLastPage (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/LaunchKt {
+	public static final fun getLaunch (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/LibraryBooksKt {
+	public static final fun getLibraryBooks (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/ListAltKt {
+	public static final fun getListAlt (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/LiveHelpKt {
+	public static final fun getLiveHelp (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/LoginKt {
+	public static final fun getLogin (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/LogoutKt {
+	public static final fun getLogout (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/ManageSearchKt {
+	public static final fun getManageSearch (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/MenuBookKt {
+	public static final fun getMenuBook (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/MenuOpenKt {
+	public static final fun getMenuOpen (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/MergeTypeKt {
+	public static final fun getMergeType (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/MessageKt {
+	public static final fun getMessage (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/MissedVideoCallKt {
+	public static final fun getMissedVideoCall (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/MobileScreenShareKt {
+	public static final fun getMobileScreenShare (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/MoreKt {
+	public static final fun getMore (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/MultilineChartKt {
+	public static final fun getMultilineChart (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/NavigateBeforeKt {
+	public static final fun getNavigateBefore (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/NavigateNextKt {
+	public static final fun getNavigateNext (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/NextPlanKt {
+	public static final fun getNextPlan (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/NextWeekKt {
+	public static final fun getNextWeek (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/NotListedLocationKt {
+	public static final fun getNotListedLocation (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/NoteAddKt {
+	public static final fun getNoteAdd (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/NoteKt {
+	public static final fun getNote (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/NotesKt {
+	public static final fun getNotes (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/OfflineShareKt {
+	public static final fun getOfflineShare (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/OpenInNewKt {
+	public static final fun getOpenInNew (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/OutboundKt {
+	public static final fun getOutbound (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/PhoneCallbackKt {
+	public static final fun getPhoneCallback (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/PhoneForwardedKt {
+	public static final fun getPhoneForwarded (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/PhoneMissedKt {
+	public static final fun getPhoneMissed (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/PlaylistAddCheckKt {
+	public static final fun getPlaylistAddCheck (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/PlaylistAddKt {
+	public static final fun getPlaylistAdd (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/PlaylistPlayKt {
+	public static final fun getPlaylistPlay (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/QueueMusicKt {
+	public static final fun getQueueMusic (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/ReadMoreKt {
+	public static final fun getReadMore (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/ReceiptLongKt {
+	public static final fun getReceiptLong (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/RedoKt {
+	public static final fun getRedo (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/ReplyAllKt {
+	public static final fun getReplyAll (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/ReplyKt {
+	public static final fun getReply (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/RotateLeftKt {
+	public static final fun getRotateLeft (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/RotateRightKt {
+	public static final fun getRotateRight (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/RttKt {
+	public static final fun getRtt (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/RuleKt {
+	public static final fun getRule (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/ScheduleSendKt {
+	public static final fun getScheduleSend (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/ScreenShareKt {
+	public static final fun getScreenShare (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/SegmentKt {
+	public static final fun getSegment (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/SendAndArchiveKt {
+	public static final fun getSendAndArchive (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/SendToMobileKt {
+	public static final fun getSendToMobile (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/ShortTextKt {
+	public static final fun getShortText (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/ShortcutKt {
+	public static final fun getShortcut (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/ShowChartKt {
+	public static final fun getShowChart (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/SortKt {
+	public static final fun getSort (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/SpeakerNotesKt {
+	public static final fun getSpeakerNotes (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/StarHalfKt {
+	public static final fun getStarHalf (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/StickyNote2Kt {
+	public static final fun getStickyNote2 (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/StopScreenShareKt {
+	public static final fun getStopScreenShare (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/SubjectKt {
+	public static final fun getSubject (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/TextSnippetKt {
+	public static final fun getTextSnippet (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/TocKt {
+	public static final fun getToc (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/TrendingDownKt {
+	public static final fun getTrendingDown (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/TrendingFlatKt {
+	public static final fun getTrendingFlat (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/TrendingUpKt {
+	public static final fun getTrendingUp (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/UndoKt {
+	public static final fun getUndo (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/ViewListKt {
+	public static final fun getViewList (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/ViewQuiltKt {
+	public static final fun getViewQuilt (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/ViewSidebarKt {
+	public static final fun getViewSidebar (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/VolumeDownKt {
+	public static final fun getVolumeDown (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/VolumeMuteKt {
+	public static final fun getVolumeMute (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/VolumeOffKt {
+	public static final fun getVolumeOff (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/VolumeUpKt {
+	public static final fun getVolumeUp (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/WrapTextKt {
+	public static final fun getWrapText (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/WysiwygKt {
+	public static final fun getWysiwyg (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/_360Kt {
+	public static final fun get_360 (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/AccessibleForwardKt {
+	public static final fun getAccessibleForward (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/AccessibleKt {
+	public static final fun getAccessible (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/AddToHomeScreenKt {
+	public static final fun getAddToHomeScreen (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/AirplaneTicketKt {
+	public static final fun getAirplaneTicket (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/AlignHorizontalLeftKt {
+	public static final fun getAlignHorizontalLeft (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/AlignHorizontalRightKt {
+	public static final fun getAlignHorizontalRight (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/AltRouteKt {
+	public static final fun getAltRoute (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/AnnouncementKt {
+	public static final fun getAnnouncement (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/ArrowBackIosKt {
+	public static final fun getArrowBackIos (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/ArrowForwardIosKt {
+	public static final fun getArrowForwardIos (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/ArrowLeftKt {
+	public static final fun getArrowLeft (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/ArrowRightAltKt {
+	public static final fun getArrowRightAlt (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/ArrowRightKt {
+	public static final fun getArrowRight (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/ArticleKt {
+	public static final fun getArticle (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/AssignmentKt {
+	public static final fun getAssignment (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/AssignmentReturnKt {
+	public static final fun getAssignmentReturn (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/AssistantDirectionKt {
+	public static final fun getAssistantDirection (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/BackspaceKt {
+	public static final fun getBackspace (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/BatteryUnknownKt {
+	public static final fun getBatteryUnknown (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/BluetoothSearchingKt {
+	public static final fun getBluetoothSearching (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/BrandingWatermarkKt {
+	public static final fun getBrandingWatermark (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/CallMadeKt {
+	public static final fun getCallMade (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/CallMergeKt {
+	public static final fun getCallMerge (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/CallMissedKt {
+	public static final fun getCallMissed (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/CallMissedOutgoingKt {
+	public static final fun getCallMissedOutgoing (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/CallReceivedKt {
+	public static final fun getCallReceived (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/CallSplitKt {
+	public static final fun getCallSplit (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/ChatKt {
+	public static final fun getChat (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/ChromeReaderModeKt {
+	public static final fun getChromeReaderMode (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/CommentKt {
+	public static final fun getComment (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/CompareArrowsKt {
+	public static final fun getCompareArrows (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/ContactSupportKt {
+	public static final fun getContactSupport (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/DirectionsBikeKt {
+	public static final fun getDirectionsBike (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/DirectionsRunKt {
+	public static final fun getDirectionsRun (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/DirectionsWalkKt {
+	public static final fun getDirectionsWalk (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/DriveFileMoveKt {
+	public static final fun getDriveFileMove (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/DvrKt {
+	public static final fun getDvr (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/EventNoteKt {
+	public static final fun getEventNote (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/FactCheckKt {
+	public static final fun getFactCheck (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/FeaturedPlayListKt {
+	public static final fun getFeaturedPlayList (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/FeaturedVideoKt {
+	public static final fun getFeaturedVideo (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/FeedKt {
+	public static final fun getFeed (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/FollowTheSignsKt {
+	public static final fun getFollowTheSigns (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/FormatAlignLeftKt {
+	public static final fun getFormatAlignLeft (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/FormatAlignRightKt {
+	public static final fun getFormatAlignRight (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/FormatIndentDecreaseKt {
+	public static final fun getFormatIndentDecrease (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/FormatIndentIncreaseKt {
+	public static final fun getFormatIndentIncrease (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/FormatListBulletedKt {
+	public static final fun getFormatListBulleted (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/FormatTextdirectionLToRKt {
+	public static final fun getFormatTextdirectionLToR (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/FormatTextdirectionRToLKt {
+	public static final fun getFormatTextdirectionRToL (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/ForwardKt {
+	public static final fun getForward (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/ForwardToInboxKt {
+	public static final fun getForwardToInbox (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/GradingKt {
+	public static final fun getGrading (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/HelpCenterKt {
+	public static final fun getHelpCenter (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/HelpKt {
+	public static final fun getHelp (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/HelpOutlineKt {
+	public static final fun getHelpOutline (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/InputKt {
+	public static final fun getInput (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/InsertCommentKt {
+	public static final fun getInsertComment (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/InsertDriveFileKt {
+	public static final fun getInsertDriveFile (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/KeyboardBackspaceKt {
+	public static final fun getKeyboardBackspace (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/KeyboardReturnKt {
+	public static final fun getKeyboardReturn (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/KeyboardTabKt {
+	public static final fun getKeyboardTab (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/LabelImportantKt {
+	public static final fun getLabelImportant (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/LabelKt {
+	public static final fun getLabel (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/LabelOffKt {
+	public static final fun getLabelOff (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/LastPageKt {
+	public static final fun getLastPage (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/LaunchKt {
+	public static final fun getLaunch (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/LibraryBooksKt {
+	public static final fun getLibraryBooks (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/ListAltKt {
+	public static final fun getListAlt (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/LiveHelpKt {
+	public static final fun getLiveHelp (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/LoginKt {
+	public static final fun getLogin (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/LogoutKt {
+	public static final fun getLogout (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/ManageSearchKt {
+	public static final fun getManageSearch (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/MenuBookKt {
+	public static final fun getMenuBook (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/MenuOpenKt {
+	public static final fun getMenuOpen (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/MergeTypeKt {
+	public static final fun getMergeType (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/MessageKt {
+	public static final fun getMessage (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/MissedVideoCallKt {
+	public static final fun getMissedVideoCall (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/MobileScreenShareKt {
+	public static final fun getMobileScreenShare (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/MoreKt {
+	public static final fun getMore (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/MultilineChartKt {
+	public static final fun getMultilineChart (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/NavigateBeforeKt {
+	public static final fun getNavigateBefore (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/NavigateNextKt {
+	public static final fun getNavigateNext (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/NextPlanKt {
+	public static final fun getNextPlan (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/NextWeekKt {
+	public static final fun getNextWeek (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/NotListedLocationKt {
+	public static final fun getNotListedLocation (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/NoteAddKt {
+	public static final fun getNoteAdd (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/NoteKt {
+	public static final fun getNote (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/NotesKt {
+	public static final fun getNotes (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/OfflineShareKt {
+	public static final fun getOfflineShare (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/OpenInNewKt {
+	public static final fun getOpenInNew (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/OutboundKt {
+	public static final fun getOutbound (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/PhoneCallbackKt {
+	public static final fun getPhoneCallback (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/PhoneForwardedKt {
+	public static final fun getPhoneForwarded (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/PhoneMissedKt {
+	public static final fun getPhoneMissed (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/PlaylistAddCheckKt {
+	public static final fun getPlaylistAddCheck (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/PlaylistAddKt {
+	public static final fun getPlaylistAdd (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/PlaylistPlayKt {
+	public static final fun getPlaylistPlay (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/QueueMusicKt {
+	public static final fun getQueueMusic (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/ReadMoreKt {
+	public static final fun getReadMore (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/ReceiptLongKt {
+	public static final fun getReceiptLong (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/RedoKt {
+	public static final fun getRedo (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/ReplyAllKt {
+	public static final fun getReplyAll (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/ReplyKt {
+	public static final fun getReply (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/RotateLeftKt {
+	public static final fun getRotateLeft (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/RotateRightKt {
+	public static final fun getRotateRight (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/RttKt {
+	public static final fun getRtt (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/RuleKt {
+	public static final fun getRule (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/ScheduleSendKt {
+	public static final fun getScheduleSend (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/ScreenShareKt {
+	public static final fun getScreenShare (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/SegmentKt {
+	public static final fun getSegment (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/SendAndArchiveKt {
+	public static final fun getSendAndArchive (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/SendToMobileKt {
+	public static final fun getSendToMobile (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/ShortTextKt {
+	public static final fun getShortText (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/ShortcutKt {
+	public static final fun getShortcut (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/ShowChartKt {
+	public static final fun getShowChart (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/SortKt {
+	public static final fun getSort (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/SpeakerNotesKt {
+	public static final fun getSpeakerNotes (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/StarHalfKt {
+	public static final fun getStarHalf (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/StickyNote2Kt {
+	public static final fun getStickyNote2 (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/StopScreenShareKt {
+	public static final fun getStopScreenShare (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/SubjectKt {
+	public static final fun getSubject (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/TextSnippetKt {
+	public static final fun getTextSnippet (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/TocKt {
+	public static final fun getToc (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/TrendingDownKt {
+	public static final fun getTrendingDown (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/TrendingFlatKt {
+	public static final fun getTrendingFlat (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/TrendingUpKt {
+	public static final fun getTrendingUp (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/UndoKt {
+	public static final fun getUndo (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/ViewListKt {
+	public static final fun getViewList (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/ViewQuiltKt {
+	public static final fun getViewQuilt (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/ViewSidebarKt {
+	public static final fun getViewSidebar (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/VolumeDownKt {
+	public static final fun getVolumeDown (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/VolumeMuteKt {
+	public static final fun getVolumeMute (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/VolumeOffKt {
+	public static final fun getVolumeOff (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/VolumeUpKt {
+	public static final fun getVolumeUp (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/WrapTextKt {
+	public static final fun getWrapText (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/WysiwygKt {
+	public static final fun getWysiwyg (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/_360Kt {
+	public static final fun get_360 (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/AccessibleForwardKt {
+	public static final fun getAccessibleForward (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/AccessibleKt {
+	public static final fun getAccessible (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/AddToHomeScreenKt {
+	public static final fun getAddToHomeScreen (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/AirplaneTicketKt {
+	public static final fun getAirplaneTicket (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/AlignHorizontalLeftKt {
+	public static final fun getAlignHorizontalLeft (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/AlignHorizontalRightKt {
+	public static final fun getAlignHorizontalRight (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/AltRouteKt {
+	public static final fun getAltRoute (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/AnnouncementKt {
+	public static final fun getAnnouncement (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/ArrowBackIosKt {
+	public static final fun getArrowBackIos (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/ArrowForwardIosKt {
+	public static final fun getArrowForwardIos (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/ArrowLeftKt {
+	public static final fun getArrowLeft (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/ArrowRightAltKt {
+	public static final fun getArrowRightAlt (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/ArrowRightKt {
+	public static final fun getArrowRight (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/ArticleKt {
+	public static final fun getArticle (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/AssignmentKt {
+	public static final fun getAssignment (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/AssignmentReturnKt {
+	public static final fun getAssignmentReturn (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/AssistantDirectionKt {
+	public static final fun getAssistantDirection (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/BackspaceKt {
+	public static final fun getBackspace (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/BatteryUnknownKt {
+	public static final fun getBatteryUnknown (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/BluetoothSearchingKt {
+	public static final fun getBluetoothSearching (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/BrandingWatermarkKt {
+	public static final fun getBrandingWatermark (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/CallMadeKt {
+	public static final fun getCallMade (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/CallMergeKt {
+	public static final fun getCallMerge (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/CallMissedKt {
+	public static final fun getCallMissed (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/CallMissedOutgoingKt {
+	public static final fun getCallMissedOutgoing (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/CallReceivedKt {
+	public static final fun getCallReceived (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/CallSplitKt {
+	public static final fun getCallSplit (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/ChatKt {
+	public static final fun getChat (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/ChromeReaderModeKt {
+	public static final fun getChromeReaderMode (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/CommentKt {
+	public static final fun getComment (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/CompareArrowsKt {
+	public static final fun getCompareArrows (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/ContactSupportKt {
+	public static final fun getContactSupport (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/DirectionsBikeKt {
+	public static final fun getDirectionsBike (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/DirectionsRunKt {
+	public static final fun getDirectionsRun (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/DirectionsWalkKt {
+	public static final fun getDirectionsWalk (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/DriveFileMoveKt {
+	public static final fun getDriveFileMove (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/DvrKt {
+	public static final fun getDvr (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/EventNoteKt {
+	public static final fun getEventNote (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/FactCheckKt {
+	public static final fun getFactCheck (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/FeaturedPlayListKt {
+	public static final fun getFeaturedPlayList (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/FeaturedVideoKt {
+	public static final fun getFeaturedVideo (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/FeedKt {
+	public static final fun getFeed (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/FollowTheSignsKt {
+	public static final fun getFollowTheSigns (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/FormatAlignLeftKt {
+	public static final fun getFormatAlignLeft (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/FormatAlignRightKt {
+	public static final fun getFormatAlignRight (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/FormatIndentDecreaseKt {
+	public static final fun getFormatIndentDecrease (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/FormatIndentIncreaseKt {
+	public static final fun getFormatIndentIncrease (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/FormatListBulletedKt {
+	public static final fun getFormatListBulleted (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/FormatTextdirectionLToRKt {
+	public static final fun getFormatTextdirectionLToR (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/FormatTextdirectionRToLKt {
+	public static final fun getFormatTextdirectionRToL (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/ForwardKt {
+	public static final fun getForward (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/ForwardToInboxKt {
+	public static final fun getForwardToInbox (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/GradingKt {
+	public static final fun getGrading (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/HelpCenterKt {
+	public static final fun getHelpCenter (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/HelpKt {
+	public static final fun getHelp (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/HelpOutlineKt {
+	public static final fun getHelpOutline (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/InputKt {
+	public static final fun getInput (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/InsertCommentKt {
+	public static final fun getInsertComment (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/InsertDriveFileKt {
+	public static final fun getInsertDriveFile (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/KeyboardBackspaceKt {
+	public static final fun getKeyboardBackspace (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/KeyboardReturnKt {
+	public static final fun getKeyboardReturn (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/KeyboardTabKt {
+	public static final fun getKeyboardTab (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/LabelImportantKt {
+	public static final fun getLabelImportant (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/LabelKt {
+	public static final fun getLabel (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/LabelOffKt {
+	public static final fun getLabelOff (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/LastPageKt {
+	public static final fun getLastPage (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/LaunchKt {
+	public static final fun getLaunch (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/LibraryBooksKt {
+	public static final fun getLibraryBooks (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/ListAltKt {
+	public static final fun getListAlt (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/LiveHelpKt {
+	public static final fun getLiveHelp (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/LoginKt {
+	public static final fun getLogin (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/LogoutKt {
+	public static final fun getLogout (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/ManageSearchKt {
+	public static final fun getManageSearch (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/MenuBookKt {
+	public static final fun getMenuBook (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/MenuOpenKt {
+	public static final fun getMenuOpen (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/MergeTypeKt {
+	public static final fun getMergeType (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/MessageKt {
+	public static final fun getMessage (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/MissedVideoCallKt {
+	public static final fun getMissedVideoCall (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/MobileScreenShareKt {
+	public static final fun getMobileScreenShare (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/MoreKt {
+	public static final fun getMore (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/MultilineChartKt {
+	public static final fun getMultilineChart (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/NavigateBeforeKt {
+	public static final fun getNavigateBefore (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/NavigateNextKt {
+	public static final fun getNavigateNext (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/NextPlanKt {
+	public static final fun getNextPlan (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/NextWeekKt {
+	public static final fun getNextWeek (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/NotListedLocationKt {
+	public static final fun getNotListedLocation (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/NoteAddKt {
+	public static final fun getNoteAdd (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/NoteKt {
+	public static final fun getNote (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/NotesKt {
+	public static final fun getNotes (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/OfflineShareKt {
+	public static final fun getOfflineShare (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/OpenInNewKt {
+	public static final fun getOpenInNew (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/OutboundKt {
+	public static final fun getOutbound (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/PhoneCallbackKt {
+	public static final fun getPhoneCallback (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/PhoneForwardedKt {
+	public static final fun getPhoneForwarded (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/PhoneMissedKt {
+	public static final fun getPhoneMissed (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/PlaylistAddCheckKt {
+	public static final fun getPlaylistAddCheck (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/PlaylistAddKt {
+	public static final fun getPlaylistAdd (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/PlaylistPlayKt {
+	public static final fun getPlaylistPlay (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/QueueMusicKt {
+	public static final fun getQueueMusic (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/ReadMoreKt {
+	public static final fun getReadMore (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/ReceiptLongKt {
+	public static final fun getReceiptLong (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/RedoKt {
+	public static final fun getRedo (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/ReplyAllKt {
+	public static final fun getReplyAll (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/ReplyKt {
+	public static final fun getReply (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/RotateLeftKt {
+	public static final fun getRotateLeft (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/RotateRightKt {
+	public static final fun getRotateRight (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/RttKt {
+	public static final fun getRtt (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/RuleKt {
+	public static final fun getRule (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/ScheduleSendKt {
+	public static final fun getScheduleSend (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/ScreenShareKt {
+	public static final fun getScreenShare (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/SegmentKt {
+	public static final fun getSegment (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/SendAndArchiveKt {
+	public static final fun getSendAndArchive (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/SendToMobileKt {
+	public static final fun getSendToMobile (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/ShortTextKt {
+	public static final fun getShortText (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/ShortcutKt {
+	public static final fun getShortcut (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/ShowChartKt {
+	public static final fun getShowChart (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/SortKt {
+	public static final fun getSort (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/SpeakerNotesKt {
+	public static final fun getSpeakerNotes (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/StarHalfKt {
+	public static final fun getStarHalf (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/StickyNote2Kt {
+	public static final fun getStickyNote2 (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/StopScreenShareKt {
+	public static final fun getStopScreenShare (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/SubjectKt {
+	public static final fun getSubject (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/TextSnippetKt {
+	public static final fun getTextSnippet (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/TocKt {
+	public static final fun getToc (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/TrendingDownKt {
+	public static final fun getTrendingDown (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/TrendingFlatKt {
+	public static final fun getTrendingFlat (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/TrendingUpKt {
+	public static final fun getTrendingUp (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/UndoKt {
+	public static final fun getUndo (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/ViewListKt {
+	public static final fun getViewList (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/ViewQuiltKt {
+	public static final fun getViewQuilt (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/ViewSidebarKt {
+	public static final fun getViewSidebar (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/VolumeDownKt {
+	public static final fun getVolumeDown (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/VolumeMuteKt {
+	public static final fun getVolumeMute (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/VolumeOffKt {
+	public static final fun getVolumeOff (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/VolumeUpKt {
+	public static final fun getVolumeUp (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/WrapTextKt {
+	public static final fun getWrapText (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/WysiwygKt {
+	public static final fun getWysiwyg (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/_360Kt {
+	public static final fun get_360 (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
 public final class androidx/compose/material/icons/filled/AbcKt {
 	public static final fun getAbc (Landroidx/compose/material/icons/Icons$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
 }

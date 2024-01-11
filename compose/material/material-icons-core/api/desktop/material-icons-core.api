@@ -4,6 +4,37 @@ public final class androidx/compose/material/icons/Icons {
 	public final fun getDefault ()Landroidx/compose/material/icons/Icons$Filled;
 }
 
+public final class androidx/compose/material/icons/Icons$AutoMirrored {
+	public static final field $stable I
+	public static final field INSTANCE Landroidx/compose/material/icons/Icons$AutoMirrored;
+	public final fun getDefault ()Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;
+}
+
+public final class androidx/compose/material/icons/Icons$AutoMirrored$Filled {
+	public static final field $stable I
+	public static final field INSTANCE Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;
+}
+
+public final class androidx/compose/material/icons/Icons$AutoMirrored$Outlined {
+	public static final field $stable I
+	public static final field INSTANCE Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;
+}
+
+public final class androidx/compose/material/icons/Icons$AutoMirrored$Rounded {
+	public static final field $stable I
+	public static final field INSTANCE Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;
+}
+
+public final class androidx/compose/material/icons/Icons$AutoMirrored$Sharp {
+	public static final field $stable I
+	public static final field INSTANCE Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;
+}
+
+public final class androidx/compose/material/icons/Icons$AutoMirrored$TwoTone {
+	public static final field $stable I
+	public static final field INSTANCE Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;
+}
+
 public final class androidx/compose/material/icons/Icons$Filled {
 	public static final field $stable I
 	public static final field INSTANCE Landroidx/compose/material/icons/Icons$Filled;
@@ -31,9 +62,151 @@ public final class androidx/compose/material/icons/Icons$TwoTone {
 
 public final class androidx/compose/material/icons/IconsKt {
 	public static final field MaterialIconDimension F
-	public static final fun materialIcon (Ljava/lang/String;Lkotlin/jvm/functions/Function1;)Landroidx/compose/ui/graphics/vector/ImageVector;
+	public static final synthetic fun materialIcon (Ljava/lang/String;Lkotlin/jvm/functions/Function1;)Landroidx/compose/ui/graphics/vector/ImageVector;
+	public static final fun materialIcon (Ljava/lang/String;ZLkotlin/jvm/functions/Function1;)Landroidx/compose/ui/graphics/vector/ImageVector;
+	public static synthetic fun materialIcon$default (Ljava/lang/String;ZLkotlin/jvm/functions/Function1;ILjava/lang/Object;)Landroidx/compose/ui/graphics/vector/ImageVector;
 	public static final fun materialPath-YwgOQQI (Landroidx/compose/ui/graphics/vector/ImageVector$Builder;FFILkotlin/jvm/functions/Function1;)Landroidx/compose/ui/graphics/vector/ImageVector$Builder;
 	public static synthetic fun materialPath-YwgOQQI$default (Landroidx/compose/ui/graphics/vector/ImageVector$Builder;FFILkotlin/jvm/functions/Function1;ILjava/lang/Object;)Landroidx/compose/ui/graphics/vector/ImageVector$Builder;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/ArrowBackKt {
+	public static final fun getArrowBack (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/ArrowForwardKt {
+	public static final fun getArrowForward (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/ExitToAppKt {
+	public static final fun getExitToApp (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/KeyboardArrowLeftKt {
+	public static final fun getKeyboardArrowLeft (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/KeyboardArrowRightKt {
+	public static final fun getKeyboardArrowRight (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/ListKt {
+	public static final fun getList (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/filled/SendKt {
+	public static final fun getSend (Landroidx/compose/material/icons/Icons$AutoMirrored$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/ArrowBackKt {
+	public static final fun getArrowBack (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/ArrowForwardKt {
+	public static final fun getArrowForward (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/ExitToAppKt {
+	public static final fun getExitToApp (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/KeyboardArrowLeftKt {
+	public static final fun getKeyboardArrowLeft (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/KeyboardArrowRightKt {
+	public static final fun getKeyboardArrowRight (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/ListKt {
+	public static final fun getList (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/outlined/SendKt {
+	public static final fun getSend (Landroidx/compose/material/icons/Icons$AutoMirrored$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/ArrowBackKt {
+	public static final fun getArrowBack (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/ArrowForwardKt {
+	public static final fun getArrowForward (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/ExitToAppKt {
+	public static final fun getExitToApp (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/KeyboardArrowLeftKt {
+	public static final fun getKeyboardArrowLeft (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/KeyboardArrowRightKt {
+	public static final fun getKeyboardArrowRight (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/ListKt {
+	public static final fun getList (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/rounded/SendKt {
+	public static final fun getSend (Landroidx/compose/material/icons/Icons$AutoMirrored$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/ArrowBackKt {
+	public static final fun getArrowBack (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/ArrowForwardKt {
+	public static final fun getArrowForward (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/ExitToAppKt {
+	public static final fun getExitToApp (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/KeyboardArrowLeftKt {
+	public static final fun getKeyboardArrowLeft (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/KeyboardArrowRightKt {
+	public static final fun getKeyboardArrowRight (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/ListKt {
+	public static final fun getList (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/sharp/SendKt {
+	public static final fun getSend (Landroidx/compose/material/icons/Icons$AutoMirrored$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/ArrowBackKt {
+	public static final fun getArrowBack (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/ArrowForwardKt {
+	public static final fun getArrowForward (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/ExitToAppKt {
+	public static final fun getExitToApp (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/KeyboardArrowLeftKt {
+	public static final fun getKeyboardArrowLeft (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/KeyboardArrowRightKt {
+	public static final fun getKeyboardArrowRight (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/ListKt {
+	public static final fun getList (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/automirrored/twotone/SendKt {
+	public static final fun getSend (Landroidx/compose/material/icons/Icons$AutoMirrored$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
 }
 
 public final class androidx/compose/material/icons/filled/AccountBoxKt {

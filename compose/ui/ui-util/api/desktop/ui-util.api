@@ -1,3 +1,9 @@
+public abstract interface annotation class androidx/compose/ui/ExperimentalComposeUiApi : java/lang/annotation/Annotation {
+}
+
+public abstract interface annotation class androidx/compose/ui/InternalComposeUiApi : java/lang/annotation/Annotation {
+}
+
 public final class androidx/compose/ui/util/InlineClassHelperKt {
 	public static final fun packFloats (FF)J
 	public static final fun packInts (II)J
@@ -10,20 +16,40 @@ public final class androidx/compose/ui/util/InlineClassHelperKt {
 public final class androidx/compose/ui/util/ListUtilsKt {
 	public static final fun fastAll (Ljava/util/List;Lkotlin/jvm/functions/Function1;)Z
 	public static final fun fastAny (Ljava/util/List;Lkotlin/jvm/functions/Function1;)Z
+	public static final fun fastDistinctBy (Ljava/util/List;Lkotlin/jvm/functions/Function1;)Ljava/util/List;
+	public static final fun fastFilter (Ljava/util/List;Lkotlin/jvm/functions/Function1;)Ljava/util/List;
+	public static final fun fastFilterNotNull (Ljava/util/List;)Ljava/util/List;
+	public static final fun fastFirst (Ljava/util/List;Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
 	public static final fun fastFirstOrNull (Ljava/util/List;Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+	public static final fun fastFlatMap (Ljava/util/List;Lkotlin/jvm/functions/Function1;)Ljava/util/List;
+	public static final fun fastFold (Ljava/util/List;Ljava/lang/Object;Lkotlin/jvm/functions/Function2;)Ljava/lang/Object;
 	public static final fun fastForEach (Ljava/util/List;Lkotlin/jvm/functions/Function1;)V
 	public static final fun fastForEachIndexed (Ljava/util/List;Lkotlin/jvm/functions/Function2;)V
 	public static final fun fastForEachReversed (Ljava/util/List;Lkotlin/jvm/functions/Function1;)V
+	public static final fun fastJoinToString (Ljava/util/List;Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILjava/lang/CharSequence;Lkotlin/jvm/functions/Function1;)Ljava/lang/String;
+	public static synthetic fun fastJoinToString$default (Ljava/util/List;Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILjava/lang/CharSequence;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Ljava/lang/String;
 	public static final fun fastLastOrNull (Ljava/util/List;Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
 	public static final fun fastMap (Ljava/util/List;Lkotlin/jvm/functions/Function1;)Ljava/util/List;
+	public static final fun fastMapIndexed (Ljava/util/List;Lkotlin/jvm/functions/Function2;)Ljava/util/List;
+	public static final fun fastMapIndexedNotNull (Ljava/util/List;Lkotlin/jvm/functions/Function2;)Ljava/util/List;
+	public static final fun fastMapNotNull (Ljava/util/List;Lkotlin/jvm/functions/Function1;)Ljava/util/List;
 	public static final fun fastMapTo (Ljava/util/List;Ljava/util/Collection;Lkotlin/jvm/functions/Function1;)Ljava/util/Collection;
 	public static final fun fastMaxBy (Ljava/util/List;Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+	public static final fun fastMaxOfOrNull (Ljava/util/List;Lkotlin/jvm/functions/Function1;)Ljava/lang/Comparable;
+	public static final fun fastMinByOrNull (Ljava/util/List;Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+	public static final fun fastReduce (Ljava/util/List;Lkotlin/jvm/functions/Function2;)Ljava/lang/Object;
 	public static final fun fastSumBy (Ljava/util/List;Lkotlin/jvm/functions/Function1;)I
+	public static final fun fastZip (Ljava/util/List;Ljava/util/List;Lkotlin/jvm/functions/Function2;)Ljava/util/List;
+	public static final fun fastZipWithNext (Ljava/util/List;Lkotlin/jvm/functions/Function2;)Ljava/util/List;
 }
 
 public final class androidx/compose/ui/util/MathHelpersKt {
 	public static final fun lerp (FFF)F
 	public static final fun lerp (IIF)I
 	public static final fun lerp (JJF)J
+}
+
+public final class androidx/compose/ui/util/Trace_jbKt {
+	public static final fun trace (Ljava/lang/String;Lkotlin/jvm/functions/Function0;)Ljava/lang/Object;
 }
 

@@ -143,6 +143,7 @@ public abstract interface class androidx/compose/runtime/Composer {
 	public abstract fun endDefaults ()V
 	public abstract fun endMovableGroup ()V
 	public abstract fun endNode ()V
+	public abstract fun endProvider ()V
 	public abstract fun endProviders ()V
 	public abstract fun endReplaceableGroup ()V
 	public abstract fun endRestartGroup ()Landroidx/compose/runtime/ScopeUpdateScope;
@@ -174,6 +175,7 @@ public abstract interface class androidx/compose/runtime/Composer {
 	public abstract fun startDefaults ()V
 	public abstract fun startMovableGroup (ILjava/lang/Object;)V
 	public abstract fun startNode ()V
+	public abstract fun startProvider (Landroidx/compose/runtime/ProvidedValue;)V
 	public abstract fun startProviders ([Landroidx/compose/runtime/ProvidedValue;)V
 	public abstract fun startReplaceableGroup (I)V
 	public abstract fun startRestartGroup (I)Landroidx/compose/runtime/Composer;
@@ -232,11 +234,8 @@ public final class androidx/compose/runtime/CompositionKt {
 	public static final fun Composition (Landroidx/compose/runtime/Applier;Landroidx/compose/runtime/CompositionContext;Lkotlin/coroutines/CoroutineContext;)Landroidx/compose/runtime/Composition;
 	public static final fun ControlledComposition (Landroidx/compose/runtime/Applier;Landroidx/compose/runtime/CompositionContext;)Landroidx/compose/runtime/ControlledComposition;
 	public static final fun ControlledComposition (Landroidx/compose/runtime/Applier;Landroidx/compose/runtime/CompositionContext;Lkotlin/coroutines/CoroutineContext;)Landroidx/compose/runtime/ControlledComposition;
-	public static final fun clearCompositionErrors ()V
-	public static final fun currentCompositionErrors ()Ljava/util/List;
+	public static final fun ReusableComposition (Landroidx/compose/runtime/Applier;Landroidx/compose/runtime/CompositionContext;)Landroidx/compose/runtime/ReusableComposition;
 	public static final fun getRecomposeCoroutineContext (Landroidx/compose/runtime/ControlledComposition;)Lkotlin/coroutines/CoroutineContext;
-	public static final fun invalidateGroupsWithKey (I)V
-	public static final fun simulateHotReload (Ljava/lang/Object;)V
 }
 
 public abstract class androidx/compose/runtime/CompositionLocal {
@@ -251,6 +250,7 @@ public final class androidx/compose/runtime/CompositionLocalContext {
 
 public final class androidx/compose/runtime/CompositionLocalKt {
 	public static final fun CompositionLocalProvider (Landroidx/compose/runtime/CompositionLocalContext;Lkotlin/jvm/functions/Function2;Landroidx/compose/runtime/Composer;I)V
+	public static final fun CompositionLocalProvider (Landroidx/compose/runtime/ProvidedValue;Lkotlin/jvm/functions/Function2;Landroidx/compose/runtime/Composer;I)V
 	public static final fun CompositionLocalProvider ([Landroidx/compose/runtime/ProvidedValue;Lkotlin/jvm/functions/Function2;Landroidx/compose/runtime/Composer;I)V
 	public static final fun compositionLocalOf (Landroidx/compose/runtime/SnapshotMutationPolicy;Lkotlin/jvm/functions/Function0;)Landroidx/compose/runtime/ProvidableCompositionLocal;
 	public static synthetic fun compositionLocalOf$default (Landroidx/compose/runtime/SnapshotMutationPolicy;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)Landroidx/compose/runtime/ProvidableCompositionLocal;
@@ -273,6 +273,13 @@ public final class androidx/compose/runtime/CompositionScopedCoroutineScopeCance
 	public fun onAbandoned ()V
 	public fun onForgotten ()V
 	public fun onRemembered ()V
+}
+
+public abstract interface class androidx/compose/runtime/CompositionServiceKey {
+}
+
+public abstract interface class androidx/compose/runtime/CompositionServices {
+	public abstract fun getCompositionService (Landroidx/compose/runtime/CompositionServiceKey;)Ljava/lang/Object;
 }
 
 public abstract interface class androidx/compose/runtime/CompositionTracer {
@@ -314,6 +321,9 @@ public final class androidx/compose/runtime/DisposableEffectScope {
 	public final fun onDispose (Lkotlin/jvm/functions/Function0;)Landroidx/compose/runtime/DisposableEffectResult;
 }
 
+public abstract interface annotation class androidx/compose/runtime/DontMemoize : java/lang/annotation/Annotation {
+}
+
 public abstract interface class androidx/compose/runtime/DoubleState : androidx/compose/runtime/State {
 	public abstract fun getDoubleValue ()D
 	public fun getValue ()Ljava/lang/Double;
@@ -343,6 +353,9 @@ public final class androidx/compose/runtime/EffectsKt {
 public abstract interface annotation class androidx/compose/runtime/ExperimentalComposeApi : java/lang/annotation/Annotation {
 }
 
+public abstract interface annotation class androidx/compose/runtime/ExperimentalComposeRuntimeApi : java/lang/annotation/Annotation {
+}
+
 public abstract interface annotation class androidx/compose/runtime/ExplicitGroupsComposable : java/lang/annotation/Annotation {
 }
 
@@ -354,6 +367,13 @@ public abstract interface class androidx/compose/runtime/FloatState : androidx/c
 
 public final class androidx/compose/runtime/FloatState$DefaultImpls {
 	public static fun getValue (Landroidx/compose/runtime/FloatState;)Ljava/lang/Float;
+}
+
+public final class androidx/compose/runtime/HotReloaderKt {
+	public static final fun clearCompositionErrors ()V
+	public static final fun currentCompositionErrors ()Ljava/util/List;
+	public static final fun invalidateGroupsWithKey (I)V
+	public static final fun simulateHotReload (Ljava/lang/Object;)V
 }
 
 public abstract interface annotation class androidx/compose/runtime/Immutable : java/lang/annotation/Annotation {
@@ -504,6 +524,9 @@ public abstract interface annotation class androidx/compose/runtime/NoLiveLitera
 public abstract interface annotation class androidx/compose/runtime/NonRestartableComposable : java/lang/annotation/Annotation {
 }
 
+public abstract interface annotation class androidx/compose/runtime/NonSkippableComposable : java/lang/annotation/Annotation {
+}
+
 public final class androidx/compose/runtime/PausableMonotonicFrameClock : androidx/compose/runtime/MonotonicFrameClock {
 	public static final field $stable I
 	public fun <init> (Landroidx/compose/runtime/MonotonicFrameClock;)V
@@ -601,6 +624,11 @@ public abstract interface class androidx/compose/runtime/RememberObserver {
 	public abstract fun onAbandoned ()V
 	public abstract fun onForgotten ()V
 	public abstract fun onRemembered ()V
+}
+
+public abstract interface class androidx/compose/runtime/ReusableComposition : androidx/compose/runtime/Composition {
+	public abstract fun deactivate ()V
+	public abstract fun setContentWithReuse (Lkotlin/jvm/functions/Function2;)V
 }
 
 public abstract interface class androidx/compose/runtime/ScopeUpdateScope {
@@ -770,11 +798,13 @@ public final class androidx/compose/runtime/collection/MutableVector : java/util
 	public final fun removeAll (Ljava/util/Collection;)Z
 	public final fun removeAll (Ljava/util/List;)Z
 	public final fun removeAt (I)Ljava/lang/Object;
+	public final fun removeIf (Lkotlin/jvm/functions/Function1;)V
 	public final fun removeRange (II)V
 	public final fun retainAll (Ljava/util/Collection;)Z
 	public final fun reversedAny (Lkotlin/jvm/functions/Function1;)Z
 	public final fun set (ILjava/lang/Object;)Ljava/lang/Object;
 	public final fun setContent ([Ljava/lang/Object;)V
+	public final fun setSize (I)V
 	public final fun sortWith (Ljava/util/Comparator;)V
 	public final fun sumBy (Lkotlin/jvm/functions/Function1;)I
 	public final fun throwNoSuchElementException ()Ljava/lang/Void;
@@ -985,7 +1015,7 @@ public abstract interface class androidx/compose/runtime/snapshots/SnapshotMutab
 	public abstract fun getPolicy ()Landroidx/compose/runtime/SnapshotMutationPolicy;
 }
 
-public final class androidx/compose/runtime/snapshots/SnapshotStateList : androidx/compose/runtime/snapshots/StateObject, java/util/List, kotlin/jvm/internal/markers/KMutableList {
+public final class androidx/compose/runtime/snapshots/SnapshotStateList : androidx/compose/runtime/snapshots/StateObject, java/util/List, java/util/RandomAccess, kotlin/jvm/internal/markers/KMutableList {
 	public static final field $stable I
 	public fun <init> ()V
 	public fun add (ILjava/lang/Object;)V
@@ -1099,7 +1129,27 @@ public final class androidx/compose/runtime/tooling/CompositionGroup$DefaultImpl
 	public static fun getSlotsSize (Landroidx/compose/runtime/tooling/CompositionGroup;)I
 }
 
+public abstract interface class androidx/compose/runtime/tooling/CompositionObserver {
+	public abstract fun onBeginComposition (Landroidx/compose/runtime/Composition;Ljava/util/Map;)V
+	public abstract fun onEndComposition (Landroidx/compose/runtime/Composition;)V
+}
+
+public abstract interface class androidx/compose/runtime/tooling/CompositionObserverHandle {
+	public abstract fun dispose ()V
+}
+
+public final class androidx/compose/runtime/tooling/CompositionObserverKt {
+	public static final fun observe (Landroidx/compose/runtime/Composition;Landroidx/compose/runtime/tooling/CompositionObserver;)Landroidx/compose/runtime/tooling/CompositionObserverHandle;
+	public static final fun observe (Landroidx/compose/runtime/RecomposeScope;Landroidx/compose/runtime/tooling/RecomposeScopeObserver;)Landroidx/compose/runtime/tooling/CompositionObserverHandle;
+}
+
 public final class androidx/compose/runtime/tooling/InspectionTablesKt {
 	public static final fun getLocalInspectionTables ()Landroidx/compose/runtime/ProvidableCompositionLocal;
+}
+
+public abstract interface class androidx/compose/runtime/tooling/RecomposeScopeObserver {
+	public abstract fun onBeginScopeComposition (Landroidx/compose/runtime/RecomposeScope;)V
+	public abstract fun onEndScopeComposition (Landroidx/compose/runtime/RecomposeScope;)V
+	public abstract fun onScopeDisposed (Landroidx/compose/runtime/RecomposeScope;)V
 }
 

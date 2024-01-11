@@ -297,11 +297,8 @@ public final class androidx/compose/foundation/layout/WindowInsetsKt {
 public final class androidx/compose/foundation/layout/WindowInsetsPaddingKt {
 	public static final fun consumeWindowInsets (Landroidx/compose/ui/Modifier;Landroidx/compose/foundation/layout/PaddingValues;)Landroidx/compose/ui/Modifier;
 	public static final fun consumeWindowInsets (Landroidx/compose/ui/Modifier;Landroidx/compose/foundation/layout/WindowInsets;)Landroidx/compose/ui/Modifier;
-	public static final fun consumedWindowInsets (Landroidx/compose/ui/Modifier;Landroidx/compose/foundation/layout/PaddingValues;)Landroidx/compose/ui/Modifier;
-	public static final fun consumedWindowInsets (Landroidx/compose/ui/Modifier;Landroidx/compose/foundation/layout/WindowInsets;)Landroidx/compose/ui/Modifier;
 	public static final fun onConsumedWindowInsetsChanged (Landroidx/compose/ui/Modifier;Lkotlin/jvm/functions/Function1;)Landroidx/compose/ui/Modifier;
 	public static final fun windowInsetsPadding (Landroidx/compose/ui/Modifier;Landroidx/compose/foundation/layout/WindowInsets;)Landroidx/compose/ui/Modifier;
-	public static final fun withConsumedWindowInsets (Landroidx/compose/ui/Modifier;Lkotlin/jvm/functions/Function1;)Landroidx/compose/ui/Modifier;
 }
 
 public final class androidx/compose/foundation/layout/WindowInsetsPadding_skikoKt {

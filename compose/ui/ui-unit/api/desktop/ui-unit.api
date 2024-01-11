@@ -42,12 +42,10 @@ public final class androidx/compose/ui/unit/ConstraintsKt {
 	public static synthetic fun offset-NN6Ew-U$default (JIIILjava/lang/Object;)J
 }
 
-public abstract interface class androidx/compose/ui/unit/Density {
+public abstract interface class androidx/compose/ui/unit/Density : androidx/compose/ui/unit/FontScalingLinear {
 	public abstract fun getDensity ()F
-	public abstract fun getFontScale ()F
 	public fun roundToPx--R2X_6o (J)I
 	public fun roundToPx-0680j_4 (F)I
-	public fun toDp-GaN1DYA (J)F
 	public fun toDp-u2uoSUM (F)F
 	public fun toDp-u2uoSUM (I)F
 	public fun toDpSize-k-rfVVM (J)J
@@ -55,7 +53,6 @@ public abstract interface class androidx/compose/ui/unit/Density {
 	public fun toPx-0680j_4 (F)F
 	public fun toRect (Landroidx/compose/ui/unit/DpRect;)Landroidx/compose/ui/geometry/Rect;
 	public fun toSize-XkaWNTQ (J)J
-	public fun toSp-0xMU5do (F)J
 	public fun toSp-kPz2Gy4 (F)J
 	public fun toSp-kPz2Gy4 (I)J
 }
@@ -226,6 +223,22 @@ public final class androidx/compose/ui/unit/DpSize$Companion {
 }
 
 public abstract interface annotation class androidx/compose/ui/unit/ExperimentalUnitApi : java/lang/annotation/Annotation {
+}
+
+public final class androidx/compose/ui/unit/FontScalingKt {
+	public static final fun getDisableNonLinearFontScalingInCompose ()Z
+	public static final fun setDisableNonLinearFontScalingInCompose (Z)V
+}
+
+public abstract interface class androidx/compose/ui/unit/FontScalingLinear {
+	public abstract fun getFontScale ()F
+	public fun toDp-GaN1DYA (J)F
+	public fun toSp-0xMU5do (F)J
+}
+
+public final class androidx/compose/ui/unit/FontScalingLinear$DefaultImpls {
+	public static fun toDp-GaN1DYA (Landroidx/compose/ui/unit/FontScalingLinear;J)F
+	public static fun toSp-0xMU5do (Landroidx/compose/ui/unit/FontScalingLinear;F)J
 }
 
 public final class androidx/compose/ui/unit/IntOffset {
