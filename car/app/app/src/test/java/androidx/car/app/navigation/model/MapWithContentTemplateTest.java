@@ -90,26 +90,9 @@ public class MapWithContentTemplateTest {
     }
 
     @Test
-    public void createInstance_noContentTemplate_notLoading_throws() {
-        assertThrows(IllegalStateException.class, () -> new MapWithContentTemplate.Builder()
+    public void createInstance_noContentTemplate_throws() {
+        assertThrows(IllegalArgumentException.class, () -> new MapWithContentTemplate.Builder()
                 .build());
-    }
-
-    @Test
-    public void createInstance_isLoading_hasContentTemplate_Throws() {
-        assertThrows(
-                IllegalStateException.class,
-                () -> new MapWithContentTemplate.Builder()
-                        .setLoading(true)
-                        .setContentTemplate(createListTemplate())
-                        .build());
-    }
-
-    @Test
-    public void createInstance_noContentTemplate_loading_doesNotThrow() {
-        new MapWithContentTemplate.Builder()
-                .setLoading(true)
-                .build();
     }
 
     @Test
