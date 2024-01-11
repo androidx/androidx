@@ -18,10 +18,12 @@ package androidx.compose.ui.platform.coreshims;
 
 import static android.os.Build.VERSION.SDK_INT;
 
+import android.os.Bundle;
 import android.view.ViewStructure;
 
 import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 
@@ -167,6 +169,25 @@ public class ViewStructureCompat {
         }
     }
 
+    /**
+     * Get extra data associated with this view structure; the returned Bundle is mutable,
+     * allowing you to view and modify its contents.  Keys placed in the Bundle should use
+     * an appropriate namespace prefix (such as com.google.MY_KEY) to avoid conflicts.
+     *
+     * Compatibility behavior:
+     * <ul>
+     * <li>SDK 23 and above, this method matches platform behavior.
+     * <li>SDK 22 and below, this method returns null.
+     * </ul>
+     */
+    @Nullable
+    public Bundle getExtras() {
+        if (SDK_INT >= 23) {
+            return Api23Impl.getExtras((ViewStructure) mWrappedObj);
+        }
+        return null;
+    }
+
     @RequiresApi(23)
     private static class Api23Impl {
         private Api23Impl() {
@@ -198,6 +219,11 @@ public class ViewStructureCompat {
         static void setTextStyle(
                 ViewStructure viewStructure, float size, int fgColor, int bgColor, int style) {
             viewStructure.setTextStyle(size, fgColor, bgColor, style);
+        }
+
+        @DoNotInline
+        static Bundle getExtras(ViewStructure viewStructure) {
+            return viewStructure.getExtras();
         }
     }
 }

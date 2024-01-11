@@ -108,9 +108,11 @@ internal class AndroidContentCaptureManager(
             if (currentSemanticsNodesInvalidated) { // first instance of retrieving all nodes
                 currentSemanticsNodesInvalidated = false
                 field = view.semanticsOwner.getAllUncoveredSemanticsNodesToMap()
+                currentSemanticsNodesSnapshotTimestampMillis = System.currentTimeMillis()
             }
             return field
         }
+    private var currentSemanticsNodesSnapshotTimestampMillis = 0L
 
     // previousSemanticsNodes holds the previous pruned semantics tree so that we can compare the
     // current and previous trees in onSemanticsChange(). We use SemanticsNodeCopy here because
@@ -458,6 +460,12 @@ internal class AndroidContentCaptureManager(
         if (configuration.contains(SemanticsProperties.Password)) {
             return null
         }
+
+        // Due to the batching strategy, the ContentCaptureEvent.eventTimestamp is inaccurate.
+        // This timestamp in the extra bundle is the equivalent substitution.
+        structure.extras?.putLong(
+            "android.view.contentcapture.EventTimestamp",
+            currentSemanticsNodesSnapshotTimestampMillis)
 
         configuration.getOrNull(SemanticsProperties.Text)?.let {
             structure.setClassName("android.widget.TextView")
