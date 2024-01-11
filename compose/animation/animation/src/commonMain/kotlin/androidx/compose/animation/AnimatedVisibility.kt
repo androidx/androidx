@@ -26,6 +26,7 @@ import androidx.compose.animation.core.InternalAnimationApi
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.Transition
 import androidx.compose.animation.core.createChildTransition
+import androidx.compose.animation.core.rememberTransition
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.animation.internal.JvmDefaultWithCompatibility
 import androidx.compose.foundation.layout.Column
@@ -385,7 +386,7 @@ fun AnimatedVisibility(
     label: String = "AnimatedVisibility",
     content: @Composable() AnimatedVisibilityScope.() -> Unit
 ) {
-    val transition = updateTransition(visibleState, label)
+    val transition = rememberTransition(visibleState, label)
     AnimatedVisibilityImpl(transition, { it }, modifier, enter, exit, content = content)
 }
 
@@ -460,7 +461,7 @@ fun RowScope.AnimatedVisibility(
     label: String = "AnimatedVisibility",
     content: @Composable() AnimatedVisibilityScope.() -> Unit
 ) {
-    val transition = updateTransition(visibleState, label)
+    val transition = rememberTransition(visibleState, label)
     AnimatedVisibilityImpl(transition, { it }, modifier, enter, exit, content = content)
 }
 
@@ -536,7 +537,7 @@ fun ColumnScope.AnimatedVisibility(
     label: String = "AnimatedVisibility",
     content: @Composable() AnimatedVisibilityScope.() -> Unit
 ) {
-    val transition = updateTransition(visibleState, label)
+    val transition = rememberTransition(visibleState, label)
     AnimatedVisibilityImpl(transition, { it }, modifier, enter, exit, content = content)
 }
 

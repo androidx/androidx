@@ -19,8 +19,8 @@ package androidx.compose.material
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.rememberTransition
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -64,7 +64,7 @@ internal fun DropdownMenuContent(
     content: @Composable ColumnScope.() -> Unit
 ) {
     // Menu open/close animation.
-    val transition = updateTransition(expandedStates, "DropDownMenu")
+    val transition = rememberTransition(expandedStates, "DropDownMenu")
 
     val scale by transition.animateFloat(
         transitionSpec = {

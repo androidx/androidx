@@ -23,6 +23,7 @@ import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.Transition
 import androidx.compose.animation.core.keyframes
+import androidx.compose.animation.core.rememberTransition
 import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
@@ -98,7 +99,7 @@ class AnimatedContentTest {
         rule.mainClock.autoAdvance = false
         rule.setContent {
             CompositionLocalProvider(LocalDensity provides Density(1f)) {
-                val transition = updateTransition(transitionState)
+                val transition = rememberTransition(transitionState)
                 playTimeMillis = (transition.playTimeNanos / 1_000_000L).toInt()
                 transition.AnimatedContent(
                     testModifier,
@@ -178,7 +179,7 @@ class AnimatedContentTest {
         rule.mainClock.autoAdvance = false
         rule.setContent {
             CompositionLocalProvider(LocalDensity provides Density(1f)) {
-                val transition = updateTransition(transitionState)
+                val transition = rememberTransition(transitionState)
                 playTimeMillis = (transition.playTimeNanos / 1_000_000L).toInt()
                 transition.AnimatedContent(
                     testModifier,
@@ -247,7 +248,7 @@ class AnimatedContentTest {
         var contentAlignment by mutableStateOf(Alignment.TopStart)
         rule.setContent {
             CompositionLocalProvider(LocalDensity provides Density(1f)) {
-                val transition = updateTransition(transitionState)
+                val transition = rememberTransition(transitionState)
                 playTimeMillis = (transition.playTimeNanos / 1_000_000L).toInt()
                 transition.AnimatedContent(
                     testModifier,
@@ -371,7 +372,7 @@ class AnimatedContentTest {
         rule.setContent {
             CompositionLocalProvider(LocalDensity provides Density(1f, 1f)) {
                 @Suppress("UpdateTransitionLabel")
-                val rootTransition = updateTransition(transitionState)
+                val rootTransition = rememberTransition(transitionState)
                 rootTransition.AnimatedContent(
                     transitionSpec = {
                         if (true isTransitioningTo false) {
