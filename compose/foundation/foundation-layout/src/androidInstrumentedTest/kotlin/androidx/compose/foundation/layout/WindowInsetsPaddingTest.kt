@@ -29,7 +29,6 @@ import android.widget.FrameLayout
 import androidx.activity.ComponentActivity
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -43,6 +42,8 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.ViewRootForTest
+import androidx.compose.ui.test.DeviceConfigurationOverride
+import androidx.compose.ui.test.LayoutDirection
 import androidx.compose.ui.test.junit4.AndroidComposeTestRule
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.unit.LayoutDirection
@@ -349,7 +350,9 @@ class WindowInsetsPaddingTest {
 
         setContent {
             with(LocalDensity.current) {
-                CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
+                DeviceConfigurationOverride(
+                    DeviceConfigurationOverride.LayoutDirection(LayoutDirection.Ltr)
+                ) {
                     Box(
                         Modifier
                             .fillMaxSize()
@@ -389,7 +392,9 @@ class WindowInsetsPaddingTest {
         lateinit var coordinates: LayoutCoordinates
 
         setContent {
-            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.LayoutDirection(LayoutDirection.Ltr)
+            ) {
                 Box(Modifier.statusBarsPadding()) {
                     Box(Modifier.systemBarsPadding()) {
                         Box(
@@ -424,7 +429,9 @@ class WindowInsetsPaddingTest {
         var top = 0
         var consumingModifier: Modifier by mutableStateOf(Modifier)
         setContent {
-            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.LayoutDirection(LayoutDirection.Ltr)
+            ) {
                 Box(consumingModifier) {
                     val density = LocalDensity.current
                     Box(
