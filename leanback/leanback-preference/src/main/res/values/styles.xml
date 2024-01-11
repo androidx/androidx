@@ -64,7 +64,7 @@
     </style>
 
     <style name="LeanbackPreference.SwitchPreferenceCompat">
-        <item name="android:widgetLayout">@layout/leanback_preference_widget_switch</item>
+        <item name="android:widgetLayout">@layout/leanback_preference_widget_switch_compat</item>
         <item name="android:switchTextOn">@string/v7_preference_on</item>
         <item name="android:switchTextOff">@string/v7_preference_off</item>
     </style>
