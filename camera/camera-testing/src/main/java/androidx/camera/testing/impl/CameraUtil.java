@@ -848,6 +848,22 @@ public final class CameraUtil {
     }
 
     /**
+     * Gets the {@link CameraCharacteristics} by specified camera id.
+     *
+     * @return the camera characteristics for the given camera id or {@code null} if it can't
+     * be retrieved.
+     */
+    @Nullable
+    public static CameraCharacteristics getCameraCharacteristics(@NonNull String cameraId) {
+        try {
+            return getCameraCharacteristicsOrThrow(cameraId);
+        } catch (RuntimeException e) {
+            Logger.e(LOG_TAG, "Unable to get CameraCharacteristics.", e);
+            return null;
+        }
+    }
+
+    /**
      * The current lens facing directions supported by CameraX, as defined the
      * {@link CameraMetadata}.
      */

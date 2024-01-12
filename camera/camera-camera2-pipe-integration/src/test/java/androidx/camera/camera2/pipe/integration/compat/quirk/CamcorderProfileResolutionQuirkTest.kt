@@ -81,9 +81,9 @@ class CamcorderProfileResolutionQuirkTest {
             )
         )
 
-        assertThat(quirk.supportedResolutions[0])
+        assertThat(quirk.getSupportedResolutions()[0])
             .isEqualTo(EncoderProfilesUtil.RESOLUTION_2160P)
-        assertThat(quirk.supportedResolutions[1])
+        assertThat(quirk.getSupportedResolutions()[1])
             .isEqualTo(EncoderProfilesUtil.RESOLUTION_1080P)
     }
 

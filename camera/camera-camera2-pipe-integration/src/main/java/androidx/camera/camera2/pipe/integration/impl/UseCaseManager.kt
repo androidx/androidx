@@ -161,7 +161,7 @@ class UseCaseManager @Inject constructor(
         SupportedSurfaceCombination(
             context,
             cameraProperties.metadata,
-            EncoderProfilesProviderAdapter(cameraConfig.cameraId.value)
+            EncoderProfilesProviderAdapter(cameraConfig.cameraId.value, cameraQuirks.quirks)
         )
     }
 
