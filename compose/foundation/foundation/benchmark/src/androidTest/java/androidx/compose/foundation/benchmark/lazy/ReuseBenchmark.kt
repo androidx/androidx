@@ -242,7 +242,7 @@ private class ReuseTestCase(
     }
 }
 
-private fun ComposeExecutionControl.doFramesUntilIdle() {
+internal fun ComposeExecutionControl.doFramesUntilIdle() {
     do {
         doFrame()
     } while (hasPendingChanges() || hasPendingMeasureOrLayout())
