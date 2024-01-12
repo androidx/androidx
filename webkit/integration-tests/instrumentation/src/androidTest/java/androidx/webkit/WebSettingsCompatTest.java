@@ -263,4 +263,29 @@ public class WebSettingsCompatTest {
                 WebSettingsCompat.getWebViewMediaIntegrityApiStatus(settings)
                         .getOverrideRules().isEmpty());
     }
+
+    @Test
+    public void testSetWebViewMediaIntegrityApiWithInvalidRules() throws Throwable {
+        WebkitUtils.checkFeature(WebViewFeature.WEBVIEW_MEDIA_INTEGRITY_API_STATUS);
+        WebSettings settings = mWebViewOnUiThread.getSettings();
+        String validRule = "http://*.example.com";
+        String invalidRule1 = "http://xyz.*.com";
+        String invalidRule2 = "customscheme://xyz";
+
+        WebViewMediaIntegrityApiStatusConfig config =
+                new WebViewMediaIntegrityApiStatusConfig
+                        .Builder(WEBVIEW_MEDIA_INTEGRITY_API_DISABLED)
+                        .addOverrideRule(validRule, WEBVIEW_MEDIA_INTEGRITY_API_ENABLED)
+                        .addOverrideRule(invalidRule1, WEBVIEW_MEDIA_INTEGRITY_API_ENABLED)
+                        .addOverrideRule(invalidRule2, WEBVIEW_MEDIA_INTEGRITY_API_ENABLED)
+                        .build();
+        Exception error = Assert.assertThrows(
+                IllegalArgumentException.class,
+                () -> WebSettingsCompat.setWebViewMediaIntegrityApiStatus(settings, config));
+        Assert.assertTrue(error.getMessage().contains(invalidRule1));
+        Assert.assertTrue(error.getMessage().contains(invalidRule2));
+        Assert.assertTrue(
+                WebSettingsCompat.getWebViewMediaIntegrityApiStatus(settings)
+                        .getOverrideRules().isEmpty());
+    }
 }
