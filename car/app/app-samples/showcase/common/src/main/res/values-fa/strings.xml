@@ -237,7 +237,7 @@
     <string name="search_template_demo_title" msgid="1770474418958318114">"الگوی جستجوی نمونه"</string>
     <string name="search_hint" msgid="978495498991026792">"اینجا جستجو کنید"</string>
     <string name="additional_text" msgid="8410289578276941586">"لطفاً شرایط خدمات ما را مرور کنید"</string>
-    <string name="google_sign_in" msgid="6556259799319701727">"‏ورود به سیستم Google"</string>
+    <string name="google_sign_in" msgid="6556259799319701727">"‏ورود به سیستم با Google"</string>
     <string name="use_pin" msgid="7850893299484337431">"استفاده از پین"</string>
     <string name="qr_code" msgid="5487041647280777397">"رمزینه پاسخ‌سریع"</string>
     <string name="sign_in_template_not_supported_text" msgid="7184733753948837646">"میزبان شما از الگوی «ورود به سیستم» پشتیبانی نمی‌کند"</string>
@@ -253,7 +253,7 @@
     <string name="pin_sign_in_instruction" msgid="2288691296234360441">"این پین را در تلفن وارد کنید"</string>
     <string name="qr_code_sign_in_title" msgid="8137070561006464518">"برای ورود به سیستم، رمزینه پاسخ‌سریع را اسکن کنید"</string>
     <string name="sign_in_with_google_title" msgid="8043752000786977249">"‏ورود به سیستم با Google"</string>
-    <string name="provider_sign_in_instruction" msgid="7586815688292506743">"‏از این دکمه برای تکمیل «ورود به سیستم با Google» استفاده کنید"</string>
+    <string name="provider_sign_in_instruction" msgid="7586815688292506743">"‏از این دکمه برای تکمیل «ورود به سیستم Google» استفاده کنید"</string>
     <string name="sign_in_complete_text" msgid="8423984266325680606">"به سیستم وارد شدید!"</string>
     <string name="sign_in_complete_title" msgid="8919868148773983428">"ورود به سیستم تکمیل شد"</string>
     <string name="sign_in_template_demo_title" msgid="6052035424941410249">"الگوی ورود به سیستم نمونه"</string>
