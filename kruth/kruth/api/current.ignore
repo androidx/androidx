@@ -63,8 +63,6 @@ ChangedType: androidx.kruth.StandardSubjectBuilder#that(Iterable<? extends T>):
     Method androidx.kruth.StandardSubjectBuilder.that has changed return type from androidx.kruth.IterableSubject to androidx.kruth.IterableSubject<T>
 ChangedType: androidx.kruth.StandardSubjectBuilder#that(T):
     Method androidx.kruth.StandardSubjectBuilder.that has changed return type from androidx.kruth.ClassSubject to androidx.kruth.Subject<T>
-ChangedType: androidx.kruth.StandardSubjectBuilder#that(T[]):
-    Method androidx.kruth.StandardSubjectBuilder.that has changed return type from androidx.kruth.ObjectArraySubject<T> to androidx.kruth.ObjectArraySubject<T>
 ChangedType: androidx.kruth.StandardSubjectBuilder#that(java.util.Map<K,? extends V>):
     Method androidx.kruth.StandardSubjectBuilder.that has changed return type from androidx.kruth.MapSubject to androidx.kruth.MapSubject<K,V>
 ChangedType: androidx.kruth.Subject#failWithActual(String, Object):
@@ -109,8 +107,6 @@ InvalidNullConversion: androidx.kruth.Subject.Factory#createSubject(androidx.kru
     Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter actual in androidx.kruth.Subject.Factory.createSubject(androidx.kruth.FailureMetadata metadata, ActualT actual)
 
 
-RemovedClass: androidx.kruth.BigDecimalSubject:
-    Removed class androidx.kruth.BigDecimalSubject
 RemovedClass: androidx.kruth.ClassSubject:
     Removed class androidx.kruth.ClassSubject
 RemovedClass: androidx.kruth.Correspondence:
@@ -123,8 +119,6 @@ RemovedClass: androidx.kruth.ExpectFailure:
     Removed class androidx.kruth.ExpectFailure
 RemovedClass: androidx.kruth.FloatSubject:
     Removed class androidx.kruth.FloatSubject
-RemovedClass: androidx.kruth.GuavaOptionalSubject:
-    Removed class androidx.kruth.GuavaOptionalSubject
 RemovedClass: androidx.kruth.IterableSubject.UsingCorrespondence:
     Removed class androidx.kruth.IterableSubject.UsingCorrespondence
 RemovedClass: androidx.kruth.LongSubject:
