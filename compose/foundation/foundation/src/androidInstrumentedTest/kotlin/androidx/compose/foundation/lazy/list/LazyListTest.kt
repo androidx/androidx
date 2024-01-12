@@ -1302,6 +1302,9 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
             }
         }
 
+        // Due to b/302303969 there are no guarantees runOnIdle() will wait for drawing to happen
+        rule.waitUntil { redrawCount[0] == 1 && redrawCount[1] == 1 }
+
         rule.runOnIdle {
             stateUsedInDrawScope = true
         }
