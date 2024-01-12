@@ -31,6 +31,7 @@ import androidx.compose.foundation.text2.input.ImeActionHandler
 import androidx.compose.foundation.text2.input.InputTransformation
 import androidx.compose.foundation.text2.input.TextFieldBuffer
 import androidx.compose.foundation.text2.input.TextFieldCharSequence
+import androidx.compose.foundation.text2.input.TextFieldDecorator
 import androidx.compose.foundation.text2.input.TextFieldLineLimits
 import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.foundation.text2.input.TextObfuscationMode
