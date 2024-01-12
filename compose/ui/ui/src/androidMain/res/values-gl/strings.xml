@@ -18,8 +18,8 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="indeterminate" msgid="7933458017204019916">"Marcada parcialmente"</string>
-    <string name="state_on" msgid="8655164131929253426">"Activado"</string>
-    <string name="state_off" msgid="875452955155264703">"Desactivado"</string>
+    <string name="state_on" msgid="1490883874751719580">"Activado"</string>
+    <string name="state_off" msgid="5834637030682409883">"Desactivado"</string>
     <string name="switch_role" msgid="2561197295334830845">"Interruptor"</string>
     <string name="selected" msgid="6043586758067023">"Seleccionado"</string>
     <string name="not_selected" msgid="6610465462668679431">"Non seleccionado"</string>
