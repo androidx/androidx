@@ -117,13 +117,13 @@ class TextFieldCursorHandleTest : FocusedWindowTest {
             BasicTextField2(
                 state,
                 textStyle = TextStyle(fontSize = fontSize, fontFamily = TEST_FONT_FAMILY),
-                modifier = Modifier.testTag(TAG)
+                modifier = Modifier.width(100.dp).testTag(TAG)
             )
         }
 
         focusAndWait()
 
-        rule.onNodeWithTag(TAG).performTouchInput { click(Offset.Zero) }
+        rule.onNodeWithTag(TAG).performTouchInput { click() }
 
         var actualBottomRight = Offset.Zero
         rule.onNode(isSelectionHandle(Handle.Cursor)).performTouchInput {
