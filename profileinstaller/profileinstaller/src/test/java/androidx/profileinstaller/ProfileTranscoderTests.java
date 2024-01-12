@@ -194,6 +194,17 @@ public class ProfileTranscoderTests {
         );
     }
 
+    @Test
+    public void testTranscodeForS_ComposeLife() throws IOException {
+        assertGoldenTranscodeWithMeta(
+                testFile("composelife/baseline.prof"),
+                testFile("composelife/baseline.profm"),
+                testFile("composelife/baseline-s.prof"),
+                ProfileVersion.V015_S,
+                "" /* apkName */
+        );
+    }
+
     private static File testFile(@NonNull String fileName) {
         return new File("src/test/test-data", fileName);
     }

@@ -56,8 +56,11 @@ class ProfileTranscoder {
     }
 
     private static final int HOT = 1;
+    private static final int FIRST_FLAG = HOT;
     private static final int STARTUP = 1 << 1;
     private static final int POST_STARTUP = 1 << 2;
+    private static final int LAST_FLAG = POST_STARTUP;
+
     private static final int INLINE_CACHE_MISSING_TYPES_ENCODING = 6;
     private static final int INLINE_CACHE_MEGAMORPHIC_ENCODING = 7;
 
@@ -738,17 +741,26 @@ class ProfileTranscoder {
         for (Map.Entry<Integer, Integer> entry : dexData.methods.entrySet()) {
             int methodIndex = entry.getKey();
             int flagValue = entry.getValue();
-
-            if ((flagValue & methodFlags) == 0) {
-                continue;
-            }
-
-            if ((flagValue & STARTUP) != 0) {
-                setMethodBitmapBit(bitmap, STARTUP, methodIndex, dexData);
-            }
-
-            if ((flagValue & POST_STARTUP) != 0) {
-                setMethodBitmapBit(bitmap, POST_STARTUP, methodIndex, dexData);
+            int offset = 0;
+            int flag = FIRST_FLAG;
+            while (flag <= LAST_FLAG) {
+                if (flag == HOT) {
+                    flag = flag << 1;
+                    continue;
+                }
+                if ((flag & methodFlags) == 0) {
+                    flag = flag << 1;
+                    continue;
+                }
+                if ((flag & flagValue) == flag) {
+                    // The flag is set here.
+                    int bitIndex = methodIndex + offset * dexData.numMethodIds;
+                    int bitmapIndex = bitIndex / SIZEOF_BYTE;
+                    byte value = (byte) (bitmap[bitmapIndex] | (1 << (bitIndex % SIZEOF_BYTE)));
+                    bitmap[bitmapIndex] = value;
+                }
+                offset = offset + 1;
+                flag = flag << 1;
             }
         }
         os.write(bitmap);
