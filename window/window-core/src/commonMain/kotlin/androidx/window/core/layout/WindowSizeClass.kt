@@ -16,13 +16,16 @@
 
 package androidx.window.core.layout
 
+import androidx.window.core.ExperimentalWindowCoreApi
 import kotlin.jvm.JvmStatic
 
 /**
- * [WindowSizeClass] provides breakpoints for a viewport. Designers should design around the
- * different combinations of width and height buckets. Developers should use the different buckets
- * to specify the layouts. Ideally apps will work well in each bucket and by extension work well
- * across multiple devices. If two devices are in similar buckets they should behave similarly.
+ * [WindowSizeClass] represents breakpoints for a viewport. The recommended width and height break
+ * points are presented through [windowWidthSizeClass] and [windowHeightSizeClass]. Designers
+ * should design around the different combinations of width and height buckets. Developers should
+ * use the different buckets to specify the layouts. Ideally apps will work well in each bucket and
+ * by extension work well across multiple devices. If two devices are in similar buckets they
+ * should behave similarly.
  *
  * This class is meant to be a common definition that can be shared across different device types.
  * Application developers can use WindowSizeClass to have standard window buckets and design the UI
@@ -39,39 +42,68 @@ import kotlin.jvm.JvmStatic
  * detail side by side. If all apps follow this guidance then it will present a very consistent user
  * experience.
  *
+ * In some cases developers or UI systems may decide to create their own break points. A developer
+ * might optimize for a window that is smaller than the supported break points or larger. A UI
+ * system might find that some break points are better suited than the recommended break points.
+ * In these cases developers may wish to specify their own custom break points and match using
+ * a `when` statement.
+ *
+ * @constructor the primary constructor taking the bounds of the size class.
+ * @property widthDp the width in DP for the size class.
+ * @property heightDp the height in DP for the size class.
+ *
+ * @throws IllegalArgumentException if [widthDp] or [heightDp] is negative.
+ *
  * @see WindowWidthSizeClass
  * @see WindowHeightSizeClass
  */
-class WindowSizeClass internal constructor(
-    val windowWidthSizeClass: WindowWidthSizeClass,
-    val windowHeightSizeClass: WindowHeightSizeClass
+class WindowSizeClass(
+    val widthDp: Int,
+    val heightDp: Int
 ) {
+
+    init {
+        require(widthDp >= 0) { "Must have non-negative widthDp: $widthDp." }
+        require(heightDp >= 0) { "Must have non-negative heightDp: $heightDp." }
+    }
+
+    /**
+     * Returns the [WindowWidthSizeClass] that corresponds to the [widthDp].
+     */
+    val windowWidthSizeClass: WindowWidthSizeClass
+        get() = WindowWidthSizeClass.compute(widthDp.toFloat())
+
+    /**
+     * Returns the [WindowHeightSizeClass] that corresponds to the [heightDp].
+     */
+    val windowHeightSizeClass: WindowHeightSizeClass
+        get() = WindowHeightSizeClass.compute(heightDp.toFloat())
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other == null) return false
-        if (this::class != other::class) return false
+        if (javaClass != other?.javaClass) return false
 
-        val that = other as WindowSizeClass
+        other as WindowSizeClass
 
-        if (windowWidthSizeClass != that.windowWidthSizeClass) return false
-        if (windowHeightSizeClass != that.windowHeightSizeClass) return false
+        if (widthDp != other.widthDp) return false
+        if (heightDp != other.heightDp) return false
 
         return true
     }
 
     override fun hashCode(): Int {
-        var result = windowWidthSizeClass.hashCode()
-        result = 31 * result + windowHeightSizeClass.hashCode()
+        var result = widthDp.hashCode()
+        result = 31 * result + heightDp.hashCode()
         return result
     }
 
     override fun toString(): String {
-        return "SizeClass { widthSizeClass: $windowWidthSizeClass," +
-            " heightSizeClass: $windowHeightSizeClass }"
+        return "SizeClass { widthDp: $widthDp," +
+            " heightDp: $heightDp }"
     }
 
     companion object {
+
         /**
          * Computes the [WindowSizeClass] for the given width and height in DP.
          * @param dpWidth width of a window in DP.
@@ -79,28 +111,31 @@ class WindowSizeClass internal constructor(
          * @return [WindowSizeClass] that is recommended for the given dimensions.
          * @throws IllegalArgumentException if [dpWidth] or [dpHeight] is
          * negative.
+         *
+         * @deprecated use the constructor instead.
          */
         @JvmStatic
+        @Deprecated("Use constructor instead.",
+            ReplaceWith("WindowSizeClass(widthDp = dpWidth, heightDp = dpHeight)"))
         fun compute(dpWidth: Float, dpHeight: Float): WindowSizeClass {
-            val windowWidthSizeClass = WindowWidthSizeClass.compute(dpWidth)
-            val windowHeightSizeClass = WindowHeightSizeClass.compute(dpHeight)
-            return WindowSizeClass(windowWidthSizeClass, windowHeightSizeClass)
+            return WindowSizeClass(dpWidth.toInt(), dpHeight.toInt())
         }
 
         /**
          * Computes the [WindowSizeClass] for the given width and height in pixels with density.
-         * @param pxWidth width of a window in PX.
-         * @param pxHeight height of a window in PX.
+         * @param widthPx width of a window in PX.
+         * @param heightPx height of a window in PX.
          * @param density density of the display where the window is shown.
          * @return [WindowSizeClass] that is recommended for the given dimensions.
-         * @throws IllegalArgumentException if [pxWidth], [pxHeight], or [density] is
+         * @throws IllegalArgumentException if [widthPx], [heightPx], or [density] is
          * negative.
          */
         @JvmStatic
-        fun compute(pxWidth: Int, pxHeight: Int, density: Float): WindowSizeClass {
-            val dpWidth = pxWidth / density
-            val dpHeight = pxHeight / density
-            return compute(dpWidth, dpHeight)
+        @ExperimentalWindowCoreApi
+        fun compute(widthPx: Int, heightPx: Int, density: Float): WindowSizeClass {
+            val widthDp = widthPx / density
+            val heightDp = heightPx / density
+            return WindowSizeClass(widthDp = widthDp.toInt(), heightDp = heightDp.toInt())
         }
     }
 }
