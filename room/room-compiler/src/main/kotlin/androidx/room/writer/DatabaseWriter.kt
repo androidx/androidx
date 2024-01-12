@@ -83,12 +83,25 @@ class DatabaseWriter(
         )
         val body = XCodeBlock.builder(codeLanguage).apply {
             val typeConvertersVar = scope.getTmpVar("_typeConvertersMap")
-            addLocalVal(
-                typeConvertersVar,
-                typeConvertersTypeName,
-                "%M()",
-                KotlinCollectionMemberNames.MUTABLE_MAP_OF
-            )
+            when (language) {
+                CodeLanguage.JAVA -> addLocalVariable(
+                    name = typeConvertersVar,
+                    typeName = typeConvertersTypeName,
+                    assignExpr = XCodeBlock.ofNewInstance(codeLanguage,
+                        CommonTypeNames.HASH_MAP
+                            .parametrizedBy(
+                                classOfAnyTypeName,
+                                CommonTypeNames.LIST.parametrizedBy(classOfAnyTypeName)
+                            )
+                    )
+                )
+                CodeLanguage.KOTLIN -> addLocalVal(
+                    typeConvertersVar,
+                    typeConvertersTypeName,
+                    "%M()",
+                    KotlinCollectionMemberNames.MUTABLE_MAP_OF
+                )
+            }
             database.daoMethods.forEach {
                 addStatement(
                     "%L.put(%L, %T.%L())",
@@ -137,12 +150,22 @@ class DatabaseWriter(
             CommonTypeNames.MUTABLE_SET.parametrizedBy(classOfAutoMigrationSpecTypeName)
         val body = XCodeBlock.builder(codeLanguage).apply {
             val autoMigrationSpecsVar = scope.getTmpVar("_autoMigrationSpecsSet")
-            addLocalVal(
-                autoMigrationSpecsVar,
-                autoMigrationSpecsTypeName,
-                "%M()",
-                KotlinCollectionMemberNames.MUTABLE_SET_OF
-            )
+            when (language) {
+                CodeLanguage.JAVA -> addLocalVariable(
+                    name = autoMigrationSpecsVar,
+                    typeName = autoMigrationSpecsTypeName,
+                    assignExpr = XCodeBlock.ofNewInstance(
+                        codeLanguage,
+                        CommonTypeNames.HASH_SET.parametrizedBy(classOfAutoMigrationSpecTypeName)
+                    )
+                )
+                CodeLanguage.KOTLIN -> addLocalVal(
+                    autoMigrationSpecsVar,
+                    autoMigrationSpecsTypeName,
+                    "%M()",
+                    KotlinCollectionMemberNames.MUTABLE_SET_OF
+                )
+            }
             database.autoMigrations.filter { it.isSpecProvided }.map { autoMigration ->
                 val specClassName = checkNotNull(autoMigration.specClassName)
                 addStatement(
@@ -441,12 +464,23 @@ class DatabaseWriter(
         val specsMapParamName = "autoMigrationSpecs"
         val body = XCodeBlock.builder(codeLanguage).apply {
             val listVar = scope.getTmpVar("_autoMigrations")
-            addLocalVal(
-                listVar,
-                CommonTypeNames.MUTABLE_LIST.parametrizedBy(RoomTypeNames.MIGRATION),
-                "%M()",
-                KotlinCollectionMemberNames.MUTABLE_LIST_OF
-            )
+            when (language) {
+                CodeLanguage.JAVA -> addLocalVariable(
+                    name = listVar,
+                    typeName = CommonTypeNames.MUTABLE_LIST.parametrizedBy(RoomTypeNames.MIGRATION),
+                    assignExpr = XCodeBlock.ofNewInstance(
+                        codeLanguage,
+                        CommonTypeNames.ARRAY_LIST.parametrizedBy(RoomTypeNames.MIGRATION)
+                    )
+                )
+                CodeLanguage.KOTLIN -> addLocalVal(
+                    listVar,
+                    CommonTypeNames.MUTABLE_LIST.parametrizedBy(RoomTypeNames.MIGRATION),
+                    "%M()",
+                    KotlinCollectionMemberNames.MUTABLE_LIST_OF
+                )
+            }
+
             database.autoMigrations.forEach { autoMigrationResult ->
                 val implTypeName =
                     autoMigrationResult.getImplTypeName(database.typeName)
