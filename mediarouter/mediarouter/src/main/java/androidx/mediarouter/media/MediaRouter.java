@@ -1154,7 +1154,8 @@ public final class MediaRouter {
             DEVICE_TYPE_UNKNOWN,
             DEVICE_TYPE_TV,
             DEVICE_TYPE_SPEAKER,
-            DEVICE_TYPE_BLUETOOTH,
+            DEVICE_TYPE_REMOTE_SPEAKER,
+            DEVICE_TYPE_BLUETOOTH_A2DP,
             DEVICE_TYPE_AUDIO_VIDEO_RECEIVER,
             DEVICE_TYPE_TABLET,
             DEVICE_TYPE_TABLET_DOCKED,
@@ -1163,6 +1164,18 @@ public final class MediaRouter {
             DEVICE_TYPE_CAR,
             DEVICE_TYPE_SMARTWATCH,
             DEVICE_TYPE_SMARTPHONE,
+            DEVICE_TYPE_BUILTIN_SPEAKER,
+            DEVICE_TYPE_WIRED_HEADSET,
+            DEVICE_TYPE_WIRED_HEADPHONES,
+            DEVICE_TYPE_HDMI,
+            DEVICE_TYPE_USB_DEVICE,
+            DEVICE_TYPE_USB_ACCESSORY,
+            DEVICE_TYPE_DOCK,
+            DEVICE_TYPE_USB_HEADSET,
+            DEVICE_TYPE_HEARING_AID,
+            DEVICE_TYPE_BLE_HEADSET,
+            DEVICE_TYPE_HDMI_ARC,
+            DEVICE_TYPE_HDMI_EARC,
             DEVICE_TYPE_GROUP
         })
         @Retention(RetentionPolicy.SOURCE)
@@ -1189,8 +1202,19 @@ public final class MediaRouter {
          * on a speaker.
          *
          * @see #getDeviceType
+         * @deprecated use {@link #DEVICE_TYPE_BUILTIN_SPEAKER} and
+         * {@link #DEVICE_TYPE_REMOTE_SPEAKER} instead.
          */
+        @Deprecated
         public static final int DEVICE_TYPE_SPEAKER = 2;
+
+        /**
+         * A receiver device type of the route indicating the presentation of the media is happening
+         * on a remote speaker.
+         *
+         * @see #getDeviceType
+         */
+        public static final int DEVICE_TYPE_REMOTE_SPEAKER = 2;
 
         /**
          * A receiver device type of the route indicating the presentation of the media is happening
@@ -1198,8 +1222,7 @@ public final class MediaRouter {
          *
          * @see #getDeviceType
          */
-        @RestrictTo(LIBRARY)
-        public static final int DEVICE_TYPE_BLUETOOTH = 3;
+        public static final int DEVICE_TYPE_BLUETOOTH_A2DP = 3;
 
         /**
          * A receiver device type indicating that the presentation of the media is happening on an
@@ -1257,6 +1280,103 @@ public final class MediaRouter {
          * @see #getDeviceType
          */
         public static final int DEVICE_TYPE_SMARTPHONE = 11;
+
+        /**
+         * A receiver device type indicating the presentation of the media is happening on a
+         * speaker system (i.e. a mono speaker or stereo speakers) built into the device.
+         *
+         * @see #getDeviceType
+         */
+        public static final int DEVICE_TYPE_BUILTIN_SPEAKER = 12;
+
+        /**
+         * A receiver device type indicating the presentation of the media is happening on a
+         * headset, which is the combination of a headphones and a microphone.
+         *
+         * @see #getDeviceType
+         */
+        public static final int DEVICE_TYPE_WIRED_HEADSET = 13;
+
+        /**
+         * A receiver device type indicating the presentation of the media is happening on a pair
+         * of wired headphones.
+         *
+         * @see #getDeviceType
+         */
+        public static final int DEVICE_TYPE_WIRED_HEADPHONES = 14;
+
+        /**
+         * A receiver device type indicating the presentation of the media is happening on an
+         * HDMI connection.
+         *
+         * @see #getDeviceType
+         */
+        public static final int DEVICE_TYPE_HDMI = 16;
+
+        /**
+         * A receiver device type indicating the presentation of the media is happening on a USB
+         * audio device.
+         *
+         * @see #getDeviceType
+         */
+        public static final int DEVICE_TYPE_USB_DEVICE = 17;
+
+        /**
+         * A receiver device type indicating the presentation of the media is happening on a USB
+         * audio device in accessory mode.
+         *
+         * @see #getDeviceType
+         */
+        public static final int DEVICE_TYPE_USB_ACCESSORY = 18;
+
+        /**
+         * A receiver device type indicating the presentation of the media is happening on an
+         * audio device associated on a dock.
+         *
+         * @see #getDeviceType
+         */
+        public static final int DEVICE_TYPE_DOCK = 19;
+
+        /**
+         * A receiver device type indicating the presentation of the media is happening on a USB
+         * audio headset.
+         *
+         * @see #getDeviceType
+         */
+        public static final int DEVICE_TYPE_USB_HEADSET = 20;
+
+        /**
+         * A receiver device type indicating the presentation of the media is happening on a
+         * hearing aid device.
+         *
+         * @see #getDeviceType
+         */
+        public static final int DEVICE_TYPE_HEARING_AID = 21;
+
+        /**
+         * A receiver device type indicating the presentation of the media is happening on a
+         * Bluetooth Low Energy (BLE) HEADSET.
+         *
+         * @see #getDeviceType
+         */
+        public static final int DEVICE_TYPE_BLE_HEADSET = 22;
+
+        /**
+         * A receiver device type indicating the presentation of the media is happening on an
+         * Audio Return Channel of an HDMI connection
+         *
+         * @see #getDeviceType
+         */
+        public static final int DEVICE_TYPE_HDMI_ARC = 23;
+
+        /**
+         * A receiver device type indicating the presentation of the media is happening on an
+         * Enhanced Audio Return Channel of an HDMI connection
+         *
+         * @see #getDeviceType
+         */
+        public static final int DEVICE_TYPE_HDMI_EARC = 24;
+
         /**
          * A receiver device type indicating that the presentation of the media is happening on a
          * group of devices.
@@ -1684,7 +1804,7 @@ public final class MediaRouter {
         /** */
         @RestrictTo(LIBRARY)
         public boolean isDefaultOrBluetooth() {
-            if (isDefault() || mDeviceType == DEVICE_TYPE_BLUETOOTH) {
+            if (isDefault() || mDeviceType == DEVICE_TYPE_BLUETOOTH_A2DP) {
                 return true;
             }
             // This is a workaround for platform version 23 or below where the system route

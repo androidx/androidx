@@ -1013,7 +1013,7 @@ public class MediaRouteDynamicControllerDialog extends AppCompatDialog {
             switch (route.getDeviceType()) {
                 case MediaRouter.RouteInfo.DEVICE_TYPE_TV:
                     return mTvIcon;
-                case MediaRouter.RouteInfo.DEVICE_TYPE_SPEAKER:
+                case MediaRouter.RouteInfo.DEVICE_TYPE_REMOTE_SPEAKER:
                     return mSpeakerIcon;
             }
 
