@@ -27,7 +27,7 @@ import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusTarget
-import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.focus.onFocusEvent
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
@@ -198,7 +198,7 @@ private class FocusSwitcher<T : Component>(
         Box(
             Modifier
                 .focusRequester(backwardRequester)
-                .onFocusChanged {
+                .onFocusEvent {
                     if (it.isFocused && !isRequesting) {
                         focusManager.clearFocus(force = true)
 
@@ -215,7 +215,7 @@ private class FocusSwitcher<T : Component>(
         Box(
             Modifier
                 .focusRequester(forwardRequester)
-                .onFocusChanged {
+                .onFocusEvent {
                     if (it.isFocused && !isRequesting) {
                         focusManager.clearFocus(force = true)
 
