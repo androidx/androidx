@@ -137,7 +137,8 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
         mCameraCharacteristicsCompat = cameraManager.getCameraCharacteristicsCompat(mCameraId);
         mCamera2CameraInfo = new Camera2CameraInfo(this);
         mCameraQuirks = CameraQuirks.get(cameraId, mCameraCharacteristicsCompat);
-        mCamera2EncoderProfilesProvider = new Camera2EncoderProfilesProvider(cameraId);
+        mCamera2EncoderProfilesProvider = new Camera2EncoderProfilesProvider(cameraId,
+                mCameraQuirks);
         mCameraStateLiveData = new RedirectableLiveData<>(
                 CameraState.create(CameraState.Type.CLOSED));
     }

@@ -41,7 +41,6 @@ import androidx.camera.core.impl.EncoderProfilesProvider;
 import androidx.camera.core.impl.EncoderProfilesProxy;
 import androidx.camera.core.impl.EncoderProfilesProxy.VideoProfileProxy;
 import androidx.camera.core.impl.Quirks;
-import androidx.camera.core.impl.ResolutionValidatedEncoderProfilesProvider;
 import androidx.camera.video.internal.BackupHdrProfileEncoderProfilesProvider;
 import androidx.camera.video.internal.DynamicRangeMatchedEncoderProfilesProvider;
 import androidx.camera.video.internal.QualityExploredEncoderProfilesProvider;
@@ -129,11 +128,6 @@ public final class RecorderVideoCapabilities implements VideoCapabilities {
             encoderProfilesProvider = new BackupHdrProfileEncoderProfilesProvider(
                     encoderProfilesProvider, videoEncoderInfoFinder);
         }
-
-        // Filter out qualities with unsupported resolutions.
-        Quirks cameraQuirks = cameraInfo.getCameraQuirks();
-        encoderProfilesProvider = new ResolutionValidatedEncoderProfilesProvider(
-                encoderProfilesProvider, cameraQuirks);
 
         // Filter out unsupported qualities.
         encoderProfilesProvider = new QualityValidatedEncoderProfilesProvider(
