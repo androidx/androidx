@@ -13,6 +13,10 @@ package androidx.kruth {
     method public void isTrue();
   }
 
+  public final class ClassSubject extends androidx.kruth.Subject<java.lang.Class<?>> {
+    method public void isAssignableTo(Class<?> clazz);
+  }
+
   public class ComparableSubject<T extends java.lang.Comparable<? super T>> extends androidx.kruth.Subject<T> {
     method public final void isAtLeast(T? other);
     method public final void isAtMost(T? other);
@@ -149,6 +153,7 @@ package androidx.kruth {
 
   public final class Kruth_jvmKt {
     method public static <T> androidx.kruth.GuavaOptionalSubject<T> assertThat(com.google.common.base.Optional<T>? actual);
+    method public static androidx.kruth.ClassSubject assertThat(Class<?> actual);
     method public static androidx.kruth.BigDecimalSubject assertThat(java.math.BigDecimal actual);
   }
 

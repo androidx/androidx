@@ -21,6 +21,7 @@ import java.math.BigDecimal
 
 internal actual interface PlatformStandardSubjectBuilder {
 
+    fun that(actual: Class<*>): ClassSubject
     fun <T : Any> that(actual: Optional<T>): GuavaOptionalSubject<T>
     fun that(actual: BigDecimal): BigDecimalSubject
 }
@@ -28,6 +29,9 @@ internal actual interface PlatformStandardSubjectBuilder {
 internal actual class PlatformStandardSubjectBuilderImpl actual constructor(
     private val metadata: FailureMetadata,
 ) : PlatformStandardSubjectBuilder {
+
+    override fun that(actual: Class<*>): ClassSubject =
+        ClassSubject(actual = actual, metadata = metadata)
 
     override fun <T : Any> that(actual: Optional<T>): GuavaOptionalSubject<T> =
         GuavaOptionalSubject(actual = actual, metadata = metadata)
