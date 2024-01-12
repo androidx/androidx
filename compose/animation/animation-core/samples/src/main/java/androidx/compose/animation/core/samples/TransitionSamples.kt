@@ -298,7 +298,7 @@ fun DoubleTapToLikeSample() {
 
             // Creates a transition using the TransitionState object that gets recreated at each
             // double tap.
-            val transition = updateTransition(transitionState)
+            val transition = rememberTransition(transitionState)
             // Creates an alpha animation, as a part of the transition.
             val alpha by transition.animateFloat(
                 transitionSpec = {
@@ -441,7 +441,7 @@ enum class DialerState {
 fun TransitionStateIsIdleSample() {
     @Composable
     fun SelectableItem(selectedState: MutableTransitionState<Boolean>) {
-        val transition = updateTransition(selectedState)
+        val transition = rememberTransition(selectedState)
         val cornerRadius by transition.animateDp { selected -> if (selected) 10.dp else 0.dp }
         val backgroundColor by transition.animateColor { selected ->
             if (selected) Color.Red else Color.White

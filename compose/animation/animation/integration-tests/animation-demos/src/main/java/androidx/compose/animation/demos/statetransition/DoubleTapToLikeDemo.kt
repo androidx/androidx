@@ -20,10 +20,10 @@ import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.keyframes
+import androidx.compose.animation.core.rememberTransition
 import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -81,7 +81,7 @@ fun DoubleTapToLikeDemo() {
             transitionState.targetState = LikedStates.Disappeared
         }
 
-        val transition = updateTransition(transitionState)
+        val transition = rememberTransition(transitionState)
         val alpha by transition.animateFloat(
             transitionSpec = {
                 when {
