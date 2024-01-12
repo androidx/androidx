@@ -1953,7 +1953,7 @@ class RowColumnTest : LayoutTest() {
                     Row(horizontalArrangement = Arrangement.spacedBy((0.5).dp)) {
                         Layout { _, constraints ->
                             assertEquals(Constraints(), constraints)
-                            layout(Constraints.Infinity, 100) {
+                            layout(1 shl 23, 100) {
                                 latch.countDown()
                             }
                         }

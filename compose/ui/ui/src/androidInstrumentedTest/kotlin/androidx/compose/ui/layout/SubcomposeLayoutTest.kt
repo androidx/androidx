@@ -2728,6 +2728,40 @@ class SubcomposeLayoutTest {
             .onChildren().assertCountEquals(0)
     }
 
+    @Test
+    fun measureWidthTooLarge() {
+        var exception: IllegalStateException? = null
+        rule.setContent {
+            SubcomposeLayout {
+                try {
+                    layout(1 shl 24, 100) {}
+                } catch (e: IllegalStateException) {
+                    exception = e
+                    layout(0, 0) {}
+                }
+            }
+        }
+        rule.waitForIdle()
+        assertThat(exception).isNotNull()
+    }
+
+    @Test
+    fun measureHeightTooLarge() {
+        var exception: IllegalStateException? = null
+        rule.setContent {
+            SubcomposeLayout {
+                try {
+                    layout(100, 1 shl 24) {}
+                } catch (e: IllegalStateException) {
+                    exception = e
+                    layout(0, 0) {}
+                }
+            }
+        }
+        rule.waitForIdle()
+        assertThat(exception).isNotNull()
+    }
+
     private fun SubcomposeMeasureScope.measure(
         slotId: Any,
         constraints: Constraints,

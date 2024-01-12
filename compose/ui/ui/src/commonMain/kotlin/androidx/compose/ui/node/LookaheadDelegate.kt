@@ -21,6 +21,7 @@ import androidx.collection.MutableScatterMap
 import androidx.collection.MutableScatterSet
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.graphics.GraphicsLayerScope
+import androidx.compose.ui.internal.checkPrecondition
 import androidx.compose.ui.layout.AlignmentLine
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.LookaheadLayoutCoordinates
@@ -193,14 +194,21 @@ internal abstract class LookaheadCapablePlaceable : Placeable(), MeasureScopeWit
         alignmentLines: Map<AlignmentLine, Int>,
         rulers: (RulerScope.() -> Unit)?,
         placementBlock: PlacementScope.() -> Unit
-    ): MeasureResult = object : MeasureResult {
-        override val width: Int = width
-        override val height: Int = height
-        override val alignmentLines: Map<AlignmentLine, Int> = alignmentLines
-        override val rulers: (RulerScope.() -> Unit)? = rulers
+    ): MeasureResult {
+        checkMeasuredSize(width, height)
+        return object : MeasureResult {
+            override val width: Int
+                get() = width
+            override val height: Int
+                get() = height
+            override val alignmentLines: Map<AlignmentLine, Int>
+                get() = alignmentLines
+            override val rulers: (RulerScope.() -> Unit)?
+                get() = rulers
 
-        override fun placeChildren() {
-            placementScope.placementBlock()
+            override fun placeChildren() {
+                placementScope.placementBlock()
+            }
         }
     }
 
@@ -308,6 +316,19 @@ private data class PlaceableResult(
 ) : OwnerScope {
     override val isValidOwnerScope: Boolean
         get() = placeable.coordinates.isAttached
+}
+
+// This is about 16 million pixels. That should be big enough. We'll treat anything bigger as an
+// error.
+private const val MaxLayoutDimension = (1 shl 24) - 1
+private const val MaxLayoutMask: Int = 0xFF00_0000.toInt()
+
+@Suppress("NOTHING_TO_INLINE")
+internal inline fun checkMeasuredSize(width: Int, height: Int) {
+    checkPrecondition(width and MaxLayoutMask == 0 && height and MaxLayoutMask == 0) {
+        "Size($width x $height) is out of range. Each dimension must be between 0 and " +
+            "$MaxLayoutDimension."
+    }
 }
 
 internal abstract class LookaheadDelegate(
