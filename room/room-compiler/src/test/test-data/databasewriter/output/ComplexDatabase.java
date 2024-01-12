@@ -15,15 +15,13 @@ import java.lang.Class;
 import java.lang.Override;
 import java.lang.String;
 import java.lang.SuppressWarnings;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.annotation.processing.Generated;
-import kotlin.collections.CollectionsKt;
-import kotlin.collections.MapsKt;
-import kotlin.collections.SetsKt;
 
 @Generated("androidx.room.RoomProcessor")
 @SuppressWarnings({"unchecked", "deprecation"})
@@ -162,7 +160,7 @@ public final class ComplexDatabase_Impl extends ComplexDatabase {
     @Override
     @NonNull
     protected Map<Class<?>, List<Class<?>>> getRequiredTypeConverters() {
-        final Map<Class<?>, List<Class<?>>> _typeConvertersMap = MapsKt.mutableMapOf();
+        final Map<Class<?>, List<Class<?>>> _typeConvertersMap = new HashMap<Class<?>, List<Class<?>>>();
         _typeConvertersMap.put(ComplexDao.class, ComplexDao_Impl.getRequiredConverters());
         return _typeConvertersMap;
     }
@@ -170,7 +168,7 @@ public final class ComplexDatabase_Impl extends ComplexDatabase {
     @Override
     @NonNull
     public Set<Class<? extends AutoMigrationSpec>> getRequiredAutoMigrationSpecs() {
-        final Set<Class<? extends AutoMigrationSpec>> _autoMigrationSpecsSet = SetsKt.mutableSetOf();
+        final Set<Class<? extends AutoMigrationSpec>> _autoMigrationSpecsSet = new HashSet<Class<? extends AutoMigrationSpec>>();
         return _autoMigrationSpecsSet;
     }
 
@@ -178,7 +176,7 @@ public final class ComplexDatabase_Impl extends ComplexDatabase {
     @NonNull
     public List<Migration> getAutoMigrations(
             @NonNull final Map<Class<? extends AutoMigrationSpec>, AutoMigrationSpec> autoMigrationSpecs) {
-        final List<Migration> _autoMigrations = CollectionsKt.mutableListOf();
+        final List<Migration> _autoMigrations = new ArrayList<Migration>();
         return _autoMigrations;
     }
 
