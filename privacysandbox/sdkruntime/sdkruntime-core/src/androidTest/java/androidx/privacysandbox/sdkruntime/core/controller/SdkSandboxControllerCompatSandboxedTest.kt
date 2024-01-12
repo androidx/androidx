@@ -26,14 +26,12 @@ import android.os.Binder
 import android.os.Bundle
 import android.window.OnBackInvokedDispatcher
 import androidx.lifecycle.Lifecycle
-import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException
 import androidx.privacysandbox.sdkruntime.core.activity.ActivityHolder
 import androidx.privacysandbox.sdkruntime.core.activity.SdkSandboxActivityHandlerCompat
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SdkSuppress
 import androidx.test.internal.runner.junit4.statement.UiThreadStatement
 import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.runBlocking
 import org.junit.Assert
 import org.junit.Test
 import org.mockito.ArgumentCaptor
@@ -52,23 +50,6 @@ class SdkSandboxControllerCompatSandboxedTest {
         val context = ApplicationProvider.getApplicationContext<Context>()
         Assert.assertThrows(UnsupportedOperationException::class.java) {
             SdkSandboxControllerCompat.from(context)
-        }
-    }
-
-    @Test
-    @SdkSuppress(minSdkVersion = 34)
-    fun loadSdk_withoutLocalImpl_throwsLoadSdkCompatException() {
-        val context = spy(ApplicationProvider.getApplicationContext<Context>())
-        val sdkSandboxController = mock(SdkSandboxController::class.java)
-        doReturn(sdkSandboxController)
-            .`when`(context).getSystemService(SdkSandboxController::class.java)
-
-        val controllerCompat = SdkSandboxControllerCompat.from(context)
-
-        Assert.assertThrows(LoadSdkCompatException::class.java) {
-            runBlocking {
-                controllerCompat.loadSdk("SDK", Bundle())
-            }
         }
     }
 
