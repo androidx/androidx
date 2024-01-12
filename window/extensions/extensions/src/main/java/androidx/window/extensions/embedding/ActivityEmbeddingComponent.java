@@ -244,12 +244,14 @@ public interface ActivityEmbeddingComponent {
     /**
      * Sets a function to compute the {@link ActivityStackAttributes} for the ActivityStack given
      * for the current window and device state provided in
-     * {@link ActivityStackAttributesCalculatorParams}.
+     * {@link ActivityStackAttributesCalculatorParams} on the main thread.
      * <p>
      * This calculator function is only triggered if the {@link ActivityStack#getTag()} is
      * specified. Similar to {@link #setSplitAttributesCalculator(Function)}, the calculator
-     * function is triggered when there's parent window or device state update or a launching
-     * standalone {@link ActivityStack} with {@link ActivityStack#getTag()} specified.
+     * function could be triggered multiple times. It will be triggered whenever there's a
+     * launching standalone {@link ActivityStack} with {@link ActivityStack#getTag()} specified,
+     * or a parent window or device state update, such as device rotation, folding state change,
+     * or the host task goes to multi-window mode.
      *
      * @param calculator The calculator function to calculate {@link ActivityStackAttributes} based
      *                   on {@link ActivityStackAttributesCalculatorParams}.
