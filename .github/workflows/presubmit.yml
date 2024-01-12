@@ -123,6 +123,8 @@ jobs:
             project-root: "compose/runtime"
           - project: "collection"
             custom-os: "macos-latest"
+          - project: "sqlite"
+            custom-os: "macos-latest"
     runs-on: ${{ matrix.custom-os || matrix.os }}
     needs: [setup, lint]
     env:
