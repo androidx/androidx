@@ -54,7 +54,6 @@ class OriginatingElementsTest {
             val element = it.processingEnv.requireTypeElement("foo.bar.Baz")
 
             val originatingElement = element.originatingElementForPoet()
-            assertThat(originatingElement).isNotNull()
 
             if (it.isKsp) {
                 assertThat(originatingElement).isInstanceOf<KSFileAsOriginatingElement>()
@@ -79,7 +78,6 @@ class OriginatingElementsTest {
                 .requireTypeElement("com.google.devtools.ksp.processing.SymbolProcessor")
 
             val originatingElement = element.originatingElementForPoet()
-            assertThat(originatingElement).isNotNull()
 
             if (it.isKsp) {
                 assertThat(originatingElement)
@@ -125,7 +123,6 @@ class OriginatingElementsTest {
 
             syntheticPropertyElements.forEach { syntheticPropertyElement ->
                 val originatingElement = syntheticPropertyElement.originatingElementForPoet()
-                assertThat(originatingElement).isNotNull()
 
                 if (invocation.isKsp) {
                     assertThat(originatingElement)
