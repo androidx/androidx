@@ -18,8 +18,8 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="indeterminate" msgid="7933458017204019916">"Diperiksa sebagian"</string>
-    <string name="state_on" msgid="8655164131929253426">"Aktif"</string>
-    <string name="state_off" msgid="875452955155264703">"Nonaktif"</string>
+    <string name="state_on" msgid="1490883874751719580">"Aktif"</string>
+    <string name="state_off" msgid="5834637030682409883">"Nonaktif"</string>
     <string name="switch_role" msgid="2561197295334830845">"Alihkan"</string>
     <string name="selected" msgid="6043586758067023">"Dipilih"</string>
     <string name="not_selected" msgid="6610465462668679431">"Tidak dipilih"</string>
