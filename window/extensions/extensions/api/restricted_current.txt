@@ -298,9 +298,25 @@ package androidx.window.extensions.layout {
     field public static final int TYPE_HINGE = 2; // 0x2
   }
 
+  public abstract class SupportedDisplayFeature {
+  }
+
+  public static final class SupportedDisplayFeature.ScreenFoldDisplayFeature extends androidx.window.extensions.layout.SupportedDisplayFeature {
+    method public int getType();
+    method public boolean isHalfOpenedSupported();
+    field public static final int TYPE_HINGE = 0; // 0x0
+    field public static final int TYPE_SCREEN_FOLD_IN = 1; // 0x1
+  }
+
+  public static final class SupportedDisplayFeature.ScreenFoldDisplayFeature.Builder {
+    ctor public SupportedDisplayFeature.ScreenFoldDisplayFeature.Builder(int, boolean);
+    method public androidx.window.extensions.layout.SupportedDisplayFeature.ScreenFoldDisplayFeature build();
+  }
+
   public interface WindowLayoutComponent {
     method @Deprecated public void addWindowLayoutInfoListener(android.app.Activity, java.util.function.Consumer<androidx.window.extensions.layout.WindowLayoutInfo!>);
     method public default void addWindowLayoutInfoListener(@UiContext android.content.Context, androidx.window.extensions.core.util.function.Consumer<androidx.window.extensions.layout.WindowLayoutInfo!>);
+    method public default java.util.List<androidx.window.extensions.layout.SupportedDisplayFeature!> getSupportedDisplayFeatures();
     method public default void removeWindowLayoutInfoListener(androidx.window.extensions.core.util.function.Consumer<androidx.window.extensions.layout.WindowLayoutInfo!>);
     method @Deprecated public void removeWindowLayoutInfoListener(java.util.function.Consumer<androidx.window.extensions.layout.WindowLayoutInfo!>);
   }
