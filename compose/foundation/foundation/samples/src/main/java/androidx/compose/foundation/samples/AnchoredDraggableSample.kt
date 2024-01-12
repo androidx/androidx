@@ -27,12 +27,14 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.AnchoredDraggableState
 import androidx.compose.foundation.gestures.DraggableAnchors
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.ScrollableDefaults
 import androidx.compose.foundation.gestures.anchoredDraggable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.overscroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -236,6 +238,73 @@ fun AnchoredDraggableCatchAnimatingWidgetSample() {
                     )
                 }
                 .anchoredDraggable(state, Orientation.Horizontal, startDragImmediately = false)
+                .background(Color.Red)
+        )
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Preview
+@Composable
+fun AnchoredDraggableWithOverscrollSample() {
+    val density = LocalDensity.current
+    val draggableSize = 80.dp
+    val draggableSizePx = with(density) { draggableSize.toPx() }
+
+    val animationSpec = tween<Float>()
+    val decayAnimationSpec = rememberSplineBasedDecay<Float>()
+    val positionalThreshold = { distance: Float -> distance * 0.5f }
+    val velocityThreshold = { with(density) { 125.dp.toPx() } }
+    val overscrollEffect = ScrollableDefaults.overscrollEffect()
+    val state = rememberSaveable(
+        density,
+        saver = AnchoredDraggableState.Saver(
+            animationSpec,
+            decayAnimationSpec,
+            positionalThreshold,
+            velocityThreshold,
+        )
+    ) {
+        AnchoredDraggableState(
+            initialValue = AnchoredDraggableSampleValue.Center,
+            positionalThreshold,
+            velocityThreshold,
+            animationSpec,
+            decayAnimationSpec,
+        )
+    }
+
+    Box(
+        Modifier
+            .fillMaxWidth()
+            .onSizeChanged { layoutSize ->
+                val dragEndPoint = layoutSize.width - draggableSizePx
+                state.updateAnchors(
+                    DraggableAnchors {
+                        AnchoredDraggableSampleValue.Start at 0f
+                        AnchoredDraggableSampleValue.Center at dragEndPoint / 2f
+                        AnchoredDraggableSampleValue.End at dragEndPoint
+                    }
+                )
+            }
+    ) {
+        Box(
+            Modifier
+                .size(draggableSize)
+                .offset {
+                    IntOffset(
+                        x = state
+                            .requireOffset()
+                            .roundToInt(), y = 0
+                    )
+                }
+                // pass the overscrollEffect to AnchoredDraggable
+                .anchoredDraggable(
+                    state,
+                    Orientation.Horizontal,
+                    overscrollEffect = overscrollEffect
+                )
+                .overscroll(overscrollEffect)
                 .background(Color.Red)
         )
     }

@@ -262,38 +262,34 @@ internal class Draggable2DNode(
     enabled: Boolean,
     interactionSource: MutableInteractionSource?,
     startDragImmediately: () -> Boolean,
-    onDragStarted: suspend CoroutineScope.(startedPosition: Offset) -> Unit,
-    onDragStopped: suspend CoroutineScope.(velocity: Velocity) -> Unit,
+    private var onDragStarted: suspend CoroutineScope.(startedPosition: Offset) -> Unit,
+    private var onDragStopped: suspend CoroutineScope.(velocity: Velocity) -> Unit,
     reverseDirection: Boolean
 ) : AbstractDraggableNode(
     canDrag,
     enabled,
     interactionSource,
     startDragImmediately,
-    onDragStarted,
-    onDragStopped,
     reverseDirection
 ) {
-    var drag2DScope: Drag2DScope = NoOpDrag2DScope
 
-    private val abstractDragScope = object : AbstractDragScope {
-        override fun dragBy(pixels: Offset) {
-            drag2DScope.dragBy(pixels)
-        }
-    }
-
-    override suspend fun drag(block: suspend AbstractDragScope.() -> Unit) {
+    override suspend fun drag(
+        forEachDelta: suspend ((dragDelta: DragDelta) -> Unit) -> Unit
+    ) {
         state.drag(MutatePriority.UserInput) {
-            drag2DScope = this
-            block.invoke(abstractDragScope)
+            forEachDelta { dragDelta ->
+                dragBy(dragDelta.delta)
+            }
         }
-    }
-
-    override suspend fun AbstractDragScope.draggingBy(dragDelta: DragDelta) {
-        dragBy(dragDelta.delta)
     }
 
     override val pointerDirectionConfig = BidirectionalPointerDirectionConfig
+
+    override suspend fun CoroutineScope.onDragStarted(startedPosition: Offset) =
+        this@Draggable2DNode.onDragStarted(this, startedPosition)
+
+    override suspend fun CoroutineScope.onDragStopped(velocity: Velocity) =
+        this@Draggable2DNode.onDragStopped(this, velocity)
 
     fun update(
         state: Draggable2DState,
@@ -310,34 +306,18 @@ internal class Draggable2DNode(
             this.state = state
             resetPointerInputHandling = true
         }
-        this.canDrag = canDrag
-        if (this.enabled != enabled) {
-            this.enabled = enabled
-            if (!enabled) {
-                disposeInteractionSource()
-            }
-            resetPointerInputHandling = true
-        }
-        if (this.interactionSource != interactionSource) {
-            disposeInteractionSource()
-            this.interactionSource = interactionSource
-        }
-        this.startDragImmediately = startDragImmediately
         this.onDragStarted = onDragStarted
         this.onDragStopped = onDragStopped
-        if (this.reverseDirection != reverseDirection) {
-            this.reverseDirection = reverseDirection
-            resetPointerInputHandling = true
-        }
-        if (resetPointerInputHandling) {
-            pointerInputNode.resetPointerInputHandler()
-        }
-    }
-}
 
-@OptIn(ExperimentalFoundationApi::class)
-private val NoOpDrag2DScope: Drag2DScope = object : Drag2DScope {
-    override fun dragBy(pixels: Offset) {}
+        update(
+            canDrag,
+            enabled,
+            interactionSource,
+            startDragImmediately,
+            reverseDirection,
+            resetPointerInputHandling
+        )
+    }
 }
 
 @OptIn(ExperimentalFoundationApi::class)
