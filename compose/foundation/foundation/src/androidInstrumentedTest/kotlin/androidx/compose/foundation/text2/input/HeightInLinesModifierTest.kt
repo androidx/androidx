@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 @file:OptIn(ExperimentalFoundationApi::class)
 
-package androidx.compose.foundation.text2
+package androidx.compose.foundation.text2.input
 
 import android.content.Context
 import android.graphics.Typeface
@@ -25,8 +25,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.text.TEST_FONT
 import androidx.compose.foundation.text.heightInLines
+import androidx.compose.foundation.text2.BasicTextField2
 import androidx.compose.foundation.text2.input.TextFieldLineLimits.MultiLine
-import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember

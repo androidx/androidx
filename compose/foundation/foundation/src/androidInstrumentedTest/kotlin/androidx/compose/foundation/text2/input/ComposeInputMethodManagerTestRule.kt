@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.foundation.text2
+package androidx.compose.foundation.text2.input
 
 import android.view.View
 import androidx.compose.foundation.text2.input.internal.ComposeInputMethodManager

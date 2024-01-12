@@ -21,6 +21,7 @@ import androidx.compose.foundation.text2.input.OutputTransformation
 import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.foundation.text2.input.delete
 import androidx.compose.foundation.text2.input.insert
+import androidx.compose.foundation.text2.input.internal.selection.calculateAdjacentCursorPosition
 import androidx.compose.ui.text.TextRange
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
