@@ -748,6 +748,8 @@ internal class SuspendingPointerInputModifierNodeImpl(
     }
 }
 
+private val EmptyStackTraceElements = emptyArray<StackTraceElement>()
+
 /**
  * An exception thrown from [AwaitPointerEventScope.withTimeout] when the execution time
  * of the coroutine is too long.
@@ -757,7 +759,7 @@ class PointerEventTimeoutCancellationException(
 ) : CancellationException("Timed out waiting for $time ms") {
     override fun fillInStackTrace(): Throwable {
         // Avoid null.clone() on Android <= 6.0 when accessing stackTrace
-        stackTrace = emptyArray()
+        stackTrace = EmptyStackTraceElements
         return this
     }
 }
@@ -770,7 +772,7 @@ class PointerEventTimeoutCancellationException(
 private class PointerInputResetException : CancellationException("Pointer input was reset") {
     override fun fillInStackTrace(): Throwable {
         // Avoid null.clone() on Android <= 6.0 when accessing stackTrace
-        stackTrace = emptyArray()
+        stackTrace = EmptyStackTraceElements
         return this
     }
 }
@@ -783,7 +785,7 @@ private class PointerInputResetException : CancellationException("Pointer input 
 private object CancelTimeoutCancellationException : CancellationException() {
     override fun fillInStackTrace(): Throwable {
         // Avoid null.clone() on Android <= 6.0 when accessing stackTrace
-        stackTrace = emptyArray()
+        stackTrace = EmptyStackTraceElements
         return this
     }
 }
