@@ -18,6 +18,7 @@ package androidx.compose.foundation.text2.input.internal
 
 import androidx.compose.foundation.text.ceilToIntPx
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.AlignmentLine
 import androidx.compose.ui.layout.FirstBaseline
 import androidx.compose.ui.layout.LastBaseline
 import androidx.compose.ui.layout.LayoutCoordinates
@@ -96,6 +97,9 @@ internal class TextFieldTextLayoutModifierNode(
         )
     }
 
+    @Suppress("PrimitiveInCollection")
+    private var baselineCache: MutableMap<AlignmentLine, Int>? = null
+
     /**
      * Updates all the related properties and invalidates internal state based on the changes.
      */
@@ -146,13 +150,16 @@ internal class TextFieldTextLayoutModifierNode(
             0.dp
         }
 
+        @Suppress("PrimitiveInCollection")
+        val cache = baselineCache ?: LinkedHashMap(2)
+        cache[FirstBaseline] = result.firstBaseline.fastRoundToInt()
+        cache[LastBaseline] = result.lastBaseline.fastRoundToInt()
+        baselineCache = cache
+
         return layout(
             width = result.size.width,
             height = result.size.height,
-            alignmentLines = mapOf(
-                FirstBaseline to result.firstBaseline.fastRoundToInt(),
-                LastBaseline to result.lastBaseline.fastRoundToInt()
-            )
+            alignmentLines = baselineCache!!
         ) {
             placeable.place(0, 0)
         }
