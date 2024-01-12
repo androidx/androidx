@@ -16,6 +16,7 @@
 
 // java.util.function.Consumer was added in API 24
 @file:RequiresApi(24)
+@file:JvmName("ConsumerKt")
 package androidx.core.util
 
 import androidx.annotation.RequiresApi

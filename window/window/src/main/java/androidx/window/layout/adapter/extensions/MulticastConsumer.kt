@@ -39,8 +39,9 @@ internal class MulticastConsumer(
 
     override fun accept(value: OEMWindowLayoutInfo) {
         multicastConsumerLock.withLock {
-            lastKnownValue = ExtensionsWindowLayoutInfoAdapter.translate(context, value)
-            registeredListeners.forEach { consumer -> consumer.accept(lastKnownValue) }
+            val newValue = ExtensionsWindowLayoutInfoAdapter.translate(context, value)
+            lastKnownValue = newValue
+            registeredListeners.forEach { consumer -> consumer.accept(newValue) }
         }
     }
 

@@ -22,8 +22,8 @@ import org.junit.Assert.assertEquals
 internal class TestConsumer<T> : Consumer<T> {
     private val values = mutableListOf<T>()
 
-    override fun accept(t: T) {
-        values.add(t)
+    override fun accept(value: T) {
+        values.add(value)
     }
 
     fun assertValueCount(count: Int) {
