@@ -277,7 +277,8 @@ class LowLatencyCanvasView @JvmOverloads constructor(
             dataSpace = DataSpace.DATASPACE_SRGB
             colorSpace = CanvasBufferedRenderer.DefaultColorSpace
         }
-        val frontBufferRenderer = SingleBufferedCanvasRenderer(
+        var frontBufferRenderer: SingleBufferedCanvasRenderer<Unit>? = null
+        frontBufferRenderer = SingleBufferedCanvasRenderer(
             width,
             height,
             bufferTransformer.bufferWidth,
@@ -320,7 +321,12 @@ class LowLatencyCanvasView @JvmOverloads constructor(
                             .setBuffer(
                                 frontBufferSurfaceControl,
                                 hardwareBuffer,
-                                syncFenceCompat
+                                // Only block on SyncFnece if front buffer is previously visible
+                                if (frontBufferRenderer?.isVisible == true) {
+                                    null
+                                } else {
+                                    syncFenceCompat
+                                }
                             )
                             .setVisibility(frontBufferSurfaceControl, true)
                         if (transformHint != BufferTransformHintResolver.UNKNOWN_TRANSFORM) {
@@ -336,6 +342,7 @@ class LowLatencyCanvasView @JvmOverloads constructor(
                             frontBufferSurfaceControl, transaction)
                         transaction.commit()
                         syncFenceCompat?.close()
+                        frontBufferRenderer?.isVisible = true
                     } else {
                         syncFenceCompat?.awaitForever()
                         // Contents of the rendered output do not update on emulators prior to
@@ -392,8 +399,9 @@ class LowLatencyCanvasView @JvmOverloads constructor(
         // Since Android N SurfaceView transformations are synchronous with View hierarchy rendering
         // To hide the front buffered layer, translate the SurfaceView so that the contents
         // are clipped out.
-        mSurfaceView.translationX = Float.MAX_VALUE
-        mSurfaceView.translationY = Float.MAX_VALUE
+        mSurfaceView.translationX = this.width.toFloat()
+        mSurfaceView.translationY = this.height.toFloat()
+        mFrontBufferedRenderer?.isVisible = false
     }
 
     /**
@@ -474,6 +482,10 @@ class LowLatencyCanvasView @JvmOverloads constructor(
     }
 
     override fun onDraw(canvas: Canvas) {
+        // Always clip to the View bounds so we can translate the SurfaceView out of view without
+        // it being visible in case View#clipToPadding is true
+        canvas.save()
+        canvas.clipRect(0f, 0f, width.toFloat(), height.toFloat())
         val sceneBitmap = mSceneBitmap
         mSceneBitmapDrawn = if (!mClearPending.get() && !isRenderingToFrontBuffer() &&
             sceneBitmap != null) {
@@ -485,6 +497,7 @@ class LowLatencyCanvasView @JvmOverloads constructor(
         } else {
             false
         }
+        canvas.restore()
     }
 
     override fun onAttachedToWindow() {
@@ -640,8 +653,19 @@ class LowLatencyCanvasView @JvmOverloads constructor(
 
     private companion object {
 
+        val isEmulator: Boolean = Build.FINGERPRINT.startsWith("generic") ||
+            Build.FINGERPRINT.startsWith("unknown") ||
+            Build.FINGERPRINT.contains("emulator") ||
+            Build.MODEL.contains("google_sdk") ||
+            Build.MODEL.contains("sdk_gphone64") ||
+            Build.MODEL.contains("Emulator") ||
+            Build.MODEL.contains("Android SDK built for") ||
+            Build.MANUFACTURER.contains("Genymotion") ||
+            Build.BRAND.startsWith("generic") && Build.DEVICE.startsWith("generic") ||
+            "google_sdk" == Build.PRODUCT
+
         val updatedWrappedHardwareBufferRequired: Boolean =
-            !isAndroidUPlus && Build.MODEL.contains("gphone")
+            !isAndroidUPlus && isEmulator
 
         val isAndroidUPlus: Boolean
             get() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE

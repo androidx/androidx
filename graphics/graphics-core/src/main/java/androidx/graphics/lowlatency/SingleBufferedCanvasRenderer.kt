@@ -31,6 +31,7 @@ import androidx.graphics.utils.HandlerThreadExecutor
 import androidx.hardware.HardwareBufferFormat
 import androidx.hardware.SyncFenceCompat
 import java.util.concurrent.Executor
+import java.util.concurrent.atomic.AtomicBoolean
 
 /**
  * Class to provide an abstraction around implementations for a low latency hardware
@@ -126,6 +127,8 @@ internal class SingleBufferedCanvasRenderer<T>(
         }
     )
 
+    private val mVisibleFlag = AtomicBoolean(false)
+
     private fun tearDown() {
         mHardwareBufferRenderer.close()
     }
@@ -190,7 +193,11 @@ internal class SingleBufferedCanvasRenderer<T>(
      * Flag to indicate whether or not the contents of the [SingleBufferedCanvasRenderer] are visible.
      * This is used to help internal state to determine appropriate synchronization
      */
-    var isVisible: Boolean = false
+    var isVisible: Boolean
+        get() = mVisibleFlag.get()
+        set(value) {
+            mVisibleFlag.set(value)
+        }
 
     /**
      * Configure the color space that the content is rendered with
