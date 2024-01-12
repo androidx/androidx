@@ -84,7 +84,7 @@ public class PlatformTimeUpdateNotifierImplTest {
     }
 
     @Test
-    public void enableUpdates_reenablesCallback() {
+    public void enableUpdates_reenablesCallbackImmediately() {
         mNotifierUnderTest.setUpdatesEnabled(true);
         mNotifierUnderTest.setReceiver(mExecutor, mTick);
         mMainLooper.idle();
@@ -97,9 +97,6 @@ public class PlatformTimeUpdateNotifierImplTest {
         runFor(1000);
 
         mNotifierUnderTest.setUpdatesEnabled(true);
-        runFor(500);
-        verifyNoInteractions(mTick);
-        runFor(500);
         verify(mTick).run();
     }
 
