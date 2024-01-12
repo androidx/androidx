@@ -104,22 +104,75 @@ public val ViewGroup.children: Sequence<View>
 
 /**
  * Returns a [Sequence] over the child views in this view group recursively.
- * This performs a depth-first traversal.
- * A view with no children will return a zero-element sequence.
+ *
+ * This performs a depth-first traversal. A view with no children will return a zero-element
+ * sequence.
+ *
+ * For example, to efficiently filter views within the hierarchy using a predicate:
+ *
+ * ```
+ * fun ViewGroup.findViewTreeIterator(predicate: (View) -> Boolean): Sequence<View> {
+ *     return sequenceOf(this)
+ *         .plus(descendantsTree)
+ *         .filter { predicate(it) }
+ * }
+ * ```
  *
  * @see View.allViews
  * @see ViewGroup.children
  * @see View.ancestors
  */
 public val ViewGroup.descendants: Sequence<View>
-    get() = sequence {
-        forEach { child ->
-            yield(child)
-            if (child is ViewGroup) {
-                yieldAll(child.descendants)
+    get() = Sequence {
+        TreeIterator(children.iterator()) { child ->
+            (child as? ViewGroup)?.children?.iterator()
+        }
+    }
+
+/**
+ * Lazy iterator for iterating through an abstract hierarchy.
+ *
+ * @param rootIterator Iterator for root elements of hierarchy
+ * @param getChildIterator Function which returns a child iterator for the current item if the
+ * current item has a child or `null` otherwise
+ */
+internal class TreeIterator<T>(
+    rootIterator: Iterator<T>,
+    private val getChildIterator: ((T) -> Iterator<T>?)
+) : Iterator<T> {
+    private val stack = mutableListOf<Iterator<T>>()
+
+    private var iterator: Iterator<T> = rootIterator
+
+    override fun hasNext(): Boolean {
+        return iterator.hasNext()
+    }
+
+    override fun next(): T {
+        val item = iterator.next()
+        prepareNextIterator(item)
+        return item
+    }
+
+    /**
+     * Calculates next iterator for [item].
+     */
+    private fun prepareNextIterator(item: T) {
+        // If current item has a child, then get the child iterator and save the current iterator to
+        // the stack. Otherwise, if current iterator has no more elements then restore the parent
+        // iterator from the stack.
+        val childIterator = getChildIterator(item)
+        if (childIterator != null && childIterator.hasNext()) {
+            stack.add(iterator)
+            iterator = childIterator
+        } else {
+            while (!iterator.hasNext() && stack.isNotEmpty()) {
+                iterator = stack.last()
+                stack.removeLast()
             }
         }
     }
+}
 
 /**
  * Sets the margins in the ViewGroup's MarginLayoutParams. This version of the method sets all axes
