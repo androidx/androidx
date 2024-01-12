@@ -20,6 +20,7 @@ import androidx.compose.foundation.gestures.ModifierLocalScrollableContainer
 import androidx.compose.foundation.gestures.PressGestureScope
 import androidx.compose.foundation.gestures.detectTapAndPress
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.interaction.HoverInteraction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.runtime.State
@@ -37,6 +38,7 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.PointerInputScope
 import androidx.compose.ui.input.pointer.SuspendingPointerInputModifierNode
 import androidx.compose.ui.modifier.ModifierLocalModifierNode
@@ -411,47 +413,6 @@ internal fun Modifier.clickableWithIndicationIfNeeded(
     }).then(if (enabled) Modifier.focusTarget() else Modifier)
 }
 
-private suspend fun PressGestureScope.handlePressInteraction(
-    pressPoint: Offset,
-    interactionSource: MutableInteractionSource,
-    interactionData: AbstractClickableNode.InteractionData,
-    delayPressInteraction: () -> Boolean
-) {
-    coroutineScope {
-        val delayJob = launch {
-            if (delayPressInteraction()) {
-                delay(TapIndicationDelay)
-            }
-            val press = PressInteraction.Press(pressPoint)
-            interactionSource.emit(press)
-            interactionData.pressInteraction = press
-        }
-        val success = tryAwaitRelease()
-        if (delayJob.isActive) {
-            delayJob.cancelAndJoin()
-            // The press released successfully, before the timeout duration - emit the press
-            // interaction instantly. No else branch - if the press was cancelled before the
-            // timeout, we don't want to emit a press interaction.
-            if (success) {
-                val press = PressInteraction.Press(pressPoint)
-                val release = PressInteraction.Release(press)
-                interactionSource.emit(press)
-                interactionSource.emit(release)
-            }
-        } else {
-            interactionData.pressInteraction?.let { pressInteraction ->
-                val endInteraction = if (success) {
-                    PressInteraction.Release(pressInteraction)
-                } else {
-                    PressInteraction.Cancel(pressInteraction)
-                }
-                interactionSource.emit(endInteraction)
-            }
-        }
-        interactionData.pressInteraction = null
-    }
-}
-
 /**
  * How long to wait before appearing 'pressed' (emitting [PressInteraction.Press]) - if a touch
  * down will quickly become a drag / scroll, this timeout means that we don't show a press effect.
@@ -669,7 +630,7 @@ private class CombinedClickableElement(
     }
 }
 
-private class ClickableNode(
+internal open class ClickableNode(
     interactionSource: MutableInteractionSource?,
     indicationNodeFactory: IndicationNodeFactory?,
     enabled: Boolean,
@@ -684,14 +645,16 @@ private class ClickableNode(
     role,
     onClick
 ) {
-    override val clickablePointerInputNode = delegate(
-        ClickablePointerInputNode(
-            enabled = enabled,
-            interactionSourceProvider = interactionSourceProvider,
-            onClick = onClick,
-            interactionData = interactionData
+    override suspend fun PointerInputScope.clickPointerInput() {
+        detectTapAndPress(
+            onPress = { offset ->
+                if (enabled) {
+                    handlePressInteraction(offset)
+                }
+            },
+            onTap = { if (enabled) onClick() }
         )
-    )
+    }
 
     fun update(
         interactionSource: MutableInteractionSource?,
@@ -701,6 +664,8 @@ private class ClickableNode(
         role: Role?,
         onClick: () -> Unit
     ) {
+        // enabled and onClick are captured inside callbacks, not as an input to detectTapGestures,
+        // so no need need to reset pointer input handling when they change
         updateCommon(
             interactionSource,
             indicationNodeFactory,
@@ -708,10 +673,6 @@ private class ClickableNode(
             onClickLabel,
             role,
             onClick
-        )
-        clickablePointerInputNode.update(
-            enabled = enabled,
-            onClick = onClick
         )
     }
 }
@@ -814,7 +775,7 @@ private class CombinedClickableNodeImpl(
     onClick: () -> Unit,
     private var onLongClickLabel: String?,
     private var onLongClick: (() -> Unit)?,
-    onDoubleClick: (() -> Unit)?,
+    private var onDoubleClick: (() -> Unit)?,
     interactionSource: MutableInteractionSource?,
     indicationNodeFactory: IndicationNodeFactory?,
     enabled: Boolean,
@@ -829,16 +790,26 @@ private class CombinedClickableNodeImpl(
         role,
         onClick
     ) {
-    override val clickablePointerInputNode = delegate(
-        CombinedClickablePointerInputNode(
-            enabled = enabled,
-            interactionSourceProvider = interactionSourceProvider,
-            onClick = onClick,
-            interactionData = interactionData,
-            onLongClick,
-            onDoubleClick
+    override suspend fun PointerInputScope.clickPointerInput() {
+        detectTapGestures(
+            onDoubleTap = if (enabled && onDoubleClick != null) {
+                { onDoubleClick?.invoke() }
+            } else null,
+            onLongPress = if (enabled && onLongClick != null) {
+                { onLongClick?.invoke() }
+            } else null,
+            onPress = { offset ->
+                if (enabled) {
+                    handlePressInteraction(offset)
+                }
+            },
+            onTap = {
+                if (enabled) {
+                    onClick()
+                }
+            }
         )
-    )
+    }
 
     override fun update(
         onClick: () -> Unit,
@@ -851,19 +822,43 @@ private class CombinedClickableNodeImpl(
         onClickLabel: String?,
         role: Role?
     ) {
-        // If we have gone from no long click to having a long click or vice versa,
-        // cancel any existing press interactions.
-        if ((this.onLongClick == null) != (onLongClick == null)) {
-            disposeInteractionSource()
-        }
-        if (this.onLongClick != onLongClick) {
-            this.onLongClick = onLongClick
-            invalidateSemantics()
-        }
+        var resetPointerInputHandling = false
+
+        // onClick is captured inside a callback, not as an input to detectTapGestures,
+        // so no need need to reset pointer input handling
+
         if (this.onLongClickLabel != onLongClickLabel) {
             this.onLongClickLabel = onLongClickLabel
             invalidateSemantics()
         }
+
+        // We capture onLongClick and onDoubleClick inside the callback, so if the lambda changes
+        // value we don't want to reset input handling - only reset if they go from not-defined to
+        // defined, and vice-versa, as that is what is captured in the parameter to
+        // detectTapGestures.
+        if ((this.onLongClick == null) != (onLongClick == null)) {
+            // Adding or removing longClick should cancel any existing press interactions
+            disposeInteractions()
+            resetPointerInputHandling = true
+        }
+
+        if (this.onLongClick != onLongClick) {
+            this.onLongClick = onLongClick
+            invalidateSemantics()
+        }
+
+        if ((this.onDoubleClick == null) != (onDoubleClick == null)) {
+            resetPointerInputHandling = true
+        }
+        this.onDoubleClick = onDoubleClick
+
+        // enabled is captured as a parameter to detectTapGestures, so we need to restart detecting
+        // gestures if it changes.
+        if (this.enabled != enabled) {
+            resetPointerInputHandling = true
+            // Updating is handled inside updateCommon
+        }
+
         updateCommon(
             interactionSource,
             indicationNodeFactory,
@@ -872,12 +867,8 @@ private class CombinedClickableNodeImpl(
             role,
             onClick
         )
-        clickablePointerInputNode.update(
-            enabled = enabled,
-            onClick = onClick,
-            onLongClick = onLongClick,
-            onDoubleClick = onDoubleClick
-        )
+
+        if (resetPointerInputHandling) resetPointerInputHandler()
     }
 
     override fun SemanticsPropertyReceiver.applyAdditionalSemantics() {
@@ -893,35 +884,42 @@ private class CombinedClickableNodeImpl(
 internal abstract class AbstractClickableNode(
     private var interactionSource: MutableInteractionSource?,
     private var indicationNodeFactory: IndicationNodeFactory?,
-    private var enabled: Boolean,
+    enabled: Boolean,
     private var onClickLabel: String?,
     private var role: Role?,
-    private var onClick: () -> Unit
+    onClick: () -> Unit
 ) : DelegatingNode(), PointerInputModifierNode, KeyInputModifierNode, FocusEventModifierNode,
-    SemanticsModifierNode {
-    abstract val clickablePointerInputNode: AbstractClickablePointerInputNode
-    private val hoverableNode: HoverableNode = HoverableNode(interactionSource)
+    SemanticsModifierNode, CompositionLocalConsumerModifierNode, ModifierLocalModifierNode {
+    protected var enabled = enabled
+        private set
+    protected var onClick = onClick
+        private set
+
     private val focusableInNonTouchMode: FocusableInNonTouchMode = FocusableInNonTouchMode()
     private val focusableNode: FocusableNode = FocusableNode(interactionSource)
-
+    private var pointerInputNode: SuspendingPointerInputModifierNode? = null
     private var indicationNode: DelegatableNode? = null
+
+    private var pressInteraction: PressInteraction.Press? = null
+    private var hoverInteraction: HoverInteraction.Enter? = null
+    private val currentKeyPressInteractions = mutableMapOf<Key, PressInteraction.Press>()
+    private var centerOffset: Offset = Offset.Zero
+
     // Track separately from interactionSource, as we will create our own internal
     // InteractionSource if needed
     private var userProvidedInteractionSource: MutableInteractionSource? = interactionSource
-
-    protected val interactionSourceProvider = { interactionSource }
 
     private var lazilyCreateIndication = shouldLazilyCreateIndication()
     private fun shouldLazilyCreateIndication() =
         userProvidedInteractionSource == null && indicationNodeFactory != null
 
-    class InteractionData {
-        val currentKeyPressInteractions = mutableMapOf<Key, PressInteraction.Press>()
-        var pressInteraction: PressInteraction.Press? = null
-        var centreOffset: Offset = Offset.Zero
-    }
+    /**
+     * Handles subclass-specific click related pointer input logic. Hover is already handled
+     * elsewhere, so this should only handle clicks.
+     */
+    abstract suspend fun PointerInputScope.clickPointerInput()
 
-    protected val interactionData = InteractionData()
+    open fun SemanticsPropertyReceiver.applyAdditionalSemantics() {}
 
     protected fun updateCommon(
         interactionSource: MutableInteractionSource?,
@@ -935,7 +933,7 @@ internal abstract class AbstractClickableNode(
         // Compare against userProvidedInteractionSource, as we will create a new InteractionSource
         // lazily if the userProvidedInteractionSource is null, and assign it to interactionSource
         if (userProvidedInteractionSource != interactionSource) {
-            disposeInteractionSource()
+            disposeInteractions()
             userProvidedInteractionSource = interactionSource
             this.interactionSource = interactionSource
             isIndicationNodeDirty = true
@@ -946,15 +944,13 @@ internal abstract class AbstractClickableNode(
         }
         if (this.enabled != enabled) {
             if (enabled) {
-                delegate(hoverableNode)
                 delegate(focusableInNonTouchMode)
                 delegate(focusableNode)
             } else {
                 // TODO: Should we remove indicationNode? Previously we always emitted indication
-                undelegate(hoverableNode)
                 undelegate(focusableInNonTouchMode)
                 undelegate(focusableNode)
-                disposeInteractionSource()
+                disposeInteractions()
             }
             this.enabled = enabled
         }
@@ -976,37 +972,40 @@ internal abstract class AbstractClickableNode(
                 initializeIndicationAndInteractionSourceIfNeeded()
             }
         }
-        hoverableNode.updateInteractionSource(interactionSource)
         focusableNode.update(interactionSource)
     }
 
-    override fun onAttach() {
+    final override fun onAttach() {
         if (!lazilyCreateIndication) {
             initializeIndicationAndInteractionSourceIfNeeded()
         }
         if (enabled) {
-            delegate(hoverableNode)
             delegate(focusableInNonTouchMode)
             delegate(focusableNode)
         }
     }
 
-    override fun onDetach() {
-        disposeInteractionSource()
+    final override fun onDetach() {
+        disposeInteractions()
     }
 
-    protected fun disposeInteractionSource() {
+    protected fun disposeInteractions() {
         interactionSource?.let { interactionSource ->
-            interactionData.pressInteraction?.let { oldValue ->
+            pressInteraction?.let { oldValue ->
                 val interaction = PressInteraction.Cancel(oldValue)
                 interactionSource.tryEmit(interaction)
             }
-            interactionData.currentKeyPressInteractions.values.forEach {
+            hoverInteraction?.let { oldValue ->
+                val interaction = HoverInteraction.Exit(oldValue)
+                interactionSource.tryEmit(interaction)
+            }
+            currentKeyPressInteractions.values.forEach {
                 interactionSource.tryEmit(PressInteraction.Cancel(it))
             }
         }
-        interactionData.pressInteraction = null
-        interactionData.currentKeyPressInteractions.clear()
+        pressInteraction = null
+        hoverInteraction = null
+        currentKeyPressInteractions.clear()
     }
 
     private fun initializeIndicationAndInteractionSourceIfNeeded() {
@@ -1016,7 +1015,6 @@ internal abstract class AbstractClickableNode(
             if (interactionSource == null) {
                 interactionSource = MutableInteractionSource()
             }
-            hoverableNode.updateInteractionSource(interactionSource)
             focusableNode.update(interactionSource)
             val node = indicationNodeFactory.create(interactionSource!!)
             delegate(node)
@@ -1024,26 +1022,40 @@ internal abstract class AbstractClickableNode(
         }
     }
 
-    override fun onPointerEvent(
+    final override fun onPointerEvent(
         pointerEvent: PointerEvent,
         pass: PointerEventPass,
         bounds: IntSize
     ) {
+        centerOffset = bounds.center.toOffset()
         initializeIndicationAndInteractionSourceIfNeeded()
-        if (hoverableNode.isAttached) {
-            hoverableNode.onPointerEvent(pointerEvent, pass, bounds)
+        if (enabled) {
+            if (pass == PointerEventPass.Main) {
+                when (pointerEvent.type) {
+                    PointerEventType.Enter -> coroutineScope.launch { emitHoverEnter() }
+                    PointerEventType.Exit -> coroutineScope.launch { emitHoverExit() }
+                }
+            }
         }
-        clickablePointerInputNode.onPointerEvent(pointerEvent, pass, bounds)
+        if (pointerInputNode == null) {
+            pointerInputNode = delegate(SuspendingPointerInputModifierNode { clickPointerInput() })
+        }
+        pointerInputNode?.onPointerEvent(pointerEvent, pass, bounds)
     }
 
-    override fun onCancelPointerInput() {
-        if (hoverableNode.isAttached) {
-            hoverableNode.onCancelPointerInput()
+    final override fun onCancelPointerInput() {
+        // Press cancellation is handled as part of detecting presses
+        interactionSource?.let { interactionSource ->
+            hoverInteraction?.let { oldValue ->
+                val interaction = HoverInteraction.Exit(oldValue)
+                interactionSource.tryEmit(interaction)
+            }
         }
-        clickablePointerInputNode.onCancelPointerInput()
+        hoverInteraction = null
+        pointerInputNode?.onCancelPointerInput()
     }
 
-    override fun onKeyEvent(event: KeyEvent): Boolean {
+    final override fun onKeyEvent(event: KeyEvent): Boolean {
         // Key events usually require focus, but if a focused child does not handle the KeyEvent,
         // the event can bubble up without this clickable ever being focused, and hence without
         // this being initialized through the focus path
@@ -1052,9 +1064,9 @@ internal abstract class AbstractClickableNode(
             enabled && event.isPress -> {
                 // If the key already exists in the map, keyEvent is a repeat event.
                 // We ignore it as we only want to emit an interaction for the initial key press.
-                if (!interactionData.currentKeyPressInteractions.containsKey(event.key)) {
-                    val press = PressInteraction.Press(interactionData.centreOffset)
-                    interactionData.currentKeyPressInteractions[event.key] = press
+                if (!currentKeyPressInteractions.containsKey(event.key)) {
+                    val press = PressInteraction.Press(centerOffset)
+                    currentKeyPressInteractions[event.key] = press
                     // Even if the interactionSource is null, we still want to intercept the presses
                     // so we always track them above, and return true
                     if (interactionSource != null) {
@@ -1066,7 +1078,7 @@ internal abstract class AbstractClickableNode(
                 }
             }
             enabled && event.isClick -> {
-                interactionData.currentKeyPressInteractions.remove(event.key)?.let {
+                currentKeyPressInteractions.remove(event.key)?.let {
                     if (interactionSource != null) {
                         coroutineScope.launch {
                             interactionSource?.emit(PressInteraction.Release(it))
@@ -1080,16 +1092,16 @@ internal abstract class AbstractClickableNode(
         }
     }
 
-    override fun onPreKeyEvent(event: KeyEvent) = false
+    final override fun onPreKeyEvent(event: KeyEvent) = false
 
-    override fun onFocusEvent(focusState: FocusState) {
+    final override fun onFocusEvent(focusState: FocusState) {
         if (focusState.isFocused) {
             initializeIndicationAndInteractionSourceIfNeeded()
         }
         focusableNode.onFocusEvent(focusState)
     }
 
-    override val shouldMergeDescendantSemantics: Boolean
+    final override val shouldMergeDescendantSemantics: Boolean
         get() = true
 
     final override fun SemanticsPropertyReceiver.applySemantics() {
@@ -1107,7 +1119,72 @@ internal abstract class AbstractClickableNode(
         applyAdditionalSemantics()
     }
 
-    open fun SemanticsPropertyReceiver.applyAdditionalSemantics() {}
+    protected fun resetPointerInputHandler() = pointerInputNode?.resetPointerInputHandler()
+
+    protected suspend fun PressGestureScope.handlePressInteraction(offset: Offset) {
+        interactionSource?.let { interactionSource ->
+            coroutineScope {
+                val delayJob = launch {
+                    if (delayPressInteraction()) {
+                        delay(TapIndicationDelay)
+                    }
+                    val press = PressInteraction.Press(offset)
+                    interactionSource.emit(press)
+                    pressInteraction = press
+                }
+                val success = tryAwaitRelease()
+                if (delayJob.isActive) {
+                    delayJob.cancelAndJoin()
+                    // The press released successfully, before the timeout duration - emit the press
+                    // interaction instantly. No else branch - if the press was cancelled before the
+                    // timeout, we don't want to emit a press interaction.
+                    if (success) {
+                        val press = PressInteraction.Press(offset)
+                        val release = PressInteraction.Release(press)
+                        interactionSource.emit(press)
+                        interactionSource.emit(release)
+                    }
+                } else {
+                    pressInteraction?.let { pressInteraction ->
+                        val endInteraction = if (success) {
+                            PressInteraction.Release(pressInteraction)
+                        } else {
+                            PressInteraction.Cancel(pressInteraction)
+                        }
+                        interactionSource.emit(endInteraction)
+                    }
+                }
+                pressInteraction = null
+            }
+        }
+    }
+
+    private fun delayPressInteraction(): Boolean =
+        ModifierLocalScrollableContainer.current || isComposeRootInScrollableContainer()
+
+    private fun emitHoverEnter() {
+        if (hoverInteraction == null) {
+            val interaction = HoverInteraction.Enter()
+            interactionSource?.let { interactionSource ->
+                coroutineScope.launch {
+                    interactionSource.emit(interaction)
+                }
+            }
+            hoverInteraction = interaction
+        }
+    }
+
+    private fun emitHoverExit() {
+        hoverInteraction?.let { oldValue ->
+            val interaction = HoverInteraction.Exit(oldValue)
+            interactionSource?.let { interactionSource ->
+                coroutineScope.launch {
+                    interactionSource.emit(interaction)
+                }
+            }
+            hoverInteraction = null
+        }
+    }
 }
 
 private class ClickableSemanticsElement(
@@ -1201,146 +1278,5 @@ private class ClickableSemanticsNode(
         if (!enabled) {
             disabled()
         }
-    }
-}
-
-internal sealed class AbstractClickablePointerInputNode(
-    protected var enabled: Boolean,
-    private val interactionSourceProvider: () -> MutableInteractionSource?,
-    protected var onClick: () -> Unit,
-    protected val interactionData: AbstractClickableNode.InteractionData
-) : DelegatingNode(), ModifierLocalModifierNode, CompositionLocalConsumerModifierNode,
-    PointerInputModifierNode {
-
-    private val delayPressInteraction = {
-        ModifierLocalScrollableContainer.current || isComposeRootInScrollableContainer()
-    }
-
-    private val pointerInputNode = delegate(SuspendingPointerInputModifierNode { pointerInput() })
-
-    protected abstract suspend fun PointerInputScope.pointerInput()
-
-    override fun onPointerEvent(
-        pointerEvent: PointerEvent,
-        pass: PointerEventPass,
-        bounds: IntSize
-    ) {
-        pointerInputNode.onPointerEvent(pointerEvent, pass, bounds)
-    }
-
-    override fun onCancelPointerInput() {
-        pointerInputNode.onCancelPointerInput()
-    }
-
-    protected suspend fun PressGestureScope.handlePressInteraction(offset: Offset) {
-        interactionSourceProvider()?.let { interactionSource ->
-            handlePressInteraction(
-                offset,
-                interactionSource,
-                interactionData,
-                delayPressInteraction
-            )
-        }
-    }
-
-    protected fun resetPointerInputHandler() = pointerInputNode.resetPointerInputHandler()
-}
-
-internal class ClickablePointerInputNode(
-    enabled: Boolean,
-    interactionSourceProvider: () -> MutableInteractionSource?,
-    onClick: () -> Unit,
-    interactionData: AbstractClickableNode.InteractionData
-) : AbstractClickablePointerInputNode(
-    enabled,
-    interactionSourceProvider,
-    onClick,
-    interactionData
-) {
-    override suspend fun PointerInputScope.pointerInput() {
-        interactionData.centreOffset = size.center.toOffset()
-        detectTapAndPress(
-            onPress = { offset ->
-                if (enabled) {
-                    handlePressInteraction(offset)
-                }
-            },
-            onTap = { if (enabled) onClick() }
-        )
-    }
-
-    fun update(
-        enabled: Boolean,
-        onClick: () -> Unit,
-    ) {
-        // These are captured inside callbacks, not as an input to detectTapGestures,
-        // so no need need to reset pointer input handling
-        this.enabled = enabled
-        this.onClick = onClick
-    }
-}
-
-private class CombinedClickablePointerInputNode(
-    enabled: Boolean,
-    interactionSourceProvider: () -> MutableInteractionSource?,
-    onClick: () -> Unit,
-    interactionData: AbstractClickableNode.InteractionData,
-    private var onLongClick: (() -> Unit)?,
-    private var onDoubleClick: (() -> Unit)?
-) : AbstractClickablePointerInputNode(
-    enabled,
-    interactionSourceProvider,
-    onClick,
-    interactionData
-) {
-    override suspend fun PointerInputScope.pointerInput() {
-        interactionData.centreOffset = size.center.toOffset()
-        detectTapGestures(
-            onDoubleTap = if (enabled && onDoubleClick != null) {
-                { onDoubleClick?.invoke() }
-            } else null,
-            onLongPress = if (enabled && onLongClick != null) {
-                { onLongClick?.invoke() }
-            } else null,
-            onPress = { offset ->
-                if (enabled) {
-                    handlePressInteraction(offset)
-                }
-            },
-            onTap = { if (enabled) onClick() }
-        )
-    }
-
-    fun update(
-        enabled: Boolean,
-        onClick: () -> Unit,
-        onLongClick: (() -> Unit)?,
-        onDoubleClick: (() -> Unit)?
-    ) {
-        // This is captured inside a callback, not as an input to detectTapGestures,
-        // so no need need to reset pointer input handling
-        this.onClick = onClick
-
-        var changed = false
-
-        // This is captured as a parameter to detectTapGestures, so we need to restart detecting
-        // gestures if it changes.
-        if (this.enabled != enabled) {
-            this.enabled = enabled
-            changed = true
-        }
-
-        // We capture these inside the callback, so if the lambda changes value we don't want to
-        // reset input handling - only reset if they go from not-defined to defined, and vice-versa,
-        // as that is what is captured in the parameter to detectTapGestures.
-        if ((this.onLongClick == null) != (onLongClick == null)) {
-            changed = true
-        }
-        this.onLongClick = onLongClick
-        if ((this.onDoubleClick == null) != (onDoubleClick == null)) {
-            changed = true
-        }
-        this.onDoubleClick = onDoubleClick
-        if (changed) resetPointerInputHandler()
     }
 }

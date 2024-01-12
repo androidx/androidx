@@ -84,7 +84,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-// add test for lazily indication parameter
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class SelectableTest {

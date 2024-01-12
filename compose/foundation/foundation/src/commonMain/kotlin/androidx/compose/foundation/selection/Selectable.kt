@@ -16,8 +16,7 @@
 
 package androidx.compose.foundation.selection
 
-import androidx.compose.foundation.AbstractClickableNode
-import androidx.compose.foundation.ClickablePointerInputNode
+import androidx.compose.foundation.ClickableNode
 import androidx.compose.foundation.Indication
 import androidx.compose.foundation.IndicationNodeFactory
 import androidx.compose.foundation.LocalIndication
@@ -235,7 +234,7 @@ private class SelectableNode(
     enabled: Boolean,
     role: Role?,
     onClick: () -> Unit
-) : AbstractClickableNode(
+) : ClickableNode(
     interactionSource = interactionSource,
     indicationNodeFactory = indicationNodeFactory,
     enabled = enabled,
@@ -243,15 +242,6 @@ private class SelectableNode(
     role = role,
     onClick = onClick
 ) {
-    override val clickablePointerInputNode = delegate(
-        ClickablePointerInputNode(
-            enabled = enabled,
-            interactionSourceProvider = interactionSourceProvider,
-            onClick = onClick,
-            interactionData = interactionData
-        )
-    )
-
     fun update(
         selected: Boolean,
         interactionSource: MutableInteractionSource?,
@@ -264,16 +254,12 @@ private class SelectableNode(
             this.selected = selected
             invalidateSemantics()
         }
-        updateCommon(
+        super.update(
             interactionSource = interactionSource,
             indicationNodeFactory = indicationNodeFactory,
             enabled = enabled,
             onClickLabel = null,
             role = role,
-            onClick = onClick
-        )
-        clickablePointerInputNode.update(
-            enabled = enabled,
             onClick = onClick
         )
     }
