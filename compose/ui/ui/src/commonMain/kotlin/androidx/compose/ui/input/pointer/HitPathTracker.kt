@@ -276,7 +276,6 @@ internal class Node(val modifierNode: Modifier.Node) : NodeParent() {
     private var isIn = true
     private var hasExited = true
 
-    val vec = mutableVectorOf<Long>()
     override fun dispatchMainEventPass(
         changes: LongSparseArray<PointerInputChange>,
         parentCoordinates: LayoutCoordinates,
