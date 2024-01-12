@@ -2415,8 +2415,8 @@ package androidx.core.util {
     method @RequiresApi(21) public static androidx.core.util.SizeFCompat toSizeFCompat(android.util.SizeF);
   }
 
-  public interface Supplier<T> {
-    method public T! get();
+  public fun interface Supplier<T> {
+    method public T get();
   }
 
   public class TypedValueCompat {
