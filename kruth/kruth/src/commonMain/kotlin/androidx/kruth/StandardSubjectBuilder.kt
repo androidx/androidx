@@ -26,8 +26,8 @@ import kotlin.jvm.JvmStatic
  * with [withMessage].
  */
 class StandardSubjectBuilder internal constructor(
-    private val metadata: FailureMetadata = FailureMetadata(),
-) {
+    internal val metadata: FailureMetadata = FailureMetadata(),
+) : PlatformStandardSubjectBuilder by PlatformStandardSubjectBuilderImpl(metadata) {
     companion object {
         /**
          * Returns a new instance that invokes the given [FailureStrategy] when a check fails.
@@ -120,3 +120,10 @@ class StandardSubjectBuilder internal constructor(
         kotlin.test.fail(metadata.formatMessage())
     }
 }
+
+/** Platform-specific additions for [StandardSubjectBuilder]. */
+internal expect interface PlatformStandardSubjectBuilder
+
+internal expect class PlatformStandardSubjectBuilderImpl(
+    metadata: FailureMetadata,
+) : PlatformStandardSubjectBuilder

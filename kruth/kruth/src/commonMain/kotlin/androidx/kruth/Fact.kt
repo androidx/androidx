@@ -18,8 +18,6 @@ package androidx.kruth
 
 import kotlin.jvm.JvmOverloads
 import kotlin.jvm.JvmStatic
-import kotlin.text.padEnd
-import kotlin.text.prependIndent
 
 class Fact private constructor(val key: String, val value: String?) {
     override fun toString(): String {
