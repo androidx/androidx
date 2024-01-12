@@ -604,9 +604,8 @@ class DiffRunner(object):
                 raise Exception("Failed to remove " + path, e)
 
   def runnerTest(self, testState, timeout = None):
+    self.cleanupTempDirs()
     workPath = self.getWorkPath(0)
-    # reset state if needed
-    fileIo.removePath(workPath)
     testState.apply(workPath)
     start = datetime.datetime.now()
     returnCode = ShellScript(self.testScript_path, workPath).process()
