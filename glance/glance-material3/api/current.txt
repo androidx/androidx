@@ -22,7 +22,7 @@ package androidx.glance.material3 {
   }
 
   public final class TitleBarKt {
-    method @androidx.compose.runtime.Composable public static void TitleBar(androidx.glance.ImageProvider startIcon, String title, optional androidx.glance.unit.ColorProvider contentColor, optional androidx.glance.GlanceModifier modifier, optional androidx.glance.text.FontFamily? fontFamily, kotlin.jvm.functions.Function1<? super androidx.glance.layout.RowScope,kotlin.Unit> actions);
+    method @androidx.compose.runtime.Composable public static void TitleBar(androidx.glance.ImageProvider startIcon, String title, optional androidx.glance.unit.ColorProvider? iconColor, optional androidx.glance.unit.ColorProvider textColor, optional androidx.glance.GlanceModifier modifier, optional androidx.glance.text.FontFamily? fontFamily, optional kotlin.jvm.functions.Function1<? super androidx.glance.layout.RowScope,kotlin.Unit> actions);
   }
 
 }

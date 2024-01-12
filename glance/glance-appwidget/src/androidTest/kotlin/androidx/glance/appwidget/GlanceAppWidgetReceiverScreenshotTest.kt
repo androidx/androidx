@@ -680,7 +680,8 @@ class GlanceAppWidgetReceiverScreenshotTest {
                 modifier = GlanceModifier.background(bg).fillMaxWidth(),
                 startIcon = ImageProvider(R.drawable.filled_oval),
                 title = "Lead icon; title; 2 btns",
-                contentColor = fg,
+                textColor = fg,
+                iconColor = fg,
                 actions = {
                     actionButton()
                     Spacer(GlanceModifier.size(8.dp))

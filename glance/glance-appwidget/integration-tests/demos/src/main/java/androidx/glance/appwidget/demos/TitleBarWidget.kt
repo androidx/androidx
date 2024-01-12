@@ -71,7 +71,8 @@ class TitleBarWidget : GlanceAppWidget() {
                 TitleBar(
                     startIcon = icStart,
                     title = if (isNarrow) "" else "Top Bar", // Leaves room for the buttons
-                    contentColor = contentColor,
+                    iconColor = contentColor,
+                    textColor = contentColor,
                     modifier = modifier
                 ) {
                     // Action block should contain icon buttons with a null `backgroundColor`
