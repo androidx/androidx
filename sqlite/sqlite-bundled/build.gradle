@@ -24,6 +24,7 @@
 import androidx.build.AndroidXConfig
 import androidx.build.KmpPlatformsKt
 import androidx.build.PlatformIdentifier
+import androidx.build.ProjectLayoutType
 import androidx.build.Publish
 import androidx.build.PrepareSqliteSourcesTask
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
@@ -56,10 +57,19 @@ def SQLITE_COMPILE_FLAGS = [
         "-DSQLITE_THREADSAFE=2",
 ]
 
-def prepareSqliteSourcesTask = tasks.register("prepareSqliteSources", PrepareSqliteSourcesTask) {
-    it.configureRemoteSources(project)
-    it.sqliteVersion = "3.42.0"
+def prepareSqliteSourcesTask = PrepareSqliteSourcesTask.register(
+        project,
+        "prepareSqliteSourcesTask"
+) {
+    it.sqliteVersion.set("3.42.0")
+    it.sqliteReleaseYear.set(2023)
     it.destinationDirectory.set(project.layout.buildDirectory.dir("sqlite3/src"))
+    if (!ProjectLayoutType.isPlayground(project)) {
+        it.sqlitePrebuiltsDirectory.set(
+                new File(AndroidXConfig.getExternalProjectPath(project), "sqlite/dist/orig")
+        )
+    }
+
 }
 
 configurations {
