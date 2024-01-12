@@ -35,7 +35,7 @@ internal open class JankStatsApi24Impl(
     jankStats: JankStats,
     view: View,
     private val window: Window
-) : JankStatsApi22Impl(jankStats, view) {
+) : JankStatsApi16Impl(jankStats, view) {
 
     // Workaround for situation like b/206956036, where platform would sometimes send completely
     // duplicate events through FrameMetrics. When that occurs, simply ignore the latest event
