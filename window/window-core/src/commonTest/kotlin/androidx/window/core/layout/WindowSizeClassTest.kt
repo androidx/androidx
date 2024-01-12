@@ -16,6 +16,7 @@
 
 package androidx.window.core.layout
 
+import androidx.window.core.ExperimentalWindowCoreApi
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -25,15 +26,15 @@ import kotlin.test.assertEquals
 class WindowSizeClassTest {
 
     @Test
-    public fun testWidthSizeClass_construction() {
+    fun testWidthSizeClass_construction() {
         val expected = listOf(
             WindowWidthSizeClass.COMPACT,
             WindowWidthSizeClass.MEDIUM,
             WindowWidthSizeClass.EXPANDED
         )
 
-        val actual = listOf(100f, 700f, 900f).map { width ->
-            WindowSizeClass.compute(dpWidth = width, dpHeight = 100f)
+        val actual = listOf(100, 700, 900).map { width ->
+            WindowSizeClass(widthDp = width, heightDp = 100)
         }.map { sizeClass ->
             sizeClass.windowWidthSizeClass
         }
@@ -41,9 +42,10 @@ class WindowSizeClassTest {
         assertEquals(expected, actual)
     }
 
+    @OptIn(ExperimentalWindowCoreApi::class)
     @Test
     fun testConstruction_usingPx() {
-        val expected = WindowSizeClass(WindowWidthSizeClass.MEDIUM, WindowHeightSizeClass.MEDIUM)
+        val expected = WindowSizeClass(600, 600)
 
         val actual = WindowSizeClass.compute(600, 600, 1f)
 
@@ -58,8 +60,8 @@ class WindowSizeClassTest {
             WindowHeightSizeClass.EXPANDED
         )
 
-        val actual = listOf(100f, 500f, 900f).map { height ->
-            WindowSizeClass.compute(dpHeight = height, dpWidth = 100f)
+        val actual = listOf(100, 500, 900).map { height ->
+            WindowSizeClass(widthDp = 100, heightDp = height)
         }.map { sizeClass ->
             sizeClass.windowHeightSizeClass
         }
@@ -69,8 +71,8 @@ class WindowSizeClassTest {
 
     @Test
     fun testEqualsImpliesHashCode() {
-        val first = WindowSizeClass.compute(100f, 500f)
-        val second = WindowSizeClass.compute(100f, 500f)
+        val first = WindowSizeClass(widthDp = 100, heightDp = 500)
+        val second = WindowSizeClass(widthDp = 100, heightDp = 500)
 
         assertEquals(first, second)
         assertEquals(first.hashCode(), second.hashCode())
