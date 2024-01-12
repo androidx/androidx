@@ -112,7 +112,9 @@ abstract class PrepareSqliteSourcesTask @Inject constructor(
     }
 
     /**
-     * A simple task to download a given URL. It is used to download Sqlite amalgamation zip.
+     * Downloads the sqlite amalgamation for the given version.
+     * See: https://sqlite.org/amalgamation.html and https://www.sqlite.org/download.html for
+     * details.
      */
     @CacheableTask
     internal abstract class DownloadSQLiteAmalgamationTask : DefaultTask() {
@@ -174,6 +176,10 @@ abstract class PrepareSqliteSourcesTask @Inject constructor(
         // defined in https://github.com/sqlite/sqlite/blob/master/src/sqlite.h.in#L149
         private const val VERSION_PREFIX = "#define SQLITE_VERSION"
 
+        /**
+         * Utility method to create an instance of [PrepareSqliteSourcesTask] that is compatible
+         * with both AOSP and GitHub builds.
+         */
         @JvmStatic
         fun register(
             project: Project,
