@@ -85,7 +85,8 @@ internal class TextAnnotatedStringNode(
     private var overrideColor: ColorProducer? = null,
     private var onShowTranslation: ((TextSubstitutionValue) -> Unit)? = null
 ) : Modifier.Node(), LayoutModifierNode, DrawModifierNode, SemanticsModifierNode {
-    private var baselineCache: Map<AlignmentLine, Int>? = null
+    @Suppress("PrimitiveInCollection")
+    private var baselineCache: MutableMap<AlignmentLine, Int>? = null
 
     private var _layoutCache: MultiParagraphLayoutCache? = null
     private val layoutCache: MultiParagraphLayoutCache
@@ -403,10 +404,12 @@ internal class TextAnnotatedStringNode(
             invalidateLayer()
             onTextLayout?.invoke(textLayoutResult)
             selectionController?.updateTextLayout(textLayoutResult)
-            baselineCache = mapOf(
-                FirstBaseline to textLayoutResult.firstBaseline.fastRoundToInt(),
-                LastBaseline to textLayoutResult.lastBaseline.fastRoundToInt()
-            )
+
+            @Suppress("PrimitiveInCollection")
+            val cache = baselineCache ?: LinkedHashMap(2)
+            cache[FirstBaseline] = textLayoutResult.firstBaseline.fastRoundToInt()
+            cache[LastBaseline] = textLayoutResult.lastBaseline.fastRoundToInt()
+            baselineCache = cache
         }
 
         // first share the placeholders
