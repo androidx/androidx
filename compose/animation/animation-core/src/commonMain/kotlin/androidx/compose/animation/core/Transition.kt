@@ -201,7 +201,6 @@ class MutableTransitionState<S>(initialState: S) : TransitionState<S>() {
  * it cannot be reassigned to a different [Transition] instance.
  * @sample androidx.compose.animation.core.samples.SeekingAnimationSample
  */
-@ExperimentalTransitionApi
 class SeekableTransitionState<S>(
     initialState: S
 ) : TransitionState<S>() {
@@ -474,10 +473,7 @@ class SeekableTransitionState<S>(
  * change (e.g. in response to a user interaction). This can be achieved by creating a new
  * [transitionState]:
  * @sample androidx.compose.animation.core.samples.DoubleTapToLikeSample
- *
- * This is Experimental because it is targeted at supporting [SeekableTransitionState].
  */
-@ExperimentalTransitionApi // TODO: remove experimental reason and deprecate(HIDDEN) other API
 @Composable
 fun <T> rememberTransition(
     transitionState: TransitionState<T>,
@@ -518,7 +514,10 @@ fun <T> rememberTransition(
  * [transitionState]:
  * @sample androidx.compose.animation.core.samples.DoubleTapToLikeSample
  */
-@OptIn(ExperimentalTransitionApi::class)
+@Deprecated(
+    "Use rememberTransition() instead",
+    replaceWith = ReplaceWith("rememberTransition(transitionState, label)")
+)
 @Composable
 fun <T> updateTransition(
     transitionState: MutableTransitionState<T>,
@@ -620,7 +619,6 @@ class Transition<S> @PublishedApi internal constructor(
 
     // Seeking related
     /** @suppress */
-    @OptIn(ExperimentalTransitionApi::class)
     @InternalAnimationApi
     var isSeeking: Boolean by mutableStateOf(false)
         internal set
@@ -796,7 +794,6 @@ class Transition<S> @PublishedApi internal constructor(
 
     // This target state should only be used to modify "mutableState"s, as it could potentially
     // roll back. The
-    @OptIn(ExperimentalTransitionApi::class, InternalAnimationApi::class)
     internal fun updateTarget(targetState: S) {
         // This is needed because child animations rely on this target state and the state pair to
         // update their animation specs
@@ -1144,7 +1141,7 @@ class Transition<S> @PublishedApi internal constructor(
         }
 
         // This gets called *during* composition
-        @OptIn(InternalAnimationApi::class, ExperimentalTransitionApi::class)
+        @OptIn(InternalAnimationApi::class)
         internal fun updateTargetValue(targetValue: T, animationSpec: FiniteAnimationSpec<T>) {
             if (this.targetValue != targetValue || needsReset) {
                 this.targetValue = targetValue
