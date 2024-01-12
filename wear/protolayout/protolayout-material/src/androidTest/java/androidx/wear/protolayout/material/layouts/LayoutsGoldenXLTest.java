@@ -19,6 +19,7 @@ package androidx.wear.protolayout.material.layouts;
 import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 import static androidx.wear.protolayout.material.RunnerUtils.SCREEN_HEIGHT;
 import static androidx.wear.protolayout.material.RunnerUtils.SCREEN_WIDTH;
+import static androidx.wear.protolayout.material.RunnerUtils.convertToTestParameters;
 import static androidx.wear.protolayout.material.RunnerUtils.runSingleScreenshotTest;
 import static androidx.wear.protolayout.material.RunnerUtils.waitForNotificationToDisappears;
 import static androidx.wear.protolayout.material.layouts.TestCasesGenerator.XXXL_SCALE_SUFFIX;
@@ -33,7 +34,7 @@ import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.screenshot.AndroidXScreenshotTestRule;
 import androidx.wear.protolayout.DeviceParametersBuilders;
 import androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters;
-import androidx.wear.protolayout.LayoutElementBuilders.LayoutElement;
+import androidx.wear.protolayout.material.RunnerUtils.TestCase;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -41,8 +42,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 import java.util.Collection;
-import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.List;
 
 @RunWith(Parameterized.class)
 @LargeTest
@@ -56,15 +56,15 @@ public class LayoutsGoldenXLTest {
 
     private static final float FONT_SCALE_XXXL = 1.24f;
 
-    private final LayoutElement mLayoutElement;
+    private final TestCase mTestCase;
     private final String mExpected;
 
     @Rule
     public AndroidXScreenshotTestRule mScreenshotRule =
             new AndroidXScreenshotTestRule("wear/wear-protolayout-material");
 
-    public LayoutsGoldenXLTest(String expected, LayoutElement layoutElement) {
-        mLayoutElement = layoutElement;
+    public LayoutsGoldenXLTest(String expected, TestCase testCase) {
+        mTestCase = testCase;
         mExpected = expected;
     }
 
@@ -105,8 +105,11 @@ public class LayoutsGoldenXLTest {
                         .setScreenShape(DeviceParametersBuilders.SCREEN_SHAPE_RECT)
                         .build();
 
-        Map<String, LayoutElement> testCases =
-                generateTestCases(context, deviceParameters, XXXL_SCALE_SUFFIX);
+        List<Object[]> testCaseList =
+                convertToTestParameters(
+                        generateTestCases(context, deviceParameters, XXXL_SCALE_SUFFIX),
+                        /* isForRtl= */ true,
+                        /* isForLtr= */ true);
 
         // Restore state before this method, so other test have correct context. This is needed here
         // too, besides in restoreBefore and restoreAfter as the test cases builder uses the context
@@ -124,12 +127,9 @@ public class LayoutsGoldenXLTest {
                 .getResources()
                 .getDisplayMetrics()
                 .setTo(currentDisplayMetrics);
-
         waitForNotificationToDisappears();
 
-        return testCases.entrySet().stream()
-                .map(test -> new Object[] {test.getKey(), test.getValue()})
-                .collect(Collectors.toList());
+        return testCaseList;
     }
 
     @Parameterized.BeforeParam
@@ -149,9 +149,6 @@ public class LayoutsGoldenXLTest {
 
     @Test
     public void test() {
-        runSingleScreenshotTest(
-                mScreenshotRule, mLayoutElement, mExpected, /* isRtlDirection= */ false);
-        runSingleScreenshotTest(
-                mScreenshotRule, mLayoutElement, mExpected + "_rtl", /* isRtlDirection= */ true);
+        runSingleScreenshotTest(mScreenshotRule, mTestCase, mExpected);
     }
 }

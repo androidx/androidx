@@ -21,6 +21,8 @@ import static androidx.wear.protolayout.DimensionBuilders.dp;
 import static androidx.wear.protolayout.DimensionBuilders.expand;
 import static androidx.wear.protolayout.DimensionBuilders.wrap;
 
+import static com.google.common.collect.ImmutableMap.toImmutableMap;
+
 import android.content.Context;
 import android.graphics.Color;
 
@@ -30,6 +32,7 @@ import androidx.wear.protolayout.ActionBuilders.LaunchAction;
 import androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters;
 import androidx.wear.protolayout.LayoutElementBuilders.Box;
 import androidx.wear.protolayout.LayoutElementBuilders.Column;
+import androidx.wear.protolayout.LayoutElementBuilders.Layout;
 import androidx.wear.protolayout.LayoutElementBuilders.LayoutElement;
 import androidx.wear.protolayout.LayoutElementBuilders.Spacer;
 import androidx.wear.protolayout.ModifiersBuilders.Background;
@@ -63,7 +66,7 @@ public class TestCasesGenerator {
      * as it should point on the same size independent image.
      */
     @NonNull
-    static Map<String, LayoutElement> generateTestCases(
+    static Map<String, Layout> generateTestCases(
             @NonNull Context context,
             @NonNull DeviceParameters deviceParameters,
             @NonNull String goldenSuffix) {
@@ -638,7 +641,11 @@ public class TestCasesGenerator {
                         .addButtonContent(button7)
                         .build());
 
-        return testCases;
+        return testCases.entrySet().stream()
+                .collect(
+                        toImmutableMap(
+                                Map.Entry::getKey,
+                                entry -> Layout.fromLayoutElement(entry.getValue())));
     }
 
     @NonNull

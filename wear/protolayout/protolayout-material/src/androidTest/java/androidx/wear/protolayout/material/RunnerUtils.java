@@ -28,8 +28,12 @@ import androidx.test.core.app.ActivityScenario;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.screenshot.AndroidXScreenshotTestRule;
 import androidx.test.screenshot.matchers.MSSIMMatcher;
-import androidx.wear.protolayout.LayoutElementBuilders;
+import androidx.wear.protolayout.LayoutElementBuilders.Layout;
 import androidx.wear.protolayout.material.test.GoldenTestActivity;
+
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class RunnerUtils {
     // This isn't totally ideal right now. The screenshot tests run on a phone, so emulate some
@@ -41,11 +45,22 @@ public class RunnerUtils {
 
     public static void runSingleScreenshotTest(
             @NonNull AndroidXScreenshotTestRule rule,
-            @NonNull LayoutElementBuilders.LayoutElement layoutElement,
+            @NonNull TestCase testCase,
+            @NonNull String expected) {
+        if (testCase.isForLtr) {
+            runSingleScreenshotTest(rule, testCase.mLayout, expected, /* isRtlDirection= */ false);
+        }
+        if (testCase.isForRtl) {
+            runSingleScreenshotTest(
+                    rule, testCase.mLayout, expected + "_rtl", /* isRtlDirection= */ true);
+        }
+    }
+
+    public static void runSingleScreenshotTest(
+            @NonNull AndroidXScreenshotTestRule rule,
+            @NonNull Layout layout,
             @NonNull String expected,
             boolean isRtlDirection) {
-        LayoutElementBuilders.Layout layout =
-                LayoutElementBuilders.Layout.fromLayoutElement(layoutElement);
         byte[] layoutPayload = layout.toByteArray();
 
         Intent startIntent =
@@ -70,8 +85,10 @@ public class RunnerUtils {
         }
 
         DisplayMetrics displayMetrics =
-                InstrumentationRegistry.getInstrumentation().getTargetContext()
-                        .getResources().getDisplayMetrics();
+                InstrumentationRegistry.getInstrumentation()
+                        .getTargetContext()
+                        .getResources()
+                        .getDisplayMetrics();
 
         // RTL will put the View on the right side.
         int screenWidthStart = isRtlDirection ? displayMetrics.widthPixels - SCREEN_WIDTH : 0;
@@ -110,6 +127,30 @@ public class RunnerUtils {
             Thread.sleep(5000);
         } catch (InterruptedException e) {
             Log.e("MaterialGoldenTest", "Error sleeping", e);
+        }
+    }
+
+    public static List<Object[]> convertToTestParameters(
+            Map<String, Layout> testCases, boolean isForRtr, boolean isForLtr) {
+        return testCases.entrySet().stream()
+                .map(
+                        test ->
+                                new Object[] {
+                                    test.getKey(), new TestCase(test.getValue(), isForRtr, isForLtr)
+                                })
+                .collect(Collectors.toList());
+    }
+
+    /** Holds testcase parameters. */
+    public static final class TestCase {
+        final Layout mLayout;
+        final boolean isForRtl;
+        final boolean isForLtr;
+
+        public TestCase(Layout layout, boolean isForRtl, boolean isForLtr) {
+            mLayout = layout;
+            this.isForRtl = isForRtl;
+            this.isForLtr = isForLtr;
         }
     }
 }
