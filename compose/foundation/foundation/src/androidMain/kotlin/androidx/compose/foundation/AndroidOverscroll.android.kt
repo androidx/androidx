@@ -683,8 +683,8 @@ private val StretchOverscrollNonClippingLayer: Modifier =
                 val placeable = measurable.measure(constraints)
                 val extraSizePx = (MaxSupportedElevation * 2).roundToPx()
                 layout(
-                    placeable.measuredWidth - extraSizePx,
-                    placeable.measuredHeight - extraSizePx
+                    (placeable.measuredWidth - extraSizePx).coerceAtLeast(0),
+                    (placeable.measuredHeight - extraSizePx).coerceAtLeast(0)
                 ) {
                     // because this modifier report the size which is larger than the passed max
                     // constraints this larger box will be automatically centered within the
