@@ -36,12 +36,12 @@ dependencies {
 
     compileOnly(project(":annotation:annotation-sampled"))
 
-    implementation("androidx.compose.foundation:foundation:1.6.0-beta01")
-    implementation("androidx.compose.foundation:foundation-layout:1.6.0-beta01")
+    implementation("androidx.compose.foundation:foundation:1.6.0-rc01")
+    implementation("androidx.compose.foundation:foundation-layout:1.6.0-rc01")
     implementation(project(":compose:material3:material3"))
     implementation(project(":compose:material3:material3-adaptive"))
     implementation(project(":compose:material3:material3-window-size-class"))
-    implementation("androidx.compose.ui:ui-util:1.6.0-beta01")
+    implementation("androidx.compose.ui:ui-util:1.6.0-rc01")
     implementation("androidx.compose.ui:ui-tooling-preview:1.4.1")
 
     debugImplementation("androidx.compose.ui:ui-tooling:1.4.1")
