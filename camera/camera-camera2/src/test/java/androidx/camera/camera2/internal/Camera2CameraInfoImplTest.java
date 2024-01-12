@@ -574,10 +574,25 @@ public class Camera2CameraInfoImplTest {
 
     @Config(minSdk = 23)
     @Test
-    public void isZslSupported_hasZslDisablerQuirkSamsung_returnFalse()
+    public void isZslSupported_hasZslDisablerQuirkSamsungFold_returnFalse()
             throws CameraAccessExceptionCompat {
         ReflectionHelpers.setStaticField(Build.class, "BRAND", "samsung");
         ReflectionHelpers.setStaticField(Build.class, "MODEL", "SM-F936B");
+
+        init(/* hasAvailableCapabilities = */ true);
+
+        final Camera2CameraInfoImpl cameraInfo = new Camera2CameraInfoImpl(
+                CAMERA0_ID, mCameraManagerCompat);
+
+        assertThat(cameraInfo.isZslSupported()).isFalse();
+    }
+
+    @Config(minSdk = 23)
+    @Test
+    public void isZslSupported_hasZslDisablerQuirkSamsungS22_returnFalse()
+            throws CameraAccessExceptionCompat {
+        ReflectionHelpers.setStaticField(Build.class, "BRAND", "samsung");
+        ReflectionHelpers.setStaticField(Build.class, "MODEL", "SM-S901U");
 
         init(/* hasAvailableCapabilities = */ true);
 
