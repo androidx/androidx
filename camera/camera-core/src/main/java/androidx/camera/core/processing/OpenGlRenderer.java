@@ -59,6 +59,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.microedition.khronos.egl.EGL10;
+
 /**
  * OpenGLRenderer renders texture image to the output surface.
  *
@@ -539,8 +541,10 @@ public final class OpenGlRenderer {
         int alphaBits = dynamicRange.is10BitHdr() ? 2 : 8;
         int renderType = dynamicRange.is10BitHdr() ? EGLExt.EGL_OPENGL_ES3_BIT_KHR
                 : EGL14.EGL_OPENGL_ES2_BIT;
-        // recordableAndroid with EGL14.EGL_TRUE causes eglError for 10BitHdr.
-        int recordableAndroid = dynamicRange.is10BitHdr() ? EGL14.EGL_FALSE : EGL14.EGL_TRUE;
+        // TODO(b/319277249): It will crash on older Samsung devices for HDR video 10-bit
+        //  because EGLExt.EGL_RECORDABLE_ANDROID is only supported from OneUI 6.1. We need to
+        //  check by GPU Driver version when new OS is release.
+        int recordableAndroid = dynamicRange.is10BitHdr() ? EGL10.EGL_DONT_CARE : EGL14.EGL_TRUE;
         int[] attribToChooseConfig = {
                 EGL14.EGL_RED_SIZE, rgbBits,
                 EGL14.EGL_GREEN_SIZE, rgbBits,
