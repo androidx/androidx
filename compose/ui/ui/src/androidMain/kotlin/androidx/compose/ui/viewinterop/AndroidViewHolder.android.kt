@@ -179,7 +179,9 @@ internal open class AndroidViewHolder(
     private val runUpdate: () -> Unit = {
         // If we're not attached, the observer isn't started, so don't bother running it.
         // onAttachedToWindow will run an update the next time the view is attached.
-        if (hasUpdateBlock && isAttachedToWindow) {
+        // Also, the view will have no parent when the node is deactivated. when the node will
+        // be reactivated the update block will be re-executed.
+        if (hasUpdateBlock && isAttachedToWindow && view.parent === this) {
             snapshotObserver.observeReads(this, OnCommitAffectingUpdate, update)
         }
     }
