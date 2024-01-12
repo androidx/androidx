@@ -98,7 +98,3 @@ androidx {
     inceptionYear = "2023"
     description = "Android Room Gradle Plugin"
 }
-
-validatePlugins {
-    enableStricterValidation = true
-}

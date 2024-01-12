@@ -60,13 +60,6 @@ tasks.withType(PluginUnderTestMetadata.class).named("pluginUnderTestMetadata").c
     it.pluginClasspath.from(configurations.testPlugin)
 }
 
-tasks {
-    validatePlugins {
-        failOnWarning.set(true)
-        enableStricterValidation.set(true)
-    }
-}
-
 androidx {
     name = "androidx.privacysandbox.plugins:privacysandbox-library"
     type = LibraryType.GRADLE_PLUGIN

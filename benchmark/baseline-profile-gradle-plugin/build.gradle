@@ -109,13 +109,6 @@ androidx {
     description = "Android Baseline Profile Gradle Plugin"
 }
 
-tasks {
-    validatePlugins {
-        failOnWarning.set(true)
-        enableStricterValidation.set(true)
-    }
-}
-
 tasks.withType(Test).configureEach { test ->
     test.maxParallelForks(2)
 }

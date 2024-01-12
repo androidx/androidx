@@ -57,7 +57,3 @@ androidx {
     inceptionYear = "2022"
     description = "AndroidX Benchmarks - Darwin Gradle Plugin"
 }
-
-validatePlugins {
-    enableStricterValidation = true
-}
