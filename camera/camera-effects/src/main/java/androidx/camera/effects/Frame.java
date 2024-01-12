@@ -25,6 +25,7 @@ import android.graphics.SurfaceTexture;
 import android.util.Size;
 import android.view.Surface;
 
+import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -124,6 +125,7 @@ public abstract class Frame {
      *
      * @see SurfaceRequest.TransformationInfo#getRotationDegrees()
      */
+    @IntRange(from = 0, to = 359)
     public abstract int getRotationDegrees();
 
     /**
