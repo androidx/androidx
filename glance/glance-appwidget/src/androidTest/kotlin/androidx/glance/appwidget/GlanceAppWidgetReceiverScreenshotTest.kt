@@ -31,6 +31,11 @@ import androidx.glance.Image
 import androidx.glance.ImageProvider
 import androidx.glance.LocalContext
 import androidx.glance.action.actionStartActivity
+import androidx.glance.appwidget.components.CircleIconButton
+import androidx.glance.appwidget.components.FilledButton
+import androidx.glance.appwidget.components.OutlineButton
+import androidx.glance.appwidget.components.SquareIconButton
+import androidx.glance.appwidget.components.TitleBar
 import androidx.glance.appwidget.lazy.LazyColumn
 import androidx.glance.appwidget.test.R
 import androidx.glance.background
@@ -50,11 +55,6 @@ import androidx.glance.layout.padding
 import androidx.glance.layout.size
 import androidx.glance.layout.width
 import androidx.glance.layout.wrapContentSize
-import androidx.glance.material3.CircleIconButton
-import androidx.glance.material3.FilledButton
-import androidx.glance.material3.OutlineButton
-import androidx.glance.material3.SquareIconButton
-import androidx.glance.material3.TitleBar
 import androidx.glance.text.FontStyle
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
