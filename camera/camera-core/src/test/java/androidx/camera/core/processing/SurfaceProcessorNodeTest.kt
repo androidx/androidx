@@ -206,7 +206,7 @@ class SurfaceProcessorNodeTest {
             inputEdge.cropRect,
             TransformUtils.getRotatedSize(inputEdge.cropRect, inputEdge.rotationDegrees),
             inputEdge.rotationDegrees,
-            inputEdge.mirroring
+            inputEdge.isMirroring
         )
         nodeInput = SurfaceProcessorNode.In.of(inputEdge, listOf(outConfig))
         // Act.
@@ -298,12 +298,12 @@ class SurfaceProcessorNodeTest {
             assertThat(previewOutput.streamSpec.resolution).isEqualTo(rectToSize(expectedCropRect))
             assertThat(previewOutput.cropRect).isEqualTo(expectedCropRect)
             assertThat(previewOutput.rotationDegrees).isEqualTo(0)
-            assertThat(previewOutput.mirroring).isFalse()
+            assertThat(previewOutput.isMirroring).isFalse()
             val videoOutput = nodeOutput[videoOutConfig]!!
             assertThat(videoOutput.streamSpec.resolution).isEqualTo(VIDEO_SIZE)
             assertThat(videoOutput.cropRect).isEqualTo(sizeToRect(VIDEO_SIZE))
             assertThat(videoOutput.rotationDegrees).isEqualTo(rotationDegrees)
-            assertThat(videoOutput.mirroring).isTrue()
+            assertThat(videoOutput.isMirroring).isTrue()
 
             // Clean up.
             nodeInput.surfaceEdge.close()
@@ -359,7 +359,7 @@ class SurfaceProcessorNodeTest {
         assertThat(previewTransformInfo.cropRect).isEqualTo(Rect(0, 0, 400, 600))
         assertThat(previewTransformInfo.rotationDegrees).isEqualTo(0)
         assertThat(previewSurfaceOutput.inputSize).isEqualTo(INPUT_SIZE)
-        assertThat(previewSurfaceOutput.mirroring).isFalse()
+        assertThat(previewSurfaceOutput.isMirroring).isFalse()
         assertThat(previewSurfaceOutput.camera).isNotNull()
 
         val videoSurfaceOutput =
@@ -370,7 +370,7 @@ class SurfaceProcessorNodeTest {
         assertThat(videoTransformInfo.cropRect).isEqualTo(sizeToRect(VIDEO_SIZE))
         assertThat(videoTransformInfo.rotationDegrees).isEqualTo(270)
         assertThat(videoSurfaceOutput.inputSize).isEqualTo(INPUT_SIZE)
-        assertThat(videoSurfaceOutput.mirroring).isTrue()
+        assertThat(videoSurfaceOutput.isMirroring).isTrue()
         assertThat(videoSurfaceOutput.camera).isNotNull()
     }
 
@@ -395,13 +395,13 @@ class SurfaceProcessorNodeTest {
         assertThat(previewSurfaceOutput.rotationDegrees).isEqualTo(INPUT_ROTATION_DEGREES)
         assertThat(previewTransformInfo.rotationDegrees).isEqualTo(180)
         assertThat(previewSurfaceOutput.inputSize).isEqualTo(INPUT_SIZE)
-        assertThat(previewSurfaceOutput.mirroring).isFalse()
+        assertThat(previewSurfaceOutput.isMirroring).isFalse()
         val videoSurfaceOutput =
             surfaceProcessorInternal.surfaceOutputs[VIDEO_CAPTURE]!! as SurfaceOutputImpl
         assertThat(videoSurfaceOutput.rotationDegrees).isEqualTo(VIDEO_ROTATION_DEGREES)
         assertThat(videoTransformInfo.rotationDegrees).isEqualTo(90)
         assertThat(videoSurfaceOutput.inputSize).isEqualTo(INPUT_SIZE)
-        assertThat(videoSurfaceOutput.mirroring).isTrue()
+        assertThat(videoSurfaceOutput.isMirroring).isTrue()
 
         // Act: update rotation degrees
         inputSurface.updateTransformation(180)
@@ -432,13 +432,13 @@ class SurfaceProcessorNodeTest {
         assertThat(previewSurfaceOutput.rotationDegrees).isEqualTo(INPUT_ROTATION_DEGREES)
         assertThat(previewTransformInfo.rotationDegrees).isEqualTo(180)
         assertThat(previewSurfaceOutput.inputSize).isEqualTo(INPUT_SIZE)
-        assertThat(previewSurfaceOutput.mirroring).isTrue()
+        assertThat(previewSurfaceOutput.isMirroring).isTrue()
         val videoSurfaceOutput =
             surfaceProcessorInternal.surfaceOutputs[VIDEO_CAPTURE]!! as SurfaceOutputImpl
         assertThat(videoSurfaceOutput.rotationDegrees).isEqualTo(VIDEO_ROTATION_DEGREES)
         assertThat(videoTransformInfo.rotationDegrees).isEqualTo(90)
         assertThat(videoSurfaceOutput.inputSize).isEqualTo(INPUT_SIZE)
-        assertThat(videoSurfaceOutput.mirroring).isTrue()
+        assertThat(videoSurfaceOutput.isMirroring).isTrue()
 
         // Act: update rotation degrees
         inputSurface.updateTransformation(180)

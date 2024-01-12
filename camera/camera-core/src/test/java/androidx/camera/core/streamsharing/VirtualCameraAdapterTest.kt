@@ -274,7 +274,7 @@ class VirtualCameraAdapterTest {
         // Preview's target rotation matches the parent's, so it only applies the 90° rotation.
         assertThat(previewOutConfig.size).isEqualTo(Size(300, 400))
         assertThat(previewOutConfig.rotationDegrees).isEqualTo(90)
-        assertThat(previewOutConfig.mirroring).isFalse()
+        assertThat(previewOutConfig.isMirroring).isFalse()
         // Assert: ImageCapture config
         val imageOutConfig = outConfigs[imageCapture]!!
         assertThat(imageOutConfig.format).isEqualTo(ImageFormat.JPEG)
@@ -288,7 +288,7 @@ class VirtualCameraAdapterTest {
         assertThat(outConfig2.format).isEqualTo(INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE)
         assertThat(outConfig2.targets).isEqualTo(VIDEO_CAPTURE)
         assertThat(outConfig2.cropRect).isEqualTo(cropRect)
-        assertThat(outConfig2.mirroring).isTrue()
+        assertThat(outConfig2.isMirroring).isTrue()
     }
 
     @Test

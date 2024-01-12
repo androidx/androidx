@@ -538,7 +538,7 @@ public class SurfaceEdge {
     /**
      * Gets whether the buffer needs to be horizontally mirrored based on {@link UseCase} config.
      */
-    public boolean getMirroring() {
+    public boolean isMirroring() {
         return mMirroring;
     }
 

@@ -132,7 +132,7 @@ public class SurfaceProcessorNode implements
         SurfaceEdge outputSurface;
         Rect cropRect = outConfig.getCropRect();
         int rotationDegrees = outConfig.getRotationDegrees();
-        boolean mirroring = outConfig.getMirroring();
+        boolean mirroring = outConfig.isMirroring();
 
         // Calculate sensorToBufferTransform
         android.graphics.Matrix sensorToBufferTransform =
@@ -163,7 +163,7 @@ public class SurfaceProcessorNode implements
                 /*rotationDegrees=*/input.getRotationDegrees() - rotationDegrees,
                 // Once copied, the target rotation is no longer useful.
                 /*targetRotation*/ ROTATION_NOT_SPECIFIED,
-                /*mirroring=*/input.getMirroring() != mirroring);
+                /*mirroring=*/input.isMirroring() != mirroring);
 
         return outputSurface;
     }
@@ -206,7 +206,7 @@ public class SurfaceProcessorNode implements
                 output.getKey().getFormat(),
                 output.getKey().getCropRect(),
                 output.getKey().getRotationDegrees(),
-                output.getKey().getMirroring(),
+                output.getKey().isMirroring(),
                 input.hasCameraTransform() ? mCameraInternal : null);
         Futures.addCallback(future, new FutureCallback<SurfaceOutput>() {
             @Override
@@ -255,7 +255,7 @@ public class SurfaceProcessorNode implements
                 // eliminated.
                 int rotationDegrees =
                         info.getRotationDegrees() - output.getKey().getRotationDegrees();
-                if (output.getKey().getMirroring()) {
+                if (output.getKey().isMirroring()) {
                     // The order of transformation is cropping -> rotation -> mirroring. To
                     // change the rotation, one must consider the mirroring.
                     rotationDegrees = -rotationDegrees;
@@ -404,7 +404,7 @@ public class SurfaceProcessorNode implements
         /**
          * The whether the stream should be mirrored.
          */
-        public abstract boolean getMirroring();
+        public abstract boolean isMirroring();
 
         /**
          * Creates an {@link OutConfig} instance from the input edge.
@@ -418,7 +418,7 @@ public class SurfaceProcessorNode implements
                     inputEdge.getCropRect(),
                     getRotatedSize(inputEdge.getCropRect(), inputEdge.getRotationDegrees()),
                     inputEdge.getRotationDegrees(),
-                    inputEdge.getMirroring());
+                    inputEdge.isMirroring());
         }
 
         /**
