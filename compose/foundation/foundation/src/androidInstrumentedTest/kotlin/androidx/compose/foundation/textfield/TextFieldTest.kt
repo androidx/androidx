@@ -44,7 +44,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.computeSizeForDefaultText
 import androidx.compose.foundation.text.selection.isSelectionHandle
-import androidx.compose.foundation.text2.InputMethodInterceptor
+import androidx.compose.foundation.text2.input.InputMethodInterceptor
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
