@@ -13,20 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.core.util;
+package androidx.core.util
 
 /**
- * Compat version of {@link java.util.function.Function}
- * @param <T> the type of the input to the operation
- * @param <R>: the type of the output of the function
+ * Compat version of [java.util.function.Function]
+ * @param T the type of the input to the operation
+ * @param R the type of the output of the function
  */
-@FunctionalInterface
-public interface Function<T, R> {
+fun interface Function<T, R> {
     /**
      * Applies the function to the argument parameter.
      *
-     * @param t the argument for the function
+     * @param value the argument for the function
      * @return the result after applying function
      */
-    R apply(T t);
+    fun apply(value: T): R
 }

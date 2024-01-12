@@ -2353,8 +2353,8 @@ package androidx.core.util {
     method public void accept(T!);
   }
 
-  @java.lang.FunctionalInterface public interface Function<T, R> {
-    method public R! apply(T!);
+  public fun interface Function<T, R> {
+    method public R apply(T value);
   }
 
   public class ObjectsCompat {
