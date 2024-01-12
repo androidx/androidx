@@ -606,7 +606,8 @@ class RulerTest {
                     .onPlaced {
                         rootX = it.positionInWindow().x
                     }
-                    .offset { IntOffset(offset, 0) }) {
+                    .offset { IntOffset(offset, 0) }
+            ) {
                 AndroidView(factory = { context ->
                     ComposeView(context).apply {
                         setContent {
@@ -631,11 +632,12 @@ class RulerTest {
                 })
             }
         }
-        rule.waitForIdle()
-        assertThat(rulerValue).isWithin(0.01f).of(-rootX)
-        offset = 100
-        rule.waitForIdle()
-        rule.waitForIdle()
-        assertThat(rulerValue).isWithin(0.01f).of(-100f - rootX)
+        rule.runOnUiThread {
+            assertThat(rulerValue).isWithin(0.01f).of(-rootX)
+            offset = 100
+        }
+        rule.runOnIdle {
+            assertThat(rulerValue).isWithin(0.01f).of(-100f - rootX)
+        }
     }
 }
