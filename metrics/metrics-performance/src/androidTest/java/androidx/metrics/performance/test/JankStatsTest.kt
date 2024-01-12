@@ -114,6 +114,18 @@ class JankStatsTest {
         assertFalse(jankStats.isTrackingEnabled)
         jankStats.isTrackingEnabled = true
         assertTrue(jankStats.isTrackingEnabled)
+
+        // Test to make sure duplicate enablement isn't adding listeners
+        jankStats.isTrackingEnabled = true
+        jankStats.isTrackingEnabled = true
+        jankStats.isTrackingEnabled = true
+        initFramePipeline()
+
+        runDelayTest(0, NUM_FRAMES, latchedListener)
+
+        // FrameMetrics sometimes drops a frame, so the total number of
+        // jankData items might be less than NUM_FRAMES
+        assertEquals(NUM_FRAMES, latchedListener.numFrames)
     }
 
     @Test
