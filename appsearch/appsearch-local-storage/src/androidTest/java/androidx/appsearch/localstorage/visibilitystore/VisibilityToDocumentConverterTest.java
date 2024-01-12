@@ -16,6 +16,8 @@
 
 package androidx.appsearch.localstorage.visibilitystore;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -31,49 +33,32 @@ import com.google.common.collect.ImmutableSet;
 
 import org.junit.Test;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 public class VisibilityToDocumentConverterTest {
 
     @Test
-    public void testVisibilityConfigInitialization() {
-        // Create a VisibilityDocument for testing
-        GenericDocument visibilityDocument =
-                new GenericDocument.Builder<GenericDocument.Builder<?>>("", "someSchema",
-                        "VisibilityType")
-                        .setCreationTimestampMillis(0)
-                        .setPropertyBoolean("notPlatformSurfaceable", false)
-                        .setPropertyString("packageName", "")
-                        .setPropertyBytes("sha256Cert", new byte[32]).build();
+    public void testToGenericDocuments() { // Create a SetSchemaRequest for testing
+        byte[] cert1 = new byte[32];
+        byte[] cert2 = new byte[32];
+        byte[] cert3 = new byte[32];
+        Arrays.fill(cert1, (byte) 1);
+        Arrays.fill(cert2, (byte) 2);
+        Arrays.fill(cert3, (byte) 3);
 
-        // Create a VisibilityOverlay for testing
-        GenericDocument visibilityOverlay =
-                new GenericDocument.Builder<GenericDocument.Builder<?>>("overlay",
-                        "someSchema", "PublicAclOverlayType")
-                        .setCreationTimestampMillis(0)
-                        .setPropertyString("publiclyVisibleTargetPackage", "com.example.test")
-                        .setPropertyBytes("publiclyVisibleTargetPackageSha256Cert", new byte[32])
-                        .build();
-
-        // Create a VisibilityConfig using the Builder
-        VisibilityConfig visibilityConfig = VisibilityToDocumentConverter.createVisibilityConfig(
-                visibilityDocument, visibilityOverlay);
-
-        // Check if the properties are set correctly
-        assertEquals(visibilityDocument,
-                VisibilityToDocumentConverter.createVisibilityDocument(visibilityConfig));
-        assertEquals(visibilityOverlay,
-                VisibilityToDocumentConverter.createPublicAclOverlay(visibilityConfig));
-    }
-
-    @Test
-    public void testToGenericDocuments() {
-        // Create a SetSchemaRequest for testing
+        VisibilityConfig config = new VisibilityConfig.Builder()
+                .addVisibleToPackage(new PackageIdentifier("com.example.test1", cert1))
+                .setPubliclyVisibleTargetPackage(
+                        new PackageIdentifier("com.example.test2", cert2))
+                .addVisibleToPermissions(ImmutableSet.of(1, 2))
+                .build();
         SetSchemaRequest setSchemaRequest = new SetSchemaRequest.Builder()
                 .addSchemas(new AppSearchSchema.Builder("someSchema").build())
                 .setPubliclyVisibleSchema("someSchema",
-                        new PackageIdentifier("com.example.test", new byte[32]))
+                        new PackageIdentifier("com.example.test3", cert3))
+                .addSchemaTypeVisibleToConfig("someSchema", config)
                 .build();
 
         // Convert the SetSchemaRequest to a list of VisibilityConfig
@@ -90,12 +75,50 @@ public class VisibilityToDocumentConverterTest {
                         .build();
 
         // Create a VisibilityOverlay for testing
-        GenericDocument expectedOverlay =
-                new GenericDocument.Builder<GenericDocument.Builder<?>>("overlay",
+        GenericDocument expectedPublicAclOverlay =
+                new GenericDocument.Builder<GenericDocument.Builder<?>>("publicAclOverlay",
                         "someSchema", "PublicAclOverlayType")
                         .setCreationTimestampMillis(0)
-                        .setPropertyString("publiclyVisibleTargetPackage", "com.example.test")
-                        .setPropertyBytes("publiclyVisibleTargetPackageSha256Cert", new byte[32])
+                        .setPropertyString("publiclyVisibleTargetPackage", "com.example.test3")
+                        .setPropertyBytes("publiclyVisibleTargetPackageSha256Cert", cert3)
+                        .build();
+
+        // Create a visible config overlay for testing
+        GenericDocument permissionDoc =
+                new GenericDocument.Builder<GenericDocument.Builder<?>>("", "",
+                        "VisibilityPermissionType")
+                        .setCreationTimestampMillis(0)
+                        .setPropertyLong("allRequiredPermissions", 1, 2).build();
+        GenericDocument configProperty =
+                new GenericDocument.Builder<GenericDocument.Builder<?>>("", "",
+                        "VisibilityType")
+                        .setCreationTimestampMillis(0)
+                        .setPropertyDocument("permission", permissionDoc)
+                        .setPropertyString("packageName", "com.example.test1")
+                        .setPropertyBytes("sha256Cert", cert1)
+                        .setPropertyBoolean("notPlatformSurfaceable", false)
+                        .build();
+        GenericDocument publicAclProperty =
+                new GenericDocument.Builder<GenericDocument.Builder<?>>("publicAclOverlay",
+                        "", "PublicAclOverlayType")
+                        .setCreationTimestampMillis(0)
+                        .setPropertyString("publiclyVisibleTargetPackage", "com.example.test2")
+                        .setPropertyBytes("publiclyVisibleTargetPackageSha256Cert", cert2)
+                        .build();
+        GenericDocument visibleToConfigWrapperProperty =
+                new GenericDocument.Builder<GenericDocument.Builder<?>>("",
+                        "", "VisibleToConfigWrapper")
+                        .setCreationTimestampMillis(0)
+                        .setPropertyDocument("visibilityDocumentProperty", configProperty)
+                        .setPropertyDocument("publicAclProperty", publicAclProperty)
+                        .build();
+        GenericDocument expectedVisibleToConfigOverlay =
+                new GenericDocument.Builder<GenericDocument.Builder<?>>(
+                        "visibleToConfigOverlay", "someSchema",
+                        "VisibleToConfigOverlayType")
+                        .setCreationTimestampMillis(0L)
+                        .setPropertyDocument("visibleToConfigWrapperProperty",
+                                visibleToConfigWrapperProperty)
                         .build();
 
         // Check if the conversion is correct
@@ -107,45 +130,90 @@ public class VisibilityToDocumentConverterTest {
                 expectedDocument);
         assertEquals(
                 VisibilityToDocumentConverter.createPublicAclOverlay(visibilityConfig),
-                expectedOverlay);
+                expectedPublicAclOverlay);
+        assertEquals(
+                VisibilityToDocumentConverter.createVisibleToConfigOverlay(visibilityConfig),
+                expectedVisibleToConfigOverlay);
     }
 
     @Test
     public void testToVisibilityConfig() {
-        String visibleToPackage = "com.example.package";
-        byte[] visibleToPackageCert = new byte[32];
-
-        String publiclyVisibleTarget = "com.example.test";
-        byte[] publiclyVisibleTargetCert = new byte[32];
+        byte[] cert1 = new byte[32];
+        byte[] cert2 = new byte[32];
+        byte[] cert3 = new byte[32];
+        byte[] cert4 = new byte[32];
+        Arrays.fill(cert1, (byte) 1);
+        Arrays.fill(cert2, (byte) 2);
+        Arrays.fill(cert3, (byte) 3);
+        Arrays.fill(cert4, (byte) 4);
 
         // Create a VisibilityDocument for testing
-        GenericDocument visibilityDocument =
+        GenericDocument visibilityDoc =
                 new GenericDocument.Builder<GenericDocument.Builder<?>>("", "someSchema",
                         "VisibilityType")
                         .setCreationTimestampMillis(0)
                         .setPropertyBoolean("notPlatformSurfaceable", false)
-                        .setPropertyString("packageName", visibleToPackage)
-                        .setPropertyBytes("sha256Cert", visibleToPackageCert).build();
+                        .setPropertyString("packageName", "com.example.test1")
+                        .setPropertyBytes("sha256Cert", cert1).build();
 
         // Create a VisibilityOverlay for testing
-        GenericDocument visibilityOverlay =
-                new GenericDocument.Builder<GenericDocument.Builder<?>>("overlay",
-                        "someSchema",
-                        "PublicAclOverlayType")
+        GenericDocument publicAclOverlayDoc =
+                new GenericDocument.Builder<GenericDocument.Builder<?>>("publicAclOverlay",
+                        "someSchema", "PublicAclOverlayType")
                         .setCreationTimestampMillis(0)
-                        .setPropertyString("publiclyVisibleTargetPackage", "com.example.test")
-                        .setPropertyBytes("publiclyVisibleTargetPackageSha256Cert", new byte[32])
+                        .setPropertyString("publiclyVisibleTargetPackage", "com.example.test2")
+                        .setPropertyBytes("publiclyVisibleTargetPackageSha256Cert", cert2)
+                        .build();
+
+        // Create a visible config overlay for testing
+        GenericDocument permissionDoc =
+                new GenericDocument.Builder<GenericDocument.Builder<?>>("", "",
+                        "VisibilityPermissionType")
+                        .setCreationTimestampMillis(0)
+                        .setPropertyLong("allRequiredPermissions", 1).build();
+        GenericDocument configPropertyDoc =
+                new GenericDocument.Builder<GenericDocument.Builder<?>>("", "",
+                        "VisibilityType")
+                        .setCreationTimestampMillis(0)
+                        .setPropertyDocument("permission", permissionDoc)
+                        .setPropertyString("packageName", "com.example.test3")
+                        .setPropertyBytes("sha256Cert", cert3)
+                        .setPropertyBoolean("notPlatformSurfaceable", false)
+                        .build();
+        GenericDocument publicAclPropertyDoc =
+                new GenericDocument.Builder<GenericDocument.Builder<?>>("publicAclOverlay",
+                        "", "PublicAclOverlayType")
+                        .setCreationTimestampMillis(0)
+                        .setPropertyString("publiclyVisibleTargetPackage", "com.example.test4")
+                        .setPropertyBytes("publiclyVisibleTargetPackageSha256Cert", cert4)
+                        .build();
+        GenericDocument visibleToConfigWrapperProperty =
+                new GenericDocument.Builder<GenericDocument.Builder<?>>("",
+                        "", "VisibleToConfigWrapper")
+                        .setCreationTimestampMillis(0)
+                        .setPropertyDocument("visibilityDocumentProperty", configPropertyDoc)
+                        .setPropertyDocument("publicAclProperty", publicAclPropertyDoc)
+                        .build();
+        GenericDocument visibleToConfigOverlayDoc =
+                new GenericDocument.Builder<GenericDocument.Builder<?>>(
+                        "visibleToConfigOverlay", "someSchema",
+                        "VisibleToConfigOverlayType")
+                        .setCreationTimestampMillis(0L)
+                        .setPropertyDocument("visibleToConfigWrapperProperty",
+                                visibleToConfigWrapperProperty)
                         .build();
 
         // Create a VisibilityConfig using the Builder
         VisibilityConfig visibilityConfig = VisibilityToDocumentConverter.createVisibilityConfig(
-                visibilityDocument, visibilityOverlay);
+                visibilityDoc, publicAclOverlayDoc, visibleToConfigOverlayDoc);
 
         // Check if the properties are set correctly
-        assertEquals(visibilityDocument, VisibilityToDocumentConverter
+        assertEquals(visibilityDoc, VisibilityToDocumentConverter
                 .createVisibilityDocument(visibilityConfig));
-        assertEquals(visibilityOverlay, VisibilityToDocumentConverter
+        assertEquals(publicAclOverlayDoc, VisibilityToDocumentConverter
                 .createPublicAclOverlay(visibilityConfig));
+        assertEquals(visibleToConfigOverlayDoc, VisibilityToDocumentConverter
+                .createVisibleToConfigOverlay(visibilityConfig));
 
         VisibilityConfig.Builder builder = new VisibilityConfig.Builder(visibilityConfig);
 
@@ -162,6 +230,7 @@ public class VisibilityToDocumentConverterTest {
                         new PackageIdentifier("com.example.other", new byte[32]))
                 .setPubliclyVisibleTargetPackage(
                         new PackageIdentifier("com.example.other", new byte[32]))
+                .clearVisibleToConfig()
                 .build();
         assertEquals(modifiedConfig.getSchemaType(), "prefixedSchema");
 
@@ -170,8 +239,81 @@ public class VisibilityToDocumentConverterTest {
         assertFalse(rebuild.isNotDisplayedBySystem());
         assertEquals(rebuild.getVisibleToPermissions(), Collections.emptySet());
         assertEquals(rebuild.getVisibleToPackages(),
-                ImmutableList.of(new PackageIdentifier(visibleToPackage, visibleToPackageCert)));
+                ImmutableList.of(new PackageIdentifier("com.example.test1", cert1)));
         assertEquals(rebuild.getPubliclyVisibleTargetPackage(),
-                new PackageIdentifier(publiclyVisibleTarget, publiclyVisibleTargetCert));
+                new PackageIdentifier("com.example.test2", cert2));
+
+        VisibilityConfig expectedVisibleToConfig = new VisibilityConfig.Builder()
+                .setNotDisplayedBySystem(false)
+                .addVisibleToPermissions(ImmutableSet.of(1))
+                .addVisibleToPackage(new PackageIdentifier("com.example.test3", cert3))
+                .setPubliclyVisibleTargetPackage(new PackageIdentifier("com.example.test4", cert4))
+                .build();
+        assertThat(rebuild.getVisibleToConfigs()).containsExactly(expectedVisibleToConfig);
+    }
+
+    @Test
+    public void testToGenericDocumentAndBack() {
+        // Create a SetSchemaRequest for testing
+        byte[] cert1 = new byte[32];
+        byte[] cert2 = new byte[32];
+        byte[] cert3 = new byte[32];
+        byte[] cert4 = new byte[32];
+        byte[] cert5 = new byte[32];
+        byte[] cert6 = new byte[32];
+        byte[] cert7 = new byte[32];
+        Arrays.fill(cert1, (byte) 1);
+        Arrays.fill(cert2, (byte) 2);
+        Arrays.fill(cert3, (byte) 3);
+        Arrays.fill(cert4, (byte) 4);
+        Arrays.fill(cert5, (byte) 5);
+        Arrays.fill(cert6, (byte) 6);
+        Arrays.fill(cert7, (byte) 7);
+
+        VisibilityConfig config1 = new VisibilityConfig.Builder()
+                .addVisibleToPackage(new PackageIdentifier("com.example.test1", cert1))
+                .setPubliclyVisibleTargetPackage(
+                        new PackageIdentifier("com.example.test2", cert2))
+                .addVisibleToPermissions(ImmutableSet.of(1, 2))
+                .build();
+        VisibilityConfig config2 = new VisibilityConfig.Builder()
+                .addVisibleToPackage(new PackageIdentifier("com.example.test3", cert3))
+                .addVisibleToPermissions(ImmutableSet.of(3, 4))
+                .build();
+        VisibilityConfig config3 = new VisibilityConfig.Builder()
+                .addVisibleToPackage(new PackageIdentifier("com.example.test4", cert4))
+                .setPubliclyVisibleTargetPackage(
+                        new PackageIdentifier("com.example.test5", cert5))
+                .build();
+        SetSchemaRequest setSchemaRequest = new SetSchemaRequest.Builder()
+                .addSchemas(new AppSearchSchema.Builder("someSchema").build())
+                .setSchemaTypeDisplayedBySystem("someSchema", /*displayed=*/ true)
+                .setSchemaTypeVisibilityForPackage("someSchema", /*visible=*/ true,
+                        new PackageIdentifier("com.example.test6", cert6))
+                .addRequiredPermissionsForSchemaTypeVisibility("someSchema",
+                        ImmutableSet.of(1, 2))
+                .setPubliclyVisibleSchema("someSchema",
+                        new PackageIdentifier("com.example.test7", cert7))
+                .addSchemaTypeVisibleToConfig("someSchema", config1)
+                .addSchemaTypeVisibleToConfig("someSchema", config2)
+                .addSchemaTypeVisibleToConfig("someSchema", config3)
+                .build();
+
+        // Convert the SetSchemaRequest to a list of VisibilityConfig
+        List<VisibilityConfig> visibilityConfigs =
+                VisibilityConfig.toVisibilityConfigs(setSchemaRequest);
+        VisibilityConfig visibilityConfig = visibilityConfigs.get(0);
+
+        GenericDocument visibilityDoc =
+                VisibilityToDocumentConverter.createVisibilityDocument(visibilityConfig);
+        GenericDocument publicAclOverlayDoc =
+                VisibilityToDocumentConverter.createPublicAclOverlay(visibilityConfig);
+        GenericDocument visibleToConfigOverlayDoc =
+                VisibilityToDocumentConverter.createVisibleToConfigOverlay(visibilityConfig);
+
+        VisibilityConfig rebuild = VisibilityToDocumentConverter.createVisibilityConfig(
+                visibilityDoc, publicAclOverlayDoc, visibleToConfigOverlayDoc);
+
+        assertEquals(rebuild, visibilityConfig);
     }
 }

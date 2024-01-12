@@ -136,6 +136,11 @@ public final class VisibilityPermissionConfig extends AbstractSafeParcelable {
                 builder.setPropertyLong(ALL_REQUIRED_PERMISSIONS_PROPERTY, longs);
             }
 
+            // The creationTimestamp doesn't matter for Visibility documents.
+            // But to make tests pass, we set it 0 so two GenericDocuments generated from
+            // the same VisibilityPermissionConfig can be same.
+            builder.setCreationTimestampMillis(0L);
+
             mGenericDocument = builder.build();
         }
         return mGenericDocument;

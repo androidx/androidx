@@ -87,6 +87,9 @@ public final class Flags {
     public static final String FLAG_ENABLE_GENERIC_DOCUMENT_BUILDER_HIDDEN_METHODS = FLAG_PREFIX
             + "enable_generic_document_builder_hidden_methods";
 
+    public static final String FLAG_ENABLE_SET_SCHEMA_VISIBLE_TO_CONFIGS = FLAG_PREFIX
+            + "enable_set_schema_visible_to_configs";
+
     // Whether the features should be enabled.
     //
     // In Jetpack, those should always return true.
@@ -146,6 +149,15 @@ public final class Flags {
      * should be enabled.
      */
     public static boolean enableGenericDocumentBuilderHiddenMethods() {
+        return true;
+    }
+
+    /**
+     * Whether
+     * {@link androidx.appsearch.app.SetSchemaRequest.Builder #setSchemaTypeVisibilityForConfigs}
+     * should be enabled.
+     */
+    public static boolean enableSetSchemaVisibleToConfigs() {
         return true;
     }
 }

@@ -58,6 +58,12 @@ public class FlagsTest {
     }
 
     @Test
+    public void testFlagValue_enableSetSchemaVisibleToConfigs() {
+        assertThat(Flags.FLAG_ENABLE_SET_SCHEMA_VISIBLE_TO_CONFIGS).isEqualTo("com"
+                + ".android.appsearch.flags.enable_set_schema_visible_to_configs");
+    }
+
+    @Test
     public void testFlagValue_enablePutDocumentsRequestAddTakenActions() {
         assertThat(Flags.FLAG_ENABLE_PUT_DOCUMENTS_REQUEST_ADD_TAKEN_ACTIONS).isEqualTo(
                 "com.android.appsearch.flags.enable_put_documents_request_add_taken_actions");

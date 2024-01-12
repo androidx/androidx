@@ -108,6 +108,14 @@ public final class GetSchemaResponse extends AbstractSafeParcelable {
     @Nullable
     private Map<String, PackageIdentifier> mPubliclyVisibleSchemasCached;
 
+    /**
+     * This map contains all {@link VisibilityConfig}s that has access to the schema.
+     * All keys in the map are prefixed with the package-database prefix. We do lazy fetch, the
+     * object will be created when you first time fetch it.
+     */
+    @Nullable
+    private Map<String, Set<VisibilityConfig>> mSchemasVisibleToConfigsCached;
+
     @Constructor
     GetSchemaResponse(
             @Param(id = 1) int version,
@@ -265,6 +273,11 @@ public final class GetSchemaResponse extends AbstractSafeParcelable {
      * <!--@exportToFramework:else()-->
      */
     @FlaggedApi(Flags.FLAG_ENABLE_SET_PUBLICLY_VISIBLE_SCHEMA)
+    // @exportToFramework:startStrip()
+    @RequiresFeature(
+            enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
+            name = Features.ADD_PERMISSIONS_AND_GET_VISIBILITY)
+    // @exportToFramework:endStrip()
     @NonNull
     public Map<String, PackageIdentifier> getPubliclyVisibleSchemas() {
         List<VisibilityConfig> visibilityConfigs = getVisibilityConfigsOrThrow();
@@ -281,6 +294,37 @@ public final class GetSchemaResponse extends AbstractSafeParcelable {
             mPubliclyVisibleSchemasCached = Collections.unmodifiableMap(copy);
         }
         return mPubliclyVisibleSchemasCached;
+    }
+
+    /**
+     * Returns a mapping of schema types to the set of {@link VisibilityConfig} that have
+     * access to that schema type.
+     *
+     * @see SetSchemaRequest.Builder#addSchemaTypeVisibleToConfig
+     */
+    @FlaggedApi(Flags.FLAG_ENABLE_SET_SCHEMA_VISIBLE_TO_CONFIGS)
+    // @exportToFramework:startStrip()
+    @RequiresFeature(
+            enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
+            name = Features.ADD_PERMISSIONS_AND_GET_VISIBILITY)
+    // @exportToFramework:endStrip()
+    @NonNull
+    public Map<String, Set<VisibilityConfig>> getSchemaTypesVisibleToConfigs() {
+        List<VisibilityConfig> visibilityConfigs = getVisibilityConfigsOrThrow();
+        if (mSchemasVisibleToConfigsCached == null) {
+            Map<String, Set<VisibilityConfig>> copy = new ArrayMap<>();
+            for (int i = 0; i < visibilityConfigs.size(); i++) {
+                VisibilityConfig visibilityConfig = visibilityConfigs.get(i);
+                Set<VisibilityConfig> nestedVisibilityConfigs =
+                        visibilityConfig.getVisibleToConfigs();
+                if (!nestedVisibilityConfigs.isEmpty()) {
+                    copy.put(visibilityConfig.getSchemaType(),
+                            Collections.unmodifiableSet(nestedVisibilityConfigs));
+                }
+            }
+            mSchemasVisibleToConfigsCached = Collections.unmodifiableMap(copy);
+        }
+        return mSchemasVisibleToConfigsCached;
     }
 
     @NonNull
@@ -390,7 +434,9 @@ public final class GetSchemaResponse extends AbstractSafeParcelable {
             resetIfBuilt();
             VisibilityConfig.Builder visibilityConfigBuilder =
                     getOrCreateVisibilityConfigBuilder(schemaType);
-            visibilityConfigBuilder.addVisibleToPackages(packageIdentifiers);
+            for (PackageIdentifier packageIdentifier : packageIdentifiers) {
+                visibilityConfigBuilder.addVisibleToPackage(packageIdentifier);
+            }
             return this;
         }
 
@@ -463,6 +509,49 @@ public final class GetSchemaResponse extends AbstractSafeParcelable {
             VisibilityConfig.Builder visibilityConfigBuilder =
                     getOrCreateVisibilityConfigBuilder(schemaType);
             visibilityConfigBuilder.setPubliclyVisibleTargetPackage(packageIdentifier);
+            return this;
+        }
+
+        /**
+         * Sets the documents from the provided {@code schemaType} can be read by the caller if they
+         * match the ALL visibility requirements set in {@link VisibilityConfig}.
+         *
+         * <p> The requirements in a {@link VisibilityConfig} is "AND" relationship. A
+         * caller must match ALL requirements to access the schema. For example, a caller must hold
+         * required permissions AND it is a specified package.
+         *
+         * <p> The querier could have access if they match ALL requirements in ANY of the given
+         * {@link VisibilityConfig}s
+         *
+         * <p>For example, if the Set contains {@code {% verbatim %}{{PackageA and Permission1},
+         * {PackageB and Permission2}}{% endverbatim %}}.
+         * <ul>
+         *     <li>A querier from packageA could read if they holds Permission1.</li>
+         *     <li>A querier from packageA could NOT read if they only holds Permission2 instead of
+         *     Permission1.</li>
+         *     <li>A querier from packageB could read if they holds Permission2.</li>
+         *     <li>A querier from packageC could never read.</li>
+         *     <li>A querier holds both PermissionA and PermissionE has access.</li>
+         * </ul>
+         *
+         * @param schemaType         The schema type to set visibility on.
+         * @param visibleToConfigs   The {@link VisibilityConfig}s hold all requirements that a
+         *                           call must to match to access the schema.
+         */
+        // Merged map available from getSchemasVisibleToConfigs
+        @SuppressLint("MissingGetterMatchingBuilder")
+        @FlaggedApi(Flags.FLAG_ENABLE_SET_SCHEMA_VISIBLE_TO_CONFIGS)
+        @NonNull
+        public Builder setSchemaTypeVisibleToConfigs(@NonNull String schemaType,
+                @NonNull Set<VisibilityConfig> visibleToConfigs) {
+            Preconditions.checkNotNull(schemaType);
+            Preconditions.checkNotNull(visibleToConfigs);
+            resetIfBuilt();
+            VisibilityConfig.Builder visibilityConfigBuilder =
+                    getOrCreateVisibilityConfigBuilder(schemaType);
+            for (VisibilityConfig visibleToConfig : visibleToConfigs) {
+                visibilityConfigBuilder.addVisibleToConfig(visibleToConfig);
+            }
             return this;
         }
 

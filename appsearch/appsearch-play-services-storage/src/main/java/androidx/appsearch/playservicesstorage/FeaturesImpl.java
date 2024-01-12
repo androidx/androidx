@@ -110,6 +110,10 @@ final class FeaturesImpl implements Features {
             case Features.SET_SCHEMA_REQUEST_SET_PUBLICLY_VISIBLE:
                 // TODO(b/275592563) : Update to reflect support in Android U+ once this feature is
                 //  synced over into service-appsearch.
+                // fall through
+            case Features.SET_SCHEMA_REQUEST_ADD_SCHEMA_TYPE_VISIBLE_TO_CONFIG:
+                // TODO(b/275592563) : Update to reflect support in Android U+ once this feature is
+                //  synced over into service-appsearch.
                 return false;
             default:
                 return false; // AppSearch features in U+, absent in GMSCore AppSearch.

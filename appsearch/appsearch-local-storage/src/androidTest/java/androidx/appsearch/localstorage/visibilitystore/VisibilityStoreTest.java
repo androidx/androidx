@@ -45,6 +45,7 @@ import org.junit.rules.TemporaryFolder;
 import java.io.File;
 import java.util.Collections;
 
+// TODO(b/300162279) add test to verify overlay document is saved to AppSearchImpl.
 public class VisibilityStoreTest {
 
     /**
@@ -142,7 +143,9 @@ public class VisibilityStoreTest {
                         VisibilityStore.VISIBILITY_DATABASE_NAME,
                         VisibilityToDocumentConverter.VISIBILITY_DOCUMENT_NAMESPACE,
                         /*id=*/ "Email",
-                        /*typePropertyPaths=*/ Collections.emptyMap()), null);
+                        /*typePropertyPaths=*/ Collections.emptyMap()),
+                /*publicAclDocument=*/null,
+                /*visibleToConfigDocument=*/null);
         assertThat(actualConfig).isEqualTo(visibilityConfig);
 
         mVisibilityStore.removeVisibility(ImmutableSet.of(visibilityConfig.getSchemaType()));
