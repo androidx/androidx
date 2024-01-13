@@ -39,8 +39,6 @@ dependencies {
     testImplementation(libs.truth)
 }
 
-SdkResourceGenerator.generateForHostTest(project)
-
 gradlePlugin {
     plugins {
         darwinBenchmark {

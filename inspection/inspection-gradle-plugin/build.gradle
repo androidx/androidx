@@ -24,7 +24,6 @@
 import androidx.build.LibraryType
 import androidx.build.Publish
 import androidx.build.SdkResourceGenerator
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
@@ -32,7 +31,6 @@ plugins {
     id("java-gradle-plugin")
 }
 
-SdkResourceGenerator.generateForHostTest(project)
 apply from: "../../buildSrc/kotlin-dsl-dependency.gradle"
 
 dependencies {

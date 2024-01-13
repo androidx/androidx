@@ -24,9 +24,9 @@
 import androidx.build.*
 
 plugins {
-    id 'AndroidXPlugin'
-    id 'kotlin'
-    id 'java-gradle-plugin'
+    id("AndroidXPlugin")
+    id("kotlin")
+    id("java-gradle-plugin")
 }
 
 apply from: "../../buildSrc/kotlin-dsl-dependency.gradle"
@@ -52,8 +52,6 @@ dependencies {
     testImplementation(libs.kotlinTest)
     testImplementation(libs.truth)
 }
-
-SdkResourceGenerator.generateForHostTest(project)
 
 gradlePlugin {
     plugins {
