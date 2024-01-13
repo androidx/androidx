@@ -199,7 +199,8 @@ internal class RootNodeOwner(
             platformContext.inputModeManager.requestInputMode(InputMode.Touch)
         }
         val isInBounds = event.eventType != PointerEventType.Exit && event.pointers.all {
-            bounds?.contains(it.position.round()) ?: true
+            val positionInWindow = owner.calculatePositionInWindow(it.position)
+            bounds?.contains(positionInWindow.round()) ?: true
         }
         pointerInputEventProcessor.process(
             event,

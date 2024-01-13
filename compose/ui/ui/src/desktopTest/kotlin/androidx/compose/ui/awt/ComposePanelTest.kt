@@ -18,6 +18,7 @@ package androidx.compose.ui.awt
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.requiredSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.Text
@@ -28,14 +29,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.PointerEventType
+import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.layout.layout
+import androidx.compose.ui.sendMouseEvent
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.density
+import androidx.compose.ui.window.runApplicationTest
 import com.google.common.truth.Truth.assertThat
 import java.awt.BorderLayout
 import java.awt.Dimension
 import java.awt.GraphicsEnvironment
+import java.awt.event.MouseEvent
 import javax.swing.JFrame
 import javax.swing.JPanel
 import junit.framework.TestCase.assertTrue
@@ -358,6 +364,49 @@ class ComposePanelTest {
             } finally {
                 frame.dispose()
             }
+        }
+    }
+
+    // Issue: https://github.com/JetBrains/compose-multiplatform/issues/4123
+    @Test
+    fun `hover events in panel with offset`() = runApplicationTest {
+        var enterEvents = 0
+        var exitEvents = 0
+
+        val composePanel = ComposePanel()
+        composePanel.setBounds(25, 25, 50, 50)
+        composePanel.setContent {
+            Box(Modifier.size(50.dp)
+                .onPointerEvent(PointerEventType.Enter) { enterEvents++ }
+                .onPointerEvent(PointerEventType.Exit) { exitEvents++ }
+            )
+        }
+
+        val window = JFrame()
+        window.size = Dimension(200, 200)
+        try {
+            val content = JPanel(BorderLayout()).apply {
+                layout = null
+                add(composePanel, BorderLayout.CENTER)
+            }
+            window.contentPane.add(content)
+            window.isVisible = true
+
+            composePanel.sendMouseEvent(MouseEvent.MOUSE_ENTERED, 20, 20)
+            awaitIdle()
+            composePanel.sendMouseEvent(MouseEvent.MOUSE_MOVED, 20, 20)
+            awaitIdle()
+
+            assertEquals(1, enterEvents)
+            assertEquals(0, exitEvents)
+
+            composePanel.sendMouseEvent(MouseEvent.MOUSE_MOVED, 50, 50)
+            awaitIdle()
+
+            assertEquals(1, enterEvents)
+            assertEquals(1, exitEvents)
+        } finally {
+            window.dispose()
         }
     }
 }
