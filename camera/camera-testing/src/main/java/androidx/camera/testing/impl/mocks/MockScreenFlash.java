@@ -21,8 +21,9 @@ import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCapture.ScreenFlash;
-import androidx.camera.core.ImageCapture.ScreenFlashUiCompleter;
+import androidx.camera.core.ImageCapture.ScreenFlashListener;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -39,7 +40,7 @@ import java.util.concurrent.TimeUnit;
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class MockScreenFlash implements ScreenFlash {
     /**
-     * Represents {@link ScreenFlash#apply(ScreenFlashUiCompleter)} event.
+     * Represents {@link ImageCapture.ScreenFlash#apply} event.
      */
     public static final int APPLY = 0;
     /**
@@ -64,7 +65,7 @@ public class MockScreenFlash implements ScreenFlash {
 
     @GuardedBy("mLock")
     @Nullable
-    private ScreenFlashUiCompleter mLastApplyCompleter;
+    private ScreenFlashListener mLastApplyListener;
 
     /**
      * Returns a list of {@link ScreenFlashEvent} in the same order as invoked.
@@ -91,33 +92,34 @@ public class MockScreenFlash implements ScreenFlash {
     }
 
     /**
-     * Enables or disables the {@link ScreenFlashUiCompleter} being completed instantly when
-     * {@link ScreenFlash#apply(ScreenFlashUiCompleter)} is invoked.
+     * Enables or disables the {@link ScreenFlashListener} being completed instantly when
+     * {@link ScreenFlash#apply(long, ScreenFlashListener)} is invoked.
      */
     public void setApplyCompletedInstantly(boolean completedInstantly) {
         mIsApplyCompletedInstantly = completedInstantly;
     }
 
     /**
-     * Gets the {@link ScreenFlashUiCompleter} instance of the last
-     * {@link ScreenFlash#apply(ScreenFlashUiCompleter)} invocation, or null in case of no
+     * Gets the {@link ScreenFlashListener} instance of the last
+     * {@link ScreenFlash#apply(long, ScreenFlashListener)} invocation, or null in case of no
      * invocation.
      */
     @Nullable
-    public ScreenFlashUiCompleter getLastApplyCompleter() {
+    public ScreenFlashListener getLastApplyListener() {
         synchronized (mLock) {
-            return mLastApplyCompleter;
+            return mLastApplyListener;
         }
     }
 
     /** {@inheritDoc} */
     @Override
-    public void apply(@NonNull ScreenFlashUiCompleter screenFlashUiCompleter) {
+    public void apply(long expirationTimeMillis,
+            @NonNull ScreenFlashListener screenFlashListener) {
         synchronized (mLock) {
             mEventList.add(APPLY);
-            mLastApplyCompleter = screenFlashUiCompleter;
+            mLastApplyListener = screenFlashListener;
             if (mIsApplyCompletedInstantly) {
-                screenFlashUiCompleter.complete();
+                screenFlashListener.onCompleted();
             }
         }
     }

@@ -251,10 +251,11 @@ public final class ImageCapture extends UseCase {
      * <pre>{@code
      * imageCapture.setScreenFlash(new ImageCapture.ScreenFlash() {
      *     @Override
-     *     public void apply(@NonNull ScreenFlashUiCompleter screenFlashUiCompleter) {
+     *     public void apply(long expirationTimeMillis,
+     *             @NonNull ScreenFlashListener screenFlashListener) {
      *         whiteColorOverlayView.setVisibility(View.VISIBLE);
      *         maximizeScreenBrightness();
-     *         screenFlashUiCompleter.complete();
+     *         screenFlashListener.onCompleted();
      *     }
      *
      *     @Override
@@ -1672,28 +1673,22 @@ public final class ImageCapture extends UseCase {
     }
 
     /**
-     * Interface to inform if application UI change has been completed for a screen flash image
-     * capture.
+     * Callback listener for discovering when the application has completed its changes for a
+     * screen flash image capture.
+     *
+     * <p> For example, an application may change its UI to a full white screen with maximum
+     * brightness for a proper screen flash capture.
+     *
+     * @see ScreenFlash#apply(long, ScreenFlashListener)
      */
-    public interface ScreenFlashUiCompleter {
+    public interface ScreenFlashListener {
         /**
-         * Completes this {@link ScreenFlashUiCompleter} instance so that CameraX is no
-         * longer waiting.
+         * Invoked by the application when it has completed its changes due to a screen flash
+         * image capture.
          *
          * @see ScreenFlash#apply
          */
-        void complete();
-
-        /**
-         * Gets the timestamp after which CameraX will no longer be waiting.
-         *
-         * <p>The timestamp is based on {@link System#currentTimeMillis()}. It is at least
-         * 3 seconds later from the start of a screen flash image capture operation. Since
-         * CameraX will no longer wait for the UI change to be completed after this timestamp,
-         * users shouldn't be doing any screen flash related UI change that may go past this
-         * timestamp.
-         */
-        long getExpirationTimeMillis();
+        void onCompleted();
     }
 
 
@@ -1708,37 +1703,48 @@ public final class ImageCapture extends UseCase {
         /**
          * Applies the necessary application changes for a screen flash photo capture.
          *
-         * <p>CameraX will invoke this method when the application UI needs to be changed for a
-         * successful photo capture with screen flash feature. When this API is invoked, the
-         * application UI should utilize the screen to provide extra light as an alternative to
-         * physical flash. For example, the screen brightness can be maximized and screen color
-         * can be covered with some bright color like white.
+         * <p>When the application UI needs to be changed for a successful photo capture with
+         * screen flash feature, CameraX will invoke this method and wait for the application to
+         * complete its changes. When this API is invoked, the application UI should utilize the
+         * screen to provide extra light as an alternative to physical flash. For example, the
+         * screen brightness can be maximized and screen color can be covered with some bright
+         * color like white.
          *
-         * <p>Until the timestamp of {@link ScreenFlashUiCompleter#getExpirationTimeMillis()},
-         * CameraX will wait for the provided {@link ScreenFlashUiCompleter} argument to be
-         * completed before starting any operation that is dependent on the UI change.
-         * Applications must call {@link ScreenFlashUiCompleter#complete()} after their UI
-         * changes are done so that CameraX is not unnecessarily waiting. If the application does
-         * not call {@code ScreenFlashUiCompleter#complete} before the provided timestamp,
-         * CameraX will stop waiting and move forward with the subsequent operations regardless.
-         * In such case, it is the application's responsibility to clear any UI change done after
-         * {@link #clear} has been invoked.
+         * <p>The parameter {@code expirationTimeMillis} is based on
+         * {@link System#currentTimeMillis()}. It is at least 3 seconds later from the start of a
+         * screen flash image capture operation. Until the timestamp of {@code expirationTimeMillis}
+         * parameter, CameraX will wait for the application to notify the completion of the
+         * application-side changes using the {@link ScreenFlashListener} parameter of this
+         * method. Applications must call {@link ScreenFlashListener#onCompleted()} after their
+         * UI changes are done so that CameraX is not unnecessarily waiting. If the application
+         * does not call {@code ScreenFlashListener#onCompleted} before {@code
+         * expirationTimeMillis}, CameraX will stop waiting and move forward with the subsequent
+         * operations regardless. In such case, the application no longer needs to call {@code
+         * ScreenFlashListener#onCompleted()}. If {@link #clear} has also been invoked while the
+         * application is still doing the changes, it is the application's responsibility to
+         * clear any UI change done after {@link #clear} has been invoked.
          *
          * <p>The following code snippet shows an example implementation of this API.
          * <pre>{@code
          * @Override
-         * public void apply(@NonNull ScreenFlashUiCompleter screenFlashUiCompleter) {
+         * public void apply(long expirationTimeMillis,
+         *         @NonNull ScreenFlashListener screenFlashListener) {
          *     // Enable top overlay to make screen color white
          *     whiteColorOverlay.setVisible(true);
          *     // Maximize screen brightness
          *     maximizeScreenBrightness();
-         *     screenFlashUiCompleter.complete();
+         *     screenFlashListener.onCompleted();
          * }}</pre>
          *
-         * @param screenFlashUiCompleter Used to notify when UI changes have been applied.
+         * @param expirationTimeMillis The timestamp after which CameraX will no longer listen
+         *                             to {@code screenFlashListener}.
+         * @param screenFlashListener  Used to notify when UI changes have been applied.
          */
+        // ExecutorRegistration lint suppressed since this is called by app and CameraX supports
+        // receiving the call on any thread. Adding executor will make it harder for apps.
+        @SuppressWarnings("ExecutorRegistration")
         @UiThread
-        void apply(@NonNull ScreenFlashUiCompleter screenFlashUiCompleter);
+        void apply(long expirationTimeMillis, @NonNull ScreenFlashListener screenFlashListener);
 
         /**
          * Clears any application change done for screen flash operation, if required.

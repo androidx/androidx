@@ -174,8 +174,8 @@ public final class ScreenFlashView extends View {
                 private float mPreviousBrightness;
 
                 @Override
-                public void apply(
-                        @NonNull ImageCapture.ScreenFlashUiCompleter screenFlashUiCompleter) {
+                public void apply(long expirationTimeMillis,
+                        @NonNull ImageCapture.ScreenFlashListener screenFlashListener) {
                     Logger.d(TAG, "ScreenFlash#apply");
 
                     setAlpha(1f);
@@ -186,7 +186,7 @@ public final class ScreenFlashView extends View {
                     layoutParam.screenBrightness = 1F;
                     mScreenFlashWindow.setAttributes(layoutParam);
 
-                    screenFlashUiCompleter.complete();
+                    screenFlashListener.onCompleted();
                 }
 
                 @Override
@@ -208,7 +208,7 @@ public final class ScreenFlashView extends View {
      * Returns an {@link ScreenFlash} implementation based on the {@link Window} instance
      * set via {@link #setScreenFlashWindow(Window)}.
      *
-     * <p> When {@link ScreenFlash#apply(ImageCapture.ScreenFlashUiCompleter)} is invoked,
+     * <p> When {@link ScreenFlash#apply(long, ImageCapture.ScreenFlashListener)} is invoked,
      * this view becomes fully visible and screen brightness is maximized using the provided
      * {@code Window}. The default color of the overlay view is {@link Color#WHITE}. To change
      * the color, use {@link #setBackgroundColor(int)}.

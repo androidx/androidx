@@ -223,9 +223,9 @@ public abstract class CameraController {
     private static final ScreenFlash NO_OP_SCREEN_FLASH =
             new ScreenFlash() {
                 @Override
-                public void apply(
-                        @NonNull ImageCapture.ScreenFlashUiCompleter screenFlashUiCompleter) {
-                    screenFlashUiCompleter.complete();
+                public void apply(long expirationTimeMillis,
+                        @NonNull ImageCapture.ScreenFlashListener screenFlashListener) {
+                    screenFlashListener.onCompleted();
                 }
 
                 @Override

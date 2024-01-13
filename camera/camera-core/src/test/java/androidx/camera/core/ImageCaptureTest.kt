@@ -60,7 +60,7 @@ import androidx.camera.testing.impl.fakes.FakeCameraFactory
 import androidx.camera.testing.impl.fakes.FakeImageReaderProxy
 import androidx.camera.testing.impl.fakes.FakeSessionProcessor
 import androidx.camera.testing.impl.mocks.MockScreenFlash
-import androidx.camera.testing.impl.mocks.MockScreenFlashUiCompleter
+import androidx.camera.testing.impl.mocks.MockScreenFlashListener
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import java.io.File
@@ -629,7 +629,8 @@ class ImageCaptureTest {
         imageCapture.screenFlash = MockScreenFlash()
 
         (cameraFront.cameraControl as FakeCameraControl).screenFlash?.apply(
-            MockScreenFlashUiCompleter()
+            0L,
+            MockScreenFlashListener()
         )
         imageCapture.unbindFromCamera(cameraFront)
 
@@ -646,7 +647,8 @@ class ImageCaptureTest {
         imageCapture.screenFlash = MockScreenFlash()
 
         (cameraFront.cameraControl as FakeCameraControl).screenFlash?.apply(
-            MockScreenFlashUiCompleter()
+            0L,
+            MockScreenFlashListener()
         )
         (cameraFront.cameraControl as FakeCameraControl).screenFlash?.clear()
         imageCapture.unbindFromCamera(cameraFront)
@@ -656,8 +658,8 @@ class ImageCaptureTest {
     }
 
     @Test
-    fun cameraControlScreenFlashUiCompleterCompleted_whenImageCaptureCompleterIsCompleted() {
-        val completer = MockScreenFlashUiCompleter()
+    fun cameraControlScreenFlashListenerCompleted_whenImageCaptureListenerIsCompleted() {
+        val listener = MockScreenFlashListener()
         val imageCapture = bindImageCapture(
             cameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA,
             imageReaderProxyProvider = getFakeImageReaderProxyProvider(),
@@ -666,16 +668,16 @@ class ImageCaptureTest {
             setApplyCompletedInstantly(false)
         }
 
-        (cameraFront.cameraControl as FakeCameraControl).screenFlash?.apply(completer)
-        (imageCapture.screenFlash as MockScreenFlash).lastApplyCompleter?.complete()
+        (cameraFront.cameraControl as FakeCameraControl).screenFlash?.apply(0L, listener)
+        (imageCapture.screenFlash as MockScreenFlash).lastApplyListener?.onCompleted()
 
-        completer.awaitComplete(3000)
-        assertThat(completer.getCompleteCount()).isEqualTo(1)
+        listener.awaitComplete(3000)
+        assertThat(listener.getCompleteCount()).isEqualTo(1)
     }
 
     @Test
-    fun imageCaptureUnboundWithoutCompletion_cameraControlScreenFlashUiCompleterCompleted() {
-        val completer = MockScreenFlashUiCompleter()
+    fun imageCaptureUnboundWithoutCompletion_cameraControlScreenFlashListenerCompleted() {
+        val listener = MockScreenFlashListener()
         val imageCapture = bindImageCapture(
             cameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA,
             imageReaderProxyProvider = getFakeImageReaderProxyProvider(),
@@ -684,16 +686,16 @@ class ImageCaptureTest {
             setApplyCompletedInstantly(false)
         }
 
-        (cameraFront.cameraControl as FakeCameraControl).screenFlash?.apply(completer)
+        (cameraFront.cameraControl as FakeCameraControl).screenFlash?.apply(0L, listener)
         imageCapture.unbindFromCamera(cameraFront)
 
-        completer.awaitComplete(3000)
-        assertThat(completer.getCompleteCount()).isEqualTo(1)
+        listener.awaitComplete(3000)
+        assertThat(listener.getCompleteCount()).isEqualTo(1)
     }
 
     @Test
-    fun imageCaptureUnboundAndCompleterCompleted_cameraControlCompleterCompletedOnlyOnce() {
-        val completer = MockScreenFlashUiCompleter()
+    fun imageCaptureUnboundAndListenerCompleted_cameraControlListenerCompletedOnlyOnce() {
+        val listener = MockScreenFlashListener()
         val imageCapture = bindImageCapture(
             cameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA,
             imageReaderProxyProvider = getFakeImageReaderProxyProvider(),
@@ -702,12 +704,12 @@ class ImageCaptureTest {
             setApplyCompletedInstantly(false)
         }
 
-        (cameraFront.cameraControl as FakeCameraControl).screenFlash?.apply(completer)
+        (cameraFront.cameraControl as FakeCameraControl).screenFlash?.apply(0L, listener)
         imageCapture.unbindFromCamera(cameraFront)
-        (imageCapture.screenFlash as MockScreenFlash).lastApplyCompleter?.complete()
+        (imageCapture.screenFlash as MockScreenFlash).lastApplyListener?.onCompleted()
 
-        completer.awaitComplete(3000)
-        assertThat(completer.getCompleteCount()).isEqualTo(1)
+        listener.awaitComplete(3000)
+        assertThat(listener.getCompleteCount()).isEqualTo(1)
     }
 
     @Test

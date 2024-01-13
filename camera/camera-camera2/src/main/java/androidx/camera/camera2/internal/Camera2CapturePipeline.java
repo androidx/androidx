@@ -681,23 +681,14 @@ class Camera2CapturePipeline {
         public ListenableFuture<Boolean> preCapture(@Nullable TotalCaptureResult captureResult) {
             Logger.d(TAG, "ScreenFlashTask#preCapture");
 
-            AtomicReference<ImageCapture.ScreenFlashUiCompleter> screenFlashUiCompleter =
+            AtomicReference<ImageCapture.ScreenFlashListener> screenFlashListener =
                     new AtomicReference<>();
 
             ListenableFuture<Void> uiAppliedFuture = CallbackToFutureAdapter.getFuture(
                     completer -> {
-                        screenFlashUiCompleter.set(new ImageCapture.ScreenFlashUiCompleter() {
-                            @Override
-                            public void complete() {
-                                Logger.d(TAG, "ScreenFlashTask#preCapture: UI change applied");
-                                completer.set(null);
-                            }
-
-                            @Override
-                            public long getExpirationTimeMillis() {
-                                return System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(
-                                        ImageCapture.SCREEN_FLASH_UI_APPLY_TIMEOUT_SECONDS);
-                            }
+                        screenFlashListener.set(() -> {
+                            Logger.d(TAG, "ScreenFlashTask#preCapture: UI change applied");
+                            completer.set(null);
                         });
                         return "OnScreenFlashUiApplied";
                     });
@@ -705,7 +696,9 @@ class Camera2CapturePipeline {
             ListenableFuture<Void> future = CallbackToFutureAdapter.getFuture(completer -> {
                 CameraXExecutors.mainThreadExecutor().execute(() -> {
                     Logger.d(TAG, "ScreenFlashTask#preCapture: invoking applyScreenFlashUi");
-                    mScreenFlash.apply(screenFlashUiCompleter.get());
+                    mScreenFlash.apply(System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(
+                                    ImageCapture.SCREEN_FLASH_UI_APPLY_TIMEOUT_SECONDS),
+                            screenFlashListener.get());
                     completer.set(null);
                 });
                 return "OnScreenFlashStart";
@@ -730,8 +723,8 @@ class Camera2CapturePipeline {
                     mExecutor
             ).transformAsync(
                     input -> Futures.makeTimeoutFuture(
-                            // Not using ScreenFlashUiCompleter#getExpirationTimeMillis here gives
-                            // users a bit more grace time before CameraX stops waiting.
+                            // Not using the previous timestamp here gives users a bit more grace
+                            // time before CameraX stops waiting.
                             TimeUnit.SECONDS.toMillis(
                                     ImageCapture.SCREEN_FLASH_UI_APPLY_TIMEOUT_SECONDS),
                             mScheduler, null, true, uiAppliedFuture),

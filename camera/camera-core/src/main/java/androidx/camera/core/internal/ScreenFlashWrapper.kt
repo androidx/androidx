@@ -19,11 +19,11 @@ package androidx.camera.core.internal
 import androidx.annotation.GuardedBy
 import androidx.annotation.RequiresApi
 import androidx.camera.core.ImageCapture.ScreenFlash
-import androidx.camera.core.ImageCapture.ScreenFlashUiCompleter
+import androidx.camera.core.ImageCapture.ScreenFlashListener
 import androidx.camera.core.Logger
 
 /**
- * Wrapper class around [ScreenFlash] to save the [ScreenFlashUiCompleter] passed to app.
+ * Wrapper class around [ScreenFlash] to save the [ScreenFlashListener] passed to app.
  *
  * This allows us to clean up properly in case a capture is cancelled earlier (e.g. ImageCapture is
  * unbound after [apply] is invoked but [clear] is not).
@@ -37,37 +37,32 @@ class ScreenFlashWrapper private constructor(
     @GuardedBy("lock")
     private var isClearScreenFlashPending: Boolean = false
     @GuardedBy("lock")
-    private var pendingCompleter: ScreenFlashUiCompleter? = null
+    private var pendingListener: ScreenFlashListener? = null
 
     companion object {
         private const val TAG = "ScreenFlashWrapper"
 
         @JvmStatic
-        fun from(screenFlash: ScreenFlash?) =
-            ScreenFlashWrapper(screenFlash)
+        fun from(screenFlash: ScreenFlash?) = ScreenFlashWrapper(screenFlash)
     }
 
-    override fun apply(screenFlashUiCompleter: ScreenFlashUiCompleter) {
+    override fun apply(expirationTimeMillis: Long, screenFlashListener: ScreenFlashListener) {
         synchronized(lock) {
             isClearScreenFlashPending = true
-            pendingCompleter = screenFlashUiCompleter
+            pendingListener = screenFlashListener
         }
 
-        screenFlash?.apply(object : ScreenFlashUiCompleter {
-            override fun complete() {
-                synchronized(lock) {
-                    if (pendingCompleter == null) {
-                        Logger.w(TAG, "apply: pendingCompleter is null!")
-                    }
-                    completePendingScreenFlashUiCompleter()
+        screenFlash?.apply(expirationTimeMillis) {
+            synchronized(lock) {
+                if (pendingListener == null) {
+                    Logger.w(TAG, "apply: pendingListener is null!")
                 }
+                completePendingScreenFlashListener()
             }
-
-            override fun getExpirationTimeMillis() = screenFlashUiCompleter.expirationTimeMillis
-        }) ?: run {
+        } ?: run {
             Logger.e(TAG, "apply: screenFlash is null!")
             // Complete immediately in case this error case is invoked by some bug
-            completePendingScreenFlashUiCompleter()
+            completePendingScreenFlashListener()
         }
     }
 
@@ -81,12 +76,12 @@ class ScreenFlashWrapper private constructor(
     fun getBaseScreenFlash(): ScreenFlash? = screenFlash
 
     /**
-     * Completes the pending [ScreenFlashUiCompleter], if any.
+     * Completes the pending [ScreenFlashListener], if any.
      */
-    private fun completePendingScreenFlashUiCompleter() {
+    private fun completePendingScreenFlashListener() {
         synchronized(lock) {
-            pendingCompleter?.complete()
-            pendingCompleter = null
+            pendingListener?.onCompleted()
+            pendingListener = null
         }
     }
 
@@ -110,7 +105,7 @@ class ScreenFlashWrapper private constructor(
      * Completes all pending operations.
      */
     fun completePendingTasks() {
-        completePendingScreenFlashUiCompleter()
+        completePendingScreenFlashListener()
         completePendingScreenFlashClear()
     }
 }
