@@ -491,11 +491,12 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
         val dackkaTask =
             project.tasks.register("docs", DackkaTask::class.java) { task ->
                 var taskStartTime: LocalDateTime? = null
-                task.argsJsonFile =
+                task.argsJsonFile.set(
                     File(
                         project.rootProject.getDistributionDirectory(),
                         "dackkaArgs-${project.name}.json"
                     )
+                )
                 task.apply {
                     dependsOn(unzipJvmSourcesTask)
                     dependsOn(unzipSamplesTask)
@@ -509,31 +510,35 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
 
                     dackkaClasspath.from(project.files(dackkaConfiguration))
                     destinationDir.set(generatedDocsDir)
-                    frameworkSamplesDir = File(project.rootDir, "samples")
+                    frameworkSamplesDir.set(
+                        project.rootProject.layout.projectDirectory.dir("samples")
+                    )
                     samplesDir.set(unzippedSamplesSources)
                     jvmSourcesDir.set(unzippedJvmSourcesDirectory)
                     multiplatformSourcesDir.set(unzippedMultiplatformSourcesDirectory)
-                    docsProjectDir = File(project.rootDir, "docs-public")
-                    dependenciesClasspath =
+                    projectListsDirectory.set(
+                        project.rootProject.layout.projectDirectory.dir("docs-public/package-lists")
+                    )
+                    dependenciesClasspath.from(
                         dependencyClasspath +
                             project.getAndroidJar() +
                             project.getExtraCommonDependencies()
-                    excludedPackages = hiddenPackages.toSet()
-                    excludedPackagesForJava = hiddenPackagesJava
-                    excludedPackagesForKotlin = emptySet()
+                    )
+                    excludedPackages.set(hiddenPackages.toSet())
+                    excludedPackagesForJava.set(hiddenPackagesJava)
+                    excludedPackagesForKotlin.set(emptySet())
                     libraryMetadataFile.set(getMetadataRegularFile(project))
                     projectStructureMetadataFile.set(mergedProjectMetadata)
                     // See go/dackka-source-link for details on this link.
-                    baseSourceLink = "https://cs.android.com/search?" + "q=file:%s+class:%s"
-                    annotationsNotToDisplay = hiddenAnnotations
-                    annotationsNotToDisplayJava = hiddenAnnotationsJava
-                    annotationsNotToDisplayKotlin = hiddenAnnotationsKotlin
-                    hidingAnnotations = annotationsToHideApis
-                    nullabilityAnnotations = validNullabilityAnnotations
-                    versionMetadataFiles =
-                        versionMetadataConfiguration.incoming.artifacts.resolvedArtifacts.map {
-                            it.map { it.file }
-                        }
+                    baseSourceLink.set("https://cs.android.com/search?" + "q=file:%s+class:%s")
+                    annotationsNotToDisplay.set(hiddenAnnotations)
+                    annotationsNotToDisplayJava.set(hiddenAnnotationsJava)
+                    annotationsNotToDisplayKotlin.set(hiddenAnnotationsKotlin)
+                    hidingAnnotations.set(annotationsToHideApis)
+                    nullabilityAnnotations.set(validNullabilityAnnotations)
+                    versionMetadataFiles.from(
+                        versionMetadataConfiguration.incoming.artifactView { }.files
+                    )
                     task.doFirst { taskStartTime = LocalDateTime.now() }
                     task.doLast {
                         val taskEndTime = LocalDateTime.now()
