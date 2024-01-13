@@ -59,6 +59,7 @@ import androidx.appsearch.app.SearchSuggestionSpec;
 import androidx.appsearch.app.SetSchemaRequest;
 import androidx.appsearch.app.StorageInfo;
 import androidx.appsearch.app.TakenAction;
+import androidx.appsearch.app.VisibilityConfig;
 import androidx.appsearch.cts.app.customer.EmailDocument;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.testutil.AppSearchEmail;
@@ -841,6 +842,53 @@ public abstract class AppSearchSessionCtsTestBase {
                 () -> mDb1.setSchemaAsync(request).get());
         assertThat(e.getMessage()).isEqualTo("Publicly visible schema are not supported on this "
                 + "AppSearch implementation.");
+    }
+
+    @Test
+    public void testSetSchema_visibleToConfig() throws Exception {
+        assumeTrue(mDb1.getFeatures()
+                .isFeatureSupported(Features.SET_SCHEMA_REQUEST_ADD_SCHEMA_TYPE_VISIBLE_TO_CONFIG));
+        byte[] cert1 = new byte[32];
+        byte[] cert2 = new byte[32];
+        Arrays.fill(cert1, (byte) 1);
+        Arrays.fill(cert2, (byte) 2);
+        PackageIdentifier pkg1 = new PackageIdentifier("package1", cert1);
+        PackageIdentifier pkg2 = new PackageIdentifier("package2", cert2);
+        VisibilityConfig config1 = new VisibilityConfig.Builder()
+                .setNotDisplayedBySystem(true)
+                .setPubliclyVisibleTargetPackage(pkg1)
+                .addVisibleToPermissions(ImmutableSet.of(1, 2)).build();
+        VisibilityConfig config2 = new VisibilityConfig.Builder()
+                .setNotDisplayedBySystem(false)
+                .setPubliclyVisibleTargetPackage(pkg2)
+                .addVisibleToPermissions(ImmutableSet.of(3, 4)).build();
+        SetSchemaRequest request = new SetSchemaRequest.Builder().addSchemas(AppSearchEmail.SCHEMA)
+                .addSchemaTypeVisibleToConfig("builtin:Email", config1)
+                .addSchemaTypeVisibleToConfig("builtin:Email", config2)
+                .build();
+        mDb1.setSchemaAsync(request).get();
+
+        GetSchemaResponse getSchemaResponse = mDb1.getSchemaAsync().get();
+        assertThat(getSchemaResponse.getSchemas()).containsExactly(AppSearchEmail.SCHEMA);
+        assertThat(getSchemaResponse.getSchemaTypesVisibleToConfigs())
+                .isEqualTo(ImmutableMap.of("builtin:Email", ImmutableSet.of(config1, config2)));
+    }
+
+    @Test
+    public void testSetSchema_visibleToConfig_unsupported() {
+        assumeFalse(mDb1.getFeatures()
+                .isFeatureSupported(Features.SET_SCHEMA_REQUEST_ADD_SCHEMA_TYPE_VISIBLE_TO_CONFIG));
+
+        VisibilityConfig config = new VisibilityConfig.Builder()
+                .setNotDisplayedBySystem(true)
+                .addVisibleToPermissions(ImmutableSet.of(1, 2)).build();
+        SetSchemaRequest request = new SetSchemaRequest.Builder()
+                .addSchemas(new AppSearchSchema.Builder("Email").build())
+                .addSchemaTypeVisibleToConfig("Email", config).build();
+        Exception e = assertThrows(UnsupportedOperationException.class,
+                () -> mDb1.setSchemaAsync(request).get());
+        assertThat(e.getMessage()).isEqualTo("Schema visible to config are not supported on"
+                + " this AppSearch implementation.");
     }
 
     @Test

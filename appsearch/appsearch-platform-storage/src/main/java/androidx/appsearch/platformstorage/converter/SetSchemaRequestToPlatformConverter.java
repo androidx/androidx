@@ -93,6 +93,13 @@ public final class SetSchemaRequestToPlatformConverter {
                     + "this AppSearch implementation.");
         }
 
+        if (!jetpackRequest.getSchemasVisibleToConfigs().isEmpty()) {
+            // TODO(b/275592563): Update this to check version once synced to framework
+            throw new UnsupportedOperationException("Schema visible to config are not supported on"
+                    + " this AppSearch implementation.");
+
+        }
+
         for (Map.Entry<String, Migrator> entry : jetpackRequest.getMigrators().entrySet()) {
             Migrator jetpackMigrator = entry.getValue();
             android.app.appsearch.Migrator platformMigrator = new android.app.appsearch.Migrator() {
