@@ -546,9 +546,10 @@ class CameraControllerTest {
                 ScreenFlashUiInfo.ProviderType.SCREEN_FLASH_VIEW,
                 object : ScreenFlash {
                     override fun apply(
-                        screenFlashUiCompleter: ImageCapture.ScreenFlashUiCompleter
+                        expirationTimeMillis: Long,
+                        screenFlashListener: ImageCapture.ScreenFlashListener,
                     ) {
-                        screenFlashUiCompleter.complete()
+                        screenFlashListener.onCompleted()
                     }
 
                     override fun clear() {
