@@ -1742,6 +1742,7 @@ package androidx.compose.ui.graphics.vector {
     method public androidx.compose.ui.graphics.vector.PathParser addPathNodes(java.util.List<? extends androidx.compose.ui.graphics.vector.PathNode> nodes);
     method public void clear();
     method public androidx.compose.ui.graphics.vector.PathParser parsePathString(String pathData);
+    method public java.util.ArrayList<androidx.compose.ui.graphics.vector.PathNode> pathStringToNodes(String pathData, optional java.util.ArrayList<androidx.compose.ui.graphics.vector.PathNode> nodes);
     method public java.util.List<androidx.compose.ui.graphics.vector.PathNode> toNodes();
     method public androidx.compose.ui.graphics.Path toPath(optional androidx.compose.ui.graphics.Path target);
   }
