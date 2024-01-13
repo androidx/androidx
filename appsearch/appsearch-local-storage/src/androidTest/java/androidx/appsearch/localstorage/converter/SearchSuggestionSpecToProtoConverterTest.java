@@ -74,9 +74,6 @@ public class SearchSuggestionSpecToProtoConverterTest {
                         .build());
     }
 
-    // @exportToFramework:startStrip()
-    // TODO(b/230553264) remove this when it is deprecated and replaced by
-    //  advanced query property filters or it is exportable.
     @Test
     public void testToProto_propertyFilters() throws Exception {
         SearchSuggestionSpec searchSuggestionSpec =
@@ -103,5 +100,4 @@ public class SearchSuggestionSpecToProtoConverterTest {
                         .addPaths("property1").addPaths("property2")
                         .build());
     }
-    // @exportToFramework:endStrip()
 }

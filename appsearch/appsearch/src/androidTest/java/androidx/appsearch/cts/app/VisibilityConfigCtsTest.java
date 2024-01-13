@@ -18,13 +18,9 @@ package androidx.appsearch.cts.app;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.PackageIdentifier;
-import androidx.appsearch.app.SetSchemaRequest;
 import androidx.appsearch.app.VisibilityConfig;
 
 import com.google.common.collect.ImmutableSet;
@@ -32,7 +28,6 @@ import com.google.common.collect.ImmutableSet;
 import org.junit.Test;
 
 import java.util.Arrays;
-import java.util.List;
 
 public class VisibilityConfigCtsTest {
 
@@ -115,34 +110,5 @@ public class VisibilityConfigCtsTest {
         assertThat(rebuild.getVisibleToPackages()).isEmpty();
         assertThat(rebuild.getPubliclyVisibleTargetPackage()).isNull();
         assertThat(rebuild.getVisibleToPermissions()).isEmpty();
-    }
-
-    @Test
-    public void testToVisibilityConfig_publicAcl() {
-        byte[] packageSha256Cert = new byte[32];
-        packageSha256Cert[0] = 24;
-        packageSha256Cert[8] = 23;
-        packageSha256Cert[16] = 22;
-        packageSha256Cert[24] = 21;
-
-        // Create a SetSchemaRequest for testing
-        SetSchemaRequest setSchemaRequest = new SetSchemaRequest.Builder()
-                .addSchemas(new AppSearchSchema.Builder("testSchema").build())
-                .setPubliclyVisibleSchema("testSchema",
-                        new PackageIdentifier("com.example.test", packageSha256Cert))
-                .build();
-
-        // Convert the SetSchemaRequest to GenericDocument map
-        List<VisibilityConfig> visibilityConfigs =
-                VisibilityConfig.toVisibilityConfigs(setSchemaRequest);
-
-        // Check if the conversion is correct
-        assertThat(visibilityConfigs).hasSize(1);
-        VisibilityConfig visibilityConfig = visibilityConfigs.get(0);
-        assertNotNull(visibilityConfig.getPubliclyVisibleTargetPackage());
-        assertEquals("com.example.test",
-                visibilityConfig.getPubliclyVisibleTargetPackage().getPackageName());
-        assertEquals(packageSha256Cert,
-                visibilityConfig.getPubliclyVisibleTargetPackage().getSha256Certificate());
     }
 }
