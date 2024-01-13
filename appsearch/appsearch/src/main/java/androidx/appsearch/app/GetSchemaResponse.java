@@ -156,11 +156,9 @@ public final class GetSchemaResponse extends AbstractSafeParcelable {
      * called with false.
      * <!--@exportToFramework:else()-->
      */
-    // @exportToFramework:startStrip()
     @RequiresFeature(
             enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
             name = Features.ADD_PERMISSIONS_AND_GET_VISIBILITY)
-    // @exportToFramework:endStrip()
     @NonNull
     public Set<String> getSchemaTypesNotDisplayedBySystem() {
         List<VisibilityConfig> visibilityConfigs = getVisibilityConfigsOrThrow();
@@ -184,11 +182,9 @@ public final class GetSchemaResponse extends AbstractSafeParcelable {
      * called with false.
      * <!--@exportToFramework:else()-->
      */
-    // @exportToFramework:startStrip()
     @RequiresFeature(
             enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
             name = Features.ADD_PERMISSIONS_AND_GET_VISIBILITY)
-    // @exportToFramework:endStrip()
     @NonNull
     public Map<String, Set<PackageIdentifier>> getSchemaTypesVisibleToPackages() {
         List<VisibilityConfig> visibilityConfigs = getVisibilityConfigsOrThrow();
@@ -238,11 +234,9 @@ public final class GetSchemaResponse extends AbstractSafeParcelable {
      * <!--@exportToFramework:else()-->
      */
     // TODO(b/237388235): add enterprise permissions to javadocs after they're unhidden
-    // @exportToFramework:startStrip()
     @RequiresFeature(
             enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
             name = Features.ADD_PERMISSIONS_AND_GET_VISIBILITY)
-    // @exportToFramework:endStrip()
     @NonNull
     public Map<String, Set<Set<Integer>>> getRequiredPermissionsForSchemaTypeVisibility() {
         List<VisibilityConfig> visibilityConfigs = getVisibilityConfigsOrThrow();
@@ -273,11 +267,9 @@ public final class GetSchemaResponse extends AbstractSafeParcelable {
      * <!--@exportToFramework:else()-->
      */
     @FlaggedApi(Flags.FLAG_ENABLE_SET_PUBLICLY_VISIBLE_SCHEMA)
-    // @exportToFramework:startStrip()
     @RequiresFeature(
             enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
             name = Features.ADD_PERMISSIONS_AND_GET_VISIBILITY)
-    // @exportToFramework:endStrip()
     @NonNull
     public Map<String, PackageIdentifier> getPubliclyVisibleSchemas() {
         List<VisibilityConfig> visibilityConfigs = getVisibilityConfigsOrThrow();
@@ -303,11 +295,9 @@ public final class GetSchemaResponse extends AbstractSafeParcelable {
      * @see SetSchemaRequest.Builder#addSchemaTypeVisibleToConfig
      */
     @FlaggedApi(Flags.FLAG_ENABLE_SET_SCHEMA_VISIBLE_TO_CONFIGS)
-    // @exportToFramework:startStrip()
     @RequiresFeature(
             enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
             name = Features.ADD_PERMISSIONS_AND_GET_VISIBILITY)
-    // @exportToFramework:endStrip()
     @NonNull
     public Map<String, Set<VisibilityConfig>> getSchemaTypesVisibleToConfigs() {
         List<VisibilityConfig> visibilityConfigs = getVisibilityConfigsOrThrow();
