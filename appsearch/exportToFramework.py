@@ -198,6 +198,7 @@ class ExportToFramework:
             .replace('// @exportToFramework:skipFile()', '')
         )
         contents = re.sub(r'\/\/ @exportToFramework:copyToPath\([^)]+\)', '', contents)
+        contents = re.sub(r'@RequiresFeature\([^)]*\)', '', contents, flags=re.DOTALL)
 
         # Jetpack methods have the Async suffix, but framework doesn't. Strip the Async suffix
         # to allow the same documentation to compile for both.

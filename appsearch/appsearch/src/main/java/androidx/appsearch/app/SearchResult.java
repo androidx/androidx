@@ -625,11 +625,9 @@ public final class SearchResult extends AbstractSafeParcelable {
          * false.
          * <!--@exportToFramework:else()-->
          */
-        // @exportToFramework:startStrip()
         @RequiresFeature(
                 enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
                 name = Features.SEARCH_RESULT_MATCH_INFO_SUBMATCH)
-        // @exportToFramework:endStrip()
         @NonNull
         public MatchRange getSubmatchRange() {
             checkSubmatchSupported();
@@ -655,11 +653,9 @@ public final class SearchResult extends AbstractSafeParcelable {
          * false.
          * <!--@exportToFramework:else()-->
          */
-        // @exportToFramework:startStrip()
         @RequiresFeature(
                 enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
                 name = Features.SEARCH_RESULT_MATCH_INFO_SUBMATCH)
-        // @exportToFramework:endStrip()
         @NonNull
         public CharSequence getSubmatch() {
             checkSubmatchSupported();

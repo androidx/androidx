@@ -286,11 +286,9 @@ public final class AppSearchSchema extends AbstractSafeParcelable {
          */
         @CanIgnoreReturnValue
         @NonNull
-        // @exportToFramework:startStrip()
         @RequiresFeature(
                 enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
                 name = Features.SCHEMA_ADD_PARENT_TYPE)
-        // @exportToFramework:endStrip()
         public AppSearchSchema.Builder addParentType(@NonNull String parentSchemaType) {
             Preconditions.checkNotNull(parentSchemaType);
             resetIfBuilt();
@@ -649,11 +647,9 @@ public final class AppSearchSchema extends AbstractSafeParcelable {
          * <p>It is only valid for tokenizer_type to be 'VERBATIM' if {@link #getIndexingType} is
          * {@link #INDEXING_TYPE_EXACT_TERMS} or {@link #INDEXING_TYPE_PREFIXES}.
          */
-// @exportToFramework:startStrip()
         @RequiresFeature(
                 enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
                 name = Features.VERBATIM_SEARCH)
-// @exportToFramework:endStrip()
         public static final int TOKENIZER_TYPE_VERBATIM = 2;
 
         /**
@@ -666,11 +662,9 @@ public final class AppSearchSchema extends AbstractSafeParcelable {
          * <p>It is only valid for tokenizer_type to be 'RFC822' if {@link #getIndexingType} is
          * {@link #INDEXING_TYPE_EXACT_TERMS} or {@link #INDEXING_TYPE_PREFIXES}.
          */
-// @exportToFramework:startStrip()
         @RequiresFeature(
                 enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
                 name = Features.TOKENIZER_TYPE_RFC822)
-// @exportToFramework:endStrip()
         public static final int TOKENIZER_TYPE_RFC822 = 3;
 
         /**
@@ -704,11 +698,9 @@ public final class AppSearchSchema extends AbstractSafeParcelable {
          *     {@link PropertyConfig#CARDINALITY_REQUIRED}.
          * </ul>
          */
-        // @exportToFramework:startStrip()
         @RequiresFeature(
                 enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
                 name = Features.JOIN_SPEC_AND_QUALIFIED_ID)
-        // @exportToFramework:endStrip()
         public static final int JOINABLE_VALUE_TYPE_QUALIFIED_ID = 1;
 
         StringPropertyConfig(@NonNull PropertyConfigParcel propertyConfigParcel) {
@@ -845,11 +837,9 @@ public final class AppSearchSchema extends AbstractSafeParcelable {
              */
             @SuppressWarnings("MissingGetterMatchingBuilder")  // getDeletionPropagation
             @NonNull
-            // @exportToFramework:startStrip()
             @RequiresFeature(
                     enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
                     name = Features.SCHEMA_SET_DELETION_PROPAGATION)
-            // @exportToFramework:endStrip()
             public Builder setDeletionPropagation(boolean deletionPropagation) {
                 mDeletionPropagation = deletionPropagation;
                 return this;
@@ -966,11 +956,9 @@ public final class AppSearchSchema extends AbstractSafeParcelable {
          *
          * <p>For example, a property with 1024 should match numeric search range query [0, 2000].
          */
-        // @exportToFramework:startStrip()
         @RequiresFeature(
                 enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
                 name = Features.NUMERIC_SEARCH)
-        // @exportToFramework:endStrip()
         public static final int INDEXING_TYPE_RANGE = 1;
 
         LongPropertyConfig(@NonNull PropertyConfigParcel propertyConfigParcel) {
@@ -1306,11 +1294,9 @@ public final class AppSearchSchema extends AbstractSafeParcelable {
              */
             @CanIgnoreReturnValue
             @NonNull
-            // @exportToFramework:startStrip()
             @RequiresFeature(
                     enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
                     name = Features.SCHEMA_ADD_INDEXABLE_NESTED_PROPERTIES)
-            // @exportToFramework:endStrip()
             public DocumentPropertyConfig.Builder addIndexableNestedProperties(
                     @NonNull String... indexableNestedProperties) {
                 Preconditions.checkNotNull(indexableNestedProperties);
@@ -1330,11 +1316,9 @@ public final class AppSearchSchema extends AbstractSafeParcelable {
             @CanIgnoreReturnValue
             @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
-            // @exportToFramework:startStrip()
             @RequiresFeature(
                     enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
                     name = Features.SCHEMA_ADD_INDEXABLE_NESTED_PROPERTIES)
-            // @exportToFramework:endStrip()
             public DocumentPropertyConfig.Builder addIndexableNestedPropertyPaths(
                     @NonNull PropertyPath... indexableNestedPropertyPaths) {
                 Preconditions.checkNotNull(indexableNestedPropertyPaths);
@@ -1372,11 +1356,9 @@ public final class AppSearchSchema extends AbstractSafeParcelable {
              */
             @CanIgnoreReturnValue
             @NonNull
-            // @exportToFramework:startStrip()
             @RequiresFeature(
                     enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
                     name = Features.SCHEMA_ADD_INDEXABLE_NESTED_PROPERTIES)
-            // @exportToFramework:endStrip()
             public DocumentPropertyConfig.Builder addIndexableNestedProperties(
                     @NonNull Collection<String> indexableNestedProperties) {
                 Preconditions.checkNotNull(indexableNestedProperties);
@@ -1397,11 +1379,9 @@ public final class AppSearchSchema extends AbstractSafeParcelable {
             @CanIgnoreReturnValue
             @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
-            // @exportToFramework:startStrip()
             @RequiresFeature(
                     enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
                     name = Features.SCHEMA_ADD_INDEXABLE_NESTED_PROPERTIES)
-            // @exportToFramework:endStrip()
             public DocumentPropertyConfig.Builder addIndexableNestedPropertyPaths(
                     @NonNull Collection<PropertyPath> indexableNestedPropertyPaths) {
                 Preconditions.checkNotNull(indexableNestedPropertyPaths);

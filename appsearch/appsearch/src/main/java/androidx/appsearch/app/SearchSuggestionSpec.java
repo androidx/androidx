@@ -399,11 +399,9 @@ public final class SearchSuggestionSpec extends AbstractSafeParcelable {
          *                      document these snippets correspond to.
          */
         @NonNull
-        // @exportToFramework:startStrip()
         @RequiresFeature(
                 enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
                 name = Features.SEARCH_SPEC_ADD_FILTER_PROPERTIES)
-        // @exportToFramework:endStrip()
         @FlaggedApi(Flags.FLAG_ENABLE_SEARCH_SPEC_FILTER_PROPERTIES)
         public Builder addFilterProperties(@NonNull String schema,
                 @NonNull Collection<String> propertyPaths) {
@@ -437,11 +435,9 @@ public final class SearchSuggestionSpec extends AbstractSafeParcelable {
         @NonNull
         // Getter method is getFilterProperties
         @SuppressLint("MissingGetterMatchingBuilder")
-        // @exportToFramework:startStrip()
         @RequiresFeature(
                 enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
                 name = Features.SEARCH_SPEC_ADD_FILTER_PROPERTIES)
-        // @exportToFramework:endStrip()
         @FlaggedApi(Flags.FLAG_ENABLE_SEARCH_SPEC_FILTER_PROPERTIES)
         public Builder addFilterPropertyPaths(@NonNull String schema,
                 @NonNull Collection<PropertyPath> propertyPaths) {

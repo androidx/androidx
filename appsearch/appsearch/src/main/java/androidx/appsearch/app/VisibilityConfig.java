@@ -294,6 +294,7 @@ public final class VisibilityConfig extends AbstractSafeParcelable {
     }
 
     /** The builder class of {@link VisibilityConfig}. */
+    @FlaggedApi(Flags.FLAG_ENABLE_SET_SCHEMA_VISIBLE_TO_CONFIGS)
     public static final class Builder {
         private String mSchemaType;
         private boolean mIsNotDisplayedBySystem;
@@ -403,6 +404,7 @@ public final class VisibilityConfig extends AbstractSafeParcelable {
          * @see SetSchemaRequest.Builder#addRequiredPermissionsForSchemaTypeVisibility for
          * supported Permissions.
          */
+        @SuppressWarnings("RequiresPermission")  // No permission required to call this method
         @CanIgnoreReturnValue
         @NonNull
         public Builder addVisibleToPermissions(@NonNull Set<Integer> visibleToPermissions) {

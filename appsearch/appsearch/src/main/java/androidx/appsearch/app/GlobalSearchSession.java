@@ -53,11 +53,9 @@ public interface GlobalSearchSession extends Closeable {
      * @param request a request containing a namespace and IDs of the documents to retrieve.
      */
     @NonNull
-    // @exportToFramework:startStrip()
     @RequiresFeature(
             enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
             name = Features.GLOBAL_SEARCH_SESSION_GET_BY_ID)
-    // @exportToFramework:endStrip()
     ListenableFuture<AppSearchBatchResult<String, GenericDocument>> getByDocumentIdAsync(
             @NonNull String packageName,
             @NonNull String databaseName,
@@ -127,11 +125,9 @@ public interface GlobalSearchSession extends Closeable {
     // This call hits disk; async API prevents us from treating these calls as properties.
     @SuppressLint("KotlinPropertyAccess")
     @NonNull
-    // @exportToFramework:startStrip()
     @RequiresFeature(
             enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
             name = Features.GLOBAL_SEARCH_SESSION_GET_SCHEMA)
-    // @exportToFramework:endStrip()
     ListenableFuture<GetSchemaResponse> getSchemaAsync(@NonNull String packageName,
             @NonNull String databaseName);
 
@@ -170,11 +166,9 @@ public interface GlobalSearchSession extends Closeable {
      * @throws UnsupportedOperationException if this feature is not available on this
      *                                       AppSearch implementation.
      */
-    // @exportToFramework:startStrip()
     @RequiresFeature(
             enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
             name = Features.GLOBAL_SEARCH_SESSION_REGISTER_OBSERVER_CALLBACK)
-    // @exportToFramework:endStrip()
     void registerObserverCallback(
             @NonNull String targetPackageName,
             @NonNull ObserverSpec spec,
@@ -204,11 +198,9 @@ public interface GlobalSearchSession extends Closeable {
      * @throws UnsupportedOperationException if this feature is not available on this
      *                                       AppSearch implementation.
      */
-    // @exportToFramework:startStrip()
     @RequiresFeature(
             enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
             name = Features.GLOBAL_SEARCH_SESSION_REGISTER_OBSERVER_CALLBACK)
-    // @exportToFramework:endStrip()
     void unregisterObserverCallback(
             @NonNull String targetPackageName, @NonNull ObserverCallback observer)
             throws AppSearchException;

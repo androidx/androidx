@@ -286,11 +286,9 @@ public final class SearchSpec extends AbstractSafeParcelable {
      * Results should be grouped together by schema type for the purpose of enforcing a limit on the
      * number of results returned per schema type.
      */
-    // @exportToFramework:startStrip()
     @RequiresFeature(
             enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
             name = Features.SEARCH_SPEC_GROUPING_TYPE_PER_SCHEMA)
-    // @exportToFramework:endStrip()
     @FlaggedApi(Flags.FLAG_ENABLE_GROUPING_TYPE_PER_SCHEMA)
     public static final int GROUPING_TYPE_PER_SCHEMA = 1 << 2;
 
@@ -829,11 +827,9 @@ public final class SearchSpec extends AbstractSafeParcelable {
          *                      sequence of property names.
          */
         @NonNull
-        // @exportToFramework:startStrip()
         @RequiresFeature(
                 enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
                 name = Features.SEARCH_SPEC_ADD_FILTER_PROPERTIES)
-        // @exportToFramework:endStrip()
         @FlaggedApi(Flags.FLAG_ENABLE_SEARCH_SPEC_FILTER_PROPERTIES)
         public Builder addFilterProperties(@NonNull String schema,
                 @NonNull Collection<String> propertyPaths) {
@@ -863,11 +859,9 @@ public final class SearchSpec extends AbstractSafeParcelable {
         @NonNull
         // Getter method is getFilterProperties
         @SuppressLint("MissingGetterMatchingBuilder")
-        // @exportToFramework:startStrip()
         @RequiresFeature(
                 enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
                 name = Features.SEARCH_SPEC_ADD_FILTER_PROPERTIES)
-        // @exportToFramework:endStrip()
         @FlaggedApi(Flags.FLAG_ENABLE_SEARCH_SPEC_FILTER_PROPERTIES)
         public Builder addFilterPropertyPaths(@NonNull String schema,
                 @NonNull Collection<PropertyPath> propertyPaths) {
@@ -1150,11 +1144,9 @@ public final class SearchSpec extends AbstractSafeParcelable {
          */
         @CanIgnoreReturnValue
         @NonNull
-        // @exportToFramework:startStrip()
         @RequiresFeature(
                 enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
                 name = Features.SEARCH_SPEC_ADVANCED_RANKING_EXPRESSION)
-        // @exportToFramework:endStrip()
         public Builder setRankingStrategy(@NonNull String advancedRankingExpression) {
             Preconditions.checkStringNotEmpty(advancedRankingExpression);
             resetIfBuilt();
@@ -1181,11 +1173,9 @@ public final class SearchSpec extends AbstractSafeParcelable {
          *                          is not the tag we are using in {@link android.util.Log}.
          */
         @NonNull
-        // @exportToFramework:startStrip()
         @RequiresFeature(
                 enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
                 name = Features.SEARCH_SPEC_SET_SEARCH_SOURCE_LOG_TAG)
-        // @exportToFramework:endStrip()
         @FlaggedApi(Flags.FLAG_ENABLE_SEARCH_SPEC_SET_SEARCH_SOURCE_LOG_TAG)
         public Builder setSearchSourceLogTag(@NonNull String searchSourceLogTag) {
             Preconditions.checkStringNotEmpty(searchSourceLogTag);
@@ -1490,12 +1480,10 @@ public final class SearchSpec extends AbstractSafeParcelable {
          *                            weight to set for that property.
          * @throws IllegalArgumentException if a weight is equal to or less than 0.0.
          */
-        // @exportToFramework:startStrip()
         @CanIgnoreReturnValue
         @RequiresFeature(
                 enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
                 name = Features.SEARCH_SPEC_PROPERTY_WEIGHTS)
-        // @exportToFramework:endStrip()
         @NonNull
         public SearchSpec.Builder setPropertyWeights(@NonNull String schemaType,
                 @NonNull Map<String, Double> propertyPathWeights) {
@@ -1525,12 +1513,10 @@ public final class SearchSpec extends AbstractSafeParcelable {
          *
          * @param joinSpec a specification on how to perform the Join operation.
          */
-        // @exportToFramework:startStrip()
         @CanIgnoreReturnValue
         @RequiresFeature(
                 enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
                 name = Features.JOIN_SPEC_AND_QUALIFIED_ID)
-        // @exportToFramework:endStrip()
         @NonNull
         public Builder setJoinSpec(@NonNull JoinSpec joinSpec) {
             resetIfBuilt();
@@ -1568,12 +1554,10 @@ public final class SearchSpec extends AbstractSafeParcelable {
          *                            weight to set for that property.
          * @throws IllegalArgumentException if a weight is equal to or less than 0.0.
          */
-        // @exportToFramework:startStrip()
         @CanIgnoreReturnValue
         @RequiresFeature(
                 enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
                 name = Features.SEARCH_SPEC_PROPERTY_WEIGHTS)
-        // @exportToFramework:endStrip()
         @NonNull
         public SearchSpec.Builder setPropertyWeightPaths(@NonNull String schemaType,
                 @NonNull Map<PropertyPath, Double> propertyPathWeights) {
@@ -1697,11 +1681,9 @@ public final class SearchSpec extends AbstractSafeParcelable {
          * {@link AppSearchSchema.LongPropertyConfig#INDEXING_TYPE_RANGE} and all other numeric
          * querying features.
          */
-        // @exportToFramework:startStrip()
         @RequiresFeature(
                 enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
                 name = Features.NUMERIC_SEARCH)
-        // @exportToFramework:endStrip()
         @NonNull
         public Builder setNumericSearchEnabled(boolean enabled) {
             modifyEnabledFeature(FeatureConstants.NUMERIC_SEARCH, enabled);
@@ -1721,11 +1703,9 @@ public final class SearchSpec extends AbstractSafeParcelable {
          * <p>For example, The verbatim string operator '"foo/bar" OR baz' will ensure that
          * 'foo/bar' is treated as a single 'verbatim' token.
          */
-        // @exportToFramework:startStrip()
         @RequiresFeature(
                 enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
                 name = Features.VERBATIM_SEARCH)
-        // @exportToFramework:endStrip()
         @NonNull
         public Builder setVerbatimSearchEnabled(boolean enabled) {
             modifyEnabledFeature(FeatureConstants.VERBATIM_SEARCH, enabled);
@@ -1761,11 +1741,9 @@ public final class SearchSpec extends AbstractSafeParcelable {
          * for example, the query "(subject:foo OR body:foo) (subject:bar OR body:bar)"
          * could be rewritten as "termSearch(\"foo bar\", createList(\"subject\", \"bar\"))"
          */
-        // @exportToFramework:startStrip()
         @RequiresFeature(
                 enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
                 name = Features.LIST_FILTER_QUERY_LANGUAGE)
-        // @exportToFramework:endStrip()
         @NonNull
         public Builder setListFilterQueryLanguageEnabled(boolean enabled) {
             modifyEnabledFeature(FeatureConstants.LIST_FILTER_QUERY_LANGUAGE, enabled);
@@ -1781,11 +1759,9 @@ public final class SearchSpec extends AbstractSafeParcelable {
          * <p>If disabled, disallows the use of the "hasProperty" function. See
          * {@link AppSearchSession#search} for more details about the function.
          */
-        // @exportToFramework:startStrip()
         @RequiresFeature(
                 enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
                 name = Features.LIST_FILTER_HAS_PROPERTY_FUNCTION)
-        // @exportToFramework:endStrip()
         @NonNull
         @FlaggedApi(Flags.FLAG_ENABLE_LIST_FILTER_HAS_PROPERTY_FUNCTION)
         public Builder setListFilterHasPropertyFunctionEnabled(boolean enabled) {
