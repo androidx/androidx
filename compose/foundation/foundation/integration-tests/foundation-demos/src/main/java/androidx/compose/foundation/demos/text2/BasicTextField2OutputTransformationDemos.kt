@@ -25,11 +25,11 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text2.BasicTextField2
-import androidx.compose.foundation.text2.TextFieldDecorator
 import androidx.compose.foundation.text2.input.InputTransformation
 import androidx.compose.foundation.text2.input.OutputTransformation
 import androidx.compose.foundation.text2.input.TextFieldBuffer
 import androidx.compose.foundation.text2.input.TextFieldCharSequence
+import androidx.compose.foundation.text2.input.TextFieldDecorator
 import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.foundation.text2.input.delete
 import androidx.compose.foundation.text2.input.insert

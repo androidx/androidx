@@ -43,6 +43,7 @@ import androidx.compose.foundation.text2.input.CodepointTransformation
 import androidx.compose.foundation.text2.input.InputTransformation
 import androidx.compose.foundation.text2.input.OutputTransformation
 import androidx.compose.foundation.text2.input.SingleLineCodepointTransformation
+import androidx.compose.foundation.text2.input.TextFieldDecorator
 import androidx.compose.foundation.text2.input.TextFieldLineLimits
 import androidx.compose.foundation.text2.input.TextFieldLineLimits.MultiLine
 import androidx.compose.foundation.text2.input.TextFieldLineLimits.SingleLine
