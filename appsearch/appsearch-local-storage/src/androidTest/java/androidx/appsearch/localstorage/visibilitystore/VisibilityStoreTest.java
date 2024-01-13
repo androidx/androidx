@@ -258,4 +258,121 @@ public class VisibilityStoreTest {
                         /*typePropertyPaths=*/ Collections.emptyMap()));
         assertThat(e).hasMessageThat().contains("not found.");
     }
+
+    @Test
+    public void testSetVisibility_avoidRemoveOverlay() throws Exception {
+        // Set a visibility config w/o overlay
+        VisibilityConfig visibilityConfig = new VisibilityConfig.Builder("Email")
+                .setNotDisplayedBySystem(true)
+                .addVisibleToPackage(new PackageIdentifier("pkgBar", new byte[32]))
+                .build();
+        mVisibilityStore.setVisibility(ImmutableList.of(visibilityConfig));
+
+        // Put a fake AndroidVOverlay into AppSearchImpl, this is not added by VisibilityStore,
+        // just add a fake AndroidVOverlay to verify we won't remove it when we update the config
+        // which doesn't contain any overlay settings.
+        GenericDocument fakeAndroidVOverlay =
+                new GenericDocument.Builder<GenericDocument.Builder<?>>("androidVOverlay",
+                        "Email", "AndroidVOverlayType")
+                        .setCreationTimestampMillis(0)
+                        .setPropertyString("publiclyVisibleTargetPackage", "com.example.test")
+                        .setPropertyBytes("publiclyVisibleTargetPackageSha256Cert", new byte[32])
+                        .build();
+        mAppSearchImpl.putDocument(
+                VisibilityStore.VISIBILITY_PACKAGE_NAME,
+                VisibilityStore.ANDROID_V_OVERLAY_DATABASE_NAME,
+                fakeAndroidVOverlay,
+                /*sendChangeNotifications=*/ false,
+                /*logger=*/null);
+
+        // update the visibility config w/o overlay
+        VisibilityConfig updateConfig = new VisibilityConfig.Builder("Email")
+                .setNotDisplayedBySystem(true)
+                .addVisibleToPackage(new PackageIdentifier("pkgFoo", new byte[32]))
+                .build();
+        mVisibilityStore.setVisibility(ImmutableList.of(updateConfig));
+
+        // Verify we won't trigger a remove() call to AppSearchImpl by get the fakeAndroidVOverlay.
+        GenericDocument actualAndroidVOverlay = mAppSearchImpl.getDocument(
+                VisibilityStore.VISIBILITY_PACKAGE_NAME,
+                VisibilityStore.ANDROID_V_OVERLAY_DATABASE_NAME,
+                VisibilityToDocumentConverter.ANDROID_V_OVERLAY_NAMESPACE,
+                /*id=*/ "Email",
+                /*typePropertyPaths=*/ Collections.emptyMap());
+
+        // Ignore the creation timestamp
+        actualAndroidVOverlay = new GenericDocument.Builder<>(actualAndroidVOverlay)
+                .setCreationTimestampMillis(0).build();
+        assertThat(actualAndroidVOverlay).isEqualTo(fakeAndroidVOverlay);
+    }
+
+    @Test
+    public void testSetVisibility_removeOverlay_publicAcl() throws Exception {
+        // Set a visibility config with public overlay
+        VisibilityConfig visibilityConfig = new VisibilityConfig.Builder("Email")
+                .setNotDisplayedBySystem(true)
+                .setPubliclyVisibleTargetPackage(
+                        new PackageIdentifier("pkgBar", new byte[32]))
+                .build();
+        mVisibilityStore.setVisibility(ImmutableList.of(visibilityConfig));
+
+        // verify the overlay document is created.
+        GenericDocument androidVOverlay = mAppSearchImpl.getDocument(
+                VisibilityStore.VISIBILITY_PACKAGE_NAME,
+                VisibilityStore.ANDROID_V_OVERLAY_DATABASE_NAME,
+                VisibilityToDocumentConverter.ANDROID_V_OVERLAY_NAMESPACE,
+                /*id=*/ "Email",
+                /*typePropertyPaths=*/ Collections.emptyMap());
+
+        // update the visibility config w/o overlay
+        VisibilityConfig updateConfig = new VisibilityConfig.Builder("Email")
+                .setNotDisplayedBySystem(true)
+                .build();
+        mVisibilityStore.setVisibility(ImmutableList.of(updateConfig));
+
+        // Verify the overlay document is removed.
+        AppSearchException e = assertThrows(AppSearchException.class,
+                () -> mAppSearchImpl.getDocument(
+                        VisibilityStore.VISIBILITY_PACKAGE_NAME,
+                        VisibilityStore.ANDROID_V_OVERLAY_DATABASE_NAME,
+                        VisibilityToDocumentConverter.ANDROID_V_OVERLAY_NAMESPACE,
+                        /*id=*/ "Email",
+                        /*typePropertyPaths=*/ Collections.emptyMap()));
+        assertThat(e).hasMessageThat().contains("not found.");
+    }
+
+    @Test
+    public void testSetVisibility_removeOverlay_visibleToConfig() throws Exception {
+        // Set a visibility config with visible to config.
+        VisibilityConfig visibilityConfig = new VisibilityConfig.Builder("Email")
+                .setNotDisplayedBySystem(true)
+                .addVisibleToConfig(
+                        new VisibilityConfig.Builder().setNotDisplayedBySystem(true).build())
+                .build();
+        mVisibilityStore.setVisibility(ImmutableList.of(visibilityConfig));
+
+        // verify the overlay document is created.
+        GenericDocument androidVOverlay = mAppSearchImpl.getDocument(
+                VisibilityStore.VISIBILITY_PACKAGE_NAME,
+                VisibilityStore.ANDROID_V_OVERLAY_DATABASE_NAME,
+                VisibilityToDocumentConverter.ANDROID_V_OVERLAY_NAMESPACE,
+                /*id=*/ "Email",
+                /*typePropertyPaths=*/ Collections.emptyMap());
+
+        // update the visibility config w/o overlay
+        VisibilityConfig updateConfig = new VisibilityConfig.Builder("Email")
+                .setNotDisplayedBySystem(true)
+                .build();
+        mVisibilityStore.setVisibility(ImmutableList.of(updateConfig));
+
+        // Verify the overlay document is removed.
+        AppSearchException e = assertThrows(AppSearchException.class,
+                () -> mAppSearchImpl.getDocument(
+                        VisibilityStore.VISIBILITY_PACKAGE_NAME,
+                        VisibilityStore.ANDROID_V_OVERLAY_DATABASE_NAME,
+                        VisibilityToDocumentConverter.ANDROID_V_OVERLAY_NAMESPACE,
+                        /*id=*/ "Email",
+                        /*typePropertyPaths=*/ Collections.emptyMap()));
+        assertThat(e).hasMessageThat().contains("not found.");
+    }
 }
