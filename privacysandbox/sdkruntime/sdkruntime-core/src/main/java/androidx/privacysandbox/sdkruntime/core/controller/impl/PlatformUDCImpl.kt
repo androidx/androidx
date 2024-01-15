@@ -28,7 +28,6 @@ import androidx.annotation.RequiresApi
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleRegistry
 import androidx.privacysandbox.sdkruntime.core.AppOwnedSdkSandboxInterfaceCompat
-import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat
 import androidx.privacysandbox.sdkruntime.core.activity.ActivityHolder
 import androidx.privacysandbox.sdkruntime.core.activity.SdkSandboxActivityHandlerCompat
@@ -43,16 +42,13 @@ internal class PlatformUDCImpl(
 ) : SdkSandboxControllerCompat.SandboxControllerImpl {
 
     private val appOwnedSdkProvider = AppOwnedSdkProvider.create(controller)
+    private val sdkLoader = PlatformSdkLoader.create(controller)
 
     private val compatToPlatformMap =
         hashMapOf<SdkSandboxActivityHandlerCompat, SdkSandboxActivityHandler>()
 
-    override suspend fun loadSdk(sdkName: String, params: Bundle): SandboxedSdkCompat {
-        throw LoadSdkCompatException(
-            LoadSdkCompatException.LOAD_SDK_NOT_FOUND,
-            "Loading SDK not supported on this device"
-        )
-    }
+    override suspend fun loadSdk(sdkName: String, params: Bundle): SandboxedSdkCompat =
+        sdkLoader.loadSdk(sdkName, params)
 
     override fun getSandboxedSdks(): List<SandboxedSdkCompat> {
         return controller
