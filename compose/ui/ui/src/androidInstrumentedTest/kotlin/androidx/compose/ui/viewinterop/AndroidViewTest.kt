@@ -59,11 +59,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.testutils.assertPixels
 import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.SubcompositionReusableContentHost
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.Layout
@@ -1710,6 +1712,52 @@ class AndroidViewTest {
         rule.onNodeWithTag("box")
             .assertTopPositionInRootIsEqualTo(0.dp)
             .assertLeftPositionInRootIsEqualTo(0.dp)
+    }
+
+    @Test
+    fun updateIsNotCalledOnDeactivatedNode() {
+        var active by mutableStateOf(true)
+        var counter by mutableStateOf(0)
+        val updateCalls = mutableListOf<Int>()
+        rule.setContent {
+            SubcompositionReusableContentHost(active = active) {
+                AndroidView(
+                    modifier = Modifier.size(10.dp),
+                    factory = { View(it) },
+                    update = { updateCalls.add(counter) },
+                    onReset = {
+                        counter++
+                        Snapshot.sendApplyNotifications()
+                    }
+                )
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(updateCalls).isEqualTo(listOf(0))
+            updateCalls.clear()
+
+            active = false
+        }
+
+        rule.runOnIdle {
+            assertThat(updateCalls).isEmpty()
+
+            active = true
+        }
+
+        rule.runOnIdle {
+            // make sure the update is called after reactivation.
+            assertThat(updateCalls).isEqualTo(listOf(1))
+            updateCalls.clear()
+
+            counter++
+        }
+
+        rule.runOnIdle {
+            // make sure the state observation is active after reactivation.
+            assertThat(updateCalls).isEqualTo(listOf(2))
+        }
     }
 
     @ExperimentalComposeUiApi
