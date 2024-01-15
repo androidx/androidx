@@ -63,10 +63,7 @@ internal actual class PlatformClipboardManager : ClipboardManager {
         }
     }
 
-    override fun setClip(
-        clipEntry: ClipEntry,
-        clipMetadata: ClipMetadata?
-    ) {
+    override fun setClip(clipEntry: ClipEntry) {
         // Ignore clipDescription.
         systemClipboard?.setContents(clipEntry.transferable, null)
     }
