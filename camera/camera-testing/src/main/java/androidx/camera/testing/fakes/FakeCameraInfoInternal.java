@@ -85,7 +85,7 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
     private final MutableLiveData<ZoomState> mZoomLiveData;
     private final Map<Integer, List<Size>> mSupportedResolutionMap = new HashMap<>();
     private final Map<Integer, List<Size>> mSupportedHighResolutionMap = new HashMap<>();
-    private MutableLiveData<CameraState> mCameraStateLiveData;
+    private MutableLiveData<CameraState> mCameraStateMutableLiveData;
 
     private final Set<DynamicRange> mSupportedDynamicRanges = new HashSet<>(DEFAULT_DYNAMIC_RANGES);
     private String mImplementationType = IMPLEMENTATION_TYPE_FAKE;
@@ -236,14 +236,18 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
         return mExposureState;
     }
 
+    private MutableLiveData<CameraState> getCameraStateMutableLiveData() {
+        if (mCameraStateMutableLiveData == null) {
+            mCameraStateMutableLiveData = new MutableLiveData<>(
+                    CameraState.create(CameraState.Type.CLOSED));
+        }
+        return mCameraStateMutableLiveData;
+    }
+
     @NonNull
     @Override
     public LiveData<CameraState> getCameraState() {
-        if (mCameraStateLiveData == null) {
-            mCameraStateLiveData = new MutableLiveData<>(
-                    CameraState.create(CameraState.Type.CLOSED));
-        }
-        return mCameraStateLiveData;
+        return getCameraStateMutableLiveData();
     }
 
     @NonNull
@@ -367,6 +371,17 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
     @SuppressWarnings("unused")
     public void addCameraQuirk(@NonNull final Quirk quirk) {
         mCameraQuirks.add(quirk);
+    }
+
+    /**
+     * Updates the {@link CameraState} value to the {@code LiveData} provided by
+     * {@link #getCameraState()}.
+     *
+     * @param cameraState the camera state value to set.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public void updateCameraState(@NonNull CameraState cameraState) {
+        getCameraStateMutableLiveData().postValue(cameraState);
     }
 
     /**

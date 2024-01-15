@@ -125,6 +125,11 @@ dependencies {
     androidTestImplementation("androidx.test.espresso:espresso-core:3.3.0")
     androidTestImplementation("org.jetbrains.kotlinx:atomicfu:0.13.1")
 
+    testImplementation(libs.kotlinStdlib)
+    testImplementation(libs.kotlinCoroutinesAndroid)
+    testImplementation(libs.kotlinCoroutinesTest)
     testImplementation(libs.junit)
+    testImplementation(libs.robolectric)
     testImplementation(libs.truth)
+    testImplementation(project(":internal-testutils-ktx"))
 }
