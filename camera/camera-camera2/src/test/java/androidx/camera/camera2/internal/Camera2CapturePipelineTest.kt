@@ -356,19 +356,16 @@ class Camera2CapturePipelineTest {
         }
     }
 
-    @Ignore("b/319610932")
     @Test
     fun minLatency_screenFlashCapture_screenFlashTaskInvokedProperly() {
         screenFlash_screenFlashApisInvokedProperly(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
     }
 
-    @Ignore("b/319610932")
     @Test
     fun maxQuality_screenFlashCapture_screenFlashTaskInvokedProperly() {
         screenFlash_screenFlashApisInvokedProperly(ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY)
     }
 
-    @Ignore("b/319610932")
     @Test
     fun maxQuality_screenFlashCapture_withFlashModeTorchQuirk_screenFlashTaskInvokedProperly() {
         screenFlash_screenFlashApisInvokedProperly(
@@ -397,10 +394,10 @@ class Camera2CapturePipelineTest {
         // Wait for a repeating request to be submitted for the initial flash mode confirmation
         // in Camera2CameraControlImpl#submitStillCaptureRequests
         thread.looper.advanceUntilIdle()
-        CountDownLatch(1).let {
+        CountDownLatch(10).let {
             cameraControl.simulateRepeatingResult(
                 initialDelay = 0,
-                period = 50,
+                period = 1,
                 requestCountLatch = it,
             )
             it.await(1, TimeUnit.SECONDS)
@@ -419,10 +416,10 @@ class Camera2CapturePipelineTest {
         if (imageCaptureMode == CAPTURE_MODE_MAXIMIZE_QUALITY) {
             // AfTask requires an initial capture result preCapture
             thread.looper.advanceUntilIdle()
-            CountDownLatch(1).let {
+            CountDownLatch(10).let {
                 cameraControl.simulateRepeatingResult(
                     initialDelay = 0,
-                    period = 50,
+                    period = 1,
                     requestCountLatch = it,
                 )
                 it.await(1, TimeUnit.SECONDS)
@@ -436,10 +433,10 @@ class Camera2CapturePipelineTest {
         if (Build.VERSION.SDK_INT >= 28) {
             // Submit a repeating request for CONTROL_AE_MODE_ON_EXTERNAL_FLASH
             thread.looper.advanceUntilIdle()
-            CountDownLatch(1).let {
+            CountDownLatch(10).let {
                 cameraControl.simulateRepeatingResult(
                     initialDelay = 0,
-                    period = 50,
+                    period = 1,
                     resultParameters = mapOf(CaptureResult.CONTROL_AE_MODE
                         to CaptureResult.CONTROL_AE_MODE_ON_EXTERNAL_FLASH),
                     requestCountLatch = it
@@ -451,10 +448,10 @@ class Camera2CapturePipelineTest {
         if (addFlashModeTorchQuirk) {
             // Submit a repeating request for FLASH_MODE_TORCH
             thread.looper.advanceUntilIdle()
-            CountDownLatch(1).let {
+            CountDownLatch(10).let {
                 cameraControl.simulateRepeatingResult(
                     initialDelay = 0,
-                    period = 50,
+                    period = 1,
                     resultParameters = mapOf(CaptureResult.FLASH_MODE
                         to CaptureResult.FLASH_MODE_TORCH),
                     requestCountLatch = it
@@ -474,13 +471,10 @@ class Camera2CapturePipelineTest {
 
         // Submit a repeating request for convergence
         thread.looper.advanceUntilIdle()
-        CountDownLatch(
-            if (imageCaptureMode == CAPTURE_MODE_MAXIMIZE_QUALITY) 2 // one extra for the AF task
-            else 1
-        ).let {
+        CountDownLatch(10).let {
             cameraControl.simulateRepeatingResult(
                 initialDelay = 0,
-                period = 50,
+                period = 1,
                 resultParameters = resultConverged,
                 requestCountLatch = it
             )
