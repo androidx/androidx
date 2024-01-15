@@ -253,7 +253,7 @@ class DialogWindowTest {
     }
 
     @Test
-    fun `open nested dialog`() = runApplicationTest {
+    fun `open nested dialog`() = runApplicationTest(useDelay = true) {
         var window1: ComposeDialog? = null
         var window2: ComposeDialog? = null
 
