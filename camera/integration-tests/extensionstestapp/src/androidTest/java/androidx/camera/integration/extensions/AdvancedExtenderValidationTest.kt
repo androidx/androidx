@@ -102,6 +102,22 @@ class AdvancedExtenderValidationTest(config: CameraIdExtensionModePair) {
         validation.initSessionWithAnalysis_medianSize_canConfigureSession()
 
     @Test
+    fun initSessionWithOutputSurfaceConfigurationImpl_maxSize_canConfigureSession() =
+        validation.initSessionWithOutputSurfaceConfigurationImpl_maxSize_canConfigureSession()
+
+    @Test
+    fun validateSessionTypeSupport_sinceVersion_1_4() =
+        validation.validateSessionTypeSupport_sinceVersion_1_4()
+
+    @Test
+    fun validateSessionTypeSupportWithOutputSurfaceConfigurationImpl_sinceVersion_1_4() =
+        validation.validateSessionTypeSupportWithOutputSurfaceConfigurationImpl_sinceVersion_1_4()
+
+    @Test
     fun validatePostviewSupport_sinceVersion_1_4() =
         validation.validatePostviewSupport_sinceVersion_1_4()
+
+    @Test
+    fun validateProcessProgressSupport_sinceVersion_1_4() =
+        validation.validateProcessProgressSupport_sinceVersion_1_4()
 }

@@ -233,4 +233,49 @@ class ImageCaptureExtenderValidationTest(private val config: CameraIdExtensionMo
         // At least one postview size must be supported when isPostviewAvailable returns true.
         assertThat(anyPostViewSupported).isTrue()
     }
+
+    @Test
+    fun validateSessionTypeSupport_sinceVersion_1_4() {
+        // Runs the test only when the vendor library implementation is 1.4 or above
+        assumeTrue(ExtensionVersion.getRuntimeVersion()!! >= Version.VERSION_1_4)
+
+        val imageCaptureExtenderImpl = CameraXExtensionsTestUtil.createImageCaptureExtenderImpl(
+            config.extensionMode,
+            config.cameraId,
+            cameraCharacteristics
+        )
+
+        // onSessionType is allowed to return any OEM customized session type, therefore, we can
+        // only try to invoke this method to make sure that this method correctly exists in the
+        // vendor library implementation and checks the returned.
+        val imageCaptureSessionType = imageCaptureExtenderImpl.onSessionType()
+
+        val previewExtenderImpl = CameraXExtensionsTestUtil.createPreviewExtenderImpl(
+            config.extensionMode,
+            config.cameraId,
+            cameraCharacteristics
+        )
+
+        val previewSessionType = previewExtenderImpl.onSessionType()
+
+        // Checks the session type values retrieved from ImageCaptureExtenderImpl and
+        // PreviewExtenderImpl are the same.
+        assertThat(imageCaptureSessionType).isEqualTo(previewSessionType)
+    }
+
+    @Test
+    fun validateProcessProgressSupport_sinceVersion_1_4() {
+        // Runs the test only when the vendor library implementation is 1.4 or above
+        assumeTrue(ExtensionVersion.getRuntimeVersion()!! >= Version.VERSION_1_4)
+
+        val imageCaptureExtenderImpl = CameraXExtensionsTestUtil.createImageCaptureExtenderImpl(
+            config.extensionMode,
+            config.cameraId,
+            cameraCharacteristics
+        )
+
+        // Makes sure isCaptureProcessProgressAvailable API can be called without any exception
+        // occurring when the vendor library is 1.4 or above
+        imageCaptureExtenderImpl.isCaptureProcessProgressAvailable
+    }
 }
