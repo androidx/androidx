@@ -113,7 +113,7 @@ class TextFieldCursorHandleTest : FocusedWindowTest {
     @Test
     fun cursorHandle_hasMinimumTouchSizeArea() = with(rule.density) {
         state = TextFieldState("hello")
-        rule.setContent {
+        rule.setTextFieldTestContent {
             BasicTextField2(
                 state,
                 textStyle = TextStyle(fontSize = fontSize, fontFamily = TEST_FONT_FAMILY),
