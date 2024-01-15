@@ -25,6 +25,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.CameraInfo;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 
 import java.util.Collections;
 import java.util.List;
@@ -48,6 +50,11 @@ import java.util.Set;
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface SessionProcessor {
+    /**
+     * Unknown extension type.
+     */
+    int EXTENSION_TYPE_UNKNOWN = -1;
+
     /**
      * Initializes the session and returns a transformed {@link SessionConfig} which should be
      * used to configure the camera instead of original one.
@@ -165,6 +172,18 @@ public interface SessionProcessor {
     @Nullable
     default Pair<Long, Long> getRealtimeCaptureLatency() {
         return null;
+    }
+
+    /**
+     * Returns the current extension type associated with the session processor.
+     *
+     * <p>The current extension type may change over time. For example, when the extension mode
+     * is AUTO, the current extension type may change to the NIGHT or HDR processor depending on
+     * the current lighting conditions or environment.
+     */
+    @NonNull
+    default LiveData<Integer> getCurrentExtensionType() {
+        return new MutableLiveData<>(EXTENSION_TYPE_UNKNOWN);
     }
 
     /**

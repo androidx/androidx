@@ -640,6 +640,18 @@ class ExtensionsManagerTest(
         assertThat(camera.extendedConfig.isCaptureProcessProgressSupported).isTrue()
     }
 
+    @Test
+    fun returnsCorrectInitialTypeFromSessionProcessor() = runBlocking {
+        val extensionCameraSelector = checkExtensionAvailabilityAndInit()
+
+        val camera = withContext(Dispatchers.Main) {
+            cameraProvider.bindToLifecycle(FakeLifecycleOwner(), extensionCameraSelector)
+        }
+
+        val currentType = camera.extendedConfig.sessionProcessor.currentExtensionType
+        assertThat(currentType.value).isEqualTo(extensionMode)
+    }
+
     private fun checkExtensionAvailabilityAndInit(): CameraSelector {
         extensionsManager = ExtensionsManager.getInstanceAsync(
             context,

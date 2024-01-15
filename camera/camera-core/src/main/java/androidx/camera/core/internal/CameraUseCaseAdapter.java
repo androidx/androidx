@@ -71,7 +71,6 @@ import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.MutableOptionsBundle;
 import androidx.camera.core.impl.PreviewConfig;
 import androidx.camera.core.impl.RestrictedCameraControl;
-import androidx.camera.core.impl.RestrictedCameraControl.CameraOperation;
 import androidx.camera.core.impl.RestrictedCameraInfo;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.SessionProcessor;
@@ -198,22 +197,14 @@ public final class CameraUseCaseAdapter implements Camera {
         mCameraCoordinator = cameraCoordinator;
         mCameraDeviceSurfaceManager = cameraDeviceSurfaceManager;
         mUseCaseConfigFactory = useCaseConfigFactory;
+        mCameraConfig = cameraConfig;
+        SessionProcessor sessionProcessor = mCameraConfig.getSessionProcessor(null);
         // TODO(b/279996499): bind the same restricted CameraControl and CameraInfo to use cases.
-        mAdapterCameraControl =
-                new RestrictedCameraControl(mCameraInternal.getCameraControlInternal());
+        mAdapterCameraControl = new RestrictedCameraControl(
+                mCameraInternal.getCameraControlInternal(), sessionProcessor);
         mAdapterCameraInfo =
                 new RestrictedCameraInfo(mCameraInternal.getCameraInfoInternal(),
                         mAdapterCameraControl);
-
-        mCameraConfig = cameraConfig;
-        SessionProcessor sessionProcessor = mCameraConfig.getSessionProcessor(null);
-        if (sessionProcessor != null) {
-            @CameraOperation Set<Integer> supportedOps =
-                    sessionProcessor.getSupportedCameraOperations();
-            mAdapterCameraControl.enableRestrictedOperations(true, supportedOps);
-        } else {
-            mAdapterCameraControl.enableRestrictedOperations(false, null);
-        }
         mAdapterCameraInfo.setPostviewSupported(
                 mCameraConfig.isPostviewSupported());
         mAdapterCameraInfo.setCaptureProcessProgressSupported(

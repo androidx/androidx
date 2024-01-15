@@ -226,6 +226,7 @@ public class AdvancedVendorExtender implements VendorExtender {
                 mAdvancedExtenderImpl.createSessionProcessor(),
                 getSupportedParameterKeys(),
                 this,
-                context);
+                context,
+                mMode);
     }
 }

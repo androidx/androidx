@@ -39,6 +39,7 @@ import androidx.camera.core.impl.OutputSurface;
 import androidx.camera.core.impl.OutputSurfaceConfiguration;
 import androidx.camera.core.impl.RequestProcessor;
 import androidx.camera.core.impl.SessionProcessor;
+import androidx.camera.extensions.ExtensionMode;
 import androidx.camera.extensions.impl.advanced.Camera2OutputConfigImpl;
 import androidx.camera.extensions.impl.advanced.Camera2SessionConfigImpl;
 import androidx.camera.extensions.impl.advanced.ImageProcessorImpl;
@@ -53,6 +54,8 @@ import androidx.camera.extensions.internal.RequestOptionConfig;
 import androidx.camera.extensions.internal.VendorExtender;
 import androidx.camera.extensions.internal.Version;
 import androidx.core.util.Preconditions;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -71,16 +74,30 @@ public class AdvancedSessionProcessor extends SessionProcessorBase {
     private final VendorExtender mVendorExtender;
     @NonNull
     private final Context mContext;
+    @ExtensionMode.Mode
+    private final int mMode;
+    @NonNull
+    private final MutableLiveData<Integer> mCurrentExtensionType;
     private boolean mIsPostviewConfigured = false;
 
     public AdvancedSessionProcessor(@NonNull SessionProcessorImpl impl,
             @NonNull List<CaptureRequest.Key> supportedKeys,
             @NonNull VendorExtender vendorExtender,
             @NonNull Context context) {
+        this(impl, supportedKeys, vendorExtender, context, ExtensionMode.NONE);
+    }
+
+    public AdvancedSessionProcessor(@NonNull SessionProcessorImpl impl,
+            @NonNull List<CaptureRequest.Key> supportedKeys,
+            @NonNull VendorExtender vendorExtender,
+            @NonNull Context context,
+            @ExtensionMode.Mode int mode) {
         super(supportedKeys);
         mImpl = impl;
         mVendorExtender = vendorExtender;
         mContext = context;
+        mMode = mode;
+        mCurrentExtensionType = new MutableLiveData<>(mMode);
     }
 
     @NonNull
@@ -158,6 +175,12 @@ public class AdvancedSessionProcessor extends SessionProcessorBase {
     @Override
     protected void deInitSessionInternal() {
         mImpl.deInitSession();
+    }
+
+    @NonNull
+    @Override
+    public LiveData<Integer> getCurrentExtensionType() {
+        return mCurrentExtensionType;
     }
 
     @Override

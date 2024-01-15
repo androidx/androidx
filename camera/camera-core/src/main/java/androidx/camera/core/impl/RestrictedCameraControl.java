@@ -30,8 +30,10 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * A {@link CameraControlInternal} whose capabilities can be restricted via
- * {@link #enableRestrictedOperations(boolean, Set)}.
+ * A {@link CameraControlInternal} whose capabilities can be restricted by the associated
+ * {@link SessionProcessor}. Only the camera operations that can be retrieved from
+ * {@link SessionProcessor#getSupportedCameraOperations()} can be supported by the
+ * RestrictedCameraControl.
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class RestrictedCameraControl extends ForwardingCameraControl {
@@ -51,26 +53,20 @@ public class RestrictedCameraControl extends ForwardingCameraControl {
     }
 
     private final CameraControlInternal mCameraControl;
-    private volatile boolean mUseRestrictedCameraOperations = false;
+    private final SessionProcessor mSessionProcessor;
     @Nullable
-    private volatile @CameraOperation Set<Integer> mRestrictedCameraOperations;
+    private final @CameraOperation Set<Integer> mRestrictedCameraOperations;
 
     /**
      * Creates the restricted version of the given {@link CameraControlInternal}.
      */
-    public RestrictedCameraControl(@NonNull CameraControlInternal cameraControl) {
+    public RestrictedCameraControl(@NonNull CameraControlInternal cameraControl,
+            @Nullable SessionProcessor sessionProcessor) {
         super(cameraControl);
         mCameraControl = cameraControl;
-    }
-
-    /**
-     * Enable or disable the restricted operations. If disabled, it works just like the origin
-     * CameraControlInternal instance.
-     */
-    public void enableRestrictedOperations(boolean enable,
-            @Nullable @CameraOperation Set<Integer> restrictedOperations) {
-        mUseRestrictedCameraOperations = enable;
-        mRestrictedCameraOperations = restrictedOperations;
+        mSessionProcessor = sessionProcessor;
+        mRestrictedCameraOperations =
+                mSessionProcessor == null ? null : sessionProcessor.getSupportedCameraOperations();
     }
 
     /**
@@ -82,9 +78,17 @@ public class RestrictedCameraControl extends ForwardingCameraControl {
         return mCameraControl;
     }
 
+    /**
+     * Returns the {@link SessionProcessor} associated with the RestrictedCameraControl.
+     */
+    @Nullable
+    public SessionProcessor getSessionProcessor() {
+        return mSessionProcessor;
+    }
+
     boolean isOperationSupported(
             @NonNull @CameraOperation int... operations) {
-        if (!mUseRestrictedCameraOperations || mRestrictedCameraOperations == null) {
+        if (mRestrictedCameraOperations == null) {
             return true;
         }
 

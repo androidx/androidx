@@ -20,6 +20,7 @@ import android.graphics.ImageFormat.JPEG
 import android.graphics.Matrix
 import android.graphics.Rect
 import android.os.Build
+import android.os.Looper
 import android.util.Range
 import android.util.Rational
 import android.util.Size
@@ -48,6 +49,7 @@ import androidx.camera.core.impl.Identifier
 import androidx.camera.core.impl.MutableOptionsBundle
 import androidx.camera.core.impl.OptionsBundle
 import androidx.camera.core.impl.RestrictedCameraControl
+import androidx.camera.core.impl.RestrictedCameraInfo
 import androidx.camera.core.impl.SessionProcessor
 import androidx.camera.core.impl.StreamSpec
 import androidx.camera.core.impl.UseCaseConfigFactory
@@ -70,10 +72,13 @@ import androidx.camera.testing.impl.fakes.FakeUseCaseConfig
 import androidx.camera.testing.impl.fakes.FakeUseCaseConfigFactory
 import androidx.camera.testing.impl.fakes.GrayscaleImageEffect
 import androidx.concurrent.futures.await
+import androidx.lifecycle.MutableLiveData
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.CountDownLatch
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
@@ -86,6 +91,7 @@ import org.mockito.Mockito.mock
 import org.mockito.Mockito.spy
 import org.mockito.Mockito.verify
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.Shadows
 import org.robolectric.annotation.internal.DoNotInstrument
 
 private const val CAMERA_ID = "0"
@@ -1413,6 +1419,67 @@ class CameraUseCaseAdapterTest {
 
         // 2. Act && Assert
         assertThat(cameraInfoInternal.isCaptureProcessProgressSupported).isTrue()
+    }
+
+    @RequiresApi(23)
+    @Test
+    fun returnsCorrectSessionProcessorFromRestrictedCameraControl() {
+        val fakeSessionProcessor = FakeSessionProcessor()
+        val cameraConfig: CameraConfig = FakeCameraConfig(fakeSessionProcessor)
+
+        val cameraUseCaseAdapter = CameraUseCaseAdapter(
+            fakeCamera,
+            cameraCoordinator,
+            fakeCameraDeviceSurfaceManager,
+            useCaseConfigFactory,
+            cameraConfig
+        )
+
+        val cameraControl = cameraUseCaseAdapter.cameraControl
+        assertThat(cameraControl).isInstanceOf(RestrictedCameraControl::class.java)
+        assertThat((cameraControl as RestrictedCameraControl).sessionProcessor).isSameInstanceAs(
+            fakeSessionProcessor
+        )
+    }
+
+    @RequiresApi(23)
+    @Test
+    fun returnsCorrectExtensionTypeFromRestrictedCameraInfoSessionProcessor(): Unit = runBlocking {
+        val fakeType = 99
+        val currentExtensionType = MutableLiveData(fakeType)
+        val fakeSessionProcessor =
+            FakeSessionProcessor(inputExtensionType = currentExtensionType)
+        val cameraConfig: CameraConfig = FakeCameraConfig(fakeSessionProcessor)
+
+        val cameraUseCaseAdapter = CameraUseCaseAdapter(
+            fakeCamera,
+            cameraCoordinator,
+            fakeCameraDeviceSurfaceManager,
+            useCaseConfigFactory,
+            cameraConfig
+        )
+
+        val cameraInfo = cameraUseCaseAdapter.cameraInfo
+        assertThat(cameraInfo).isInstanceOf(RestrictedCameraInfo::class.java)
+        assertThat((cameraInfo as RestrictedCameraInfo).sessionProcessor).isSameInstanceAs(
+            fakeSessionProcessor
+        )
+        val type = cameraInfo.sessionProcessor!!.currentExtensionType.value
+        // Verifies the initial type is correct
+        assertThat(type).isEqualTo(fakeType)
+
+        val updatedType = 100
+        val countDownLatch = CountDownLatch(1)
+
+        // Posts the new type and verifies it can be observed
+        currentExtensionType.postValue(updatedType)
+        Shadows.shadowOf(Looper.getMainLooper()).idle()
+        cameraInfo.sessionProcessor!!.currentExtensionType.observeForever {
+            if (it == updatedType) {
+                countDownLatch.countDown()
+            }
+        }
+        assertThat(countDownLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
     }
 
     private fun createFakeVideoCaptureUseCase(): FakeUseCase {
