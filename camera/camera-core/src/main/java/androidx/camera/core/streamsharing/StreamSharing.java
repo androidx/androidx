@@ -277,7 +277,7 @@ public class StreamSharing extends UseCase {
 
         propagateChildrenCamera2Interop(streamSpec.getResolution(), builder);
 
-        builder.addSurface(mCameraEdge.getDeferrableSurface());
+        builder.addSurface(mCameraEdge.getDeferrableSurface(), streamSpec.getDynamicRange());
         builder.addRepeatingCameraCaptureCallback(
                 mVirtualCameraAdapter.getParentMetadataCallback());
         if (streamSpec.getImplementationOptions() != null) {
