@@ -143,6 +143,7 @@ val TextDemos = DemoCategory(
                 ComposableDemo("Tail Following Text Field") { TailFollowingTextFieldDemo() },
                 ComposableDemo("Secondary input system") { PlatformTextInputAdapterDemo() },
                 ComposableDemo("Read-only field") { ReadOnlyTextFieldDemo() },
+                ComposableDemo("Interop") { InteropTextFieldDemo() }
             )
         ),
         DemoCategory(
