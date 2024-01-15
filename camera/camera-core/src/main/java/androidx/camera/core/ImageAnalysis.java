@@ -671,7 +671,7 @@ public final class ImageAnalysis extends UseCase {
     /**
      * Returns the resolution selector setting.
      *
-     * <p>This setting is set when constructing an ImageCapture using
+     * <p>This setting is set when constructing an ImageAnalysis using
      * {@link Builder#setResolutionSelector(ResolutionSelector)}.
      */
     @Nullable
