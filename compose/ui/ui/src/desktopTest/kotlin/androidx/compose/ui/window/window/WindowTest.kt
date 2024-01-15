@@ -256,7 +256,7 @@ class WindowTest {
     }
 
     @Test
-    fun `open nested window`() = runApplicationTest {
+    fun `open nested window`() = runApplicationTest(useDelay = true) {
         var window1: ComposeWindow? = null
         var window2: ComposeWindow? = null
 

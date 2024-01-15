@@ -104,7 +104,7 @@ class WindowStateTest {
     }
 
     @Test
-    fun `programmatically open and close nested window`() = runApplicationTest {
+    fun `programmatically open and close nested window`() = runApplicationTest(useDelay = true) {
         var parentWindow: ComposeWindow? = null
         var childWindow: ComposeWindow? = null
         var isParentOpen by mutableStateOf(true)
