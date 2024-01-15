@@ -784,7 +784,6 @@ internal val DefaultPositionThreshold = 56.dp
 private const val MaxPagesForAnimateScroll = 3
 internal const val PagesToPrefetch = 1
 
-@OptIn(ExperimentalFoundationApi::class)
 internal val EmptyLayoutInfo = PagerMeasureResult(
     visiblePagesInfo = emptyList(),
     pageSize = 0,

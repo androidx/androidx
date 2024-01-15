@@ -196,9 +196,3 @@ internal fun rememberPagerMeasurePolicy(
         }
     }
 }
-
-private inline fun debugLog(generateMsg: () -> String) {
-    if (PagerDebugConfig.MeasurePolicy) {
-        println("PagerMeasurePolicy: ${generateMsg()}")
-    }
-}
