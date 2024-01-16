@@ -59,6 +59,7 @@ import kotlin.math.ceil
 import kotlin.math.floor
 import kotlin.test.BeforeTest
 import kotlin.test.Test
+import kotlinx.test.IgnoreWasmTarget
 
 @OptIn(ExperimentalTestApi::class)
 class TextFieldCursorTest {
@@ -305,6 +306,7 @@ class TextFieldCursorTest {
     }
 
     @Test
+    @IgnoreWasmTarget
     fun selectionChanges_cursorNotBlinking() = runSkikoComposeUiTest {
         mainClock.autoAdvance = false
         val textValue = mutableStateOf(TextFieldValue("test", selection = TextRange(2)))

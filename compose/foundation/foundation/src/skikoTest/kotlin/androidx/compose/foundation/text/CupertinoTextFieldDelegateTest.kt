@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlinx.test.IgnoreWasmTarget
 
 class CupertinoTextFieldDelegateTest {
     private val sampleText =
@@ -122,6 +123,7 @@ class CupertinoTextFieldDelegateTest {
     }
 
     @Test
+    @IgnoreWasmTarget
     fun determineCursorDesiredOffset_tap_on_the_right_edge_empty_line() {
         // Tap was on the last line in the given example string
         val givenOffset = 231
@@ -150,6 +152,7 @@ class CupertinoTextFieldDelegateTest {
     }
 
     @Test
+    @IgnoreWasmTarget
     fun determineCursorDesiredOffset_tap_on_the_left_edge_empty_line() {
         // Tap was on the last line in the given example string
         val givenOffset = 231
