@@ -65,7 +65,7 @@ public final class ActiveTileIdentifier {
      *
      * @param string The String that was returned by {@code flattenToString()}.
      * @return Returns a new ActiveTileIdentifier containing the tile id and component name that
-     *     were encoded in {@param string}.
+     *     were encoded in {@code string}.
      */
     @NonNull
     static ActiveTileIdentifier unflattenFromString(@NonNull String string) {
