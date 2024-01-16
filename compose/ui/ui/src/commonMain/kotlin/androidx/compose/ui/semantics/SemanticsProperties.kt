@@ -481,24 +481,6 @@ private fun <T> throwSemanticsGetNotSupported(): T {
     )
 }
 
-internal fun <T> AccessibilityKey(
-    name: String
-) =
-    SemanticsPropertyKey<T>(
-        name = name,
-        isImportantForAccessibility = true
-    )
-
-internal fun <T> AccessibilityKey(
-    name: String,
-    mergePolicy: (T?, T) -> T?
-) =
-    SemanticsPropertyKey<T>(
-        name = name,
-        isImportantForAccessibility = true,
-        mergePolicy = mergePolicy
-    )
-
 /**
  * Standard accessibility action.
  *
@@ -531,21 +513,6 @@ class AccessibilityAction<T : Function<Boolean>>(val label: String?, val action:
         return "AccessibilityAction(label=$label, action=$action)"
     }
 }
-
-@Suppress("NOTHING_TO_INLINE")
-// inline to break static initialization cycle issue
-private inline fun <T : Function<Boolean>> ActionPropertyKey(
-    name: String
-) =
-    AccessibilityKey<AccessibilityAction<T>>(
-        name = name,
-        mergePolicy = { parentValue, childValue ->
-            AccessibilityAction(
-                parentValue?.label ?: childValue.label,
-                parentValue?.action ?: childValue.action
-            )
-        }
-    )
 
 /**
  * Custom accessibility action.
