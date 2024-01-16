@@ -16,6 +16,8 @@
 
 package androidx.wear.protolayout.renderer.inflater;
 
+import static androidx.wear.protolayout.renderer.inflater.ProtoLayoutInflater.isRtlLayoutDirectionFromLocale;
+
 import static java.lang.Math.min;
 
 import android.content.Context;
@@ -41,6 +43,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import androidx.wear.protolayout.proto.ColorProto;
+import androidx.wear.protolayout.proto.LayoutElementProto.ArcDirection;
 import androidx.wear.protolayout.renderer.R;
 import androidx.wear.protolayout.renderer.inflater.WearCurvedLineView.ArcSegment.CapPosition;
 import androidx.wear.widget.ArcLayout;
@@ -74,6 +77,8 @@ public class WearCurvedLineView extends View implements ArcLayout.Widget {
     private static final int DEFAULT_LINE_STROKE_CAP = Cap.ROUND.ordinal();
     @ColorInt private static final int DEFAULT_COLOR = 0xFFFFFFFF;
     private static final int FULLY_OPAQUE_COLOR_MASK = 0xFF000000;
+
+    private ArcDirection mLineDirection = ArcDirection.ARC_DIRECTION_CLOCKWISE;
 
     /**
      * The base angle for drawings. The zero angle in Android corresponds to the "3 o clock"
@@ -165,6 +170,7 @@ public class WearCurvedLineView extends View implements ArcLayout.Widget {
                             bounds,
                             clampedSweepAngle,
                             mThicknessPx,
+                            getSignForClockwise(mLineDirection, /* defaultValue= */ 1),
                             basePaint,
                             mSweepGradientHelper,
                             mCapShadow);
@@ -190,6 +196,11 @@ public class WearCurvedLineView extends View implements ArcLayout.Widget {
         updateArcDrawable();
         requestLayout();
         postInvalidate();
+    }
+
+    /** Sets the direction which the line is drawn. */
+    public void setLineDirection(@NonNull ArcDirection direction) {
+        mLineDirection = direction;
     }
 
     private float resolveSweepAngleDegrees() {
@@ -334,6 +345,20 @@ public class WearCurvedLineView extends View implements ArcLayout.Widget {
         // Since we are symmetrical on the Y-axis, we can constrain the angle to the x>=0 quadrants.
         float angle = (float) Math.toDegrees(Math.atan2(Math.abs(dx), -dy));
         return angle < resolveSweepAngleDegrees() / 2;
+    }
+
+    static int getSignForClockwise(@NonNull ArcDirection arcDirection, int defaultValue) {
+        switch (arcDirection) {
+            case ARC_DIRECTION_CLOCKWISE:
+                return 1;
+            case ARC_DIRECTION_COUNTER_CLOCKWISE:
+                return -1;
+            case ARC_DIRECTION_NORMAL:
+                return isRtlLayoutDirectionFromLocale() ? -1 : 1;
+            case UNRECOGNIZED:
+                return defaultValue;
+        }
+        return defaultValue;
     }
 
     static class SweepGradientHelper {
@@ -626,7 +651,7 @@ public class WearCurvedLineView extends View implements ArcLayout.Widget {
             if (Math.abs(sweepAngle) > 180f) {
                 throw new IllegalArgumentException(
                         "ArcSegment's absolute sweepAngle must be less or equal than 180 degrees."
-                            + " Got "
+                                + " Got "
                                 + sweepAngle);
             }
 
@@ -728,6 +753,7 @@ public class WearCurvedLineView extends View implements ArcLayout.Widget {
                 @NonNull RectF bounds,
                 float sweepAngle,
                 float thicknessPx,
+                int arcDirectionSign,
                 @NonNull Paint basePaint,
                 @Nullable SweepGradientHelper sweepGradHelper,
                 @Nullable StrokeCapShadow strokeCapShadow) {
@@ -735,10 +761,12 @@ public class WearCurvedLineView extends View implements ArcLayout.Widget {
                 return;
             }
 
+            float drawStartAngle = BASE_DRAW_ANGLE_SHIFT - arcDirectionSign * sweepAngle / 2f;
+            sweepAngle *= arcDirectionSign;
+
             float sweepDirection = Math.signum(sweepAngle);
             float absSweepAngle = Math.abs(sweepAngle);
 
-            float drawStartAngle = BASE_DRAW_ANGLE_SHIFT - sweepAngle / 2f;
             ArcSegment.CapPosition tailCapPosition = ArcSegment.CapPosition.START;
             // The start of the top layer, relative to the Arc Line's full length.
             float topLayerStartCursor = 0f;

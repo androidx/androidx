@@ -16,6 +16,8 @@
 
 package androidx.wear.protolayout.renderer.inflater;
 
+import static androidx.wear.protolayout.renderer.inflater.WearCurvedLineView.getSignForClockwise;
+
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
@@ -28,15 +30,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
+import androidx.wear.protolayout.proto.LayoutElementProto.ArcDirection;
 import androidx.wear.protolayout.renderer.R;
 import androidx.wear.widget.ArcLayout;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import static androidx.wear.protolayout.proto.LayoutElementProto.ArcDirection.ARC_DIRECTION_CLOCKWISE_VALUE;
-import static androidx.wear.protolayout.proto.LayoutElementProto.ArcDirection.ARC_DIRECTION_COUNTER_CLOCKWISE_VALUE;
-import static androidx.wear.protolayout.proto.LayoutElementProto.ArcDirection.ARC_DIRECTION_NORMAL_VALUE;
-import static androidx.wear.protolayout.renderer.inflater.ProtoLayoutInflater.isRtlLayoutDirectionFromLocale;
 
 /**
  * A container, which can be added to a ArcLayout, which occupies a fixed size.
@@ -46,7 +45,7 @@ import static androidx.wear.protolayout.renderer.inflater.ProtoLayoutInflater.is
  */
 class SizedArcContainer extends ViewGroup implements ArcLayout.Widget {
     private static final float DEFAULT_SWEEP_ANGLE_DEGREES = 0;
-    private int mArcDirection = ARC_DIRECTION_CLOCKWISE_VALUE;
+    @NonNull private ArcDirection mArcDirection = ArcDirection.ARC_DIRECTION_CLOCKWISE;
 
     private float mSweepAngleDegrees;
 
@@ -94,11 +93,6 @@ class SizedArcContainer extends ViewGroup implements ArcLayout.Widget {
         this(context, null);
     }
 
-    SizedArcContainer(@NonNull Context context, int arcDirection) {
-        this(context, null);
-        mArcDirection = arcDirection;
-    }
-
     SizedArcContainer(@NonNull Context context, @Nullable AttributeSet attrs) {
         this(context, attrs, 0);
     }
@@ -124,6 +118,14 @@ class SizedArcContainer extends ViewGroup implements ArcLayout.Widget {
                         DEFAULT_SWEEP_ANGLE_DEGREES);
 
         a.recycle();
+    }
+
+    /**
+     * Sets the arc direction for this container. This controls what is considered START or END for
+     * alignment.
+     */
+    void setArcDirection(@NonNull ArcDirection arcDirection) {
+        mArcDirection = arcDirection;
     }
 
     @Override
@@ -242,7 +244,7 @@ class SizedArcContainer extends ViewGroup implements ArcLayout.Widget {
         float childSweep = ((ArcLayout.Widget) child).getSweepAngleDegrees();
         float offsetDegrees = (mSweepAngleDegrees - childSweep) / 2;
 
-        int sign = getSignForClockwise();
+        int sign = getSignForClockwise(mArcDirection, /* devaultValue= */ 1);
 
         switch (alignment) {
             case LayoutParams.ANGULAR_ALIGNMENT_START:
@@ -253,18 +255,6 @@ class SizedArcContainer extends ViewGroup implements ArcLayout.Widget {
                 return super.drawChild(canvas, child, drawingTime);
             default:
                 return super.drawChild(canvas, child, drawingTime);
-        }
-    }
-
-    private int getSignForClockwise() {
-        switch (mArcDirection) {
-            case ARC_DIRECTION_CLOCKWISE_VALUE:
-                return 1;
-            case ARC_DIRECTION_COUNTER_CLOCKWISE_VALUE:
-                return -1;
-            case ARC_DIRECTION_NORMAL_VALUE:
-            default:
-                return isRtlLayoutDirectionFromLocale() ? -1 : 1;
         }
     }
 }

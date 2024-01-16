@@ -23,7 +23,6 @@ import static android.view.View.LAYOUT_DIRECTION_RTL;
 import static android.view.View.VISIBLE;
 
 import static androidx.core.util.Preconditions.checkNotNull;
-import static androidx.wear.protolayout.proto.LayoutElementProto.ArcDirection.ARC_DIRECTION_CLOCKWISE_VALUE;
 import static androidx.wear.protolayout.renderer.common.ProtoLayoutDiffer.FIRST_CHILD_INDEX;
 import static androidx.wear.protolayout.renderer.common.ProtoLayoutDiffer.ROOT_NODE_ID;
 import static androidx.wear.protolayout.renderer.common.ProtoLayoutDiffer.getParentNodePosId;
@@ -125,6 +124,7 @@ import androidx.wear.protolayout.proto.DimensionProto.SpacerDimension;
 import androidx.wear.protolayout.proto.DimensionProto.WrappedDimensionProp;
 import androidx.wear.protolayout.proto.FingerprintProto.NodeFingerprint;
 import androidx.wear.protolayout.proto.LayoutElementProto.Arc;
+import androidx.wear.protolayout.proto.LayoutElementProto.ArcDirection;
 import androidx.wear.protolayout.proto.LayoutElementProto.ArcLayoutElement;
 import androidx.wear.protolayout.proto.LayoutElementProto.ArcLine;
 import androidx.wear.protolayout.proto.LayoutElementProto.ArcSpacer;
@@ -3153,22 +3153,26 @@ public final class ProtoLayoutInflater {
             handleProp(length, lineView::setLineSweepAngleDegrees, posId, pipelineMaker);
         }
 
+        ArcDirection arcLineDirection =
+                line.hasArcDirection()
+                        ? line.getArcDirection().getValue()
+                        : ArcDirection.ARC_DIRECTION_CLOCKWISE;
+
+        lineView.setLineDirection(arcLineDirection);
+
         SizedArcContainer sizeWrapper = null;
         SizedArcContainer.LayoutParams sizedLp =
                 new SizedArcContainer.LayoutParams(
                         LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
         @Nullable Float sizeForLayout = resolveSizeForLayoutIfNeeded(length);
         if (sizeForLayout != null) {
-            int arcDirection =
-                    line.hasArcDirection()
-                            ? line.getArcDirection().getValueValue()
-                            : ARC_DIRECTION_CLOCKWISE_VALUE;
-            sizeWrapper = new SizedArcContainer(mUiContext, arcDirection);
+            sizeWrapper = new SizedArcContainer(mUiContext);
+            sizeWrapper.setArcDirection(arcLineDirection);
             if (sizeForLayout <= 0f) {
                 Log.w(
                         TAG,
-                        "ArcLine length's value_for_layout is not a positive value. Element won't"
-                                + " be visible.");
+                        "ArcLine length's value_for_layout is not a positive value. Element"
+                                + " won't be visible.");
             }
             sizeWrapper.setSweepAngleDegrees(sizeForLayout);
             sizedLp.setAngularAlignment(
