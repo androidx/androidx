@@ -85,18 +85,23 @@ class ComposeInputMethodManagerTest {
             imm?.restartInput()
         }
 
+        rule.waitUntil {
+            createInputConnectionCalled >= 1
+        }
         rule.runOnIdle {
             // when first time we start input, checkFocus in platform code causes
-            // onCreateInputConnection to be called twice.
-            assertThat(createInputConnectionCalled).isEqualTo(2)
+            // onCreateInputConnection to be called twice. However, this is not guaranteed.
+            assertThat(createInputConnectionCalled).isAtLeast(1)
         }
 
+        val previousCreateInputConnectionCalled = createInputConnectionCalled
         rule.runOnUiThread {
             imm?.restartInput()
         }
 
         rule.runOnIdle {
-            assertThat(createInputConnectionCalled).isEqualTo(3)
+            assertThat(createInputConnectionCalled)
+                .isEqualTo(previousCreateInputConnectionCalled + 1)
         }
     }
 }
