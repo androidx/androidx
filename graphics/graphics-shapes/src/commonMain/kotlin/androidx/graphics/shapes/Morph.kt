@@ -64,15 +64,26 @@ class Morph(
      */
     fun asCubics(progress: Float): List<Cubic> {
         return buildList {
+            // The first/last mechanism here ensures that the final anchor point in the shape
+            // exactly matches the first anchor point. There can be rendering artifacts introduced
+            // by those points being slightly off, even by much less than a pixel
+            var firstCubic: Cubic? = null
+            var lastCubic: Cubic? = null
             for (i in _morphMatch.indices) {
-                Cubic(FloatArray(8) {
+                val cubic = Cubic(FloatArray(8) {
                     interpolate(
                         _morphMatch[i].first.points[it],
                         _morphMatch[i].second.points[it],
                         progress
                     )
                 })
+                if (firstCubic == null) firstCubic = cubic
+                if (lastCubic != null) add(lastCubic)
+                lastCubic = cubic
             }
+            if (lastCubic != null && firstCubic != null) add(Cubic(
+                lastCubic.anchor0X, lastCubic.anchor0Y, lastCubic.control0X, lastCubic.control0Y,
+                lastCubic.control1X, lastCubic.control1Y, firstCubic.anchor0X, firstCubic.anchor0Y))
         }
     }
 

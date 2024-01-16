@@ -38,10 +38,25 @@ class RoundedPolygon internal constructor(
      * A flattened version of the [Feature]s, as a List<Cubic>.
      */
     val cubics = buildList {
-        // Equivalent to `features.flatMap { it.cubics }` but without Iterator allocation.
+        // The first/last mechanism here ensures that the final anchor point in the shape
+        // exactly matches the first anchor point. There can be rendering artifacts introduced
+        // by those points being slightly off, even by much less than a pixel
+        var firstCubic: Cubic? = null
+        var lastCubic: Cubic? = null
         for (i in features.indices) {
-            addAll(features[i].cubics)
+            val featureCubics = features[i].cubics
+            for (j in featureCubics.indices) {
+                // Skip zero-length curves; they add nothing and can trigger rendering artifacts
+                if (!featureCubics[j].zeroLength()) {
+                    if (lastCubic != null) add(lastCubic)
+                    lastCubic = featureCubics[j]
+                    if (firstCubic == null) firstCubic = featureCubics[j]
+                }
+            }
         }
+        if (lastCubic != null && firstCubic != null) add(Cubic(
+            lastCubic.anchor0X, lastCubic.anchor0Y, lastCubic.control0X, lastCubic.control0Y,
+            lastCubic.control1X, lastCubic.control1Y, firstCubic.anchor0X, firstCubic.anchor0Y))
     }
 
     init {
