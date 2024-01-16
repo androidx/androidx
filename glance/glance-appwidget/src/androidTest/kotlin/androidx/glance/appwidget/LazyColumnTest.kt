@@ -17,12 +17,14 @@
 package androidx.glance.appwidget
 
 import android.app.Activity
+import android.util.Log
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.widget.Button
 import android.widget.FrameLayout
+import android.widget.ListAdapter
 import android.widget.ListView
 import android.widget.TextView
 import androidx.compose.runtime.collectAsState
@@ -49,6 +51,7 @@ import kotlin.test.assertIs
 import kotlin.test.assertNotNull
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
+import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -60,6 +63,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.withTimeout
 import org.junit.Rule
 import org.junit.Test
 
@@ -104,8 +108,10 @@ class LazyColumnTest {
             val adapter = list.adapter!!
             assertThat(adapter.hasStableIds()).isFalse()
             assertThat(adapter.count).isEqualTo(2)
-            assertThat(adapter.getItemId(0)).isEqualTo(ReservedItemIdRangeEnd)
-            assertThat(adapter.getItemId(1)).isEqualTo(ReservedItemIdRangeEnd - 1)
+            runBlocking {
+                adapter.waitForItemIdAtPosition(0, ReservedItemIdRangeEnd)
+                adapter.waitForItemIdAtPosition(1, ReservedItemIdRangeEnd - 1)
+            }
         }
     }
 
@@ -124,8 +130,10 @@ class LazyColumnTest {
             val adapter = list.adapter!!
             assertThat(adapter.hasStableIds()).isTrue()
             assertThat(adapter.count).isEqualTo(2)
-            assertThat(adapter.getItemId(0)).isEqualTo(ReservedItemIdRangeEnd)
-            assertThat(adapter.getItemId(1)).isEqualTo(1L)
+            runBlocking {
+                adapter.waitForItemIdAtPosition(0, ReservedItemIdRangeEnd)
+                adapter.waitForItemIdAtPosition(1, 1L)
+            }
         }
     }
 
@@ -143,9 +151,11 @@ class LazyColumnTest {
             val adapter = list.adapter!!
             assertThat(adapter.count).isEqualTo(3)
             assertThat(adapter.hasStableIds()).isFalse()
-            assertThat(adapter.getItemId(0)).isEqualTo(ReservedItemIdRangeEnd)
-            assertThat(adapter.getItemId(1)).isEqualTo(ReservedItemIdRangeEnd - 1)
-            assertThat(adapter.getItemId(2)).isEqualTo(ReservedItemIdRangeEnd - 2)
+            runBlocking {
+                adapter.waitForItemIdAtPosition(0, ReservedItemIdRangeEnd)
+                adapter.waitForItemIdAtPosition(1, ReservedItemIdRangeEnd - 1)
+                adapter.waitForItemIdAtPosition(2, ReservedItemIdRangeEnd - 2)
+            }
         }
     }
 
@@ -164,10 +174,12 @@ class LazyColumnTest {
             val adapter = list.adapter!!
             assertThat(adapter.count).isEqualTo(4)
             assertThat(adapter.hasStableIds()).isTrue()
-            assertThat(adapter.getItemId(0)).isEqualTo(0L)
-            assertThat(adapter.getItemId(1)).isEqualTo(2L)
-            assertThat(adapter.getItemId(2)).isEqualTo(4L)
-            assertThat(adapter.getItemId(3)).isEqualTo(ReservedItemIdRangeEnd - 3)
+            runBlocking {
+                adapter.waitForItemIdAtPosition(0, 0L)
+                adapter.waitForItemIdAtPosition(1, 2L)
+                adapter.waitForItemIdAtPosition(2, 4L)
+                adapter.waitForItemIdAtPosition(3, ReservedItemIdRangeEnd - 3)
+            }
         }
     }
 
@@ -650,6 +662,29 @@ internal inline fun <reified T : View> ListView.getUnboxedListItem(position: Int
     val rootView = assertNotNull(remoteViewFrame.findViewById(R.id.rootView)) as ViewGroup
     // The RemoteViews created in translateComposition for holding an item
     return rootView.getChildAt(0).getTargetView()
+}
+
+private suspend fun ListAdapter.waitForItemIdAtPosition(
+    position: Int,
+    expectedItemId: Long
+) {
+    var actualItemId = getItemId(position)
+    try {
+        withTimeout(600) {
+            while (actualItemId != expectedItemId) {
+                Log.i(
+                    "LazyColumnTest", "ItemId at $position was expected to be " +
+                        "$expectedItemId, but was $actualItemId. Waiting for 200 ms."
+                )
+                delay(200) // Wait before retrying
+                actualItemId = getItemId(position)
+            }
+        }
+    } catch (e: TimeoutCancellationException) {
+        throw AssertionError(
+            "ItemId at $position was expected to be $expectedItemId, but was $actualItemId"
+        )
+    }
 }
 
 internal inline fun <reified T : View> ListView.getViewFromUnboxedListItem(
