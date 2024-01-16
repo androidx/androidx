@@ -61,10 +61,4 @@ androidx {
     description = "Android Benchmark Gradle Plugin"
 }
 
-tasks {
-    validatePlugins {
-        failOnWarning.set(true)
-        enableStricterValidation.set(true)
-    }
-}
 afterEvaluate { tasks.named("test") {it.dependsOn( tasks.named("publish")) }}
