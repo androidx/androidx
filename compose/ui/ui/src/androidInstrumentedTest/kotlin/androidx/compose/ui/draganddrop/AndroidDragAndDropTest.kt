@@ -431,6 +431,59 @@ class DragAndDropNodeTest {
     }
 
     @Test
+    fun dispatchDragEvent_callsEnterEventsBeforeExitEvents() {
+        rule.runOnUiThread {
+            val calls = mutableListOf<String>()
+            acceptingParentBottomStartDropTarget.onEntered = {
+                calls += "enter-parent"
+            }
+            acceptingParentBottomStartDropTarget.onExited = {
+                calls += "exit-parent"
+            }
+            acceptingInnerBottomStartDropTarget.onEntered = {
+                calls += "enter-child"
+            }
+            acceptingInnerBottomStartDropTarget.onExited = {
+                calls += "exit-child"
+            }
+
+            val events = listOf(
+                // Start in the center
+                DragEvent(
+                    action = DragEvent.ACTION_DRAG_STARTED,
+                    x = with(density) { HalfContainerSize.toPx() },
+                    y = with(density) { HalfContainerSize.toPx() },
+                ),
+                // Move into bottom start parent
+                DragEvent(
+                    action = DragEvent.ACTION_DRAG_LOCATION,
+                    x = with(density) { HalfChildSize.toPx() },
+                    y = with(density) {
+                        (ContainerSize - ChildSize - HalfChildSize).toPx()
+                    },
+                ),
+                // Move into bottom start inner child
+                DragEvent(
+                    action = DragEvent.ACTION_DRAG_LOCATION,
+                    x = with(density) { HalfChildSize.toPx() },
+                    y = with(density) { (ContainerSize - HalfChildSize).toPx() },
+                )
+            )
+
+            val androidComposeView = findAndroidComposeView(container)!!
+            events.forEach(androidComposeView::dispatchDragEvent)
+
+            // Assertions
+            Truth.assertThat(calls).isEqualTo(listOf(
+                "enter-parent",
+                // important bit is enter child is received before exit parent.
+                "enter-child",
+                "exit-parent"
+            ))
+        }
+    }
+
+    @Test
     fun dispatchDragEvent_multicasts_ACTION_DRAG_ENDED() {
         rule.runOnUiThread {
             val events = listOf(
@@ -939,7 +992,9 @@ private fun countDown(from: Int, block: (CountDownLatch) -> Unit) {
 
 private fun Modifier.testDropTarget(holder: DropTargetModifierHolder) = this then holder.modifier
 private class DropTargetModifierHolder(
-    private val acceptsDragAndDrop: () -> Boolean
+    private val acceptsDragAndDrop: () -> Boolean,
+    var onEntered: ((event: DragAndDropEvent) -> Unit)? = null,
+    var onExited: ((event: DragAndDropEvent) -> Unit)? = null,
 ) {
     val startOffsets = mutableListOf<Offset>()
     val enterOffsets = mutableListOf<Offset>()
@@ -961,6 +1016,7 @@ private class DropTargetModifierHolder(
                 enterOffsets.add(
                     Offset(x = event.dragEvent.x, y = event.dragEvent.y)
                 )
+                onEntered?.invoke(event)
             }
 
             override fun onMoved(event: DragAndDropEvent) {
@@ -980,6 +1036,7 @@ private class DropTargetModifierHolder(
                 exitOffsets.add(
                     Offset(x = event.dragEvent.x, y = event.dragEvent.y)
                 )
+                onExited?.invoke(event)
             }
 
             override fun onEnded(event: DragAndDropEvent) {
