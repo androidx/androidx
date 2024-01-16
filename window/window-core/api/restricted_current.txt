@@ -38,6 +38,13 @@ package androidx.window.core.layout {
     method @SuppressCompatibility @androidx.window.core.ExperimentalWindowCoreApi public androidx.window.core.layout.WindowSizeClass compute(int widthPx, int heightPx, float density);
   }
 
+  public final class WindowSizeClassUtil {
+    method @SuppressCompatibility @androidx.window.core.ExperimentalWindowCoreApi public static int scoreWithinAreaBounds(androidx.window.core.layout.WindowSizeClass, int windowWidthDp, int windowHeightDp);
+    method @SuppressCompatibility @androidx.window.core.ExperimentalWindowCoreApi public static int scoreWithinHeightDp(androidx.window.core.layout.WindowSizeClass, int heightDp);
+    method @SuppressCompatibility @androidx.window.core.ExperimentalWindowCoreApi public static int scoreWithinWidthDp(androidx.window.core.layout.WindowSizeClass, int widthDp);
+    method public static androidx.window.core.layout.WindowSizeClass? widestOrEqualWidthDp(java.util.Set<androidx.window.core.layout.WindowSizeClass>, int windowWidthDp);
+  }
+
   public final class WindowWidthSizeClass {
     field public static final androidx.window.core.layout.WindowWidthSizeClass COMPACT;
     field public static final androidx.window.core.layout.WindowWidthSizeClass.Companion Companion;
