@@ -460,10 +460,10 @@ object CardDefaults {
     @Composable
     fun cardColors(
         containerColor: Color = Color.Unspecified,
-        contentColor: Color = Color.Unspecified,
+        contentColor: Color = contentColorFor(containerColor),
         disabledContainerColor: Color = Color.Unspecified,
-        disabledContentColor: Color = Color.Unspecified,
-    ): CardColors = CardColors(
+        disabledContentColor: Color = contentColor.copy(DisabledAlpha),
+    ): CardColors = MaterialTheme.colorScheme.defaultCardColors.copy(
         containerColor = containerColor,
         contentColor = contentColor,
         disabledContainerColor = disabledContainerColor,
@@ -509,19 +509,11 @@ object CardDefaults {
      */
     @Composable
     fun elevatedCardColors(
-        containerColor: Color = ElevatedCardTokens.ContainerColor.value,
+        containerColor: Color = Color.Unspecified,
         contentColor: Color = contentColorFor(containerColor),
-        disabledContainerColor: Color =
-            ElevatedCardTokens.DisabledContainerColor.value
-                .copy(alpha = ElevatedCardTokens.DisabledContainerOpacity)
-                .compositeOver(
-                    MaterialTheme.colorScheme.surfaceColorAtElevation(
-                        ElevatedCardTokens.DisabledContainerElevation
-                    )
-                ),
+        disabledContainerColor: Color = Color.Unspecified,
         disabledContentColor: Color = contentColor.copy(DisabledAlpha),
-    ): CardColors =
-        CardColors(
+    ): CardColors = MaterialTheme.colorScheme.defaultElevatedCardColors.copy(
             containerColor = containerColor,
             contentColor = contentColor,
             disabledContainerColor = disabledContainerColor,
@@ -567,9 +559,9 @@ object CardDefaults {
     @Composable
     fun outlinedCardColors(
         containerColor: Color = Color.Unspecified,
-        contentColor: Color = Color.Unspecified,
+        contentColor: Color = contentColorFor(containerColor),
         disabledContainerColor: Color = Color.Unspecified,
-        disabledContentColor: Color = Color.Unspecified,
+        disabledContentColor: Color = contentColorFor(containerColor).copy(DisabledAlpha),
     ): CardColors = MaterialTheme.colorScheme.defaultOutlinedCardColors.copy(
         containerColor = containerColor,
         contentColor = contentColor,
