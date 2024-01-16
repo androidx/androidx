@@ -103,7 +103,7 @@ constructor(
                 "Reprocessing not supported under Android M"
             }
         }
-        if (graphConfig.input != null) {
+        if (graphConfig.input != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             require(graphConfig.input.isNotEmpty()) {
                 "At least one InputConfiguration is required for reprocessing"
             }
