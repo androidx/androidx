@@ -63,6 +63,44 @@ class PathParserTest {
     }
 
     @Test
+    fun relativeMoveToBecomesRelativeLineTo() {
+        val linePath = object : TestPath() {
+            var lineToPoints = ArrayList<Offset>()
+
+            override fun relativeLineTo(dx: Float, dy: Float) {
+                lineToPoints.add(Offset(dx, dy))
+            }
+        }
+
+        val parser = PathParser()
+        parser.parsePathString("m0 0 2 5").toPath(linePath)
+
+        assertEquals(1, linePath.lineToPoints.size)
+        assertEquals(2.0f, linePath.lineToPoints[0].x)
+        assertEquals(5.0f, linePath.lineToPoints[0].y)
+    }
+
+    @Test
+    fun moveToBecomesLineTo() {
+        val linePath = object : TestPath() {
+            var lineToPoints = ArrayList<Offset>()
+
+            override fun lineTo(x: Float, y: Float) {
+                lineToPoints.add(Offset(x, y))
+            }
+        }
+
+        val parser = PathParser()
+        parser.parsePathString("M0 0 2 5 6 7").toPath(linePath)
+
+        assertEquals(2, linePath.lineToPoints.size)
+        assertEquals(2.0f, linePath.lineToPoints[0].x)
+        assertEquals(5.0f, linePath.lineToPoints[0].y)
+        assertEquals(6.0f, linePath.lineToPoints[1].x)
+        assertEquals(7.0f, linePath.lineToPoints[1].y)
+    }
+
+    @Test
     fun relativeQuadToTest() {
         val quadPath = object : TestPath() {
             var lineToPoints = ArrayList<Offset>()
