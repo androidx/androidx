@@ -670,11 +670,15 @@ public class WearCurvedLineView extends View implements ArcLayout.Widget {
 
             mPaint = paint;
             mPath = new Path();
-            mPath.arcTo(bounds, startAngle, sweepAngle);
-
             if (capPosition == CapPosition.NONE) {
                 mPaint.setStrokeCap(Cap.BUTT);
             }
+
+            if (mPaint.getStrokeCap() != Cap.ROUND && Math.abs(sweepAngle) == 180f) {
+                sweepAngle += Math.signum(sweepAngle) * 0.001f;
+            }
+
+            mPath.arcTo(bounds, startAngle, sweepAngle);
 
             // If a single cap is present, we clip out the Cap that should not be included.
             if (capPosition != CapPosition.NONE) {
