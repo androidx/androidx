@@ -97,6 +97,8 @@ import org.gradle.kotlin.dsl.extra
 import org.gradle.kotlin.dsl.findByType
 import org.gradle.kotlin.dsl.getByType
 import org.gradle.kotlin.dsl.withModule
+import org.gradle.plugin.devel.plugins.JavaGradlePluginPlugin
+import org.gradle.plugin.devel.tasks.ValidatePlugins
 import org.jetbrains.kotlin.gradle.dsl.KotlinAndroidProjectExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
@@ -136,6 +138,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
         // Many of the actions overlap, ex. API tracking.
         project.plugins.all { plugin ->
             when (plugin) {
+                is JavaGradlePluginPlugin -> configureGradlePluginPlugin(project)
                 is JavaPlugin -> configureWithJavaPlugin(project, androidXExtension)
                 is LibraryPlugin -> configureWithLibraryPlugin(project, androidXExtension)
                 is AppPlugin -> configureWithAppPlugin(project, androidXExtension)
@@ -731,6 +734,13 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
 
         project.buildOnServerDependsOnAssembleRelease()
         project.buildOnServerDependsOnLint()
+    }
+
+    private fun configureGradlePluginPlugin(project: Project) {
+        project.tasks.withType(ValidatePlugins::class.java).configureEach {
+            it.enableStricterValidation.set(true)
+            it.failOnWarning.set(true)
+        }
     }
 
     private fun configureWithJavaPlugin(project: Project, androidXExtension: AndroidXExtension) {
