@@ -175,6 +175,23 @@ class StreamSharingTest {
     }
 
     @Test
+    fun effectWithTransformationPassthrough_surfaceProcessorIsNotApplied() {
+        // Arrange: create an effect with passthrough transformation.
+        effect = FakeSurfaceEffect(
+            PREVIEW or VIDEO_CAPTURE,
+            CameraEffect.TRANSFORMATION_PASSTHROUGH,
+            effectProcessor
+        )
+        streamSharing = StreamSharing(camera, setOf(child1), useCaseConfigFactory)
+        streamSharing.effect = effect
+        // Act: bind effect.
+        streamSharing.bindToCamera(frontCamera, null, defaultConfig)
+        streamSharing.onSuggestedStreamSpecUpdated(StreamSpec.builder(size).build())
+        // Assert: surface processor is not applied, the sharing input edge is the camera edge.
+        assertThat(streamSharing.sharingInputEdge).isEqualTo(streamSharing.cameraEdge)
+    }
+
+    @Test
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     fun invokeParentSessionCaptureCallbacks_receivedByChildren() {
         // Arrange.

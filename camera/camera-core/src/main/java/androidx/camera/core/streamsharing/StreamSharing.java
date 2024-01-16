@@ -313,7 +313,8 @@ public class StreamSharing extends UseCase {
     @NonNull
     private SurfaceEdge getSharingInputEdge(@NonNull SurfaceEdge cameraEdge,
             @NonNull CameraInternal camera) {
-        if (getEffect() == null) {
+        if (getEffect() == null
+                || getEffect().getTransformation() == CameraEffect.TRANSFORMATION_PASSTHROUGH) {
             // No effect. The input edge is the camera edge.
             return cameraEdge;
         }
