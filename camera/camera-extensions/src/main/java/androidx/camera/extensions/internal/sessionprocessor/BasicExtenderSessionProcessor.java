@@ -552,9 +552,15 @@ public class BasicExtenderSessionProcessor extends SessionProcessorBase {
                             totalCaptureResult,
                             requestProcessorRequest.getCaptureStageId());
                 } else {
+                    mIsCapturing = false;
+                    if (mRequestProcessor == null) {
+                        // notify the onCaptureSequenceAborted callback if onCaptureCompleted
+                        // happens but session is closed.
+                        captureCallback.onCaptureSequenceAborted(captureSequenceId);
+                        return;
+                    }
                     captureCallback.onCaptureProcessStarted(captureSequenceId);
                     captureCallback.onCaptureSequenceCompleted(captureSequenceId);
-                    mIsCapturing = false;
                 }
             }
 
