@@ -43,7 +43,13 @@ import androidx.annotation.IntRange
 import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
 import androidx.collection.ArraySet
+import androidx.collection.MutableIntObjectMap
+import androidx.collection.MutableIntSet
+import androidx.collection.MutableObjectIntMap
 import androidx.collection.SparseArrayCompat
+import androidx.collection.mutableIntObjectMapOf
+import androidx.collection.mutableIntSetOf
+import androidx.collection.mutableObjectIntMapOf
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.R
 import androidx.compose.ui.contentcapture.ContentCaptureManager
@@ -257,14 +263,14 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
     private var focusedVirtualViewId = InvalidId
     private var currentlyFocusedANI: AccessibilityNodeInfo? = null
     private var sendingFocusAffectingEvent = false
-    private val pendingHorizontalScrollEvents = HashMap<Int, ScrollAxisRange>()
-    private val pendingVerticalScrollEvents = HashMap<Int, ScrollAxisRange>()
+    private val pendingHorizontalScrollEvents = MutableIntObjectMap<ScrollAxisRange>()
+    private val pendingVerticalScrollEvents = MutableIntObjectMap<ScrollAxisRange>()
 
     // For actionIdToId and labelToActionId, the keys are the virtualViewIds. The value of
     // actionIdToLabel holds assigned custom action id to custom action label mapping. The
     // value of labelToActionId holds custom action label to assigned custom action id mapping.
     private var actionIdToLabel = SparseArrayCompat<SparseArrayCompat<CharSequence>>()
-    private var labelToActionId = SparseArrayCompat<Map<CharSequence, Int>>()
+    private var labelToActionId = SparseArrayCompat<MutableObjectIntMap<CharSequence>>()
     private var accessibilityCursorPosition = AccessibilityCursorPositionUndefined
 
     // We hold this node id to reset the [accessibilityCursorPosition] to undefined when
@@ -301,10 +307,10 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
             }
             return field
         }
-    private var paneDisplayed = ArraySet<Int>()
+    private var paneDisplayed = MutableIntSet()
 
-    internal var idToBeforeMap = HashMap<Int, Int>()
-    internal var idToAfterMap = HashMap<Int, Int>()
+    internal var idToBeforeMap = MutableIntObjectMap<Int>()
+    internal var idToAfterMap = MutableIntObjectMap<Int>()
     internal val ExtraDataTestTraversalBeforeVal =
         @Suppress("SpellCheckingInspection")
         "android.view.accessibility.extra.EXTRA_DATA_TEST_TRAVERSALBEFORE_VAL"
@@ -338,7 +344,8 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
     // current and previous trees in onSemanticsChange(). We use SemanticsNodeCopy here because
     // SemanticsNode's children are dynamically generated and always reflect the current children.
     // We need to keep a copy of its old structure for comparison.
-    private var previousSemanticsNodes: MutableMap<Int, SemanticsNodeCopy> = mutableMapOf()
+    private var previousSemanticsNodes: MutableIntObjectMap<SemanticsNodeCopy> =
+        mutableIntObjectMapOf()
     private var previousSemanticsRoot =
         SemanticsNodeCopy(view.semanticsOwner.unmergedRootSemanticsNode, mapOf())
     private var checkingForSemanticsChanges = false
@@ -545,7 +552,8 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
     private fun sortByGeometryGroupings(
         layoutIsRtl: Boolean,
         parentListToSort: ArrayList<SemanticsNode>,
-        containerChildrenMapping: MutableMap<Int, MutableList<SemanticsNode>> = mutableMapOf()
+        containerChildrenMapping: MutableIntObjectMap<MutableList<SemanticsNode>> =
+            mutableIntObjectMapOf()
     ): MutableList<SemanticsNode> {
         // RowGroupings list consists of pairs, first = a rectangle of the bounds of the row
         // and second = the list of nodes in that row
@@ -644,7 +652,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
     private fun geometryDepthFirstSearch(
         currNode: SemanticsNode,
         geometryList: ArrayList<SemanticsNode>,
-        containerMapToChildren: MutableMap<Int, MutableList<SemanticsNode>>
+        containerMapToChildren: MutableIntObjectMap<MutableList<SemanticsNode>>
     ) {
         val currRTL = currNode.isRtl
         // We only want to add children that are either traversalGroups or are
@@ -683,7 +691,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         // This should be mapping of [containerID: listOfSortedChildren], only populated if there
         // are container nodes in this level. If there are container nodes, `containerMapToChildren`
         // would look like {containerId: [sortedChild, sortedChild], containerId: [sortedChild]}
-        val containerMapToChildren = mutableMapOf<Int, MutableList<SemanticsNode>>()
+        val containerMapToChildren = mutableIntObjectMapOf<MutableList<SemanticsNode>>()
         val geometryList = ArrayList<SemanticsNode>()
 
         listToSort.fastForEach { node ->
@@ -1165,7 +1173,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                     )
                 }
                 val currentActionIdToLabel = SparseArrayCompat<CharSequence>()
-                val currentLabelToActionId = mutableMapOf<CharSequence, Int>()
+                val currentLabelToActionId = mutableObjectIntMapOf<CharSequence>()
                 // If this virtual node had custom action id assignment before, we try to keep the id
                 // unchanged for the same action (identified by action label). This way, we can
                 // minimize the influence of custom action change between custom actions are
@@ -1177,7 +1185,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                     customActions.fastForEach { action ->
                         if (oldLabelToActionId!!.contains(action.label)) {
                             val actionId = oldLabelToActionId[action.label]
-                            currentActionIdToLabel.put(actionId!!, action.label)
+                            currentActionIdToLabel.put(actionId, action.label)
                             currentLabelToActionId[action.label] = actionId
                             availableIds.remove(actionId)
                             info.addAction(AccessibilityActionCompat(actionId, action.label))
@@ -2166,7 +2174,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
      */
     internal suspend fun boundsUpdatesEventLoop() {
         try {
-            val subtreeChangedSemanticsNodesIds = ArraySet<Int>()
+            val subtreeChangedSemanticsNodesIds = MutableIntSet()
             for (notification in boundsUpdateChannel) {
                 if (isEnabled) {
                     for (i in subtreeChangedLayoutNodes.indices) {
@@ -2265,7 +2273,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
 
     private fun sendSubtreeChangeAccessibilityEvents(
         layoutNode: LayoutNode,
-        subtreeChangedSemanticsNodesIds: ArraySet<Int>
+        subtreeChangedSemanticsNodesIds: MutableIntSet
     ) {
         // The node may be no longer available while we were waiting so check
         // again.
@@ -2324,8 +2332,8 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
 
     private fun updateSemanticsNodesCopyAndPanes() {
         // TODO(b/172606324): removed this compose specific fix when talkback has a proper solution.
-        val toRemove = ArraySet<Int>()
-        for (id in paneDisplayed) {
+        val toRemove = MutableIntSet()
+        paneDisplayed.forEach { id ->
             val currentNode = currentSemanticsNodes[id]?.semanticsNode
             if (currentNode == null ||
                 !currentNode.unmergedConfig.contains(SemanticsProperties.PaneTitle)) {
@@ -2806,7 +2814,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         newNode: SemanticsNode,
         oldNode: SemanticsNodeCopy
     ) {
-        val newChildren: MutableSet<Int> = mutableSetOf()
+        val newChildren: MutableIntSet = mutableIntSetOf()
 
         // If any child is added, clear the subtree rooted at this node and return.
         newNode.replacedChildren.fastForEach { child ->
@@ -2820,7 +2828,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         }
 
         // If any child is deleted, clear the subtree rooted at this node and return.
-        for (child in oldNode.children) {
+        oldNode.children.forEach { child ->
             if (!newChildren.contains(child)) {
                 notifySubtreeAccessibilityStateChangedIfNeeded(newNode.layoutNode)
                 return
