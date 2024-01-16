@@ -58,8 +58,6 @@ tasks.withType(PluginUnderTestMetadata.class).named("pluginUnderTestMetadata").c
     it.pluginClasspath.from(configurations.testPlugin)
 }
 
-SdkResourceGenerator.generateForHostTest(project)
-
 gradlePlugin {
     plugins {
         safeargsJava {

@@ -78,8 +78,6 @@ tasks.withType(Test).configureEach {
     it.dependsOn(configurations.neededForGradleTestKitAgp81)
 }
 
-SdkResourceGenerator.generateForHostTest(project)
-
 gradlePlugin {
     plugins {
         baselineProfileProducer {

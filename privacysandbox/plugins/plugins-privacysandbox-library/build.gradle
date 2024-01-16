@@ -22,7 +22,6 @@ configurations {
     }
 }
 
-SdkResourceGenerator.generateForHostTest(project)
 apply from: "../../../buildSrc/kotlin-dsl-dependency.gradle"
 
 dependencies {

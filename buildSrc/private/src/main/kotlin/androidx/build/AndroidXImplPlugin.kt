@@ -741,6 +741,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
             it.enableStricterValidation.set(true)
             it.failOnWarning.set(true)
         }
+        SdkResourceGenerator.generateForHostTest(project)
     }
 
     private fun configureWithJavaPlugin(project: Project, androidXExtension: AndroidXExtension) {

@@ -59,8 +59,6 @@ dependencies {
     testPlugin(libs.kspGradlePluginz)
 }
 
-SdkResourceGenerator.generateForHostTest(project)
-
 // Configure the generating task of plugin-under-test-metadata.properties to
 // include additional dependencies for the injected plugin classpath that
 // are not present in the main runtime dependencies. This allows us to test

@@ -43,8 +43,6 @@ dependencies {
     testImplementation(libs.kotlinTest)
 }
 
-SdkResourceGenerator.generateForHostTest(project)
-
 gradlePlugin {
     plugins {
         benchmark {
