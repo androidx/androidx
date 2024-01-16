@@ -12,9 +12,9 @@
 
     <issue
         id="PrimitiveInCollection"
-        message="field idLookup with type IdentityHashMap&lt;Object, Integer>: replace with ObjectIntMap"
-        errorLine1="    private val idLookup = IdentityHashMap&lt;Any, Int>()"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        message="field idLookup with type Map&lt;Object, Integer>: replace with ObjectIntMap"
+        errorLine1="    private val idLookup = mutableMapOf&lt;Any, Int>()"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/compose/ui/inspection/util/AnchorMap.kt"/>
     </issue>

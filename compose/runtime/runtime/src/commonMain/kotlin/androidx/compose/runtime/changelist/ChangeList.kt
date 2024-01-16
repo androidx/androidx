@@ -30,6 +30,7 @@ import androidx.compose.runtime.RememberObserver
 import androidx.compose.runtime.SlotTable
 import androidx.compose.runtime.SlotWriter
 import androidx.compose.runtime.changelist.Operation.AdvanceSlotsBy
+import androidx.compose.runtime.changelist.Operation.AppendValue
 import androidx.compose.runtime.changelist.Operation.ApplyChangeList
 import androidx.compose.runtime.changelist.Operation.CopyNodesToNewAnchorLocation
 import androidx.compose.runtime.changelist.Operation.CopySlotTableToAnchorLocation
@@ -52,6 +53,8 @@ import androidx.compose.runtime.changelist.Operation.RemoveNode
 import androidx.compose.runtime.changelist.Operation.ResetSlots
 import androidx.compose.runtime.changelist.Operation.SideEffect
 import androidx.compose.runtime.changelist.Operation.SkipToEndOfCurrentGroup
+import androidx.compose.runtime.changelist.Operation.TrimParentValues
+import androidx.compose.runtime.changelist.Operation.UpdateAnchoredValue
 import androidx.compose.runtime.changelist.Operation.UpdateAuxData
 import androidx.compose.runtime.changelist.Operation.UpdateNode
 import androidx.compose.runtime.changelist.Operation.UpdateValue
@@ -59,7 +62,7 @@ import androidx.compose.runtime.changelist.Operation.Ups
 import androidx.compose.runtime.changelist.Operation.UseCurrentNode
 import androidx.compose.runtime.internal.IntRef
 
-internal class ChangeList : OperationsDebugStringFormattable {
+internal class ChangeList : OperationsDebugStringFormattable() {
 
     private val operations = Operations()
 
@@ -87,6 +90,27 @@ internal class ChangeList : OperationsDebugStringFormattable {
         operations.push(UpdateValue) {
             setObject(UpdateValue.Value, value)
             setInt(UpdateValue.GroupSlotIndex, groupSlotIndex)
+        }
+    }
+
+    fun pushUpdateAnchoredValue(value: Any?, anchor: Anchor, groupSlotIndex: Int) {
+        operations.push(UpdateAnchoredValue) {
+            setObject(UpdateAnchoredValue.Value, value)
+            setObject(UpdateAnchoredValue.Anchor, anchor)
+            setInt(UpdateAnchoredValue.GroupSlotIndex, groupSlotIndex)
+        }
+    }
+
+    fun pushAppendValue(anchor: Anchor, value: Any?) {
+        operations.push(AppendValue) {
+            setObject(AppendValue.Anchor, anchor)
+            setObject(AppendValue.Value, value)
+        }
+    }
+
+    fun pushTrimValues(count: Int) {
+        operations.push(TrimParentValues) {
+            setInt(TrimParentValues.Count, count)
         }
     }
 

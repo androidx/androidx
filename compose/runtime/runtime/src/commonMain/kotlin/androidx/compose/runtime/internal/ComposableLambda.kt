@@ -17,12 +17,14 @@
 @file:OptIn(InternalComposeApi::class)
 package androidx.compose.runtime.internal
 
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ComposeCompilerApi
 import androidx.compose.runtime.Composer
 import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.runtime.RecomposeScope
 import androidx.compose.runtime.RecomposeScopeImpl
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rol
 
 internal const val SLOTS_PER_INT = 10
@@ -616,3 +618,14 @@ fun composableLambdaInstance(
     block: Any
 ): ComposableLambda =
     ComposableLambdaImpl(key, tracked, block)
+
+@Suppress("unused")
+@Composable
+@ComposeCompilerApi
+fun rememberComposableLambda(
+    key: Int,
+    tracked: Boolean,
+    block: Any
+): ComposableLambda = remember { ComposableLambdaImpl(key, tracked, block) }.also {
+    it.update(block)
+}

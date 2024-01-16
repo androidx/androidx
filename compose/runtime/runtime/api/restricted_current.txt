@@ -760,6 +760,7 @@ package androidx.compose.runtime.internal {
   public final class ComposableLambdaKt {
     method @androidx.compose.runtime.ComposeCompilerApi public static androidx.compose.runtime.internal.ComposableLambda composableLambda(androidx.compose.runtime.Composer composer, int key, boolean tracked, Object block);
     method @androidx.compose.runtime.ComposeCompilerApi public static androidx.compose.runtime.internal.ComposableLambda composableLambdaInstance(int key, boolean tracked, Object block);
+    method @androidx.compose.runtime.Composable @androidx.compose.runtime.ComposeCompilerApi public static androidx.compose.runtime.internal.ComposableLambda rememberComposableLambda(int key, boolean tracked, Object block);
   }
 
   @androidx.compose.runtime.ComposeCompilerApi @androidx.compose.runtime.Stable public interface ComposableLambdaN extends kotlin.jvm.functions.FunctionN<java.lang.Object> {
@@ -768,6 +769,7 @@ package androidx.compose.runtime.internal {
   public final class ComposableLambdaN_jvmKt {
     method @androidx.compose.runtime.ComposeCompilerApi public static androidx.compose.runtime.internal.ComposableLambdaN composableLambdaN(androidx.compose.runtime.Composer composer, int key, boolean tracked, int arity, Object block);
     method @androidx.compose.runtime.ComposeCompilerApi public static androidx.compose.runtime.internal.ComposableLambdaN composableLambdaNInstance(int key, boolean tracked, int arity, Object block);
+    method @androidx.compose.runtime.Composable @androidx.compose.runtime.ComposeCompilerApi public static androidx.compose.runtime.internal.ComposableLambdaN rememberComposableLambdaN(int key, boolean tracked, int arity, Object block);
   }
 
   @SuppressCompatibility @androidx.compose.runtime.ExperimentalComposeApi @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.CONSTRUCTOR}) public @interface Decoy {

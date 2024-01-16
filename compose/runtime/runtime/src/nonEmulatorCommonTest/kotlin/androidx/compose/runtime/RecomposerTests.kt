@@ -614,6 +614,6 @@ private fun RecomposeTestComponentsB(
 }
 
 @Composable
-private fun Wrapper(content: @Composable () -> Unit) {
+internal fun Wrapper(content: @Composable () -> Unit) {
     content()
 }
