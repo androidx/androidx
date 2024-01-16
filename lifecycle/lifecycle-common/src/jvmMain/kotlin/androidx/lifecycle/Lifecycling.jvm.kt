@@ -23,7 +23,7 @@ import java.lang.reflect.InvocationTargetException
  * Internal class to handle lifecycle conversion etc.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public object Lifecycling {
+public actual object Lifecycling {
     private const val REFLECTIVE_CALLBACK = 1
     private const val GENERATED_CALLBACK = 2
     private val callbackCache: MutableMap<Class<*>, Int> = HashMap()
@@ -32,7 +32,7 @@ public object Lifecycling {
 
     @JvmStatic
     @Suppress("DEPRECATION")
-    public fun lifecycleEventObserver(`object`: Any): LifecycleEventObserver {
+    public actual fun lifecycleEventObserver(`object`: Any): LifecycleEventObserver {
         val isLifecycleEventObserver = `object` is LifecycleEventObserver
         val isDefaultLifecycleObserver = `object` is DefaultLifecycleObserver
         if (isLifecycleEventObserver && isDefaultLifecycleObserver) {
@@ -170,7 +170,7 @@ public object Lifecycling {
      * Create a name for an adapter class.
      */
     @JvmStatic
-    public fun getAdapterName(className: String): String {
+    public actual fun getAdapterName(className: String): String {
         return className.replace(".", "_") + "_LifecycleAdapter"
     }
 }
