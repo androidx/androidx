@@ -1024,6 +1024,33 @@ public class SetSchemaRequestCtsTest {
     }
 
     @Test
+    public void testSetVisibility_publicVisibility_rebuild() {
+        byte[] sha256cert1 = new byte[32];
+        byte[] sha256cert2 = new byte[32];
+        Arrays.fill(sha256cert1, (byte) 1);
+        Arrays.fill(sha256cert2, (byte) 2);
+        PackageIdentifier packageIdentifier1 = new PackageIdentifier("Email", sha256cert1);
+        PackageIdentifier packageIdentifier2 = new PackageIdentifier("Email", sha256cert2);
+        AppSearchSchema schema1 = new AppSearchSchema.Builder("Email1").build();
+        AppSearchSchema schema2 = new AppSearchSchema.Builder("Email2").build();
+
+        SetSchemaRequest.Builder builder = new SetSchemaRequest.Builder()
+                .addSchemas(schema1).setPubliclyVisibleSchema("Email1", packageIdentifier1);
+
+        SetSchemaRequest original = builder.build();
+        SetSchemaRequest rebuild = builder.addSchemas(schema2)
+                .setPubliclyVisibleSchema("Email2", packageIdentifier2).build();
+
+        assertThat(original.getSchemas()).containsExactly(schema1);
+        assertThat(original.getPubliclyVisibleSchemas())
+                .containsExactly("Email1", packageIdentifier1);
+
+        assertThat(rebuild.getSchemas()).containsExactly(schema1, schema2);
+        assertThat(original.getPubliclyVisibleSchemas())
+                .containsExactly("Email1", packageIdentifier1);
+    }
+
+    @Test
     public void getAndModify() {
         byte[] sha256cert1 = new byte[32];
         byte[] sha256cert2 = new byte[32];
@@ -1227,33 +1254,6 @@ public class SetSchemaRequestCtsTest {
                 registry.getOrCreateFactory(ArtType.class).getSchema(),
                 registry.getOrCreateFactory(Artist.class).getSchema()
         );
-    }
-
-    @Test
-    public void testSetVisibility_publicVisibility_rebuild() {
-        byte[] sha256cert1 = new byte[32];
-        byte[] sha256cert2 = new byte[32];
-        Arrays.fill(sha256cert1, (byte) 1);
-        Arrays.fill(sha256cert2, (byte) 2);
-        PackageIdentifier packageIdentifier1 = new PackageIdentifier("Email", sha256cert1);
-        PackageIdentifier packageIdentifier2 = new PackageIdentifier("Email", sha256cert2);
-        AppSearchSchema schema1 = new AppSearchSchema.Builder("Email1").build();
-        AppSearchSchema schema2 = new AppSearchSchema.Builder("Email2").build();
-
-        SetSchemaRequest.Builder builder = new SetSchemaRequest.Builder()
-                .addSchemas(schema1).setPubliclyVisibleSchema("Email1", packageIdentifier1);
-
-        SetSchemaRequest original = builder.build();
-        SetSchemaRequest rebuild = builder.addSchemas(schema2)
-                .setPubliclyVisibleSchema("Email2", packageIdentifier2).build();
-
-        assertThat(original.getSchemas()).containsExactly(schema1);
-        assertThat(original.getPubliclyVisibleSchemas())
-                .containsExactly("Email1", packageIdentifier1);
-
-        assertThat(rebuild.getSchemas()).containsExactly(schema1, schema2);
-        assertThat(original.getPubliclyVisibleSchemas())
-                .containsExactly("Email1", packageIdentifier1);
     }
 
     @Document
