@@ -223,18 +223,18 @@ internal class DragAndDropNode(
         when {
             // Left us and went to a child.
             newChildNode != null && currentChildNode == null -> {
-                thisDragAndDropTarget?.onExited(event = event)
                 newChildNode.dispatchEntered(event)
+                thisDragAndDropTarget?.onExited(event = event)
             }
             // Left the child and returned to us.
             newChildNode == null && currentChildNode != null -> {
-                currentChildNode.onExited(event = event)
                 thisDragAndDropTarget?.dispatchEntered(event)
+                currentChildNode.onExited(event = event)
             }
             // Left one child and entered another.
             newChildNode != currentChildNode -> {
-                currentChildNode?.onExited(event = event)
                 newChildNode?.dispatchEntered(event)
+                currentChildNode?.onExited(event = event)
             }
             // Stayed in the same child.
             newChildNode != null -> newChildNode.onMoved(event = event)
