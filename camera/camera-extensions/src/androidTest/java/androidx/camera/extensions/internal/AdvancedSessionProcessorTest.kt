@@ -21,6 +21,7 @@ import android.graphics.ImageFormat
 import android.graphics.SurfaceTexture
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraDevice
+import android.hardware.camera2.CameraExtensionCharacteristics.EXTENSION_FACE_RETOUCH
 import android.hardware.camera2.CaptureFailure
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
@@ -54,6 +55,7 @@ import androidx.camera.core.impl.OutputSurface
 import androidx.camera.core.impl.OutputSurfaceConfiguration
 import androidx.camera.core.impl.SessionProcessor
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
+import androidx.camera.extensions.ExtensionMode
 import androidx.camera.extensions.impl.advanced.Camera2OutputConfigImpl
 import androidx.camera.extensions.impl.advanced.Camera2OutputConfigImplBuilder
 import androidx.camera.extensions.impl.advanced.Camera2SessionConfigImpl
@@ -236,6 +238,122 @@ class AdvancedSessionProcessorTest {
 
             assertThat(realtimeCaptureLatencyEstimate?.first).isEqualTo(1000L)
             assertThat(realtimeCaptureLatencyEstimate?.second).isEqualTo(10L)
+        }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    fun getCurrentExtensionType_advancedSessionProcessorMonitorSessionProcessorImplResults(): Unit =
+        runBlocking {
+            assumeTrue(ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_4))
+            ClientVersion.setCurrentVersion(ClientVersion("1.4.0"))
+
+            val fakeSessionProcessImpl = object : SessionProcessorImpl by FakeSessionProcessImpl() {
+                private var repeatingCallback: SessionProcessorImpl.CaptureCallback? = null
+
+                override fun startRepeating(callback: SessionProcessorImpl.CaptureCallback): Int {
+                    repeatingCallback = callback
+                    return 0
+                }
+
+                fun updateCurrentExtensionType(extensionType: Int) {
+                    repeatingCallback!!.onCaptureCompleted(
+                        0,
+                        0,
+                        mapOf(CaptureResult.EXTENSION_CURRENT_TYPE to extensionType)
+                    )
+                }
+            }
+            val advancedSessionProcessor = AdvancedSessionProcessor(
+                fakeSessionProcessImpl, emptyList(), object : VendorExtender {
+                }, context, ExtensionMode.AUTO
+            )
+
+            // Starts repeating first to let fakeSessionProcessImpl obtain the
+            // AdvancedSessionProcessor's SessionProcessorImplCaptureCallbackAdapter instance
+            advancedSessionProcessor.startRepeating(object : SessionProcessor.CaptureCallback {})
+            val receivedTypeList = mutableListOf<Int>()
+            // Sets the count as 2 for receiving the initial extension type and the updated
+            // FACE_RETOUCH type
+            val countDownLatch = CountDownLatch(2)
+            withContext(Dispatchers.Main) {
+                advancedSessionProcessor.currentExtensionType.observeForever {
+                    receivedTypeList.add(it)
+                    countDownLatch.countDown()
+                }
+            }
+            // Updates the current extension type capture result with Camera2 FACE_RETOUCH mode
+            fakeSessionProcessImpl.updateCurrentExtensionType(EXTENSION_FACE_RETOUCH)
+            // Verifies the new type value is updated to the type LiveData
+            assertThat(countDownLatch.await(200, TimeUnit.MILLISECONDS)).isTrue()
+            assertThat(receivedTypeList).containsExactlyElementsIn(
+                listOf(
+                    ExtensionMode.AUTO,
+                    ExtensionMode.FACE_RETOUCH
+                )
+            )
+        }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    fun setExtensionStrength_advancedSessionProcessorInvokesSessionProcessorImpl() =
+        runBlocking {
+            assumeTrue(ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_4))
+            ClientVersion.setCurrentVersion(ClientVersion("1.4.0"))
+            val setParametersLatch = CountDownLatch(1)
+            val startRepeatingLatch = CountDownLatch(1)
+
+            val fakeSessionProcessImpl = object : SessionProcessorImpl by FakeSessionProcessImpl() {
+                private val UNKNOWN_STRENGTH = -1
+                private var strength = UNKNOWN_STRENGTH
+                override fun setParameters(parameters: MutableMap<CaptureRequest.Key<*>, Any>) {
+                    if (parameters.containsKey(CaptureRequest.EXTENSION_STRENGTH)) {
+                        strength = parameters[CaptureRequest.EXTENSION_STRENGTH] as Int
+                        setParametersLatch.countDown()
+                    }
+                }
+
+                override fun startRepeating(callback: SessionProcessorImpl.CaptureCallback): Int {
+                    if (strength != UNKNOWN_STRENGTH) {
+                        // Updates the new strength result value to onCaptureCompleted
+                        callback.onCaptureCompleted(
+                            0,
+                            0,
+                            mapOf(CaptureResult.EXTENSION_STRENGTH to strength)
+                        )
+                    }
+                    startRepeatingLatch.countDown()
+                    return 0
+                }
+            }
+            val advancedSessionProcessor = AdvancedSessionProcessor(
+                fakeSessionProcessImpl, emptyList(), object : VendorExtender {
+                    override fun isExtensionStrengthAvailable(): Boolean {
+                        return true
+                    }
+                }, context
+            )
+
+            // Starts repeating first to verify that setExtensionStrength function will directly
+            // invoke the SessionProcessImpl#startRepeating function.
+            advancedSessionProcessor.startRepeating(object : SessionProcessor.CaptureCallback {})
+            val newExtensionStrength = 50
+            advancedSessionProcessor.setExtensionStrength(newExtensionStrength)
+            // Verifies that setExtensionStrength will invoke the SessionProcessImpl#setParameters
+            // function.
+            assertThat(setParametersLatch.await(200, TimeUnit.MILLISECONDS)).isTrue()
+            // Verifies that SessionProcessImpl#startRepeating function is invoked to apply the new
+            // strength value.
+            assertThat(startRepeatingLatch.await(200, TimeUnit.MILLISECONDS)).isTrue()
+            // Verifies the new strength value is updated to the strength LiveData
+            val expectedStrengthLatch = CountDownLatch(1)
+            withContext(Dispatchers.Main) {
+                advancedSessionProcessor.currentExtensionStrength.observeForever {
+                    if (it == newExtensionStrength) {
+                        expectedStrengthLatch.countDown()
+                    }
+                }
+            }
+            assertThat(expectedStrengthLatch.await(200, TimeUnit.MILLISECONDS)).isTrue()
         }
 
     @RequiresApi(28)

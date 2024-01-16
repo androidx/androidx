@@ -48,6 +48,7 @@ public class RestrictedCameraControl extends ForwardingCameraControl {
     public static final int FLASH = 5;
     public static final int TORCH = 6;
     public static final int EXPOSURE_COMPENSATION = 7;
+    public static final int EXTENSION_STRENGTH = 8;
 
     public @interface CameraOperation {
     }

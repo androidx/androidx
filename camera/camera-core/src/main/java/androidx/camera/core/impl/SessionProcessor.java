@@ -187,6 +187,27 @@ public interface SessionProcessor {
     }
 
     /**
+     * Returns if extension strength function is supported by the session processor or not.
+     */
+    default boolean isExtensionStrengthAvailable() {
+        return false;
+    }
+
+    /**
+     * Sets the new extension strength value for the session processor.
+     */
+    default void setExtensionStrength(int strength) {
+    }
+
+    /**
+     * Returns a LiveData to monitor current extension strength value.
+     */
+    @NonNull
+    default LiveData<Integer> getCurrentExtensionStrength() {
+        return new MutableLiveData<>(100);
+    }
+
+    /**
      * Callback for {@link #startRepeating} and {@link #startCapture}.
      */
     interface CaptureCallback {

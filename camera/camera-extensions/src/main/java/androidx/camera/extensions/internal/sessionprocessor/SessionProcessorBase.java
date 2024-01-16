@@ -58,6 +58,10 @@ import java.util.Set;
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 abstract class SessionProcessorBase implements SessionProcessor {
     private static final String TAG = "SessionProcessorBase";
+    /**
+     * Unknown extension strength.
+     */
+    protected static final int EXTENSION_STRENGTH_UNKNOWN = -1;
     @NonNull
     @GuardedBy("mLock")
     private final Map<Integer, ImageReader> mImageReaderMap = new HashMap<>();
@@ -68,11 +72,13 @@ abstract class SessionProcessorBase implements SessionProcessor {
     private HandlerThread mImageReaderHandlerThread;
     @GuardedBy("mLock")
     private final List<DeferrableSurface> mSurfacesList = new ArrayList<>();
-    private final Object mLock = new Object();
+    protected final Object mLock = new Object();
     private String mCameraId;
 
     @NonNull
     private final @CameraOperation Set<Integer> mSupportedCameraOperations;
+    @GuardedBy("mLock")
+    protected int mExtensionStrength = EXTENSION_STRENGTH_UNKNOWN;
 
     SessionProcessorBase(@NonNull List<CaptureRequest.Key> supportedParameterKeys) {
         mSupportedCameraOperations = getSupportedCameraOperations(supportedParameterKeys);
@@ -128,6 +134,12 @@ abstract class SessionProcessorBase implements SessionProcessor {
         if (supportedParameterKeys.contains(CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION)) {
             operations.add(RestrictedCameraControl.EXPOSURE_COMPENSATION);
         }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE
+                && supportedParameterKeys.contains(CaptureRequest.EXTENSION_STRENGTH)) {
+            operations.add(RestrictedCameraControl.EXTENSION_STRENGTH);
+        }
+
         return operations;
     }
 
@@ -270,6 +282,7 @@ abstract class SessionProcessorBase implements SessionProcessor {
             mSurfacesList.clear();
             mImageReaderMap.clear();
             mOutputConfigMap.clear();
+            mExtensionStrength = EXTENSION_STRENGTH_UNKNOWN;
         }
 
         if (mImageReaderHandlerThread != null) {

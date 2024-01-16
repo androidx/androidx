@@ -20,6 +20,7 @@ import android.content.Context;
 import android.graphics.ImageFormat;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CaptureRequest;
+import android.os.Build;
 import android.util.Pair;
 import android.util.Range;
 import android.util.Size;
@@ -213,6 +214,18 @@ public class AdvancedVendorExtender implements VendorExtender {
         if (ClientVersion.isMinimumCompatibleVersion(Version.VERSION_1_4)
                 && ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_4)) {
             return mAdvancedExtenderImpl.isCaptureProcessProgressAvailable();
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public boolean isExtensionStrengthAvailable() {
+        // EXTENSION_STRENGTH is supported since API level 34
+        if (ClientVersion.isMinimumCompatibleVersion(Version.VERSION_1_4)
+                && ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_4)
+                && Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            return getSupportedParameterKeys().contains(CaptureRequest.EXTENSION_STRENGTH);
         } else {
             return false;
         }

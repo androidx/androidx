@@ -81,7 +81,6 @@ public class BasicExtenderSessionProcessor extends SessionProcessorBase {
     @NonNull
     private final ImageCaptureExtenderImpl mImageCaptureExtenderImpl;
 
-    final Object mLock = new Object();
     volatile StillCaptureProcessor mStillCaptureProcessor = null;
     volatile PreviewProcessor mPreviewProcessor = null;
     volatile RequestUpdateProcessorImpl mRequestUpdateProcessor = null;
@@ -274,6 +273,14 @@ public class BasicExtenderSessionProcessor extends SessionProcessorBase {
     @Override
     public LiveData<Integer> getCurrentExtensionType() {
         return mCurrentExtensionType;
+    }
+
+    @NonNull
+    @Override
+    public LiveData<Integer> getCurrentExtensionStrength() {
+        // Extension strength is only supported in advanced extender implementation. Returns a
+        // LiveData which the value is always 100.
+        return new MutableLiveData<>(100);
     }
 
     @Override
