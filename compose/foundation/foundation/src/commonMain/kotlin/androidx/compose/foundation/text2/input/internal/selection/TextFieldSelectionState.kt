@@ -1154,7 +1154,7 @@ internal class TextFieldSelectionState(
 
         // TODO(halilibo): this is not 1-to-1 compatible with ClipboardManager.getText() which
         //  returns an AnnotatedString and supports copy-pasting AnnotatedStrings inside the app.
-        remaining?.readPlainText()?.let { clipboardText ->
+        remaining?.clipEntry?.readPlainText()?.let { clipboardText ->
             textFieldState.replaceSelectedText(
                 clipboardText,
                 undoBehavior = TextFieldEditUndoBehavior.NeverMerge

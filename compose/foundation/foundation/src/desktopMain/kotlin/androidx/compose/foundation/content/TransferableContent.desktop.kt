@@ -17,6 +17,7 @@
 package androidx.compose.foundation.content
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.ui.platform.ClipEntry
 import java.awt.datatransfer.DataFlavor
 import java.awt.datatransfer.Transferable
 
@@ -30,7 +31,6 @@ actual fun TransferableContent.hasMediaType(mediaType: MediaType): Boolean {
     return clipMetadata.isDataFlavorSupported(mediaType.dataFlavor)
 }
 
-@OptIn(ExperimentalFoundationApi::class)
-internal actual fun TransferableContent.readPlainText(): String? {
-    return clipEntry.getTransferData(DataFlavor.stringFlavor) as String?
+internal actual fun ClipEntry.readPlainText(): String? {
+    return getTransferData(DataFlavor.stringFlavor) as String?
 }
