@@ -65,6 +65,10 @@ import java.util.Collections
  * @param isDefaultIconPreferredAsSingleProvider when set to true, the UI prefers to render the
  * default credential type icon (see the default value of [icon]) when you are
  * the only available provider; false by default
+ * @property isAutoSelectAllowedFromOption whether the [beginGetCredentialOption] request
+ * for which this entry was created allows this entry to be auto-selected
+ * @property hasDefaultIcon whether this entry was created without a custom icon and hence
+ * contains a default icon set by the library, only to be used in Android API levels >= 28
  *
  * @throws IllegalArgumentException If [type] or [title] are empty
  *
@@ -85,8 +89,10 @@ class CustomCredentialEntry internal constructor(
     entryGroupId: CharSequence? = title,
     affiliatedDomain: CharSequence? = null,
     isDefaultIconPreferredAsSingleProvider: Boolean,
-    private val autoSelectAllowedFromOption: Boolean = false,
-    private val isDefaultIcon: Boolean = false,
+    autoSelectAllowedFromOption: Boolean = CredentialOption.extractAutoSelectValue(
+        beginGetCredentialOption.candidateQueryData),
+    private var isCreatedFromSlice: Boolean = false,
+    private var isDefaultIconFromSlice: Boolean = false
 ) : CredentialEntry(
     type,
     beginGetCredentialOption,
@@ -94,6 +100,17 @@ class CustomCredentialEntry internal constructor(
     affiliatedDomain,
     isDefaultIconPreferredAsSingleProvider = isDefaultIconPreferredAsSingleProvider
 ) {
+    val isAutoSelectAllowedFromOption = autoSelectAllowedFromOption
+
+    @get:JvmName("hasDefaultIcon")
+    val hasDefaultIcon: Boolean
+        get() {
+            if (Build.VERSION.SDK_INT >= 28) {
+                return Api28Impl.isDefaultIcon(this)
+            }
+            return false
+        }
+
     init {
         require(type.isNotEmpty()) { "type must not be empty" }
         require(title.isNotEmpty()) { "title must not be empty" }
@@ -225,6 +242,15 @@ class CustomCredentialEntry internal constructor(
     private object Api28Impl {
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @JvmStatic
+        fun isDefaultIcon(entry: CustomCredentialEntry): Boolean {
+            if (entry.isCreatedFromSlice) {
+                return entry.isDefaultIconFromSlice
+            }
+            return entry.icon.type == Icon.TYPE_RESOURCE &&
+                entry.icon.resId == R.drawable.ic_other_sign_in
+        }
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        @JvmStatic
         fun toSlice(
             entry: CustomCredentialEntry
         ): Slice {
@@ -242,7 +268,7 @@ class CustomCredentialEntry internal constructor(
             val isDefaultIconPreferredAsSingleProvider =
                 entry.isDefaultIconPreferredAsSingleProvider
 
-            val autoSelectAllowed = if (isAutoSelectAllowed == true) {
+            val autoSelectAllowed = if (isAutoSelectAllowed) {
                 TRUE_STRING
             } else {
                 FALSE_STRING
@@ -297,7 +323,7 @@ class CustomCredentialEntry internal constructor(
                 )
 
             try {
-                if (icon.resId == R.drawable.ic_other_sign_in) {
+                if (entry.hasDefaultIcon) {
                     sliceBuilder.addInt(
                         /*true=*/1,
                         /*subType=*/null,
@@ -307,10 +333,7 @@ class CustomCredentialEntry internal constructor(
             } catch (_: IllegalStateException) {
             }
 
-            if (CredentialOption.extractAutoSelectValue(
-                    beginGetCredentialOption.candidateQueryData
-                )
-            ) {
+            if (entry.isAutoSelectAllowedFromOption) {
                 sliceBuilder.addInt(
                     /*true=*/1,
                     /*subType=*/null,
@@ -397,15 +420,15 @@ class CustomCredentialEntry internal constructor(
 
             return try {
                 CustomCredentialEntry(
-                    type,
-                    title!!,
-                    pendingIntent!!,
-                    autoSelectAllowed,
-                    subtitle,
-                    typeDisplayName,
-                    icon!!,
-                    lastUsedTime,
-                    BeginGetCustomCredentialOption(
+                    type = type,
+                    title = title!!,
+                    pendingIntent = pendingIntent!!,
+                    isAutoSelectAllowed = autoSelectAllowed,
+                    subtitle = subtitle,
+                    typeDisplayName = typeDisplayName,
+                    icon = icon!!,
+                    lastUsedTime = lastUsedTime,
+                    beginGetCredentialOption = BeginGetCustomCredentialOption(
                         beginGetCredentialOptionId!!.toString(),
                         type,
                         Bundle()
@@ -414,7 +437,8 @@ class CustomCredentialEntry internal constructor(
                     isDefaultIconPreferredAsSingleProvider = isDefaultIconPreferredAsSingleProvider,
                     affiliatedDomain = affiliatedDomain,
                     autoSelectAllowedFromOption = autoSelectAllowedFromOption,
-                    isDefaultIcon = isDefaultIcon,
+                    isCreatedFromSlice = true,
+                    isDefaultIconFromSlice = isDefaultIcon,
                 )
             } catch (e: Exception) {
                 Log.i(TAG, "fromSlice failed with: " + e.message)

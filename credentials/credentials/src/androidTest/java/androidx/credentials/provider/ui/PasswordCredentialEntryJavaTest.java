@@ -15,13 +15,17 @@
  */
 package androidx.credentials.provider.ui;
 
+import static androidx.credentials.CredentialOption.BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.assertTrue;
 
 import android.app.PendingIntent;
+import android.app.slice.Slice;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -60,7 +64,7 @@ public class PasswordCredentialEntryJavaTest {
             100, 100, Bitmap.Config.ARGB_8888));
     private final BeginGetPasswordOption mBeginGetPasswordOption = new BeginGetPasswordOption(
             new HashSet<>(),
-            Bundle.EMPTY, "id");
+            new Bundle(), "id");
     private final Context mContext = ApplicationProvider.getApplicationContext();
     private final Intent mIntent = new Intent();
     private final PendingIntent mPendingIntent =
@@ -88,6 +92,49 @@ public class PasswordCredentialEntryJavaTest {
                         null, USERNAME, mPendingIntent, mBeginGetPasswordOption
                 ).build());
     }
+
+    @SdkSuppress(minSdkVersion = 28)
+    @Test
+    public void isDefaultIcon_customIconSetFromSlice_returnsFalse() {
+        PasswordCredentialEntry entry = new PasswordCredentialEntry.Builder(
+                mContext,
+                USERNAME,
+                mPendingIntent,
+                mBeginGetPasswordOption
+        ).setIcon(ICON).build();
+
+        Slice slice = PasswordCredentialEntry.toSlice(entry);
+
+        assertNotNull(slice);
+
+        PasswordCredentialEntry entryFromSlice = PasswordCredentialEntry
+                .fromSlice(slice);
+
+        assertNotNull(entryFromSlice);
+        assertFalse(entryFromSlice.hasDefaultIcon());
+        assertFalse(entry.hasDefaultIcon());
+    }
+
+    @SdkSuppress(minSdkVersion = 28)
+    @Test
+    public void isDefaultIcon_noIconSetFromSlice_returnsTrue() {
+        PasswordCredentialEntry entry = new PasswordCredentialEntry.Builder(
+                mContext,
+                USERNAME,
+                mPendingIntent,
+                mBeginGetPasswordOption
+        ).build();
+
+        Slice slice = PasswordCredentialEntry.toSlice(entry);
+        assertNotNull(slice);
+        PasswordCredentialEntry entryFromSlice = PasswordCredentialEntry
+                .fromSlice(slice);
+
+        assertNotNull(entryFromSlice);
+        assertTrue(entryFromSlice.hasDefaultIcon());
+        assertTrue(entry.hasDefaultIcon());
+    }
+
     @Test
     public void build_nullUsername_throwsNPE() {
         assertThrows("Expected null username to throw NPE",
@@ -126,6 +173,44 @@ public class PasswordCredentialEntryJavaTest {
         assertThat(TestUtilsKt.equals(entry.getIcon(),
                 Icon.createWithResource(mContext, R.drawable.ic_password))).isTrue();
     }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 28)
+    public void isDefaultIcon_noIconSet_returnsTrue() {
+        PasswordCredentialEntry entry = new PasswordCredentialEntry
+                .Builder(mContext, USERNAME, mPendingIntent, mBeginGetPasswordOption).build();
+
+        assertTrue(entry.hasDefaultIcon());
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 28)
+    public void isDefaultIcon_customIcon_returnsFalse() {
+        PasswordCredentialEntry entry = new PasswordCredentialEntry
+                .Builder(mContext, USERNAME, mPendingIntent, mBeginGetPasswordOption)
+                .setIcon(ICON).build();
+
+        assertFalse(entry.hasDefaultIcon());
+    }
+
+    @Test
+    public void isAutoSelectAllowedFromOption_optionAllows_returnsTrue() {
+        mBeginGetPasswordOption.getCandidateQueryData().putBoolean(
+                BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED, true);
+        PasswordCredentialEntry entry = new PasswordCredentialEntry
+                .Builder(mContext, USERNAME, mPendingIntent, mBeginGetPasswordOption).build();
+
+        assertTrue(entry.isAutoSelectAllowedFromOption());
+    }
+
+    @Test
+    public void isAutoSelectAllowedFromOption_optionDisallows_returnsFalse() {
+        PasswordCredentialEntry entry = new PasswordCredentialEntry
+                .Builder(mContext, USERNAME, mPendingIntent, mBeginGetPasswordOption).build();
+
+        assertFalse(entry.isAutoSelectAllowedFromOption());
+    }
+
     @Test
     public void build_nullTypeDisplayName_defaultDisplayNameSet() {
         PasswordCredentialEntry entry = new PasswordCredentialEntry.Builder(
