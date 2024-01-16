@@ -91,6 +91,7 @@ androidXMultiplatform {
                 api(project(":sqlite:sqlite"))
                 api(projectOrArtifact(":annotation:annotation"))
                 api(libs.kotlinCoroutinesCore)
+                implementation(libs.atomicFu)
             }
         }
         commonTest {
@@ -127,6 +128,7 @@ androidXMultiplatform {
         androidInstrumentedTest {
             dependsOn(commonTest)
             dependencies {
+                implementation(project(":sqlite:sqlite-bundled"))
                 implementation(libs.junit)
                 implementation(libs.testExtJunit)
                 implementation(libs.testCore)
@@ -148,6 +150,9 @@ androidXMultiplatform {
             }
             nativeTest {
                 dependsOn(commonTest)
+                dependencies {
+                    implementation(project(":sqlite:sqlite-bundled"))
+                }
             }
         }
         targets.all { target ->

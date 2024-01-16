@@ -16,18 +16,39 @@
 
 package androidx.room
 
+import androidx.room.coroutines.ConnectionPool
+import androidx.room.coroutines.newConnectionPool
+import androidx.room.coroutines.newSingleConnectionPool
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.SQLiteDriver
 
-// TODO(b/304302260): Connection pooling goes somewhere in here
 internal class RoomNativeConnectionManager(
     override val configuration: DatabaseConfiguration,
-    override val sqliteDriver: SQLiteDriver,
+    sqliteDriver: SQLiteDriver,
     override val openDelegate: RoomOpenDelegate,
 ) : RoomConnectionManager() {
 
-    override fun getConnection(): SQLiteConnection {
-        return openConnection()
+    override val connectionPool: ConnectionPool =
+        if (configuration.name == null) {
+            // An in-memory database must use a single connection pool.
+            newSingleConnectionPool(
+                driver = DriverWrapper(sqliteDriver)
+            )
+        } else {
+            newConnectionPool(
+                driver = DriverWrapper(sqliteDriver),
+                maxNumOfReaders = configuration.journalMode.getMaxNumberOfReaders(),
+                maxNumOfWriters = configuration.journalMode.getMaxNumberOfWriters()
+            )
+        }
+
+    override suspend fun <R> useConnection(
+        isReadOnly: Boolean,
+        block: suspend (Transactor) -> R
+    ) = connectionPool.useConnection(isReadOnly, block)
+
+    fun close() {
+        connectionPool.close()
     }
 
     override fun invokeCreateCallback(connection: SQLiteConnection) {

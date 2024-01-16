@@ -16,10 +16,13 @@
 
 package androidx.room
 
+import androidx.room.coroutines.ConnectionPool
+import androidx.room.coroutines.newConnectionPool
+import androidx.room.coroutines.newSingleConnectionPool
 import androidx.room.driver.SupportSQLiteConnection
 import androidx.room.driver.SupportSQLiteDriver
 import androidx.sqlite.SQLiteConnection
-import androidx.sqlite.SQLiteDriver
+import androidx.sqlite.SQLiteStatement
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.db.SupportSQLiteOpenHelper
 
@@ -30,13 +33,13 @@ import androidx.sqlite.db.SupportSQLiteOpenHelper
 internal class RoomAndroidConnectionManager : RoomConnectionManager {
 
     override val configuration: DatabaseConfiguration
-    override val sqliteDriver: SQLiteDriver
+    override val connectionPool: ConnectionPool
     override val openDelegate: RoomOpenDelegate
 
     private val callbacks: List<RoomDatabase.Callback>
 
     internal val supportOpenHelper: SupportSQLiteOpenHelper?
-        get() = (sqliteDriver as? SupportSQLiteDriver)?.openHelper
+        get() = (connectionPool as? SupportConnectionPool)?.supportDriver?.openHelper
 
     private var supportDatabase: SupportSQLiteDatabase? = null
 
@@ -46,8 +49,11 @@ internal class RoomAndroidConnectionManager : RoomConnectionManager {
     ) {
         this.configuration = config
         if (config.sqliteDriver == null) {
-            // Compatibility mode due to no driver provided, instead a driver
-            // (SupportSQLiteDriver) is created that wraps SupportSQLite* APIs.
+            // Compatibility mode due to no driver provided, instead a driver (SupportSQLiteDriver)
+            // is created that wraps SupportSQLite* APIs. The underlying SupportSQLiteDatabase will
+            // be migrated through the SupportOpenHelperCallback or through old gen code using
+            // RoomOpenHelper. A ConnectionPool is also created that skips common opening
+            // procedure and has no real connection management logic.
             requireNotNull(config.sqliteOpenHelperFactory) {
                 "SQLiteManager was constructed with both null driver and open helper factory!"
             }
@@ -55,11 +61,22 @@ internal class RoomAndroidConnectionManager : RoomConnectionManager {
                 .name(config.name)
                 .callback(SupportOpenHelperCallback(openDelegate.version))
                 .build()
-            this.sqliteDriver = SupportSQLiteDriver(
-                config.sqliteOpenHelperFactory.create(openHelperConfig)
+            this.connectionPool = SupportConnectionPool(
+                SupportSQLiteDriver(config.sqliteOpenHelperFactory.create(openHelperConfig))
             )
         } else {
-            this.sqliteDriver = config.sqliteDriver
+            this.connectionPool = if (configuration.name == null) {
+                // An in-memory database must use a single connection pool.
+                newSingleConnectionPool(
+                    driver = DriverWrapper(config.sqliteDriver)
+                )
+            } else {
+                newConnectionPool(
+                    driver = DriverWrapper(config.sqliteDriver),
+                    maxNumOfReaders = configuration.journalMode.getMaxNumberOfReaders(),
+                    maxNumOfWriters = configuration.journalMode.getMaxNumberOfWriters()
+                )
+            }
         }
         this.openDelegate = openDelegate
         this.callbacks = config.callbacks ?: emptyList()
@@ -72,9 +89,11 @@ internal class RoomAndroidConnectionManager : RoomConnectionManager {
     ) {
         this.configuration = config
         this.openDelegate = NoOpOpenDelegate()
-        // Compatibility mode, a driver (SupportSQLiteDriver) is created that wraps
-        // the provided SupportSQLiteOpenHelper.
-        this.sqliteDriver = SupportSQLiteDriver(supportOpenHelper)
+        // Compatibility mode due to no driver provided, the SupportSQLiteDriver and
+        // SupportConnectionPool are created.
+        this.connectionPool = SupportConnectionPool(
+            SupportSQLiteDriver(supportOpenHelper)
+        )
         this.callbacks = config.callbacks ?: emptyList()
         init()
     }
@@ -84,15 +103,10 @@ internal class RoomAndroidConnectionManager : RoomConnectionManager {
         supportOpenHelper?.setWriteAheadLoggingEnabled(wal)
     }
 
-    override fun getConnection(): SQLiteConnection {
-        // In compatibility mode the driver is a SupportSQLiteDriver, the underlying
-        // SupportSQLiteDatabase will have already been migrated through SupportOpenHelperCallback
-        // or through old gen code using RoomOpenHelper, therefore skip opening procedure.
-        if (sqliteDriver is SupportSQLiteDriver) {
-            return sqliteDriver.open()
-        }
-        return openConnection()
-    }
+    override suspend fun <R> useConnection(
+        isReadOnly: Boolean,
+        block: suspend (Transactor) -> R
+    ): R = connectionPool.useConnection(isReadOnly, block)
 
     override fun dropAllTables(connection: SQLiteConnection) {
         if (configuration.allowDestructiveMigrationForAllTables) {
@@ -105,7 +119,7 @@ internal class RoomAndroidConnectionManager : RoomConnectionManager {
     }
 
     fun close() {
-        supportOpenHelper?.close()
+        connectionPool.close()
     }
 
     override fun invokeCreateCallback(connection: SQLiteConnection) {
@@ -167,7 +181,8 @@ internal class RoomAndroidConnectionManager : RoomConnectionManager {
     }
 
     /**
-     * A no op implementation of [RoomOpenDelegate] used in compatibility mode with old gen code.
+     * A no op implementation of [RoomOpenDelegate] used in compatibility mode with old gen code
+     * that relies on [RoomOpenHelper].
      */
     private class NoOpOpenDelegate : RoomOpenDelegate(-1, "") {
         override fun onCreate(connection: SQLiteConnection) {
@@ -196,6 +211,93 @@ internal class RoomAndroidConnectionManager : RoomConnectionManager {
 
         override fun dropAllTables(connection: SQLiteConnection) {
             error("NOP delegate should never be called")
+        }
+    }
+
+    private class SupportConnectionPool(
+        val supportDriver: SupportSQLiteDriver
+    ) : ConnectionPool {
+        override suspend fun <R> useConnection(
+            isReadOnly: Boolean,
+            block: suspend (Transactor) -> R
+        ): R {
+            return block.invoke(SupportPooledConnection(supportDriver.open()))
+        }
+
+        override fun close() {
+            supportDriver.openHelper.close()
+        }
+    }
+
+    /**
+     * An implementation of a connection pool used in compatibility mode. This impl doesn't do
+     * any connection management since the SupportSQLite* APIs already internally do.
+     */
+    private class SupportPooledConnection(
+        val delegate: SupportSQLiteConnection
+    ) : Transactor {
+
+        private var currentTransactionType: Transactor.SQLiteTransactionType? = null
+
+        override suspend fun <R> usePrepared(sql: String, block: (SQLiteStatement) -> R): R {
+            return block.invoke(delegate.prepare(sql))
+        }
+
+        // TODO(b/318767291): Add coroutine confinement like RoomDatabase.withTransaction
+        override suspend fun <R> withTransaction(
+            type: Transactor.SQLiteTransactionType,
+            block: suspend TransactionScope<R>.() -> R
+        ): R {
+            return transaction(type, block)
+        }
+
+        private suspend fun <R> transaction(
+            type: Transactor.SQLiteTransactionType,
+            block: suspend TransactionScope<R>.() -> R
+        ): R {
+            val db = delegate.db
+            if (!db.inTransaction()) {
+                currentTransactionType = type
+            }
+            when (type) {
+                Transactor.SQLiteTransactionType.DEFERRED -> db.beginTransactionReadOnly()
+                Transactor.SQLiteTransactionType.IMMEDIATE -> db.beginTransactionNonExclusive()
+                Transactor.SQLiteTransactionType.EXCLUSIVE -> db.beginTransaction()
+            }
+            try {
+                return SupportTransactor<R>().block()
+            } catch (rollback: RollbackException) {
+                @Suppress("UNCHECKED_CAST")
+                return rollback.result as R
+            } finally {
+                db.endTransaction()
+                if (!db.inTransaction()) {
+                    currentTransactionType = null
+                }
+            }
+        }
+
+        override suspend fun inTransaction(): Boolean {
+            return delegate.db.inTransaction()
+        }
+
+        private class RollbackException(val result: Any?) : Throwable()
+
+        private inner class SupportTransactor<T> : TransactionScope<T> {
+
+            override suspend fun <R> usePrepared(sql: String, block: (SQLiteStatement) -> R): R {
+                return this@SupportPooledConnection.usePrepared(sql, block)
+            }
+
+            override suspend fun <R> withNestedTransaction(
+                block: suspend (TransactionScope<R>) -> R
+            ): R {
+                return transaction(checkNotNull(currentTransactionType), block)
+            }
+
+            override suspend fun rollback(result: T): Nothing {
+                throw RollbackException(result)
+            }
         }
     }
 }

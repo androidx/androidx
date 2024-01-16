@@ -16,11 +16,13 @@
 
 package androidx.room
 
+import androidx.room.RoomDatabase.JournalMode.TRUNCATE
+import androidx.room.RoomDatabase.JournalMode.WRITE_AHEAD_LOGGING
+import androidx.room.coroutines.ConnectionPool
 import androidx.room.util.findMigrationPath
 import androidx.room.util.isMigrationRequired
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.SQLiteDriver
-import androidx.sqlite.exclusiveTransaction
 import androidx.sqlite.execSQL
 import androidx.sqlite.use
 
@@ -31,33 +33,51 @@ import androidx.sqlite.use
 internal abstract class RoomConnectionManager {
 
     protected abstract val configuration: DatabaseConfiguration
-    protected abstract val sqliteDriver: SQLiteDriver
+    protected abstract val connectionPool: ConnectionPool
     protected abstract val openDelegate: RoomOpenDelegate
 
-    // TODO(b/316944352): API should be useConnection { c -> ... } for thread confinement
-    abstract fun getConnection(): SQLiteConnection
+    abstract suspend fun <R> useConnection(
+        isReadOnly: Boolean,
+        block: suspend (Transactor) -> R
+    ): R
 
-    // TODO(b/316945563): Retain open connection and discard when closed?
+    /* A driver wrapper that configures opened connections per the manager. */
+    protected inner class DriverWrapper(
+        private val actual: SQLiteDriver
+    ) : SQLiteDriver {
+        override fun open(): SQLiteConnection {
+            // TODO(b/317973999): Try to validate connections point to the same filename as the
+            //                    one in the database configuration provided in the builder.
+            return configureConnection(actual.open())
+        }
+    }
+
+    /**
+     * Common database connection configuration and opening procedure, performs migrations if
+     * necessary, validates schema and invokes configured callbacks if any.
+     */
     // TODO(b/316945717): Thread safe and process safe opening and migration
     // TODO(b/316944352): Retry mechanism
-    protected fun openConnection(): SQLiteConnection {
-        val connection = sqliteDriver.open()
+    private fun configureConnection(connection: SQLiteConnection): SQLiteConnection {
         configureJournalMode(connection)
         val version = connection.prepare("PRAGMA user_version").use { statement ->
             statement.step()
             statement.getLong(0).toInt()
         }
         if (version != openDelegate.version) {
-            connection.exclusiveTransaction {
+            connection.execSQL("BEGIN EXCLUSIVE TRANSACTION")
+            runCatching {
                 if (version == 0) {
-                    onCreate(this)
+                    onCreate(connection)
                 } else {
-                    onMigrate(this, version, openDelegate.version)
+                    onMigrate(connection, version, openDelegate.version)
                 }
-                prepare("PRAGMA user_version = ?").use { statement ->
-                    statement.bindLong(0, openDelegate.version.toLong())
-                    statement.step()
-                }
+                connection.execSQL("PRAGMA user_version = ${openDelegate.version}")
+            }.onSuccess {
+                connection.execSQL("END TRANSACTION")
+            }.onFailure {
+                connection.execSQL("ROLLBACK TRANSACTION")
+                throw it
             }
         }
         onOpen(connection)
@@ -65,7 +85,7 @@ internal abstract class RoomConnectionManager {
     }
 
     private fun configureJournalMode(connection: SQLiteConnection) {
-        val wal = configuration.journalMode == RoomDatabase.JournalMode.WRITE_AHEAD_LOGGING
+        val wal = configuration.journalMode == WRITE_AHEAD_LOGGING
         if (wal) {
             connection.execSQL("PRAGMA journal_mode = WAL")
         } else {
@@ -198,6 +218,20 @@ internal abstract class RoomConnectionManager {
         ).use {
             it.step() && it.getLong(0) != 0L
         }
+
+    @Suppress("REDUNDANT_ELSE_IN_WHEN") // Redundant in common but not in Android
+    protected fun RoomDatabase.JournalMode.getMaxNumberOfReaders() = when (this) {
+        TRUNCATE -> 1
+        WRITE_AHEAD_LOGGING -> 4
+        else -> error("Can't get max number of reader for journal mode '$this'")
+    }
+
+    @Suppress("REDUNDANT_ELSE_IN_WHEN") // Redundant in common but not in Android
+    protected fun RoomDatabase.JournalMode.getMaxNumberOfWriters() = when (this) {
+        TRUNCATE -> 1
+        WRITE_AHEAD_LOGGING -> 1
+        else -> error("Can't get max number of writers for journal mode '$this'")
+    }
 
     protected abstract fun invokeCreateCallback(connection: SQLiteConnection)
     protected abstract fun invokeDestructiveMigrationCallback(connection: SQLiteConnection)

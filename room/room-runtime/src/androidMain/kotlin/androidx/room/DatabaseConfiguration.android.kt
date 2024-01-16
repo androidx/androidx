@@ -46,7 +46,7 @@ constructor(
      * The name of the database file or null if it is an in-memory database.
      */
     @JvmField
-    val name: String?,
+    actual val name: String?,
 
     /**
      * The factory to use to access the database.

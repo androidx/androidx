@@ -117,6 +117,10 @@ package androidx.room {
     method public android.os.IBinder onBind(android.content.Intent intent);
   }
 
+  public interface PooledConnection {
+    method public suspend <R> Object? usePrepared(String sql, kotlin.jvm.functions.Function1<? super androidx.sqlite.SQLiteStatement,? extends R> block, kotlin.coroutines.Continuation<? super R>);
+  }
+
   public final class Room {
     method public static <T extends androidx.room.RoomDatabase> androidx.room.RoomDatabase.Builder<T> databaseBuilder(android.content.Context context, Class<T> klass, String? name);
     method public inline <reified T extends androidx.room.RoomDatabase> androidx.room.RoomDatabase.Builder<T> databaseBuilder(android.content.Context context, String name, kotlin.jvm.functions.Function0<? extends T> factory);
@@ -316,6 +320,31 @@ package androidx.room {
     method protected void assertNotMainThread();
     method protected abstract String createQuery();
     method public void release(androidx.sqlite.db.SupportSQLiteStatement statement);
+  }
+
+  public interface TransactionScope<T> extends androidx.room.PooledConnection {
+    method public suspend Object? rollback(T result, kotlin.coroutines.Continuation<?>);
+    method public suspend <R> Object? withNestedTransaction(kotlin.jvm.functions.Function2<? super androidx.room.TransactionScope<R>,? super kotlin.coroutines.Continuation<? super R>,?> block, kotlin.coroutines.Continuation<? super R>);
+  }
+
+  public interface Transactor extends androidx.room.PooledConnection {
+    method public suspend Object? inTransaction(kotlin.coroutines.Continuation<? super java.lang.Boolean>);
+    method public suspend <R> Object? withTransaction(androidx.room.Transactor.SQLiteTransactionType type, kotlin.jvm.functions.Function2<? super androidx.room.TransactionScope<R>,? super kotlin.coroutines.Continuation<? super R>,?> block, kotlin.coroutines.Continuation<? super R>);
+  }
+
+  public enum Transactor.SQLiteTransactionType {
+    method public static androidx.room.Transactor.SQLiteTransactionType valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
+    method public static androidx.room.Transactor.SQLiteTransactionType[] values();
+    enum_constant public static final androidx.room.Transactor.SQLiteTransactionType DEFERRED;
+    enum_constant public static final androidx.room.Transactor.SQLiteTransactionType EXCLUSIVE;
+    enum_constant public static final androidx.room.Transactor.SQLiteTransactionType IMMEDIATE;
+  }
+
+  public final class TransactorKt {
+    method public static suspend <R> Object? deferredTransaction(androidx.room.Transactor, kotlin.jvm.functions.Function2<? super androidx.room.TransactionScope<R>,? super kotlin.coroutines.Continuation<? super R>,?> block, kotlin.coroutines.Continuation<? super R>);
+    method public static suspend <R> Object? exclusiveTransaction(androidx.room.Transactor, kotlin.jvm.functions.Function2<? super androidx.room.TransactionScope<R>,? super kotlin.coroutines.Continuation<? super R>,?> block, kotlin.coroutines.Continuation<? super R>);
+    method public static suspend Object? execSQL(androidx.room.PooledConnection, String sql, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public static suspend <R> Object? immediateTransaction(androidx.room.Transactor, kotlin.jvm.functions.Function2<? super androidx.room.TransactionScope<R>,? super kotlin.coroutines.Continuation<? super R>,?> block, kotlin.coroutines.Continuation<? super R>);
   }
 
 }

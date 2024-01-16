@@ -463,9 +463,11 @@ actual abstract class RoomDatabase {
         get() = connectionManager.isSupportDatabaseOpen()
 
     /**
-     * Closes the database if it is already open.
+     * Closes the database.
+     *
+     * Once a [RoomDatabase] is closed it should no longer be used.
      */
-    open fun close() {
+    actual open fun close() {
         if (isOpen) {
             val closeLock: Lock = readWriteLock.writeLock()
             closeLock.lock()
@@ -508,6 +510,7 @@ actual abstract class RoomDatabase {
                 " context inherited from a suspending transaction."
         }
     }
+
     // Below, there are wrapper methods for SupportSQLiteDatabase. This helps us track which
     // methods we are using and also helps unit tests to mock this class without mocking
     // all SQLite database methods.
