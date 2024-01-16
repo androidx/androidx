@@ -63,6 +63,8 @@ ChangedType: androidx.kruth.StandardSubjectBuilder#that(Iterable<? extends T>):
     Method androidx.kruth.StandardSubjectBuilder.that has changed return type from androidx.kruth.IterableSubject to androidx.kruth.IterableSubject<T>
 ChangedType: androidx.kruth.StandardSubjectBuilder#that(T):
     Method androidx.kruth.StandardSubjectBuilder.that has changed return type from androidx.kruth.ClassSubject to androidx.kruth.Subject<T>
+ChangedType: androidx.kruth.StandardSubjectBuilder#that(T):
+    Method androidx.kruth.StandardSubjectBuilder.that has changed return type from androidx.kruth.ComparableSubject<ComparableT> to androidx.kruth.ComparableSubject<T>
 ChangedType: androidx.kruth.StandardSubjectBuilder#that(java.util.Map<K,? extends V>):
     Method androidx.kruth.StandardSubjectBuilder.that has changed return type from androidx.kruth.MapSubject to androidx.kruth.MapSubject<K,V>
 ChangedType: androidx.kruth.Subject#failWithActual(String, Object):
@@ -185,6 +187,22 @@ RemovedMethod: androidx.kruth.PrimitiveFloatArraySubject#usingTolerance(double):
     Removed method androidx.kruth.PrimitiveFloatArraySubject.usingTolerance(double)
 RemovedMethod: androidx.kruth.StandardSubjectBuilder#about(androidx.kruth.CustomSubjectBuilder.Factory<CustomSubjectBuilderT>):
     Removed method androidx.kruth.StandardSubjectBuilder.about(androidx.kruth.CustomSubjectBuilder.Factory<CustomSubjectBuilderT>)
+RemovedMethod: androidx.kruth.StandardSubjectBuilder#that(Class<?>):
+    Removed method androidx.kruth.StandardSubjectBuilder.that(Class<?>)
+RemovedMethod: androidx.kruth.StandardSubjectBuilder#that(Float):
+    Removed method androidx.kruth.StandardSubjectBuilder.that(Float)
+RemovedMethod: androidx.kruth.StandardSubjectBuilder#that(Long):
+    Removed method androidx.kruth.StandardSubjectBuilder.that(Long)
+RemovedMethod: androidx.kruth.StandardSubjectBuilder#that(com.google.common.base.Optional<?>):
+    Removed method androidx.kruth.StandardSubjectBuilder.that(com.google.common.base.Optional<?>)
+RemovedMethod: androidx.kruth.StandardSubjectBuilder#that(com.google.common.collect.Multimap<?,?>):
+    Removed method androidx.kruth.StandardSubjectBuilder.that(com.google.common.collect.Multimap<?,?>)
+RemovedMethod: androidx.kruth.StandardSubjectBuilder#that(com.google.common.collect.Multiset<?>):
+    Removed method androidx.kruth.StandardSubjectBuilder.that(com.google.common.collect.Multiset<?>)
+RemovedMethod: androidx.kruth.StandardSubjectBuilder#that(com.google.common.collect.Table<?,?,?>):
+    Removed method androidx.kruth.StandardSubjectBuilder.that(com.google.common.collect.Table<?,?,?>)
+RemovedMethod: androidx.kruth.StandardSubjectBuilder#that(java.math.BigDecimal):
+    Removed method androidx.kruth.StandardSubjectBuilder.that(java.math.BigDecimal)
 RemovedMethod: androidx.kruth.StandardSubjectBuilder#withMessage(String, java.lang.Object...):
     Removed method androidx.kruth.StandardSubjectBuilder.withMessage(String,java.lang.Object...)
 RemovedMethod: androidx.kruth.StringSubject#StringSubject(androidx.kruth.FailureMetadata, String):
