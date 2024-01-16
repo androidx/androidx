@@ -25,16 +25,28 @@ import android.view.inputmethod.InputContentInfo
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.content.MediaType
 import androidx.compose.foundation.content.TransferableContent
+import androidx.compose.foundation.content.assertClipData
+import androidx.compose.foundation.content.consumeEach
+import androidx.compose.foundation.content.createClipData
 import androidx.compose.foundation.content.receiveContent
 import androidx.compose.foundation.draganddrop.dragAndDropTarget
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.text.selection.FakeTextToolbar
 import androidx.compose.foundation.text2.BasicTextField2
+import androidx.compose.foundation.text2.input.internal.selection.FakeClipboardManager
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draganddrop.DragAndDropEvent
 import androidx.compose.ui.draganddrop.DragAndDropTarget
+import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.LocalTextToolbar
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.platform.toClipEntry
+import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.requestFocus
 import androidx.core.view.inputmethod.EditorInfoCompat
 import androidx.core.view.inputmethod.InputConnectionCompat
@@ -397,6 +409,164 @@ class TextFieldReceiveContentTest {
         rule.runOnIdle {
             assertThat(childTransferableContent).isNotNull()
             assertThat(parentTransferableContent).isNull()
+        }
+    }
+
+    @Test
+    fun semanticsPasteContent_delegatesToReceiveContent() {
+        val clipboardManager = FakeClipboardManager(supportsClipEntry = true)
+        val clipEntry = createClipData().toClipEntry()
+        clipboardManager.setClip(clipEntry)
+        lateinit var transferableContent: TransferableContent
+        rule.setContent {
+            CompositionLocalProvider(LocalClipboardManager provides clipboardManager) {
+                BasicTextField2(
+                    state = rememberTextFieldState(),
+                    modifier = Modifier
+                        .testTag(tag)
+                        .receiveContent(MediaType.Image) {
+                            transferableContent = it
+                            null
+                        }
+                )
+            }
+        }
+
+        rule.onNode(hasSetTextAction()).performSemanticsAction(SemanticsActions.PasteText)
+
+        rule.runOnIdle {
+            assertClipData(transferableContent.clipEntry.clipData)
+                .isEqualToClipData(clipEntry.clipData)
+        }
+    }
+
+    @Test
+    fun semanticsPasteContent_pastesLeftOverText() {
+        val clipboardManager = FakeClipboardManager(supportsClipEntry = true)
+        val clipEntry = createClipData {
+            addText("some text")
+            addUri()
+            addIntent()
+            addText("more text")
+        }.toClipEntry()
+        clipboardManager.setClip(clipEntry)
+        val state = TextFieldState()
+        rule.setContent {
+            CompositionLocalProvider(LocalClipboardManager provides clipboardManager) {
+                BasicTextField2(
+                    state = state,
+                    modifier = Modifier
+                        .testTag(tag)
+                        .receiveContent(MediaType.Image, MediaType.Text) {
+                            it.consumeEach { item ->
+                                // only consume if there's no text
+                                item.text == null
+                            }
+                        }
+                )
+            }
+        }
+
+        rule.onNode(hasSetTextAction()).performSemanticsAction(SemanticsActions.PasteText)
+
+        rule.runOnIdle {
+            assertThat(state.text.toString()).isEqualTo("some text\nmore text")
+        }
+    }
+
+    @Test
+    fun semanticsPasteContent_goesFromChildToParent() {
+        val clipboardManager = FakeClipboardManager(supportsClipEntry = true)
+        val clipEntry = createClipData {
+            addText("a")
+            addText("b")
+            addText("c")
+            addText("d")
+        }.toClipEntry()
+        clipboardManager.setClip(clipEntry)
+
+        lateinit var transferableContent1: TransferableContent
+        lateinit var transferableContent2: TransferableContent
+        lateinit var transferableContent3: TransferableContent
+        val state = TextFieldState()
+
+        rule.setContent {
+            CompositionLocalProvider(LocalClipboardManager provides clipboardManager) {
+                BasicTextField2(
+                    state = state,
+                    modifier = Modifier
+                        .testTag(tag)
+                        .receiveContent(MediaType.Text) {
+                            transferableContent1 = it
+                            it.consumeEach {
+                                it.text.contains("a")
+                            }
+                        }
+                        .receiveContent(MediaType.Text) {
+                            transferableContent2 = it
+                            it.consumeEach {
+                                it.text.contains("b")
+                            }
+                        }
+                        .receiveContent(MediaType.Text) {
+                            transferableContent3 = it
+                            it.consumeEach {
+                                it.text.contains("c")
+                            }
+                        }
+                )
+            }
+        }
+
+        rule.onNode(hasSetTextAction()).performSemanticsAction(SemanticsActions.PasteText)
+
+        rule.runOnIdle {
+            assertThat(state.text.toString()).isEqualTo("d")
+            assertThat(transferableContent3.clipEntry.clipData.itemCount).isEqualTo(4)
+            assertThat(transferableContent2.clipEntry.clipData.itemCount).isEqualTo(3)
+            assertThat(transferableContent1.clipEntry.clipData.itemCount).isEqualTo(2)
+        }
+    }
+
+    @Test
+    fun toolbarPasteContent_delegatesToReceiveContent() {
+        val clipboardManager = FakeClipboardManager(supportsClipEntry = true)
+        val clipEntry = createClipData().toClipEntry()
+        clipboardManager.setClip(clipEntry)
+        var pasteOption: (() -> Unit)? = null
+        val textToolbar = FakeTextToolbar(
+            onShowMenu = { _, _, onPasteRequested, _, _ ->
+                pasteOption = onPasteRequested
+            },
+            onHideMenu = {}
+        )
+        lateinit var transferableContent: TransferableContent
+        rule.setContent {
+            CompositionLocalProvider(
+                LocalClipboardManager provides clipboardManager,
+                LocalTextToolbar provides textToolbar
+            ) {
+                BasicTextField2(
+                    state = rememberTextFieldState(),
+                    modifier = Modifier
+                        .testTag(tag)
+                        .receiveContent(MediaType.Image) {
+                            transferableContent = it
+                            null
+                        }
+                )
+            }
+        }
+
+        rule.runOnIdle {
+            pasteOption?.invoke()
+        }
+
+        rule.onNode(hasSetTextAction()).performSemanticsAction(SemanticsActions.PasteText)
+
+        rule.runOnIdle {
+            assertClipData(transferableContent.clipEntry.clipData)
+                .isEqualToClipData(clipEntry.clipData)
         }
     }
 

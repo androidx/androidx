@@ -79,3 +79,11 @@ expect class PlatformTransferableContent
  */
 @ExperimentalFoundationApi
 expect fun TransferableContent.hasMediaType(mediaType: MediaType): Boolean
+
+/**
+ * Reads the text part of this [TransferableContent]. The returned result may not include the full
+ * text representation of content e.g., if there is a URL pointing at another source. This function
+ * only reads the explicit text that was transferred directly inside the [TransferableContent].
+ */
+@OptIn(ExperimentalFoundationApi::class)
+internal expect fun TransferableContent.readPlainText(): String?

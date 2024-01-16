@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:OptIn(ExperimentalFoundationApi::class)
+
 package androidx.compose.foundation.content.internal
 
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -22,11 +24,20 @@ import androidx.compose.foundation.content.TransferableContent
 import androidx.compose.ui.node.DelegatableNode
 import androidx.compose.ui.node.traverseAncestors
 
-@OptIn(ExperimentalFoundationApi::class)
 internal data class ReceiveContentConfiguration(
-    val acceptedMimeTypes: Set<String>?,
-    val onCommitContent: ((TransferableContent) -> Boolean)?
-)
+    val acceptedMimeTypes: Set<String>,
+    val onReceive: (TransferableContent) -> TransferableContent?
+) {
+    /**
+     * `InputConnection#commitContent` callback that's delegates to [onReceive], then returns true
+     * if the remaining content is different than the original content, which indicates a
+     * consumption.
+     */
+    val onCommitContent: (TransferableContent) -> Boolean = { content ->
+        val remaining = onReceive(content)
+        remaining != content
+    }
+}
 
 /**
  * Travels among ancestor nodes to find each [ReceiveContentNode] that would be interested
@@ -39,8 +50,7 @@ internal data class ReceiveContentConfiguration(
  * same [TransferableContent] indicating what's left unconsumed and should be delegated to
  * the rest of the chain.
  */
-@OptIn(ExperimentalFoundationApi::class)
-internal fun DelegatableNode.mergeReceiveContentConfiguration(): ReceiveContentConfiguration {
+internal fun DelegatableNode.mergeReceiveContentConfiguration(): ReceiveContentConfiguration? {
     // do not pre-allocate
     var mutableAcceptedMimeTypes: MutableSet<String>? = null
     var mutableOnReceiveCallbacks: MutableList<(TransferableContent) -> TransferableContent?>? =
@@ -71,23 +81,19 @@ internal fun DelegatableNode.mergeReceiveContentConfiguration(): ReceiveContentC
     val acceptedMimeTypes = mutableAcceptedMimeTypes
     val onReceiveCallbacks = mutableOnReceiveCallbacks
 
-    val onCommitContent: ((TransferableContent) -> Boolean)?
-    // It cannot be empty if it's non-null but let's be safe
-    if (onReceiveCallbacks.isNullOrEmpty()) {
-        onCommitContent = null
-    } else {
-        onCommitContent = { originalTransferableContent ->
-            // The order of callbacks go from closest node to furthest node
-            var remaining: TransferableContent? = originalTransferableContent
-            var index = 0
-            while (remaining != null && index < onReceiveCallbacks.size) {
-                remaining = onReceiveCallbacks[index].invoke(remaining)
-                index++
-            }
-            // the content has been considered processed if the final remaining content is
-            // different than the original one.
-            remaining != originalTransferableContent
-        }
+    if (acceptedMimeTypes.isNullOrEmpty() || onReceiveCallbacks.isNullOrEmpty()) {
+        return null
     }
-    return ReceiveContentConfiguration(acceptedMimeTypes, onCommitContent)
+
+    val mergedOnReceive: ((TransferableContent) -> TransferableContent?) = {
+        // The order of callbacks go from closest node to furthest node
+        var remaining: TransferableContent? = it
+        var index = 0
+        while (remaining != null && index < onReceiveCallbacks.size) {
+            remaining = onReceiveCallbacks[index].invoke(remaining)
+            index++
+        }
+        remaining
+    }
+    return ReceiveContentConfiguration(acceptedMimeTypes, mergedOnReceive)
 }
