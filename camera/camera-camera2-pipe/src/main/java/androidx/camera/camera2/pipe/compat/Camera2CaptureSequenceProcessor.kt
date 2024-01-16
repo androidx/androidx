@@ -20,6 +20,7 @@ package androidx.camera.camera2.pipe.compat
 
 import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CaptureRequest
+import android.os.Build
 import android.util.ArrayMap
 import android.view.Surface
 import androidx.annotation.GuardedBy
@@ -40,6 +41,8 @@ import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.core.Threading.runBlockingWithTimeout
 import androidx.camera.camera2.pipe.core.Threads
 import androidx.camera.camera2.pipe.graph.StreamGraphImpl
+import androidx.camera.camera2.pipe.media.AndroidImageWriter
+import androidx.camera.camera2.pipe.media.ImageWriterWrapper
 import androidx.camera.camera2.pipe.writeParameters
 import javax.inject.Inject
 import kotlin.reflect.KClass
@@ -321,6 +324,27 @@ internal class Camera2CaptureSequenceProcessor(
     override fun toString(): String {
         return "Camera2RequestProcessor-$debugId"
     }
+
+    /** The [ImageWriterWrapper] is created once per capture session when the capture
+     * session is created, assuming it's a reprocessing session.
+     */
+    internal val imageWriter =
+        if (streamGraph.inputs.isNotEmpty() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val inputStream = streamGraph.inputs.first()
+            val sessionInputSurface = session.inputSurface
+            checkNotNull(sessionInputSurface) {
+                "inputSurface is required to create instance of imageWriter."
+            }
+            AndroidImageWriter.create(
+                sessionInputSurface,
+                inputStream.id,
+                inputStream.maxImages,
+                inputStream.format,
+                threads.camera2Handler
+            )
+        } else {
+            null
+        }
 
     private fun validateRequestList(
         requests: List<Request>,

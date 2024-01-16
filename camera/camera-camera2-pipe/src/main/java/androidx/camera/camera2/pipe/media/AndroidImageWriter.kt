@@ -22,7 +22,7 @@ import android.os.Build
 import android.os.Handler
 import android.view.Surface
 import androidx.annotation.RequiresApi
-import androidx.camera.camera2.pipe.InputId
+import androidx.camera.camera2.pipe.InputStreamId
 import androidx.camera.camera2.pipe.StreamFormat
 import androidx.camera.camera2.pipe.compat.Api29Compat
 import androidx.camera.camera2.pipe.core.Log
@@ -36,7 +36,7 @@ import kotlinx.atomicfu.atomic
 @RequiresApi(Build.VERSION_CODES.M)
 class AndroidImageWriter private constructor(
     private val imageWriter: ImageWriter,
-    private val inputId: InputId
+    private val inputStreamId: InputStreamId
 ) : ImageWriterWrapper, ImageWriter.OnImageReleasedListener {
     private val onImageReleasedListener = atomic<ImageWriterWrapper.OnImageReleasedListener?>(null)
     override val maxImages: Int = imageWriter.maxImages
@@ -59,7 +59,7 @@ class AndroidImageWriter private constructor(
     }
 
     override fun onImageReleased(writer: ImageWriter?) {
-        onImageReleasedListener.value?.onImageReleased(inputId)
+        onImageReleasedListener.value?.onImageReleased(inputStreamId)
     }
 
     override fun close() = imageWriter.close()
@@ -72,7 +72,7 @@ class AndroidImageWriter private constructor(
 
     override fun toString(): String {
         return "ImageWriter-${StreamFormat(imageWriter.format).name}-" +
-            "inputId$inputId"
+            "inputStreamId$inputStreamId"
     }
 
     companion object {
@@ -83,9 +83,9 @@ class AndroidImageWriter private constructor(
          */
         fun create(
             surface: Surface,
+            inputStreamId: InputStreamId,
             maxImages: Int,
             format: Int?,
-            inputId: InputId,
             handler: Handler
         ): ImageWriterWrapper {
             require(maxImages > 0) { "Max images ($maxImages) must be > 0" }
@@ -94,7 +94,6 @@ class AndroidImageWriter private constructor(
                     "$IMAGEREADER_MAX_CAPACITY to prevent overloading downstream " +
                     "consumer components."
             }
-
             // Create and configure a new ImageWriter
             val imageWriter =
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && format != null) {
@@ -102,7 +101,7 @@ class AndroidImageWriter private constructor(
                 } else {
                     if (format != null) {
                         Log.warn {
-                            "Ignoring format ($format) for $inputId. Android " +
+                            "Ignoring format ($format) for $inputStreamId. Android " +
                                 "${Build.VERSION.SDK_INT} does not support creating ImageWriters " +
                                 "with formats. This may lead to unexpected behaviors."
                         }
@@ -110,7 +109,7 @@ class AndroidImageWriter private constructor(
                     ImageWriter.newInstance(surface, maxImages)
                 }
 
-            val androidImageWriter = AndroidImageWriter(imageWriter, inputId)
+            val androidImageWriter = AndroidImageWriter(imageWriter, inputStreamId)
             imageWriter.setOnImageReleasedListener(
                 androidImageWriter, handler
             )
