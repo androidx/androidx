@@ -17,6 +17,9 @@
 package androidx.compose.foundation.text2.input.internal.selection
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.content.TransferableContent
+import androidx.compose.foundation.content.internal.ReceiveContentConfiguration
+import androidx.compose.foundation.content.readPlainText
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -37,6 +40,7 @@ import androidx.compose.foundation.text2.input.internal.IndexTransformationType.
 import androidx.compose.foundation.text2.input.internal.IndexTransformationType.Replacement
 import androidx.compose.foundation.text2.input.internal.IndexTransformationType.Untransformed
 import androidx.compose.foundation.text2.input.internal.SelectionWedgeAffinity
+import androidx.compose.foundation.text2.input.internal.TextFieldDecoratorModifierNode
 import androidx.compose.foundation.text2.input.internal.TextLayoutState
 import androidx.compose.foundation.text2.input.internal.TransformedTextFieldState
 import androidx.compose.foundation.text2.input.internal.WedgeAffinity
@@ -109,6 +113,12 @@ internal class TextFieldSelectionState(
      */
     var isInTouchMode: Boolean by mutableStateOf(true)
         private set
+
+    /**
+     * Reduced [ReceiveContentConfiguration] from the attached modifier node hierarchy. This value
+     * is set by [TextFieldDecoratorModifierNode].
+     */
+    var receiveContentConfiguration: (() -> ReceiveContentConfiguration?)? = null
 
     /**
      * The offset of visible bounds when dragging is started by a cursor or a selection handle.
@@ -1127,6 +1137,31 @@ internal class TextFieldSelectionState(
         textFieldState.collapseSelectionToMax()
     }
 
+    fun paste() {
+        val receiveContentConfiguration = receiveContentConfiguration?.invoke()
+            ?: return pasteAsPlainText()
+
+        val clipEntry = clipboardManager?.getClip() ?: return
+        val clipMetadata = clipboardManager?.getClipMetadata() ?: return pasteAsPlainText()
+
+        val remaining = receiveContentConfiguration.onReceive(
+            TransferableContent(
+                clipEntry = clipEntry,
+                source = TransferableContent.Source.Clipboard,
+                clipMetadata = clipMetadata
+            )
+        )
+
+        // TODO(halilibo): this is not 1-to-1 compatible with ClipboardManager.getText() which
+        //  returns an AnnotatedString and supports copy-pasting AnnotatedStrings inside the app.
+        remaining?.readPlainText()?.let { clipboardText ->
+            textFieldState.replaceSelectedText(
+                clipboardText,
+                undoBehavior = TextFieldEditUndoBehavior.NeverMerge
+            )
+        }
+    }
+
     /**
      * The method for pasting text.
      *
@@ -1136,7 +1171,7 @@ internal class TextFieldSelectionState(
      * Then the selection should collapse, and the new cursor offset should be at the end of the
      * newly added text.
      */
-    fun paste() {
+    private fun pasteAsPlainText() {
         val clipboardText = clipboardManager?.getText()?.text ?: return
 
         textFieldState.replaceSelectedText(
@@ -1155,7 +1190,15 @@ internal class TextFieldSelectionState(
     private fun showTextToolbar(contentRect: Rect) {
         val selection = textFieldState.visualText.selectionInChars
 
-        val paste: (() -> Unit)? = if (editable && clipboardManager?.hasText() == true) {
+        // if receive content is configured, hasClip should be enough to show the paste option
+        val canPasteContent = receiveContentConfiguration?.invoke() != null &&
+            clipboardManager?.hasClip() == true
+        // if receive content is not configured, we expect at least a text item to be present
+        val canPasteText = clipboardManager?.hasText() == true
+        val canPaste = editable && (canPasteContent || canPasteText)
+
+        // TODO(halilibo): Add a new TextToolbar option "paste as plain text".
+        val paste: (() -> Unit)? = if (canPaste) {
             {
                 paste()
                 updateTextToolbarState(TextToolbarState.None)

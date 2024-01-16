@@ -34,11 +34,13 @@ import org.junit.runner.RunWith
 @OptIn(ExperimentalFoundationApi::class)
 class ReceiveContentTest {
 
-    private val defaultLabel = "label"
-
     @Test
     fun consumeEach_separatesTransferableContent() {
-        val clipData = createClipData()
+        val clipData = createClipData {
+            addText()
+            addHtmlText()
+            addUri()
+        }
         val transferableContent = TransferableContent(
             clipEntry = clipData.toClipEntry(),
             source = TransferableContent.Source.Keyboard,
@@ -80,7 +82,7 @@ class ReceiveContentTest {
 
     @Test
     fun consumingOnlyItem_returnsNull() {
-        val clipData = createClipData(itemCount = 1)
+        val clipData = createClipData { addText() }
         val transferableContent = TransferableContent(
             clipEntry = clipData.toClipEntry(),
             source = TransferableContent.Source.Keyboard,
@@ -110,7 +112,7 @@ class ReceiveContentTest {
 
     @Test
     fun notConsumingOnlyItem_returnsTheSameInstance() {
-        val clipData = createClipData(itemCount = 1)
+        val clipData = createClipData { addText() }
         val transferableContent = TransferableContent(
             clipEntry = clipData.toClipEntry(),
             source = TransferableContent.Source.Keyboard,
@@ -122,36 +124,80 @@ class ReceiveContentTest {
 
         assertThat(remaining).isSameInstanceAs(transferableContent)
     }
+}
 
-    private fun createClipData(
-        itemCount: Int = 3,
-        label: String = defaultLabel
-    ): ClipData {
-        val chosenItems = sampleClipItems.take(itemCount)
-        val mimeTypes = chosenItems.map { it.second }.toSet().toTypedArray()
-        val clipDescription = ClipDescription(label, mimeTypes)
-        val clipData = ClipData(clipDescription, chosenItems.first().first)
-        for (i in 1 until itemCount) {
-            clipData.addItem(chosenItems[i].first)
+internal fun createClipData(
+    label: String = defaultLabel,
+    block: (ClipDataBuilder.() -> Unit)? = null
+): ClipData {
+    val builder = ClipDataBuilder()
+    return if (block != null) {
+        builder.block()
+        builder.build(label)
+    } else {
+        builder.apply {
+            addText()
+            addUri()
+            addHtmlText()
+            addIntent()
+        }.build(label)
+    }
+}
+
+/**
+ * Helper scope to build ClipData objects for tests. This scope also builds a valid ClipDescription
+ * object according to supplied mimeTypes.
+ */
+internal class ClipDataBuilder {
+    private val items = mutableListOf<ClipData.Item>()
+    private val mimeTypes = mutableSetOf<String>()
+
+    fun addText(
+        text: String = "plain text",
+        mimeType: String = ClipDescription.MIMETYPE_TEXT_PLAIN
+    ) {
+        items.add(ClipData.Item(text))
+        mimeTypes.add(mimeType)
+    }
+
+    fun addHtmlText(
+        text: String = "Html Content",
+        htmlText: String = "<p>Html Content</p>",
+        mimeType: String = ClipDescription.MIMETYPE_TEXT_HTML
+    ) {
+        items.add(ClipData.Item(text, htmlText))
+        mimeTypes.add(mimeType)
+    }
+
+    fun addUri(
+        uri: Uri = defaultUri,
+        mimeType: String = "image/png"
+    ) {
+        items.add(ClipData.Item(uri))
+        mimeTypes.add(mimeType)
+    }
+
+    fun addIntent(
+        intent: Intent = defaultIntent,
+        mimeType: String = ClipDescription.MIMETYPE_TEXT_INTENT
+    ) {
+        items.add(ClipData.Item(intent))
+        mimeTypes.add(mimeType)
+    }
+
+    fun build(label: String = "label"): ClipData {
+        val clipDescription = ClipDescription(label, mimeTypes.toTypedArray())
+        val clipData = ClipData(clipDescription, items.first())
+        for (i in 1 until items.size) {
+            clipData.addItem(items[i])
         }
         return clipData
     }
-
-    companion object {
-
-        private val sampleClipItems = listOf(
-            ClipData.Item("plain text") to ClipDescription.MIMETYPE_TEXT_PLAIN,
-            ClipData.Item(Uri.parse("content://com.example.app/image")) to "image/jpeg",
-            ClipData.Item(
-                "Html Content",
-                "<p>Html Content</p>"
-            ) to ClipDescription.MIMETYPE_TEXT_HTML,
-            ClipData.Item(
-                Intent(
-                    Intent.ACTION_VIEW,
-                    Uri.parse("https://example.com")
-                )
-            ) to ClipDescription.MIMETYPE_TEXT_INTENT,
-        )
-    }
 }
+
+private val defaultLabel = "label"
+private val defaultIntent = Intent(
+    Intent.ACTION_VIEW,
+    Uri.parse("https://example.com")
+)
+private val defaultUri = Uri.parse("content://com.example.app/image")

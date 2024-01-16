@@ -18,6 +18,7 @@ package androidx.compose.foundation.text2.input.internal
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.content.TransferableContent
+import androidx.compose.foundation.content.internal.ReceiveContentConfiguration
 import androidx.compose.foundation.content.internal.mergeReceiveContentConfiguration
 import androidx.compose.foundation.interaction.HoverInteraction
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -292,6 +293,10 @@ internal class TextFieldDecoratorModifierNode(
      */
     private var inputSessionJob: Job? = null
 
+    private val receiveContentConfigurationProvider: () -> ReceiveContentConfiguration? = {
+        mergeReceiveContentConfiguration()
+    }
+
     /**
      * Updates all the related properties and invalidates internal state based on the changes.
      */
@@ -351,6 +356,10 @@ internal class TextFieldDecoratorModifierNode(
 
         if (textFieldSelectionState != previousTextFieldSelectionState) {
             pointerInputNode.resetPointerInputHandler()
+            if (isAttached) {
+                textFieldSelectionState.receiveContentConfiguration =
+                    receiveContentConfigurationProvider
+            }
         }
     }
 
@@ -486,10 +495,12 @@ internal class TextFieldDecoratorModifierNode(
 
     override fun onAttach() {
         onObservedReadsChanged()
+        textFieldSelectionState.receiveContentConfiguration = receiveContentConfigurationProvider
     }
 
     override fun onDetach() {
         disposeInputSession()
+        textFieldSelectionState.receiveContentConfiguration = null
     }
 
     override fun onGloballyPositioned(coordinates: LayoutCoordinates) {
@@ -540,7 +551,7 @@ internal class TextFieldDecoratorModifierNode(
     private fun startInputSession(fromTap: Boolean) {
         if (!fromTap && !keyboardOptions.shouldShowKeyboardOnFocus) return
 
-        val (acceptedMimeTypes, onCommitContent) = mergeReceiveContentConfiguration()
+        val receiveContentConfiguration = mergeReceiveContentConfiguration()
 
         inputSessionJob = coroutineScope.launch {
             // This will automatically cancel the previous session, if any, so we don't need to
@@ -555,9 +566,9 @@ internal class TextFieldDecoratorModifierNode(
                     textFieldState,
                     textLayoutState,
                     keyboardOptions.toImeOptions(singleLine),
-                    acceptedMimeTypes = acceptedMimeTypes,
+                    acceptedMimeTypes = receiveContentConfiguration?.acceptedMimeTypes,
                     onImeAction = onImeActionPerformed,
-                    onCommitContent = onCommitContent
+                    onCommitContent = receiveContentConfiguration?.onCommitContent
                 )
             }
         }
