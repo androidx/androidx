@@ -50,21 +50,28 @@ import java.util.Collections
  * @property lastUsedTime the last used time of this entry. Note that this value will only be
  * distinguishable up to the milli second mark. If two entries have the same millisecond precision,
  * they will be considered to have been used at the same time
- * @param icon the icon to be displayed with this entry on the UI, must be created using
+ * @property icon the icon to be displayed with this entry on the UI, must be created using
  * [Icon.createWithResource] when possible, and especially not with [Icon.createWithBitmap] as
  * the latter consumes more memory and may cause undefined behavior due to memory implications
  * on internal transactions; defaulted to a fallback public key credential icon if not provided
- * @param pendingIntent the [PendingIntent] that will get invoked when the user selects this
+ * @property pendingIntent the [PendingIntent] that will get invoked when the user selects this
  * entry, must be created with a unique request code per entry,
  * with flag [PendingIntent.FLAG_MUTABLE] to allow the Android system to attach the
  * final request, and NOT with flag [PendingIntent.FLAG_ONE_SHOT] as it can be invoked multiple
  * times
  * @property isAutoSelectAllowed whether this entry is allowed to be auto
  * selected if it is the only one on the UI. Note that setting this value
- * to true does not guarantee this behavior. The developer must also set this
- * to true, and the framework must determine that it is safe to auto select.
+ * to true does not guarantee this behavior. The developer must also set this to true, and the
+ * framework must determine that this is the only entry available for the user.
+ * @property affiliatedDomain the user visible affiliated domain, a CharSequence
+ * representation of a web domain or an app package name that the given credential in this
+ * entry is associated with when it is different from the requesting entity, default null
+ * @property entryGroupId an ID used for deduplication or grouping entries during display, always
+ * set to [username]; for more info on this id, see [CredentialEntry]
  *
- * @throws IllegalArgumentException if [username] is empty
+ * @throws IllegalArgumentException If [username] is empty
+ *
+ * @see CredentialEntry
  */
 @RequiresApi(26)
 class PublicKeyCredentialEntry internal constructor(
@@ -76,11 +83,15 @@ class PublicKeyCredentialEntry internal constructor(
     val lastUsedTime: Instant?,
     val isAutoSelectAllowed: Boolean,
     beginGetPublicKeyCredentialOption: BeginGetPublicKeyCredentialOption,
+    entryGroupId: CharSequence? = username,
+    affiliatedDomain: CharSequence? = null,
     private val autoSelectAllowedFromOption: Boolean = false,
     private val isDefaultIcon: Boolean = false
 ) : CredentialEntry(
     PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL,
-    beginGetPublicKeyCredentialOption
+    beginGetPublicKeyCredentialOption,
+    entryGroupId ?: username,
+    affiliatedDomain
 ) {
 
     init {
@@ -99,7 +110,7 @@ class PublicKeyCredentialEntry internal constructor(
      * final request, and NOT with flag [PendingIntent.FLAG_ONE_SHOT] as it can be invoked multiple
      * times
      * @param beginGetPublicKeyCredentialOption the option from the original
-     * [BeginGetCredentialResponse], for which this credential entry is being added
+     * [BeginGetCredentialRequest], for which this credential entry is being added
      * @param displayName the displayName of the account holding the public key credential
      * @param lastUsedTime the last used time the credential underlying this entry was
      * used by the user, distinguishable up to the milli second mark only such that if two
@@ -164,6 +175,8 @@ class PublicKeyCredentialEntry internal constructor(
             val icon = entry.icon
             val isAutoSelectAllowed = entry.isAutoSelectAllowed
             val beginGetPublicKeyCredentialOption = entry.beginGetCredentialOption
+            val entryGroupId = entry.entryGroupId
+            val affiliatedDomain = entry.affiliatedDomain
 
             val autoSelectAllowed = if (isAutoSelectAllowed) {
                 AUTO_SELECT_TRUE_STRING
@@ -199,6 +212,14 @@ class PublicKeyCredentialEntry internal constructor(
                 .addIcon(
                     icon, /*subType=*/null,
                     listOf(SLICE_HINT_ICON)
+                )
+                .addText(
+                    entryGroupId, /*subTypes=*/null,
+                    listOf(SLICE_HINT_DEDUPLICATION_ID)
+                )
+                .addText(
+                    affiliatedDomain, /*subTypes=*/null,
+                    listOf(SLICE_HINT_AFFILIATED_DOMAIN)
                 )
             try {
                 if (icon.resId == R.drawable.ic_passkey) {
@@ -257,6 +278,8 @@ class PublicKeyCredentialEntry internal constructor(
             var beginGetPublicKeyCredentialOptionId: CharSequence? = null
             var autoSelectAllowedFromOption = false
             var isDefaultIcon = false
+            var entryGroupId: CharSequence? = null
+            var affiliatedDomain: CharSequence? = null
 
             slice.items.forEach {
                 if (it.hasHint(SLICE_HINT_TYPE_DISPLAY_NAME)) {
@@ -282,6 +305,10 @@ class PublicKeyCredentialEntry internal constructor(
                     autoSelectAllowedFromOption = true
                 } else if (it.hasHint(SLICE_HINT_DEFAULT_ICON_RES_ID)) {
                     isDefaultIcon = true
+                } else if (it.hasHint(SLICE_HINT_DEDUPLICATION_ID)) {
+                    entryGroupId = it.text
+                } else if (it.hasHint(SLICE_HINT_AFFILIATED_DOMAIN)) {
+                    affiliatedDomain = it.text
                 }
             }
 
@@ -298,8 +325,10 @@ class PublicKeyCredentialEntry internal constructor(
                         Bundle(),
                         beginGetPublicKeyCredentialOptionId!!.toString()
                     ),
-                    autoSelectAllowedFromOption,
-                    isDefaultIcon
+                    entryGroupId = entryGroupId,
+                    affiliatedDomain = affiliatedDomain,
+                    autoSelectAllowedFromOption = autoSelectAllowedFromOption,
+                    isDefaultIcon = isDefaultIcon,
                 )
             } catch (e: Exception) {
                 Log.i(TAG, "fromSlice failed with: " + e.message)
@@ -340,6 +369,12 @@ class PublicKeyCredentialEntry internal constructor(
 
         private const val SLICE_HINT_DEFAULT_ICON_RES_ID =
             "androidx.credentials.provider.credentialEntry.SLICE_HINT_DEFAULT_ICON_RES_ID"
+
+        private const val SLICE_HINT_AFFILIATED_DOMAIN =
+            "androidx.credentials.provider.credentialEntry.SLICE_HINT_AFFILIATED_DOMAIN"
+
+        private const val SLICE_HINT_DEDUPLICATION_ID =
+            "androidx.credentials.provider.credentialEntry.SLICE_HINT_DEDUPLICATION_ID"
 
         private const val AUTO_SELECT_TRUE_STRING = "true"
 
