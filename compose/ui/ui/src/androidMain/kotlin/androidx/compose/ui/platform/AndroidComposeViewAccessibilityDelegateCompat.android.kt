@@ -52,6 +52,7 @@ import androidx.collection.intObjectMapOf
 import androidx.collection.mutableIntListOf
 import androidx.collection.mutableIntObjectMapOf
 import androidx.collection.mutableIntSetOf
+import androidx.collection.mutableLongObjectMapOf
 import androidx.collection.mutableObjectIntMapOf
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.R
@@ -95,6 +96,7 @@ import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastForEachIndexed
 import androidx.compose.ui.util.fastJoinToString
 import androidx.compose.ui.util.fastRoundToInt
+import androidx.compose.ui.util.packInts
 import androidx.core.view.AccessibilityDelegateCompat
 import androidx.core.view.ViewCompat.ACCESSIBILITY_LIVE_REGION_ASSERTIVE
 import androidx.core.view.ViewCompat.ACCESSIBILITY_LIVE_REGION_POLITE
@@ -1375,38 +1377,56 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
 
     // This needs to be here instead of around line 3000 because we need access to the `view`
     // that is inside the `AndroidComposeViewAccessibilityDelegateCompat` class
-    @OptIn(InternalTextApi::class)
     private fun getInfoText(
+        node: SemanticsNode
+    ): AnnotatedString? {
+        val editableTextToAssign = node.unmergedConfig.getTextForTextField()
+        val textToAssign = node.unmergedConfig.getOrNull(SemanticsProperties.Text)?.firstOrNull()
+        return editableTextToAssign ?: textToAssign
+    }
+
+    @OptIn(InternalTextApi::class)
+    private fun AnnotatedString.toSpannableString(
         node: SemanticsNode
     ): SpannableString? {
         val fontFamilyResolver: FontFamily.Resolver = view.fontFamilyResolver
-        val editableTextToAssign = trimToSize(
-            node.unmergedConfig.getTextForTextField()
-                ?.toAccessibilitySpannableString(
-                    density = view.density,
-                    fontFamilyResolver,
-                    urlSpanCache
-                ),
-            ParcelSafeTextLength
-        )
 
-        val textToAssign = trimToSize(
-            node.unmergedConfig.getOrNull(SemanticsProperties.Text)?.firstOrNull()
-                ?.toAccessibilitySpannableString(
-                    density = view.density,
-                    fontFamilyResolver,
-                    urlSpanCache
-                ),
+        val linkActions = if (hasLinkAnnotations(0, length)) {
+            // handle hyperlinks in text
+            val rangesToCustomActions = mutableLongObjectMapOf<() -> Unit>()
+            node.children.fastForEach { childNode ->
+                // hyperlink nodes pass onLinkClick actions through custom actions
+                val config = childNode.unmergedConfig
+                if (config.contains(SemanticsProperties.TextSelectionRange)) {
+                    val range = config[SemanticsProperties.TextSelectionRange]
+                    val action = config.getOrNull(CustomActions)?.firstOrNull()?.action
+                    action?.let {
+                        rangesToCustomActions[packInts(range.start, range.end)] = { it() }
+                    }
+                }
+            }
+            rangesToCustomActions
+        } else {
+            null
+        }
+
+        return trimToSize(
+            toAccessibilitySpannableString(
+                density = view.density,
+                fontFamilyResolver = fontFamilyResolver,
+                urlSpanCache = urlSpanCache,
+                linkActions = linkActions,
+                accessibilityNodeId = node.id
+            ),
             ParcelSafeTextLength
         )
-        return editableTextToAssign ?: textToAssign
     }
 
     private fun setText(
         node: SemanticsNode,
         info: AccessibilityNodeInfoCompat,
     ) {
-        info.text = getInfoText(node)
+        info.text = getInfoText(node)?.toSpannableString(node)
     }
 
     /**
