@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:JvmName("PausingDispatcherKt")
+
 package androidx.lifecycle
 
 import kotlin.coroutines.CoroutineContext
