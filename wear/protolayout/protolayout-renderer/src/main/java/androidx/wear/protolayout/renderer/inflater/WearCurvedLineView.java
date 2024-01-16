@@ -86,17 +86,18 @@ public class WearCurvedLineView extends View implements ArcLayout.Widget {
      */
     private static final float BASE_DRAW_ANGLE_SHIFT = -90f;
 
-    private int mThicknessPx;
-
     private float mMaxSweepAngleDegrees;
     private float mLineSweepAngleDegrees;
 
-    @ColorInt private int mColor;
     @Nullable @VisibleForTesting SweepGradientHelper mSweepGradientHelper;
 
     @Nullable private ArcDrawable mArcDrawable;
-    @NonNull private Cap mCapStyle;
     @Nullable private StrokeCapShadow mCapShadow;
+
+    /** Base paint used for drawing. This paint doesn't include any gradient definition. */
+    @NonNull private final Paint mBasePaint;
+
+    private boolean updatesEnabled = true;
 
     public WearCurvedLineView(@NonNull Context context) {
         this(context, null);
@@ -122,11 +123,11 @@ public class WearCurvedLineView extends View implements ArcLayout.Widget {
                 context.obtainStyledAttributes(
                         attrs, R.styleable.WearCurvedLineView, defStyleAttr, defStyleRes);
 
-        mThicknessPx =
+        int thicknessPx =
                 (int)
                         a.getDimension(
                                 R.styleable.WearCurvedLineView_thickness, DEFAULT_THICKNESS_PX);
-        mColor = a.getColor(R.styleable.WearCurvedLineView_color, DEFAULT_COLOR);
+        @ColorInt int color = a.getColor(R.styleable.WearCurvedLineView_color, DEFAULT_COLOR);
         mMaxSweepAngleDegrees =
                 a.getFloat(
                         R.styleable.WearCurvedLineView_maxSweepAngleDegrees,
@@ -135,27 +136,38 @@ public class WearCurvedLineView extends View implements ArcLayout.Widget {
                 a.getFloat(
                         R.styleable.WearCurvedLineView_sweepAngleDegrees,
                         DEFAULT_LINE_SWEEP_ANGLE_DEGREES);
-        mCapStyle =
+        Cap capStyle =
                 Cap.values()[
                         a.getInt(
                                 R.styleable.WearCurvedLineView_strokeCap, DEFAULT_LINE_STROKE_CAP)];
         a.recycle();
+
+        mBasePaint = new Paint();
+        mBasePaint.setStyle(Style.STROKE);
+        mBasePaint.setStrokeCap(capStyle);
+        mBasePaint.setColor(color);
+        mBasePaint.setStrokeWidth(thicknessPx);
+        mBasePaint.setAntiAlias(true);
     }
 
-    /** This is the base paint for any line, not including any Gradient data. */
-    private Paint makeBasePaint() {
-        Paint paint = new Paint();
-        paint.setStyle(Style.STROKE);
-        paint.setStrokeCap(mCapStyle);
-        paint.setColor(mColor);
-        paint.setStrokeWidth(mThicknessPx);
-        paint.setAntiAlias(true);
-        return paint;
+    /**
+     * Sets whether updates are enabled for this view. That impacts the contents of the drawing of
+     * this view.
+     */
+    void setUpdatesEnabled(boolean enabled) {
+        boolean shouldTriggerUpdate = enabled && !updatesEnabled;
+        updatesEnabled = enabled;
+        if (shouldTriggerUpdate) {
+            updateArcDrawable();
+        }
     }
 
     private void updateArcDrawable() {
-        Paint basePaint = makeBasePaint();
-        float insetPx = mThicknessPx / 2f;
+        if (!updatesEnabled) {
+            return;
+        }
+
+        float insetPx = mBasePaint.getStrokeWidth() / 2f;
         RectF bounds =
                 new RectF(
                         insetPx,
@@ -169,13 +181,13 @@ public class WearCurvedLineView extends View implements ArcLayout.Widget {
                     new ArcDrawableImpl(
                             bounds,
                             clampedSweepAngle,
-                            mThicknessPx,
+                            mBasePaint.getStrokeWidth(),
                             getSignForClockwise(mLineDirection, /* defaultValue= */ 1),
-                            basePaint,
+                            mBasePaint,
                             mSweepGradientHelper,
                             mCapShadow);
         } else {
-            mArcDrawable = new ArcDrawableLegacy(bounds, clampedSweepAngle, basePaint);
+            mArcDrawable = new ArcDrawableLegacy(bounds, clampedSweepAngle, mBasePaint);
         }
     }
 
@@ -191,8 +203,8 @@ public class WearCurvedLineView extends View implements ArcLayout.Widget {
         if (thickness < 0) {
             thickness = 0;
         }
+        mBasePaint.setStrokeWidth(thickness);
 
-        this.mThicknessPx = thickness;
         updateArcDrawable();
         requestLayout();
         postInvalidate();
@@ -226,7 +238,7 @@ public class WearCurvedLineView extends View implements ArcLayout.Widget {
 
     @Override
     public int getThickness() {
-        return mThicknessPx;
+        return (int) mBasePaint.getStrokeWidth();
     }
 
     /**
@@ -264,7 +276,7 @@ public class WearCurvedLineView extends View implements ArcLayout.Widget {
     /** Returns the color of this arc, in ARGB format. */
     @ColorInt
     public int getColor() {
-        return mColor;
+        return mBasePaint.getColor();
     }
 
     /** Sets the color of this arc, in ARGB format. */
@@ -273,7 +285,8 @@ public class WearCurvedLineView extends View implements ArcLayout.Widget {
         if (mCapShadow != null) {
             color = makeOpaque(color);
         }
-        this.mColor = color;
+        mBasePaint.setColor(color);
+
         updateArcDrawable();
         invalidate();
     }
@@ -295,19 +308,19 @@ public class WearCurvedLineView extends View implements ArcLayout.Widget {
     /** Returns the strokeCap of this arc. */
     @NonNull
     public Cap getStrokeCap() {
-        return mCapStyle;
+        return mBasePaint.getStrokeCap();
     }
 
     /** Sets the strokeCap of this arc. */
     public void setStrokeCap(@NonNull Cap cap) {
-        mCapStyle = cap;
+        mBasePaint.setStrokeCap(cap);
     }
 
     /** Sets the parameters for the stroke cap shadow. */
     public void setStrokeCapShadow(float blurRadius, int color) {
         this.mCapShadow = new StrokeCapShadow(blurRadius, color);
         // Re-set color.
-        this.setColor(mColor);
+        this.setColor(mBasePaint.getColor());
     }
 
     /** Clears the stroke cap shadow. */
@@ -332,7 +345,7 @@ public class WearCurvedLineView extends View implements ArcLayout.Widget {
     public boolean isPointInsideClickArea(float x, float y) {
         // Stolen from WearCurvedTextView...
         float radius2 = min(getWidth(), getHeight()) / 2f - getPaddingTop();
-        float radius1 = radius2 - mThicknessPx;
+        float radius1 = radius2 - mBasePaint.getStrokeWidth();
 
         float dx = x - getWidth() / 2f;
         float dy = y - getHeight() / 2f;
