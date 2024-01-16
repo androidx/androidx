@@ -187,6 +187,10 @@ class Camera2CameraInfoTest {
                 throw NotImplementedError("Not used in testing")
             }
 
+            override fun getSupportedOutputFormats(): MutableSet<Int> {
+                throw NotImplementedError("Not used in testing")
+            }
+
             override fun isPreviewStabilizationSupported(): Boolean {
                 throw NotImplementedError("Not used in testing")
             }

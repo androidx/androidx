@@ -102,6 +102,14 @@ public interface CameraInfoInternal extends CameraInfo {
     Timebase getTimebase();
 
     /**
+     * Returns the supported output formats of this camera.
+     *
+     * @return a set of supported output format, or an empty set if no output format is supported.
+     */
+    @NonNull
+    Set<Integer> getSupportedOutputFormats();
+
+    /**
      * Returns the supported resolutions of this camera based on the input image format.
      *
      * @param format an image format from {@link ImageFormat} or {@link PixelFormat}.
