@@ -32,9 +32,7 @@ class GuavaOptionalSubject<T : Any> internal constructor(
     fun isPresent() {
         if (actual == null) {
             failWithActual(simpleFact("expected present optional"))
-        }
-
-        if (!actual.isPresent) {
+        } else if (!actual.isPresent) {
             failWithoutActual(simpleFact("expected to be present"))
         }
     }
@@ -43,9 +41,7 @@ class GuavaOptionalSubject<T : Any> internal constructor(
     fun isAbsent() {
         if (actual == null) {
             failWithActual(simpleFact("expected absent optional"))
-        }
-
-        if (actual.isPresent) {
+        } else if (actual.isPresent) {
             failWithoutActual(
                 simpleFact("expected to be absent"),
                 fact("but was present with value", actual.get()),
@@ -68,15 +64,13 @@ class GuavaOptionalSubject<T : Any> internal constructor(
 
         if (actual == null) {
             failWithActual("expected an optional with value", expected)
-        }
-
-        if (!actual.isPresent) {
+        } else if (!actual.isPresent) {
             failWithoutActual(
                 fact("expected to have value", expected),
                 simpleFact("but was absent")
             )
+        } else {
+            checkNoNeedToDisplayBothValues("get()").that(actual.get()).isEqualTo(expected)
         }
-
-        check().that(actual.get()).isEqualTo(expected)
     }
 }

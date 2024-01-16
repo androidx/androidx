@@ -17,10 +17,8 @@
 package androidx.kruth
 
 import androidx.kruth.Fact.Companion.fact
-import androidx.kruth.Fact.Companion.makeMessage
 import androidx.kruth.Fact.Companion.simpleFact
 import androidx.kruth.Step.CheckStep
-import androidx.kruth.Step.Companion.subjectCreation
 import androidx.kruth.Step.SubjectStep
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
@@ -58,7 +56,7 @@ class FailureMetadata internal constructor(
         return FailureMetadata(
             failureStrategy = failureStrategy,
             messagesToPrepend = messagesToPrepend,
-            steps = steps + subjectCreation(subject)
+            steps = steps + SubjectStep(subject)
         )
     }
 
@@ -69,20 +67,22 @@ class FailureMetadata internal constructor(
         return FailureMetadata(
             failureStrategy = failureStrategy,
             messagesToPrepend = messagesToPrepend,
-            steps = steps + Step.checkCall(valuesAreSimilar, descriptionUpdate)
+            steps = steps + CheckStep(valuesAreSimilar, descriptionUpdate)
         )
     }
 
-    internal fun fail(vararg facts: Fact): Nothing {
+    internal fun fail(vararg facts: Fact) {
         fail(facts.asList())
     }
 
     // TODO: change to AssertionError that takes in a cause when upgraded to 1.9.20
-    internal fun fail(facts: List<Fact> = emptyList()): Nothing {
+    internal fun fail(facts: List<Fact> = emptyList()) {
         failureStrategy.fail(
-            AssertionError(
-                makeMessage(messagesToPrepend, description() + facts + rootUnlessThrowable())
-            )
+            AssertionErrorWithFacts(
+                messagesToPrepend = messagesToPrepend,
+                facts = description() + facts + rootUnlessThrowable(),
+                cause = rootCause()
+            ).also(AssertionErrorWithFacts::cleanStackTrace)
         )
     }
 
@@ -286,6 +286,16 @@ class FailureMetadata internal constructor(
 
         return actual
     }
+
+    /**
+     * Returns the first [Throwable] in the chain of actual values. Typically, we'll have a root
+     * cause only if the assertion chain contains a [ThrowableSubject].
+     */
+    private fun rootCause(): Throwable? {
+        return steps.firstNotNullOfOrNull { step ->
+            (step as? SubjectStep)?.subject?.actual as? Throwable
+        }
+    }
 }
 
 /**
@@ -303,19 +313,6 @@ internal enum class OldAndNewValuesAreSimilar {
  * The data from a call to either (a) a [Subject] constructor or (b) [Subject.check].
  */
 internal sealed class Step {
-
-    companion object {
-        fun subjectCreation(subject: Subject<*>): SubjectStep {
-            return SubjectStep(subject)
-        }
-
-        fun checkCall(
-            valuesAreSimilar: OldAndNewValuesAreSimilar?,
-            descriptionUpdate: ((String?) -> String)?
-        ): CheckStep {
-            return CheckStep(valuesAreSimilar, descriptionUpdate)
-        }
-    }
 
     internal class SubjectStep(
         /**

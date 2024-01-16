@@ -65,6 +65,13 @@ androidXMultiplatform {
                 api(libs.kotlinStdlib)
                 api(libs.kotlinTest)
                 implementation(libs.guavaAndroid)
+                implementation(libs.junit)
+            }
+        }
+
+        jvmTest {
+            dependencies {
+                api(libs.kotlinCoroutinesTest)
             }
         }
 
