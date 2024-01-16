@@ -63,7 +63,7 @@ class TransferableContentTest {
             addText("c")
         })
 
-        assertThat(transferableContent.readPlainText()).isEqualTo("a\nb\nc")
+        assertThat(transferableContent.clipEntry.readPlainText()).isEqualTo("a\nb\nc")
     }
 
     @Test
@@ -73,7 +73,7 @@ class TransferableContentTest {
             addUri()
         })
 
-        assertThat(transferableContent.readPlainText()).isNull()
+        assertThat(transferableContent.clipEntry.readPlainText()).isNull()
     }
 
     @Test
@@ -84,7 +84,7 @@ class TransferableContentTest {
             addIntent()
         })
 
-        assertThat(transferableContent.readPlainText()).isEqualTo("abc")
+        assertThat(transferableContent.clipEntry.readPlainText()).isEqualTo("abc")
     }
 
     @Test
