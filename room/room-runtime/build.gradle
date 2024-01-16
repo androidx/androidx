@@ -71,15 +71,16 @@ android {
 }
 
 androidXMultiplatform {
-    mac()
-    linux()
+    android()
     ios() {
         // Link to sqlite3 available in iOS
         binaries.all {
             linkerOpts += ["-lsqlite3"]
         }
     }
-    android()
+    jvm()
+    linux()
+    mac()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
@@ -99,6 +100,16 @@ androidXMultiplatform {
                 implementation(libs.kotlinTest)
                 implementation(libs.kotlinCoroutinesTest)
                 implementation(project(":kruth:kruth"))
+            }
+        }
+        jvmMain {
+            dependsOn(commonMain)
+        }
+        jvmTest {
+            dependsOn(commonTest)
+            dependencies {
+                implementation(project(":sqlite:sqlite-bundled"))
+                implementation(libs.kotlinTestJunit)
             }
         }
         androidMain {
