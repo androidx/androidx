@@ -199,6 +199,8 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
         }
         project.disallowAccidentalAndroidDependenciesInKmpProject(androidXKmpExtension)
         TaskUpToDateValidator.setup(project, registry)
+
+        project.workaroundPrebuiltTakingPrecedenceOverProject()
     }
 
     private fun Project.registerProjectOrArtifact() {
@@ -1505,6 +1507,13 @@ fun AndroidXExtension.validateMavenVersion() {
             """
                 .trimIndent()
         )
+    }
+}
+
+/** Workaround for https://github.com/gradle/gradle/issues/27407 */
+fun Project.workaroundPrebuiltTakingPrecedenceOverProject() {
+    project.configurations.configureEach { configuration ->
+        configuration.resolutionStrategy.preferProjectModules()
     }
 }
 
