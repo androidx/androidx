@@ -37,7 +37,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.State
@@ -58,6 +57,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material3.tokens.ChildButtonTokens
+import androidx.wear.compose.material3.tokens.CompactButtonTokens
 import androidx.wear.compose.material3.tokens.FilledButtonTokens
 import androidx.wear.compose.material3.tokens.FilledTonalButtonTokens
 import androidx.wear.compose.material3.tokens.ImageButtonTokens
@@ -778,7 +778,7 @@ fun CompactButton(
     modifier: Modifier = Modifier,
     icon: (@Composable BoxScope.() -> Unit)? = null,
     enabled: Boolean = true,
-    shape: Shape = CircleShape,
+    shape: Shape = CompactButtonTokens.ContainerShape.value,
     colors: ButtonColors = ButtonDefaults.filledButtonColors(),
     border: BorderStroke? = null,
     contentPadding: PaddingValues = ButtonDefaults.CompactButtonContentPadding,
@@ -794,7 +794,7 @@ fun CompactButton(
             icon = icon,
             enabled = enabled,
             shape = shape,
-            labelFont = MaterialTheme.typography.labelSmall,
+            labelFont = CompactButtonTokens.LabelFont.value,
             secondaryLabelFont = null,
             colors = colors,
             border = border,
@@ -803,7 +803,7 @@ fun CompactButton(
             label = label
         )
     } else {
-        // Icon only compact chips have their own layout with a specific width and center aligned
+        // Icon only compact buttons have their own layout with a specific width and center aligned
         // content. We use the base simple single slot Button under the covers.
         ButtonImpl(
             onClick = onClick,
@@ -812,7 +812,7 @@ fun CompactButton(
                 .padding(ButtonDefaults.CompactButtonTapTargetPadding),
             enabled = enabled,
             shape = shape,
-            labelFont = MaterialTheme.typography.labelSmall,
+            labelFont = CompactButtonTokens.LabelFont.value,
             colors = colors,
             border = border,
             contentPadding = contentPadding,
@@ -1224,12 +1224,12 @@ object ButtonDefaults {
      * Note that you can override it by adjusting Modifier.height and Modifier.padding directly on
      * [CompactButton].
      */
-    val CompactButtonHeight = 48.dp
+    val CompactButtonHeight = CompactButtonTokens.ContainerHeight
 
     /**
      * The size of the icon when used inside a "[CompactButton].
      */
-    val SmallIconSize: Dp = 20.dp
+    val SmallIconSize: Dp = CompactButtonTokens.IconSize
 
     /**
      * The default padding to be provided around a [CompactButton] in order to ensure that its
@@ -1244,7 +1244,7 @@ object ButtonDefaults {
      * The default width applied for the [CompactButton] when it has no label provided.
      * Note that you can override it by applying Modifier.width directly on [CompactButton].
      */
-    internal val IconOnlyCompactButtonWidth = 52.dp
+    internal val IconOnlyCompactButtonWidth = CompactButtonTokens.IconOnlyWidth
 
     /**
      * The default size of the spacing between an icon and a text when they are used inside a
@@ -1472,7 +1472,7 @@ private fun ButtonImpl(
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            // Fill the container height but not its width as chips have fixed size height but we
+            // Fill the container height but not its width as buttons have fixed size height but we
             // want them to be able to fit their content
             modifier = Modifier.fillMaxHeight()
         ) {
