@@ -192,6 +192,7 @@ dependencies {
     docs(project(":enterprise:enterprise-feedback-testing"))
     docs(project(":exifinterface:exifinterface"))
     docs(project(":fragment:fragment"))
+    docs(project(":fragment:fragment-compose"))
     docs(project(":fragment:fragment-ktx"))
     docs(project(":fragment:fragment-testing"))
     docs(project(":glance:glance"))
