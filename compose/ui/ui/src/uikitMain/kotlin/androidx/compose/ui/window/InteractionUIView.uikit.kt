@@ -41,10 +41,10 @@ internal enum class UITouchesEventPhase {
 }
 
 internal class InteractionUIView(
-    private val keyboardEventHandler: KeyboardEventHandler,
-    private val touchesDelegate: Delegate,
-    private val updateTouchesCount: (count: Int) -> Unit,
-    private val checkBounds: (point: DpOffset) -> Boolean,
+    private var keyboardEventHandler: KeyboardEventHandler,
+    private var touchesDelegate: Delegate,
+    private var updateTouchesCount: (count: Int) -> Unit,
+    private var checkBounds: (point: DpOffset) -> Boolean,
 ) : UIView(CGRectZero.readValue()) {
 
     interface Delegate {
@@ -125,6 +125,21 @@ internal class InteractionUIView(
         }
     }
 
+    /**
+     * Intentionally clean up all dependencies of InteractionUIView to prevent retain cycles that
+     * can be caused by implicit capture of the view by UIKit objects (such as UIEvent).
+     */
+    fun dispose() {
+        touchesDelegate = object : Delegate {
+            override fun pointInside(point: CValue<CGPoint>, event: UIEvent?): Boolean = false
+            override fun onTouchesEvent(view: UIView, event: UIEvent, phase: UITouchesEventPhase) {}
+        }
+        updateTouchesCount = {}
+        checkBounds = { false }
+        keyboardEventHandler = object: KeyboardEventHandler {
+            override fun onKeyboardEvent(event: SkikoKeyboardEvent) {}
+        }
+    }
 }
 
 internal fun handleUIViewPressesBegan(

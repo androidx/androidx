@@ -389,6 +389,7 @@ internal class ComposeSceneMediator(
         focusStack?.popUntilNext(renderingView)
         renderingView.dispose()
         renderingView.removeFromSuperview()
+        interactionView.dispose()
         interactionView.removeFromSuperview()
         scene.close()
         // After scene is disposed all UIKit interop actions can't be deferred to be synchronized with rendering

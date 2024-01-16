@@ -33,7 +33,7 @@ private val _platformDefaultKeyMapping: KeyMapping =
 internal fun createPlatformDefaultKeyMapping(platform: DesktopPlatform): KeyMapping {
     return when (platform) {
         DesktopPlatform.MacOS -> createMacosDefaultKeyMapping()
-        else -> defaultKeyMapping
+        else -> defaultSkikoKeyMapping
     }
 }
 
