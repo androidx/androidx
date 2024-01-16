@@ -20,8 +20,6 @@ import android.content.Intent
 import androidx.benchmark.macro.CompilationMode
 import androidx.benchmark.macro.FrameTimingMetric
 import androidx.benchmark.macro.MacrobenchmarkScope
-import androidx.benchmark.macro.StartupMode
-import androidx.benchmark.macro.StartupTimingMetric
 import androidx.benchmark.macro.junit4.MacrobenchmarkRule
 import androidx.compose.integration.hero.macrobenchmark.ITERATIONS
 import androidx.compose.integration.hero.macrobenchmark.PACKAGE_NAME
@@ -31,7 +29,7 @@ import androidx.test.uiautomator.By
 import androidx.test.uiautomator.Direction
 import androidx.test.uiautomator.UiObject2
 import androidx.test.uiautomator.Until
-import androidx.testutils.createStartupCompilationParams
+import androidx.testutils.createCompilationParams
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -39,7 +37,7 @@ import org.junit.runners.Parameterized
 
 @LargeTest
 @RunWith(Parameterized::class)
-class JetsnackScrollBenchmark(val startupMode: StartupMode, val compilationMode: CompilationMode) {
+class JetsnackScrollBenchmark(val compilationMode: CompilationMode) {
     @get:Rule
     val benchmarkRule = MacrobenchmarkRule()
 
@@ -48,10 +46,9 @@ class JetsnackScrollBenchmark(val startupMode: StartupMode, val compilationMode:
         val ACTION = "$PACKAGE_NAME.jetsnack.JETSNACK_ACTIVITY"
         benchmarkRule.measureRepeated(
             packageName = PACKAGE_NAME,
-            metrics = listOf(FrameTimingMetric(), StartupTimingMetric()),
+            metrics = listOf(FrameTimingMetric()),
             compilationMode = compilationMode,
-            iterations = ITERATIONS,
-            startupMode = startupMode
+            iterations = ITERATIONS
         ) {
             val intent = Intent()
             intent.action = ACTION
@@ -79,8 +76,8 @@ class JetsnackScrollBenchmark(val startupMode: StartupMode, val compilationMode:
     }
 
     companion object {
-        @Parameterized.Parameters(name = "startup={0},compilation={1}")
+        @Parameterized.Parameters(name = "compilation={0}")
         @JvmStatic
-        fun parameters() = createStartupCompilationParams()
+        fun parameters() = createCompilationParams()
     }
 }
