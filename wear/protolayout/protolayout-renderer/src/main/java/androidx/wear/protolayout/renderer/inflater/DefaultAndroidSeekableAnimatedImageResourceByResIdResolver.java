@@ -23,7 +23,7 @@ import android.util.Log;
 import android.util.Xml;
 
 import androidx.annotation.NonNull;
-import androidx.vectordrawable.graphics.drawable.SeekableAnimatedVectorDrawable;
+import androidx.wear.protolayout.renderer.common.SeekableAnimatedVectorDrawable;
 import androidx.wear.protolayout.proto.ResourceProto.AndroidSeekableAnimatedImageResourceByResId;
 import androidx.wear.protolayout.proto.ResourceProto.AnimatedImageFormat;
 import androidx.wear.protolayout.renderer.inflater.ResourceResolvers.AndroidSeekableAnimatedImageResourceByResIdResolver;
