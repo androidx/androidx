@@ -155,6 +155,15 @@ actual abstract class RoomDatabase {
         get() = getRequiredTypeConverterClasses()
 
     /**
+     * Closes the database.
+     *
+     * Once a [RoomDatabase] is closed it should no longer be used.
+     */
+    actual fun close() {
+        connectionManager.close()
+    }
+
+    /**
      * Journal modes for SQLite database.
      *
      * @see Builder.setJournalMode
@@ -212,8 +221,9 @@ actual abstract class RoomDatabase {
                 "Cannot create a RoomDatabase without providing a SQLiteDriver via setDriver()."
             }
             val configuration = DatabaseConfiguration(
-                migrationContainer = RoomDatabase.MigrationContainer(),
-                journalMode = RoomDatabase.JournalMode.WRITE_AHEAD_LOGGING,
+                name = name,
+                migrationContainer = MigrationContainer(),
+                journalMode = JournalMode.WRITE_AHEAD_LOGGING,
                 requireMigration = false,
                 allowDestructiveMigrationOnDowngrade = false,
                 migrationNotRequiredFrom = null,

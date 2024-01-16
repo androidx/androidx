@@ -17,13 +17,12 @@
 package androidx.room.driver
 
 import androidx.sqlite.SQLiteConnection
-import androidx.sqlite.SQLiteStatement
 import androidx.sqlite.db.SupportSQLiteDatabase
 
 internal class SupportSQLiteConnection(
     val db: SupportSQLiteDatabase
 ) : SQLiteConnection {
-    override fun prepare(sql: String): SQLiteStatement {
+    override fun prepare(sql: String): SupportSQLiteStatement {
         return SupportSQLiteStatement.create(db, sql)
     }
 

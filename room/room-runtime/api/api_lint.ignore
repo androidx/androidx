@@ -1,4 +1,10 @@
 // Baseline format: 1.0
+AcronymName: androidx.room.Transactor.SQLiteTransactionType:
+    Acronyms should not be capitalized in class names: was `SQLiteTransactionType`, should this be `SqLiteTransactionType`?
+AcronymName: androidx.room.TransactorKt#execSQL(androidx.room.PooledConnection, String, kotlin.coroutines.Continuation<? super kotlin.Unit>):
+    Acronyms should not be capitalized in method names: was `execSQL`, should this be `execSql`?
+
+
 ArrayReturn: androidx.room.RoomDatabase#query(String, Object[]) parameter #1:
     Method parameter should be Collection<Object> (or subclass) instead of raw array; was `java.lang.Object[]`
 
@@ -11,12 +17,6 @@ BuilderSetStyle: androidx.room.RoomDatabase.Builder#createFromFile(java.io.File)
     Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.room.RoomDatabase.Builder.createFromFile(java.io.File)
 BuilderSetStyle: androidx.room.RoomDatabase.Builder#enableMultiInstanceInvalidation():
     Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.room.RoomDatabase.Builder.enableMultiInstanceInvalidation()
-BuilderSetStyle: androidx.room.RoomDatabase.Builder#fallbackToDestructiveMigration():
-    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.room.RoomDatabase.Builder.fallbackToDestructiveMigration()
-BuilderSetStyle: androidx.room.RoomDatabase.Builder#fallbackToDestructiveMigrationFrom(int...):
-    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.room.RoomDatabase.Builder.fallbackToDestructiveMigrationFrom(int...)
-BuilderSetStyle: androidx.room.RoomDatabase.Builder#fallbackToDestructiveMigrationOnDowngrade():
-    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.room.RoomDatabase.Builder.fallbackToDestructiveMigrationOnDowngrade()
 BuilderSetStyle: androidx.room.RoomDatabase.Builder#openHelperFactory(androidx.sqlite.db.SupportSQLiteOpenHelper.Factory):
     Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.room.RoomDatabase.Builder.openHelperFactory(androidx.sqlite.db.SupportSQLiteOpenHelper.Factory)
 

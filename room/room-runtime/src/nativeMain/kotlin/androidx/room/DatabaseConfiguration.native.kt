@@ -23,9 +23,9 @@ import androidx.sqlite.SQLiteDriver
  * Configuration class for a [RoomDatabase].
  */
 actual class DatabaseConfiguration(
-    /**
-     * Collection of available migrations.
-     */
+    /* The name of the database file or null if it is an in-memory database. */
+    actual val name: String?,
+    /* Collection of available migrations. */
     actual val migrationContainer: RoomDatabase.MigrationContainer,
     actual val journalMode: RoomDatabase.JournalMode,
     actual val requireMigration: Boolean,

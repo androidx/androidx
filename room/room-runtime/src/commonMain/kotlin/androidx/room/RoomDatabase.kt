@@ -125,6 +125,13 @@ expect abstract class RoomDatabase {
     internal val requiredTypeConverterClasses: Map<KClass<*>, List<KClass<*>>>
 
     /**
+     * Closes the database.
+     *
+     * Once a [RoomDatabase] is closed it should no longer be used.
+     */
+    fun close()
+
+    /**
      * Journal modes for SQLite database.
      *
      * @see Builder.setJournalMode

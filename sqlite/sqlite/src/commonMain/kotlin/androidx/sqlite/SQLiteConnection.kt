@@ -31,6 +31,7 @@ interface SQLiteConnection {
      *
      * See also [Compiling a SQL statement](https://www.sqlite.org/c3ref/prepare.html)
      *
+     * @param sql the SQL statement to prepare
      * @return the prepared statement.
      */
     fun prepare(sql: String): SQLiteStatement
