@@ -55,6 +55,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
+import kotlinx.test.IgnoreWasmTarget
 
 @OptIn(ExperimentalTestApi::class)
 class ScrollableTest {
@@ -2153,6 +2154,8 @@ class ScrollableTest {
 
     @OptIn(ExperimentalFoundationApi::class)
     @Test
+    @IgnoreWasmTarget
+    // TODO(shabunc): https://youtrack.jetbrains.com/issue/COMPOSE-805/Fix-producingEqualMaterializedModifierAfterRecomposition-test-om-wasm-target
     fun producingEqualMaterializedModifierAfterRecomposition() = runSkikoComposeUiTest {
         val state = ScrollableState { it }
         val counter = mutableStateOf(0)
