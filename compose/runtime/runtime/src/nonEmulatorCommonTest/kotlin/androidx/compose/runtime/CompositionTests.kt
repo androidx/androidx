@@ -44,6 +44,7 @@ import androidx.compose.runtime.mock.revalidate
 import androidx.compose.runtime.mock.skip
 import androidx.compose.runtime.mock.validate
 import androidx.compose.runtime.snapshots.Snapshot
+import java.lang.Integer.min
 import kotlin.coroutines.CoroutineContext
 import kotlin.random.Random
 import kotlin.reflect.KProperty
@@ -254,6 +255,41 @@ class CompositionTests {
                     }
                 }
             }
+        }
+    }
+
+    @Test
+    fun testConditionalNode() = compositionTest {
+        val condition = mutableStateOf(false)
+
+        compose {
+            InlineLinear {
+                Text("A")
+                Wrap {
+                    if (condition.value) {
+                        InlineLinear {
+                            Text("B")
+                        }
+                    }
+                }
+            }
+        }
+
+        validate {
+            Linear {
+                Text("A")
+                if (condition.value) {
+                    Linear {
+                        Text("B")
+                    }
+                }
+            }
+        }
+
+        repeat(10) {
+            condition.value = !condition.value
+            advance()
+            revalidate()
         }
     }
 
@@ -1982,6 +2018,144 @@ class CompositionTests {
     }
 
     @Test
+    fun testRemember_RememberForgetOrder_NonRestartable() = compositionTest {
+        var order = 0
+        val objects = mutableListOf<Any>()
+        val newRememberObject = { name: String ->
+            object :
+                RememberObserver,
+                Counted,
+                Ordered,
+                Named {
+                override var name = name
+                override var count = 0
+                override var rememberOrder = -1
+                override var forgetOrder = -1
+                override fun onRemembered() {
+                    assertEquals(-1, rememberOrder, "Only one call to onRemembered expected")
+                    rememberOrder = order++
+                    count++
+                }
+
+                override fun onForgotten() {
+                    assertEquals(-1, forgetOrder, "Only one call to onForgotten expected")
+                    forgetOrder = order++
+                    count--
+                }
+
+                override fun onAbandoned() {
+                    assertEquals(0, count, "onAbandoned called after onRemembered")
+                }
+
+                override fun toString(): String =
+                    "$name: count($count), remember($rememberOrder), forgotten($forgetOrder)"
+            }.also { objects.add(it) }
+        }
+
+        @Composable
+        @NonRestartableComposable
+        fun RememberUser(name: String) {
+            remember(name) { newRememberObject(name) }
+        }
+
+        /*
+        A
+        |- B
+        |  |- C
+        |  |- D
+        |- E
+        |- F
+        |  |- G
+        |  |- H
+        |     |-I
+        |  |- J
+        |- K
+
+        Should enter as: A, B, C, D, E, F, G, H, I, J, K
+        Should leave as: K, J, I, H, G, F, E, D, C, B, A
+        */
+
+        @Composable
+        fun Tree() {
+            Linear {
+                RememberUser("A")
+                Linear {
+                    RememberUser("B")
+                    Linear {
+                        RememberUser("C")
+                        RememberUser("D")
+                    }
+                    RememberUser("E")
+                    RememberUser("F")
+                    Linear {
+                        RememberUser("G")
+                        RememberUser("H")
+                        Linear {
+                            RememberUser("I")
+                        }
+                        RememberUser("J")
+                    }
+                    RememberUser("K")
+                }
+            }
+        }
+
+        @Composable
+        fun Composition(includeTree: Boolean) {
+            Linear {
+                if (includeTree) Tree()
+            }
+        }
+
+        var value by mutableStateOf(true)
+
+        compose {
+            Composition(value)
+        }
+
+        assertTrue(
+            objects.mapNotNull { it as? Counted }.map { it.count == 1 }.all { it },
+            "All object should have entered"
+        )
+
+        value = false
+        expectChanges()
+
+        assertTrue(
+            objects.mapNotNull { it as? Counted }.map { it.count == 0 }.all { it },
+            "All object should have left"
+        )
+
+        val namesInRememberOrder = objects.mapNotNull {
+            it as? Ordered
+        }.sortedBy {
+            it.rememberOrder
+        }.map {
+            (it as Named).name
+        }.toTypedArray()
+
+        val namesInForgetOrder = objects.mapNotNull {
+            it as? Ordered
+        }.sortedBy {
+            it.forgetOrder
+        }.map {
+            (it as Named).name
+        }.toTypedArray()
+
+        assertArrayEquals(
+            "Expected enter order",
+            arrayOf("A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K"),
+            namesInRememberOrder
+        )
+
+        assertArrayEquals(
+            "Expected leave order",
+            arrayOf("K", "J", "I", "H", "G", "F", "E", "D", "C", "B", "A"),
+            namesInForgetOrder
+        )
+    }
+
+    @Test
     fun testRememberObserver_Abandon_Simple() = compositionTest {
         val abandonedObjects = mutableListOf<RememberObserver>()
         val observed = object : RememberObserver {
@@ -3538,6 +3712,7 @@ class CompositionTests {
         repeat(4) {
             condition = !condition
             expectChanges()
+            verifyConsistent()
             revalidate()
         }
     }
@@ -3707,6 +3882,7 @@ class CompositionTests {
             content(SomeUnstableClass())
         }
         advance()
+        verifyConsistent()
 
         assertEquals(1, i1)
         assertEquals(2, i2)
@@ -3715,6 +3891,7 @@ class CompositionTests {
 
         scope!!.invalidate()
         advance()
+        verifyConsistent()
 
         assertEquals(2, recomposeCounter)
         assertEquals(1, i1)
@@ -3723,11 +3900,44 @@ class CompositionTests {
 
         scope!!.invalidate()
         advance()
+        verifyConsistent()
 
         assertEquals(3, recomposeCounter)
         assertEquals(1, i1)
         assertEquals(2, i2)
         assertEquals(3, i3)
+    }
+
+    @Test
+    fun testRememberAddedAndRemovedInALoop() = compositionTest {
+        val iterations = 100
+        val counter = mutableStateOf(0)
+        var seen = emptyList<Any?>()
+
+        fun seen(list: List<Any>) {
+            for (i in 0 until min(list.size, seen.size)) {
+                assertEquals(list[i], seen[i])
+            }
+            seen = list
+        }
+
+        compose {
+            val list = mutableListOf<Any>()
+            for (i in 0 until counter.value) {
+                list.add(remember { Any() })
+            }
+        }
+
+        while (counter.value < iterations) {
+            counter.value++
+            advance()
+        }
+
+        while (counter.value > 0) {
+            counter.value--
+            advance()
+        }
+        assertEquals(emptyList(), seen)
     }
 
     @Test
@@ -4095,6 +4305,56 @@ class CompositionTests {
         revalidate()
     }
 
+    @Test
+    fun rememberAfterLoop() = compositionTest {
+        // Removing the group around remember requires that updates to slots can be performed to
+        // the parent even after we have moved off the parent to one of the children. Here this
+        // inserts content as the child of the main composition. This moves the write to just after
+        // the insert and then the `remember` call needs to update the `compose` group's slots.
+        var count by mutableStateOf(1)
+        compose {
+            repeat(count) {
+                Text("Some text")
+            }
+            val someRemember = remember(count) { count + 1 }
+            Text("$someRemember")
+        }
+
+        count++
+        advance()
+    }
+
+    @Test
+    fun appendingRememberAfterLoop() = compositionTest {
+        var count by mutableStateOf(1)
+        compose {
+            repeat(count) {
+                Text("Some text")
+            }
+            repeat(count) {
+                unused(remember { it })
+            }
+        }
+
+        validate {
+            repeat(count) {
+                Text("Some text")
+            }
+        }
+
+        count++
+        advance()
+        revalidate()
+
+        count++
+        advance()
+        revalidate()
+
+        count = 1
+        advance()
+        revalidate()
+    }
+
     private inline fun CoroutineScope.withGlobalSnapshotManager(block: CoroutineScope.() -> Unit) {
         val channel = Channel<Unit>(Channel.CONFLATED)
         val job = launch {
@@ -4420,3 +4680,5 @@ fun ListContentItem(
 }
 
 data class ListViewItem(val id: Int)
+
+private fun <T> unused(@Suppress("UNUSED_PARAMETER") value: T) { }
