@@ -28,7 +28,6 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.material.BackdropValue.Concealed
@@ -54,7 +53,6 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.layout.layout
-import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.collapse
 import androidx.compose.ui.semantics.expand
@@ -62,7 +60,6 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.offset
@@ -426,8 +423,7 @@ fun BackdropScaffold(
             backLayer,
             calculateBackLayerConstraints
         ) { constraints, backLayerHeight ->
-            val fullHeight = constraints.maxHeight.toFloat()
-            var revealedHeight = fullHeight - headerHeightPx
+            var revealedHeight = constraints.maxHeight - headerHeightPx
             if (stickyFrontLayer) {
                 revealedHeight = min(revealedHeight, backLayerHeight)
             }
@@ -437,53 +433,48 @@ fun BackdropScaffold(
             } else {
                 Modifier
             }
-            val swipeable = nestedScroll
-                .anchoredDraggable(
-                    state = state,
-                    orientation = Orientation.Vertical,
-                    enabled = gesturesEnabled,
-                )
-                .onSizeChanged { layoutSize ->
-                    val sheetHeight = layoutSize.height.toFloat()
-                    val collapsedHeight = layoutSize.height - peekHeightPx
-                    val newAnchors = DraggableAnchors {
-                        if (sheetHeight == 0f || sheetHeight == peekHeightPx) {
-                            Concealed at collapsedHeight
-                        } else {
-                            Concealed at peekHeightPx
-                            Revealed at revealedHeight
-                        }
-                    }
-                    val newTarget = when (scaffoldState.targetValue) {
-                        Concealed -> Concealed
-                        Revealed -> if (newAnchors.hasAnchorFor(Revealed)) Revealed else Concealed
-                    }
-                    state.updateAnchors(
-                        newAnchors = newAnchors,
-                        newTarget = newTarget
-                    )
-                }
-                .semantics {
-                    if (scaffoldState.isConcealed) {
-                        collapse {
-                            if (scaffoldState.confirmValueChange(Revealed)) {
-                                scope.launch { scaffoldState.reveal() }
-                            }; true
-                        }
-                    } else {
-                        expand {
-                            if (scaffoldState.confirmValueChange(Concealed)) {
-                                scope.launch { scaffoldState.conceal() }
-                            }; true
-                        }
-                    }
-                }
 
             // Front layer
             Surface(
-                Modifier
-                    .offset { IntOffset(0, state.requireOffset().toInt()) }
-                    .then(swipeable),
+                nestedScroll
+                    .draggableAnchors(state, Orientation.Vertical) { layoutSize, _ ->
+                        val sheetHeight = layoutSize.height.toFloat()
+                        val collapsedHeight = layoutSize.height - peekHeightPx
+                        val newAnchors = DraggableAnchors {
+                            if (sheetHeight == 0f || sheetHeight == peekHeightPx) {
+                                Concealed at collapsedHeight
+                            } else {
+                                Concealed at peekHeightPx
+                                Revealed at revealedHeight
+                            }
+                        }
+                        val newTarget = when (scaffoldState.targetValue) {
+                            Concealed -> Concealed
+                            Revealed -> if (newAnchors.hasAnchorFor(Revealed)) Revealed else
+                                Concealed
+                        }
+                        return@draggableAnchors newAnchors to newTarget
+                    }
+                    .anchoredDraggable(
+                        state = state,
+                        orientation = Orientation.Vertical,
+                        enabled = gesturesEnabled,
+                    )
+                    .semantics {
+                        if (scaffoldState.isConcealed) {
+                            collapse {
+                                if (scaffoldState.confirmValueChange(Revealed)) {
+                                    scope.launch { scaffoldState.reveal() }
+                                }; true
+                            }
+                        } else {
+                            expand {
+                                if (scaffoldState.confirmValueChange(Concealed)) {
+                                    scope.launch { scaffoldState.conceal() }
+                                }; true
+                            }
+                        }
+                    },
                 shape = frontLayerShape,
                 elevation = frontLayerElevation,
                 color = frontLayerBackgroundColor,
@@ -508,7 +499,7 @@ fun BackdropScaffold(
                 Modifier
                     .padding(
                         bottom = if (scaffoldState.isRevealed &&
-                            revealedHeight == fullHeight - headerHeightPx
+                            revealedHeight == constraints.maxHeight - headerHeightPx
                         ) headerHeight else 0.dp
                     ),
                 contentAlignment = Alignment.BottomCenter
@@ -582,6 +573,7 @@ private fun BackLayerTransition(
             appBar()
         }
         Box(
+            @Suppress("SuspiciousIndentation") // b/320904953
             Modifier
                 .layout { measurable, constraints ->
                     val contentFloat = (1 - animationProgress).fastCoerceIn(0f, 1f)
