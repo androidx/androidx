@@ -31,7 +31,7 @@ plugins {
 dependencies {
     api(project(":car:app:app"))
     api(libs.guavaListenableFuture)
-    api(project(":annotation:annotation-experimental"))
+    api("androidx.annotation:annotation-experimental:1.4.0")
     implementation(libs.guavaAndroid)
     implementation("androidx.concurrent:concurrent-futures:1.1.0")
     implementation("androidx.fragment:fragment:1.3.0")

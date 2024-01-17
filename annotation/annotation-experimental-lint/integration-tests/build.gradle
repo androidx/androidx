@@ -40,7 +40,7 @@ android {
 
 dependencies {
     implementation(libs.kotlinStdlib)
-    implementation(project(":annotation:annotation-experimental"))
+    implementation("androidx.annotation:annotation-experimental:1.4.0")
 }
 
 // Allow usage of Kotlin's @Experimental annotation, which is itself experimental.

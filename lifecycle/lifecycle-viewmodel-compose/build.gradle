@@ -39,7 +39,7 @@ dependencies {
     api projectOrArtifact(":lifecycle:lifecycle-viewmodel-savedstate")
     api("androidx.compose.runtime:runtime:1.0.1")
     api "androidx.compose.ui:ui:1.0.1"
-    api(projectOrArtifact(":annotation:annotation-experimental"))
+    api("androidx.annotation:annotation-experimental:1.4.0")
 
     implementation(libs.kotlinStdlib)
 
