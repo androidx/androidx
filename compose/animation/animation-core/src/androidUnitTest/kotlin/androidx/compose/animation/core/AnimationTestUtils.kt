@@ -119,3 +119,58 @@ internal fun FloatAnimationSpec.getVelocityFromMillis(
     end: Float,
     startVelocity: Float
 ): Float = getVelocityFromNanos(playTimeMillis * MillisToNanos, start, end, startVelocity)
+
+/**
+ * Creates a TwoWayConverter for FloatArray and the given AnimationVector type.
+ */
+internal inline fun <reified V : AnimationVector> createFloatArrayConverter():
+    TwoWayConverter<FloatArray, V> =
+    object : TwoWayConverter<FloatArray, V> {
+        override val convertToVector: (FloatArray) -> V = {
+            when (V::class) {
+                AnimationVector1D::class -> {
+                    AnimationVector(
+                        it.getOrElse(0) { 0f }
+                    )
+                }
+
+                AnimationVector2D::class -> {
+                    AnimationVector(
+                        it.getOrElse(0) { 0f },
+                        it.getOrElse(1) { 0f },
+                    )
+                }
+
+                AnimationVector3D::class -> {
+                    AnimationVector(
+                        it.getOrElse(0) { 0f },
+                        it.getOrElse(1) { 0f },
+                        it.getOrElse(2) { 0f }
+                    )
+                }
+
+                else -> { // 4D
+                    AnimationVector(
+                        it.getOrElse(0) { 0f },
+                        it.getOrElse(1) { 0f },
+                        it.getOrElse(2) { 0f },
+                        it.getOrElse(3) { 0f }
+                    )
+                }
+            } as V
+        }
+        override val convertFromVector: (V) -> FloatArray = { vector ->
+            FloatArray(vector.size, vector::get)
+        }
+    }
+
+/**
+ * Returns an [AnimationVector] of type [V] filled with the given [value].
+ */
+internal inline fun <reified V : AnimationVector> createFilledVector(value: Float): V =
+    when (V::class) {
+        AnimationVector1D::class -> AnimationVector1D(value)
+        AnimationVector2D::class -> AnimationVector2D(value, value)
+        AnimationVector3D::class -> AnimationVector3D(value, value, value)
+        else -> AnimationVector4D(value, value, value, value)
+    } as V
