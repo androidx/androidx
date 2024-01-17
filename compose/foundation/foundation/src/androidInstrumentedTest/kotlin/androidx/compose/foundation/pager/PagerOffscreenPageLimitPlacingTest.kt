@@ -16,12 +16,19 @@
 
 package androidx.compose.foundation.pager
 
+import androidx.compose.foundation.AutoTestFrameClock
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.performTouchInput
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth
+import kotlin.math.roundToInt
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -115,6 +122,52 @@ class PagerOffscreenPageLimitPlacingTest(
         Truth.assertThat(placed).contains(5)
         Truth.assertThat(placed).doesNotContain(lastVisible + 1)
         confirmPageIsInCorrectPosition(5)
+    }
+
+    @Test
+    fun offsetPageLimitIsUsed_visiblePagesDidNotChange_shouldNotRemeasure() {
+        val pageSizePx = 100
+        val pageSizeDp = with(rule.density) { pageSizePx.toDp() }
+
+        val delta = (pageSizePx / 3f).roundToInt()
+        val initialIndex = 0
+        createPager(
+            initialPage = initialIndex,
+            pageCount = { DefaultPageCount },
+            modifier = Modifier.size(pageSizeDp * 1.5f),
+            pageSize = { PageSize.Fixed(pageSizeDp) },
+            outOfBoundsPageCount = 2
+        )
+
+        val lastVisible = pagerState.layoutInfo.visiblePagesInfo.last().index
+        // Assert
+        rule.runOnIdle {
+            Truth.assertThat(placed).contains(lastVisible + 1)
+            Truth.assertThat(placed).contains(lastVisible + 2)
+        }
+        val previousNumberOfRemeasurementPasses = pagerState.layoutWithMeasurement
+        runBlocking {
+            withContext(Dispatchers.Main + AutoTestFrameClock()) {
+                // small enough scroll to not cause any new items to be composed or
+                // old ones disposed.
+                pagerState.scrollBy(delta.toFloat())
+            }
+            rule.runOnIdle {
+                Truth.assertThat(pagerState.firstVisiblePageOffset).isEqualTo(delta)
+                Truth.assertThat(pagerState.layoutWithMeasurement)
+                    .isEqualTo(previousNumberOfRemeasurementPasses)
+            }
+            confirmPageIsInCorrectPosition(
+                pagerState.currentPage,
+                lastVisible + 1,
+                pagerState.currentPageOffsetFraction
+            )
+            confirmPageIsInCorrectPosition(
+                pagerState.currentPage,
+                lastVisible + 2,
+                pagerState.currentPageOffsetFraction
+            )
+        }
     }
 
     companion object {
