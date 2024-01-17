@@ -41,8 +41,6 @@ dependencies {
     testImplementation(libs.truth)
     testImplementation(libs.robolectric)
     testImplementation(project(":core:core-performance-testing"))
-
-    samples(project(":core:core-performance:core-performance-samples"))
 }
 
 androidx {
@@ -52,6 +50,7 @@ androidx {
     inceptionYear = "2021"
     description = "This library makes it easy for developers to make UI and feature choices based on Android Performance Class level for GMS devices."
     metalavaK2UastEnabled = true
+    samples(project(":core:core-performance:core-performance-samples"))
 }
 
 android {

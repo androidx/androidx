@@ -51,8 +51,6 @@ dependencies {
     androidTestImplementation(project(":test:screenshot:screenshot"))
     androidTestImplementation(project(":compose:material:material-icons-core"))
     androidTestImplementation(libs.testRunner)
-
-    samples(project(":tv:tv-samples"))
 }
 
 android {
@@ -70,4 +68,5 @@ androidx {
     inceptionYear = "2022"
     description = "build TV applications using controls that adhere to Material Design Language."
     targetsJavaConsumers = false
+    samples(project(":tv:tv-samples"))
 }

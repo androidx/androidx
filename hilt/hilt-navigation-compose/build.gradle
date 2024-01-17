@@ -64,8 +64,6 @@ dependencies {
     androidTestImplementation(projectOrArtifact(":lifecycle:lifecycle-livedata-core"))
     androidTestImplementation(projectOrArtifact(":lifecycle:lifecycle-viewmodel"))
     androidTestImplementation(projectOrArtifact(":lifecycle:lifecycle-viewmodel-savedstate"))
-
-    samples(projectOrArtifact(":hilt:hilt-navigation-compose-samples"))
 }
 
 hilt {
@@ -81,4 +79,5 @@ androidx {
     runApiTasks = new RunApiTasks.Yes()
     legacyDisableKotlinStrictApiMode = true
     metalavaK2UastEnabled = true
+    samples(projectOrArtifact(":hilt:hilt-navigation-compose-samples"))
 }

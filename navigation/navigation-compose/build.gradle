@@ -64,8 +64,6 @@ dependencies {
 
     lintChecks(projectOrArtifact(":navigation:navigation-compose-lint"))
     lintPublish(projectOrArtifact(":navigation:navigation-compose-lint"))
-
-    samples(projectOrArtifact(":navigation:navigation-compose:navigation-compose-samples"))
 }
 
 androidx {
@@ -75,6 +73,7 @@ androidx {
     description = "Compose integration with Navigation"
     runApiTasks = new RunApiTasks.Yes()
     legacyDisableKotlinStrictApiMode = true
+    samples(projectOrArtifact(":navigation:navigation-compose:navigation-compose-samples"))
 }
 
 android {

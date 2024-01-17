@@ -39,8 +39,6 @@ dependencies {
 
     testImplementation(libs.junit)
     testImplementation(libs.truth)
-
-    samples(project(":appactions:builtintypes:builtintypes:builtintypes-samples"))
 }
 
 kapt {
@@ -68,4 +66,5 @@ androidx {
     inceptionYear = "2023"
     description = "This library exposes a core set of data types based on schema.org definitions."
     metalavaK2UastEnabled = true
+    samples(project(":appactions:builtintypes:builtintypes:builtintypes-samples"))
 }

@@ -63,8 +63,6 @@ dependencies {
     androidTestImplementation(libs.kotlinCoroutinesTest)
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.multidex)
-
-    samples(project(":paging:paging-samples"))
 }
 
 androidx {
@@ -74,4 +72,5 @@ androidx {
     description = "Android Paging-Runtime"
     legacyDisableKotlinStrictApiMode = true
     metalavaK2UastEnabled = true
+    samples(project(":paging:paging-samples"))
 }

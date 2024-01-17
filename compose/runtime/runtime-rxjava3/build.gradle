@@ -43,8 +43,6 @@ dependencies {
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.truth)
-
-    samples(projectOrArtifact(":compose:runtime:runtime-rxjava3:runtime-rxjava3-samples"))
 }
 
 androidx {
@@ -54,6 +52,7 @@ androidx {
     description = "Compose integration with RxJava 3"
     legacyDisableKotlinStrictApiMode = true
     metalavaK2UastEnabled = true
+    samples(projectOrArtifact(":compose:runtime:runtime-rxjava3:runtime-rxjava3-samples"))
 }
 
 android {

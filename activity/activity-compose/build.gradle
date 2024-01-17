@@ -51,8 +51,6 @@ dependencies {
 
     lintChecks(projectOrArtifact(":activity:activity-compose-lint"))
     lintPublish(projectOrArtifact(":activity:activity-compose-lint"))
-
-    samples(projectOrArtifact(":activity:activity-compose:activity-compose-samples"))
 }
 
 androidx {
@@ -62,6 +60,7 @@ androidx {
     description = "Compose integration with Activity"
     runApiTasks = new RunApiTasks.Yes()
     metalavaK2UastEnabled = true
+    samples(projectOrArtifact(":activity:activity-compose:activity-compose-samples"))
 }
 
 android {
