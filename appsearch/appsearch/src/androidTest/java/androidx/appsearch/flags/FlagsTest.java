@@ -81,4 +81,10 @@ public class FlagsTest {
                 .isEqualTo(
                         "com.android.appsearch.flags.enable_set_publicly_visible_schema");
     }
+
+    @Test
+    public void testFlagValue_enableEnterpriseGlobalSearchSession() {
+        assertThat(Flags.FLAG_ENABLE_ENTERPRISE_GLOBAL_SEARCH_SESSION)
+                .isEqualTo("com.android.appsearch.flags.enable_enterprise_global_search_session");
+    }
 }

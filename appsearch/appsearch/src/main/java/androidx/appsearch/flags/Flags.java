@@ -90,6 +90,10 @@ public final class Flags {
     public static final String FLAG_ENABLE_SET_SCHEMA_VISIBLE_TO_CONFIGS = FLAG_PREFIX
             + "enable_set_schema_visible_to_configs";
 
+    /** Enable {@link androidx.appsearch.app.EnterpriseGlobalSearchSession}. */
+    public static final String FLAG_ENABLE_ENTERPRISE_GLOBAL_SEARCH_SESSION =
+            FLAG_PREFIX + "enable_enterprise_global_search_session";
+
     // Whether the features should be enabled.
     //
     // In Jetpack, those should always return true.
@@ -158,6 +162,11 @@ public final class Flags {
      * should be enabled.
      */
     public static boolean enableSetSchemaVisibleToConfigs() {
+        return true;
+    }
+
+    /** Whether {@link androidx.appsearch.app.EnterpriseGlobalSearchSession} should be enabled. */
+    public static boolean enableEnterpriseGlobalSearchSession() {
         return true;
     }
 }
