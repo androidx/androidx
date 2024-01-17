@@ -26,12 +26,9 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
-import org.robolectric.shadows.ShadowSystemClock;
 
 @RunWith(AndroidJUnit4.class)
-@Config(shadows = {ShadowSystemClock.class})
 @DoNotInstrument
 public class ActiveTileIdentifierTest {
     private static final int TILE_ID = 123;
@@ -42,9 +39,9 @@ public class ActiveTileIdentifierTest {
     @Test
     public void activeTileIdentifier_flattenToString() {
         assertEquals(
+                FLATTENED_STRING,
                 new ActiveTileIdentifier(new ComponentName(PACKAGE_NAME, CLASS_NAME), TILE_ID)
-                        .flattenToString(),
-                FLATTENED_STRING);
+                        .flattenToString());
     }
 
     @Test
@@ -52,17 +49,17 @@ public class ActiveTileIdentifierTest {
         assertThat(ActiveTileIdentifier.unflattenFromString(FLATTENED_STRING).getInstanceId())
                 .isEqualTo(TILE_ID);
         assertEquals(
+                PACKAGE_NAME,
                 ActiveTileIdentifier.unflattenFromString(FLATTENED_STRING)
                         .getComponentName()
-                        .getPackageName(),
-                PACKAGE_NAME);
+                        .getPackageName());
         assertEquals(
+                CLASS_NAME,
                 ActiveTileIdentifier.unflattenFromString(FLATTENED_STRING)
                         .getComponentName()
-                        .getClassName(),
-                CLASS_NAME);
+                        .getClassName());
         assertEquals(
-                ActiveTileIdentifier.unflattenFromString(FLATTENED_STRING).flattenToString(),
-                FLATTENED_STRING);
+                FLATTENED_STRING,
+                ActiveTileIdentifier.unflattenFromString(FLATTENED_STRING).flattenToString());
     }
 }
