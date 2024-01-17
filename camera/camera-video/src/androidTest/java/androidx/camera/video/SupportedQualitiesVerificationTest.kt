@@ -42,12 +42,16 @@ import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
 import androidx.camera.core.DynamicRange
+import androidx.camera.core.Preview
+import androidx.camera.core.UseCaseGroup
 import androidx.camera.core.impl.utils.TransformUtils.rotateSize
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.impl.AndroidUtil.isEmulator
 import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraUtil
+import androidx.camera.testing.impl.StreamSharingForceEnabledEffect
+import androidx.camera.testing.impl.SurfaceTextureProvider
 import androidx.camera.testing.impl.WakelockEmptyActivityRule
 import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
 import androidx.camera.video.internal.compat.quirk.DeviceQuirks
@@ -62,8 +66,8 @@ import java.io.File
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import org.junit.After
-import org.junit.Assume
 import org.junit.Assume.assumeFalse
+import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -150,10 +154,10 @@ class SupportedQualitiesVerificationTest(
 
     @Before
     fun setUp() {
-        Assume.assumeTrue(CameraUtil.hasCameraWithLensFacing(cameraSelector.lensFacing!!))
+        assumeTrue(CameraUtil.hasCameraWithLensFacing(cameraSelector.lensFacing!!))
 
         // Skip test for b/168175357
-        Assume.assumeFalse(
+        assumeFalse(
             "Cuttlefish has MediaCodec dequeueInput/Output buffer fails issue. Unable to test.",
             Build.MODEL.contains("Cuttlefish") && Build.VERSION.SDK_INT == 29
         )
@@ -172,7 +176,7 @@ class SupportedQualitiesVerificationTest(
 
         // Ignore the unsupported Quality options
         val videoCapabilities = Recorder.getVideoCapabilities(cameraInfo)
-        Assume.assumeTrue(
+        assumeTrue(
             "Camera ${cameraSelector.lensFacing} not support $quality, skip this test item.",
             videoCapabilities.isQualitySupported(quality, dynamicRange)
         )
@@ -194,10 +198,20 @@ class SupportedQualitiesVerificationTest(
     fun qualityOptionCanRecordVideo_enableSurfaceProcessing() {
         assumeSuccessfulSurfaceProcessing()
 
-        testQualityOptionRecordVideo(enableSurfaceProcessing = true)
+        testQualityOptionRecordVideo(forceEnableSurfaceProcessing = true)
     }
 
-    private fun testQualityOptionRecordVideo(enableSurfaceProcessing: Boolean = false) {
+    @Test
+    fun qualityOptionCanRecordVideo_enableStreamSharing() {
+        assumeSuccessfulSurfaceProcessing()
+
+        testQualityOptionRecordVideo(forceEnableStreamSharing = true)
+    }
+
+    private fun testQualityOptionRecordVideo(
+        forceEnableSurfaceProcessing: Boolean = false,
+        forceEnableStreamSharing: Boolean = false,
+    ) {
         // Skip for b/331618729
         assumeFalse(
             "Emulator API 28 crashes running this test.",
@@ -209,10 +223,12 @@ class SupportedQualitiesVerificationTest(
             videoCapabilities.getProfiles(quality, dynamicRange)!!.defaultVideoProfile
         val recorder = Recorder.Builder().setQualitySelector(QualitySelector.from(quality)).build()
         val videoCapture = VideoCapture.Builder(recorder).apply {
-            if (enableSurfaceProcessing) {
+            if (forceEnableSurfaceProcessing) {
                 setSurfaceProcessingForceEnabled()
             }
         }.build()
+        val preview = Preview.Builder().build()
+        assumeTrue(camera.isUseCasesCombinationSupported(preview, videoCapture))
         val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
         val latchForRecordingStatus = CountDownLatch(5)
         val latchForRecordingFinalized = CountDownLatch(1)
@@ -236,16 +252,28 @@ class SupportedQualitiesVerificationTest(
         }
 
         instrumentation.runOnMainSync {
+            preview.setSurfaceProvider(SurfaceTextureProvider.createSurfaceTextureProvider())
+            val useCaseGroup = UseCaseGroup.Builder().apply {
+                addUseCase(preview)
+                addUseCase(videoCapture)
+                if (forceEnableStreamSharing) {
+                    addEffect(StreamSharingForceEnabledEffect())
+                }
+            }.build()
             cameraProvider.bindToLifecycle(
                 lifecycleOwner,
                 cameraSelector,
-                videoCapture,
+                useCaseGroup
             )
         }
 
-        if (enableSurfaceProcessing) {
+        if (forceEnableSurfaceProcessing) {
             // Ensure the surface processing is enabled.
             assertThat(isSurfaceProcessingEnabled(videoCapture)).isTrue()
+        }
+        if (forceEnableStreamSharing) {
+            // Ensure the stream sharing is enabled.
+            assertThat(isStreamSharingEnabled(videoCapture)).isTrue()
         }
 
         // Act.
@@ -261,11 +289,17 @@ class SupportedQualitiesVerificationTest(
         // Verify resolution.
         val resolutionToVerify = Size(videoProfile.width, videoProfile.height)
         val rotationDegrees = getRotationNeeded(videoCapture, cameraInfo)
+        // Skip verification when:
+        // * The device has extra cropping quirk. UseCase surface will be configured with a fixed
+        //   resolution regardless of the preference.
+        // * The device has size can not encode quirk as the final resolution will be modified.
+        // * Flexible quality settings such as using HIGHEST and LOWEST. This is because the
+        //   surface combination will affect the final resolution.
         if (!hasExtraCroppingQuirk(implName) && !hasSizeCannotEncodeVideoQuirk(
                 resolutionToVerify,
                 rotationDegrees,
                 isSurfaceProcessingEnabled(videoCapture)
-            )
+            ) && !isFlexibleQuality(quality)
         ) {
             verifyVideoResolution(
                 context,
@@ -277,6 +311,9 @@ class SupportedQualitiesVerificationTest(
         // Clean up
         file.delete()
     }
+
+    private fun isFlexibleQuality(quality: Quality) =
+        quality == Quality.HIGHEST || quality == Quality.LOWEST
 
     private fun VideoCapture<Recorder>.startVideoRecording(
         file: File,
