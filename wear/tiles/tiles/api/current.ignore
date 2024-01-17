@@ -1,0 +1,7 @@
+// Baseline format: 1.0
+AddedMethod: androidx.wear.tiles.TileService#getActiveTilesAsync(android.content.Context, java.util.concurrent.Executor):
+    Added method androidx.wear.tiles.TileService.getActiveTilesAsync(android.content.Context,java.util.concurrent.Executor)
+
+
+RemovedMethod: androidx.wear.tiles.TileService#getActiveTilesSnapshotAsync(android.content.Context, java.util.concurrent.Executor):
+    Removed method androidx.wear.tiles.TileService.getActiveTilesSnapshotAsync(android.content.Context,java.util.concurrent.Executor)
