@@ -160,7 +160,6 @@ open class PlaygroundExtension @Inject constructor(
 
         val allNeededProjects = projectDependencyGraph
             .getAllProjectsWithDependencies(selectedGradlePaths + REQUIRED_PROJECTS)
-            .sortedBy { it.v1 } // sort by project path so the parent shows up before children :)
             .toMutableSet()
 
         // here, we are trying to disable projectOrArtifact unless it is necessary, as a first step of removing
@@ -174,7 +173,6 @@ open class PlaygroundExtension @Inject constructor(
             .onEach { implicitlyAddedProjects.add(it.v1) }
             .flatMap { projectDependencyGraph.getAllProjectsWithDependencies(setOf(it.v1)) }
             .distinct()
-            .sortedBy { it.v1 } // sort by project path so the parent shows up before children :)
             .forEach {
                 allNeededProjects.add(it)
             }
@@ -213,10 +211,11 @@ open class PlaygroundExtension @Inject constructor(
                     selectedGradlePaths.joinToString(",")
             }
         }
-        allNeededProjects.forEach {
-            includeProjectAt(name = it.v1, projectDir = it.v2)
-        }
-
+        allNeededProjects
+            .sortedBy { it.v1 } // sort by project path so the parent shows up before children :)
+            .forEach {
+                includeProjectAt(name = it.v1, projectDir = it.v2)
+            }
     }
 
     private fun buildProjectOrArtifactAllowList(projectDependencyGraph: ProjectDependencyGraph) : Set<String> {
