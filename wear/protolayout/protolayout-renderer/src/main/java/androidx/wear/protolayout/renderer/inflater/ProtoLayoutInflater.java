@@ -145,6 +145,7 @@ import androidx.wear.protolayout.proto.LayoutElementProto.SpanImage;
 import androidx.wear.protolayout.proto.LayoutElementProto.SpanText;
 import androidx.wear.protolayout.proto.LayoutElementProto.SpanVerticalAlignmentProp;
 import androidx.wear.protolayout.proto.LayoutElementProto.Spannable;
+import androidx.wear.protolayout.proto.LayoutElementProto.StrokeCapProp;
 import androidx.wear.protolayout.proto.LayoutElementProto.Text;
 import androidx.wear.protolayout.proto.LayoutElementProto.TextOverflow;
 import androidx.wear.protolayout.proto.LayoutElementProto.TextOverflowProp;
@@ -160,6 +161,7 @@ import androidx.wear.protolayout.proto.ModifiersProto.Modifiers;
 import androidx.wear.protolayout.proto.ModifiersProto.Padding;
 import androidx.wear.protolayout.proto.ModifiersProto.Semantics;
 import androidx.wear.protolayout.proto.ModifiersProto.SemanticsRole;
+import androidx.wear.protolayout.proto.ModifiersProto.Shadow;
 import androidx.wear.protolayout.proto.ModifiersProto.SlideDirection;
 import androidx.wear.protolayout.proto.ModifiersProto.SlideInTransition;
 import androidx.wear.protolayout.proto.ModifiersProto.SlideOutTransition;
@@ -1401,7 +1403,8 @@ public final class ProtoLayoutInflater {
         if (mProtoLayoutTheme.getRippleResId() != 0) {
             try {
                 view.setForeground(
-                        mProtoLayoutTheme.getTheme()
+                        mProtoLayoutTheme
+                                .getTheme()
                                 .getDrawable(mProtoLayoutTheme.getRippleResId()));
                 return;
             } catch (Resources.NotFoundException e) {
@@ -1425,7 +1428,8 @@ public final class ProtoLayoutInflater {
         if (isValid) {
             view.setForeground(mUiContext.getDrawable(outValue.resourceId));
         } else {
-            Log.e(TAG,
+            Log.e(
+                    TAG,
                     "Could not resolve android.R.attr.selectableItemBackground from Ui Context.");
         }
     }
@@ -2676,8 +2680,7 @@ public final class ProtoLayoutInflater {
      * line of text.
      */
     private void adjustMaxLinesForEllipsize(@NonNull TextView textView) {
-        textView
-                .getViewTreeObserver()
+        textView.getViewTreeObserver()
                 .addOnPreDrawListener(
                         new OnPreDrawListener() {
                             @Override
@@ -3095,7 +3098,8 @@ public final class ProtoLayoutInflater {
         }
 
         if (line.hasStrokeCap()) {
-            switch (line.getStrokeCap().getValue()) {
+            StrokeCapProp strokeCapProp = line.getStrokeCap();
+            switch (strokeCapProp.getValue()) {
                 case STROKE_CAP_BUTT:
                     lineView.setStrokeCap(Cap.BUTT);
                     break;
@@ -3109,6 +3113,12 @@ public final class ProtoLayoutInflater {
                 case STROKE_CAP_UNDEFINED:
                     Log.w(TAG, "Undefined StrokeCap value.");
                     break;
+            }
+
+            if (strokeCapProp.hasShadow()) {
+                Shadow shadow = strokeCapProp.getShadow();
+                int color = shadow.getColor().hasArgb() ? shadow.getColor().getArgb() : Color.BLACK;
+                lineView.setStrokeCapShadow(safeDpToPx(shadow.getBlurRadius().getValue()), color);
             }
         }
 
