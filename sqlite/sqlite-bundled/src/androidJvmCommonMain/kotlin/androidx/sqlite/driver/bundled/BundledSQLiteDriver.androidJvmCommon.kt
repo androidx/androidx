@@ -20,6 +20,10 @@ package androidx.sqlite.driver.bundled
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.SQLiteDriver
 
+/**
+ * A [SQLiteDriver] that uses a bundled version of SQLite included as a native component of the
+ * library.
+ */
 // TODO(b/313895287): Explore usability of @FastNative and @CriticalNative for the external functions.
 actual class BundledSQLiteDriver actual constructor(
     private val filename: String

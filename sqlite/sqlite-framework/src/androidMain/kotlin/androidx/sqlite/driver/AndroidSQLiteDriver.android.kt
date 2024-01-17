@@ -20,6 +20,10 @@ import android.database.sqlite.SQLiteDatabase
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.SQLiteDriver
 
+/**
+ * A [SQLiteDriver] implemented by [android.database] and that uses the Android's SDK SQLite
+ * APIs.
+ */
 class AndroidSQLiteDriver(
     private val filename: String
 ) : SQLiteDriver {
