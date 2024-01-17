@@ -16,7 +16,6 @@
 
 package androidx.privacysandbox.ads.adservices.adselection
 
-import android.net.Uri
 import androidx.privacysandbox.ads.adservices.common.ExperimentalFeatures
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
@@ -27,29 +26,24 @@ import org.junit.runner.RunWith
 @OptIn(ExperimentalFeatures.Ext10OptIn::class)
 @SmallTest
 @RunWith(AndroidJUnit4::class)
-class AdSelectionOutcomeTest {
+class GetAdSelectionDataOutcomeTest {
     private val adSelectionId = 1234L
-    private val renderUri = Uri.parse("abc.com")
+    private val adSelectionData = byteArrayOf(0x01, 0x02, 0x03, 0x04)
     @Test
     fun testToString() {
-        val result = "AdSelectionOutcome: adSelectionId=$adSelectionId, renderUri=$renderUri"
-        val request = AdSelectionOutcome(adSelectionId, renderUri)
+        val result = "GetAdSelectionDataOutcome: adSelectionId=$adSelectionId, " +
+            "adSelectionData=$adSelectionData"
+        val request = GetAdSelectionDataOutcome(adSelectionId, adSelectionData)
         Truth.assertThat(request.toString()).isEqualTo(result)
     }
 
     @Test
     fun testEquals() {
-        val adSelectionOutcome = AdSelectionOutcome(adSelectionId, renderUri)
-        var adSelectionOutcome2 = AdSelectionOutcome(adSelectionId, Uri.parse("abc.com"))
-        Truth.assertThat(adSelectionOutcome == adSelectionOutcome2).isTrue()
-    }
-
-    @Test
-    fun testHasOutcome() {
-        val adSelectionOutcome = AdSelectionOutcome(adSelectionId, renderUri)
-        Truth.assertThat(adSelectionOutcome.hasOutcome()).isTrue()
-
-        val emptyAdSelectionOutcome = AdSelectionOutcome(0, Uri.EMPTY)
-        Truth.assertThat(emptyAdSelectionOutcome.hasOutcome()).isFalse()
+        val getAdSelectionDataOutcome = GetAdSelectionDataOutcome(adSelectionId, adSelectionData)
+        var getAdSelectionDataOutcome2 = GetAdSelectionDataOutcome(
+            adSelectionId,
+            byteArrayOf(0x01, 0x02, 0x03, 0x04)
+        )
+        Truth.assertThat(getAdSelectionDataOutcome == getAdSelectionDataOutcome2).isTrue()
     }
 }

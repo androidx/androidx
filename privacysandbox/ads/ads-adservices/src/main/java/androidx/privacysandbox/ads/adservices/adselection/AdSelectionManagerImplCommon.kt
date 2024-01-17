@@ -25,10 +25,11 @@ import androidx.annotation.RequiresExtension
 import androidx.annotation.RequiresPermission
 import androidx.annotation.RestrictTo
 import androidx.core.os.asOutcomeReceiver
-import androidx.privacysandbox.ads.adservices.common.AdSelectionSignals
-import androidx.privacysandbox.ads.adservices.common.AdTechIdentifier
+import androidx.privacysandbox.ads.adservices.common.ExperimentalFeatures
+import androidx.privacysandbox.ads.adservices.internal.AdServicesInfo
 import kotlinx.coroutines.suspendCancellableCoroutine
 
+@OptIn(ExperimentalFeatures.Ext8OptIn::class, ExperimentalFeatures.Ext10OptIn::class)
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @SuppressLint("NewApi", "ClassVerificationFailure")
 @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
@@ -40,7 +41,11 @@ open class AdSelectionManagerImplCommon(
     @DoNotInline
     @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE)
     override suspend fun selectAds(adSelectionConfig: AdSelectionConfig): AdSelectionOutcome {
-        return convertResponse(selectAdsInternal(convertAdSelectionConfig(adSelectionConfig)))
+        return AdSelectionOutcome(
+            selectAdsInternal(
+                adSelectionConfig.convertToAdServices()
+            )
+        )
     }
 
     @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE)
@@ -55,56 +60,17 @@ open class AdSelectionManagerImplCommon(
         )
     }
 
-    private fun convertAdSelectionConfig(
-        request: AdSelectionConfig
-    ): android.adservices.adselection.AdSelectionConfig {
-        return android.adservices.adselection.AdSelectionConfig.Builder()
-            .setAdSelectionSignals(convertAdSelectionSignals(request.adSelectionSignals))
-            .setCustomAudienceBuyers(convertBuyers(request.customAudienceBuyers))
-            .setDecisionLogicUri(request.decisionLogicUri)
-            .setSeller(android.adservices.common.AdTechIdentifier.fromString(
-                request.seller.identifier))
-            .setPerBuyerSignals(convertPerBuyerSignals(request.perBuyerSignals))
-            .setSellerSignals(convertAdSelectionSignals(request.sellerSignals))
-            .setTrustedScoringSignalsUri(request.trustedScoringSignalsUri)
-            .build()
-    }
-
-    private fun convertAdSelectionSignals(
-        request: AdSelectionSignals
-    ): android.adservices.common.AdSelectionSignals {
-        return android.adservices.common.AdSelectionSignals.fromString(request.signals)
-    }
-
-    private fun convertBuyers(
-        buyers: List<AdTechIdentifier>
-    ): MutableList<android.adservices.common.AdTechIdentifier> {
-        val ids = mutableListOf<android.adservices.common.AdTechIdentifier>()
-        for (buyer in buyers) {
-            ids.add(android.adservices.common.AdTechIdentifier.fromString(buyer.identifier))
+    @DoNotInline
+    @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE)
+    override suspend fun selectAds(adSelectionFromOutcomesConfig: AdSelectionFromOutcomesConfig):
+        AdSelectionOutcome {
+        if (AdServicesInfo.adServicesVersion() >= 10 || AdServicesInfo.extServicesVersion() >= 10) {
+            return Ext10Impl.selectAds(
+                mAdSelectionManager,
+                adSelectionFromOutcomesConfig
+            )
         }
-        return ids
-    }
-
-    private fun convertPerBuyerSignals(
-        request: Map<AdTechIdentifier, AdSelectionSignals>
-    ): Map<android.adservices.common.AdTechIdentifier,
-        android.adservices.common.AdSelectionSignals?> {
-        val map = HashMap<android.adservices.common.AdTechIdentifier,
-            android.adservices.common.AdSelectionSignals?>()
-        for (key in request.keys) {
-            val id = android.adservices.common.AdTechIdentifier.fromString(key.identifier)
-            val value = if (request[key] != null) convertAdSelectionSignals(request[key]!!)
-            else null
-            map[id] = value
-        }
-        return map
-    }
-
-    private fun convertResponse(
-        response: android.adservices.adselection.AdSelectionOutcome
-    ): AdSelectionOutcome {
-        return AdSelectionOutcome(response.adSelectionId, response.renderUri)
+        throw UnsupportedOperationException("API is not available. Min version is API 31 ext 10")
     }
 
     @DoNotInline
@@ -112,19 +78,154 @@ open class AdSelectionManagerImplCommon(
     override suspend fun reportImpression(reportImpressionRequest: ReportImpressionRequest) {
         suspendCancellableCoroutine<Any> { continuation ->
             mAdSelectionManager.reportImpression(
-                convertReportImpressionRequest(reportImpressionRequest),
+                reportImpressionRequest.convertToAdServices(),
                 Runnable::run,
                 continuation.asOutcomeReceiver()
             )
         }
     }
 
-    private fun convertReportImpressionRequest(
-        request: ReportImpressionRequest
-    ): android.adservices.adselection.ReportImpressionRequest {
-        return android.adservices.adselection.ReportImpressionRequest(
-            request.adSelectionId,
-            convertAdSelectionConfig(request.adSelectionConfig)
-        )
+    @DoNotInline
+    @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE)
+    override suspend fun reportEvent(reportEventRequest: ReportEventRequest) {
+        if (AdServicesInfo.adServicesVersion() >= 8 || AdServicesInfo.extServicesVersion() >= 9) {
+            return Ext8Impl.reportEvent(
+                mAdSelectionManager,
+                reportEventRequest
+            )
+        }
+        throw UnsupportedOperationException("API is unsupported. Min version is API 33 ext 8 or " +
+            "API 31/32 ext 9")
+    }
+
+    @DoNotInline
+    @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE)
+    override suspend fun updateAdCounterHistogram(
+        updateAdCounterHistogramRequest: UpdateAdCounterHistogramRequest
+    ) {
+        if (AdServicesInfo.adServicesVersion() >= 8 || AdServicesInfo.extServicesVersion() >= 9) {
+            return Ext8Impl.updateAdCounterHistogram(
+                mAdSelectionManager,
+                updateAdCounterHistogramRequest
+            )
+        }
+        throw UnsupportedOperationException("API is unsupported. Min version is API 33 ext 8 or " +
+            "API 31/32 ext 9")
+    }
+
+    @DoNotInline
+    @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE)
+    override suspend fun getAdSelectionData(
+        getAdSelectionDataRequest: GetAdSelectionDataRequest
+    ): GetAdSelectionDataOutcome {
+        if (AdServicesInfo.adServicesVersion() >= 10 || AdServicesInfo.extServicesVersion() >= 10) {
+            return Ext10Impl.getAdSelectionData(
+                mAdSelectionManager,
+                getAdSelectionDataRequest
+            )
+        }
+        throw UnsupportedOperationException("API is not available. Min version is API 31 ext 10")
+    }
+
+    @DoNotInline
+    @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE)
+    override suspend fun persistAdSelectionResult(
+        persistAdSelectionResultRequest: PersistAdSelectionResultRequest
+    ): AdSelectionOutcome {
+        if (AdServicesInfo.adServicesVersion() >= 10 || AdServicesInfo.extServicesVersion() >= 10) {
+            return Ext10Impl.persistAdSelectionResult(
+                mAdSelectionManager,
+                persistAdSelectionResultRequest
+            )
+        }
+        throw UnsupportedOperationException("API is not available. Min version is API 31 ext 10")
+    }
+
+    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 10)
+    @RequiresExtension(extension = Build.VERSION_CODES.S, version = 10)
+    private class Ext10Impl private constructor() {
+        companion object {
+            @DoNotInline
+            @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE)
+            suspend fun getAdSelectionData(
+                adSelectionManager: android.adservices.adselection.AdSelectionManager,
+                getAdSelectionDataRequest: GetAdSelectionDataRequest
+            ): GetAdSelectionDataOutcome {
+                return GetAdSelectionDataOutcome(suspendCancellableCoroutine<
+                        android.adservices.adselection.GetAdSelectionDataOutcome> { continuation ->
+                    adSelectionManager.getAdSelectionData(
+                        getAdSelectionDataRequest.convertToAdServices(),
+                        Runnable::run,
+                        continuation.asOutcomeReceiver()
+                    )
+                })
+            }
+
+            @DoNotInline
+            @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE)
+            suspend fun persistAdSelectionResult(
+                adSelectionManager: android.adservices.adselection.AdSelectionManager,
+                persistAdSelectionResultRequest: PersistAdSelectionResultRequest
+            ): AdSelectionOutcome {
+                return AdSelectionOutcome(suspendCancellableCoroutine { continuation ->
+                    adSelectionManager.persistAdSelectionResult(
+                        persistAdSelectionResultRequest.convertToAdServices(),
+                        Runnable::run,
+                        continuation.asOutcomeReceiver()
+                    )
+                })
+            }
+
+            @DoNotInline
+            @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE)
+            suspend fun selectAds(
+                adSelectionManager: android.adservices.adselection.AdSelectionManager,
+                adSelectionFromOutcomesConfig: AdSelectionFromOutcomesConfig
+            ): AdSelectionOutcome {
+                return AdSelectionOutcome(suspendCancellableCoroutine { continuation ->
+                    adSelectionManager.selectAds(
+                        adSelectionFromOutcomesConfig.convertToAdServices(),
+                        Runnable::run,
+                        continuation.asOutcomeReceiver()
+                    )
+                })
+            }
+        }
+    }
+
+    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 8)
+    @RequiresExtension(extension = Build.VERSION_CODES.S, version = 9)
+    private class Ext8Impl private constructor() {
+        companion object {
+            @DoNotInline
+            @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE)
+            suspend fun updateAdCounterHistogram(
+                adSelectionManager: android.adservices.adselection.AdSelectionManager,
+                updateAdCounterHistogramRequest: UpdateAdCounterHistogramRequest
+            ) {
+                suspendCancellableCoroutine<Any> { cont ->
+                    adSelectionManager.updateAdCounterHistogram(
+                        updateAdCounterHistogramRequest.convertToAdServices(),
+                        Runnable::run,
+                        cont.asOutcomeReceiver()
+                    )
+                }
+            }
+
+            @DoNotInline
+            @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE)
+            suspend fun reportEvent(
+                adSelectionManager: android.adservices.adselection.AdSelectionManager,
+                reportEventRequest: ReportEventRequest
+            ) {
+                suspendCancellableCoroutine<Any> { continuation ->
+                    adSelectionManager.reportEvent(
+                        reportEventRequest.convertToAdServices(),
+                        Runnable::run,
+                        continuation.asOutcomeReceiver()
+                    )
+                }
+            }
+        }
     }
 }

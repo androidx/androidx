@@ -22,7 +22,6 @@ import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 
 internal object AdServicesInfo {
-
     fun adServicesVersion(): Int {
         return if (Build.VERSION.SDK_INT >= 33) {
             Extensions30Impl.getAdServicesVersion()
