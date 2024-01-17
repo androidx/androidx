@@ -23,7 +23,6 @@ import static android.view.View.LAYOUT_DIRECTION_RTL;
 import static android.view.View.VISIBLE;
 
 import static androidx.core.util.Preconditions.checkNotNull;
-import static androidx.wear.protolayout.proto.LayoutElementProto.ArcDirection.ARC_DIRECTION_CLOCKWISE_VALUE;
 import static androidx.wear.protolayout.renderer.common.ProtoLayoutDiffer.FIRST_CHILD_INDEX;
 import static androidx.wear.protolayout.renderer.common.ProtoLayoutDiffer.ROOT_NODE_ID;
 import static androidx.wear.protolayout.renderer.common.ProtoLayoutDiffer.getParentNodePosId;
@@ -125,6 +124,7 @@ import androidx.wear.protolayout.proto.DimensionProto.SpacerDimension;
 import androidx.wear.protolayout.proto.DimensionProto.WrappedDimensionProp;
 import androidx.wear.protolayout.proto.FingerprintProto.NodeFingerprint;
 import androidx.wear.protolayout.proto.LayoutElementProto.Arc;
+import androidx.wear.protolayout.proto.LayoutElementProto.ArcDirection;
 import androidx.wear.protolayout.proto.LayoutElementProto.ArcLayoutElement;
 import androidx.wear.protolayout.proto.LayoutElementProto.ArcLine;
 import androidx.wear.protolayout.proto.LayoutElementProto.ArcSpacer;
@@ -3082,120 +3082,135 @@ public final class ProtoLayoutInflater {
 
         WearCurvedLineView lineView = new WearCurvedLineView(mUiContext);
 
-        // A ArcLineView must always be the same width/height as its parent, so it can draw the line
-        // properly inside of those bounds.
-        ArcLayout.LayoutParams layoutParams =
-                new ArcLayout.LayoutParams(generateDefaultLayoutParams());
-        layoutParams.width = LayoutParams.MATCH_PARENT;
-        layoutParams.height = LayoutParams.MATCH_PARENT;
+        try {
+            lineView.setUpdatesEnabled(false);
 
-        if (line.hasBrush()) {
-            lineView.setBrush(line.getBrush());
-        } else if (line.hasColor()) {
-            handleProp(line.getColor(), lineView::setColor, posId, pipelineMaker);
-        } else {
-            lineView.setColor(LINE_COLOR_DEFAULT);
-        }
+            // A ArcLineView must always be the same width/height as its parent, so it can draw the
+            // line properly inside of those bounds.
+            ArcLayout.LayoutParams layoutParams =
+                    new ArcLayout.LayoutParams(generateDefaultLayoutParams());
+            layoutParams.width = LayoutParams.MATCH_PARENT;
+            layoutParams.height = LayoutParams.MATCH_PARENT;
 
-        if (line.hasStrokeCap()) {
-            StrokeCapProp strokeCapProp = line.getStrokeCap();
-            switch (strokeCapProp.getValue()) {
-                case STROKE_CAP_BUTT:
-                    lineView.setStrokeCap(Cap.BUTT);
-                    break;
-                case STROKE_CAP_ROUND:
-                    lineView.setStrokeCap(Cap.ROUND);
-                    break;
-                case STROKE_CAP_SQUARE:
-                    lineView.setStrokeCap(Cap.SQUARE);
-                    break;
-                case UNRECOGNIZED:
-                case STROKE_CAP_UNDEFINED:
-                    Log.w(TAG, "Undefined StrokeCap value.");
-                    break;
+            if (line.hasBrush()) {
+                lineView.setBrush(line.getBrush());
+            } else if (line.hasColor()) {
+                handleProp(line.getColor(), lineView::setColor, posId, pipelineMaker);
+            } else {
+                lineView.setColor(LINE_COLOR_DEFAULT);
             }
 
-            if (strokeCapProp.hasShadow()) {
-                Shadow shadow = strokeCapProp.getShadow();
-                int color = shadow.getColor().hasArgb() ? shadow.getColor().getArgb() : Color.BLACK;
-                lineView.setStrokeCapShadow(safeDpToPx(shadow.getBlurRadius().getValue()), color);
-            }
-        }
-
-        lineView.setThickness(thicknessPx);
-
-        DegreesProp length = DegreesProp.getDefaultInstance();
-        if (line.hasAngularLength()) {
-            final ArcLineLength angularLength = line.getAngularLength();
-            switch (angularLength.getInnerCase()) {
-                case DEGREES:
-                    length = line.getAngularLength().getDegrees();
-                    handleProp(length, lineView::setLineSweepAngleDegrees, posId, pipelineMaker);
-                    break;
-
-                case EXPANDED_ANGULAR_DIMENSION:
-                    {
-                        ExpandedAngularDimensionProp expandedAngularDimension =
-                                angularLength.getExpandedAngularDimension();
-                        layoutParams.setWeight(
-                                expandedAngularDimension.hasLayoutWeight()
-                                        ? expandedAngularDimension.getLayoutWeight().getValue()
-                                        : 1.0f);
-                        length = DegreesProp.getDefaultInstance();
+            if (line.hasStrokeCap()) {
+                StrokeCapProp strokeCapProp = line.getStrokeCap();
+                switch (strokeCapProp.getValue()) {
+                    case STROKE_CAP_BUTT:
+                        lineView.setStrokeCap(Cap.BUTT);
                         break;
-                    }
+                    case STROKE_CAP_ROUND:
+                        lineView.setStrokeCap(Cap.ROUND);
+                        break;
+                    case STROKE_CAP_SQUARE:
+                        lineView.setStrokeCap(Cap.SQUARE);
+                        break;
+                    case UNRECOGNIZED:
+                    case STROKE_CAP_UNDEFINED:
+                        Log.w(TAG, "Undefined StrokeCap value.");
+                        break;
+                }
 
-                case INNER_NOT_SET:
-                    break;
+                if (strokeCapProp.hasShadow()) {
+                    Shadow shadow = strokeCapProp.getShadow();
+                    int color =
+                            shadow.getColor().hasArgb() ? shadow.getColor().getArgb() : Color.BLACK;
+                    lineView.setStrokeCapShadow(
+                            safeDpToPx(shadow.getBlurRadius().getValue()), color);
+                }
             }
-        } else {
-            length = line.getLength();
-            handleProp(length, lineView::setLineSweepAngleDegrees, posId, pipelineMaker);
-        }
 
-        SizedArcContainer sizeWrapper = null;
-        SizedArcContainer.LayoutParams sizedLp =
-                new SizedArcContainer.LayoutParams(
-                        LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
-        @Nullable Float sizeForLayout = resolveSizeForLayoutIfNeeded(length);
-        if (sizeForLayout != null) {
-            int arcDirection =
+            lineView.setThickness(thicknessPx);
+
+            DegreesProp length = DegreesProp.getDefaultInstance();
+
+            if (line.hasAngularLength()) {
+                final ArcLineLength angularLength = line.getAngularLength();
+                switch (angularLength.getInnerCase()) {
+                    case DEGREES:
+                        length = line.getAngularLength().getDegrees();
+                        handleProp(
+                                length, lineView::setLineSweepAngleDegrees, posId, pipelineMaker);
+                        break;
+
+                    case EXPANDED_ANGULAR_DIMENSION:
+                        {
+                            ExpandedAngularDimensionProp expandedAngularDimension =
+                                    angularLength.getExpandedAngularDimension();
+                            layoutParams.setWeight(
+                                    expandedAngularDimension.hasLayoutWeight()
+                                            ? expandedAngularDimension.getLayoutWeight().getValue()
+                                            : 1.0f);
+                            length = DegreesProp.getDefaultInstance();
+                            break;
+                        }
+                    case INNER_NOT_SET:
+                        break;
+                }
+            } else {
+                length = line.getLength();
+                handleProp(length, lineView::setLineSweepAngleDegrees, posId, pipelineMaker);
+            }
+
+            ArcDirection arcLineDirection =
                     line.hasArcDirection()
-                            ? line.getArcDirection().getValueValue()
-                            : ARC_DIRECTION_CLOCKWISE_VALUE;
-            sizeWrapper = new SizedArcContainer(mUiContext, arcDirection);
-            if (sizeForLayout <= 0f) {
-                Log.w(
-                        TAG,
-                        "ArcLine length's value_for_layout is not a positive value. Element won't"
-                                + " be visible.");
+                            ? line.getArcDirection().getValue()
+                            : ArcDirection.ARC_DIRECTION_CLOCKWISE;
+
+            lineView.setLineDirection(arcLineDirection);
+
+            SizedArcContainer sizeWrapper = null;
+            SizedArcContainer.LayoutParams sizedLp =
+                    new SizedArcContainer.LayoutParams(
+                            LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+            @Nullable Float sizeForLayout = resolveSizeForLayoutIfNeeded(length);
+            if (sizeForLayout != null) {
+                sizeWrapper = new SizedArcContainer(mUiContext);
+                sizeWrapper.setArcDirection(arcLineDirection);
+                if (sizeForLayout <= 0f) {
+                    Log.w(
+                            TAG,
+                            "ArcLine length's value_for_layout is not a positive value. Element"
+                                + " won't be visible.");
+                }
+                sizeWrapper.setSweepAngleDegrees(sizeForLayout);
+                sizedLp.setAngularAlignment(
+                        angularAlignmentProtoToAngularAlignment(
+                                length.getAngularAlignmentForLayout()));
+
+                // Also clamp the line to that angle...
+                lineView.setMaxSweepAngleDegrees(sizeForLayout);
             }
-            sizeWrapper.setSweepAngleDegrees(sizeForLayout);
-            sizedLp.setAngularAlignment(
-                    angularAlignmentProtoToAngularAlignment(length.getAngularAlignmentForLayout()));
 
-            // Also clamp the line to that angle...
-            lineView.setMaxSweepAngleDegrees(sizeForLayout);
-        }
+            View wrappedView =
+                    applyModifiersToArcLayoutView(
+                            lineView, line.getModifiers(), posId, pipelineMaker);
 
-        View wrappedView =
-                applyModifiersToArcLayoutView(lineView, line.getModifiers(), posId, pipelineMaker);
-
-        if (sizeWrapper != null) {
-            sizeWrapper.addView(wrappedView, sizedLp);
-            parentViewWrapper.maybeAddView(sizeWrapper, layoutParams);
-            return new InflatedView(
-                    sizeWrapper,
-                    parentViewWrapper
-                            .getParentProperties()
-                            .applyPendingChildLayoutParams(layoutParams));
-        } else {
-            parentViewWrapper.maybeAddView(wrappedView, layoutParams);
-            return new InflatedView(
-                    wrappedView,
-                    parentViewWrapper
-                            .getParentProperties()
-                            .applyPendingChildLayoutParams(layoutParams));
+            if (sizeWrapper != null) {
+                sizeWrapper.addView(wrappedView, sizedLp);
+                parentViewWrapper.maybeAddView(sizeWrapper, layoutParams);
+                return new InflatedView(
+                        sizeWrapper,
+                        parentViewWrapper
+                                .getParentProperties()
+                                .applyPendingChildLayoutParams(layoutParams));
+            } else {
+                parentViewWrapper.maybeAddView(wrappedView, layoutParams);
+                return new InflatedView(
+                        wrappedView,
+                        parentViewWrapper
+                                .getParentProperties()
+                                .applyPendingChildLayoutParams(layoutParams));
+            }
+        } finally {
+            lineView.setUpdatesEnabled(true);
         }
     }
 
