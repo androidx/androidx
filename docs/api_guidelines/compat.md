@@ -22,8 +22,14 @@ version-specific static inner classes to avoid verification errors that
 negatively affect run-time performance. This is enforced at build time by the
 `ClassVerificationFailure` lint check, which offers auto-fixes in Java sources.
 
-For more information, see Chromium's guide to
+For more information, see Chromium's (deprecated but still accurate) guide to
 [Class Verification Failures](https://chromium.googlesource.com/chromium/src/+/HEAD/build/android/docs/class_verification_failures.md).
+
+NOTE As noted in the Chromium guide, the latest versions of R8 have added
+support for automatically out-of-lining calls to new platform SDK APIs; however,
+this depends on clients using the latest versions of R8. Since Jetpack libraries
+cannot make assertions about versions of tools used by clients, we must continue
+to manually out-of-line such calls.
 
 Methods in implementation-specific classes **must** be paired with the
 `@DoNotInline` annotation to prevent them from being inlined.
