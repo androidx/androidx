@@ -263,10 +263,12 @@ abstract class PagerState(
             )
             // we don't need to remeasure, so we only trigger re-placement:
             placementScopeInvalidator.invalidateScope()
+            layoutWithoutMeasurement++
         } else {
             debugLog { "Will Apply With Remeasure" }
             scrollPosition.applyScrollDelta(scrollDelta.toInt())
             remeasurement?.forceRemeasure()
+            layoutWithMeasurement++
         }
 
         // Return the consumed value.
@@ -276,7 +278,12 @@ abstract class PagerState(
     /**
      * Only used for testing to confirm that we're not making too many measure passes
      */
-    internal var numMeasurePasses: Int = 0
+    internal val numMeasurePasses: Int get() = layoutWithMeasurement + layoutWithoutMeasurement
+
+    internal var layoutWithMeasurement: Int = 0
+        private set
+
+    internal var layoutWithoutMeasurement: Int = 0
         private set
 
     /**
@@ -656,7 +663,6 @@ abstract class PagerState(
         pagerLayoutInfoState.value = result
         canScrollForward = result.canScrollForward
         canScrollBackward = result.canScrollBackward
-        numMeasurePasses++
         result.firstVisiblePage?.let { firstVisiblePage = it.index }
         firstVisiblePageOffset = result.firstVisiblePageScrollOffset
         tryRunPrefetch(result)
