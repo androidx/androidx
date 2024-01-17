@@ -22,7 +22,6 @@ FOUNDATION_EXPORT double CMPUIKitUtilsVersionNumber;
 //! Project version string for CMPUIKitUtils.
 FOUNDATION_EXPORT const unsigned char CMPUIKitUtilsVersionString[];
 
-#import "CMPView.h"
 #import "CMPViewController.h"
 #import "CMPAccessibilityElement.h"
 #import "CMPAccessibilityContainer.h"

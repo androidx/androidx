@@ -25,6 +25,7 @@ final class CMPViewControllerTests: XCTestCase {
         appDelegate = MockAppDelegate()
         UIApplication.shared.delegate = appDelegate
         appDelegate.setUpClearWindow()
+        TestViewController.counter = 1
     }
 
     override func tearDownWithError() throws {
@@ -33,16 +34,30 @@ final class CMPViewControllerTests: XCTestCase {
         appDelegate?.cleanUp()
         appDelegate = nil
     }
+    
+    private func expect(viewController: TestViewController, toBeInHierarchy inHierarchy: Bool) {
+        wait(for: {
+            viewController.viewIsInWindowHierarchy == inHierarchy
+        }, timeout: 5.0)
+    }
+    
+    private func expect(viewControllers: [TestViewController], toBeInHierarchy inHierarchy: Bool) {
+        for viewController in viewControllers {
+            wait(for: {
+                viewController.viewIsInWindowHierarchy == inHierarchy
+            }, timeout: 5.0)
+        }
+    }
 
     public func testControllerPresent() {
         let viewController = TestViewController()
         XCTAssertFalse(viewController.viewIsInWindowHierarchy)
 
         appDelegate.window?.rootViewController?.present(viewController, animated: true)
-        wait { viewController.viewIsInWindowHierarchy == true }
+        expect(viewController: viewController, toBeInHierarchy: true)
 
         appDelegate.window?.rootViewController?.dismiss(animated: true)
-        wait { viewController.viewIsInWindowHierarchy == false }
+        expect(viewController: viewController, toBeInHierarchy: false)
     }
 
     public func testChildController() {
@@ -50,66 +65,79 @@ final class CMPViewControllerTests: XCTestCase {
         let viewController2 = TestViewController()
 
         appDelegate.window?.rootViewController?.present(viewController1, animated: true)
-        wait { viewController1.viewIsInWindowHierarchy == true }
-        wait { viewController2.viewIsInWindowHierarchy == false }
+        expect(viewController: viewController1, toBeInHierarchy: true)
+        expect(viewController: viewController2, toBeInHierarchy: false)
 
         viewController1.addChild(viewController2)
         viewController2.didMove(toParent: viewController1)
         viewController1.view.addSubview(viewController2.view)
-        wait { viewController1.viewIsInWindowHierarchy == true }
-        wait { viewController2.viewIsInWindowHierarchy == true }
+        expect(viewControllers: [viewController1, viewController2], toBeInHierarchy: true)
 
         viewController2.removeFromParent()
         viewController2.view.removeFromSuperview()
-        wait { viewController1.viewIsInWindowHierarchy == true }
-        wait { viewController2.viewIsInWindowHierarchy == false }
-
-        viewController1.addChild(viewController2)
-        viewController2.didMove(toParent: viewController1)
-        viewController1.view.addSubview(viewController2.view)
-        wait { viewController1.viewIsInWindowHierarchy == true }
-        wait { viewController2.viewIsInWindowHierarchy == true }
+        expect(viewController: viewController1, toBeInHierarchy: true)
+        expect(viewController: viewController2, toBeInHierarchy: false)
 
         appDelegate.window?.rootViewController?.dismiss(animated: true)
-        wait { viewController1.viewIsInWindowHierarchy == false }
-        wait { viewController2.viewIsInWindowHierarchy == false }
+        expect(viewControllers: [viewController1, viewController2], toBeInHierarchy: false)
     }
 
     public func testNavigationControllerPresentAndPush() {
         let viewController1 = TestViewController()
         let viewController2 = TestViewController()
         let viewController3 = TestViewController()
+        
+        expect(viewControllers: [
+            viewController1,
+            viewController2,
+            viewController3
+        ], toBeInHierarchy: false)
 
         // Use autoreleasepool to be sure, navigationController will be properly deleted after dismissal
         autoreleasepool {
             let navigationController = UINavigationController(rootViewController: viewController1)
 
-            appDelegate.window?.rootViewController?.present(navigationController, animated: true)
+            appDelegate.window?.rootViewController?.present(navigationController, animated: false)
 
-            wait { viewController1.viewIsInWindowHierarchy == true }
-            wait { viewController2.viewIsInWindowHierarchy == false }
-            wait { viewController3.viewIsInWindowHierarchy == false }
+            expect(viewController: viewController1, toBeInHierarchy: true)
+            expect(viewControllers: [viewController2, viewController3], toBeInHierarchy: false)
 
-            navigationController.pushViewController(viewController2, animated: true)
-            wait { viewController1.viewIsInWindowHierarchy == true }
-            wait { viewController2.viewIsInWindowHierarchy == true }
-            wait { viewController3.viewIsInWindowHierarchy == false }
+            navigationController.pushViewController(viewController2, animated: false)
+            expect(viewControllers: [viewController1, viewController2], toBeInHierarchy: true)
+            expect(viewController: viewController3, toBeInHierarchy: false)
 
-            navigationController.present(viewController3, animated: true)
-            wait { viewController1.viewIsInWindowHierarchy == true }
-            wait { viewController2.viewIsInWindowHierarchy == true }
-            wait { viewController3.viewIsInWindowHierarchy == true }
+            navigationController.present(viewController3, animated: false)
+            expect(viewControllers: [viewController1, viewController2, viewController3], toBeInHierarchy: true)
 
-            viewController3.dismiss(animated: true)
-            wait { viewController1.viewIsInWindowHierarchy == true }
-            wait { viewController2.viewIsInWindowHierarchy == true }
-            wait { viewController3.viewIsInWindowHierarchy == false }
+            viewController3.dismiss(animated: false)
+            expect(viewControllers: [viewController1, viewController2], toBeInHierarchy: true)
+            expect(viewController: viewController3, toBeInHierarchy: false)
 
-            navigationController.dismiss(animated: true)
+            navigationController.dismiss(animated: false)
         }
-        wait { viewController1.viewIsInWindowHierarchy == false }
-        wait { viewController2.viewIsInWindowHierarchy == false }
-        wait { viewController3.viewIsInWindowHierarchy == false }
+        
+        expect(viewControllers: [viewController1, viewController2, viewController3], toBeInHierarchy: false)
+    }
+    
+    public func testNavigationControllerPresentAndPush2() {
+        let viewController1 = TestViewController()
+        let viewController2 = TestViewController()
+        let viewController3 = TestViewController()
+
+        // Use autoreleasepool to be sure, navigationController will be properly deleted after dismissal
+        autoreleasepool {
+            let rootViewController = appDelegate!.window!.rootViewController!
+            
+            let navigationController = UINavigationController(rootViewController: viewController1)
+
+            rootViewController.present(navigationController, animated: false)
+            navigationController.pushViewController(viewController2, animated: false)
+            navigationController.pushViewController(viewController3, animated: false)
+
+            navigationController.dismiss(animated: false)
+        }
+        
+        expect(viewControllers: [viewController1, viewController2, viewController3], toBeInHierarchy: false)
     }
 
     public func testTabBarControllerPresentAndPush() {
@@ -124,37 +152,47 @@ final class CMPViewControllerTests: XCTestCase {
 
             appDelegate.window?.rootViewController?.present(tabBarController, animated: true)
 
-            wait { viewController1.viewIsInWindowHierarchy == true }
-            wait { viewController2.viewIsInWindowHierarchy == true }
-            wait { viewController3.viewIsInWindowHierarchy == false }
+            expect(viewControllers: [viewController1, viewController2], toBeInHierarchy: true)
+            expect(viewController: viewController3, toBeInHierarchy: false)
 
             tabBarController.present(viewController3, animated: true)
-            wait { viewController1.viewIsInWindowHierarchy == true }
-            wait { viewController2.viewIsInWindowHierarchy == true }
-            wait { viewController3.viewIsInWindowHierarchy == true }
+            expect(viewControllers: [viewController1, viewController2, viewController3], toBeInHierarchy: true)
 
             viewController3.dismiss(animated: true)
-            wait { viewController1.viewIsInWindowHierarchy == true }
-            wait { viewController2.viewIsInWindowHierarchy == true }
-            wait { viewController3.viewIsInWindowHierarchy == false }
+            expect(viewControllers: [viewController1, viewController2], toBeInHierarchy: true)
+            expect(viewController: viewController3, toBeInHierarchy: false)
 
             tabBarController.dismiss(animated: true)
         }
 
-        wait { viewController1.viewIsInWindowHierarchy == false }
-        wait { viewController2.viewIsInWindowHierarchy == false }
-        wait { viewController3.viewIsInWindowHierarchy == false }
+        expect(viewControllers: [viewController1, viewController2, viewController3], toBeInHierarchy: false)
     }
 }
 
 private class TestViewController: CMPViewController {
+    public static var counter: Int = 1
+    
+    private let id: Int
+    
     public var viewIsInWindowHierarchy: Bool = false
-
+    
+    init() {
+        id = TestViewController.counter
+        TestViewController.counter += 1
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        nil
+    }
+    
     override func viewControllerDidEnterWindowHierarchy() {
+        print("\(id) entered")
         viewIsInWindowHierarchy = true
     }
 
     override func viewControllerDidLeaveWindowHierarchy() {
+        print("\(id) left")
         viewIsInWindowHierarchy = false
     }
 }

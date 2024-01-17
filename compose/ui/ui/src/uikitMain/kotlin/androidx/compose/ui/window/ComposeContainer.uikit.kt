@@ -41,6 +41,7 @@ import androidx.compose.ui.uikit.ComposeUIViewControllerConfiguration
 import androidx.compose.ui.uikit.InterfaceOrientation
 import androidx.compose.ui.uikit.LocalInterfaceOrientation
 import androidx.compose.ui.uikit.PlistSanityCheck
+import androidx.compose.ui.uikit.utils.CMPViewController
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
@@ -93,8 +94,7 @@ private val coroutineDispatcher = Dispatchers.Main
 internal class ComposeContainer(
     private val configuration: ComposeUIViewControllerConfiguration,
     private val content: @Composable () -> Unit,
-) : UIViewController(nibName = null, bundle = null) {
-
+) : CMPViewController(nibName = null, bundle = null) {
     private var isInsideSwiftUI = false
     private var mediator: ComposeSceneMediator? = null
     private val layers: MutableList<UIViewComposeSceneLayer> = mutableListOf()
@@ -239,7 +239,6 @@ internal class ComposeContainer(
         configuration.delegate.viewDidAppear(animated)
     }
 
-    // viewDidUnload() is deprecated and not called.
     override fun viewWillDisappear(animated: Boolean) {
         super.viewWillDisappear(animated)
         mediator?.viewWillDisappear(animated)
@@ -252,13 +251,16 @@ internal class ComposeContainer(
     override fun viewDidDisappear(animated: Boolean) {
         super.viewDidDisappear(animated)
 
-        dispose()
-
         dispatch_async(dispatch_get_main_queue()) {
             kotlin.native.internal.GC.collect()
         }
 
         configuration.delegate.viewDidDisappear(animated)
+    }
+
+    override fun viewControllerDidLeaveWindowHierarchy() {
+        super.viewControllerDidLeaveWindowHierarchy()
+        dispose()
     }
 
     override fun didReceiveMemoryWarning() {

@@ -7,12 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		997DFCDB2B18D126000B56B5 /* CMPView.m in Sources */ = {isa = PBXBuildFile; fileRef = 997DFCDA2B18D126000B56B5 /* CMPView.m */; };
 		997DFCDE2B18D135000B56B5 /* CMPViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 997DFCDD2B18D135000B56B5 /* CMPViewController.m */; };
 		997DFCE62B18D99E000B56B5 /* CMPViewControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 997DFCE52B18D99E000B56B5 /* CMPViewControllerTests.swift */; };
 		997DFCE72B18D99E000B56B5 /* libCMPUIKitUtils.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 996EFEEA2B02CE5D0000FE0F /* libCMPUIKitUtils.a */; };
 		997DFCEE2B18DB7B000B56B5 /* CMPViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 997DFCDD2B18D135000B56B5 /* CMPViewController.m */; };
-		997DFCEF2B18DB7E000B56B5 /* CMPView.m in Sources */ = {isa = PBXBuildFile; fileRef = 997DFCDA2B18D126000B56B5 /* CMPView.m */; };
 		997DFCF32B18DE59000B56B5 /* MockAppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 997DFCF22B18DE59000B56B5 /* MockAppDelegate.swift */; };
 		997DFCF52B18E276000B56B5 /* XCTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 997DFCF42B18E276000B56B5 /* XCTestCase.swift */; };
 		997DFCFD2B18E5D3000B56B5 /* CMPUIKitUtilsTestApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 997DFCFC2B18E5D3000B56B5 /* CMPUIKitUtilsTestApp.swift */; };
@@ -52,8 +50,6 @@
 /* Begin PBXFileReference section */
 		996EFEEA2B02CE5D0000FE0F /* libCMPUIKitUtils.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libCMPUIKitUtils.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		996EFEF52B02CE8A0000FE0F /* CMPUIKitUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CMPUIKitUtils.h; sourceTree = "<group>"; };
-		997DFCD92B18D126000B56B5 /* CMPView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CMPView.h; sourceTree = "<group>"; };
-		997DFCDA2B18D126000B56B5 /* CMPView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CMPView.m; sourceTree = "<group>"; };
 		997DFCDC2B18D135000B56B5 /* CMPViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CMPViewController.h; sourceTree = "<group>"; };
 		997DFCDD2B18D135000B56B5 /* CMPViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CMPViewController.m; sourceTree = "<group>"; };
 		997DFCE32B18D99E000B56B5 /* CMPUIKitUtilsTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CMPUIKitUtilsTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -105,8 +101,6 @@
 				EA70A7E82B27106100300068 /* CMPAccessibilityElement.m */,
 				EA70A7E72B27106100300068 /* CMPMacros.h */,
 				996EFEF52B02CE8A0000FE0F /* CMPUIKitUtils.h */,
-				997DFCD92B18D126000B56B5 /* CMPView.h */,
-				997DFCDA2B18D126000B56B5 /* CMPView.m */,
 				997DFCDC2B18D135000B56B5 /* CMPViewController.h */,
 				997DFCDD2B18D135000B56B5 /* CMPViewController.m */,
 			);
@@ -283,7 +277,6 @@
 				997DFCDE2B18D135000B56B5 /* CMPViewController.m in Sources */,
 				EA70A7EC2B27106100300068 /* CMPAccessibilityContainer.m in Sources */,
 				EA70A7EB2B27106100300068 /* CMPAccessibilityElement.m in Sources */,
-				997DFCDB2B18D126000B56B5 /* CMPView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -295,7 +288,6 @@
 				997DFCE62B18D99E000B56B5 /* CMPViewControllerTests.swift in Sources */,
 				997DFCEE2B18DB7B000B56B5 /* CMPViewController.m in Sources */,
 				997DFCF32B18DE59000B56B5 /* MockAppDelegate.swift in Sources */,
-				997DFCEF2B18DB7E000B56B5 /* CMPView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -528,6 +520,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 45226JTYHN;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -558,6 +551,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 45226JTYHN;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
