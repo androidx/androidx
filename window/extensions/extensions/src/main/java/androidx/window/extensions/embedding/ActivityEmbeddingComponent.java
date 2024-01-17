@@ -178,7 +178,7 @@ public interface ActivityEmbeddingComponent {
      * @param options The {@link ActivityOptions} to be updated.
      * @param token The {@link ActivityStack#getToken()} to represent the {@link ActivityStack}
      */
-    @RequiresVendorApiLevel(level = 5)
+    @RequiresVendorApiLevel(level = 3)
     @NonNull
     default ActivityOptions setLaunchingActivityStack(@NonNull ActivityOptions options,
             @NonNull IBinder token) {
@@ -194,7 +194,7 @@ public interface ActivityEmbeddingComponent {
      * @param activityStackTokens The set of tokens of {@link ActivityStack}-s that is going to be
      *                            finished.
      */
-    @RequiresVendorApiLevel(level = 5)
+    @RequiresVendorApiLevel(level = 3)
     default void finishActivityStacks(@NonNull Set<IBinder> activityStackTokens) {
         throw new UnsupportedOperationException("This method must not be called unless there is a"
                 + " corresponding override implementation on the device.");
