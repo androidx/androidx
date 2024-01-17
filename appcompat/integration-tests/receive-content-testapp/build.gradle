@@ -35,7 +35,7 @@ dependencies {
     implementation(libs.material)
 
     // Align dependencies in debugRuntimeClasspath and debugAndroidTestRuntimeClasspath.
-    androidTestImplementation(project(":annotation:annotation-experimental"))
+    androidTestImplementation("androidx.annotation:annotation-experimental:1.4.0")
 
     androidTestImplementation("androidx.lifecycle:lifecycle-common:2.6.1")
     androidTestImplementation(libs.testCore)

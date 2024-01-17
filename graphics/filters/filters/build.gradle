@@ -43,7 +43,7 @@ dependencies {
     implementation('androidx.media3:media3-transformer:' + media3Version)
 
     // Force upgrade since 1.2.0 is not compatible with latest lint.
-    implementation(project(":annotation:annotation-experimental"))
+    implementation("androidx.annotation:annotation-experimental:1.4.0")
 
     // Test dependencies
     androidTestImplementation(libs.testExtJunit)
