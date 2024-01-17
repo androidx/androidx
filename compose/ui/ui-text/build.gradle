@@ -81,7 +81,7 @@ androidXMultiplatform {
             dependsOn(jvmMain)
             dependencies {
                 api("androidx.annotation:annotation:1.1.0")
-                api(project(":annotation:annotation-experimental"))
+                api("androidx.annotation:annotation-experimental:1.4.0")
                 implementation("androidx.core:core:1.7.0")
                 implementation("androidx.emoji2:emoji2:1.2.0")
                 implementation('androidx.collection:collection:1.0.0')
