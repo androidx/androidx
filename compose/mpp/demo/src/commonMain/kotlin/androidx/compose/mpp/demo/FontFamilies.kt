@@ -62,13 +62,13 @@ fun FontFamilyShowcase(fontFamily: FontFamily) {
         )
         Text(
             text = "The quick brown fox jumps over the lazy dog.",
-            fontSize = 48.sp,
-            fontFamily = fontFamily
+            fontFamily = fontFamily,
+            style = MaterialTheme.typography.h3
         )
         Text(
             text = "1234567890",
-            fontSize = 48.sp,
-            fontFamily = fontFamily
+            fontFamily = fontFamily,
+            style = MaterialTheme.typography.h3
         )
     }
 }
