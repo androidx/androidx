@@ -16,8 +16,8 @@
 
 package androidx.compose.material3.adaptive
 
-import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Immutable
+import androidx.window.core.layout.WindowSizeClass
 
 /**
  * This class collects window info that affects adaptation decisions. An adaptive layout is supposed

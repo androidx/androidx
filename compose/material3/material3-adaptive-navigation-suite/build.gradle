@@ -45,8 +45,9 @@ androidXMultiplatform {
                 implementation(libs.kotlinStdlibCommon)
                 implementation(project(":compose:material3:material3"))
                 implementation(project(":compose:material3:material3-adaptive"))
-                implementation("androidx.compose.material3:material3-window-size-class:1.2.0-rc01")
                 implementation("androidx.compose.ui:ui-util:1.6.0-rc01")
+                // TODO(conradchen): pin the depe when the change required is released to public
+                implementation(project(":window:window-core"))
             }
         }
 

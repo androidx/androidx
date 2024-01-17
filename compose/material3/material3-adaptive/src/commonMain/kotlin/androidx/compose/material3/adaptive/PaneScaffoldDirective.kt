@@ -17,11 +17,11 @@
 package androidx.compose.material3.adaptive
 
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.window.core.layout.WindowWidthSizeClass
 
 /**
  * Calculates the standard [PaneScaffoldDirective] from a given [WindowAdaptiveInfo]. Use this
@@ -46,13 +46,13 @@ fun calculateStandardPaneScaffoldDirective(
     val maxHorizontalPartitions: Int
     val contentPadding: PaddingValues
     val verticalSpacerSize: Dp
-    when (windowAdaptiveInfo.windowSizeClass.widthSizeClass) {
-        WindowWidthSizeClass.Compact -> {
+    when (windowAdaptiveInfo.windowSizeClass.windowWidthSizeClass) {
+        WindowWidthSizeClass.COMPACT -> {
             maxHorizontalPartitions = 1
             contentPadding = PaddingValues(16.dp)
             verticalSpacerSize = 0.dp
         }
-        WindowWidthSizeClass.Medium -> {
+        WindowWidthSizeClass.MEDIUM -> {
             maxHorizontalPartitions = 1
             contentPadding = PaddingValues(24.dp)
             verticalSpacerSize = 0.dp
@@ -108,13 +108,13 @@ fun calculateDensePaneScaffoldDirective(
     val maxHorizontalPartitions: Int
     val contentPadding: PaddingValues
     val verticalSpacerSize: Dp
-    when (windowAdaptiveInfo.windowSizeClass.widthSizeClass) {
-        WindowWidthSizeClass.Compact -> {
+    when (windowAdaptiveInfo.windowSizeClass.windowWidthSizeClass) {
+        WindowWidthSizeClass.COMPACT -> {
             maxHorizontalPartitions = 1
             contentPadding = PaddingValues(16.dp)
             verticalSpacerSize = 0.dp
         }
-        WindowWidthSizeClass.Medium -> {
+        WindowWidthSizeClass.MEDIUM -> {
             maxHorizontalPartitions = 2
             contentPadding = PaddingValues(24.dp)
             verticalSpacerSize = 24.dp

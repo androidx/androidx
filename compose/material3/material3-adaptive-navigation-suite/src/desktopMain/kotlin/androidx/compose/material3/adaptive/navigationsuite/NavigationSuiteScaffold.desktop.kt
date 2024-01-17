@@ -19,13 +19,10 @@ package androidx.compose.material3.adaptive.navigationsuite
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.Posture
 import androidx.compose.material3.adaptive.WindowAdaptiveInfo
-import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
-import androidx.compose.material3.windowsizeclass.WindowSizeClass
-import androidx.compose.ui.unit.DpSize
-import androidx.compose.ui.unit.dp
+import androidx.window.core.layout.WindowSizeClass
 
-@OptIn(ExperimentalMaterial3AdaptiveApi::class, ExperimentalMaterial3WindowSizeClassApi::class)
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
 internal actual val WindowAdaptiveInfoDefault: WindowAdaptiveInfo = WindowAdaptiveInfo(
-    windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(1000.dp, 1000.dp)),
+    windowSizeClass = WindowSizeClass(1000, 1000),
     windowPosture = Posture()
 )
