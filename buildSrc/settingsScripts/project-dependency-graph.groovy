@@ -86,6 +86,15 @@ class ProjectDependencyGraph {
         }
     }
 
+    /**
+     * Returns the set of projects that start with the given pathPrefix
+     */
+    Set<String> findProjectsWithPrefix(String pathPrefix) {
+        return allProjects.keySet().findAll {
+            it.startsWith(pathPrefix)
+        }
+    }
+
     private void addReferences(String projectPath, Set<String> target) {
         if (target.contains(projectPath)) {
             return // already added

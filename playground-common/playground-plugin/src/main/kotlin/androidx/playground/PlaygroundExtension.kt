@@ -20,6 +20,7 @@ import ProjectDependencyGraph
 import SkikoSetup
 import androidx.build.SettingsParser
 import androidx.build.gradle.isRoot
+import groovy.lang.Tuple2
 import java.io.File
 import java.util.Properties
 import javax.inject.Inject
@@ -139,12 +140,20 @@ open class PlaygroundExtension @Inject constructor(
         }
         val supportSettingsFile = File(supportRootDir, "settings.gradle")
         val projectDependencyGraph = ProjectDependencyGraph(settings, true /*isPlayground*/)
+        // also get full graph to try disabling projectOrArtifact.
+        val fullProjectDependencyGraph = ProjectDependencyGraph(settings, false /*isPlayground*/)
+
         SettingsParser.findProjects(supportSettingsFile).forEach {
             projectDependencyGraph.addToAllProjects(
                 it.gradlePath,
                 File(supportRootDir, it.filePath)
             )
+            fullProjectDependencyGraph.addToAllProjects(
+                it.gradlePath,
+                File(supportRootDir, it.filePath)
+            )
         }
+
         val selectedGradlePaths = projectDependencyGraph.allProjectPaths().filter {
             filter(it)
         }.toSet()
@@ -152,7 +161,23 @@ open class PlaygroundExtension @Inject constructor(
         val allNeededProjects = projectDependencyGraph
             .getAllProjectsWithDependencies(selectedGradlePaths + REQUIRED_PROJECTS)
             .sortedBy { it.v1 } // sort by project path so the parent shows up before children :)
+            .toMutableSet()
 
+        // here, we are trying to disable projectOrArtifact unless it is necessary, as a first step of removing
+        // most of them. To do so, we load the graph as if it is AOSP and include them as well even if the project
+        // specified `projectOrArtifact`.
+        val projectOrArtifactAllowList = buildProjectOrArtifactAllowList(fullProjectDependencyGraph)
+        val implicitlyAddedProjects = mutableSetOf<String>()
+        fullProjectDependencyGraph
+            .getAllProjectsWithDependencies(selectedGradlePaths + REQUIRED_PROJECTS)
+            .filterNot { it.v1 in projectOrArtifactAllowList && it !in allNeededProjects }
+            .onEach { implicitlyAddedProjects.add(it.v1) }
+            .flatMap { projectDependencyGraph.getAllProjectsWithDependencies(setOf(it.v1)) }
+            .distinct()
+            .sortedBy { it.v1 } // sort by project path so the parent shows up before children :)
+            .forEach {
+                allNeededProjects.add(it)
+            }
         val unsupportedProjects = allNeededProjects.map { it.v1 }.toSet().filter {
             it in UNSUPPORTED_PROJECTS
         }
@@ -171,6 +196,10 @@ open class PlaygroundExtension @Inject constructor(
                     projectDependencyGraph.findPathsBetween(selectedGradlePaths, it).forEach {
                         appendLine(it)
                     }
+                    appendLine("dependency path to $it from implicitly added projects:")
+                    fullProjectDependencyGraph.findPathsBetween(implicitlyAddedProjects, it).forEach {
+                        appendLine(it)
+                    }
                     appendLine("----")
                 }
             }
@@ -187,6 +216,16 @@ open class PlaygroundExtension @Inject constructor(
         allNeededProjects.forEach {
             includeProjectAt(name = it.v1, projectDir = it.v2)
         }
+
+    }
+
+    private fun buildProjectOrArtifactAllowList(projectDependencyGraph: ProjectDependencyGraph) : Set<String> {
+        val projectOrArtifactAllowList = mutableSetOf<String>()
+        projectOrArtifactAllowList.addAll(UNSUPPORTED_PROJECTS)
+        PROJECT_OR_ARTIFACT_ALLOWED_GROUP_PREFIXES.forEach {
+            projectOrArtifactAllowList.addAll(projectDependencyGraph.findProjectsWithPrefix(it))
+        }
+        return projectOrArtifactAllowList
     }
 
     companion object {
@@ -195,6 +234,12 @@ open class PlaygroundExtension @Inject constructor(
             ":benchmark:benchmark-common", // requires prebuilts
             ":core:core", // stable aidl, b/270593834
             ":sqlite:sqlite-bundled", // clang compilation, b/306669673
+        )
+        private val PROJECT_OR_ARTIFACT_ALLOWED_GROUP_PREFIXES = setOf(
+            ":core",
+            ":sqlite",
+            ":benchmark",
+            ":room"
         )
     }
 }
