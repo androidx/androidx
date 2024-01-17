@@ -17,7 +17,6 @@
 package androidx.camera.extensions;
 
 import androidx.annotation.IntRange;
-import androidx.annotation.RestrictTo;
 import androidx.camera.core.CameraControl;
 
 /**
@@ -28,7 +27,6 @@ import androidx.camera.core.CameraControl;
  * {@link ExtensionsManager#getCameraExtensionsControl(CameraControl)} method to acquire a
  * CameraExtensionsControl object to manage extension-related settings.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 public interface CameraExtensionsControl {
     /**
      * Sets the extension strength for the extension mode associated with the
@@ -40,8 +38,8 @@ public interface CameraExtensionsControl {
      * between 0 and 100 will have different effect depending on the extension type as described
      * below:
      * <ul>
-     *     <li>{@link ExtensionMode#BOKEH} - the strength is expected to control the amount of blur.
-     *     <li>{@link ExtensionMode#HDR} and {@link ExtensionMode#NIGHT} - the strength can
+     *     <li>{@link ExtensionMode#BOKEH} - the strength will control the amount of blur.
+     *     <li>{@link ExtensionMode#HDR} and {@link ExtensionMode#NIGHT} - the strength will
      *     control the amount of images fused and the brightness of the final image.
      *     <li>{@link ExtensionMode#FACE_RETOUCH} - the strength value will control the amount of
      *     cosmetic enhancement and skin smoothing.
