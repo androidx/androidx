@@ -159,7 +159,7 @@ private val PsiParameter.isComposable: Boolean
             } != null
         }
         // The parameter is in a source declaration
-        else -> (toUElement() as UParameter).typeReference!!.isComposable
+        else -> (toUElement() as? UParameter)?.typeReference?.isComposable == true
     }
 
 /**
