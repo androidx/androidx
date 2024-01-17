@@ -17,6 +17,7 @@
 package androidx.compose.material3.carousel
 
 import androidx.compose.ui.util.fastFirstOrNull
+import androidx.compose.ui.util.fastMapIndexed
 
 /**
  * A structure that is fixed at a specific [offset] along a scrolling axis and
@@ -200,10 +201,6 @@ internal class KeylineList internal constructor(
     fun getKeylineAfter(unadjustedOffset: Float): Keyline {
         return fastFirstOrNull { it.unadjustedOffset >= unadjustedOffset } ?: last()
     }
-}
-
-internal enum class CarouselAlignment {
-    Start, Center, End
 }
 
 /**
@@ -467,4 +464,42 @@ private class KeylineListScopeImpl : KeylineListScope {
         return offset - (size / 2) < carouselMainAxisSize &&
             offset + (size / 2) > carouselMainAxisSize
     }
+}
+
+/**
+ * Returns an interpolated [Keyline] whose values are all interpolated based on [fraction]
+ * between the [start] and [end] keylines.
+ */
+internal fun lerp(start: Keyline, end: Keyline, fraction: Float): Keyline {
+    return Keyline(
+        size = androidx.compose.ui.util.lerp(start.size, end.size, fraction),
+        offset = androidx.compose.ui.util.lerp(start.offset, end.offset, fraction),
+        unadjustedOffset = androidx.compose.ui.util.lerp(
+            start.unadjustedOffset,
+            end.unadjustedOffset,
+            fraction
+        ),
+        isFocal = if (fraction < .5f) start.isFocal else end.isFocal,
+        isAnchor = if (fraction < .5f) start.isAnchor else end.isAnchor,
+        isPivot = if (fraction < .5f) start.isPivot else end.isPivot,
+        cutoff = androidx.compose.ui.util.lerp(start.cutoff, end.cutoff, fraction)
+    )
+}
+
+/**
+ * Returns an interpolated KeylineList between [from] and [to].
+ *
+ * Unlike creating a [KeylineList] using [keylineListOf], this method does not set unadjusted
+ * offsets by calculating them from a pivot index. This method simply interpolates all values of
+ * all keylines between the given pair.
+ */
+internal fun lerp(
+    from: KeylineList,
+    to: KeylineList,
+    fraction: Float
+): KeylineList {
+    val interpolatedKeylines = from.fastMapIndexed { i, k ->
+        lerp(k, to[i], fraction)
+    }
+    return KeylineList(interpolatedKeylines)
 }

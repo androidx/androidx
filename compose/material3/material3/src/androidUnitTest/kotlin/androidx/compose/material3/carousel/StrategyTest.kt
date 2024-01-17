@@ -266,42 +266,6 @@ class StrategyTest {
             .isEqualTo(endSteps[2])
     }
 
-    @Test
-    fun testKeylineListLerp() {
-        val carouselMainAxisSize = large + medium + small
-        val from = keylineListOf(carouselMainAxisSize, 1, large / 2) {
-            add(xSmall, isAnchor = true)
-            add(large)
-            add(medium)
-            add(small)
-            add(xSmall, isAnchor = true)
-        }
-        val to = keylineListOf(carouselMainAxisSize, 2, small + (large / 2)) {
-            add(xSmall, isAnchor = true)
-            add(small)
-            add(large)
-            add(medium)
-            add(xSmall, isAnchor = true)
-        }
-
-        // Create the expected interpolated KeylineList by using the KeylineList class' constructor
-        // directly. Otherwise, keylineListOf will set offsets and unadjusted offsets based on the
-        // pivot offset and will differ than the directly interpolated output of lerp.
-        val half = KeylineList(
-            listOf(
-                Keyline(xSmall, -2.5f, -90f, false, true, false, 0f),
-                Keyline(60f, 30f, 10f, false, false, false, 0f),
-                Keyline(80f, 100f, 110f, true, false, true, 0f),
-                Keyline(40f, 160f, 210f, false, false, false, 0f),
-                Keyline(xSmall, 182.5f, 310f, false, true, false, 0f)
-            )
-        )
-
-        assertThat(lerp(from, to, 0f)).isEqualTo(from)
-        assertThat(lerp(from, to, 1f)).isEqualTo(to)
-        assertThat(lerp(from, to, .5f)).isEqualTo(half)
-    }
-
     private fun assertEqualWithFloatTolerance(
         tolerance: Float,
         actual: Keyline,
