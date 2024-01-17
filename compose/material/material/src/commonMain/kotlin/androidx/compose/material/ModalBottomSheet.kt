@@ -26,12 +26,10 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.ModalBottomSheetState.Companion.Saver
 import androidx.compose.material.ModalBottomSheetValue.Expanded
@@ -54,7 +52,6 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.collapse
 import androidx.compose.ui.semantics.contentDescription
@@ -64,13 +61,11 @@ import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
-import kotlin.math.roundToInt
 import kotlinx.coroutines.launch
 
 /**
@@ -365,8 +360,7 @@ fun ModalBottomSheetLayout(
 ) {
     val scope = rememberCoroutineScope()
     val orientation = Orientation.Vertical
-    BoxWithConstraints(modifier) {
-        val fullHeight = constraints.maxHeight.toFloat()
+    Box(modifier) {
         Box(Modifier.fillMaxSize()) {
             content()
             Scrim(
@@ -396,21 +390,13 @@ fun ModalBottomSheetLayout(
                         )
                     } else Modifier
                 )
-                .offset {
-                    IntOffset(
-                        0,
-                        sheetState.anchoredDraggableState
-                            .requireOffset()
-                            .roundToInt()
-                    )
-                }
+                .modalBottomSheetAnchors(sheetState)
                 .anchoredDraggable(
                     state = sheetState.anchoredDraggableState,
                     orientation = orientation,
                     enabled = sheetGesturesEnabled &&
                         sheetState.anchoredDraggableState.currentValue != Hidden,
                 )
-                .modalBottomSheetAnchors(sheetState, fullHeight)
                 .then(
                     if (sheetGesturesEnabled) {
                         Modifier.semantics {
@@ -461,10 +447,11 @@ fun ModalBottomSheetLayout(
 }
 
 @OptIn(ExperimentalMaterialApi::class)
-private fun Modifier.modalBottomSheetAnchors(
-    sheetState: ModalBottomSheetState,
-    fullHeight: Float
-) = onSizeChanged { sheetSize ->
+private fun Modifier.modalBottomSheetAnchors(sheetState: ModalBottomSheetState) = draggableAnchors(
+    state = sheetState.anchoredDraggableState,
+    orientation = Orientation.Vertical
+) { sheetSize, constraints ->
+    val fullHeight = constraints.maxHeight.toFloat()
     val newAnchors = DraggableAnchors {
         Hidden at fullHeight
         val halfHeight = fullHeight / 2f
@@ -497,7 +484,7 @@ private fun Modifier.modalBottomSheetAnchors(
             }
         }
     }
-    sheetState.anchoredDraggableState.updateAnchors(newAnchors, newTarget)
+    return@draggableAnchors newAnchors to newTarget
 }
 
 @Composable
