@@ -24,6 +24,7 @@ import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.os.StrictMode;
 import android.util.Log;
 
 import androidx.annotation.MainThread;
@@ -684,10 +685,15 @@ public abstract class TileService extends Service {
     private static void cleanupActiveTilesSharedPref(
             @NonNull SharedPreferences activeTilesSharedPref,
             @NonNull TimeSourceClock timeSourceClock) {
-        for (String key : activeTilesSharedPref.getAll().keySet()) {
-            if (isTileInactive(activeTilesSharedPref.getLong(key, -1L), timeSourceClock)) {
-                activeTilesSharedPref.edit().remove(key).apply();
+        StrictMode.ThreadPolicy oldPolicy = StrictMode.allowThreadDiskReads();
+        try {
+            for (String key : activeTilesSharedPref.getAll().keySet()) {
+                if (isTileInactive(activeTilesSharedPref.getLong(key, -1L), timeSourceClock)) {
+                    activeTilesSharedPref.edit().remove(key).apply();
+                }
             }
+        } finally {
+            StrictMode.setThreadPolicy(oldPolicy);
         }
     }
 
@@ -732,7 +738,12 @@ public abstract class TileService extends Service {
     }
 
     private static SharedPreferences getActiveTilesSharedPreferences(@NonNull Context context) {
-        return context.getSharedPreferences(ACTIVE_TILES_SHARED_PREF_NAME, MODE_PRIVATE);
+        StrictMode.ThreadPolicy oldPolicy = StrictMode.allowThreadDiskReads();
+        try {
+            return context.getSharedPreferences(ACTIVE_TILES_SHARED_PREF_NAME, MODE_PRIVATE);
+        } finally {
+            StrictMode.setThreadPolicy(oldPolicy);
+        }
     }
 
     /**
