@@ -236,10 +236,12 @@ open class PlaygroundExtension @Inject constructor(
             ":sqlite:sqlite-bundled", // clang compilation, b/306669673
         )
         private val PROJECT_OR_ARTIFACT_ALLOWED_GROUP_PREFIXES = setOf(
-            ":core",
-            ":sqlite",
             ":benchmark",
-            ":room"
+            ":core",
+            ":room",
+            ":sqlite",
+            ":tracing",
+
         )
     }
 }
