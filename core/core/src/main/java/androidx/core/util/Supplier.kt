@@ -13,19 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package androidx.core.util;
+package androidx.core.util
 
 /**
- * Compat version of {@link java.util.function.Supplier}
- * @param <T> the type of the input to the operation
+ * Compat version of [java.util.function.Supplier]
+ * @param T the type of the input to the operation
  */
-public interface Supplier<T> {
-
+fun interface Supplier<T> {
     /**
      * Gets a result.
      *
      * @return a result
      */
-    T get();
+    fun get(): T
 }
