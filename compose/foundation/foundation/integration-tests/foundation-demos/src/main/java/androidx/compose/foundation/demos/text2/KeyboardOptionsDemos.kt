@@ -24,6 +24,7 @@ import androidx.compose.foundation.demos.text.TagLine
 import androidx.compose.foundation.demos.text.fontSize8
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -48,7 +49,7 @@ import androidx.compose.ui.unit.dp
 @Preview
 @Composable
 fun KeyboardOptionsDemos() {
-    LazyColumn {
+    LazyColumn(Modifier.imePadding()) {
         item { Item(KeyboardType.Text) }
         item { Item(KeyboardType.Ascii) }
         item { Item(KeyboardType.Number) }
