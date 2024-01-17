@@ -1027,7 +1027,7 @@ package androidx.wear.tiles {
 
   public abstract class TileService extends android.app.Service {
     ctor public TileService();
-    method public static com.google.common.util.concurrent.ListenableFuture<java.util.List<androidx.wear.tiles.ActiveTileIdentifier!>!> getActiveTilesSnapshotAsync(android.content.Context, java.util.concurrent.Executor);
+    method public static com.google.common.util.concurrent.ListenableFuture<java.util.List<androidx.wear.tiles.ActiveTileIdentifier!>!> getActiveTilesAsync(android.content.Context, java.util.concurrent.Executor);
     method public static androidx.wear.tiles.TileUpdateRequester getUpdater(android.content.Context);
     method public android.os.IBinder? onBind(android.content.Intent);
     method @Deprecated @MainThread protected com.google.common.util.concurrent.ListenableFuture<androidx.wear.tiles.ResourceBuilders.Resources!> onResourcesRequest(androidx.wear.tiles.RequestBuilders.ResourcesRequest);
