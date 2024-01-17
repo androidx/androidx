@@ -24,6 +24,7 @@ import androidx.test.filters.SmallTest
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
+import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -49,7 +50,26 @@ class DeviceInfoTest {
     }
 
     @Test
+    fun artMainlineVersionWembley() { // specific regression test for b/319541718
+        assumeTrue(Build.DEVICE.startsWith("wembley"))
+
+        // Double checks some special properties of go devices
+        assertTrue(DeviceInfo.isLowRamDevice)
+
+        // Wembley available versions don't hit any of the method tracing issues, no art mainline
+        assertFalse(DeviceInfo.methodTracingAffectsMeasurements)
+        assertEquals(-1, DeviceInfo.artMainlineVersion)
+    }
+
+    @Test
     fun artMainlineVersion() {
+        // bypass main test if appear to be on go device without art mainline module
+        if (Build.VERSION.SDK_INT in 31..33 && DeviceInfo.isLowRamDevice) {
+            if (DeviceInfo.artMainlineVersion == -1L) {
+                return // bypass rest of test, appear to be on go device
+            }
+        }
+
         if (Build.VERSION.SDK_INT >= 30) {
             // validate we have a reasonable looking number
             if (Build.VERSION.SDK_INT >= 31) {
