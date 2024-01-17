@@ -27,6 +27,7 @@ import androidx.camera.camera2.internal.compat.quirk.InvalidVideoProfilesQuirk
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.impl.EncoderProfilesProxy.VideoProfileProxy.BIT_DEPTH_8
 import androidx.camera.testing.impl.CameraUtil
+import androidx.camera.testing.impl.LabTestRule
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
@@ -69,6 +70,9 @@ class Camera2EncoderProfilesProviderTest(private val quality: Int) {
 
     @get:Rule
     val useCamera = CameraUtil.grantCameraPermissionAndPreTest()
+
+    @get:Rule
+    val labTestRule = LabTestRule()
 
     @Before
     fun setup() {
@@ -124,6 +128,7 @@ class Camera2EncoderProfilesProviderTest(private val quality: Int) {
 
         val profiles = CamcorderProfile.getAll(cameraId, quality)
         val video = profiles!!.videoProfiles[0]
+        assumeTrue(video != null)
         val audio = profiles.audioProfiles[0]
         val profilesProxy = encoderProfilesProvider.getAll(quality)
         val videoProxy = profilesProxy!!.videoProfiles[0]
@@ -153,10 +158,10 @@ class Camera2EncoderProfilesProviderTest(private val quality: Int) {
     @Test
     fun afterApi33_hasSameContentAsEncoderProfiles() {
         assumeTrue(encoderProfilesProvider.hasProfile(quality))
-        skipTestOnDevicesWithProblematicBuild()
 
         val profiles = CamcorderProfile.getAll(cameraId, quality)
         val video = profiles!!.videoProfiles[0]
+        assumeTrue(video != null)
         val audio = profiles.audioProfiles[0]
         val profilesProxy = encoderProfilesProvider.getAll(quality)
         val videoProxy = profilesProxy!!.videoProfiles[0]
@@ -180,6 +185,16 @@ class Camera2EncoderProfilesProviderTest(private val quality: Int) {
         assertThat(audioProxy.sampleRate).isEqualTo(audio.sampleRate)
         assertThat(audioProxy.channels).isEqualTo(audio.channels)
         assertThat(audioProxy.profile).isEqualTo(audio.profile)
+    }
+
+    @LabTestRule.LabTestOnly
+    @SdkSuppress(minSdkVersion = 31)
+    @Test
+    fun detectNullVideoProfile() {
+        assumeTrue(CamcorderProfile.hasProfile(intCameraId, quality))
+        skipTestOnDevicesWithProblematicBuild()
+        val profiles = CamcorderProfile.getAll(cameraId, quality)!!
+        assertThat(profiles.videoProfiles[0]).isNotNull()
     }
 
     private fun skipTestOnDevicesWithProblematicBuild() {
