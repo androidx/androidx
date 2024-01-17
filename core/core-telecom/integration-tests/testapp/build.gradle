@@ -50,7 +50,7 @@ dependencies {
     implementation('androidx.recyclerview:recyclerview:1.2.1')
 
     // Align dependencies in debugRuntimeClasspath and debugAndroidTestRuntimeClasspath.
-    androidTestImplementation(project(":annotation:annotation-experimental"))
+    androidTestImplementation("androidx.annotation:annotation-experimental:1.4.0")
 
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testRunner)

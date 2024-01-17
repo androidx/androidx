@@ -32,7 +32,7 @@ plugins {
 dependencies {
     api(project(":internal-testutils-runtime"))
     api(project(":appcompat:appcompat"))
-    api(project(":annotation:annotation-experimental"))
+    api("androidx.annotation:annotation-experimental:1.4.0")
 
     implementation(libs.testExtJunit)
     implementation(libs.testCore)

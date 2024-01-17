@@ -35,7 +35,7 @@ dependencies {
     implementation("androidx.core:core-splashscreen:1.0.0")
 
     // Manually align dependencies across debugRuntime and debugAndroidTestRuntime.
-    androidTestImplementation(project(":annotation:annotation-experimental"))
+    androidTestImplementation("androidx.annotation:annotation-experimental:1.4.0")
 
     androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.testExtJunit)

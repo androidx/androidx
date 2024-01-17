@@ -35,7 +35,7 @@ dependencies {
     api(libs.guavaListenableFuture)
     implementation("androidx.annotation:annotation:1.4.0")
     // @OptIn annotations
-    api(project(":annotation:annotation-experimental"))
+    api("androidx.annotation:annotation-experimental:1.4.0")
     implementation("androidx.core:core:1.9.0")
     implementation(libs.kotlinCoroutinesCore)
     implementation(libs.kotlinCoroutinesGuava)
