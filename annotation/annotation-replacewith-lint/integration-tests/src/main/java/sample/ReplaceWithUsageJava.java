@@ -20,7 +20,8 @@ import android.view.View;
 
 import androidx.annotation.ReplaceWith;
 
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "UnknownNullness", "InnerClassMayBeStatic",
+        "InstantiationOfUtilityClass", "ClassCanBeStatic", "PrivateConstructorForUtilityClass"})
 public class ReplaceWithUsageJava {
     /**
      * Calls the method on the object.
@@ -35,6 +36,13 @@ public class ReplaceWithUsageJava {
     }
 
     /**
+     * Returns a new object.
+     */
+    public static ReplaceWithUsageJava obtain(int param) {
+        return new ReplaceWithUsageJava();
+    }
+
+    /**
      * String constant.
      *
      * @deprecated Use {@link View#AUTOFILL_HINT_NAME} directly.
@@ -43,7 +51,52 @@ public class ReplaceWithUsageJava {
     @ReplaceWith(expression = "View.AUTOFILL_HINT_NAME")
     public static final String AUTOFILL_HINT_NAME = View.AUTOFILL_HINT_NAME;
 
-    private ReplaceWithUsageJava() {
-        // This class is not instantiable.
+    /**
+     * Constructor.
+     *
+     * @deprecated Use {@link StringBuffer#StringBuffer(String)} instead.
+     */
+    @Deprecated
+    @ReplaceWith(expression = "StringBuffer(param)")
+    public ReplaceWithUsageJava(String param) {
+        // Stub.
+    }
+
+    /**
+     * Constructor.
+     *
+     * @deprecated Use {@link ReplaceWithUsageJava#obtain(int)} instead.
+     */
+    @Deprecated
+    @ReplaceWith(expression = "ReplaceWithUsageJava.newInstance(param)")
+    public ReplaceWithUsageJava(int param) {
+        // Stub.
+    }
+
+    /**
+     * Constructor.
+     */
+    public ReplaceWithUsageJava() {
+        // Stub.
+    }
+
+    class InnerClass {
+        /**
+         * Constructor.
+         *
+         * @deprecated Use {@link InnerClass#InnerClass()} instead.
+         */
+        @Deprecated
+        @ReplaceWith(expression = "InnerClass()")
+        InnerClass(String param) {
+            // Stub.
+        }
+
+        /**
+         * Constructor.
+         */
+        InnerClass() {
+            // Stub.
+        }
     }
 }

@@ -16,6 +16,7 @@
 
 package androidx.annotation;
 
+import static java.lang.annotation.ElementType.CONSTRUCTOR;
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.ElementType.METHOD;
 
@@ -35,7 +36,7 @@ import java.lang.annotation.Target;
  * static int getActionType(AccessibilityEvent event, int slot) { ... }
  * </pre>
  */
-@Target({METHOD, FIELD})
+@Target({METHOD, FIELD, CONSTRUCTOR})
 public @interface ReplaceWith {
     String expression();
 }
