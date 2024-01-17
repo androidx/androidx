@@ -80,18 +80,36 @@ sealed class CompilationMode {
         val packageName = scope.packageName
         if (Build.VERSION.SDK_INT >= 24) {
             if (Arguments.enableCompilation || !allowCompilationSkipping) {
-                Log.d(TAG, "Resetting $packageName")
+                Log.d(TAG, "Clearing ART profiles for $packageName")
                 // The compilation mode chooses whether a reset is required or not.
                 // Currently the only compilation mode that does not perform a reset is
                 // CompilationMode.Ignore.
                 if (shouldReset()) {
+                    // Package reset enabled
+                    Log.d(TAG, "Resetting profiles for $packageName")
                     // It's not possible to reset the compilation profile on `user` builds.
                     // The flag `enablePackageReset` can be set to `true` on `userdebug` builds in
                     // order to speed-up the profile reset. When set to false, reset is performed
                     // uninstalling and reinstalling the app.
-                    if (Build.VERSION.SDK_INT >= 34 || Shell.isSessionRooted()) {
-                        // Package reset enabled
-                        Log.d(TAG, "Re-compiling $packageName")
+                    if (Build.VERSION.SDK_INT >= 34) {
+                        // Starting API 34, --reset restores the state of the compiled code based
+                        // on prior install state. This means, e.g. if AGP version 8.3+ installs a
+                        // DM alongside the APK, reset != clear.
+                        // Use --verify to replace the contents of the odex file with that of an
+                        // empty file.
+                        cmdPackageCompile(packageName, "verify")
+                        // This does not clear the state of the `cur` and `ref` profiles.
+                        // To do that we also need to call `pm art clear-app-profiles <package>`.
+                        // pm art clear-app-profiles returns a "Profiles cleared"
+                        // to stdout upon success. Otherwise it includes an Error: <error reason>.
+                        val output = Shell.executeScriptCaptureStdout(
+                            "pm art clear-app-profiles $packageName"
+                        )
+
+                        check(output.trim() == "Profiles cleared") {
+                            compileResetErrorString(packageName, output, DeviceInfo.isEmulator)
+                        }
+                    } else if (Shell.isSessionRooted()) {
                         // cmd package compile --reset returns a "Success" or a "Failure" to stdout.
                         // Rather than rely on exit codes which are not always correct, we
                         // specifically look for the work "Success" in stdout to make sure reset
