@@ -22,6 +22,7 @@ package androidx.sqlite {
     method public void bindLong(int index, long value);
     method public void bindNull(int index);
     method public void bindText(int index, String value);
+    method public void clearBindings();
     method public void close();
     method public byte[] getBlob(int index);
     method public int getColumnCount();
