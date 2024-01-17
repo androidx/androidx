@@ -52,6 +52,7 @@ dependencies {
 }
 
 android {
+    compileSdkVersion = "android-34-ext10"
     namespace "androidx.privacysandbox.ads.adservices"
 }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 package androidx.privacysandbox.ads.adservices.adselection
 
-import android.net.Uri
+import androidx.privacysandbox.ads.adservices.common.AdTechIdentifier
 import androidx.privacysandbox.ads.adservices.common.ExperimentalFeatures
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
@@ -27,29 +27,22 @@ import org.junit.runner.RunWith
 @OptIn(ExperimentalFeatures.Ext10OptIn::class)
 @SmallTest
 @RunWith(AndroidJUnit4::class)
-class AdSelectionOutcomeTest {
-    private val adSelectionId = 1234L
-    private val renderUri = Uri.parse("abc.com")
+class GetAdSelectionDataRequestTest {
+    private val seller: AdTechIdentifier = AdTechIdentifier("1234")
+
     @Test
     fun testToString() {
-        val result = "AdSelectionOutcome: adSelectionId=$adSelectionId, renderUri=$renderUri"
-        val request = AdSelectionOutcome(adSelectionId, renderUri)
+        val result = "GetAdSelectionDataRequest: seller=$seller"
+        val request = GetAdSelectionDataRequest(seller)
+
         Truth.assertThat(request.toString()).isEqualTo(result)
     }
 
     @Test
     fun testEquals() {
-        val adSelectionOutcome = AdSelectionOutcome(adSelectionId, renderUri)
-        var adSelectionOutcome2 = AdSelectionOutcome(adSelectionId, Uri.parse("abc.com"))
-        Truth.assertThat(adSelectionOutcome == adSelectionOutcome2).isTrue()
-    }
+        val reportEventRequest = GetAdSelectionDataRequest(seller)
+        var reportEventRequest2 = GetAdSelectionDataRequest(AdTechIdentifier("1234"))
 
-    @Test
-    fun testHasOutcome() {
-        val adSelectionOutcome = AdSelectionOutcome(adSelectionId, renderUri)
-        Truth.assertThat(adSelectionOutcome.hasOutcome()).isTrue()
-
-        val emptyAdSelectionOutcome = AdSelectionOutcome(0, Uri.EMPTY)
-        Truth.assertThat(emptyAdSelectionOutcome.hasOutcome()).isFalse()
+        Truth.assertThat(reportEventRequest == reportEventRequest2).isTrue()
     }
 }

@@ -52,6 +52,7 @@ dependencies {
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.truth)
+    androidTestImplementation(project(":internal-testutils-truth"))
 
     androidTestImplementation(libs.mockitoCore4, excludes.bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation(libs.dexmakerMockitoInline, excludes.bytebuddy) // DexMaker has it"s own MockMaker
@@ -63,6 +64,7 @@ android {
         multiDexEnabled = true
     }
 
+    compileSdkVersion = "android-34-ext10"
     namespace "androidx.privacysandbox.ads.adservices.java"
 }
 
