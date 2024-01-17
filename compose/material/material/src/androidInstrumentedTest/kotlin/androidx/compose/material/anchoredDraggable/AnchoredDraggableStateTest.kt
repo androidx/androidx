@@ -34,6 +34,7 @@ import androidx.compose.material.anchoredDraggable.AnchoredDraggableTestValue.A
 import androidx.compose.material.anchoredDraggable.AnchoredDraggableTestValue.B
 import androidx.compose.material.anchoredDraggable.AnchoredDraggableTestValue.C
 import androidx.compose.material.animateTo
+import androidx.compose.material.draggableAnchors
 import androidx.compose.material.snapTo
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MonotonicFrameClock
@@ -45,6 +46,9 @@ import androidx.compose.runtime.withFrameNanos
 import androidx.compose.testutils.WithTouchSlop
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.LookaheadScope
+import androidx.compose.ui.layout.SubcomposeLayout
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.junit4.StateRestorationTester
@@ -1005,6 +1009,73 @@ class AnchoredDraggableStateTest {
             }
             assertThat(state.currentValue).isNotEqualTo(C)
         }
+
+    // Regression test for b/295536718
+    @Test
+    fun draggableAnchors_measuredInPlacementInLookahead_initializesOffset() {
+        data class LayoutExecutionInfo(
+            val phase: Int, // 0 = measure; 1 = place
+            val isLookingAhead: Boolean
+        )
+
+        val innerLayoutExecutionOrder = mutableListOf<LayoutExecutionInfo>()
+        val state = AnchoredDraggableState(
+            initialValue = B,
+            positionalThreshold = defaultPositionalThreshold,
+            velocityThreshold = defaultVelocityThreshold,
+            animationSpec = defaultAnimationSpec
+        )
+        rule.setContent {
+            LookaheadScope {
+                SubcomposeLayout { constraints ->
+                    layout(0, 0) {
+                        // Do all work in placement instead of measurement, so we run lookahead
+                        // place before post-lookahead measure
+                        val placeables = subcompose("sheet") {
+                            Box(
+                                modifier = Modifier
+                                    .layout { measurable, innerConstraints ->
+                                        innerLayoutExecutionOrder
+                                            .add(LayoutExecutionInfo(0, isLookingAhead))
+                                        layout(
+                                            innerConstraints.maxWidth,
+                                            innerConstraints.maxHeight
+                                        ) {
+                                            val placeable = measurable.measure(innerConstraints)
+                                            innerLayoutExecutionOrder
+                                                .add(LayoutExecutionInfo(1, isLookingAhead))
+                                            placeable.place(0, 0)
+                                        }
+                                    }
+                                    // The offset should be initialized by draggableAnchors in
+                                    // lookahead measure. If lookahead place runs before
+                                    // post-lookahead measure and we were not initializing the
+                                    // offset in lookahead measure, this would crash as
+                                    // draggableAnchors uses requireOffset in placement.
+                                    .draggableAnchors(
+                                        state,
+                                        Orientation.Vertical
+                                    ) { size, constraints ->
+                                        DraggableAnchors {
+                                            A at 0f
+                                            C at constraints.maxHeight - size.height.toFloat()
+                                        } to A
+                                    }
+                            )
+                        }.map { it.measure(constraints) }
+                        placeables.map { it.place(0, 0) }
+                    }
+                }
+            }
+        }
+        assertThat(innerLayoutExecutionOrder)
+            .containsExactly(
+                LayoutExecutionInfo(0, true),
+                LayoutExecutionInfo(1, true),
+                LayoutExecutionInfo(0, false),
+                LayoutExecutionInfo(1, false),
+            )
+    }
 
     private suspend fun suspendIndefinitely() = suspendCancellableCoroutine<Unit> { }
 
