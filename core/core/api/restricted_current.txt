@@ -2733,8 +2733,8 @@ package androidx.core.util {
     method public java.io.FileOutputStream startWrite() throws java.io.IOException;
   }
 
-  public interface Consumer<T> {
-    method public void accept(T!);
+  public fun interface Consumer<T> {
+    method public void accept(T value);
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class DebugUtils {

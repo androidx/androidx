@@ -13,19 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package androidx.core.util;
+package androidx.core.util
 
 /**
- * Compat version of {@link java.util.function.Consumer}
- * @param <T> the type of the input to the operation
+ * Compat version of [java.util.function.Consumer]
+ * @param T the type of the input to the operation
  */
-public interface Consumer<T> {
-
+fun interface Consumer<T> {
     /**
      * Performs this operation on the given argument.
      *
-     * @param t the input argument
+     * @param value the input argument
      */
-    void accept(T t);
+    fun accept(value: T)
 }

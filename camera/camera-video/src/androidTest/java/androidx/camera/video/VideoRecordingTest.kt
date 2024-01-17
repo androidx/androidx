@@ -1291,8 +1291,8 @@ private class VideoCaptureMonitor : Consumer<VideoRecordEvent> {
         }!!.await(timeoutMillis, TimeUnit.MILLISECONDS)).isTrue()
     }
 
-    override fun accept(event: VideoRecordEvent?) {
-        when (event) {
+    override fun accept(value: VideoRecordEvent) {
+        when (value) {
             is VideoRecordEvent.Status -> {
                 synchronized(this) {
                     countDown?.countDown()
