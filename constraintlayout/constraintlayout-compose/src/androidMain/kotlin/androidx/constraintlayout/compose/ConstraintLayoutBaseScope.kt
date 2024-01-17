@@ -39,6 +39,7 @@ abstract class ConstraintLayoutBaseScope internal constructor(extendFrom: CLObje
     @Deprecated("Tasks is unused, it breaks the immutability promise.")
     protected val tasks = mutableListOf<(State) -> Unit>()
 
+    @PublishedApi
     internal val containerObject: CLObject = extendFrom?.clone() ?: CLObject(charArrayOf())
 
     fun applyTo(state: State) {
@@ -330,7 +331,7 @@ abstract class ConstraintLayoutBaseScope internal constructor(extendFrom: CLObje
     }
 
     /**
-     * Creates a guideline at a height percenide from the bottom of the [ConstraintLayout].
+     * Creates a guideline at a height percentage from the bottom of the [ConstraintLayout].
      * A [fraction] of 0f will correspond to the bottom of the [ConstraintLayout], while 1f will
      * correspond to the top.
      */

@@ -18,15 +18,14 @@ package androidx.viewpager2.widget
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import androidx.test.filters.SdkSuppress
 import androidx.testutils.LocaleTestUtils
 import androidx.viewpager2.widget.ViewPager2.ORIENTATION_HORIZONTAL
 import androidx.viewpager2.widget.ViewPager2.ORIENTATION_VERTICAL
+import java.util.concurrent.TimeUnit.SECONDS
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.util.concurrent.TimeUnit.SECONDS
 
 /**
  * Tests [ViewPager2.canScrollHorizontally] and [ViewPager2.canScrollVertically]
@@ -77,7 +76,6 @@ class CanScrollTest : BaseTest() {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 17)
     fun test_canScrollHorizontallyVertically_horizontal_rtl() {
         // given RTL locale
         localeUtil.resetLocale()

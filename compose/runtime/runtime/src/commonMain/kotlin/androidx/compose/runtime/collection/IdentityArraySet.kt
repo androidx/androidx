@@ -29,8 +29,7 @@ internal class IdentityArraySet<T : Any> : Set<T> {
     override var size = 0
         private set
 
-    @PublishedApi
-    internal var values: Array<Any?> = arrayOfNulls(16)
+    var values: Array<Any?> = arrayOfNulls(16)
         private set
 
     /**
@@ -112,6 +111,18 @@ internal class IdentityArraySet<T : Any> : Set<T> {
             @Suppress("UNCHECKED_CAST")
             block(values[i] as T)
         }
+    }
+
+    inline fun fastAny(block: (T) -> Boolean): Boolean {
+        contract { callsInPlace(block) }
+        val size = size
+        if (size == 0) return false
+        val values = values
+        for (i in 0 until size) {
+            @Suppress("UNCHECKED_CAST")
+            if (block(values[i] as T)) return true
+        }
+        return false
     }
 
     fun addAll(collection: Collection<T>) {

@@ -21,10 +21,10 @@ import androidx.health.services.client.data.DataPoint
 import androidx.health.services.client.data.DataType
 import androidx.health.services.client.data.ExerciseCapabilities
 import androidx.health.services.client.data.ExerciseConfig
+import androidx.health.services.client.data.ExerciseEndReason
 import androidx.health.services.client.data.ExerciseGoal
 import androidx.health.services.client.data.ExerciseInfo
 import androidx.health.services.client.data.ExerciseState
-import androidx.health.services.client.data.ExerciseEndReason
 import androidx.health.services.client.data.ExerciseType
 import androidx.health.services.client.data.ExerciseTypeConfig
 import androidx.health.services.client.data.ExerciseUpdate

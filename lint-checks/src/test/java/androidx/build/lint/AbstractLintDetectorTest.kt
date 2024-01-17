@@ -73,6 +73,7 @@ abstract class AbstractLintDetectorTest(
                 *stubs,
                 *files
             )
+            .allowDuplicates()
             .run()
     }
 }

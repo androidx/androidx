@@ -17,8 +17,7 @@
 package androidx.build
 
 import androidx.build.dependencies.AGP_LATEST
-import androidx.build.dependencies.KOTLIN_STDLIB
-import androidx.build.dependencies.KOTLIN_VERSION
+import androidx.build.dependencies.KOTLIN_GRADLE_PLUGIN_VERSION
 import androidx.build.dependencies.KSP_VERSION
 import com.google.common.annotations.VisibleForTesting
 import java.io.File
@@ -28,8 +27,10 @@ import org.gradle.api.artifacts.repositories.MavenArtifactRepository
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.plugins.JavaPluginExtension
+import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
+import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
@@ -40,54 +41,52 @@ import org.gradle.work.DisableCachingByDefault
 
 @DisableCachingByDefault(because = "Simply generates a small file and doesn't benefit from caching")
 abstract class SdkResourceGenerator : DefaultTask() {
-    @get:Input
-    lateinit var tipOfTreeMavenRepoRelativePath: String
+    @get:Input lateinit var tipOfTreeMavenRepoRelativePath: String
 
     /**
-     * project-relative path to folder where outputs from buildSrc builds can be found
-     * (perhaps something like ../out/buildSrc)
+     * project-relative path to folder where outputs from buildSrc builds can be found (perhaps
+     * something like ../out/buildSrc)
      */
-    @get:Input
-    lateinit var buildSrcOutRelativePath: String
+    @get:Input lateinit var buildSrcOutRelativePath: String
 
     @get:[InputFile PathSensitive(PathSensitivity.NONE)]
     abstract val debugKeystore: RegularFileProperty
 
-    @get:Input
-    val compileSdkVersion: String = SupportConfig.COMPILE_SDK_VERSION
+    @get:Input abstract val compileSdkVersion: Property<String>
+
+    @get:Input abstract val buildToolsVersion: Property<String>
+
+    @get:Input abstract val minSdkVersion: Property<Int>
+
+    @get:Input val agpDependency: String = AGP_LATEST
 
     @get:Input
-    val buildToolsVersion: String = SupportConfig.BUILD_TOOLS_VERSION
+    val navigationRuntime: String = "androidx.navigation:navigation-runtime:2.4.0"
 
-    @get:Input
-    val minSdkVersion: Int = SupportConfig.DEFAULT_MIN_SDK_VERSION
+    @get:Input abstract val kotlinStdlib: Property<String>
 
-    @get:Input
-    val agpDependency: String = AGP_LATEST
+    @get:Input abstract val kgpVersion: Property<String>
 
-    @get:Input
-    val navigationRuntime: String = "androidx.navigation:navigation-runtime:2.4.0-alpha01"
+    @get:Input val kspVersion: String = KSP_VERSION
 
-    @get:Input
-    val kotlinStdlib: String = KOTLIN_STDLIB
-
-    @get:Input
-    val kotlinVersion: String = KOTLIN_VERSION
-
-    @get:Input
-    val kspVersion: String = KSP_VERSION
-
-    @get:Input
-    lateinit var repositoryUrls: List<String>
+    @get:Input lateinit var repositoryUrls: List<String>
 
     @get:Input
     val rootProjectRelativePath: String =
         project.rootProject.rootDir.toRelativeString(project.projectDir)
 
+    @get:Input
+    @get:Optional
+    val prebuiltsRelativePath: String? =
+        if (ProjectLayoutType.isPlayground(project)) {
+            null
+        } else {
+            project.getPrebuiltsRoot().toRelativeString(project.projectDir)
+        }
+
     private val projectDir: File = project.projectDir
 
-    @get:OutputDirectory
-    abstract val outputDir: DirectoryProperty
+    @get:OutputDirectory abstract val outputDir: DirectoryProperty
 
     @TaskAction
     fun generateFile() {
@@ -107,12 +106,15 @@ abstract class SdkResourceGenerator : DefaultTask() {
 
             writer.write("agpDependency=$agpDependency\n")
             writer.write("navigationRuntime=$navigationRuntime\n")
-            writer.write("kotlinStdlib=$kotlinStdlib\n")
-            writer.write("compileSdkVersion=$compileSdkVersion\n")
-            writer.write("buildToolsVersion=$buildToolsVersion\n")
-            writer.write("minSdkVersion=$minSdkVersion\n")
-            writer.write("kotlinVersion=$kotlinVersion\n")
+            writer.write("kotlinStdlib=${kotlinStdlib.get()}\n")
+            writer.write("compileSdkVersion=${compileSdkVersion.get()}\n")
+            writer.write("buildToolsVersion=${buildToolsVersion.get()}\n")
+            writer.write("minSdkVersion=${minSdkVersion.get()}\n")
+            writer.write("kgpVersion=${kgpVersion.get()}\n")
             writer.write("kspVersion=$kspVersion\n")
+            if (prebuiltsRelativePath != null) {
+                writer.write("prebuiltsRelativePath=$prebuiltsRelativePath\n")
+            }
             writer.write("buildSrcOutRelativePath=$buildSrcOutRelativePath\n")
         }
     }
@@ -130,18 +132,29 @@ abstract class SdkResourceGenerator : DefaultTask() {
 
         @VisibleForTesting
         fun registerSdkResourceGeneratorTask(project: Project): TaskProvider<SdkResourceGenerator> {
-            val generatedDirectory = File(project.buildDir, "generated/resources")
+            val generatedDirectory = project.layout.buildDirectory.dir("generated/resources")
             return project.tasks.register(TASK_NAME, SdkResourceGenerator::class.java) {
                 it.tipOfTreeMavenRepoRelativePath =
                     project.getRepositoryDirectory().toRelativeString(project.projectDir)
                 it.debugKeystore.set(project.getKeystore())
                 it.outputDir.set(generatedDirectory)
+                it.buildToolsVersion.set(
+                    project.provider { project.defaultAndroidConfig.buildToolsVersion }
+                )
+                it.minSdkVersion.set(project.defaultAndroidConfig.minSdk)
+                it.compileSdkVersion.set(project.defaultAndroidConfig.compileSdk)
+                it.kotlinStdlib.set(
+                    project.androidXConfiguration.kotlinBomVersion.map { version ->
+                        "org.jetbrains.kotlin:kotlin-stdlib:$version"
+                    }
+                )
+                it.kgpVersion.set(KOTLIN_GRADLE_PLUGIN_VERSION)
                 it.buildSrcOutRelativePath =
                     (project.properties["buildSrcOut"] as File).toRelativeString(project.projectDir)
                 // Copy repositories used for the library project so that it can replicate the same
                 // maven structure in test.
-                it.repositoryUrls = project.repositories.filterIsInstance<MavenArtifactRepository>()
-                    .map {
+                it.repositoryUrls =
+                    project.repositories.filterIsInstance<MavenArtifactRepository>().map {
                         if (it.url.scheme == "file") {
                             // Make file paths relative to projectDir
                             File(it.url.path).toRelativeString(project.projectDir)

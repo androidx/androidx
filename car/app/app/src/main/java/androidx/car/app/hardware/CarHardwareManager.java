@@ -77,7 +77,6 @@ public interface CarHardwareManager extends Manager {
      *                               class was found but the constructor was mismatched
      * @throws HostException         if the negotiated api level is less than
      *                               {@link CarAppApiLevels#LEVEL_3}
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
     @NonNull

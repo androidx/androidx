@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.LibraryType
 import androidx.build.Publish
 
@@ -32,31 +39,15 @@ dependencies {
 
 }
 
-def latestSdkVersion = 31
-
 android {
-    defaultConfig {
-        minSdkVersion 14
-        targetSdkVersion latestSdkVersion
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-    }
-
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
-
-    buildFeatures {
-        buildConfig = false
-    }
-
     namespace "androidx.constraintlayout.widget"
 }
 
 androidx {
-    name = "Android ConstraintLayout Library"
+    name = "ConstraintLayout"
     type = LibraryType.PUBLISHED_LIBRARY
     mavenVersion = LibraryVersions.CONSTRAINTLAYOUT
     inceptionYear = "2022"
     description = "This library offers a flexible and adaptable way to position and animate widgets"
+    metalavaK2UastEnabled = true
 }

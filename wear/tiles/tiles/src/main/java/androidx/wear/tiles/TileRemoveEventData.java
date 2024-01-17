@@ -23,7 +23,6 @@ import androidx.annotation.RestrictTo;
  * Holder for Tiles' TileRemoveEvent class, to be parceled and transferred to a Tile Service.
  *
  * <p>All this does is to serialize TileRemoveEvent as a protobuf and transmit it.
- *
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class TileRemoveEventData extends ProtoParcelable {

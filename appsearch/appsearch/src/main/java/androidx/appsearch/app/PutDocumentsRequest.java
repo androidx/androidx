@@ -19,6 +19,7 @@ package androidx.appsearch.app;
 import android.annotation.SuppressLint;
 
 import androidx.annotation.NonNull;
+import androidx.appsearch.annotation.CanIgnoreReturnValue;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.core.util.Preconditions;
 
@@ -58,6 +59,7 @@ public final class PutDocumentsRequest {
         private boolean mBuilt = false;
 
         /** Adds one or more {@link GenericDocument} objects to the request. */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder addGenericDocuments(@NonNull GenericDocument... documents) {
             Preconditions.checkNotNull(documents);
@@ -66,6 +68,7 @@ public final class PutDocumentsRequest {
         }
 
         /** Adds a collection of {@link GenericDocument} objects to the request. */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder addGenericDocuments(
                 @NonNull Collection<? extends GenericDocument> documents) {
@@ -87,6 +90,7 @@ public final class PutDocumentsRequest {
          */
         // Merged list available from getGenericDocuments()
         @SuppressLint("MissingGetterMatchingBuilder")
+        @CanIgnoreReturnValue
         @NonNull
         public Builder addDocuments(@NonNull Object... documents) throws AppSearchException {
             Preconditions.checkNotNull(documents);
@@ -105,6 +109,7 @@ public final class PutDocumentsRequest {
          */
         // Merged list available from getGenericDocuments()
         @SuppressLint("MissingGetterMatchingBuilder")
+        @CanIgnoreReturnValue
         @NonNull
         public Builder addDocuments(@NonNull Collection<?> documents) throws AppSearchException {
             Preconditions.checkNotNull(documents);

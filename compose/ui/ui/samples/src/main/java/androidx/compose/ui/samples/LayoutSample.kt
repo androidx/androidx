@@ -22,11 +22,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.ExperimentalComposeUiApi
-import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.IntrinsicMeasurable
 import androidx.compose.ui.layout.IntrinsicMeasureScope
+import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.LayoutModifier
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasurePolicy
@@ -212,9 +212,8 @@ fun LayoutModifierNodeSample() {
         val padding: Dp
     ) : ModifierNodeElement<VerticalPadding>() {
         override fun create() = VerticalPadding(padding)
-        override fun update(node: VerticalPadding): VerticalPadding {
+        override fun update(node: VerticalPadding) {
             node.padding = padding
-            return node
         }
         override fun InspectorInfo.inspectableProperties() {
             name = "verticalPadding"

@@ -16,8 +16,6 @@
 
 package androidx.window.layout.adapter.extensions
 
-import androidx.window.extensions.layout.FoldingFeature as OEMFoldingFeature
-import androidx.window.extensions.layout.WindowLayoutInfo as OEMWindowLayoutInfo
 import android.graphics.Rect
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -25,8 +23,10 @@ import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.window.TestActivity
 import androidx.window.WindowTestUtils
 import androidx.window.core.Bounds
+import androidx.window.extensions.layout.FoldingFeature as OEMFoldingFeature
 import androidx.window.extensions.layout.FoldingFeature.STATE_HALF_OPENED
 import androidx.window.extensions.layout.FoldingFeature.TYPE_HINGE
+import androidx.window.extensions.layout.WindowLayoutInfo as OEMWindowLayoutInfo
 import androidx.window.layout.FoldingFeature.State.Companion.HALF_OPENED
 import androidx.window.layout.HardwareFoldingFeature
 import androidx.window.layout.HardwareFoldingFeature.Type.Companion.HINGE

@@ -16,13 +16,13 @@
 
 package androidx.window.layout.adapter.extensions
 
-import androidx.window.extensions.layout.FoldingFeature as OEMFoldingFeature
-import androidx.window.extensions.layout.WindowLayoutInfo as OEMWindowLayoutInfo
 import android.app.Activity
 import android.content.Context
 import android.os.Build
 import androidx.annotation.UiContext
 import androidx.window.core.Bounds
+import androidx.window.extensions.layout.FoldingFeature as OEMFoldingFeature
+import androidx.window.extensions.layout.WindowLayoutInfo as OEMWindowLayoutInfo
 import androidx.window.layout.FoldingFeature
 import androidx.window.layout.FoldingFeature.State.Companion.FLAT
 import androidx.window.layout.FoldingFeature.State.Companion.HALF_OPENED

@@ -36,29 +36,29 @@ import androidx.work.ForegroundInfo;
 import androidx.work.Logger;
 import androidx.work.impl.ExecutionListener;
 import androidx.work.impl.WorkManagerImpl;
-import androidx.work.impl.constraints.WorkConstraintsCallback;
+import androidx.work.impl.constraints.ConstraintsState;
+import androidx.work.impl.constraints.OnConstraintsStateChangedListener;
 import androidx.work.impl.constraints.WorkConstraintsTracker;
-import androidx.work.impl.constraints.WorkConstraintsTrackerImpl;
+import androidx.work.impl.constraints.WorkConstraintsTrackerKt;
 import androidx.work.impl.model.WorkGenerationalId;
 import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.utils.taskexecutor.TaskExecutor;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
+
+import kotlinx.coroutines.Job;
 
 /**
  * Handles requests for executing {@link androidx.work.WorkRequest}s on behalf of
  * {@link SystemForegroundService}.
- *
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class SystemForegroundDispatcher implements WorkConstraintsCallback, ExecutionListener {
+public class SystemForegroundDispatcher implements OnConstraintsStateChangedListener,
+        ExecutionListener {
     // Synthetic access
     @SuppressWarnings("WeakerAccess")
     static final String TAG = Logger.tagWithPrefix("SystemFgDispatcher");
@@ -94,7 +94,7 @@ public class SystemForegroundDispatcher implements WorkConstraintsCallback, Exec
     final Map<WorkGenerationalId, WorkSpec> mWorkSpecById;
 
     @SuppressWarnings("WeakerAccess") // Synthetic access
-    final Set<WorkSpec> mTrackedWorkSpecs;
+    final Map<WorkGenerationalId, Job> mTrackedWorkSpecs;
 
     @SuppressWarnings("WeakerAccess") // Synthetic access
     final WorkConstraintsTracker mConstraintsTracker;
@@ -109,9 +109,9 @@ public class SystemForegroundDispatcher implements WorkConstraintsCallback, Exec
         mTaskExecutor = mWorkManagerImpl.getWorkTaskExecutor();
         mCurrentForegroundId = null;
         mForegroundInfoById = new LinkedHashMap<>();
-        mTrackedWorkSpecs = new HashSet<>();
+        mTrackedWorkSpecs = new HashMap<>();
         mWorkSpecById = new HashMap<>();
-        mConstraintsTracker = new WorkConstraintsTrackerImpl(mWorkManagerImpl.getTrackers(), this);
+        mConstraintsTracker = new WorkConstraintsTracker(mWorkManagerImpl.getTrackers());
         mWorkManagerImpl.getProcessor().addExecutionListener(this);
     }
 
@@ -127,7 +127,7 @@ public class SystemForegroundDispatcher implements WorkConstraintsCallback, Exec
         mTaskExecutor = mWorkManagerImpl.getWorkTaskExecutor();
         mCurrentForegroundId = null;
         mForegroundInfoById = new LinkedHashMap<>();
-        mTrackedWorkSpecs = new HashSet<>();
+        mTrackedWorkSpecs = new HashMap<>();
         mWorkSpecById = new HashMap<>();
         mConstraintsTracker = tracker;
         mWorkManagerImpl.getProcessor().addExecutionListener(this);
@@ -136,15 +136,15 @@ public class SystemForegroundDispatcher implements WorkConstraintsCallback, Exec
     @MainThread
     @Override
     public void onExecuted(@NonNull WorkGenerationalId id, boolean needsReschedule) {
-        boolean removed = false;
+        Job removed = null;
         synchronized (mLock) {
             WorkSpec workSpec = mWorkSpecById.remove(id);
             if (workSpec != null) {
-                removed = mTrackedWorkSpecs.remove(workSpec);
+                removed = mTrackedWorkSpecs.remove(id);
             }
-            if (removed) {
+            if (removed != null) {
                 // Stop tracking constraints.
-                mConstraintsTracker.replace(mTrackedWorkSpecs);
+                removed.cancel(null);
             }
         }
 
@@ -230,7 +230,9 @@ public class SystemForegroundDispatcher implements WorkConstraintsCallback, Exec
     void onDestroy() {
         mCallback = null;
         synchronized (mLock) {
-            mConstraintsTracker.reset();
+            for (Job job : mTrackedWorkSpecs.values()) {
+                job.cancel(null);
+            }
         }
         mWorkManagerImpl.getProcessor().removeExecutionListener(this);
     }
@@ -248,8 +250,11 @@ public class SystemForegroundDispatcher implements WorkConstraintsCallback, Exec
                 if (workSpec != null && workSpec.hasConstraints()) {
                     synchronized (mLock) {
                         mWorkSpecById.put(generationalId(workSpec), workSpec);
-                        mTrackedWorkSpecs.add(workSpec);
-                        mConstraintsTracker.replace(mTrackedWorkSpecs);
+                        Job job = WorkConstraintsTrackerKt.listen(mConstraintsTracker, workSpec,
+                                mTaskExecutor.getTaskCoroutineDispatcher(),
+                                SystemForegroundDispatcher.this
+                        );
+                        mTrackedWorkSpecs.put(generationalId(workSpec), job);
                     }
                 }
             }
@@ -326,19 +331,12 @@ public class SystemForegroundDispatcher implements WorkConstraintsCallback, Exec
     }
 
     @Override
-    public void onAllConstraintsMet(@NonNull List<WorkSpec> workSpecs) {
-        // Do nothing
-    }
-
-    @Override
-    public void onAllConstraintsNotMet(@NonNull List<WorkSpec> workSpecs) {
-        if (!workSpecs.isEmpty()) {
-            for (WorkSpec workSpec : workSpecs) {
-                String workSpecId = workSpec.id;
-                Logger.get().debug(TAG,
-                        "Constraints unmet for WorkSpec " + workSpecId);
-                mWorkManagerImpl.stopForegroundWork(generationalId(workSpec));
-            }
+    public void onConstraintsStateChanged(@NonNull WorkSpec workSpec,
+            @NonNull ConstraintsState state) {
+        if (state instanceof ConstraintsState.ConstraintsNotMet) {
+            String workSpecId = workSpec.id;
+            Logger.get().debug(TAG, "Constraints unmet for WorkSpec " + workSpecId);
+            mWorkManagerImpl.stopForegroundWork(generationalId(workSpec));
         }
     }
 
@@ -419,7 +417,7 @@ public class SystemForegroundDispatcher implements WorkConstraintsCallback, Exec
     public static Intent createStopForegroundIntent(@NonNull Context context) {
         Intent intent = new Intent(context, SystemForegroundService.class);
         intent.setAction(ACTION_STOP_FOREGROUND);
-        return  intent;
+        return intent;
     }
 
     /**

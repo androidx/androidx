@@ -16,16 +16,17 @@
 
 package androidx.camera.mlkit.vision
 
-import android.graphics.Matrix
 import android.graphics.Rect
+import android.graphics.RectF
 import android.media.Image
 import android.os.Build
 import android.util.Size
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
+import androidx.camera.core.impl.utils.TransformUtils.getRectToRect
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.directExecutor
-import androidx.camera.testing.fakes.FakeImageInfo
-import androidx.camera.testing.fakes.FakeImageProxy
+import androidx.camera.testing.impl.fakes.FakeImageInfo
+import androidx.camera.testing.impl.fakes.FakeImageProxy
 import androidx.camera.view.CameraController.COORDINATE_SYSTEM_VIEW_REFERENCED
 import com.google.common.truth.Truth.assertThat
 import com.google.mlkit.vision.interfaces.Detector
@@ -51,7 +52,14 @@ class MlKitAnalyzerTest {
         private const val RETURN_VALUE = "return value"
         private const val TIMESTAMP = 100L
         private const val ROTATION_DEGREES = 180
-        private val CROP_RECT = Rect(0, 0, 640, 480)
+        private val SENSOR_RECT = Rect(0, 0, 4000, 3000)
+        private val VIEW_RECT = Rect(0, 0, 1024, 768)
+        private val IMAGE_ANALYSIS_RECT = Rect(0, 0, 640, 480)
+        private val SENSOR_TO_BUFFER = getRectToRect(
+            RectF(SENSOR_RECT),
+            RectF(IMAGE_ANALYSIS_RECT),
+            0
+        )
     }
 
     @Test
@@ -150,7 +158,7 @@ class MlKitAnalyzerTest {
     @Test
     fun transformationAndRotationIsCorrect() {
         // Arrange.
-        val additionalTransform = Matrix()
+        val additionalTransform = getRectToRect(RectF(SENSOR_RECT), RectF(VIEW_RECT), 0)
         additionalTransform.setScale(2F, 2F)
         val detector = FakeDetector(RETURN_VALUE, TYPE_BARCODE_SCANNING)
         val analyzer = MlKitAnalyzer(
@@ -165,25 +173,24 @@ class MlKitAnalyzerTest {
         analyzer.analyze(createFakeImageProxy())
 
         // Assert that the matrix is passed to the MLKit detector.
-        val expected = floatArrayOf(-0.00625F, 0F, 2.0F, 0F, -0.0083333F, 2.0F, 0.0F, 0.0F, 1.0F)
+        val expected = floatArrayOf(-12.5F, 0F, 8000F, 0F, -12.5F, 6000F, 0F, 0F, 1F)
         val actual = FloatArray(9)
         detector.latestMatrix!!.getValues(actual)
-        actual.forEachIndexed { i, element ->
-            // Assert allowing float rounding error.
-            assertThat(expected[i]).isWithin(1E-4F).of(element)
-        }
+        assertThat(actual).usingTolerance(1E-3).containsExactly(expected).inOrder()
     }
 
     private fun createFakeImageProxy(): ImageProxy {
         val imageInfo = FakeImageInfo()
         imageInfo.timestamp = TIMESTAMP
         imageInfo.rotationDegrees = ROTATION_DEGREES
+        imageInfo.sensorToBufferTransformMatrix = SENSOR_TO_BUFFER
 
-        val imageProxy = FakeImageProxy(imageInfo)
+        val imageProxy =
+            FakeImageProxy(imageInfo)
         imageProxy.image = mock(Image::class.java)
-        imageProxy.width = CROP_RECT.width()
-        imageProxy.height = CROP_RECT.height()
-        imageProxy.setCropRect(CROP_RECT)
+        imageProxy.width = IMAGE_ANALYSIS_RECT.width()
+        imageProxy.height = IMAGE_ANALYSIS_RECT.height()
+        imageProxy.setCropRect(IMAGE_ANALYSIS_RECT)
 
         return imageProxy
     }

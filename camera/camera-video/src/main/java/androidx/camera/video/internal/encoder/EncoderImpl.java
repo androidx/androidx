@@ -16,6 +16,7 @@
 
 package androidx.camera.video.internal.encoder;
 
+import static androidx.camera.video.internal.utils.CodecUtil.createCodec;
 import static androidx.camera.video.internal.encoder.EncoderImpl.InternalState.CONFIGURED;
 import static androidx.camera.video.internal.encoder.EncoderImpl.InternalState.ERROR;
 import static androidx.camera.video.internal.encoder.EncoderImpl.InternalState.PAUSED;
@@ -35,6 +36,7 @@ import android.media.MediaCodec.BufferInfo;
 import android.media.MediaCodecInfo;
 import android.media.MediaFormat;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.util.Range;
 import android.view.Surface;
 
@@ -52,10 +54,11 @@ import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.video.internal.DebugUtils;
 import androidx.camera.video.internal.compat.quirk.AudioEncoderIgnoresInputTimestampQuirk;
 import androidx.camera.video.internal.compat.quirk.CameraUseInconsistentTimebaseQuirk;
+import androidx.camera.video.internal.compat.quirk.CodecStuckOnFlushQuirk;
 import androidx.camera.video.internal.compat.quirk.DeviceQuirks;
 import androidx.camera.video.internal.compat.quirk.EncoderNotUsePersistentInputSurfaceQuirk;
+import androidx.camera.video.internal.compat.quirk.StopCodecAfterSurfaceRemovalCrashMediaServerQuirk;
 import androidx.camera.video.internal.compat.quirk.VideoEncoderSuspendDoesNotIncludeSuspendTimeQuirk;
-import androidx.camera.video.internal.workaround.EncoderFinder;
 import androidx.camera.video.internal.workaround.VideoTimebaseConverter;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.concurrent.futures.CallbackToFutureAdapter.Completer;
@@ -147,7 +150,6 @@ public class EncoderImpl implements Encoder {
     private static final long NO_LIMIT_LONG = Long.MAX_VALUE;
     private static final Range<Long> NO_RANGE = Range.create(NO_LIMIT_LONG, NO_LIMIT_LONG);
     private static final long STOP_TIMEOUT_MS = 1000L;
-    private static final int FAKE_BUFFER_INDEX = -9999;
 
     @SuppressWarnings("WeakerAccess") // synthetic accessor
     final String mTag;
@@ -208,8 +210,6 @@ public class EncoderImpl implements Encoder {
     private boolean mSourceStoppedSignalled = false;
     boolean mMediaCodecEosSignalled = false;
 
-    final EncoderFinder mEncoderFinder = new EncoderFinder();
-
     /**
      * Creates the encoder with a {@link EncoderConfig}
      *
@@ -222,32 +222,30 @@ public class EncoderImpl implements Encoder {
         Preconditions.checkNotNull(executor);
         Preconditions.checkNotNull(encoderConfig);
 
+        mMediaCodec = createCodec(encoderConfig);
+        MediaCodecInfo mediaCodecInfo = mMediaCodec.getCodecInfo();
         mEncoderExecutor = CameraXExecutors.newSequentialExecutor(executor);
-
+        mMediaFormat = encoderConfig.toMediaFormat();
+        mInputTimebase = encoderConfig.getInputTimebase();
         if (encoderConfig instanceof AudioEncoderConfig) {
             mTag = "AudioEncoder";
             mIsVideoEncoder = false;
             mEncoderInput = new ByteBufferInput();
+            mEncoderInfo = new AudioEncoderInfoImpl(mediaCodecInfo, encoderConfig.getMimeType());
         } else if (encoderConfig instanceof VideoEncoderConfig) {
             mTag = "VideoEncoder";
             mIsVideoEncoder = true;
             mEncoderInput = new SurfaceInput();
+            VideoEncoderInfo videoEncoderInfo = new VideoEncoderInfoImpl(mediaCodecInfo,
+                    encoderConfig.getMimeType());
+            clampVideoBitrateIfNotSupported(videoEncoderInfo, mMediaFormat);
+            mEncoderInfo = videoEncoderInfo;
         } else {
             throw new InvalidConfigException("Unknown encoder config type");
         }
 
-        mInputTimebase = encoderConfig.getInputTimebase();
         Logger.d(mTag, "mInputTimebase = " + mInputTimebase);
-        mMediaFormat = encoderConfig.toMediaFormat();
         Logger.d(mTag, "mMediaFormat = " + mMediaFormat);
-        mMediaCodec = mEncoderFinder.findEncoder(mMediaFormat);
-        Logger.i(mTag, "Selected encoder: " + mMediaCodec.getName());
-        mEncoderInfo = createEncoderInfo(mIsVideoEncoder, mMediaCodec.getCodecInfo(),
-                encoderConfig.getMimeType());
-        if (mIsVideoEncoder) {
-            VideoEncoderInfo videoEncoderInfo = (VideoEncoderInfo) mEncoderInfo;
-            clampVideoBitrateIfNotSupported(videoEncoderInfo, mMediaFormat);
-        }
 
         try {
             reset();
@@ -544,8 +542,6 @@ public class EncoderImpl implements Encoder {
         } else if (mEncoderInput instanceof SurfaceInput) {
             try {
                 mMediaCodec.signalEndOfInputStream();
-                // On some devices, MediaCodec#signalEndOfInputStream() doesn't work.
-                // See b/255209101.
                 mMediaCodecEosSignalled = true;
             } catch (MediaCodec.CodecException e) {
                 handleEncodeError(e);
@@ -851,7 +847,9 @@ public class EncoderImpl implements Encoder {
                 if (!futures.isEmpty()) {
                     Logger.d(mTag, "encoded data and input buffers are returned");
                 }
-                if (mEncoderInput instanceof SurfaceInput && !mSourceStoppedSignalled) {
+                if (mEncoderInput instanceof SurfaceInput && !mSourceStoppedSignalled
+                        && !hasStopCodecAfterSurfaceRemovalCrashMediaServerQuirk()
+                ) {
                     // For a SurfaceInput, the codec is in control of de-queuing buffers from the
                     // underlying BufferQueue. If we stop the codec, then it will stop de-queuing
                     // buffers and the BufferQueue may run out of input buffers, causing the camera
@@ -1007,13 +1005,6 @@ public class EncoderImpl implements Encoder {
         }
     }
 
-    @NonNull
-    private static EncoderInfo createEncoderInfo(boolean isVideoEncoder,
-            @NonNull MediaCodecInfo codecInfo, @NonNull String mime) throws InvalidConfigException {
-        return isVideoEncoder ? new VideoEncoderInfoImpl(codecInfo, mime)
-                : new AudioEncoderInfoImpl(codecInfo, mime);
-    }
-
     @SuppressWarnings("WeakerAccess") // synthetic accessor
     long generatePresentationTimeUs() {
         return mTimeProvider.uptimeUs();
@@ -1029,11 +1020,20 @@ public class EncoderImpl implements Encoder {
         return (bufferInfo.flags & MediaCodec.BUFFER_FLAG_END_OF_STREAM) != 0;
     }
 
+    private boolean hasStopCodecAfterSurfaceRemovalCrashMediaServerQuirk() {
+        return DeviceQuirks.get(StopCodecAfterSurfaceRemovalCrashMediaServerQuirk.class) != null;
+    }
+
     @SuppressWarnings("WeakerAccess") // synthetic accessor
     @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     class MediaCodecCallback extends MediaCodec.Callback {
         @Nullable
         private final VideoTimebaseConverter mVideoTimestampConverter;
+        // See b/255209101. On some devices, MediaCodec#signalEndOfInputStream() doesn't trigger
+        // an end-of-stream buffer. This flag is used for a general workaround to take an output
+        // buffer which reaches stop timestamp as an end-of-stream buffer. It should be true by
+        // default to enable the workaround.
+        private boolean mReachStopTimeAsEos = true;
 
         private boolean mHasSendStartCallback = false;
         private boolean mHasFirstData = false;
@@ -1051,20 +1051,22 @@ public class EncoderImpl implements Encoder {
 
         MediaCodecCallback() {
             if (mIsVideoEncoder) {
-                Timebase inputTimebase;
-                if (DeviceQuirks.get(CameraUseInconsistentTimebaseQuirk.class) != null) {
-                    inputTimebase = null;
-                } else {
-                    inputTimebase = mInputTimebase;
-                }
-                mVideoTimestampConverter = new VideoTimebaseConverter(mTimeProvider, inputTimebase);
+                mVideoTimestampConverter = new VideoTimebaseConverter(mTimeProvider,
+                        mInputTimebase, DeviceQuirks.get(CameraUseInconsistentTimebaseQuirk.class));
             } else {
                 mVideoTimestampConverter = null;
+            }
+
+            CodecStuckOnFlushQuirk codecStuckOnFlushQuirk = DeviceQuirks.get(
+                    CodecStuckOnFlushQuirk.class);
+            if (codecStuckOnFlushQuirk != null && codecStuckOnFlushQuirk.isProblematicMimeType(
+                    mMediaFormat.getString(MediaFormat.KEY_MIME))) {
+                mReachStopTimeAsEos = false;
             }
         }
 
         @Override
-        public void onInputBufferAvailable(MediaCodec mediaCodec, int index) {
+        public void onInputBufferAvailable(@NonNull MediaCodec mediaCodec, int index) {
             mEncoderExecutor.execute(() -> {
                 if (mStopped) {
                     Logger.w(mTag, "Receives input frame after codec is reset.");
@@ -1130,6 +1132,15 @@ public class EncoderImpl implements Encoder {
                         if (checkBufferInfo(bufferInfo)) {
                             if (!mHasFirstData) {
                                 mHasFirstData = true;
+                                // Only print the first data to avoid flooding the log.
+                                Logger.d(mTag,
+                                        "data timestampUs = " + bufferInfo.presentationTimeUs
+                                                + ", data timebase = " + mInputTimebase
+                                                + ", current system uptimeMs = "
+                                                + SystemClock.uptimeMillis()
+                                                + ", current system realtimeMs = "
+                                                + SystemClock.elapsedRealtime()
+                                );
                             }
                             BufferInfo outBufferInfo = resolveOutputBufferInfo(bufferInfo);
                             mLastSentAdjustedTimeUs = outBufferInfo.presentationTimeUs;
@@ -1142,14 +1153,11 @@ public class EncoderImpl implements Encoder {
                                 return;
                             }
                         } else {
-                            // Not necessary to return fake buffer
-                            if (index != FAKE_BUFFER_INDEX) {
-                                try {
-                                    mMediaCodec.releaseOutputBuffer(index, false);
-                                } catch (MediaCodec.CodecException e) {
-                                    handleEncodeError(e);
-                                    return;
-                                }
+                            try {
+                                mMediaCodec.releaseOutputBuffer(index, false);
+                            } catch (MediaCodec.CodecException e) {
+                                handleEncodeError(e);
+                                return;
                             }
                         }
 
@@ -1318,7 +1326,8 @@ public class EncoderImpl implements Encoder {
 
         @ExecutedBy("mEncoderExecutor")
         private boolean isEndOfStream(@NonNull BufferInfo bufferInfo) {
-            return hasEndOfStreamFlag(bufferInfo) || isEosSignalledAndStopTimeReached(bufferInfo);
+            return hasEndOfStreamFlag(bufferInfo)
+                    || (mReachStopTimeAsEos && isEosSignalledAndStopTimeReached(bufferInfo));
         }
 
         @ExecutedBy("mEncoderExecutor")

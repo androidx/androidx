@@ -133,6 +133,46 @@ src/test/NodeUnderTest.kt:20: Error: Reading staticLocalInt in onDetach will onl
     }
 
     @Test
+    fun testCompositionLocalReadInAttachDetachLambdaNotReported() {
+        lint().files(
+            kotlin(
+                """
+                package test
+
+                import androidx.compose.ui.Modifier
+                import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
+                import androidx.compose.ui.node.currentValueOf
+                import androidx.compose.runtime.CompositionLocal
+                import androidx.compose.runtime.compositionLocalOf
+                import androidx.compose.runtime.staticCompositionLocalOf
+
+                val staticLocalInt = staticCompositionLocalOf { 0 }
+                val localInt = compositionLocalOf { 0 }
+
+                class NodeUnderTest : Modifier.Node(), CompositionLocalConsumerModifierNode {
+                    override fun onAttach() {
+                        func { val readValue = currentValueOf(localInt) }
+                    }
+
+                    override fun onDetach() {
+                        func { val readValue = currentValueOf(staticLocalInt) }
+                    }
+
+                    private inline fun func(block: () -> Unit) {
+                        block()
+                    }
+                }
+            """
+            ),
+            CompositionLocalStub,
+            CompositionLocalConsumerModifierStub,
+            ModifierNodeStub
+        )
+            .run()
+            .expectClean()
+    }
+
+    @Test
     fun testCompositionLocalReadInModifierInitializer() {
         lint().files(
             kotlin(

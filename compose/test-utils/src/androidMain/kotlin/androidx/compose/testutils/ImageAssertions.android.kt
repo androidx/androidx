@@ -60,8 +60,8 @@ fun ImageBitmap.assertPixels(
     }
 
     val pixel = toPixelMap()
-    for (x in 0 until width) {
-        for (y in 0 until height) {
+    for (y in 0 until height) {
+        for (x in 0 until width) {
             val pxPos = IntOffset(x, y)
             val expectedClr = expectedColorProvider(pxPos)
             if (expectedClr != null) {
@@ -113,8 +113,8 @@ fun ImageBitmap.assertDoesNotContainColor(
 
 private fun ImageBitmap.containsColor(expectedColor: Color): Boolean {
     val pixels = this.toPixelMap()
-    for (x in 0 until width) {
-        for (y in 0 until height) {
+    for (y in 0 until height) {
+        for (x in 0 until width) {
             val color = pixels[x, y]
             if (color == expectedColor) {
                 return true
@@ -201,8 +201,8 @@ fun ImageBitmap.assertShape(
     backgroundPath.addOutline(
         backgroundShape.createOutline(Size(sizeX, sizeY), LayoutDirection.Ltr, density)
     )
-    for (x in centerX - sizeX / 2 until centerX + sizeX / 2) {
-        for (y in centerY - sizeY / 2 until centerY + sizeY / 2) {
+    for (y in centerY - sizeY / 2 until centerY + sizeY / 2) {
+        for (x in centerX - sizeX / 2 until centerX + sizeX / 2) {
             val point = Offset(x.toFloat(), y.toFloat())
             if (!backgroundPath.contains(
                     pixelFartherFromCenter(

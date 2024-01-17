@@ -24,6 +24,8 @@ import android.transition.ChangeBounds
 import android.view.View
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
+import android.window.BackEvent
+import androidx.activity.BackEventCompat
 import androidx.annotation.AnimRes
 import androidx.fragment.test.R
 import androidx.test.core.app.ActivityScenario
@@ -291,6 +293,68 @@ class FragmentTransitionAnimTest(
         }
     }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @Test
+    fun replaceOperationWithTransitionsAndAnimatorsThenSystemBack() {
+        withUse(ActivityScenario.launch(SimpleContainerActivity::class.java)) {
+            val fm1 = withActivity { supportFragmentManager }
+
+            val fragment1 = TransitionAnimatorFragment()
+            fm1.beginTransaction()
+                .replace(R.id.fragmentContainer, fragment1, "1")
+                .addToBackStack(null)
+                .commit()
+            executePendingTransactions()
+
+            val fragment2 = TransitionAnimatorFragment()
+
+            fm1.beginTransaction()
+                .setCustomAnimations(
+                    android.R.animator.fade_in,
+                    android.R.animator.fade_out,
+                    android.R.animator.fade_in,
+                    android.R.animator.fade_out
+                )
+                .replace(R.id.fragmentContainer, fragment2, "2")
+                .addToBackStack(null)
+                .commit()
+            executePendingTransactions()
+
+            // We need to wait for the exit transitions to end
+            assertThat(fragment2.endTransitionCountDownLatch.await(1000, TimeUnit.MILLISECONDS))
+                .isTrue()
+            assertThat(
+                fragment1.endTransitionCountDownLatch.await(
+                    1000,
+                    TimeUnit.MILLISECONDS
+                )
+            ).isTrue()
+
+            val dispatcher = withActivity { onBackPressedDispatcher }
+            dispatcher.dispatchOnBackStarted(BackEventCompat(0.1F, 0.1F, 0.1F, BackEvent.EDGE_LEFT))
+            executePendingTransactions()
+
+            // We should not start any transitions when we get the started callback
+            fragment1.waitForNoTransition()
+
+            dispatcher.dispatchOnBackProgressed(
+                BackEventCompat(0.2F, 0.2F, 0.2F, BackEvent.EDGE_LEFT)
+            )
+            withActivity { dispatcher.onBackPressed() }
+            executePendingTransactions()
+
+            fragment1.waitForTransition()
+            fragment2.waitForTransition()
+
+            assertThat(fragment2.isAdded).isFalse()
+            assertThat(fm1.findFragmentByTag("2"))
+                .isEqualTo(null)
+
+            // Make sure the original fragment was correctly readded to the container
+            assertThat(fragment1.requireView().parent).isNotNull()
+        }
+    }
+
     class TransitionAnimationFragment : TransitionFragment(R.layout.scene1) {
         val startAnimationLatch = CountDownLatch(1)
         val exitAnimationLatch = CountDownLatch(1)
@@ -341,12 +405,7 @@ class FragmentTransitionAnimTest(
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "ordering={0}")
-        fun data() = mutableListOf<Array<Any>>().apply {
-            arrayOf(
-                Ordered,
-                Reordered
-            )
-        }
+        fun data() = arrayOf(Ordered, Reordered)
 
         @AnimRes
         private val ENTER = 1

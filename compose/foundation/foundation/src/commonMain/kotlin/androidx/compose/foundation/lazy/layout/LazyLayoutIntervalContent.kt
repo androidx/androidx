@@ -17,38 +17,57 @@
 package androidx.compose.foundation.lazy.layout
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.runtime.Composable
 
 /**
  * Common parts backing the interval-based content of lazy layout defined through `item` DSL.
+ *
+ * Note: this class is a part of [LazyLayout] harness that allows for building custom lazy layouts.
+ * LazyLayout and all corresponding APIs are still under development and are subject to change.
  */
 @ExperimentalFoundationApi
 abstract class LazyLayoutIntervalContent<Interval : LazyLayoutIntervalContent.Interval> {
     abstract val intervals: IntervalList<Interval>
 
+    /**
+     * The total amount of items in all the intervals.
+     */
     val itemCount: Int get() = intervals.size
 
+    /**
+     * Returns item key based on a global index.
+     */
     fun getKey(index: Int): Any =
-        withLocalIntervalIndex(index) { localIndex, content ->
+        withInterval(index) { localIndex, content ->
             content.key?.invoke(localIndex) ?: getDefaultLazyLayoutKey(index)
         }
 
+    /**
+     * Returns content type based on a global index.
+     */
     fun getContentType(index: Int): Any? =
-        withLocalIntervalIndex(index) { localIndex, content ->
+        withInterval(index) { localIndex, content ->
             content.type.invoke(localIndex)
         }
 
-    private inline fun <T> withLocalIntervalIndex(
-        index: Int,
-        block: (localIndex: Int, content: Interval) -> T
+    /**
+     * Runs a [block] on the content of the interval associated with the provided [globalIndex]
+     * with providing a local index in the given interval.
+     */
+    inline fun <T> withInterval(
+        globalIndex: Int,
+        block: (localIntervalIndex: Int, content: Interval) -> T
     ): T {
-        val interval = intervals[index]
-        val localIntervalIndex = index - interval.startIndex
+        val interval = intervals[globalIndex]
+        val localIntervalIndex = globalIndex - interval.startIndex
         return block(localIntervalIndex, interval.value)
     }
 
     /**
      * Common content of individual intervals in `item` DSL of lazy layouts.
+     *
+     * Note: this class is a part of [LazyLayout] harness that allows for building custom lazy
+     * layouts. LazyLayout and all corresponding APIs are still under development and are subject
+     * to change.
      */
     @ExperimentalFoundationApi
     interface Interval {
@@ -61,27 +80,5 @@ abstract class LazyLayoutIntervalContent<Interval : LazyLayoutIntervalContent.In
          * Returns item type based on a local index for the current interval.
          */
         val type: ((index: Int) -> Any?) get() = { null }
-    }
-}
-
-/**
- * Defines a composable content of item in a lazy layout to support focus pinning.
- * See [LazyLayoutPinnableItem] for more details.
- */
-@ExperimentalFoundationApi
-@Composable
-fun <T : LazyLayoutIntervalContent.Interval> LazyLayoutIntervalContent<T>.PinnableItem(
-    index: Int,
-    pinnedItemList: LazyLayoutPinnedItemList,
-    content: @Composable T.(index: Int) -> Unit
-) {
-    val interval = intervals[index]
-    val localIndex = index - interval.startIndex
-    LazyLayoutPinnableItem(
-        interval.value.key?.invoke(localIndex),
-        index,
-        pinnedItemList
-    ) {
-        interval.value.content(localIndex)
     }
 }

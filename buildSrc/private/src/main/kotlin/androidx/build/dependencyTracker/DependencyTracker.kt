@@ -22,14 +22,10 @@ import org.gradle.api.artifacts.ProjectDependency
 import org.gradle.api.logging.Logger
 
 /**
- * Utility class that traverses all project dependencies and discover which modules depend
- * on each other. This is mainly used by [AffectedModuleDetector] to find out which projects
- * should be run.
+ * Utility class that traverses all project dependencies and discover which modules depend on each
+ * other. This is mainly used by [AffectedModuleDetector] to find out which projects should be run.
  */
-class DependencyTracker(
-    rootProject: Project,
-    logger: Logger?
-) : Serializable {
+class DependencyTracker(rootProject: Project, logger: Logger?) : Serializable {
     val dependentList: Map<String, Set<String>>
 
     init {
@@ -37,17 +33,14 @@ class DependencyTracker(
         val stringBuilder = StringBuilder()
         rootProject.subprojects.forEach { project ->
             project.configurations.forEach { config ->
-                config
-                    .dependencies
-                    .filterIsInstance(ProjectDependency::class.java)
-                    .forEach {
-                        stringBuilder.append(
-                            "there is a dependency from ${project.path} (${config.name}) to " +
-                                it.dependencyProject.path + "\n"
-                        )
-                        result.getOrPut(it.dependencyProject.path) { mutableSetOf() }
-                            .add(project.path)
-                    }
+                config.dependencies.filterIsInstance(ProjectDependency::class.java).forEach {
+                    stringBuilder.append(
+                        "there is a dependency from ${project.path} (${config.name}) to " +
+                            it.dependencyProject.path +
+                            "\n"
+                    )
+                    result.getOrPut(it.dependencyProject.path) { mutableSetOf() }.add(project.path)
+                }
             }
         }
         logger?.info(stringBuilder.toString())

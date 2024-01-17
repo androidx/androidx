@@ -24,15 +24,23 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams
 import android.widget.LinearLayout
-import androidx.graphics.shapes.Circle
 import androidx.graphics.shapes.CornerRounding
 import androidx.graphics.shapes.CornerRounding.Companion.Unrounded
+import androidx.graphics.shapes.Morph
 import androidx.graphics.shapes.RoundedPolygon
-import androidx.graphics.shapes.Star
+import androidx.graphics.shapes.circle
+import androidx.graphics.shapes.rectangle
+import androidx.graphics.shapes.star
+import androidx.graphics.shapes.transformed
 
 class ShapeActivity : Activity() {
 
     val shapes = mutableListOf<RoundedPolygon>()
+
+    lateinit var morphView: MorphView
+
+    lateinit var prevShape: RoundedPolygon
+    lateinit var currShape: RoundedPolygon
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,6 +54,18 @@ class ShapeActivity : Activity() {
         setupShapes()
 
         addShapeViews(container)
+
+        setupMorphView()
+        container.addView(morphView)
+    }
+
+    private fun setupMorphView() {
+        val morph = Morph(prevShape, currShape)
+        if (this::morphView.isInitialized) {
+            morphView.morph = morph
+        } else {
+            morphView = MorphView(this, morph)
+        }
     }
 
     private fun getShapeView(shape: RoundedPolygon, width: Int, height: Int): View {
@@ -61,17 +81,15 @@ class ShapeActivity : Activity() {
         // Note: all RoundedPolygon(4) shapes are placeholders for shapes not yet handled
         val matrix1 = Matrix().apply { setRotate(-45f) }
         val matrix2 = Matrix().apply { setRotate(45f) }
-        val blobR1 = MaterialShapes.blobR(.19f, .86f)
-        blobR1.transform(matrix1)
-        val blobR2 = MaterialShapes.blobR(.19f, .86f)
-        blobR2.transform(matrix2)
+        val blobR1 = MaterialShapes.blobR(.19f, .86f).transformed(matrix1)
+        val blobR2 = MaterialShapes.blobR(.19f, .86f).transformed(matrix2)
 
         //        "Circle" to DefaultShapes.star(4, 1f, 1f),
-        shapes.add(Circle())
+        shapes.add(RoundedPolygon.circle())
         //        "Squirrel" to DefaultShapes.fgSquircle(0.9f),
         shapes.add(RoundedPolygon(4))
-        //        "Squircle" to DefaultShapes.fgSquircle(0.7f),
-        shapes.add(RoundedPolygon(4))
+        //        Square, using rectangle function
+        shapes.add(RoundedPolygon.rectangle(width = 2f, height = 2f))
         //        "Scallop" to DefaultShapes.Scallop,
         shapes.add(MaterialShapes.scallop())
         //        "Clover" to DefaultShapes.Clover,
@@ -79,8 +97,8 @@ class ShapeActivity : Activity() {
 
         //        "Alice" to DefaultShapes.Alice,
         shapes.add(MaterialShapes.alice())
-        //        "Veronica" to DefaultShapes.Alice.rotate(TwoPI / 2),
-        shapes.add(RoundedPolygon(4))
+        //        Rectangle
+        shapes.add(RoundedPolygon.rectangle(width = 4f, height = 2f))
         //        "Wiggle-Star" to DefaultShapes.WiggleStar,
         shapes.add(MaterialShapes.wiggleStar())
         //        "Wovel" to DefaultShapes.Wovel,
@@ -92,12 +110,16 @@ class ShapeActivity : Activity() {
         shapes.add(blobR2)
         //        "More" to DefaultShapes.More,
         shapes.add(MaterialShapes.more())
-        //        "Less" to DefaultShapes.More.rotate(TwoPI / 2),
-        shapes.add(RoundedPolygon(4))
-        //        "CornerNE" to DefaultShapes.CornerSE.rotate(-TwoPI / 4),
-        shapes.add(RoundedPolygon(4))
-        //        "CornerNW" to DefaultShapes.CornerSE.rotate(TwoPI / 2),
-        shapes.add(RoundedPolygon(4))
+        //        Round Rect
+        shapes.add(RoundedPolygon.rectangle(width = 4f, height = 2f,
+            rounding = CornerRounding(1f)
+        ))
+        //        Round Rect (smoothed)
+        shapes.add(RoundedPolygon.rectangle(width = 4f, height = 2f,
+            rounding = CornerRounding(1f, .5f)))
+        //        Round Rect (smoothed more)
+        shapes.add(RoundedPolygon.rectangle(width = 4f, height = 2f,
+            rounding = CornerRounding(1f, 1f)))
 
         //        "CornerSW" to DefaultShapes.CornerSE.rotate(TwoPI / 4),
         shapes.add(RoundedPolygon(4))
@@ -115,13 +137,16 @@ class ShapeActivity : Activity() {
         val rounding = CornerRounding(.1f, .5f)
         val starRounding = CornerRounding(.05f, .25f)
         shapes.add(RoundedPolygon(numVertices = 4, rounding = rounding))
-        shapes.add(Star(8, .4f, rounding = starRounding))
-        shapes.add(Star(8, innerRadiusRatio = .4f, rounding = starRounding,
+        shapes.add(RoundedPolygon.star(8, radius = 1f, innerRadius = .4f, rounding = starRounding))
+        shapes.add(RoundedPolygon.star(8, radius = 1f, innerRadius = .4f, rounding = starRounding,
             innerRounding = CornerRounding.Unrounded))
         shapes.add(
-            MaterialShapes.clover(rounding = .352f, innerRadiusRatio = .1f,
+            MaterialShapes.clover(rounding = .352f, innerRadius = .1f,
             innerRounding = Unrounded))
         shapes.add(RoundedPolygon(3))
+
+        prevShape = shapes[0]
+        currShape = shapes[0]
     }
 
     private fun addShapeViews(container: ViewGroup) {
@@ -139,7 +164,14 @@ class ShapeActivity : Activity() {
                 row.orientation = LinearLayout.HORIZONTAL
                 container.addView(row)
             }
-            row!!.addView(getShapeView(shapes[shapeIndex], WIDTH, HEIGHT))
+            val shape = shapes[shapeIndex]
+            val shapeView = getShapeView(shape, WIDTH, HEIGHT)
+            row!!.addView(shapeView)
+            shapeView.setOnClickListener {
+                prevShape = currShape
+                currShape = shape
+                setupMorphView()
+            }
             ++shapeIndex
         }
     }

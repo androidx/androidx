@@ -21,6 +21,9 @@ import static androidx.wear.protolayout.DimensionBuilders.dp;
 import static androidx.wear.protolayout.LayoutElementBuilders.HORIZONTAL_ALIGN_CENTER;
 import static androidx.wear.protolayout.LayoutElementBuilders.HORIZONTAL_ALIGN_START;
 import static androidx.wear.protolayout.material.Utils.areChipColorsEqual;
+import static androidx.wear.protolayout.materialcore.Chip.METADATA_TAG_CUSTOM_CONTENT;
+import static androidx.wear.protolayout.materialcore.Chip.METADATA_TAG_ICON;
+import static androidx.wear.protolayout.materialcore.Chip.METADATA_TAG_TEXT;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -45,6 +48,8 @@ import androidx.wear.protolayout.LayoutElementBuilders.Row;
 import androidx.wear.protolayout.ModifiersBuilders.Clickable;
 import androidx.wear.protolayout.ModifiersBuilders.ElementMetadata;
 import androidx.wear.protolayout.ModifiersBuilders.Modifiers;
+import androidx.wear.protolayout.TypeBuilders.StringProp;
+import androidx.wear.protolayout.expression.DynamicBuilders.DynamicString;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -70,7 +75,7 @@ public class ChipTest {
 
     @Test
     public void testChip() {
-        String contentDescription = "Chip";
+        StringProp contentDescription = staticString("Chip");
         Chip chip =
                 new Chip.Builder(CONTEXT, CLICKABLE, DEVICE_PARAMETERS)
                         .setPrimaryLabelContent(MAIN_TEXT)
@@ -82,7 +87,7 @@ public class ChipTest {
                 HORIZONTAL_ALIGN_CENTER,
                 ChipDefaults.PRIMARY_COLORS,
                 contentDescription,
-                Chip.METADATA_TAG_TEXT,
+                METADATA_TAG_TEXT,
                 MAIN_TEXT,
                 null,
                 null,
@@ -104,8 +109,8 @@ public class ChipTest {
                 chip,
                 HORIZONTAL_ALIGN_START,
                 colors,
-                MAIN_TEXT + "\n" + secondaryLabel,
-                Chip.METADATA_TAG_ICON,
+                staticString(MAIN_TEXT + "\n" + secondaryLabel),
+                METADATA_TAG_ICON,
                 MAIN_TEXT,
                 secondaryLabel,
                 "ICON_ID",
@@ -123,8 +128,8 @@ public class ChipTest {
                 chip,
                 HORIZONTAL_ALIGN_START,
                 ChipDefaults.PRIMARY_COLORS,
-                MAIN_TEXT,
-                Chip.METADATA_TAG_TEXT,
+                staticString(MAIN_TEXT),
+                METADATA_TAG_TEXT,
                 MAIN_TEXT,
                 null,
                 null,
@@ -150,7 +155,7 @@ public class ChipTest {
                                         .build())
                         .build();
 
-        String contentDescription = "Custom chip";
+        StringProp contentDescription = staticString("Custom chip");
         Chip chip =
                 new Chip.Builder(CONTEXT, CLICKABLE, DEVICE_PARAMETERS)
                         .setCustomContent(content)
@@ -165,7 +170,7 @@ public class ChipTest {
                         ChipDefaults.PRIMARY_COLORS.getBackgroundColor(),
                         new ColorProp.Builder(0).build()),
                 contentDescription,
-                Chip.METADATA_TAG_CUSTOM_CONTENT,
+                METADATA_TAG_CUSTOM_CONTENT,
                 null,
                 null,
                 null,
@@ -178,7 +183,7 @@ public class ChipTest {
             @NonNull Chip actualChip,
             @HorizontalAlignment int hAlign,
             @NonNull ChipColors colors,
-            @Nullable String expectedContDesc,
+            @Nullable StringProp expectedContDesc,
             @NonNull String expectedMetadata,
             @Nullable String expectedPrimaryText,
             @Nullable String expectedLabel,
@@ -239,11 +244,27 @@ public class ChipTest {
         assertThat(Chip.fromLayoutElement(box)).isNull();
     }
 
+    @Test
+    public void testDynamicContentDescription() {
+        StringProp dynamicContentDescription =
+                new StringProp.Builder("static")
+                        .setDynamicValue(DynamicString.constant("dynamic"))
+                        .build();
+        Chip chip =
+                new Chip.Builder(CONTEXT, CLICKABLE, DEVICE_PARAMETERS)
+                        .setPrimaryLabelContent("label")
+                        .setContentDescription(dynamicContentDescription)
+                        .build();
+
+        assertThat(chip.getContentDescription().toProto())
+                .isEqualTo(dynamicContentDescription.toProto());
+    }
+
     private void assertFromLayoutElementChipIsEqual(
             @NonNull Chip chip,
             @HorizontalAlignment int hAlign,
             @NonNull ChipColors colors,
-            @Nullable String expectedContDesc,
+            @Nullable StringProp expectedContDesc,
             @NonNull String expectedMetadata,
             @Nullable String expectedPrimaryText,
             @Nullable String expectedLabel,
@@ -270,7 +291,7 @@ public class ChipTest {
             @NonNull Chip actualChip,
             @HorizontalAlignment int hAlign,
             @NonNull ChipColors colors,
-            @Nullable String expectedContDesc,
+            @Nullable StringProp expectedContDesc,
             @NonNull String expectedMetadata,
             @Nullable String expectedPrimaryText,
             @Nullable String expectedLabel,
@@ -288,7 +309,8 @@ public class ChipTest {
         if (expectedContDesc == null) {
             assertThat(actualChip.getContentDescription()).isNull();
         } else {
-            assertThat(actualChip.getContentDescription().toString()).isEqualTo(expectedContDesc);
+            assertThat(actualChip.getContentDescription().toProto())
+                    .isEqualTo(expectedContDesc.toProto());
         }
 
         if (expectedPrimaryText == null) {
@@ -315,5 +337,9 @@ public class ChipTest {
             assertThat(actualChip.getCustomContent().toLayoutElementProto())
                     .isEqualTo(expectedCustomContent.toLayoutElementProto());
         }
+    }
+
+    private StringProp staticString(String s) {
+        return new StringProp.Builder(s).build();
     }
 }

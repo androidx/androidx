@@ -16,16 +16,16 @@
 
 package androidx.navigation
 
-import androidx.navigation.test.R
 import android.content.Context
 import android.os.Bundle
+import androidx.core.os.bundleOf
+import androidx.navigation.test.R
 import androidx.test.annotation.UiThreadTest
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import androidx.testutils.TestNavigator
 import androidx.testutils.test
-import androidx.core.os.bundleOf
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Test

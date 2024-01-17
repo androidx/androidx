@@ -19,9 +19,9 @@ package androidx.compose.runtime.samples
 import androidx.annotation.Sampled
 import androidx.compose.runtime.AbstractApplier
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ComposeNode
 import androidx.compose.runtime.Composition
 import androidx.compose.runtime.CompositionContext
-import androidx.compose.runtime.ComposeNode
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember

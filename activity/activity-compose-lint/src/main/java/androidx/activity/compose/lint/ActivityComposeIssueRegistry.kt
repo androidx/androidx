@@ -30,7 +30,8 @@ class ActivityComposeIssueRegistry : IssueRegistry() {
     override val api = 14
     override val minApi = CURRENT_API
     override val issues get() = listOf(
-        ActivityResultLaunchDetector.LaunchDuringComposition
+        ActivityResultLaunchDetector.LaunchDuringComposition,
+        CollectProgressDetector.NoCollectCallFound
     )
     override val vendor = Vendor(
         vendorName = "Jetpack Activity Compose",

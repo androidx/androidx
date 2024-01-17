@@ -19,25 +19,24 @@ package androidx.core.i18n
 import android.annotation.SuppressLint
 import android.os.Build
 import android.util.Log
-import androidx.core.os.BuildCompat
+import androidx.core.i18n.DateTimeFormatterSkeletonOptions as SkeletonOptions
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
-import org.junit.After
-import org.junit.Assert.assertEquals
-import org.junit.Before
-import org.junit.BeforeClass
-import org.junit.Test
-import org.junit.runner.RunWith
 import java.util.Calendar
 import java.util.Date
 import java.util.GregorianCalendar
 import java.util.Locale
 import java.util.TimeZone
 import kotlin.test.assertFailsWith
-import androidx.core.i18n.DateTimeFormatterSkeletonOptions as SkeletonOptions
+import org.junit.After
+import org.junit.Assert.assertEquals
+import org.junit.Before
+import org.junit.BeforeClass
+import org.junit.Test
+import org.junit.runner.RunWith
 
 /** Must execute on an Android device. */
 @RunWith(AndroidJUnit4::class)
@@ -100,7 +99,7 @@ class DateTimeFormatterTest {
         val locale = Locale.US
         val options = SkeletonOptions.fromString("yMMMdjms")
         val expected = when {
-            BuildCompat.isAtLeastU() -> "Sep 19, 2021, 9:42:12\u202FPM"
+            Build.VERSION.SDK_INT >= 34 -> "Sep 19, 2021, 9:42:12\u202FPM"
             else -> "Sep 19, 2021, 9:42:12 PM"
         }
 
@@ -126,19 +125,19 @@ class DateTimeFormatterTest {
         val localeUs = Locale.US
 
         val expectedUs12 = when {
-            BuildCompat.isAtLeastU() -> "Sep 19, 2021, 9:42:12\u202FPM"
+            Build.VERSION.SDK_INT >= 34 -> "Sep 19, 2021, 9:42:12\u202FPM"
             else -> "Sep 19, 2021, 9:42:12 PM"
         }
         val expectedUs24 = "Sep 19, 2021, 21:42:12"
         val expectedUs12Milli = when {
-            BuildCompat.isAtLeastU() -> "Sep 19, 2021, 9:42:12.345\u202FPM"
+            Build.VERSION.SDK_INT >= 34 -> "Sep 19, 2021, 9:42:12.345\u202FPM"
             else -> "Sep 19, 2021, 9:42:12.345 PM"
         }
 
         val expectedFr12: String
         val expectedFr24: String
         when {
-             BuildCompat.isAtLeastU() -> { // >= 31
+             Build.VERSION.SDK_INT >= 34 -> { // >= 31
                  expectedFr12 = "19 sept. 2021, 9:42:12\u202FPM"
                  expectedFr24 = "19 sept. 2021, 21:42:12"
              }
@@ -205,42 +204,36 @@ class DateTimeFormatterTest {
         val enUsForceH23 = Locale.forLanguageTag("en-US-u-hc-h23")
         val enUsForceH24 = Locale.forLanguageTag("en-US-u-hc-h24")
 
-        val expectedUs: String
-        val expectedUs11: String
-        val expectedUs12: String
-        val expectedUs23: String
-        val expectedUs24: String
-        // TODO: check this. Is `-u-hc-` not honored at all? File bug, maybe implement workaround.
-        if (BuildCompat.isAtLeastU()) {
-            expectedUs = "9:42:12\u202FPM"
-        } else {
-            expectedUs = "9:42:12 PM"
-        }
-        expectedUs11 = expectedUs
-        expectedUs12 = expectedUs
-        expectedUs23 = expectedUs
-        expectedUs24 = expectedUs
+        val expectedUs: String = "9:42:12 PM"
+        val expectedUs11: String = expectedUs
+        val expectedUs12: String = expectedUs
+        // TODO: check this. Is `-u-hc-` not honored at all?
+        // Official bug: https://unicode-org.atlassian.net/browse/ICU-11870
+        // It only manifests for the predefined formats (`DateFormat.MEDIUM` and so on),
+        // not for patterns generated from skeletons.
+        val expectedUs23: String = expectedUs
+        val expectedUs24: String = expectedUs
 
         var formatter: java.text.DateFormat
 
         // Formatting with style does not honor the uc overrides
         formatter = java.text.DateFormat.getTimeInstance(java.text.DateFormat.MEDIUM, Locale.US)
-        assertEquals(expectedUs, formatter.format(testMillis))
+        assertEquals(expectedUs, Helper.normalizeNnbsp(formatter.format(testMillis)))
         formatter = java.text.DateFormat.getTimeInstance(java.text.DateFormat.MEDIUM, enUsForceH11)
-        assertEquals(expectedUs11, formatter.format(testMillis))
+        assertEquals(expectedUs11, Helper.normalizeNnbsp(formatter.format(testMillis)))
         formatter = java.text.DateFormat.getTimeInstance(java.text.DateFormat.MEDIUM, enUsForceH12)
-        assertEquals(expectedUs12, formatter.format(testMillis))
+        assertEquals(expectedUs12, Helper.normalizeNnbsp(formatter.format(testMillis)))
         formatter = java.text.DateFormat.getTimeInstance(java.text.DateFormat.MEDIUM, enUsForceH23)
-        assertEquals(expectedUs23, formatter.format(testMillis))
+        assertEquals(expectedUs23, Helper.normalizeNnbsp(formatter.format(testMillis)))
         formatter = java.text.DateFormat.getTimeInstance(java.text.DateFormat.MEDIUM, enUsForceH24)
-        assertEquals(expectedUs24, formatter.format(testMillis))
+        assertEquals(expectedUs24, Helper.normalizeNnbsp(formatter.format(testMillis)))
     }
 
     @Test @SmallTest
     @SdkSuppress(minSdkVersion = AVAILABLE_LANGUAGE_TAG)
     fun testHourCycleOverrides() {
         val expectedUs12 = when {
-            BuildCompat.isAtLeastU() -> "Sep 19, 2021, 9:42:12\u202FPM"
+            Build.VERSION.SDK_INT >= 34 -> "Sep 19, 2021, 9:42:12\u202FPM"
             else -> "Sep 19, 2021, 9:42:12 PM"
         }
         val expectedUs24 = "Sep 19, 2021, 21:42:12"
@@ -416,7 +409,7 @@ class DateTimeFormatterTest {
         var options = builder.build()
         assertEquals(
             when {
-                BuildCompat.isAtLeastU() -> "9:42\u202FPM Mountain Daylight Time"
+                Build.VERSION.SDK_INT >= 34 -> "9:42\u202FPM Mountain Daylight Time"
                 isIcuAvailable -> "9:42 PM Mountain Daylight Time"
                 else -> "8:42 PM Pacific Daylight Time"
             },
@@ -426,7 +419,7 @@ class DateTimeFormatterTest {
         options = builder.setTimezone(SkeletonOptions.Timezone.SHORT).build()
         assertEquals(
             when {
-                BuildCompat.isAtLeastU() -> "9:42\u202FPM MDT"
+                Build.VERSION.SDK_INT >= 34 -> "9:42\u202FPM MDT"
                 isIcuAvailable -> "9:42 PM MDT"
                 else -> "8:42 PM PDT"
              },
@@ -436,7 +429,7 @@ class DateTimeFormatterTest {
         options = builder.setTimezone(SkeletonOptions.Timezone.SHORT_GENERIC).build()
         assertEquals(
             when {
-                BuildCompat.isAtLeastU() -> "9:42\u202FPM MT"
+                Build.VERSION.SDK_INT >= 34 -> "9:42\u202FPM MT"
                 isIcuAvailable -> "9:42 PM MT"
                 else -> "8:42 PM PDT"
              },
@@ -446,7 +439,7 @@ class DateTimeFormatterTest {
         options = builder.setTimezone(SkeletonOptions.Timezone.SHORT_OFFSET).build()
         assertEquals(
             when {
-                BuildCompat.isAtLeastU() -> "9:42\u202FPM GMT-6"
+                Build.VERSION.SDK_INT >= 34 -> "9:42\u202FPM GMT-6"
                 isIcuAvailable -> "9:42 PM GMT-6"
                 else -> "8:42 PM PDT"
              },
@@ -466,7 +459,7 @@ class DateTimeFormatterTest {
 
         // Honor the current default timezone
         val expPDT = when {
-            BuildCompat.isAtLeastU() -> "9:42\u202FPM Pacific Daylight Time"
+            Build.VERSION.SDK_INT >= 34 -> "9:42\u202FPM Pacific Daylight Time"
             else -> "9:42 PM Pacific Daylight Time"
         }
         // Test Calendar, Date, and milliseconds
@@ -477,7 +470,7 @@ class DateTimeFormatterTest {
         // Change the default timezone.
         TimeZone.setDefault(TimeZone.getTimeZone("America/Denver"))
         val expMDT = when {
-            BuildCompat.isAtLeastU() -> "10:42\u202FPM Mountain Daylight Time"
+            Build.VERSION.SDK_INT >= 34 -> "10:42\u202FPM Mountain Daylight Time"
             else -> "10:42 PM Mountain Daylight Time"
         }
         // The calendar object already has a time zone of its own, captured at creation time.

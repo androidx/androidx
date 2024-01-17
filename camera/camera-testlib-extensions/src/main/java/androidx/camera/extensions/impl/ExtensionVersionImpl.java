@@ -32,7 +32,7 @@ import androidx.annotation.RequiresApi;
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class ExtensionVersionImpl {
     private static final String TAG = "ExtenderVersionImpl";
-    private static final String VERSION = "1.2.0";
+    private static final String VERSION = "1.4.0";
 
     public ExtensionVersionImpl() {
     }
@@ -87,6 +87,15 @@ public class ExtensionVersionImpl {
      * @since 1.2
      */
     public boolean isAdvancedExtenderImplemented() {
-        return false;
+        return ExtensionsTestlibControl.getInstance().getImplementationType()
+                == ExtensionsTestlibControl.ImplementationType.TESTLIB_ADVANCED;
+    }
+
+    /**
+     * This method is used to check if test lib is running. If OEM implementation exists, invoking
+     * this method will throw {@link NoSuchMethodError}. This can be used to determine if OEM
+     * implementation is used or not.
+     */
+    public void checkTestlibRunning() {
     }
 }

@@ -15,5 +15,5 @@ linkerOpts.ios_x64 = -F/Applications/Xcode.app/Contents/Developer/Platforms/iPho
 # Otherwise you will run into linker errors that look something like:
 # ld: framework not found XCTest
 linkerOpts.ios_simulator_arm64 = -F/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/Frameworks
-linkerOpts.ios_arm64 = -F/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks/
+linkerOpts.ios_arm64 = -F/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/Library/Frameworks
 compilerOpts= -framework XCTest -F/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks/

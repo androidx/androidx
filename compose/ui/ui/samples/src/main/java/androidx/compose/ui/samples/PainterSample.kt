@@ -18,8 +18,8 @@ package androidx.compose.ui.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.runtime.Composable
@@ -55,7 +55,7 @@ fun PainterModifierSample() {
                 .padding(30.dp)
                 .background(color = Color.Yellow)
                 .paint(CustomPainter())
-    ) { /** intentionally empty **/ }
+    ) { /** intentionally empty */ }
 }
 
 @Sampled

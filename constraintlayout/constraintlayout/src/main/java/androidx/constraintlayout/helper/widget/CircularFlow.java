@@ -64,7 +64,7 @@ import java.util.Arrays;
  *
  * Recommendation - always set radius and angle for all views in <i>constraint_referenced_ids</i>
  *
- **/
+ */
 
 public class CircularFlow extends VirtualLayout {
     private static final String TAG = "CircularFlow";

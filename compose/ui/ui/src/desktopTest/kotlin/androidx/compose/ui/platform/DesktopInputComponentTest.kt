@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.compose.ui.platform
 
 import androidx.compose.ui.isMacOs
@@ -23,14 +25,14 @@ import androidx.compose.ui.text.input.EditProcessor
 import androidx.compose.ui.text.input.ImeOptions
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.TextInputService
+import java.awt.Component
+import java.awt.event.InputMethodEvent
+import java.text.AttributedString
 import org.junit.Assert
 import org.junit.Assume.assumeTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import java.awt.Component
-import java.awt.event.InputMethodEvent
-import java.text.AttributedString
 
 private object DummyComponent : Component()
 

@@ -29,12 +29,12 @@ import androidx.camera.core.Preview
 import androidx.camera.core.SurfaceRequest
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.internal.CameraUseCaseAdapter
-import androidx.camera.testing.AudioUtil
-import androidx.camera.testing.CameraPipeConfigTestRule
-import androidx.camera.testing.CameraUtil
-import androidx.camera.testing.CameraXUtil
-import androidx.camera.testing.LabTestRule
-import androidx.camera.testing.SurfaceTextureProvider
+import androidx.camera.testing.impl.AudioUtil
+import androidx.camera.testing.impl.CameraPipeConfigTestRule
+import androidx.camera.testing.impl.CameraUtil
+import androidx.camera.testing.impl.CameraXUtil
+import androidx.camera.testing.impl.LabTestRule
+import androidx.camera.testing.impl.SurfaceTextureProvider
 import androidx.camera.video.internal.compat.quirk.DeactivateEncoderSurfaceBeforeStopEncoderQuirk
 import androidx.camera.video.internal.compat.quirk.DeviceQuirks
 import androidx.core.util.Consumer
@@ -198,6 +198,8 @@ class AudioVideoSyncTest(
         assertThat(timeDiff).isLessThan(diffThresholdUs)
 
         recording.stopSafely()
+        inOrder.verify(videoRecordEventListener, Mockito.timeout(5000L))
+            .accept(ArgumentMatchers.any(VideoRecordEvent.Finalize::class.java))
         file.delete()
     }
 

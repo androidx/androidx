@@ -48,6 +48,7 @@ class ExerciseConfigTest {
                     .GolfShotTrackingPlaceInfo.GOLF_SHOT_TRACKING_PLACE_INFO_FAIRWAY
             ),
             batchingModeOverrides = setOf(BatchingMode.HEART_RATE_5_SECONDS),
+            exerciseEventTypes = setOf(ExerciseEventType.GOLF_SHOT_EVENT),
         ).toProto()
 
         val config = ExerciseConfig(proto)
@@ -69,6 +70,7 @@ class ExerciseConfigTest {
         ).isEqualTo(GolfExerciseTypeConfig
             .GolfShotTrackingPlaceInfo.GOLF_SHOT_TRACKING_PLACE_INFO_FAIRWAY)
         assertThat(config.batchingModeOverrides).containsExactly(BatchingMode.HEART_RATE_5_SECONDS)
+        assertThat(config.exerciseEventTypes).containsExactly(ExerciseEventType.GOLF_SHOT_EVENT)
     }
 
     @Test

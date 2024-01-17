@@ -119,7 +119,7 @@ public final class DynamicRangesCompat {
      * Creates an instance from a framework android.hardware.camera2.params.DynamicRangeProfiles
      * object.
      *
-     * @param dynamicRangeProfiles a {@link android.hardware.camera2.params.DynamicRangeProfiles).
+     * @param dynamicRangeProfiles a {@link android.hardware.camera2.params.DynamicRangeProfiles}.
      * @return an equivalent {@link DynamicRangesCompat} object.
      */
     @Nullable
@@ -138,16 +138,17 @@ public final class DynamicRangesCompat {
 
     /**
      * Returns the underlying framework
-     * {@link android.hardware.camera2.params.DynamicRangeProfiles).
+     * {@link android.hardware.camera2.params.DynamicRangeProfiles}.
      *
-     * @return the underlying {@link android.hardware.camera2.params.DynamicRangeProfiles).
+     * @return the underlying {@link android.hardware.camera2.params.DynamicRangeProfiles} or
+     * {@code null} if the device doesn't support 10 bit dynamic range.
      */
-    @NonNull
+    @Nullable
     @RequiresApi(33)
     public DynamicRangeProfiles toDynamicRangeProfiles() {
         Preconditions.checkState(Build.VERSION.SDK_INT >= 33, "DynamicRangesCompat can only be "
                 + "converted to DynamicRangeProfiles on API 33 or higher.");
-        return Preconditions.checkNotNull(mImpl.unwrap());
+        return mImpl.unwrap();
     }
 
     interface DynamicRangeProfilesCompatImpl {

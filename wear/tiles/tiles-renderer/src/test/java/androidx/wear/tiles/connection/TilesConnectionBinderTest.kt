@@ -32,11 +32,12 @@ import androidx.wear.tiles.TileRemoveEventData
 import androidx.wear.tiles.TileRequestData
 import androidx.wear.tiles.TilesTestRunner
 import com.google.common.truth.Truth.assertThat
+import java.lang.IllegalStateException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -49,7 +50,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
-import java.lang.IllegalStateException
 
 @Config(manifest = Config.NONE)
 @OptIn(ExperimentalCoroutinesApi::class)

@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.LibraryType
 
 plugins {
@@ -34,17 +41,17 @@ dependencies {
 }
 
 androidx {
-    name = "AndroidX JUnit GTest"
+    name = "JUnit GTest"
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2022"
     description = "Run GTest tests on Android devices"
+    metalavaK2UastEnabled = true
     // Bypassed to better match existing androidx.test libraries
     bypassCoordinateValidation = true
 }
 
 android {
     defaultConfig {
-        minSdkVersion 18
         externalNativeBuild {
             cmake {
                 arguments "-DANDROID_STL=c++_shared"

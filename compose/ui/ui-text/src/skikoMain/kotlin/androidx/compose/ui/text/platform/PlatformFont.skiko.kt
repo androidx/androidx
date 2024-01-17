@@ -17,6 +17,7 @@ package androidx.compose.ui.text.platform
 
 import androidx.compose.ui.text.Cache
 import androidx.compose.ui.text.ExperimentalTextApi
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontListFontFamily
 import androidx.compose.ui.text.font.FontLoadingStrategy
@@ -24,13 +25,12 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.GenericFontFamily
 import androidx.compose.ui.text.font.LoadedFontFamily
+import androidx.compose.ui.text.font.Typeface
+import androidx.compose.ui.text.font.createFontFamilyResolver
 import org.jetbrains.skia.FontMgr
 import org.jetbrains.skia.Typeface as SkTypeface
 import org.jetbrains.skia.paragraph.FontCollection
 import org.jetbrains.skia.paragraph.TypefaceFontProvider
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.Typeface
-import androidx.compose.ui.text.font.createFontFamilyResolver
 
 expect sealed class PlatformFont : Font {
     abstract val identity: String
@@ -112,6 +112,7 @@ internal class SkiaBackedTypeface(
  * Returns a Compose [Typeface] from Skia [SkTypeface].
  *
  * @param typeface Android Typeface instance
+ * @param alias a shorter name that is used as an alternative to the full font name
  */
 fun Typeface(typeface: SkTypeface, alias: String? = null): Typeface {
     return SkiaBackedTypeface(alias, typeface)

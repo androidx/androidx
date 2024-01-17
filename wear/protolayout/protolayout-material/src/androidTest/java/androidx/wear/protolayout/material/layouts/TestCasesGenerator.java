@@ -21,6 +21,8 @@ import static androidx.wear.protolayout.DimensionBuilders.dp;
 import static androidx.wear.protolayout.DimensionBuilders.expand;
 import static androidx.wear.protolayout.DimensionBuilders.wrap;
 
+import static com.google.common.collect.ImmutableMap.toImmutableMap;
+
 import android.content.Context;
 import android.graphics.Color;
 
@@ -30,6 +32,7 @@ import androidx.wear.protolayout.ActionBuilders.LaunchAction;
 import androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters;
 import androidx.wear.protolayout.LayoutElementBuilders.Box;
 import androidx.wear.protolayout.LayoutElementBuilders.Column;
+import androidx.wear.protolayout.LayoutElementBuilders.Layout;
 import androidx.wear.protolayout.LayoutElementBuilders.LayoutElement;
 import androidx.wear.protolayout.LayoutElementBuilders.Spacer;
 import androidx.wear.protolayout.ModifiersBuilders.Background;
@@ -63,7 +66,7 @@ public class TestCasesGenerator {
      * as it should point on the same size independent image.
      */
     @NonNull
-    static Map<String, LayoutElement> generateTestCases(
+    static Map<String, Layout> generateTestCases(
             @NonNull Context context,
             @NonNull DeviceParameters deviceParameters,
             @NonNull String goldenSuffix) {
@@ -361,6 +364,44 @@ public class TestCasesGenerator {
                                         .build())
                         .build());
         testCases.put(
+                "custom_edgecontent_above_progressindicatorlayout_golden" + NORMAL_SCALE_SUFFIX,
+                new EdgeContentLayout.Builder(deviceParameters)
+                        .setContent(textContent)
+                        // Default value is to be above all content.
+                        .setEdgeContent(
+                                new Box.Builder()
+                                        .setWidth(expand())
+                                        .setHeight(expand())
+                                        .setModifiers(
+                                                new Modifiers.Builder()
+                                                        .setBackground(
+                                                                new Background.Builder()
+                                                                        .setColor(
+                                                                                argb(Color.YELLOW))
+                                                                        .build())
+                                                        .build())
+                                        .build())
+                        .build());
+        testCases.put(
+                "custom_edgecontent_below_progressindicatorlayout_golden" + goldenSuffix,
+                new EdgeContentLayout.Builder(deviceParameters)
+                        .setContent(textContent)
+                        .setEdgeContentBehindAllOtherContent(true)
+                        .setEdgeContent(
+                                new Box.Builder()
+                                        .setWidth(expand())
+                                        .setHeight(expand())
+                                        .setModifiers(
+                                                new Modifiers.Builder()
+                                                        .setBackground(
+                                                                new Background.Builder()
+                                                                        .setColor(
+                                                                                argb(Color.YELLOW))
+                                                                        .build())
+                                                        .build())
+                                        .build())
+                        .build());
+        testCases.put(
                 "coloredbox_progressindicatorlayout_golden" + NORMAL_SCALE_SUFFIX,
                 new EdgeContentLayout.Builder(deviceParameters)
                         .setEdgeContent(
@@ -600,7 +641,11 @@ public class TestCasesGenerator {
                         .addButtonContent(button7)
                         .build());
 
-        return testCases;
+        return testCases.entrySet().stream()
+                .collect(
+                        toImmutableMap(
+                                Map.Entry::getKey,
+                                entry -> Layout.fromLayoutElement(entry.getValue())));
     }
 
     @NonNull
@@ -614,8 +659,8 @@ public class TestCasesGenerator {
     @NonNull
     private static Box buildColoredBoxMSL(int color) {
         return new Box.Builder()
-                .setWidth(dp(60))
-                .setHeight(dp(60))
+                .setWidth(dp(45))
+                .setHeight(dp(45))
                 .setModifiers(
                         new Modifiers.Builder()
                                 .setBackground(

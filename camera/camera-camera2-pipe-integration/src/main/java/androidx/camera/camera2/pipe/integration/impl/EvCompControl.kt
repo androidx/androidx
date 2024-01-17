@@ -26,9 +26,9 @@ import androidx.camera.core.CameraControl
 import dagger.Binds
 import dagger.Module
 import dagger.multibindings.IntoSet
+import javax.inject.Inject
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
-import javax.inject.Inject
 
 private const val DEFAULT_EXPOSURE_COMPENSATION = 0
 

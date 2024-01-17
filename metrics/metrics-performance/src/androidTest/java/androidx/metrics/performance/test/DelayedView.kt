@@ -2,10 +2,10 @@ package androidx.metrics.performance.test
 
 import android.content.Context
 import android.graphics.Canvas
-import android.os.Build
+import android.graphics.Color
+import android.graphics.Paint
 import android.util.AttributeSet
 import android.view.View
-import androidx.annotation.RequiresApi
 import androidx.metrics.performance.PerformanceMetricsState
 
 class DelayedView(context: Context?, attrs: AttributeSet?) :
@@ -15,8 +15,12 @@ class DelayedView(context: Context?, attrs: AttributeSet?) :
     var repetitions: Int = 0
     var maxReps: Int = 0
     var perFrameStateData: List<JankStatsTest.FrameStateInputData> = listOf()
+    val textPaint = Paint()
 
-    @RequiresApi(Build.VERSION_CODES.JELLY_BEAN)
+    init {
+       textPaint.textSize = 50f
+    }
+
     override fun onDraw(canvas: Canvas) {
         repetitions++
         if (delayMs > 0) {
@@ -29,8 +33,10 @@ class DelayedView(context: Context?, attrs: AttributeSet?) :
             (((Math.random() * 127) + 128).toInt() shl 16) or
             (((Math.random() * 127) + 128).toInt() shl 8) or
             ((Math.random() * 127) + 128).toInt()
+        textPaint.setColor(Color.BLACK)
 
         canvas.drawColor(randomColor)
+        canvas.drawText("Frame ${repetitions - 1}", 200f, 200f, textPaint)
         if (perFrameStateData.isNotEmpty()) {
             val metricsState = PerformanceMetricsState.getHolderForHierarchy(this).state!!
             val stateData = perFrameStateData[repetitions - 1]
@@ -45,11 +51,7 @@ class DelayedView(context: Context?, attrs: AttributeSet?) :
             }
         }
         if (repetitions < maxReps) {
-            if (Build.VERSION.SDK_INT >= 16) {
-                postInvalidateOnAnimation()
-            } else {
-                postInvalidate()
-            }
+            postInvalidateOnAnimation()
         }
     }
 }

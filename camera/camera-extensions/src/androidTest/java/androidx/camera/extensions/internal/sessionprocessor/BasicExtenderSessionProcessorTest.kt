@@ -23,7 +23,9 @@ import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
 import android.hardware.camera2.TotalCaptureResult
+import android.hardware.camera2.params.SessionConfiguration
 import android.media.Image
+import android.media.ImageReader
 import android.media.ImageWriter
 import android.os.Build
 import android.os.Handler
@@ -32,8 +34,6 @@ import android.util.Pair
 import android.util.Size
 import android.view.Surface
 import androidx.camera.camera2.Camera2Config
-import androidx.camera.camera2.interop.Camera2CameraInfo
-import androidx.camera.camera2.interop.Camera2Interop
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraFilter
 import androidx.camera.core.CameraInfo
@@ -47,11 +47,13 @@ import androidx.camera.core.ImageReaderProxys
 import androidx.camera.core.Preview
 import androidx.camera.core.UseCaseGroup
 import androidx.camera.core.impl.CameraConfig
+import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.impl.Config
 import androidx.camera.core.impl.ExtendedCameraConfigProviderStore
 import androidx.camera.core.impl.Identifier
 import androidx.camera.core.impl.MutableOptionsBundle
 import androidx.camera.core.impl.OutputSurface
+import androidx.camera.core.impl.OutputSurfaceConfiguration
 import androidx.camera.core.impl.RequestProcessor
 import androidx.camera.core.impl.SessionProcessor
 import androidx.camera.core.impl.utils.Exif
@@ -68,10 +70,17 @@ import androidx.camera.extensions.impl.PreviewExtenderImpl.ProcessorType.PROCESS
 import androidx.camera.extensions.impl.PreviewImageProcessorImpl
 import androidx.camera.extensions.impl.ProcessResultImpl
 import androidx.camera.extensions.impl.RequestUpdateProcessorImpl
+import androidx.camera.extensions.internal.BasicVendorExtender
+import androidx.camera.extensions.internal.ClientVersion
+import androidx.camera.extensions.internal.ExtensionVersion
+import androidx.camera.extensions.internal.Version
+import androidx.camera.extensions.util.ExtensionsTestUtil
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.testing.CameraUtil
-import androidx.camera.testing.SurfaceTextureProvider
-import androidx.camera.testing.fakes.FakeLifecycleOwner
+import androidx.camera.testing.fakes.FakeCameraInfoInternal
+import androidx.camera.testing.impl.CameraUtil
+import androidx.camera.testing.impl.SurfaceTextureProvider
+import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
+import androidx.concurrent.futures.await
 import androidx.lifecycle.Observer
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
@@ -89,6 +98,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import org.junit.After
+import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
@@ -140,6 +150,10 @@ class BasicExtenderSessionProcessorTest(
 
     @Before
     fun setUp() = runBlocking {
+        // PreviewImageProcessorImpl doesn't exist on Xiaomi devices.
+        assumeFalse(previewProcessorType == PROCESSOR_TYPE_IMAGE_PROCESSOR &&
+            Build.BRAND.uppercase().startsWith("XIAOMI"))
+        ExtensionVersion.injectInstance(null)
         cameraProvider = ProcessCameraProvider.getInstance(context)[10, TimeUnit.SECONDS]
         withContext(Dispatchers.Main) {
             fakeLifecycleOwner = FakeLifecycleOwner()
@@ -152,8 +166,11 @@ class BasicExtenderSessionProcessorTest(
 
         fakePreviewExtenderImpl = FakePreviewExtenderImpl(previewProcessorType)
         fakeCaptureExtenderImpl = FakeImageCaptureExtenderImpl(hasCaptureProcessor)
+        val basicVendorExtender =
+            BasicVendorExtender(fakeCaptureExtenderImpl, fakePreviewExtenderImpl)
         basicExtenderSessionProcessor = BasicExtenderSessionProcessor(
-            fakePreviewExtenderImpl, fakeCaptureExtenderImpl, context
+            fakePreviewExtenderImpl, fakeCaptureExtenderImpl, emptyList(), emptyList(),
+            basicVendorExtender, context
         )
     }
 
@@ -164,7 +181,9 @@ class BasicExtenderSessionProcessorTest(
         val camera = withContext(Dispatchers.Main) {
             cameraProvider.bindToLifecycle(fakeLifecycleOwner, cameraSelector)
         }
-        val hardwareLevel = Camera2CameraInfo.from(camera.cameraInfo).getCameraCharacteristic(
+        val cameraCharacteristics =
+            (camera.cameraInfo as CameraInfoInternal).cameraCharacteristics as CameraCharacteristics
+        val hardwareLevel = cameraCharacteristics.get(
             CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL
         )
 
@@ -176,8 +195,12 @@ class BasicExtenderSessionProcessorTest(
     fun tearDown() = runBlocking {
         if (::cameraProvider.isInitialized) {
             withContext(Dispatchers.Main) {
-                cameraProvider.shutdown()[10, TimeUnit.SECONDS]
+                cameraProvider.shutdownAsync()[10, TimeUnit.SECONDS]
             }
+        }
+
+        if (::basicExtenderSessionProcessor.isInitialized) {
+            basicExtenderSessionProcessor.deInitSession()
         }
     }
 
@@ -197,6 +220,69 @@ class BasicExtenderSessionProcessorTest(
         )
     }
 
+    private fun createOutputSurface(width: Int, height: Int, format: Int): OutputSurface {
+        val captureImageReader = ImageReader.newInstance(width, height, format, 1)
+        return OutputSurface.create(captureImageReader.surface, Size(width, height), format)
+    }
+
+    @Test
+    fun canSetSessionTypeFromOem() {
+        assumeTrue(ClientVersion.isMinimumCompatibleVersion(Version.VERSION_1_4) &&
+            ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_4))
+        val sessionTypeToVerify = 4
+        fakeCaptureExtenderImpl.sessionType = sessionTypeToVerify
+        fakePreviewExtenderImpl.sessionType = sessionTypeToVerify
+
+        val fakeCameraInfo = FakeCameraInfoInternal("0", context)
+        val previewOutputSurface = createOutputSurface(640, 480, ImageFormat.YUV_420_888)
+        val imageCaptureSurface = createOutputSurface(640, 480, ImageFormat.JPEG)
+
+        val sessionConfig = basicExtenderSessionProcessor.initSession(
+            fakeCameraInfo,
+            OutputSurfaceConfiguration.create(previewOutputSurface, imageCaptureSurface, null, null)
+        )
+
+        assertThat(sessionConfig.sessionType).isEqualTo(sessionTypeToVerify)
+    }
+
+    @Test
+    fun setDifferentSessionTypes_throwException() {
+        assumeTrue(ClientVersion.isMinimumCompatibleVersion(Version.VERSION_1_4) &&
+            ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_4))
+        fakeCaptureExtenderImpl.sessionType = 2
+        fakePreviewExtenderImpl.sessionType = 3
+
+        val fakeCameraInfo = FakeCameraInfoInternal("0", context)
+        val previewOutputSurface = createOutputSurface(640, 480, ImageFormat.YUV_420_888)
+        val imageCaptureSurface = createOutputSurface(640, 480, ImageFormat.JPEG)
+
+        assertThrows<IllegalArgumentException> {
+             basicExtenderSessionProcessor.initSession(
+                fakeCameraInfo, OutputSurfaceConfiguration.create(
+                     previewOutputSurface, imageCaptureSurface, null, null)
+            )
+        }
+    }
+
+    @Test
+    fun defaultSessionType() {
+        assumeTrue(ClientVersion.isMinimumCompatibleVersion(Version.VERSION_1_4) &&
+            ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_4))
+        fakeCaptureExtenderImpl.sessionType = -1
+        fakePreviewExtenderImpl.sessionType = -1
+
+        val fakeCameraInfo = FakeCameraInfoInternal("0", context)
+        val previewOutputSurface = createOutputSurface(640, 480, ImageFormat.YUV_420_888)
+        val imageCaptureSurface = createOutputSurface(640, 480, ImageFormat.JPEG)
+
+        val sessionConfig = basicExtenderSessionProcessor.initSession(
+            fakeCameraInfo,
+            OutputSurfaceConfiguration.create(previewOutputSurface, imageCaptureSurface, null, null)
+        )
+
+        assertThat(sessionConfig.sessionType).isEqualTo(SessionConfiguration.SESSION_REGULAR)
+    }
+
     @Test
     fun imageCaptureError(): Unit = runBlocking {
         assumeTrue(hasCaptureProcessor)
@@ -204,7 +290,9 @@ class BasicExtenderSessionProcessorTest(
             hasCaptureProcessor, throwErrorOnProcess = true
         )
         basicExtenderSessionProcessor = BasicExtenderSessionProcessor(
-            fakePreviewExtenderImpl, fakeCaptureExtenderImpl, context
+            fakePreviewExtenderImpl, fakeCaptureExtenderImpl, emptyList(), emptyList(),
+            BasicVendorExtender(fakeCaptureExtenderImpl, fakePreviewExtenderImpl),
+            context
         )
         val preview = Preview.Builder().build()
         val imageCapture = ImageCapture.Builder().build()
@@ -265,7 +353,7 @@ class BasicExtenderSessionProcessorTest(
             analysisSemaphore
         )
 
-        fakeLifecycleOwner.pauseAndStop()
+        withContext(Dispatchers.Main) { fakeLifecycleOwner.pauseAndStop() }
 
         delay(1000)
         previewSemaphore.drainPermits()
@@ -308,24 +396,46 @@ class BasicExtenderSessionProcessorTest(
             })
         }
 
-        fakeLifecycleOwner.pauseAndStop()
-        assertThat(cameraClosedLatch.await(1, TimeUnit.SECONDS)).isTrue()
+        withContext(Dispatchers.Main) { fakeLifecycleOwner.pauseAndStop() }
+        assertThat(cameraClosedLatch.await(3, TimeUnit.SECONDS)).isTrue()
 
-        fakeCaptureExtenderImpl.assertInvokeOrder(listOf(
-            "onInit",
-            "onPresetSession",
-            "onEnableSession",
-            "onDisableSession",
-            "onDeInit",
-        ))
+        fakeCaptureExtenderImpl.assertInvokeOrder(
+            listOf(
+                "onInit",
+                "onPresetSession",
+                "onEnableSession",
+                "onDisableSession",
+                "onDeInit",
+            )
+        )
 
-        fakePreviewExtenderImpl.assertInvokeOrder(listOf(
-            "onInit",
-            "onPresetSession",
-            "onEnableSession",
-            "onDisableSession",
-            "onDeInit",
-        ))
+        fakePreviewExtenderImpl.assertInvokeOrder(
+            listOf(
+                "onInit",
+                "onPresetSession",
+                "onEnableSession",
+                "onDisableSession",
+                "onDeInit",
+            )
+        )
+    }
+
+    @Test
+    fun getRealtimeCaptureLatencyEstimate_invokesCaptureExtenderImpl(): Unit = runBlocking {
+        assumeTrue(hasCaptureProcessor)
+        assumeTrue(ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_4))
+        ClientVersion.setCurrentVersion(ClientVersion("1.4.0"))
+        fakeCaptureExtenderImpl = object : FakeImageCaptureExtenderImpl(hasCaptureProcessor) {
+            override fun getRealtimeCaptureLatency(): Pair<Long, Long> = Pair(1000L, 10L)
+        }
+
+        basicExtenderSessionProcessor = BasicExtenderSessionProcessor(
+            fakePreviewExtenderImpl, fakeCaptureExtenderImpl, emptyList(), emptyList(),
+            BasicVendorExtender(fakeCaptureExtenderImpl, fakePreviewExtenderImpl),
+            context
+        )
+
+        assertThat(basicExtenderSessionProcessor.realtimeCaptureLatency).isEqualTo(Pair(1000L, 10L))
     }
 
     class ResultMonitor {
@@ -342,6 +452,7 @@ class BasicExtenderSessionProcessorTest(
                 }
             }
         }
+
         fun assertCaptureKey(key: CaptureRequest.Key<*>, value: Any) {
             keyToCheck = key
             valueToCheck = value
@@ -354,8 +465,9 @@ class BasicExtenderSessionProcessorTest(
     fun repeatingRequest_containsPreviewCaptureStagesParameters(): Unit = runBlocking {
         val previewBuilder = Preview.Builder()
         val resultMonitor = ResultMonitor()
-        Camera2Interop.Extender(previewBuilder)
-            .setSessionCaptureCallback(object : CameraCaptureSession.CaptureCallback() {
+        ExtensionsTestUtil.setCamera2SessionCaptureCallback(
+            previewBuilder,
+            object : CameraCaptureSession.CaptureCallback() {
                 override fun onCaptureCompleted(
                     session: CameraCaptureSession,
                     request: CaptureRequest,
@@ -370,9 +482,11 @@ class BasicExtenderSessionProcessorTest(
         val previewSemaphore = Semaphore(0)
         val analysisSemaphore = Semaphore(0)
         fakePreviewExtenderImpl.captureStage = createCaptureStage(
-            parameters = listOf(Pair(
-                CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_OFF
-            ))
+            parameters = listOf(
+                Pair(
+                    CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_OFF
+                )
+            )
         )
 
         verifyUseCasesOutput(
@@ -394,8 +508,8 @@ class BasicExtenderSessionProcessorTest(
         assumeTrue(previewProcessorType == PROCESSOR_TYPE_REQUEST_UPDATE_ONLY)
         val previewBuilder = Preview.Builder()
         val resultMonitor = ResultMonitor()
-        Camera2Interop.Extender(previewBuilder)
-            .setSessionCaptureCallback(object : CameraCaptureSession.CaptureCallback() {
+        ExtensionsTestUtil.setCamera2SessionCaptureCallback(previewBuilder,
+            object : CameraCaptureSession.CaptureCallback() {
                 override fun onCaptureCompleted(
                     session: CameraCaptureSession,
                     request: CaptureRequest,
@@ -420,8 +534,11 @@ class BasicExtenderSessionProcessorTest(
         // Trigger RequestUpdateProcessor to update repeating request to have new parameters.
         fakePreviewExtenderImpl.fakeRequestUpdateProcessor?.captureStage =
             createCaptureStage(
-                parameters = listOf(Pair(CaptureRequest.CONTROL_AE_MODE,
-                    CaptureRequest.CONTROL_AE_MODE_OFF)
+                parameters = listOf(
+                    Pair(
+                        CaptureRequest.CONTROL_AE_MODE,
+                        CaptureRequest.CONTROL_AE_MODE_OFF
+                    )
                 )
             )
 
@@ -457,8 +574,8 @@ class BasicExtenderSessionProcessorTest(
 
             basicExtenderSessionProcessor.startRepeating(object :
                 SessionProcessor.CaptureCallback {})
-            basicExtenderSessionProcessor.startCapture(object : SessionProcessor.CaptureCallback {})
-
+            basicExtenderSessionProcessor.startCapture(false,
+                object : SessionProcessor.CaptureCallback {})
             val submittedRequests = withTimeout(2000) {
                 fakeRequestProcessor.awaitRequestSubmitted()
             }
@@ -539,7 +656,23 @@ class BasicExtenderSessionProcessorTest(
         }
     }
 
-    private fun initBasicExtenderSessionProcessor(): AutoCloseable {
+    @Test
+    fun getSupportedPostviewSizeIsCorrect() {
+        assumeTrue(ClientVersion.isMinimumCompatibleVersion(Version.VERSION_1_4) &&
+            ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_4))
+        // 1. Arrange
+        val postviewSizes = listOf(
+            Pair(ImageFormat.YUV_420_888,
+                arrayOf(Size(1920, 1080), Size(640, 480)))
+        )
+        fakeCaptureExtenderImpl.postviewSupportedSizes = postviewSizes
+
+        // 2. Act and Assert
+        assertThat(basicExtenderSessionProcessor.getSupportedPostviewSize(Size(1920, 1080))
+            .get(ImageFormat.YUV_420_888)).containsExactly(Size(1920, 1080), Size(640, 480))
+    }
+
+    private suspend fun initBasicExtenderSessionProcessor(): AutoCloseable {
         val width = 640
         val height = 480
         val maxImages = 2
@@ -547,9 +680,9 @@ class BasicExtenderSessionProcessorTest(
         val handlerThread = HandlerThread("CameraX-AutoDrainThread")
         handlerThread.start()
         val handler = Handler(handlerThread.looper)
-        val surfaceTextureHolder = SurfaceTextureProvider.createAutoDrainingSurfaceTexture(
-            CameraXExecutors.newHandlerExecutor(handler), width, height
-        ) {}
+        val surfaceTextureHolder = SurfaceTextureProvider.createAutoDrainingSurfaceTextureAsync(
+            CameraXExecutors.newHandlerExecutor(handler), width, height, null
+        ) { handlerThread.quitSafely() }.await()
         val previewOutputSurface = OutputSurface.create(
             Surface(surfaceTextureHolder.surfaceTexture),
             Size(width, height),
@@ -565,15 +698,14 @@ class BasicExtenderSessionProcessorTest(
 
         basicExtenderSessionProcessor.initSession(
             cameraInfo,
-            previewOutputSurface,
-            captureOutputSurface,
-            null
-        )
+            OutputSurfaceConfiguration.create(
+                previewOutputSurface, captureOutputSurface, null, null
+            )
+        );
 
         return AutoCloseable {
             jpegImageReader.close()
             surfaceTextureHolder.close()
-            handlerThread.quitSafely()
         }
     }
 
@@ -724,6 +856,7 @@ class BasicExtenderSessionProcessorTest(
         fun assertInvokeOrder(expectList: List<String>) {
             assertThat(expectList).containsExactlyElementsIn(invokeList).inOrder()
         }
+
         override fun onInit(
             cameraId: String,
             cameraCharacteristics: CameraCharacteristics,
@@ -735,14 +868,17 @@ class BasicExtenderSessionProcessorTest(
         override fun onDeInit() {
             recordInvoking("onDeInit")
         }
+
         override fun onPresetSession(): CaptureStageImpl? {
             recordInvoking("onPresetSession")
             return null
         }
+
         override fun onEnableSession(): CaptureStageImpl? {
             recordInvoking("onEnableSession")
             return onEnableSessionCaptureStage
         }
+
         override fun onDisableSession(): CaptureStageImpl? {
             recordInvoking("onDisableSession")
             return onDisableSessionCaptureStage
@@ -750,6 +886,10 @@ class BasicExtenderSessionProcessorTest(
 
         var onEnableSessionCaptureStage: CaptureStageImpl? = null
         var onDisableSessionCaptureStage: CaptureStageImpl? = null
+
+        override fun onSessionType(): Int {
+            return SessionConfiguration.SESSION_REGULAR
+        }
     }
 
     private class FakePreviewExtenderImpl(
@@ -757,22 +897,27 @@ class BasicExtenderSessionProcessorTest(
     ) : PreviewExtenderImpl, FakeExtenderStateListener() {
         var fakePreviewImageProcessorImpl: FakePreviewImageProcessorImpl? = null
         var fakeRequestUpdateProcessor: FakeRequestUpdateProcessor? = null
+        var sessionType: Int = -1
 
         init {
             when (processorType) {
                 PROCESSOR_TYPE_REQUEST_UPDATE_ONLY ->
                     fakeRequestUpdateProcessor = FakeRequestUpdateProcessor()
+
                 PROCESSOR_TYPE_IMAGE_PROCESSOR ->
                     fakePreviewImageProcessorImpl = FakePreviewImageProcessorImpl()
+
                 PROCESSOR_TYPE_NONE -> {}
             }
         }
+
         override fun isExtensionAvailable(
             cameraId: String,
             cameraCharacteristics: CameraCharacteristics
         ): Boolean {
             return true
         }
+
         override fun init(cameraId: String, cameraCharacteristics: CameraCharacteristics) {
             recordInvoking("init")
         }
@@ -795,6 +940,11 @@ class BasicExtenderSessionProcessorTest(
         fun setCaptureStage(captureStage: CaptureStageImpl) {
             _captureStage = captureStage
         }
+
+        override fun onSessionType(): Int {
+            return sessionType
+        }
+
         override fun getProcessorType() = processorType
         override fun getProcessor() =
             when (processorType) {
@@ -810,7 +960,7 @@ class BasicExtenderSessionProcessorTest(
         }
     }
 
-    private class FakeImageCaptureExtenderImpl(
+    private open class FakeImageCaptureExtenderImpl(
         private val hasCaptureProcessor: Boolean = false,
         private val throwErrorOnProcess: Boolean = false
     ) : ImageCaptureExtenderImpl, FakeExtenderStateListener() {
@@ -821,6 +971,8 @@ class BasicExtenderSessionProcessorTest(
                 null
             }
         }
+        var sessionType = -1
+        var postviewSupportedSizes: List<Pair<Int, Array<Size>>> = emptyList()
 
         override fun isExtensionAvailable(
             cameraId: String,
@@ -832,6 +984,7 @@ class BasicExtenderSessionProcessorTest(
         override fun init(cameraId: String, cameraCharacteristics: CameraCharacteristics) {
             recordInvoking("init")
         }
+
         override fun getCaptureProcessor() = fakeCaptureProcessorImpl
 
         override fun getCaptureStages() = _captureStages
@@ -858,13 +1011,34 @@ class BasicExtenderSessionProcessorTest(
             fakeCaptureProcessorImpl?.close()
             recordInvoking("onDeInit")
         }
+
+        override fun onSessionType(): Int {
+            return sessionType
+        }
+
+        override fun getSupportedPostviewResolutions(captureSize: Size):
+            List<Pair<Int, Array<Size>>>? {
+            return postviewSupportedSizes
+        }
+
+        override fun isCaptureProcessProgressAvailable(): Boolean {
+            return false
+        }
+
+        override fun getRealtimeCaptureLatency(): Pair<Long, Long>? {
+            return null
+        }
+
+        override fun isPostviewAvailable(): Boolean {
+            return false
+        }
     }
 
     private class FakeCaptureProcessorImpl(
         val throwErrorOnProcess: Boolean = false
     ) : CaptureProcessorImpl {
         private var imageWriter: ImageWriter? = null
-        override fun process(results: MutableMap<Int, Pair<Image, TotalCaptureResult>>?) {
+        override fun process(results: MutableMap<Int, Pair<Image, TotalCaptureResult>>) {
             if (throwErrorOnProcess) {
                 throw RuntimeException("Process failed")
             }
@@ -873,8 +1047,8 @@ class BasicExtenderSessionProcessorTest(
         }
 
         override fun process(
-            results: MutableMap<Int, Pair<Image, TotalCaptureResult>>?,
-            resultCallback: ProcessResultImpl?,
+            results: MutableMap<Int, Pair<Image, TotalCaptureResult>>,
+            resultCallback: ProcessResultImpl,
             executor: Executor?
         ) {
             process(results)
@@ -886,6 +1060,19 @@ class BasicExtenderSessionProcessorTest(
 
         override fun onResolutionUpdate(size: Size) {}
         override fun onImageFormatUpdate(imageFormat: Int) {}
+
+        override fun onPostviewOutputSurface(surface: Surface) {}
+
+        override fun onResolutionUpdate(size: Size, postviewSize: Size) {}
+
+        override fun processWithPostview(
+            results: MutableMap<Int, Pair<Image, TotalCaptureResult>>,
+            resultCallback: ProcessResultImpl,
+            executor: Executor?
+        ) {
+            process(results, resultCallback, executor)
+        }
+
         fun close() {
             imageWriter?.close()
             imageWriter = null
@@ -894,15 +1081,15 @@ class BasicExtenderSessionProcessorTest(
 
     private class FakePreviewImageProcessorImpl : PreviewImageProcessorImpl {
         private var imageWriter: ImageWriter? = null
-        override fun process(image: Image?, result: TotalCaptureResult?) {
+        override fun process(image: Image, result: TotalCaptureResult) {
             val emptyImage = imageWriter!!.dequeueInputImage()
             imageWriter!!.queueInputImage(emptyImage)
         }
 
         override fun process(
-            image: Image?,
-            result: TotalCaptureResult?,
-            resultCallback: ProcessResultImpl?,
+            image: Image,
+            result: TotalCaptureResult,
+            resultCallback: ProcessResultImpl,
             executor: Executor?
         ) {
             process(image, result)
@@ -914,6 +1101,7 @@ class BasicExtenderSessionProcessorTest(
 
         override fun onResolutionUpdate(size: Size) {}
         override fun onImageFormatUpdate(imageFormat: Int) {}
+
         fun close() {
             imageWriter?.close()
             imageWriter = null
@@ -959,6 +1147,7 @@ class BasicExtenderSessionProcessorTest(
                 deferredSubmit = CompletableDeferred<List<RequestProcessor.Request>>()
             }
         }
+
         override fun submit(
             request: RequestProcessor.Request,
             callback: RequestProcessor.Callback

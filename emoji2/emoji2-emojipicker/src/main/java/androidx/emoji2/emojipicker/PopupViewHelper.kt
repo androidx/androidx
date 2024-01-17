@@ -159,9 +159,9 @@ internal class SkinToneCircleView @JvmOverloads constructor(
     private val radius = resources.getDimension(R.dimen.emoji_picker_skin_tone_circle_radius)
     var paint: Paint? = null
 
-    override fun draw(canvas: Canvas?) {
+    override fun draw(canvas: Canvas) {
         super.draw(canvas)
-        canvas?.apply {
+        canvas.apply {
             paint?.let { drawCircle(width / 2f, height / 2f, radius, it) }
         }
     }

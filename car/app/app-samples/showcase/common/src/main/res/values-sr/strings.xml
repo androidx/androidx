@@ -243,7 +243,7 @@
     <string name="sign_in_template_not_supported_text" msgid="7184733753948837646">"Хост не подржава шаблон за пријављивање"</string>
     <string name="sign_in_template_not_supported_title" msgid="4892883228898541764">"Некомпатибилан хост"</string>
     <string name="email_hint" msgid="7205549445477319606">"Имејл"</string>
-    <string name="sign_in_title" msgid="4551967308262681703">"Пријавите се"</string>
+    <string name="sign_in_title" msgid="4551967308262681703">"Пријави ме"</string>
     <string name="sign_in_instructions" msgid="9044850228284294762">"Унесите акредитиве"</string>
     <string name="invalid_email_error_msg" msgid="5261362663718987167">"Корисничко име мора да буде важећа имејл адреса"</string>
     <string name="invalid_length_error_msg" msgid="8238905276326976425">"Најмањи број знакова у корисничком имену је %s"</string>
@@ -264,6 +264,7 @@
     <string name="tab_title_list" msgid="5104962518489668123">"Картица листе"</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"Картица са решетком и дугачким насловом"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"Картица претраге"</string>
+    <string name="tab_title_loading" msgid="5385807479734490989">"Учитава се картица"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"Демонстрација учитавања шаблона картице"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"Демонстрација шаблона картице када нема картица"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"Слике не могу да се приказују за непознат хост"</string>
@@ -364,4 +365,8 @@
     <string name="route_options_demo_title" msgid="4599699012716426514">"Опције за руте"</string>
     <string name="avoid_highways_row_title" msgid="4711913426200490304">"Избегавај ауто-путеве"</string>
     <string name="avoid_ferries_row_title" msgid="8232883866013711974">"Избегавај трајект"</string>
+    <string name="map_demos_title" msgid="2169766615521476592">"Демо верзије мапе"</string>
+    <string name="map_with_content_demo_title" msgid="1032610482145018739">"Демо верзије мапе са садржајем"</string>
+    <string name="map_with_message_demo_title" msgid="7007078234918054436">"Демо верзија мапе са шаблоном поруке"</string>
+    <string name="map_with_grid_demo_title" msgid="688667167861193192">"Демо верзија мапе са шаблоном мреже"</string>
 </resources>

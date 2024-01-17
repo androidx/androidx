@@ -30,7 +30,6 @@ import android.app.PendingIntent;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.core.util.Pair;
@@ -42,10 +41,9 @@ import androidx.slice.builders.SliceAction;
 import java.util.List;
 
 /**
- * @hide
  */
 @RestrictTo(LIBRARY)
-@RequiresApi(19)
+@Deprecated
 public class GridRowBuilderListV1Impl extends TemplateBuilderImpl {
 
     private SliceAction mPrimaryAction;
@@ -229,7 +227,6 @@ public class GridRowBuilderListV1Impl extends TemplateBuilderImpl {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         @Override

@@ -51,7 +51,10 @@ public class SearchResultsImplTest {
     public void setUp() throws Exception {
         mAppSearchImpl = AppSearchImpl.create(
                 mTemporaryFolder.newFolder(),
-                new UnlimitedLimitConfig(),
+                new AppSearchConfigImpl(
+                        new UnlimitedLimitConfig(),
+                        new LocalStorageIcingOptionsConfig()
+                ),
                 /*initStatsBuilder=*/ null, ALWAYS_OPTIMIZE,
                 /*visibilityChecker=*/null);
     }

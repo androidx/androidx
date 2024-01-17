@@ -30,7 +30,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URLConnection;
 import java.util.zip.GZIPInputStream;
 
 /**
@@ -192,7 +191,7 @@ public class AssetHelper {
     }
 
     /**
-     * Use {@link URLConnection#guessContentTypeFromName} to guess MIME type or return the
+     * Use {@link MimeUtil#getMimeFromFileName} to guess MIME type or return the
      * {@link DEFAULT_MIME_TYPE} if it can't guess.
      *
      * @param filePath path of the file to guess its MIME type.
@@ -200,8 +199,7 @@ public class AssetHelper {
      */
     @NonNull
     public static String guessMimeType(@NonNull String filePath) {
-        String mimeType = URLConnection.guessContentTypeFromName(filePath);
+        String mimeType = MimeUtil.getMimeFromFileName(filePath);
         return mimeType == null ? DEFAULT_MIME_TYPE : mimeType;
     }
-
 }

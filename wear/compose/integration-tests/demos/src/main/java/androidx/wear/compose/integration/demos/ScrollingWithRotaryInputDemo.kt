@@ -26,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.samples.PreRotaryEventSample
 import androidx.compose.ui.samples.RotaryEventSample
 import androidx.compose.ui.unit.dp
+import androidx.wear.compose.integration.demos.common.ComposableDemo
 import androidx.wear.compose.material.Text
 
 internal val RotaryInputDemos = listOf(

@@ -24,15 +24,15 @@ import androidx.glance.GlanceTheme
 import androidx.glance.ImageProvider
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
-import androidx.glance.template.GlanceTemplateAppWidget
-import androidx.glance.template.SingleEntityTemplate
 import androidx.glance.background
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Column
 import androidx.glance.layout.fillMaxSize
+import androidx.glance.template.GlanceTemplateAppWidget
 import androidx.glance.template.HeaderBlock
 import androidx.glance.template.ImageBlock
 import androidx.glance.template.LocalTemplateMode
+import androidx.glance.template.SingleEntityTemplate
 import androidx.glance.template.SingleEntityTemplateData
 import androidx.glance.template.TemplateImageWithDescription
 import androidx.glance.template.TemplateMode

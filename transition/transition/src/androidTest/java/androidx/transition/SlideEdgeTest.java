@@ -19,29 +19,37 @@ package androidx.transition;
 import static androidx.transition.AtLeastOnceWithin.atLeastOnceWithin;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.AdditionalMatchers.and;
 import static org.mockito.AdditionalMatchers.eq;
 import static org.mockito.AdditionalMatchers.gt;
 import static org.mockito.AdditionalMatchers.lt;
 import static org.mockito.AdditionalMatchers.not;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
 import android.graphics.Color;
+import android.os.Build;
 import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.animation.LinearInterpolator;
 
 import androidx.core.util.Pair;
 import androidx.test.filters.LargeTest;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.test.platform.app.InstrumentationRegistry;
+import androidx.testutils.PollingCheck;
 
 import org.junit.Test;
+import org.mockito.ArgumentMatchers;
 
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicReference;
 
 @SmallTest
 public class SlideEdgeTest extends BaseTransitionTest {
@@ -81,7 +89,7 @@ public class SlideEdgeTest extends BaseTransitionTest {
             int slideEdge = SLIDE_EDGES.get(i).first;
             final Slide slide = new Slide(slideEdge);
             final Transition.TransitionListener listener =
-                    mock(Transition.TransitionListener.class);
+                    spy(new TransitionListenerAdapter());
             slide.addListener(listener);
 
             final View redSquare = spy(new View(rule.getActivity()));
@@ -149,9 +157,8 @@ public class SlideEdgeTest extends BaseTransitionTest {
             int slideEdge = pair.first;
             final Slide slide = new Slide(slideEdge);
             final Transition.TransitionListener listener =
-                    mock(Transition.TransitionListener.class);
+                    spy(new TransitionListenerAdapter());
             slide.addListener(listener);
-
 
             final View redSquare = spy(new View(rule.getActivity()));
             InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
@@ -210,6 +217,328 @@ public class SlideEdgeTest extends BaseTransitionTest {
             verifyNoTranslation(redSquare);
             assertEquals(View.VISIBLE, redSquare.getVisibility());
         }
+    }
+
+    @LargeTest
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    public void slideInAnimateToStart() throws Throwable {
+        for (int i = 0, size = SLIDE_EDGES.size(); i < size; i++) {
+            final Pair<Integer, String> pair = SLIDE_EDGES.get(i);
+            int slideEdge = pair.first;
+            final Slide slide = new Slide(slideEdge);
+            final Transition.TransitionListener listener =
+                    spy(new TransitionListenerAdapter());
+            slide.addListener(listener);
+
+            final View redSquare = new View(rule.getActivity());
+
+            AtomicReference<TransitionSeekController> seekControllerRef =
+                    new AtomicReference<>(null);
+            // now slide in
+            rule.runOnUiThread(() -> {
+                seekControllerRef.set(TransitionManager.controlDelayedTransition(mRoot, slide));
+                mRoot.addView(redSquare, 100, 100);
+            });
+
+            rule.runOnUiThread(() -> {
+                seekControllerRef.get().setCurrentFraction(1f);
+            });
+
+            rule.runOnUiThread(() -> {
+                seekControllerRef.get().animateToStart(() -> {
+                    mRoot.removeView(redSquare);
+                });
+            });
+
+            verify(listener, atLeastOnceWithin(1000))
+                    .onTransitionEnd(any(), ArgumentMatchers.eq(true));
+
+            rule.runOnUiThread(() -> {
+                mRoot.addView(redSquare);
+            });
+
+            rule.runOnUiThread(() -> {
+                assertEquals(0f, redSquare.getTranslationX(), 0f);
+                assertEquals(0f, redSquare.getTranslationY(), 0f);
+            });
+        }
+    }
+
+    @LargeTest
+    @Test
+    public void interruptSlidePosition() throws Throwable {
+        final Slide slide = new Slide(Gravity.LEFT);
+        slide.setDuration(1000);
+        slide.setInterpolator(new LinearInterpolator());
+
+        final View redSquare = spy(new View(rule.getActivity()));
+        rule.runOnUiThread(() -> {
+            mRoot.addView(new View(mRoot.getContext()), 100, mRoot.getHeight() / 2);
+
+            redSquare.setBackgroundColor(Color.RED);
+            mRoot.addView(redSquare, ViewGroup.LayoutParams.MATCH_PARENT, 100);
+            redSquare.setVisibility(View.INVISIBLE);
+        });
+
+        // now slide in
+        rule.runOnUiThread(() -> {
+            TransitionManager.beginDelayedTransition(mRoot, slide);
+            redSquare.setVisibility(View.VISIBLE);
+        });
+
+        final float[] redStartX = new float[1];
+        rule.runOnUiThread(() -> redStartX[0] = redSquare.getTranslationX());
+        PollingCheck.waitFor(1000, () -> redSquare.getTranslationX() > redStartX[0] * 0.5f);
+        assertEquals(0f, redSquare.getTranslationY(), 0f);
+        final int[] interruptedPosition = new int[2];
+        rule.runOnUiThread(() -> {
+            TransitionManager.beginDelayedTransition(mRoot, slide);
+            redSquare.getLocationOnScreen(interruptedPosition);
+            mRoot.removeView(redSquare);
+        });
+
+        rule.runOnUiThread(() -> {
+            int[] position = new int[2];
+            mRoot.getLocationOnScreen(position);
+            position[0] += redSquare.getLeft() + redSquare.getTranslationX();
+            position[1] += redSquare.getTop() + redSquare.getTranslationY();
+            assertEquals(interruptedPosition[1], position[1]);
+            assertTrue(position[0] <= interruptedPosition[0]);
+        });
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @Test
+    public void seekingSlideOut() throws Throwable {
+        final TransitionActivity activity = rule.getActivity();
+        TransitionSeekController[] seekControllerArr = new TransitionSeekController[1];
+
+        TransitionSet transition = new TransitionSet();
+        transition.addTransition(new AlwaysTransition("before"));
+        transition.addTransition(new Slide());
+        transition.addTransition(new AlwaysTransition("after"));
+        transition.setOrdering(TransitionSet.ORDERING_SEQUENTIAL);
+
+        View redSquare = new View(activity);
+        redSquare.setBackgroundColor(Color.RED);
+        rule.runOnUiThread(() -> {
+            mRoot.addView(redSquare, new ViewGroup.LayoutParams(100, 100));
+        });
+
+        rule.runOnUiThread(() -> {
+            seekControllerArr[0] = TransitionManager.controlDelayedTransition(mRoot, transition);
+            redSquare.setVisibility(View.GONE);
+        });
+
+        final TransitionSeekController seekController = seekControllerArr[0];
+
+        float[] translationValues = new float[1];
+
+        rule.runOnUiThread(() -> {
+            assertEquals(1f, ViewUtils.getTransitionAlpha(redSquare), 0f);
+            assertEquals(View.VISIBLE, redSquare.getVisibility());
+            assertEquals(0f, redSquare.getTranslationX(), 0f);
+            assertEquals(0f, redSquare.getTranslationY(), 0f);
+
+            // Seek past the always there transition before the slide
+            seekController.setCurrentPlayTimeMillis(300);
+            assertEquals(View.VISIBLE, redSquare.getVisibility());
+            assertEquals(0f, redSquare.getTranslationX(), 0f);
+            assertEquals(0f, redSquare.getTranslationY(), 0f);
+
+            // Seek half way:
+            seekController.setCurrentPlayTimeMillis(450);
+            assertEquals(0f, redSquare.getTranslationX(), 0.01f);
+            assertNotEquals(0f, redSquare.getTranslationY(), 0.01f);
+            assertEquals(View.VISIBLE, redSquare.getVisibility());
+            translationValues[0] = redSquare.getTranslationY();
+
+            // Seek past the end
+            seekController.setCurrentPlayTimeMillis(800);
+            assertEquals(0f, redSquare.getTranslationX(), 0f);
+            assertEquals(0f, redSquare.getTranslationY(), 0f);
+            assertEquals(View.GONE, redSquare.getVisibility());
+
+            // Seek before the slide:
+            seekController.setCurrentPlayTimeMillis(250);
+            assertEquals(View.VISIBLE, redSquare.getVisibility());
+            assertEquals(0f, redSquare.getTranslationX(), 0f);
+            assertEquals(0f, redSquare.getTranslationY(), 0f);
+
+            seekController.setCurrentPlayTimeMillis(450);
+            seekControllerArr[0] = TransitionManager.controlDelayedTransition(mRoot, new Slide());
+            redSquare.setVisibility(View.VISIBLE);
+        });
+
+        rule.runOnUiThread(() -> {
+            // It should start from half way values and decrease
+            assertEquals(0, redSquare.getTranslationX(), 0.01f);
+            assertEquals(translationValues[0], redSquare.getTranslationY(), 1f);
+            assertEquals(View.VISIBLE, redSquare.getVisibility());
+
+            seekControllerArr[0].setCurrentPlayTimeMillis(300);
+
+            assertEquals(View.VISIBLE, redSquare.getVisibility());
+            assertEquals(0f, redSquare.getTranslationX(), 0f);
+            assertEquals(0f, redSquare.getTranslationY(), 0f);
+        });
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @Test
+    public void seekingSlideIn() throws Throwable {
+        final TransitionActivity activity = rule.getActivity();
+        TransitionSeekController[] seekControllerArr = new TransitionSeekController[1];
+
+        TransitionSet transition = new TransitionSet();
+        transition.addTransition(new AlwaysTransition("before"));
+        Slide slide = new Slide();
+        slide.setInterpolator(new LinearInterpolator());
+        transition.addTransition(slide);
+        transition.addTransition(new AlwaysTransition("after"));
+        transition.setOrdering(TransitionSet.ORDERING_SEQUENTIAL);
+
+        View redSquare = new View(activity);
+        redSquare.setBackgroundColor(Color.RED);
+        rule.runOnUiThread(() -> {
+            mRoot.addView(redSquare, new ViewGroup.LayoutParams(100, 100));
+            redSquare.setVisibility(View.GONE);
+        });
+
+        rule.runOnUiThread(() -> {
+            seekControllerArr[0] = TransitionManager.controlDelayedTransition(mRoot, transition);
+            redSquare.setVisibility(View.VISIBLE);
+        });
+
+        final TransitionSeekController seekController = seekControllerArr[0];
+
+        float[] translationValues = new float[1];
+
+        rule.runOnUiThread(() -> {
+            assertEquals(1f, ViewUtils.getTransitionAlpha(redSquare), 0f);
+            assertEquals(View.VISIBLE, redSquare.getVisibility());
+            assertEquals(0f, redSquare.getTranslationX(), 0.01f);
+            assertTrue(redSquare.getTranslationY() >= mRoot.getHeight());
+
+            float startY = redSquare.getTranslationY();
+
+            // Seek past the always there transition before the slide
+            seekController.setCurrentPlayTimeMillis(300);
+            assertEquals(View.VISIBLE, redSquare.getVisibility());
+            assertEquals(0f, redSquare.getTranslationX(), 0f);
+            assertEquals(startY, redSquare.getTranslationY(), 0f);
+
+            // Seek half way:
+            seekController.setCurrentPlayTimeMillis(450);
+            assertEquals(0f, redSquare.getTranslationX(), 0.01f);
+            assertEquals(startY / 2f, redSquare.getTranslationY(), 0.01f);
+            assertEquals(View.VISIBLE, redSquare.getVisibility());
+            translationValues[0] = redSquare.getTranslationY();
+
+            // Seek past the end
+            seekController.setCurrentPlayTimeMillis(800);
+            assertEquals(0f, redSquare.getTranslationX(), 0f);
+            assertEquals(0f, redSquare.getTranslationY(), 0f);
+            assertEquals(View.VISIBLE, redSquare.getVisibility());
+
+            // Seek before the slide:
+            seekController.setCurrentPlayTimeMillis(250);
+            assertEquals(View.VISIBLE, redSquare.getVisibility());
+            assertEquals(0, redSquare.getTranslationX(), 0f);
+            assertEquals(startY, redSquare.getTranslationY(), 0f);
+
+            seekController.setCurrentPlayTimeMillis(450);
+            seekControllerArr[0] = TransitionManager.controlDelayedTransition(mRoot, new Slide());
+            redSquare.setVisibility(View.GONE);
+        });
+
+        rule.runOnUiThread(() -> {
+            // It should start from half way values and increase
+            assertEquals(0f, redSquare.getTranslationX(), 0.01f);
+            assertEquals(translationValues[0], redSquare.getTranslationY(), 1f);
+
+            assertEquals(View.VISIBLE, redSquare.getVisibility());
+
+            seekControllerArr[0].setCurrentPlayTimeMillis(300);
+            assertEquals(View.GONE, redSquare.getVisibility());
+            assertEquals(0f, redSquare.getTranslationX(), 0f);
+            assertEquals(0f, redSquare.getTranslationY(), 0f);
+        });
+    }
+
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @Test
+    public void seekWithTranslation() throws Throwable {
+        final TransitionActivity activity = rule.getActivity();
+        TransitionSeekController[] seekControllerArr = new TransitionSeekController[1];
+        View redSquare = new View(activity);
+        redSquare.setBackgroundColor(Color.RED);
+        rule.runOnUiThread(() -> {
+            mRoot.addView(redSquare, new ViewGroup.LayoutParams(100, 100));
+            redSquare.setTranslationX(1f);
+            redSquare.setTranslationY(5f);
+        });
+
+        rule.runOnUiThread(() -> {
+            seekControllerArr[0] = TransitionManager.controlDelayedTransition(mRoot, new Slide());
+            redSquare.setVisibility(View.GONE);
+        });
+
+        final float[] interruptedTranslation = new float[1];
+
+        rule.runOnUiThread(() -> {
+            assertEquals(1f, redSquare.getTranslationX(), 0.01f);
+            assertEquals(5f, redSquare.getTranslationY(), 0.01f);
+
+
+            seekControllerArr[0].setCurrentPlayTimeMillis(150);
+            interruptedTranslation[0] = redSquare.getTranslationY();
+
+            seekControllerArr[0] = TransitionManager.controlDelayedTransition(mRoot, new Slide());
+            redSquare.setVisibility(View.VISIBLE);
+        });
+
+        rule.runOnUiThread(() -> {
+            // It should start from half way values and increase
+            assertEquals(1f, redSquare.getTranslationX(), 0.01f);
+            assertEquals(interruptedTranslation[0], redSquare.getTranslationY(), 1f);
+
+            // make sure it would go to the start value
+            seekControllerArr[0].setCurrentPlayTimeMillis(300);
+            assertEquals(1f, redSquare.getTranslationX(), 0.01f);
+            assertEquals(5f, redSquare.getTranslationY(), 0.01f);
+
+            // Now go back to the interrupted position again:
+            seekControllerArr[0].setCurrentPlayTimeMillis(0);
+            assertEquals(1f, redSquare.getTranslationX(), 0.01f);
+            assertEquals(interruptedTranslation[0], redSquare.getTranslationY(), 1f);
+
+            // Send it back to GONE
+            seekControllerArr[0] = TransitionManager.controlDelayedTransition(mRoot, new Slide());
+            redSquare.setVisibility(View.GONE);
+        });
+
+        rule.runOnUiThread(() -> {
+            assertEquals(1f, redSquare.getTranslationX(), 0.01f);
+            assertEquals(interruptedTranslation[0], redSquare.getTranslationY(), 1f);
+
+            // it should move away (toward the top-left)
+            seekControllerArr[0].setCurrentPlayTimeMillis(299);
+            assertEquals(1f, redSquare.getTranslationX(), 0.01f);
+            assertTrue(redSquare.getTranslationY() > interruptedTranslation[0]);
+
+            seekControllerArr[0] = TransitionManager.controlDelayedTransition(mRoot, new Slide());
+            redSquare.setVisibility(View.VISIBLE);
+        });
+
+        rule.runOnUiThread(() -> {
+            // It should end up at the initial translation
+            seekControllerArr[0].setCurrentPlayTimeMillis(300);
+            assertEquals(1f, redSquare.getTranslationX(), 0.01f);
+            assertEquals(5f, redSquare.getTranslationY(), 0.01f);
+        });
     }
 
     private void verifyNoTranslation(View view) {

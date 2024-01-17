@@ -38,7 +38,6 @@ import static androidx.profileinstaller.Encoding.writeUInt8;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -52,14 +51,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-@RequiresApi(19)
 class ProfileTranscoder {
     private ProfileTranscoder() {
     }
 
     private static final int HOT = 1;
+    private static final int FIRST_FLAG = HOT;
     private static final int STARTUP = 1 << 1;
     private static final int POST_STARTUP = 1 << 2;
+    private static final int LAST_FLAG = POST_STARTUP;
+
     private static final int INLINE_CACHE_MISSING_TYPES_ENCODING = 6;
     private static final int INLINE_CACHE_MEGAMORPHIC_ENCODING = 7;
 
@@ -219,7 +220,7 @@ class ProfileTranscoder {
      *    (M|dex_map_size)
      *    type_index_diff[dex_map_size]
      * where `M` stands for special encodings indicating missing types (kIsMissingTypesEncoding)
-     * or memamorphic call (kIsMegamorphicEncoding) which both imply `dex_map_size == 0`.
+     * or megamorphic call (kIsMegamorphicEncoding) which both imply `dex_map_size == 0`.
      */
     private static void writeProfileForS(
             @NonNull OutputStream os,
@@ -371,7 +372,7 @@ class ProfileTranscoder {
                 // Method Flags
                 int methodFlags = computeMethodFlags(profile);
                 // Bitmap Contents
-                byte[] bitmapContents = createMethodBitmapRegion(profile);
+                byte[] bitmapContents = createMethodBitmapRegionForS(methodFlags, profile);
                 // Methods with Inline Caches
                 byte[] methodRegionContents = createMethodsWithInlineCaches(profile);
                 // Profile Index
@@ -404,11 +405,12 @@ class ProfileTranscoder {
         }
     }
 
-    private static byte[] createMethodBitmapRegion(
+    private static byte[] createMethodBitmapRegionForS(
+            int methodFlags,
             @NonNull DexProfileData profile
     ) throws IOException {
         try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
-            writeMethodBitmap(out, profile);
+            writeMethodBitmapForS(out, methodFlags, profile);
             return out.toByteArray();
         }
     }
@@ -543,8 +545,8 @@ class ProfileTranscoder {
     }
 
     /**
-     * Create compressable body only for V0.1.0 v0.0.9.
-     *
+     * Create compressible body only for V0.1.0 v0.0.9.
+     * <p>
      * For 0.1.0 this will write header/header/header/body/body/body
      * For 0.0.9 this will write header/body/header/body/header/body
      */
@@ -610,6 +612,12 @@ class ProfileTranscoder {
 
     private static int getMethodBitmapStorageSize(int numMethodIds) {
         int methodBitmapBits = numMethodIds * 2; /* 2 bits per method */
+        return roundUpToByte(methodBitmapBits) / SIZEOF_BYTE;
+    }
+
+    private static int getMethodBitmapStorageSizeForS(int methodFlags, int numMethodIds) {
+        int bits = Integer.bitCount(methodFlags & ~HOT);
+        int methodBitmapBits = bits * numMethodIds;
         return roundUpToByte(methodBitmapBits) / SIZEOF_BYTE;
     }
 
@@ -719,6 +727,43 @@ class ProfileTranscoder {
             writeUInt16(os, diffWithTheLastClassIndex);
             lastClassIndex = classIndex;
         }
+    }
+
+    private static void writeMethodBitmapForS(
+            @NonNull OutputStream os,
+            int methodFlags,
+            @NonNull DexProfileData dexData
+    ) throws IOException {
+        int methodBitmapStorageSize = getMethodBitmapStorageSizeForS(
+                methodFlags, dexData.numMethodIds
+        );
+        byte[] bitmap = new byte[methodBitmapStorageSize];
+        for (Map.Entry<Integer, Integer> entry : dexData.methods.entrySet()) {
+            int methodIndex = entry.getKey();
+            int flagValue = entry.getValue();
+            int offset = 0;
+            int flag = FIRST_FLAG;
+            while (flag <= LAST_FLAG) {
+                if (flag == HOT) {
+                    flag = flag << 1;
+                    continue;
+                }
+                if ((flag & methodFlags) == 0) {
+                    flag = flag << 1;
+                    continue;
+                }
+                if ((flag & flagValue) == flag) {
+                    // The flag is set here.
+                    int bitIndex = methodIndex + offset * dexData.numMethodIds;
+                    int bitmapIndex = bitIndex / SIZEOF_BYTE;
+                    byte value = (byte) (bitmap[bitmapIndex] | (1 << (bitIndex % SIZEOF_BYTE)));
+                    bitmap[bitmapIndex] = value;
+                }
+                offset = offset + 1;
+                flag = flag << 1;
+            }
+        }
+        os.write(bitmap);
     }
 
     /**

@@ -46,7 +46,6 @@ import androidx.test.annotation.UiThreadTest;
 import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.MediumTest;
-import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
@@ -84,7 +83,6 @@ public abstract class AppCompatBaseAutoSizeTest<A extends BaseTestActivity,
 
     @Test
     @MediumTest
-    @SdkSuppress(minSdkVersion = 16)
     // public TextView#getMaxLines only introduced in API 16.
     public void testAutoSizeCallers_setMaxLines() throws Throwable {
         final T autoSizeView = prepareAndRetrieveAutoSizeTestData(R.id.view_autosize_uniform,
@@ -433,10 +431,8 @@ public abstract class AppCompatBaseAutoSizeTest<A extends BaseTestActivity,
             mActivityTestRule.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    if (Build.VERSION.SDK_INT >= 17) {
-                        autoSizeView.setCompoundDrawablesRelative(
-                                drawable, drawable, drawable, drawable);
-                    }
+                    autoSizeView.setCompoundDrawablesRelative(
+                            drawable, drawable, drawable, drawable);
                 }
             });
             mInstrumentation.waitForIdleSync();

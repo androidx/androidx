@@ -16,8 +16,16 @@
 
 package androidx.window.area
 
+import androidx.window.area.WindowAreaCapability.Status.Companion.WINDOW_AREA_STATUS_ACTIVE
+import androidx.window.area.WindowAreaCapability.Status.Companion.WINDOW_AREA_STATUS_AVAILABLE
+import androidx.window.area.WindowAreaCapability.Status.Companion.WINDOW_AREA_STATUS_UNAVAILABLE
+import androidx.window.area.WindowAreaCapability.Status.Companion.WINDOW_AREA_STATUS_UNSUPPORTED
 import androidx.window.core.ExperimentalWindowApi
 import androidx.window.extensions.area.WindowAreaComponent
+import androidx.window.extensions.area.WindowAreaComponent.STATUS_ACTIVE
+import androidx.window.extensions.area.WindowAreaComponent.STATUS_AVAILABLE
+import androidx.window.extensions.area.WindowAreaComponent.STATUS_UNAVAILABLE
+import androidx.window.extensions.area.WindowAreaComponent.STATUS_UNSUPPORTED
 
 /**
  * Adapter object to assist in translating values received from [WindowAreaComponent]
@@ -26,11 +34,15 @@ import androidx.window.extensions.area.WindowAreaComponent
 @ExperimentalWindowApi
 internal object WindowAreaAdapter {
 
-    internal fun translate(status: @WindowAreaComponent.WindowAreaStatus Int): WindowAreaStatus {
+    internal fun translate(
+        status: @WindowAreaComponent.WindowAreaStatus Int
+    ): WindowAreaCapability.Status {
         return when (status) {
-            WindowAreaComponent.STATUS_AVAILABLE -> WindowAreaStatus.AVAILABLE
-            WindowAreaComponent.STATUS_UNAVAILABLE -> WindowAreaStatus.UNAVAILABLE
-            else -> WindowAreaStatus.UNSUPPORTED
+            STATUS_UNSUPPORTED -> WINDOW_AREA_STATUS_UNSUPPORTED
+            STATUS_UNAVAILABLE -> WINDOW_AREA_STATUS_UNAVAILABLE
+            STATUS_AVAILABLE -> WINDOW_AREA_STATUS_AVAILABLE
+            STATUS_ACTIVE -> WINDOW_AREA_STATUS_ACTIVE
+            else -> WINDOW_AREA_STATUS_UNSUPPORTED
         }
     }
 }

@@ -39,9 +39,9 @@ import androidx.camera.core.Preview
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.integration.core.util.CameraPipeUtil
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.testing.CameraPipeConfigTestRule
-import androidx.camera.testing.CameraUtil
-import androidx.camera.testing.CameraUtil.PreTestCameraIdList
+import androidx.camera.testing.impl.CameraPipeConfigTestRule
+import androidx.camera.testing.impl.CameraUtil
+import androidx.camera.testing.impl.CameraUtil.PreTestCameraIdList
 import androidx.concurrent.futures.await
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
@@ -101,7 +101,7 @@ class Camera2InteropIntegrationTest(
     @After
     fun tearDown(): Unit = runBlocking {
         processCameraProvider?.apply {
-            shutdown().await()
+            shutdownAsync().await()
         }
     }
 
@@ -156,9 +156,10 @@ class Camera2InteropIntegrationTest(
                 when (state) {
                     // Filter out this state from the downstream flow
                     is SessionState.Unknown -> true
-                    is SessionState.Configured -> {
+                    is SessionState.Configured -> true
+                    is SessionState.Ready -> {
                         withContext(Dispatchers.Main) { processCameraProvider!!.unbindAll() }
-                        true // Filter out this state from the downstream flow
+                        false
                     }
 
                     else -> false // Forward to the downstream flow
@@ -368,19 +369,19 @@ class Camera2InteropIntegrationTest(
         MutableStateFlow<SessionState>(SessionState.Unknown).apply {
             val stateCallback = object : CameraCaptureSession.StateCallback() {
                 override fun onReady(session: CameraCaptureSession) {
-                    tryEmit(SessionState.Ready)
+                        tryEmit(SessionState.Ready)
                 }
 
                 override fun onConfigured(session: CameraCaptureSession) {
-                    tryEmit(SessionState.Configured)
+                        tryEmit(SessionState.Configured)
                 }
 
                 override fun onConfigureFailed(session: CameraCaptureSession) {
-                    tryEmit(SessionState.ConfigureFailed)
+                        tryEmit(SessionState.ConfigureFailed)
                 }
 
                 override fun onClosed(session: CameraCaptureSession) {
-                    tryEmit(SessionState.Closed)
+                        tryEmit(SessionState.Closed)
                 }
             }
             CameraPipeUtil.setSessionStateCallback(

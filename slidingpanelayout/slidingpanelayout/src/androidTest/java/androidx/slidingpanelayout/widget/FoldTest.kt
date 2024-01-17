@@ -17,6 +17,7 @@
 package androidx.slidingpanelayout.widget
 
 import android.view.View
+import androidx.core.view.get
 import androidx.slidingpanelayout.test.R
 import androidx.slidingpanelayout.widget.helpers.TestActivity
 import androidx.slidingpanelayout.widget.helpers.findViewById
@@ -37,7 +38,6 @@ import androidx.window.layout.WindowMetricsCalculator
 import androidx.window.testing.layout.FoldingFeature
 import androidx.window.testing.layout.WindowLayoutInfoPublisherRule
 import com.google.common.truth.Truth.assertThat
-import org.hamcrest.core.IsNot.not
 import org.junit.After
 import org.junit.Rule
 import org.junit.Test
@@ -116,9 +116,10 @@ class FoldTest {
                 val info = WindowLayoutInfo(listOf(feature))
                 rule.overrideWindowLayoutInfo(info)
                 WindowMetricsCalculator.getOrCreate().computeCurrentWindowMetrics(this).bounds
+                val spl = findViewById<SlidingPaneLayout>(R.id.sliding_pane_fold_layout)
+                assertThat(spl.isSlideable).isFalse()
+                assertThat(spl[0].width).isLessThan(spl[1].width)
             }
-            Espresso.onView(ViewMatchers.withId(R.id.sliding_pane_fold_layout))
-                .check(ViewAssertions.matches(not(isTwoPane())))
         }
     }
 

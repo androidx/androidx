@@ -34,13 +34,17 @@ private val EmptyPersistentCompositionLocalMap: PersistentCompositionLocalMap =
  *
  * @see rememberCompositionContext
  */
-@OptIn(InternalComposeApi::class)
+@OptIn(InternalComposeApi::class, ExperimentalComposeRuntimeApi::class)
 abstract class CompositionContext internal constructor() {
     internal abstract val compoundHashKey: Int
     internal abstract val collectingParameterInformation: Boolean
+    internal abstract val collectingSourceInformation: Boolean
+    internal abstract val collectingCallByInformation: Boolean
+    internal open val observerHolder: CompositionObserverHolder? get() = null
+
     /**
      *  The [CoroutineContext] with which effects for the composition will be executed in.
-     **/
+     */
     abstract val effectCoroutineContext: CoroutineContext
     internal abstract val recomposeCoroutineContext: CoroutineContext
     internal abstract fun composeInitial(
@@ -72,4 +76,6 @@ abstract class CompositionContext internal constructor() {
     internal open fun movableContentStateResolve(
         reference: MovableContentStateReference
     ): MovableContentState? = null
+
+    internal abstract fun reportRemovedComposition(composition: ControlledComposition)
 }

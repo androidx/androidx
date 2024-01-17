@@ -70,6 +70,7 @@ import static android.content.Context.WINDOW_SERVICE;
 
 import android.accounts.AccountManager;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.AlarmManager;
 import android.app.AppOpsManager;
@@ -95,6 +96,7 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.LauncherApps;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
+import android.content.res.Configuration;
 import android.graphics.drawable.Drawable;
 import android.hardware.ConsumerIrManager;
 import android.hardware.SensorManager;
@@ -130,7 +132,7 @@ import android.telephony.SubscriptionManager;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
-import android.util.TypedValue;
+import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.WindowManager;
 import android.view.accessibility.AccessibilityManager;
@@ -140,20 +142,22 @@ import android.view.textservice.TextServicesManager;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.ColorRes;
+import androidx.annotation.DisplayContext;
 import androidx.annotation.DoNotInline;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.app.ActivityOptionsCompat;
+import androidx.core.app.LocaleManagerCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.res.ResourcesCompat;
-import androidx.core.os.BuildCompat;
+import androidx.core.os.ConfigurationCompat;
 import androidx.core.os.EnvironmentCompat;
 import androidx.core.os.ExecutorCompat;
+import androidx.core.os.LocaleListCompat;
 import androidx.core.util.ObjectsCompat;
 
 import java.io.File;
@@ -169,12 +173,8 @@ import java.util.concurrent.Executor;
 public class ContextCompat {
     private static final String TAG = "ContextCompat";
 
-    private static final Object sLock = new Object();
-
     // Lock that provides similar functionality to ContextImpl.mSync.
     private static final Object sSync = new Object();
-
-    private static TypedValue sTempValue;
 
     /**
      * This class should not be instantiated, but the constructor must be
@@ -183,23 +183,6 @@ public class ContextCompat {
     protected ContextCompat() {
         // Not publicly instantiable, but may be extended.
     }
-
-    /**
-     * <p>Attribution can be used in complex apps to logically separate parts of the app. E.g. a
-     * blogging app might also have a instant messaging app built in. In this case two separate tags
-     * can for used each sub-feature.
-     *
-     * @return the attribution tag this context is for or {@code null} if this is the default.
-     */
-    @Nullable
-    public static String getAttributionTag(@NonNull Context context) {
-        if (Build.VERSION.SDK_INT >= 30) {
-            return Api30Impl.getAttributionTag(context);
-        }
-
-        return null;
-    }
-
 
     private static final String DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION_SUFFIX =
             ".DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION";
@@ -286,11 +269,7 @@ public class ContextCompat {
      */
     public static boolean startActivities(@NonNull Context context, @NonNull Intent[] intents,
             @Nullable Bundle options) {
-        if (Build.VERSION.SDK_INT >= 16) {
-            Api16Impl.startActivities(context, intents, options);
-        } else {
-            context.startActivities(intents);
-        }
+        context.startActivities(intents, options);
         return true;
     }
 
@@ -313,11 +292,7 @@ public class ContextCompat {
      */
     public static void startActivity(@NonNull Context context, @NonNull Intent intent,
             @Nullable Bundle options) {
-        if (Build.VERSION.SDK_INT >= 16) {
-            Api16Impl.startActivity(context, intent, options);
-        } else {
-            context.startActivity(intent);
-        }
+        context.startActivity(intent, options);
     }
 
     /**
@@ -390,11 +365,7 @@ public class ContextCompat {
      */
     @NonNull
     public static File[] getObbDirs(@NonNull Context context) {
-        if (Build.VERSION.SDK_INT >= 19) {
-            return Api19Impl.getObbDirs(context);
-        } else {
-            return new File[]{context.getObbDir()};
-        }
+        return context.getObbDirs();
     }
 
     /**
@@ -443,11 +414,7 @@ public class ContextCompat {
      */
     @NonNull
     public static File[] getExternalFilesDirs(@NonNull Context context, @Nullable String type) {
-        if (Build.VERSION.SDK_INT >= 19) {
-            return Api19Impl.getExternalFilesDirs(context, type);
-        } else {
-            return new File[]{context.getExternalFilesDir(type)};
-        }
+        return context.getExternalFilesDirs(type);
     }
 
     /**
@@ -496,11 +463,7 @@ public class ContextCompat {
      */
     @NonNull
     public static File[] getExternalCacheDirs(@NonNull Context context) {
-        if (Build.VERSION.SDK_INT >= 19) {
-            return Api19Impl.getExternalCacheDirs(context);
-        } else {
-            return new File[]{context.getExternalCacheDir()};
-        }
+        return context.getExternalCacheDirs();
     }
 
     /**
@@ -509,6 +472,7 @@ public class ContextCompat {
      * Starting in {@link Build.VERSION_CODES#LOLLIPOP}, the
      * returned drawable will be styled for the specified Context's theme.
      *
+     * @param context context to use for getting the drawable.
      * @param id The desired resource identifier, as generated by the aapt tool.
      *           This integer encodes the package, type, and resource entry.
      *           The value 0 is an invalid identifier.
@@ -519,22 +483,8 @@ public class ContextCompat {
     public static Drawable getDrawable(@NonNull Context context, @DrawableRes int id) {
         if (Build.VERSION.SDK_INT >= 21) {
             return Api21Impl.getDrawable(context, id);
-        } else if (Build.VERSION.SDK_INT >= 16) {
-            return context.getResources().getDrawable(id);
         } else {
-            // Prior to JELLY_BEAN, Resources.getDrawable() would not correctly
-            // retrieve the final configuration density when the resource ID
-            // is a reference another Drawable resource. As a workaround, try
-            // to resolve the drawable reference manually.
-            final int resolvedId;
-            synchronized (sLock) {
-                if (sTempValue == null) {
-                    sTempValue = new TypedValue();
-                }
-                context.getResources().getValue(id, sTempValue, true);
-                resolvedId = sTempValue.resourceId;
-            }
-            return context.getResources().getDrawable(resolvedId);
+            return context.getResources().getDrawable(id);
         }
     }
 
@@ -544,6 +494,7 @@ public class ContextCompat {
      * Starting in {@link Build.VERSION_CODES#M}, the returned
      * color state list will be styled for the specified Context's theme.
      *
+     * @param context context to use for getting the color state list.
      * @param id The desired resource identifier, as generated by the aapt
      *           tool. This integer encodes the package, type, and resource
      *           entry. The value 0 is an invalid identifier.
@@ -563,6 +514,7 @@ public class ContextCompat {
      * Starting in {@link Build.VERSION_CODES#M}, the returned
      * color will be styled for the specified Context's theme.
      *
+     * @param context context to use for getting the color.
      * @param id The desired resource identifier, as generated by the aapt
      *           tool. This integer encodes the package, type, and resource
      *           entry. The value 0 is an invalid identifier.
@@ -583,12 +535,12 @@ public class ContextCompat {
     /**
      * Determine whether <em>you</em> have been granted a particular permission.
      *
+     * @param context context for which to check the permission.
      * @param permission The name of the permission being checked.
      * @return {@link PackageManager#PERMISSION_GRANTED} if you have the
      * permission, or {@link PackageManager#PERMISSION_DENIED} if not.
      * @see PackageManager#checkPermission(String, String)
      */
-    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
     public static int checkSelfPermission(@NonNull Context context, @NonNull String permission) {
         ObjectsCompat.requireNonNull(permission, "permission must be non-null");
         if (Build.VERSION.SDK_INT < 33
@@ -753,6 +705,31 @@ public class ContextCompat {
     }
 
     /**
+     * Get the display this context is associated with or the
+     * {@link Display#DEFAULT_DISPLAY default display} as the fallback if the context is not
+     * associated with any {@link Display}.
+     * <p>
+     * Applications must use this method with {@link Activity} or a context associated with a
+     * {@link Display} via {@link Context#createDisplayContext(Display)} or
+     * {@link Context#createWindowContext(Display, int, Bundle)}, or the reported {@link Display}
+     * instance is not reliable. </p>
+     *
+     * @param context Context to obtain the associated display
+     * @return The display associated with the Context or the default display if the context
+     * doesn't associated with any display.
+     */
+    @NonNull
+    public static Display getDisplayOrDefault(@NonNull @DisplayContext Context context) {
+        if (Build.VERSION.SDK_INT >= 30) {
+            return Api30Impl.getDisplayOrDefault(context);
+        } else {
+            final WindowManager windowManager =
+                    (WindowManager) context.getSystemService(WINDOW_SERVICE);
+            return windowManager.getDefaultDisplay();
+        }
+    }
+
+    /**
      * Return the handle to a system-level service by class.
      *
      * @param context      Context to retrieve service from.
@@ -777,10 +754,10 @@ public class ContextCompat {
      * @param context  Context to retrieve service from.
      * @param receiver The BroadcastReceiver to handle the broadcast.
      * @param filter   Selects the Intent broadcasts to be received.
-     * @param flags    Specify one of {@link #RECEIVER_EXPORTED}, if you wish for your receiver
-     *                 to be able to receiver broadcasts from other applications, or
-     *                 {@link #RECEIVER_NOT_EXPORTED} if you only want your receiver to be able
-     *                 to receive broadcasts from the system or your own app.
+     * @param flags    If this receiver is listening for broadcasts sent from the system or from
+     *                 other apps—even other apps that you own—use the {@link #RECEIVER_EXPORTED}
+     *                 flag. If instead this receiver is listening only for broadcasts sent by your
+     *                 app, use the {@link #RECEIVER_NOT_EXPORTED} flag.
      * @return The first sticky intent found that matches <var>filter</var>,
      * or null if there are none.
      * @see Context#registerReceiver(BroadcastReceiver, IntentFilter, int)
@@ -803,17 +780,16 @@ public class ContextCompat {
      *                            required.
      * @param scheduler           Handler identifying the thread will receive the Intent. If
      *                            null, the main thread of the process will be used.
-     * @param flags               Specify one of {@link #RECEIVER_EXPORTED}, if you wish for your
-     *                            receiver to be able to receiver broadcasts from other
-     *                            applications, or {@link #RECEIVER_NOT_EXPORTED} if you only want
-     *                            your receiver to be able to receive broadcasts from the system
-     *                            or your own app.
+     * @param flags               If this receiver is listening for broadcasts sent from the
+     *                            system or from other apps—even other apps that you own—use the
+     *                            {@link #RECEIVER_EXPORTED} flag. If instead this receiver is
+     *                            listening only for broadcasts sent by your app, use the
+     *                            {@link #RECEIVER_NOT_EXPORTED} flag.
      * @return The first sticky intent found that matches <var>filter</var>,
      * or null if there are none.
      * @see Context#registerReceiver(BroadcastReceiver, IntentFilter, String, Handler, int)
      */
     @Nullable
-    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
     public static Intent registerReceiver(@NonNull Context context,
             @Nullable BroadcastReceiver receiver, @NonNull IntentFilter filter,
             @Nullable String broadcastPermission,
@@ -838,7 +814,7 @@ public class ContextCompat {
                     + "RECEIVER_NOT_EXPORTED");
         }
 
-        if (BuildCompat.isAtLeastT()) {
+        if (Build.VERSION.SDK_INT >= 33) {
             return Api33Impl.registerReceiver(context, receiver, filter, broadcastPermission,
                     scheduler, flags);
         }
@@ -869,6 +845,113 @@ public class ContextCompat {
             return Api23Impl.getSystemServiceName(context, serviceClass);
         }
         return LegacyServiceMapHolder.SERVICES.get(serviceClass);
+    }
+
+    /**
+     * Gets the resource string that also respects the per-app locales. If developers set the
+     * per-app locales via
+     * {@link androidx.appcompat.app.AppCompatDelegate#setApplicationLocales(LocaleListCompat)},
+     * this API returns localized strings even if the context is not
+     * {@link androidx.appcompat.app.AppCompatActivity}.
+     *
+     * <p>
+     * Compatibility behavior:
+     * <ul>
+     *     <li>API 17 and above, this method return the localized string that respects per-app
+     *     locales.</li>
+     *     <li>API 16 and earlier, this method directly return the result of
+     *     {@link Context#getString(int)}</li>
+     * </ul>
+     * </p>
+     */
+    @NonNull
+    public static String getString(@NonNull Context context, int resId) {
+        return getContextForLanguage(context).getString(resId);
+    }
+
+    /**
+     * Gets the context which respects the per-app locales locale. This API is specifically for
+     * developers who set the per-app locales via
+     * {@link androidx.appcompat.app.AppCompatDelegate#setApplicationLocales(LocaleListCompat)},
+     * but who needs to use the context out of {@link androidx.appcompat.app.AppCompatActivity}
+     * scope.
+     *
+     * <p>The developers can override the returned context in Application's
+     * {@link android.content.ContextWrapper#attachBaseContext(Context)}, so that developers can
+     * get the localized string via application's context.</p>
+     *
+     * <p>
+     * Compatibility behavior:
+     * <ul>
+     *     <li>API 17 and above, the locale in the context returned by this method will respect the
+     *     the per-app locale.</li>
+     *     <li>API 16 and earlier, this method directly return the {@link Context}</li>
+     * </ul>
+     * </p>
+     */
+    @NonNull
+    public static Context getContextForLanguage(@NonNull Context context) {
+        LocaleListCompat locales = LocaleManagerCompat.getApplicationLocales(context);
+
+        // The Android framework supports per-app locales on API 33, so we assume the
+        // configuration has been updated after API 32.
+        if (Build.VERSION.SDK_INT <= 32) {
+            if (!locales.isEmpty()) {
+                Configuration newConfig = new Configuration(
+                        context.getResources().getConfiguration());
+                ConfigurationCompat.setLocales(newConfig, locales);
+                return context.createConfigurationContext(newConfig);
+            }
+        }
+        return context;
+    }
+
+    /**
+     * Attribution can be used in complex apps to logically separate parts of the app. E.g. a
+     * blogging app might also have a instant messaging app built in. In this case two separate tags
+     * can for used each sub-feature.
+     * <p>
+     * Compatibility behavior:
+     * <ul>
+     *     <li>API 30 and above, returns the attribution tag or {@code null}
+     *     <li>API 29 and earlier, returns {@code null}
+     * </ul>
+     *
+     * @return the attribution tag this context is for or {@code null} if this is the default.
+     */
+    @Nullable
+    public static String getAttributionTag(@NonNull Context context) {
+        if (Build.VERSION.SDK_INT >= 30) {
+            return Api30Impl.getAttributionTag(context);
+        }
+
+        return null;
+    }
+
+    /**
+     * Return a new Context object for the current Context but attribute to a different tag.
+     * In complex apps attribution tagging can be used to distinguish between separate logical
+     * parts.
+     * <p>
+     * Compatibility behavior:
+     * <ul>
+     *     <li>API 30 and above, returns a new Context object with the specified attribution tag
+     *     <li>API 29 and earlier, returns the original {@code context} with no attribution tag
+     * </ul>
+     *
+     * @param context The current context.
+     * @param attributionTag The tag or {@code null} to create a context for the default.
+     * @return A {@link Context} that is tagged for the new attribution
+     * @see #getAttributionTag(Context)
+     */
+    @NonNull
+    public static Context createAttributionContext(@NonNull Context context,
+            @Nullable String attributionTag) {
+        if (Build.VERSION.SDK_INT >= 30) {
+            return Api30Impl.createAttributionContext(context, attributionTag);
+        }
+
+        return context;
     }
 
     /**
@@ -911,24 +994,18 @@ public class ContextCompat {
                 SERVICES.put(TelecomManager.class, TELECOM_SERVICE);
                 SERVICES.put(TvInputManager.class, TV_INPUT_SERVICE);
             }
-            if (Build.VERSION.SDK_INT >= 19) {
-                SERVICES.put(AppOpsManager.class, APP_OPS_SERVICE);
-                SERVICES.put(CaptioningManager.class, CAPTIONING_SERVICE);
-                SERVICES.put(ConsumerIrManager.class, CONSUMER_IR_SERVICE);
-                SERVICES.put(PrintManager.class, PRINT_SERVICE);
-            }
-            if (Build.VERSION.SDK_INT >= 18) {
-                SERVICES.put(BluetoothManager.class, BLUETOOTH_SERVICE);
-            }
-            if (Build.VERSION.SDK_INT >= 17) {
-                SERVICES.put(DisplayManager.class, DISPLAY_SERVICE);
-                SERVICES.put(UserManager.class, USER_SERVICE);
-            }
-            if (Build.VERSION.SDK_INT >= 16) {
-                SERVICES.put(InputManager.class, INPUT_SERVICE);
-                SERVICES.put(MediaRouter.class, MEDIA_ROUTER_SERVICE);
-                SERVICES.put(NsdManager.class, NSD_SERVICE);
-            }
+
+            SERVICES.put(AppOpsManager.class, APP_OPS_SERVICE);
+            SERVICES.put(CaptioningManager.class, CAPTIONING_SERVICE);
+            SERVICES.put(ConsumerIrManager.class, CONSUMER_IR_SERVICE);
+            SERVICES.put(PrintManager.class, PRINT_SERVICE);
+            SERVICES.put(BluetoothManager.class, BLUETOOTH_SERVICE);
+            SERVICES.put(DisplayManager.class, DISPLAY_SERVICE);
+            SERVICES.put(UserManager.class, USER_SERVICE);
+
+            SERVICES.put(InputManager.class, INPUT_SERVICE);
+            SERVICES.put(MediaRouter.class, MEDIA_ROUTER_SERVICE);
+            SERVICES.put(NsdManager.class, NSD_SERVICE);
             SERVICES.put(AccessibilityManager.class, ACCESSIBILITY_SERVICE);
             SERVICES.put(AccountManager.class, ACCOUNT_SERVICE);
             SERVICES.put(ActivityManager.class, ACTIVITY_SERVICE);
@@ -958,45 +1035,6 @@ public class ContextCompat {
             SERVICES.put(WifiP2pManager.class, WIFI_P2P_SERVICE);
             SERVICES.put(WifiManager.class, WIFI_SERVICE);
             SERVICES.put(WindowManager.class, WINDOW_SERVICE);
-        }
-    }
-
-    @RequiresApi(16)
-    static class Api16Impl {
-        private Api16Impl() {
-            // This class is not instantiable.
-        }
-
-        @DoNotInline
-        static void startActivities(Context obj, Intent[] intents, Bundle options) {
-            obj.startActivities(intents, options);
-        }
-
-        @DoNotInline
-        static void startActivity(Context obj, Intent intent, Bundle options) {
-            obj.startActivity(intent, options);
-        }
-    }
-
-    @RequiresApi(19)
-    static class Api19Impl {
-        private Api19Impl() {
-            // This class is not instantiable.
-        }
-
-        @DoNotInline
-        static File[] getExternalCacheDirs(Context obj) {
-            return obj.getExternalCacheDirs();
-        }
-
-        @DoNotInline
-        static File[] getExternalFilesDirs(Context obj, String type) {
-            return obj.getExternalFilesDirs(type);
-        }
-
-        @DoNotInline
-        static File[] getObbDirs(Context obj) {
-            return obj.getObbDirs();
         }
     }
 
@@ -1112,6 +1150,26 @@ public class ContextCompat {
         @DoNotInline
         static String getAttributionTag(Context obj) {
             return obj.getAttributionTag();
+        }
+
+        @DoNotInline
+        static Display getDisplayOrDefault(Context obj) {
+            try {
+                return obj.getDisplay();
+            } catch (UnsupportedOperationException e) {
+                // Provide a fallback display if the context is not associated with any display.
+                Log.w(TAG, "The context:" + obj + " is not associated with any display. Return a "
+                        + "fallback display instead.");
+                return obj.getSystemService(DisplayManager.class)
+                        .getDisplay(Display.DEFAULT_DISPLAY);
+            }
+        }
+
+        @DoNotInline
+        @NonNull
+        static Context createAttributionContext(@NonNull Context context,
+                @Nullable String attributionTag) {
+            return context.createAttributionContext(attributionTag);
         }
     }
 

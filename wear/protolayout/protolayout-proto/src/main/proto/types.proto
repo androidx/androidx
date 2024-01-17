@@ -11,8 +11,11 @@ option java_outer_classname = "TypesProto";
 
 // An int32 type.
 message Int32Prop {
-  // The value.
-  int32 value = 1;
+
+  oneof optional_value {
+    // The static value.
+    int32 value = 1;
+  }
 
   // The dynamic value.
   androidx.wear.protolayout.expression.proto.DynamicInt32 dynamic_value = 2;
@@ -22,11 +25,17 @@ message Int32Prop {
 message StringProp {
 
   oneof optional_value {
-    // The value.
+    // The static value. If a dynamic value is also set and the renderer supports
+    // dynamic values for the corresponding field, this static value will be
+    // ignored. If the static value is not specified, {@code null} will be used
+    // instead.
     string value = 1;
   }
 
-  // The dynamic value.
+  // The dynamic value. Note that when setting this value, the static value is
+  // still required to be set to support older renderers that only read the
+  // static value. If {@code dynamicValue} has an invalid result, the provided
+  // static value will be used instead.
   androidx.wear.protolayout.expression.proto.DynamicString dynamic_value = 2;
 
   oneof optional_value_for_layout {
@@ -42,17 +51,28 @@ message StringProp {
 
 // A float type.
 message FloatProp {
-  // The value.
-  optional float value = 1;
 
-  // The dynamic value.
+  oneof optional_value {
+    // The static value. If a dynamic value is also set and the renderer supports
+    // dynamic values for the corresponding field, this static value will be
+    // ignored. If the static value is not specified, zero will be used instead.
+    float value = 1;
+  }
+
+  // The dynamic value. Note that when setting this value, the static value is
+  // still required to be set to support older renderers that only read the
+  // static value. If {@code dynamicValue} has an invalid result, the provided
+  // static value will be used instead.
   androidx.wear.protolayout.expression.proto.DynamicFloat dynamic_value = 2;
 }
 
 // A boolean type.
 message BoolProp {
-  // The value.
-  bool value = 1;
+
+  oneof optional_value {
+    // The static value.
+    bool value = 1;
+  }
 
   // The dynamic value.
   androidx.wear.protolayout.expression.proto.DynamicBool dynamic_value = 2;

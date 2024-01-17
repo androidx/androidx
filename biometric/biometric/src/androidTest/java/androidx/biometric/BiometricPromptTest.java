@@ -27,7 +27,6 @@ import androidx.lifecycle.ViewModelStoreOwner;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
-import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.uiautomator.UiDevice;
 
@@ -47,11 +46,9 @@ public class BiometricPromptTest {
     }
 
     @Test // prevents test runner from failing since all tests are ignored
-    @SdkSuppress(minSdkVersion = 18)
     public void dummy() {}
 
     @Test
-    @SdkSuppress(minSdkVersion = 18)
     public void testViewModel_inActivity() {
         try (ActivityScenario<TestActivity> scenario =
                      ActivityScenario.launch(TestActivity.class)) {
@@ -75,7 +72,6 @@ public class BiometricPromptTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 18)
     public void testViewModel_inFragment() {
         try (FragmentScenario<TestFragment> scenario =
                      FragmentScenario.launchInContainer(TestFragment.class)) {

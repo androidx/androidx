@@ -25,6 +25,9 @@ import androidx.annotation.RequiresApi;
 import androidx.camera.core.DynamicRange;
 
 import com.google.auto.value.AutoValue;
+
+import java.util.List;
+
 /**
  * Container object for holding {@link SurfaceConfig} and its attributed ImageFormat,
  * {@link Size}, and target Frame Rate {@link Range}
@@ -45,9 +48,28 @@ public abstract class AttachedSurfaceInfo {
             int imageFormat,
             @NonNull Size size,
             @NonNull DynamicRange dynamicRange,
+            @NonNull List<UseCaseConfigFactory.CaptureType> captureTypes,
+            @Nullable Config implementationOptions,
             @Nullable Range<Integer> targetFrameRate) {
         return new AutoValue_AttachedSurfaceInfo(surfaceConfig, imageFormat, size,
-                dynamicRange, targetFrameRate);
+                dynamicRange, captureTypes, implementationOptions, targetFrameRate);
+    }
+
+    /**
+     * Obtains the StreamSpec from the given AttachedSurfaceInfo with the given
+     * implementationOptions.
+     */
+    @NonNull
+    public StreamSpec toStreamSpec(
+            @NonNull Config implementationOptions) {
+        StreamSpec.Builder streamSpecBuilder =
+                StreamSpec.builder(getSize())
+                        .setDynamicRange(getDynamicRange())
+                        .setImplementationOptions(implementationOptions);
+        if (getTargetFrameRate() != null) {
+            streamSpecBuilder.setExpectedFrameRateRange(getTargetFrameRate());
+        }
+        return streamSpecBuilder.build();
     }
 
     /** Returns the SurfaceConfig. */
@@ -64,6 +86,16 @@ public abstract class AttachedSurfaceInfo {
     /** Returns the dynamic range of this surface. */
     @NonNull
     public abstract DynamicRange getDynamicRange();
+
+    /** Returns the capture types of this surface. Multiple capture types represent a
+     *  {@link androidx.camera.core.streamsharing.StreamSharing} and its children.*/
+    @SuppressWarnings("AutoValueImmutableFields")
+    @NonNull
+    public abstract List<UseCaseConfigFactory.CaptureType> getCaptureTypes();
+
+    /** Returns the implementations of this surface. */
+    @Nullable
+    public abstract Config getImplementationOptions();
 
     /** Returns the configuration target frame rate. */
     @Nullable

@@ -33,6 +33,7 @@ import com.android.tools.lint.detector.api.SourceCodeScanner
 import com.android.tools.lint.detector.api.UastLintUtils
 import com.intellij.psi.PsiParameter
 import com.intellij.psi.PsiVariable
+import java.util.EnumSet
 import org.jetbrains.kotlin.asJava.elements.KtLightParameter
 import org.jetbrains.uast.UCallExpression
 import org.jetbrains.uast.UElement
@@ -40,7 +41,6 @@ import org.jetbrains.uast.UExpression
 import org.jetbrains.uast.toUElement
 import org.jetbrains.uast.tryResolve
 import org.jetbrains.uast.util.isConstructorCall
-import java.util.EnumSet
 
 /**
  * [Detector] that checks `Colors` definitions for correctness.

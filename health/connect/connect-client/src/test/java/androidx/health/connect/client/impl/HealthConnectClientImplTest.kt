@@ -22,18 +22,20 @@ import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageInfo
 import android.os.Looper
+import android.os.RemoteException
 import androidx.health.connect.client.changes.DeletionChange
 import androidx.health.connect.client.changes.UpsertionChange
+import androidx.health.connect.client.permission.HealthPermission
 import androidx.health.connect.client.permission.HealthPermission.Companion.getReadPermission
 import androidx.health.connect.client.permission.HealthPermission.Companion.getWritePermission
 import androidx.health.connect.client.records.ActiveCaloriesBurnedRecord
 import androidx.health.connect.client.records.HeartRateRecord
+import androidx.health.connect.client.records.MealType
 import androidx.health.connect.client.records.NutritionRecord
 import androidx.health.connect.client.records.StepsRecord
 import androidx.health.connect.client.records.StepsRecord.Companion.COUNT_TOTAL
 import androidx.health.connect.client.records.WeightRecord
 import androidx.health.connect.client.records.metadata.DataOrigin
-import androidx.health.connect.client.records.metadata.Device
 import androidx.health.connect.client.records.metadata.Metadata
 import androidx.health.connect.client.request.AggregateGroupByDurationRequest
 import androidx.health.connect.client.request.AggregateGroupByPeriodRequest
@@ -83,9 +85,11 @@ import org.junit.runner.RunWith
 import org.robolectric.Shadows
 
 private const val PROVIDER_PACKAGE_NAME = "com.google.fake.provider"
+private const val PROVIDER_ACTION = "FakeProvider"
 
 private val API_METHOD_LIST =
     listOf<suspend HealthConnectClientImpl.() -> Unit>(
+        { getGrantedPermissions() },
         { revokeAllPermissions() },
         { insertRecords(listOf()) },
         { updateRecords(listOf()) },
@@ -129,7 +133,7 @@ class HealthConnectClientImplTest {
     @Before
     fun setup() {
         val clientConfig =
-            ClientConfiguration("FakeAHPProvider", PROVIDER_PACKAGE_NAME, "FakeProvider")
+            ClientConfiguration("FakeAHPProvider", PROVIDER_PACKAGE_NAME, PROVIDER_ACTION)
 
         healthConnectClient =
             HealthConnectClientImpl(
@@ -144,7 +148,7 @@ class HealthConnectClientImplTest {
             )
         fakeAhpServiceStub = FakeHealthDataService()
 
-        Shadows.shadowOf(ApplicationProvider.getApplicationContext<Context>() as Application)
+        Shadows.shadowOf(ApplicationProvider.getApplicationContext<Application>())
             .setComponentNameAndServiceForBindServiceForIntent(
                 Intent()
                     .setPackage(clientConfig.servicePackageName)
@@ -180,6 +184,28 @@ class HealthConnectClientImplTest {
     }
 
     @Test
+    fun apiMethods_bindingFails_throwsRemoteException() = runTest {
+        Shadows.shadowOf(ApplicationProvider.getApplicationContext<Application>())
+            .declareActionUnbindable(PROVIDER_ACTION)
+
+        val responseList = mutableListOf<Deferred<Any>>()
+        for (method in API_METHOD_LIST) {
+            responseList.add(
+                async {
+                    val e = assertFailsWith(RemoteException::class) { healthConnectClient.method() }
+                    // Assert that we've wrapped the exception to expose a useful stack.
+                    assertThat(e.stackTrace.map { it.className }.toSet()).contains(
+                        HealthConnectClientImpl::class.qualifiedName
+                    )
+                }
+            )
+        }
+        advanceUntilIdle()
+        waitForMainLooperIdle()
+        responseList.map { it.await() }
+    }
+
+    @Test
     fun getGrantedPermissions_none() = runTest {
         val response = testBlocking { healthConnectClient.getGrantedPermissions() }
 
@@ -212,6 +238,36 @@ class HealthConnectClientImplTest {
     }
 
     @Test
+    fun getGrantedPermissions_exerciseRoute() = runTest {
+        fakeAhpServiceStub.addGrantedPermission(
+            androidx.health.platform.client.permission.Permission(
+                PermissionProto.Permission.newBuilder()
+                    .setPermission(HealthPermission.PERMISSION_WRITE_EXERCISE_ROUTE)
+                    .build()
+            )
+        )
+        val response = testBlocking { healthConnectClient.getGrantedPermissions() }
+
+        assertThat(response).containsExactly(HealthPermission.PERMISSION_WRITE_EXERCISE_ROUTE)
+    }
+
+    @Test
+    fun getGrantedPermissions_backgroundRead() = runTest {
+        fakeAhpServiceStub.addGrantedPermission(
+            androidx.health.platform.client.permission.Permission(
+                PermissionProto.Permission.newBuilder()
+                    .setPermission(HealthPermission.PERMISSION_READ_HEALTH_DATA_IN_BACKGROUND)
+                    .build()
+            )
+        )
+
+        val response = testBlocking { healthConnectClient.getGrantedPermissions() }
+
+        assertThat(response)
+            .containsExactly(HealthPermission.PERMISSION_READ_HEALTH_DATA_IN_BACKGROUND)
+    }
+
+    @Test
     fun insertRecords_steps() = runTest {
         fakeAhpServiceStub.insertDataResponse = InsertDataResponse(listOf("0"))
         val response = testBlocking {
@@ -222,7 +278,9 @@ class HealthConnectClientImplTest {
                         startTime = Instant.ofEpochMilli(1234L),
                         startZoneOffset = null,
                         endTime = Instant.ofEpochMilli(5678L),
-                        endZoneOffset = null
+                        endZoneOffset = null,
+                        metadata =
+                        Metadata(recordingMethod = Metadata.RECORDING_METHOD_ACTIVELY_RECORDED)
                     )
                 )
             )
@@ -236,6 +294,7 @@ class HealthConnectClientImplTest {
                     .setEndTimeMillis(5678L)
                     .putValues("count", DataProto.Value.newBuilder().setLongVal(100).build())
                     .setDataType(DataProto.DataType.newBuilder().setName("Steps"))
+                    .setRecordingMethod(Metadata.RECORDING_METHOD_ACTIVELY_RECORDED)
                     .build()
             )
     }
@@ -294,6 +353,10 @@ class HealthConnectClientImplTest {
                     .setEndTimeMillis(5678L)
                     .putValues("vitaminC", DataProto.Value.newBuilder().setDoubleVal(20.0).build())
                     .putValues("vitaminE", DataProto.Value.newBuilder().setDoubleVal(10.0).build())
+                    .putValues(
+                        "mealType",
+                        DataProto.Value.newBuilder().setEnumVal(MealType.UNKNOWN).build()
+                    )
                     .setDataType(DataProto.DataType.newBuilder().setName("Nutrition"))
                     .build()
             )
@@ -343,11 +406,7 @@ class HealthConnectClientImplTest {
                     startZoneOffset = null,
                     endTime = Instant.ofEpochMilli(5678L),
                     endZoneOffset = null,
-                    metadata =
-                        Metadata(
-                            id = "testUid",
-                            device = Device(),
-                        )
+                    metadata = Metadata(id = "testUid")
                 )
             )
     }
@@ -362,6 +421,7 @@ class HealthConnectClientImplTest {
                             .setUid("testUid")
                             .setStartTimeMillis(1234L)
                             .setEndTimeMillis(5678L)
+                            .setRecordingMethod(Metadata.RECORDING_METHOD_ACTIVELY_RECORDED)
                             .putValues(
                                 "count",
                                 DataProto.Value.newBuilder().setLongVal(100).build()
@@ -401,10 +461,10 @@ class HealthConnectClientImplTest {
                     endTime = Instant.ofEpochMilli(5678L),
                     endZoneOffset = null,
                     metadata =
-                        Metadata(
-                            id = "testUid",
-                            device = Device(),
-                        )
+                    Metadata(
+                        id = "testUid",
+                        recordingMethod = Metadata.RECORDING_METHOD_ACTIVELY_RECORDED,
+                    )
                 )
             )
     }

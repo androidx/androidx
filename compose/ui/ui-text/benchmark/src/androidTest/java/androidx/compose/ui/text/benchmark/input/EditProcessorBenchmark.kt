@@ -18,8 +18,8 @@ package androidx.compose.ui.text.benchmark.input
 
 import androidx.benchmark.junit4.BenchmarkRule
 import androidx.benchmark.junit4.measureRepeated
-import androidx.compose.ui.text.benchmark.RandomTextGenerator
 import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.benchmark.RandomTextGenerator
 import androidx.compose.ui.text.benchmark.cartesian
 import androidx.compose.ui.text.input.BackspaceCommand
 import androidx.compose.ui.text.input.CommitTextCommand

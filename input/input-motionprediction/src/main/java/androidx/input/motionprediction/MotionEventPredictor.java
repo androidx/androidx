@@ -16,12 +16,16 @@
 
 package androidx.input.motionprediction;
 
+import android.content.Context;
+import android.os.Build;
 import android.view.MotionEvent;
 import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.input.motionprediction.common.Configuration;
 import androidx.input.motionprediction.kalman.KalmanMotionEventPredictor;
+import androidx.input.motionprediction.system.SystemMotionEventPredictor;
 
 /**
  * There is a gap between the time a user touches the screen and that information is reported to the
@@ -37,6 +41,7 @@ public interface MotionEventPredictor {
      * Record a user's movement to the predictor. You should call this for every
      * {@link android.view.MotionEvent} that is received by the associated
      * {@link android.view.View}.
+     *
      * @param event the {@link android.view.MotionEvent} the associated view received and that
      *              needs to be recorded.
      * @throws IllegalArgumentException if an inconsistent MotionEvent stream is sent.
@@ -45,6 +50,7 @@ public interface MotionEventPredictor {
 
     /**
      * Compute a prediction
+     *
      * @return the predicted {@link android.view.MotionEvent}, or null if not possible to make a
      * prediction.
      */
@@ -52,11 +58,28 @@ public interface MotionEventPredictor {
     MotionEvent predict();
 
     /**
-     * Create a new motion predictor associated to a specific {@link android.view.View}
+     * Create a new motion predictor associated to a specific {@link android.view.View}.
+     *
+     * For devices running Android versions before U, the predicions are provided by a library based
+     * on a Kalman filter; from Android U, a system API is available, but predictions may not be
+     * supported for all strokes (for instance, it may be limited to stylus events). In these cases,
+     * the Kalman filter library will be used; to determine if a `MotionEvent` will be handled by
+     * the system prediction, use {@link android.view.MotionPredictor#isPredictionAvailable}.
+     *
      * @param view the view to associated to this predictor
      * @return the new predictor instance
      */
-    static @NonNull MotionEventPredictor newInstance(@NonNull View view) {
-        return new KalmanMotionEventPredictor(view.getContext());
+    @NonNull
+    static MotionEventPredictor newInstance(@NonNull View view) {
+        Context context = view.getContext();
+        Configuration configuration = Configuration.getInstance();
+        if (Build.VERSION.SDK_INT >= 34
+                && configuration.preferSystemPrediction()) {
+            return SystemMotionEventPredictor.newInstance(
+                    context,
+                    configuration.predictionStrategy());
+        } else {
+            return new KalmanMotionEventPredictor(context, configuration.predictionStrategy());
+        }
     }
 }

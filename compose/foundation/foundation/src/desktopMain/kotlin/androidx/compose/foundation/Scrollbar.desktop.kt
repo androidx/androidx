@@ -18,10 +18,10 @@ package androidx.compose.foundation
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.TweenSpec
+import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.detectTapAndPress
 import androidx.compose.foundation.gestures.drag
-import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.interaction.DragInteraction
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -59,11 +59,11 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.constrainWidth
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.runBlocking
 import kotlin.math.abs
 import kotlin.math.roundToInt
 import kotlin.math.sign
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
 
 /**
  * [CompositionLocal] used to pass [ScrollbarStyle] down the tree.
@@ -125,7 +125,7 @@ fun defaultScrollbarStyle() = ScrollbarStyle(
  * will be at the bottom of the container.
  * It is usually used in pair with `LazyColumn(reverseLayout = true)`
  * @param style [ScrollbarStyle] to define visual style of scrollbar
- * @param interactionSource [MutableInteractionSource] that will be used to dispatch
+ * @param interactionSource optional [MutableInteractionSource] that will be used to dispatch
  * [DragInteraction.Start] when this Scrollbar is being dragged.
  */
 @Composable
@@ -134,7 +134,7 @@ fun VerticalScrollbar(
     modifier: Modifier = Modifier,
     reverseLayout: Boolean = false,
     style: ScrollbarStyle = LocalScrollbarStyle.current,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() }
+    interactionSource: MutableInteractionSource? = null
 ) = Scrollbar(
     adapter,
     modifier,
@@ -171,7 +171,7 @@ fun VerticalScrollbar(
  * will be at the end of the container.
  * It is usually used in pair with `LazyRow(reverseLayout = true)`
  * @param style [ScrollbarStyle] to define visual style of scrollbar
- * @param interactionSource [MutableInteractionSource] that will be used to dispatch
+ * @param interactionSource optional [MutableInteractionSource] that will be used to dispatch
  * [DragInteraction.Start] when this Scrollbar is being dragged.
  */
 @Composable
@@ -180,7 +180,7 @@ fun HorizontalScrollbar(
     modifier: Modifier = Modifier,
     reverseLayout: Boolean = false,
     style: ScrollbarStyle = LocalScrollbarStyle.current,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() }
+    interactionSource: MutableInteractionSource? = null
 ) = Scrollbar(
     adapter,
     modifier,
@@ -197,9 +197,11 @@ private fun Scrollbar(
     modifier: Modifier = Modifier,
     reverseLayout: Boolean,
     style: ScrollbarStyle,
-    interactionSource: MutableInteractionSource,
+    interactionSource: MutableInteractionSource?,
     isVertical: Boolean
 ) = with(LocalDensity.current) {
+    @Suppress("NAME_SHADOWING")
+    val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
     val dragInteraction = remember { mutableStateOf<DragInteraction.Start?>(null) }
     DisposableEffect(interactionSource) {
         onDispose {

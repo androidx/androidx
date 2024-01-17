@@ -16,8 +16,13 @@
 
 package androidx.credentials.exceptions.publickeycredential
 
-import androidx.annotation.VisibleForTesting
+import androidx.annotation.RestrictTo
+import androidx.credentials.exceptions.GetCredentialCustomException
+import androidx.credentials.exceptions.GetCredentialException
 import androidx.credentials.exceptions.domerrors.DomError
+import androidx.credentials.exceptions.domerrors.UnknownError
+import androidx.credentials.exceptions.publickeycredential.DomExceptionUtils.Companion.SEPARATOR
+import androidx.credentials.internal.FrameworkClassParsingException
 
 /**
  * During the get-passkey flow, this is thrown when a DOM Exception is thrown,
@@ -33,12 +38,25 @@ class GetPublicKeyCredentialDomException @JvmOverloads constructor(
     val domError: DomError,
     errorMessage: CharSequence? = null
 ) : GetPublicKeyCredentialException(
-    TYPE_GET_PUBLIC_KEY_CREDENTIAL_DOM_EXCEPTION + domError.type,
+    TYPE_GET_PUBLIC_KEY_CREDENTIAL_DOM_EXCEPTION + SEPARATOR + domError.type,
     errorMessage) {
-    /** @hide */
-    companion object {
-        @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
-        const val TYPE_GET_PUBLIC_KEY_CREDENTIAL_DOM_EXCEPTION: String =
+    internal companion object {
+        internal const val TYPE_GET_PUBLIC_KEY_CREDENTIAL_DOM_EXCEPTION: String =
             "androidx.credentials.TYPE_GET_PUBLIC_KEY_CREDENTIAL_DOM_EXCEPTION"
+
+        @JvmStatic
+        @RestrictTo(RestrictTo.Scope.LIBRARY) // used from java tests
+        fun createFrom(type: String, msg: String?): GetCredentialException {
+            val prefix =
+                "$TYPE_GET_PUBLIC_KEY_CREDENTIAL_DOM_EXCEPTION$SEPARATOR"
+            return try {
+                DomExceptionUtils.generateDomException(type, prefix, msg,
+                    GetPublicKeyCredentialDomException(UnknownError()))
+            } catch (t: FrameworkClassParsingException) {
+                // Parsing failed but don't crash the process. Instead just output a response
+                // with the raw framework values.
+                GetCredentialCustomException(type, msg)
+            }
+        }
     }
 }

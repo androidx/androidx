@@ -24,7 +24,7 @@ import androidx.room.Database
 import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.Insert
-import androidx.room.MapInfo
+import androidx.room.MapColumn
 import androidx.room.PrimaryKey
 import androidx.room.Query
 import androidx.room.Relation
@@ -103,7 +103,7 @@ class AmbiguousColumnResolverTest {
     }
 
     @Test
-    fun withMapInfo() {
+    fun withMapColumn() {
         dao.getUserIdAndComments().let { userIdAndComments ->
             assertThat(userIdAndComments[1]).containsExactly(comment1)
             assertThat(userIdAndComments[2]).containsExactly(comment2, comment3)
@@ -198,35 +198,40 @@ class AmbiguousColumnResolverTest {
         // Suppress on CURSOR_MISMATCH is because @RewriteQueriesToDropUnusedColumns does not
         // rewrite queries with duplicate columns.
         @Suppress(RoomWarnings.CURSOR_MISMATCH, RoomWarnings.AMBIGUOUS_COLUMN_IN_RESULT)
-        @MapInfo(keyColumn = "id", keyTable = "User")
         @Query("SELECT * FROM User JOIN Comment ON User.id = Comment.userId")
-        fun getUserIdAndComments(): Map<Int, List<Comment>>
+        fun getUserIdAndComments(): Map<@MapColumn("id") Int, List<Comment>>
 
         // This works because User.id is in the projection first, but if swapped with Comment.*
         // it would return bad results, hence the AMBIGUOUS_COLUMN_IN_RESULT.
         @Suppress(RoomWarnings.AMBIGUOUS_COLUMN_IN_RESULT)
-        @MapInfo(keyColumn = "id", keyTable = "User")
         @Query("SELECT User.id, Comment.* FROM User JOIN Comment ON User.id = Comment.userId")
-        fun getUserIdAndCommentsTableOrderSwapped(): Map<Int, List<Comment>>
+        fun getUserIdAndCommentsTableOrderSwapped():
+            Map<@MapColumn("id") Int, List<Comment>>
 
         // Aliasing the single ambiguous column is good.
-        @MapInfo(keyColumn = "user_id")
         @Query("""
             SELECT Comment.*, User.id as user_id
             FROM User JOIN Comment ON User.id = Comment.userId
             """)
-        fun getUserIdAliasedAndCommentsTableOrderSwapped(): Map<Int, List<Comment>>
+        fun getUserIdAliasedAndCommentsTableOrderSwapped():
+            Map<@MapColumn("user_id")Int, List<Comment>>
 
-        @MapInfo(keyColumn = "id", keyTable = "User", valueColumn = "commentsCount")
         @Query("""
             SELECT User.id, count(*) AS commentsCount
             FROM User JOIN Comment ON User.id = Comment.userId
             GROUP BY User.id
             """)
-        fun getUserIdAndAmountOfComments(): Map<Int, Int>
+        fun getUserIdAndAmountOfComments():
+            Map<@MapColumn("id") Int, @MapColumn("commentsCount") Int>
 
         @Query("SELECT * FROM User LEFT JOIN Comment ON User.id = Comment.userId")
         fun getLeftJoinUserCommentMap(): Map<User, List<Comment>>
+
+        @Query(
+            "SELECT * FROM User JOIN Avatar ON User.id = Avatar.userId JOIN " +
+                "Comment ON Avatar.userId = Comment.userId"
+        )
+        fun getLeftJoinUserNestedMap(): Map<User, Map<Avatar, List<Comment>>>
 
         @Transaction
         @Query("SELECT * FROM User JOIN Comment ON User.id = Comment.userId")

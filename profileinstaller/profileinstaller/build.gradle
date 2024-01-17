@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.LibraryType
 
 plugins {
@@ -32,11 +39,12 @@ dependencies {
 }
 
 androidx {
-    name = "androidx.profileinstaller:profileinstaller"
+    name = "Profile Installer"
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2021"
     description = "Allows libraries to prepopulate ahead of time compilation traces to be read by" +
             " ART"
+    metalavaK2UastEnabled = true
 }
 
 android {

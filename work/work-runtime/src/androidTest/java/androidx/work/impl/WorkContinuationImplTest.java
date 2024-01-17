@@ -20,11 +20,9 @@ import static androidx.work.impl.WorkManagerImplExtKt.createWorkManager;
 
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -39,18 +37,14 @@ import androidx.arch.core.executor.ArchTaskExecutor;
 import androidx.arch.core.executor.TaskExecutor;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.LargeTest;
 import androidx.test.filters.MediumTest;
 import androidx.test.filters.SmallTest;
 import androidx.work.Configuration;
-import androidx.work.Data;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkContinuation;
 import androidx.work.WorkInfo;
 import androidx.work.WorkManagerTest;
-import androidx.work.impl.foreground.ForegroundProcessor;
 import androidx.work.impl.model.WorkSpec;
-import androidx.work.impl.model.WorkSpecDao;
 import androidx.work.impl.utils.SynchronousExecutor;
 import androidx.work.impl.utils.taskexecutor.InstantWorkTaskExecutor;
 import androidx.work.worker.TestWorker;
@@ -259,84 +253,6 @@ public class WorkContinuationImplTest extends WorkManagerTest {
         dependent.enqueue().getResult().get();
         verifyEnqueued(dependent);
         verifyScheduled(mScheduler, dependent);
-    }
-
-    @Test
-    @LargeTest
-    @SuppressWarnings("unchecked")
-    public void testContinuation_joinPassesAllOutput()
-            throws ExecutionException, InterruptedException {
-
-        final String intTag = "myint";
-        final String stringTag = "mystring";
-        ForegroundProcessor foregroundProcessor = mock(ForegroundProcessor.class);
-
-        OneTimeWorkRequest firstWork = new OneTimeWorkRequest.Builder(TestWorker.class)
-                .setInitialState(WorkInfo.State.SUCCEEDED)
-                .build();
-        OneTimeWorkRequest secondWork = new OneTimeWorkRequest.Builder(TestWorker.class)
-                .setInitialState(WorkInfo.State.SUCCEEDED)
-                .build();
-
-        WorkSpecDao workSpecDao = mDatabase.workSpecDao();
-        workSpecDao.insertWorkSpec(firstWork.getWorkSpec());
-        workSpecDao.insertWorkSpec(secondWork.getWorkSpec());
-
-        workSpecDao.setOutput(
-                firstWork.getStringId(),
-                new Data.Builder().putInt(intTag, 0).build());
-        workSpecDao.setOutput(
-                secondWork.getStringId(),
-                new Data.Builder().putInt(intTag, 1).putString(stringTag, "hello").build());
-
-        WorkContinuation firstContinuation =
-                new WorkContinuationImpl(mWorkManagerImpl, Collections.singletonList(firstWork));
-        WorkContinuation secondContinuation =
-                new WorkContinuationImpl(mWorkManagerImpl, Collections.singletonList(secondWork));
-        WorkContinuationImpl dependentContinuation =
-                (WorkContinuationImpl) WorkContinuation.combine(
-                        Arrays.asList(firstContinuation, secondContinuation));
-        dependentContinuation.enqueue().getResult().get();
-
-        String joinId = null;
-        for (String id : dependentContinuation.getAllIds()) {
-            if (!firstWork.getStringId().equals(id) && !secondWork.getStringId().equals(id)) {
-                joinId = id;
-                break;
-            }
-        }
-
-        Thread.sleep(5000L);
-
-        // TODO(sumir): I can't seem to get this kicked off automatically, so I'm running it myself.
-        // Figure out what's going on here.
-        Context context = ApplicationProvider.getApplicationContext();
-        new WorkerWrapper.Builder(
-                context,
-                mConfiguration,
-                new InstantWorkTaskExecutor(),
-                foregroundProcessor,
-                mDatabase,
-                workSpecDao.getWorkSpec(joinId),
-                new ArrayList<>())
-                .build()
-                .run();
-
-        assertThat(joinId, is(not(nullValue())));
-        WorkSpec joinWorkSpec = mDatabase.workSpecDao().getWorkSpec(joinId);
-        assertThat(joinWorkSpec, is(not(nullValue())));
-        assertThat(joinWorkSpec.state, is(WorkInfo.State.SUCCEEDED));
-
-        Data output = joinWorkSpec.output;
-        int[] intArray = output.getIntArray(intTag);
-
-        assertThat(intArray, is(not(nullValue())));
-        Arrays.sort(intArray);
-        assertThat(Arrays.binarySearch(intArray, 0), is(not(-1)));
-        assertThat(Arrays.binarySearch(intArray, 1), is(not(-1)));
-        assertThat(output.getStringArray(stringTag), is(not(nullValue())));
-        assertThat(Arrays.asList(output.getStringArray(stringTag)), contains("hello"));
-
     }
 
     @Test

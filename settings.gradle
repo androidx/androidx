@@ -1,6 +1,6 @@
-import groovy.transform.Field
 import androidx.build.gradle.gcpbuildcache.GcpBuildCache
 import androidx.build.gradle.gcpbuildcache.GcpBuildCacheServiceFactory
+import groovy.transform.Field
 
 pluginManagement {
     repositories {
@@ -20,14 +20,22 @@ pluginManagement {
 buildscript {
     ext.supportRootFolder = buildscript.sourceFile.getParentFile()
     apply(from: "buildSrc/repos.gradle")
+    apply(from: "buildSrc/settingsScripts/project-dependency-graph.groovy")
+    apply(from: "buildSrc/settingsScripts/skiko-setup.groovy")
+
     repos.addMavenRepositories(repositories)
 
     dependencies {
-        classpath("com.gradle:gradle-enterprise-gradle-plugin:3.12.4")
-        classpath("com.gradle:common-custom-user-data-gradle-plugin:1.9")
-        classpath("androidx.build.gradle.gcpbuildcache:gcpbuildcache:1.0.0-alpha06")
+        // upgrade protobuf to be compatible with AGP
+        classpath("com.google.protobuf:protobuf-java:3.22.3")
+        // upgrade okio for gcpbuildcache that is compatible with the wire plugin used by androidx
+        classpath("com.squareup.okio:okio:3.3.0")
+        classpath("com.gradle:gradle-enterprise-gradle-plugin:3.16")
+        classpath("com.gradle:common-custom-user-data-gradle-plugin:1.12")
+        classpath("androidx.build.gradle.gcpbuildcache:gcpbuildcache:1.0.0-beta07")
     }
 }
+skikoSetup.defineSkikoInVersionCatalog(settings)
 
 // Abort immediately if we're running in Studio, but not a managed instance of Studio.
 if (startParameter.projectProperties.containsKey('android.injected.invoked.from.ide')) {
@@ -88,13 +96,12 @@ gradleEnterprise {
             value("BUILD_NUMBER", BUILD_NUMBER)
             link("ci.android.com build", "https://ci.android.com/builds/branches/aosp-androidx-main/grid?head=$BUILD_NUMBER&tail=$BUILD_NUMBER")
         }
-        value("androidx.compose.multiplatformEnabled", isMultiplatformEnabled().toString())
         value("androidx.projects", getRequestedProjectSubsetName() ?: "Unset")
         value("androidx.useMaxDepVersions", providers.gradleProperty("androidx.useMaxDepVersions").isPresent().toString())
 
-        // Publish scan for androidx-main
-        publishAlways()
-        publishIfAuthenticated()
+	// Publish scan for androidx-main
+	publishAlways()
+	publishIfAuthenticated()
     }
 }
 
@@ -113,6 +120,9 @@ switch (cacheSetting) {
             remote(GcpBuildCache) {
                 projectId = "androidx-ge"
                 bucketName = "androidx-gradle-remote-cache"
+                messageOnAuthenticationFailure = "Your GCP Credentials have expired.\n" +
+                        "Please regenerate credentials following the steps below and try again:\n" +
+                        "gcloud auth application-default login --project androidx-ge"
                 push = (BUILD_NUMBER != null && !BUILD_NUMBER.startsWith("P"))
             }
         }
@@ -139,41 +149,8 @@ dependencyResolutionManagement {
                 logger.warn("Using custom version ${metalavaOverride} of metalava due to METALAVA_VERSION being set.")
                 version('metalava', metalavaOverride)
             }
-            def skikoOverride = System.getenv("SKIKO_VERSION")
-            if (skikoOverride != null) {
-                logger.warn("Using custom version ${skikoOverride} of SKIKO due to SKIKO_VERSION being set.")
-                version('skiko', skikoOverride)
-            }
-            String os = System.getProperty("os.name").toLowerCase(Locale.US)
-            String currentOsArtifact
-            if (os.contains("mac os x") ||  os.contains("darwin") || os.contains("osx")) {
-                def arch = System.getProperty("os.arch")
-                if (arch == "aarch64") {
-                    currentOsArtifact = "skiko-awt-runtime-macos-arm64"
-                } else {
-                    currentOsArtifact = "skiko-awt-runtime-macos-x64"
-                }
-            } else if (os.startsWith("win")) {
-                currentOsArtifact = "skiko-awt-runtime-windows-x64"
-            } else if (os.startsWith("linux") ) {
-                def arch = System.getProperty("os.arch")
-                if (arch == "aarch64") {
-                    currentOsArtifact = "skiko-awt-runtime-linux-arm64"
-                } else {
-                    currentOsArtifact = "skiko-awt-runtime-linux-x64"
-                }
-            } else {
-                throw GradleException("Unsupported operating system $os")
-            }
-            library("skikoCurrentOs", "org.jetbrains.skiko", currentOsArtifact).versionRef("skiko")
         }
     }
-}
-
-boolean isMultiplatformEnabled() {
-    def mppParameter = properties.get("androidx.compose.multiplatformEnabled")
-    if (mppParameter == null) return false
-    return Boolean.parseBoolean(mppParameter)
 }
 
 /////////////////////////////
@@ -192,18 +169,14 @@ enum BuildType {
     WEAR,
     GLANCE,
     TOOLS,
-    KMP,
+    KMP, // All projects built as Kotlin Multi Platform (compose, datastore, collections, etc).
+    INFRAROGUE, // Projects built by playground team, mostly non-compose kmp.
     CAMERA,
     NATIVE,
     WINDOW,
 }
 
 private String getRequestedProjectSubsetName() {
-    def prop = providers.gradleProperty("androidx.projects")
-    if (prop.isPresent()) {
-        return prop.get().toUpperCase()
-    }
-
     def envProp = providers.environmentVariable("ANDROIDX_PROJECTS")
     if (envProp.isPresent()) {
         return envProp.get().toUpperCase()
@@ -211,8 +184,15 @@ private String getRequestedProjectSubsetName() {
     return null
 }
 
+private String getRequestedProjectPrefix() {
+    def envProp = providers.environmentVariable("PROJECT_PREFIX")
+    if (envProp.isPresent()) {
+        return envProp.get()
+    }
+    return null
+}
+
 boolean isAllProjects() {
-    String projectSubsetName = getRequestedProjectSubsetName()
     return requestedProjectSubsetName == null || requestedProjectSubsetName == "ALL"
 }
 
@@ -249,6 +229,9 @@ private Set<BuildType> createRequestedFilter() {
                 break
             case "KMP":
                 filter.add(BuildType.KMP)
+                break
+            case "INFRAROGUE":
+                filter.add(BuildType.INFRAROGUE)
                 break
             case "CAMERA":
                 filter.add(BuildType.CAMERA)
@@ -302,6 +285,12 @@ boolean shouldIncludeForFilter(List<BuildType> includeList) {
 def includeProject(name, List<BuildType> filter = []) {
     includeProject(name, null, filter)
 }
+// createProjectDependencyGraph is provided by project-dependency-graph.groovy
+ext.projectDependencyGraph = createProjectDependencyGraph(settings)
+// A set of projects that the user asked to filter to.
+@Field Set<String> filteredProjects = new HashSet<String>()
+filteredProjects.add(":lint-checks")
+
 
 // Calling includeProject(name, filePath) is shorthand for:
 //
@@ -312,10 +301,10 @@ def includeProject(name, List<BuildType> filter = []) {
 //   the project name in the IDE
 //   the Maven artifactId
 //
-def includeProject(name, filePath, List<BuildType> filter = []) {
-    if (!shouldIncludeForFilter(filter)) return
-    settings.include(name)
-
+def includeProject(String name, filePath, List<BuildType> filter = []) {
+    if (getRequestedProjectPrefix() != null) {
+        if (name.startsWith(getRequestedProjectPrefix())) filteredProjects.add(name)
+    } else if (shouldIncludeForFilter(filter)) filteredProjects.add(name)
     def file
     if (filePath != null) {
         if (filePath instanceof String) {
@@ -326,17 +315,10 @@ def includeProject(name, filePath, List<BuildType> filter = []) {
         } else {
             file = filePath
         }
-        project(name).projectDir = file
     } else {
-        file = project(name).projectDir
+        file = new File(rootDir, name.substring(1).replace(":", "/"))
     }
-    if (!file.exists()) {
-        // This option is supported so that development/simplify_build_failure.sh can try
-        // deleting entire projects at once to identify the cause of a build failure
-        if (System.getenv("ALLOW_MISSING_PROJECTS") == null) {
-            throw new Exception("Path " + file + " does not exist; cannot include project " + name)
-        }
-    }
+    projectDependencyGraph.addToAllProjects(name, file)
 }
 
 /////////////////////////////
@@ -345,20 +327,22 @@ def includeProject(name, filePath, List<BuildType> filter = []) {
 //
 /////////////////////////////
 
-includeProject(":activity:activity", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE, BuildType.WEAR])
+includeProject(":activity:activity", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE])
 includeProject(":activity:activity-compose", [BuildType.COMPOSE])
 includeProject(":activity:activity-compose:activity-compose-samples", "activity/activity-compose/samples", [BuildType.COMPOSE])
 includeProject(":activity:activity-compose:integration-tests:activity-demos", [BuildType.COMPOSE])
 includeProject(":activity:activity-compose-lint", [BuildType.COMPOSE])
-includeProject(":activity:activity-ktx", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE, BuildType.WEAR])
-includeProject(":activity:activity-lint", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE, BuildType.WEAR])
-includeProject(":activity:integration-tests:testapp", [BuildType.MAIN, BuildType.FLAN])
+includeProject(":activity:activity-ktx", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE])
+includeProject(":activity:activity-lint", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE])
+includeProject(":activity:integration-tests:testapp", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE])
+includeProject(":activity:integration-tests:baselineprofile", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE])
 includeProject(":annotation:annotation")
 includeProject(":annotation:annotation-experimental")
 includeProject(":annotation:annotation-experimental-lint")
 includeProject(":annotation:annotation-experimental-lint-integration-tests", "annotation/annotation-experimental-lint/integration-tests")
 includeProject(":annotation:annotation-sampled")
-includeProject(":appactions:builtintypes:builtintypes-core", [BuildType.MAIN])
+includeProject(":appactions:builtintypes:builtintypes", [BuildType.MAIN])
+includeProject(":appactions:builtintypes:builtintypes:builtintypes-samples", "appactions/builtintypes/builtintypes/samples", [BuildType.MAIN])
 includeProject(":appactions:interaction:interaction-capabilities-communication", [BuildType.MAIN])
 includeProject(":appactions:interaction:interaction-capabilities-core", [BuildType.MAIN])
 includeProject(":appactions:interaction:interaction-capabilities-fitness", [BuildType.MAIN])
@@ -368,6 +352,9 @@ includeProject(":appactions:interaction:interaction-capabilities-testing", [Buil
 includeProject(":appactions:interaction:interaction-proto", [BuildType.MAIN])
 includeProject(":appactions:interaction:interaction-service", [BuildType.MAIN])
 includeProject(":appactions:interaction:interaction-service-proto", [BuildType.MAIN])
+includeProject(":appactions:interaction:interaction-service-testing", [BuildType.MAIN])
+includeProject(":appactions:interaction:interaction-service-wear", [BuildType.MAIN])
+includeProject(":appactions:interaction:integration-tests:testapp", [BuildType.MAIN])
 includeProject(":appcompat:appcompat", [BuildType.MAIN])
 includeProject(":appcompat:appcompat-benchmark", [BuildType.MAIN])
 includeProject(":appcompat:appcompat-lint", [BuildType.MAIN])
@@ -382,21 +369,22 @@ includeProject(":appsearch:appsearch-debug-view:samples", [BuildType.MAIN])
 includeProject(":appsearch:appsearch-ktx", [BuildType.MAIN])
 includeProject(":appsearch:appsearch-local-storage", [BuildType.MAIN])
 includeProject(":appsearch:appsearch-platform-storage", [BuildType.MAIN])
+includeProject(":appsearch:appsearch-play-services-storage", [BuildType.MAIN])
 includeProject(":appsearch:appsearch-test-util", [BuildType.MAIN])
-includeProject(":arch:core:core-common", [BuildType.MAIN, BuildType.FLAN, BuildType.WEAR, BuildType.COMPOSE, BuildType.CAMERA])
-includeProject(":arch:core:core-runtime", [BuildType.MAIN, BuildType.FLAN, BuildType.WEAR, BuildType.COMPOSE, BuildType.CAMERA])
+includeProject(":arch:core:core-common", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE])
+includeProject(":arch:core:core-runtime", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE])
 includeProject(":arch:core:core-testing", [BuildType.MAIN])
 includeProject(":asynclayoutinflater:asynclayoutinflater", [BuildType.MAIN])
 includeProject(":asynclayoutinflater:asynclayoutinflater-appcompat", [BuildType.MAIN])
 includeProject(":autofill:autofill", [BuildType.MAIN])
 includeProject(":benchmark:benchmark-benchmark", "benchmark/benchmark", [BuildType.MAIN, BuildType.COMPOSE])
 includeProject(":benchmark:benchmark-common")
-includeProject(":benchmark:benchmark-darwin", [BuildType.KMP])
-includeProject(":benchmark:benchmark-darwin-core", [BuildType.KMP])
-includeProject(":benchmark:benchmark-darwin-samples", [BuildType.KMP])
-includeProject(":benchmark:benchmark-darwin-gradle-plugin", [BuildType.KMP])
+includeProject(":benchmark:benchmark-darwin", [BuildType.INFRAROGUE, BuildType.KMP])
+includeProject(":benchmark:benchmark-darwin-core", [BuildType.INFRAROGUE, BuildType.KMP])
+includeProject(":benchmark:benchmark-darwin-samples", [BuildType.INFRAROGUE, BuildType.KMP])
+includeProject(":benchmark:benchmark-darwin-gradle-plugin", [BuildType.INFRAROGUE, BuildType.KMP])
 includeProject(":benchmark:benchmark-gradle-plugin", "benchmark/gradle-plugin", [BuildType.MAIN])
-includeProject(":benchmark:benchmark-baseline-profile-gradle-plugin", "benchmark/baseline-profile-gradle-plugin",[BuildType.MAIN])
+includeProject(":benchmark:benchmark-baseline-profile-gradle-plugin", "benchmark/baseline-profile-gradle-plugin", [BuildType.MAIN, BuildType.COMPOSE])
 includeProject(":benchmark:benchmark-junit4")
 includeProject(":benchmark:benchmark-macro", [BuildType.MAIN, BuildType.COMPOSE])
 includeProject(":benchmark:benchmark-macro-junit4", [BuildType.MAIN, BuildType.COMPOSE])
@@ -410,7 +398,6 @@ includeProject(":benchmark:integration-tests:baselineprofile-library-app-target"
 includeProject(":benchmark:integration-tests:dry-run-benchmark", [BuildType.MAIN])
 includeProject(":benchmark:integration-tests:macrobenchmark", [BuildType.MAIN])
 includeProject(":benchmark:integration-tests:macrobenchmark-target", [BuildType.MAIN])
-includeProject(":benchmark:integration-tests:test-module-sample", [BuildType.MAIN])
 includeProject(":benchmark:integration-tests:startup-benchmark", [BuildType.MAIN])
 includeProject(":biometric:biometric", [BuildType.MAIN])
 includeProject(":biometric:biometric-ktx", [BuildType.MAIN])
@@ -426,7 +413,6 @@ if (startParameter.projectProperties.containsKey("androidx.useMaxDepVersions")) 
     includeProject(":buildSrc-tests:max-dep-versions:buildSrc-tests-max-dep-versions-dep", [BuildType.MAIN])
     includeProject(":buildSrc-tests:max-dep-versions:buildSrc-tests-max-dep-versions-main", [BuildType.MAIN])
 }
-includeProject(":buildSrc-tests:project-subsets", [BuildType.MAIN])
 includeProject(":camera:camera-camera2", [BuildType.CAMERA])
 includeProject(":camera:camera-camera2-pipe", [BuildType.CAMERA])
 includeProject(":camera:camera-camera2-pipe-integration", [BuildType.CAMERA])
@@ -438,10 +424,13 @@ includeProject(":camera:camera-extensions", [BuildType.CAMERA])
 includeProject(":camera:camera-extensions-stub", [BuildType.CAMERA])
 includeProject(":camera:camera-lifecycle", [BuildType.CAMERA])
 includeProject(":camera:camera-mlkit-vision", [BuildType.CAMERA])
-includeProject(":camera:camera-viewfinder", [BuildType.CAMERA])
 includeProject(":camera:camera-testing", [BuildType.CAMERA])
 includeProject(":camera:camera-video", [BuildType.CAMERA])
 includeProject(":camera:camera-view", [BuildType.CAMERA])
+includeProject(":camera:camera-viewfinder", [BuildType.CAMERA])
+includeProject(":camera:camera-viewfinder-compose", [BuildType.CAMERA])
+includeProject(":camera:camera-viewfinder-core", [BuildType.CAMERA])
+includeProject(":camera:camera-viewfinder-core:camera-viewfinder-core-samples", "camera/camera-viewfinder-core/samples", [BuildType.CAMERA])
 includeProject(":camera:integration-tests:camera-testapp-avsync", "camera/integration-tests/avsynctestapp", [BuildType.CAMERA])
 includeProject(":camera:integration-tests:camera-testapp-camera2-pipe", "camera/integration-tests/camerapipetestapp", [BuildType.CAMERA])
 includeProject(":camera:integration-tests:camera-testapp-core", "camera/integration-tests/coretestapp", [BuildType.CAMERA])
@@ -463,11 +452,11 @@ includeProject(":car:app:app-samples:showcase-common", "car/app/app-samples/show
 includeProject(":car:app:app-samples:showcase-mobile", "car/app/app-samples/showcase/mobile", [BuildType.MAIN])
 includeProject(":car:app:app-testing", [BuildType.MAIN])
 includeProject(":cardview:cardview", [BuildType.MAIN])
-includeProject(":collection:collection", [BuildType.MAIN, BuildType.KMP])
-includeProject(":collection:collection-benchmark", [BuildType.MAIN, BuildType.KMP])
-includeProject(":collection:collection-benchmark-kmp", [BuildType.MAIN, BuildType.KMP])
-includeProject(":collection:collection-ktx", [BuildType.MAIN, BuildType.KMP])
-includeProject(":collection:integration-tests:testapp", [BuildType.MAIN, BuildType.KMP])
+includeProject(":collection:collection", [BuildType.MAIN, BuildType.INFRAROGUE, BuildType.KMP])
+includeProject(":collection:collection-benchmark", [BuildType.MAIN, BuildType.INFRAROGUE, BuildType.KMP])
+includeProject(":collection:collection-benchmark-kmp", [BuildType.MAIN, BuildType.INFRAROGUE, BuildType.KMP])
+includeProject(":collection:collection-ktx", [BuildType.MAIN, BuildType.INFRAROGUE, BuildType.KMP])
+includeProject(":collection:integration-tests:testapp", [BuildType.MAIN, BuildType.INFRAROGUE, BuildType.KMP])
 includeProject(":compose:animation", [BuildType.COMPOSE])
 includeProject(":compose:animation:animation", [BuildType.COMPOSE])
 includeProject(":compose:animation:animation-lint", [BuildType.COMPOSE])
@@ -482,19 +471,15 @@ includeProject(":compose:animation:animation-graphics", [BuildType.COMPOSE])
 includeProject(":compose:animation:animation-graphics:animation-graphics-samples", "compose/animation/animation-graphics/samples", [BuildType.COMPOSE])
 includeProject(":compose:benchmark-utils", [BuildType.COMPOSE])
 includeProject(":compose:benchmark-utils:benchmark-utils-benchmark", "compose/benchmark-utils/benchmark", [BuildType.COMPOSE])
-includeProject(":compose:compiler:compiler", [BuildType.COMPOSE, BuildType.CAMERA])
+includeProject(":compose:compiler:compiler", [BuildType.COMPOSE])
 includeProject(":compose:compiler:compiler:integration-tests", [BuildType.COMPOSE])
-includeProject(":compose:compiler:compiler-hosted", [BuildType.COMPOSE, BuildType.CAMERA])
+includeProject(":compose:compiler:compiler-hosted", [BuildType.COMPOSE])
 includeProject(":compose:compiler:compiler-hosted:integration-tests", [BuildType.COMPOSE])
 includeProject(":compose:compiler:compiler-hosted:integration-tests:kotlin-compiler-repackaged", [BuildType.COMPOSE])
-includeProject(":compose:compiler:compiler-daemon", [BuildType.COMPOSE])
-includeProject(":compose:compiler:compiler-daemon:integration-tests", [BuildType.COMPOSE])
-
-if (isMultiplatformEnabled()) {
-    includeProject(":compose:desktop", [BuildType.COMPOSE])
-    includeProject(":compose:desktop:desktop", [BuildType.COMPOSE])
-    includeProject(":compose:desktop:desktop:desktop-samples", "compose/desktop/desktop/samples", [BuildType.COMPOSE])
-}
+includeProject(":compose:compiler:compiler-hosted:integration-tests:protobuf-test-classes", [BuildType.COMPOSE])
+includeProject(":compose:desktop", [BuildType.COMPOSE, BuildType.KMP])
+includeProject(":compose:desktop:desktop", [BuildType.COMPOSE, BuildType.KMP])
+includeProject(":compose:desktop:desktop:desktop-samples", "compose/desktop/desktop/samples", [BuildType.COMPOSE, BuildType.KMP])
 includeProject(":compose:foundation", [BuildType.COMPOSE])
 includeProject(":compose:foundation:foundation", [BuildType.COMPOSE])
 includeProject(":compose:foundation:foundation-benchmark", "compose/foundation/foundation/benchmark", [BuildType.COMPOSE])
@@ -509,16 +494,26 @@ includeProject(":compose:integration-tests", [BuildType.COMPOSE])
 includeProject(":compose:integration-tests:demos", [BuildType.COMPOSE])
 includeProject(":compose:integration-tests:demos:common", [BuildType.COMPOSE])
 includeProject(":compose:integration-tests:docs-snippets", [BuildType.COMPOSE])
+includeProject(":compose:integration-tests:hero:hero-implementation", [BuildType.COMPOSE])
+includeProject(":compose:integration-tests:hero:macrobenchmark", [BuildType.COMPOSE])
+includeProject(":compose:integration-tests:hero:macrobenchmark-target", [BuildType.COMPOSE])
+includeProject(":compose:integration-tests:hero:benchmark", [BuildType.COMPOSE])
 includeProject(":compose:integration-tests:macrobenchmark", [BuildType.COMPOSE])
 includeProject(":compose:integration-tests:macrobenchmark-target", [BuildType.COMPOSE])
 includeProject(":compose:integration-tests:material-catalog", [BuildType.COMPOSE])
-includeProject(":compose:lint", [BuildType.COMPOSE, BuildType.CAMERA])
-includeProject(":compose:lint:internal-lint-checks", [BuildType.COMPOSE, BuildType.CAMERA])
-includeProject(":compose:lint:common", [BuildType.COMPOSE, BuildType.CAMERA])
-includeProject(":compose:lint:common-test", [BuildType.COMPOSE, BuildType.CAMERA])
+includeProject(":compose:lint", [BuildType.COMPOSE])
+includeProject(":compose:lint:internal-lint-checks", [BuildType.COMPOSE])
+includeProject(":compose:lint:common", [BuildType.COMPOSE])
+includeProject(":compose:lint:common-test", [BuildType.COMPOSE])
 includeProject(":compose:material", [BuildType.COMPOSE])
 includeProject(":compose:material3:material3", [BuildType.COMPOSE])
 includeProject(":compose:material3:benchmark", [BuildType.COMPOSE])
+includeProject(":compose:material3:material3-adaptive", [BuildType.COMPOSE])
+includeProject(":compose:material3:material3-adaptive:material3-adaptive-samples", "compose/material3/material3-adaptive/samples", [BuildType.COMPOSE])
+includeProject(":compose:material3:material3-adaptive:material3-adaptive-benchmark", "compose/material3/material3-adaptive/benchmark", [BuildType.COMPOSE])
+includeProject(":compose:material3:material3-adaptive-navigation-suite", [BuildType.COMPOSE])
+includeProject(":compose:material3:material3-adaptive-navigation-suite:material3-adaptive-navigation-suite-samples", "compose/material3/material3-adaptive-navigation-suite/samples", [BuildType.COMPOSE])
+includeProject(":compose:material3:material3-common", [BuildType.COMPOSE])
 includeProject(":compose:material3:material3-lint", [BuildType.COMPOSE])
 includeProject(":compose:material3:material3-window-size-class", [BuildType.COMPOSE])
 includeProject(":compose:material3:material3-window-size-class:material3-window-size-class-samples", "compose/material3/material3-window-size-class/samples", [BuildType.COMPOSE])
@@ -528,12 +523,8 @@ includeProject(":compose:material:material-lint", [BuildType.COMPOSE])
 includeProject(":compose:material:material-icons-core", [BuildType.COMPOSE])
 includeProject(":compose:material:material-icons-core:material-icons-core-samples", "compose/material/material-icons-core/samples", [BuildType.COMPOSE])
 includeProject(":compose:material:material-icons-extended", [BuildType.COMPOSE])
-includeProject(":compose:material:material-icons-extended-filled", [BuildType.COMPOSE])
-includeProject(":compose:material:material-icons-extended-outlined", [BuildType.COMPOSE])
-includeProject(":compose:material:material-icons-extended-rounded", [BuildType.COMPOSE])
-includeProject(":compose:material:material-icons-extended-sharp", [BuildType.COMPOSE])
-includeProject(":compose:material:material-icons-extended-twotone", [BuildType.COMPOSE])
 includeProject(":compose:material:material-ripple", [BuildType.COMPOSE])
+includeProject(":compose:material:material-ripple:material-ripple-benchmark", "compose/material/material-ripple/benchmark", [BuildType.COMPOSE])
 includeProject(":compose:material:material:icons:generator", [BuildType.COMPOSE])
 includeProject(":compose:material:material:integration-tests:material-demos", [BuildType.COMPOSE])
 includeProject(":compose:material:material:integration-tests:material-catalog", [BuildType.COMPOSE])
@@ -541,9 +532,8 @@ includeProject(":compose:material3:material3:integration-tests:material3-demos",
 includeProject(":compose:material3:material3:integration-tests:material3-catalog", [BuildType.COMPOSE])
 includeProject(":compose:material:material:material-samples", "compose/material/material/samples", [BuildType.COMPOSE])
 includeProject(":compose:material3:material3:material3-samples", "compose/material3/material3/samples", [BuildType.COMPOSE])
-includeProject(":compose:runtime", [BuildType.COMPOSE, BuildType.CAMERA])
-includeProject(":compose:runtime:runtime", [BuildType.COMPOSE, BuildType.CAMERA])
-includeProject(":compose:runtime:runtime-lint", [BuildType.COMPOSE, BuildType.CAMERA])
+includeProject(":compose:runtime:runtime", [BuildType.COMPOSE, BuildType.KMP])
+includeProject(":compose:runtime:runtime-lint", [BuildType.COMPOSE])
 includeProject(":compose:runtime:runtime-livedata", [BuildType.COMPOSE])
 includeProject(":compose:runtime:runtime-livedata:runtime-livedata-samples", "compose/runtime/runtime-livedata/samples", [BuildType.COMPOSE])
 includeProject(":compose:runtime:runtime-tracing", [BuildType.COMPOSE])
@@ -556,7 +546,7 @@ includeProject(":compose:runtime:runtime-saveable-lint", [BuildType.COMPOSE])
 includeProject(":compose:runtime:runtime-saveable:runtime-saveable-samples", "compose/runtime/runtime-saveable/samples", [BuildType.COMPOSE])
 includeProject(":compose:runtime:runtime:benchmark", "compose/runtime/runtime/compose-runtime-benchmark", [BuildType.COMPOSE])
 includeProject(":compose:runtime:runtime:integration-tests", [BuildType.COMPOSE])
-includeProject(":compose:runtime:runtime:runtime-samples", "compose/runtime/runtime/samples", [BuildType.COMPOSE, BuildType.CAMERA])
+includeProject(":compose:runtime:runtime:runtime-samples", "compose/runtime/runtime/samples", [BuildType.COMPOSE])
 includeProject(":compose:test-utils", [BuildType.COMPOSE])
 includeProject(":compose:ui", [BuildType.COMPOSE])
 includeProject(":compose:ui:ui", [BuildType.COMPOSE])
@@ -566,7 +556,7 @@ includeProject(":compose:ui:ui-geometry", [BuildType.COMPOSE])
 includeProject(":compose:ui:ui-graphics", [BuildType.COMPOSE])
 includeProject(":compose:ui:ui-graphics-lint", [BuildType.COMPOSE])
 includeProject(":compose:ui:ui-graphics:ui-graphics-benchmark", "compose/ui/ui-graphics/benchmark", [BuildType.COMPOSE])
-includeProject(":compose:ui:ui-graphics:ui-graphics-benchmark:test", [BuildType.COMPOSE])
+includeProject(":compose:ui:ui-graphics:ui-graphics-benchmark:test", "compose/ui/ui-graphics/benchmark/test", [BuildType.COMPOSE])
 includeProject(":compose:ui:ui-graphics:ui-graphics-samples", "compose/ui/ui-graphics/samples", [BuildType.COMPOSE])
 includeProject(":compose:ui:ui-inspection", [BuildType.COMPOSE])
 includeProject(":compose:ui:ui-lint", [BuildType.COMPOSE])
@@ -590,19 +580,20 @@ includeProject(":compose:ui:ui-viewbinding", [BuildType.COMPOSE])
 includeProject(":compose:ui:ui-viewbinding:ui-viewbinding-samples", "compose/ui/ui-viewbinding/samples", [BuildType.COMPOSE])
 includeProject(":compose:ui:ui:integration-tests:ui-demos", [BuildType.COMPOSE])
 includeProject(":compose:ui:ui:ui-samples", "compose/ui/ui/samples", [BuildType.COMPOSE])
-includeProject(":concurrent:concurrent-futures", [BuildType.MAIN, BuildType.CAMERA, BuildType.COMPOSE])
-includeProject(":concurrent:concurrent-futures-ktx", [BuildType.MAIN, BuildType.CAMERA])
+includeProject(":concurrent:concurrent-futures", [BuildType.MAIN, BuildType.COMPOSE])
+includeProject(":concurrent:concurrent-futures-ktx", [BuildType.MAIN])
 includeProject(":constraintlayout:constraintlayout-compose", [BuildType.COMPOSE])
 includeProject(":constraintlayout:constraintlayout-compose-lint", [BuildType.COMPOSE])
 includeProject(":constraintlayout:constraintlayout-compose:integration-tests:demos", [BuildType.COMPOSE])
 includeProject(":constraintlayout:constraintlayout-compose:integration-tests:macrobenchmark", [BuildType.COMPOSE])
 includeProject(":constraintlayout:constraintlayout-compose:integration-tests:macrobenchmark-target", [BuildType.COMPOSE])
+includeProject(":constraintlayout:constraintlayout-compose:integration-tests:compose-benchmark", [BuildType.COMPOSE])
 includeProject(":constraintlayout:constraintlayout", [BuildType.MAIN])
 includeProject(":constraintlayout:constraintlayout-core", [BuildType.MAIN, BuildType.COMPOSE])
 includeProject(":contentpager:contentpager", [BuildType.MAIN])
 includeProject(":coordinatorlayout:coordinatorlayout", [BuildType.MAIN])
-includeProject(":core:core", [BuildType.MAIN, BuildType.GLANCE, BuildType.MEDIA, BuildType.FLAN, BuildType.COMPOSE, BuildType.WEAR])
-includeProject(":core:core-testing", [BuildType.MAIN, BuildType.GLANCE, BuildType.MEDIA, BuildType.FLAN, BuildType.COMPOSE, BuildType.WEAR])
+includeProject(":core:core", [BuildType.MAIN, BuildType.GLANCE, BuildType.MEDIA, BuildType.FLAN, BuildType.COMPOSE])
+includeProject(":core:core-testing", [BuildType.MAIN, BuildType.GLANCE, BuildType.MEDIA, BuildType.FLAN, BuildType.COMPOSE])
 includeProject(":core:core:integration-tests:publishing", [BuildType.MAIN])
 includeProject(":core:core-animation", [BuildType.MAIN])
 includeProject(":core:core-animation-integration-tests:testapp", [BuildType.MAIN])
@@ -610,9 +601,15 @@ includeProject(":core:core-animation-testing", [BuildType.MAIN])
 includeProject(":core:core-appdigest", [BuildType.MAIN])
 includeProject(":core:core-google-shortcuts", [BuildType.MAIN])
 includeProject(":core:core-i18n", [BuildType.MAIN])
-includeProject(":core:core-ktx", [BuildType.MAIN, BuildType.GLANCE, BuildType.MEDIA, BuildType.FLAN, BuildType.COMPOSE, BuildType.WEAR])
+includeProject(":core:core-ktx", [BuildType.MAIN, BuildType.GLANCE, BuildType.MEDIA, BuildType.FLAN, BuildType.COMPOSE])
 includeProject(":core:core-location-altitude", [BuildType.MAIN])
+includeProject(":core:core-location-altitude-proto", [BuildType.MAIN])
 includeProject(":core:core-performance", [BuildType.MAIN])
+includeProject(":core:core-performance:integration-tests:testapp", [BuildType.MAIN])
+includeProject(":core:core-performance:integration-tests:testlib", [BuildType.MAIN])
+includeProject(":core:core-performance-testing", [BuildType.MAIN])
+includeProject(":core:core-performance-play-services", [BuildType.MAIN])
+includeProject(":core:core-performance-play-services:integration-tests:testapp", [BuildType.MAIN])
 includeProject(":core:core-performance:core-performance-samples", "core/core-performance/samples", [BuildType.MAIN])
 includeProject(":core:core-remoteviews", [BuildType.MAIN, BuildType.GLANCE])
 includeProject(":core:core-remoteviews:integration-tests:demos", [BuildType.MAIN, BuildType.GLANCE])
@@ -620,27 +617,35 @@ includeProject(":core:core-splashscreen", [BuildType.MAIN])
 includeProject(":core:core-splashscreen:core-splashscreen-samples", "core/core-splashscreen/samples", [BuildType.MAIN])
 includeProject(":core:core-graphics-integration-tests:core-graphics-integration-tests", "core/core-graphics-integration-tests/testapp", [BuildType.MAIN])
 includeProject(":core:core-role", [BuildType.MAIN])
+includeProject(":core:core-telecom", [BuildType.MAIN])
+includeProject(":core:core-telecom:integration-tests:testapp", [BuildType.MAIN])
+includeProject(":core:haptics:haptics", [BuildType.MAIN])
+includeProject(":core:haptics:haptics-samples", "core/haptics/haptics/samples", [BuildType.MAIN])
+includeProject(":core:haptics:haptics-demos", "core/haptics/haptics/integration-tests/demos", [BuildType.MAIN])
 includeProject(":core:uwb:uwb", [BuildType.MAIN])
 includeProject(":core:uwb:uwb-rxjava3", [BuildType.MAIN])
 includeProject(":credentials:credentials", [BuildType.MAIN])
+includeProject(":credentials:credentials-samples", "credentials/credentials/samples", [BuildType.MAIN])
+includeProject(":credentials:credentials-fido", [BuildType.MAIN])
 includeProject(":credentials:credentials-play-services-auth", [BuildType.MAIN])
 includeProject(":credentials:credentials-provider", [BuildType.MAIN])
 includeProject(":cursoradapter:cursoradapter", [BuildType.MAIN])
 includeProject(":customview:customview", [BuildType.MAIN])
 includeProject(":customview:customview-poolingcontainer", [BuildType.MAIN, BuildType.COMPOSE])
-includeProject(":datastore:datastore", [BuildType.MAIN, BuildType.KMP])
-includeProject(":datastore:datastore-core", [BuildType.MAIN, BuildType.KMP])
-includeProject(":datastore:datastore-core-okio", [BuildType.MAIN, BuildType.KMP])
+includeProject(":datastore:datastore", [BuildType.MAIN, BuildType.INFRAROGUE, BuildType.KMP])
+includeProject(":datastore:datastore-benchmark", [BuildType.MAIN, BuildType.INFRAROGUE, BuildType.KMP])
+includeProject(":datastore:datastore-core", [BuildType.MAIN, BuildType.INFRAROGUE, BuildType.KMP])
+includeProject(":datastore:datastore-core-okio", [BuildType.MAIN, BuildType.INFRAROGUE, BuildType.KMP])
 includeProject(":datastore:datastore-compose-samples", [BuildType.COMPOSE])
-includeProject(":datastore:datastore-preferences", [BuildType.MAIN, BuildType.KMP])
-includeProject(":datastore:datastore-preferences-core", [BuildType.MAIN, BuildType.KMP])
-includeProject(":datastore:datastore-preferences-proto", [BuildType.MAIN, BuildType.KMP])
-includeProject(":datastore:datastore-preferences-rxjava2", [BuildType.MAIN, BuildType.KMP])
-includeProject(":datastore:datastore-preferences-rxjava3", [BuildType.MAIN, BuildType.KMP])
-includeProject(":datastore:datastore-proto", [BuildType.MAIN, BuildType.KMP])
-includeProject(":datastore:datastore-rxjava2", [BuildType.MAIN, BuildType.KMP])
-includeProject(":datastore:datastore-rxjava3", [BuildType.MAIN, BuildType.KMP])
-includeProject(":datastore:datastore-sampleapp", [BuildType.MAIN, BuildType.KMP])
+includeProject(":datastore:datastore-preferences", [BuildType.MAIN, BuildType.INFRAROGUE, BuildType.KMP])
+includeProject(":datastore:datastore-preferences-core", [BuildType.MAIN, BuildType.INFRAROGUE, BuildType.KMP])
+includeProject(":datastore:datastore-preferences-proto", [BuildType.MAIN, BuildType.INFRAROGUE, BuildType.KMP])
+includeProject(":datastore:datastore-preferences-rxjava2", [BuildType.MAIN, BuildType.INFRAROGUE, BuildType.KMP])
+includeProject(":datastore:datastore-preferences-rxjava3", [BuildType.MAIN, BuildType.INFRAROGUE, BuildType.KMP])
+includeProject(":datastore:datastore-proto", [BuildType.MAIN, BuildType.INFRAROGUE, BuildType.KMP])
+includeProject(":datastore:datastore-rxjava2", [BuildType.MAIN, BuildType.INFRAROGUE, BuildType.KMP])
+includeProject(":datastore:datastore-rxjava3", [BuildType.MAIN, BuildType.INFRAROGUE, BuildType.KMP])
+includeProject(":datastore:datastore-sampleapp", [BuildType.MAIN, BuildType.INFRAROGUE, BuildType.KMP])
 includeProject(":documentfile:documentfile", [BuildType.MAIN])
 includeProject(":draganddrop:draganddrop", [BuildType.MAIN])
 includeProject(":draganddrop:integration-tests:sampleapp", [BuildType.MAIN])
@@ -665,10 +670,11 @@ includeProject(":emoji2:integration-tests:init-enabled-macrobenchmark-target", [
 includeProject(":enterprise:enterprise-feedback", [BuildType.MAIN])
 includeProject(":enterprise:enterprise-feedback-testing", [BuildType.MAIN])
 includeProject(":exifinterface:exifinterface", [BuildType.MAIN])
-includeProject(":fragment:fragment", [BuildType.MAIN, BuildType.FLAN, BuildType.WEAR])
-includeProject(":fragment:fragment-ktx", [BuildType.MAIN, BuildType.FLAN])
-includeProject(":fragment:fragment-lint", [BuildType.MAIN, BuildType.FLAN, BuildType.WEAR])
-includeProject(":fragment:fragment-testing", [BuildType.MAIN, BuildType.FLAN])
+includeProject(":fragment:fragment", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE])
+includeProject(":fragment:fragment-compose", [BuildType.COMPOSE])
+includeProject(":fragment:fragment-ktx", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE])
+includeProject(":fragment:fragment-lint", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE])
+includeProject(":fragment:fragment-testing", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE])
 includeProject(":fragment:fragment-testing-lint", [BuildType.MAIN, BuildType.FLAN])
 includeProject(":fragment:fragment-testing-manifest", [BuildType.MAIN, BuildType.FLAN])
 includeProject(":fragment:fragment-testing-manifest-lint", [BuildType.MAIN, BuildType.FLAN])
@@ -678,6 +684,9 @@ includeProject(":glance:glance", [BuildType.GLANCE])
 includeProject(":glance:glance-appwidget", [BuildType.GLANCE])
 includeProject(":glance:glance-appwidget-preview", [BuildType.GLANCE])
 includeProject(":glance:glance-appwidget-proto", [BuildType.GLANCE])
+includeProject(":glance:glance-appwidget-testing", [BuildType.GLANCE])
+includeProject(":glance:glance-appwidget:glance-appwidget-samples", "glance/glance-appwidget/samples", [BuildType.GLANCE])
+includeProject(":glance:glance-appwidget-testing:glance-appwidget-testing-samples", "glance/glance-appwidget-testing/samples", [BuildType.GLANCE])
 includeProject(":glance:glance-appwidget:integration-tests:demos", [BuildType.GLANCE])
 includeProject(":glance:glance-appwidget:integration-tests:macrobenchmark", [BuildType.GLANCE])
 includeProject(":glance:glance-appwidget:integration-tests:macrobenchmark-target", [BuildType.GLANCE])
@@ -687,11 +696,14 @@ includeProject(":glance:glance-material", [BuildType.GLANCE])
 includeProject(":glance:glance-material3", [BuildType.GLANCE])
 includeProject(":glance:glance-template", [BuildType.GLANCE])
 includeProject(":glance:glance-template:integration-tests:template-demos", [BuildType.GLANCE])
+includeProject(":glance:glance-testing", [BuildType.GLANCE])
 includeProject(":glance:glance-wear-tiles:integration-tests:demos", [BuildType.GLANCE])
 includeProject(":glance:glance-wear-tiles:integration-tests:template-demos", [BuildType.GLANCE])
 includeProject(":glance:glance-wear-tiles", [BuildType.GLANCE])
 includeProject(":glance:glance-wear-tiles-preview", [BuildType.GLANCE])
 includeProject(":graphics:filters:filters", [BuildType.MAIN])
+includeProject(":graphics:graphics-core:graphics-core-samples", "graphics/graphics-core/samples", [BuildType.MAIN])
+includeProject(":graphics:graphics-path", [BuildType.MAIN, BuildType.COMPOSE])
 includeProject(":graphics:graphics-core", [BuildType.MAIN])
 includeProject(":graphics:graphics-shapes", [BuildType.MAIN, BuildType.COMPOSE])
 includeProject(":graphics:integration-tests:testapp", [BuildType.MAIN])
@@ -725,33 +737,34 @@ includeProject(":leanback:leanback-tab", [BuildType.MAIN])
 includeProject(":lifecycle:integration-tests:incrementality", [BuildType.MAIN, BuildType.FLAN])
 includeProject(":lifecycle:integration-tests:lifecycle-testapp", "lifecycle/integration-tests/testapp", [BuildType.MAIN, BuildType.FLAN])
 includeProject(":lifecycle:integration-tests:lifecycle-testapp-kotlin", "lifecycle/integration-tests/kotlintestapp", [BuildType.MAIN, BuildType.FLAN])
-includeProject(":lifecycle:lifecycle-common", [BuildType.MAIN, BuildType.FLAN, BuildType.WEAR, BuildType.COMPOSE, BuildType.CAMERA])
-includeProject(":lifecycle:lifecycle-common-java8", [BuildType.MAIN, BuildType.FLAN, BuildType.WEAR, BuildType.COMPOSE, BuildType.CAMERA])
+includeProject(":lifecycle:lifecycle-common", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE])
+includeProject(":lifecycle:lifecycle-common-java8", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE])
 includeProject(":lifecycle:lifecycle-compiler", [BuildType.MAIN, BuildType.FLAN])
 includeProject(":lifecycle:lifecycle-extensions", [BuildType.MAIN, BuildType.FLAN])
-includeProject(":lifecycle:lifecycle-livedata", [BuildType.MAIN, BuildType.FLAN, BuildType.WEAR, BuildType.COMPOSE, BuildType.CAMERA])
-includeProject(":lifecycle:lifecycle-livedata-core", [BuildType.MAIN, BuildType.FLAN, BuildType.WEAR, BuildType.COMPOSE, BuildType.CAMERA])
-includeProject(":lifecycle:lifecycle-livedata-core-ktx", [BuildType.MAIN, BuildType.FLAN, BuildType.WEAR, BuildType.COMPOSE, BuildType.CAMERA])
-includeProject(":lifecycle:lifecycle-livedata-core-ktx-lint", [BuildType.MAIN, BuildType.FLAN, BuildType.WEAR, BuildType.COMPOSE, BuildType.CAMERA])
+includeProject(":lifecycle:lifecycle-livedata", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE])
+includeProject(":lifecycle:lifecycle-livedata-core", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE])
+includeProject(":lifecycle:lifecycle-livedata-core-ktx", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE])
+includeProject(":lifecycle:lifecycle-livedata-core-ktx-lint", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE])
 includeProject(":lifecycle:lifecycle-livedata-core-truth", [BuildType.MAIN, BuildType.FLAN])
-includeProject(":lifecycle:lifecycle-livedata-ktx", [BuildType.MAIN, BuildType.FLAN, BuildType.WEAR, BuildType.COMPOSE, BuildType.CAMERA])
+includeProject(":lifecycle:lifecycle-livedata-ktx", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE])
 includeProject(":lifecycle:lifecycle-process", [BuildType.MAIN, BuildType.FLAN])
 includeProject(":lifecycle:lifecycle-reactivestreams", [BuildType.MAIN, BuildType.FLAN])
 includeProject(":lifecycle:lifecycle-reactivestreams-ktx", [BuildType.MAIN, BuildType.FLAN])
-includeProject(":lifecycle:lifecycle-runtime", [BuildType.MAIN, BuildType.FLAN, BuildType.WEAR, BuildType.COMPOSE, BuildType.CAMERA])
+includeProject(":lifecycle:lifecycle-runtime", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE])
 includeProject(":lifecycle:lifecycle-runtime-compose", [BuildType.COMPOSE])
 includeProject(":lifecycle:lifecycle-runtime-compose:lifecycle-runtime-compose-samples", "lifecycle/lifecycle-runtime-compose/samples", [BuildType.COMPOSE])
 includeProject(":lifecycle:lifecycle-runtime-compose:integration-tests:lifecycle-runtime-compose-demos", [BuildType.COMPOSE])
-includeProject(":lifecycle:lifecycle-runtime-ktx", [BuildType.MAIN, BuildType.FLAN, BuildType.WEAR, BuildType.COMPOSE, BuildType.CAMERA])
-includeProject(":lifecycle:lifecycle-runtime-ktx-lint", [BuildType.MAIN, BuildType.FLAN, BuildType.WEAR, BuildType.COMPOSE, BuildType.CAMERA])
-includeProject(":lifecycle:lifecycle-runtime-testing", [BuildType.MAIN, BuildType.FLAN, BuildType.WEAR, BuildType.COMPOSE, BuildType.CAMERA])
+includeProject(":lifecycle:lifecycle-runtime-ktx", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE])
+includeProject(":lifecycle:lifecycle-runtime-ktx-lint", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE])
+includeProject(":lifecycle:lifecycle-runtime-testing", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE])
+includeProject(":lifecycle:lifecycle-runtime-testing-lint", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE])
 includeProject(":lifecycle:lifecycle-service", [BuildType.MAIN, BuildType.FLAN, BuildType.GLANCE])
-includeProject(":lifecycle:lifecycle-viewmodel", [BuildType.MAIN, BuildType.FLAN, BuildType.WEAR, BuildType.COMPOSE, BuildType.CAMERA])
+includeProject(":lifecycle:lifecycle-viewmodel", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE])
 includeProject(":lifecycle:lifecycle-viewmodel-compose", [BuildType.COMPOSE])
 includeProject(":lifecycle:lifecycle-viewmodel-compose:lifecycle-viewmodel-compose-samples", "lifecycle/lifecycle-viewmodel-compose/samples", [BuildType.COMPOSE])
 includeProject(":lifecycle:lifecycle-viewmodel-compose:integration-tests:lifecycle-viewmodel-demos", [BuildType.COMPOSE])
-includeProject(":lifecycle:lifecycle-viewmodel-ktx", [BuildType.MAIN, BuildType.FLAN, BuildType.WEAR, BuildType.COMPOSE, BuildType.CAMERA])
-includeProject(":lifecycle:lifecycle-viewmodel-savedstate", [BuildType.MAIN, BuildType.FLAN, BuildType.WEAR, BuildType.COMPOSE, BuildType.CAMERA])
+includeProject(":lifecycle:lifecycle-viewmodel-ktx", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE])
+includeProject(":lifecycle:lifecycle-viewmodel-savedstate", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE])
 includeProject(":lint-checks")
 includeProject(":lint-checks:integration-tests")
 includeProject(":loader:loader", [BuildType.MAIN])
@@ -793,7 +806,7 @@ includeProject(":navigation:navigation-testing", [BuildType.MAIN, BuildType.FLAN
 includeProject(":navigation:navigation-ui", [BuildType.MAIN, BuildType.FLAN])
 includeProject(":navigation:navigation-ui-ktx", [BuildType.MAIN, BuildType.FLAN])
 includeProject(":paging:integration-tests:testapp", [BuildType.MAIN])
-includeProject(":paging:paging-common", [BuildType.MAIN, BuildType.COMPOSE])
+includeProject(":paging:paging-common", [BuildType.MAIN, BuildType.COMPOSE, BuildType.INFRAROGUE, BuildType.KMP])
 includeProject(":paging:paging-common-ktx", [BuildType.MAIN, BuildType.COMPOSE])
 includeProject(":paging:paging-compose", [BuildType.COMPOSE])
 includeProject(":paging:paging-compose:paging-compose-samples", "paging/paging-compose/samples", [BuildType.COMPOSE])
@@ -805,24 +818,35 @@ includeProject(":paging:paging-rxjava2", [BuildType.MAIN, BuildType.COMPOSE])
 includeProject(":paging:paging-rxjava2-ktx", [BuildType.MAIN])
 includeProject(":paging:paging-rxjava3", [BuildType.MAIN])
 includeProject(":paging:paging-samples", "paging/samples", [BuildType.MAIN, BuildType.COMPOSE])
-includeProject(":paging:paging-testing", [BuildType.MAIN, BuildType.COMPOSE])
+includeProject(":paging:paging-testing", [BuildType.MAIN, BuildType.COMPOSE, BuildType.INFRAROGUE, BuildType.KMP])
 includeProject(":palette:palette", [BuildType.MAIN])
 includeProject(":palette:palette-ktx", [BuildType.MAIN])
 includeProject(":percentlayout:percentlayout", [BuildType.MAIN])
 includeProject(":preference:preference", [BuildType.MAIN])
 includeProject(":preference:preference-ktx", [BuildType.MAIN])
 includeProject(":print:print", [BuildType.MAIN])
+includeProject(":privacysandbox:activity:activity-client", [BuildType.MAIN])
+includeProject(":privacysandbox:activity:activity-core", [BuildType.MAIN])
+includeProject(":privacysandbox:activity:activity-provider", [BuildType.MAIN])
 includeProject(":privacysandbox:ads:ads-adservices", [BuildType.MAIN])
 includeProject(":privacysandbox:ads:ads-adservices-java", [BuildType.MAIN])
 includeProject(":privacysandbox:plugins:plugins-privacysandbox-library", [BuildType.MAIN])
 includeProject(":privacysandbox:sdkruntime:sdkruntime-client", [BuildType.MAIN])
 includeProject(":privacysandbox:sdkruntime:sdkruntime-core", [BuildType.MAIN])
+includeProject(":privacysandbox:sdkruntime:sdkruntime-provider", [BuildType.MAIN])
+includeProject(":privacysandbox:sdkruntime:test-sdks:current", [BuildType.MAIN])
+includeProject(":privacysandbox:sdkruntime:test-sdks:v1", [BuildType.MAIN])
+includeProject(":privacysandbox:sdkruntime:test-sdks:v2", [BuildType.MAIN])
+includeProject(":privacysandbox:sdkruntime:test-sdks:v4", [BuildType.MAIN])
 includeProject(":privacysandbox:tools:tools", [BuildType.MAIN])
 includeProject(":privacysandbox:tools:tools-apicompiler", [BuildType.MAIN])
 includeProject(":privacysandbox:tools:tools-apigenerator", [BuildType.MAIN])
 includeProject(":privacysandbox:tools:tools-apipackager", [BuildType.MAIN])
 includeProject(":privacysandbox:tools:tools-core", [BuildType.MAIN])
 includeProject(":privacysandbox:tools:tools-testing", [BuildType.MAIN])
+includeProject(":privacysandbox:ui:integration-tests:testaidl", [BuildType.MAIN])
+includeProject(":privacysandbox:ui:integration-tests:testapp", [BuildType.MAIN])
+includeProject(":privacysandbox:ui:integration-tests:testsdkprovider", [BuildType.MAIN])
 includeProject(":privacysandbox:ui:ui-client", [BuildType.MAIN])
 includeProject(":privacysandbox:ui:ui-core", [BuildType.MAIN])
 includeProject(":privacysandbox:ui:ui-provider", [BuildType.MAIN])
@@ -840,33 +864,37 @@ includeProject(":recyclerview:recyclerview-benchmark", [BuildType.MAIN])
 includeProject(":recyclerview:recyclerview-lint", [BuildType.MAIN, BuildType.COMPOSE])
 includeProject(":recyclerview:recyclerview-selection", [BuildType.MAIN])
 includeProject(":remotecallback:remotecallback", [BuildType.MAIN])
-includeProject(":remotecallback:remotecallback-processor", "remotecallback/processor", [BuildType.MAIN])
+includeProject(":remotecallback:remotecallback-processor", [BuildType.MAIN])
 includeProject(":resourceinspection:resourceinspection-annotation")
 includeProject(":resourceinspection:resourceinspection-processor", [BuildType.MAIN])
 includeProject(":room:integration-tests:room-incremental-annotation-processing", "room/integration-tests/incremental-annotation-processing", [BuildType.MAIN])
 includeProject(":room:integration-tests:room-testapp", "room/integration-tests/testapp", [BuildType.MAIN])
 includeProject(":room:integration-tests:room-testapp-autovalue", "room/integration-tests/autovaluetestapp", [BuildType.MAIN])
-includeProject(":room:integration-tests:room-testapp-kotlin", "room/integration-tests/kotlintestapp", [BuildType.MAIN])
+includeProject(":room:integration-tests:room-testapp-kotlin", "room/integration-tests/kotlintestapp", [BuildType.MAIN, BuildType.KMP])
+includeProject(":room:integration-tests:room-testapp-multiplatform", "room/integration-tests/multiplatformtestapp", [BuildType.MAIN, BuildType.KMP, BuildType.INFRAROGUE])
 includeProject(":room:integration-tests:room-testapp-noappcompat", "room/integration-tests/noappcompattestapp", [BuildType.MAIN])
 includeProject(":room:room-benchmark", "room/benchmark", [BuildType.MAIN])
-includeProject(":room:room-common", [BuildType.MAIN, BuildType.COMPOSE])
-includeProject(":room:room-compiler", [BuildType.MAIN, BuildType.COMPOSE])
-includeProject(":room:room-compiler-processing", [BuildType.MAIN, BuildType.COMPOSE, BuildType.FLAN])
+includeProject(":room:room-common", [BuildType.MAIN, BuildType.COMPOSE, BuildType.KMP, BuildType.INFRAROGUE])
+includeProject(":room:room-compiler", [BuildType.MAIN, BuildType.COMPOSE, BuildType.KMP])
+includeProject(":room:room-compiler-processing", [BuildType.MAIN, BuildType.COMPOSE, BuildType.FLAN, BuildType.KMP])
 includeProject(":room:room-compiler-processing-testing", [BuildType.MAIN, BuildType.COMPOSE, BuildType.FLAN])
 includeProject(":room:room-guava", [BuildType.MAIN])
+includeProject(":room:room-gradle-plugin", [BuildType.MAIN])
 includeProject(":room:room-ktx", [BuildType.MAIN, BuildType.COMPOSE])
-includeProject(":room:room-migration", [BuildType.MAIN, BuildType.COMPOSE])
+includeProject(":room:room-migration", [BuildType.MAIN, BuildType.COMPOSE, BuildType.KMP])
 includeProject(":room:room-paging", [BuildType.MAIN, BuildType.COMPOSE])
 includeProject(":room:room-paging-guava", [BuildType.MAIN])
 includeProject(":room:room-paging-rxjava2", [BuildType.MAIN])
 includeProject(":room:room-paging-rxjava3", [BuildType.MAIN])
-includeProject(":room:room-runtime", [BuildType.MAIN, BuildType.COMPOSE])
+includeProject(":room:room-runtime", [BuildType.MAIN, BuildType.COMPOSE, BuildType.KMP, BuildType.INFRAROGUE])
 includeProject(":room:room-runtime-lint", [BuildType.MAIN, BuildType.COMPOSE])
 includeProject(":room:room-rxjava2", [BuildType.MAIN])
 includeProject(":room:room-rxjava3", [BuildType.MAIN])
 includeProject(":room:room-testing", [BuildType.MAIN])
-includeProject(":savedstate:savedstate", [BuildType.MAIN, BuildType.COMPOSE, BuildType.FLAN, BuildType.WEAR])
-includeProject(":savedstate:savedstate-ktx", [BuildType.MAIN, BuildType.COMPOSE, BuildType.FLAN, BuildType.WEAR])
+includeProject(":safeparcel:safeparcel", [BuildType.MAIN])
+includeProject(":safeparcel:safeparcel-processor", [BuildType.MAIN])
+includeProject(":savedstate:savedstate", [BuildType.MAIN, BuildType.COMPOSE, BuildType.FLAN])
+includeProject(":savedstate:savedstate-ktx", [BuildType.MAIN, BuildType.COMPOSE, BuildType.FLAN])
 includeProject(":security:security-app-authenticator", [BuildType.MAIN])
 includeProject(":security:security-app-authenticator-testing", [BuildType.MAIN])
 includeProject(":security:security-biometric", [BuildType.MAIN])
@@ -883,10 +911,13 @@ includeProject(":slice:slice-remotecallback", [BuildType.MAIN])
 includeProject(":slice:slice-test", [BuildType.MAIN])
 includeProject(":slice:slice-view", [BuildType.MAIN])
 includeProject(":slidingpanelayout:slidingpanelayout", [BuildType.MAIN, BuildType.FLAN])
+includeProject(":slidingpanelayout:slidingpanelayout-testapp", [BuildType.MAIN])
+includeProject(":sqlite:integration-tests:driver-conformance-test", [BuildType.MAIN, BuildType.KMP, BuildType.INFRAROGUE])
 includeProject(":sqlite:integration-tests:inspection-room-testapp", [BuildType.MAIN])
 includeProject(":sqlite:integration-tests:inspection-sqldelight-testapp", [BuildType.MAIN])
-includeProject(":sqlite:sqlite", [BuildType.MAIN, BuildType.COMPOSE])
-includeProject(":sqlite:sqlite-framework", [BuildType.MAIN, BuildType.COMPOSE])
+includeProject(":sqlite:sqlite", [BuildType.MAIN, BuildType.COMPOSE, BuildType.KMP, BuildType.INFRAROGUE])
+includeProject(":sqlite:sqlite-framework", [BuildType.MAIN, BuildType.COMPOSE, BuildType.KMP, BuildType.INFRAROGUE])
+includeProject(":sqlite:sqlite-bundled", [BuildType.MAIN, BuildType.KMP, BuildType.INFRAROGUE])
 includeProject(":sqlite:sqlite-inspection", [BuildType.MAIN])
 includeProject(":sqlite:sqlite-ktx", [BuildType.MAIN])
 includeProject(":startup:integration-tests:first-library", [BuildType.MAIN])
@@ -906,21 +937,23 @@ includeProject(":tracing:tracing")
 includeProject(":tracing:tracing-ktx")
 includeProject(":tracing:tracing-perfetto")
 includeProject(":tracing:tracing-perfetto-binary")
-includeProject(":tracing:tracing-perfetto-common")
+includeProject(":tracing:tracing-perfetto-handshake")
 includeProject(":transition:transition", [BuildType.MAIN, BuildType.FLAN])
 includeProject(":transition:transition-ktx", [BuildType.MAIN, BuildType.FLAN])
 includeProject(":tv:tv-foundation", [BuildType.COMPOSE])
 includeProject(":tv:tv-material", [BuildType.COMPOSE])
 includeProject(":tv:integration-tests:playground", [BuildType.COMPOSE])
 includeProject(":tv:integration-tests:presentation", [BuildType.COMPOSE])
+includeProject(":tv:integration-tests:macrobenchmark", [BuildType.COMPOSE])
+includeProject(":tv:integration-tests:macrobenchmark-target", [BuildType.COMPOSE])
 includeProject(":tv:tv-samples", "tv/samples", [BuildType.COMPOSE])
 includeProject(":tvprovider:tvprovider", [BuildType.MAIN])
 includeProject(":vectordrawable:integration-tests:testapp", [BuildType.MAIN])
 includeProject(":vectordrawable:vectordrawable", [BuildType.MAIN])
 includeProject(":vectordrawable:vectordrawable-animated", [BuildType.MAIN])
 includeProject(":vectordrawable:vectordrawable-seekable", [BuildType.MAIN])
-includeProject(":versionedparcelable:versionedparcelable", [BuildType.MAIN])
-includeProject(":versionedparcelable:versionedparcelable-compiler", [BuildType.MAIN, BuildType.MEDIA, BuildType.FLAN, BuildType.COMPOSE, BuildType.WEAR])
+includeProject(":versionedparcelable:versionedparcelable", [BuildType.MAIN, BuildType.MEDIA])
+includeProject(":versionedparcelable:versionedparcelable-compiler", [BuildType.MAIN, BuildType.MEDIA, BuildType.FLAN, BuildType.COMPOSE])
 includeProject(":viewpager2:integration-tests:testapp", [BuildType.MAIN])
 includeProject(":viewpager2:integration-tests:targetsdk-tests", [BuildType.MAIN])
 includeProject(":viewpager2:viewpager2", [BuildType.MAIN])
@@ -929,8 +962,10 @@ includeProject(":wear:protolayout:protolayout", [BuildType.MAIN, BuildType.WEAR]
 includeProject(":wear:protolayout:protolayout-expression", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":wear:protolayout:protolayout-expression-pipeline", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":wear:protolayout:protolayout-material", [BuildType.MAIN, BuildType.WEAR])
+includeProject(":wear:protolayout:protolayout-material-core", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":wear:protolayout:protolayout-proto", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":wear:protolayout:protolayout-renderer", [BuildType.MAIN, BuildType.WEAR])
+includeProject(":wear:protolayout:protolayout-lint", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":wear:wear", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":wear:benchmark:integration-tests:macrobenchmark-target", [BuildType.MAIN, BuildType.COMPOSE])
 includeProject(":wear:benchmark:integration-tests:macrobenchmark", [BuildType.MAIN, BuildType.COMPOSE])
@@ -943,11 +978,13 @@ includeProject(":wear:compose:compose-material-benchmark", "wear/compose/compose
 includeProject(":wear:compose:compose-material3-benchmark", "wear/compose/compose-material3/benchmark", [BuildType.COMPOSE])
 includeProject(":wear:compose:compose-material-core", [BuildType.COMPOSE])
 includeProject(":wear:compose:compose-material-samples", "wear/compose/compose-material/samples", [BuildType.COMPOSE])
+includeProject(":wear:compose:compose-material3-integration-tests", "wear/compose/compose-material3/integration-tests", [BuildType.COMPOSE])
 includeProject(":wear:compose:compose-material3-samples", "wear/compose/compose-material3/samples", [BuildType.COMPOSE])
 includeProject(":wear:compose:compose-navigation", [BuildType.COMPOSE])
 includeProject(":wear:compose:compose-navigation-samples", "wear/compose/compose-navigation/samples", [BuildType.COMPOSE])
 includeProject(":wear:compose:compose-ui-tooling", [BuildType.COMPOSE])
 includeProject(":wear:compose:integration-tests:demos", [BuildType.COMPOSE])
+includeProject(":wear:compose:integration-tests:demos:common", [BuildType.COMPOSE])
 includeProject(":wear:compose:integration-tests:macrobenchmark", [BuildType.COMPOSE])
 includeProject(":wear:compose:integration-tests:macrobenchmark-target", [BuildType.COMPOSE])
 includeProject(":wear:compose:integration-tests:navigation", [BuildType.COMPOSE])
@@ -956,14 +993,18 @@ includeProject(":wear:wear-input-samples", "wear/wear-input/samples", [BuildType
 includeProject(":wear:wear-input-testing", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":wear:wear-ongoing", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":wear:wear-phone-interactions", [BuildType.MAIN, BuildType.WEAR])
+includeProject(":wear:wear-phone-interactions-samples", "wear/wear-phone-interactions/samples", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":wear:wear-remote-interactions", [BuildType.MAIN, BuildType.WEAR])
+includeProject(":wear:wear-remote-interactions-samples", "wear/wear-remote-interactions/samples", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":wear:wear-samples-ambient", [BuildType.MAIN, BuildType.WEAR])
+includeProject(":wear:wear-tooling-preview", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":wear:tiles:tiles", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":wear:tiles:tiles-material", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":wear:tiles:tiles-proto", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":wear:tiles:tiles-renderer", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":wear:tiles:tiles-testing", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":wear:tiles:tiles-tooling", [BuildType.MAIN, BuildType.WEAR])
+includeProject(":wear:tiles:tiles-tooling-preview", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":wear:watchface:watchface", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":wear:watchface:watchface-complications", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":wear:watchface:watchface-complications-permission-dialogs-sample", [BuildType.MAIN, BuildType.WEAR])
@@ -988,24 +1029,28 @@ includeProject(":wear:watchface:watchface-samples-minimal-style", [BuildType.MAI
 includeProject(":wear:watchface:watchface-style", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":wear:watchface:watchface-style-old-api-test-service", "wear/watchface/watchface-style/old-api-test-service", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":wear:watchface:watchface-style-old-api-test-stub", "wear/watchface/watchface-style/old-api-test-stub", [BuildType.MAIN, BuildType.WEAR])
+includeProject(":webkit:integration-tests:instrumentation", [BuildType.MAIN])
 includeProject(":webkit:integration-tests:testapp", [BuildType.MAIN])
 includeProject(":webkit:webkit", [BuildType.MAIN])
-includeProject(":window:window", [BuildType.MAIN, BuildType.COMPOSE, BuildType.FLAN, BuildType.CAMERA, BuildType.WINDOW])
-includeProject(":window:window-samples", "window/window/samples", [BuildType.MAIN, BuildType.COMPOSE, BuildType.FLAN, BuildType.CAMERA, BuildType.WINDOW])
-includeProject(":window:extensions:extensions", [BuildType.MAIN, BuildType.COMPOSE, BuildType.FLAN, BuildType.CAMERA, BuildType.WINDOW])
-includeProject(":window:extensions:core:core", [BuildType.MAIN, BuildType.COMPOSE, BuildType.FLAN, BuildType.CAMERA, BuildType.WINDOW])
+includeProject(":window:window", [BuildType.MAIN, BuildType.COMPOSE, BuildType.FLAN, BuildType.WINDOW])
+includeProject(":window:window-samples", "window/window/samples", [BuildType.MAIN, BuildType.COMPOSE, BuildType.FLAN, BuildType.WINDOW])
+includeProject(":window:extensions:extensions", [BuildType.MAIN, BuildType.COMPOSE, BuildType.FLAN, BuildType.WINDOW])
+includeProject(":window:extensions:core:core", [BuildType.MAIN, BuildType.COMPOSE, BuildType.FLAN, BuildType.WINDOW])
 includeProject(":window:integration-tests:configuration-change-tests", [BuildType.MAIN, BuildType.WINDOW])
-includeProject(":window:sidecar:sidecar", [BuildType.MAIN, BuildType.COMPOSE, BuildType.FLAN, BuildType.CAMERA, BuildType.WINDOW])
-includeProject(":window:window-java", [BuildType.MAIN, BuildType.COMPOSE, BuildType.FLAN, BuildType.CAMERA, BuildType.WINDOW])
-includeProject(":window:window-core", [BuildType.MAIN, BuildType.COMPOSE, BuildType.FLAN, BuildType.CAMERA, BuildType.WINDOW])
+includeProject(":window:integration-tests:macrobenchmark-target", [BuildType.MAIN, BuildType.WINDOW])
+includeProject(":window:integration-tests:macrobenchmark", [BuildType.MAIN, BuildType.WINDOW])
+includeProject(":window:sidecar:sidecar", [BuildType.MAIN, BuildType.COMPOSE, BuildType.FLAN, BuildType.WINDOW])
+includeProject(":window:window-java", [BuildType.MAIN, BuildType.COMPOSE, BuildType.FLAN, BuildType.WINDOW])
+includeProject(":window:window-core", [BuildType.MAIN, BuildType.COMPOSE, BuildType.FLAN, BuildType.INFRAROGUE, BuildType.KMP, BuildType.WINDOW])
 includeProject(":window:window-rxjava2", [BuildType.MAIN, BuildType.WINDOW])
 includeProject(":window:window-rxjava3", [BuildType.MAIN, BuildType.WINDOW])
-includeProject(":window:window-demos:demo", [BuildType.MAIN, BuildType.COMPOSE, BuildType.FLAN, BuildType.CAMERA, BuildType.WINDOW])
-includeProject(":window:window-demos:demo-common", [BuildType.MAIN, BuildType.COMPOSE, BuildType.FLAN, BuildType.CAMERA, BuildType.WINDOW])
-includeProject(":window:window-demos:demo-second-app", [BuildType.MAIN, BuildType.COMPOSE, BuildType.FLAN, BuildType.CAMERA, BuildType.WINDOW])
-includeProject(":window:window-testing", [BuildType.MAIN, BuildType.COMPOSE, BuildType.FLAN, BuildType.CAMERA, BuildType.WINDOW])
+includeProject(":window:window-demos:demo", [BuildType.MAIN, BuildType.COMPOSE, BuildType.FLAN, BuildType.WINDOW])
+includeProject(":window:window-demos:demo-common", [BuildType.MAIN, BuildType.COMPOSE, BuildType.FLAN, BuildType.WINDOW])
+includeProject(":window:window-demos:demo-second-app", [BuildType.MAIN, BuildType.COMPOSE, BuildType.FLAN, BuildType.WINDOW])
+includeProject(":window:window-testing", [BuildType.MAIN, BuildType.COMPOSE, BuildType.FLAN, BuildType.WINDOW])
 includeProject(":work:integration-tests:testapp", [BuildType.MAIN])
 includeProject(":work:work-benchmark", [BuildType.MAIN])
+includeProject(":work:work-datatransfer", [BuildType.MAIN])
 includeProject(":work:work-gcm", [BuildType.MAIN])
 includeProject(":work:work-inspection", [BuildType.MAIN])
 includeProject(":work:work-multiprocess", [BuildType.MAIN])
@@ -1054,20 +1099,20 @@ includeProject(":support-wear-demos", new File(samplesRoot, "SupportWearDemos"),
 /////////////////////////////
 
 includeProject(":internal-testutils-common", "testutils/testutils-common", [BuildType.MAIN, BuildType.COMPOSE, BuildType.FLAN])
-includeProject(":internal-testutils-datastore", "testutils/testutils-datastore", [BuildType.MAIN, BuildType.KMP])
-includeProject(":internal-testutils-runtime", "testutils/testutils-runtime", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE, BuildType.MEDIA, BuildType.WEAR, BuildType.CAMERA])
+includeProject(":internal-testutils-datastore", "testutils/testutils-datastore", [BuildType.MAIN, BuildType.INFRAROGUE, BuildType.KMP])
+includeProject(":internal-testutils-runtime", "testutils/testutils-runtime", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE, BuildType.MEDIA, BuildType.WEAR])
 includeProject(":internal-testutils-appcompat", "testutils/testutils-appcompat", [BuildType.MAIN])
 includeProject(":internal-testutils-espresso", "testutils/testutils-espresso", [BuildType.MAIN, BuildType.COMPOSE])
-includeProject(":internal-testutils-fonts", "testutils/testutils-fonts", [BuildType.MAIN, BuildType.GLANCE, BuildType.MEDIA, BuildType.FLAN, BuildType.COMPOSE, BuildType.WEAR])
+includeProject(":internal-testutils-fonts", "testutils/testutils-fonts", [BuildType.MAIN, BuildType.GLANCE, BuildType.MEDIA, BuildType.FLAN, BuildType.COMPOSE])
 includeProject(":internal-testutils-truth", "testutils/testutils-truth")
 includeProject(":internal-testutils-ktx", "testutils/testutils-ktx")
-includeProject(":internal-testutils-kmp", "testutils/testutils-kmp", [BuildType.MAIN, BuildType.KMP, BuildType.COMPOSE])
 includeProject(":internal-testutils-macrobenchmark", "testutils/testutils-macrobenchmark", [BuildType.MAIN, BuildType.COMPOSE])
 includeProject(":internal-testutils-navigation", "testutils/testutils-navigation", [BuildType.MAIN, BuildType.COMPOSE, BuildType.FLAN])
 includeProject(":internal-testutils-paging", "testutils/testutils-paging", [BuildType.MAIN, BuildType.COMPOSE])
 includeProject(":internal-testutils-paparazzi", "testutils/testutils-paparazzi", [BuildType.COMPOSE])
 includeProject(":internal-testutils-gradle-plugin", "testutils/testutils-gradle-plugin", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE, BuildType.TOOLS])
-includeProject(":internal-testutils-mockito", "testutils/testutils-mockito", [BuildType.MAIN, BuildType.MEDIA, BuildType.FLAN, BuildType.COMPOSE, BuildType.WEAR])
+includeProject(":internal-testutils-mockito", "testutils/testutils-mockito", [BuildType.MAIN, BuildType.MEDIA, BuildType.FLAN, BuildType.COMPOSE])
+includeProject(":kruth:kruth", [BuildType.MAIN, BuildType.INFRAROGUE, BuildType.KMP, BuildType.COMPOSE])
 
 /////////////////////////////
 //
@@ -1115,10 +1160,26 @@ if (isAllProjects()) {
     includeProject(":docs-public")
 }
 
-includeProject(":docs-kmp", [BuildType.KMP])
 // placeholder test project that has a test for each size to ensure that at least one test is run
 // for each size and test runner is happy when there is nothing to test.
 includeProject(":placeholder-tests")
 
-// Workaround for b/203825166
-includeBuild("placeholder")
+// Add includedBuild in most cases for b/203825166
+// Skip adding includeBuild when regenerating signatures for https://github.com/gradle/gradle/issues/26179
+if (!startParameter.projectProperties.containsKey('androidx.update.signatures')) {
+    includeBuild("placeholder")
+}
+
+// ---------------------------------------------------------------------
+// --- there should be no includeProject additions after this line -----
+// ---------------------------------------------------------------------
+
+void includeRequestedProjectsAndDependencies() {
+    Set<String> projectsToInclude = projectDependencyGraph
+            .getAllProjectsWithDependencies(filteredProjects)
+    projectsToInclude.forEach { path, dir ->
+        settings.include(path)
+        project(path).projectDir = dir
+    }
+}
+includeRequestedProjectsAndDependencies()

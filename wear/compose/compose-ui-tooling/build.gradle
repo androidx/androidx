@@ -14,23 +14,28 @@
  * limitations under the License.
  */
 
-import androidx.build.AndroidXComposePlugin
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.LibraryType
 
 plugins {
     id("AndroidXPlugin")
     id("AndroidXComposePlugin")
+    id("org.jetbrains.kotlin.android")
     id("com.android.library")
 }
-
-// Disable multi-platform.
-AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project, /* isMultiplatformEnabled= */ false)
 
 dependencies {
     api("androidx.annotation:annotation:1.5.0")
 
     implementation(libs.kotlinStdlibCommon)
     implementation(project(":compose:ui:ui-tooling-preview"))
+    implementation("androidx.wear:wear-tooling-preview:1.0.0")
 
     samples(project(":wear:compose:compose-material-samples"))
 }
@@ -44,4 +49,5 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2023"
     description = "Tools for Wear Composable"
+    metalavaK2UastEnabled = true
 }

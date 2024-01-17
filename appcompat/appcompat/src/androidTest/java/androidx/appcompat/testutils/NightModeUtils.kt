@@ -20,7 +20,6 @@ import android.app.UiModeManager
 import android.content.Context
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
-import android.os.Build
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
@@ -189,12 +188,7 @@ object NightModeUtils {
         setMode: NightSetMode
     ) = when (setMode) {
         NightSetMode.DEFAULT -> AppCompatDelegate.setDefaultNightMode(nightMode)
-        NightSetMode.LOCAL ->
-            if (Build.VERSION.SDK_INT >= 17) {
-                activity!!.delegate.localNightMode = nightMode
-            } else {
-                throw Exception("Local night mode is not supported on SDK_INT < 17")
-            }
+        NightSetMode.LOCAL -> activity!!.delegate.localNightMode = nightMode
     }
 
     @NightMode

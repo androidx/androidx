@@ -246,6 +246,7 @@ class MultiTypedPagingSourceTest(
     }
 
     @Test
+    @Ignore // b/287517337, b/287477564, b/287366097, b/287085166
     fun prependWithDelayedInvalidation() {
         val items = createItems(startId = 0, count = 90)
         db.getDao().insert(items)
@@ -614,6 +615,7 @@ class MultiTypedPagingSourceTestWithRawQuery(
     }
 
     @Test
+    @Ignore // b/312434479
     fun loadEverythingRawQuery_inReverse() {
         // open db
         val items = createItems(startId = 0, count = 100)

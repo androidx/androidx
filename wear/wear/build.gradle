@@ -1,3 +1,10 @@
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.Publish
 
 plugins {
@@ -62,10 +69,11 @@ android {
 }
 
 androidx {
-    name = "Android Wear Support UI"
+    name = "Android Wear"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.WEAR
     inceptionYear = "2016"
     description = "Android Wear Support UI"
     failOnDeprecationWarnings = false
+    metalavaK2UastEnabled = true
 }

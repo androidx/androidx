@@ -48,11 +48,11 @@ import androidx.compose.ui.window.launchApplication
 import androidx.compose.ui.window.rememberDialogState
 import androidx.compose.ui.window.runApplicationTest
 import com.google.common.truth.Truth.assertThat
-import org.junit.Test
 import java.awt.Dimension
 import java.awt.event.KeyEvent
 import java.awt.event.WindowAdapter
 import java.awt.event.WindowEvent
+import org.junit.Test
 
 @OptIn(ExperimentalComposeUiApi::class)
 class DialogTest {

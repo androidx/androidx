@@ -37,6 +37,7 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.widget.Toast;
 
+import androidx.annotation.CallSuper;
 import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -110,7 +111,11 @@ public abstract class Player {
     /**
      * Release the player resources.
      */
-    public abstract void release();
+    @CallSuper
+    public void release() {
+        NotificationManagerCompat mNotificationManager = NotificationManagerCompat.from(mContext);
+        mNotificationManager.cancel(NOTIFICATION_ID);
+    }
 
     // basic operations that are always supported
 
@@ -180,7 +185,6 @@ public abstract class Player {
     /**
      * presentation display
      */
-    @RequiresApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
     public void updatePresentation() {
     }
 
@@ -202,7 +206,7 @@ public abstract class Player {
         if (route != null && route.supportsControlCategory(
                 MediaControlIntent.CATEGORY_REMOTE_PLAYBACK)) {
             player = new RemotePlayer(context);
-        } else if (route != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+        } else if (route != null) {
             player = new LocalPlayer.SurfaceViewPlayer(context);
         } else {
             player = new LocalPlayer.OverlayPlayer(context);

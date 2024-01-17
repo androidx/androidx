@@ -21,12 +21,6 @@ import static com.google.common.truth.Truth.assertThat;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.wear.tiles.LayoutElementBuilders.Box;
-import androidx.wear.tiles.LayoutElementBuilders.Column;
-import androidx.wear.tiles.LayoutElementBuilders.LayoutElement;
-import androidx.wear.tiles.LayoutElementBuilders.Row;
-import androidx.wear.tiles.ModifiersBuilders.ElementMetadata;
-import androidx.wear.tiles.ModifiersBuilders.Modifiers;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -39,8 +33,10 @@ public class MultiSlotLayoutTest {
 
     @Test
     public void test() {
-        LayoutElement content1 = new Box.Builder().build();
-        LayoutElement content2 = new Row.Builder().build();
+        androidx.wear.tiles.LayoutElementBuilders.LayoutElement content1 =
+                new androidx.wear.tiles.LayoutElementBuilders.Box.Builder().build();
+        androidx.wear.tiles.LayoutElementBuilders.LayoutElement content2 =
+                new androidx.wear.tiles.LayoutElementBuilders.Row.Builder().build();
         float spacerWidth = 10f;
 
         MultiSlotLayout layout =
@@ -52,7 +48,10 @@ public class MultiSlotLayoutTest {
 
         assertLayoutIsEqual(content1, content2, spacerWidth, layout);
 
-        Box box = new Box.Builder().addContent(layout).build();
+        androidx.wear.tiles.LayoutElementBuilders.Box box =
+                new androidx.wear.tiles.LayoutElementBuilders.Box.Builder()
+                        .addContent(layout)
+                        .build();
 
         MultiSlotLayout newLayout = MultiSlotLayout.fromLayoutElement(box.getContents().get(0));
 
@@ -64,37 +63,40 @@ public class MultiSlotLayoutTest {
 
     @Test
     public void testWrongElement() {
-        Column box = new Column.Builder().build();
+        androidx.wear.tiles.LayoutElementBuilders.Column box =
+                new androidx.wear.tiles.LayoutElementBuilders.Column.Builder().build();
 
         assertThat(MultiSlotLayout.fromLayoutElement(box)).isNull();
     }
 
     @Test
     public void testWrongBox() {
-        Box box = new Box.Builder().build();
+        androidx.wear.tiles.LayoutElementBuilders.Box box =
+                new androidx.wear.tiles.LayoutElementBuilders.Box.Builder().build();
 
         assertThat(MultiSlotLayout.fromLayoutElement(box)).isNull();
     }
 
     @Test
     public void testWrongTag() {
-        Box box =
-                new Box.Builder()
-                    .setModifiers(
-                        new Modifiers.Builder()
-                            .setMetadata(
-                                new ElementMetadata.Builder()
-                                    .setTagData("test".getBytes(UTF_8))
-                                    .build())
-                            .build())
+        androidx.wear.tiles.LayoutElementBuilders.Box box =
+                new androidx.wear.tiles.LayoutElementBuilders.Box.Builder()
+                        .setModifiers(
+                                new androidx.wear.tiles.ModifiersBuilders.Modifiers.Builder()
+                                        .setMetadata(
+                                                new androidx.wear.tiles.ModifiersBuilders
+                                                                .ElementMetadata.Builder()
+                                                        .setTagData("test".getBytes(UTF_8))
+                                                        .build())
+                                        .build())
                         .build();
 
         assertThat(MultiSlotLayout.fromLayoutElement(box)).isNull();
     }
 
     private void assertLayoutIsEqual(
-            LayoutElement content1,
-            LayoutElement content2,
+            androidx.wear.tiles.LayoutElementBuilders.LayoutElement content1,
+            androidx.wear.tiles.LayoutElementBuilders.LayoutElement content2,
             float spacerWidth,
             MultiSlotLayout layout) {
         assertThat(layout.getSlotContents()).hasSize(2);

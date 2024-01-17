@@ -78,7 +78,7 @@ public class SystemJobScheduler implements Scheduler {
                 workDatabase,
                 configuration,
                 (JobScheduler) context.getSystemService(JOB_SCHEDULER_SERVICE),
-                new SystemJobInfoConverter(context)
+                new SystemJobInfoConverter(context, configuration.getClock())
         );
     }
 

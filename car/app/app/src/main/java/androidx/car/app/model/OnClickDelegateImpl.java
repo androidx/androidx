@@ -35,7 +35,6 @@ import androidx.car.app.utils.RemoteUtils;
 /**
  * Implementation class for {@link OnClickDelegate} to allow IPC for click-related events.
  *
- * @hide
  */
 @RestrictTo(LIBRARY)
 @CarProtocol

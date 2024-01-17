@@ -32,11 +32,11 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.google.common.truth.Truth.assertThat
+import kotlin.math.sqrt
 import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import kotlin.math.sqrt
 
 // TODO(demin): convert to ComposeScene instead of TestComposeWindow,
 //  after that we won't need `window.render`

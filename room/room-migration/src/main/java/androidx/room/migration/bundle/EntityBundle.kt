@@ -18,14 +18,10 @@ package androidx.room.migration.bundle
 
 import androidx.annotation.RestrictTo
 import androidx.room.migration.bundle.SchemaEqualityUtil.checkSchemaEquality
-
 import com.google.gson.annotations.SerializedName
 
 /**
- * Data class that holds the schema information about an
- * [androidx.room.Entity].
- *
- * @constructor Creates a new bundle.
+ * Data class that holds the schema information about an [androidx.room.Entity].
  *
  * @property tableName The table name.
  * @property createSql Create query with the table name placeholder.

@@ -17,10 +17,7 @@
 package androidx.camera.camera2.pipe.testing
 
 import android.content.Context
-import android.graphics.SurfaceTexture
-import android.hardware.camera2.CaptureFailure
 import android.hardware.camera2.CaptureResult
-import android.view.Surface
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraId
@@ -34,6 +31,7 @@ import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.GraphState.GraphStateError
 import androidx.camera.camera2.pipe.Metadata
 import androidx.camera.camera2.pipe.Request
+import androidx.camera.camera2.pipe.RequestFailure
 import androidx.camera.camera2.pipe.StreamId
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -124,15 +122,12 @@ class CameraGraphSimulator private constructor(
     private val frameClockNanos = atomic(0L)
     private val frameCounter = atomic(0L)
     private val pendingFrameQueue = mutableListOf<FrameSimulator>()
-    private val surfacesCreated = mutableSetOf<Surface>()
+    private val fakeSurfaces = FakeSurfaces()
 
     override fun close() {
         if (closed.compareAndSet(expect = false, update = true)) {
             cameraGraph.close()
-            for (surface in surfacesCreated) {
-                surface.release()
-            }
-            surfacesCreated.clear()
+            fakeSurfaces.close()
         }
     }
 
@@ -163,12 +158,7 @@ class CameraGraphSimulator private constructor(
         for (stream in cameraGraph.streams.streams) {
             // Pick an output -- most will only have one.
             val output = stream.outputs.first()
-            val surface = Surface(
-                SurfaceTexture(surfaceTextureNames.getAndIncrement()).also {
-                    it.setDefaultBufferSize(output.size.width, output.size.height)
-                }
-            )
-            surfacesCreated.add(surface)
+            val surface = fakeSurfaces.createFakeSurface(output.size)
             cameraGraph.setSurface(stream.id, surface)
         }
     }
@@ -283,9 +273,9 @@ class CameraGraphSimulator private constructor(
             }
         }
 
-        fun simulateFailure(captureFailure: CaptureFailure) {
+        fun simulateFailure(requestFailure: RequestFailure) {
             requestSequence.invokeOnRequest(requestMetadata) {
-                it.onFailed(requestMetadata, frameNumber, captureFailure)
+                it.onFailed(requestMetadata, frameNumber, requestFailure)
             }
         }
 

@@ -64,16 +64,15 @@ class FocusRequester {
     }
 
     // TODO(b/245755256): Consider making this API Public.
-    internal fun focus(): Boolean {
+    internal fun focus(): Boolean = findFocusTargetNode { it.requestFocus() }
+
+    internal fun findFocusTargetNode(onFound: (FocusTargetNode) -> Boolean): Boolean {
         @OptIn(ExperimentalComposeUiApi::class)
         return findFocusTarget { focusTarget ->
-            val focusProperties = focusTarget.fetchFocusProperties()
-            if (focusProperties.canFocus) {
-                focusTarget.requestFocus()
+            if (focusTarget.fetchFocusProperties().canFocus) {
+                onFound(focusTarget)
             } else {
-                focusTarget.findChildCorrespondingToFocusEnter(Enter) {
-                    it.requestFocus()
-                }
+                focusTarget.findChildCorrespondingToFocusEnter(Enter, onFound)
             }
         }
     }
@@ -125,6 +124,45 @@ class FocusRequester {
             }
         }
         return false
+    }
+
+    /**
+     * Use this function to request the focus target to save a reference to the currently focused
+     * child in its saved instance state. After calling this, focus can be restored to the saved
+     * child by making a call to [restoreFocusedChild].
+     *
+     * @return true if the focus target associated with this [FocusRequester] has a focused child
+     * and we successfully saved a reference to it.
+     *
+     * @sample androidx.compose.ui.samples.RestoreFocusSample
+     */
+    @ExperimentalComposeUiApi
+    fun saveFocusedChild(): Boolean {
+        check(focusRequesterNodes.isNotEmpty()) { FocusRequesterNotInitialized }
+        focusRequesterNodes.forEach {
+            if (it.saveFocusedChild()) return true
+        }
+        return false
+    }
+
+    /**
+     * Use this function to restore focus to one of the children of the node pointed to by this
+     * [FocusRequester]. This restores focus to a previously focused child that was saved
+     * by using [saveFocusedChild].
+     *
+     * @return true if we successfully restored focus to one of the children of the [focusTarget]
+     * associated with this [FocusRequester]
+     *
+     * @sample androidx.compose.ui.samples.RestoreFocusSample
+     */
+    @ExperimentalComposeUiApi
+    fun restoreFocusedChild(): Boolean {
+        check(focusRequesterNodes.isNotEmpty()) { FocusRequesterNotInitialized }
+        var success = false
+        focusRequesterNodes.forEach {
+            success = it.restoreFocusedChild() || success
+        }
+        return success
     }
 
     companion object {
@@ -192,7 +230,7 @@ class FocusRequester {
      * associated with this [FocusRequester].
      */
     @ExperimentalComposeUiApi
-    private inline fun findFocusTarget(onFound: (FocusTargetModifierNode) -> Boolean): Boolean {
+    private inline fun findFocusTarget(onFound: (FocusTargetNode) -> Boolean): Boolean {
         check(this !== Default) { InvalidFocusRequesterInvocation }
         check(this !== Cancel) { InvalidFocusRequesterInvocation }
         check(focusRequesterNodes.isNotEmpty()) { FocusRequesterNotInitialized }

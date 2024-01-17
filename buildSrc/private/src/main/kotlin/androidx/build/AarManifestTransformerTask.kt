@@ -31,17 +31,14 @@ import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
 
-/**
- * Transforms an AAR by removing the `android:targetSdkVersion` element from the manifest.
- */
+/** Transforms an AAR by removing the `android:targetSdkVersion` element from the manifest. */
 @CacheableTask
 abstract class AarManifestTransformerTask : DefaultTask() {
     @get:InputFile
     @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val aarFile: RegularFileProperty
 
-    @get:OutputFile
-    abstract val updatedAarFile: RegularFileProperty
+    @get:OutputFile abstract val updatedAarFile: RegularFileProperty
 
     @TaskAction
     fun taskAction() {
@@ -50,9 +47,7 @@ abstract class AarManifestTransformerTask : DefaultTask() {
         val tempDir = Files.createTempDirectory("${name}Unzip").toFile()
         tempDir.deleteOnExit()
 
-        ZipFile(aar).use { aarFile ->
-            aarFile.unzipTo(tempDir)
-        }
+        ZipFile(aar).use { aarFile -> aarFile.unzipTo(tempDir) }
 
         val manifestFile = File(tempDir, "AndroidManifest.xml")
         manifestFile.writeText(removeTargetSdkVersion(manifestFile.readText()))
@@ -62,13 +57,9 @@ abstract class AarManifestTransformerTask : DefaultTask() {
     }
 }
 
-/**
- * Removes the `android:targetSdkVersion` element from the [manifest].
- */
-fun removeTargetSdkVersion(manifest: String): String = manifest.replace(
-    "\\s*android:targetSdkVersion=\".+?\"".toRegex(),
-    ""
-)
+/** Removes the `android:targetSdkVersion` element from the [manifest]. */
+fun removeTargetSdkVersion(manifest: String): String =
+    manifest.replace("\\s*android:targetSdkVersion=\".+?\"".toRegex(), "")
 
 private fun ZipFile.unzipTo(tempDir: File) {
     entries.iterator().forEach { entry ->
@@ -77,18 +68,14 @@ private fun ZipFile.unzipTo(tempDir: File) {
         } else {
             val file = File(tempDir, entry.name)
             file.parentFile.mkdirs()
-            getInputStream(entry).use { stream ->
-                file.writeBytes(stream.readBytes())
-            }
+            getInputStream(entry).use { stream -> file.writeBytes(stream.readBytes()) }
         }
     }
 }
 
 private fun File.zipTo(outZip: File) {
     ZipOutputStream(outZip.outputStream()).use { stream ->
-        listFiles()!!.forEach { file ->
-            stream.addFileRecursive(null, file)
-        }
+        listFiles()!!.forEach { file -> stream.addFileRecursive(null, file) }
     }
 }
 
@@ -102,18 +89,14 @@ private fun ZipOutputStream.addFileRecursive(parentPath: String?, file: File) {
 
     if (file.isFile) {
         putNextEntry(entry)
-        file.inputStream().use { stream ->
-            stream.copyTo(this)
-        }
+        file.inputStream().use { stream -> stream.copyTo(this) }
         closeEntry()
     } else if (file.isDirectory) {
         val listFiles = file.listFiles()
         if (!listFiles.isNullOrEmpty()) {
             putNextEntry(entry)
             closeEntry()
-            listFiles.forEach { containedFile ->
-                addFileRecursive(entryPath, containedFile)
-            }
+            listFiles.forEach { containedFile -> addFileRecursive(entryPath, containedFile) }
         }
     }
 }

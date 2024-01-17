@@ -18,16 +18,14 @@ package androidx.slice.widget;
 
 import static androidx.slice.widget.SliceView.MODE_LARGE;
 
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 
 /**
  * Class containing configurable settings for SliceView that may impact interaction and contents
  * of the slice that are displayed.
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-@RequiresApi(19)
+@Deprecated
 public class SliceViewPolicy {
 
     /**

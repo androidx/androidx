@@ -19,8 +19,6 @@
  *
  * Note: other attempts to use these protos in a benchmark process may clash with our
  * definitions. If this becomes an issue, we can move ours to a separate, internal package.
- *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 package perfetto.protos;

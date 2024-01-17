@@ -20,14 +20,11 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.os.Build;
 
-import androidx.annotation.RequiresApi;
-
 import java.util.Locale;
 
-@RequiresApi(17)
 public class NightModeCustomApplyOverrideConfigurationActivity extends NightModeActivity {
-    public static final float CUSTOM_FONT_SCALE = 4.24f;
-    public static final Locale CUSTOM_LOCALE = Locale.CANADA_FRENCH;
+    public static final float CUSTOM_FONT_SCALE = 4.22f;
+    public static final Locale CUSTOM_LOCALE = Locale.CANADA;
 
     @Override
     protected void attachBaseContext(Context newBase) {
@@ -59,11 +56,7 @@ public class NightModeCustomApplyOverrideConfigurationActivity extends NightMode
         if (locale != null) {
             // Configuration.setLocale is added after 17 and Configuration.locale is deprecated
             // after 24
-            if (Build.VERSION.SDK_INT >= 17) {
-                config.setLocale(locale);
-            } else {
-                config.locale = locale;
-            }
+            config.setLocale(locale);
         }
         return config;
     }

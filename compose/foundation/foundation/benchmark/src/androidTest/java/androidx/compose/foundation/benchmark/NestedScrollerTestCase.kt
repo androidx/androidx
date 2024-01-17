@@ -37,8 +37,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
-import kotlinx.coroutines.runBlocking
 import kotlin.random.Random
+import kotlinx.coroutines.runBlocking
 
 /**
  * Test case that puts many horizontal scrollers in a vertical scroller

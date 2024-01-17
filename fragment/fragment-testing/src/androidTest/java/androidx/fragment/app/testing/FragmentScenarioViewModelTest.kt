@@ -25,8 +25,8 @@ import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.Mockito.`when`
 import org.mockito.Mockito.mock
+import org.mockito.Mockito.`when`
 
 /**
  * End-to-end integration test using a mock [ViewModel] injected in via a

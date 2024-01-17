@@ -264,6 +264,7 @@
     <string name="tab_title_list" msgid="5104962518489668123">"Tab ng Listahan"</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"Grid na Tab na may Mahabang Pamagat ng Tab"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"Tab ng Paghahanap"</string>
+    <string name="tab_title_loading" msgid="5385807479734490989">"Nilo-load ang Tab"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"Demo ng Pag-load ng Template ng Tab"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"Demo ng Walang Tab na Template ng Tab"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"Hindi maipapakita ang mga larawan para sa hindi tukoy na host"</string>
@@ -364,4 +365,8 @@
     <string name="route_options_demo_title" msgid="4599699012716426514">"Mga opsyon sa ruta"</string>
     <string name="avoid_highways_row_title" msgid="4711913426200490304">"Iwasan ang mga highway"</string>
     <string name="avoid_ferries_row_title" msgid="8232883866013711974">"Iwasan ang ferry"</string>
+    <string name="map_demos_title" msgid="2169766615521476592">"Mga Demo ng Mapa"</string>
+    <string name="map_with_content_demo_title" msgid="1032610482145018739">"Mapa na May Mga Demo ng Content"</string>
+    <string name="map_with_message_demo_title" msgid="7007078234918054436">"Mapa na May Demo ng Template ng Mensahe"</string>
+    <string name="map_with_grid_demo_title" msgid="688667167861193192">"Mapa na May Demo ng Template ng Grid"</string>
 </resources>

@@ -19,151 +19,173 @@ package androidx.appactions.interaction.capabilities.core.impl.spec;
 import static com.google.common.truth.Truth.assertThat;
 
 import androidx.annotation.NonNull;
-import androidx.appactions.interaction.capabilities.core.impl.BuilderOf;
 import androidx.appactions.interaction.capabilities.core.impl.converters.EntityConverter;
 import androidx.appactions.interaction.capabilities.core.impl.converters.ParamValueConverter;
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters;
-import androidx.appactions.interaction.capabilities.core.properties.Entity;
-import androidx.appactions.interaction.capabilities.core.properties.ParamProperty;
+import androidx.appactions.interaction.capabilities.core.properties.Property;
 import androidx.appactions.interaction.capabilities.core.properties.StringValue;
+import androidx.appactions.interaction.capabilities.core.testing.spec.Arguments;
+import androidx.appactions.interaction.capabilities.core.testing.spec.GenericEntityArguments;
 import androidx.appactions.interaction.capabilities.core.testing.spec.Output;
-import androidx.appactions.interaction.capabilities.core.values.EntityValue;
+import androidx.appactions.interaction.capabilities.core.testing.spec.TestEntity;
 import androidx.appactions.interaction.proto.AppActionsContext.AppAction;
 import androidx.appactions.interaction.proto.AppActionsContext.IntentParameter;
 import androidx.appactions.interaction.proto.FulfillmentResponse.StructuredOutput;
 import androidx.appactions.interaction.proto.FulfillmentResponse.StructuredOutput.OutputValue;
 import androidx.appactions.interaction.proto.ParamValue;
-
-import com.google.auto.value.AutoValue;
+import androidx.appactions.interaction.proto.TaskInfo;
+import androidx.appactions.interaction.protobuf.Struct;
+import androidx.appactions.interaction.protobuf.Value;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 @RunWith(JUnit4.class)
+@SuppressWarnings("unchecked")
 public final class ActionSpecTest {
-
-    private static final ActionSpec<Property, Arguments, Output> ACTION_SPEC =
-            ActionSpecBuilder.ofCapabilityNamed("actions.intent.TEST")
-                    .setDescriptor(Property.class)
-                    .setArguments(Arguments.class, Arguments::newBuilder)
+    private static final ActionSpec<Arguments, Output> ACTION_SPEC =
+            ActionSpecBuilder.Companion.ofCapabilityNamed("actions.intent.TEST")
+                    .setArguments(Arguments.class, Arguments.Builder::new, Arguments.Builder::build)
                     .setOutput(Output.class)
                     .bindParameter(
-                            "requiredEntity",
-                            Property::requiredEntityField,
-                            Arguments.Builder::setRequiredEntityField,
-                            TypeConverters.ENTITY_PARAM_VALUE_CONVERTER,
-                            TypeConverters.ENTITY_ENTITY_CONVERTER)
-                    .bindOptionalParameter(
-                            "optionalEntity",
-                            Property::optionalEntityField,
-                            Arguments.Builder::setOptionalEntityField,
-                            TypeConverters.ENTITY_PARAM_VALUE_CONVERTER,
-                            TypeConverters.ENTITY_ENTITY_CONVERTER)
-                    .bindRepeatedParameter(
-                            "repeatedEntity",
-                            Property::repeatedEntityField,
-                            Arguments.Builder::setRepeatedEntityField,
-                            TypeConverters.ENTITY_PARAM_VALUE_CONVERTER,
-                            TypeConverters.ENTITY_ENTITY_CONVERTER)
-                    .bindParameter(
                             "requiredString",
-                            Property::requiredStringField,
+                            Arguments::getRequiredStringField,
                             Arguments.Builder::setRequiredStringField,
-                            TypeConverters.STRING_PARAM_VALUE_CONVERTER,
-                            TypeConverters.STRING_VALUE_ENTITY_CONVERTER)
-                    .bindOptionalParameter(
+                            TypeConverters.STRING_PARAM_VALUE_CONVERTER)
+                    .bindParameter(
                             "optionalString",
-                            Property::optionalStringField,
+                            Arguments::getOptionalStringField,
                             Arguments.Builder::setOptionalStringField,
-                            TypeConverters.STRING_PARAM_VALUE_CONVERTER,
-                            TypeConverters.STRING_VALUE_ENTITY_CONVERTER)
+                            TypeConverters.STRING_PARAM_VALUE_CONVERTER)
                     .bindRepeatedParameter(
                             "repeatedString",
-                            Property::repeatedStringField,
+                            Arguments::getRepeatedStringField,
                             Arguments.Builder::setRepeatedStringField,
-                            TypeConverters.STRING_PARAM_VALUE_CONVERTER,
-                            TypeConverters.STRING_VALUE_ENTITY_CONVERTER)
-                    .bindOptionalOutput(
+                            TypeConverters.STRING_PARAM_VALUE_CONVERTER)
+                    .bindOutput(
                             "optionalStringOutput",
-                            Output::optionalStringField,
+                            Output::getOptionalStringField,
                             TypeConverters.STRING_PARAM_VALUE_CONVERTER::toParamValue)
                     .bindRepeatedOutput(
                             "repeatedStringOutput",
-                            Output::repeatedStringField,
+                            Output::getRepeatedStringField,
                             TypeConverters.STRING_PARAM_VALUE_CONVERTER::toParamValue)
                     .build();
-    private static final ParamValueConverter<String> STRING_PARAM_VALUE_CONVERTER =
-            new ParamValueConverter<String>() {
+    private static final ParamValueConverter<TestEntity> TEST_ENTITY_PARAM_VALUE_CONVERTER =
+            new ParamValueConverter<TestEntity>() {
                 @NonNull
                 @Override
-                public ParamValue toParamValue(String type) {
-                    return ParamValue.newBuilder().setStringValue(type).build();
+                public ParamValue toParamValue(TestEntity type) {
+                    return ParamValue.newBuilder()
+                            .setStructValue(
+                                    Struct.newBuilder()
+                                            .putFields(
+                                                    "name",
+                                                    Value.newBuilder()
+                                                            .setStringValue(type.getName())
+                                                            .build())
+                                            .build())
+                            .build();
                 }
 
                 @Override
-                public String fromParamValue(@NonNull ParamValue paramValue) {
-                    return "test";
+                public TestEntity fromParamValue(@NonNull ParamValue paramValue) {
+                    String name =
+                            paramValue.getStructValue().getFieldsOrThrow("name").getStringValue();
+                    return new TestEntity.Builder().setName(name).build();
                 }
             };
-    private static final EntityConverter<String> STRING_ENTITY_CONVERTER =
-            (theString) ->
+    private static final EntityConverter<TestEntity> TEST_ENTITY_CONVERTER =
+            (testEntity) ->
                     androidx.appactions.interaction.proto.Entity.newBuilder()
-                            .setIdentifier(theString)
-                            .setName(theString)
+                            .setIdentifier(testEntity.getId())
+                            .setName(testEntity.getName())
                             .build();
 
-    private static final ActionSpec<GenericEntityProperty, GenericEntityArguments, Output>
-            GENERIC_TYPES_ACTION_SPEC =
-                    ActionSpecBuilder.ofCapabilityNamed("actions.intent.TEST")
-                            .setDescriptor(GenericEntityProperty.class)
-                            .setArguments(GenericEntityArguments.class,
-                                    GenericEntityArguments::newBuilder)
-                            .setOutput(Output.class)
-                            .bindParameter(
-                                    "requiredEntity",
-                                    GenericEntityProperty::singularField,
-                                    GenericEntityArguments.Builder::setSingularField,
-                                    STRING_PARAM_VALUE_CONVERTER,
-                                    STRING_ENTITY_CONVERTER)
-                            .bindOptionalParameter("optionalEntity",
-                                    GenericEntityProperty::optionalField,
-                                    GenericEntityArguments.Builder::setOptionalField,
-                                    STRING_PARAM_VALUE_CONVERTER,
-                                    STRING_ENTITY_CONVERTER)
-                            .bindRepeatedParameter("repeatedEntities",
-                                    GenericEntityProperty::repeatedField,
-                                    GenericEntityArguments.Builder::setRepeatedField,
-                                    STRING_PARAM_VALUE_CONVERTER,
-                                    STRING_ENTITY_CONVERTER)
-                            .build();
+    private static final ActionSpec<GenericEntityArguments, Output> GENERIC_TYPES_ACTION_SPEC =
+            ActionSpecBuilder.Companion.ofCapabilityNamed("actions.intent.TEST")
+                    .setArguments(GenericEntityArguments.class,
+                            GenericEntityArguments.Builder::new,
+                            GenericEntityArguments.Builder::build)
+                    .setOutput(Output.class)
+                    .bindParameter(
+                            "requiredEntity",
+                            GenericEntityArguments::getSingularField,
+                            GenericEntityArguments.Builder::setSingularField,
+                            TEST_ENTITY_PARAM_VALUE_CONVERTER)
+                    .bindParameter(
+                            "optionalEntity",
+                            GenericEntityArguments::getOptionalField,
+                            GenericEntityArguments.Builder::setOptionalField,
+                            TEST_ENTITY_PARAM_VALUE_CONVERTER)
+                    .bindRepeatedParameter(
+                            "repeatedEntities",
+                            GenericEntityArguments::getRepeatedField,
+                            GenericEntityArguments.Builder::setRepeatedField,
+                            TEST_ENTITY_PARAM_VALUE_CONVERTER)
+                    .build();
+
+    @Test
+    public void foo() {
+        Property<TestEntity> foobar = new Property<>(
+                Arrays.asList(
+                        new TestEntity.Builder()
+                                .setId("one")
+                                .setName("one")
+                                .build()),
+                /** isRequiredForExecution= */ true);
+        foobar.shouldMatchPossibleValues();
+    }
 
     @Test
     public void getAppAction_genericParameters() {
-        GenericEntityProperty property =
-                GenericEntityProperty.create(
-                        new ParamProperty.Builder<String>()
-                                .setRequired(true)
-                                .setPossibleValues("one")
-                                .build(),
-                        Optional.of(
-                                new ParamProperty.Builder<String>()
-                                        .setRequired(true)
-                                        .setPossibleValues("two")
-                                        .build()),
-                        Optional.of(
-                                new ParamProperty.Builder<String>()
-                                        .setRequired(true)
-                                        .setPossibleValues("three")
-                                        .build()));
+        List<BoundProperty<?>> boundProperties = new ArrayList<>();
+        boundProperties.add(
+                new BoundProperty<>(
+                        "requiredEntity",
+                        new Property<>(
+                                Arrays.asList(
+                                        new TestEntity.Builder()
+                                                .setId("one")
+                                                .setName("one")
+                                                .build()),
+                                /** isRequiredForExecution= */ true),
+                        TEST_ENTITY_CONVERTER));
+        boundProperties.add(
+                new BoundProperty<>(
+                        "optionalEntity",
+                        new Property<>(
+                                Arrays.asList(
+                                        new TestEntity.Builder()
+                                                .setId("two")
+                                                .setName("two")
+                                                .build()),
+                                /** isRequiredForExecution= */ true),
+                        TEST_ENTITY_CONVERTER));
+        boundProperties.add(
+                new BoundProperty<>(
+                        "repeatedEntities",
+                        new Property<>(
+                                Arrays.asList(
+                                        new TestEntity.Builder()
+                                                .setId("three")
+                                                .setName("three")
+                                                .build()),
+                                /** isRequiredForExecution= */ true),
+                        TEST_ENTITY_CONVERTER));
 
-        assertThat(GENERIC_TYPES_ACTION_SPEC.convertPropertyToProto(property))
+        assertThat(
+                        GENERIC_TYPES_ACTION_SPEC.createAppAction(
+                                "testIdentifier", boundProperties, false))
                 .isEqualTo(
                         AppAction.newBuilder()
                                 .setName("actions.intent.TEST")
+                                .setIdentifier("testIdentifier")
                                 .addParams(
                                         IntentParameter.newBuilder()
                                                 .setName("requiredEntity")
@@ -191,139 +213,71 @@ public final class ActionSpecTest {
                                                                 .newBuilder()
                                                                 .setIdentifier("three")
                                                                 .setName("three")))
+                                .setTaskInfo(
+                                        TaskInfo.newBuilder().setSupportsPartialFulfillment(false))
                                 .build());
     }
 
     @Test
     public void getAppAction_onlyRequiredProperty() {
-        Property property =
-                Property.create(
-                        new ParamProperty.Builder<Entity>()
-                                .setPossibleValues(
-                                        new Entity.Builder()
-                                                .setId("contact_2")
-                                                .setName("Donald")
-                                                .setAlternateNames("Duck")
-                                                .build())
-                                .setValueMatchRequired(true)
-                                .build(),
-                        new ParamProperty.Builder<StringValue>().build());
+        List<BoundProperty<?>> boundProperties = new ArrayList<>();
+        boundProperties.add(
+                new BoundProperty<>(
+                        "requiredString",
+                        new Property<>(
+                                Arrays.asList(new StringValue("Donald")),
+                                /** isRequiredForExecution= */ false,
+                                /** shouldMatchPossibleValues= */ true
+                        ),
+                        TypeConverters.STRING_VALUE_ENTITY_CONVERTER));
 
-        assertThat(ACTION_SPEC.convertPropertyToProto(property))
+        assertThat(ACTION_SPEC.createAppAction("testIdentifier", boundProperties, true))
                 .isEqualTo(
                         AppAction.newBuilder()
                                 .setName("actions.intent.TEST")
+                                .setIdentifier("testIdentifier")
                                 .addParams(
                                         IntentParameter.newBuilder()
-                                                .setName("requiredEntity")
+                                                .setName("requiredString")
+                                                .setEntityMatchRequired(true)
                                                 .addPossibleEntities(
                                                         androidx.appactions.interaction.proto.Entity
                                                                 .newBuilder()
-                                                                .setIdentifier("contact_2")
-                                                                .setName("Donald")
-                                                                .addAlternateNames("Duck")
-                                                                .build())
-                                                .setIsRequired(false)
-                                                .setEntityMatchRequired(true))
-                                .addParams(IntentParameter.newBuilder().setName("requiredString"))
+                                                                .setIdentifier("Donald")
+                                                                .setName("Donald")))
+                                .setTaskInfo(
+                                        TaskInfo.newBuilder().setSupportsPartialFulfillment(true))
                                 .build());
     }
 
     @Test
     public void getAppAction_allProperties() {
-        Property property =
-                Property.create(
-                        new ParamProperty.Builder<Entity>()
-                                .setPossibleValues(
-                                        new Entity.Builder()
-                                                .setId("contact_2")
-                                                .setName("Donald")
-                                                .setAlternateNames("Duck")
-                                                .build())
-                                .build(),
-                        Optional.of(
-                                new ParamProperty.Builder<Entity>()
-                                        .setPossibleValues(
-                                                new Entity.Builder()
-                                                        .setId("entity1")
-                                                        .setName("optional possible entity")
-                                                        .build())
-                                        .setRequired(true)
-                                        .build()),
-                        Optional.of(
-                                new ParamProperty.Builder<TestEnum>()
-                                        .setPossibleValues(TestEnum.VALUE_1)
-                                        .setRequired(true)
-                                        .build()),
-                        Optional.of(
-                                new ParamProperty.Builder<Entity>()
-                                        .setPossibleValues(
-                                                new Entity.Builder()
-                                                        .setId("entity1")
-                                                        .setName("repeated entity1")
-                                                        .build(),
-                                                new Entity.Builder()
-                                                        .setId("entity2")
-                                                        .setName("repeated entity2")
-                                                        .build())
-                                        .setRequired(true)
-                                        .build()),
-                        new ParamProperty.Builder<StringValue>().build(),
-                        Optional.of(
-                                new ParamProperty.Builder<StringValue>()
-                                        .setPossibleValues(StringValue.of("value1"))
-                                        .setValueMatchRequired(true)
-                                        .setRequired(true)
-                                        .build()),
-                        Optional.of(
-                                new ParamProperty.Builder<StringValue>()
-                                        .setProhibited(true)
-                                        .build()));
+        List<BoundProperty<?>> boundProperties = new ArrayList<>();
+        boundProperties.add(
+                new BoundProperty<>(
+                        "requiredString",
+                        new Property<StringValue>(),
+                        TypeConverters.STRING_VALUE_ENTITY_CONVERTER));
+        boundProperties.add(
+                new BoundProperty<>(
+                        "optionalString",
+                        new Property<>(
+                                Arrays.asList(new StringValue("value1")),
+                                /** isRequiredForExecution= */ true,
+                                /** shouldMatchPossibleValues= */ true
+                        ),
+                        TypeConverters.STRING_VALUE_ENTITY_CONVERTER));
+        boundProperties.add(
+                new BoundProperty<>(
+                        "repeatedString",
+                        Property.unsupported(),
+                        TypeConverters.STRING_VALUE_ENTITY_CONVERTER));
 
-        assertThat(ACTION_SPEC.convertPropertyToProto(property))
+        assertThat(ACTION_SPEC.createAppAction("testIdentifier", boundProperties, false))
                 .isEqualTo(
                         AppAction.newBuilder()
                                 .setName("actions.intent.TEST")
-                                .addParams(
-                                        IntentParameter.newBuilder()
-                                                .setName("requiredEntity")
-                                                .addPossibleEntities(
-                                                        androidx.appactions.interaction.proto.Entity
-                                                                .newBuilder()
-                                                                .setIdentifier("contact_2")
-                                                                .setName("Donald")
-                                                                .addAlternateNames("Duck")
-                                                                .build())
-                                                .setIsRequired(false)
-                                                .setEntityMatchRequired(false))
-                                .addParams(
-                                        IntentParameter.newBuilder()
-                                                .setName("optionalEntity")
-                                                .addPossibleEntities(
-                                                        androidx.appactions.interaction.proto.Entity
-                                                                .newBuilder()
-                                                                .setIdentifier("entity1")
-                                                                .setName("optional possible entity")
-                                                                .build())
-                                                .setIsRequired(true)
-                                                .setEntityMatchRequired(false))
-                                .addParams(
-                                        IntentParameter.newBuilder()
-                                                .setName("repeatedEntity")
-                                                .addPossibleEntities(
-                                                        androidx.appactions.interaction.proto.Entity
-                                                                .newBuilder()
-                                                                .setIdentifier("entity1")
-                                                                .setName("repeated entity1")
-                                                                .build())
-                                                .addPossibleEntities(
-                                                        androidx.appactions.interaction.proto.Entity
-                                                                .newBuilder()
-                                                                .setIdentifier("entity2")
-                                                                .setName("repeated entity2")
-                                                                .build())
-                                                .setIsRequired(true)
-                                                .setEntityMatchRequired(false))
+                                .setIdentifier("testIdentifier")
                                 .addParams(IntentParameter.newBuilder().setName("requiredString"))
                                 .addParams(
                                         IntentParameter.newBuilder()
@@ -340,13 +294,15 @@ public final class ActionSpecTest {
                                         IntentParameter.newBuilder()
                                                 .setName("repeatedString")
                                                 .setIsProhibited(true))
+                                .setTaskInfo(
+                                        TaskInfo.newBuilder().setSupportsPartialFulfillment(false))
                                 .build());
     }
 
     @Test
     public void convertOutputToProto_string() {
         Output output =
-                Output.builder()
+                new Output.Builder()
                         .setOptionalStringField("test2")
                         .setRepeatedStringField(List.of("test3", "test4"))
                         .build();
@@ -383,7 +339,8 @@ public final class ActionSpecTest {
 
     @Test
     public void convertOutputToProto_emptyOutput() {
-        Output output = Output.builder().setRepeatedStringField(List.of("test3", "test4")).build();
+        Output output =
+                new Output.Builder().setRepeatedStringField(List.of("test3", "test4")).build();
         // No optionalStringOutput since it is not in the output above.
         StructuredOutput expectedExecutionOutput =
                 StructuredOutput.newBuilder()
@@ -405,145 +362,5 @@ public final class ActionSpecTest {
 
         assertThat(executionOutput.getOutputValuesList())
                 .containsExactlyElementsIn(expectedExecutionOutput.getOutputValuesList());
-    }
-
-    enum TestEnum {
-        VALUE_1,
-        VALUE_2,
-    }
-
-    @AutoValue
-    abstract static class Arguments {
-
-        static Builder newBuilder() {
-            return new AutoValue_ActionSpecTest_Arguments.Builder();
-        }
-
-        abstract EntityValue requiredEntityField();
-
-        abstract EntityValue optionalEntityField();
-
-        abstract List<EntityValue> repeatedEntityField();
-
-        abstract String requiredStringField();
-
-        abstract String optionalStringField();
-
-        abstract List<String> repeatedStringField();
-
-        @AutoValue.Builder
-        abstract static class Builder implements BuilderOf<Arguments> {
-
-            abstract Builder setRequiredEntityField(EntityValue value);
-
-            abstract Builder setOptionalEntityField(EntityValue value);
-
-            abstract Builder setRepeatedEntityField(List<EntityValue> repeated);
-
-            abstract Builder setRequiredStringField(String value);
-
-            abstract Builder setOptionalStringField(String value);
-
-            abstract Builder setRepeatedStringField(List<String> repeated);
-
-            @NonNull
-            @Override
-            public abstract Arguments build();
-        }
-    }
-
-    @AutoValue
-    abstract static class Property {
-
-        static Property create(
-                ParamProperty<Entity> requiredEntityField,
-                Optional<ParamProperty<Entity>> optionalEntityField,
-                Optional<ParamProperty<TestEnum>> optionalEnumField,
-                Optional<ParamProperty<Entity>> repeatedEntityField,
-                ParamProperty<StringValue> requiredStringField,
-                Optional<ParamProperty<StringValue>> optionalStringField,
-                Optional<ParamProperty<StringValue>> repeatedStringField) {
-            return new AutoValue_ActionSpecTest_Property(
-                    requiredEntityField,
-                    optionalEntityField,
-                    optionalEnumField,
-                    repeatedEntityField,
-                    requiredStringField,
-                    optionalStringField,
-                    repeatedStringField);
-        }
-
-        static Property create(
-                ParamProperty<Entity> requiredEntityField,
-                ParamProperty<StringValue> requiredStringField) {
-            return create(
-                    requiredEntityField,
-                    Optional.empty(),
-                    Optional.empty(),
-                    Optional.empty(),
-                    requiredStringField,
-                    Optional.empty(),
-                    Optional.empty());
-        }
-
-        abstract ParamProperty<Entity> requiredEntityField();
-
-        abstract Optional<ParamProperty<Entity>> optionalEntityField();
-
-        abstract Optional<ParamProperty<TestEnum>> optionalEnumField();
-
-        abstract Optional<ParamProperty<Entity>> repeatedEntityField();
-
-        abstract ParamProperty<StringValue> requiredStringField();
-
-        abstract Optional<ParamProperty<StringValue>> optionalStringField();
-
-        abstract Optional<ParamProperty<StringValue>> repeatedStringField();
-    }
-
-    @AutoValue
-    abstract static class GenericEntityArguments {
-
-        static Builder newBuilder() {
-            return new AutoValue_ActionSpecTest_GenericEntityArguments.Builder();
-        }
-
-        abstract String singularField();
-
-        abstract String optionalField();
-
-        abstract List<String> repeatedField();
-
-        @AutoValue.Builder
-        abstract static class Builder implements BuilderOf<GenericEntityArguments> {
-
-            abstract Builder setSingularField(String value);
-
-            abstract Builder setOptionalField(String value);
-
-            abstract Builder setRepeatedField(List<String> value);
-
-            @NonNull
-            @Override
-            public abstract GenericEntityArguments build();
-        }
-    }
-
-    @AutoValue
-    abstract static class GenericEntityProperty {
-
-        static GenericEntityProperty create(
-                ParamProperty<String> singularField,
-                Optional<ParamProperty<String>> optionalField,
-                Optional<ParamProperty<String>> repeatedField) {
-            return new AutoValue_ActionSpecTest_GenericEntityProperty(
-                    singularField, optionalField, repeatedField);
-        }
-
-        abstract ParamProperty<String> singularField();
-
-        abstract Optional<ParamProperty<String>> optionalField();
-
-        abstract Optional<ParamProperty<String>> repeatedField();
     }
 }

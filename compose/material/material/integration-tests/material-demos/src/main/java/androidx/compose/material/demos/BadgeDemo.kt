@@ -41,6 +41,7 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -56,7 +57,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun BadgeDemo() {
     Column(Modifier.verticalScroll(rememberScrollState())) {
-        var badgeCount by remember { mutableStateOf(8) }
+        var badgeCount by remember { mutableIntStateOf(8) }
         Spacer(Modifier.requiredHeight(24.dp))
         TopAppBarWithBadge(
             { badgeCount = 0 },
@@ -146,7 +147,7 @@ fun BottomNavigationWithBadge(
     onArtistsBadgeClick: () -> Unit,
     artistsBadgeCount: Int
 ) {
-    var selectedItem by remember { mutableStateOf(initialSelectedIndex) }
+    var selectedItem by remember { mutableIntStateOf(initialSelectedIndex) }
     val items = listOf("Songs", "Artists", "Playlists", "Something else")
 
     var showSongsBadge by remember { mutableStateOf(true) }
@@ -222,7 +223,7 @@ fun TextTabsWithBadge(
     onTab1BadgeClick: () -> Unit,
     tab1BadgeCount: Int
 ) {
-    var state by remember { mutableStateOf(initialSelectedIndex) }
+    var state by remember { mutableIntStateOf(initialSelectedIndex) }
     val titles = listOf("TAB 1", "TAB 2", "TAB 3 WITH LOTS OF TEXT")
     val showTabBadgeList = remember { mutableStateListOf(true, true) }
 
@@ -277,7 +278,7 @@ fun LeadingIconTabsWithBadge(
     onTab1BadgeClick: () -> Unit,
     tab1BadgeCount: Int,
 ) {
-    var state by remember { mutableStateOf(0) }
+    var state by remember { mutableIntStateOf(0) }
     val titlesAndIcons = listOf(
         "TAB" to Icons.Filled.Favorite,
         "TAB & ICON" to Icons.Filled.Favorite,

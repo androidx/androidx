@@ -60,7 +60,7 @@ class CustomClockTest {
     @Test
     @SdkSuppress(minSdkVersion = 26)
     @Throws(InterruptedException::class, ExecutionException::class)
-    fun testScheduledTime_relativeToTestClock() {
+    fun testScheduleTime_relativeToTestClock() {
         testClock.timeMillis = Duration.ofDays(100).toMillis()
         val initialDelay = Duration.ofHours(1)
 
@@ -72,7 +72,7 @@ class CustomClockTest {
         workManagerImpl.enqueue(listOf(request)).result.get()
 
         val status = workManagerImpl.getWorkInfoById(request.id).get()
-        assertThat(status.earliestPossibleRuntimeMillis)
+        assertThat(status.nextScheduleTimeMillis)
             .isEqualTo(testClock.timeMillis + initialDelay.toMillis())
     }
 }

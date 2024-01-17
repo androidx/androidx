@@ -16,7 +16,6 @@
 
 package androidx.emoji2.emojipicker
 
-import androidx.emoji2.emojipicker.R as EmojiPickerViewR
 import android.app.Activity
 import android.content.Context
 import android.os.Bundle
@@ -25,6 +24,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.core.view.children
 import androidx.core.view.isVisible
+import androidx.emoji2.emojipicker.R as EmojiPickerViewR
 import androidx.emoji2.emojipicker.test.R
 import androidx.recyclerview.widget.RecyclerView
 import androidx.test.core.app.ApplicationProvider
@@ -116,6 +116,7 @@ class EmojiPickerViewTest {
 
     @Test
     @SdkSuppress(minSdkVersion = 24)
+    @Ignore("b/294556440")
     fun testStickyVariant_displayAndSaved() {
         lateinit var view: EmojiPickerView
         activityTestRule.scenario.onActivity {

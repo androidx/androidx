@@ -17,17 +17,14 @@
 package androidx.compose.foundation.text.modifiers
 
 import androidx.compose.foundation.text.TextDragObserver
-import androidx.compose.foundation.text.detectDragGesturesAfterLongPressWithObserver
-import androidx.compose.foundation.text.isInTouchMode
 import androidx.compose.foundation.text.selection.MouseSelectionObserver
 import androidx.compose.foundation.text.selection.MultiWidgetSelectionDelegate
 import androidx.compose.foundation.text.selection.Selectable
 import androidx.compose.foundation.text.selection.SelectionAdjustment
 import androidx.compose.foundation.text.selection.SelectionRegistrar
 import androidx.compose.foundation.text.selection.hasSelection
-import androidx.compose.foundation.text.selection.mouseSelectionDetector
+import androidx.compose.foundation.text.selection.selectionGestureInput
 import androidx.compose.foundation.text.textPointerHoverIcon
-import androidx.compose.foundation.text.textPointerIcon
 import androidx.compose.runtime.RememberObserver
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -35,8 +32,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.clipRect
-import androidx.compose.ui.input.pointer.pointerHoverIcon
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.style.TextOverflow
@@ -54,7 +49,9 @@ internal open class StaticTextSelectionParams(
     }
 
     open val shouldClip: Boolean
-        get() = textLayoutResult?.layoutInput?.overflow == TextOverflow.Visible
+        get() = textLayoutResult?.let {
+            it.layoutInput.overflow != TextOverflow.Visible && it.hasVisualOverflow
+        } ?: false
 
     // if this copy shows up in traces, this class may become mutable
     fun copy(
@@ -73,20 +70,20 @@ internal open class StaticTextSelectionParams(
  */
 // This is _basically_ a Modifier.Node but moved into remember because we need to do pointerInput
 internal class SelectionController(
+    private val selectableId: Long,
     private val selectionRegistrar: SelectionRegistrar,
     private val backgroundSelectionColor: Color,
     // TODO: Move these into Modifer.element eventually
     private var params: StaticTextSelectionParams = StaticTextSelectionParams.Empty
 ) : RememberObserver {
     private var selectable: Selectable? = null
-    private val selectableId = selectionRegistrar.nextSelectableId()
 
-    val modifier: Modifier = selectionRegistrar.makeSelectionModifier(
-        selectableId = selectableId,
-        layoutCoordinates = { params.layoutCoordinates },
-        textLayoutResult = { params.textLayoutResult },
-        isInTouchMode = isInTouchMode
-    ).textPointerHoverIcon(selectionRegistrar)
+    val modifier: Modifier = selectionRegistrar
+        .makeSelectionModifier(
+            selectableId = selectableId,
+            layoutCoordinates = { params.layoutCoordinates },
+        )
+        .textPointerHoverIcon(selectionRegistrar)
 
     override fun onRemembered() {
         selectable = selectionRegistrar.subscribe(
@@ -120,6 +117,7 @@ internal class SelectionController(
 
     fun updateGlobalPosition(coordinates: LayoutCoordinates) {
         params = params.copy(layoutCoordinates = coordinates)
+        selectionRegistrar.notifyPositionChange(selectableId)
     }
 
     fun draw(drawScope: DrawScope) {
@@ -161,10 +159,7 @@ internal class SelectionController(
 private fun SelectionRegistrar.makeSelectionModifier(
     selectableId: Long,
     layoutCoordinates: () -> LayoutCoordinates?,
-    textLayoutResult: () -> TextLayoutResult?,
-    isInTouchMode: Boolean
 ): Modifier {
-    return if (isInTouchMode) {
         val longPressDragObserver = object : TextDragObserver {
             /**
              * The beginning position of the drag gesture. Every time a new drag gesture starts, it wil be
@@ -190,17 +185,12 @@ private fun SelectionRegistrar.makeSelectionModifier(
                 layoutCoordinates()?.let {
                     if (!it.isAttached) return
 
-                    if (textLayoutResult().outOfBoundary(startPoint, startPoint)) {
-                        notifySelectionUpdateSelectAll(
-                            selectableId = selectableId
-                        )
-                    } else {
-                        notifySelectionUpdateStart(
-                            layoutCoordinates = it,
-                            startPosition = startPoint,
-                            adjustment = SelectionAdjustment.Word
-                        )
-                    }
+                    notifySelectionUpdateStart(
+                        layoutCoordinates = it,
+                        startPosition = startPoint,
+                        adjustment = SelectionAdjustment.Word,
+                        isInTouchMode = true
+                    )
 
                     lastPosition = startPoint
                 }
@@ -219,23 +209,22 @@ private fun SelectionRegistrar.makeSelectionModifier(
                     dragTotalDistance += delta
                     val newPosition = lastPosition + dragTotalDistance
 
-                    if (!textLayoutResult().outOfBoundary(lastPosition, newPosition)) {
-                        // Notice that only the end position needs to be updated here.
-                        // Start position is left unchanged. This is typically important when
-                        // long-press is using SelectionAdjustment.WORD or
-                        // SelectionAdjustment.PARAGRAPH that updates the start handle position from
-                        // the dragBeginPosition.
-                        val consumed = notifySelectionUpdate(
-                            layoutCoordinates = it,
-                            previousPosition = lastPosition,
-                            newPosition = newPosition,
-                            isStartHandle = false,
-                            adjustment = SelectionAdjustment.CharacterWithWordAccelerate
-                        )
-                        if (consumed) {
-                            lastPosition = newPosition
-                            dragTotalDistance = Offset.Zero
-                        }
+                    // Notice that only the end position needs to be updated here.
+                    // Start position is left unchanged. This is typically important when
+                    // long-press is using SelectionAdjustment.WORD or
+                    // SelectionAdjustment.PARAGRAPH that updates the start handle position from
+                    // the dragBeginPosition.
+                    val consumed = notifySelectionUpdate(
+                        layoutCoordinates = it,
+                        previousPosition = lastPosition,
+                        newPosition = newPosition,
+                        isStartHandle = false,
+                        adjustment = SelectionAdjustment.CharacterWithWordAccelerate,
+                        isInTouchMode = true
+                    )
+                    if (consumed) {
+                        lastPosition = newPosition
+                        dragTotalDistance = Offset.Zero
                     }
                 }
             }
@@ -252,12 +241,7 @@ private fun SelectionRegistrar.makeSelectionModifier(
                 }
             }
         }
-        Modifier.pointerInput(longPressDragObserver) {
-            detectDragGesturesAfterLongPressWithObserver(
-                longPressDragObserver
-            )
-        }
-    } else {
+
         val mouseSelectionObserver = object : MouseSelectionObserver {
             var lastPosition = Offset.Zero
 
@@ -269,7 +253,8 @@ private fun SelectionRegistrar.makeSelectionModifier(
                         newPosition = downPosition,
                         previousPosition = lastPosition,
                         isStartHandle = false,
-                        adjustment = SelectionAdjustment.None
+                        adjustment = SelectionAdjustment.None,
+                        isInTouchMode = false
                     )
                     if (consumed) {
                         lastPosition = downPosition
@@ -289,7 +274,8 @@ private fun SelectionRegistrar.makeSelectionModifier(
                         newPosition = dragPosition,
                         previousPosition = lastPosition,
                         isStartHandle = false,
-                        adjustment = SelectionAdjustment.None
+                        adjustment = SelectionAdjustment.None,
+                        isInTouchMode = false
                     )
 
                     if (consumed) {
@@ -309,7 +295,8 @@ private fun SelectionRegistrar.makeSelectionModifier(
                     notifySelectionUpdateStart(
                         layoutCoordinates = it,
                         startPosition = downPosition,
-                        adjustment = adjustment
+                        adjustment = adjustment,
+                        isInTouchMode = false
                     )
 
                     lastPosition = downPosition
@@ -332,7 +319,8 @@ private fun SelectionRegistrar.makeSelectionModifier(
                         previousPosition = lastPosition,
                         newPosition = dragPosition,
                         isStartHandle = false,
-                        adjustment = adjustment
+                        adjustment = adjustment,
+                        isInTouchMode = false
                     )
                     if (consumed) {
                         lastPosition = dragPosition
@@ -340,20 +328,11 @@ private fun SelectionRegistrar.makeSelectionModifier(
                 }
                 return true
             }
+
+            override fun onDragDone() {
+                notifySelectionUpdateEnd()
+            }
         }
-        Modifier.pointerInput(mouseSelectionObserver) {
-            mouseSelectionDetector(mouseSelectionObserver)
-        }.pointerHoverIcon(textPointerIcon)
-    }
-}
 
-private fun TextLayoutResult?.outOfBoundary(start: Offset, end: Offset): Boolean {
-    this ?: return false
-
-    val lastOffset = layoutInput.text.text.length
-    val rawStartOffset = getOffsetForPosition(start)
-    val rawEndOffset = getOffsetForPosition(end)
-
-    return rawStartOffset >= lastOffset - 1 && rawEndOffset >= lastOffset - 1 ||
-        rawStartOffset < 0 && rawEndOffset < 0
+    return Modifier.selectionGestureInput(mouseSelectionObserver, longPressDragObserver)
 }

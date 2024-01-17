@@ -29,6 +29,9 @@ import androidx.camera.video.internal.compat.quirk.MediaCodecInfoReportIncorrect
 import androidx.camera.video.internal.encoder.VideoEncoderInfo;
 import androidx.core.util.Preconditions;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * Workaround to wrap the VideoEncoderInfo in order to fix the wrong information provided by
  * {@link MediaCodecInfo}.
@@ -48,6 +51,10 @@ public class VideoEncoderInfoWrapper implements VideoEncoderInfo {
     private final VideoEncoderInfo mVideoEncoderInfo;
     private final Range<Integer> mSupportedWidths;
     private final Range<Integer> mSupportedHeights;
+    // Extra supported sizes is used to put resolutions that are actually supported on the device
+    // but the MediaCodecInfo indicates the resolution is invalid. The most common one is
+    // 1920x1080. For resolutions in this set, #isSizeSupported(w, h) should return true.
+    private final Set<Size> mExtraSupportedSizes = new HashSet<>();
 
     /**
      * Check and wrap an input VideoEncoderInfo
@@ -63,6 +70,9 @@ public class VideoEncoderInfoWrapper implements VideoEncoderInfo {
      * <p>Exception: if the input videoEncoderInfo is already a wrapper, then it will not be
      * wrapped again and will be returned directly.
      *
+     * <p>The {@code validSizeToCheck} will be taken as an extra supported size if this method
+     * returns a wrapper.
+     *
      * @param videoEncoderInfo the input VideoEncoderInfo.
      * @param validSizeToCheck a valid size to check or null if no valid size to check.
      * @return a wrapped VideoEncoderInfo or the input VideoEncoderInfo.
@@ -75,7 +85,7 @@ public class VideoEncoderInfoWrapper implements VideoEncoderInfo {
             toWrap = false;
         } else if (DeviceQuirks.get(MediaCodecInfoReportIncorrectInfoQuirk.class) != null) {
             toWrap = true;
-        } else if (validSizeToCheck != null && !videoEncoderInfo.isSizeSupported(
+        } else if (validSizeToCheck != null && !videoEncoderInfo.isSizeSupportedAllowSwapping(
                 validSizeToCheck.getWidth(), validSizeToCheck.getHeight())) {
             // If the device does not support a size that should be valid, assume the device
             // reports incorrect information. This is used to detect devices that we haven't
@@ -89,10 +99,16 @@ public class VideoEncoderInfoWrapper implements VideoEncoderInfo {
         } else {
             toWrap = false;
         }
-        return toWrap ? new VideoEncoderInfoWrapper(videoEncoderInfo) : videoEncoderInfo;
+        if (toWrap) {
+            videoEncoderInfo = new VideoEncoderInfoWrapper(videoEncoderInfo);
+        }
+        if (validSizeToCheck != null && videoEncoderInfo instanceof VideoEncoderInfoWrapper) {
+            ((VideoEncoderInfoWrapper) videoEncoderInfo).addExtraSupportedSize(validSizeToCheck);
+        }
+        return videoEncoderInfo;
     }
 
-    VideoEncoderInfoWrapper(@NonNull VideoEncoderInfo videoEncoderInfo) {
+    private VideoEncoderInfoWrapper(@NonNull VideoEncoderInfo videoEncoderInfo) {
         mVideoEncoderInfo = videoEncoderInfo;
 
         // Ideally we should find out supported widths/heights for each problematic device.
@@ -104,6 +120,9 @@ public class VideoEncoderInfoWrapper implements VideoEncoderInfo {
         int heightAlignment = videoEncoderInfo.getHeightAlignment();
         int maxHeight = (int) Math.ceil((double) HEIGHT_4KDCI / heightAlignment) * heightAlignment;
         mSupportedHeights = Range.create(heightAlignment, maxHeight);
+
+        mExtraSupportedSizes.addAll(
+                MediaCodecInfoReportIncorrectInfoQuirk.getExtraSupportedSizes());
     }
 
     @NonNull
@@ -113,7 +132,20 @@ public class VideoEncoderInfoWrapper implements VideoEncoderInfo {
     }
 
     @Override
+    public boolean canSwapWidthHeight() {
+        return mVideoEncoderInfo.canSwapWidthHeight();
+    }
+
+    @Override
     public boolean isSizeSupported(int width, int height) {
+        if (mVideoEncoderInfo.isSizeSupported(width, height)) {
+            return true;
+        }
+        for (Size size : mExtraSupportedSizes) {
+            if (size.getWidth() == width && size.getHeight() == height) {
+                return true;
+            }
+        }
         return mSupportedWidths.contains(width)
                 && mSupportedHeights.contains(height)
                 && width % mVideoEncoderInfo.getWidthAlignment() == 0
@@ -168,5 +200,9 @@ public class VideoEncoderInfoWrapper implements VideoEncoderInfo {
     @Override
     public Range<Integer> getSupportedBitrateRange() {
         return mVideoEncoderInfo.getSupportedBitrateRange();
+    }
+
+    private void addExtraSupportedSize(@NonNull Size size) {
+        mExtraSupportedSizes.add(size);
     }
 }

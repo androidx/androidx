@@ -14,12 +14,19 @@
  * limitations under the License.
  */
 
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.*
 
 plugins {
-    id 'AndroidXPlugin'
-    id 'kotlin'
-    id 'java-gradle-plugin'
+    id("AndroidXPlugin")
+    id("kotlin")
+    id("java-gradle-plugin")
 }
 
 apply from: "../../buildSrc/kotlin-dsl-dependency.gradle"
@@ -46,8 +53,6 @@ dependencies {
     testImplementation(libs.truth)
 }
 
-SdkResourceGenerator.generateForHostTest(project)
-
 gradlePlugin {
     plugins {
         stableAidl {
@@ -62,11 +67,4 @@ androidx {
     type = LibraryType.GRADLE_PLUGIN
     inceptionYear = "2022"
     description = "Stable AIDL Gradle Plugin"
-}
-
-tasks {
-    validatePlugins {
-        failOnWarning.set(true)
-        enableStricterValidation.set(true)
-    }
 }

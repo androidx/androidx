@@ -16,121 +16,55 @@
 
 package androidx.appactions.interaction.capabilities.communication
 
+import androidx.appactions.builtintypes.experimental.properties.Recipient
+import androidx.appactions.builtintypes.experimental.types.GenericErrorStatus
+import androidx.appactions.builtintypes.experimental.types.Message
+import androidx.appactions.builtintypes.experimental.types.SuccessStatus
+import androidx.appactions.interaction.capabilities.core.BaseExecutionSession
 import androidx.appactions.interaction.capabilities.core.Capability
-import androidx.appactions.interaction.capabilities.core.BaseSession
-import androidx.appactions.interaction.capabilities.core.CapabilityBuilderBase
 import androidx.appactions.interaction.capabilities.core.CapabilityFactory
-import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
 import androidx.appactions.interaction.capabilities.core.impl.converters.EntityConverter
 import androidx.appactions.interaction.capabilities.core.impl.converters.ParamValueConverter
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters.MESSAGE_TYPE_SPEC
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters.RECIPIENT_TYPE_SPEC
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
+import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecRegistry
+import androidx.appactions.interaction.capabilities.core.properties.Property
 import androidx.appactions.interaction.capabilities.core.properties.StringValue
-import androidx.appactions.interaction.capabilities.core.properties.ParamProperty
-import androidx.appactions.interaction.capabilities.core.values.GenericErrorStatus
-import androidx.appactions.interaction.capabilities.core.values.Message
-import androidx.appactions.interaction.capabilities.core.values.properties.Recipient
-import androidx.appactions.interaction.capabilities.core.values.SuccessStatus
 import androidx.appactions.interaction.proto.ParamValue
 import androidx.appactions.interaction.protobuf.Struct
 import androidx.appactions.interaction.protobuf.Value
-import java.util.Optional
 
-private const val CAPABILITY_NAME: String = "actions.intent.CREATE_MESSAGE"
-
-private val ACTION_SPEC =
-    ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
-        .setDescriptor(CreateMessage.Property::class.java)
-        .setArguments(CreateMessage.Arguments::class.java, CreateMessage.Arguments::Builder)
-        .setOutput(CreateMessage.Output::class.java)
-        .bindRepeatedParameter(
-            "message.recipient",
-            { property -> Optional.ofNullable(property.recipient) },
-            CreateMessage.Arguments.Builder::setRecipientList,
-            RecipientValue.PARAM_VALUE_CONVERTER,
-            EntityConverter.of(RECIPIENT_TYPE_SPEC)
-        )
-        .bindOptionalParameter(
-            "message.text",
-            { property -> Optional.ofNullable(property.messageText) },
-            CreateMessage.Arguments.Builder::setMessageText,
-            TypeConverters.STRING_PARAM_VALUE_CONVERTER,
-            TypeConverters.STRING_VALUE_ENTITY_CONVERTER
-        )
-        .bindOptionalOutput(
-            "message",
-            { output -> Optional.ofNullable(output.message) },
-            ParamValueConverter.of(MESSAGE_TYPE_SPEC)::toParamValue
-        )
-        .bindOptionalOutput(
-            "executionStatus",
-            { output -> Optional.ofNullable(output.executionStatus) },
-            CreateMessage.ExecutionStatus::toParamValue
-        )
-        .build()
-
-@CapabilityFactory(name = CAPABILITY_NAME)
+/** A capability corresponding to actions.intent.CREATE_MESSAGE */
+@CapabilityFactory(name = CreateMessage.CAPABILITY_NAME)
 class CreateMessage private constructor() {
-    class CapabilityBuilder :
-        CapabilityBuilderBase<
-            CapabilityBuilder, Property, Arguments, Output, Confirmation, Session
-        >(ACTION_SPEC) {
-        override fun build(): Capability {
-            super.setProperty(Property.Builder().build())
-            // TODO(b/268369632): No-op remove empty property builder after Property is removed.
-            super.setProperty(Property.Builder().build())
-            return super.build()
-        }
+    internal enum class SlotMetadata(val path: String) {
+        TEXT("message.text"),
+        RECIPIENT("message.recipient")
     }
 
-    // TODO(b/268369632): Remove Property from public capability APIs.
-    class Property
-    internal constructor(
-        val recipient: ParamProperty<Recipient>?,
-        val messageText: ParamProperty<StringValue>?
-    ) {
-        override fun toString(): String {
-            return "Property(recipient=$recipient, messageText=$messageText)"
-        }
+    class CapabilityBuilder :
+        Capability.Builder<
+            CapabilityBuilder, Arguments, Output, Confirmation, ExecutionSession
+            >(ACTION_SPEC) {
+        fun setMessageTextProperty(
+            messageText: Property<StringValue>
+        ): CapabilityBuilder = setProperty(
+            SlotMetadata.TEXT.path,
+            messageText,
+            TypeConverters.STRING_VALUE_ENTITY_CONVERTER
+        )
 
-        override fun equals(other: Any?): Boolean {
-            if (this === other) return true
-            if (javaClass != other?.javaClass) return false
-
-            other as Property
-
-            if (recipient != other.recipient) return false
-            if (messageText != other.messageText) return false
-
-            return true
-        }
-
-        override fun hashCode(): Int {
-            var result = recipient.hashCode()
-            result = 31 * result + messageText.hashCode()
-            return result
-        }
-
-        class Builder {
-            private var recipient: ParamProperty<Recipient>? = null
-            private var messageText: ParamProperty<StringValue>? = null
-
-            fun setRecipient(recipient: ParamProperty<Recipient>): Builder = apply {
-                this.recipient = recipient
-            }
-
-            fun setMessageText(messageText: ParamProperty<StringValue>): Builder = apply {
-                this.messageText = messageText
-            }
-
-            fun build(): Property = Property(recipient, messageText)
-        }
+        fun setRecipientProperty(recipient: Property<Recipient>): CapabilityBuilder = setProperty(
+            SlotMetadata.RECIPIENT.path,
+            recipient,
+            EntityConverter.of(TypeConverters.RECIPIENT_TYPE_SPEC)
+        )
     }
 
     class Arguments
-    internal constructor(val recipientList: List<RecipientValue>, val messageText: String?) {
+    internal constructor(val recipientList: List<RecipientReference>, val messageText: String?) {
         override fun toString(): String {
             return "Arguments(recipient=$recipientList, messageTextList=$messageText)"
         }
@@ -153,19 +87,19 @@ class CreateMessage private constructor() {
             return result
         }
 
-        class Builder : BuilderOf<Arguments> {
-            private var recipientList: List<RecipientValue> = mutableListOf()
+        class Builder {
+            private var recipientList: List<RecipientReference> = mutableListOf()
             private var messageText: String? = null
 
-            fun setRecipientList(recipientList: List<RecipientValue>): Builder = apply {
+            fun setRecipientList(recipientList: List<RecipientReference>): Builder = apply {
                 this.recipientList = recipientList
             }
 
-            fun setMessageText(messageTextList: String): Builder = apply {
-                this.messageText = messageTextList
+            fun setMessageText(messageText: String): Builder = apply {
+                this.messageText = messageText
             }
 
-            override fun build(): Arguments = Arguments(recipientList, messageText)
+            fun build(): Arguments = Arguments(recipientList, messageText)
         }
     }
 
@@ -238,5 +172,40 @@ class CreateMessage private constructor() {
 
     class Confirmation internal constructor()
 
-    sealed interface Session : BaseSession<Arguments, Output>
+    sealed interface ExecutionSession : BaseExecutionSession<Arguments, Output>
+
+    companion object {
+        /** Canonical name for [CreateMessage] capability. */
+        const val CAPABILITY_NAME: String = "actions.intent.CREATE_MESSAGE"
+        private val ACTION_SPEC =
+            ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
+                .setArguments(Arguments::class.java, Arguments::Builder, Arguments.Builder::build)
+                .setOutput(Output::class.java)
+                .bindRepeatedParameter(
+                    SlotMetadata.RECIPIENT.path,
+                    Arguments::recipientList,
+                    Arguments.Builder::setRecipientList,
+                    RecipientReference.PARAM_VALUE_CONVERTER,
+                )
+                .bindParameter(
+                    SlotMetadata.TEXT.path,
+                    Arguments::messageText,
+                    Arguments.Builder::setMessageText,
+                    TypeConverters.STRING_PARAM_VALUE_CONVERTER,
+                )
+                .bindOutput(
+                    "message",
+                    Output::message,
+                    ParamValueConverter.of(MESSAGE_TYPE_SPEC)::toParamValue
+                )
+                .bindOutput(
+                    "executionStatus",
+                    Output::executionStatus,
+                    ExecutionStatus::toParamValue
+                )
+                .build()
+        init {
+            ActionSpecRegistry.registerActionSpec(Arguments::class, Output::class, ACTION_SPEC)
+        }
+    }
 }

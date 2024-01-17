@@ -18,11 +18,13 @@ package androidx.camera.camera2.pipe.integration.impl
 
 import android.hardware.camera2.CameraDevice
 import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.integration.adapter.CameraStateAdapter
 import androidx.camera.camera2.pipe.integration.adapter.CaptureConfigAdapter
 import androidx.camera.camera2.pipe.integration.adapter.RobolectricCameraPipeTestRunner
+import androidx.camera.camera2.pipe.integration.adapter.SessionConfigAdapter
 import androidx.camera.camera2.pipe.integration.compat.workaround.NoOpInactiveSurfaceCloser
 import androidx.camera.camera2.pipe.integration.config.UseCaseGraphConfig
 import androidx.camera.camera2.pipe.integration.testing.FakeCameraGraph
@@ -31,8 +33,8 @@ import androidx.camera.camera2.pipe.integration.testing.FakeCapturePipeline
 import androidx.camera.camera2.pipe.integration.testing.FakeSurface
 import androidx.camera.core.impl.DeferrableSurface
 import androidx.camera.core.impl.SessionConfig
-import androidx.camera.testing.fakes.FakeUseCase
-import androidx.camera.testing.fakes.FakeUseCaseConfig
+import androidx.camera.testing.impl.fakes.FakeUseCase
+import androidx.camera.testing.impl.fakes.FakeUseCaseConfig
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.TimeUnit
@@ -40,6 +42,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.asExecutor
+import org.junit.After
 import org.junit.Assume.assumeTrue
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -80,14 +83,18 @@ class UseCaseCameraTest {
     private val fakeUseCaseCameraState = UseCaseCameraState(
         useCaseGraphConfig = fakeUseCaseGraphConfig,
         threads = useCaseThreads,
+        sessionProcessorManager = null,
     )
     private val requestControl = UseCaseCameraRequestControlImpl(
         capturePipeline = FakeCapturePipeline(),
-        configAdapter = fakeConfigAdapter,
         state = fakeUseCaseCameraState,
-        threads = useCaseThreads,
         useCaseGraphConfig = fakeUseCaseGraphConfig,
     )
+
+    @After
+    fun tearDown() {
+        surface.close()
+    }
 
     @Test
     fun setInvalidSessionConfig_repeatingShouldStop() {
@@ -101,6 +108,7 @@ class UseCaseCameraTest {
                 }
             )
         }
+
         @Suppress("UNCHECKED_CAST", "PLATFORM_CLASS_MAPPED_TO_KOTLIN")
         val useCaseCamera = UseCaseCameraImpl(
             controls = emptySet<UseCaseCameraControl>() as java.util.Set<UseCaseCameraControl>,
@@ -112,7 +120,9 @@ class UseCaseCameraTest {
                 NoOpInactiveSurfaceCloser,
             ),
             threads = useCaseThreads,
-            requestControl = requestControl
+            sessionProcessorManager = null,
+            sessionConfigAdapter = SessionConfigAdapter(listOf(fakeUseCase)),
+            requestControl = requestControl,
         ).also {
             it.runningUseCases = setOf(fakeUseCase)
         }
@@ -140,7 +150,8 @@ class UseCaseCameraTest {
     }
 }
 
-private class FakeTestUseCase() : FakeUseCase(
+@RequiresApi(21)
+private class FakeTestUseCase : FakeUseCase(
     FakeUseCaseConfig.Builder().setTargetName("UseCase").useCaseConfig
 ) {
 

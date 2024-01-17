@@ -39,6 +39,7 @@ class FragmentTestActivity : FragmentActivity(R.layout.activity_content) {
     }
 
     @Suppress("DEPRECATION")
+    @Deprecated("Deprecated in ComponentActivity")
     public override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         supportFragmentManager.beginTransaction()

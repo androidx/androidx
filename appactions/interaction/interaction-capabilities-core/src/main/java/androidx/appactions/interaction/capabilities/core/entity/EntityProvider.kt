@@ -17,14 +17,14 @@
 package androidx.appactions.interaction.capabilities.core.entity
 
 import androidx.annotation.RestrictTo
-import androidx.appactions.interaction.capabilities.core.impl.converters.EntityConverter
+import androidx.appactions.builtintypes.types.Thing
+import androidx.appactions.interaction.capabilities.core.SearchAction
 import androidx.appactions.interaction.capabilities.core.impl.concurrent.Futures
+import androidx.appactions.interaction.capabilities.core.impl.converters.EntityConverter
 import androidx.appactions.interaction.capabilities.core.impl.converters.SearchActionConverter
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeSpec
 import androidx.appactions.interaction.capabilities.core.impl.exceptions.StructConversionException
-import androidx.appactions.interaction.capabilities.core.values.SearchAction
-import androidx.appactions.interaction.capabilities.core.values.Thing
 import androidx.appactions.interaction.proto.GroundingRequest
 import androidx.appactions.interaction.proto.GroundingResponse
 import androidx.concurrent.futures.await
@@ -35,20 +35,25 @@ import com.google.common.util.concurrent.ListenableFuture
  *
  * <p>Use abstract classes within the library to create instances of the {@link EntityProvider}.
  */
-abstract class EntityProvider<T : Thing> internal constructor(private val typeSpec: TypeSpec<T>) {
+abstract class EntityProvider<T : Thing>
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+constructor(
+    private val typeSpec: TypeSpec<T>
+) {
     private val entityConverter = EntityConverter.of(typeSpec)
 
     /**
      * Unique identifier for this EntityFilter. Must match the shortcuts.xml declaration, which
      * allows different filters to be assigned to types on a per-BII basis.
      */
-    abstract fun getId(): String
+    abstract val id: String
 
     /**
      * Executes the entity lookup.
      *
      * @param request The request includes e.g. entity, search metadata, etc.
      * @return an [EntityLookupResponse] instance
+     * * TODO(dennistwo) lookup request should contain a different generic type (filter type)
      */
     open suspend fun lookup(request: EntityLookupRequest<T>): EntityLookupResponse<T> {
         return lookupAsync(request).await()
@@ -68,8 +73,6 @@ abstract class EntityProvider<T : Thing> internal constructor(private val typeSp
     /**
      * Internal method to lookup untyped entity, which will be used by service library to handle
      * {@link GroundingRequest}.
-     *
-     * @suppress
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     suspend fun lookupInternal(request: GroundingRequest): GroundingResponse {
@@ -116,7 +119,7 @@ abstract class EntityProvider<T : Thing> internal constructor(private val typeSp
     }
 
     private fun convertStatus(
-        @EntityLookupResponse.EntityLookupStatus status: Int,
+        @EntityLookupResponse.EntityLookupStatus status: Int
     ): GroundingResponse.Status {
         return when (status) {
             EntityLookupResponse.CANCELED -> GroundingResponse.Status.CANCELED

@@ -18,8 +18,8 @@ package androidx.inspection.rules
 
 import android.os.Debug
 import androidx.annotation.RequiresApi
-import org.junit.rules.ExternalResource
 import java.io.IOException
+import org.junit.rules.ExternalResource
 
 @RequiresApi(28)
 class JvmtiRule : ExternalResource() {

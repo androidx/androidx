@@ -17,10 +17,10 @@
 package androidx.compose.material3
 
 import androidx.compose.material3.tokens.TypographyKeyTokens
+import androidx.compose.material3.tokens.TypographyTokens
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.material3.tokens.TypographyTokens
 
 /**
  * The Material Design type scale includes a range of contrasting styles that support the needs of

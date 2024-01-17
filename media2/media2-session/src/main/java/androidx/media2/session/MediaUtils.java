@@ -48,7 +48,6 @@ import android.graphics.Bitmap;
 import android.media.AudioManager;
 import android.net.Uri;
 import android.os.BadParcelableException;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -334,8 +333,7 @@ public class MediaUtils {
                 builder.putBitmap(metadataKey, (Bitmap) value);
             } else if (value instanceof Long) {
                 builder.putLong(metadataKey, (Long) value);
-            } else if ((value instanceof RatingCompat)
-                    || (Build.VERSION.SDK_INT >= 19 && value instanceof android.media.Rating)) {
+            } else if (value instanceof RatingCompat || value instanceof android.media.Rating) {
                 // Must be fwk Rating or RatingCompat according to SDK versions.
                 // Use MediaMetadataCompat#getRating(key) to get a RatingCompat object.
                 try {
@@ -969,7 +967,7 @@ public class MediaUtils {
      *
      * @param attrs audio attributes
      * @return int legacy stream type from {@link AudioManager}
-     **/
+     */
     public static int getLegacyStreamType(@Nullable AudioAttributesCompat attrs) {
         int stream;
         if (attrs == null) {

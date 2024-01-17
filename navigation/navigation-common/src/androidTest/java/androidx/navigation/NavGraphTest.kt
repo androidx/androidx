@@ -97,6 +97,34 @@ class NavGraphTest {
             .isFalse()
     }
 
+    @Test
+    fun graphEqualsId() {
+        val graph = NavGraph(navGraphNavigator)
+        graph += navigator.createDestination().apply { id = DESTINATION_ID }
+        graph += navigator.createDestination().apply { id = SECOND_DESTINATION_ID }
+        val other = NavGraph(navGraphNavigator)
+        other += navigator.createDestination().apply { id = DESTINATION_ID }
+        other += navigator.createDestination().apply { id = SECOND_DESTINATION_ID }
+
+        assertWithMessage("Graphs should be equal")
+            .that(graph)
+            .isEqualTo(other)
+    }
+
+    @Test
+    fun graphNotEqualsId() {
+        val graph = NavGraph(navGraphNavigator)
+        graph += navigator.createDestination().apply { id = DESTINATION_ID }
+        graph += navigator.createDestination().apply { id = SECOND_DESTINATION_ID }
+        val other = NavGraph(navGraphNavigator)
+        other += navigator.createDestination().apply { id = DESTINATION_ID }
+        other += navigator.createDestination().apply { id = 3 }
+
+        assertWithMessage("Graphs should not be equal")
+            .that(graph)
+            .isNotEqualTo(other)
+    }
+
     @Test(expected = IllegalArgumentException::class)
     fun getIllegalArgumentException() {
         val graph = NavGraph(navGraphNavigator)

@@ -33,7 +33,7 @@ import java.util.List;
  * <p>You should wait for all notifications to be delivered using {@link #waitForNotificationCount}
  * before using the public lists to avoid concurrency issues.
  *
- * @hide
+ * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class TestObserverCallback implements ObserverCallback {

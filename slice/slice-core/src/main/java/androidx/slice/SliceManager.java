@@ -22,7 +22,6 @@ import android.net.Uri;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.content.PermissionChecker;
 
@@ -33,8 +32,12 @@ import java.util.Set;
  * Class to handle interactions with {@link Slice}s.
  * <p>
  * The SliceViewManager manages permissions and pinned state for slices.
+ *
+ * @deprecated Slice framework has been deprecated, it will not receive any updates moving
+ * forward. If you are looking for a framework that handles communication across apps,
+ * consider using {@link android.app.appsearch.AppSearchManager}.
  */
-@RequiresApi(19)
+@Deprecated
 public abstract class SliceManager {
 
     /**
@@ -49,7 +52,6 @@ public abstract class SliceManager {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     SliceManager() {
@@ -62,7 +64,6 @@ public abstract class SliceManager {
      * into account all clients and returns only specs supported by all.
      * @see SliceSpec
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public abstract @NonNull Set<SliceSpec> getPinnedSpecs(@NonNull Uri uri);

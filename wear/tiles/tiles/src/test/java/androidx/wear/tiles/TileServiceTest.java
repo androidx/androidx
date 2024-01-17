@@ -16,19 +16,30 @@
 package androidx.wear.tiles;
 
 import static com.google.common.truth.Truth.assertThat;
+import static com.google.common.util.concurrent.MoreExecutors.directExecutor;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.robolectric.Shadows.shadowOf;
 
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.IBinder;
 import android.os.Looper;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.wear.protolayout.ResourceBuilders.Resources;
 import androidx.wear.protolayout.expression.VersionBuilders;
@@ -61,14 +72,32 @@ import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 import org.robolectric.Robolectric;
 import org.robolectric.android.controller.ServiceController;
+import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
+import org.robolectric.shadows.ShadowSystemClock;
 
+import java.time.Duration;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CancellationException;
+import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 @RunWith(AndroidJUnit4.class)
+@Config(shadows = {ShadowSystemClock.class})
 @DoNotInstrument
 public class TileServiceTest {
     private static final int TILE_ID = 42;
+    private static final int TILE_ID_1 = 22;
+    private static final int TILE_ID_2 = 33;
+    private static final long TIMESTAMP_MS = Duration.ofDays(65).toMillis();
+    private static final long TIMESTAMP_MS_NEEDS_UPDATE =
+            TIMESTAMP_MS - Duration.ofDays(1).toMillis();
+    private static final long TIMESTAMP_MS_NEEDS_REMOVED =
+            TIMESTAMP_MS - Duration.ofDays(60).toMillis();
+    private static final long TIMESTAMP_MS_NO_UPDATE =
+            TIMESTAMP_MS - Duration.ofHours(10).toMillis();
 
     @Rule public final MockitoRule mocks = MockitoJUnit.rule();
     @Rule public final Expect expect = Expect.create();
@@ -80,22 +109,477 @@ public class TileServiceTest {
             new TileBuilders.Tile.Builder().setResourcesVersion("5").build();
     private static final Tile DUMMY_TILE_PROTOBUF =
             Tile.newBuilder().setResourcesVersion("5").setSchemaVersion(Version.CURRENT).build();
+    private static final String SHARED_PREF_NAME = "active_tiles_shared_preferences";
+    private static FakeTimeSourceClockImpl sFakeTimeSourceClock = new FakeTimeSourceClockImpl();
 
     private TileProvider mTileProviderServiceStub;
+    private TileProvider mCompatibleTileProviderServiceStub;
     private ServiceController<FakeTileService> mFakeTileServiceController;
+    private ServiceController<CompatibleFakeTileService> mCompatibleFakeTileServiceController;
+    private Context mTestContext;
+    private SharedPreferences mSharedPreferences;
 
     @Mock private TileCallback mMockTileCallback;
     @Mock private ResourcesCallback mMockResourcesCallback;
+    @Mock private Context mMockContext;
+    private static final String FAKE_TILE_IDENTIFIER_1 =
+            new ActiveTileIdentifier(
+                            new ComponentName(
+                                    ApplicationProvider.getApplicationContext(),
+                                    FakeTileService.class),
+                            TILE_ID_1)
+                    .flattenToString();
+    private static final String FAKE_COMPAT_TILE_IDENTIFIER_2 =
+            new ActiveTileIdentifier(
+                            new ComponentName(
+                                    ApplicationProvider.getApplicationContext(),
+                                    CompatibleFakeTileService.class),
+                            TILE_ID_2)
+                    .flattenToString();
 
     @Before
     public void setUp() {
         mMockTileCallback = mock(TileCallback.class);
         mMockResourcesCallback = mock(ResourcesCallback.class);
+        mMockContext = mock(Context.class);
+
         mFakeTileServiceController = Robolectric.buildService(FakeTileService.class);
+        mCompatibleFakeTileServiceController =
+                Robolectric.buildService(CompatibleFakeTileService.class);
 
         Intent i = new Intent(TileService.ACTION_BIND_TILE_PROVIDER);
-        IBinder binder = mFakeTileServiceController.get().onBind(i);
-        mTileProviderServiceStub = TileProvider.Stub.asInterface(binder);
+        mTileProviderServiceStub =
+                TileProvider.Stub.asInterface(mFakeTileServiceController.get().onBind(i));
+        mCompatibleTileProviderServiceStub =
+                TileProvider.Stub.asInterface(mCompatibleFakeTileServiceController.get().onBind(i));
+
+        mTestContext = ApplicationProvider.getApplicationContext();
+        mSharedPreferences =
+                mTestContext.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE);
+        assertTrue(mSharedPreferences.getAll().isEmpty());
+        sFakeTimeSourceClock.setCurrentTimestampMs(TIMESTAMP_MS);
+    }
+
+    @Test
+    public void getActiveTilesSnapshotAsync_noActions_readEmptySharedPref() throws Exception {
+        assertThat(mSharedPreferences.getAll()).isEmpty();
+
+        assertThat(
+                        TileService.getActiveTilesSnapshotAsync(
+                                        mTestContext, directExecutor(), sFakeTimeSourceClock)
+                                .get())
+                .isEmpty();
+    }
+
+    @Test
+    public void getActiveTilesSnapshotAsync_onTileAdded_addTileToSharedPref() throws Exception {
+        assertFalse(mSharedPreferences.contains(FAKE_TILE_IDENTIFIER_1));
+
+        mTileProviderServiceStub.onTileAddEvent(
+                new TileAddEventData(
+                        EventProto.TileAddEvent.newBuilder()
+                                .setTileId(TILE_ID_1)
+                                .build()
+                                .toByteArray(),
+                        TileAddEventData.VERSION_PROTOBUF));
+        shadowOf(Looper.getMainLooper()).idle();
+        List<ActiveTileIdentifier> result =
+                TileService.getActiveTilesSnapshotAsync(
+                                mTestContext, directExecutor(), sFakeTimeSourceClock)
+                        .get();
+
+        assertThat(mSharedPreferences.getAll())
+                .containsExactlyEntriesIn(Map.of(FAKE_TILE_IDENTIFIER_1, TIMESTAMP_MS));
+        assertThat(serializeTilesList(result))
+                .containsExactlyElementsIn(Arrays.asList(FAKE_TILE_IDENTIFIER_1));
+    }
+
+    @Test
+    public void getActiveTilesSnapshotAsync_onTileEnter_addTileToSharedPref() throws Exception {
+        assertFalse(mSharedPreferences.contains(FAKE_TILE_IDENTIFIER_1));
+
+        mTileProviderServiceStub.onTileEnterEvent(
+                new TileEnterEventData(
+                        EventProto.TileEnterEvent.newBuilder()
+                                .setTileId(TILE_ID_1)
+                                .build()
+                                .toByteArray(),
+                        TileEnterEventData.VERSION_PROTOBUF));
+        shadowOf(Looper.getMainLooper()).idle();
+        List<ActiveTileIdentifier> result =
+                TileService.getActiveTilesSnapshotAsync(
+                                mTestContext, directExecutor(), sFakeTimeSourceClock)
+                        .get();
+
+        assertThat(mSharedPreferences.getAll())
+                .containsExactlyEntriesIn(Map.of(FAKE_TILE_IDENTIFIER_1, TIMESTAMP_MS));
+        assertThat(serializeTilesList(result))
+                .containsExactlyElementsIn(Arrays.asList(FAKE_TILE_IDENTIFIER_1));
+    }
+
+    @Test
+    public void getActiveTilesSnapshotAsync_onTileLeave_addTileToSharedPref() throws Exception {
+        assertFalse(mSharedPreferences.contains(FAKE_TILE_IDENTIFIER_1));
+
+        mTileProviderServiceStub.onTileLeaveEvent(
+                new TileLeaveEventData(
+                        EventProto.TileLeaveEvent.newBuilder()
+                                .setTileId(TILE_ID_1)
+                                .build()
+                                .toByteArray(),
+                        TileLeaveEventData.VERSION_PROTOBUF));
+        shadowOf(Looper.getMainLooper()).idle();
+        List<ActiveTileIdentifier> result =
+                TileService.getActiveTilesSnapshotAsync(
+                                mTestContext, directExecutor(), sFakeTimeSourceClock)
+                        .get();
+
+        assertThat(mSharedPreferences.getAll())
+                .containsExactlyEntriesIn(Map.of(FAKE_TILE_IDENTIFIER_1, TIMESTAMP_MS));
+        assertThat(serializeTilesList(result))
+                .containsExactlyElementsIn(Arrays.asList(FAKE_TILE_IDENTIFIER_1));
+    }
+
+    @Test
+    public void getActiveTilesSnapshotAsync_onTileRequest_addTileToSharedPref() throws Exception {
+        assertFalse(mSharedPreferences.contains(FAKE_TILE_IDENTIFIER_1));
+
+        mTileProviderServiceStub.onTileRequest(
+                TILE_ID_1,
+                new TileRequestData(
+                        RequestProto.TileRequest.newBuilder().build().toByteArray(),
+                        TileRequestData.VERSION_PROTOBUF),
+                mMockTileCallback);
+        shadowOf(Looper.getMainLooper()).idle();
+        List<ActiveTileIdentifier> result =
+                TileService.getActiveTilesSnapshotAsync(
+                                mTestContext, directExecutor(), sFakeTimeSourceClock)
+                        .get();
+
+        assertThat(mSharedPreferences.getAll())
+                .containsExactlyEntriesIn(Map.of(FAKE_TILE_IDENTIFIER_1, TIMESTAMP_MS));
+        assertThat(serializeTilesList(result))
+                .containsExactlyElementsIn(Arrays.asList(FAKE_TILE_IDENTIFIER_1));
+    }
+
+    @Test
+    public void getActiveTilesSnapshotAsync_onTileResourcesRequest_addTileToSharedPref()
+            throws Exception {
+        assertFalse(mSharedPreferences.contains(FAKE_COMPAT_TILE_IDENTIFIER_2));
+
+        ResourcesRequestData resourcesRequestData =
+                new ResourcesRequestData(
+                        RequestProto.ResourcesRequest.newBuilder()
+                                .setVersion("HELLO WORLD")
+                                .build()
+                                .toByteArray(),
+                        ResourcesRequestData.VERSION_PROTOBUF);
+        mCompatibleTileProviderServiceStub.onResourcesRequest(
+                TILE_ID_2, resourcesRequestData, mMockResourcesCallback);
+        shadowOf(Looper.getMainLooper()).idle();
+        List<ActiveTileIdentifier> result =
+                TileService.getActiveTilesSnapshotAsync(
+                                mTestContext, directExecutor(), sFakeTimeSourceClock)
+                        .get();
+
+        assertThat(mSharedPreferences.getAll())
+                .containsExactlyEntriesIn(Map.of(FAKE_COMPAT_TILE_IDENTIFIER_2, TIMESTAMP_MS));
+        assertThat(serializeTilesList(result))
+                .containsExactlyElementsIn(Arrays.asList(FAKE_COMPAT_TILE_IDENTIFIER_2));
+    }
+
+    @Test
+    public void getActiveTilesSnapshotAsync_addToSharedPref_doNothingIfAlreadyAddedRecently()
+            throws Exception {
+        mSharedPreferences.edit().putLong(FAKE_TILE_IDENTIFIER_1, TIMESTAMP_MS_NO_UPDATE).commit();
+        assertTrue(mSharedPreferences.contains(FAKE_TILE_IDENTIFIER_1));
+
+        mTileProviderServiceStub.onTileAddEvent(
+                new TileAddEventData(
+                        EventProto.TileAddEvent.newBuilder()
+                                .setTileId(TILE_ID_1)
+                                .build()
+                                .toByteArray(),
+                        TileAddEventData.VERSION_PROTOBUF));
+        shadowOf(Looper.getMainLooper()).idle();
+        List<ActiveTileIdentifier> result =
+                TileService.getActiveTilesSnapshotAsync(
+                                mTestContext, directExecutor(), sFakeTimeSourceClock)
+                        .get();
+
+        assertThat(mSharedPreferences.getAll())
+                .containsExactlyEntriesIn(Map.of(FAKE_TILE_IDENTIFIER_1, TIMESTAMP_MS_NO_UPDATE));
+        assertThat(serializeTilesList(result))
+                .containsExactlyElementsIn(Arrays.asList(FAKE_TILE_IDENTIFIER_1));
+    }
+
+    @Test
+    public void getActiveTilesSnapshotAsync_addToSharedPref_alreadyAddedTimestampNeedsUpdate()
+            throws Exception {
+        mSharedPreferences
+                .edit()
+                .putLong(FAKE_TILE_IDENTIFIER_1, TIMESTAMP_MS_NEEDS_UPDATE)
+                .commit();
+        assertTrue(mSharedPreferences.contains(FAKE_TILE_IDENTIFIER_1));
+
+        mTileProviderServiceStub.onTileAddEvent(
+                new TileAddEventData(
+                        EventProto.TileAddEvent.newBuilder()
+                                .setTileId(TILE_ID_1)
+                                .build()
+                                .toByteArray(),
+                        TileAddEventData.VERSION_PROTOBUF));
+        shadowOf(Looper.getMainLooper()).idle();
+        List<ActiveTileIdentifier> result =
+                TileService.getActiveTilesSnapshotAsync(
+                                mTestContext, directExecutor(), sFakeTimeSourceClock)
+                        .get();
+
+        assertThat(mSharedPreferences.getAll())
+                .containsExactlyEntriesIn(Map.of(FAKE_TILE_IDENTIFIER_1, TIMESTAMP_MS));
+        assertThat(serializeTilesList(result))
+                .containsExactlyElementsIn(Arrays.asList(FAKE_TILE_IDENTIFIER_1));
+    }
+
+    @Test
+    public void getActiveTilesSnapshotAsync_onTileRemoved_removeFromSharedPref() throws Exception {
+        mSharedPreferences.edit().putLong(FAKE_TILE_IDENTIFIER_1, TIMESTAMP_MS).commit();
+        assertTrue(mSharedPreferences.contains(FAKE_TILE_IDENTIFIER_1));
+
+        mTileProviderServiceStub.onTileRemoveEvent(
+                new TileRemoveEventData(
+                        EventProto.TileRemoveEvent.newBuilder()
+                                .setTileId(TILE_ID_1)
+                                .build()
+                                .toByteArray(),
+                        TileRemoveEventData.VERSION_PROTOBUF));
+        shadowOf(Looper.getMainLooper()).idle();
+        List<ActiveTileIdentifier> result =
+                TileService.getActiveTilesSnapshotAsync(
+                                mTestContext, directExecutor(), sFakeTimeSourceClock)
+                        .get();
+
+        assertTrue(mSharedPreferences.getAll().isEmpty());
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    public void getActiveTilesSnapshotAsync_removeFromSharedPref_doNothingIfNotInSharedPref()
+            throws Exception {
+        assertFalse(mSharedPreferences.contains(FAKE_TILE_IDENTIFIER_1));
+
+        mTileProviderServiceStub.onTileRemoveEvent(
+                new TileRemoveEventData(
+                        EventProto.TileRemoveEvent.newBuilder()
+                                .setTileId(TILE_ID_1)
+                                .build()
+                                .toByteArray(),
+                        TileRemoveEventData.VERSION_PROTOBUF));
+        shadowOf(Looper.getMainLooper()).idle();
+        List<ActiveTileIdentifier> result =
+                TileService.getActiveTilesSnapshotAsync(
+                                mTestContext, directExecutor(), sFakeTimeSourceClock)
+                        .get();
+
+        assertTrue(mSharedPreferences.getAll().isEmpty());
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    public void getActiveTilesSnapshotAsync_onTileAddedFromMultipleServicesFromSameApp()
+            throws Exception {
+        assertFalse(mSharedPreferences.contains(FAKE_TILE_IDENTIFIER_1));
+        assertFalse(mSharedPreferences.contains(FAKE_COMPAT_TILE_IDENTIFIER_2));
+
+        sFakeTimeSourceClock.setCurrentTimestampMs(TIMESTAMP_MS_NO_UPDATE);
+        mTileProviderServiceStub.onTileAddEvent(
+                new TileAddEventData(
+                        EventProto.TileAddEvent.newBuilder()
+                                .setTileId(TILE_ID_1)
+                                .build()
+                                .toByteArray(),
+                        TileAddEventData.VERSION_PROTOBUF));
+        shadowOf(Looper.getMainLooper()).idle();
+        sFakeTimeSourceClock.setCurrentTimestampMs(TIMESTAMP_MS);
+        mCompatibleTileProviderServiceStub.onTileAddEvent(
+                new TileAddEventData(
+                        EventProto.TileAddEvent.newBuilder()
+                                .setTileId(TILE_ID_2)
+                                .build()
+                                .toByteArray(),
+                        TileAddEventData.VERSION_PROTOBUF));
+        shadowOf(Looper.getMainLooper()).idle();
+        List<ActiveTileIdentifier> result =
+                TileService.getActiveTilesSnapshotAsync(
+                                mTestContext, directExecutor(), sFakeTimeSourceClock)
+                        .get();
+
+        assertThat(mSharedPreferences.getAll())
+                .containsExactlyEntriesIn(
+                        Map.of(
+                                FAKE_TILE_IDENTIFIER_1,
+                                TIMESTAMP_MS_NO_UPDATE,
+                                FAKE_COMPAT_TILE_IDENTIFIER_2,
+                                TIMESTAMP_MS));
+        assertThat(serializeTilesList(result))
+                .containsExactlyElementsIn(
+                        Arrays.asList(FAKE_TILE_IDENTIFIER_1, FAKE_COMPAT_TILE_IDENTIFIER_2));
+    }
+
+    @Test
+    public void getActiveTilesSnapshotAsync_afterEvent_readAllDataFromSharedPref()
+            throws Exception {
+        mSharedPreferences
+                .edit()
+                .putLong(FAKE_COMPAT_TILE_IDENTIFIER_2, TIMESTAMP_MS_NO_UPDATE)
+                .commit();
+        assertTrue(mSharedPreferences.contains(FAKE_COMPAT_TILE_IDENTIFIER_2));
+
+        mTileProviderServiceStub.onTileAddEvent(
+                new TileAddEventData(
+                        EventProto.TileAddEvent.newBuilder()
+                                .setTileId(TILE_ID_1)
+                                .build()
+                                .toByteArray(),
+                        TileAddEventData.VERSION_PROTOBUF));
+        shadowOf(Looper.getMainLooper()).idle();
+
+        List<ActiveTileIdentifier> result =
+                TileService.getActiveTilesSnapshotAsync(
+                                mTestContext, directExecutor(), sFakeTimeSourceClock)
+                        .get();
+
+        assertThat(mSharedPreferences.getAll())
+                .containsExactlyEntriesIn(
+                        Map.of(
+                                FAKE_COMPAT_TILE_IDENTIFIER_2,
+                                TIMESTAMP_MS_NO_UPDATE,
+                                FAKE_TILE_IDENTIFIER_1,
+                                TIMESTAMP_MS));
+        assertThat(serializeTilesList(result))
+                .containsExactlyElementsIn(
+                        Arrays.asList(FAKE_COMPAT_TILE_IDENTIFIER_2, FAKE_TILE_IDENTIFIER_1));
+    }
+
+    @Test
+    public void getActiveTilesSnapshotAsync_addToSharedPref_cleanupOldDataFromSharedPref()
+            throws Exception {
+        mSharedPreferences
+                .edit()
+                .putLong(FAKE_COMPAT_TILE_IDENTIFIER_2, TIMESTAMP_MS_NEEDS_REMOVED)
+                .commit();
+        assertTrue(mSharedPreferences.contains(FAKE_COMPAT_TILE_IDENTIFIER_2));
+
+        mTileProviderServiceStub.onTileAddEvent(
+                new TileAddEventData(
+                        EventProto.TileAddEvent.newBuilder()
+                                .setTileId(TILE_ID_1)
+                                .build()
+                                .toByteArray(),
+                        TileAddEventData.VERSION_PROTOBUF));
+        shadowOf(Looper.getMainLooper()).idle();
+        List<ActiveTileIdentifier> result =
+                TileService.getActiveTilesSnapshotAsync(
+                                mTestContext, directExecutor(), sFakeTimeSourceClock)
+                        .get();
+
+        assertThat(mSharedPreferences.getAll())
+                .containsExactlyEntriesIn(Map.of(FAKE_TILE_IDENTIFIER_1, TIMESTAMP_MS));
+        assertThat(serializeTilesList(result))
+                .containsExactlyElementsIn(Arrays.asList(FAKE_TILE_IDENTIFIER_1));
+    }
+
+    @Test
+    public void getActiveTilesSnapshotAsync_readFromSharedPref_cleanupOldDataFromSharedPref()
+            throws Exception {
+        mSharedPreferences.edit().putLong(FAKE_TILE_IDENTIFIER_1, TIMESTAMP_MS).commit();
+        mSharedPreferences
+                .edit()
+                .putLong(FAKE_COMPAT_TILE_IDENTIFIER_2, TIMESTAMP_MS_NEEDS_REMOVED)
+                .commit();
+        assertTrue(mSharedPreferences.contains(FAKE_TILE_IDENTIFIER_1));
+        assertTrue(mSharedPreferences.contains(FAKE_COMPAT_TILE_IDENTIFIER_2));
+
+        List<ActiveTileIdentifier> result =
+                TileService.getActiveTilesSnapshotAsync(
+                                mTestContext, directExecutor(), sFakeTimeSourceClock)
+                        .get();
+
+        assertThat(mSharedPreferences.getAll())
+                .containsExactlyEntriesIn(Map.of(FAKE_TILE_IDENTIFIER_1, TIMESTAMP_MS));
+        assertThat(serializeTilesList(result))
+                .containsExactlyElementsIn(Arrays.asList(FAKE_TILE_IDENTIFIER_1));
+    }
+
+    @Test
+    public void getActiveTilesSnapshotAsync_overriddenSharedPreferences_throwsException() {
+        ExecutionException thrownException =
+                assertThrows(
+                        ExecutionException.class,
+                        () ->
+                                TileService.getActiveTilesSnapshotAsync(
+                                                mMockContext,
+                                                directExecutor(),
+                                                sFakeTimeSourceClock)
+                                        .get());
+
+        assertThat(thrownException).hasCauseThat().isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    public void getActiveTilesSnapshotAsync_overriddenPackageName_throwsException() {
+        mSharedPreferences.edit().putLong(FAKE_TILE_IDENTIFIER_1, TIMESTAMP_MS).commit();
+        assertTrue(mSharedPreferences.contains(FAKE_TILE_IDENTIFIER_1));
+        when(mMockContext.getPackageName()).thenReturn("WrongPackageNameRequested");
+        when(mMockContext.getSharedPreferences(anyString(), anyInt()))
+                .thenReturn(mSharedPreferences);
+
+        ExecutionException thrownException =
+                assertThrows(
+                        ExecutionException.class,
+                        () ->
+                                TileService.getActiveTilesSnapshotAsync(
+                                                mMockContext,
+                                                directExecutor(),
+                                                sFakeTimeSourceClock)
+                                        .get());
+
+        assertThat(thrownException).hasCauseThat().isInstanceOf(IllegalArgumentException.class);
+        assertThat(mSharedPreferences.getAll())
+                .containsExactlyEntriesIn(Map.of(FAKE_TILE_IDENTIFIER_1, TIMESTAMP_MS));
+    }
+
+    @Test
+    public void getActiveTilesSnapshotAsync_notAllPackageNamesMatching_throwsException() {
+        String fakeTileIdentifierWrongPackage =
+                new ActiveTileIdentifier(
+                                new ComponentName(
+                                        "different_package_name", FakeTileService.class.getName()),
+                                TILE_ID_2)
+                        .flattenToString();
+        mSharedPreferences.edit().putLong(FAKE_TILE_IDENTIFIER_1, TIMESTAMP_MS).commit();
+        mSharedPreferences.edit().putLong(fakeTileIdentifierWrongPackage, TIMESTAMP_MS).commit();
+        assertTrue(mSharedPreferences.contains(FAKE_TILE_IDENTIFIER_1));
+        assertTrue(mSharedPreferences.contains(fakeTileIdentifierWrongPackage));
+
+        ExecutionException thrownException =
+                assertThrows(
+                        ExecutionException.class,
+                        () ->
+                                TileService.getActiveTilesSnapshotAsync(
+                                                mTestContext,
+                                                directExecutor(),
+                                                sFakeTimeSourceClock)
+                                        .get());
+
+        assertThat(thrownException).hasCauseThat().isInstanceOf(IllegalArgumentException.class);
+        assertThat(mSharedPreferences.getAll())
+                .containsExactlyEntriesIn(
+                        Map.of(
+                                FAKE_TILE_IDENTIFIER_1,
+                                TIMESTAMP_MS,
+                                fakeTileIdentifierWrongPackage,
+                                TIMESTAMP_MS));
     }
 
     @Test
@@ -194,6 +678,7 @@ public class TileServiceTest {
         shadowOf(Looper.getMainLooper()).idle();
 
         expect.that(mFakeTileServiceController.get().mOnTileAddCalled).isTrue();
+        expect.that(mFakeTileServiceController.get().mTileId).isEqualTo(TILE_ID);
     }
 
     @Test
@@ -206,6 +691,7 @@ public class TileServiceTest {
         shadowOf(Looper.getMainLooper()).idle();
 
         expect.that(mFakeTileServiceController.get().mOnTileRemoveCalled).isTrue();
+        expect.that(mFakeTileServiceController.get().mTileId).isEqualTo(TILE_ID);
     }
 
     @Test
@@ -218,6 +704,7 @@ public class TileServiceTest {
         shadowOf(Looper.getMainLooper()).idle();
 
         expect.that(mFakeTileServiceController.get().mOnTileEnterCalled).isTrue();
+        expect.that(mFakeTileServiceController.get().mTileId).isEqualTo(TILE_ID);
     }
 
     @Test
@@ -230,6 +717,21 @@ public class TileServiceTest {
         shadowOf(Looper.getMainLooper()).idle();
 
         expect.that(mFakeTileServiceController.get().mOnTileLeaveCalled).isTrue();
+        expect.that(mFakeTileServiceController.get().mTileId).isEqualTo(TILE_ID);
+    }
+
+    @Test
+    public void tileService_tileRequest_setsTileId() throws Exception {
+        mTileProviderServiceStub.onTileRequest(
+                TILE_ID,
+                new TileRequestData(
+                        RequestProto.TileRequest.newBuilder().build().toByteArray(),
+                        TileRequestData.VERSION_PROTOBUF),
+                mMockTileCallback);
+
+        shadowOf(Looper.getMainLooper()).idle();
+
+        expect.that(mFakeTileServiceController.get().mTileId).isEqualTo(TILE_ID);
     }
 
     @Test
@@ -288,6 +790,21 @@ public class TileServiceTest {
                         .getRendererSchemaVersion();
         expect.that(schemaVersion.getMajor()).isEqualTo(3);
         expect.that(schemaVersion.getMinor()).isEqualTo(5);
+    }
+
+    @Test
+    public void tileService_resourcesRequest_setsTileId() throws Exception {
+        // Resources request needs to have DeviceParameters least to fill in the default.
+        mTileProviderServiceStub.onResourcesRequest(
+                TILE_ID,
+                new ResourcesRequestData(
+                        RequestProto.ResourcesRequest.newBuilder().build().toByteArray(),
+                        ResourcesRequestData.VERSION_PROTOBUF),
+                mMockResourcesCallback);
+
+        shadowOf(Looper.getMainLooper()).idle();
+
+        expect.that(mFakeTileServiceController.get().mTileId).isEqualTo(TILE_ID);
     }
 
     @Test
@@ -395,6 +912,7 @@ public class TileServiceTest {
     }
 
     public static class FakeTileService extends TileService {
+
         boolean mOnTileAddCalled = false;
         boolean mOnTileRemoveCalled = false;
         boolean mOnTileEnterCalled = false;
@@ -402,25 +920,35 @@ public class TileServiceTest {
         @Nullable TileRequest mTileRequestParams = null;
         @Nullable ResourcesRequest mResourcesRequestParams = null;
         @Nullable RuntimeException mRequestFailure = null;
+        int mTileId = -1;
+
+        @Override
+        TimeSourceClock getTimeSourceClock() {
+            return sFakeTimeSourceClock;
+        }
 
         @Override
         protected void onTileAddEvent(@NonNull TileAddEvent requestParams) {
             mOnTileAddCalled = true;
+            mTileId = requestParams.getTileId();
         }
 
         @Override
         protected void onTileRemoveEvent(@NonNull TileRemoveEvent requestParams) {
             mOnTileRemoveCalled = true;
+            mTileId = requestParams.getTileId();
         }
 
         @Override
         protected void onTileEnterEvent(@NonNull TileEnterEvent requestParams) {
             mOnTileEnterCalled = true;
+            mTileId = requestParams.getTileId();
         }
 
         @Override
         protected void onTileLeaveEvent(@NonNull TileLeaveEvent requestParams) {
             mOnTileLeaveCalled = true;
+            mTileId = requestParams.getTileId();
         }
 
         @Override
@@ -428,6 +956,7 @@ public class TileServiceTest {
         protected ListenableFuture<TileBuilders.Tile> onTileRequest(
                 @NonNull TileRequest requestParams) {
             mTileRequestParams = requestParams;
+            mTileId = requestParams.getTileId();
             if (mRequestFailure != null) {
                 return Futures.immediateFailedFuture(mRequestFailure);
             }
@@ -439,6 +968,7 @@ public class TileServiceTest {
         protected ListenableFuture<Resources> onTileResourcesRequest(
                 @NonNull ResourcesRequest requestParams) {
             mResourcesRequestParams = requestParams;
+            mTileId = requestParams.getTileId();
             if (mRequestFailure != null) {
                 return Futures.immediateFailedFuture(mRequestFailure);
             }
@@ -452,6 +982,12 @@ public class TileServiceTest {
 
     // Fake TileService that implements onResourcesRequest().
     public static class CompatibleFakeTileService extends TileService {
+
+        @Override
+        TimeSourceClock getTimeSourceClock() {
+            return sFakeTimeSourceClock;
+        }
+
         @Override
         protected void onTileAddEvent(@NonNull TileAddEvent requestParams) {}
 
@@ -473,6 +1009,7 @@ public class TileServiceTest {
 
         @Override
         @NonNull
+        @SuppressWarnings("deprecation") // for backward compatibility
         protected ListenableFuture<androidx.wear.tiles.ResourceBuilders.Resources>
                 onResourcesRequest(@NonNull ResourcesRequest requestParams) {
             androidx.wear.tiles.ResourceBuilders.Resources resources =
@@ -481,6 +1018,25 @@ public class TileServiceTest {
                             .build();
 
             return Futures.immediateFuture(resources);
+        }
+    }
+
+    private static List<String> serializeTilesList(List<ActiveTileIdentifier> result) {
+        return result.stream()
+                .map(ActiveTileIdentifier::flattenToString)
+                .collect(Collectors.toList());
+    }
+
+    static class FakeTimeSourceClockImpl implements TileService.TimeSourceClock {
+        long mTestCurrentTimeMs = -1L;
+
+        @Override
+        public long getCurrentTimestampMillis() {
+            return mTestCurrentTimeMs;
+        }
+
+        void setCurrentTimestampMs(long timestampMs) {
+            mTestCurrentTimeMs = timestampMs;
         }
     }
 }

@@ -16,8 +16,6 @@
 
 package androidx.compose.ui.inspection.util
 
-import java.util.IdentityHashMap
-
 const val NO_ANCHOR_ID = 0
 
 /**
@@ -25,7 +23,7 @@ const val NO_ANCHOR_ID = 0
  */
 class AnchorMap {
     private val anchorLookup = mutableMapOf<Int, Any>()
-    private val idLookup = IdentityHashMap<Any, Int>()
+    private val idLookup = mutableMapOf<Any, Int>()
 
     /**
      * Return a unique id for the specified [anchor] instance.

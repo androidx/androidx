@@ -74,9 +74,7 @@ final class ProcessingInput2Packet implements
                 throw new ImageCaptureException(ERROR_FILE_IO, "Failed to extract EXIF data.", e);
             }
         }
-        if (EXIF_ROTATION_AVAILABILITY.shouldUseExifOrientation(image)
-                && !inputPacket.isVirtualCamera()) {
-            // Virtual camera doesn't respect the CaptureRequest rotation degrees.
+        if (EXIF_ROTATION_AVAILABILITY.shouldUseExifOrientation(image)) {
             checkNotNull(exif, "JPEG image must have exif.");
             return createPacketWithHalRotation(request, exif, image);
         }
@@ -124,7 +122,11 @@ final class ProcessingInput2Packet implements
     }
 
     private static CameraCaptureResult getCameraCaptureResult(@NonNull ImageProxy image) {
-        return ((CameraCaptureResultImageInfo) image.getImageInfo()).getCameraCaptureResult();
+        if (image.getImageInfo() instanceof CameraCaptureResultImageInfo) {
+            return ((CameraCaptureResultImageInfo) image.getImageInfo()).getCameraCaptureResult();
+        } else {
+            return CameraCaptureResult.EmptyCameraCaptureResult.create();
+        }
     }
 
     /**

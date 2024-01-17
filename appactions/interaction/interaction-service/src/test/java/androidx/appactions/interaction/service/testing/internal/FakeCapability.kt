@@ -16,46 +16,29 @@
 
 package androidx.appactions.interaction.service.testing.internal
 
+import androidx.appactions.interaction.capabilities.core.BaseExecutionSession
 import androidx.appactions.interaction.capabilities.core.Capability
-import androidx.appactions.interaction.capabilities.core.BaseSession
-import androidx.appactions.interaction.capabilities.core.CapabilityBuilderBase
-import androidx.appactions.interaction.capabilities.core.SessionFactory
+import androidx.appactions.interaction.capabilities.core.HostProperties
 import androidx.appactions.interaction.capabilities.core.ValueListener
-import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
-import androidx.appactions.interaction.capabilities.core.properties.StringValue
-import androidx.appactions.interaction.capabilities.core.properties.ParamProperty
 import androidx.appactions.interaction.capabilities.core.impl.task.SessionBridge
 import androidx.appactions.interaction.capabilities.core.impl.task.TaskHandler
-import java.util.Optional
+import androidx.appactions.interaction.capabilities.core.properties.Property
+import androidx.appactions.interaction.capabilities.core.properties.StringValue
 
 private const val CAPABILITY_NAME = "actions.intent.FAKE_CAPABILITY"
-private val ACTION_SPEC = ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
-    .setDescriptor(FakeCapability.Property::class.java)
-    .setArguments(FakeCapability.Arguments::class.java, FakeCapability.Arguments::Builder)
-    .setOutput(FakeCapability.Output::class.java).bindOptionalParameter(
-        "fieldOne",
-        { property -> Optional.ofNullable(property.fieldOne) },
-        FakeCapability.Arguments.Builder::setFieldOne,
-        TypeConverters.STRING_PARAM_VALUE_CONVERTER,
-        TypeConverters.STRING_VALUE_ENTITY_CONVERTER,
-    ).build()
 
 class FakeCapability private constructor() {
-    class Property(
-        val fieldOne: ParamProperty<StringValue>? = null,
-    )
-
     class Arguments internal constructor(
         val fieldOne: String?,
     ) {
-        class Builder : BuilderOf<Arguments> {
+        class Builder {
             private var fieldOne: String? = null
             fun setFieldOne(value: String) = apply {
                 fieldOne = value
             }
-            override fun build() = Arguments(fieldOne)
+            fun build() = Arguments(fieldOne)
         }
     }
 
@@ -63,22 +46,21 @@ class FakeCapability private constructor() {
 
     class Confirmation internal constructor()
 
-    interface Session : BaseSession<Arguments, Output> {
+    interface ExecutionSession : BaseExecutionSession<Arguments, Output> {
         val fieldOneListener: ValueListener<String>?
             get() = null
     }
 
-    class CapabilityBuilder : CapabilityBuilderBase<
+    class CapabilityBuilder : Capability.Builder<
         CapabilityBuilder,
-        Property,
         Arguments,
         Output,
         Confirmation,
-        Session,
+        ExecutionSession,
         >(ACTION_SPEC) {
-        override val sessionBridge = SessionBridge<Session, Confirmation> {
+        override val sessionBridge = SessionBridge<ExecutionSession, Arguments, Confirmation> {
                 session ->
-            val builder = TaskHandler.Builder<Confirmation>()
+            val builder = TaskHandler.Builder<Arguments, Confirmation>()
             session.fieldOneListener?.let {
                 builder.registerValueTaskParam(
                     "fieldOne",
@@ -89,19 +71,27 @@ class FakeCapability private constructor() {
             builder.build()
         }
 
-        private var fieldOne: ParamProperty<StringValue>? = null
+        public override fun setExecutionSessionFactory(
+            sessionFactory: (hostProperties: HostProperties?) -> ExecutionSession
+        ) = super.setExecutionSessionFactory(sessionFactory)
 
-        fun setFieldOne(fieldOne: ParamProperty<StringValue>) = apply {
-            this.fieldOne = fieldOne
-        }
+        fun setFieldOne(fieldOne: Property<StringValue>) = setProperty(
+            "fieldOne",
+            fieldOne,
+            TypeConverters.STRING_VALUE_ENTITY_CONVERTER
+        )
+    }
 
-        public override fun setSessionFactory(
-            sessionFactory: SessionFactory<Session>,
-        ) = super.setSessionFactory(sessionFactory)
-
-        override fun build(): Capability {
-            super.setProperty(Property(fieldOne))
-            return super.build()
-        }
+    companion object {
+        private val ACTION_SPEC = ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
+            .setArguments(Arguments::class.java, Arguments::Builder, Arguments.Builder::build)
+            .setOutput(Output::class.java)
+            .bindParameter(
+                "fieldOne",
+                Arguments::fieldOne,
+                Arguments.Builder::setFieldOne,
+                TypeConverters.STRING_PARAM_VALUE_CONVERTER
+            )
+            .build()
     }
 }

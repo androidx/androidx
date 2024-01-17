@@ -22,6 +22,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.ImeOptions
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PlatformImeOptions
 
 /**
  * The keyboard configuration options for TextFields. It is not guaranteed if software keyboard
@@ -42,14 +43,20 @@ import androidx.compose.ui.text.input.KeyboardType
  * icons on the keyboard. For example, search icon may be shown if [ImeAction.Search] is specified.
  * When [ImeOptions.singleLine] is false, the keyboard might show return key rather than the action
  * requested here.
+ * @param platformImeOptions defines the platform specific IME options.
+ * @param shouldShowKeyboardOnFocus when true, software keyboard will show on focus gain. When
+ * false, the user must interact (e.g. tap) before the keyboard is shown.
  */
 @Immutable
-class KeyboardOptions constructor(
+class KeyboardOptions(
     val capitalization: KeyboardCapitalization = KeyboardCapitalization.None,
     val autoCorrect: Boolean = true,
     val keyboardType: KeyboardType = KeyboardType.Text,
-    val imeAction: ImeAction = ImeAction.Default
+    val imeAction: ImeAction = ImeAction.Default,
+    val platformImeOptions: PlatformImeOptions? = null,
+    val shouldShowKeyboardOnFocus: Boolean = true
 ) {
+
     companion object {
         /**
          * Default [KeyboardOptions]. Please see parameter descriptions for default values.
@@ -57,6 +64,39 @@ class KeyboardOptions constructor(
         @Stable
         val Default = KeyboardOptions()
     }
+
+    @Deprecated(
+        "Please use the new constructor that takes optional platformImeOptions parameter.",
+        level = DeprecationLevel.HIDDEN
+    )
+    constructor(
+        capitalization: KeyboardCapitalization = KeyboardCapitalization.None,
+        autoCorrect: Boolean = true,
+        keyboardType: KeyboardType = KeyboardType.Text,
+        imeAction: ImeAction = ImeAction.Default
+    ) : this(
+        capitalization = capitalization,
+        autoCorrect = autoCorrect,
+        keyboardType = keyboardType,
+        imeAction = imeAction,
+        platformImeOptions = null
+    )
+
+    @Deprecated("Maintained for binary compat", level = DeprecationLevel.HIDDEN)
+    constructor(
+        capitalization: KeyboardCapitalization = KeyboardCapitalization.None,
+        autoCorrect: Boolean = true,
+        keyboardType: KeyboardType = KeyboardType.Text,
+        imeAction: ImeAction = ImeAction.Default,
+        platformImeOptions: PlatformImeOptions? = null
+    ) : this(
+        capitalization,
+        autoCorrect,
+        keyboardType,
+        imeAction,
+        platformImeOptions,
+        true
+    )
 
     /**
      * Returns a new [ImeOptions] with the values that are in this [KeyboardOptions] and provided
@@ -69,9 +109,52 @@ class KeyboardOptions constructor(
         capitalization = capitalization,
         autoCorrect = autoCorrect,
         keyboardType = keyboardType,
-        imeAction = imeAction
+        imeAction = imeAction,
+        platformImeOptions = platformImeOptions
     )
 
+    fun copy(
+        capitalization: KeyboardCapitalization = this.capitalization,
+        autoCorrect: Boolean = this.autoCorrect,
+        keyboardType: KeyboardType = this.keyboardType,
+        imeAction: ImeAction = this.imeAction,
+        platformImeOptions: PlatformImeOptions? = this.platformImeOptions,
+        showKeyboardOnFocus: Boolean = this.shouldShowKeyboardOnFocus
+    ): KeyboardOptions {
+        return KeyboardOptions(
+            capitalization = capitalization,
+            autoCorrect = autoCorrect,
+            keyboardType = keyboardType,
+            imeAction = imeAction,
+            platformImeOptions = platformImeOptions,
+            shouldShowKeyboardOnFocus = showKeyboardOnFocus
+        )
+    }
+
+    @Deprecated(
+        "Maintained for binary compatibility",
+        level = DeprecationLevel.HIDDEN
+    )
+    fun copy(
+        capitalization: KeyboardCapitalization = this.capitalization,
+        autoCorrect: Boolean = this.autoCorrect,
+        keyboardType: KeyboardType = this.keyboardType,
+        imeAction: ImeAction = this.imeAction,
+        platformImeOptions: PlatformImeOptions? = this.platformImeOptions
+    ): KeyboardOptions {
+        return KeyboardOptions(
+            capitalization = capitalization,
+            autoCorrect = autoCorrect,
+            keyboardType = keyboardType,
+            imeAction = imeAction,
+            platformImeOptions = platformImeOptions
+        )
+    }
+
+    @Deprecated(
+        "Please use the new copy function that takes optional platformImeOptions parameter.",
+        level = DeprecationLevel.HIDDEN
+    )
     fun copy(
         capitalization: KeyboardCapitalization = this.capitalization,
         autoCorrect: Boolean = this.autoCorrect,
@@ -82,7 +165,8 @@ class KeyboardOptions constructor(
             capitalization = capitalization,
             autoCorrect = autoCorrect,
             keyboardType = keyboardType,
-            imeAction = imeAction
+            imeAction = imeAction,
+            platformImeOptions = this.platformImeOptions
         )
     }
 
@@ -94,6 +178,8 @@ class KeyboardOptions constructor(
         if (autoCorrect != other.autoCorrect) return false
         if (keyboardType != other.keyboardType) return false
         if (imeAction != other.imeAction) return false
+        if (platformImeOptions != other.platformImeOptions) return false
+        if (shouldShowKeyboardOnFocus != other.shouldShowKeyboardOnFocus) return false
 
         return true
     }
@@ -103,11 +189,15 @@ class KeyboardOptions constructor(
         result = 31 * result + autoCorrect.hashCode()
         result = 31 * result + keyboardType.hashCode()
         result = 31 * result + imeAction.hashCode()
+        result = 31 * result + platformImeOptions.hashCode()
+        result = 31 * result + shouldShowKeyboardOnFocus.hashCode()
         return result
     }
 
     override fun toString(): String {
         return "KeyboardOptions(capitalization=$capitalization, autoCorrect=$autoCorrect, " +
-            "keyboardType=$keyboardType, imeAction=$imeAction)"
+            "keyboardType=$keyboardType, imeAction=$imeAction, " +
+            "platformImeOptions=$platformImeOptions, " +
+            "showKeyboardOnFocus=$shouldShowKeyboardOnFocus)"
     }
 }

@@ -15,8 +15,10 @@
  */
 package androidx.recyclerview.widget
 
-import org.hamcrest.CoreMatchers.`is`
+import java.util.Random
+import java.util.UUID
 import org.hamcrest.CoreMatchers.equalTo
+import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.not
 import org.hamcrest.CoreMatchers.nullValue
 import org.hamcrest.MatcherAssert.assertThat
@@ -29,8 +31,6 @@ import org.junit.rules.TestWatcher
 import org.junit.runner.Description
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import java.util.Random
-import java.util.UUID
 
 @RunWith(JUnit4::class)
 class DiffUtilTest {

@@ -19,7 +19,9 @@ package androidx.privacysandbox.tools.core.generator
 import androidx.privacysandbox.tools.core.generator.GenerationTarget.SERVER
 import androidx.privacysandbox.tools.core.generator.SpecNames.contextClass
 import androidx.privacysandbox.tools.core.generator.SpecNames.contextPropertyName
-import androidx.privacysandbox.tools.core.generator.SpecNames.delicateCoroutinesApiClass
+import androidx.privacysandbox.tools.core.generator.SpecNames.coroutineScopeClass
+import androidx.privacysandbox.tools.core.generator.SpecNames.dispatchersMainClass
+import androidx.privacysandbox.tools.core.generator.SpecNames.launchMethod
 import androidx.privacysandbox.tools.core.model.AnnotatedInterface
 import androidx.privacysandbox.tools.core.model.Method
 import androidx.privacysandbox.tools.core.model.Types
@@ -41,6 +43,8 @@ class StubDelegatesGenerator(
         fun transportCancellationCallbackNameSpec(packageName: String) =
             ClassName(packageName, TransportCancellationGenerator.className)
     }
+
+    private val coroutineScopePropertyName = "coroutineScope"
 
     /**
      * Generates a StubDelegate for this interface.
@@ -77,6 +81,12 @@ class StubDelegatesGenerator(
                 KModifier.INTERNAL,
             )
 
+            val coroutineProperty =
+                PropertySpec.builder(coroutineScopePropertyName, coroutineScopeClass)
+                    .addModifiers(KModifier.PRIVATE)
+                    .initializer(CodeBlock.of("%T(%T)", coroutineScopeClass, dispatchersMainClass))
+                    .build()
+            addProperty(coroutineProperty)
             addFunctions(annotatedInterface.methods.map(::toFunSpec))
         }
 
@@ -92,15 +102,11 @@ class StubDelegatesGenerator(
 
     private fun toSuspendFunSpec(method: Method): FunSpec {
         return FunSpec.builder(method.name).build {
-            addModifiers(KModifier.OVERRIDE)
+            addModifiers(KModifier.PUBLIC, KModifier.OVERRIDE)
             addParameters(getParameters(method))
             addCode {
-                addStatement("@OptIn(%T::class)", delicateCoroutinesApiClass)
                 addControlFlow(
-                    "val job = %T.%M(%T)",
-                    SpecNames.globalScopeClass,
-                    SpecNames.launchMethod,
-                    SpecNames.dispatchersMainClass
+                    "val job = %L.%M", coroutineScopePropertyName, launchMethod
                 ) {
                     addControlFlow("try") {
                         addStatement {
@@ -139,9 +145,13 @@ class StubDelegatesGenerator(
     }
 
     private fun toNonSuspendFunSpec(method: Method) = FunSpec.builder(method.name).build {
-        addModifiers(KModifier.OVERRIDE)
+        addModifiers(KModifier.PUBLIC, KModifier.OVERRIDE)
         addParameters(getParameters(method))
-        addStatement { add(getDelegateCallBlock(method)) }
+        addCode(CodeBlock.builder().build {
+            addControlFlow("%L.%M", coroutineScopePropertyName, launchMethod) {
+                addStatement { add(getDelegateCallBlock(method)) }
+            }
+        })
     }
 
     private fun getParameters(method: Method) = buildList {

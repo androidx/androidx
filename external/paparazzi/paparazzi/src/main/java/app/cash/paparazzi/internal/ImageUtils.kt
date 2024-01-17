@@ -16,9 +16,6 @@
 
 package app.cash.paparazzi.internal
 
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
-import org.junit.Assert.fail
 import java.awt.AlphaComposite
 import java.awt.Color
 import java.awt.Graphics2D
@@ -35,6 +32,9 @@ import java.io.File.separatorChar
 import java.io.IOException
 import javax.imageio.ImageIO
 import kotlin.math.max
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
+import org.junit.Assert.fail
 
 /**
  * Utilities related to image processing.

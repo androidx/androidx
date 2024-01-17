@@ -23,6 +23,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material.Text
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.viewinterop.AndroidView
 
@@ -45,7 +46,13 @@ class ComposeViewTestActivity : ComponentActivity() {
                                             orientation = LinearLayout.VERTICAL
                                             addView(ComposeView(context).apply {
                                                 setContent {
-                                                    Text("three")
+                                                    Nested {
+                                                        Nested {
+                                                            Nested {
+                                                                Text("three")
+                                                            }
+                                                        }
+                                                    }
                                                 }
                                             })
                                         }
@@ -58,4 +65,9 @@ class ComposeViewTestActivity : ComponentActivity() {
             }
         }
     }
+}
+
+@Composable
+fun Nested(content: @Composable () -> Unit) {
+    content()
 }

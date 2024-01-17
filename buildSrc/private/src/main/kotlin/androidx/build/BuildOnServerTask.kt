@@ -16,22 +16,22 @@
 
 package androidx.build
 
+import java.io.File
+import java.io.FileNotFoundException
 import org.gradle.api.DefaultTask
+import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
-import java.io.File
-import java.io.FileNotFoundException
-import org.gradle.api.tasks.CacheableTask
 
 /**
  * Task for building all of Androidx libraries and documentation
  *
  * AndroidXImplPlugin configuration adds dependencies to BuildOnServer for all of the tasks that
- * produce artifacts that we want to build on server builds
- * When BuildOnServer executes, it double-checks that all expected artifacts were built
+ * produce artifacts that we want to build on server builds When BuildOnServer executes, it
+ * double-checks that all expected artifacts were built
  */
 @CacheableTask
 open class BuildOnServerTask : DefaultTask() {
@@ -41,14 +41,15 @@ open class BuildOnServerTask : DefaultTask() {
         description = "Builds all of the Androidx libraries and documentation"
     }
 
-    @Internal
-    lateinit var distributionDirectory: File
+    @Internal lateinit var distributionDirectory: File
 
-    @InputFiles @PathSensitive(PathSensitivity.RELATIVE)
+    @InputFiles
+    @PathSensitive(PathSensitivity.RELATIVE)
     fun getRequiredFiles(): List<File> {
         return mutableListOf(
-            "androidx_aggregate_build_info.txt",
-        ).map { fileName -> File(distributionDirectory, fileName) }
+                "androidx_aggregate_build_info.txt",
+            )
+            .map { fileName -> File(distributionDirectory, fileName) }
     }
 
     @TaskAction

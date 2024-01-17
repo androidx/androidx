@@ -188,7 +188,6 @@ public abstract class Session implements LifecycleOwner {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // used by the testing library.
     public void setLifecycleRegistryInternal(@NonNull LifecycleRegistry registry) {
@@ -212,7 +211,6 @@ public abstract class Session implements LifecycleOwner {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // used by the testing library.
     public void setCarContextInternal(@NonNull CarContext carContext) {

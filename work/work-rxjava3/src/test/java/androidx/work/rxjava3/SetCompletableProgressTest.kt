@@ -18,21 +18,21 @@ package androidx.work.rxjava3
 
 import android.content.Context
 import androidx.work.Data
+import androidx.work.DefaultWorkerFactory
 import androidx.work.ForegroundUpdater
 import androidx.work.ListenableWorker.Result
 import androidx.work.ProgressUpdater
-import androidx.work.WorkerFactory
 import androidx.work.WorkerParameters
 import androidx.work.impl.utils.SynchronousExecutor
 import androidx.work.impl.utils.futures.SettableFuture
+import java.util.UUID
+import java.util.concurrent.Executor
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import org.mockito.Mockito.mock
-import java.util.UUID
-import java.util.concurrent.Executor
 
 @RunWith(JUnit4::class)
 class SetCompletableProgressTest {
@@ -70,7 +70,7 @@ class SetCompletableProgressTest {
         0,
         executor,
         RxWorkerTest.InstantWorkTaskExecutor(),
-        WorkerFactory.getDefaultWorkerFactory(),
+        DefaultWorkerFactory,
         progressUpdater,
         foregroundUpdater
     )

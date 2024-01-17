@@ -22,25 +22,24 @@ import com.android.build.gradle.LibraryExtension
 import com.google.protobuf.gradle.GenerateProtoTask
 import com.google.protobuf.gradle.ProtobufExtension
 import com.google.protobuf.gradle.ProtobufPlugin
+import java.io.File
+import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
+import org.gradle.api.artifacts.MinimalExternalModuleDependency
+import org.gradle.api.artifacts.VersionCatalogsExtension
 import org.gradle.api.artifacts.type.ArtifactTypeDefinition
 import org.gradle.api.attributes.Attribute
 import org.gradle.api.tasks.StopExecutionException
 import org.gradle.kotlin.dsl.apply
 import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.dependencies
-import java.io.File
-import org.gradle.api.GradleException
-import org.gradle.api.artifacts.MinimalExternalModuleDependency
-import org.gradle.api.artifacts.VersionCatalogsExtension
 
 /**
  * A plugin which, when present, ensures that intermediate inspector
  * resources are generated at build time
  */
-@Suppress("SyntheticAccessor")
 class InspectionPlugin : Plugin<Project> {
     override fun apply(project: Project) {
         var foundLibraryPlugin = false
@@ -63,7 +62,7 @@ class InspectionPlugin : Plugin<Project> {
             // to allow including these dependencies in an SBOM
             it.description = "Re-publishes dependencies of the inspector"
             it.isCanBeConsumed = true
-            it.isCanBeResolved = false
+            it.isCanBeResolved = true
             it.extendsFrom(project.configurations.getByName("implementation"))
             it.setupReleaseAttribute()
         }
@@ -217,6 +216,7 @@ fun packageInspector(libraryProject: Project, inspectorProjectPath: String) {
 fun Project.createConsumeInspectionConfiguration(): Configuration =
     configurations.create("consumeInspector") {
         it.setupInspectorAttribute()
+        it.isCanBeConsumed = false
     }
 
 private fun Configuration.setupInspectorAttribute() {
@@ -228,6 +228,7 @@ private fun Configuration.setupInspectorAttribute() {
 fun Project.createConsumeNonDexedInspectionConfiguration(): Configuration =
     configurations.create("consumeNonDexedInspector") {
         it.setupNonDexedInspectorAttribute()
+        it.isCanBeConsumed = false
     }
 
 private fun Configuration.setupNonDexedInspectorAttribute() {

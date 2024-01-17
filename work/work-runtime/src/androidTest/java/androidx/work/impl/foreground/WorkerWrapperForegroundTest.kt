@@ -116,7 +116,7 @@ class WorkerWrapperForegroundTest {
         wrapper.run()
         val future = wrapper.future as SettableFuture<Boolean>
         assertThat(future.isDone, `is`(false))
-        wrapper.interrupt()
+        wrapper.interrupt(0)
         assertThat(future.isDone, `is`(true))
     }
 

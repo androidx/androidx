@@ -20,6 +20,8 @@ import android.annotation.SuppressLint
 import android.hardware.HardwareBuffer
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.graphics.surface.SurfaceControlCompat
+import androidx.hardware.USAGE_COMPOSER_OVERLAY
 
 internal class FrontBufferUtils private constructor() {
 
@@ -27,31 +29,45 @@ internal class FrontBufferUtils private constructor() {
 
         internal const val TAG = "FrontBufferUtils"
 
-        // Leverage the same value as HardwareBuffer.USAGE_COMPOSER_OVERLAY.
-        // While this constant was introduced in the SDK in the Android T release, it has
-        // been available within the NDK as part of
-        // AHardwareBuffer_UsageFlags#AHARDWAREBUFFER_USAGE_COMPOSER_OVERLAY for quite some time.
-        // This flag is required for usage of ASurfaceTransaction#setBuffer
-        // Use a separate constant with the same value to avoid SDK warnings of accessing the
-        // newly added constant in the SDK.
-        // See:
-        // developer.android.com/ndk/reference/group/a-hardware-buffer#ahardwarebuffer_usageflags
-        private const val USAGE_COMPOSER_OVERLAY: Long = 2048L
-
         /**
          * Flags that are expected to be supported on all [HardwareBuffer] instances
          */
+        @SuppressLint("WrongConstant")
         internal const val BaseFlags =
             HardwareBuffer.USAGE_GPU_SAMPLED_IMAGE or
                 HardwareBuffer.USAGE_GPU_COLOR_OUTPUT or
                 USAGE_COMPOSER_OVERLAY
 
         internal fun obtainHardwareBufferUsageFlags(): Long =
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (!UseCompatSurfaceControl &&
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 UsageFlagsVerificationHelper.obtainUsageFlagsV33()
             } else {
                 BaseFlags
             }
+
+        internal const val UseCompatSurfaceControl = false
+
+        fun configureFrontBufferLayerFrameRate(
+            frontBufferSurfaceControl: SurfaceControlCompat,
+            frameRate: Float = 1000f,
+            transaction: SurfaceControlCompat.Transaction? = null
+        ): SurfaceControlCompat.Transaction? {
+            var targetTransaction: SurfaceControlCompat.Transaction? = transaction
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                if (targetTransaction == null) {
+                    targetTransaction = SurfaceControlCompat.Transaction()
+                }
+                targetTransaction
+                    .setFrameRate(
+                        frontBufferSurfaceControl,
+                        frameRate,
+                        SurfaceControlCompat.FRAME_RATE_COMPATIBILITY_DEFAULT,
+                        SurfaceControlCompat.CHANGE_FRAME_RATE_ONLY_IF_SEAMLESS
+                    )
+            }
+            return targetTransaction
+        }
     }
 }
 

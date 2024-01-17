@@ -33,6 +33,7 @@ package androidx.testutils
  *
  * See [ParameterizedHelperTest] for more examples.
  */
+// TODO(kuanyingchou): Remove and replace with TestParameterInjector"
 fun generateAllEnumerations(vararg args: List<Any>): List<Array<Any>> =
     generateAllEnumerationsIteratively(args.toList()).map { it.toTypedArray() }
 

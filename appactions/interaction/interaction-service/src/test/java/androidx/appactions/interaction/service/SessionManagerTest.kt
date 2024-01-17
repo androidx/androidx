@@ -16,9 +16,9 @@
 
 package androidx.appactions.interaction.service
 
-import androidx.appactions.interaction.capabilities.core.impl.CapabilitySession
 import androidx.appactions.interaction.capabilities.core.impl.ArgumentsWrapper
 import androidx.appactions.interaction.capabilities.core.impl.CallbackInternal
+import androidx.appactions.interaction.capabilities.core.impl.CapabilitySession
 import androidx.appactions.interaction.capabilities.core.impl.TouchEventCallback
 import androidx.appactions.interaction.proto.AppActionsContext
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -44,8 +44,7 @@ class SessionManagerTest {
             override val state: AppActionsContext.AppDialogState
                 get() = AppActionsContext.AppDialogState.getDefaultInstance()
 
-            override val status: CapabilitySession.Status
-                get() = CapabilitySession.Status.IN_PROGRESS
+            override val isActive: Boolean = true
 
             override fun destroy() {}
         }
@@ -64,8 +63,7 @@ class SessionManagerTest {
             override val state: AppActionsContext.AppDialogState
                 get() = AppActionsContext.AppDialogState.getDefaultInstance()
 
-            override val status: CapabilitySession.Status
-                get() = CapabilitySession.Status.IN_PROGRESS
+            override val isActive: Boolean = true
 
             override fun destroy() {}
         }

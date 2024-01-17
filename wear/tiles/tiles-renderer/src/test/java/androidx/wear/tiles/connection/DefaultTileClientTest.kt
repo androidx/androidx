@@ -22,8 +22,9 @@ import android.content.Context
 import android.os.Looper
 import androidx.concurrent.futures.await
 import androidx.test.core.app.ApplicationProvider
+import androidx.wear.protolayout.ResourceBuilders
+import androidx.wear.protolayout.protobuf.InvalidProtocolBufferException
 import androidx.wear.tiles.RequestBuilders
-import androidx.wear.tiles.ResourceBuilders
 import androidx.wear.tiles.ResourcesCallback
 import androidx.wear.tiles.ResourcesData
 import androidx.wear.tiles.ResourcesRequestData
@@ -38,13 +39,13 @@ import androidx.wear.tiles.TileRemoveEventData
 import androidx.wear.tiles.TileRequestData
 import androidx.wear.tiles.TilesTestRunner
 import androidx.wear.tiles.proto.TileProto
-import androidx.wear.protolayout.protobuf.InvalidProtocolBufferException
 import com.google.common.truth.Truth.assertThat
+import java.lang.IllegalArgumentException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.TestScope
@@ -57,7 +58,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Shadows
 import org.robolectric.annotation.Config
-import java.lang.IllegalArgumentException
 
 @Config(manifest = Config.NONE)
 @OptIn(ExperimentalCoroutinesApi::class, ExperimentalStdlibApi::class)
@@ -177,11 +177,13 @@ public class DefaultTileClientTest {
 
     @Test
     public fun getResources_canGetResources(): Unit = fakeCoroutineScope.runTest {
-        val expectedResources = ResourceBuilders.Resources.Builder().setVersion("5").build()
+        val expectedResources = ResourceBuilders.Resources.Builder()
+            .setVersion("5")
+            .build()
         fakeTileService.returnResources = expectedResources.toProto().toByteArray()
 
         val result = async {
-            clientUnderTest.requestResources(
+            clientUnderTest.requestTileResourcesAsync(
                 RequestBuilders.ResourcesRequest.Builder().build()
             ).await()
         }
@@ -195,7 +197,7 @@ public class DefaultTileClientTest {
         fakeTileService.returnResources = byteArrayOf(127)
 
         val result = async(Job()) {
-            clientUnderTest.requestResources(
+            clientUnderTest.requestTileResourcesAsync(
                 RequestBuilders.ResourcesRequest.Builder().build()
             ).await()
         }
@@ -209,12 +211,14 @@ public class DefaultTileClientTest {
 
     @Test
     public fun getResources_failsIfVersionMismatch(): Unit = fakeCoroutineScope.runTest {
-        val expectedResources = ResourceBuilders.Resources.Builder().setVersion("5").build()
+        val expectedResources = ResourceBuilders.Resources.Builder()
+            .setVersion("5")
+            .build()
         fakeTileService.returnResources = expectedResources.toProto().toByteArray()
         fakeTileService.returnResourcesVersion = -2
 
         val result = async(Job()) {
-            clientUnderTest.requestResources(
+            clientUnderTest.requestTileResourcesAsync(
                 RequestBuilders.ResourcesRequest.Builder().build()
             ).await()
         }
@@ -227,7 +231,9 @@ public class DefaultTileClientTest {
 
     @Test
     public fun getResources_failsOnTimeout(): Unit = runTest {
-        val expectedResources = ResourceBuilders.Resources.Builder().setVersion("5").build()
+        val expectedResources = ResourceBuilders.Resources.Builder()
+            .setVersion("5")
+            .build()
         fakeTileService.returnResources = expectedResources.toProto().toByteArray()
         fakeTileService.shouldReturnResources = false
 
@@ -239,7 +245,7 @@ public class DefaultTileClientTest {
 
         // This has to be dispatched on the correct dispatcher, so we can fully control its timing.
         val result = async(stdDispatcher + Job()) {
-            clientUnderTest.requestResources(
+            clientUnderTest.requestTileResourcesAsync(
                 RequestBuilders.ResourcesRequest.Builder().build()
             ).await()
         }

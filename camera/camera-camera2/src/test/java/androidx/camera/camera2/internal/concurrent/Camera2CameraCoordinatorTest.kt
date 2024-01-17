@@ -46,7 +46,6 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 import org.robolectric.shadow.api.Shadow
-
 import org.robolectric.shadows.ShadowCameraCharacteristics
 import org.robolectric.shadows.ShadowCameraManager
 
@@ -57,8 +56,6 @@ import org.robolectric.shadows.ShadowCameraManager
     instrumentedPackages = ["androidx.camera.camera2.internal"]
 )
 class Camera2CameraCoordinatorTest {
-
-    private val mContext = ApplicationProvider.getApplicationContext<Context>()
 
     private lateinit var cameraCoordinator: CameraCoordinator
 
@@ -110,26 +107,7 @@ class Camera2CameraCoordinatorTest {
 
     @Test
     fun getPairedCameraId() {
-        val characteristics0 = ShadowCameraCharacteristics.newCameraCharacteristics()
-        (Shadow.extract<Any>(
-            ApplicationProvider.getApplicationContext<Context>()
-                .getSystemService(Context.CAMERA_SERVICE)
-        ) as ShadowCameraManager)
-            .addCamera("0", characteristics0)
-        val characteristics1 = ShadowCameraCharacteristics.newCameraCharacteristics()
-        (Shadow.extract<Any>(
-            ApplicationProvider.getApplicationContext<Context>()
-                .getSystemService(Context.CAMERA_SERVICE)
-        ) as ShadowCameraManager)
-            .addCamera("1", characteristics1)
-
-        val mCameraManagerCompat =
-            CameraManagerCompat.from((ApplicationProvider.getApplicationContext() as Context))
-
-        cameraCoordinator.activeConcurrentCameraInfos = listOf(
-            Camera2CameraInfoImpl("0", mCameraManagerCompat),
-            Camera2CameraInfoImpl("1", mCameraManagerCompat)
-        )
+        cameraCoordinator.activeConcurrentCameraInfos = createConcurrentCameraInfos()
 
         assertThat(cameraCoordinator.getPairedConcurrentCameraId("0")).isEqualTo("1")
         assertThat(cameraCoordinator.getPairedConcurrentCameraId("1")).isEqualTo("0")
@@ -163,6 +141,41 @@ class Camera2CameraCoordinatorTest {
         cameraCoordinator.cameraOperatingMode = CAMERA_OPERATING_MODE_CONCURRENT
         verify(listener, never()).onCameraOperatingModeUpdated(
             anyInt(), anyInt())
+    }
+
+    @Test
+    fun shutdown() {
+        cameraCoordinator.cameraOperatingMode = CAMERA_OPERATING_MODE_CONCURRENT
+        cameraCoordinator.activeConcurrentCameraInfos = createConcurrentCameraInfos()
+
+        cameraCoordinator.shutdown()
+
+        assertThat(cameraCoordinator.concurrentCameraSelectors).isEmpty()
+        assertThat(cameraCoordinator.activeConcurrentCameraInfos).isEmpty()
+        assertThat(cameraCoordinator.cameraOperatingMode).isEqualTo(
+            CAMERA_OPERATING_MODE_UNSPECIFIED)
+    }
+
+    private fun createConcurrentCameraInfos(): List<Camera2CameraInfoImpl> {
+        val characteristics0 = ShadowCameraCharacteristics.newCameraCharacteristics()
+        (Shadow.extract<Any>(
+            ApplicationProvider.getApplicationContext<Context>()
+                .getSystemService(Context.CAMERA_SERVICE)
+        ) as ShadowCameraManager)
+            .addCamera("0", characteristics0)
+        val characteristics1 = ShadowCameraCharacteristics.newCameraCharacteristics()
+        (Shadow.extract<Any>(
+            ApplicationProvider.getApplicationContext<Context>()
+                .getSystemService(Context.CAMERA_SERVICE)
+        ) as ShadowCameraManager)
+            .addCamera("1", characteristics1)
+        val cameraManagerCompat =
+            CameraManagerCompat.from((ApplicationProvider.getApplicationContext() as Context))
+
+        return listOf(
+            Camera2CameraInfoImpl("0", cameraManagerCompat),
+            Camera2CameraInfoImpl("1", cameraManagerCompat)
+        )
     }
 
     private class FakeCameraManagerImpl : CameraManagerCompat.CameraManagerCompatImpl {

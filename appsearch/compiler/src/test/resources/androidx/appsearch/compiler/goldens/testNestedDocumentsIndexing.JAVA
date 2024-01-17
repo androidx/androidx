@@ -4,11 +4,13 @@ import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.DocumentClassFactory;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.exceptions.AppSearchException;
+import java.lang.Class;
 import java.lang.Override;
 import java.lang.String;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import javax.annotation.processing.Generated;
 
 @Generated("androidx.appsearch.compiler.AppSearchCompiler")
@@ -48,6 +50,13 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
             .setShouldIndexNestedProperties(false)
             .build())
           .build();
+  }
+
+  @Override
+  public List<Class<?>> getDependencyDocumentClasses() throws AppSearchException {
+    List<Class<?>> classSet = new ArrayList<Class<?>>();
+    classSet.add(GiftContent.class);
+    return classSet;
   }
 
   @Override
@@ -102,7 +111,8 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
   }
 
   @Override
-  public Gift fromGenericDocument(GenericDocument genericDoc) throws AppSearchException {
+  public Gift fromGenericDocument(GenericDocument genericDoc,
+      Map<String, List<String>> documentClassMap) throws AppSearchException {
     String idConv = genericDoc.getId();
     String namespaceConv = genericDoc.getNamespace();
     GenericDocument[] giftContentsCollectionCopy = genericDoc.getPropertyDocumentArray("giftContentsCollection");
@@ -110,7 +120,7 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
     if (giftContentsCollectionCopy != null) {
       giftContentsCollectionConv = new ArrayList<>(giftContentsCollectionCopy.length);
       for (int i = 0; i < giftContentsCollectionCopy.length; i++) {
-        giftContentsCollectionConv.add(giftContentsCollectionCopy[i].toDocumentClass(GiftContent.class));
+        giftContentsCollectionConv.add(giftContentsCollectionCopy[i].toDocumentClass(GiftContent.class, documentClassMap));
       }
     }
     GenericDocument[] giftContentsArrayCopy = genericDoc.getPropertyDocumentArray("giftContentsArray");
@@ -118,20 +128,20 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
     if (giftContentsArrayCopy != null) {
       giftContentsArrayConv = new GiftContent[giftContentsArrayCopy.length];
       for (int i = 0; i < giftContentsArrayCopy.length; i++) {
-        giftContentsArrayConv[i] = giftContentsArrayCopy[i].toDocumentClass(GiftContent.class);
+        giftContentsArrayConv[i] = giftContentsArrayCopy[i].toDocumentClass(GiftContent.class, documentClassMap);
       }
     }
     GenericDocument giftContentCopy = genericDoc.getPropertyDocument("giftContent");
     GiftContent giftContentConv = null;
     if (giftContentCopy != null) {
-      giftContentConv = giftContentCopy.toDocumentClass(GiftContent.class);
+      giftContentConv = giftContentCopy.toDocumentClass(GiftContent.class, documentClassMap);
     }
     GenericDocument[] giftContentsCollectionNotIndexedCopy = genericDoc.getPropertyDocumentArray("giftContentsCollectionNotIndexed");
     List<GiftContent> giftContentsCollectionNotIndexedConv = null;
     if (giftContentsCollectionNotIndexedCopy != null) {
       giftContentsCollectionNotIndexedConv = new ArrayList<>(giftContentsCollectionNotIndexedCopy.length);
       for (int i = 0; i < giftContentsCollectionNotIndexedCopy.length; i++) {
-        giftContentsCollectionNotIndexedConv.add(giftContentsCollectionNotIndexedCopy[i].toDocumentClass(GiftContent.class));
+        giftContentsCollectionNotIndexedConv.add(giftContentsCollectionNotIndexedCopy[i].toDocumentClass(GiftContent.class, documentClassMap));
       }
     }
     GenericDocument[] giftContentsArrayNotIndexedCopy = genericDoc.getPropertyDocumentArray("giftContentsArrayNotIndexed");
@@ -139,13 +149,13 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
     if (giftContentsArrayNotIndexedCopy != null) {
       giftContentsArrayNotIndexedConv = new GiftContent[giftContentsArrayNotIndexedCopy.length];
       for (int i = 0; i < giftContentsArrayNotIndexedCopy.length; i++) {
-        giftContentsArrayNotIndexedConv[i] = giftContentsArrayNotIndexedCopy[i].toDocumentClass(GiftContent.class);
+        giftContentsArrayNotIndexedConv[i] = giftContentsArrayNotIndexedCopy[i].toDocumentClass(GiftContent.class, documentClassMap);
       }
     }
     GenericDocument giftContentNotIndexedCopy = genericDoc.getPropertyDocument("giftContentNotIndexed");
     GiftContent giftContentNotIndexedConv = null;
     if (giftContentNotIndexedCopy != null) {
-      giftContentNotIndexedConv = giftContentNotIndexedCopy.toDocumentClass(GiftContent.class);
+      giftContentNotIndexedConv = giftContentNotIndexedCopy.toDocumentClass(GiftContent.class, documentClassMap);
     }
     Gift document = new Gift();
     document.id = idConv;

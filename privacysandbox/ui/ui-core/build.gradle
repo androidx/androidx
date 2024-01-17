@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.LibraryType
 
 plugins {
@@ -39,6 +46,9 @@ android {
     buildFeatures {
         aidl = true
     }
+    defaultConfig {
+        minSdk 21
+    }
 }
 
 androidx {
@@ -46,4 +56,5 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2022"
     description = "contains core definitions for the privacysandbox ui library."
+    metalavaK2UastEnabled = true
 }

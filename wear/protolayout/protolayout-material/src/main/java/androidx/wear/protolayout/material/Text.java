@@ -19,17 +19,18 @@ package androidx.wear.protolayout.material;
 import static androidx.wear.protolayout.ColorBuilders.argb;
 import static androidx.wear.protolayout.LayoutElementBuilders.TEXT_ALIGN_CENTER;
 import static androidx.wear.protolayout.LayoutElementBuilders.TEXT_OVERFLOW_ELLIPSIZE_END;
-import static androidx.wear.protolayout.material.Helper.checkNotNull;
 import static androidx.wear.protolayout.material.Typography.TYPOGRAPHY_DISPLAY1;
 import static androidx.wear.protolayout.material.Typography.getFontStyleBuilder;
 import static androidx.wear.protolayout.material.Typography.getLineHeightForTypography;
+import static androidx.wear.protolayout.materialcore.Helper.checkNotNull;
+import static androidx.wear.protolayout.materialcore.Helper.staticString;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.protolayout.ColorBuilders.ColorProp;
@@ -40,6 +41,8 @@ import androidx.wear.protolayout.LayoutElementBuilders.LayoutElement;
 import androidx.wear.protolayout.LayoutElementBuilders.TextAlignment;
 import androidx.wear.protolayout.LayoutElementBuilders.TextOverflow;
 import androidx.wear.protolayout.ModifiersBuilders.Modifiers;
+import androidx.wear.protolayout.TypeBuilders.StringLayoutConstraint;
+import androidx.wear.protolayout.TypeBuilders.StringProp;
 import androidx.wear.protolayout.expression.Fingerprint;
 import androidx.wear.protolayout.expression.ProtoLayoutExperimental;
 import androidx.wear.protolayout.material.Typography.TypographyName;
@@ -89,6 +92,8 @@ public class Text implements LayoutElement {
         @Nullable private Integer mCustomWeight = null;
 
         @NonNull
+        @OptIn(markerClass = ProtoLayoutExperimental.class)
+        @SuppressWarnings("deprecation")
         private final LayoutElementBuilders.Text.Builder mElementBuilder =
                 new LayoutElementBuilders.Text.Builder()
                         .setMaxLines(1)
@@ -96,14 +101,34 @@ public class Text implements LayoutElement {
                         .setOverflow(TEXT_OVERFLOW_ELLIPSIZE_END);
 
         /**
-         * Creates a builder for {@link Text}.
+         * Creates a builder for a {@link Text} component with static text.
          *
          * @param context The application's context.
          * @param text The text content for this component.
          */
         public Builder(@NonNull Context context, @NonNull String text) {
             mContext = context;
+            mElementBuilder.setText(staticString(text));
+        }
+
+        /**
+         * Creates a builder for a {@link Text}.
+         *
+         * <p>While this component is statically accessible from 1.0, it's only bindable since
+         * version 1.2 and renderers supporting version 1.2 will use the dynamic value (if set).
+         *
+         * @param context The application's context.
+         * @param text The text content for this component.
+         * @param stringLayoutConstraint Layout constraints used to correctly measure Text view size
+         *     and align text when {@code text} has dynamic value.
+         */
+        public Builder(
+                @NonNull Context context,
+                @NonNull StringProp text,
+                @NonNull StringLayoutConstraint stringLayoutConstraint) {
+            mContext = context;
             mElementBuilder.setText(text);
+            mElementBuilder.setLayoutConstraintsForDynamicText(stringLayoutConstraint);
         }
 
         /**
@@ -199,24 +224,6 @@ public class Text implements LayoutElement {
             return this;
         }
 
-        /**
-         * Sets whether the {@link Text} excludes extra top and bottom padding above the normal
-         * ascent and descent. The default is false.
-         */
-        // TODO(b/252767963): Coordinate the transition of the default from false->true along with
-        // other impacted UI Libraries - needs care as will have an impact on layout and needs to be
-        // communicated clearly.
-        @NonNull
-        @SuppressLint("MissingGetterMatchingBuilder")
-        @ProtoLayoutExperimental
-        public Builder setExcludeFontPadding(boolean excludeFontPadding) {
-            this.mElementBuilder.setAndroidTextStyle(
-                    new LayoutElementBuilders.AndroidTextStyle.Builder()
-                            .setExcludeFontPadding(excludeFontPadding)
-                            .build());
-            return this;
-        }
-
         /** Constructs and returns {@link Text} with the provided content and look. */
         @NonNull
         @Override
@@ -238,8 +245,8 @@ public class Text implements LayoutElement {
 
     /** Returns the text of this Text element. */
     @NonNull
-    public String getText() {
-        return checkNotNull(checkNotNull(mText.getText()).getValue());
+    public StringProp getText() {
+        return checkNotNull(mText.getText());
     }
 
     /** Returns the color of this Text element. */
@@ -296,15 +303,6 @@ public class Text implements LayoutElement {
     /** Returns whether the Text is underlined. */
     public boolean isUnderline() {
         return checkNotNull(checkNotNull(mText.getFontStyle()).getUnderline()).getValue();
-    }
-
-    /**
-     * Returns whether the Text has extra top and bottom padding above the normal ascent and descent
-     * excluded.
-     */
-    @ProtoLayoutExperimental
-    public boolean getExcludeFontPadding() {
-        return checkNotNull(mText.getAndroidTextStyle()).getExcludeFontPadding();
     }
 
     /**

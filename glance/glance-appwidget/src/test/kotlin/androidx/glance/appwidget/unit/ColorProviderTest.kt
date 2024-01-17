@@ -18,19 +18,19 @@ package androidx.glance.appwidget.unit
 
 import android.content.Context
 import androidx.compose.ui.graphics.Color
+import androidx.glance.appwidget.ColorSubject.Companion.assertThat
 import androidx.glance.appwidget.test.R
 import androidx.glance.appwidget.unit.CheckedUncheckedColorProvider.Companion.createCheckableColorProvider
+import androidx.glance.color.ColorProvider
 import androidx.glance.unit.ColorProvider
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
-import androidx.glance.appwidget.ColorSubject.Companion.assertThat
-import androidx.glance.color.ColorProvider
-import org.junit.Test
-import org.junit.runner.RunWith
-import org.robolectric.annotation.Config
-import org.robolectric.RobolectricTestRunner
 import kotlin.test.assertFailsWith
 import kotlin.test.assertIs
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
 class ColorProviderTest {

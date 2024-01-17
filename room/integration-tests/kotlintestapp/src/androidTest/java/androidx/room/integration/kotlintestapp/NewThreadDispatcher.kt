@@ -16,12 +16,12 @@
 
 package androidx.room.integration.kotlintestapp
 
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.InternalCoroutinesApi
-import kotlinx.coroutines.Runnable
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.concurrent.thread
 import kotlin.coroutines.CoroutineContext
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.InternalCoroutinesApi
+import kotlinx.coroutines.Runnable
 
 /**
  * A CoroutineDispatcher that dispatches every block into a new thread

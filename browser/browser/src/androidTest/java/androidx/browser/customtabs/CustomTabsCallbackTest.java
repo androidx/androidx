@@ -16,6 +16,8 @@
 
 package androidx.browser.customtabs;
 
+import static androidx.browser.customtabs.CustomTabsCallback.ACTIVITY_LAYOUT_STATE_BOTTOM_SHEET;
+
 import static org.junit.Assert.assertTrue;
 
 import android.os.Bundle;
@@ -47,5 +49,30 @@ public class CustomTabsCallbackTest {
     public void testOnActivityResized() throws Throwable {
         mToken.getCallback().onActivityResized(75239, 1200, new Bundle());
         assertTrue(mCallback.hasActivityBeenResized());
+    }
+
+    @Test
+    public void testOnWarmupCompleted() throws Throwable {
+        mToken.getCallback().onWarmupCompleted(null);
+        assertTrue(mCallback.wasWarmupCompleted());
+    }
+
+    @Test
+    public void testOnActivityLayout() throws Throwable {
+        mToken.getCallback().onActivityLayout(0, 100, 1200, 1200,
+                ACTIVITY_LAYOUT_STATE_BOTTOM_SHEET, Bundle.EMPTY);
+        assertTrue(mCallback.hasActivityBeenLaidOut());
+    }
+
+    @Test
+    public void testOnMinimized() throws Throwable {
+        mToken.getCallback().onMinimized(Bundle.EMPTY);
+        assertTrue(mCallback.wasMinimized());
+    }
+
+    @Test
+    public void testOnUnminimized() throws Throwable {
+        mToken.getCallback().onUnminimized(Bundle.EMPTY);
+        assertTrue(mCallback.wasUnminimized());
     }
 }

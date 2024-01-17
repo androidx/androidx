@@ -84,9 +84,31 @@ object Debug {
                     }
                 parametersString
                     .sortedBy { it.first }
-                    .forEach { append("  ${it.first.padEnd(50, ' ')}${it.second}\n") }
+                    .forEach { append("  ${it.first.padEnd(50, ' ')} ${it.second}\n") }
             }
         }
+    }
+
+    /**
+     * Format a map of parameters as a comma separated list.
+     *
+     * Example: `[abc.xyz=1, abc.zyx=something]`
+     */
+    fun formatParameterMap(parameters: Map<*, Any?>): String {
+        return parameters.map {
+            when (val key = it.key) {
+                is CameraCharacteristics.Key<*> -> key.name
+                is CaptureRequest.Key<*> -> key.name
+                is CaptureResult.Key<*> -> key.name
+                else -> key.toString()
+            } to it.value
+        }
+            .sortedBy { it.first }
+            .joinToString(
+                separator = ", ",
+                prefix = "{",
+                postfix = "}"
+            ) { "${it.first}=${it.second}" }
     }
 
     fun formatCameraGraphProperties(
@@ -94,6 +116,8 @@ object Debug {
         graphConfig: CameraGraph.Config,
         cameraGraph: CameraGraph
     ): String {
+        val sharedCameraIds = graphConfig.sharedCameraIds.joinToString()
+
         val lensFacing =
             when (metadata[LENS_FACING]) {
                 CameraCharacteristics.LENS_FACING_FRONT -> "Front"
@@ -106,6 +130,8 @@ object Debug {
             when (graphConfig.sessionMode) {
                 CameraGraph.OperatingMode.HIGH_SPEED -> "High Speed"
                 CameraGraph.OperatingMode.NORMAL -> "Normal"
+                CameraGraph.OperatingMode.EXTENSION -> "Extension"
+                else -> "Unknown"
             }
 
         val capabilities = metadata[REQUEST_AVAILABLE_CAPABILITIES]
@@ -121,6 +147,9 @@ object Debug {
         return StringBuilder()
             .apply {
                 append("$cameraGraph (Camera ${graphConfig.camera.value})\n")
+                if (sharedCameraIds.isNotEmpty()) {
+                    append("  Shared:    $sharedCameraIds\n")
+                }
                 append("  Facing:    $lensFacing ($cameraType)\n")
                 append("  Mode:      $operatingMode\n")
                 append("Outputs:\n")
@@ -128,8 +157,8 @@ object Debug {
                     stream.outputs.forEachIndexed { i, output ->
                         append("  ")
                         val streamId = if (i == 0) output.stream.id.toString() else ""
-                        append(streamId.padEnd(10, ' '))
-                        append(output.id.toString().padEnd(10, ' '))
+                        append(streamId.padEnd(12, ' '))
+                        append(output.id.toString().padEnd(12, ' '))
                         append(output.size.toString().padEnd(12, ' '))
                         append(output.format.name.padEnd(16, ' '))
                         output.mirrorMode?.let { append(" [$it]") }

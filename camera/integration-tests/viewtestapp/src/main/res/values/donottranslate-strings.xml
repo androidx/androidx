@@ -16,12 +16,20 @@ limitations under the License.
 <resources xmlns:tools="http://schemas.android.com/tools">
 
     <string name="app_name">CameraX Views Demo</string>
-
+    <string name="app_name_stream_sharing">StreamSharing Test App</string>
+    <string name="effects">Effects</string>
     <string name="preview">Preview</string>
+    <string name="preview_and_video">Preview &amp; Video</string>
+    <string name="surface_effect">Surface effect</string>
+    <string name="no_effect">No effect</string>
+    <string name="image_effect">Image effect</string>
+    <string name="image_capture">ImageCapture</string>
+    <string name="flip">flip</string>
     <string name="btn_capture">Capture</string>
     <string name="btn_video_record">Record</string>
     <string name="btn_video_stop_recording">Stop recording</string>
     <string name="btn_capture_and_transform">Capture and transform</string>
+    <string name="btn_export">Export</string>
     <string name="pinch_to_zoom">Pinch to zoom</string>
     <string name="tap_to_focus">Tap to focus</string>
     <string name="torch">Torch</string>
@@ -52,6 +60,7 @@ limitations under the License.
     <string name="compose_ui">Compose UI</string>
     <string name="flash_mode_auto">flash auto</string>
     <string name="flash_mode_on">flash on</string>
+    <string name="flash_mode_screen">screen flash</string>
     <string name="flash_mode_off">flash off</string>
     <string name="mirror_on">mirror on</string>
     <string name="mirror_off">mirror off</string>

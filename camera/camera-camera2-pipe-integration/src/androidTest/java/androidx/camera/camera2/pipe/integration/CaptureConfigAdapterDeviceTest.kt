@@ -24,6 +24,7 @@ import android.hardware.camera2.CameraDevice
 import android.view.Surface
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.integration.adapter.CameraControlAdapter
+import androidx.camera.camera2.pipe.testing.toCameraControlAdapter
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.impl.CameraCaptureCallback
@@ -34,10 +35,10 @@ import androidx.camera.core.impl.DeferrableSurface
 import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.utils.futures.Futures
 import androidx.camera.core.internal.CameraUseCaseAdapter
-import androidx.camera.testing.CameraUtil
-import androidx.camera.testing.CameraXUtil
-import androidx.camera.testing.fakes.FakeUseCase
-import androidx.camera.testing.fakes.FakeUseCaseConfig
+import androidx.camera.testing.impl.CameraUtil
+import androidx.camera.testing.impl.CameraXUtil
+import androidx.camera.testing.impl.fakes.FakeUseCase
+import androidx.camera.testing.impl.fakes.FakeUseCaseConfig
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -101,7 +102,7 @@ class CaptureConfigAdapterDeviceTest {
             }
         }
 
-        cameraControl = camera!!.cameraControl as CameraControlAdapter
+        cameraControl = camera!!.cameraControl.toCameraControlAdapter()
     }
 
     @After
@@ -120,23 +121,29 @@ class CaptureConfigAdapterDeviceTest {
         val tagKey = "TestTagBundleKey"
         val tagValue = "testing"
         val captureConfig = CaptureConfig.Builder().apply {
-                templateType = CameraDevice.TEMPLATE_PREVIEW
-                addTag(tagKey, tagValue)
-                addSurface(testDeferrableSurface)
-                addCameraCaptureCallback(object : CameraCaptureCallback() {
-                    override fun onCaptureCompleted(cameraCaptureResult: CameraCaptureResult) {
-                        deferred.complete(cameraCaptureResult)
-                    }
+            templateType = CameraDevice.TEMPLATE_PREVIEW
+            addTag(tagKey, tagValue)
+            addSurface(testDeferrableSurface)
+            addCameraCaptureCallback(object : CameraCaptureCallback() {
+                override fun onCaptureCompleted(
+                    captureConfigId: Int,
+                    cameraCaptureResult: CameraCaptureResult
+                ) {
+                    deferred.complete(cameraCaptureResult)
+                }
 
-                    override fun onCaptureFailed(failure: CameraCaptureFailure) {
-                        deferred.completeExceptionally(Throwable(failure.reason.toString()))
-                    }
+                override fun onCaptureFailed(
+                    captureConfigId: Int,
+                    failure: CameraCaptureFailure
+                ) {
+                    deferred.completeExceptionally(Throwable(failure.reason.toString()))
+                }
 
-                    override fun onCaptureCancelled() {
-                        deferred.cancel()
-                    }
-                })
-            }.build()
+                override fun onCaptureCancelled(captureConfigId: Int) {
+                    deferred.cancel()
+                }
+            })
+        }.build()
 
         // Act
         cameraControl!!.submitStillCaptureRequests(
@@ -151,6 +158,50 @@ class CaptureConfigAdapterDeviceTest {
                 deferred.await()
             }!!.tagBundle.getTag(tagKey)
         ).isEqualTo(tagValue)
+    }
+
+    @Test
+    fun captureConfigIdTest() = runBlocking {
+        // Arrange
+        val deferredCompleted = CompletableDeferred<Int>()
+        val deferredStarted = CompletableDeferred<Int>()
+        val expectedCaptureConfigId = 101
+        val captureConfig = CaptureConfig.Builder().apply {
+            templateType = CameraDevice.TEMPLATE_PREVIEW
+            setId(expectedCaptureConfigId)
+            addSurface(testDeferrableSurface)
+            addCameraCaptureCallback(object : CameraCaptureCallback() {
+                override fun onCaptureCompleted(
+                    captureConfigId: Int,
+                    cameraCaptureResult: CameraCaptureResult
+                ) {
+                    deferredCompleted.complete(captureConfigId)
+                }
+
+                override fun onCaptureStarted(captureConfigId: Int) {
+                    deferredStarted.complete(captureConfigId)
+                }
+            })
+        }.build()
+
+        // Act
+        cameraControl!!.submitStillCaptureRequests(
+            listOf(captureConfig),
+            ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY,
+            ImageCapture.FLASH_TYPE_ONE_SHOT_FLASH,
+        )
+
+        // Assert
+        Truth.assertThat(
+            withTimeoutOrNull(timeMillis = 5000) {
+                deferredStarted.await()
+            }
+        ).isEqualTo(expectedCaptureConfigId)
+        Truth.assertThat(
+            withTimeoutOrNull(timeMillis = 5000) {
+                deferredCompleted.await()
+            }
+        ).isEqualTo(expectedCaptureConfigId)
     }
 
     private class FakeTestUseCase(

@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.Publish
 import androidx.build.RunApiTasks
 
@@ -21,30 +28,62 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXComposePlugin")
-    id("org.jetbrains.kotlin.android")
-    id("kotlin-android")
+}
+
+androidXMultiplatform {
+    android()
+
+    sourceSets {
+        commonMain {
+            dependencies {
+                implementation(libs.kotlinStdlib)
+                api("androidx.compose.foundation:foundation:1.5.0")
+                api(project(":paging:paging-common"))
+                api("androidx.compose.runtime:runtime:1.5.0")
+            }
+        }
+
+        jvmMain {
+            dependsOn(commonMain)
+        }
+
+        androidMain {
+            dependsOn(jvmMain)
+        }
+
+        commonTest {
+            dependencies {
+                implementation projectOrArtifact(":compose:ui:ui-tooling")
+                implementation(project(":compose:test-utils"))
+                implementation(projectOrArtifact(":internal-testutils-paging"))
+            }
+        }
+
+        jvmTest {
+            dependsOn(commonTest)
+            dependencies {
+                implementation(projectOrArtifact(":compose:ui:ui-test-junit4"))
+            }
+        }
+
+        androidInstrumentedTest {
+            dependsOn(jvmTest)
+            dependencies {
+                implementation(libs.testRunner)
+                implementation(libs.junit)
+                implementation(libs.truth)
+            }
+        }
+    }
 }
 
 dependencies {
-    implementation(libs.kotlinStdlib)
-    api("androidx.compose.foundation:foundation:1.2.1")
-    api(project(":paging:paging-common"))
-    api("androidx.compose.runtime:runtime:1.2.1")
-
-    androidTestImplementation(projectOrArtifact(":compose:ui:ui-test-junit4"))
-    androidTestImplementation(project(":compose:test-utils"))
-    androidTestImplementation(projectOrArtifact(":internal-testutils-paging"))
-    androidTestImplementation(libs.testRunner)
-    androidTestImplementation(libs.junit)
-    androidTestImplementation(libs.truth)
-
     samples(projectOrArtifact(":paging:paging-compose:paging-compose-samples"))
 }
 
 androidx {
-    name = "Android Paging-Compose"
+    name = "Paging-Compose"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenVersion = LibraryVersions.PAGING_COMPOSE
     inceptionYear = "2020"
     description = "Compose integration with Paging"
     runApiTasks = new RunApiTasks.Yes()

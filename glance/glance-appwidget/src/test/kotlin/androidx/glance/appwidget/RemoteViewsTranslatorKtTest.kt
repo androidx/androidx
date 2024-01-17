@@ -16,7 +16,6 @@
 
 package androidx.glance.appwidget
 
-import android.annotation.TargetApi
 import android.app.Activity
 import android.content.ComponentName
 import android.content.Context
@@ -154,7 +153,9 @@ class RemoteViewsTranslatorKtTest {
         assertIs<FrameLayout>(child1)
         assertIs<FrameLayout>(child2)
 
-        rv.reapply(context, view)
+        // Get the parent of the box, as "applyRemoteViews" in the test environment returns the
+        // first child of the layout the remote views were inflated to
+        rv.reapply(context, (view.parent as View))
 
         assertIs<FrameLayout>(view)
         assertThat(view.nonGoneChildCount).isEqualTo(2)
@@ -266,7 +267,6 @@ class RemoteViewsTranslatorKtTest {
     }
 
     @Test
-    @TargetApi(24)
     fun canTranslateRowWithAlignment() = fakeCoroutineScope.runTest {
         val rv = context.runAndTranslate {
             Row(
@@ -282,7 +282,6 @@ class RemoteViewsTranslatorKtTest {
     }
 
     @Test
-    @TargetApi(24)
     fun canTranslateColumnWithAlignment() = fakeCoroutineScope.runTest {
         val rv = context.runAndTranslate {
             Column(
@@ -298,7 +297,6 @@ class RemoteViewsTranslatorKtTest {
     }
 
     @Test
-    @TargetApi(24)
     fun canTranslateRowWithChildren() = fakeCoroutineScope.runTest {
         val rv = context.runAndTranslate {
             Row {
@@ -330,7 +328,6 @@ class RemoteViewsTranslatorKtTest {
     }
 
     @Test
-    @TargetApi(24)
     fun canTranslateColumnWithChildren() = fakeCoroutineScope.runTest {
         val rv = context.runAndTranslate {
             Column {
@@ -613,6 +610,21 @@ class RemoteViewsTranslatorKtTest {
         val rv = context.runAndTranslate {
             LazyVerticalGrid(gridCells = GridCells.Fixed(3)) {
                 items(2, { it * 2L }) { index -> Text("Item $index") }
+            }
+        }
+
+        assertIs<GridView>(context.applyRemoteViews(rv))
+    }
+
+    @Test
+    fun canTranslateLazyVerticalGrid_withClickableItems() = fakeCoroutineScope.runTest {
+        val rv = context.runAndTranslate {
+            LazyVerticalGrid(gridCells = GridCells.Fixed(3)) {
+                items(2, { it * 2L }) { index ->
+                    Row(modifier = GlanceModifier.clickable {}) {
+                        Text("Item $index")
+                    }
+                }
             }
         }
 

@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import androidx.build.LibraryType
 import androidx.build.Publish
@@ -49,8 +56,8 @@ dependencies {
     kspAndroidTest(
             project(path: ":room:room-compiler", configuration: "shadowAndImplementation")
     )
-    androidTestImplementation(libs.truth)
-    androidTestImplementation("androidx.arch.core:core-testing:2.0.1")
+    androidTestImplementation(project(":kruth:kruth"))
+    androidTestImplementation("androidx.arch.core:core-testing:2.2.0")
     androidTestImplementation(project(":internal-testutils-common"))
     androidTestImplementation(projectOrArtifact(":paging:paging-testing"))
 }
@@ -61,4 +68,5 @@ androidx {
     inceptionYear = "2021"
     description = "Room Paging integration"
     publish = Publish.SNAPSHOT_AND_RELEASE
+    metalavaK2UastEnabled = true
 }

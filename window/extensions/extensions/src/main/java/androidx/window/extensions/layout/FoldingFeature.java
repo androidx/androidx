@@ -122,11 +122,11 @@ public class FoldingFeature implements DisplayFeature {
      */
     private static void validateFeatureBounds(@NonNull Rect bounds) {
         if (bounds.width() == 0 && bounds.height() == 0) {
-            throw new IllegalArgumentException("Bounds must be non zero");
+            throw new IllegalArgumentException("Bounds must be non zero.  Bounds: " + bounds);
         }
         if (bounds.left != 0 && bounds.top != 0) {
             throw new IllegalArgumentException("Bounding rectangle must start at the top or "
-                    + "left window edge for folding features");
+                    + "left window edge for folding features.  Bounds: " + bounds);
         }
     }
 

@@ -14,10 +14,16 @@
  * limitations under the License.
  */
 
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.LibraryType
 import androidx.build.Publish
 import androidx.build.SdkResourceGenerator
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
@@ -25,7 +31,6 @@ plugins {
     id("java-gradle-plugin")
 }
 
-SdkResourceGenerator.generateForHostTest(project)
 apply from: "../../buildSrc/kotlin-dsl-dependency.gradle"
 
 dependencies {
@@ -33,8 +38,9 @@ dependencies {
     implementation(gradleApi())
     implementation(libs.androidGradlePluginz)
     implementation(libs.kotlinStdlib)
-    implementation(libs.protobufGradlePluginz)
+    implementation(libs.protobufGradlePlugin)
     implementation(libs.shadow)
+    implementation(libs.apacheAnt)
 
     testImplementation(project(":internal-testutils-gradle-plugin"))
     testImplementation(gradleTestKit())
@@ -52,7 +58,7 @@ gradlePlugin {
 }
 
 androidx {
-    name = "Android Inspection Gradle Plugin"
+    name = "Inspection Gradle Plugin"
     type = LibraryType.GRADLE_PLUGIN
     publish = Publish.NONE
     inceptionYear = "2019"

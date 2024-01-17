@@ -29,17 +29,14 @@ import android.os.Process;
 import android.os.StrictMode;
 import android.util.Log;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.provider.FontsContractCompat;
 
 import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -90,7 +87,6 @@ public class TypefaceCompatUtil {
      * Copy the file contents to the direct byte buffer.
      */
     @Nullable
-    @RequiresApi(19)
     private static ByteBuffer mmap(File file) {
         try (FileInputStream fis = new FileInputStream(file)) {
             FileChannel channel = fis.getChannel();
@@ -105,19 +101,20 @@ public class TypefaceCompatUtil {
      * Copy the file contents to the direct byte buffer.
      */
     @Nullable
-    @RequiresApi(19)
     public static ByteBuffer mmap(@NonNull Context context,
             @Nullable CancellationSignal cancellationSignal, @NonNull Uri uri) {
         final ContentResolver resolver = context.getContentResolver();
-        try (ParcelFileDescriptor pfd = Api19Impl.openFileDescriptor(resolver, uri, "r",
-                cancellationSignal)) {
-            if (pfd == null) {
-                return null;
-            }
-            try (FileInputStream fis = new FileInputStream(pfd.getFileDescriptor())) {
-                FileChannel channel = fis.getChannel();
-                final long size = channel.size();
-                return channel.map(FileChannel.MapMode.READ_ONLY, 0, size);
+        try {
+            try (ParcelFileDescriptor pfd = resolver.openFileDescriptor(uri, "r",
+                    cancellationSignal)) {
+                if (pfd == null) {
+                    return null;
+                }
+                try (FileInputStream fis = new FileInputStream(pfd.getFileDescriptor())) {
+                    FileChannel channel = fis.getChannel();
+                    final long size = channel.size();
+                    return channel.map(FileChannel.MapMode.READ_ONLY, 0, size);
+                }
             }
         } catch (IOException e) {
             return null;
@@ -129,7 +126,6 @@ public class TypefaceCompatUtil {
      */
     @SuppressWarnings("ResultOfMethodCallIgnored")
     @Nullable
-    @RequiresApi(19)
     public static ByteBuffer copyToDirectBuffer(@NonNull Context context, @NonNull Resources res,
             int id) {
         File tmpFile = getTempFile(context);
@@ -210,7 +206,6 @@ public class TypefaceCompatUtil {
      */
     @RestrictTo(LIBRARY)
     @NonNull
-    @RequiresApi(19)
     public static Map<Uri, ByteBuffer> readFontInfoIntoByteBuffer(
             @NonNull Context context,
             @NonNull FontsContractCompat.FontInfo[] fonts,
@@ -232,19 +227,5 @@ public class TypefaceCompatUtil {
             out.put(uri, buffer);
         }
         return Collections.unmodifiableMap(out);
-    }
-
-    @RequiresApi(19)
-    static class Api19Impl {
-        private Api19Impl() {
-            // This class is not instantiable.
-        }
-
-        @SuppressWarnings("SameParameterValue")
-        @DoNotInline
-        static ParcelFileDescriptor openFileDescriptor(ContentResolver contentResolver, Uri uri,
-                String mode, CancellationSignal cancellationSignal) throws FileNotFoundException {
-            return contentResolver.openFileDescriptor(uri, mode, cancellationSignal);
-        }
     }
 }

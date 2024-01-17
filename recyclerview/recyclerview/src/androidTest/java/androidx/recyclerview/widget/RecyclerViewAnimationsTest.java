@@ -26,17 +26,15 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import android.graphics.Rect;
-import android.os.Build;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
-import androidx.core.view.ViewCompat;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
-import androidx.test.filters.SdkSuppress;
 import androidx.testutils.AnimationDurationScaleRule;
+import androidx.testutils.PollingCheck;
 
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.MatcherAssert;
@@ -440,8 +438,6 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
         });
     }
 
-    // Disable this test on ICS because it causes testing devices to freeze.
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
     @Test
     public void dontReuseHiddenViewOnInvalidate() throws Throwable {
         reuseHiddenViewTest(new ReuseTestCallback() {
@@ -646,6 +642,99 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
         });
     }
 
+    /**
+     * Testing ChildHelper bug: a predictive ItemAnimator swaps two ViewHolder at the edge of RV,
+     * one slide-in, one slide-out; followed by a scroll removes offscreen ViewHolder being
+     * slided in.
+     * In scroll, ChildHelper removeView will trigger adapter.onViewDetached, if the adapter stops
+     * ViewPropertyAnimator, it will also stops the ItemAnimator and re-enter ChildHelper
+     * removeViewIfHidden while ChildHelper is still inside removeView, leads to a crash.
+     */
+    private void removeSlideInViewLeftToSlideOutView(
+            final boolean cancelViewPropertyAnimatorsInOnDetach) throws Throwable {
+
+        // Initially 0, 1, 2
+        setupBasic(/* itemCount= */ 4,
+                /* firstLayoutStartIndex= */ 0, /* firstLayoutItemCount=*/ 3);
+        waitForAnimations(2);
+
+
+        final DefaultItemAnimator animator = new DefaultItemAnimator();
+        // make it longer so the test can be executed before animator ends.
+        animator.setRemoveDuration(5000);
+        animator.setMoveDuration(5000);
+        animator.setAddDuration(5000);
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mTestAdapter.mCancelViewPropertyAnimatorsInOnDetach =
+                        cancelViewPropertyAnimatorsInOnDetach;
+                mRecyclerView.setItemAnimator(animator);
+            }
+        });
+
+        // swap 2 & 3, the RecyclerView will be 0, 1, 3(slide-in) 2(slide-out and hidden to LM)
+        mLayoutManager.expectLayouts(2);
+        mLayoutManager.mOnLayoutCallbacks.mLayoutMin = 0;
+        mLayoutManager.mOnLayoutCallbacks.mLayoutItemCount = 4;
+        mLayoutManager.mOnLayoutCallbacks.mDisappearingPositionsInPostLayout = new HashSet<>();
+        mLayoutManager.mOnLayoutCallbacks.mDisappearingPositionsInPostLayout.add(3);
+        mTestAdapter.moveAndNotify(3, 2);
+        mLayoutManager.waitForLayout(2);
+        mLayoutManager.mOnLayoutCallbacks.mDisappearingPositionsInPostLayout = null;
+
+        // Wait for the animator starts, note that wait isRunning()=true is not enough
+        PollingCheck.waitFor(new PollingCheck.PollingCheckCondition() {
+            @Override
+            public boolean canProceed() {
+                View slideInView = mRecyclerView.getChildAt(2);
+                View slideOutView = mRecyclerView.getChildAt(3);
+                return slideInView.hasTransientState() && slideOutView.hasTransientState();
+            }
+        });
+
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                // the "3" is slide-in, not recycleable, make sure animation is still running
+                View slideInView = mRecyclerView.getLayoutManager().findViewByPosition(2);
+                RecyclerView.ViewHolder slideInVh = mRecyclerView.getChildViewHolder(slideInView);
+                assertFalse("Slide in item is not recyclable", slideInVh.isRecyclable());
+
+                // "2" is in the mHiddenViews, ChildHelper.getChildCount() is 1 less than RV.
+                assertEquals(4, mRecyclerView.getChildCount());
+                assertEquals(1, mRecyclerView.mChildHelper.mHiddenViews.size());
+                assertEquals(3, mRecyclerView.mChildHelper.getChildCount());
+                assertNull("The slide out item should be hidden to LayoutManager",
+                        mRecyclerView.getLayoutManager().findViewByPosition(3));
+
+                // If Layout pass remove "slide in view", the RecylcerView will be:
+                // 0, 1, 2 (slide-out and hidden to LM)
+                mRecyclerView.getLayoutManager().removeAndRecycleView(slideInView,
+                        mRecyclerView.mRecycler);
+
+                // Consistency check after remove the "slide in view" in layout pass
+                assertEquals(3, mRecyclerView.getChildCount());
+                assertEquals(2, mRecyclerView.getLayoutManager().getChildCount());
+                assertEquals(1, mRecyclerView.mChildHelper.mHiddenViews.size());
+                assertTrue("The slide in item should be recyclable after remove",
+                        slideInVh.isRecyclable());
+
+                animator.endAnimations();
+            }
+        });
+        waitForAnimations(10);
+    }
+
+    @Test
+    public void removeSlideInViewLeftToSlideOutViewAndCancelAnimationInOnDetach() throws Throwable {
+        removeSlideInViewLeftToSlideOutView(/* cancelViewPropertyAnimatorsInOnDetach= */ true);
+    }
+
+    @Test
+    public void removeSlideInViewLeftToSlideOutView() throws Throwable {
+        removeSlideInViewLeftToSlideOutView(/* cancelViewPropertyAnimatorsInOnDetach= */ false);
+    }
 
     @Test
     public void scrollPassRemoveAdditionView() throws Throwable {
@@ -697,8 +786,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
             @Override
             public void onBindViewHolder(@NonNull TestViewHolder holder, int position) {
                 super.onBindViewHolder(holder, position);
-                ViewCompat.setImportantForAccessibility(
-                        holder.itemView, boundImportantForAccessibility);
+                holder.itemView.setImportantForAccessibility(boundImportantForAccessibility);
             }
         };
 
@@ -715,7 +803,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
                 targetChild[0] = mRecyclerView.getChildAt(0);
                 assertEquals(
                         expectedImportantForAccessibility,
-                        ViewCompat.getImportantForAccessibility(targetChild[0]));
+                        targetChild[0].getImportantForAccessibility());
             }
         });
 
@@ -733,8 +821,8 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
                 // The view is still a child of mRecyclerView, and is invisible for accessibility.
                 assertTrue(targetChild[0].getParent() == mRecyclerView);
                 assertEquals(
-                        ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS,
-                        ViewCompat.getImportantForAccessibility(targetChild[0]));
+                        View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS,
+                        targetChild[0].getImportantForAccessibility());
             }
         });
 
@@ -748,7 +836,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
                 assertTrue(targetChild[0].getParent() == null);
                 assertEquals(
                         expectedImportantForAccessibility,
-                        ViewCompat.getImportantForAccessibility(targetChild[0]));
+                        targetChild[0].getImportantForAccessibility());
             }
         });
 
@@ -765,41 +853,37 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
                         "the item must be reused", targetChild[0] == mRecyclerView.getChildAt(0));
                 assertEquals(
                         expectedImportantForAccessibility,
-                        ViewCompat.getImportantForAccessibility(targetChild[0]));
+                        targetChild[0].getImportantForAccessibility());
             }
         });
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     public void importantForAccessibilityWhileDetelingAuto() throws Throwable {
         runTestImportantForAccessibilityWhileDeteling(
-                ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_AUTO,
-                ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_YES);
+                View.IMPORTANT_FOR_ACCESSIBILITY_AUTO,
+                View.IMPORTANT_FOR_ACCESSIBILITY_YES);
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     public void importantForAccessibilityWhileDetelingNo() throws Throwable {
         runTestImportantForAccessibilityWhileDeteling(
-                ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_NO,
-                ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_NO);
+                View.IMPORTANT_FOR_ACCESSIBILITY_NO,
+                View.IMPORTANT_FOR_ACCESSIBILITY_NO);
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     public void importantForAccessibilityWhileDetelingNoHideDescandants() throws Throwable {
         runTestImportantForAccessibilityWhileDeteling(
-                ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS,
-                ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS);
+                View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS,
+                View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS);
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     public void importantForAccessibilityWhileDetelingYes() throws Throwable {
         runTestImportantForAccessibilityWhileDeteling(
-                ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_YES,
-                ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_YES);
+                View.IMPORTANT_FOR_ACCESSIBILITY_YES,
+                View.IMPORTANT_FOR_ACCESSIBILITY_YES);
     }
 
     @Test
@@ -1489,8 +1573,6 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
         mLayoutManager.waitForLayout(2);
     }
 
-    // Run this test on Jelly Bean and newer because hasTransientState was introduced in API 16.
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
     @Test
     public void appCancelAnimationInDetach() throws Throwable {
         final View[] addedView = new View[2];
@@ -1498,7 +1580,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
             @Override
             public void onViewDetachedFromWindow(TestViewHolder holder) {
                 if ((addedView[0] == holder.itemView || addedView[1] == holder.itemView)
-                        && ViewCompat.hasTransientState(holder.itemView)) {
+                        && holder.itemView.hasTransientState()) {
                     holder.itemView.animate().cancel();
                 }
                 super.onViewDetachedFromWindow(holder);
@@ -1522,11 +1604,11 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
                 public void run() {
                     if (mRecyclerView.getChildCount() == 3) {
                         View view = mRecyclerView.getChildAt(0);
-                        if (ViewCompat.hasTransientState(view)) {
+                        if (view.hasTransientState()) {
                             addedView[0] = view;
                         }
                         view = mRecyclerView.getChildAt(1);
-                        if (ViewCompat.hasTransientState(view)) {
+                        if (view.hasTransientState()) {
                             addedView[1] = view;
                         }
                     }

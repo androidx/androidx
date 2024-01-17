@@ -16,12 +16,12 @@
 
 package androidx.wear.watchface
 
-import android.annotation.SuppressLint
 import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
+import android.graphics.Picture
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffXfermode
 import android.graphics.Rect
@@ -39,6 +39,7 @@ import androidx.annotation.CallSuper
 import androidx.annotation.IntDef
 import androidx.annotation.IntRange
 import androidx.annotation.Px
+import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.annotation.UiThread
 import androidx.annotation.WorkerThread
@@ -55,31 +56,33 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
 /**
- * Describes the type of [Canvas] a [Renderer.CanvasRenderer] or [Renderer.CanvasRenderer2] should
+ * Describes the type of [Canvas] a [Renderer.CanvasRenderer] or [Renderer.CanvasRenderer2] can
  * request from a [SurfaceHolder].
- *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @IntDef(value = [CanvasType.SOFTWARE, CanvasType.HARDWARE])
-public annotation class CanvasType {
-    public companion object {
-        /** A software canvas will be requested. */
-        public const val SOFTWARE: Int = 0
+public annotation class CanvasTypeIntDef
 
-        /**
-         * A hardware canvas will be requested. This is usually faster than software rendering,
-         * however it can sometimes increase battery usage by rendering at a higher frame rate.
-         *
-         * NOTE this is only supported on API level 26 and above. On lower API levels we fall back
-         * to a software canvas.
-         *
-         * NOTE the system takes screenshots for use in the watch face picker UI and these will be
-         * taken using software rendering. This means [Bitmap]s with [Bitmap.Config.HARDWARE] must
-         * be avoided.
-         */
-        public const val HARDWARE: Int = 1
-    }
+/**
+ * Describes the type of [Canvas] a [Renderer.CanvasRenderer] or [Renderer.CanvasRenderer2] can
+ * request from a [SurfaceHolder].
+ */
+public object CanvasType {
+    /** A software canvas will be requested. */
+    public const val SOFTWARE: Int = 0
+
+    /**
+     * A hardware canvas will be requested. This is usually faster than software rendering,
+     * however it can sometimes increase battery usage by rendering at a higher frame rate.
+     *
+     * NOTE this is only supported on API level 26 and above. On lower API levels we fall back
+     * to a software canvas.
+     *
+     * NOTE the system takes screenshots for use in the watch face picker UI and these will be
+     * taken using software rendering for API level 27 and below. This means on API level 27 and
+     * below [Bitmap]s with [Bitmap.Config.HARDWARE] must be avoided.
+     */
+    public const val HARDWARE: Int = 1
 }
 
 internal val EGL_CONFIG_ATTRIB_LIST =
@@ -175,7 +178,7 @@ constructor(
 ) {
     /** The [SurfaceHolder] that [renderInternal] will draw into. */
     public var surfaceHolder: SurfaceHolder = surfaceHolder
-       protected set
+        protected set
 
     @OptIn(WatchFaceExperimental::class) private var pendingWatchFaceColors: WatchFaceColors? = null
     private var pendingWatchFaceColorsSet = false
@@ -379,7 +382,7 @@ constructor(
      * @param zonedDateTime The [ZonedDateTime] to use when rendering the watch face
      * @param renderParameters The [RenderParameters] to use when rendering the watch face
      * @param screenShotSurfaceHolder The [SurfaceHolder] containing the [Surface] to render into.
-     * This is assumed to have the same dimensions as the screen.
+     *   This is assumed to have the same dimensions as the screen.
      */
     @Suppress("HiddenAbstractMethod")
     @UiThread
@@ -548,7 +551,7 @@ constructor(
      *   into [render].
      * @param currentUserStyleRepository The watch face's associated [CurrentUserStyleRepository].
      * @param watchState The watch face's associated [WatchState].
-     * @param canvasType The [CanvasType] to request. Note even if [CanvasType.HARDWARE] is used,
+     * @param canvasType The [CanvasTypeIntDef] to request. Note even if [CanvasType.HARDWARE] is used,
      *   screenshots will taken using the software rendering pipeline, as such [Bitmap]s with
      *   [Bitmap.Config.HARDWARE] must be avoided.
      * @param interactiveDrawModeUpdateDelayMillis The interval in milliseconds between frames in
@@ -569,7 +572,7 @@ constructor(
         surfaceHolder: SurfaceHolder,
         currentUserStyleRepository: CurrentUserStyleRepository,
         watchState: WatchState,
-        @CanvasType private val canvasType: Int,
+        @CanvasTypeIntDef private val canvasType: Int,
         @IntRange(from = 0, to = 60000) interactiveDrawModeUpdateDelayMillis: Long,
         val clearWithBackgroundTintBeforeRenderingHighlightLayer: Boolean = false
     ) :
@@ -603,22 +606,39 @@ constructor(
             renderParameters: RenderParameters
         ): Bitmap =
             TraceEvent("CanvasRenderer.takeScreenshot").use {
-                val bitmap =
-                    Bitmap.createBitmap(
-                        screenBounds.width(),
-                        screenBounds.height(),
-                        Bitmap.Config.ARGB_8888
-                    )
                 val prevRenderParameters = this.renderParameters
                 val originalIsForScreenshot = renderParameters.isForScreenshot
 
                 renderParameters.isForScreenshot = true
                 this.renderParameters = renderParameters
-                renderAndComposite(Canvas(bitmap), zonedDateTime)
-                this.renderParameters = prevRenderParameters
-                renderParameters.isForScreenshot = originalIsForScreenshot
 
-                return bitmap
+                if (Build.VERSION.SDK_INT >= 28) {
+                    val picture = Picture()
+                    renderAndComposite(
+                        picture.beginRecording(screenBounds.width(), screenBounds.height()),
+                        zonedDateTime
+                    )
+                    picture.endRecording()
+                    this.renderParameters = prevRenderParameters
+                    renderParameters.isForScreenshot = originalIsForScreenshot
+                    return Api28CreateBitmapHelper.createBitmap(
+                        picture,
+                        screenBounds.width(),
+                        screenBounds.height(),
+                        Bitmap.Config.ARGB_8888
+                    )
+                } else {
+                    val bitmap =
+                        Bitmap.createBitmap(
+                            screenBounds.width(),
+                            screenBounds.height(),
+                            Bitmap.Config.ARGB_8888
+                        )
+                    renderAndComposite(Canvas(bitmap), zonedDateTime)
+                    this.renderParameters = prevRenderParameters
+                    renderParameters.isForScreenshot = originalIsForScreenshot
+                    return bitmap
+                }
             }
 
         internal override fun renderScreenshotToSurface(
@@ -651,17 +671,34 @@ constructor(
                 // Render and composite the HighlightLayer
                 val highlightLayer = renderParameters.highlightLayer
                 if (highlightLayer != null) {
-                    val highlightLayerBitmap =
-                        Bitmap.createBitmap(
+                    val highlightLayerBitmap: Bitmap
+                    if (Build.VERSION.SDK_INT >= 28) {
+                        val picture = Picture()
+                        val highlightCanvas =
+                            picture.beginRecording(screenBounds.width(), screenBounds.height())
+                        if (clearWithBackgroundTintBeforeRenderingHighlightLayer) {
+                            highlightCanvas.drawColor(highlightLayer.backgroundTint)
+                        }
+                        renderHighlightLayer(highlightCanvas, screenBounds, zonedDateTime)
+                        picture.endRecording()
+                        highlightLayerBitmap = Api28CreateBitmapHelper.createBitmap(
+                            picture,
                             screenBounds.width(),
                             screenBounds.height(),
                             Bitmap.Config.ARGB_8888
                         )
-                    val highlightCanvas = Canvas(highlightLayerBitmap)
-                    if (clearWithBackgroundTintBeforeRenderingHighlightLayer) {
-                        highlightCanvas.drawColor(highlightLayer.backgroundTint)
+                    } else {
+                        highlightLayerBitmap = Bitmap.createBitmap(
+                            screenBounds.width(),
+                            screenBounds.height(),
+                            Bitmap.Config.ARGB_8888
+                        )
+                        val highlightCanvas = Canvas(highlightLayerBitmap)
+                        if (clearWithBackgroundTintBeforeRenderingHighlightLayer) {
+                            highlightCanvas.drawColor(highlightLayer.backgroundTint)
+                        }
+                        renderHighlightLayer(highlightCanvas, screenBounds, zonedDateTime)
                     }
-                    renderHighlightLayer(highlightCanvas, screenBounds, zonedDateTime)
                     canvas.drawBitmap(highlightLayerBitmap, 0f, 0f, HIGHLIGHT_LAYER_COMPOSITE_PAINT)
                     highlightLayerBitmap.recycle()
                 }
@@ -788,7 +825,7 @@ constructor(
      *   into [render].
      * @param currentUserStyleRepository The watch face's associated [CurrentUserStyleRepository].
      * @param watchState The watch face's associated [WatchState].
-     * @param canvasType The [CanvasType] to request. Note even if [CanvasType.HARDWARE] is used,
+     * @param canvasType The [CanvasTypeIntDef] to request. Note even if [CanvasType.HARDWARE] is used,
      *   screenshots will taken using the software rendering pipeline, as such [Bitmap]s with
      *   [Bitmap.Config.HARDWARE] must be avoided.
      * @param interactiveDrawModeUpdateDelayMillis The interval in milliseconds between frames in
@@ -807,7 +844,7 @@ constructor(
         surfaceHolder: SurfaceHolder,
         currentUserStyleRepository: CurrentUserStyleRepository,
         watchState: WatchState,
-        @CanvasType private val canvasType: Int,
+        @CanvasTypeIntDef private val canvasType: Int,
         @IntRange(from = 0, to = 60000) interactiveDrawModeUpdateDelayMillis: Long,
         clearWithBackgroundTintBeforeRenderingHighlightLayer: Boolean
     ) :
@@ -951,40 +988,18 @@ constructor(
      * concurrent access.
      *
      * In Java it may be easier to extend [androidx.wear.watchface.ListenableGlesRenderer] instead.
-     *
-     * @param surfaceHolder The [SurfaceHolder] whose [android.view.Surface] [render] will draw
-     *   into.
-     * @param currentUserStyleRepository The associated [CurrentUserStyleRepository].
-     * @param watchState The associated [WatchState].
-     * @param interactiveDrawModeUpdateDelayMillis The interval in milliseconds between frames in
-     *   interactive [DrawMode]s. To render at 60hz set to 16. Note when battery is low, the frame
-     *   rate will be clamped to 10fps. Watch faces are recommended to use lower frame rates if
-     *   possible for better battery life. Variable frame rates can also help preserve battery life,
-     *   e.g. if a watch face has a short animation once per second it can adjust the frame rate
-     *   inorder to sleep when not animating.
-     * @param eglConfigAttribList Attributes for [EGL14.eglChooseConfig]. By default this selects an
-     *   RGBA8888 back buffer.
-     * @param eglSurfaceAttribList The attributes to be passed to [EGL14.eglCreateWindowSurface]. By
-     *   default this is empty.
-     * @param eglContextAttribList The attributes to be passed to [EGL14.eglCreateContext]. By
-     *   default this selects [EGL14.EGL_CONTEXT_CLIENT_VERSION] 2.
-     * @throws [GlesException] If any GL calls fail during initialization.
      */
     @Deprecated(message = "GlesRenderer is deprecated", ReplaceWith("GlesRenderer2"))
     public abstract class GlesRenderer
-    @Throws(GlesException::class)
-    @JvmOverloads
-    @WorkerThread
-    constructor(
+    internal constructor(
         surfaceHolder: SurfaceHolder,
         currentUserStyleRepository: CurrentUserStyleRepository,
         watchState: WatchState,
         @IntRange(from = 0, to = 60000) interactiveDrawModeUpdateDelayMillis: Long,
-        private val eglConfigAttribList: IntArray = EGL_CONFIG_ATTRIB_LIST,
-        private val eglSurfaceAttribList: IntArray = EGL_SURFACE_ATTRIB_LIST,
-        private val eglContextAttribList: IntArray = EGL_CONTEXT_ATTRIB_LIST
-    ) :
-        Renderer(
+        private val eglConfigAttribListList: List<IntArray>,
+        private val eglSurfaceAttribList: IntArray,
+        private val eglContextAttribList: IntArray
+    ) : Renderer(
             surfaceHolder,
             currentUserStyleRepository,
             watchState,
@@ -995,6 +1010,53 @@ constructor(
 
             private val glContextLock = Mutex()
         }
+
+        init {
+            require(eglConfigAttribListList.isNotEmpty())
+        }
+
+        /**
+         * Constructs a [GlesRenderer], it is recommended that new code uses [GlesRenderer2]
+         * instead.
+         *
+         * @param surfaceHolder The [SurfaceHolder] whose [android.view.Surface] [render] will draw
+         *   into.
+         * @param currentUserStyleRepository The associated [CurrentUserStyleRepository].
+         * @param watchState The associated [WatchState].
+         * @param interactiveDrawModeUpdateDelayMillis The interval in milliseconds between frames
+         *   in interactive [DrawMode]s. To render at 60hz set to 16. Note when battery is low, the
+         *   frame rate will be clamped to 10fps. Watch faces are recommended to use lower frame
+         *   rates if possible for better battery life. Variable frame rates can also help preserve
+         *   battery life, e.g. if a watch face has a short animation once per second it can adjust
+         *   the frame rate inorder to sleep when not animating.
+         * @param eglConfigAttribList Attributes for [EGL14.eglChooseConfig]. By default this
+         *   selects an RGBA8888 back buffer.
+         * @param eglSurfaceAttribList The attributes to be passed to
+         *   [EGL14.eglCreateWindowSurface]. By default this is empty.
+         * @param eglContextAttribList The attributes to be passed to [EGL14.eglCreateContext]. By
+         *   default this selects [EGL14.EGL_CONTEXT_CLIENT_VERSION] 2.
+         * @throws [GlesException] If any GL calls fail during initialization.
+         */
+        @Throws(GlesException::class)
+        @JvmOverloads
+        @WorkerThread
+        constructor(
+            surfaceHolder: SurfaceHolder,
+            currentUserStyleRepository: CurrentUserStyleRepository,
+            watchState: WatchState,
+            @IntRange(from = 0, to = 60000) interactiveDrawModeUpdateDelayMillis: Long,
+            eglConfigAttribList: IntArray = EGL_CONFIG_ATTRIB_LIST,
+            eglSurfaceAttribList: IntArray = EGL_SURFACE_ATTRIB_LIST,
+            eglContextAttribList: IntArray = EGL_CONTEXT_ATTRIB_LIST
+        ) : this(
+            surfaceHolder,
+            currentUserStyleRepository,
+            watchState,
+            interactiveDrawModeUpdateDelayMillis,
+            listOf(eglConfigAttribList),
+            eglSurfaceAttribList,
+            eglContextAttribList
+        )
 
         /** Exception thrown if a GL call fails */
         public class GlesException(message: String) : Exception(message)
@@ -1088,24 +1150,39 @@ constructor(
         private fun chooseEglConfig(eglDisplay: EGLDisplay): EGLConfig {
             val numEglConfigs = IntArray(1)
             val eglConfigs = arrayOfNulls<EGLConfig>(1)
-            if (
-                !EGL14.eglChooseConfig(
-                    eglDisplay,
-                    eglConfigAttribList,
-                    0,
-                    eglConfigs,
-                    0,
-                    eglConfigs.size,
-                    numEglConfigs,
-                    0
-                )
-            ) {
+            var anyEglChooseConfigPassed = false
+
+            // Select the first successful config.
+            for ((i, eglConfigAttribList) in eglConfigAttribListList.withIndex()) {
+                if (!EGL14.eglChooseConfig(
+                        eglDisplay,
+                        eglConfigAttribList,
+                        0,
+                        eglConfigs,
+                        0,
+                        eglConfigs.size,
+                        numEglConfigs,
+                        0
+                     )
+                ) {
+                    if (this is GlesRenderer2<*>) {
+                        selectedEglConfigAttribListIndexInternal = Integer(i)
+                    }
+                    continue
+                }
+
+                anyEglChooseConfigPassed = true
+
+                if (numEglConfigs[0] != 0) {
+                    return eglConfigs[0]!!
+                }
+            }
+
+            if (!anyEglChooseConfigPassed) {
                 throw GlesException("eglChooseConfig failed")
             }
-            if (numEglConfigs[0] == 0) {
-                throw GlesException("no matching EGL configs")
-            }
-            return eglConfigs[0]!!
+
+            throw GlesException("no matching EGL configs")
         }
 
         private suspend fun createWindowSurface(width: Int, height: Int) =
@@ -1329,7 +1406,6 @@ constructor(
 
                 surfaceHolder.addCallback(
                     object : SurfaceHolder.Callback {
-                        @SuppressLint("SyntheticAccessor")
                         override fun surfaceChanged(
                             holder: SurfaceHolder,
                             format: Int,
@@ -1339,7 +1415,6 @@ constructor(
                             uiThreadCoroutineScope.launch { createWindowSurface(width, height) }
                         }
 
-                        @SuppressLint("SyntheticAccessor")
                         override fun surfaceDestroyed(holder: SurfaceHolder) {
                             if (this@GlesRenderer::eglSurface.isInitialized) {
                                 if (!EGL14.eglDestroySurface(eglDisplay, eglSurface)) {
@@ -1448,13 +1523,14 @@ constructor(
 
             runBlocking {
                 glContextLock.withLock {
-                    val tempEglSurface = EGL14.eglCreateWindowSurface(
-                        eglDisplay,
-                        eglConfig,
-                        surfaceHolder.surface,
-                        eglSurfaceAttribList,
-                        0
-                    )
+                    val tempEglSurface =
+                        EGL14.eglCreateWindowSurface(
+                            eglDisplay,
+                            eglConfig,
+                            surfaceHolder.surface,
+                            eglSurfaceAttribList,
+                            0
+                        )
 
                     if (
                         !EGL14.eglMakeCurrent(
@@ -1637,36 +1713,98 @@ constructor(
      *   possible for better battery life. Variable frame rates can also help preserve battery life,
      *   e.g. if a watch face has a short animation once per second it can adjust the frame rate
      *   inorder to sleep when not animating.
-     * @param eglConfigAttribList Attributes for [EGL14.eglChooseConfig]. By default this selects an
-     *   RGBA8888 back buffer.
+     * @param eglConfigAttribListList A list of attributes to be tried in turn by
+     *   [EGL14.eglChooseConfig]. The first one to succeed is chosen and its index is wrtten to
+     *   [selectedEglConfigAttribListIndex]. If none succeed then a [GlesRenderer.GlesException]
+     *   will be thrown. An example use of this is to define a config with MSAA (anti-aliasing) and
+     *   to fall back to one without where that's not available.
      * @param eglSurfaceAttribList The attributes to be passed to [EGL14.eglCreateWindowSurface]. By
      *   default this is empty.
      * @param eglContextAttribList The attributes to be passed to [EGL14.eglCreateContext]. By
      *   default this selects [EGL14.EGL_CONTEXT_CLIENT_VERSION] 2.
-     * @throws [Renderer.GlesException] If any GL calls fail during initialization.
+     * @throws [GlesRenderer.GlesException] If any GL calls fail during initialization.
      */
     public abstract class GlesRenderer2<SharedAssetsT>
     @Throws(GlesException::class)
-    @JvmOverloads
     @WorkerThread
     constructor(
         surfaceHolder: SurfaceHolder,
         currentUserStyleRepository: CurrentUserStyleRepository,
         watchState: WatchState,
         @IntRange(from = 0, to = 60000) interactiveDrawModeUpdateDelayMillis: Long,
-        eglConfigAttribList: IntArray = EGL_CONFIG_ATTRIB_LIST,
-        eglSurfaceAttribList: IntArray = EGL_SURFACE_ATTRIB_LIST,
-        eglContextAttribList: IntArray = EGL_CONTEXT_ATTRIB_LIST
+        eglConfigAttribListList: List<IntArray>,
+        eglSurfaceAttribList: IntArray,
+        eglContextAttribList: IntArray
     ) :
         GlesRenderer(
             surfaceHolder,
             currentUserStyleRepository,
             watchState,
             interactiveDrawModeUpdateDelayMillis,
-            eglConfigAttribList,
+            eglConfigAttribListList,
             eglSurfaceAttribList,
             eglContextAttribList
         ) where SharedAssetsT : SharedAssets {
+
+        /**
+         * Constructs a [GlesRenderer2].
+         *
+         * @param SharedAssetsT The type extending [SharedAssets] returned by [createSharedAssets]
+         *   and passed into [render] and [renderHighlightLayer].
+         * @param surfaceHolder The [SurfaceHolder] whose [android.view.Surface] [render] will draw
+         *   into.
+         * @param currentUserStyleRepository The associated [CurrentUserStyleRepository].
+         * @param watchState The associated [WatchState].
+         * @param interactiveDrawModeUpdateDelayMillis The interval in milliseconds between frames
+         *   in interactive [DrawMode]s. To render at 60hz set to 16. Note when battery is low, the
+         *   frame rate will be clamped to 10fps. Watch faces are recommended to use lower frame
+         *   rates if possible for better battery life. Variable frame rates can also help preserve
+         *   battery life, e.g. if a watch face has a short animation once per second it can adjust
+         *   the frame rate inorder to sleep when not animating.
+         * @param eglConfigAttribList Attributes for [EGL14.eglChooseConfig]. By default this
+         *   selects an RGBA8888 back buffer.
+         * @param eglSurfaceAttribList The attributes to be passed to
+         *   [EGL14.eglCreateWindowSurface]. By default this is empty.
+         * @param eglContextAttribList The attributes to be passed to [EGL14.eglCreateContext]. By
+         *   default this selects [EGL14.EGL_CONTEXT_CLIENT_VERSION] 2.
+         * @throws [GlesRenderer.GlesException] If any GL calls fail during initialization.
+         */
+        @Throws(GlesException::class)
+        @JvmOverloads
+        @WorkerThread
+        constructor(
+            surfaceHolder: SurfaceHolder,
+            currentUserStyleRepository: CurrentUserStyleRepository,
+            watchState: WatchState,
+            @IntRange(from = 0, to = 60000) interactiveDrawModeUpdateDelayMillis: Long,
+            eglConfigAttribList: IntArray = EGL_CONFIG_ATTRIB_LIST,
+            eglSurfaceAttribList: IntArray = EGL_SURFACE_ATTRIB_LIST,
+            eglContextAttribList: IntArray = EGL_CONTEXT_ATTRIB_LIST
+        ) : this(
+            surfaceHolder,
+            currentUserStyleRepository,
+            watchState,
+            interactiveDrawModeUpdateDelayMillis,
+            listOf(eglConfigAttribList),
+            eglSurfaceAttribList,
+            eglContextAttribList
+        )
+
+        /**
+         * If an eglConfigAttribListList is specified then each list of attributes will be tried in
+         * turn by [EGL14.eglChooseConfig]. The first one to succeed is chosen and its index is
+         * written to [selectedEglConfigAttribListIndex].
+         *
+         * If an eglConfigAttribListList was not specified this will be zero. If this is accessed
+         * before the constructor has finished an exception will be thrown.
+         */
+        val selectedEglConfigAttribListIndex: Int
+            get() = selectedEglConfigAttribListIndexInternal.toInt()
+
+        // Ideally we wouldn't need this, but kotlin doesn't allow lateinit for primitive types.
+        @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
+        internal lateinit var selectedEglConfigAttribListIndexInternal: Integer
+
         /**
          * When editing multiple [WatchFaceService] instances and hence Renderers can exist
          * concurrently (e.g. a headless instance and an interactive instance) and using
@@ -1757,4 +1895,15 @@ constructor(
             renderHighlightLayer(zonedDateTime, sharedAssetsHolder.sharedAssets!! as SharedAssetsT)
         }
     }
+}
+
+/** Helper to allow class verification. */
+@RequiresApi(28)
+internal object Api28CreateBitmapHelper {
+    fun createBitmap(
+        picture: Picture,
+        width: Int,
+        height: Int,
+        config: Bitmap.Config
+    ) = Bitmap.createBitmap(picture, width, height, config)
 }

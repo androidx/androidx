@@ -85,7 +85,9 @@ fun EasingInfo(
     Column(modifier = modifier.padding(16.dp)) {
         Text(easing.description)
         Spacer(modifier = Modifier.height(16.dp))
-        EasingGraph(easing = easing.function, coroutineScope = coroutineScope)
+        Box {
+            EasingGraph(easing = easing.function, coroutineScope = coroutineScope)
+        }
     }
 }
 

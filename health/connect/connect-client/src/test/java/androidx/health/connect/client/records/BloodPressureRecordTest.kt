@@ -25,8 +25,7 @@ import org.junit.runner.RunWith
 class BloodPressureRecordTest {
     @Test
     fun bodyPositionEnums_existInMapping() {
-        val allEnums =
-            BloodPressureRecord.Companion::class.allIntDefEnumsWithPrefix("BODY_POSITION")
+        val allEnums = getAllIntDefEnums<BloodPressureRecord>("""BODY_POSITION.*(?<!UNKNOWN)$""")
 
         assertThat(BloodPressureRecord.BODY_POSITION_STRING_TO_INT_MAP.values)
             .containsExactlyElementsIn(allEnums)
@@ -37,7 +36,9 @@ class BloodPressureRecordTest {
     @Test
     fun measurementLocationEnums_existInMapping() {
         val allEnums =
-            BloodPressureRecord.Companion::class.allIntDefEnumsWithPrefix("MEASUREMENT_LOCATION")
+            getAllIntDefEnums<BloodPressureRecord>(
+                """MEASUREMENT_LOCATION.*(?<!UNKNOWN)$"""
+            )
 
         assertThat(BloodPressureRecord.MEASUREMENT_LOCATION_STRING_TO_INT_MAP.values)
             .containsExactlyElementsIn(allEnums)

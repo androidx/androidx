@@ -59,12 +59,12 @@ import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.StreamSpec;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.internal.CameraUseCaseAdapter;
-import androidx.camera.testing.CameraUtil;
-import androidx.camera.testing.fakes.FakeCameraCoordinator;
-import androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager;
-import androidx.camera.testing.fakes.FakeUseCase;
-import androidx.camera.testing.fakes.FakeUseCaseConfig;
-import androidx.camera.testing.fakes.FakeUseCaseConfigFactory;
+import androidx.camera.testing.impl.CameraUtil;
+import androidx.camera.testing.impl.fakes.FakeCameraCoordinator;
+import androidx.camera.testing.impl.fakes.FakeCameraDeviceSurfaceManager;
+import androidx.camera.testing.impl.fakes.FakeUseCase;
+import androidx.camera.testing.impl.fakes.FakeUseCaseConfig;
+import androidx.camera.testing.impl.fakes.FakeUseCaseConfigFactory;
 import androidx.core.os.HandlerCompat;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -83,7 +83,6 @@ import org.mockito.ArgumentCaptor;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -160,12 +159,14 @@ public class ExposureDeviceTest {
         Camera2CameraInfoImpl camera2CameraInfo = new Camera2CameraInfoImpl(
                 mCameraId, cameraManagerCompat);
         mCamera2CameraImpl = new Camera2CameraImpl(
+                (Context) ApplicationProvider.getApplicationContext(),
                 CameraManagerCompat.from((Context) ApplicationProvider.getApplicationContext()),
                 mCameraId,
                 camera2CameraInfo,
                 mCameraCoordinator,
                 mCameraStateRegistry, sCameraExecutor, sCameraHandler,
-                DisplayInfoManager.getInstance(ApplicationProvider.getApplicationContext())
+                DisplayInfoManager.getInstance(ApplicationProvider.getApplicationContext()),
+                -1L
         );
 
         mCameraInfoInternal = mCamera2CameraImpl.getCameraInfoInternal();
@@ -178,7 +179,7 @@ public class ExposureDeviceTest {
                 StreamSpec.builder(new Size(640, 480)).build());
         mCameraCoordinator = new FakeCameraCoordinator();
         mCameraUseCaseAdapter = new CameraUseCaseAdapter(
-                new LinkedHashSet<>(Collections.singleton(mCamera2CameraImpl)),
+                mCamera2CameraImpl,
                 mCameraCoordinator,
                 fakeCameraDeviceSurfaceManager, new FakeUseCaseConfigFactory());
     }

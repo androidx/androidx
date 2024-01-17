@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.Publish
 
 plugins {
@@ -42,9 +49,10 @@ android {
 }
 
 androidx {
-    name = "AndroidX Security Kotlin Extensions"
+    name = "Security Kotlin Extensions"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.SECURITY
     inceptionYear = "2020"
     description = "Kotlin Extensions for the androidx.security:Security-crypto artifact"
+    metalavaK2UastEnabled = true
 }

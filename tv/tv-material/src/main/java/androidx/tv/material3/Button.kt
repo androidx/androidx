@@ -26,7 +26,6 @@ import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.NonRestartableComposable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
@@ -48,8 +47,13 @@ import androidx.tv.material3.tokens.Elevation
  *
  * The default text style for internal [Text] components will be set to [Typography.labelLarge].
  *
+ * Samples:
+ * @sample androidx.tv.samples.ButtonSample
+ * @sample androidx.tv.samples.LikeButtonSample
+ *
  * @param onClick called when this button is clicked
  * @param modifier the [Modifier] to be applied to this button
+ * @param onLongClick called when this button is long clicked (long-pressed).
  * @param enabled controls the enabled state of this button. When `false`, this component will not
  * respond to user input, and it will appear visually disabled and disabled to accessibility
  * services.
@@ -62,9 +66,10 @@ import androidx.tv.material3.tokens.Elevation
  * @param border Defines a border around the Button.
  * @param contentPadding the spacing values to apply internally between the container and the
  * content
- * @param interactionSource the [MutableInteractionSource] representing the stream of [Interaction]s
- * for this button. You can create and pass in your own `remember`ed instance to observe
- * [Interaction]s and customize the appearance / behavior of this button in different states.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this button. You can use this to change the button's appearance
+ * or preview the button in different states. Note that if `null` is provided, interactions will
+ * still happen internally.
  * @param content the content of the button
  */
 @ExperimentalTvMaterial3Api
@@ -73,6 +78,7 @@ import androidx.tv.material3.tokens.Elevation
 fun Button(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    onLongClick: (() -> Unit)? = null,
     enabled: Boolean = true,
     scale: ButtonScale = ButtonDefaults.scale(),
     glow: ButtonGlow = ButtonDefaults.glow(),
@@ -81,12 +87,13 @@ fun Button(
     tonalElevation: Dp = Elevation.Level0,
     border: ButtonBorder = ButtonDefaults.border(),
     contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    interactionSource: MutableInteractionSource? = null,
     content: @Composable RowScope.() -> Unit
 ) {
     ButtonImpl(
         onClick = onClick,
         modifier = modifier,
+        onLongClick = onLongClick,
         enabled = enabled,
         scale = scale,
         glow = glow,
@@ -115,8 +122,12 @@ fun Button(
  *
  * The default text style for internal [Text] components will be set to [Typography.labelLarge].
  *
+ * Samples:
+ * @sample androidx.tv.samples.OutlinedButtonSample
+ *
  * @param onClick called when this button is clicked
  * @param modifier the [Modifier] to be applied to this button
+ * @param onLongClick called when this button is long clicked (long-pressed).
  * @param enabled controls the enabled state of this button. When `false`, this component will not
  * respond to user input, and it will appear visually disabled and disabled to accessibility
  * services.
@@ -129,9 +140,10 @@ fun Button(
  * @param border Defines a border around the Button.
  * @param contentPadding the spacing values to apply internally between the container and the
  * content
- * @param interactionSource the [MutableInteractionSource] representing the stream of [Interaction]s
- * for this button. You can create and pass in your own `remember`ed instance to observe
- * [Interaction]s and customize the appearance / behavior of this button in different states.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this button. You can use this to change the button's appearance
+ * or preview the button in different states. Note that if `null` is provided, interactions will
+ * still happen internally.
  * @param content the content of the button
  */
 @ExperimentalTvMaterial3Api
@@ -140,6 +152,7 @@ fun Button(
 fun OutlinedButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    onLongClick: (() -> Unit)? = null,
     enabled: Boolean = true,
     scale: ButtonScale = OutlinedButtonDefaults.scale(),
     glow: ButtonGlow = OutlinedButtonDefaults.glow(),
@@ -148,12 +161,13 @@ fun OutlinedButton(
     tonalElevation: Dp = Elevation.Level0,
     border: ButtonBorder = OutlinedButtonDefaults.border(),
     contentPadding: PaddingValues = OutlinedButtonDefaults.ContentPadding,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    interactionSource: MutableInteractionSource? = null,
     content: @Composable RowScope.() -> Unit
 ) {
     ButtonImpl(
         onClick = onClick,
         modifier = modifier,
+        onLongClick = onLongClick,
         enabled = enabled,
         scale = scale,
         glow = glow,
@@ -172,6 +186,7 @@ fun OutlinedButton(
 private fun ButtonImpl(
     onClick: () -> Unit,
     modifier: Modifier,
+    onLongClick: (() -> Unit)? = null,
     enabled: Boolean,
     scale: ButtonScale,
     glow: ButtonGlow,
@@ -180,18 +195,18 @@ private fun ButtonImpl(
     tonalElevation: Dp,
     border: ButtonBorder,
     contentPadding: PaddingValues,
-    interactionSource: MutableInteractionSource,
+    interactionSource: MutableInteractionSource?,
     content: @Composable RowScope.() -> Unit
 ) {
     Surface(
         modifier = modifier.semantics { role = Role.Button },
         onClick = onClick,
+        onLongClick = onLongClick,
         enabled = enabled,
         scale = scale.toClickableSurfaceScale(),
         glow = glow.toClickableSurfaceGlow(),
         shape = shape.toClickableSurfaceShape(),
-        color = colors.toClickableSurfaceContainerColor(),
-        contentColor = colors.toClickableSurfaceContentColor(),
+        colors = colors.toClickableSurfaceColors(),
         tonalElevation = tonalElevation,
         border = border.toClickableSurfaceBorder(),
         interactionSource = interactionSource

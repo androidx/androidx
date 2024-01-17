@@ -19,11 +19,10 @@ package androidx.compose.foundation.lazy.staggeredgrid
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.lazy.layout.LazyLayoutItemProvider
 import androidx.compose.foundation.lazy.layout.LazyLayoutKeyIndexMap
-import androidx.compose.foundation.lazy.layout.PinnableItem
-import androidx.compose.foundation.lazy.layout.NearestRangeKeyIndexMapState
+import androidx.compose.foundation.lazy.layout.LazyLayoutPinnableItem
+import androidx.compose.foundation.lazy.layout.NearestRangeKeyIndexMap
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.referentialEqualityPolicy
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
@@ -31,55 +30,70 @@ import androidx.compose.runtime.rememberUpdatedState
 @OptIn(ExperimentalFoundationApi::class)
 internal interface LazyStaggeredGridItemProvider : LazyLayoutItemProvider {
     val spanProvider: LazyStaggeredGridSpanProvider
+    val keyIndexMap: LazyLayoutKeyIndexMap
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-@ExperimentalFoundationApi
-internal fun rememberStaggeredGridItemProvider(
+internal fun rememberStaggeredGridItemProviderLambda(
     state: LazyStaggeredGridState,
     content: LazyStaggeredGridScope.() -> Unit,
-): LazyStaggeredGridItemProvider {
+): () -> LazyStaggeredGridItemProvider {
     val latestContent = rememberUpdatedState(content)
     return remember(state) {
-        LazyStaggeredGridItemProviderImpl(
-            state,
-            { latestContent.value },
-        )
+        val intervalContentState = derivedStateOf(referentialEqualityPolicy()) {
+            LazyStaggeredGridIntervalContent(latestContent.value)
+        }
+        val itemProviderState = derivedStateOf(referentialEqualityPolicy()) {
+            val intervalContent = intervalContentState.value
+            val map = NearestRangeKeyIndexMap(state.nearestRange, intervalContent)
+            LazyStaggeredGridItemProviderImpl(
+                state = state,
+                intervalContent = intervalContent,
+                keyIndexMap = map
+            )
+        }
+        itemProviderState::value
     }
 }
 
-@ExperimentalFoundationApi
+@OptIn(ExperimentalFoundationApi::class)
 private class LazyStaggeredGridItemProviderImpl(
     private val state: LazyStaggeredGridState,
-    private val latestContent: () -> (LazyStaggeredGridScope.() -> Unit)
+    private val intervalContent: LazyStaggeredGridIntervalContent,
+    override val keyIndexMap: LazyLayoutKeyIndexMap,
 ) : LazyStaggeredGridItemProvider {
-    private val staggeredGridContent by derivedStateOf(referentialEqualityPolicy()) {
-        LazyStaggeredGridIntervalContent(latestContent())
-    }
 
-    private val keyToIndexMap: LazyLayoutKeyIndexMap by NearestRangeKeyIndexMapState(
-        firstVisibleItemIndex = { state.firstVisibleItemIndex },
-        slidingWindowSize = { 90 },
-        extraItemCount = { 200 },
-        content = { staggeredGridContent }
-    )
+    override val itemCount: Int get() = intervalContent.itemCount
 
-    override val itemCount: Int get() = staggeredGridContent.itemCount
+    override fun getKey(index: Int): Any =
+        keyIndexMap.getKey(index) ?: intervalContent.getKey(index)
 
-    override fun getKey(index: Int): Any = staggeredGridContent.getKey(index)
+    override fun getIndex(key: Any): Int = keyIndexMap.getIndex(key)
 
-    override fun getIndex(key: Any): Int = keyToIndexMap[key]
-
-    override fun getContentType(index: Int): Any? = staggeredGridContent.getContentType(index)
+    override fun getContentType(index: Int): Any? = intervalContent.getContentType(index)
 
     @Composable
-    override fun Item(index: Int) {
-        staggeredGridContent.PinnableItem(index, state.pinnedItems) { localIndex ->
-            with(LazyStaggeredGridItemScopeImpl) {
-                item(localIndex)
+    override fun Item(index: Int, key: Any) {
+        LazyLayoutPinnableItem(key, index, state.pinnedItems) {
+            intervalContent.withInterval(index) { localIndex, content ->
+                content.item(LazyStaggeredGridItemScopeImpl, localIndex)
             }
         }
     }
 
-    override val spanProvider get() = staggeredGridContent.spanProvider
+    override val spanProvider get() = intervalContent.spanProvider
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is LazyStaggeredGridItemProviderImpl) return false
+
+        // the identity of this class is represented by intervalContent object.
+        // having equals() allows us to skip items recomposition when intervalContent didn't change
+        return intervalContent == other.intervalContent
+    }
+
+    override fun hashCode(): Int {
+        return intervalContent.hashCode()
+    }
 }

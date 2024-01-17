@@ -40,6 +40,10 @@ import androidx.compose.ui.unit.sp
  * Main difference from the regular flow of writing any custom layout is that you have a new
  * function [measure] which accepts item index and constraints, composes the item based and then
  * measures all the layouts emitted in the item content block.
+ *
+ * Note: this interface is a part of [LazyLayout] harness that allows for building custom lazy
+ * layouts. LazyLayout and all corresponding APIs are still under development and are subject to
+ * change.
  */
 @Stable
 @ExperimentalFoundationApi
@@ -102,6 +106,8 @@ internal class LazyLayoutMeasureScopeImpl internal constructor(
     private val subcomposeMeasureScope: SubcomposeMeasureScope
 ) : LazyLayoutMeasureScope, MeasureScope by subcomposeMeasureScope {
 
+    private val itemProvider = itemContentFactory.itemProvider()
+
     /**
      * A cache of the previously composed items. It allows us to support [get]
      * re-executions with the same index during the same measure pass.
@@ -113,8 +119,9 @@ internal class LazyLayoutMeasureScopeImpl internal constructor(
         return if (cachedPlaceable != null) {
             cachedPlaceable
         } else {
-            val key = itemContentFactory.itemProvider().getKey(index)
-            val itemContent = itemContentFactory.getContent(index, key)
+            val key = itemProvider.getKey(index)
+            val contentType = itemProvider.getContentType(index)
+            val itemContent = itemContentFactory.getContent(index, key, contentType)
             val measurables = subcomposeMeasureScope.subcompose(key, itemContent)
             List(measurables.size) { i ->
                 measurables[i].measure(constraints)

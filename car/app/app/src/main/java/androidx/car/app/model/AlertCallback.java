@@ -34,7 +34,6 @@ public interface AlertCallback {
     /**
      * The reason for which the alert was cancelled.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @IntDef(

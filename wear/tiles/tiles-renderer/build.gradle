@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 import androidx.build.Publish
@@ -35,7 +42,7 @@ dependencies {
     implementation("androidx.core:core:1.7.0")
     implementation "androidx.wear:wear:1.2.0"
 
-    implementation(project(":wear:protolayout:protolayout"))
+    api(project(":wear:protolayout:protolayout"))
     implementation(project(":wear:protolayout:protolayout-expression-pipeline"))
     implementation(project(":wear:protolayout:protolayout-renderer"))
     implementation(project(":wear:tiles:tiles"))
@@ -92,10 +99,6 @@ protobuf {
     protoc {
         artifact = libs.protobufCompiler.get()
     }
-
-    // Generates the java proto-lite code for the protos in this project. See
-    // https://github.com/google/protobuf-gradle-plugin#customizing-protobuf-compilation
-    // for more information.
     generateProtoTasks {
         all().each { task ->
             task.builtins {
@@ -112,5 +115,6 @@ androidx {
     inceptionYear = "2021"
     description = "Android Wear Tiles Renderer components. These components can be used to parse " +
             "and render an already constructed Wear Tile."
+    metalavaK2UastEnabled = true
 }
 

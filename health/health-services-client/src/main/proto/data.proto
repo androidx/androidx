@@ -204,8 +204,9 @@ message ExerciseConfig {
   optional float swimming_pool_length = 8;
   optional ExerciseTypeConfig exercise_type_config = 10;
   repeated BatchingMode batching_mode_overrides = 11 [packed = true];
+  repeated ExerciseEventType exercise_event_types = 12 [packed = true];
   reserved 9;
-  reserved 12 to max;  // Next ID
+  reserved 13 to max;  // Next ID
 }
 
 message ExerciseInfo {
@@ -372,6 +373,56 @@ enum ExerciseType {
   reserved 93 to max;  // Next ID
 }
 
+enum GolfShotSwingType {
+  GOLF_SHOT_SWING_TYPE_UNKNOWN = 0;
+  GOLF_SHOT_SWING_TYPE_PUTT = 1;
+  GOLF_SHOT_SWING_TYPE_PARTIAL = 2;
+  GOLF_SHOT_SWING_TYPE_FULL = 3;
+  reserved 4 to max;  // Next ID
+}
+
+message GolfShotData {
+  optional int64 duration_from_boot_ms = 1;
+  optional GolfShotSwingType golf_shot_swing_type = 2;
+  reserved 3 to max;  // Next ID
+}
+
+enum ExerciseEventType {
+  EXERCISE_EVENT_TYPE_UNKNOWN = 0;
+  EXERCISE_EVENT_TYPE_GOLF_SHOT = 2;
+  reserved 1;
+  reserved 3 to max;  // Next ID
+}
+
+message ExerciseEvent {
+  message ExerciseEventData {
+    oneof exerciseEventData {
+      GolfShotData golf_shot_data = 2;
+    }
+    reserved 1;
+    reserved 3 to max;  // Next ID
+  }
+
+  optional ExerciseEventData exercise_event_data = 1;
+  reserved 2 to max;  // Next ID
+}
+
+message ExerciseEventCapabilities {
+  message GolfShotCapabilities {
+    optional bool is_supported = 1;
+    optional bool is_swing_type_classification_supported = 2;
+
+    reserved 3 to max;  // Next ID
+  }
+
+  optional ExerciseEventType exercise_event_type = 1;
+  oneof exerciseEventCapabilities {
+    GolfShotCapabilities golf_shot_capabilities = 3;
+  }
+  reserved 2;
+  reserved 4 to max;  // Next ID
+}
+
 message ExerciseTypeCapabilities {
   message SupportedGoalEntry {
     optional DataType data_type = 1;
@@ -389,7 +440,9 @@ message ExerciseTypeCapabilities {
   repeated SupportedMilestoneEntry supported_milestones = 3;
   optional bool is_auto_pause_and_resume_supported = 4;
   optional bool is_laps_supported = 5;
-  reserved 6 to max;  // Next ID
+  repeated ExerciseEventCapabilities supported_exercise_events = 7;
+  reserved 6;
+  reserved 8 to max;  // Next ID
 }
 
 message ExerciseUpdate {
@@ -446,7 +499,7 @@ message HealthEvent {
     reserved 3 to max;  // Next ID
   }
 
-  optional HealthEventType type = 1;
+  optional int32 health_event_type_id = 1;
   optional int64 event_time_epoch_ms = 2;
   repeated MetricsEntry metrics = 3;
   reserved 4 to max;  // Next ID
@@ -508,7 +561,7 @@ message PassiveMonitoringCapabilities {
   repeated DataType supported_data_types_passive_monitoring = 1;
   repeated DataType supported_data_types_passive_goals = 2;
   repeated int32 supported_hr_sampling_intervals_seconds = 3 [packed = true];
-  repeated HealthEvent.HealthEventType supported_health_event_types = 4
+  repeated int32 supported_health_event_types = 4
       [packed = true];
   repeated UserActivityState supported_user_activity_states = 5 [packed = true];
   reserved 6 to max;  // Next ID
@@ -518,7 +571,7 @@ message PassiveListenerConfig {
   repeated DataType data_types = 1;
   optional bool include_user_activity_state = 2;
   repeated PassiveGoal passive_goals = 3;
-  repeated HealthEvent.HealthEventType health_event_types = 4;
+  repeated int32 health_event_types = 4;
   reserved 5 to max;  // Next ID
 }
 

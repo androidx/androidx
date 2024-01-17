@@ -21,11 +21,6 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.window.LocalWindow
 import androidx.compose.ui.window.UndecoratedWindowResizer
-import org.jetbrains.skiko.ClipComponent
-import org.jetbrains.skiko.GraphicsApi
-import org.jetbrains.skiko.OS
-import org.jetbrains.skiko.SkiaLayer
-import org.jetbrains.skiko.hostOs
 import java.awt.Color
 import java.awt.Component
 import java.awt.Window
@@ -33,6 +28,11 @@ import java.awt.event.MouseListener
 import java.awt.event.MouseMotionListener
 import java.awt.event.MouseWheelListener
 import javax.swing.JLayeredPane
+import org.jetbrains.skiko.ClipComponent
+import org.jetbrains.skiko.GraphicsApi
+import org.jetbrains.skiko.OS
+import org.jetbrains.skiko.SkiaLayer
+import org.jetbrains.skiko.hostOs
 
 internal class ComposeWindowDelegate(
     private val window: Window,

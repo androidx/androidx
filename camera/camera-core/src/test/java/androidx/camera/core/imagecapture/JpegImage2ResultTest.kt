@@ -27,10 +27,10 @@ import androidx.camera.core.imagecapture.Utils.SENSOR_TO_BUFFER
 import androidx.camera.core.imagecapture.Utils.WIDTH
 import androidx.camera.core.internal.utils.ImageUtil.jpegImageToJpegByteArray
 import androidx.camera.core.processing.Packet
-import androidx.camera.testing.ExifUtil.createExif
-import androidx.camera.testing.TestImageUtil.createJpegBytes
-import androidx.camera.testing.TestImageUtil.createJpegFakeImageProxy
-import androidx.camera.testing.TestImageUtil.getAverageDiff
+import androidx.camera.testing.impl.ExifUtil.createExif
+import androidx.camera.testing.impl.TestImageUtil.createJpegBytes
+import androidx.camera.testing.impl.TestImageUtil.createJpegFakeImageProxy
+import androidx.camera.testing.impl.TestImageUtil.getAverageDiff
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith

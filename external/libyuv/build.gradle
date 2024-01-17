@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.LibraryType
 import androidx.build.Publish
 
@@ -38,7 +45,7 @@ android {
     externalNativeBuild {
         cmake {
             version libs.versions.cmake.get()
-            path "${yuvSourceDir}/files/CMakeLists.txt"
+            path "${yuvSourceDir}/CMakeLists.txt"
         }
     }
 
@@ -48,10 +55,10 @@ android {
     }
 
     // Include the "libyuv" module from the native build system in the AAR,
-    // and export the headers in files/include to its consumers
+    // and export the headers in include to its consumers
     prefab {
         libyuv {
-            headers "${yuvSourceDir}/files/include"
+            headers "${yuvSourceDir}/include"
             name "yuv"
         }
     }

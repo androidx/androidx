@@ -16,8 +16,6 @@
 
 package androidx.security.crypto;
 
-import static androidx.security.crypto.MasterKey.KEYSTORE_PATH_URI;
-
 import static org.junit.Assert.assertTrue;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -54,6 +52,7 @@ import java.util.ArrayList;
 
 @MediumTest
 @RunWith(AndroidJUnit4.class)
+@SuppressWarnings("deprecation")
 public class EncryptedFileTest {
     private static final String KEYSET_ALIAS = "__androidx_security_crypto_encrypted_file_keyset__";
     private static final String PREFS_FILE = "__androidx_security_crypto_encrypted_file_pref__";
@@ -364,7 +363,7 @@ public class EncryptedFileTest {
                 .withSharedPref(mContext,
                         KEYSET_ALIAS,
                         PREFS_FILE)
-                .withMasterKeyUri(KEYSTORE_PATH_URI + mMasterKey.getKeyAlias())
+                .withMasterKeyUri(MasterKey.KEYSTORE_PATH_URI + mMasterKey.getKeyAlias())
                 .build().getKeysetHandle();
 
         StreamingAead streamingAead = com.google.crypto.tink.streamingaead.StreamingAeadFactory

@@ -14,9 +14,15 @@
  * limitations under the License.
  */
 
-
-import androidx.build.KmpPlatformsKt
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.LibraryType
+import androidx.build.PlatformIdentifier
 
 plugins {
     id("AndroidXPlugin")
@@ -33,6 +39,9 @@ androidXMultiplatform {
     ios()
     linux()
     android()
+
+    defaultPlatform(PlatformIdentifier.ANDROID)
+
     sourceSets {
         commonMain {
             dependencies {
@@ -51,35 +60,40 @@ androidXMultiplatform {
                 implementation(libs.okio)
                 api(project(":datastore:datastore-core"))
                 api(project(":datastore:datastore-core-okio"))
-                implementation(project(":internal-testutils-kmp"))
+                implementation(project(":kruth:kruth"))
+                implementation(project(":internal-testutils-datastore"))
+            }
+        }
+        commonJvmMain {
+            dependsOn(commonMain)
+        }
+        commonJvmTest {
+            dependsOn(commonTest)
+            dependencies {
+                implementation(libs.kotlinTest)
+                implementation(project(":kruth:kruth"))
                 implementation(project(":internal-testutils-datastore"))
             }
         }
         jvmMain {
-            dependsOn(commonMain)
-
+            dependsOn(commonJvmMain)
         }
         jvmTest {
-            dependsOn(commonTest)
-            dependencies {
-                implementation(libs.kotlinTest)
-                implementation(project(":internal-testutils-kmp"))
-                implementation(project(":internal-testutils-datastore"))
-            }
+            dependsOn(commonJvmTest)
         }
         androidMain {
-            dependsOn(jvmMain)
+            dependsOn(commonJvmMain)
             dependencies {
                 implementation(libs.okio)
             }
         }
-        androidAndroidTest {
-            dependsOn(jvmTest)
+        androidInstrumentedTest {
+            dependsOn(commonJvmTest)
             dependencies {
                 implementation(libs.junit)
                 implementation(libs.truth)
                 implementation(project(":internal-testutils-truth"))
-                implementation(project(":internal-testutils-kmp"))
+                implementation(project(":kruth:kruth"))
                 implementation(project(":internal-testutils-datastore"))
                 implementation(libs.kotlinCoroutinesTest)
                 implementation(libs.testRunner)
@@ -87,11 +101,7 @@ androidXMultiplatform {
             }
 
         }
-        targets.withType(org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget).configureEach {
-            binaries.all {
-                binaryOptions["memoryModel"] = "experimental"
-            }
-        }
+
         targets.all { target ->
             if (target.platformType == org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType.native) {
                 target.compilations["main"].defaultSourceSet {
@@ -106,7 +116,7 @@ androidXMultiplatform {
 }
 
 androidx {
-    name = "Android DataStore"
+    name = "DataStore"
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2020"
     description = "Android DataStore - contains the underlying store used by each serialization " +

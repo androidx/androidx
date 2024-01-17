@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.LibraryType
 
 plugins {
@@ -31,8 +38,7 @@ dependencies {
 android {
     namespace "androidx.appactions.interaction.capabilities.communication"
     defaultConfig {
-        // TODO(b/266649259): lower minSdk version once Optional is removed.
-        minSdkVersion 33
+        minSdkVersion 26
     }
 }
 
@@ -41,4 +47,5 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2023"
     description = "Capability library for communication apps integrating with virtual assistant."
+    metalavaK2UastEnabled = true
 }

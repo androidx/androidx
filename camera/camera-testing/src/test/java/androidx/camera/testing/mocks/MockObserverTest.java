@@ -21,7 +21,8 @@ import static org.junit.Assert.assertThrows;
 
 import android.os.Build;
 
-import androidx.camera.testing.mocks.helpers.CallTimes;
+import androidx.camera.testing.impl.mocks.MockObserver;
+import androidx.camera.testing.impl.mocks.helpers.CallTimes;
 
 import junit.framework.AssertionFailedError;
 

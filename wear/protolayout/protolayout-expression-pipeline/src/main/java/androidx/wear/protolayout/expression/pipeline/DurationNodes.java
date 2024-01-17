@@ -16,6 +16,11 @@
 
 package androidx.wear.protolayout.expression.pipeline;
 
+import androidx.annotation.UiThread;
+import androidx.wear.protolayout.expression.DynamicBuilders;
+import androidx.wear.protolayout.expression.proto.DynamicProto;
+import androidx.wear.protolayout.expression.proto.FixedProto.FixedDuration;
+
 import java.time.Duration;
 import java.time.Instant;
 
@@ -23,12 +28,56 @@ import java.time.Instant;
 class DurationNodes {
     private DurationNodes() {}
 
+    /** Dynamic duration node that has a fixed value. */
+    static class FixedDurationNode implements DynamicDataSourceNode<Duration> {
+        private final Duration mValue;
+        private final DynamicTypeValueReceiverWithPreUpdate<Duration> mDownstream;
+
+        FixedDurationNode(
+                FixedDuration protoNode,
+                DynamicTypeValueReceiverWithPreUpdate<Duration> downstream) {
+            this.mValue = Duration.ofSeconds(protoNode.getSeconds());
+            this.mDownstream = downstream;
+        }
+
+        @Override
+        @UiThread
+        public void preInit() {
+            mDownstream.onPreUpdate();
+        }
+
+        @Override
+        @UiThread
+        public void init() {
+            mDownstream.onData(mValue);
+        }
+
+        @Override
+        public void destroy() {}
+    }
+
     /** Dynamic duration node that gets the duration between two time instants. */
     static class BetweenInstancesNode
             extends DynamicDataBiTransformNode<Instant, Instant, Duration> {
 
         BetweenInstancesNode(DynamicTypeValueReceiverWithPreUpdate<Duration> downstream) {
             super(downstream, Duration::between);
+        }
+    }
+
+    /** Dynamic Duration node that gets value from the state. */
+    static class StateDurationSourceNode extends StateSourceNode<Duration> {
+
+        StateDurationSourceNode(
+                DataStore dataStore,
+                DynamicProto.StateDurationSource protoNode,
+                DynamicTypeValueReceiverWithPreUpdate<Duration> downstream) {
+            super(
+                    dataStore,
+                    StateSourceNode.<DynamicBuilders.DynamicDuration>createKey(
+                            protoNode.getSourceNamespace(), protoNode.getSourceKey()),
+                    se -> Duration.ofSeconds(se.getDurationVal().getSeconds()),
+                    downstream);
         }
     }
 }

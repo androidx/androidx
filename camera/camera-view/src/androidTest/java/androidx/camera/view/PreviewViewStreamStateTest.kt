@@ -24,12 +24,12 @@ import androidx.camera.core.CameraXConfig
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.testing.CameraPipeConfigTestRule
-import androidx.camera.testing.CameraUtil
-import androidx.camera.testing.CameraUtil.PreTestCameraIdList
-import androidx.camera.testing.CoreAppTestUtil
-import androidx.camera.testing.fakes.FakeActivity
-import androidx.camera.testing.fakes.FakeLifecycleOwner
+import androidx.camera.testing.impl.CameraPipeConfigTestRule
+import androidx.camera.testing.impl.CameraUtil
+import androidx.camera.testing.impl.CameraUtil.PreTestCameraIdList
+import androidx.camera.testing.impl.CoreAppTestUtil
+import androidx.camera.testing.impl.fakes.FakeActivity
+import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
 import androidx.test.core.app.ApplicationProvider
@@ -102,7 +102,7 @@ class PreviewViewStreamStateTest(
     fun tearDown() {
         if (isSetup) {
             instrumentation.runOnMainSync {
-                cameraProvider.shutdown()[10000, TimeUnit.MILLISECONDS]
+                cameraProvider.shutdownAsync()[10000, TimeUnit.MILLISECONDS]
             }
             isSetup = false
         }

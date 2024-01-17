@@ -242,7 +242,6 @@ private constructor(
      * used.
      *
      * Note this method can be slow.
-     *
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun estimateWireSizeInBytesAndValidateIconDimensions(
@@ -1028,6 +1027,7 @@ private constructor(
                 nameResourceId?.let { dos.writeInt(it) }
                 screenReaderNameResourceId?.let { dos.writeInt(it) }
             }
+
             /**
              * Constructs a [ComplicationSlotOverlay].Builder.
              *
@@ -1466,7 +1466,7 @@ private constructor(
                 get() = displayNameInternal.toCharSequence()
 
             /** Backing field for [screenReaderName]. */
-            override var screenReaderNameInternal: DisplayText?
+            final override var screenReaderNameInternal: DisplayText?
 
             /**
              * Optional localized human readable name for the setting, used by screen readers. This
@@ -2250,7 +2250,7 @@ private constructor(
                 get() = displayNameInternal.toCharSequence()
 
             /** Backing field for [screenReaderName]. */
-            override var screenReaderNameInternal: DisplayText?
+            final override var screenReaderNameInternal: DisplayText?
 
             /**
              * Optional localized human readable name for the setting, used by screen readers. This

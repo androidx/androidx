@@ -16,9 +16,9 @@
 
 package androidx.tv.material3
 
-import androidx.compose.foundation.interaction.Interaction
 import androidx.annotation.FloatRange
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable

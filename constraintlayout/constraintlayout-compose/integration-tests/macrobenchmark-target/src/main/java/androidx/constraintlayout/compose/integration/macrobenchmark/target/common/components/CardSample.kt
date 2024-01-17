@@ -28,10 +28,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.constraintlayout.compose.integration.macrobenchmark.target.common.sampledata.LoremIpsum
-import androidx.constraintlayout.compose.integration.macrobenchmark.target.common.sampledata.newHourMinuteTimeStamp
-import androidx.constraintlayout.compose.integration.macrobenchmark.target.common.sampledata.randomAvatarId
-import androidx.constraintlayout.compose.integration.macrobenchmark.target.common.sampledata.randomFullName
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -45,6 +41,10 @@ import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.ConstraintSet
 import androidx.constraintlayout.compose.Dimension
+import androidx.constraintlayout.compose.integration.macrobenchmark.target.common.sampledata.LoremIpsum
+import androidx.constraintlayout.compose.integration.macrobenchmark.target.common.sampledata.newHourMinuteTimeStamp
+import androidx.constraintlayout.compose.integration.macrobenchmark.target.common.sampledata.randomAvatarId
+import androidx.constraintlayout.compose.integration.macrobenchmark.target.common.sampledata.randomFullName
 
 @Preview
 @Composable

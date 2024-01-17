@@ -16,6 +16,7 @@
 
 package androidx.wear.tiles.material;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -26,9 +27,9 @@ import androidx.test.core.app.ActivityScenario;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.screenshot.AndroidXScreenshotTestRule;
 import androidx.test.screenshot.matchers.MSSIMMatcher;
-import androidx.wear.tiles.LayoutElementBuilders;
 import androidx.wear.tiles.material.testapp.GoldenTestActivity;
 
+@SuppressWarnings("deprecation")
 public class RunnerUtils {
     // This isn't totally ideal right now. The screenshot tests run on a phone, so emulate some
     // watch dimensions here.
@@ -39,7 +40,7 @@ public class RunnerUtils {
 
     public static void runSingleScreenshotTest(
             @NonNull AndroidXScreenshotTestRule rule,
-            @NonNull LayoutElementBuilders.LayoutElement layoutElement,
+            @NonNull androidx.wear.tiles.LayoutElementBuilders.LayoutElement layoutElement,
             @NonNull String expected) {
         byte[] layoutElementPayload = layoutElement.toLayoutElementProto().toByteArray();
 
@@ -87,6 +88,16 @@ public class RunnerUtils {
                 Thread.currentThread().interrupt();
             }
             Log.e("MaterialGoldenTest", "Error sleeping", ex);
+        }
+    }
+
+    @SuppressLint("BanThreadSleep")
+    public static void waitForNotificationToDisappears() {
+        try {
+            // Wait for the initial notification to disappear.
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            Log.e("MaterialGoldenTest", "Error sleeping", e);
         }
     }
 }

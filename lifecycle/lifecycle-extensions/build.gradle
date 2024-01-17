@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.Publish
 import androidx.build.RunApiTasks
 
@@ -25,8 +32,8 @@ plugins {
 
 dependencies {
     api("androidx.lifecycle:lifecycle-runtime:2.2.0")
-    api("androidx.arch.core:core-common:2.1.0")
-    api("androidx.arch.core:core-runtime:2.1.0")
+    api("androidx.arch.core:core-common:2.2.0")
+    api("androidx.arch.core:core-runtime:2.2.0")
     api("androidx.fragment:fragment:1.2.0")
     api("androidx.lifecycle:lifecycle-common:2.2.0")
     api("androidx.lifecycle:lifecycle-livedata:2.2.0")
@@ -34,7 +41,7 @@ dependencies {
     api("androidx.lifecycle:lifecycle-service:2.2.0")
     api("androidx.lifecycle:lifecycle-viewmodel:2.2.0")
 
-    testImplementation("androidx.arch.core:core-testing:2.1.0")
+    testImplementation("androidx.arch.core:core-testing:2.2.0")
     testImplementation(libs.junit)
     testImplementation(libs.mockitoCore4)
 
@@ -51,12 +58,13 @@ dependencies {
 }
 
 androidx {
-    name = "Android Lifecycle Extensions"
+    name = "Lifecycle Extensions"
     publish = Publish.NONE
     runApiTasks = new RunApiTasks.Yes("Need to track API surface before moving to publish")
     inceptionYear = "2017"
     description = "Android Lifecycle Extensions"
     failOnDeprecationWarnings = false
+    metalavaK2UastEnabled = true
 }
 
 android {

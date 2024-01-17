@@ -21,7 +21,6 @@ import android.view.KeyEvent;
 import android.view.View;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.emoji2.text.EmojiCompat;
 
@@ -30,7 +29,6 @@ import androidx.emoji2.text.EmojiCompat;
  *
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-@RequiresApi(19)
 final class EmojiKeyListener implements android.text.method.KeyListener {
     private final android.text.method.KeyListener mKeyListener;
     private final EmojiCompatHandleKeyDownHelper mEmojiCompatHandleKeyDownHelper;

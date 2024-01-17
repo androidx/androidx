@@ -30,9 +30,18 @@ interface XMethodType : XExecutableType {
      */
     val returnType: XType
 
+    val typeVariables: List<XTypeVariableType>
+
     /**
      * Returns the names of [TypeVariableName]s for this executable.
      */
+    @Deprecated(
+        message = "Use typeVariables property and convert to JavaPoet names.",
+        replaceWith = ReplaceWith(
+            expression = "typeVariables.map { it.asTypeName().toJavaPoet() }",
+            imports = ["androidx.room.compiler.codegen.toJavaPoet"]
+        )
+    )
     val typeVariableNames: List<TypeVariableName>
 }
 

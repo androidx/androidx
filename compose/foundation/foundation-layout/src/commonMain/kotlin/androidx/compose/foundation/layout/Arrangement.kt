@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.layout
 
+import androidx.compose.foundation.layout.internal.JvmDefaultWithCompatibility
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.Alignment
@@ -23,9 +24,9 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastRoundToInt
 import kotlin.math.min
-import kotlin.math.roundToInt
-import androidx.compose.foundation.layout.internal.JvmDefaultWithCompatibility
+
 /**
  * Used to specify the arrangement of the layout's children in layouts like [Row] or [Column] in
  * the main axis direction (horizontal and vertical, respectively).
@@ -638,7 +639,7 @@ object Arrangement {
         val consumedSize = size.fold(0) { a, b -> a + b }
         var current = (totalSize - consumedSize).toFloat() / 2
         size.forEachIndexed(reverseInput) { index, it ->
-            outPosition[index] = current.roundToInt()
+            outPosition[index] = current.fastRoundToInt()
             current += it.toFloat()
         }
     }
@@ -653,7 +654,7 @@ object Arrangement {
         val gapSize = (totalSize - consumedSize).toFloat() / (size.size + 1)
         var current = gapSize
         size.forEachIndexed(reverseInput) { index, it ->
-            outPosition[index] = current.roundToInt()
+            outPosition[index] = current.fastRoundToInt()
             current += it.toFloat() + gapSize
         }
     }
@@ -664,15 +665,20 @@ object Arrangement {
         outPosition: IntArray,
         reverseInput: Boolean
     ) {
+        if (size.isEmpty()) return
+
         val consumedSize = size.fold(0) { a, b -> a + b }
-        val gapSize = if (size.size > 1) {
-            (totalSize - consumedSize).toFloat() / (size.size - 1)
-        } else {
-            0f
-        }
+        val noOfGaps = maxOf(size.lastIndex, 1)
+        val gapSize = (totalSize - consumedSize).toFloat() / noOfGaps
+
         var current = 0f
+        if (reverseInput && size.size == 1) {
+            // If the layout direction is right-to-left and there is only one gap,
+            // we start current with the gap size. That forces the single item to be right-aligned.
+            current = gapSize
+        }
         size.forEachIndexed(reverseInput) { index, it ->
-            outPosition[index] = current.roundToInt()
+            outPosition[index] = current.fastRoundToInt()
             current += it.toFloat() + gapSize
         }
     }
@@ -691,7 +697,7 @@ object Arrangement {
         }
         var current = gapSize / 2
         size.forEachIndexed(reverseInput) { index, it ->
-            outPosition[index] = current.roundToInt()
+            outPosition[index] = current.fastRoundToInt()
             current += it.toFloat() + gapSize
         }
     }

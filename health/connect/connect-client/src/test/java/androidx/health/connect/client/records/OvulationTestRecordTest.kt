@@ -26,7 +26,7 @@ class OvulationTestRecordTest {
 
     @Test
     fun resultEnums_existInMapping() {
-        val allEnums = OvulationTestRecord.Companion::class.allIntDefEnumsWithPrefix("RESULT")
+        val allEnums = getAllIntDefEnums<OvulationTestRecord>("""RESULT.*(?<!UNKNOWN)$""")
 
         assertThat(OvulationTestRecord.RESULT_STRING_TO_INT_MAP.values)
             .containsExactlyElementsIn(allEnums)

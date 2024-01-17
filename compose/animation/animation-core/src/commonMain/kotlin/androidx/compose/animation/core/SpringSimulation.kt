@@ -19,7 +19,6 @@ package androidx.compose.animation.core
 import androidx.compose.ui.util.packFloats
 import androidx.compose.ui.util.unpackFloat1
 import androidx.compose.ui.util.unpackFloat2
-
 import kotlin.math.cos
 import kotlin.math.exp
 import kotlin.math.sin

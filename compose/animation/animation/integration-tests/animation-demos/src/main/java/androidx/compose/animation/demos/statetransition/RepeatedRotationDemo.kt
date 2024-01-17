@@ -20,8 +20,8 @@ import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.repeatable
-import androidx.compose.animation.core.updateTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -74,7 +74,7 @@ fun RepeatedRotationDemo() {
                         iterations = 10,
                         animation = keyframes {
                             durationMillis = 1000
-                            0f at 0 with LinearEasing
+                            0f at 0 using LinearEasing
                             360f at 1000
                         }
                     )

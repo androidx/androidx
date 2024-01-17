@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.3.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-beta01)" variant="all" version="8.3.0-beta01">
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with `@androidx.core.telecom.util.ExperimentalAppActions` or `@OptIn(markerClass = androidx.core.telecom.util.ExperimentalAppActions.class)`"
+        errorLine1="    val voipParticipantActionRequestsChannel: Channel&lt;VoipParticipantActionRequest> ="
+        errorLine2="                                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/telecom/internal/CallChannels.kt"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with `@androidx.core.telecom.util.ExperimentalAppActions` or `@OptIn(markerClass = androidx.core.telecom.util.ExperimentalAppActions.class)`"
+        errorLine1="        fun toCallCompat(call: Call, scope: CoroutineScope, init: CallCompat.() -> Unit):"
+        errorLine2="                                                                  ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/telecom/internal/CallCompat.kt"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with `@androidx.core.telecom.util.ExperimentalAppActions` or `@OptIn(markerClass = androidx.core.telecom.util.ExperimentalAppActions.class)`"
+        errorLine1="    private var mCapabilities: MutableList&lt;androidx.core.telecom.extensions.Capability> ="
+        errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/telecom/CallsManager.kt"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with `@androidx.core.telecom.util.ExperimentalAppActions` or `@OptIn(markerClass = androidx.core.telecom.util.ExperimentalAppActions.class)`"
+        errorLine1="        capabilities: List&lt;androidx.core.telecom.extensions.Capability>"
+        errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/telecom/CallsManager.kt"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with `@androidx.core.telecom.util.ExperimentalAppActions` or `@OptIn(markerClass = androidx.core.telecom.util.ExperimentalAppActions.class)`"
+        errorLine1="    val participantsStateFlow: StateFlow&lt;Set&lt;Participant>>"
+        errorLine2="                                             ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/telecom/extensions/ParticipantClientExtension.kt"/>
+    </issue>
+
+</issues>

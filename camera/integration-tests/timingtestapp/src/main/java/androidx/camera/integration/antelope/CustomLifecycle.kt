@@ -18,10 +18,10 @@ package androidx.camera.integration.antelope
 
 import android.os.Handler
 import android.os.Looper
+import androidx.camera.integration.antelope.MainActivity.Companion.logd
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
-import androidx.camera.integration.antelope.MainActivity.Companion.logd
 
 /**
  * Camera X normally handles lifecycle events itself. Optimizations in the API make it difficult

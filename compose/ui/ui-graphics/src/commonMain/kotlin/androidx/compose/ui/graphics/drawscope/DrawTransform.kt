@@ -19,8 +19,8 @@ package androidx.compose.ui.graphics.drawscope
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.ClipOp
-import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.Matrix
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.degrees
 import androidx.compose.ui.graphics.internal.JvmDefaultWithCompatibility
 

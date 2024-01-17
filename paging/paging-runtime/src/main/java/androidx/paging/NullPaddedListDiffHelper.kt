@@ -39,14 +39,14 @@ internal fun <T : Any> NullPaddedList<T>.computeDiff(
     newList: NullPaddedList<T>,
     diffCallback: DiffUtil.ItemCallback<T>
 ): NullPaddedDiffResult {
-    val oldSize = storageCount
-    val newSize = newList.storageCount
+    val oldSize = dataCount
+    val newSize = newList.dataCount
 
     val diffResult = DiffUtil.calculateDiff(
         object : DiffUtil.Callback() {
             override fun getChangePayload(oldItemPosition: Int, newItemPosition: Int): Any? {
-                val oldItem = getFromStorage(oldItemPosition)
-                val newItem = newList.getFromStorage(newItemPosition)
+                val oldItem = getItem(oldItemPosition)
+                val newItem = newList.getItem(newItemPosition)
 
                 return when {
                     oldItem === newItem -> true
@@ -59,8 +59,8 @@ internal fun <T : Any> NullPaddedList<T>.computeDiff(
             override fun getNewListSize() = newSize
 
             override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-                val oldItem = getFromStorage(oldItemPosition)
-                val newItem = newList.getFromStorage(newItemPosition)
+                val oldItem = getItem(oldItemPosition)
+                val newItem = newList.getItem(newItemPosition)
 
                 return when {
                     oldItem === newItem -> true
@@ -69,8 +69,8 @@ internal fun <T : Any> NullPaddedList<T>.computeDiff(
             }
 
             override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-                val oldItem = getFromStorage(oldItemPosition)
-                val newItem = newList.getFromStorage(newItemPosition)
+                val oldItem = getItem(oldItemPosition)
+                val newItem = newList.getItem(newItemPosition)
 
                 return when {
                     oldItem === newItem -> true
@@ -81,34 +81,13 @@ internal fun <T : Any> NullPaddedList<T>.computeDiff(
         true
     )
     // find first overlap
-    val hasOverlap = (0 until storageCount).any {
+    val hasOverlap = (0 until dataCount).any {
         diffResult.convertOldPositionToNew(it) != RecyclerView.NO_POSITION
     }
     return NullPaddedDiffResult(
         diff = diffResult,
         hasOverlap = hasOverlap
     )
-}
-
-private class OffsettingListUpdateCallback internal constructor(
-    private val offset: Int,
-    private val callback: ListUpdateCallback
-) : ListUpdateCallback {
-    override fun onInserted(position: Int, count: Int) {
-        callback.onInserted(position + offset, count)
-    }
-
-    override fun onRemoved(position: Int, count: Int) {
-        callback.onRemoved(position + offset, count)
-    }
-
-    override fun onMoved(fromPosition: Int, toPosition: Int) {
-        callback.onMoved(fromPosition + offset, toPosition + offset)
-    }
-
-    override fun onChanged(position: Int, count: Int, payload: Any?) {
-        callback.onChanged(position + offset, count, payload)
-    }
 }
 
 /**
@@ -159,7 +138,7 @@ internal fun NullPaddedList<*>.transformAnchorIndex(
     // (see also dispatchDiff(), which adds this offset when dispatching)
     val diffIndex = oldPosition - placeholdersBefore
 
-    val oldSize = storageCount
+    val oldSize = dataCount
 
     // if our anchor is non-null, use it or close item's position in new list
     if (diffIndex in 0 until oldSize) {
@@ -168,7 +147,7 @@ internal fun NullPaddedList<*>.transformAnchorIndex(
             val positionToTry = diffIndex + i / 2 * if (i % 2 == 1) -1 else 1
 
             // reject if (null) item was not passed to DiffUtil, and wouldn't be in the result
-            if (positionToTry < 0 || positionToTry >= storageCount) {
+            if (positionToTry < 0 || positionToTry >= dataCount) {
                 continue
             }
 
@@ -219,7 +198,7 @@ internal object OverlappingListsDiffDispatcher {
         // updated as we dispatch notify events to `callback`.
         private var placeholdersBefore = oldList.placeholdersBefore
         private var placeholdersAfter = oldList.placeholdersAfter
-        private var storageCount = oldList.storageCount
+        private var storageCount = oldList.dataCount
 
         // Track if we used placeholders for a certain case to avoid using them for both additions
         // and removals at the same time, which might end up sending misleading change events.
@@ -492,8 +471,8 @@ internal object DistinctListsDiffDispatcher {
             oldList.placeholdersBefore, newList.placeholdersBefore
         )
         val storageOverlapEnd = minOf(
-            oldList.placeholdersBefore + oldList.storageCount,
-            newList.placeholdersBefore + newList.storageCount
+            oldList.placeholdersBefore + oldList.dataCount,
+            newList.placeholdersBefore + newList.dataCount
         )
         // we need to dispatch add/remove for overlapping storage positions
         val overlappingStorageSize = storageOverlapEnd - storageOverlapStart
@@ -511,7 +490,7 @@ internal object DistinctListsDiffDispatcher {
             startBoundary = changeEventStartBoundary,
             endBoundary = changeEventEndBoundary,
             start = oldList.placeholdersBefore.coerceAtMost(newList.size),
-            end = (oldList.placeholdersBefore + oldList.storageCount).coerceAtMost(newList.size),
+            end = (oldList.placeholdersBefore + oldList.dataCount).coerceAtMost(newList.size),
             payload = ITEM_TO_PLACEHOLDER
         )
         // now for new items that were mapping to placeholders, send change events
@@ -520,7 +499,7 @@ internal object DistinctListsDiffDispatcher {
             startBoundary = changeEventStartBoundary,
             endBoundary = changeEventEndBoundary,
             start = newList.placeholdersBefore.coerceAtMost(oldList.size),
-            end = (newList.placeholdersBefore + newList.storageCount).coerceAtMost(oldList.size),
+            end = (newList.placeholdersBefore + newList.dataCount).coerceAtMost(oldList.size),
             payload = PLACEHOLDER_TO_ITEM
         )
         // finally, fix the size

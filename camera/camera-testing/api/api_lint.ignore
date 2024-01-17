@@ -1,0 +1,27 @@
+// Baseline format: 1.0
+AsyncSuffixFuture: androidx.camera.testing.fakes.FakeCamera#release():
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.camera.testing.fakes.FakeCameraControl#cancelFocusAndMetering():
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.camera.testing.fakes.FakeCameraControl#enableTorch(boolean):
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.camera.testing.fakes.FakeCameraControl#setExposureCompensationIndex(int):
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.camera.testing.fakes.FakeCameraControl#setLinearZoom(float):
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.camera.testing.fakes.FakeCameraControl#setZoomRatio(float):
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.camera.testing.fakes.FakeCameraControl#startFocusAndMetering(androidx.camera.core.FocusMeteringAction):
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.camera.testing.fakes.FakeCameraControl#submitStillCaptureRequests(java.util.List<androidx.camera.core.impl.CaptureConfig>, int, int):
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+
+
+NotCloseable: androidx.camera.testing.fakes.FakeCamera:
+    Classes that release resources (close(), release()) should implement AutoCloseable and CloseGuard: class androidx.camera.testing.fakes.FakeCamera
+
+
+RegistrationName: androidx.camera.testing.fakes.FakeCameraInfoInternal#addSessionCaptureCallback(java.util.concurrent.Executor, androidx.camera.core.impl.CameraCaptureCallback):
+    Callback methods should be named register/unregister; was addSessionCaptureCallback
+RegistrationName: androidx.camera.testing.fakes.FakeCameraInfoInternal#removeSessionCaptureCallback(androidx.camera.core.impl.CameraCaptureCallback):
+    Callback methods should be named register/unregister; was removeSessionCaptureCallback

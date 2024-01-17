@@ -16,10 +16,14 @@
 
 package androidx.core.app;
 
+import static android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_MANIFEST;
+import static android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_NONE;
+
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.app.Notification;
 import android.app.Service;
+import android.content.pm.ServiceInfo;
 import android.os.Build;
 
 import androidx.annotation.DoNotInline;
@@ -88,9 +92,95 @@ public final class ServiceCompat {
     @Retention(RetentionPolicy.SOURCE)
     public @interface StopForegroundFlags {}
 
+    private static final int FOREGROUND_SERVICE_TYPE_ALLOWED_SINCE_Q =
+            ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
+            | ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK
+            | ServiceInfo.FOREGROUND_SERVICE_TYPE_PHONE_CALL
+            | ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION
+            | ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE
+            | ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION
+            | ServiceInfo.FOREGROUND_SERVICE_TYPE_CAMERA
+            | ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE;
+
+    private static final int FOREGROUND_SERVICE_TYPE_ALLOWED_SINCE_U =
+            ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
+            | ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK
+            | ServiceInfo.FOREGROUND_SERVICE_TYPE_PHONE_CALL
+            | ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION
+            | ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE
+            | ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION
+            | ServiceInfo.FOREGROUND_SERVICE_TYPE_CAMERA
+            | ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE
+            | ServiceInfo.FOREGROUND_SERVICE_TYPE_HEALTH
+            | ServiceInfo.FOREGROUND_SERVICE_TYPE_REMOTE_MESSAGING
+            | ServiceInfo.FOREGROUND_SERVICE_TYPE_SYSTEM_EXEMPTED
+            | ServiceInfo.FOREGROUND_SERVICE_TYPE_SHORT_SERVICE
+            | ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE;
+
+    /**
+     * {@link Service#startForeground(int, Notification, int)} with the third parameter
+     * {@code foregroundServiceType} was added in {@link android.os.Build.VERSION_CODES#Q}.
+     *
+     * <p>Before SDK Version {@link android.os.Build.VERSION_CODES#Q}, this method call should call
+     * {@link Service#startForeground(int, Notification)} without the {@code foregroundServiceType}
+     * parameter.</p>
+     *
+     * <p>Beginning with SDK Version {@link android.os.Build.VERSION_CODES#Q}, the allowed
+     * foregroundServiceType are:
+     * <ul>
+     *   <li>{@link ServiceInfo#FOREGROUND_SERVICE_TYPE_MANIFEST}</li>
+     *   <li>{@link ServiceInfo#FOREGROUND_SERVICE_TYPE_NONE}</li>
+     *   <li>{@link ServiceInfo#FOREGROUND_SERVICE_TYPE_DATA_SYNC}</li>
+     *   <li>{@link ServiceInfo#FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK}</li>
+     *   <li>{@link ServiceInfo#FOREGROUND_SERVICE_TYPE_PHONE_CALL}</li>
+     *   <li>{@link ServiceInfo#FOREGROUND_SERVICE_TYPE_LOCATION}</li>
+     *   <li>{@link ServiceInfo#FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE}</li>
+     *   <li>{@link ServiceInfo#FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION}</li>
+     *   <li>{@link ServiceInfo#FOREGROUND_SERVICE_TYPE_CAMERA}</li>
+     *   <li>{@link ServiceInfo#FOREGROUND_SERVICE_TYPE_MICROPHONE}</li>
+     * </ul>
+     * </p>
+     *
+     * <p>Beginning with SDK Version {@link android.os.Build.VERSION_CODES#UPSIDE_DOWN_CAKE},
+     * apps targeting SDK Version {@link android.os.Build.VERSION_CODES#UPSIDE_DOWN_CAKE} is not
+     * allowed to use {@link ServiceInfo#FOREGROUND_SERVICE_TYPE_NONE}. The allowed
+     * foregroundServiceType are:
+     * <ul>
+     *   <li>{@link ServiceInfo#FOREGROUND_SERVICE_TYPE_MANIFEST}</li>
+     *   <li>{@link ServiceInfo#FOREGROUND_SERVICE_TYPE_DATA_SYNC}</li>
+     *   <li>{@link ServiceInfo#FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK}</li>
+     *   <li>{@link ServiceInfo#FOREGROUND_SERVICE_TYPE_PHONE_CALL}</li>
+     *   <li>{@link ServiceInfo#FOREGROUND_SERVICE_TYPE_LOCATION}</li>
+     *   <li>{@link ServiceInfo#FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE}</li>
+     *   <li>{@link ServiceInfo#FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION}</li>
+     *   <li>{@link ServiceInfo#FOREGROUND_SERVICE_TYPE_CAMERA}</li>
+     *   <li>{@link ServiceInfo#FOREGROUND_SERVICE_TYPE_MICROPHONE}</li>
+     *   <li>{@link ServiceInfo#FOREGROUND_SERVICE_TYPE_HEALTH}</li>
+     *   <li>{@link ServiceInfo#FOREGROUND_SERVICE_TYPE_REMOTE_MESSAGING}</li>
+     *   <li>{@link ServiceInfo#FOREGROUND_SERVICE_TYPE_SYSTEM_EXEMPTED}</li>
+     *   <li>{@link ServiceInfo#FOREGROUND_SERVICE_TYPE_SHORT_SERVICE}</li>
+     *   <li>{@link ServiceInfo#FOREGROUND_SERVICE_TYPE_SPECIAL_USE}</li>
+     * </ul>
+     * </p>
+     *
+     * @see Service#startForeground(int, Notification)
+     * @see Service#startForeground(int, Notification, int)
+     */
+    public static void startForeground(@NonNull Service service, int id,
+            @NonNull Notification notification, int foregroundServiceType) {
+        if (Build.VERSION.SDK_INT >= 34) {
+            Api34Impl.startForeground(service, id, notification, foregroundServiceType);
+        } else if (Build.VERSION.SDK_INT >= 29) {
+            Api29Impl.startForeground(service, id, notification, foregroundServiceType);
+        } else {
+            service.startForeground(id, notification);
+        }
+    }
+
     /**
      * Remove the passed service from foreground state, allowing it to be killed if
      * more memory is needed.
+     * @param service service to remove.
      * @param flags Additional behavior options: {@link #STOP_FOREGROUND_REMOVE},
      * {@link #STOP_FOREGROUND_DETACH}.
      * @see Service#startForeground(int, Notification)
@@ -115,4 +205,43 @@ public final class ServiceCompat {
             service.stopForeground(flags);
         }
     }
+
+    @RequiresApi(29)
+    static class Api29Impl {
+        private Api29Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static void startForeground(Service service, int id, Notification notification,
+                int foregroundServiceType) {
+            if (foregroundServiceType == FOREGROUND_SERVICE_TYPE_NONE
+                    || foregroundServiceType == FOREGROUND_SERVICE_TYPE_MANIFEST) {
+                service.startForeground(id, notification, foregroundServiceType);
+            } else {
+                service.startForeground(id, notification,
+                        foregroundServiceType & FOREGROUND_SERVICE_TYPE_ALLOWED_SINCE_Q);
+            }
+        }
+    }
+
+    @RequiresApi(34)
+    static class Api34Impl {
+        private Api34Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static void startForeground(Service service, int id, Notification notification,
+                int foregroundServiceType) {
+            if (foregroundServiceType == FOREGROUND_SERVICE_TYPE_NONE
+                    || foregroundServiceType == FOREGROUND_SERVICE_TYPE_MANIFEST) {
+                service.startForeground(id, notification, foregroundServiceType);
+            } else {
+                service.startForeground(id, notification,
+                        foregroundServiceType & FOREGROUND_SERVICE_TYPE_ALLOWED_SINCE_U);
+            }
+        }
+    }
+
 }

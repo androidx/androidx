@@ -30,10 +30,10 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import kotlin.random.Random
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import kotlin.random.Random
 
 /**
  * For some tests, this test uses a real recyclerview with a real adapter to serve as an
@@ -418,8 +418,8 @@ class NullPaddedListDiffWithRecyclerViewTest {
         repeat(RANDOM_TEST_REPEAT_SIZE) {
             val pre = randomNullPaddedStorage(0)
             val post = randomNullPaddedStorage(
-                startId = if (pre.storageCount > 0) {
-                    pre.getFromStorage(rand.nextInt(pre.storageCount)).id
+                startId = if (pre.dataCount > 0) {
+                    pre.getItem(rand.nextInt(pre.dataCount)).id
                 } else {
                     0
                 }
@@ -621,12 +621,12 @@ class NullPaddedListDiffWithRecyclerViewTest {
             """.trimIndent()
         }
 
-        override fun getFromStorage(localIndex: Int): NullPaddedListItem = data[localIndex]
+        override fun getItem(index: Int): NullPaddedListItem = data[index]
 
         override val size: Int
             get() = placeholdersBefore + data.size + placeholdersAfter
 
-        override val storageCount: Int
+        override val dataCount: Int
             get() = data.size
 
         override fun toString() = stringRepresentation
@@ -821,8 +821,8 @@ class NullPaddedListDiffWithRecyclerViewTest {
 private fun <T> NullPaddedList<T>.get(index: Int): T? {
     if (index < placeholdersBefore) return null
     val storageIndex = index - placeholdersBefore
-    if (storageIndex >= storageCount) return null
-    return getFromStorage(storageIndex)
+    if (storageIndex >= dataCount) return null
+    return getItem(storageIndex)
 }
 
 /**

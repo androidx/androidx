@@ -29,6 +29,7 @@ import androidx.testutils.withActivity
 import androidx.testutils.withUse
 import com.google.common.truth.Truth.assertThat
 import leakcanary.DetectLeaksAfterTestSuccess
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -161,6 +162,71 @@ class SpecialEffectsControllerTest {
             // Assert that we actually moved to the STARTED state
             assertThat(fragment.lifecycle.currentState)
                 .isEqualTo(Lifecycle.State.STARTED)
+        }
+    }
+
+    @Ignore // Ignore this test until we find a way to better test this scenario.
+    @MediumTest
+    @Test
+    fun ensureOnlyChangeContainerStatusForCompletedOperation() {
+        withUse(ActivityScenario.launch(EmptyFragmentTestActivity::class.java)) {
+            val container = withActivity { findViewById<ViewGroup>(android.R.id.content) }
+            val fm = withActivity { supportFragmentManager }
+            fm.specialEffectsControllerFactory = SpecialEffectsControllerFactory {
+                TestSpecialEffectsController(it)
+            }
+            val fragment1 = StrictViewFragment()
+            val fragmentStore = FragmentStore()
+            fragmentStore.nonConfig = FragmentManagerViewModel(true)
+            val fragmentStateManager1 = FragmentStateManager(
+                fm.lifecycleCallbacksDispatcher,
+                fragmentStore, fragment1
+            )
+
+            val fragment2 = StrictViewFragment()
+            val fragmentStateManager2 = FragmentStateManager(
+                fm.lifecycleCallbacksDispatcher,
+                fragmentStore, fragment2
+            )
+            // Set up the Fragment and FragmentStateManager as if the Fragment was
+            // added to the container via a FragmentTransaction
+            fragment1.mFragmentManager = fm
+            fragment1.mAdded = true
+            fragment1.mContainerId = android.R.id.content
+
+            fragment2.mFragmentManager = fm
+            fragment2.mAdded = true
+            fragment2.mContainerId = android.R.id.content
+            fragmentStateManager1.setFragmentManagerState(Fragment.ACTIVITY_CREATED)
+            fragmentStateManager2.setFragmentManagerState(Fragment.ACTIVITY_CREATED)
+            val controller = SpecialEffectsController.getOrCreateController(container, fm)
+                as TestSpecialEffectsController
+            onActivity {
+                // This moves the Fragment up to ACTIVITY_CREATED,
+                // calling enqueueAdd() under the hood
+                fragmentStateManager1.moveToExpectedState()
+                fragmentStateManager2.moveToExpectedState()
+                controller.executePendingOperations()
+            }
+            assertThat(fragment1.view)
+                .isNotNull()
+            // setFragmentManagerState() doesn't call moveToExpectedState() itself
+            fragmentStateManager1.setFragmentManagerState(Fragment.STARTED)
+            assertThat(controller.getAwaitingCompletionLifecycleImpact(fragmentStateManager1))
+                .isEqualTo(SpecialEffectsController.Operation.LifecycleImpact.ADDING)
+            fragmentStateManager2.setFragmentManagerState(Fragment.STARTED)
+            assertThat(controller.getAwaitingCompletionLifecycleImpact(fragmentStateManager2))
+                .isEqualTo(SpecialEffectsController.Operation.LifecycleImpact.ADDING)
+            val operation2 = controller.operationsToExecute[1]
+            var awaitingChanges = true
+            operation2.addCompletionListener {
+                awaitingChanges = operation2.isAwaitingContainerChanges
+            }
+            val operation = controller.operationsToExecute[0]
+            onActivity {
+                operation.complete()
+            }
+            assertThat(awaitingChanges).isTrue()
         }
     }
 
@@ -468,17 +534,28 @@ internal class TestSpecialEffectsController(
 ) : SpecialEffectsController(container) {
     val operationsToExecute = mutableListOf<Operation>()
 
-    override fun executeOperations(operations: List<Operation>, isPop: Boolean) {
+    override fun collectEffects(operations: List<Operation>, isPop: Boolean) {
         operationsToExecute.addAll(operations)
         operations.forEach { operation ->
+            val effect = object : Effect() {
+                override fun onCancel(container: ViewGroup) {
+                    operation.completeEffect(this)
+                }
+            }
+            operation.addEffect(effect)
             operation.addCompletionListener {
                 operationsToExecute.remove(operation)
+                operation.isAwaitingContainerChanges = false
             }
         }
     }
 
     fun completeAllOperations() {
-        operationsToExecute.forEach(Operation::complete)
+        operationsToExecute.forEach { operation ->
+            operation.effects.forEach { effect ->
+                operation.completeEffect(effect)
+            }
+        }
         operationsToExecute.clear()
     }
 }
@@ -488,8 +565,7 @@ internal class InstantSpecialEffectsController(
 ) : SpecialEffectsController(container) {
     var executeOperationsCallCount = 0
 
-    override fun executeOperations(operations: List<Operation>, isPop: Boolean) {
+    override fun collectEffects(operations: List<Operation>, isPop: Boolean) {
         executeOperationsCallCount++
-        operations.forEach(Operation::complete)
     }
 }

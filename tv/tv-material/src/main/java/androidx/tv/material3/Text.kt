@@ -86,6 +86,7 @@ import androidx.tv.material3.tokens.DefaultTextStyle
  * functionality to the text. For example, to draw selection around the text.
  * @param style style configuration for the text such as color, font, line height etc.
  */
+@ExperimentalTvMaterial3Api
 @Composable
 fun Text(
     text: String,
@@ -97,7 +98,7 @@ fun Text(
     fontFamily: FontFamily? = null,
     letterSpacing: TextUnit = TextUnit.Unspecified,
     textDecoration: TextDecoration? = null,
-    textAlign: TextAlign? = null,
+    textAlign: TextAlign = TextAlign.Unspecified,
     lineHeight: TextUnit = TextUnit.Unspecified,
     overflow: TextOverflow = TextOverflow.Clip,
     softWrap: Boolean = true,
@@ -105,30 +106,27 @@ fun Text(
     onTextLayout: (TextLayoutResult) -> Unit = {},
     style: TextStyle = LocalTextStyle.current
 ) {
+
     val textColor = color.takeOrElse {
         style.color.takeOrElse {
             LocalContentColor.current
         }
     }
-    // NOTE(text-perf-review): It might be worthwhile writing a bespoke merge implementation that
-    // will avoid reallocating if all of the options here are the defaults
-    val mergedStyle = style.merge(
-        TextStyle(
-            color = textColor,
-            fontSize = fontSize,
-            fontWeight = fontWeight,
-            textAlign = textAlign,
-            lineHeight = lineHeight,
-            fontFamily = fontFamily,
-            textDecoration = textDecoration,
-            fontStyle = fontStyle,
-            letterSpacing = letterSpacing
-        )
-    )
+
     BasicText(
         text,
         modifier,
-        mergedStyle,
+        style.merge(
+                color = textColor,
+                fontSize = fontSize,
+                fontWeight = fontWeight,
+                textAlign = textAlign,
+                lineHeight = lineHeight,
+                fontFamily = fontFamily,
+                textDecoration = textDecoration,
+                fontStyle = fontStyle,
+                letterSpacing = letterSpacing
+            ),
         onTextLayout,
         overflow,
         softWrap,
@@ -186,6 +184,7 @@ fun Text(
  * functionality to the text. For example, to draw selection around the text.
  * @param style style configuration for the text such as color, font, line height etc.
  */
+@ExperimentalTvMaterial3Api
 @Composable
 fun Text(
     text: AnnotatedString,
@@ -197,7 +196,7 @@ fun Text(
     fontFamily: FontFamily? = null,
     letterSpacing: TextUnit = TextUnit.Unspecified,
     textDecoration: TextDecoration? = null,
-    textAlign: TextAlign? = null,
+    textAlign: TextAlign = TextAlign.Unspecified,
     lineHeight: TextUnit = TextUnit.Unspecified,
     overflow: TextOverflow = TextOverflow.Clip,
     softWrap: Boolean = true,
@@ -211,25 +210,21 @@ fun Text(
             LocalContentColor.current
         }
     }
-    // NOTE(text-perf-review): It might be worthwhile writing a bespoke merge implementation that
-    // will avoid reallocating if all of the options here are the defaults
-    val mergedStyle = style.merge(
-        TextStyle(
-            color = textColor,
-            fontSize = fontSize,
-            fontWeight = fontWeight,
-            textAlign = textAlign,
-            lineHeight = lineHeight,
-            fontFamily = fontFamily,
-            textDecoration = textDecoration,
-            fontStyle = fontStyle,
-            letterSpacing = letterSpacing
-        )
-    )
+
     BasicText(
         text = text,
         modifier = modifier,
-        style = mergedStyle,
+        style = style.merge(
+                color = textColor,
+                fontSize = fontSize,
+                fontWeight = fontWeight,
+                textAlign = textAlign,
+                lineHeight = lineHeight,
+                fontFamily = fontFamily,
+                textDecoration = textDecoration,
+                fontStyle = fontStyle,
+                letterSpacing = letterSpacing
+        ),
         onTextLayout = onTextLayout,
         overflow = overflow,
         softWrap = softWrap,
@@ -245,6 +240,9 @@ fun Text(
  *
  * @see ProvideTextStyle
  */
+@Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
+@ExperimentalTvMaterial3Api
+@get:ExperimentalTvMaterial3Api
 val LocalTextStyle = compositionLocalOf(structuralEqualityPolicy()) { DefaultTextStyle }
 
 // TODO(b/156598010): remove this and replace with fold definition on the backing CompositionLocal
@@ -255,6 +253,7 @@ val LocalTextStyle = compositionLocalOf(structuralEqualityPolicy()) { DefaultTex
  *
  * @see LocalTextStyle
  */
+@ExperimentalTvMaterial3Api
 @Composable
 fun ProvideTextStyle(value: TextStyle, content: @Composable () -> Unit) {
     val mergedStyle = LocalTextStyle.current.merge(value)

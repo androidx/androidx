@@ -70,13 +70,13 @@ import com.android.layoutlib.bridge.Bridge.prepareThread
 import com.android.layoutlib.bridge.BridgeRenderSession
 import com.android.layoutlib.bridge.impl.RenderAction
 import com.android.layoutlib.bridge.impl.RenderSessionImpl
-import org.junit.rules.TestRule
-import org.junit.runner.Description
-import org.junit.runners.model.Statement
 import java.awt.image.BufferedImage
 import java.util.Date
 import java.util.concurrent.TimeUnit
 import kotlin.coroutines.ContinuationInterceptor
+import org.junit.rules.TestRule
+import org.junit.runner.Description
+import org.junit.runners.model.Statement
 
 class Paparazzi @JvmOverloads constructor(
   private val environment: Environment = detectEnvironment(),

@@ -23,10 +23,8 @@ import android.os.Bundle
  *
  * Note: the FedCM proposal is still under public discussion and its constructor will be exposed
  * after the proposal is final.
- *
- * @hide
  */
-class FederatedCredential private constructor() : Credential(
+internal class FederatedCredential private constructor() : Credential(
     TYPE_FEDERATED_CREDENTIAL,
     Bundle(),
 ) {

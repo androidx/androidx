@@ -22,6 +22,9 @@ import static androidx.wear.protolayout.material.ButtonDefaults.DEFAULT_SIZE;
 import static androidx.wear.protolayout.material.ButtonDefaults.EXTRA_LARGE_SIZE;
 import static androidx.wear.protolayout.material.ButtonDefaults.LARGE_SIZE;
 import static androidx.wear.protolayout.material.ButtonDefaults.PRIMARY_COLORS;
+import static androidx.wear.protolayout.materialcore.Button.METADATA_TAG_CUSTOM_CONTENT;
+import static androidx.wear.protolayout.materialcore.Button.METADATA_TAG_ICON;
+import static androidx.wear.protolayout.materialcore.Button.METADATA_TAG_TEXT;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -41,6 +44,8 @@ import androidx.wear.protolayout.LayoutElementBuilders.LayoutElement;
 import androidx.wear.protolayout.ModifiersBuilders.Clickable;
 import androidx.wear.protolayout.ModifiersBuilders.ElementMetadata;
 import androidx.wear.protolayout.ModifiersBuilders.Modifiers;
+import androidx.wear.protolayout.TypeBuilders.StringProp;
+import androidx.wear.protolayout.expression.DynamicBuilders.DynamicString;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -51,7 +56,12 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 public class ButtonTest {
     private static final String RESOURCE_ID = "icon";
     private static final String TEXT = "ABC";
-    private static final String CONTENT_DESCRIPTION = "clickable button";
+    private static final StringProp CONTENT_DESCRIPTION =
+            new StringProp.Builder("clickable button").build();
+    private static final StringProp DYNAMIC_CONTENT_DESCRIPTION =
+            new StringProp.Builder("static value")
+                    .setDynamicValue(DynamicString.constant("clickable button"))
+                    .build();
     private static final Clickable CLICKABLE =
             new Clickable.Builder()
                     .setOnClick(new LaunchAction.Builder().build())
@@ -70,7 +80,7 @@ public class ButtonTest {
                 DEFAULT_SIZE,
                 new ButtonColors(Colors.PRIMARY, 0),
                 null,
-                Button.METADATA_TAG_CUSTOM_CONTENT,
+                METADATA_TAG_CUSTOM_CONTENT,
                 null,
                 null,
                 null,
@@ -95,7 +105,7 @@ public class ButtonTest {
                 mSize,
                 mButtonColors,
                 CONTENT_DESCRIPTION,
-                Button.METADATA_TAG_CUSTOM_CONTENT,
+                METADATA_TAG_CUSTOM_CONTENT,
                 null,
                 null,
                 null,
@@ -116,7 +126,7 @@ public class ButtonTest {
                 DEFAULT_SIZE,
                 PRIMARY_COLORS,
                 CONTENT_DESCRIPTION,
-                Button.METADATA_TAG_ICON,
+                METADATA_TAG_ICON,
                 null,
                 RESOURCE_ID,
                 null,
@@ -137,7 +147,7 @@ public class ButtonTest {
                 LARGE_SIZE,
                 PRIMARY_COLORS,
                 CONTENT_DESCRIPTION,
-                Button.METADATA_TAG_ICON,
+                METADATA_TAG_ICON,
                 null,
                 RESOURCE_ID,
                 null,
@@ -159,7 +169,7 @@ public class ButtonTest {
                 DEFAULT_SIZE,
                 PRIMARY_COLORS,
                 CONTENT_DESCRIPTION,
-                Button.METADATA_TAG_ICON,
+                METADATA_TAG_ICON,
                 null,
                 RESOURCE_ID,
                 null,
@@ -179,7 +189,7 @@ public class ButtonTest {
                 DEFAULT_SIZE,
                 PRIMARY_COLORS,
                 CONTENT_DESCRIPTION,
-                Button.METADATA_TAG_TEXT,
+                METADATA_TAG_TEXT,
                 TEXT,
                 null,
                 null,
@@ -200,7 +210,7 @@ public class ButtonTest {
                 EXTRA_LARGE_SIZE,
                 PRIMARY_COLORS,
                 CONTENT_DESCRIPTION,
-                Button.METADATA_TAG_TEXT,
+                METADATA_TAG_TEXT,
                 TEXT,
                 null,
                 null,
@@ -237,11 +247,24 @@ public class ButtonTest {
         assertThat(Button.fromLayoutElement(box)).isNull();
     }
 
+    @Test
+    public void testDynamicContentDescription() {
+        Button button =
+                new Button.Builder(CONTEXT, CLICKABLE)
+                        .setTextContent(TEXT)
+                        .setContentDescription(DYNAMIC_CONTENT_DESCRIPTION)
+                        .setSize(EXTRA_LARGE_SIZE)
+                        .build();
+
+        assertThat(button.getContentDescription().toProto())
+                .isEqualTo(DYNAMIC_CONTENT_DESCRIPTION.toProto());
+    }
+
     private void assertButton(
             @NonNull Button actualButton,
             @NonNull DpProp expectedSize,
             @NonNull ButtonColors expectedButtonColors,
-            @Nullable String expectedContentDescription,
+            @Nullable StringProp expectedContentDescription,
             @NonNull String expectedMetadataTag,
             @Nullable String expectedTextContent,
             @Nullable String expectedIconContent,
@@ -276,7 +299,7 @@ public class ButtonTest {
             @NonNull Button actualButton,
             @NonNull DpProp expectedSize,
             @NonNull ButtonColors expectedButtonColors,
-            @Nullable String expectedContentDescription,
+            @Nullable StringProp expectedContentDescription,
             @NonNull String expectedMetadataTag,
             @Nullable String expectedTextContent,
             @Nullable String expectedIconContent,
@@ -296,8 +319,8 @@ public class ButtonTest {
         if (expectedContentDescription == null) {
             assertThat(actualButton.getContentDescription()).isNull();
         } else {
-            assertThat(actualButton.getContentDescription().toString())
-                    .isEqualTo(expectedContentDescription);
+            assertThat(actualButton.getContentDescription().toProto())
+                    .isEqualTo(expectedContentDescription.toProto());
         }
 
         if (expectedTextContent == null) {
@@ -330,7 +353,7 @@ public class ButtonTest {
             @NonNull Button button,
             @NonNull DpProp expectedSize,
             @NonNull ButtonColors expectedButtonColors,
-            @Nullable String expectedContentDescription,
+            @Nullable StringProp expectedContentDescription,
             @NonNull String expectedMetadataTag,
             @Nullable String expectedTextContent,
             @Nullable String expectedIconContent,

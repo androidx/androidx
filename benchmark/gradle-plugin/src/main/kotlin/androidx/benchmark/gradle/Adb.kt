@@ -16,10 +16,10 @@
 
 package androidx.benchmark.gradle
 
+import java.util.concurrent.TimeUnit
 import org.gradle.api.GradleException
 import org.gradle.api.logging.LogLevel
 import org.gradle.api.logging.Logger
-import java.util.concurrent.TimeUnit
 
 /**
  * Helper class wrapping the adb cli tool.

@@ -23,18 +23,10 @@ import androidx.annotation.RestrictTo
 
 /**
  * Holder for RemoteViews UI response.
- *
- * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 data class RemoteViewsInternal(
     val remoteViews: RemoteViews,
     val size: SizeF,
-    val changedViewIds: HashSet<Int> = HashSet<Int>(),
-    val remoteViewsFactories: HashMap<Int, RemoteViewsFactory> = HashMap<Int, RemoteViewsFactory>()
-) {
-    init {
-        this.changedViewIds.addAll(changedViewIds)
-        this.remoteViewsFactories.putAll(remoteViewsFactories)
-    }
-}
+    val collectionViewFactories: Map<Int, RemoteViewsFactory> = mapOf()
+)

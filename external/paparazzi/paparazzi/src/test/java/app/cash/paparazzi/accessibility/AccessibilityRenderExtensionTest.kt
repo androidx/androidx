@@ -16,12 +16,12 @@ import app.cash.paparazzi.Paparazzi
 import app.cash.paparazzi.Snapshot
 import app.cash.paparazzi.SnapshotHandler
 import app.cash.paparazzi.internal.ImageUtils
-import org.junit.Rule
-import org.junit.Test
 import java.awt.image.BufferedImage
 import java.io.File
 import javax.imageio.ImageIO
 import org.junit.Ignore
+import org.junit.Rule
+import org.junit.Test
 
 class AccessibilityRenderExtensionTest {
   private val snapshotHandler = TestSnapshotVerifier()

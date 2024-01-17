@@ -15,13 +15,14 @@
  */
 package androidx.emoji2.viewsintegration;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
+
+import android.os.Handler;
 import android.text.Editable;
 import android.text.Selection;
-import android.text.Spannable;
 import android.widget.EditText;
 
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.emoji2.text.EmojiCompat;
 import androidx.emoji2.text.EmojiCompat.InitCallback;
@@ -34,8 +35,7 @@ import java.lang.ref.WeakReference;
  * TextWatcher used for an EditText.
  *
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-@RequiresApi(19)
+@RestrictTo(LIBRARY)
 final class EmojiTextWatcher implements android.text.TextWatcher {
     private final EditText mEditText;
     private final boolean mExpectInitializedEmojiCompat;
@@ -44,6 +44,8 @@ final class EmojiTextWatcher implements android.text.TextWatcher {
     @EmojiCompat.ReplaceStrategy
     private int mEmojiReplaceStrategy = EmojiCompat.REPLACE_STRATEGY_DEFAULT;
     private boolean mEnabled;
+    private int mLastEditPosition;
+    private int mLastEditLength;
 
     EmojiTextWatcher(EditText editText, boolean expectInitializedEmojiCompat) {
         mEditText = editText;
@@ -70,27 +72,8 @@ final class EmojiTextWatcher implements android.text.TextWatcher {
     @Override
     public void onTextChanged(CharSequence charSequence, final int start, final int before,
             final int after) {
-        if (mEditText.isInEditMode() || shouldSkipForDisabledOrNotConfigured()) {
-            return;
-        }
-
-        //before > after --> a deletion occurred
-        if (before <= after && charSequence instanceof Spannable) {
-            switch (EmojiCompat.get().getLoadState()){
-                case EmojiCompat.LOAD_STATE_SUCCEEDED:
-                    final Spannable s = (Spannable) charSequence;
-                    EmojiCompat.get().process(s, start, start + after, mMaxEmojiCount,
-                            mEmojiReplaceStrategy);
-                    break;
-                case EmojiCompat.LOAD_STATE_LOADING:
-                case EmojiCompat.LOAD_STATE_DEFAULT:
-                    EmojiCompat.get().registerInitCallback(getInitCallback());
-                    break;
-                case EmojiCompat.LOAD_STATE_FAILED:
-                default:
-                    break;
-            }
-        }
+        mLastEditPosition = start;
+        mLastEditLength = after;
     }
 
     private boolean shouldSkipForDisabledOrNotConfigured() {
@@ -104,10 +87,34 @@ final class EmojiTextWatcher implements android.text.TextWatcher {
 
     @Override
     public void afterTextChanged(Editable s) {
-        // do nothing
+        if (mEditText.isInEditMode() || shouldSkipForDisabledOrNotConfigured()) {
+            return;
+        }
+        int pos = mLastEditPosition;
+        int length = mLastEditLength;
+        // ignore pure deletes (length 0) but process subtractions (e.g. paste, emoji replace)
+        if (length > 0) {
+            switch (EmojiCompat.get().getLoadState()){
+                case EmojiCompat.LOAD_STATE_SUCCEEDED:
+                    EmojiCompat.get().process(s, pos, pos + length, mMaxEmojiCount,
+                            mEmojiReplaceStrategy);
+                    break;
+                case EmojiCompat.LOAD_STATE_LOADING:
+                case EmojiCompat.LOAD_STATE_DEFAULT:
+                    EmojiCompat.get().registerInitCallback(getInitCallback());
+                    break;
+                case EmojiCompat.LOAD_STATE_FAILED:
+                default:
+                    break;
+            }
+        }
     }
 
-    private InitCallback getInitCallback() {
+    /**
+     * @return
+     */
+    @RestrictTo(LIBRARY)
+    InitCallback getInitCallback() {
         if (mInitCallback == null) {
             mInitCallback = new InitCallbackImpl(mEditText);
         }
@@ -130,8 +137,8 @@ final class EmojiTextWatcher implements android.text.TextWatcher {
         }
     }
 
-    @RequiresApi(19)
-    private static class InitCallbackImpl extends InitCallback {
+    @RestrictTo(LIBRARY)
+    static class InitCallbackImpl extends InitCallback implements Runnable {
         private final Reference<EditText> mViewRef;
 
         InitCallbackImpl(EditText editText) {
@@ -141,6 +148,19 @@ final class EmojiTextWatcher implements android.text.TextWatcher {
         @Override
         public void onInitialized() {
             super.onInitialized();
+            final EditText editText = mViewRef.get();
+            if (editText == null) {
+                return;
+            }
+            Handler handler = editText.getHandler();
+            if (handler == null) {
+                return;
+            }
+            handler.post(this);
+        }
+
+        @Override
+        public void run() {
             final EditText editText = mViewRef.get();
             processTextOnEnablingEvent(editText, EmojiCompat.LOAD_STATE_SUCCEEDED);
         }

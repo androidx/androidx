@@ -20,6 +20,8 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.test.InternalTestApi
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 @OptIn(InternalTestApi::class)
@@ -60,7 +62,7 @@ class DesktopPathTest : DesktopGraphicsTest() {
     @Test
     fun bezier() {
         val path = Path().apply {
-            quadraticBezierTo(0f, 16f, 16f, 16f)
+            quadraticTo(0f, 16f, 16f, 16f)
         }
 
         canvas.drawPath(path, redPaint)
@@ -210,5 +212,48 @@ class DesktopPathTest : DesktopGraphicsTest() {
         path.reset()
 
         assertEquals(PathFillType.EvenOdd, path.fillType)
+    }
+
+    @Test
+    fun testRewind() {
+        val path = Path().apply {
+            addRect(Rect(0f, 0f, 100f, 200f))
+        }
+        assertFalse(path.isEmpty)
+
+        path.rewind()
+
+        assertTrue(path.isEmpty)
+    }
+
+    @Test
+    fun testTransform() {
+        val width = 100
+        val height = 100
+        val image = ImageBitmap(width, height)
+        val canvas = Canvas(image)
+
+        val path = Path().apply {
+            addRect(Rect(0f, 0f, 50f, 50f))
+            transform(
+                Matrix().apply { translate(50f, 50f) }
+            )
+        }
+
+        val paint = Paint().apply { color = Color.Black }
+        canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), paint)
+        paint.color = Color.Red
+        canvas.drawPath(path, paint)
+
+        image.toPixelMap().apply {
+            assertEquals(Color.Black, this[width / 2 - 3, height / 2 - 3])
+            assertEquals(Color.Black, this[width / 2, height / 2 - 3])
+            assertEquals(Color.Black, this[width / 2 - 3, height / 2])
+
+            assertEquals(Color.Red, this[width / 2 + 2, height / 2 + 2])
+            assertEquals(Color.Red, this[width - 2, height / 2 + 2])
+            assertEquals(Color.Red, this[width - 2, height - 2])
+            assertEquals(Color.Red, this[width / 2 + 2, height - 2])
+        }
     }
 }

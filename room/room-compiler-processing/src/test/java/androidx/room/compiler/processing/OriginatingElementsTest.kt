@@ -16,19 +16,19 @@
 
 package androidx.room.compiler.processing
 
+import androidx.kruth.assertThat
 import androidx.room.compiler.processing.ksp.KSClassDeclarationAsOriginatingElement
 import androidx.room.compiler.processing.ksp.KSFileAsOriginatingElement
 import androidx.room.compiler.processing.ksp.KspTypeElement
 import androidx.room.compiler.processing.ksp.synthetic.KspSyntheticPropertyMethodElement
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.runProcessorTest
-import com.google.common.truth.Truth.assertThat
 import com.squareup.javapoet.TypeSpec
+import javax.lang.model.element.ExecutableElement
+import javax.lang.model.element.TypeElement
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import javax.lang.model.element.ExecutableElement
-import javax.lang.model.element.TypeElement
 
 @RunWith(JUnit4::class)
 class OriginatingElementsTest {
@@ -54,10 +54,9 @@ class OriginatingElementsTest {
             val element = it.processingEnv.requireTypeElement("foo.bar.Baz")
 
             val originatingElement = element.originatingElementForPoet()
-            assertThat(originatingElement).isNotNull()
 
             if (it.isKsp) {
-                assertThat(originatingElement).isInstanceOf(KSFileAsOriginatingElement::class.java)
+                assertThat(originatingElement).isInstanceOf<KSFileAsOriginatingElement>()
 
                 val originatingFile = (originatingElement as KSFileAsOriginatingElement).ksFile
                 assertThat(originatingFile)
@@ -65,7 +64,7 @@ class OriginatingElementsTest {
                         (element as KspTypeElement).declaration.containingFile
                     )
             } else {
-                assertThat(originatingElement).isInstanceOf(TypeElement::class.java)
+                assertThat(originatingElement).isInstanceOf<TypeElement>()
                 assertThat((originatingElement as TypeElement).qualifiedName.toString())
                     .isEqualTo("foo.bar.Baz")
             }
@@ -79,11 +78,10 @@ class OriginatingElementsTest {
                 .requireTypeElement("com.google.devtools.ksp.processing.SymbolProcessor")
 
             val originatingElement = element.originatingElementForPoet()
-            assertThat(originatingElement).isNotNull()
 
             if (it.isKsp) {
                 assertThat(originatingElement)
-                    .isInstanceOf(KSClassDeclarationAsOriginatingElement::class.java)
+                    .isInstanceOf<KSClassDeclarationAsOriginatingElement>()
 
                 val ksClassDeclaration =
                     (originatingElement as KSClassDeclarationAsOriginatingElement)
@@ -93,7 +91,7 @@ class OriginatingElementsTest {
                         (element as KspTypeElement).declaration
                     )
             } else {
-                assertThat(originatingElement).isInstanceOf(TypeElement::class.java)
+                assertThat(originatingElement).isInstanceOf<TypeElement>()
                 assertThat((originatingElement as TypeElement).qualifiedName.toString())
                     .isEqualTo("com.google.devtools.ksp.processing.SymbolProcessor")
             }
@@ -125,11 +123,10 @@ class OriginatingElementsTest {
 
             syntheticPropertyElements.forEach { syntheticPropertyElement ->
                 val originatingElement = syntheticPropertyElement.originatingElementForPoet()
-                assertThat(originatingElement).isNotNull()
 
                 if (invocation.isKsp) {
                     assertThat(originatingElement)
-                        .isInstanceOf(KSFileAsOriginatingElement::class.java)
+                        .isInstanceOf<KSFileAsOriginatingElement>()
 
                     val originatingFile = (originatingElement as KSFileAsOriginatingElement).ksFile
                     assertThat(originatingFile)
@@ -138,7 +135,7 @@ class OriginatingElementsTest {
                                 .field.declaration.containingFile
                         )
                 } else {
-                    assertThat(originatingElement).isInstanceOf(ExecutableElement::class.java)
+                    assertThat(originatingElement).isInstanceOf<ExecutableElement>()
                 }
             }
         }

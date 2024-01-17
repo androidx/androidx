@@ -23,6 +23,11 @@ import androidx.inspection.Inspector
 import androidx.inspection.InspectorEnvironment
 import androidx.inspection.InspectorExecutors
 import androidx.inspection.InspectorFactory
+import java.util.ServiceLoader
+import java.util.concurrent.CancellationException
+import java.util.concurrent.Executor
+import kotlin.coroutines.coroutineContext
+import kotlin.coroutines.resume
 import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -35,11 +40,6 @@ import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
-import java.util.ServiceLoader
-import java.util.concurrent.CancellationException
-import java.util.concurrent.Executor
-import kotlin.coroutines.coroutineContext
-import kotlin.coroutines.resume
 
 // TODO: should be non suspend function with CoroutineScope receiver, that would automatically
 // dispose inspector;

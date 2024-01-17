@@ -128,7 +128,7 @@ fun ComposeBenchmarkRule.benchmarkFirstScalingLazyColumnMeasure(
     caseFactory: () -> LayeredComposeTestCase
 ) {
     runBenchmarkFor(LayeredCaseAdapter.of(caseFactory)) {
-        measureRepeated {
+        measureRepeatedOnUiThread {
             runWithTimingDisabled {
                 doFramesUntilNoChangesPending()
                 // Add the content to benchmark
@@ -155,7 +155,7 @@ fun ComposeBenchmarkRule.benchmarkFirstScalingLazyColumnLayout(
     caseFactory: () -> LayeredComposeTestCase
 ) {
     runBenchmarkFor(LayeredCaseAdapter.of(caseFactory)) {
-        measureRepeated {
+        measureRepeatedOnUiThread {
             runWithTimingDisabled {
                 doFramesUntilNoChangesPending()
                 // Add the content to benchmark
@@ -183,7 +183,7 @@ fun ComposeBenchmarkRule.benchmarkFirstScalingLazyColumnDraw(
     caseFactory: () -> LayeredComposeTestCase
 ) {
     runBenchmarkFor(LayeredCaseAdapter.of(caseFactory)) {
-        measureRepeated {
+        measureRepeatedOnUiThread {
             runWithTimingDisabled {
                 doFramesUntilNoChangesPending()
                 // Add the content to benchmark

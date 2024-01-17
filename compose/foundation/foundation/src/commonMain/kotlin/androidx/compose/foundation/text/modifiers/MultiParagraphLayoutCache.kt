@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.constrain
+import kotlin.math.min
 
 /**
  * Performs text layout using [MultiParagraph].
@@ -58,25 +59,29 @@ internal class MultiParagraphLayoutCache(
     private var mMinLinesConstrainer: MinLinesConstrainer? = null
 
     /**
+     * Density is an interface which makes it behave like a provider, rather than a final class.
+     * Whenever Density changes, the object itself may remain the same, making the below density
+     * variable mutate internally. This value holds the last seen density whenever Compose sends
+     * us a Density may have changed notification via layout or draw phase.
+     */
+    private var lastDensity: InlineDensity = InlineDensity.Unspecified
+
+    /**
      * Density that text layout is performed in
      */
     internal var density: Density? = null
         set(value) {
             val localField = field
+            val newDensity = value?.let { InlineDensity(it) } ?: InlineDensity.Unspecified
             if (localField == null) {
                 field = value
+                lastDensity = newDensity
                 return
             }
 
-            if (value == null) {
+            if (value == null || lastDensity != newDensity) {
                 field = value
-                markDirty()
-                return
-            }
-
-            if (localField.density != value.density || localField.fontScale != value.fontScale) {
-                field = value
-                // none of our results are correct if density changed
+                lastDensity = newDensity
                 markDirty()
             }
         }
@@ -166,6 +171,7 @@ internal class MultiParagraphLayoutCache(
         finalConstraints: Constraints,
         multiParagraph: MultiParagraph
     ): TextLayoutResult {
+        val layoutWidth = min(multiParagraph.intrinsics.maxIntrinsicWidth, multiParagraph.width)
         return TextLayoutResult(
             TextLayoutInput(
                 text,
@@ -182,7 +188,7 @@ internal class MultiParagraphLayoutCache(
             multiParagraph,
             finalConstraints.constrain(
                 IntSize(
-                    multiParagraph.width.ceilToIntPx(),
+                    layoutWidth.ceilToIntPx(),
                     multiParagraph.height.ceilToIntPx()
                 )
             )

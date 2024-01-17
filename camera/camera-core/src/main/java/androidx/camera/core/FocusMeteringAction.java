@@ -186,6 +186,17 @@ public final class FocusMeteringAction {
         }
 
         /**
+         * Create a Builder from a {@link FocusMeteringAction}.
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        public Builder(@NonNull FocusMeteringAction focusMeteringAction) {
+            mMeteringPointsAf.addAll(focusMeteringAction.getMeteringPointsAf());
+            mMeteringPointsAe.addAll(focusMeteringAction.getMeteringPointsAe());
+            mMeteringPointsAwb.addAll(focusMeteringAction.getMeteringPointsAwb());
+            mAutoCancelDurationInMillis = focusMeteringAction.getAutoCancelDurationInMillis();
+        }
+
+        /**
          * Adds another {@link MeteringPoint} with default metering mode {@link #FLAG_AF} |
          * {@link #FLAG_AE} | {@link #FLAG_AWB}.
          *
@@ -267,6 +278,27 @@ public final class FocusMeteringAction {
         @NonNull
         public Builder disableAutoCancel() {
             mAutoCancelDurationInMillis = 0;
+            return this;
+        }
+
+        /**
+         *
+         * Remove all points of the given meteringMode.
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        @NonNull
+        public Builder removePoints(@MeteringMode int meteringMode) {
+            if ((meteringMode & FLAG_AF) != 0) {
+                mMeteringPointsAf.clear();
+            }
+
+            if ((meteringMode & FLAG_AE) != 0) {
+                mMeteringPointsAe.clear();
+            }
+
+            if ((meteringMode & FLAG_AWB) != 0) {
+                mMeteringPointsAwb.clear();
+            }
             return this;
         }
 

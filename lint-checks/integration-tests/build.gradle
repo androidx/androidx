@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -23,8 +30,8 @@ plugins {
 }
 
 dependencies {
-    implementation(projectOrArtifact(":annotation:annotation"))
-    implementation(projectOrArtifact(":annotation:annotation-experimental"))
+    implementation(project(":annotation:annotation"))
+    implementation(project(":annotation:annotation-experimental"))
     implementation(libs.kotlinStdlib)
 }
 
@@ -72,7 +79,10 @@ class CompareFilesTask extends DefaultTask {
 
 // workaround for b/189877657
 afterEvaluate {
-    tasks.named("copyDebugAndroidLintReports").configure {
+    tasks.findByName("copyDebugAndroidLintReports")?.configure {
+        enabled = false
+    }
+    tasks.findByName("copyDebugLintReports")?.configure {
         enabled = false
     }
 }

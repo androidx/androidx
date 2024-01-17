@@ -57,6 +57,8 @@ internal interface PersistentCompositionLocalMap :
     PersistentMap<CompositionLocal<Any?>, State<Any?>>,
     CompositionLocalMap {
 
+    fun putValue(key: CompositionLocal<Any?>, value: State<Any?>): PersistentCompositionLocalMap
+
     // Override the builder APIs so that we can create new PersistentMaps that retain the type
     // information of PersistentCompositionLocalMap. If we use the built-in implementation, we'll
     // get back a PersistentMap<CompositionLocal<Any?>, State<Any?>> instead of a
@@ -77,30 +79,27 @@ internal fun <T> PersistentCompositionLocalMap.contains(key: CompositionLocal<T>
     this.containsKey(key as CompositionLocal<Any?>)
 
 @Suppress("UNCHECKED_CAST")
-internal fun <T> PersistentCompositionLocalMap.getValueOf(key: CompositionLocal<T>) =
-    this[key as CompositionLocal<Any?>]?.value as T
-
 internal fun <T> PersistentCompositionLocalMap.read(
     key: CompositionLocal<T>
-): T = if (contains(key)) {
-    getValueOf(key)
-} else {
-    key.defaultValueHolder.value
-}
+): T = getOrElse(key as CompositionLocal<Any?>) { key.defaultValueHolder }.value as T
 
-@Composable
-internal fun compositionLocalMapOf(
+internal fun updateCompositionMap(
     values: Array<out ProvidedValue<*>>,
-    parentScope: PersistentCompositionLocalMap
+    parentScope: PersistentCompositionLocalMap,
+    previous: PersistentCompositionLocalMap = persistentCompositionLocalHashMapOf(),
 ): PersistentCompositionLocalMap {
-    val result: PersistentCompositionLocalMap = persistentCompositionLocalHashMapOf()
-    return result.mutate {
-        for (provided in values) {
-            if (provided.canOverride || !parentScope.contains(provided.compositionLocal)) {
-                @Suppress("UNCHECKED_CAST")
-                it[provided.compositionLocal as CompositionLocal<Any?>] =
-                    provided.compositionLocal.provided(provided.value)
-            }
+    val builder: PersistentCompositionLocalMap.Builder =
+        persistentCompositionLocalHashMapOf().builder()
+    val map: PersistentMap<CompositionLocal<Any?>, State<Any?>> = previous
+    @Suppress("UNCHECKED_CAST")
+    for (index in values.indices) {
+        val provided = values[index]
+        val local = provided.compositionLocal as ProvidableCompositionLocal<Any?>
+        if (provided.canOverride || !parentScope.contains(local)) {
+            val previousState = map[local]
+            val newState = local.updatedStateOf(provided.value, previousState)
+            builder[local] = newState
         }
     }
+    return builder.build()
 }

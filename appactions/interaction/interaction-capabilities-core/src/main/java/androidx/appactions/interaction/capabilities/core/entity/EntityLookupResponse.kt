@@ -56,7 +56,7 @@ class EntityLookupResponse<T> internal constructor(
         private var candidateList: List<EntityLookupCandidate<T>> = listOf()
 
         @property:EntityLookupStatus
-        private var status: Int = EntityLookupResponse.SUCCESS
+        private var status: Int = SUCCESS
         private var nextPageToken: ByteString? = null
         fun setCandidateList(candidateList: List<EntityLookupCandidate<T>>): Builder<T> = apply {
             this.candidateList = candidateList
@@ -71,7 +71,7 @@ class EntityLookupResponse<T> internal constructor(
             this.nextPageToken = nextPageToken
         }
 
-        fun build() = EntityLookupResponse<T>(candidateList, status, nextPageToken)
+        fun build() = EntityLookupResponse(candidateList, status, nextPageToken)
     }
 
     companion object {

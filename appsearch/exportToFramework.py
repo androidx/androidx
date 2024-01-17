@@ -64,7 +64,7 @@ FRAMEWORK_API_ROOT = 'framework/java/external/android/app/appsearch'
 FRAMEWORK_API_TEST_ROOT = 'testing/coretests/src/android/app/appsearch/external'
 FRAMEWORK_IMPL_ROOT = 'service/java/com/android/server/appsearch/external'
 FRAMEWORK_IMPL_TEST_ROOT = 'testing/servicestests/src/com/android/server/appsearch/external'
-FRAMEWORK_TEST_UTIL_ROOT = 'testing/testutils/src/android/app/appsearch/testutil/external'
+FRAMEWORK_TEST_UTIL_ROOT = '../../../cts/tests/appsearch/testutils/src/android/app/appsearch/testutil/external'
 FRAMEWORK_TEST_UTIL_TEST_ROOT = 'testing/servicestests/src/android/app/appsearch/testutil/external'
 FRAMEWORK_CTS_TEST_ROOT = '../../../cts/tests/appsearch/src/com/android/cts/appsearch/external'
 GOOGLE_JAVA_FORMAT = (
@@ -136,6 +136,13 @@ class ExportToFramework:
                     r'^(\s*package [^;]+;\s*)$', r'\1\nimport %s;\n' % import_to_add, contents,
                     flags=re.MULTILINE)
 
+        # Remove all imports for stub CREATOR classes imported for SafeParcelable
+        # If there are more use cases in the future we might want to add
+        # imports_to_delete
+        contents = re.sub(
+            r'import androidx\.appsearch\.safeparcel\.stub.*?\;',
+            '', contents, flags=re.MULTILINE)
+
         # Apply in-place replacements
         contents = (contents
             .replace('androidx.appsearch.app', 'android.app.appsearch')
@@ -169,6 +176,7 @@ class ExportToFramework:
             .replace('/*@exportToFramework:CurrentTimeMillisLong*/', '@CurrentTimeMillisLong')
             .replace('/*@exportToFramework:UnsupportedAppUsage*/', '@UnsupportedAppUsage')
             .replace('<!--@exportToFramework:hide-->', '@hide')
+            .replace('@exportToFramework:hide', '@hide')
             .replace('// @exportToFramework:skipFile()', '')
         )
         contents = re.sub(r'\/\/ @exportToFramework:copyToPath\([^)]+\)', '', contents)

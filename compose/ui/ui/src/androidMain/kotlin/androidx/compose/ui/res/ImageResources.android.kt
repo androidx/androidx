@@ -17,14 +17,14 @@
 package androidx.compose.ui.res
 
 import android.content.res.Resources
+import android.graphics.drawable.BitmapDrawable
 import android.util.TypedValue
 import androidx.annotation.DrawableRes
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.ui.platform.LocalContext
-import android.graphics.drawable.BitmapDrawable
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.platform.LocalContext
 
 /**
  * Load an ImageBitmap from an image resource.

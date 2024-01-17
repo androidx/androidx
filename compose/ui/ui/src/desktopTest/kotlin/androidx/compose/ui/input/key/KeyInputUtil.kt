@@ -17,11 +17,11 @@
 package androidx.compose.ui.input.key
 
 import java.awt.Component
+import java.awt.event.KeyEvent as KeyEventAwt
 import java.awt.event.KeyEvent.KEY_PRESSED
 import java.awt.event.KeyEvent.KEY_RELEASED
 import java.awt.event.KeyEvent.KEY_TYPED
 import java.awt.event.KeyEvent.VK_UNDEFINED
-import java.awt.event.KeyEvent as KeyEventAwt
 
 private object DummyComponent : Component()
 /**

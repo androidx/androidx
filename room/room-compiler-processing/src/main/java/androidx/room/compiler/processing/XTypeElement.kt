@@ -31,6 +31,11 @@ interface XTypeElement : XHasModifiers, XParameterizable, XElement, XMemberConta
     val packageName: String
 
     /**
+     * The package that contains this element.
+     */
+    val packageElement: XPackageElement
+
+    /**
      * The type represented by this [XTypeElement].
      */
     override val type: XType
@@ -139,6 +144,11 @@ interface XTypeElement : XHasModifiers, XParameterizable, XElement, XMemberConta
     fun isCompanionObject(): Boolean
 
     /**
+     * Returns `true` if this [XTypeElement] is a Java record class (i.e. [java.lang.Record]).
+     */
+    fun isRecordClass(): Boolean
+
+    /**
      * Fields declared in this type
      *  includes all instance/static fields in this
      */
@@ -189,7 +199,10 @@ interface XTypeElement : XHasModifiers, XParameterizable, XElement, XMemberConta
     }
 
     /**
-     * Returns the list of constructors in this type element
+     * Returns the list of constructors in this type element.
+     *
+     * May return synthetic constructors in KSP due to @JvmOverloads. You may filter out synthetic
+     * constructors with XConstructorElement#isSyntheticConstructorFromJvmOverloads
      */
     fun getConstructors(): List<XConstructorElement>
 

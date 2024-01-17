@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.Publish
 import androidx.build.RunApiTasks
 
@@ -25,19 +32,17 @@ plugins {
 
 dependencies {
     api("androidx.annotation:annotation:1.2.0")
-    implementation("androidx.annotation:annotation-experimental:1.1.0-rc01")
+    implementation(project(":annotation:annotation-experimental"))
     implementation(libs.guavaListenableFuture)
     implementation("androidx.core:core:1.7.0")
     implementation("androidx.concurrent:concurrent-futures:1.1.0")
-    implementation("androidx.concurrent:concurrent-futures-ktx:1.2.0-alpha01")
+    implementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
     implementation(libs.autoValueAnnotations)
     implementation("androidx.appcompat:appcompat:1.1.0")
     implementation("androidx.test.espresso:espresso-idling-resource:3.1.0")
     implementation(libs.kotlinCoroutinesCore)
     implementation(libs.kotlinCoroutinesAndroid)
-
-    // Added for annotation-experimental
-    compileOnly(libs.kotlinStdlib)
+    implementation project(':camera:camera-viewfinder-core')
 
     annotationProcessor(libs.autoValue)
 
@@ -80,9 +85,10 @@ android {
 }
 
 androidx {
-    name = "androidx.camera:camera-viewfinder"
+    name = "Camera ViewFinder"
     publish = Publish.SNAPSHOT_AND_RELEASE
     runApiTasks = new RunApiTasks.Yes("Need to track API surface before moving to publish")
     inceptionYear = "2022"
     description = "Standalone Viewfinder for Camera2 and CameraX"
+    metalavaK2UastEnabled = true
 }

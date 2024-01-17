@@ -24,16 +24,14 @@ import static android.app.slice.Slice.SUBTYPE_LAYOUT_DIRECTION;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.slice.Slice;
 import androidx.slice.builders.SelectionBuilder;
 
 /**
- * @hide
  */
 @RestrictTo(LIBRARY)
-@RequiresApi(19)
+@Deprecated
 public class SelectionBuilderBasicImpl extends SelectionBuilderImpl {
     public SelectionBuilderBasicImpl(Slice.Builder sliceBuilder,
                                      SelectionBuilder selectionBuilder) {

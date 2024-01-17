@@ -24,10 +24,9 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 
 /**
- * @hide
  */
 @RestrictTo(LIBRARY)
-@RequiresApi(19)
+@Deprecated
 public interface MessagingBuilder {
     /**
      * Add a subslice to this builder.

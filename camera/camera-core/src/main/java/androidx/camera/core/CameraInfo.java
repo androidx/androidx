@@ -17,6 +17,7 @@
 package androidx.camera.core;
 
 import android.graphics.ImageFormat;
+import android.media.MediaActionSound;
 import android.util.Range;
 import android.view.Surface;
 
@@ -26,7 +27,9 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.annotation.StringDef;
+import androidx.camera.core.impl.DynamicRanges;
 import androidx.camera.core.impl.ImageOutputConfig;
+import androidx.camera.core.internal.compat.MediaActionSoundCompat;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
@@ -34,7 +37,7 @@ import androidx.lifecycle.Observer;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.Collections;
-import java.util.List;
+import java.util.Set;
 
 /**
  * An interface for retrieving camera information.
@@ -90,6 +93,35 @@ public interface CameraInfo {
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     String IMPLEMENTATION_TYPE_FAKE = "androidx.camera.fake";
+
+    /**
+     * Returns whether the shutter sound must be played in accordance to regional restrictions.
+     *
+     * <p>This method provides the general rule of playing shutter sounds. The exact
+     * requirements of playing shutter sounds may vary among regions.
+     *
+     * <p>For image capture, the shutter sound is recommended to be played when receiving
+     * {@link ImageCapture.OnImageCapturedCallback#onCaptureStarted()} or
+     * {@link ImageCapture.OnImageSavedCallback#onCaptureStarted()}. For video capture, it's
+     * recommended to play the start recording sound when receiving
+     * {@code VideoRecordEvent.Start} and the stop recording sound when receiving
+     * {@code VideoRecordEvent.Finalize}.
+     *
+     * <p>To play the system default sounds, it's recommended to use
+     * {@link MediaActionSound#play(int)}. For image capture, play
+     * {@link MediaActionSound#SHUTTER_CLICK}. For video capture, play
+     * {@link MediaActionSound#START_VIDEO_RECORDING} and
+     * {@link MediaActionSound#STOP_VIDEO_RECORDING}.
+     *
+     * <p>This method and {@link MediaActionSound#mustPlayShutterSound()} serve the same purpose,
+     * while this method is compatible on API level lower than
+     * {@link android.os.Build.VERSION_CODES#TIRAMISU}.
+     *
+     * @return {@code true} if shutter sound must be played, otherwise {@code false}.
+     */
+    static boolean mustPlayShutterSound() {
+        return MediaActionSoundCompat.mustPlayShutterSound();
+    }
 
     /**
      * Returns the sensor rotation in degrees, relative to the device's "natural" (default)
@@ -199,6 +231,9 @@ public interface CameraInfo {
      * {@link CameraSelector#LENS_FACING_BACK}, or {@link CameraSelector#LENS_FACING_EXTERNAL}.
      * If the lens facing of the camera can not be resolved, return
      * {@link CameraSelector#LENS_FACING_UNKNOWN}.
+     *
+     * @throws IllegalArgumentException If the device cannot return a valid lens facing value,
+     *                                  it will throw this exception.
      */
     @CameraSelector.LensFacing
     default int getLensFacing() {
@@ -271,8 +306,8 @@ public interface CameraInfo {
     }
 
     /**
-     * Returns a list of the frame rate ranges, in frames per second, supported by this device's
-     * AE algorithm.
+     * Returns an unordered set of the frame rate ranges, in frames per second, supported by this
+     * device's AE algorithm.
      *
      * <p>These are the frame rate ranges that the AE algorithm on the device can support. When
      * CameraX is configured to run with the camera2 implementation, this list will be derived
@@ -284,12 +319,14 @@ public interface CameraInfo {
      * combination of use cases. If attempting to run the device using an unsupported range, there
      * may be stability issues or the device may quietly choose another frame rate operating range.
      *
-     * @return The list of FPS ranges supported by the device's AE algorithm
+     * <p>The returned set does not have any ordering guarantees and frame rate ranges may overlap.
+     *
+     * @return The set of FPS ranges supported by the device's AE algorithm
      * @see androidx.camera.video.VideoCapture.Builder#setTargetFrameRate(Range)
      */
     @NonNull
-    default List<Range<Integer>> getSupportedFrameRateRanges() {
-        return Collections.emptyList();
+    default Set<Range<Integer>> getSupportedFrameRateRanges() {
+        return Collections.emptySet();
     }
 
     /**
@@ -302,6 +339,70 @@ public interface CameraInfo {
     @RestrictTo(Scope.LIBRARY_GROUP)
     default boolean isPrivateReprocessingSupported() {
         return false;
+    }
+
+    /**
+     * Returns the supported dynamic ranges of this camera from a set of candidate dynamic ranges.
+     *
+     * <p>Dynamic range specifies how the range of colors, highlights and shadows captured by
+     * the frame producer are represented on a display. Some dynamic ranges allow the preview
+     * surface to make full use of the extended range of brightness of the display.
+     *
+     * <p>The returned dynamic ranges are those which the camera can produce. However, because
+     * care usually needs to be taken to ensure the frames produced can be displayed correctly,
+     * the returned dynamic ranges will be limited to those passed in to {@code
+     * candidateDynamicRanges}. For example, if the device display supports HLG, HDR10 and
+     * HDR10+, and you're attempting to use a UI component to receive frames from those dynamic
+     * ranges that you know will be display correctly, you would use a {@code
+     * candidateDynamicRanges} set consisting of {@code {DynamicRange.HLG_10_BIT,
+     * DynamicRange.HDR10_10_BIT, DynamicRange.HDR10_PLUS_10_BIT}}. If the only 10-bit/HDR {@code
+     * DynamicRange} the camera can produce is {@code HLG_10_BIT}, then that will be the only
+     * dynamic range returned by this method given the above candidate list.
+     *
+     * <p>Consult the documentation of each use case to determine whether using the dynamic ranges
+     * published here are appropriate. Some use cases may have complex requirements that prohibit
+     * them from publishing a candidate list for use with this method, such as
+     * {@link androidx.camera.video.Recorder Recorder}. For those cases, alternative APIs may be
+     * present for querying the supported dynamic ranges that can be set on the use case.
+     *
+     * <p>The dynamic ranges published as return values by this method are fully-defined. That is,
+     * the resulting set will not contain dynamic ranges such as {@link DynamicRange#UNSPECIFIED} or
+     * {@link DynamicRange#HDR_UNSPECIFIED_10_BIT}. However, non-fully-defined dynamic ranges can
+     * be used in {@code candidateDynamicRanges}, and will resolve to fully-defined dynamic ranges
+     * in the resulting set. To query all dynamic ranges the camera can produce, {@code
+     * Collections.singleton(DynamicRange.UNSPECIFIED}} can be used as the candidate set.
+     *
+     * <p>Because SDR is always supported, including {@link DynamicRange#SDR} in {@code
+     * candidateDynamicRanges} will always result in {@code SDR} being present in the result set.
+     * If an empty candidate set is provided, an {@link IllegalArgumentException} will be thrown.
+     *
+     * @param candidateDynamicRanges a set of dynamic ranges representing the dynamic ranges the
+     *                               consumer of frames can support. Note that each use case may
+     *                               have its own requirements on which dynamic ranges it can
+     *                               consume based on how it is configured, and those dynamic
+     *                               ranges may not be published as a set of candidate dynamic
+     *                               ranges. In that case, this API may not be appropriate. An
+     *                               example of this is
+     *                               {@link androidx.camera.video.VideoCapture VideoCapture}'s
+     *                               {@link androidx.camera.video.Recorder Recorder} class, which
+     *                               must also take into account the dynamic ranges supported by
+     *                               the media codecs on the device, and the quality of the video
+     *                               being recorded. For that class, it is recommended to use
+     *            {@link androidx.camera.video.RecorderVideoCapabilities#getSupportedDynamicRanges()
+     *                               RecorderVideoCapabilities.getSupportedDynamicRanges()}
+     *                               instead.
+     * @return a set of dynamic ranges supported by the camera based on the candidate dynamic ranges
+     * @throws IllegalArgumentException if an empty candidate dynamic range set is provided.
+     *
+     * @see Preview.Builder#setDynamicRange(DynamicRange)
+     * @see androidx.camera.video.RecorderVideoCapabilities#getSupportedDynamicRanges()
+     */
+    @NonNull
+    default Set<DynamicRange> querySupportedDynamicRanges(
+            @NonNull Set<DynamicRange> candidateDynamicRanges) {
+        // For the default implementation, only assume SDR is supported.
+        return DynamicRanges.findAllPossibleMatches(candidateDynamicRanges,
+                Collections.singleton(DynamicRange.SDR));
     }
 
     @StringDef(open = true, value = {IMPLEMENTATION_TYPE_UNKNOWN,

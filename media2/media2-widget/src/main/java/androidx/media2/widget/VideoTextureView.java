@@ -16,8 +16,6 @@
 
 package androidx.media2.widget;
 
-import static androidx.media2.widget.VideoView.VIEW_TYPE_TEXTUREVIEW;
-
 import android.content.Context;
 import android.graphics.SurfaceTexture;
 import android.view.Surface;
@@ -25,6 +23,7 @@ import android.view.TextureView;
 
 import androidx.core.content.ContextCompat;
 
+@SuppressWarnings("deprecation")
 class VideoTextureView extends TextureView
         implements VideoViewInterface, TextureView.SurfaceTextureListener {
     private Surface mSurface;
@@ -68,7 +67,7 @@ class VideoTextureView extends TextureView
 
     @Override
     public int getViewType() {
-        return VIEW_TYPE_TEXTUREVIEW;
+        return androidx.media2.widget.VideoView.VIEW_TYPE_TEXTUREVIEW;
     }
 
     @Override

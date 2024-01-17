@@ -1,0 +1,29 @@
+{
+  "name": "benchmark-chrome-extension",
+  "private": true,
+  "version": "0.2.0",
+  "type": "module",
+  "scripts": {
+    "ext-dev": "rollup -c --watch",
+    "ext-build": "rollup -c",
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "check": "svelte-check --tsconfig ./tsconfig.json"
+  },
+  "devDependencies": {
+    "@rollup/plugin-json": "^6.1.0",
+    "@rollup/plugin-typescript": "^11.1.5",
+    "@sveltejs/vite-plugin-svelte" :"3.0.1",
+    "@tsconfig/svelte": "^5.0.2",
+    "rollup": "^4.9.2",
+    "svelte": "^4.2.8",
+    "svelte-check": "^3.6.2",
+    "tslib": "^2.6.2",
+    "typescript": "^5.3.3",
+    "vite": "^5.0.10"
+  },
+  "dependencies": {
+    "chrome-types": "^0.1.246"
+  }
+}

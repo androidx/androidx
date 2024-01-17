@@ -28,12 +28,12 @@ public final class UpsertDao_Impl implements UpsertDao {
         this.__upsertionAdapterOfUser = new EntityUpsertionAdapter<User>(new EntityInsertionAdapter<User>(__db) {
             @Override
             @NonNull
-            public String createQuery() {
+            protected String createQuery() {
                 return "INSERT INTO `User` (`uid`,`name`,`lastName`,`ageColumn`) VALUES (?,?,?,?)";
             }
 
             @Override
-            public void bind(@NonNull final SupportSQLiteStatement statement, final User entity) {
+            protected void bind(@NonNull final SupportSQLiteStatement statement, final User entity) {
                 statement.bindLong(1, entity.uid);
                 if (entity.name == null) {
                     statement.bindNull(2);
@@ -50,12 +50,12 @@ public final class UpsertDao_Impl implements UpsertDao {
         }, new EntityDeletionOrUpdateAdapter<User>(__db) {
             @Override
             @NonNull
-            public String createQuery() {
+            protected String createQuery() {
                 return "UPDATE `User` SET `uid` = ?,`name` = ?,`lastName` = ?,`ageColumn` = ? WHERE `uid` = ?";
             }
 
             @Override
-            public void bind(@NonNull final SupportSQLiteStatement statement, final User entity) {
+            protected void bind(@NonNull final SupportSQLiteStatement statement, final User entity) {
                 statement.bindLong(1, entity.uid);
                 if (entity.name == null) {
                     statement.bindNull(2);
@@ -74,24 +74,24 @@ public final class UpsertDao_Impl implements UpsertDao {
         this.__upsertionAdapterOfBook = new EntityUpsertionAdapter<Book>(new EntityInsertionAdapter<Book>(__db) {
             @Override
             @NonNull
-            public String createQuery() {
+            protected String createQuery() {
                 return "INSERT INTO `Book` (`bookId`,`uid`) VALUES (?,?)";
             }
 
             @Override
-            public void bind(@NonNull final SupportSQLiteStatement statement, final Book entity) {
+            protected void bind(@NonNull final SupportSQLiteStatement statement, final Book entity) {
                 statement.bindLong(1, entity.bookId);
                 statement.bindLong(2, entity.uid);
             }
         }, new EntityDeletionOrUpdateAdapter<Book>(__db) {
             @Override
             @NonNull
-            public String createQuery() {
+            protected String createQuery() {
                 return "UPDATE `Book` SET `bookId` = ?,`uid` = ? WHERE `bookId` = ?";
             }
 
             @Override
-            public void bind(@NonNull final SupportSQLiteStatement statement, final Book entity) {
+            protected void bind(@NonNull final SupportSQLiteStatement statement, final Book entity) {
                 statement.bindLong(1, entity.bookId);
                 statement.bindLong(2, entity.uid);
                 statement.bindLong(3, entity.bookId);

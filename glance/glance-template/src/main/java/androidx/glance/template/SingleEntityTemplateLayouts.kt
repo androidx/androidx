@@ -22,8 +22,6 @@ import androidx.glance.GlanceModifier
 import androidx.glance.GlanceTheme
 import androidx.glance.LocalSize
 import androidx.glance.appwidget.cornerRadius
-import androidx.glance.template.GlanceTemplateAppWidget.Companion.sizeMin
-import androidx.glance.template.GlanceTemplateAppWidget.Companion.sizeS
 import androidx.glance.background
 import androidx.glance.layout.Column
 import androidx.glance.layout.ContentScale
@@ -35,6 +33,8 @@ import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.height
 import androidx.glance.layout.padding
 import androidx.glance.layout.width
+import androidx.glance.template.GlanceTemplateAppWidget.Companion.sizeMin
+import androidx.glance.template.GlanceTemplateAppWidget.Companion.sizeS
 
 // TODO: Define template layouts for other surfaces
 /**

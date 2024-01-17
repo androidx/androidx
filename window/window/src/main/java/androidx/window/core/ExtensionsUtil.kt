@@ -17,6 +17,7 @@
 package androidx.window.core
 
 import android.util.Log
+import androidx.annotation.IntRange
 import androidx.window.core.VerificationMode.LOG
 import androidx.window.extensions.WindowExtensionsProvider
 
@@ -24,6 +25,7 @@ internal object ExtensionsUtil {
 
     private val TAG = ExtensionsUtil::class.simpleName
 
+    @get:IntRange(from = 0)
     val safeVendorApiLevel: Int
         get() {
             return try {

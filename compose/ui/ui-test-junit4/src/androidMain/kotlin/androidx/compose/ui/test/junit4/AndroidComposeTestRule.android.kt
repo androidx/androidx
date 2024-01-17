@@ -338,6 +338,10 @@ class AndroidComposeTestRule<R : TestRule, A : ComponentActivity> private constr
     ): SemanticsNodeInteractionCollection = composeTest.onAllNodes(matcher, useUnmergedTree)
 
     override fun setContent(composable: @Composable () -> Unit) = composeTest.setContent(composable)
+
+    fun cancelAndRecreateRecomposer() {
+        environment.cancelAndRecreateRecomposer()
+    }
 }
 
 private fun <A : ComponentActivity> getActivityFromTestRule(rule: ActivityScenarioRule<A>): A {

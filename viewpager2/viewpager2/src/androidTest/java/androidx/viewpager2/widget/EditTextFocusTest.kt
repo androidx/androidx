@@ -34,11 +34,11 @@ import androidx.test.espresso.matcher.ViewMatchers.isCompletelyDisplayed
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.viewpager2.widget.ViewPager2.ORIENTATION_HORIZONTAL
+import java.util.concurrent.TimeUnit.SECONDS
 import org.hamcrest.CoreMatchers.allOf
 import org.junit.Assert.assertFalse
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.util.concurrent.TimeUnit.SECONDS
 
 /** Regression test for an issue when focusing on an EditText would cause a scroll to page 0. */
 @RunWith(AndroidJUnit4::class)

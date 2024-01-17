@@ -30,7 +30,7 @@ import org.junit.runner.RunWith
 class MemoryCountersQueryTest {
     @Test
     @MediumTest
-    fun fixedTrace33() {
+    fun fixedTrace31() {
         assumeTrue(PerfettoHelper.isAbiSupported())
         val traceFile = createTempFileFromAsset("api31_startup_cold", ".perfetto-trace")
         val metrics = PerfettoTraceProcessor.runSingleSessionServer(

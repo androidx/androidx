@@ -31,8 +31,8 @@ import androidx.compose.ui.graphics.vector.compat.isAtEnd
 import androidx.compose.ui.graphics.vector.compat.parseCurrentVectorNode
 import androidx.compose.ui.graphics.vector.compat.seekToStartTag
 import androidx.compose.ui.platform.LocalContext
-import org.xmlpull.v1.XmlPullParserException
 import java.lang.ref.WeakReference
+import org.xmlpull.v1.XmlPullParserException
 
 /**
  * Load an ImageVector from a vector resource.

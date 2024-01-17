@@ -16,46 +16,76 @@
 
 package androidx.wear.protolayout.expression.pipeline;
 
-import androidx.collection.SimpleArrayMap;
-import androidx.wear.protolayout.expression.pipeline.TimeGateway.TimeCallback;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.UiThread;
+import androidx.annotation.VisibleForTesting;
 
 import java.time.Instant;
-import java.util.concurrent.Executor;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Supplier;
 
 /** Utility for time data source. */
 class EpochTimePlatformDataSource {
-    private final Executor mUiExecutor;
-    private final TimeGateway mGateway;
-    private final SimpleArrayMap<
-            DynamicTypeValueReceiverWithPreUpdate<Instant>, TimeCallback>
-            mConsumerToTimeCallback = new SimpleArrayMap<>();
+    @NonNull private final MainThreadExecutor mExecutor = new MainThreadExecutor();
 
-    EpochTimePlatformDataSource(Executor uiExecutor, TimeGateway gateway) {
-        mUiExecutor = uiExecutor;
-        mGateway = gateway;
+    @NonNull final List<DynamicTypeValueReceiverWithPreUpdate<Instant>> mConsumerToTimeCallback =
+            new ArrayList<>();
+    @NonNull private final Supplier<Instant> mClock;
+    @Nullable private final PlatformTimeUpdateNotifier mUpdateNotifier;
+    private int mPendingConsumers = 0;
+
+    EpochTimePlatformDataSource(
+            @NonNull Supplier<Instant> clock,
+            @Nullable PlatformTimeUpdateNotifier platformTimeUpdateNotifier) {
+        this.mClock = clock;
+        this.mUpdateNotifier = platformTimeUpdateNotifier;
     }
 
-    public void registerForData(DynamicTypeValueReceiverWithPreUpdate<Instant> consumer) {
-        TimeCallback timeCallback =
-                new TimeCallback() {
-                    @Override
-                    public void onPreUpdate() {
-                        consumer.onPreUpdate();
-                    }
-
-                    @Override
-                    public void onData() {
-                        consumer.onData(Instant.now());
-                    }
-                };
-        mGateway.registerForUpdates(mUiExecutor, timeCallback);
-        mConsumerToTimeCallback.put(consumer, timeCallback);
+    @UiThread
+    void preRegister(){
+        mPendingConsumers++;
     }
 
-    public void unregisterForData(DynamicTypeValueReceiverWithPreUpdate<Instant> consumer) {
-        TimeCallback timeCallback = mConsumerToTimeCallback.remove(consumer);
-        if (timeCallback != null) {
-            mGateway.unregisterForUpdates(timeCallback);
+    @UiThread
+    void registerForData(DynamicTypeValueReceiverWithPreUpdate<Instant> consumer) {
+        mPendingConsumers--;
+        if (mConsumerToTimeCallback.isEmpty() && mUpdateNotifier != null) {
+            mUpdateNotifier.setReceiver(mExecutor, this::tick);
         }
+        mConsumerToTimeCallback.add(consumer);
+
+        if (mPendingConsumers == 0){
+            // After all registrations, trigger a tick so that new consumers don't end up waiting
+            // for the next scheduled tick.
+            // We might end up calling this twice for the very first receiver registration. But
+            // that shouldn't cause any issues.
+            tick();
+        }
+    }
+
+    @UiThread
+    void unregisterForData(DynamicTypeValueReceiverWithPreUpdate<Instant> consumer) {
+        mConsumerToTimeCallback.remove(consumer);
+        if (mConsumerToTimeCallback.isEmpty() && mUpdateNotifier != null) {
+            mUpdateNotifier.clearReceiver();
+        }
+    }
+
+    /**
+     * Updates all registered consumers with the new time.
+     */
+    @SuppressWarnings("NullAway")
+    private void tick() {
+        mConsumerToTimeCallback.forEach(
+                DynamicTypeValueReceiverWithPreUpdate::onPreUpdate);
+        Instant currentTime = mClock.get();
+        mConsumerToTimeCallback.forEach(c -> c.onData(currentTime));
+    }
+
+    @VisibleForTesting
+    int getRegisterConsumersCount() {
+        return mConsumerToTimeCallback.size();
     }
 }

@@ -21,8 +21,8 @@ import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.Command
 import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.ComposableNode
 import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.GetAllParametersCommand
 import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.GetComposablesCommand
-import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.GetParametersCommand
 import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.GetParameterDetailsCommand
+import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.GetParametersCommand
 import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.ParameterReference
 import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.UpdateSettingsCommand
 
@@ -117,13 +117,15 @@ fun GetComposablesCommand(
 fun GetUpdateSettingsCommand(
     includeRecomposeCounts: Boolean = false,
     keepRecomposeCounts: Boolean = false,
-    delayParameterExtractions: Boolean = false
+    delayParameterExtractions: Boolean = false,
+    reduceChildNesting: Boolean = false
 ): Command =
     Command.newBuilder().apply {
         updateSettingsCommand = UpdateSettingsCommand.newBuilder().apply {
             this.includeRecomposeCounts = includeRecomposeCounts
             this.keepRecomposeCounts = keepRecomposeCounts
             this.delayParameterExtractions = delayParameterExtractions
+            this.reduceChildNesting = reduceChildNesting
         }.build()
     }.build()
 

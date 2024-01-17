@@ -24,14 +24,14 @@ import androidx.viewpager2.widget.AdapterTest.Event.OnPageSelectedEvent
 import androidx.viewpager2.widget.BaseTest.Context.SwipeMethod
 import androidx.viewpager2.widget.ViewPager2.SCROLL_STATE_DRAGGING
 import androidx.viewpager2.widget.ViewPager2.SCROLL_STATE_IDLE
+import java.util.concurrent.TimeUnit.SECONDS
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.CoreMatchers.notNullValue
 import org.hamcrest.CoreMatchers.nullValue
-import org.hamcrest.Matchers.greaterThan
 import org.hamcrest.MatcherAssert.assertThat
+import org.hamcrest.Matchers.greaterThan
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.util.concurrent.TimeUnit.SECONDS
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)

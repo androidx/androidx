@@ -35,14 +35,10 @@ MissingNullability: androidx.test.uiautomator.UiObject2#getText():
     Missing nullability on method `getText` return
 
 
+PercentageInt: androidx.test.uiautomator.UiObject2#setGestureMarginPercentage(float):
+    Percentage must use ints, was `float` in `setGestureMarginPercentage`
 PercentageInt: androidx.test.uiautomator.UiScrollable#getSwipeDeadZonePercentage():
     Percentage must use ints, was `double` in `getSwipeDeadZonePercentage`
-
-
-ReferencesDeprecated: androidx.test.uiautomator.UiAutomatorInstrumentationTestRunner#getAndroidTestRunner():
-    Return type of deprecated type android.test.AndroidTestRunner in androidx.test.uiautomator.UiAutomatorInstrumentationTestRunner.getAndroidTestRunner(): this method should also be deprecated
-ReferencesDeprecated: androidx.test.uiautomator.UiAutomatorInstrumentationTestRunner#initializeUiAutomatorTest(androidx.test.uiautomator.UiAutomatorTestCase):
-    Parameter of deprecated type androidx.test.uiautomator.UiAutomatorTestCase in androidx.test.uiautomator.UiAutomatorInstrumentationTestRunner.initializeUiAutomatorTest(): this method should also be deprecated
 
 
 StreamFiles: androidx.test.uiautomator.UiDevice#takeScreenshot(java.io.File):

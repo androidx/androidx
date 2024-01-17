@@ -24,9 +24,9 @@ import androidx.glance.GlanceModifier
 import androidx.glance.findModifier
 import androidx.glance.unit.ColorProvider
 import com.google.common.truth.Truth.assertThat
+import org.junit.Test
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
-import org.junit.Test
 
 class BorderTest {
 

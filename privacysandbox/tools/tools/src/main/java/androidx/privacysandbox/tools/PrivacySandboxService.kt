@@ -16,7 +16,42 @@
 
 package androidx.privacysandbox.tools
 
-/** Entry point for an SDK service running in the privacy sandbox. */
+/** Entry point for an SDK service running in the Privacy Sandbox.
+ *
+ * There must be exactly one interface annotated with @PrivacySandboxService in your SDK module.
+ * This will be the first point of communication once the app has successfully loaded your SDK
+ * in the Privacy Sandbox.
+ *
+ * On the SDK side, the tools will generate a class called `AbstractSandboxedSdkProviderCompat`,
+ * containing an abstract factory method to create this service. This must be implemented by SDK
+ * developers, returning an implementation of the [PrivacySandboxService] annotated interface. This
+ * implementation should then be named in the SDK's `build.gradle` as the
+ * `compatSdkProviderClassName`.
+ *
+ * For example:
+ * ```
+ * package com.example.mysdk
+ *
+ * class MySdkSandboxedSdkProvider : AbstractSandboxedSdkProviderCompat() {
+ *     override fun createMySdk(context: Context): MySdk = MySdkImpl(context)
+ * }
+ * ```
+ *
+ * On the app side, the tools will generate a factory class for the service containing a static
+ * function (prefixed with "wrapTo") which should be used to convert an IBinder to the
+ * [PrivacySandboxService] annotated interface.
+ *
+ * For example:
+ * ```
+ * val sandboxManagerCompat = SdkSandboxManagerCompat.from(this)
+ * val sandboxedSdk = sandboxManagerCompat.loadSdk("com.example.mysdk", Bundle.EMPTY)
+ * val mySdk = MySdkFactory.wrapToMySdk(sandboxedSdk.getInterface()!!)
+ * ```
+ *
+ * Like [PrivacySandboxInterface], interfaces annotated with [PrivacySandboxService] have
+ * restrictions on allowed methods and types. See [PrivacySandboxInterface] documentation for
+ * details.
+ */
 @Retention(AnnotationRetention.RUNTIME)
 @Target(AnnotationTarget.CLASS)
-annotation class PrivacySandboxService
+public annotation class PrivacySandboxService

@@ -30,10 +30,10 @@ import androidx.camera.core.imagecapture.Utils.createProcessingRequest
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.isSequentialExecutor
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
 import androidx.camera.core.impl.utils.futures.Futures
-import androidx.camera.testing.TestImageUtil.createJpegBytes
-import androidx.camera.testing.TestImageUtil.createJpegFakeImageProxy
-import androidx.camera.testing.fakes.FakeImageInfo
-import androidx.camera.testing.fakes.FakeImageProxy
+import androidx.camera.testing.impl.TestImageUtil.createJpegBytes
+import androidx.camera.testing.impl.TestImageUtil.createJpegFakeImageProxy
+import androidx.camera.testing.impl.fakes.FakeImageInfo
+import androidx.camera.testing.impl.fakes.FakeImageProxy
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Test
@@ -58,8 +58,33 @@ class ProcessingNodeTest {
 
     @Before
     fun setUp() {
-        processingNodeIn = ProcessingNode.In.of(ImageFormat.JPEG)
+        processingNodeIn = ProcessingNode.In.of(ImageFormat.JPEG, ImageFormat.JPEG)
         node.transform(processingNodeIn)
+    }
+
+    @Test
+    fun processRequest_hasDiskResult() {
+        // Arrange: create a request with callback.
+        val callback = FakeTakePictureCallback()
+        val request = ProcessingRequest(
+            { listOf() },
+            OUTPUT_FILE_OPTIONS,
+            Rect(0, 0, WIDTH, HEIGHT),
+            ROTATION_DEGREES,
+            /*jpegQuality=*/100,
+            SENSOR_TO_BUFFER,
+            callback,
+            Futures.immediateFuture(null)
+        )
+
+        // Act: process the request.
+        val jpegBytes = createJpegBytes(WIDTH, HEIGHT)
+        val image = createJpegFakeImageProxy(jpegBytes)
+        processingNodeIn.edge.accept(ProcessingNode.InputPacket.of(request, image))
+        shadowOf(getMainLooper()).idle()
+
+        // Assert: the image is saved.
+        assertThat(callback.onDiskResult).isNotNull()
     }
 
     @Test
@@ -81,7 +106,7 @@ class ProcessingNodeTest {
         // Act: process the request.
         val jpegBytes = createJpegBytes(WIDTH, HEIGHT)
         val image = createJpegFakeImageProxy(jpegBytes)
-        processingNodeIn.edge.accept(ProcessingNode.InputPacket.of(request, image, false))
+        processingNodeIn.edge.accept(ProcessingNode.InputPacket.of(request, image))
         shadowOf(getMainLooper()).idle()
 
         // Assert: the image is not saved.
@@ -89,12 +114,64 @@ class ProcessingNodeTest {
     }
 
     @Test
+    fun processRequest_postviewImagePropagated() {
+        // Arrange: create a request with callback.
+        val callback = FakeTakePictureCallback()
+        val request = ProcessingRequest(
+            { listOf() },
+            OUTPUT_FILE_OPTIONS,
+            Rect(0, 0, WIDTH, HEIGHT),
+            ROTATION_DEGREES,
+            /*jpegQuality=*/100,
+            SENSOR_TO_BUFFER,
+            callback,
+            Futures.immediateFuture(null)
+        )
+
+        // Act: input the postview image.
+        val jpegBytes = createJpegBytes(WIDTH, HEIGHT)
+        val image = createJpegFakeImageProxy(jpegBytes)
+        processingNodeIn.postviewEdge.accept(ProcessingNode.InputPacket.of(request, image))
+        shadowOf(getMainLooper()).idle()
+
+        // Assert: postview image is received.
+        assertThat(callback.onPostviewBitmapAvailable).isNotNull()
+    }
+
+    @Test
+    fun processAbortedRequest_postviewNotImagePropagated() {
+        // Arrange: create a request with aborted callback.
+        val callback = FakeTakePictureCallback()
+        callback.aborted = true
+        val request = ProcessingRequest(
+            { listOf() },
+            OUTPUT_FILE_OPTIONS,
+            Rect(0, 0, WIDTH, HEIGHT),
+            ROTATION_DEGREES,
+            /*jpegQuality=*/100,
+            SENSOR_TO_BUFFER,
+            callback,
+            Futures.immediateFuture(null)
+        )
+
+        // Act: input the postview image.
+        val jpegBytes = createJpegBytes(WIDTH, HEIGHT)
+        val image = createJpegFakeImageProxy(jpegBytes)
+        processingNodeIn.postviewEdge.accept(ProcessingNode.InputPacket.of(request, image))
+        shadowOf(getMainLooper()).idle()
+
+        // Assert: the postview image is not received.
+        assertThat(callback.onPostviewBitmapAvailable).isNull()
+    }
+
+    @Test
     fun saveIncorrectImage_getsErrorCallback() {
         // Arrange: create an invalid ImageProxy.
         val takePictureCallback = FakeTakePictureCallback()
-        val image = FakeImageProxy(FakeImageInfo())
+        val image =
+            FakeImageProxy(FakeImageInfo())
         val processingRequest = createProcessingRequest(takePictureCallback)
-        val input = ProcessingNode.InputPacket.of(processingRequest, image, false)
+        val input = ProcessingNode.InputPacket.of(processingRequest, image)
 
         // Act: send input to the edge and wait for callback
         processingNodeIn.edge.accept(input)

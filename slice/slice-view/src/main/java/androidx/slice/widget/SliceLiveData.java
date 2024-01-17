@@ -28,7 +28,6 @@ import android.util.Log;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.collection.ArraySet;
 import androidx.lifecycle.LiveData;
@@ -55,25 +54,26 @@ import java.util.Set;
  *
  * @see #fromUri(Context, Uri)
  * @see LiveData
+ *
+ * @deprecated Slice framework has been deprecated, it will not receive any updates moving
+ * forward. If you are looking for a framework that handles communication across apps,
+ * consider using {@link android.app.appsearch.AppSearchManager}.
  */
-@RequiresApi(19)
+@Deprecated
 public final class SliceLiveData {
     private static final String TAG = "SliceLiveData";
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public static final SliceSpec OLD_BASIC = new SliceSpec("androidx.app.slice.BASIC", 1);
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public static final SliceSpec OLD_LIST = new SliceSpec("androidx.app.slice.LIST", 1);
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public static final Set<SliceSpec> SUPPORTED_SPECS = new ArraySet<>(
@@ -139,7 +139,6 @@ public final class SliceLiveData {
 
     /**
      * Version for testing
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @NonNull
@@ -208,7 +207,6 @@ public final class SliceLiveData {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         @SuppressWarnings("deprecation") /* AsyncTask */
@@ -292,7 +290,6 @@ public final class SliceLiveData {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         protected void updateSlice() {

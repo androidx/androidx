@@ -18,10 +18,10 @@ package androidx.lifecycle
 
 import androidx.annotation.AnyThread
 import androidx.annotation.MainThread
-import kotlinx.coroutines.Dispatchers
 import java.util.ArrayDeque
 import java.util.Queue
 import kotlin.coroutines.CoroutineContext
+import kotlinx.coroutines.Dispatchers
 
 /**
  * Helper class for [PausingDispatcher] that tracks runnables which are enqueued to the dispatcher

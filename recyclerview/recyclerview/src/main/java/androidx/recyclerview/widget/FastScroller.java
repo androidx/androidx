@@ -24,12 +24,12 @@ import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.StateListDrawable;
 import android.view.MotionEvent;
+import android.view.View;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
-import androidx.core.view.ViewCompat;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -37,7 +37,6 @@ import java.lang.annotation.RetentionPolicy;
 /**
  * Class responsible to animate and provide a fast scroller.
  */
-@VisibleForTesting
 class FastScroller extends RecyclerView.ItemDecoration implements RecyclerView.OnItemTouchListener {
     @IntDef({STATE_HIDDEN, STATE_VISIBLE, STATE_DRAGGING})
     @Retention(RetentionPolicy.SOURCE)
@@ -213,7 +212,7 @@ class FastScroller extends RecyclerView.ItemDecoration implements RecyclerView.O
     }
 
     private boolean isLayoutRTL() {
-        return ViewCompat.getLayoutDirection(mRecyclerView) == ViewCompat.LAYOUT_DIRECTION_RTL;
+        return mRecyclerView.getLayoutDirection() == View.LAYOUT_DIRECTION_RTL;
     }
 
     public boolean isDragging() {

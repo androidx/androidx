@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.Publish
 
 plugins {
@@ -34,9 +41,10 @@ android {
 }
 
 androidx {
-    name = "Android Wear Support Input Testing Helpers"
+    name = "Android Wear Input Testing Extensions"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.WEAR_INPUT_TESTING
     inceptionYear = "2020"
-    description = "Android Wear Support Input  Testing Helpers"
+    description = "Android Wear Support Input Testing Helpers"
+    metalavaK2UastEnabled = true
 }

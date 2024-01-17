@@ -19,9 +19,9 @@ package androidx.work.inspection.worker
 import android.content.Context
 import androidx.work.Worker
 import androidx.work.WorkerParameters
+import kotlin.time.Duration
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
-import kotlin.time.Duration
 
 class IdleWorker(
     context: Context,

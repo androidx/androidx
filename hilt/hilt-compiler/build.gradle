@@ -14,36 +14,47 @@
  * limitations under the License.
  */
 
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.LibraryType
 import androidx.build.SdkHelperKt
-import androidx.build.SupportConfig
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
     id("kotlin")
-    id("kotlin-kapt")
 }
 
 androidx.configureAarAsJarForConfiguration("testImplementation")
 
 dependencies {
     implementation(libs.kotlinStdlib)
-    compileOnly(libs.autoServiceAnnotations)
-    kapt(libs.autoService)
-    compileOnly(libs.gradleIncapHelper)
-    kapt(libs.gradleIncapHelperProcessor)
-    implementation(libs.autoCommon)
+    implementation("androidx.room:room-compiler-processing:2.6.0")
     implementation(libs.javapoet)
+    implementation(libs.kspApi)
 
     testImplementation(project(":hilt:hilt-common"))
+    testImplementation(project(":annotation:annotation"))
     testImplementation(libs.junit)
     testImplementation(libs.truth)
-    testImplementation(libs.googleCompileTesting)
+    testImplementation(project(":room:room-compiler-processing-testing"))
     testImplementation(libs.hiltCore)
     testImplementationAarAsJar(project(":hilt:hilt-work"))
-    testImplementation(fileTree(
-            dir: "${SdkHelperKt.getSdkPath(project)}/platforms/$SupportConfig.COMPILE_SDK_VERSION/",
-            include : "android.jar"))
+    testImplementation(SdkHelperKt.getSdkDependency(project))
+}
+
+tasks.withType(KotlinCompile).configureEach {
+    kotlinOptions {
+        freeCompilerArgs += [
+                "-opt-in=androidx.room.compiler.processing.ExperimentalProcessingApi",
+                "-opt-in=com.squareup.kotlinpoet.javapoet.KotlinPoetJavaPoetPreview"
+        ]
+    }
 }
 
 tasks.withType(Test).configureEach {
@@ -52,7 +63,7 @@ tasks.withType(Test).configureEach {
 }
 
 androidx {
-    name = "AndroidX Hilt Extension Compiler"
+    name = "Hilt Extension Compiler"
     type = LibraryType.ANNOTATION_PROCESSOR
     mavenVersion = LibraryVersions.HILT
     inceptionYear = "2020"

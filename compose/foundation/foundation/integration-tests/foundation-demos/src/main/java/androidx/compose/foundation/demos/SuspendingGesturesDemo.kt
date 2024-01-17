@@ -20,8 +20,8 @@ import android.graphics.Matrix
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectTransformGestures
@@ -33,16 +33,17 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.requiredHeight
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.requiredWidth
+import androidx.compose.foundation.layout.size
 import androidx.compose.integration.demos.common.ComposableDemo
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -109,12 +110,12 @@ fun anotherRandomHue(hue: Float): Float {
  */
 @Composable
 fun CoroutineTapDemo() {
-    var tapHue by remember { mutableStateOf(randomHue()) }
-    var longPressHue by remember { mutableStateOf(randomHue()) }
-    var doubleTapHue by remember { mutableStateOf(randomHue()) }
-    var pressHue by remember { mutableStateOf(randomHue()) }
-    var releaseHue by remember { mutableStateOf(randomHue()) }
-    var cancelHue by remember { mutableStateOf(randomHue()) }
+    var tapHue by remember { mutableFloatStateOf(randomHue()) }
+    var longPressHue by remember { mutableFloatStateOf(randomHue()) }
+    var doubleTapHue by remember { mutableFloatStateOf(randomHue()) }
+    var pressHue by remember { mutableFloatStateOf(randomHue()) }
+    var releaseHue by remember { mutableFloatStateOf(randomHue()) }
+    var cancelHue by remember { mutableFloatStateOf(randomHue()) }
 
     Column {
         Text("The boxes change color when you tap the white box.")
@@ -214,7 +215,7 @@ fun CoroutineTapDemo() {
 @Composable
 fun TouchSlopDragGestures() {
     Column {
-        var width by remember { mutableStateOf(0f) }
+        var width by remember { mutableFloatStateOf(0f) }
         Box(
             Modifier.fillMaxWidth()
                 .background(Color.Cyan)
@@ -241,7 +242,7 @@ fun TouchSlopDragGestures() {
         }
 
         Box(Modifier.weight(1f)) {
-            var height by remember { mutableStateOf(0f) }
+            var height by remember { mutableFloatStateOf(0f) }
             Box(
                 Modifier.fillMaxHeight()
                     .background(Color.Yellow)
@@ -328,23 +329,23 @@ fun OrientationLockDragGestures() {
 @Composable
 fun Drag2DGestures() {
     var size by remember { mutableStateOf(IntSize.Zero) }
-    val offsetX = remember { mutableStateOf(0f) }
-    val offsetY = remember { mutableStateOf(0f) }
+    var offsetX by remember { mutableFloatStateOf(0f) }
+    var offsetY by remember { mutableFloatStateOf(0f) }
     Box(
         Modifier.onSizeChanged {
             size = it
         }.fillMaxSize()
     ) {
         Box(
-            Modifier.offset { IntOffset(offsetX.value.roundToInt(), offsetY.value.roundToInt()) }
+            Modifier.offset { IntOffset(offsetX.roundToInt(), offsetY.roundToInt()) }
                 .background(Color.Blue)
                 .requiredSize(50.dp)
                 .pointerInput(Unit) {
                     detectDragGestures { _, dragAmount ->
-                        offsetX.value = (offsetX.value + dragAmount.x)
+                        offsetX = (offsetX + dragAmount.x)
                             .coerceIn(0f, size.width.toFloat() - 50.dp.toPx())
 
-                        offsetY.value = (offsetY.value + dragAmount.y)
+                        offsetY = (offsetY + dragAmount.y)
                             .coerceIn(0f, size.height.toFloat() - 50.dp.toPx())
                     }
                 }
@@ -361,10 +362,10 @@ fun MultitouchArea(
     ) -> Unit
 ) {
     val matrix by remember { mutableStateOf(Matrix()) }
-    var angle by remember { mutableStateOf(0f) }
-    var zoom by remember { mutableStateOf(1f) }
-    var offsetX by remember { mutableStateOf(0f) }
-    var offsetY by remember { mutableStateOf(0f) }
+    var angle by remember { mutableFloatStateOf(0f) }
+    var zoom by remember { mutableFloatStateOf(1f) }
+    var offsetX by remember { mutableFloatStateOf(0f) }
+    var offsetY by remember { mutableFloatStateOf(0f) }
 
     Box(
         Modifier.fillMaxSize().pointerInput(Unit) {

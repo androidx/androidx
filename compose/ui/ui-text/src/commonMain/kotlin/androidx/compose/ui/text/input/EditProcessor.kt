@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.compose.ui.text.input
 
 import androidx.compose.ui.text.TextRange
@@ -55,6 +57,7 @@ class EditProcessor {
      * This method updates the internal editing buffer with the given editor model.
      * This method may tell the IME about the selection offset changes or extracted text changes.
      */
+    @Suppress("ReferencesDeprecated")
     fun reset(
         value: TextFieldValue,
         textInputSession: TextInputSession?,
@@ -119,7 +122,12 @@ class EditProcessor {
 
         val newState = TextFieldValue(
             annotatedString = mBuffer.toAnnotatedString(),
-            selection = mBuffer.selection,
+            // preserve original reversed selection when creating new state.
+            // otherwise the text range may flicker to un-reversed for a frame,
+            // which can cause haptics and handles to be crossed.
+            selection = mBuffer.selection.run {
+                takeUnless { mBufferState.selection.reversed } ?: TextRange(max, min)
+            },
             composition = mBuffer.composition
         )
 

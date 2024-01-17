@@ -47,11 +47,11 @@ import androidx.room.integration.kotlintestapp.vo.Playlist
 import androidx.room.integration.kotlintestapp.vo.PlaylistSongXRef
 import androidx.room.integration.kotlintestapp.vo.Publisher
 import androidx.room.integration.kotlintestapp.vo.Song
+import androidx.room.integration.kotlintestapp.vo.Toy
+import androidx.room.integration.kotlintestapp.vo.User
 import java.nio.ByteBuffer
 import java.util.Date
 import java.util.UUID
-import androidx.room.integration.kotlintestapp.vo.Toy
-import androidx.room.integration.kotlintestapp.vo.User
 
 @Database(
     entities = [

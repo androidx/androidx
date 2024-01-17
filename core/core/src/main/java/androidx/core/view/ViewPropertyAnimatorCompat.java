@@ -228,13 +228,8 @@ public final class ViewPropertyAnimatorCompat {
     public ViewPropertyAnimatorCompat withEndAction(@NonNull Runnable runnable) {
         View view;
         if ((view = mView.get()) != null) {
-            if (Build.VERSION.SDK_INT >= 16) {
-                ViewPropertyAnimator animator = view.animate();
-                Api16Impl.withEndAction(animator, runnable);
-            } else {
-                setListenerInternal(view, new ViewPropertyAnimatorListenerApi14(this));
-                mEndAction = runnable;
-            }
+            ViewPropertyAnimator animator = view.animate();
+            animator.withEndAction(runnable);
         }
         return this;
     }
@@ -282,10 +277,8 @@ public final class ViewPropertyAnimatorCompat {
     public Interpolator getInterpolator() {
         View view;
         if ((view = mView.get()) != null) {
-            if (Build.VERSION.SDK_INT >= 18) {
-                ViewPropertyAnimator animator = view.animate();
-                return Api18Impl.getInterpolator(animator);
-            }
+            ViewPropertyAnimator animator = view.animate();
+            return (Interpolator) animator.getInterpolator();
         }
         return null;
     }
@@ -722,13 +715,8 @@ public final class ViewPropertyAnimatorCompat {
     public ViewPropertyAnimatorCompat withLayer() {
         View view;
         if ((view = mView.get()) != null) {
-            if (Build.VERSION.SDK_INT >= 16) {
-                ViewPropertyAnimator animator = view.animate();
-                Api16Impl.withLayer(animator);
-            } else {
-                mOldLayerType = view.getLayerType();
-                setListenerInternal(view, new ViewPropertyAnimatorListenerApi14(this));
-            }
+            ViewPropertyAnimator animator = view.animate();
+            animator.withLayer();
         }
         return this;
     }
@@ -752,13 +740,8 @@ public final class ViewPropertyAnimatorCompat {
     public ViewPropertyAnimatorCompat withStartAction(@NonNull Runnable runnable) {
         View view;
         if ((view = mView.get()) != null) {
-            if (Build.VERSION.SDK_INT >= 16) {
-                ViewPropertyAnimator animator = view.animate();
-                Api16Impl.withStartAction(animator, runnable);
-            } else {
-                setListenerInternal(view, new ViewPropertyAnimatorListenerApi14(this));
-                mStartAction = runnable;
-            }
+            ViewPropertyAnimator animator = view.animate();
+            animator.withStartAction(runnable);
         }
         return this;
     }
@@ -776,12 +759,7 @@ public final class ViewPropertyAnimatorCompat {
             final @Nullable ViewPropertyAnimatorListener listener) {
         final View view;
         if ((view = mView.get()) != null) {
-            if (Build.VERSION.SDK_INT >= 16) {
-                setListenerInternal(view, listener);
-            } else {
-                view.setTag(LISTENER_TAG_ID, listener);
-                setListenerInternal(view, new ViewPropertyAnimatorListenerApi14(this));
-            }
+            setListenerInternal(view, listener);
         }
         return this;
     }
@@ -824,53 +802,14 @@ public final class ViewPropertyAnimatorCompat {
             final @Nullable ViewPropertyAnimatorUpdateListener listener) {
         final View view;
         if ((view = mView.get()) != null) {
-            if (Build.VERSION.SDK_INT >= 19) {
-                ValueAnimator.AnimatorUpdateListener wrapped = null;
-                if (listener != null) {
+            ValueAnimator.AnimatorUpdateListener wrapped = null;
+            if (listener != null) {
                     wrapped = valueAnimator -> listener.onAnimationUpdate(view);
                 }
-                ViewPropertyAnimator animator = view.animate();
-                Api19Impl.setUpdateListener(animator, wrapped);
-            }
+            ViewPropertyAnimator animator = view.animate();
+            animator.setUpdateListener(wrapped);
         }
         return this;
-    }
-
-    @RequiresApi(16)
-    static class Api16Impl {
-        private Api16Impl() {
-            // This class is not instantiable.
-        }
-
-        @DoNotInline
-        static ViewPropertyAnimator withEndAction(ViewPropertyAnimator viewPropertyAnimator,
-                Runnable runnable) {
-            return viewPropertyAnimator.withEndAction(runnable);
-        }
-
-        @DoNotInline
-        static ViewPropertyAnimator withLayer(ViewPropertyAnimator viewPropertyAnimator) {
-            return viewPropertyAnimator.withLayer();
-        }
-
-        @DoNotInline
-        static ViewPropertyAnimator withStartAction(ViewPropertyAnimator viewPropertyAnimator,
-                Runnable runnable) {
-            return viewPropertyAnimator.withStartAction(runnable);
-        }
-    }
-
-    @RequiresApi(18)
-    static class Api18Impl {
-        private Api18Impl() {
-            // This class is not instantiable.
-        }
-
-        @DoNotInline
-        static Interpolator getInterpolator(ViewPropertyAnimator viewPropertyAnimator) {
-            return (Interpolator) viewPropertyAnimator.getInterpolator();
-        }
-
     }
 
     @RequiresApi(21)
@@ -900,19 +839,5 @@ public final class ViewPropertyAnimatorCompat {
         static ViewPropertyAnimator zBy(ViewPropertyAnimator viewPropertyAnimator, float value) {
             return viewPropertyAnimator.zBy(value);
         }
-    }
-
-    @RequiresApi(19)
-    static class Api19Impl {
-        private Api19Impl() {
-            // This class is not instantiable.
-        }
-
-        @DoNotInline
-        static ViewPropertyAnimator setUpdateListener(ViewPropertyAnimator viewPropertyAnimator,
-                ValueAnimator.AnimatorUpdateListener listener) {
-            return viewPropertyAnimator.setUpdateListener(listener);
-        }
-
     }
 }

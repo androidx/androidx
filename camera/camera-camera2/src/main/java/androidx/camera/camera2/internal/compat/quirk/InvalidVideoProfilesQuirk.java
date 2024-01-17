@@ -30,19 +30,22 @@ import java.util.Locale;
  * Quirk denoting the video profile list returns by {@link EncoderProfiles} is invalid.
  *
  * <p>QuirkSummary
- *     Bug Id: 267727595
- *     Description: When using {@link EncoderProfiles} on TP1A or TD1A builds of Android API 33,
+ *     Bug Id: 267727595, 278860860, 298951126, 298952500
+ *     Description: When using {@link EncoderProfiles} on some builds of Android API 33,
  *                  {@link EncoderProfiles#getVideoProfiles()} returns a list with size one, but
  *                  the single value in the list is null. This is not the expected behavior, and
  *                  makes {@link EncoderProfiles} lack of video information.
- *     Device(s): Pixel 4 and above pixel devices with TP1A or TD1A builds (API 33).
+ *     Device(s): Pixel 4 and above pixel devices with TP1A or TD1A builds (API 33), Samsung devices
+ *                 with TP1A build (API 33), Xiaomi devices with TKQ1 build (API 33), OnePlus and
+ *                 Oppo devices with API 33 build.
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class InvalidVideoProfilesQuirk implements Quirk {
 
-    static final List<String> AFFECTED_MODELS = Arrays.asList(
+    private static final List<String> AFFECTED_PIXEL_MODELS = Arrays.asList(
             "pixel 4",
             "pixel 4a",
+            "pixel 4a (5g)",
             "pixel 4 xl",
             "pixel 5",
             "pixel 5a",
@@ -53,23 +56,71 @@ public class InvalidVideoProfilesQuirk implements Quirk {
             "pixel 7 pro"
     );
 
+    private static final List<String> AFFECTED_ONE_PLUS_MODELS = Arrays.asList(
+            "cph2417",
+            "cph2451"
+    );
+
+    private static final List<String> AFFECTED_OPPO_MODELS = Arrays.asList(
+            "cph2437",
+            "cph2525"
+    );
+
     static boolean load() {
-        return isAffectedModel() && isAffectedBuild();
+        return isAffectedSamsungDevices() || isAffectedPixelDevices() || isAffectedXiaomiDevices()
+                || isAffectedOnePlusDevices() || isAffectedOppoDevices();
     }
 
-    private static boolean isAffectedModel() {
-        return AFFECTED_MODELS.contains(Build.MODEL.toLowerCase(Locale.US));
+    private static boolean isAffectedSamsungDevices() {
+        return "samsung".equalsIgnoreCase(Build.BRAND) && isTp1aBuild();
     }
 
-    private static boolean isAffectedBuild() {
+    private static boolean isAffectedPixelDevices() {
+        return isAffectedPixelModel() && isAffectedPixelBuild();
+    }
+
+    private static boolean isAffectedOnePlusDevices() {
+        return isAffectedOnePlusModel() && isAPI33();
+    }
+
+    private static boolean isAffectedOppoDevices() {
+        return isAffectedOppoModel() && isAPI33();
+    }
+
+    private static boolean isAffectedXiaomiDevices() {
+        return ("redmi".equalsIgnoreCase(Build.BRAND) || "xiaomi".equalsIgnoreCase(Build.BRAND))
+                && isTkq1Build();
+    }
+
+    private static boolean isAffectedPixelModel() {
+        return AFFECTED_PIXEL_MODELS.contains(Build.MODEL.toLowerCase(Locale.ROOT));
+    }
+
+    private static boolean isAffectedOnePlusModel() {
+        return AFFECTED_ONE_PLUS_MODELS.contains(Build.MODEL.toLowerCase(Locale.ROOT));
+    }
+
+    private static boolean isAffectedOppoModel() {
+        return AFFECTED_OPPO_MODELS.contains(Build.MODEL.toLowerCase(Locale.ROOT));
+    }
+
+    private static boolean isAffectedPixelBuild() {
         return isTp1aBuild() || isTd1aBuild();
     }
 
     private static boolean isTp1aBuild() {
-        return Build.ID.startsWith("TP1A");
+        return Build.ID.toLowerCase(Locale.ROOT).startsWith("tp1a");
     }
 
     private static boolean isTd1aBuild() {
-        return Build.ID.startsWith("TD1A");
+        return Build.ID.toLowerCase(Locale.ROOT).startsWith("td1a");
+    }
+
+    private static boolean isTkq1Build() {
+        return Build.ID.toLowerCase(Locale.ROOT).startsWith("tkq1");
+    }
+
+    private static boolean isAPI33() {
+        return Build.VERSION.SDK_INT == 33;
     }
 }

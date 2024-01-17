@@ -115,7 +115,9 @@ private enum class AnnotationType {
     Paragraph,
     Span,
     VerbatimTts,
-    Url,
+    Url, // UrlAnnotation
+    Link, // LinkAnnotation.Url
+    Clickable,
     String
 }
 
@@ -127,6 +129,8 @@ private val AnnotationRangeSaver = Saver<AnnotatedString.Range<out Any>, Any>(
             is SpanStyle -> AnnotationType.Span
             is VerbatimTtsAnnotation -> AnnotationType.VerbatimTts
             is UrlAnnotation -> AnnotationType.Url
+            is LinkAnnotation.Url -> AnnotationType.Link
+            is LinkAnnotation.Clickable -> AnnotationType.Clickable
             else -> AnnotationType.String
         }
 
@@ -141,6 +145,16 @@ private val AnnotationRangeSaver = Saver<AnnotatedString.Range<out Any>, Any>(
             AnnotationType.Url -> save(
                 it.item as UrlAnnotation,
                 UrlAnnotationSaver,
+                this
+            )
+            AnnotationType.Link -> save(
+                it.item as LinkAnnotation.Url,
+                LinkSaver,
+                this
+            )
+            AnnotationType.Clickable -> save(
+                it.item as LinkAnnotation.Clickable,
+                ClickableSaver,
                 this
             )
             AnnotationType.String -> save(it.item)
@@ -179,6 +193,14 @@ private val AnnotationRangeSaver = Saver<AnnotatedString.Range<out Any>, Any>(
                 val item: UrlAnnotation = restore(list[1], UrlAnnotationSaver)!!
                 AnnotatedString.Range(item = item, start = start, end = end, tag = tag)
             }
+            AnnotationType.Link -> {
+                val item: LinkAnnotation.Url = restore(list[1], LinkSaver)!!
+                AnnotatedString.Range(item = item, start = start, end = end, tag = tag)
+            }
+            AnnotationType.Clickable -> {
+                val item: LinkAnnotation.Clickable = restore(list[1], ClickableSaver)!!
+                AnnotatedString.Range(item = item, start = start, end = end, tag = tag)
+            }
             AnnotationType.String -> {
                 val item: String = restore(list[1])!!
                 AnnotatedString.Range(item = item, start = start, end = end, tag = tag)
@@ -198,6 +220,16 @@ private val UrlAnnotationSaver = Saver<UrlAnnotation, Any>(
     restore = { UrlAnnotation(restore(it)!!) }
 )
 
+private val LinkSaver = Saver<LinkAnnotation.Url, Any>(
+    save = { save(it.url) },
+    restore = { LinkAnnotation.Url(restore(it)!!) }
+)
+
+private val ClickableSaver = Saver<LinkAnnotation.Clickable, Any>(
+    save = { save(it.tag) },
+    restore = { LinkAnnotation.Clickable(restore(it)!!) }
+)
+
 internal val ParagraphStyleSaver = Saver<ParagraphStyle, Any>(
     save = {
         arrayListOf(
@@ -210,8 +242,8 @@ internal val ParagraphStyleSaver = Saver<ParagraphStyle, Any>(
     restore = {
         val list = it as List<Any?>
         ParagraphStyle(
-            textAlign = restore(list[0]),
-            textDirection = restore(list[1]),
+            textAlign = restore(list[0])!!,
+            textDirection = restore(list[1])!!,
             lineHeight = restore(list[2], TextUnit.Saver)!!,
             textIndent = restore(list[3], TextIndent.Saver)
         )

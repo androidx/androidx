@@ -16,12 +16,41 @@
 
 package androidx.privacysandbox.sdkruntime.core.controller.impl
 
+import android.os.Bundle
+import android.os.IBinder
+import androidx.privacysandbox.sdkruntime.core.AppOwnedSdkSandboxInterfaceCompat
+import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat
+import androidx.privacysandbox.sdkruntime.core.activity.SdkSandboxActivityHandlerCompat
 import androidx.privacysandbox.sdkruntime.core.controller.SdkSandboxControllerCompat
 
 /**
  * NoOp implementation for cases when [SdkSandboxControllerCompat] not supported.
  */
 internal class NoOpImpl : SdkSandboxControllerCompat.SandboxControllerImpl {
+
+    override suspend fun loadSdk(sdkName: String, params: Bundle): SandboxedSdkCompat {
+        throw LoadSdkCompatException(
+            LoadSdkCompatException.LOAD_SDK_NOT_FOUND,
+            "Loading SDK not supported on this device"
+        )
+    }
+
     override fun getSandboxedSdks(): List<SandboxedSdkCompat> = emptyList()
+
+    override fun getAppOwnedSdkSandboxInterfaces(): List<AppOwnedSdkSandboxInterfaceCompat> =
+        emptyList()
+
+    override fun registerSdkSandboxActivityHandler(
+        handlerCompat: SdkSandboxActivityHandlerCompat
+    ):
+        IBinder {
+        throw UnsupportedOperationException("Not supported")
+    }
+
+    override fun unregisterSdkSandboxActivityHandler(
+        handlerCompat: SdkSandboxActivityHandlerCompat
+    ) {
+        throw UnsupportedOperationException("Not supported")
+    }
 }

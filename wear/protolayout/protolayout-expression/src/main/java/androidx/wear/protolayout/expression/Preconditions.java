@@ -21,20 +21,17 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 
-/**
- * Preconditions for use within this library.
- *
- */
+/** Preconditions for use within this library. */
 @RestrictTo(Scope.LIBRARY_GROUP)
 public final class Preconditions {
-  private Preconditions() {}
+    private Preconditions() {}
 
-  @RestrictTo(Scope.LIBRARY_GROUP)
-  @NonNull
-  public static <T> T checkNotNull(@Nullable T value) {
-    if (value == null) {
-      throw new NullPointerException();
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    public static <T> T checkNotNull(@Nullable T value) {
+        if (value == null) {
+            throw new NullPointerException();
+        }
+        return value;
     }
-    return value;
-  }
 }

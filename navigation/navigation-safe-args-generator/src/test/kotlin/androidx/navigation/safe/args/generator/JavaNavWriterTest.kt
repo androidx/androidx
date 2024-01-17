@@ -29,13 +29,13 @@ import com.google.testing.compile.JavaSourcesSubject
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.JavaFile
 import com.squareup.javapoet.TypeSpec
+import javax.tools.JavaFileObject
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.not
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import javax.tools.JavaFileObject
 
 @RunWith(JUnit4::class)
 class JavaNavWriterTest {

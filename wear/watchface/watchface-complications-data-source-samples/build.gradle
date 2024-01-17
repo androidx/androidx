@@ -16,21 +16,41 @@
 
 plugins {
     id("AndroidXPlugin")
-    id("com.android.library")
+    id("com.android.application")
     id("kotlin-android")
 }
 
 dependencies {
-    implementation("androidx.core:core:1.1.0")
     api(project(":wear:watchface:watchface-complications-data-source"))
     api(libs.guavaAndroid)
-    api(libs.kotlinStdlib)
+    implementation("androidx.core:core:1.1.0")
+    implementation("androidx.wear.protolayout:protolayout-expression:1.0.0-beta01")
 }
 
 android {
     defaultConfig {
-        minSdkVersion 26
+        minSdkVersion 29
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android.txt')
+        }
+
+        /*
+         Release and debug targets will have different package names. Package name for debug version
+         will have suffix .debug, so this should be appended to package name when i.e. uninstalling.
+         */
+        debug {
+            applicationIdSuffix ".debug"
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility 1.8
+        targetCompatibility 1.8
     }
     namespace "androidx.wear.watchface.complications.datasource.samples"
 }
-

@@ -27,8 +27,12 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import android.content.Context;
+import android.os.Handler;
+import android.os.HandlerThread;
 import android.text.Spannable;
 import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.widget.EditText;
 
@@ -37,6 +41,7 @@ import androidx.emoji2.util.EmojiMatcher;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
+import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -44,7 +49,6 @@ import org.junit.runner.RunWith;
 
 @SmallTest
 @RunWith(AndroidJUnit4.class)
-@SdkSuppress(minSdkVersion = 19) // class is not instantiated prior to API19
 public class EmojiTextWatcherTest {
 
     private EmojiTextWatcher mTextWatcher;
@@ -59,11 +63,28 @@ public class EmojiTextWatcherTest {
     }
 
     @Test
-    public void testOnTextChanged_callsProcess() {
+    public void testOnTextChanged_doesNotCallProcess() {
         final Spannable testString = new SpannableString("abc");
         when(mEmojiCompat.getLoadState()).thenReturn(EmojiCompat.LOAD_STATE_SUCCEEDED);
 
         mTextWatcher.onTextChanged(testString, 0, 0, 1);
+
+        verify(mEmojiCompat, times(0)).process(
+                EmojiMatcher.sameCharSequence(testString),
+                eq(0),
+                eq(1),
+                eq(Integer.MAX_VALUE),
+                anyInt());
+        verify(mEmojiCompat, times(0)).registerInitCallback(any(EmojiCompat.InitCallback.class));
+    }
+
+    @Test
+    public void testAfterTextChanged_callsProcess() {
+        final Spannable testString = new SpannableString("abc");
+        when(mEmojiCompat.getLoadState()).thenReturn(EmojiCompat.LOAD_STATE_SUCCEEDED);
+
+        mTextWatcher.onTextChanged(testString, 0, 0, 1);
+        mTextWatcher.afterTextChanged(new SpannableStringBuilder(testString));
 
         verify(mEmojiCompat, times(1)).process(
                 EmojiMatcher.sameCharSequence(testString),
@@ -80,6 +101,7 @@ public class EmojiTextWatcherTest {
         when(mEmojiCompat.getLoadState()).thenReturn(EmojiCompat.LOAD_STATE_LOADING);
 
         mTextWatcher.onTextChanged(testString, 0, 0, 1);
+        mTextWatcher.afterTextChanged(new SpannableStringBuilder(testString));
 
         verify(mEmojiCompat, times(0)).process(any(Spannable.class), anyInt(), anyInt(), anyInt(),
                 anyInt());
@@ -92,6 +114,7 @@ public class EmojiTextWatcherTest {
         when(mEmojiCompat.getLoadState()).thenReturn(EmojiCompat.LOAD_STATE_FAILED);
 
         mTextWatcher.onTextChanged(testString, 0, 0, 1);
+        mTextWatcher.afterTextChanged(new SpannableStringBuilder(testString));
 
         verify(mEmojiCompat, times(0)).process(any(Spannable.class), anyInt(), anyInt(), anyInt(),
                 anyInt());
@@ -106,13 +129,19 @@ public class EmojiTextWatcherTest {
         assertEquals(EmojiCompat.REPLACE_STRATEGY_DEFAULT, mTextWatcher.getEmojiReplaceStrategy());
 
         mTextWatcher.onTextChanged(testString, 0, 0, 1);
+        verifyNoMoreInteractions(mEmojiCompat);
+        SpannableStringBuilder ssb = new SpannableStringBuilder((testString));
+        mTextWatcher.afterTextChanged(ssb);
 
-        verify(mEmojiCompat, times(1)).process(any(Spannable.class), anyInt(), anyInt(), anyInt(),
+        verify(mEmojiCompat, times(1)).process(any(Spannable.class), anyInt(),
+                anyInt(),
+                anyInt(),
                 eq(EmojiCompat.REPLACE_STRATEGY_DEFAULT));
 
         mTextWatcher.setEmojiReplaceStrategy(EmojiCompat.REPLACE_STRATEGY_ALL);
 
         mTextWatcher.onTextChanged(testString, 0, 0, 1);
+        mTextWatcher.afterTextChanged(ssb);
 
         verify(mEmojiCompat, times(1)).process(any(Spannable.class), anyInt(), anyInt(), anyInt(),
                 eq(EmojiCompat.REPLACE_STRATEGY_ALL));
@@ -124,6 +153,8 @@ public class EmojiTextWatcherTest {
         when(mEmojiCompat.getLoadState()).thenReturn(EmojiCompat.LOAD_STATE_DEFAULT);
 
         mTextWatcher.onTextChanged(testString, 0, 0, 1);
+        SpannableStringBuilder ssb = new SpannableStringBuilder(testString);
+        mTextWatcher.afterTextChanged(ssb);
 
         verify(mEmojiCompat, times(0)).process(any(Spannable.class), anyInt(), anyInt());
         verify(mEmojiCompat, times(1)).registerInitCallback(any(EmojiCompat.InitCallback.class));
@@ -148,5 +179,31 @@ public class EmojiTextWatcherTest {
         SpannableString expected = new SpannableString("abc");
         mTextWatcher.onTextChanged(expected, 0, 0, 1);
         assertTrue(TextUtils.equals(expected, "abc"));
+    }
+
+    @Test
+    public void initCallback_doesntCrashWhenNotAttached() {
+        Context context = InstrumentationRegistry.getInstrumentation().getContext();
+        EditText editText = new EditText(context);
+        EmojiTextWatcher subject = new EmojiTextWatcher(editText, false);
+        subject.getInitCallback().onInitialized();
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 29)
+    public void initCallback_sendsToNonMainHandler_beforeSetText() {
+        // this is just testing that onInitialized dispatches to editText.getHandler before setText
+        EditText mockEditText = mock(EditText.class);
+        HandlerThread thread = new HandlerThread("random thread");
+        thread.start();
+        Handler handler = new Handler(thread.getLooper());
+        thread.quitSafely();
+        when(mockEditText.getHandler()).thenReturn(handler);
+        EmojiTextWatcher subject = new EmojiTextWatcher(mockEditText, false);
+        EmojiTextWatcher.InitCallbackImpl initCallback =
+                (EmojiTextWatcher.InitCallbackImpl) subject.getInitCallback();
+        initCallback.onInitialized();
+
+        handler.hasCallbacks(initCallback);
     }
 }

@@ -30,7 +30,7 @@ android {
         }
     }
     productFlavors {
-        flavorDimensions = ["version"]
+        flavorDimensions = ["version", "color"]
         free {
             dimension "version"
             applicationIdSuffix ".free"
@@ -41,31 +41,39 @@ android {
             applicationIdSuffix ".paid"
             versionNameSuffix "-paid"
         }
+        red {
+            dimension "color"
+        }
+        blue {
+            dimension "color"
+            // Note that the producer does not have a `red` flavor dimension to test matching
+            // fallbacks with baseline profiles.
+            matchingFallbacks += "red"
+        }
     }
     namespace "androidx.benchmark.integration.baselineprofile.flavors.consumer"
 }
 
 dependencies {
-    implementation(libs.kotlinStdlib)
-    implementation(libs.constraintLayout)
+
+    // Specifying build type dependencies is part of the test
+    debugImplementation(libs.kotlinStdlib)
+    debugImplementation(libs.constraintLayout)
+
+    releaseImplementation(libs.kotlinStdlib)
+    releaseImplementation(libs.constraintLayout)
 }
 
 baselineProfile {
     filter {
-        include "androidx.benchmark.integration.baselineprofile.flavors.consumer.*"
+        include "androidx.benchmark.integration.baselineprofile.flavors.consumer.**"
     }
     variants {
-        freeRelease {
-            filter {
-                include "androidx.benchmark.integration.baselineprofile.flavors.consumer.free.*"
-                from(project(":benchmark:integration-tests:baselineprofile-flavors-producer"))
-            }
+        free {
+            from(project(":benchmark:integration-tests:baselineprofile-flavors-producer"))
         }
-        paidRelease {
-            filter {
-                include "androidx.benchmark.integration.baselineprofile.flavors.consumer.paid.*"
-                from(project(":benchmark:integration-tests:baselineprofile-flavors-producer"))
-            }
+        paid {
+            from(project(":benchmark:integration-tests:baselineprofile-flavors-producer"))
         }
     }
 

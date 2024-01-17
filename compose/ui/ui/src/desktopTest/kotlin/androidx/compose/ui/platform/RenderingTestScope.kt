@@ -23,6 +23,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
+import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
@@ -31,7 +32,6 @@ import kotlinx.coroutines.yield
 import org.jetbrains.skia.Canvas
 import org.jetbrains.skia.Surface
 import org.jetbrains.skiko.FrameDispatcher
-import kotlin.coroutines.CoroutineContext
 
 internal fun renderingTest(
     width: Int,

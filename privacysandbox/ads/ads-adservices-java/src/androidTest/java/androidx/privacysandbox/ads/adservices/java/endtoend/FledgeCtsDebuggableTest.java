@@ -20,10 +20,13 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.net.Uri;
+import android.util.Log;
 
 import androidx.annotation.RequiresApi;
+import androidx.javascriptengine.JavaScriptSandbox;
 import androidx.privacysandbox.ads.adservices.adselection.AdSelectionConfig;
 import androidx.privacysandbox.ads.adservices.adselection.AdSelectionManager;
 import androidx.privacysandbox.ads.adservices.adselection.AdSelectionOutcome;
@@ -34,7 +37,7 @@ import androidx.privacysandbox.ads.adservices.common.AdTechIdentifier;
 import androidx.privacysandbox.ads.adservices.customaudience.CustomAudience;
 import androidx.privacysandbox.ads.adservices.customaudience.JoinCustomAudienceRequest;
 import androidx.privacysandbox.ads.adservices.customaudience.TrustedBiddingData;
-import androidx.privacysandbox.ads.adservices.internal.AdServicesInfo;
+import androidx.privacysandbox.ads.adservices.java.VersionCompatUtil;
 import androidx.privacysandbox.ads.adservices.java.adselection.AdSelectionManagerFutures;
 import androidx.privacysandbox.ads.adservices.java.customaudience.CustomAudienceManagerFutures;
 import androidx.test.core.app.ApplicationProvider;
@@ -65,13 +68,13 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-@SdkSuppress(minSdkVersion = 26)
+@SdkSuppress(minSdkVersion = 28) // API 28 is the lowest level supporting device_config used by this test
 public class FledgeCtsDebuggableTest {
     protected static final Context sContext = ApplicationProvider.getApplicationContext();
     private static final String TAG = "FledgeCtsDebuggableTest";
 
     // Configuration constants
-    private static final int SDK_MAX_REQUEST_PERMITS_PER_SECOND = 1000;
+    private static final int SDK_MAX_REQUEST_PERMITS_PER_SECOND = 1;
     // sleep time to prevent hitting rate limit, with a small tolerance to prevent edge
     // case of max calls per second falling exactly within one second
     private static final long DEFAULT_API_RATE_LIMIT_SLEEP_MS =
@@ -173,6 +176,10 @@ public class FledgeCtsDebuggableTest {
         testUtil.disableFledgeEnrollmentCheck(true);
         testUtil.enableAdServiceSystemService(true);
         testUtil.enforceFledgeJsIsolateMaxHeapSize(false);
+
+        if (VersionCompatUtil.INSTANCE.isSWithMinExtServicesVersion(9)) {
+            testUtil.enableBackCompat();
+        }
     }
 
     @AfterClass
@@ -194,23 +201,31 @@ public class FledgeCtsDebuggableTest {
         testUtil.disableFledgeEnrollmentCheck(false);
         testUtil.enableAdServiceSystemService(false);
         testUtil.enforceFledgeJsIsolateMaxHeapSize(true);
+
+        if (VersionCompatUtil.INSTANCE.isSWithMinExtServicesVersion(9)) {
+            testUtil.disableBackCompat();
+        }
     }
 
     @Before
     public void setup() throws Exception {
+        Assume.assumeTrue(JavaScriptSandbox.isSupported());
         mAdSelectionClient =
                 new AdSelectionClient(sContext);
         mCustomAudienceClient =
                 new CustomAudienceClient(sContext);
 
         // TODO(b/266725238): Remove/modify once the API rate limit has been adjusted for FLEDGE
-        Thread.sleep(DEFAULT_API_RATE_LIMIT_SLEEP_MS);
+        doSleep(DEFAULT_API_RATE_LIMIT_SLEEP_MS);
     }
 
     @Test
     public void testFledgeAuctionSelectionFlow_overall_Success() throws Exception {
-        // Skip the test if SDK extension 4 is not present.
-        Assume.assumeTrue(AdServicesInfo.INSTANCE.version() >= 4);
+        // Skip the test if the right SDK extension is not present.
+        Assume.assumeTrue(
+                VersionCompatUtil.INSTANCE.isTestableVersion(
+                        /* minAdServicesVersion=*/ 4,
+                        /* minExtServicesVersion=*/ 9));
 
         List<Double> bidsForBuyer1 = ImmutableList.of(1.1, 2.2);
         List<Double> bidsForBuyer2 = ImmutableList.of(4.5, 6.7, 10.0);
@@ -225,7 +240,7 @@ public class FledgeCtsDebuggableTest {
                 .get(API_RESPONSE_TIMEOUT_SECONDS, TimeUnit.SECONDS);
 
         // TODO(b/266725238): Remove/modify once the API rate limit has been adjusted for FLEDGE
-        Thread.sleep(DEFAULT_API_RATE_LIMIT_SLEEP_MS);
+        doSleep(DEFAULT_API_RATE_LIMIT_SLEEP_MS);
 
         mCustomAudienceClient
                 .joinCustomAudience(customAudience2)
@@ -253,8 +268,11 @@ public class FledgeCtsDebuggableTest {
 
     @Test
     public void testAdSelection_etldViolation_failure() throws Exception {
-        // Skip the test if SDK extension 4 is not present.
-        Assume.assumeTrue(AdServicesInfo.INSTANCE.version() >= 4);
+        // Skip the test if the right SDK extension is not present.
+        Assume.assumeTrue(
+                VersionCompatUtil.INSTANCE.isTestableVersion(
+                        /* minAdServicesVersion=*/ 4,
+                        /* minExtServicesVersion=*/ 9));
 
         List<Double> bidsForBuyer1 = ImmutableList.of(1.1, 2.2);
         List<Double> bidsForBuyer2 = ImmutableList.of(4.5, 6.7, 10.0);
@@ -288,7 +306,7 @@ public class FledgeCtsDebuggableTest {
                 .get(API_RESPONSE_TIMEOUT_SECONDS, TimeUnit.SECONDS);
 
         // TODO(b/266725238): Remove/modify once the API rate limit has been adjusted for FLEDGE
-        Thread.sleep(DEFAULT_API_RATE_LIMIT_SLEEP_MS);
+        doSleep(DEFAULT_API_RATE_LIMIT_SLEEP_MS);
 
         mCustomAudienceClient
                 .joinCustomAudience(customAudience2)
@@ -308,8 +326,11 @@ public class FledgeCtsDebuggableTest {
 
     @Test
     public void testReportImpression_etldViolation_failure() throws Exception {
-        // Skip the test if SDK extension 4 is not present.
-        Assume.assumeTrue(AdServicesInfo.INSTANCE.version() >= 4);
+        // Skip the test if the right SDK extension is not present.
+        Assume.assumeTrue(
+                VersionCompatUtil.INSTANCE.isTestableVersion(
+                        /* minAdServicesVersion=*/ 4,
+                        /* minExtServicesVersion=*/ 9));
 
         List<Double> bidsForBuyer1 = ImmutableList.of(1.1, 2.2);
         List<Double> bidsForBuyer2 = ImmutableList.of(4.5, 6.7, 10.0);
@@ -343,7 +364,7 @@ public class FledgeCtsDebuggableTest {
                 .get(API_RESPONSE_TIMEOUT_SECONDS, TimeUnit.SECONDS);
 
         // TODO(b/266725238): Remove/modify once the API rate limit has been adjusted for FLEDGE
-        Thread.sleep(DEFAULT_API_RATE_LIMIT_SLEEP_MS);
+        doSleep(DEFAULT_API_RATE_LIMIT_SLEEP_MS);
 
         mCustomAudienceClient
                 .joinCustomAudience(customAudience2)
@@ -377,8 +398,11 @@ public class FledgeCtsDebuggableTest {
 
     @Test
     public void testAdSelection_skipAdsMalformedBiddingLogic_success() throws Exception {
-        // Skip the test if SDK extension 4 is not present.
-        Assume.assumeTrue(AdServicesInfo.INSTANCE.version() >= 4);
+        // Skip the test if the right SDK extension is not present.
+        Assume.assumeTrue(
+                VersionCompatUtil.INSTANCE.isTestableVersion(
+                        /* minAdServicesVersion=*/ 4,
+                        /* minExtServicesVersion=*/ 9));
 
         List<Double> bidsForBuyer1 = ImmutableList.of(1.1, 2.2);
         List<Double> bidsForBuyer2 = ImmutableList.of(4.5, 6.7, 10.0);
@@ -400,7 +424,7 @@ public class FledgeCtsDebuggableTest {
                 .get(API_RESPONSE_TIMEOUT_SECONDS, TimeUnit.SECONDS);
 
         // TODO(b/266725238): Remove/modify once the API rate limit has been adjusted for FLEDGE
-        Thread.sleep(DEFAULT_API_RATE_LIMIT_SLEEP_MS);
+        doSleep(DEFAULT_API_RATE_LIMIT_SLEEP_MS);
 
         mCustomAudienceClient
                 .joinCustomAudience(customAudience2)
@@ -430,8 +454,11 @@ public class FledgeCtsDebuggableTest {
 
     @Test
     public void testAdSelection_malformedScoringLogic_failure() throws Exception {
-        // Skip the test if SDK extension 4 is not present.
-        Assume.assumeTrue(AdServicesInfo.INSTANCE.version() >= 4);
+        // Skip the test if the right SDK extension is not present.
+        Assume.assumeTrue(
+                VersionCompatUtil.INSTANCE.isTestableVersion(
+                        /* minAdServicesVersion=*/ 4,
+                        /* minExtServicesVersion=*/ 9));
 
         List<Double> bidsForBuyer1 = ImmutableList.of(1.1, 2.2);
         List<Double> bidsForBuyer2 = ImmutableList.of(4.5, 6.7, 10.0);
@@ -447,7 +474,7 @@ public class FledgeCtsDebuggableTest {
                 .get(API_RESPONSE_TIMEOUT_SECONDS, TimeUnit.SECONDS);
 
         // TODO(b/266725238): Remove/modify once the API rate limit has been adjusted for FLEDGE
-        Thread.sleep(DEFAULT_API_RATE_LIMIT_SLEEP_MS);
+        doSleep(DEFAULT_API_RATE_LIMIT_SLEEP_MS);
 
         mCustomAudienceClient
                 .joinCustomAudience(customAudience2)
@@ -483,8 +510,11 @@ public class FledgeCtsDebuggableTest {
 
     @Test
     public void testAdSelection_skipAdsFailedGettingBiddingLogic_success() throws Exception {
-        // Skip the test if SDK extension 4 is not present.
-        Assume.assumeTrue(AdServicesInfo.INSTANCE.version() >= 4);
+        // Skip the test if the right SDK extension is not present.
+        Assume.assumeTrue(
+                VersionCompatUtil.INSTANCE.isTestableVersion(
+                        /* minAdServicesVersion=*/ 4,
+                        /* minExtServicesVersion=*/ 9));
 
         List<Double> bidsForBuyer1 = ImmutableList.of(1.1, 2.2);
         List<Double> bidsForBuyer2 = ImmutableList.of(4.5, 6.7, 10.0);
@@ -505,7 +535,7 @@ public class FledgeCtsDebuggableTest {
                 .get(API_RESPONSE_TIMEOUT_SECONDS, TimeUnit.SECONDS);
 
         // TODO(b/266725238): Remove/modify once the API rate limit has been adjusted for FLEDGE
-        Thread.sleep(DEFAULT_API_RATE_LIMIT_SLEEP_MS);
+        doSleep(DEFAULT_API_RATE_LIMIT_SLEEP_MS);
 
         mCustomAudienceClient
                 .joinCustomAudience(customAudience2)
@@ -534,8 +564,11 @@ public class FledgeCtsDebuggableTest {
 
     @Test
     public void testAdSelection_errorGettingScoringLogic_failure() throws Exception {
-        // Skip the test if SDK extension 4 is not present.
-        Assume.assumeTrue(AdServicesInfo.INSTANCE.version() >= 4);
+        // Skip the test if the right SDK extension is not present.
+        Assume.assumeTrue(
+                VersionCompatUtil.INSTANCE.isTestableVersion(
+                        /* minAdServicesVersion=*/ 4,
+                        /* minExtServicesVersion=*/ 9));
 
         List<Double> bidsForBuyer1 = ImmutableList.of(1.1, 2.2);
         List<Double> bidsForBuyer2 = ImmutableList.of(4.5, 6.7, 10.0);
@@ -551,7 +584,7 @@ public class FledgeCtsDebuggableTest {
                 .get(API_RESPONSE_TIMEOUT_SECONDS, TimeUnit.SECONDS);
 
         // TODO(b/266725238): Remove/modify once the API rate limit has been adjusted for FLEDGE
-        Thread.sleep(DEFAULT_API_RATE_LIMIT_SLEEP_MS);
+        doSleep(DEFAULT_API_RATE_LIMIT_SLEEP_MS);
 
         mCustomAudienceClient
                 .joinCustomAudience(customAudience2)
@@ -592,8 +625,11 @@ public class FledgeCtsDebuggableTest {
 
     @Test
     public void testAdSelectionFlow_skipNonActivatedCA_Success() throws Exception {
-        // Skip the test if SDK extension 4 is not present.
-        Assume.assumeTrue(AdServicesInfo.INSTANCE.version() >= 4);
+        // Skip the test if the right SDK extension is not present.
+        Assume.assumeTrue(
+                VersionCompatUtil.INSTANCE.isTestableVersion(
+                        /* minAdServicesVersion=*/ 4,
+                        /* minExtServicesVersion=*/ 9));
 
         List<Double> bidsForBuyer1 = ImmutableList.of(1.1, 2.2);
         List<Double> bidsForBuyer2 = ImmutableList.of(4.5, 6.7, 10.0);
@@ -616,7 +652,7 @@ public class FledgeCtsDebuggableTest {
                 .get(API_RESPONSE_TIMEOUT_SECONDS, TimeUnit.SECONDS);
 
         // TODO(b/266725238): Remove/modify once the API rate limit has been adjusted for FLEDGE
-        Thread.sleep(DEFAULT_API_RATE_LIMIT_SLEEP_MS);
+        doSleep(DEFAULT_API_RATE_LIMIT_SLEEP_MS);
 
         mCustomAudienceClient
                 .joinCustomAudience(customAudience2)
@@ -646,8 +682,11 @@ public class FledgeCtsDebuggableTest {
 
     @Test
     public void testAdSelectionFlow_skipExpiredCA_Success() throws Exception {
-        // Skip the test if SDK extension 4 is not present.
-        Assume.assumeTrue(AdServicesInfo.INSTANCE.version() >= 4);
+        // Skip the test if the right SDK extension is not present.
+        Assume.assumeTrue(
+                VersionCompatUtil.INSTANCE.isTestableVersion(
+                        /* minAdServicesVersion=*/ 4,
+                        /* minExtServicesVersion=*/ 9));
 
         List<Double> bidsForBuyer1 = ImmutableList.of(1.1, 2.2);
         List<Double> bidsForBuyer2 = ImmutableList.of(4.5, 6.7, 10.0);
@@ -673,14 +712,14 @@ public class FledgeCtsDebuggableTest {
                 .get(API_RESPONSE_TIMEOUT_SECONDS, TimeUnit.SECONDS);
 
         // TODO(b/266725238): Remove/modify once the API rate limit has been adjusted for FLEDGE
-        Thread.sleep(DEFAULT_API_RATE_LIMIT_SLEEP_MS);
+        doSleep(DEFAULT_API_RATE_LIMIT_SLEEP_MS);
 
         mCustomAudienceClient
                 .joinCustomAudience(customAudience2)
                 .get(API_RESPONSE_TIMEOUT_SECONDS, TimeUnit.SECONDS);
 
         // Wait to ensure that CA2 gets expired
-        Thread.sleep(caTimeToExpireSeconds * 2 * 1000);
+        doSleep(caTimeToExpireSeconds * 2 * 1000);
 
         // Running ad selection and asserting that the outcome is returned in < 10 seconds
         AdSelectionOutcome outcome =
@@ -706,8 +745,11 @@ public class FledgeCtsDebuggableTest {
 
     @Test
     public void testAdSelectionFlow_skipCAsThatTimeoutDuringBidding_Success() throws Exception {
-        // Skip the test if SDK extension 4 is not present.
-        Assume.assumeTrue(AdServicesInfo.INSTANCE.version() >= 4);
+        // Skip the test if the right SDK extension is not present.
+        Assume.assumeTrue(
+                VersionCompatUtil.INSTANCE.isTestableVersion(
+                        /* minAdServicesVersion=*/ 4,
+                        /* minExtServicesVersion=*/ 9));
 
         List<Double> bidsForBuyer1 = ImmutableList.of(1.1, 2.2);
         List<Double> bidsForBuyer2 = ImmutableList.of(4.5, 6.7, 10.0);
@@ -727,7 +769,7 @@ public class FledgeCtsDebuggableTest {
                 .get(API_RESPONSE_TIMEOUT_SECONDS, TimeUnit.SECONDS);
 
         // TODO(b/266725238): Remove/modify once the API rate limit has been adjusted for FLEDGE
-        Thread.sleep(DEFAULT_API_RATE_LIMIT_SLEEP_MS);
+        doSleep(DEFAULT_API_RATE_LIMIT_SLEEP_MS);
 
         mCustomAudienceClient
                 .joinCustomAudience(customAudience2)
@@ -757,8 +799,11 @@ public class FledgeCtsDebuggableTest {
 
     @Test
     public void testAdSelection_overallTimeout_Failure() throws Exception {
-        // Skip the test if SDK extension 4 is not present.
-        Assume.assumeTrue(AdServicesInfo.INSTANCE.version() >= 4);
+        // Skip the test if the right SDK extension is not present.
+        Assume.assumeTrue(
+                VersionCompatUtil.INSTANCE.isTestableVersion(
+                        /* minAdServicesVersion=*/ 4,
+                        /* minExtServicesVersion=*/ 9));
 
         List<Double> bidsForBuyer1 = ImmutableList.of(1.1, 2.2);
         List<Double> bidsForBuyer2 = ImmutableList.of(4.5, 6.7, 10.0);
@@ -774,7 +819,7 @@ public class FledgeCtsDebuggableTest {
                 .get(API_RESPONSE_TIMEOUT_SECONDS, TimeUnit.SECONDS);
 
         // TODO(b/266725238): Remove/modify once the API rate limit has been adjusted for FLEDGE
-        Thread.sleep(DEFAULT_API_RATE_LIMIT_SLEEP_MS);
+        doSleep(DEFAULT_API_RATE_LIMIT_SLEEP_MS);
 
         mCustomAudienceClient
                 .joinCustomAudience(customAudience2)
@@ -806,6 +851,23 @@ public class FledgeCtsDebuggableTest {
                                         .get(API_RESPONSE_LONGER_TIMEOUT_SECONDS,
                                                 TimeUnit.SECONDS));
         assertThat(selectAdsException.getCause()).isInstanceOf(TimeoutException.class);
+    }
+
+    @SuppressLint("BanThreadSleep")
+    private static void doSleep(long timeout) {
+        Log.i(TAG, String.format("Starting to sleep for %d ms", timeout));
+        long currentTime = System.currentTimeMillis();
+        long wakeupTime = currentTime + timeout;
+        while (wakeupTime - currentTime > 0) {
+            Log.i(TAG, String.format("Time left to sleep: %d ms", wakeupTime - currentTime));
+            try {
+                Thread.sleep(wakeupTime - currentTime);
+            } catch (InterruptedException ignored) {
+
+            }
+            currentTime = System.currentTimeMillis();
+        }
+        Log.i(TAG, "Done sleeping");
     }
 
     private static Uri getUri(String authority, String path) {

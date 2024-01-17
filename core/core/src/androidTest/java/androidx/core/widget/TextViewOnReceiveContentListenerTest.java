@@ -39,7 +39,6 @@ import androidx.core.view.OnReceiveContentListener;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
-import androidx.test.filters.SdkSuppress;
 import androidx.test.rule.ActivityTestRule;
 
 import org.junit.Before;
@@ -125,7 +124,6 @@ public class TextViewOnReceiveContentListenerTest {
         assertThat(spanStart).isEqualTo(-1);
     }
 
-    @SdkSuppress(minSdkVersion = 16) // Passing HTML into a ClipData.Item was added in SDK 16.
     @UiThreadTest
     @Test
     public void testOnReceive_html() throws Exception {
@@ -138,7 +136,6 @@ public class TextViewOnReceiveContentListenerTest {
         assertTextAndCursorPosition("xyz", 2);
     }
 
-    @SdkSuppress(minSdkVersion = 16) // Passing HTML into a ClipData.Item was added in SDK 16.
     @UiThreadTest
     @Test
     public void testOnReceive_html_convertToPlainText() throws Exception {
@@ -206,7 +203,6 @@ public class TextViewOnReceiveContentListenerTest {
         assertTextAndCursorPosition("hi", 2);
     }
 
-    @SdkSuppress(minSdkVersion = 16) // Passing HTML into a ClipData.Item was added in SDK 16.
     @UiThreadTest
     @Test
     public void testOnReceive_unsupportedMimeType_viaMenu() throws Exception {
@@ -220,7 +216,6 @@ public class TextViewOnReceiveContentListenerTest {
         assertTextAndCursorPosition("xhtmlz", 5);
     }
 
-    @SdkSuppress(minSdkVersion = 16) // Passing HTML into a ClipData.Item was added in SDK 16.
     @UiThreadTest
     @Test
     public void testOnReceive_unsupportedMimeType_viaMenu_convertToPlainText() throws Exception {

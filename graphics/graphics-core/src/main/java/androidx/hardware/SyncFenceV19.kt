@@ -18,6 +18,7 @@ package androidx.hardware
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.graphics.utils.JniVisible
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
@@ -32,7 +33,7 @@ import kotlin.concurrent.withLock
  * When the fence signals, then the backing storage for the framebuffer may be safely read from,
  * such as for display or media encoding.
  */
-@RequiresApi(Build.VERSION_CODES.KITKAT)
+@JniVisible
 internal class SyncFenceV19(private var fd: Int) : AutoCloseable, SyncFenceImpl {
 
     private val fenceLock = ReentrantLock()
@@ -53,13 +54,14 @@ internal class SyncFenceV19(private var fd: Int) : AutoCloseable, SyncFenceImpl 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun getSignalTimeNanos(): Long = fenceLock.withLock {
         if (isValid()) {
-            nGetSignalTime(fd)
+            SyncFenceBindings.nGetSignalTime(fd)
         } else {
             SyncFenceCompat.SIGNAL_TIME_INVALID
         }
     }
 
     // Accessed through JNI to obtain the dup'ed file descriptor in a thread safe manner
+    @JniVisible
     private fun dupeFileDescriptor(): Int = fenceLock.withLock {
         return if (isValid()) {
             nDup(fd)
@@ -122,14 +124,17 @@ internal class SyncFenceV19(private var fd: Int) : AutoCloseable, SyncFenceImpl 
     // SyncFence in the framework implements timeoutNanos as a long but
     // it is casted down to an int within native code and eventually calls into
     // the poll API which consumes a timeout in nanoseconds as an int.
+    @JniVisible
     private external fun nWait(fd: Int, timeoutMillis: Int): Boolean
-    private external fun nGetSignalTime(fd: Int): Long
+
+    @JniVisible
     private external fun nClose(fd: Int)
 
     /**
      * Dup the provided file descriptor, this method requires the caller to acquire the corresponding
      * [fenceLock] before invoking
      */
+    @JniVisible
     private external fun nDup(fd: Int): Int
 
     companion object {

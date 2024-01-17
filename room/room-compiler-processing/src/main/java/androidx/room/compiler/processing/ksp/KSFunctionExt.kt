@@ -22,6 +22,10 @@ import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.google.devtools.ksp.symbol.KSTypeReference
 
+internal fun KSFunctionDeclaration.hasOverloads() = this.annotations.any {
+    it.annotationType.resolve().declaration.qualifiedName?.asString() == "kotlin.jvm.JvmOverloads"
+}
+
 /**
  * A custom ReturnType that return an [XType] while also resolving boxing if necessary (might happen
  * due to overrides).

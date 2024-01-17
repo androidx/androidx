@@ -18,9 +18,13 @@ package androidx.benchmark.perfetto
 
 import androidx.annotation.RestrictTo
 import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
+import androidx.benchmark.InstrumentationResults
+import androidx.benchmark.Outputs
+import androidx.benchmark.Profiler
+import androidx.benchmark.inMemoryTrace
 import androidx.benchmark.macro.perfetto.server.PerfettoHttpServer
-import androidx.benchmark.userspaceTrace
 import java.io.File
+import java.io.FileInputStream
 import java.io.InputStream
 import org.intellij.lang.annotations.Language
 import perfetto.protos.QueryResult
@@ -92,7 +96,7 @@ class PerfettoTraceProcessor {
         @JvmStatic
         fun <T> runServer(
             block: PerfettoTraceProcessor.() -> T
-        ): T = userspaceTrace("PerfettoTraceProcessor#runServer") {
+        ): T = inMemoryTrace("PerfettoTraceProcessor#runServer") {
             var perfettoTraceProcessor: PerfettoTraceProcessor? = null
             try {
 
@@ -100,7 +104,7 @@ class PerfettoTraceProcessor {
                 perfettoTraceProcessor = PerfettoTraceProcessor().startServer()
 
                 // Executes the query block
-                return@userspaceTrace userspaceTrace("PerfettoTraceProcessor#runServer#block") {
+                return@inMemoryTrace inMemoryTrace("PerfettoTraceProcessor#runServer#block") {
                     block(perfettoTraceProcessor)
                 }
             } finally {
@@ -128,7 +132,29 @@ class PerfettoTraceProcessor {
     ): T {
         loadTraceImpl(trace.path)
         // TODO: unload trace after block
-        return block.invoke(Session(this))
+        try {
+            return block.invoke(Session(this))
+        } catch (t: Throwable) {
+            // TODO: move this behavior to an extension function in benchmark when
+            //  this class moves out of benchmark group
+            // TODO: consider a label argument to control logging like this in the success case as
+            //  well, which lets us get rid of FileLinkingRule (which doesn't work well anyway)
+            if (trace.path.startsWith(Outputs.outputDirectory.absolutePath)) {
+                // only link trace with failure to Studio if it's an output file
+                InstrumentationResults.instrumentationReport {
+                    val label = "Trace with processing error: ${t.message?.take(50)?.trim()}..."
+                    reportSummaryToIde(
+                        profilerResults = listOf(
+                            Profiler.ResultFile(
+                                label = label,
+                                absolutePath = trace.path
+                            )
+                        )
+                    )
+                }
+            }
+            throw t
+        }
     }
 
     /**
@@ -144,7 +170,7 @@ class PerfettoTraceProcessor {
          */
         @RestrictTo(LIBRARY_GROUP) // avoids exposing Proto API
         fun getTraceMetrics(metric: String): TraceMetrics {
-            userspaceTrace("PerfettoTraceProcessor#getTraceMetrics $metric") {
+            inMemoryTrace("PerfettoTraceProcessor#getTraceMetrics $metric") {
                 require(!metric.contains(" ")) {
                     "Metric must not contain spaces: $metric"
                 }
@@ -185,7 +211,7 @@ class PerfettoTraceProcessor {
          * @see PerfettoTraceProcessor.Session
          */
         fun query(@Language("sql") query: String): Sequence<Row> {
-            userspaceTrace("PerfettoTraceProcessor#query $query".take(127)) {
+            inMemoryTrace("PerfettoTraceProcessor#query $query".take(127)) {
                 require(traceProcessor.perfettoHttpServer.isRunning()) {
                     "Perfetto trace_shell_process is not running."
                 }
@@ -223,7 +249,7 @@ class PerfettoTraceProcessor {
          * @see Session.query
          */
         fun rawQuery(@Language("sql") query: String): ByteArray {
-            userspaceTrace("PerfettoTraceProcessor#query $query".take(127)) {
+            inMemoryTrace("PerfettoTraceProcessor#query $query".take(127)) {
                 require(traceProcessor.perfettoHttpServer.isRunning()) {
                     "Perfetto trace_shell_process is not running."
                 }
@@ -237,21 +263,43 @@ class PerfettoTraceProcessor {
          * Note that sliceNames may include wildcard matches, such as `foo%`
          */
         @RestrictTo(LIBRARY_GROUP) // Slice API not currently exposed, since it doesn't track table
-        fun querySlices(vararg sliceNames: String): List<Slice> {
+        fun querySlices(
+            vararg sliceNames: String,
+            packageName: String?,
+        ): List<Slice> {
             require(traceProcessor.perfettoHttpServer.isRunning()) {
                 "Perfetto trace_shell_process is not running."
             }
 
             val whereClause = sliceNames
-                .joinToString(separator = " OR ") {
+                .joinToString(
+                    separator = " OR ",
+                    prefix = if (packageName == null) {
+                        "("
+                    } else {
+                        processNameLikePkg(packageName) + " AND ("
+                    },
+                    postfix = ")"
+                ) {
                     "slice.name LIKE \"$it\""
                 }
+            val innerJoins = if (packageName != null) {
+                """
+                INNER JOIN thread_track on slice.track_id = thread_track.id
+                INNER JOIN thread USING(utid)
+                INNER JOIN process USING(upid)
+                """.trimMargin()
+            } else {
+                ""
+            }
 
             return query(
                 query = """
                     SELECT slice.name,ts,dur
                     FROM slice
+                    $innerJoins
                     WHERE $whereClause
+                    ORDER BY ts
                     """.trimMargin()
             ).toSlices()
         }
@@ -261,13 +309,13 @@ class PerfettoTraceProcessor {
     private var traceLoaded = false
 
     private fun startServer(): PerfettoTraceProcessor =
-        userspaceTrace("PerfettoTraceProcessor#startServer") {
+        inMemoryTrace("PerfettoTraceProcessor#startServer") {
             println("startserver")
             perfettoHttpServer.startServer()
-            return@userspaceTrace this
+            return@inMemoryTrace this
         }
 
-    private fun stopServer() = userspaceTrace("PerfettoTraceProcessor#stopServer") {
+    private fun stopServer() = inMemoryTrace("PerfettoTraceProcessor#stopServer") {
         println("stopserver")
         perfettoHttpServer.stopServer()
     }
@@ -277,7 +325,7 @@ class PerfettoTraceProcessor {
      * trace if existing.
      */
     private fun loadTraceImpl(absoluteTracePath: String) {
-        userspaceTrace("PerfettoTraceProcessor#loadTraceImpl") {
+        inMemoryTrace("PerfettoTraceProcessor#loadTraceImpl") {
             require(!absoluteTracePath.contains(" ")) {
                 "Trace path must not contain spaces: $absoluteTracePath"
             }
@@ -292,10 +340,8 @@ class PerfettoTraceProcessor {
                 clearTrace()
             }
 
-            val parseResult = perfettoHttpServer.parse(traceFile.readBytes())
-            if (parseResult.error != null) {
-                throw IllegalStateException(parseResult.error)
-            }
+            val parseResults = perfettoHttpServer.parse(FileInputStream(traceFile))
+            parseResults.forEach { if (it.error != null) throw IllegalStateException(it.error) }
 
             // Notifies the server that it won't receive any more trace parts
             perfettoHttpServer.notifyEof()
@@ -307,7 +353,7 @@ class PerfettoTraceProcessor {
     /**
      * Clears the current loaded trace.
      */
-    private fun clearTrace() = userspaceTrace("PerfettoTraceProcessor#clearTrace") {
+    private fun clearTrace() = inMemoryTrace("PerfettoTraceProcessor#clearTrace") {
         perfettoHttpServer.restoreInitialTables()
         traceLoaded = false
     }

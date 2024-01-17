@@ -36,7 +36,7 @@ sealed interface LazyGridItemScope {
      *
      * When you provide a key via [LazyGridScope.item]/[LazyGridScope.items] this modifier will
      * enable item reordering animations. Aside from item reordering all other position changes
-     * caused by events like arrangement or alignment changes will also be animated.
+     * caused by events like arrangement changes will also be animated.
      *
      * @param animationSpec a finite animation that will be used to animate the item placement.
      */

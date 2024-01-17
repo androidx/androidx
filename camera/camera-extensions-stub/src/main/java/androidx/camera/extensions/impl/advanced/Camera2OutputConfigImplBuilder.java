@@ -183,6 +183,9 @@ public class Camera2OutputConfigImplBuilder {
 
         public void setSurfaceSharingConfigs(
                 @Nullable List<Camera2OutputConfigImpl> surfaceSharingConfigs) {
+            if (surfaceSharingConfigs != null) {
+                surfaceSharingConfigs = new ArrayList<>(surfaceSharingConfigs);
+            }
             mSurfaceSharingConfigs = surfaceSharingConfigs;
         }
     }

@@ -16,6 +16,8 @@
 
 package androidx.work.impl;
 
+import static androidx.work.OperationKt.launchOperation;
+
 import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
@@ -36,6 +38,8 @@ import androidx.work.impl.workers.CombineContinuationsWorker;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
+import kotlin.Unit;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -44,7 +48,6 @@ import java.util.Set;
 
 /**
  * A concrete implementation of {@link WorkContinuation}.
- *
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class WorkContinuationImpl extends WorkContinuation {
@@ -145,6 +148,14 @@ public class WorkContinuationImpl extends WorkContinuation {
             }
         }
         for (int i = 0; i < work.size(); i++) {
+            if (existingWorkPolicy == ExistingWorkPolicy.REPLACE
+                    && work.get(i).getWorkSpec().getNextScheduleTimeOverride() != Long.MAX_VALUE) {
+                // We can't enforce a minimum period on non-first overrides if REPLACE is used,
+                // since it gives us a new WorkSpec every time.
+                throw new IllegalArgumentException(
+                        "Next Schedule Time Override must be used with ExistingPeriodicWorkPolicy"
+                                + "UPDATE (preferably) or KEEP");
+            }
             String id = work.get(i).getStringId();
             mIds.add(id);
             mAllIds.add(id);
@@ -172,11 +183,8 @@ public class WorkContinuationImpl extends WorkContinuation {
     @NonNull
     @Override
     public ListenableFuture<List<WorkInfo>> getWorkInfos() {
-        StatusRunnable<List<WorkInfo>> runnable =
-                StatusRunnable.forStringIds(mWorkManagerImpl, mAllIds);
-
-        mWorkManagerImpl.getWorkTaskExecutor().executeOnTaskThread(runnable);
-        return runnable.getFuture();
+        return StatusRunnable.forStringIds(mWorkManagerImpl.getWorkDatabase(),
+                mWorkManagerImpl.getWorkTaskExecutor(), mAllIds);
     }
 
     @Override
@@ -185,9 +193,12 @@ public class WorkContinuationImpl extends WorkContinuation {
         if (!mEnqueued) {
             // The runnable walks the hierarchy of the continuations
             // and marks them enqueued using the markEnqueued() method, parent first.
-            EnqueueRunnable runnable = new EnqueueRunnable(this);
-            mWorkManagerImpl.getWorkTaskExecutor().executeOnTaskThread(runnable);
-            mOperation = runnable.getOperation();
+            mOperation = launchOperation(
+                    mWorkManagerImpl.getWorkTaskExecutor().getSerialTaskExecutor(),
+                    () -> {
+                        EnqueueRunnable.enqueue(this);
+                        return Unit.INSTANCE;
+                    });
         } else {
             Logger.get().warning(TAG,
                     "Already enqueued work ids (" + TextUtils.join(", ", mIds) + ")");
@@ -217,7 +228,6 @@ public class WorkContinuationImpl extends WorkContinuation {
 
     /**
      * @return {@code true} If there are cycles in the {@link WorkContinuationImpl}.
-
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public boolean hasCycles() {
@@ -268,7 +278,6 @@ public class WorkContinuationImpl extends WorkContinuation {
 
     /**
      * @return the {@link Set} of pre-requisites for a given {@link WorkContinuationImpl}.
-     *
      */
     @NonNull
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

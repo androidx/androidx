@@ -15,13 +15,14 @@
  */
 package androidx.emoji2.text;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
+
 import android.content.res.AssetManager;
 import android.graphics.Typeface;
 import android.util.SparseArray;
 
 import androidx.annotation.AnyThread;
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.core.os.TraceCompat;
@@ -36,7 +37,6 @@ import java.nio.ByteBuffer;
  * Class to hold the emoji metadata required to process and draw emojis.
  */
 @AnyThread
-@RequiresApi(19)
 public final class MetadataRepo {
     /**
      * The default children size of the root node.
@@ -85,10 +85,10 @@ public final class MetadataRepo {
      * Construct MetadataRepo with empty metadata.
      *
      * This should only be used from tests.
-     * @hide
      */
+    @RestrictTo(LIBRARY)
     @NonNull
-    @RestrictTo(RestrictTo.Scope.TESTS)
+    @VisibleForTesting
     public static MetadataRepo create(@NonNull final Typeface typeface) {
         try {
             TraceCompat.beginSection(S_TRACE_CREATE_REPO);
@@ -170,7 +170,6 @@ public final class MetadataRepo {
     }
 
     /**
-     * @hide
      */
     @NonNull
     @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -179,7 +178,6 @@ public final class MetadataRepo {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     int getMetadataVersion() {
@@ -187,7 +185,6 @@ public final class MetadataRepo {
     }
 
     /**
-     * @hide
      */
     @NonNull
     @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -196,7 +193,6 @@ public final class MetadataRepo {
     }
 
     /**
-     * @hide
      */
     @NonNull
     @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -205,7 +201,6 @@ public final class MetadataRepo {
     }
 
     /**
-     * @hide
      */
     @NonNull
     @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -216,7 +211,6 @@ public final class MetadataRepo {
     /**
      * Add a TypefaceEmojiRasterizer to the index.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @VisibleForTesting
@@ -233,7 +227,6 @@ public final class MetadataRepo {
      *
      * A single codepoint emoji is represented by a child of the root node.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     static class Node {

@@ -31,7 +31,6 @@ import androidx.window.TestWindow
 import androidx.window.WindowTestBase
 import androidx.window.core.Bounds
 import androidx.window.layout.FoldingFeature
-import androidx.window.layout.adapter.sidecar.ExtensionInterfaceCompat.ExtensionCallbackInterface
 import androidx.window.layout.FoldingFeature.State.Companion.FLAT
 import androidx.window.layout.FoldingFeature.State.Companion.HALF_OPENED
 import androidx.window.layout.HardwareFoldingFeature
@@ -39,11 +38,18 @@ import androidx.window.layout.HardwareFoldingFeature.Type.Companion.FOLD
 import androidx.window.layout.TestFoldingFeatureUtil.invalidFoldBounds
 import androidx.window.layout.TestFoldingFeatureUtil.validFoldBound
 import androidx.window.layout.WindowLayoutInfo
+import androidx.window.layout.adapter.sidecar.ExtensionInterfaceCompat.ExtensionCallbackInterface
 import androidx.window.sidecar.SidecarDeviceState
 import androidx.window.sidecar.SidecarDisplayFeature
 import androidx.window.sidecar.SidecarInterface
 import androidx.window.sidecar.SidecarInterface.SidecarCallback
 import androidx.window.sidecar.SidecarWindowLayoutInfo
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertTrue
+import org.junit.Before
+import org.junit.Test
+import org.junit.runner.RunWith
 import org.mockito.kotlin.any
 import org.mockito.kotlin.argThat
 import org.mockito.kotlin.argumentCaptor
@@ -57,12 +63,6 @@ import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyZeroInteractions
 import org.mockito.kotlin.whenever
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
-import org.junit.Assert.assertTrue
-import org.junit.Before
-import org.junit.Test
-import org.junit.runner.RunWith
 
 /**
  * Tests for [SidecarCompat] implementation of [ExtensionInterfaceCompat]. This class

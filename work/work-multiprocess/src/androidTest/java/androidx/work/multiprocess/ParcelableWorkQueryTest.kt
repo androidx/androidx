@@ -23,10 +23,10 @@ import androidx.work.WorkInfo
 import androidx.work.WorkQuery
 import androidx.work.multiprocess.parcelable.ParcelConverters
 import androidx.work.multiprocess.parcelable.ParcelableWorkQuery
+import java.util.UUID
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.util.UUID
 
 @RunWith(AndroidJUnit4::class)
 public class ParcelableWorkQueryTest {

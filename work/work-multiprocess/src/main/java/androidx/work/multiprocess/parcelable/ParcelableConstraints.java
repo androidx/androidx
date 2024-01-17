@@ -20,10 +20,13 @@ import static androidx.work.impl.model.WorkTypeConverters.byteArrayToSetOfTrigge
 import static androidx.work.impl.model.WorkTypeConverters.intToNetworkType;
 import static androidx.work.impl.model.WorkTypeConverters.networkTypeToInt;
 import static androidx.work.impl.model.WorkTypeConverters.setOfTriggersToByteArray;
+import static androidx.work.impl.utils.NetworkRequestCompatKt.getCapabilitiesCompat;
+import static androidx.work.impl.utils.NetworkRequestCompatKt.getTransportTypesCompat;
 import static androidx.work.multiprocess.parcelable.ParcelUtils.readBooleanValue;
 import static androidx.work.multiprocess.parcelable.ParcelUtils.writeBooleanValue;
 
 import android.annotation.SuppressLint;
+import android.net.NetworkRequest;
 import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -33,6 +36,7 @@ import androidx.annotation.RestrictTo;
 import androidx.work.Constraints;
 import androidx.work.Constraints.ContentUriTrigger;
 import androidx.work.NetworkType;
+import androidx.work.impl.utils.NetworkRequest28;
 
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -88,6 +92,15 @@ public class ParcelableConstraints implements Parcelable {
             long triggerContentUpdateDelay = in.readLong();
             builder.setTriggerContentUpdateDelay(triggerContentUpdateDelay, TimeUnit.MILLISECONDS);
         }
+        if (Build.VERSION.SDK_INT >= 28) {
+            boolean hasNetworkRequest = readBooleanValue(in);
+            if (hasNetworkRequest) {
+                //noinspection DataFlowIssue
+                NetworkRequest request = NetworkRequest28.createNetworkRequest(
+                        in.createIntArray(), in.createIntArray());
+                builder.setRequiredNetworkRequest(request, NetworkType.NOT_REQUIRED);
+            }
+        }
         mConstraints = builder.build();
     }
 
@@ -137,6 +150,15 @@ public class ParcelableConstraints implements Parcelable {
             parcel.writeLong(mConstraints.getContentTriggerMaxDelayMillis());
             // triggerContentUpdateDelay
             parcel.writeLong(mConstraints.getContentTriggerUpdateDelayMillis());
+        }
+        if (Build.VERSION.SDK_INT >= 28) {
+            NetworkRequest networkRequest = mConstraints.getRequiredNetworkRequest();
+            boolean hasNetworkRequest = networkRequest != null;
+            writeBooleanValue(parcel, hasNetworkRequest);
+            if (hasNetworkRequest) {
+                parcel.writeIntArray(getCapabilitiesCompat(networkRequest));
+                parcel.writeIntArray(getTransportTypesCompat(networkRequest));
+            }
         }
     }
 

@@ -38,6 +38,7 @@ import androidx.camera.camera2.pipe.integration.compat.EvCompCompat
 import androidx.camera.camera2.pipe.integration.compat.ZoomCompat
 import androidx.camera.camera2.pipe.integration.compat.quirk.CameraQuirks
 import androidx.camera.camera2.pipe.integration.compat.quirk.CaptureSessionStuckQuirk
+import androidx.camera.camera2.pipe.integration.compat.quirk.FinalizeSessionOnCloseQuirk
 import androidx.camera.camera2.pipe.integration.impl.CameraPipeCameraProperties
 import androidx.camera.camera2.pipe.integration.impl.CameraProperties
 import androidx.camera.camera2.pipe.integration.impl.ComboRequestListener
@@ -45,6 +46,7 @@ import androidx.camera.camera2.pipe.integration.impl.EvCompControl
 import androidx.camera.camera2.pipe.integration.impl.FlashControl
 import androidx.camera.camera2.pipe.integration.impl.FocusMeteringControl
 import androidx.camera.camera2.pipe.integration.impl.State3AControl
+import androidx.camera.camera2.pipe.integration.impl.StillCaptureRequestControl
 import androidx.camera.camera2.pipe.integration.impl.TorchControl
 import androidx.camera.camera2.pipe.integration.impl.UseCaseThreads
 import androidx.camera.camera2.pipe.integration.impl.ZoomControl
@@ -54,6 +56,7 @@ import androidx.camera.core.impl.CameraControlInternal
 import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.impl.CameraInternal
 import androidx.camera.core.impl.CameraThreadConfig
+import androidx.camera.core.impl.Quirks
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -78,6 +81,7 @@ annotation class CameraScope
         FlashControl.Bindings::class,
         FocusMeteringControl.Bindings::class,
         State3AControl.Bindings::class,
+        StillCaptureRequestControl.Bindings::class,
         TorchControl.Bindings::class,
         ZoomCompat.Bindings::class,
         ZoomControl.Bindings::class,
@@ -156,8 +160,20 @@ abstract class CameraModule {
                 Log.debug { "CameraPipe should be enabling CaptureSessionStuckQuirk" }
             }
             // TODO(b/276354253): Set quirkWaitForRepeatingRequestOnDisconnect flag for overrides.
-            return CameraGraph.Flags()
+
+            // TODO(b/277310425): When creating a CameraGraph, this flag should be turned OFF when
+            //  this behavior is not needed based on the use case interaction and the device on
+            //  which the test is running.
+            val quirkFinalizeSessionOnCloseBehavior = FinalizeSessionOnCloseQuirk.getBehavior()
+            return CameraGraph.Flags(
+                quirkFinalizeSessionOnCloseBehavior = quirkFinalizeSessionOnCloseBehavior,
+            )
         }
+
+        @CameraScope
+        @Provides
+        @Named("cameraQuirksValues")
+        fun provideCameraQuirksValues(cameraQuirks: CameraQuirks): Quirks = cameraQuirks.quirks
     }
 
     @Binds

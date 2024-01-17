@@ -18,16 +18,20 @@ package androidx.work.rxjava3
 
 import android.content.Context
 import androidx.work.Data
+import androidx.work.DefaultWorkerFactory
 import androidx.work.ForegroundUpdater
 import androidx.work.ListenableWorker
 import androidx.work.ProgressUpdater
-import androidx.work.WorkerFactory
 import androidx.work.WorkerParameters
 import androidx.work.impl.utils.SerialExecutorImpl
 import androidx.work.impl.utils.SynchronousExecutor
 import androidx.work.impl.utils.taskexecutor.TaskExecutor
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
+import java.util.UUID
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.Executor
+import java.util.concurrent.TimeUnit
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Assert
@@ -35,10 +39,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import org.mockito.Mockito.mock
-import java.util.UUID
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.Executor
-import java.util.concurrent.TimeUnit
 
 @RunWith(JUnit4::class)
 class RxWorkerTest {
@@ -134,7 +134,7 @@ class RxWorkerTest {
         0,
         executor,
         InstantWorkTaskExecutor(),
-        WorkerFactory.getDefaultWorkerFactory(),
+        DefaultWorkerFactory,
         progressUpdater,
         foregroundUpdater
     )

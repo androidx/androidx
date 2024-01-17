@@ -4,8 +4,12 @@ import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.DocumentClassFactory;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.exceptions.AppSearchException;
+import java.lang.Class;
 import java.lang.Override;
 import java.lang.String;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import javax.annotation.processing.Generated;
 
 @Generated("androidx.appsearch.compiler.AppSearchCompiler")
@@ -24,6 +28,11 @@ public final class $$__AppSearch__AutoValue_Gift_A implements DocumentClassFacto
   }
 
   @Override
+  public List<Class<?>> getDependencyDocumentClasses() throws AppSearchException {
+    return Collections.emptyList();
+  }
+
+  @Override
   public GenericDocument toGenericDocument(Gift.A document) throws AppSearchException {
     GenericDocument.Builder<?> builder =
         new GenericDocument.Builder<>(document.namespace(), document.id(), SCHEMA_NAME);
@@ -31,9 +40,10 @@ public final class $$__AppSearch__AutoValue_Gift_A implements DocumentClassFacto
   }
 
   @Override
-  public Gift.A fromGenericDocument(GenericDocument genericDoc) throws AppSearchException {
-    String idConv = genericDoc.getId();
+  public Gift.A fromGenericDocument(GenericDocument genericDoc,
+      Map<String, List<String>> documentClassMap) throws AppSearchException {
     String namespaceConv = genericDoc.getNamespace();
+    String idConv = genericDoc.getId();
     Gift.A document = Gift.A.create(idConv, namespaceConv);
     return document;
   }

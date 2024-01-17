@@ -24,6 +24,7 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -32,6 +33,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastCoerceIn
 import kotlin.math.abs
 import kotlin.math.pow
 import kotlinx.coroutines.CoroutineScope
@@ -121,10 +123,10 @@ class PullRefreshState internal constructor(
     private val adjustedDistancePulled by derivedStateOf { distancePulled * DragMultiplier }
 
     private var _refreshing by mutableStateOf(false)
-    private var _position by mutableStateOf(0f)
-    private var distancePulled by mutableStateOf(0f)
-    private var _threshold by mutableStateOf(threshold)
-    private var _refreshingOffset by mutableStateOf(refreshingOffset)
+    private var _position by mutableFloatStateOf(0f)
+    private var distancePulled by mutableFloatStateOf(0f)
+    private var _threshold by mutableFloatStateOf(threshold)
+    private var _refreshingOffset by mutableFloatStateOf(refreshingOffset)
 
     internal fun onPull(pullDelta: Float): Float {
         if (_refreshing) return 0f // Already refreshing, do nothing.
@@ -196,7 +198,7 @@ class PullRefreshState internal constructor(
             // How far beyond the threshold pull has gone, as a percentage of the threshold.
             val overshootPercent = abs(progress) - 1.0f
             // Limit the overshoot to 200%. Linear between 0 and 200.
-            val linearTension = overshootPercent.coerceIn(0f, 2f)
+            val linearTension = overshootPercent.fastCoerceIn(0f, 2f)
             // Non-linear tension. Increases with linearTension, but at a decreasing rate.
             val tensionPercent = linearTension - linearTension.pow(2) / 4
             // The additional offset beyond the threshold.

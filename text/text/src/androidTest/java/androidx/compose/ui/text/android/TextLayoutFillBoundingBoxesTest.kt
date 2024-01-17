@@ -22,15 +22,15 @@ import android.text.SpannableStringBuilder
 import android.text.TextPaint
 import android.text.style.AbsoluteSizeSpan
 import androidx.core.content.res.ResourcesCompat
-import androidx.test.filters.SmallTest
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
+import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.testutils.fonts.R
+import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.google.common.truth.Truth.assertThat
 
 @OptIn(InternalPlatformTextApi::class)
 @RunWith(AndroidJUnit4::class)

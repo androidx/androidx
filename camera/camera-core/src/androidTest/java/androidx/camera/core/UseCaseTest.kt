@@ -25,6 +25,7 @@ import androidx.camera.core.CameraSelector.LENS_FACING_FRONT
 import androidx.camera.core.MirrorMode.MIRROR_MODE_OFF
 import androidx.camera.core.MirrorMode.MIRROR_MODE_ON
 import androidx.camera.core.MirrorMode.MIRROR_MODE_ON_FRONT_ONLY
+import androidx.camera.core.UseCase.snapToSurfaceRotation
 import androidx.camera.core.concurrent.CameraCoordinator
 import androidx.camera.core.impl.Config
 import androidx.camera.core.impl.ImageOutputConfig
@@ -32,16 +33,18 @@ import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.StreamSpec
 import androidx.camera.core.impl.UseCaseConfigFactory
 import androidx.camera.core.internal.CameraUseCaseAdapter
+import androidx.camera.core.internal.TargetConfig.OPTION_TARGET_NAME
 import androidx.camera.testing.fakes.FakeCamera
-import androidx.camera.testing.fakes.FakeCameraCoordinator
-import androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager
 import androidx.camera.testing.fakes.FakeCameraInfoInternal
-import androidx.camera.testing.fakes.FakeUseCase
-import androidx.camera.testing.fakes.FakeUseCaseConfig
-import androidx.camera.testing.fakes.FakeUseCaseConfigFactory
+import androidx.camera.testing.impl.fakes.FakeCameraCoordinator
+import androidx.camera.testing.impl.fakes.FakeCameraDeviceSurfaceManager
+import androidx.camera.testing.impl.fakes.FakeUseCase
+import androidx.camera.testing.impl.fakes.FakeUseCaseConfig
+import androidx.camera.testing.impl.fakes.FakeUseCaseConfigFactory
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
+import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Test
@@ -200,7 +203,7 @@ class UseCaseTest {
     @Test
     fun returnNullResolutionInfo_beforeAddingToCameraUseCaseAdapter() {
         val fakeUseCase = FakeUseCase()
-        assertThat(fakeUseCase.resolutionInfo).isNull()
+        assertThat(fakeUseCase.resolutionInfoInternal).isNull()
     }
 
     @Test
@@ -209,7 +212,7 @@ class UseCaseTest {
         val fakeUseCase = FakeUseCase()
         val cameraUseCaseAdapter = createCameraUseCaseAdapter()
         cameraUseCaseAdapter.addUseCases(listOf<UseCase>(fakeUseCase))
-        val resolutionInfo = fakeUseCase.resolutionInfo
+        val resolutionInfo = fakeUseCase.resolutionInfoInternal
         assertThat(resolutionInfo).isNotNull()
         assertThat(resolutionInfo!!.resolution).isEqualTo(SURFACE_RESOLUTION)
         assertThat(resolutionInfo.cropRect).isEqualTo(
@@ -228,7 +231,7 @@ class UseCaseTest {
         val cameraUseCaseAdapter = createCameraUseCaseAdapter()
         cameraUseCaseAdapter.addUseCases(listOf<UseCase>(fakeUseCase))
         cameraUseCaseAdapter.removeUseCases(listOf<UseCase>(fakeUseCase))
-        val resolutionInfo = fakeUseCase.resolutionInfo
+        val resolutionInfo = fakeUseCase.resolutionInfoInternal
         assertThat(resolutionInfo).isNull()
     }
 
@@ -239,7 +242,7 @@ class UseCaseTest {
         fakeUseCase.targetRotationInternal = Surface.ROTATION_90
         val cameraUseCaseAdapter = createCameraUseCaseAdapter()
         cameraUseCaseAdapter.addUseCases(listOf<UseCase>(fakeUseCase))
-        val resolutionInfo = fakeUseCase.resolutionInfo
+        val resolutionInfo = fakeUseCase.resolutionInfoInternal
         assertThat(resolutionInfo!!.rotationDegrees).isEqualTo(270)
     }
 
@@ -255,7 +258,7 @@ class UseCaseTest {
             )
         )
         cameraUseCaseAdapter.addUseCases(listOf<UseCase>(fakeUseCase))
-        val resolutionInfo = fakeUseCase.resolutionInfo
+        val resolutionInfo = fakeUseCase.resolutionInfoInternal
         assertThat(resolutionInfo!!.cropRect).isEqualTo(Rect(0, 60, 640, 420))
     }
 
@@ -292,6 +295,42 @@ class UseCaseTest {
         assertThat(fakeUseCase.isMirroringRequired(fakeFrontCamera)).isTrue()
     }
 
+    @Test
+    fun snapToSurfaceRotation_toCorrectValue() {
+        assertThat(snapToSurfaceRotation(45)).isEqualTo(Surface.ROTATION_270)
+        assertThat(snapToSurfaceRotation(135)).isEqualTo(Surface.ROTATION_180)
+        assertThat(snapToSurfaceRotation(225)).isEqualTo(Surface.ROTATION_90)
+        assertThat(snapToSurfaceRotation(315)).isEqualTo(Surface.ROTATION_0)
+    }
+
+    @Test
+    fun snapToSurfaceRotation_invalidInput() {
+        assertThrows<IllegalArgumentException> {
+            snapToSurfaceRotation(-1)
+        }
+        assertThrows<IllegalArgumentException> {
+            snapToSurfaceRotation(360)
+        }
+    }
+
+    @Test
+    fun keepUseCaseTargetName_whenMergingConfigs() {
+        val targetName = "Fake-UseCase-TargetName"
+        val fakeUseCase = FakeUseCaseConfig.Builder().setTargetName(targetName).build()
+        val extendedConfig = FakeUseCaseConfig.Builder().apply {
+            mutableConfig.insertOption(OPTION_TARGET_NAME, "Extended-Config-TargetName")
+        }.useCaseConfig
+        val defaultConfig = FakeUseCaseConfig.Builder().apply {
+            mutableConfig.insertOption(OPTION_TARGET_NAME, "Default-Config-TargetName")
+        }.useCaseConfig
+        val mergedConfig = fakeUseCase.mergeConfigs(
+            FakeCameraInfoInternal(0, CameraSelector.LENS_FACING_BACK),
+            extendedConfig,
+            defaultConfig
+        )
+        assertThat(mergedConfig.targetName).isEqualTo(targetName)
+    }
+
     private fun createFakeUseCase(
         targetRotation: Int = Surface.ROTATION_0,
         mirrorMode: Int? = null,
@@ -322,7 +361,7 @@ class UseCaseTest {
         val useCaseConfigFactory: UseCaseConfigFactory = FakeUseCaseConfigFactory()
         val cameraCoordinator: CameraCoordinator = FakeCameraCoordinator()
         return CameraUseCaseAdapter(
-            LinkedHashSet(setOf(fakeCamera)),
+            fakeCamera,
             cameraCoordinator,
             fakeCameraDeviceSurfaceManager,
             useCaseConfigFactory

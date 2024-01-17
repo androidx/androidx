@@ -19,8 +19,6 @@ package androidx.room.integration.testapp.test;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-import android.os.Build;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.room.Dao;
@@ -35,7 +33,6 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
-import androidx.test.filters.SdkSuppress;
 
 import org.junit.After;
 import org.junit.Before;
@@ -80,7 +77,6 @@ public class InvalidationTrackerBehavioralTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
     public void testInserts_JournalModeWAL() throws ExecutionException, InterruptedException {
         testInserts(RoomDatabase.JournalMode.WRITE_AHEAD_LOGGING);
     }

@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.lazy.grid
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.ScrollableDefaults
 import androidx.compose.foundation.layout.Arrangement
@@ -147,7 +146,7 @@ private fun rememberColumnWidthSums(
     columns: GridCells,
     horizontalArrangement: Arrangement.Horizontal,
     contentPadding: PaddingValues
-) = remember<Density.(Constraints) -> LazyGridSlots>(
+) = remember<LazyGridSlotsProvider>(
     columns,
     horizontalArrangement,
     contentPadding,
@@ -180,7 +179,7 @@ private fun rememberRowHeightSums(
     rows: GridCells,
     verticalArrangement: Arrangement.Vertical,
     contentPadding: PaddingValues
-) = remember<Density.(Constraints) -> LazyGridSlots>(
+) = remember<LazyGridSlotsProvider>(
     rows,
     verticalArrangement,
     contentPadding,
@@ -207,10 +206,16 @@ private fun rememberRowHeightSums(
     }
 }
 
+// Note: Implementing function interface is prohibited in K/JS (class A: () -> Unit)
+// therefore we workaround this limitation by inheriting a fun interface instead
+internal fun interface LazyGridSlotsProvider {
+    fun invoke(density: Density, constraints: Constraints): LazyGridSlots
+}
+
 /** measurement cache to avoid recalculating row/column sizes on each scroll. */
 private class GridSlotCache(
     private val calculation: Density.(Constraints) -> LazyGridSlots
-) : (Density, Constraints) -> LazyGridSlots {
+) : LazyGridSlotsProvider {
     private var cachedConstraints = Constraints()
     private var cachedDensity: Float = 0f
     private var cachedSizes: LazyGridSlots? = null
@@ -327,7 +332,6 @@ interface GridCells {
      * If the screen is 88.dp wide tne there will be 4 columns 20.dp each with remaining 8.dp
      * distributed through [Arrangement.Horizontal].
      */
-    @ExperimentalFoundationApi
     class FixedSize(private val size: Dp) : GridCells {
         init {
             require(size > 0.dp) { "Provided size $size should be larger than zero." }

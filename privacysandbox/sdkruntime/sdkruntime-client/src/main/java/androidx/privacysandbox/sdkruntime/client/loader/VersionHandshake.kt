@@ -16,15 +16,12 @@
 package androidx.privacysandbox.sdkruntime.client.loader
 
 import android.annotation.SuppressLint
-import androidx.annotation.RestrictTo
 import androidx.privacysandbox.sdkruntime.core.Versions
 
 /**
  * Performing version handshake.
  *
- * @suppress
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 internal object VersionHandshake {
     @SuppressLint("BanUncheckedReflection") // calling method on Versions class
     fun perform(classLoader: ClassLoader?): Int {

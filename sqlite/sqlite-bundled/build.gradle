@@ -1,0 +1,229 @@
+/*
+ * Copyright (C) 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
+import androidx.build.AndroidXConfig
+import androidx.build.KmpPlatformsKt
+import androidx.build.PlatformIdentifier
+import androidx.build.Publish
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
+import org.jetbrains.kotlin.konan.target.Family
+import org.jetbrains.kotlin.konan.target.KonanTarget
+
+plugins {
+    id("AndroidXPlugin")
+    id("com.android.library")
+}
+
+// List of flags we use to compile SQLite.
+// See: https://www.sqlite.org/compile.html
+// TODO(b/310681164): Validate these flags and compare to other platforms.
+def SQLITE_COMPILE_FLAGS = [
+        "-DHAVE_USLEEP=1",
+        "-DSQLITE_DEFAULT_MEMSTATUS=0",
+        "-DSQLITE_ENABLE_COLUMN_METADATA=1",
+        "-DSQLITE_ENABLE_FTS3=1",
+        "-DSQLITE_ENABLE_FTS3_PARENTHESIS=1",
+        "-DSQLITE_ENABLE_FTS4=1",
+        "-DSQLITE_ENABLE_FTS5=1",
+        "-DSQLITE_ENABLE_JSON1=1",
+        "-DSQLITE_ENABLE_LOAD_EXTENSION=1",
+        "-DSQLITE_ENABLE_NORMALIZE=1",
+        "-DSQLITE_ENABLE_RBU=1",
+        "-DSQLITE_ENABLE_RTREE=1",
+        "-DSQLITE_ENABLE_STAT4=1",
+        "-DSQLITE_OMIT_PROGRESS_CALLBACK=0",
+        "-DSQLITE_THREADSAFE=2",
+]
+
+// Copy SQLite sources into a build directory. Even though this is not needed, it will be
+// nice to have them there so that we can swap them with SQLite amalgamation for Github.
+// TODO(b/306669673): Support GitHub builds
+def copySqliteSourcesTask = tasks.register("copySqliteSources", Copy) {
+    from(new File(AndroidXConfig.getExternalProjectPath(project), "sqlite/dist/orig")) {
+        include "sqlite3.c"
+        include "sqlite3.h"
+    }
+    into(project.layout.buildDirectory.dir("sqlite3/src"))
+}
+
+configurations {
+    // Configuration for producing an shareable archive file of compiled SQLite. Only the Linux X64
+    // target of SQLite is produced hence the explicit name and attributes
+    linuxSharedArchive {
+        canBeConsumed = true
+        canBeResolved = false
+        attributes {
+            attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage, Usage.NATIVE_LINK))
+        }
+    }
+}
+
+def nativeEnabled = KmpPlatformsKt.enableNative(project)
+
+androidXMultiplatform {
+    // List of targets for native compilation that are needed for JVM / ART tests.
+    // Note that even if the native KMP targets are disabled, we still need to compile the C
+    // code for these targets as they are used in JVM / ART tests (via JNI).
+    def requiredNativeTargets = [
+            KonanTarget.ANDROID_ARM32,
+            KonanTarget.ANDROID_ARM64,
+            KonanTarget.ANDROID_X64,
+            KonanTarget.ANDROID_X86,
+            KonanTarget.MACOS_ARM64,
+            KonanTarget.MACOS_X64,
+            KonanTarget.LINUX_X64,
+    ].collect { it.INSTANCE } // Use INSTANCE to get object class instance from kotlin
+
+    // Define C compilation of SQLite (sqlite3.c)
+    def sqliteCompilation = createNativeCompilation("androidXBundledSqlite") {
+        configureEachTarget { nativeCompilation ->
+            // add SQLite header
+            nativeCompilation.includes.from(
+                    copySqliteSourcesTask.map { it.destinationDir }
+            )
+            // add SQLite sources
+            nativeCompilation.sources.from(
+                    copySqliteSourcesTask.map {
+                        fileTree(it.destinationDir).matching { include "**/*.c" }
+                    }
+            )
+            // add SQLite compile flags
+            nativeCompilation.freeArgs.addAll(SQLITE_COMPILE_FLAGS)
+            if (nativeCompilation.konanTarget.family == Family.ANDROID) {
+                nativeCompilation.freeArgs.add("-Oz") // optimize for size
+            } else {
+                nativeCompilation.freeArgs.add("-O3") // optimize for speed
+            }
+        }
+        configureTargets(requiredNativeTargets)
+    }
+
+    // add SQLite compilation output as an artifact of a producer configuration
+    if (nativeEnabled) {
+        artifacts.add(
+            "linuxSharedArchive",
+            sqliteCompilation.sharedArchiveOutputFor(KonanTarget.LINUX_X64.INSTANCE)
+        )
+    }
+
+    // Defince C++ compilation of JNI
+    def jvmArtJniImplementation = createNativeCompilation("jvmArtJniImplementation") {
+        configureEachTarget { nativeCompilation ->
+            // add JNI headers as sources
+            nativeCompilation.addJniHeaders()
+            // add SQLite headers
+            nativeCompilation.includes.from(
+                    copySqliteSourcesTask.map {it.destinationDir }
+            )
+            // add our JNI sources, i.e. the SQLite bindings
+            nativeCompilation.sources.from(
+                    fileTree("src/androidJvmCommonMain/jni").matching { include "**/*.cpp" }
+            )
+            // statically include the output of SQLite compilation
+            nativeCompilation.include(sqliteCompilation)
+            if (nativeCompilation.konanTarget.family == Family.OSX) {
+                // KT-57848
+                nativeCompilation.freeArgs.addAll("-Dat_quick_exit=atexit", "-Dquick_exit=exit")
+            }
+        }
+        configureTargets(requiredNativeTargets)
+    }
+
+    android() {
+        addNativeLibrariesToJniLibs(it, jvmArtJniImplementation)
+    }
+    androidNative()
+    ios()
+    jvm() {
+        addNativeLibrariesToResources(it, jvmArtJniImplementation)
+    }
+    linux()
+    mac()
+
+    defaultPlatform(PlatformIdentifier.ANDROID)
+
+    targets.all { target ->
+        if (target.platformType == KotlinPlatformType.native) {
+            // Configure this native target to the SQLite compilation.
+            // This list likely only adds the iOS targets when they are enabled as the desktop
+            // targets are already part of the required targets to run JVM / ART tests.
+            sqliteCompilation.configureTarget(target.konanTarget)
+            // Create cinterop code for this native target from the SQLite compilation.
+            createCinterop(target, sqliteCompilation)
+        }
+    }
+
+    sourceSets {
+        //                                 commonMain
+        //              ┌───────────────────────────────────────────┐
+        //              ▼                                           ▼
+        //     androidJvmCommonMain                             nativeMain
+        //     ┌────────────────┐                       ┌──────────┬────────────┐
+        //     │                │                       │          │            │
+        //     ▼                ▼                       ▼          ▼            ▼
+        //  jvmMain        androidMain               macMain   linuxMain    iosMain
+        commonMain {
+            dependencies {
+                implementation(libs.kotlinStdlib)
+                api(project(":sqlite:sqlite"))
+            }
+        }
+        androidJvmCommonMain {
+            // common code between android and jvm
+            dependsOn(commonMain)
+        }
+        jvmMain {
+            dependsOn(androidJvmCommonMain)
+        }
+        androidMain {
+            dependsOn(androidJvmCommonMain)
+        }
+        if (nativeEnabled) {
+            nativeMain {
+                dependsOn(commonMain)
+                dependencies {
+                    implementation(project(":sqlite:sqlite-framework"))
+                }
+            }
+        }
+        targets.all { target ->
+            if (target.platformType == KotlinPlatformType.native) {
+                target.compilations["main"].defaultSourceSet {
+                    dependsOn(nativeMain)
+                }
+            }
+        }
+    }
+}
+
+android {
+    namespace "androidx.sqlite.driver.bundled"
+}
+
+androidx {
+    name = "SQLite Bundled Integration"
+    publish = Publish.SNAPSHOT_AND_RELEASE
+    inceptionYear = "2023"
+    description = "The implementation of SQLite library using the bundled SQLite."
+    metalavaK2UastEnabled = false
+}

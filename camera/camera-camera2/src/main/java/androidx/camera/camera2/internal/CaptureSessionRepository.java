@@ -70,6 +70,7 @@ class CaptureSessionRepository {
                     // error state. The CameraCaptureSession.close() may not invoke the onClosed()
                     // callback so it has to finish the close process forcibly.
                     forceOnClosedCaptureSessions();
+                    dispatchOnError(error);
                     cameraClosed();
                 }
 
@@ -102,6 +103,19 @@ class CaptureSessionRepository {
                         sessions.addAll(mCaptureSessions);
                     }
                     mExecutor.execute(() -> forceOnClosed(sessions));
+                }
+
+                private void dispatchOnError(int error) {
+                    LinkedHashSet<SynchronizedCaptureSession> sessions = new LinkedHashSet<>();
+                    synchronized (mLock) {
+                        sessions.addAll(mCreatingCaptureSessions);
+                        sessions.addAll(mCaptureSessions);
+                    }
+                    mExecutor.execute(() -> {
+                        for (SynchronizedCaptureSession session : sessions) {
+                            session.onCameraDeviceError(error);
+                        }
+                    });
                 }
 
                 private void cameraClosed() {

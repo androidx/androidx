@@ -1,3 +1,7 @@
 // Baseline format: 1.0
 GetterSetterNames: android.view.RenderNode#getClipToOutline():
     Symmetric method for `setClipToOutline` must be named `isClipToOutline`; was `getClipToOutline`
+
+
+NotCloseable: android.view.RenderNode:
+    Classes that release resources (destroy()) should implement AutoCloseable and CloseGuard: class android.view.RenderNode

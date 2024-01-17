@@ -17,6 +17,7 @@
 package androidx.credentials.playservices.createkeycredential
 
 import androidx.credentials.playservices.TestUtils
+import androidx.credentials.playservices.controllers.CreatePublicKeyCredential.PublicKeyCredentialControllerUtility
 import com.google.android.gms.fido.common.Transport
 import com.google.android.gms.fido.fido2.api.common.PublicKeyCredentialCreationOptions
 import org.json.JSONArray
@@ -25,6 +26,8 @@ import org.json.JSONObject
 
 class CreatePublicKeyCredentialControllerTestUtils {
     companion object {
+
+        const val TAG = "PasskeyTestUtils"
 
          // optional and not required key 'transports' is missing in the JSONObject that composes
          // up the JSONArray found at key 'excludeCredentials'
@@ -185,7 +188,6 @@ class CreatePublicKeyCredentialControllerTestUtils {
             configureDescriptors(options, json)
             configureSelectionCriteriaAndAttestation(options, json)
 
-            // TODO("Handle extensions in this testing parsing")
             return json
         }
 
@@ -208,8 +210,6 @@ class CreatePublicKeyCredentialControllerTestUtils {
                     authSelect.put("requireResidentKey", requireResidentKey)
                 }
                 authSelect.put("userVerification", "preferred")
-                // TODO("Since fido impl accepts this input, but does not return it, adding)
-                // TODO(it directly for test comparison. When available, pull from impl object.")
                 json.put("authenticatorSelection", authSelect)
             }
             val attestation = options.attestationConveyancePreferenceAsString
@@ -325,6 +325,123 @@ class CreatePublicKeyCredentialControllerTestUtils {
                     json.put(key, true)
                 }
             }
+        }
+
+        /**
+         * Helps generate a PublicKeyCredential response json format to start tests with, locally
+         * for example.
+         *
+         * Usage details as follows:
+         *
+         *     val byteArrayClientDataJson = byteArrayOf(0x48, 101, 108, 108, 111)
+         *     val byteArrayAuthenticatorData = byteArrayOf(0x48, 101, 108, 108, 112)
+         *     val byteArraySignature = byteArrayOf(0x48, 101, 108, 108, 113)
+         *     val byteArrayUserHandle = byteArrayOf(0x48, 101, 108, 108, 114)
+         *     val publicKeyCredId = "id"
+         *     val publicKeyCredRawId = byteArrayOf(0x48, 101, 108, 108, 115)
+         *     val publicKeyCredType = "type"
+         *     val authenticatorAttachment = "platform"
+         *     val hasClientExtensionOutputs = true
+         *     val isDiscoverableCredential = true
+         *     val expectedClientExtensions = "{\"credProps\":{\"rk\":true}}"
+         *
+         *     val json = PublicKeyCredentialControllerUtility.beginSignInAssertionResponse(
+         *       byteArrayClientDataJson,
+         *       byteArrayAuthenticatorData,
+         *       byteArraySignature,
+         *       byteArrayUserHandle,
+         *       publicKeyCredId,
+         *       publicKeyCredRawId,
+         *       publicKeyCredType,
+         *       authenticatorAttachment,
+         *       hasClientExtensionOutputs,
+         *       isDiscoverableCredential
+         *     )
+         *
+         * The json can be used as necessary, even if only to generate a log with which to pull
+         * the string from (to then further use that string in other test cases).
+         */
+        fun getPublicKeyCredentialResponseGenerator(
+            clientDataJSON: ByteArray,
+            authenticatorData: ByteArray,
+            signature: ByteArray,
+            userHandle: ByteArray?,
+            publicKeyCredId: String,
+            publicKeyCredRawId: ByteArray,
+            publicKeyCredType: String,
+            authenticatorAttachment: String?,
+            hasClientExtensionResults: Boolean,
+            isDiscoverableCredential: Boolean?
+        ): JSONObject {
+            val json = JSONObject()
+            val responseJson = JSONObject()
+            responseJson.put(
+                PublicKeyCredentialControllerUtility.JSON_KEY_CLIENT_DATA,
+                PublicKeyCredentialControllerUtility.b64Encode(clientDataJSON)
+            )
+            responseJson.put(
+                PublicKeyCredentialControllerUtility.JSON_KEY_AUTH_DATA,
+                PublicKeyCredentialControllerUtility.b64Encode(authenticatorData)
+            )
+            responseJson.put(
+                PublicKeyCredentialControllerUtility.JSON_KEY_SIGNATURE,
+                PublicKeyCredentialControllerUtility.b64Encode(signature)
+            )
+            userHandle?.let {
+                responseJson.put(
+                    PublicKeyCredentialControllerUtility.JSON_KEY_USER_HANDLE,
+                    PublicKeyCredentialControllerUtility.b64Encode(userHandle)
+                )
+            }
+            json.put(PublicKeyCredentialControllerUtility.JSON_KEY_RESPONSE, responseJson)
+            json.put(PublicKeyCredentialControllerUtility.JSON_KEY_ID, publicKeyCredId)
+            json.put(
+                PublicKeyCredentialControllerUtility.JSON_KEY_RAW_ID,
+                PublicKeyCredentialControllerUtility.b64Encode(publicKeyCredRawId)
+            )
+            json.put(PublicKeyCredentialControllerUtility.JSON_KEY_TYPE, publicKeyCredType)
+            addOptionalAuthenticatorAttachmentAndRequiredExtensions(
+                authenticatorAttachment,
+                hasClientExtensionResults,
+                isDiscoverableCredential,
+                json
+            )
+            return json;
+        }
+
+        // This can be shared by both get and create flow response parsers, fills 'json'.
+        private fun addOptionalAuthenticatorAttachmentAndRequiredExtensions(
+            authenticatorAttachment: String?,
+            hasClientExtensionResults: Boolean,
+            isDiscoverableCredential: Boolean?,
+            json: JSONObject
+        ) {
+
+            json.putOpt(
+                PublicKeyCredentialControllerUtility.JSON_KEY_AUTH_ATTACHMENT,
+                authenticatorAttachment
+            )
+
+            val clientExtensionsJson = JSONObject()
+
+            if (hasClientExtensionResults) {
+                if (isDiscoverableCredential != null) {
+                    val credPropsObject = JSONObject()
+                    credPropsObject.put(
+                        PublicKeyCredentialControllerUtility.JSON_KEY_RK,
+                        isDiscoverableCredential
+                    )
+                    clientExtensionsJson.put(
+                        PublicKeyCredentialControllerUtility.JSON_KEY_CRED_PROPS,
+                        credPropsObject
+                    )
+                }
+            }
+
+            json.put(
+                PublicKeyCredentialControllerUtility.JSON_KEY_CLIENT_EXTENSION_RESULTS,
+                clientExtensionsJson
+            )
         }
     }
 }

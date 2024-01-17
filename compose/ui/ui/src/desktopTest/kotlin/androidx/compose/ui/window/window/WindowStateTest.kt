@@ -40,10 +40,6 @@ import androidx.compose.ui.window.launchApplication
 import androidx.compose.ui.window.rememberWindowState
 import androidx.compose.ui.window.runApplicationTest
 import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.channels.consumeEach
-import org.junit.Assume.assumeTrue
-import org.junit.Test
 import java.awt.Dimension
 import java.awt.Point
 import java.awt.Rectangle
@@ -52,6 +48,10 @@ import java.awt.event.WindowEvent
 import javax.swing.JFrame
 import kotlin.math.abs
 import kotlin.math.max
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.consumeEach
+import org.junit.Assume.assumeTrue
+import org.junit.Test
 
 // Note that on Linux some tests are flaky. Swing event listener's on Linux has non-deterministic
 // nature. To avoid flaky'ness we use delays

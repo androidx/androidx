@@ -25,7 +25,7 @@ import javax.lang.model.element.Element;
  * An exception thrown from the appsearch annotation processor to indicate a type element is not
  * found due to it being possibly generated at a later annotation processing round.
  *
- * @hide
+ * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 final class MissingTypeException extends Exception {

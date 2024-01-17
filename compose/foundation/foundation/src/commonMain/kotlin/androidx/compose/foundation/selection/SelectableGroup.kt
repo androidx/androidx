@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.selection
 
+import androidx.compose.runtime.Stable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.selectableGroup
 import androidx.compose.ui.semantics.semantics
@@ -26,6 +27,7 @@ import androidx.compose.ui.semantics.semantics
  *
  * @see selectableGroup
  */
+@Stable
 fun Modifier.selectableGroup() = this.semantics {
     selectableGroup()
 }

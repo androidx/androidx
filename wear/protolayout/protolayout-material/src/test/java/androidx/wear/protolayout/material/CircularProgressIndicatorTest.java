@@ -34,6 +34,10 @@ import androidx.wear.protolayout.LayoutElementBuilders.Box;
 import androidx.wear.protolayout.LayoutElementBuilders.Column;
 import androidx.wear.protolayout.ModifiersBuilders.ElementMetadata;
 import androidx.wear.protolayout.ModifiersBuilders.Modifiers;
+import androidx.wear.protolayout.TypeBuilders;
+import androidx.wear.protolayout.TypeBuilders.StringProp;
+import androidx.wear.protolayout.expression.DynamicBuilders;
+import androidx.wear.protolayout.expression.DynamicBuilders.DynamicString;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -58,9 +62,28 @@ public class CircularProgressIndicatorTest {
     }
 
     @Test
+    public void testProgressIndicatorWithDynamicProgress() {
+        TypeBuilders.FloatProp floatProp =
+                new TypeBuilders.FloatProp.Builder(0)
+                        .setDynamicValue(DynamicBuilders.DynamicFloat.constant(0.5f))
+                        .build();
+        CircularProgressIndicator circularProgressIndicator =
+                new CircularProgressIndicator.Builder().setProgress(floatProp).build();
+
+        Box box = new Box.Builder().addContent(circularProgressIndicator).build();
+
+        CircularProgressIndicator newCpi =
+                CircularProgressIndicator.fromLayoutElement(box.getContents().get(0));
+
+        assertThat(newCpi).isNotNull();
+        assertThat(newCpi.getProgress().toProto().hasDynamicValue()).isTrue();
+        assertThat(newCpi.getProgress().toProto().hasValueForLayout()).isTrue();
+    }
+
+    @Test
     public void testProgressIndicatorCustom() {
         float progress = 0.25f;
-        String contentDescription = "60 degrees progress";
+        StringProp contentDescription = new StringProp.Builder("60 degrees progress").build();
         ProgressIndicatorColors colors = new ProgressIndicatorColors(Color.YELLOW, Color.BLACK);
         int thickness = 16;
         float startAngle = -24;
@@ -116,6 +139,21 @@ public class CircularProgressIndicatorTest {
         assertThat(CircularProgressIndicator.fromLayoutElement(box)).isNull();
     }
 
+    @Test
+    public void testDynamicContentDescription() {
+        StringProp dynamicContentDescription =
+                new StringProp.Builder("static")
+                        .setDynamicValue(DynamicString.constant("dynamic"))
+                        .build();
+        CircularProgressIndicator progressIndicator =
+                new CircularProgressIndicator.Builder()
+                        .setContentDescription(dynamicContentDescription)
+                        .build();
+
+        assertThat(progressIndicator.getContentDescription().toProto())
+                .isEqualTo(dynamicContentDescription.toProto());
+    }
+
     private void assertProgressIndicator(
             @NonNull CircularProgressIndicator actualCircularProgressIndicator,
             float expectedProgress,
@@ -123,7 +161,7 @@ public class CircularProgressIndicatorTest {
             float expectedEndAngle,
             @NonNull ProgressIndicatorColors expectedColors,
             float expectedThickness,
-            @Nullable String expectedContentDescription) {
+            @Nullable StringProp expectedContentDescription) {
         assertProgressIndicatorIsEqual(
                 actualCircularProgressIndicator,
                 expectedProgress,
@@ -159,7 +197,7 @@ public class CircularProgressIndicatorTest {
             float expectedEndAngle,
             @NonNull ProgressIndicatorColors expectedColors,
             float expectedThickness,
-            @Nullable String expectedContentDescription) {
+            @Nullable StringProp expectedContentDescription) {
         float total =
                 expectedEndAngle
                         + (expectedEndAngle <= expectedStartAngle ? 360 : 0)
@@ -193,8 +231,8 @@ public class CircularProgressIndicatorTest {
         if (expectedContentDescription == null) {
             assertThat(actualCircularProgressIndicator.getContentDescription()).isNull();
         } else {
-            assertThat(actualCircularProgressIndicator.getContentDescription().toString())
-                    .isEqualTo(expectedContentDescription);
+            assertThat(actualCircularProgressIndicator.getContentDescription().toProto())
+                    .isEqualTo(expectedContentDescription.toProto());
         }
     }
 }

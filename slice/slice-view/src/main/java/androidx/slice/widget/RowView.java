@@ -96,11 +96,9 @@ import android.widget.TimePicker;
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.graphics.drawable.IconCompat;
-import androidx.core.view.ViewCompat;
 import androidx.slice.CornerDrawable;
 import androidx.slice.SliceItem;
 import androidx.slice.SliceStructure;
@@ -119,8 +117,12 @@ import java.util.Set;
 /**
  * Row item is in small template format and can be used to construct list items for use
  * with {@link TemplateView}.
+ *
+ * @deprecated Slice framework has been deprecated, it will not receive any updates moving
+ * forward. If you are looking for a framework that handles communication across apps,
+ * consider using {@link android.app.appsearch.AppSearchManager}.
  */
-@RequiresApi(19)
+@Deprecated
 public class RowView extends SliceChildView implements View.OnClickListener,
         AdapterView.OnItemSelectedListener {
 
@@ -159,7 +161,6 @@ public class RowView extends SliceChildView implements View.OnClickListener,
     private boolean mIsStarRating;
     private final ProgressBar mActionSpinner;
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     protected Set<SliceItem> mLoadingActions = new HashSet<>();
@@ -230,13 +231,11 @@ public class RowView extends SliceChildView implements View.OnClickListener,
         mActionSpinner = findViewById(R.id.action_sent_indicator);
         SliceViewUtil.tintIndeterminateProgressBar(getContext(), mActionSpinner);
         mEndContainer = findViewById(android.R.id.widget_frame);
-        ViewCompat.setImportantForAccessibility(this, ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_NO);
-        ViewCompat.setImportantForAccessibility(
-                mContent, ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_NO);
+        setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
+        mContent.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
@@ -314,7 +313,6 @@ public class RowView extends SliceChildView implements View.OnClickListener,
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
@@ -386,7 +384,6 @@ public class RowView extends SliceChildView implements View.OnClickListener,
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
@@ -402,7 +399,6 @@ public class RowView extends SliceChildView implements View.OnClickListener,
      * @param actions if the actions are null then there are no header actions for this row.
      * If the actions are an empty list, then something has explicitly set that no header
      * actions should appear.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
@@ -414,7 +410,6 @@ public class RowView extends SliceChildView implements View.OnClickListener,
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
@@ -426,7 +421,6 @@ public class RowView extends SliceChildView implements View.OnClickListener,
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
@@ -699,14 +693,13 @@ public class RowView extends SliceChildView implements View.OnClickListener,
             mShowActionSpinner = true;
         }
 
-        ViewCompat.setImportantForAccessibility(mRootView, mRootView.isClickable()
-                ? ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_AUTO
-                : ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_NO
+        mRootView.setImportantForAccessibility(mRootView.isClickable()
+                ? View.IMPORTANT_FOR_ACCESSIBILITY_AUTO
+                : View.IMPORTANT_FOR_ACCESSIBILITY_NO
         );
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
@@ -1148,7 +1141,6 @@ public class RowView extends SliceChildView implements View.OnClickListener,
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
@@ -1367,7 +1359,6 @@ public class RowView extends SliceChildView implements View.OnClickListener,
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override

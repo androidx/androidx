@@ -16,14 +16,14 @@
 
 package androidx.room.compiler.processing.profiling
 
-import org.junit.AssumptionViolatedException
-import org.junit.rules.TestRule
-import org.junit.runner.Description
-import org.junit.runners.model.Statement
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.nanoseconds
 import kotlin.time.DurationUnit
 import kotlin.time.ExperimentalTime
+import org.junit.AssumptionViolatedException
+import org.junit.rules.TestRule
+import org.junit.runner.Description
+import org.junit.runners.model.Statement
 
 /**
  * Helper rule to run profiling tests.

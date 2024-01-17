@@ -39,6 +39,12 @@ internal class OwnerSnapshotObserver(onChangedExecutor: (callback: () -> Unit) -
         }
     }
 
+    private val onCommitAffectingSemantics: (LayoutNode) -> Unit = { layoutNode ->
+        if (layoutNode.isValidOwnerScope) {
+            layoutNode.invalidateSemantics()
+        }
+    }
+
     private val onCommitAffectingLayout: (LayoutNode) -> Unit = { layoutNode ->
         if (layoutNode.isValidOwnerScope) {
             layoutNode.requestRelayout()
@@ -57,7 +63,7 @@ internal class OwnerSnapshotObserver(onChangedExecutor: (callback: () -> Unit) -
         }
     }
 
-    private val onCommitAffectingLookaheadLayout: (LayoutNode) -> Unit = { layoutNode ->
+    private val onCommitAffectingLookahead: (LayoutNode) -> Unit = { layoutNode ->
         if (layoutNode.isValidOwnerScope) {
             layoutNode.requestLookaheadRelayout()
         }
@@ -72,7 +78,7 @@ internal class OwnerSnapshotObserver(onChangedExecutor: (callback: () -> Unit) -
         block: () -> Unit
     ) {
         if (affectsLookahead && node.lookaheadRoot != null) {
-            observeReads(node, onCommitAffectingLookaheadLayout, block)
+            observeReads(node, onCommitAffectingLookahead, block)
         } else {
             observeReads(node, onCommitAffectingLayout, block)
         }
@@ -106,6 +112,13 @@ internal class OwnerSnapshotObserver(onChangedExecutor: (callback: () -> Unit) -
         } else {
             observeReads(node, onCommitAffectingMeasure, block)
         }
+    }
+
+    internal fun observeSemanticsReads(
+        node: LayoutNode,
+        block: () -> Unit
+    ) {
+        observeReads(node, onCommitAffectingSemantics, block)
     }
 
     /**

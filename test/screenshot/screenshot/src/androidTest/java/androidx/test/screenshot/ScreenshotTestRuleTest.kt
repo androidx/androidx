@@ -25,12 +25,12 @@ import androidx.test.screenshot.OutputFileType.RESULT_PROTO
 import androidx.test.screenshot.matchers.PixelPerfectMatcher
 import androidx.test.screenshot.utils.loadBitmap
 import com.google.common.truth.Truth.assertThat
+import java.lang.AssertionError
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.lang.AssertionError
 
 @RunWith(AndroidJUnit4::class)
 @MediumTest

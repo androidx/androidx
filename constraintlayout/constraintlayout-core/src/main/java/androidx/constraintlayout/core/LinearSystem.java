@@ -44,7 +44,7 @@ public class LinearSystem {
     /*
      * Default size for the object pools
      */
-    private static int sPoolSize = 1000;
+    private int mPoolSize = 1000;
     public boolean hasSimpleDefinition = false;
 
     /*
@@ -79,7 +79,7 @@ public class LinearSystem {
 
     final Cache mCache;
 
-    private SolverVariable[] mPoolVariables = new SolverVariable[sPoolSize];
+    private SolverVariable[] mPoolVariables = new SolverVariable[mPoolSize];
     private int mPoolVariablesCount = 0;
 
     public static Metrics sMetrics;
@@ -392,9 +392,9 @@ public class LinearSystem {
             variable.reset();
             variable.setType(type, prefix);
         }
-        if (mPoolVariablesCount >= sPoolSize) {
-            sPoolSize *= 2;
-            mPoolVariables = Arrays.copyOf(mPoolVariables, sPoolSize);
+        if (mPoolVariablesCount >= mPoolSize) {
+            mPoolSize *= 2;
+            mPoolVariables = Arrays.copyOf(mPoolVariables, mPoolSize);
         }
         mPoolVariables[mPoolVariablesCount++] = variable;
         return variable;

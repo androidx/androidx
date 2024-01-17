@@ -41,7 +41,7 @@ import androidx.compose.ui.graphics.vector.DefaultTranslationY
 import androidx.compose.ui.graphics.vector.EmptyPath
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.PathNode
-import androidx.compose.ui.graphics.vector.addPathNodes
+import androidx.compose.ui.graphics.vector.PathParser
 import androidx.compose.ui.unit.dp
 import androidx.core.content.res.ComplexColorCompat
 import androidx.core.content.res.TypedArrayUtils
@@ -279,8 +279,11 @@ internal fun AndroidVectorParser.parsePath(
     ) ?: ""
 
     val pathStr = getString(a, AndroidVectorResources.STYLEABLE_VECTOR_DRAWABLE_PATH_PATH_DATA)
-
-    val pathData: List<PathNode> = addPathNodes(pathStr)
+    val pathData: List<PathNode> = if (pathStr == null) {
+        EmptyPath
+    } else {
+        pathParser.pathStringToNodes(pathStr)
+    }
 
     val fillColor = getNamedComplexColor(
         a,
@@ -408,12 +411,11 @@ internal fun AndroidVectorParser.parseClipPath(
         a,
         AndroidVectorResources.STYLEABLE_VECTOR_DRAWABLE_CLIP_PATH_NAME
     ) ?: ""
-    val pathData = addPathNodes(
-        getString(
-            a,
-            AndroidVectorResources.STYLEABLE_VECTOR_DRAWABLE_CLIP_PATH_PATH_DATA
-        )
+    val pathStr = getString(
+        a,
+        AndroidVectorResources.STYLEABLE_VECTOR_DRAWABLE_CLIP_PATH_PATH_DATA
     )
+    val pathData = if (pathStr == null) EmptyPath else pathParser.pathStringToNodes(pathStr)
     a.recycle()
 
     // <clip-path> is parsed out as an additional VectorGroup.
@@ -527,6 +529,8 @@ internal data class AndroidVectorParser(
     val xmlParser: XmlPullParser,
     var config: Int = 0
 ) {
+    @JvmField
+    internal val pathParser = PathParser()
 
     private fun updateConfig(resConfig: Int) {
         config = config or resConfig

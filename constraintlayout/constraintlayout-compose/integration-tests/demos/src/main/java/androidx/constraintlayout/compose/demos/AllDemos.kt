@@ -16,6 +16,8 @@
 
 package androidx.constraintlayout.compose.demos
 
+import android.app.Activity
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -33,10 +35,10 @@ import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -44,9 +46,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlin.system.exitProcess
 
 data class ComposeDemo(val title: String, val content: @Composable () -> Unit)
 
@@ -56,6 +60,9 @@ val AllComposeConstraintLayoutDemos: List<ComposeDemo> =
         ComposeDemo("Simple OnSwipe") { SimpleOnSwipe() },
         ComposeDemo("Multiple OnSwipe") { MultiSwipeDsl() },
         ComposeDemo("AnimatedChainOrientation") { ChainsAnimatedOrientationDemo() },
+        ComposeDemo("AnimatedChainOrientation w/ Modifier DSL") {
+            ChainsAnimatedOrientationDemo1()
+        },
         ComposeDemo("CollapsibleToolbar w/ Column") { ToolBarDslDemo() },
         ComposeDemo("CollapsibleToolbar w/ LazyColumn") { ToolBarLazyDslDemo() },
         ComposeDemo("MotionLayout in LazyList") { MotionInLazyColumnDslDemo() },
@@ -71,7 +78,7 @@ val AllComposeConstraintLayoutDemos: List<ComposeDemo> =
 @Preview
 @Composable
 fun ComposeConstraintLayoutDemos() {
-    var displayedDemoIndex by remember { mutableStateOf(-1) }
+    var displayedDemoIndex by remember { mutableIntStateOf(-1) }
     val maxIndex = AllComposeConstraintLayoutDemos.size - 1
     Column {
         Column {
@@ -101,7 +108,10 @@ fun ComposeConstraintLayoutDemos() {
                                 .clickable { displayedDemoIndex = -1 },
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back")
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Default.ArrowBack,
+                                contentDescription = "Back"
+                            )
                             Text(text = composeDemo.title)
                         }
                         Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -148,6 +158,16 @@ fun ComposeConstraintLayoutDemos() {
                     }
                 }
             }
+        }
+    }
+
+    val activity = LocalContext.current as? Activity
+    // If there's a demo being displayed, return to demo list, otherwise, exit app
+    BackHandler {
+        if (displayedDemoIndex >= 0) {
+            displayedDemoIndex = -1
+        } else {
+            activity?.finishAffinity() ?: exitProcess(0)
         }
     }
 }

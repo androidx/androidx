@@ -33,7 +33,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.selection.selectable
-import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.tokens.PrimaryNavigationTabTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -52,7 +51,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-
+import androidx.compose.ui.util.fastFirst
 import kotlin.math.max
 
 /**
@@ -137,7 +136,7 @@ fun Tab(
  * @param selected whether this tab is selected or not
  * @param onClick called when this tab is clicked
  * @param text the text label displayed in this tab
- * @param icon the icon displayed in this tab
+ * @param icon the icon displayed in this tab. Should be 24.dp.
  * @param modifier the [Modifier] to be applied to this tab
  * @param enabled controls the enabled state of this tab. When `false`, this component will not
  * respond to user input, and it will appear visually disabled and disabled to accessibility
@@ -166,7 +165,11 @@ fun LeadingIconTab(
     // The color of the Ripple should always the be selected color, as we want to show the color
     // before the item is considered selected, and hence before the new contentColor is
     // provided by TabTransition.
-    val ripple = rememberRipple(bounded = true, color = selectedContentColor)
+    @Suppress("DEPRECATION_ERROR")
+    val ripple = androidx.compose.material.ripple.rememberRipple(
+        bounded = true,
+        color = selectedContentColor
+    )
 
     TabTransition(selectedContentColor, unselectedContentColor, selected) {
         Row(
@@ -237,7 +240,11 @@ fun Tab(
     // The color of the Ripple should always the selected color, as we want to show the color
     // before the item is considered selected, and hence before the new contentColor is
     // provided by TabTransition.
-    val ripple = rememberRipple(bounded = true, color = selectedContentColor)
+    @Suppress("DEPRECATION_ERROR")
+    val ripple = androidx.compose.material.ripple.rememberRipple(
+        bounded = true,
+        color = selectedContentColor
+    )
 
     TabTransition(selectedContentColor, unselectedContentColor, selected) {
         Column(
@@ -320,7 +327,7 @@ private fun TabBaselineLayout(
         }
     ) { measurables, constraints ->
         val textPlaceable = text?.let {
-            measurables.first { it.layoutId == "text" }.measure(
+            measurables.fastFirst { it.layoutId == "text" }.measure(
                 // Measure with loose constraints for height as we don't want the text to take up more
                 // space than it needs
                 constraints.copy(minHeight = 0)
@@ -328,7 +335,7 @@ private fun TabBaselineLayout(
         }
 
         val iconPlaceable = icon?.let {
-            measurables.first { it.layoutId == "icon" }.measure(constraints)
+            measurables.fastFirst { it.layoutId == "icon" }.measure(constraints)
         }
 
         val tabWidth = max(textPlaceable?.width ?: 0, iconPlaceable?.width ?: 0)
@@ -430,7 +437,7 @@ private const val TabFadeInAnimationDelay = 100
 private const val TabFadeOutAnimationDuration = 100
 
 // The horizontal padding on the left and right of text
-private val HorizontalTextPadding = 16.dp
+internal val HorizontalTextPadding = 16.dp
 
 // Distance from the top of the indicator to the text baseline when there is one line of text and an
 // icon

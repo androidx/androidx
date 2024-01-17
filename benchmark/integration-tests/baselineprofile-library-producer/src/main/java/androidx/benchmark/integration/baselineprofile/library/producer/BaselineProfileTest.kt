@@ -38,8 +38,9 @@ class BaselineProfileTest {
         assumeTrue(DeviceInfo.isRooted || Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
 
         // Collects the baseline profile
-        baselineRule.collectBaselineProfile(
+        baselineRule.collect(
             packageName = PACKAGE_NAME,
+            maxIterations = 1,
             profileBlock = {
                 startActivityAndWait(Intent(ACTION))
                 device.waitForIdle()

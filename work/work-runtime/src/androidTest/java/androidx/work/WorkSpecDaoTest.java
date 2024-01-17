@@ -16,6 +16,10 @@
 
 package androidx.work;
 
+import static android.net.NetworkCapabilities.NET_CAPABILITY_MMS;
+import static android.net.NetworkCapabilities.NET_CAPABILITY_NOT_VPN;
+import static android.net.NetworkCapabilities.TRANSPORT_CELLULAR;
+
 import static androidx.work.WorkInfo.State.BLOCKED;
 import static androidx.work.WorkInfo.State.FAILED;
 import static androidx.work.WorkInfo.State.SUCCEEDED;
@@ -27,6 +31,9 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 
+import android.app.job.JobParameters;
+import android.net.NetworkRequest;
+import android.os.Build;
 import android.provider.MediaStore.Images.Media;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -275,5 +282,63 @@ public class WorkSpecDaoTest extends DatabaseTest {
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
         int count = workSpecDao.countNonFinishedContentUriTriggerWorkers();
         assertThat(count, is(2));
+    }
+
+    @Test
+    @SmallTest
+    public void checkSetCancelled() {
+        OneTimeWorkRequest request1 = new OneTimeWorkRequest.Builder(TestWorker.class)
+                .setInitialState(WorkInfo.State.RUNNING)
+                .build();
+        OneTimeWorkRequest request2 = new OneTimeWorkRequest.Builder(TestWorker.class)
+                .build();
+        WorkSpecDao workSpecDao = mDatabase.workSpecDao();
+        workSpecDao.insertWorkSpec(request1.getWorkSpec());
+        workSpecDao.insertWorkSpec(request2.getWorkSpec());
+        workSpecDao.setCancelledState(request1.getStringId());
+        workSpecDao.setCancelledState(request2.getStringId());
+        WorkSpec workSpec = workSpecDao.getWorkSpec(request1.getStringId());
+        WorkSpec workSpec2 = workSpecDao.getWorkSpec(request2.getStringId());
+        assertThat(workSpec.getStopReason(), is(JobParameters.STOP_REASON_CANCELLED_BY_APP));
+        assertThat(workSpec2.getStopReason(), is(WorkInfo.STOP_REASON_NOT_STOPPED));
+    }
+
+    @Test
+    @SmallTest
+    public void insertWithNetworkRequest() {
+        Constraints constraints;
+        if (Build.VERSION.SDK_INT >= 21) {
+            NetworkRequest request = new NetworkRequest.Builder()
+                    .addCapability(NET_CAPABILITY_MMS)
+                    .addCapability(NET_CAPABILITY_NOT_VPN)
+                    .addTransportType(TRANSPORT_CELLULAR)
+                    .build();
+            constraints = new Constraints.Builder()
+                    .setRequiredNetworkRequest(request, NetworkType.CONNECTED)
+                    .build();
+        } else {
+            constraints = new Constraints.Builder()
+                    .setRequiredNetworkType(NetworkType.CONNECTED)
+                    .build();
+        }
+
+        OneTimeWorkRequest workRequest = new OneTimeWorkRequest.Builder(TestWorker.class)
+                .setConstraints(constraints)
+                .build();
+        WorkSpecDao workSpecDao = mDatabase.workSpecDao();
+        workSpecDao.insertWorkSpec(workRequest.getWorkSpec());
+
+        WorkSpec workSpec = workSpecDao.getWorkSpec(workRequest.getStringId());
+        Constraints newConstraints = workSpec.constraints;
+        if (Build.VERSION.SDK_INT >= 28) {
+            NetworkRequest actualRequest = newConstraints.getRequiredNetworkRequest();
+            assertThat(actualRequest, notNullValue());
+            assertThat(actualRequest.hasCapability(NET_CAPABILITY_MMS), is(true));
+            assertThat(actualRequest.hasCapability(NET_CAPABILITY_NOT_VPN), is(true));
+            assertThat(actualRequest.hasTransport(TRANSPORT_CELLULAR), is(true));
+            assertThat(newConstraints.getRequiredNetworkType(), is(NetworkType.NOT_REQUIRED));
+        } else {
+            assertThat(newConstraints.getRequiredNetworkType(), is(NetworkType.CONNECTED));
+        }
     }
 }

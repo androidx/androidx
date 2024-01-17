@@ -113,7 +113,7 @@ public class XmlSchemaAndComplicationSlotsDefinition(
     public class ComplicationSlotStaticData(
         val slotId: Int,
         val accessibilityTraversalIndex: Int?,
-        @ComplicationSlotBoundsType val boundsType: Int,
+        @ComplicationSlotBoundsTypeIntDef val boundsType: Int,
         val bounds: ComplicationSlotBounds,
         val supportedTypes: List<ComplicationType>,
         val defaultDataSourcePolicy: DefaultComplicationDataSourcePolicy,

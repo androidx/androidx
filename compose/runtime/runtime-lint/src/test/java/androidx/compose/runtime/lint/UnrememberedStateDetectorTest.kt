@@ -118,6 +118,7 @@ class UnrememberedStateDetectorTest : LintDetectorTest() {
             ),
             Stubs.Composable,
             Stubs.SnapshotState,
+            Stubs.StateFactoryMarker,
             Stubs.Remember
         )
             .skipTestModes(TestMode.TYPE_ALIAS)
@@ -315,6 +316,7 @@ src/androidx/compose/runtime/foo/{.kt:69: Error: Creating a state object during 
             ),
             Stubs.Composable,
             Stubs.SnapshotState,
+            Stubs.StateFactoryMarker,
             Stubs.Remember
         )
             .run()
@@ -417,6 +419,108 @@ src/androidx/compose/runtime/foo/{.kt:69: Error: Creating a state object during 
         )
             .run()
             .expectClean()
+    }
+
+    @Test
+    fun arbitraryStateFactoryAnnotated() {
+        lint().files(
+            kotlin(
+                """
+                package androidx.compose.runtime.foo
+
+                import androidx.compose.runtime.*
+                import androidx.compose.runtime.snapshots.StateFactoryMarker
+
+                @StateFactoryMarker
+                fun makeMyState(): State<Nothing> = TODO()
+
+                @Composable
+                fun Test() {
+                    val foo = makeMyState()
+                    val bar = remember { makeMyState() }
+                }
+
+                val lambda = @Composable {
+                    val foo = makeMyState()
+                    val bar = remember { makeMyState() }
+                }
+
+                val lambda2: @Composable () -> Unit = {
+                    val foo = makeMyState()
+                    val bar = remember { makeMyState() }
+                }
+
+                @Composable
+                fun LambdaParameter(content: @Composable () -> Unit) {}
+
+                @Composable
+                fun Test2() {
+                    LambdaParameter(content = {
+                        val foo = makeMyState()
+                        val bar = remember { makeMyState() }
+                    })
+                    LambdaParameter {
+                        val foo = makeMyState()
+                        val bar = remember { makeMyState() }
+                    }
+                }
+
+                fun test3() {
+                    val localLambda1 = @Composable {
+                        val foo = makeMyState()
+                        val bar = remember { makeMyState() }
+                    }
+
+                    val localLambda2: @Composable () -> Unit = {
+                        val foo = makeMyState()
+                        val bar = remember { makeMyState() }
+                    }
+                }
+
+                @Composable
+                fun Test4() {
+                    val localObject = object {
+                        val foo = makeMyState()
+                        val bar = remember { makeMyState() }
+                    }
+                }
+            """
+            ),
+            Stubs.Composable,
+            Stubs.SnapshotState,
+            Stubs.StateFactoryMarker,
+            Stubs.Remember
+        )
+            .skipTestModes(TestMode.TYPE_ALIAS)
+            .run()
+            .expect("""
+src/androidx/compose/runtime/foo/{.kt:12: Error: Creating a state object during composition without using remember [UnrememberedMutableState]
+                    val foo = makeMyState()
+                              ~~~~~~~~~~~
+src/androidx/compose/runtime/foo/{.kt:17: Error: Creating a state object during composition without using remember [UnrememberedMutableState]
+                    val foo = makeMyState()
+                              ~~~~~~~~~~~
+src/androidx/compose/runtime/foo/{.kt:22: Error: Creating a state object during composition without using remember [UnrememberedMutableState]
+                    val foo = makeMyState()
+                              ~~~~~~~~~~~
+src/androidx/compose/runtime/foo/{.kt:32: Error: Creating a state object during composition without using remember [UnrememberedMutableState]
+                        val foo = makeMyState()
+                                  ~~~~~~~~~~~
+src/androidx/compose/runtime/foo/{.kt:36: Error: Creating a state object during composition without using remember [UnrememberedMutableState]
+                        val foo = makeMyState()
+                                  ~~~~~~~~~~~
+src/androidx/compose/runtime/foo/{.kt:43: Error: Creating a state object during composition without using remember [UnrememberedMutableState]
+                        val foo = makeMyState()
+                                  ~~~~~~~~~~~
+src/androidx/compose/runtime/foo/{.kt:48: Error: Creating a state object during composition without using remember [UnrememberedMutableState]
+                        val foo = makeMyState()
+                                  ~~~~~~~~~~~
+src/androidx/compose/runtime/foo/{.kt:56: Error: Creating a state object during composition without using remember [UnrememberedMutableState]
+                        val foo = makeMyState()
+                                  ~~~~~~~~~~~
+8 errors, 0 warnings
+            """
+            )
     }
 }
 /* ktlint-enable max-line-length */

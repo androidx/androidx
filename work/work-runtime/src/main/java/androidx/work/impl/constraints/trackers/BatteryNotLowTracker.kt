@@ -16,8 +16,8 @@
 package androidx.work.impl.constraints.trackers
 
 import android.content.Context
-import android.content.IntentFilter
 import android.content.Intent
+import android.content.IntentFilter
 import android.os.BatteryManager
 import androidx.annotation.RestrictTo
 import androidx.work.Logger
@@ -35,8 +35,7 @@ class BatteryNotLowTracker(context: Context, taskExecutor: TaskExecutor) :
      *
      * {@see https://android.googlesource.com/platform/frameworks/base/+/oreo-release/services/core/java/com/android/server/BatteryService.java#268}
      */
-    override val initialState: Boolean
-        get() {
+    override fun readSystemState(): Boolean {
             val intentFilter = IntentFilter(Intent.ACTION_BATTERY_CHANGED)
             val intent = appContext.registerReceiver(null, intentFilter)
             if (intent == null) {

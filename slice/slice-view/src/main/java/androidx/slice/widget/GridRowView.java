@@ -70,7 +70,6 @@ import android.widget.TimePicker;
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.content.ContextCompat;
 import androidx.slice.CornerDrawable;
@@ -86,7 +85,12 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
-@RequiresApi(19)
+/**
+ * @deprecated Slice framework has been deprecated, it will not receive any updates moving
+ * forward. If you are looking for a framework that handles communication across apps,
+ * consider using {@link android.app.appsearch.AppSearchManager}.
+ */
+@Deprecated
 public class GridRowView extends SliceChildView implements View.OnClickListener,
         View.OnTouchListener {
 
@@ -110,44 +114,44 @@ public class GridRowView extends SliceChildView implements View.OnClickListener,
     private int mHiddenItemCount;
 
     /**
-     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     protected final View mForeground;
     /**
-     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     protected int mRowIndex;
     /**
-     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     protected int mRowCount;
     /**
-     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     protected int mMaxCells = -1;
     /**
-     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     protected @Nullable GridContent mGridContent;
     /**
-     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     protected final int mLargeImageHeight;
     /**
-     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     protected final int mSmallImageSize;
     /**
-     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     protected final int mSmallImageMinWidth;
     /**
-     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     protected final int mIconSize;
     /**
-     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     protected final LinearLayout mViewContainer;
 
     public GridRowView(@NonNull Context context) {
@@ -173,7 +177,6 @@ public class GridRowView extends SliceChildView implements View.OnClickListener,
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
@@ -215,7 +218,6 @@ public class GridRowView extends SliceChildView implements View.OnClickListener,
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
@@ -776,7 +778,6 @@ public class GridRowView extends SliceChildView implements View.OnClickListener,
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
@@ -802,7 +803,6 @@ public class GridRowView extends SliceChildView implements View.OnClickListener,
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
@@ -840,7 +840,6 @@ public class GridRowView extends SliceChildView implements View.OnClickListener,
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override

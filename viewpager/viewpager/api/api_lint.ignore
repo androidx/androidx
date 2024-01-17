@@ -9,14 +9,6 @@ GetterSetterNames: androidx.viewpager.widget.PagerTabStrip#getDrawFullUnderline(
     Symmetric method for `setDrawFullUnderline` must be named `isDrawFullUnderline`; was `getDrawFullUnderline`
 
 
-InvalidNullabilityOverride: androidx.viewpager.widget.PagerTabStrip#onDraw(android.graphics.Canvas) parameter #0:
-    Invalid nullability on parameter `canvas` in method `onDraw`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
-InvalidNullabilityOverride: androidx.viewpager.widget.ViewPager#draw(android.graphics.Canvas) parameter #0:
-    Invalid nullability on parameter `canvas` in method `draw`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
-InvalidNullabilityOverride: androidx.viewpager.widget.ViewPager#onDraw(android.graphics.Canvas) parameter #0:
-    Invalid nullability on parameter `canvas` in method `onDraw`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
-
-
 ListenerInterface: androidx.viewpager.widget.ViewPager.SimpleOnPageChangeListener:
     Listeners should be an interface, or otherwise renamed Callback: SimpleOnPageChangeListener
 

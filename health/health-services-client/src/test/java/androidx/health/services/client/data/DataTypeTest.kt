@@ -20,15 +20,15 @@ import androidx.health.services.client.data.DataType.Companion.ABSOLUTE_ELEVATIO
 import androidx.health.services.client.data.DataType.Companion.ABSOLUTE_ELEVATION_STATS
 import androidx.health.services.client.data.DataType.Companion.ACTIVE_EXERCISE_DURATION_TOTAL
 import androidx.health.services.client.data.DataType.Companion.CALORIES
-import androidx.health.services.client.data.DataType.Companion.CALORIES_TOTAL
 import androidx.health.services.client.data.DataType.Companion.CALORIES_DAILY
+import androidx.health.services.client.data.DataType.Companion.CALORIES_TOTAL
 import androidx.health.services.client.data.DataType.Companion.DISTANCE_DAILY
+import androidx.health.services.client.data.DataType.Companion.ELEVATION_GAIN_DAILY
 import androidx.health.services.client.data.DataType.Companion.FLOORS_DAILY
-import androidx.health.services.client.data.DataType.Companion.STEPS_DAILY
 import androidx.health.services.client.data.DataType.Companion.FORMAT_BYTE_ARRAY
 import androidx.health.services.client.data.DataType.Companion.LOCATION
 import androidx.health.services.client.data.DataType.Companion.STEPS
-import androidx.health.services.client.data.DataType.Companion.SWIMMING_LAP_COUNT
+import androidx.health.services.client.data.DataType.Companion.STEPS_DAILY
 import androidx.health.services.client.data.DataType.TimeType.Companion.INTERVAL
 import androidx.health.services.client.data.DataType.TimeType.Companion.UNKNOWN
 import androidx.health.services.client.proto.DataProto
@@ -36,11 +36,11 @@ import androidx.health.services.client.proto.DataProto.DataType.TimeType.TIME_TY
 import androidx.health.services.client.proto.DataProto.DataType.TimeType.TIME_TYPE_UNKNOWN
 import com.google.common.truth.Truth.assertThat
 import kotlin.reflect.KVisibility
+import kotlin.reflect.full.declaredMemberProperties
+import kotlin.reflect.jvm.javaField
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import kotlin.reflect.full.declaredMemberProperties
-import kotlin.reflect.jvm.javaField
 
 @RunWith(RobolectricTestRunner::class)
 internal class DataTypeTest {
@@ -199,13 +199,12 @@ internal class DataTypeTest {
         }.map { it.name }
         // Certain deltas are expected to not have aggregates
         val deltaNames = DataType.deltaDataTypes.toMutableSet().apply {
-            // Swimming lap count is already aggregated
-            remove(SWIMMING_LAP_COUNT)
             // Aggregate location doesn't make a lot of sense
             remove(LOCATION)
             // Dailies are used in passive and passive only deals with deltas
             remove(CALORIES_DAILY)
             remove(DISTANCE_DAILY)
+            remove(ELEVATION_GAIN_DAILY)
             remove(FLOORS_DAILY)
             remove(STEPS_DAILY)
         }.map { it.name }

@@ -18,7 +18,7 @@ limitations under the License.
     <uses-sdk tools:overrideLibrary="android_libs.ub_uiautomator, androidx.test.uiautomator" />
     <application>
         <activity
-            android:name="androidx.camera.testing.fakes.FakeActivity"
+            android:name="androidx.camera.testing.impl.fakes.FakeActivity"
             android:exported="true"
             android:label="Fake Activity">
             <intent-filter>

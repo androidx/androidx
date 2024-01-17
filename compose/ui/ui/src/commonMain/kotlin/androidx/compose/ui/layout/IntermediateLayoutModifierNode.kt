@@ -19,11 +19,11 @@ package androidx.compose.ui.layout
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.GraphicsLayerScope
-import androidx.compose.ui.layout.Placeable.PlacementScope.Companion.place
-import androidx.compose.ui.layout.Placeable.PlacementScope.Companion.placeWithLayer
 import androidx.compose.ui.node.LayoutModifierNode
 import androidx.compose.ui.node.NodeMeasuringIntrinsics
 import androidx.compose.ui.node.Nodes
+import androidx.compose.ui.node.checkMeasuredSize
+import androidx.compose.ui.node.requireLayoutNode
 import androidx.compose.ui.node.visitAncestors
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
@@ -83,18 +83,15 @@ internal class IntermediateLayoutModifierNode(
     private var intermediateMeasurable: IntermediateMeasurablePlaceable? = null
 
     override fun onAttach() {
-        val layoutNode = coordinator!!.layoutNode
+        val coordinates = coordinator?.lookaheadDelegate?.lookaheadLayoutCoordinates
+        checkNotNull(coordinates) { "could not fetch lookahead coordinates" }
 
-        val coordinates = coordinator!!.lookaheadDelegate?.lookaheadLayoutCoordinates
-        require(coordinates != null)
-
-        val closestParentLookaheadRoot = layoutNode.parent?.lookaheadRoot
-        closestLookaheadScope = if (closestParentLookaheadRoot?.hasExplicitLookaheadScope == true) {
+        val closestLookaheadRoot = requireLayoutNode().lookaheadRoot
+        closestLookaheadScope = if (closestLookaheadRoot?.isVirtualLookaheadRoot == true) {
             // The closest explicit scope in the tree will be the closest scope, as all
             // descendant intermediateLayoutModifiers will be using that as their LookaheadScope
             LookaheadScopeImpl {
-                closestParentLookaheadRoot
-                    .innerCoordinator
+                closestLookaheadRoot.parent!!.innerCoordinator.coordinates
             }
         } else {
             // If no explicit scope is ever defined, then fallback to implicitly created scopes
@@ -243,13 +240,15 @@ internal class IntermediateLayoutModifierNode(
         ) {
             val offset =
                 if (isIntermediateChangeActive) position else IntOffset.Zero
-            layerBlock?.let {
-                wrappedPlaceable?.placeWithLayer(
-                    offset,
-                    zIndex,
-                    it
-                )
-            } ?: wrappedPlaceable?.place(offset, zIndex)
+            with(node.coordinator!!.placementScope) {
+                layerBlock?.let {
+                    wrappedPlaceable?.placeWithLayer(
+                        offset,
+                        zIndex,
+                        it
+                    )
+                } ?: wrappedPlaceable?.place(offset, zIndex)
+            }
         }
 
         override val parentData: Any?
@@ -284,39 +283,28 @@ internal class IntermediateLayoutModifierNode(
                 this@lookaheadScopeCoordinates.lookaheadScopeCoordinates
             }
 
-        @Suppress("DEPRECATION")
-        @Deprecated(
-            "onPlaced in LookaheadLayoutScope has been deprecated. It's replaced" +
-                " with reading LookaheadLayoutCoordinates directly during placement in" +
-                "IntermediateMeasureScope"
-        )
-        override fun Modifier.onPlaced(
-            onPlaced: (
-                lookaheadScopeCoordinates: LookaheadLayoutCoordinates,
-                layoutCoordinates: LookaheadLayoutCoordinates
-            ) -> Unit
-        ): Modifier = with(closestLookaheadScope) {
-            this@onPlaced.onPlaced(onPlaced)
-        }
-
         override fun layout(
             width: Int,
             height: Int,
             alignmentLines: Map<AlignmentLine, Int>,
+            rulers: (RulerScope.() -> Unit)?,
             placementBlock: Placeable.PlacementScope.() -> Unit
-        ) = object : MeasureResult {
-            override val width = width
-            override val height = height
-            override val alignmentLines = alignmentLines
-            override fun placeChildren() {
-                Placeable.PlacementScope.executeWithRtlMirroringValues(
-                    width,
-                    layoutDirection,
-                    this@IntermediateLayoutModifierNode.coordinator,
-                    placementBlock
-                )
+        ): MeasureResult {
+            checkMeasuredSize(width, height)
+            return object : MeasureResult {
+                override val width = width
+                override val height = height
+                override val alignmentLines = alignmentLines
+                override val rulers = rulers
+                override fun placeChildren() {
+                    coordinator!!.placementScope.placementBlock()
+                }
             }
         }
+
+        // Intermediate layout pass is post-lookahead. Therefore return false here.
+        override val isLookingAhead: Boolean
+            get() = false
 
         override val layoutDirection: LayoutDirection
             get() = coordinator!!.layoutDirection

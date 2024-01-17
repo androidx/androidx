@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.LibraryType
 
 plugins {
@@ -57,9 +64,10 @@ android {
 }
 
 androidx {
-    name = "androidx.emoji2:emoji2-emojipicker"
+    name = "Emoji2 Emoji Picker"
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2022"
     description = "This library provides the latest emoji support and emoji picker UI to input " +
             "emoji in current and older devices"
+    metalavaK2UastEnabled = true
 }

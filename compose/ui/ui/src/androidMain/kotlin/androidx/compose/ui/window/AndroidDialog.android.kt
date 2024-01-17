@@ -57,6 +57,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMap
 import androidx.compose.ui.util.fastMaxBy
+import androidx.compose.ui.util.fastRoundToInt
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.lifecycle.findViewTreeViewModelStoreOwner
@@ -65,7 +66,6 @@ import androidx.lifecycle.setViewTreeViewModelStoreOwner
 import androidx.savedstate.findViewTreeSavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import java.util.UUID
-import kotlin.math.roundToInt
 
 /**
  * Properties used to customize the behavior of a [Dialog].
@@ -247,20 +247,22 @@ private class DialogLayout(
         super.internalOnLayout(changed, left, top, right, bottom)
         // Now set the content size as fixed layout params, such that ViewRootImpl knows
         // the exact window size.
-        val child = getChildAt(0) ?: return
-        window.setLayout(child.measuredWidth, child.measuredHeight)
+        if (!usePlatformDefaultWidth) {
+            val child = getChildAt(0) ?: return
+            window.setLayout(child.measuredWidth, child.measuredHeight)
+        }
     }
 
     private val displayWidth: Int
         get() {
             val density = context.resources.displayMetrics.density
-            return (context.resources.configuration.screenWidthDp * density).roundToInt()
+            return (context.resources.configuration.screenWidthDp * density).fastRoundToInt()
         }
 
     private val displayHeight: Int
         get() {
             val density = context.resources.displayMetrics.density
-            return (context.resources.configuration.screenHeightDp * density).roundToInt()
+            return (context.resources.configuration.screenHeightDp * density).fastRoundToInt()
         }
 
     @Composable
@@ -405,6 +407,14 @@ private class DialogWrapper(
         this.properties = properties
         setSecurePolicy(properties.securePolicy)
         setLayoutDirection(layoutDirection)
+        if (properties.usePlatformDefaultWidth && !dialogLayout.usePlatformDefaultWidth) {
+            // Undo fixed size in internalOnLayout, which would suppress size changes when
+            // usePlatformDefaultWidth is true.
+            window?.setLayout(
+                WindowManager.LayoutParams.WRAP_CONTENT,
+                WindowManager.LayoutParams.WRAP_CONTENT
+            )
+        }
         dialogLayout.usePlatformDefaultWidth = properties.usePlatformDefaultWidth
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
             @OptIn(ExperimentalComposeUiApi::class)

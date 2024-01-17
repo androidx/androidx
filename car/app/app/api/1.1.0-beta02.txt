@@ -176,6 +176,9 @@ package androidx.car.app.annotations {
   @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @java.lang.annotation.Target({java.lang.annotation.ElementType.TYPE, java.lang.annotation.ElementType.PARAMETER}) public @interface CarProtocol {
   }
 
+  @RequiresOptIn @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.TYPE, java.lang.annotation.ElementType.CONSTRUCTOR, java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.METHOD}) public @interface ExperimentalCarApi {
+  }
+
   @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME) @java.lang.annotation.Target({java.lang.annotation.ElementType.TYPE, java.lang.annotation.ElementType.CONSTRUCTOR, java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.METHOD}) public @interface RequiresCarApi {
     method public abstract int value();
   }
@@ -221,13 +224,17 @@ package androidx.car.app.hardware {
 package androidx.car.app.hardware.common {
 
   @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(3) public final class CarUnit {
+    field @androidx.car.app.annotations.ExperimentalCarApi public static final int IMPERIAL_GALLON = 204; // 0xcc
     field public static final int KILOMETER = 3; // 0x3
     field public static final int KILOMETERS_PER_HOUR = 102; // 0x66
+    field @androidx.car.app.annotations.ExperimentalCarApi public static final int LITER = 202; // 0xca
     field public static final int METER = 2; // 0x2
     field public static final int METERS_PER_SEC = 101; // 0x65
     field public static final int MILE = 4; // 0x4
     field public static final int MILES_PER_HOUR = 103; // 0x67
+    field @androidx.car.app.annotations.ExperimentalCarApi public static final int MILLILITER = 201; // 0xc9
     field public static final int MILLIMETER = 1; // 0x1
+    field @androidx.car.app.annotations.ExperimentalCarApi public static final int US_GALLON = 203; // 0xcb
   }
 
   @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(3) public final class CarValue<T> {
@@ -296,6 +303,7 @@ package androidx.car.app.hardware.info {
     method public androidx.car.app.hardware.common.CarValue<java.lang.Integer!> getDistanceDisplayUnit();
     method public androidx.car.app.hardware.common.CarValue<java.lang.Boolean!> getEnergyIsLow();
     method public androidx.car.app.hardware.common.CarValue<java.lang.Float!> getFuelPercent();
+    method @androidx.car.app.annotations.ExperimentalCarApi public androidx.car.app.hardware.common.CarValue<java.lang.Integer!> getFuelVolumeDisplayUnit();
     method public androidx.car.app.hardware.common.CarValue<java.lang.Float!> getRangeRemainingMeters();
   }
 
@@ -306,6 +314,7 @@ package androidx.car.app.hardware.info {
     method public androidx.car.app.hardware.info.EnergyLevel.Builder setDistanceDisplayUnit(androidx.car.app.hardware.common.CarValue<java.lang.Integer!>);
     method public androidx.car.app.hardware.info.EnergyLevel.Builder setEnergyIsLow(androidx.car.app.hardware.common.CarValue<java.lang.Boolean!>);
     method public androidx.car.app.hardware.info.EnergyLevel.Builder setFuelPercent(androidx.car.app.hardware.common.CarValue<java.lang.Float!>);
+    method @androidx.car.app.annotations.ExperimentalCarApi public androidx.car.app.hardware.info.EnergyLevel.Builder setFuelVolumeDisplayUnit(androidx.car.app.hardware.common.CarValue<java.lang.Integer!>);
     method public androidx.car.app.hardware.info.EnergyLevel.Builder setRangeRemainingMeters(androidx.car.app.hardware.common.CarValue<java.lang.Float!>);
   }
 
@@ -419,6 +428,7 @@ package androidx.car.app.model {
 
   @androidx.car.app.annotations.CarProtocol public final class Action {
     method public androidx.car.app.model.CarColor? getBackgroundColor();
+    method @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(4) public int getFlags();
     method public androidx.car.app.model.CarIcon? getIcon();
     method public androidx.car.app.model.OnClickDelegate? getOnClickDelegate();
     method public androidx.car.app.model.CarText? getTitle();
@@ -427,6 +437,7 @@ package androidx.car.app.model {
     method public static String typeToString(int);
     field public static final androidx.car.app.model.Action APP_ICON;
     field public static final androidx.car.app.model.Action BACK;
+    field @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(4) public static final int FLAG_PRIMARY = 1; // 0x1
     field public static final androidx.car.app.model.Action PAN;
     field public static final int TYPE_APP_ICON = 65538; // 0x10002
     field public static final int TYPE_BACK = 65539; // 0x10003
@@ -439,6 +450,7 @@ package androidx.car.app.model {
     ctor @androidx.car.app.annotations.RequiresCarApi(2) public Action.Builder(androidx.car.app.model.Action);
     method public androidx.car.app.model.Action build();
     method public androidx.car.app.model.Action.Builder setBackgroundColor(androidx.car.app.model.CarColor);
+    method @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(4) public androidx.car.app.model.Action.Builder setFlags(int);
     method public androidx.car.app.model.Action.Builder setIcon(androidx.car.app.model.CarIcon);
     method public androidx.car.app.model.Action.Builder setOnClickListener(androidx.car.app.model.OnClickListener);
     method public androidx.car.app.model.Action.Builder setTitle(CharSequence);
@@ -759,6 +771,7 @@ package androidx.car.app.model {
 
   @androidx.car.app.annotations.CarProtocol public final class Pane {
     method public java.util.List<androidx.car.app.model.Action!> getActions();
+    method @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(4) public androidx.car.app.model.CarIcon? getImage();
     method public java.util.List<androidx.car.app.model.Row!> getRows();
     method public boolean isLoading();
   }
@@ -768,6 +781,7 @@ package androidx.car.app.model {
     method public androidx.car.app.model.Pane.Builder addAction(androidx.car.app.model.Action);
     method public androidx.car.app.model.Pane.Builder addRow(androidx.car.app.model.Row);
     method public androidx.car.app.model.Pane build();
+    method @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(4) public androidx.car.app.model.Pane.Builder setImage(androidx.car.app.model.CarIcon);
     method public androidx.car.app.model.Pane.Builder setLoading(boolean);
   }
 
@@ -993,6 +1007,11 @@ package androidx.car.app.model.signin {
     method public androidx.car.app.model.Action getAction();
   }
 
+  @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(4) public final class QRCodeSignInMethod implements androidx.car.app.model.signin.SignInTemplate.SignInMethod {
+    ctor public QRCodeSignInMethod(android.net.Uri);
+    method public android.net.Uri getUri();
+  }
+
   @androidx.car.app.annotations.RequiresCarApi(2) public final class SignInTemplate implements androidx.car.app.model.Template {
     method public androidx.car.app.model.ActionStrip? getActionStrip();
     method public java.util.List<androidx.car.app.model.Action!> getActions();
@@ -1197,6 +1216,8 @@ package androidx.car.app.navigation.model {
     method public androidx.car.app.model.ActionStrip? getActionStrip();
     method public androidx.car.app.model.Action? getHeaderAction();
     method public androidx.car.app.model.ItemList? getItemList();
+    method @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(4) public androidx.car.app.model.ActionStrip? getMapActionStrip();
+    method @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(4) public androidx.car.app.navigation.model.PanModeDelegate? getPanModeDelegate();
     method public androidx.car.app.model.CarText? getTitle();
     method public boolean isLoading();
   }
@@ -1208,6 +1229,8 @@ package androidx.car.app.navigation.model {
     method public androidx.car.app.navigation.model.PlaceListNavigationTemplate.Builder setHeaderAction(androidx.car.app.model.Action);
     method public androidx.car.app.navigation.model.PlaceListNavigationTemplate.Builder setItemList(androidx.car.app.model.ItemList);
     method public androidx.car.app.navigation.model.PlaceListNavigationTemplate.Builder setLoading(boolean);
+    method @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(4) public androidx.car.app.navigation.model.PlaceListNavigationTemplate.Builder setMapActionStrip(androidx.car.app.model.ActionStrip);
+    method @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(4) public androidx.car.app.navigation.model.PlaceListNavigationTemplate.Builder setPanModeListener(androidx.car.app.navigation.model.PanModeListener);
     method public androidx.car.app.navigation.model.PlaceListNavigationTemplate.Builder setTitle(CharSequence);
     method public androidx.car.app.navigation.model.PlaceListNavigationTemplate.Builder setTitle(androidx.car.app.model.CarText);
   }
@@ -1216,7 +1239,9 @@ package androidx.car.app.navigation.model {
     method public androidx.car.app.model.ActionStrip? getActionStrip();
     method public androidx.car.app.model.Action? getHeaderAction();
     method public androidx.car.app.model.ItemList? getItemList();
+    method @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(4) public androidx.car.app.model.ActionStrip? getMapActionStrip();
     method public androidx.car.app.model.Action? getNavigateAction();
+    method @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(4) public androidx.car.app.navigation.model.PanModeDelegate? getPanModeDelegate();
     method public androidx.car.app.model.CarText? getTitle();
     method public boolean isLoading();
   }
@@ -1228,7 +1253,9 @@ package androidx.car.app.navigation.model {
     method public androidx.car.app.navigation.model.RoutePreviewNavigationTemplate.Builder setHeaderAction(androidx.car.app.model.Action);
     method public androidx.car.app.navigation.model.RoutePreviewNavigationTemplate.Builder setItemList(androidx.car.app.model.ItemList);
     method public androidx.car.app.navigation.model.RoutePreviewNavigationTemplate.Builder setLoading(boolean);
+    method @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(4) public androidx.car.app.navigation.model.RoutePreviewNavigationTemplate.Builder setMapActionStrip(androidx.car.app.model.ActionStrip);
     method public androidx.car.app.navigation.model.RoutePreviewNavigationTemplate.Builder setNavigateAction(androidx.car.app.model.Action);
+    method @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(4) public androidx.car.app.navigation.model.RoutePreviewNavigationTemplate.Builder setPanModeListener(androidx.car.app.navigation.model.PanModeListener);
     method public androidx.car.app.navigation.model.RoutePreviewNavigationTemplate.Builder setTitle(CharSequence);
     method public androidx.car.app.navigation.model.RoutePreviewNavigationTemplate.Builder setTitle(androidx.car.app.model.CarText);
   }
@@ -1415,6 +1442,7 @@ package androidx.car.app.versioning {
     field public static final int LEVEL_1 = 1; // 0x1
     field public static final int LEVEL_2 = 2; // 0x2
     field public static final int LEVEL_3 = 3; // 0x3
+    field @androidx.car.app.annotations.ExperimentalCarApi public static final int LEVEL_4 = 4; // 0x4
   }
 
 }

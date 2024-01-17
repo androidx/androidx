@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.Publish
 import androidx.build.RunApiTasks
 
@@ -52,7 +59,7 @@ protobuf {
 }
 
 androidx {
-    name = "Android Proto DataStore"
+    name = "Proto DataStore"
     publish = Publish.NONE
     inceptionYear = "2020"
     description = "Android Proto DataStore"
@@ -61,7 +68,4 @@ androidx {
 
 android {
     namespace "androidx.datastore.protodatastore"
-    lintOptions {
-        disable("SyntheticAccessor")
-    }
 }

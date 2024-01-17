@@ -15,7 +15,6 @@
  */
 package androidx.navigation.ui
 
-import android.annotation.SuppressLint
 import android.view.Menu
 import android.view.MenuItem
 import androidx.customview.widget.Openable
@@ -218,7 +217,7 @@ public class AppBarConfiguration private constructor(
          *
          * @return a valid [AppBarConfiguration]
          */
-        @SuppressLint("SyntheticAccessor") /* new AppBarConfiguration() must be private to avoid
+        /* new AppBarConfiguration() must be private to avoid
                                               conflicting with the public AppBarConfiguration.kt */
         public fun build(): AppBarConfiguration {
             return AppBarConfiguration(

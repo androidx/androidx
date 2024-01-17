@@ -1,10 +1,16 @@
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.BundleInsideHelper
 import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("com.github.johnrengelman.shadow")
 }
 
 BundleInsideHelper.forInsideAar(
@@ -14,7 +20,8 @@ BundleInsideHelper.forInsideAar(
                     "androidx.emoji2.text.flatbuffer"),
             new BundleInsideHelper.Relocation("androidx.text.emoji.flatbuffer",
                     "androidx.emoji2.text.flatbuffer")
-    ]
+    ],
+    /* dropResourcesWithSuffix = */ null
 )
 
 dependencies {
@@ -37,10 +44,11 @@ dependencies {
 }
 
 androidx {
-    name = "Android Emoji2 Compat"
+    name = "Emoji2"
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2017"
     description = "Core library to enable emoji compatibility in Kitkat and newer devices to avoid the empty emoji characters."
+    metalavaK2UastEnabled = true
 }
 
 android {

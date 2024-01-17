@@ -85,4 +85,42 @@ internal class Camera2Quirks @Inject constructor(
             CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL]
         return level == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY
     }
+
+    companion object {
+        private val SHOULD_WAIT_FOR_REPEATING_DEVICE_MAP =
+            mapOf(
+                "Google" to setOf("oriole", "raven", "bluejay", "panther", "cheetah", "lynx"),
+            )
+
+        /**
+         * A quirk that waits for a certain number of repeating requests to complete before allowing
+         * (single) capture requests to be issued. This is needed on some devices where issuing a
+         * capture request too early might cause it to fail prematurely.
+         *
+         * - Bug(s): b/287020251, b/289284907
+         * - Device(s): See [SHOULD_WAIT_FOR_REPEATING_DEVICE_MAP]
+         * - API levels: Before 34 (U)
+         */
+        internal fun shouldWaitForRepeatingBeforeCapture(): Boolean {
+            return SHOULD_WAIT_FOR_REPEATING_DEVICE_MAP[
+                Build.MANUFACTURER]?.contains(Build.DEVICE) == true &&
+                Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE
+        }
+
+        /**
+         * A quirk that calls CameraExtensionCharacteristics before opening an Extension session.
+         * This is an issue in the Android camera framework where Camera2 has a global variable
+         * recording if advanced extensions are supported or not, and the variable is updated
+         * the first time CameraExtensionCharacteristics are queried. If CameraExtensionCharacteristics
+         * are not queried and therefore the variable is not set, Camera2 will fall back to basic
+         * extensions, even if they are not supported, causing the session creation to fail.
+         *
+         * - Bug(s): b/293473614
+         * - Device(s): All devices that support advanced extensions
+         * - API levels: Before 34 (U)
+         */
+        internal fun shouldGetExtensionCharacteristicsBeforeSession(): Boolean {
+            return Build.VERSION.SDK_INT <= Build.VERSION_CODES.UPSIDE_DOWN_CAKE
+        }
+    }
 }

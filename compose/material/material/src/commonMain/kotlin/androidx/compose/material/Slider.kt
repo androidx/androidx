@@ -16,6 +16,7 @@
 
 package androidx.compose.material
 
+import androidx.annotation.IntRange
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.TweenSpec
 import androidx.compose.foundation.Canvas
@@ -27,10 +28,10 @@ import androidx.compose.foundation.gestures.DragScope
 import androidx.compose.foundation.gestures.DraggableState
 import androidx.compose.foundation.gestures.GestureCancellationException
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.draggable
-import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.horizontalDrag
 import androidx.compose.foundation.hoverable
 import androidx.compose.foundation.indication
@@ -50,7 +51,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.progressSemantics
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
@@ -59,6 +59,7 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -91,6 +92,9 @@ import androidx.compose.ui.semantics.setProgress
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastCoerceIn
+import androidx.compose.ui.util.fastMap
+import androidx.compose.ui.util.fastMinByOrNull
 import androidx.compose.ui.util.lerp
 import kotlin.math.abs
 import kotlin.math.floor
@@ -134,10 +138,10 @@ import kotlinx.coroutines.launch
  * @param onValueChangeFinished lambda to be invoked when value change has ended. This callback
  * shouldn't be used to update the slider value (use [onValueChange] for that), but rather to
  * know when the user has completed selecting a new value by ending a drag or a click.
- * @param interactionSource the [MutableInteractionSource] representing the stream of
- * [Interaction]s for this Slider. You can create and pass in your own remembered
- * [MutableInteractionSource] if you want to observe [Interaction]s and customize the
- * appearance / behavior of this Slider in different [Interaction]s.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this slider. You can use this to change the slider's
+ * appearance or preview the slider in different states. Note that if `null` is provided,
+ * interactions will still happen internally.
  * @param colors [SliderColors] that will be used to determine the color of the Slider parts in
  * different state. See [SliderDefaults.colors] to customize.
  */
@@ -148,12 +152,14 @@ fun Slider(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     valueRange: ClosedFloatingPointRange<Float> = 0f..1f,
-    /*@IntRange(from = 0)*/
+    @IntRange(from = 0)
     steps: Int = 0,
     onValueChangeFinished: (() -> Unit)? = null,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    interactionSource: MutableInteractionSource? = null,
     colors: SliderColors = SliderDefaults.colors()
 ) {
+    @Suppress("NAME_SHADOWING")
+    val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
     require(steps >= 0) { "steps should be >= 0" }
     val onValueChangeState = rememberUpdatedState(onValueChange)
     val tickFractions = remember(steps) {
@@ -190,14 +196,14 @@ fun Slider(
             scale(valueRange.start, valueRange.endInclusive, userValue, minPx, maxPx)
 
         val scope = rememberCoroutineScope()
-        val rawOffset = remember { mutableStateOf(scaleToOffset(value)) }
-        val pressOffset = remember { mutableStateOf(0f) }
+        val rawOffset = remember { mutableFloatStateOf(scaleToOffset(value)) }
+        val pressOffset = remember { mutableFloatStateOf(0f) }
 
         val draggableState = remember(minPx, maxPx, valueRange) {
             SliderDraggableState {
-                rawOffset.value = (rawOffset.value + it + pressOffset.value)
-                pressOffset.value = 0f
-                val offsetInTrack = rawOffset.value.coerceIn(minPx, maxPx)
+                rawOffset.floatValue = (rawOffset.floatValue + it + pressOffset.floatValue)
+                pressOffset.floatValue = 0f
+                val offsetInTrack = rawOffset.floatValue.coerceIn(minPx, maxPx)
                 onValueChangeState.value.invoke(scaleToUserValue(offsetInTrack))
             }
         }
@@ -205,7 +211,7 @@ fun Slider(
         CorrectValueSideEffect(::scaleToOffset, valueRange, minPx..maxPx, rawOffset, value)
 
         val gestureEndAction = rememberUpdatedState<(Float) -> Unit> { velocity: Float ->
-            val current = rawOffset.value
+            val current = rawOffset.floatValue
             val target = snapValueToTick(current, tickFractions, minPx, maxPx)
             if (current != target) {
                 scope.launch {
@@ -293,7 +299,7 @@ fun RangeSlider(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     valueRange: ClosedFloatingPointRange<Float> = 0f..1f,
-    /*@IntRange(from = 0)*/
+    @IntRange(from = 0)
     steps: Int = 0,
     onValueChangeFinished: (() -> Unit)? = null,
     colors: SliderColors = SliderDefaults.colors()
@@ -328,8 +334,8 @@ fun RangeSlider(
         fun scaleToOffset(userValue: Float) =
             scale(valueRange.start, valueRange.endInclusive, userValue, minPx, maxPx)
 
-        val rawOffsetStart = remember { mutableStateOf(scaleToOffset(value.start)) }
-        val rawOffsetEnd = remember { mutableStateOf(scaleToOffset(value.endInclusive)) }
+        val rawOffsetStart = remember { mutableFloatStateOf(scaleToOffset(value.start)) }
+        val rawOffsetEnd = remember { mutableFloatStateOf(scaleToOffset(value.endInclusive)) }
 
         CorrectValueSideEffect(
             ::scaleToOffset,
@@ -348,7 +354,7 @@ fun RangeSlider(
 
         val scope = rememberCoroutineScope()
         val gestureEndAction = rememberUpdatedState<(Boolean) -> Unit> { isStart ->
-            val current = (if (isStart) rawOffsetStart else rawOffsetEnd).value
+            val current = (if (isStart) rawOffsetStart else rawOffsetEnd).floatValue
             // target is a closest anchor to the `current`, if exists
             val target = snapValueToTick(current, tickFractions, minPx, maxPx)
             if (current == target) {
@@ -361,9 +367,9 @@ fun RangeSlider(
                     target, SliderToTickAnimation,
                     0f
                 ) {
-                    (if (isStart) rawOffsetStart else rawOffsetEnd).value = this.value
+                    (if (isStart) rawOffsetStart else rawOffsetEnd).floatValue = this.value
                     onValueChangeState.value.invoke(
-                        scaleToUserValue(rawOffsetStart.value..rawOffsetEnd.value)
+                        scaleToUserValue(rawOffsetStart.floatValue..rawOffsetEnd.floatValue)
                     )
                 }
 
@@ -373,16 +379,16 @@ fun RangeSlider(
 
         val onDrag = rememberUpdatedState<(Boolean, Float) -> Unit> { isStart, offset ->
             val offsetRange = if (isStart) {
-                rawOffsetStart.value = (rawOffsetStart.value + offset)
-                rawOffsetEnd.value = scaleToOffset(value.endInclusive)
-                val offsetEnd = rawOffsetEnd.value
-                val offsetStart = rawOffsetStart.value.coerceIn(minPx, offsetEnd)
+                rawOffsetStart.floatValue = (rawOffsetStart.floatValue + offset)
+                rawOffsetEnd.floatValue = scaleToOffset(value.endInclusive)
+                val offsetEnd = rawOffsetEnd.floatValue
+                val offsetStart = rawOffsetStart.floatValue.coerceIn(minPx, offsetEnd)
                 offsetStart..offsetEnd
             } else {
-                rawOffsetEnd.value = (rawOffsetEnd.value + offset)
-                rawOffsetStart.value = scaleToOffset(value.start)
-                val offsetStart = rawOffsetStart.value
-                val offsetEnd = rawOffsetEnd.value.coerceIn(offsetStart, maxPx)
+                rawOffsetEnd.floatValue = (rawOffsetEnd.floatValue + offset)
+                rawOffsetStart.floatValue = scaleToOffset(value.start)
+                val offsetStart = rawOffsetStart.floatValue
+                val offsetEnd = rawOffsetEnd.floatValue.coerceIn(offsetStart, maxPx)
                 offsetStart..offsetEnd
             }
 
@@ -717,7 +723,10 @@ private fun BoxScope.SliderThumb(
                 .size(thumbSize, thumbSize)
                 .indication(
                     interactionSource = interactionSource,
-                    indication = rememberRipple(bounded = false, radius = ThumbRippleRadius)
+                    indication = rippleOrFallbackImplementation(
+                        bounded = false,
+                        radius = ThumbRippleRadius
+                    )
                 )
                 .hoverable(interactionSource = interactionSource)
                 .shadow(if (enabled) elevation else 0.dp, CircleShape, clip = false)
@@ -771,10 +780,11 @@ private fun Track(
             trackStrokeWidth,
             StrokeCap.Round
         )
+        @Suppress("ListIterator")
         tickFractions.groupBy { it > positionFractionEnd || it < positionFractionStart }
             .forEach { (outsideFraction, list) ->
                 drawPoints(
-                    list.map {
+                    list.fastMap {
                         Offset(lerp(sliderStart, sliderEnd, it).x, center.y)
                     },
                     PointMode.Points,
@@ -794,7 +804,7 @@ private fun snapValueToTick(
 ): Float {
     // target is a closest anchor to the `current`, if exists
     return tickFractions
-        .minByOrNull { abs(lerp(minPx, maxPx, it) - current) }
+        .fastMinByOrNull { abs(lerp(minPx, maxPx, it) - current) }
         ?.run { lerp(minPx, maxPx, this) }
         ?: current
 }
@@ -826,7 +836,7 @@ private fun scale(a1: Float, b1: Float, x: ClosedFloatingPointRange<Float>, a2: 
 
 // Calculate the 0..1 fraction that `pos` value represents between `a` and `b`
 private fun calcFraction(a: Float, b: Float, pos: Float) =
-    (if (b - a == 0f) 0f else (pos - a) / (b - a)).coerceIn(0f, 1f)
+    (if (b - a == 0f) 0f else (pos - a) / (b - a)).fastCoerceIn(0f, 1f)
 
 @Composable
 private fun CorrectValueSideEffect(

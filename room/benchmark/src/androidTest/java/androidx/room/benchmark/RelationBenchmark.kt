@@ -16,7 +16,6 @@
 
 package androidx.room.benchmark
 
-import android.os.Build
 import androidx.benchmark.junit4.BenchmarkRule
 import androidx.benchmark.junit4.measureRepeated
 import androidx.room.Dao
@@ -32,7 +31,6 @@ import androidx.room.RoomDatabase
 import androidx.room.RoomWarnings
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
-import androidx.test.filters.SdkSuppress
 import androidx.testutils.generateAllEnumerations
 import org.junit.Assert
 import org.junit.Assert.assertEquals
@@ -44,7 +42,6 @@ import org.junit.runners.Parameterized
 
 @LargeTest
 @RunWith(Parameterized::class)
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
 class RelationBenchmark(private val parentSampleSize: Int, private val childSampleSize: Int) {
 
     @get:Rule

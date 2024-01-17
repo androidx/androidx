@@ -17,18 +17,23 @@
 package androidx.constraintlayout.compose.integration.macrobenchmark.target
 
 import android.os.Bundle
+import android.view.Choreographer
+import android.view.View
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.integration.macrobenchmark.target.motionlayout.newmessage.NewMotionMessagePreview
-import androidx.compose.integration.macrobenchmark.target.motionlayout.newmessage.NewMotionMessagePreviewWithDsl
-import androidx.compose.integration.macrobenchmark.target.motionlayout.toolbar.MotionCollapseToolbarPreview
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
+import androidx.compose.runtime.Recomposer
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
+import androidx.constraintlayout.compose.integration.macrobenchmark.target.graphs.DynamicGraphsPreview
+import androidx.constraintlayout.compose.integration.macrobenchmark.target.newmessage.NewMotionMessagePreview
+import androidx.constraintlayout.compose.integration.macrobenchmark.target.newmessage.NewMotionMessagePreviewWithDsl
+import androidx.constraintlayout.compose.integration.macrobenchmark.target.newmessage.NewMotionMessagePreviewWithDslOptimized
+import androidx.constraintlayout.compose.integration.macrobenchmark.target.toolbar.MotionCollapseToolbarPreview
 
 class MotionLayoutActivity : ComponentActivity() {
 
@@ -51,12 +56,23 @@ class MotionLayoutActivity : ComponentActivity() {
                         "NewMessageJson" -> {
                             NewMotionMessagePreview()
                         }
+
                         "NewMessageDsl" -> {
                             NewMotionMessagePreviewWithDsl()
                         }
+
+                        "OptimizedNewMessageDsl" -> {
+                            NewMotionMessagePreviewWithDslOptimized()
+                        }
+
                         "CollapsibleToolbar" -> {
                             MotionCollapseToolbarPreview()
                         }
+
+                        "DynamicGraphs" -> {
+                            DynamicGraphsPreview()
+                        }
+
                         else -> {
                             throw IllegalArgumentException("No Composable with name: $name")
                         }
@@ -64,5 +80,22 @@ class MotionLayoutActivity : ComponentActivity() {
                 }
             }
         }
+        launchIdlenessTracking()
+    }
+
+    // Copied from LazyColumnActivity.kt
+    private fun ComponentActivity.launchIdlenessTracking() {
+        val contentView: View = findViewById(android.R.id.content)
+        val callback: Choreographer.FrameCallback = object : Choreographer.FrameCallback {
+            override fun doFrame(frameTimeNanos: Long) {
+                if (Recomposer.runningRecomposers.value.any { it.hasPendingWork }) {
+                    contentView.contentDescription = "COMPOSE-BUSY"
+                } else {
+                    contentView.contentDescription = "COMPOSE-IDLE"
+                }
+                Choreographer.getInstance().postFrameCallback(this)
+            }
+        }
+        Choreographer.getInstance().postFrameCallback(callback)
     }
 }

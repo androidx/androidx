@@ -27,8 +27,8 @@ class BodyTemperatureMeasurementLocationTest {
     @Test
     fun enums_existInMapping() {
         val allEnums =
-            BodyTemperatureMeasurementLocation::class.allObjectIntDefEnumsWithPrefix(
-                "MEASUREMENT_LOCATION"
+            getAllIntDefEnums<BodyTemperatureMeasurementLocation>(
+                """MEASUREMENT_LOCATION.*(?<!UNKNOWN)$"""
             )
 
         assertThat(BodyTemperatureMeasurementLocation.MEASUREMENT_LOCATION_STRING_TO_INT_MAP.values)

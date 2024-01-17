@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.Publish
 import androidx.build.LibraryType
 
@@ -38,7 +45,7 @@ dependencies {
     implementation(libs.kotlinCoroutinesCore)
     implementation(libs.kotlinCoroutinesAndroid)
     implementation(libs.robolectric)
-    implementation(libs.testCore)
+    implementation("androidx.test:core:1.5.0")
 
     testImplementation(libs.testExtJunit)
     testImplementation(libs.testExtTruth)
@@ -65,4 +72,5 @@ androidx {
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2021"
     description = "Testing utilities for Android Wear Tiles."
+    metalavaK2UastEnabled = true
 }

@@ -47,13 +47,13 @@ import com.android.resources.ScreenSize
 import com.android.resources.TouchScreen
 import com.android.resources.UiMode
 import com.google.android.collect.Maps
-import org.xmlpull.v1.XmlPullParser
-import org.xmlpull.v1.XmlPullParserException
-import org.xmlpull.v1.XmlPullParserFactory
 import java.io.File
 import java.io.FileInputStream
 import java.io.IOException
 import java.util.Properties
+import org.xmlpull.v1.XmlPullParser
+import org.xmlpull.v1.XmlPullParserException
+import org.xmlpull.v1.XmlPullParserFactory
 
 /**
  * Provides [FolderConfiguration] and [HardwareConfig] for various devices. Also provides utility

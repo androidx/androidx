@@ -16,15 +16,14 @@
 
 package androidx.appactions.interaction.capabilities.core.entity
 
-import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
-import androidx.appactions.interaction.capabilities.core.values.Alarm
+import androidx.appactions.builtintypes.types.Alarm
+import androidx.appactions.interaction.capabilities.serializers.types.ALARM_TYPE_SPEC
 
 /**  Internal testing object for entity provider */
 class AlarmProvider internal constructor(
-    private var id: String,
+    override val id: String,
     private var response: EntityLookupResponse<Alarm>,
-) : EntityProvider<Alarm>(TypeConverters.ALARM_TYPE_SPEC) {
-    override fun getId(): String = id
+) : EntityProvider<Alarm>(ALARM_TYPE_SPEC) {
     override suspend fun lookup(request: EntityLookupRequest<Alarm>):
         EntityLookupResponse<Alarm> = response
 }

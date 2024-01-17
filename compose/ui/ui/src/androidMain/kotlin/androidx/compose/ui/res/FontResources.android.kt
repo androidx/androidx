@@ -21,10 +21,10 @@ import androidx.annotation.GuardedBy
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.Typeface
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.LoadedFontFamily
 import androidx.compose.ui.text.font.SystemFontFamily
+import androidx.compose.ui.text.font.Typeface
 
 private val cacheLock = Object()
 

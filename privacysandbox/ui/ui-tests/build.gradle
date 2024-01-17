@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.LibraryType
 
 plugins {
@@ -26,22 +33,30 @@ dependencies {
     implementation project(path: ':privacysandbox:ui:ui-core')
     implementation project(path: ':privacysandbox:ui:ui-client')
     implementation project(path: ':privacysandbox:ui:ui-provider')
+    implementation(libs.kotlinStdlib)
+    implementation 'androidx.recyclerview:recyclerview:1.3.2'
+
     androidTestImplementation(project(":internal-testutils-runtime"))
-    api(libs.kotlinStdlib)
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.kotlinCoroutinesCore)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.truth)
     androidTestImplementation project(path: ':appcompat:appcompat')
+    androidTestImplementation project(':recyclerview:recyclerview')
     def multidex_version = "2.0.1"
     implementation "androidx.multidex:multidex:$multidex_version"
 }
 
 android {
     namespace "androidx.privacysandbox.ui.tests"
+    defaultConfig {
+        multiDexEnabled true
+        minSdk 21
+    }
 }
 
 androidx {

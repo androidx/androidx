@@ -164,11 +164,7 @@ public final class AlarmManagerCompat {
      */
     public static void setExact(@NonNull AlarmManager alarmManager, int type, long triggerAtMillis,
             @NonNull PendingIntent operation) {
-        if (Build.VERSION.SDK_INT >= 19) {
-            Api19Impl.setExact(alarmManager, type, triggerAtMillis, operation);
-        } else {
-            alarmManager.set(type, triggerAtMillis, operation);
-        }
+        alarmManager.setExact(type, triggerAtMillis, operation);
     }
 
     /**
@@ -269,19 +265,6 @@ public final class AlarmManagerCompat {
         static void setExactAndAllowWhileIdle(AlarmManager alarmManager, int type,
                 long triggerAtMillis, PendingIntent operation) {
             alarmManager.setExactAndAllowWhileIdle(type, triggerAtMillis, operation);
-        }
-    }
-
-    @RequiresApi(19)
-    static class Api19Impl {
-        private Api19Impl() {
-            // This class is not instantiable.
-        }
-
-        @DoNotInline
-        static void setExact(AlarmManager alarmManager, int type, long triggerAtMillis,
-                PendingIntent operation) {
-            alarmManager.setExact(type, triggerAtMillis, operation);
         }
     }
 }

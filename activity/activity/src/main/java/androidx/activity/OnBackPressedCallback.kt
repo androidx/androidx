@@ -67,10 +67,40 @@ abstract class OnBackPressedCallback(enabled: Boolean) {
     fun remove() = cancellables.forEach { it.cancel() }
 
     /**
+     * Callback for handling the system UI generated equivalent to
+     * [OnBackPressedDispatcher.dispatchOnBackStarted].
+     *
+     * This will only be called by the framework on API 34 and above.
+     */
+    @Suppress("CallbackMethodName") /* mirror handleOnBackPressed local style */
+    @MainThread
+    open fun handleOnBackStarted(backEvent: BackEventCompat) {}
+
+    /**
+     * Callback for handling the system UI generated equivalent to
+     * [OnBackPressedDispatcher.dispatchOnBackProgressed].
+     *
+     * This will only be called by the framework on API 34 and above.
+     */
+    @Suppress("CallbackMethodName") /* mirror handleOnBackPressed local style */
+    @MainThread
+    open fun handleOnBackProgressed(backEvent: BackEventCompat) {}
+
+    /**
      * Callback for handling the [OnBackPressedDispatcher.onBackPressed] event.
      */
     @MainThread
     abstract fun handleOnBackPressed()
+
+    /**
+     * Callback for handling the system UI generated equivalent to
+     * [OnBackPressedDispatcher.dispatchOnBackCancelled].
+     *
+     * This will only be called by the framework on API 34 and above.
+     */
+    @Suppress("CallbackMethodName") /* mirror handleOnBackPressed local style */
+    @MainThread
+    open fun handleOnBackCancelled() {}
 
     @JvmName("addCancellable")
     internal fun addCancellable(cancellable: Cancellable) {

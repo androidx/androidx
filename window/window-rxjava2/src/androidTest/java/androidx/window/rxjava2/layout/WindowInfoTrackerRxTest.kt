@@ -22,10 +22,10 @@ import androidx.window.core.ExperimentalWindowApi
 import androidx.window.layout.FoldingFeature
 import androidx.window.layout.WindowInfoTracker
 import androidx.window.layout.WindowLayoutInfo
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.whenever
 import kotlinx.coroutines.flow.flowOf
 import org.junit.Test
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.whenever
 
 /**
  * Tests for the RxJava 2 adapters.

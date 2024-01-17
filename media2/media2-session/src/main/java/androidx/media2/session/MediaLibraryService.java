@@ -45,26 +45,34 @@ import androidx.versionedparcelable.VersionedParcelize;
 import java.util.concurrent.Executor;
 
 /**
- * Base class for media library services, which is the service containing
- * {@link MediaLibrarySession}.
- * <p>
- * Media library services enable applications to browse media content provided by an application
- * and ask the application to start playing it. They may also be used to control content that
- * is already playing by way of a {@link MediaSession}.
- * <p>
- * When extending this class, also add the following to your {@code AndroidManifest.xml}.
+ * Base class for media library services, which is the service containing {@link
+ * MediaLibrarySession}.
+ *
+ * <p>Media library services enable applications to browse media content provided by an application
+ * and ask the application to start playing it. They may also be used to control content that is
+ * already playing by way of a {@link MediaSession}.
+ *
+ * <p>When extending this class, also add the following to your {@code AndroidManifest.xml}.
+ *
  * <pre>
  * &lt;service android:name="component_name_of_your_implementation" &gt;
  *   &lt;intent-filter&gt;
  *     &lt;action android:name="androidx.media2.session.MediaLibraryService" /&gt;
  *   &lt;/intent-filter&gt;
  * &lt;/service&gt;</pre>
- * <p>
- * You may also declare <pre>android.media.browse.MediaBrowserService</pre> for compatibility with
- * {@link android.support.v4.media.MediaBrowserCompat}. This service can handle it automatically.
+ *
+ * <p>You may also declare
+ *
+ * <pre>android.media.browse.MediaBrowserService</pre>
+ *
+ * for compatibility with {@link android.support.v4.media.MediaBrowserCompat}. This service can
+ * handle it automatically.
  *
  * @see MediaSessionService
+ * @deprecated androidx.media2 is deprecated. Please migrate to <a
+ *     href="https://developer.android.com/guide/topics/media/media3">androidx.media3</a>.
  */
+@Deprecated
 public abstract class MediaLibraryService extends MediaSessionService {
     /**
      * The {@link Intent} that must be declared as handled by the service.
@@ -72,13 +80,14 @@ public abstract class MediaLibraryService extends MediaSessionService {
     public static final String SERVICE_INTERFACE = "androidx.media2.session.MediaLibraryService";
 
     /**
-     * Session for the {@link MediaLibraryService}. Build this object with
-     * {@link Builder} and return in {@link MediaSessionService#onGetSession(ControllerInfo)}.
+     * Session for the {@link MediaLibraryService}. Build this object with {@link Builder} and
+     * return in {@link MediaSessionService#onGetSession(ControllerInfo)}.
      *
      * <h3 id="BackwardCompatibility">Backward compatibility with legacy media browser APIs</h3>
-     * Media library session supports connection from both {@link MediaBrowser} and
-     * {@link android.support.v4.media.MediaBrowserCompat}, but {@link ControllerInfo} may not be
-     * precise. Here are current limitations with details.
+     *
+     * Media library session supports connection from both {@link MediaBrowser} and {@link
+     * android.support.v4.media.MediaBrowserCompat}, but {@link ControllerInfo} may not be precise.
+     * Here are current limitations with details.
      *
      * <table>
      * <tr><th>SDK version</th>
@@ -99,18 +108,25 @@ public abstract class MediaLibraryService extends MediaSessionService {
      *     <td>Actual package name via {@link Context#getPackageName()}</td>
      *     <td>Actual UID</td></tr>
      * </table>
-     **/
+     *
+     * @deprecated androidx.media2 is deprecated. Please migrate to <a
+     *     href="https://developer.android.com/guide/topics/media/media3">androidx.media3</a>.
+     */
+    @Deprecated
     public static final class MediaLibrarySession extends MediaSession {
         private final boolean mThrowsWhenInvalidReturn;
 
         /**
          * Callback for the {@link MediaLibrarySession}.
-         * <p>
-         * When you return {@link LibraryResult} with media items,
-         * items must have valid {@link MediaMetadata#METADATA_KEY_MEDIA_ID} and
-         * specify {@link MediaMetadata#METADATA_KEY_BROWSABLE} and
-         * {@link MediaMetadata#METADATA_KEY_PLAYABLE}.
+         *
+         * <p>When you return {@link LibraryResult} with media items, items must have valid {@link
+         * MediaMetadata#METADATA_KEY_MEDIA_ID} and specify {@link
+         * MediaMetadata#METADATA_KEY_BROWSABLE} and {@link MediaMetadata#METADATA_KEY_PLAYABLE}.
+         *
+         * @deprecated androidx.media2 is deprecated. Please migrate to <a
+         *     href="https://developer.android.com/guide/topics/media/media3">androidx.media3</a> .
          */
+        @Deprecated
         public static class MediaLibrarySessionCallback extends MediaSession.SessionCallback {
             /**
              * Called to get the root information for browsing by a {@link MediaBrowser}.
@@ -289,17 +305,22 @@ public abstract class MediaLibraryService extends MediaSessionService {
 
         /**
          * Builder for {@link MediaLibrarySession}.
-         * <p>
-         * Any incoming event from the {@link MediaController} will be handled on the callback
+         *
+         * <p>Any incoming event from the {@link MediaController} will be handled on the callback
          * executor. If it's not set, {@link ContextCompat#getMainExecutor(Context)} will be used by
          * default.
+         *
+         * @deprecated androidx.media2 is deprecated. Please migrate to <a
+         *     href="https://developer.android.com/guide/topics/media/media3">androidx.media3</a> .
          */
         // Override all methods just to show them with the type instead of generics in Javadoc.
         // This workarounds javadoc issue described in the MediaSession.BuilderBase.
         // Note: Don't override #setSessionCallback() because the callback can be set by the
         // constructor.
-        public static final class Builder extends MediaSession.BuilderBase<MediaLibrarySession,
-                Builder, MediaLibrarySessionCallback> {
+        @Deprecated
+        public static final class Builder
+                extends MediaSession.BuilderBase<
+                        MediaLibrarySession, Builder, MediaLibrarySessionCallback> {
             private boolean mThrowsWhenInvalidReturn = true;
 
             // Builder requires MediaLibraryService instead of Context just to ensure that the
@@ -335,7 +356,7 @@ public abstract class MediaLibraryService extends MediaSessionService {
             /**
              * Prevents session to be crashed when it returns any invalid return.
              *
-             **/
+             */
             @RestrictTo(LIBRARY)
             @NonNull
             @VisibleForTesting
@@ -511,14 +532,18 @@ public abstract class MediaLibraryService extends MediaSessionService {
 
     /**
      * Contains information that the library service needs to send to the client.
-     * <p>
-     * When the browser supplies {@link LibraryParams}, it's optional field when getting the media
-     * item(s). The library session is recommended to do the best effort to provide such result.
-     * It's not an error even when the library session didn't return such items.
-     * <p>
-     * The library params returned in the library session callback must include the information
+     *
+     * <p>When the browser supplies {@link LibraryParams}, it's optional field when getting the
+     * media item(s). The library session is recommended to do the best effort to provide such
+     * result. It's not an error even when the library session didn't return such items.
+     *
+     * <p>The library params returned in the library session callback must include the information
      * about the returned media item(s).
+     *
+     * @deprecated androidx.media2 is deprecated. Please migrate to <a
+     *     href="https://developer.android.com/guide/topics/media/media3">androidx.media3</a>.
      */
+    @Deprecated
     @VersionedParcelize
     public static final class LibraryParams implements VersionedParcelable {
         @ParcelField(1)
@@ -587,7 +612,7 @@ public abstract class MediaLibraryService extends MediaSessionService {
          * implementation must return the params with the {@code true} as well.
          *
          * @return {@code true} for offline items. {@code false} otherwise.
-         **/
+         */
         public boolean isOffline() {
             return convertToBoolean(mOffline);
         }
@@ -601,7 +626,7 @@ public abstract class MediaLibraryService extends MediaSessionService {
          * media items is considered ordered by relevance, first being the top suggestion.
          *
          * @return {@code true} for suggested items. {@code false} otherwise
-         **/
+         */
         public boolean isSuggested() {
             return convertToBoolean(mSuggested);
         }
@@ -618,7 +643,11 @@ public abstract class MediaLibraryService extends MediaSessionService {
 
         /**
          * Builds a {@link LibraryParams}.
+         *
+         * @deprecated androidx.media2 is deprecated. Please migrate to <a
+         *     href="https://developer.android.com/guide/topics/media/media3">androidx.media3</a>.
          */
+        @Deprecated
         public static final class Builder {
             private boolean mRecent;
             private boolean mOffline;

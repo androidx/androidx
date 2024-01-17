@@ -27,10 +27,7 @@ import androidx.wear.watchface.complications.data.SmallImageType
 
 /** Defines attributes to customize appearance of rendered [ ]. */
 public class ComplicationStyle {
-    /**
-     * Constants used to define border styles for complicationSlots.
-     *
-     */
+    /** Constants used to define border styles for complicationSlots. */
     @Retention(AnnotationRetention.SOURCE)
     @IntDef(BORDER_STYLE_NONE, BORDER_STYLE_SOLID, BORDER_STYLE_DASHED)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -194,6 +191,7 @@ public class ComplicationStyle {
                 }
             isDirty = true
         }
+
     /** The dash width to be used when drawing borders of type [.BORDER_STYLE_DASHED]. */
     public var borderDashWidth: Int
         @Px get() = mBorderDashWidth
@@ -209,6 +207,7 @@ public class ComplicationStyle {
             mBorderDashGap = borderDashGap
             isDirty = true
         }
+
     /**
      * The border radius to be applied to the corners of the bounds of the complication in active
      * mode. Border radius will be limited to the half of width or height, depending on which one is
@@ -282,10 +281,7 @@ public class ComplicationStyle {
         isDirty = true
     }
 
-    /**
-     * Returns a copy of the ComplicationStyle [tint]ed by [tintColor].
-     *
-     */
+    /** Returns a copy of the ComplicationStyle [tint]ed by [tintColor]. */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     fun asTinted(tintColor: Int): ComplicationStyle =
         ComplicationStyle(this).apply {

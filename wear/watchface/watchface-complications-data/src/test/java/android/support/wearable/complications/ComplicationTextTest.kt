@@ -50,16 +50,16 @@ public class ComplicationTextTest {
             .addEqualityGroup(dup { ComplicationText("surrounding", timeFormat("%h")) })
             .addEqualityGroup(dup { ComplicationText("surrounding 2", timeFormat("%h")) })
             .addEqualityGroup(dup { ComplicationText("surrounding", timeFormat("%m")) })
-            .addEqualityGroup(dup { ComplicationText(DynamicString.constant("expression")) })
-            .addEqualityGroup(dup { ComplicationText(DynamicString.constant("expression 2")) })
+            .addEqualityGroup(dup { ComplicationText(DynamicString.constant("dynamic")) })
+            .addEqualityGroup(dup { ComplicationText(DynamicString.constant("dynamic 2")) })
             .addEqualityGroup(
-                dup { ComplicationText("surrounding", DynamicString.constant("expression")) }
+                dup { ComplicationText("surrounding", DynamicString.constant("dynamic")) }
             )
             .addEqualityGroup(
-                dup { ComplicationText("surrounding 2", DynamicString.constant("expression")) }
+                dup { ComplicationText("surrounding 2", DynamicString.constant("dynamic")) }
             )
             .addEqualityGroup(
-                dup { ComplicationText("surrounding", DynamicString.constant("expression 2")) }
+                dup { ComplicationText("surrounding", DynamicString.constant("dynamic 2")) }
             )
             .testEquals()
     }
@@ -680,14 +680,14 @@ public class ComplicationTextTest {
     }
 
     @Test
-    public fun expressionToParcelRoundTrip() {
+    public fun dynamicStringToParcelRoundTrip() {
         val text = ComplicationText(DynamicString.constant("hello"))
 
         Truth.assertThat(text.toParcelRoundTrip()).isEqualTo(text)
     }
 
     @Test
-    public fun getTextAt_ignoresStringExpressionIfSurroundingStringPresent() {
+    public fun getTextAt_ignoresDynamicStringIfSurroundingStringPresent() {
         val text = ComplicationText("hello" as CharSequence, DynamicString.constant("world"))
 
         Truth.assertThat(text.getTextAt(mResources, 132456789).toString()).isEqualTo("hello")

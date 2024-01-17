@@ -17,10 +17,10 @@
 package androidx.room.vo
 
 import androidx.room.compiler.processing.XType
-import androidx.room.migration.bundle.DatabaseViewBundle
-import androidx.room.parser.ParsedQuery
 import androidx.room.compiler.processing.XTypeElement
+import androidx.room.migration.bundle.DatabaseViewBundle
 import androidx.room.migration.bundle.VIEW_NAME_PLACEHOLDER
+import androidx.room.parser.ParsedQuery
 
 class DatabaseView(
     element: XTypeElement,

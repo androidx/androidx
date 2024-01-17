@@ -63,9 +63,6 @@ protobuf {
     protoc {
         artifact = libs.protobufCompiler.get()
     }
-    // Generates the java proto-lite code for the protos in this project. See
-    // https://github.com/google/protobuf-gradle-plugin#customizing-protobuf-compilation
-    // for more information.
     generateProtoTasks {
         all().each { task ->
             task.builtins {
@@ -92,8 +89,8 @@ android {
         }
     }
     lintOptions {
-        // protobuf generates unannotated and synthetic accessor methods
-        disable("UnknownNullness", "SyntheticAccessor")
+        // protobuf generates unannotated methods
+        disable("UnknownNullness")
     }
 }
 
@@ -102,4 +99,5 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2022"
     description = "Protos for use with App Action interaction libraries."
+    metalavaK2UastEnabled = true
 }

@@ -16,17 +16,26 @@
 
 package androidx.camera.integration.view
 
+import android.annotation.SuppressLint
 import androidx.camera.core.CameraEffect
-import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
 
 /**
  * A tone mapping effect for Preview/VideoCapture UseCase.
  */
-internal class ToneMappingSurfaceEffect : CameraEffect(
-    PREVIEW or VIDEO_CAPTURE, mainThreadExecutor(), ToneMappingSurfaceProcessor()
-) {
+@SuppressLint("RestrictedApiAndroidX")
+internal class ToneMappingSurfaceEffect(
+    targets: Int = PREVIEW or VIDEO_CAPTURE,
+    private val processor: ToneMappingSurfaceProcessor = ToneMappingSurfaceProcessor()
+) :
+    CameraEffect(
+        targets,
+        TRANSFORMATION_CAMERA_AND_SURFACE_ROTATION,
+        processor.getGlExecutor(),
+        processor,
+        {}
+    ) {
 
     fun release() {
-        (surfaceProcessor as? ToneMappingSurfaceProcessor)?.release()
+        processor.release()
     }
 }

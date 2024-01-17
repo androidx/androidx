@@ -82,6 +82,13 @@ interface LayoutInfo {
      * Unique and stable id representing this node to the semantics system.
      */
     val semanticsId: Int
+
+    /**
+     * True if the node is deactivated. For example, the children of
+     * [androidx.compose.ui.layout.SubcomposeLayout] which are retained to be reused in future
+     * are considered deactivated.
+     */
+    val isDeactivated: Boolean get() = false
 }
 
 /**

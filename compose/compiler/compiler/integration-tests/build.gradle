@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.SdkResourceGenerator
 import static androidx.build.AndroidXPlugin.isPlayground
 
@@ -35,4 +42,6 @@ def testTask = tasks.findByPath("test")
 testTask.dependsOn(tasks.findByPath(":compose:compiler:compiler:publish"))
 if (!isPlayground(project)) {
     testTask.dependsOn(tasks.findByPath(":compose:runtime:runtime:publish"))
+    testTask.dependsOn(tasks.findByPath(":collection:collection:publish"))
+    testTask.dependsOn(tasks.findByPath(":annotation:annotation:publish"))
 }

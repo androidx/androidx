@@ -20,11 +20,13 @@ import android.media.CamcorderProfile
 import android.media.EncoderProfiles.VideoProfile.HDR_NONE
 import android.media.EncoderProfiles.VideoProfile.YUV_420
 import android.os.Build
+import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat
+import androidx.camera.camera2.internal.compat.quirk.CameraQuirks
 import androidx.camera.camera2.internal.compat.quirk.DeviceQuirks
 import androidx.camera.camera2.internal.compat.quirk.InvalidVideoProfilesQuirk
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.impl.EncoderProfilesProxy.VideoProfileProxy.BIT_DEPTH_8
-import androidx.camera.testing.CameraUtil
+import androidx.camera.testing.impl.CameraUtil
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
@@ -74,21 +76,15 @@ class Camera2EncoderProfilesProviderTest(private val quality: Int) {
 
         cameraId = CameraUtil.getCameraIdWithLensFacing(CameraSelector.LENS_FACING_BACK)!!
         intCameraId = cameraId.toInt()
-
-        encoderProfilesProvider = Camera2EncoderProfilesProvider(cameraId)
+        setUptEncoderProfileProvider()
     }
 
-    @Test
-    fun hasProfile_returnSameResult() {
-        assertThat(encoderProfilesProvider.hasProfile(quality))
-            .isEqualTo(CamcorderProfile.hasProfile(intCameraId, quality))
-    }
-
-    @Test
-    fun hasProfile_getReturnNonNull() {
-        assumeTrue(CamcorderProfile.hasProfile(intCameraId, quality))
-
-        assertThat(encoderProfilesProvider.getAll(quality)).isNotNull()
+    private fun setUptEncoderProfileProvider() {
+        val characteristics = CameraCharacteristicsCompat.toCameraCharacteristicsCompat(
+            CameraUtil.getCameraCharacteristics(cameraId)!!, cameraId
+        )
+        val cameraQuirk = CameraQuirks.get(cameraId, characteristics)
+        encoderProfilesProvider = Camera2EncoderProfilesProvider(cameraId, cameraQuirk)
     }
 
     @Test
@@ -101,7 +97,7 @@ class Camera2EncoderProfilesProviderTest(private val quality: Int) {
     @Suppress("DEPRECATION")
     @Test
     fun hasSameContentAsCamcorderProfile() {
-        assumeTrue(CamcorderProfile.hasProfile(quality))
+        assumeTrue(encoderProfilesProvider.hasProfile(quality))
 
         val profile = CamcorderProfile.get(quality)
         val encoderProfiles = encoderProfilesProvider.getAll(quality)
@@ -124,7 +120,7 @@ class Camera2EncoderProfilesProviderTest(private val quality: Int) {
     @SdkSuppress(minSdkVersion = 31, maxSdkVersion = 32)
     @Test
     fun api31Api32_hasSameContentAsEncoderProfiles() {
-        assumeTrue(CamcorderProfile.hasProfile(quality))
+        assumeTrue(encoderProfilesProvider.hasProfile(quality))
 
         val profiles = CamcorderProfile.getAll(cameraId, quality)
         val video = profiles!!.videoProfiles[0]
@@ -156,7 +152,7 @@ class Camera2EncoderProfilesProviderTest(private val quality: Int) {
     @SdkSuppress(minSdkVersion = 33)
     @Test
     fun afterApi33_hasSameContentAsEncoderProfiles() {
-        assumeTrue(CamcorderProfile.hasProfile(quality))
+        assumeTrue(encoderProfilesProvider.hasProfile(quality))
         skipTestOnDevicesWithProblematicBuild()
 
         val profiles = CamcorderProfile.getAll(cameraId, quality)
@@ -187,13 +183,16 @@ class Camera2EncoderProfilesProviderTest(private val quality: Int) {
     }
 
     private fun skipTestOnDevicesWithProblematicBuild() {
-        // Skip test for b/265613005 and b/223439995
+        // Skip test for b/265613005, b/223439995 and b/277174217
         val hasVideoProfilesQuirk = DeviceQuirks.get(InvalidVideoProfilesQuirk::class.java) != null
-        val isProblematicCuttlefishBuild =
-            Build.MODEL.contains("Cuttlefish") && Build.ID.startsWith("TP1A")
         assumeFalse(
             "Skip test with null VideoProfile issue. Unable to test.",
-            hasVideoProfilesQuirk || isProblematicCuttlefishBuild
+            hasVideoProfilesQuirk || isProblematicCuttlefishBuild()
         )
+    }
+
+    private fun isProblematicCuttlefishBuild(): Boolean {
+        return Build.MODEL.contains("Cuttlefish", true) &&
+            (Build.ID.startsWith("TP1A", true) || Build.ID.startsWith("TSE4", true))
     }
 }

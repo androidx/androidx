@@ -17,19 +17,29 @@
 package androidx.benchmark.junit4
 
 import android.Manifest
+import android.os.Build
+import android.os.Looper
 import android.util.Log
 import androidx.annotation.RestrictTo
 import androidx.benchmark.Arguments
 import androidx.benchmark.BenchmarkState
-import androidx.benchmark.UserspaceTracing
+import androidx.benchmark.DeviceInfo
+import androidx.benchmark.ExperimentalBenchmarkConfigApi
+import androidx.benchmark.MicrobenchmarkConfig
+import androidx.benchmark.perfetto.PerfettoCapture
 import androidx.benchmark.perfetto.PerfettoCaptureWrapper
+import androidx.benchmark.perfetto.PerfettoConfig
 import androidx.benchmark.perfetto.UiState
 import androidx.benchmark.perfetto.appendUiState
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
 import androidx.test.rule.GrantPermissionRule
 import androidx.tracing.Trace
 import androidx.tracing.trace
 import java.io.File
+import java.util.concurrent.ExecutionException
+import java.util.concurrent.FutureTask
+import java.util.concurrent.TimeUnit
 import org.junit.Assert.assertTrue
 import org.junit.Assume.assumeTrue
 import org.junit.rules.RuleChain
@@ -79,21 +89,25 @@ import org.junit.runners.model.Statement
  * See the [Benchmark Guide](https://developer.android.com/studio/profile/benchmark)
  * for more information on writing Benchmarks.
  */
-public class BenchmarkRule internal constructor(
+public class BenchmarkRule private constructor(
+    private val config: MicrobenchmarkConfig?,
     /**
-     * Used to disable reporting, for correctness tests that shouldn't report values
-     * (and would trigger warnings if they did, e.g. debuggable=true)
-     * Is always true when called non-internally.
+     * This param is ignored, and just present to disambiguate the internal (nullable) vs external
+     * (non-null) variants of the constructor, since a lint failure occurs if they have the same
+     * signature, even if the external variant uses `this(config as MicrobenchmarkConfig?)`.
+     *
+     * In the future, we should just always pass a "default" config object, which can reference
+     * default values from Arguments, but that's a deeper change.
      */
-    private val enableReport: Boolean,
-    private val packages: List<String> = emptyList() // TODO: revisit if needed
+    @Suppress("UNUSED_PARAMETER") ignored: Boolean = true
 ) : TestRule {
-    public constructor() : this(true)
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public constructor(packages: List<String>) : this(true, packages)
+    constructor() : this(config = null, ignored = true)
+
+    @ExperimentalBenchmarkConfigApi
+    constructor(config: MicrobenchmarkConfig) : this(config, ignored = true)
 
     internal // synthetic access
-    val internalState = BenchmarkState()
+    var internalState = BenchmarkState(config)
 
     /**
      * Object used for benchmarking in Java.
@@ -130,8 +144,7 @@ public class BenchmarkRule internal constructor(
     internal // synthetic access
     var applied = false
 
-    /** @suppress */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY)
     public val scope: Scope = Scope()
 
     /**
@@ -208,24 +221,39 @@ public class BenchmarkRule internal constructor(
             val uniqueName = description.testClass.simpleName + "_" + invokeMethodName
             internalState.traceUniqueName = uniqueName
 
-            var userspaceTrace: perfetto.protos.Trace? = null
-
             val tracePath = PerfettoCaptureWrapper().record(
                 fileLabel = uniqueName,
-                appTagPackages = packages,
-                userspaceTracingPackage = null
+                config = PerfettoConfig.Benchmark(
+                    appTagPackages = if (config?.shouldEnableTraceAppTag == true) {
+                        listOf(InstrumentationRegistry.getInstrumentation().context.packageName)
+                    } else {
+                        emptyList()
+                    },
+                    useStackSamplingConfig = false
+                ),
+                // TODO(290918736): add support for Perfetto SDK Tracing in
+                //  Microbenchmark in other cases, outside of MicrobenchmarkConfig
+                perfettoSdkConfig = if (config?.shouldEnablePerfettoSdkTracing == true &&
+                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
+                ) {
+                    PerfettoCapture.PerfettoSdkConfig(
+                        InstrumentationRegistry.getInstrumentation().context.packageName,
+                        PerfettoCapture.PerfettoSdkConfig.InitialProcessState.Alive
+                    )
+                } else {
+                    null
+                },
+
+                // Optimize throughput in dryRunMode, since trace isn't useful, and extremely
+                //   expensive on some emulators. Could alternately use UserspaceTracing if desired
+                // Additionally, skip on misconfigured devices to still enable benchmarking.
+                enableTracing = !Arguments.dryRunMode && !DeviceInfo.misconfiguredForTracing,
+                inMemoryTracingLabel = "Microbenchmark"
             ) {
-                UserspaceTracing.commitToTrace() // clear buffer
-
                 trace(description.displayName) { base.evaluate() }
-
-                // To avoid b/174007010, userspace tracing is cleared and saved *during* trace, so
-                // that events won't lie outside the bounds of the trace content.
-                userspaceTrace = UserspaceTracing.commitToTrace()
             }?.apply {
                 // trace completed, and copied into shell writeable dir
                 val file = File(this)
-                file.appendBytes(userspaceTrace!!.encode())
                 file.appendUiState(
                     UiState(
                         timelineStart = null,
@@ -236,14 +264,12 @@ public class BenchmarkRule internal constructor(
                 )
             }
 
-            if (enableReport) {
-                internalState.report(
-                    fullClassName = description.className,
-                    simpleClassName = description.testClass.simpleName,
-                    methodName = invokeMethodName,
-                    tracePath = tracePath
-                )
-            }
+            internalState.report(
+                fullClassName = description.className,
+                simpleClassName = description.testClass.simpleName,
+                methodName = invokeMethodName,
+                tracePath = tracePath
+            )
         }
 
     internal companion object {
@@ -277,8 +303,116 @@ public inline fun BenchmarkRule.measureRepeated(crossinline block: BenchmarkRule
     val localState = getState()
     val localScope = scope
 
-    while (localState.keepRunningInline()) {
-        block(localScope)
+    try {
+        while (localState.keepRunningInline()) {
+            block(localScope)
+        }
+    } catch (t: Throwable) {
+        localState.cleanupBeforeThrow()
+        throw t
+    }
+}
+
+/**
+ * Benchmark a block of code, which runs on the main thread, and can safely interact with UI.
+ *
+ * While `@UiThreadRule` works for a standard test, it doesn't work for benchmarks of arbitrary
+ * duration, as they may run for much more than 5 seconds and suffer ANRs, especially in continuous
+ * runs.
+ *
+ * ```
+ * @get:Rule
+ * val benchmarkRule = BenchmarkRule();
+ *
+ * @Test
+ * fun myBenchmark() {
+ *     ...
+ *     benchmarkRule.measureRepeatedOnMainThread {
+ *         doSomeWorkOnMainThread()
+ *     }
+ *     ...
+ * }
+ * ```
+ *
+ * @param block The block of code to benchmark.
+ * @throws java.lang.Throwable when an exception is thrown on the main thread.
+ * @throws IllegalStateException if a hard deadline is exceeded while the block is running on the
+ *     main thread.
+ */
+@Suppress("DocumentExceptions") // `@throws Throwable` not recognized (b/305050883)
+inline fun BenchmarkRule.measureRepeatedOnMainThread(
+    crossinline block: BenchmarkRule.Scope.() -> Unit
+) {
+    check(Looper.myLooper() != Looper.getMainLooper()) {
+        "Cannot invoke measureRepeatedOnMainThread from the main thread"
+    }
+
+    var resumeScheduled = false
+    while (true) {
+        val task = FutureTask {
+            // Extract members to locals, to ensure we check #applied, and we don't hit accessors
+            val localState = getState()
+            val localScope = scope
+
+            val initialTimeNs = System.nanoTime()
+            val softDeadlineNs = initialTimeNs + TimeUnit.SECONDS.toNanos(2)
+            val hardDeadlineNs = initialTimeNs + TimeUnit.SECONDS.toNanos(10)
+            var timeNs: Long = 0
+
+            try {
+                Trace.beginSection("measureRepeatedOnMainThread task")
+
+                if (resumeScheduled) {
+                    localState.resumeTiming()
+                }
+
+                do {
+                    // note that this function can still block for considerable time, e.g. when
+                    // setting up / tearing down profiling, or sleeping to let the device cool off.
+                    if (!localState.keepRunningInline()) {
+                        return@FutureTask false
+                    }
+
+                    block(localScope)
+
+                    // Avoid checking for deadline on all but last iteration per measurement,
+                    // to amortize cost of System.nanoTime(). Without this optimization, minimum
+                    // measured time can be 10x higher.
+                    if (localState.getIterationsRemaining() != 1) {
+                        continue
+                    }
+                    timeNs = System.nanoTime()
+                } while (timeNs <= softDeadlineNs)
+
+                resumeScheduled = true
+                localState.pauseTiming()
+
+                if (timeNs > hardDeadlineNs) {
+                    localState.cleanupBeforeThrow()
+                    val overrunInSec = (timeNs - hardDeadlineNs) / 1_000_000_000.0
+                    throw IllegalStateException(
+                        "Benchmark loop overran hard time limit by $overrunInSec seconds"
+                    )
+                }
+
+                return@FutureTask true // continue
+            } finally {
+                Trace.endSection()
+            }
+        }
+        getInstrumentation().runOnMainSync(task)
+        val shouldContinue: Boolean = try {
+            // Ideally we'd implement the delay here, as a timeout, but we can't do this until
+            // have a way to move thermal throttle sleeping off the UI thread.
+            task.get()
+        } catch (e: ExecutionException) {
+            // Expose the original exception
+            throw e.cause!!
+        }
+        if (!shouldContinue) {
+            // all done
+            break
+        }
     }
 }
 

@@ -16,16 +16,17 @@
 
 package androidx.compose.foundation.lazy
 
+import androidx.annotation.FloatRange
 import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.VisibilityThreshold
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.internal.JvmDefaultWithCompatibility
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
-import androidx.compose.foundation.internal.JvmDefaultWithCompatibility
 
 /**
  * Receiver scope being used by the item content parameter of LazyColumn/Row.
@@ -46,7 +47,7 @@ interface LazyItemScope {
      * measured with [Constraints.Infinity] as the constraints for the main axis.
      */
     fun Modifier.fillParentMaxSize(
-        /*@FloatRange(from = 0.0, to = 1.0)*/
+        @FloatRange(from = 0.0, to = 1.0)
         fraction: Float = 1f
     ): Modifier
 
@@ -61,7 +62,7 @@ interface LazyItemScope {
      * items are measured with [Constraints.Infinity] as the constraints for the main axis.
      */
     fun Modifier.fillParentMaxWidth(
-        /*@FloatRange(from = 0.0, to = 1.0)*/
+        @FloatRange(from = 0.0, to = 1.0)
         fraction: Float = 1f
     ): Modifier
 
@@ -76,7 +77,7 @@ interface LazyItemScope {
      * items are measured with [Constraints.Infinity] as the constraints for the main axis.
      */
     fun Modifier.fillParentMaxHeight(
-        /*@FloatRange(from = 0.0, to = 1.0)*/
+        @FloatRange(from = 0.0, to = 1.0)
         fraction: Float = 1f
     ): Modifier
 

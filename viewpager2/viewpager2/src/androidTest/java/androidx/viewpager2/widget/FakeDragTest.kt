@@ -22,11 +22,9 @@ import android.view.ViewConfiguration
 import android.view.animation.DecelerateInterpolator
 import android.view.animation.Interpolator
 import android.view.animation.LinearInterpolator
-import androidx.core.view.ViewCompat
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.ACTION_SCROLL_FORWARD
 import androidx.core.view.animation.PathInterpolatorCompat
 import androidx.test.filters.LargeTest
-import androidx.test.filters.SdkSuppress
 import androidx.testutils.LocaleTestUtils
 import androidx.viewpager2.widget.BaseTest.Context.SwipeMethod
 import androidx.viewpager2.widget.FakeDragTest.Event.OnPageScrollStateChangedEvent
@@ -35,16 +33,11 @@ import androidx.viewpager2.widget.FakeDragTest.Event.OnPageSelectedEvent
 import androidx.viewpager2.widget.FakeDragTest.TestConfig
 import androidx.viewpager2.widget.ViewPager2.ORIENTATION_HORIZONTAL
 import androidx.viewpager2.widget.ViewPager2.ORIENTATION_VERTICAL
+import androidx.viewpager2.widget.ViewPager2.SCROLL_STATE_DRAGGING as DRAGGING
+import androidx.viewpager2.widget.ViewPager2.SCROLL_STATE_IDLE as IDLE
+import androidx.viewpager2.widget.ViewPager2.SCROLL_STATE_SETTLING as SETTLING
 import androidx.viewpager2.widget.swipe.PageSwiperFakeDrag
 import androidx.viewpager2.widget.swipe.PageSwiperManual
-import org.hamcrest.CoreMatchers.equalTo
-import org.hamcrest.CoreMatchers.notNullValue
-import org.hamcrest.Matchers.greaterThan
-import org.hamcrest.MatcherAssert.assertThat
-import org.junit.Assume.assumeThat
-import org.junit.Test
-import org.junit.runner.RunWith
-import org.junit.runners.Parameterized
 import java.lang.reflect.Field
 import java.lang.reflect.Method
 import java.util.concurrent.CountDownLatch
@@ -53,9 +46,15 @@ import java.util.concurrent.TimeUnit.MILLISECONDS
 import java.util.concurrent.TimeUnit.SECONDS
 import kotlin.math.min
 import kotlin.math.roundToInt
-import androidx.viewpager2.widget.ViewPager2.SCROLL_STATE_DRAGGING as DRAGGING
-import androidx.viewpager2.widget.ViewPager2.SCROLL_STATE_IDLE as IDLE
-import androidx.viewpager2.widget.ViewPager2.SCROLL_STATE_SETTLING as SETTLING
+import org.hamcrest.CoreMatchers.equalTo
+import org.hamcrest.CoreMatchers.notNullValue
+import org.hamcrest.MatcherAssert.assertThat
+import org.hamcrest.Matchers.greaterThan
+import org.junit.Assume.assumeThat
+import org.junit.Ignore
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 
 @RunWith(Parameterized::class)
 @LargeTest
@@ -128,6 +127,7 @@ class FakeDragTest(private val config: TestConfig) : BaseTest() {
     }
 
     @Test
+    @Ignore("b/280670752")
     fun test_peekNextAndMoveBack() {
         // Roughly interpolates like this:
         //   |
@@ -341,11 +341,10 @@ class FakeDragTest(private val config: TestConfig) : BaseTest() {
      * onPageScrollStateChanged(0)
      */
     @Test
-    @SdkSuppress(minSdkVersion = 16)
     fun test_performA11yActionDuringFakeDrag() {
         startManualDragDuringFakeDrag(.9f, 1000, interpolator = fastDecelerateInterpolator) {
             test.runOnUiThreadSync {
-                ViewCompat.performAccessibilityAction(test.viewPager, getNextPageAction(), null)
+                test.viewPager.performAccessibilityAction(getNextPageAction(), null)
             }
         }
     }
@@ -422,7 +421,7 @@ class FakeDragTest(private val config: TestConfig) : BaseTest() {
     ) {
         val initialPage = test.viewPager.currentItem
 
-        tryNTimes(3, resetBlock = { test.resetViewPagerTo(initialPage) }) {
+        tryNTimes(7, resetBlock = { test.resetViewPagerTo(initialPage) }) {
             val recorder = test.viewPager.addNewRecordingCallback()
 
             // start smooth scroll

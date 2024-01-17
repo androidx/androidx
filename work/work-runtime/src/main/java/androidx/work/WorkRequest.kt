@@ -20,8 +20,8 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
-import androidx.work.impl.utils.toMillisCompat
 import androidx.work.impl.model.WorkSpec
+import androidx.work.impl.utils.toMillisCompat
 import java.time.Duration
 import java.util.UUID
 import java.util.concurrent.TimeUnit
@@ -87,7 +87,7 @@ abstract class WorkRequest internal constructor(
         /**
          * Sets the backoff policy and backoff delay for the work.  The default values are
          * [BackoffPolicy.EXPONENTIAL] and
-         * {@value WorkRequest#DEFAULT_BACKOFF_DELAY_MILLIS}, respectively.  `backoffDelay`
+         * [WorkRequest#DEFAULT_BACKOFF_DELAY_MILLIS], respectively.  `backoffDelay`
          * will be clamped between [WorkRequest.MIN_BACKOFF_MILLIS] and
          * [WorkRequest.MAX_BACKOFF_MILLIS].
          *
@@ -110,7 +110,7 @@ abstract class WorkRequest internal constructor(
         /**
          * Sets the backoff policy and backoff delay for the work.  The default values are
          * [BackoffPolicy.EXPONENTIAL] and
-         * {@value WorkRequest#DEFAULT_BACKOFF_DELAY_MILLIS}, respectively.  `duration` will
+         * [WorkRequest#DEFAULT_BACKOFF_DELAY_MILLIS], respectively.  `duration` will
          * be clamped between [WorkRequest.MIN_BACKOFF_MILLIS] and
          * [WorkRequest.MAX_BACKOFF_MILLIS].
          *
@@ -224,7 +224,7 @@ abstract class WorkRequest internal constructor(
          * Sets an initial delay for the [WorkRequest].
          *
          * @param duration The length of the delay
-         * @return The current [Builder]         *
+         * @return The current [Builder]
          * @throws IllegalArgumentException if the given initial delay will push the execution time
          * past `Long.MAX_VALUE` and cause an overflow
          */

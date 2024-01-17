@@ -18,10 +18,8 @@ package androidx.fragment.app.test
 
 import android.content.Intent
 import android.os.Bundle
-
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
-
 import java.util.concurrent.CountDownLatch
 
 class NewIntentActivity : FragmentActivity() {
