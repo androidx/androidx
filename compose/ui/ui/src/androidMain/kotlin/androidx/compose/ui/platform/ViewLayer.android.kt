@@ -21,6 +21,7 @@ import android.os.Build
 import android.view.View
 import android.view.ViewOutlineProvider
 import androidx.annotation.RequiresApi
+import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.geometry.MutableRect
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -56,7 +57,11 @@ internal class ViewLayer(
     private var drawBlock: ((Canvas) -> Unit)? = drawBlock
     private var invalidateParentLayer: (() -> Unit)? = invalidateParentLayer
 
-    private val outlineResolver = OutlineResolver(ownerView.density)
+    private val outlineResolver = Snapshot.withoutReadObservation {
+        // we don't really care about observation here as density is applied manually
+        // not observing the density changes saves performance on recording reads
+        OutlineResolver(ownerView.density)
+    }
     // Value of the layerModifier's clipToBounds property
     private var clipToBounds = false
     private var clipBoundsCache: android.graphics.Rect? = null

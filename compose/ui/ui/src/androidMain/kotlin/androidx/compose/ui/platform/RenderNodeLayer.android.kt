@@ -19,6 +19,7 @@ package androidx.compose.ui.platform
 import android.os.Build
 import android.view.View
 import androidx.annotation.RequiresApi
+import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.geometry.MutableRect
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -61,7 +62,11 @@ internal class RenderNodeLayer(
                 ownerView.notifyLayerIsDirty(this, value)
             }
         }
-    private val outlineResolver = OutlineResolver(ownerView.density)
+    private val outlineResolver = Snapshot.withoutReadObservation {
+        // we don't really care about observation here as density is applied manually
+        // not observing the density changes saves performance on recording reads
+        OutlineResolver(ownerView.density)
+    }
     private var isDestroyed = false
     private var drawnWithZ = false
 
