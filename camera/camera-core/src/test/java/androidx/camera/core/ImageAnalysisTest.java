@@ -38,6 +38,7 @@ import androidx.annotation.Nullable;
 import androidx.camera.core.impl.CameraFactory;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.ImageAnalysisConfig;
+import androidx.camera.core.impl.MutableOptionsBundle;
 import androidx.camera.core.impl.TagBundle;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.internal.CameraUseCaseAdapter;
@@ -45,13 +46,13 @@ import androidx.camera.core.internal.utils.SizeUtil;
 import androidx.camera.core.resolutionselector.AspectRatioStrategy;
 import androidx.camera.core.resolutionselector.ResolutionSelector;
 import androidx.camera.core.resolutionselector.ResolutionStrategy;
-import androidx.camera.testing.CameraUtil;
-import androidx.camera.testing.CameraXUtil;
 import androidx.camera.testing.fakes.FakeAppConfig;
 import androidx.camera.testing.fakes.FakeCamera;
-import androidx.camera.testing.fakes.FakeCameraFactory;
 import androidx.camera.testing.fakes.FakeCameraInfoInternal;
-import androidx.camera.testing.fakes.FakeImageReaderProxy;
+import androidx.camera.testing.impl.CameraUtil;
+import androidx.camera.testing.impl.CameraXUtil;
+import androidx.camera.testing.impl.fakes.FakeCameraFactory;
+import androidx.camera.testing.impl.fakes.FakeImageReaderProxy;
 import androidx.test.core.app.ApplicationProvider;
 
 import com.google.common.collect.Iterables;
@@ -91,6 +92,8 @@ public class ImageAnalysisTest {
     private static final long TIMESTAMP_1 = 1;
     private static final long TIMESTAMP_2 = 2;
     private static final long TIMESTAMP_3 = 3;
+    public static final androidx.camera.core.impl.Config.Option<Integer> TEST_OPTION =
+            androidx.camera.core.impl.Config.Option.create("test.testOption", int.class);
 
     private Handler mCallbackHandler;
     private Handler mBackgroundHandler;
@@ -123,7 +126,7 @@ public class ImageAnalysisTest {
 
         CameraInternal camera = new FakeCamera();
 
-        CameraFactory.Provider cameraFactoryProvider = (ignored1, ignored2, ignored3) -> {
+        CameraFactory.Provider cameraFactoryProvider = (ignored1, ignored2, ignored3, ignored4) -> {
             FakeCameraFactory cameraFactory = new FakeCameraFactory();
             cameraFactory.insertDefaultBackCamera(camera.getCameraInfoInternal().getCameraId(),
                     () -> camera);
@@ -160,23 +163,6 @@ public class ImageAnalysisTest {
     public void canSetQueueDepth() {
         assertThat(getMergedImageAnalysisConfig(null, null, QUEUE_DEPTH,
                 false).getImageQueueDepth()).isEqualTo(QUEUE_DEPTH);
-    }
-
-    @Test
-    public void setTargetRotationDegrees() {
-        ImageAnalysis imageAnalysis = new ImageAnalysis.Builder().build();
-        imageAnalysis.setTargetRotationDegrees(45);
-        assertThat(imageAnalysis.getTargetRotation()).isEqualTo(Surface.ROTATION_270);
-        imageAnalysis.setTargetRotationDegrees(135);
-        assertThat(imageAnalysis.getTargetRotation()).isEqualTo(Surface.ROTATION_180);
-        imageAnalysis.setTargetRotationDegrees(225);
-        assertThat(imageAnalysis.getTargetRotation()).isEqualTo(Surface.ROTATION_90);
-        imageAnalysis.setTargetRotationDegrees(315);
-        assertThat(imageAnalysis.getTargetRotation()).isEqualTo(Surface.ROTATION_0);
-        imageAnalysis.setTargetRotationDegrees(405);
-        assertThat(imageAnalysis.getTargetRotation()).isEqualTo(Surface.ROTATION_270);
-        imageAnalysis.setTargetRotationDegrees(-45);
-        assertThat(imageAnalysis.getTargetRotation()).isEqualTo(Surface.ROTATION_0);
     }
 
     @Test
@@ -453,6 +439,20 @@ public class ImageAnalysisTest {
         // If image leakage happens, 4 unclosed image will never be closed. It means the analyzer
         // won't be able to receive images anymore.
         assertCanReceiveAnalysisImage(mImageAnalysis);
+    }
+
+    @Test
+    public void sessionConfigHasStreamSpecImplementationOptions_whenUpdateStreamSpecImplOptions()
+            throws CameraUseCaseAdapter.CameraException {
+        setUpImageAnalysisWithStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST);
+        int newImplementationOptionValue = 6;
+        MutableOptionsBundle streamSpecOptions = MutableOptionsBundle.create();
+        streamSpecOptions.insertOption(TEST_OPTION, newImplementationOptionValue);
+        mImageAnalysis.updateSuggestedStreamSpecImplementationOptions(streamSpecOptions);
+        assertThat(
+                mImageAnalysis.getSessionConfig().getImplementationOptions().retrieveOption(
+                        TEST_OPTION
+                )).isEqualTo(newImplementationOptionValue);
     }
 
     @SuppressWarnings("deprecation") // test for legacy resolution API

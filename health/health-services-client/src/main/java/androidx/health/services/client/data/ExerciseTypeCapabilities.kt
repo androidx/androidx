@@ -22,7 +22,9 @@ import androidx.health.services.client.proto.DataProto.ExerciseTypeCapabilities.
 
 /** Provides exercise specific capabilities data. */
 @Suppress("ParcelCreator")
-public class ExerciseTypeCapabilities(
+public class ExerciseTypeCapabilities
+@JvmOverloads
+constructor(
     /** Supported [DataType]s for a given exercise. */
     public val supportedDataTypes: Set<DataType<*, *>>,
     /** Map from supported goals [DataType]s to a set of compatible [ComparisonType]s. */
@@ -31,6 +33,9 @@ public class ExerciseTypeCapabilities(
     public val supportedMilestones: Map<AggregateDataType<*, *>, Set<ComparisonType>>,
     /** Returns `true` if the given exercise supports auto pause and resume. */
     public val supportsAutoPauseAndResume: Boolean,
+    /** Map from [ExerciseEventType]s to their [ExerciseEventCapabilities]. */
+    internal val exerciseEventCapabilities: Map<ExerciseEventType<*>, ExerciseEventCapabilities> =
+    emptyMap(),
 ) {
 
     internal constructor(
@@ -62,6 +67,11 @@ public class ExerciseTypeCapabilities(
             }
             .toMap(),
         supportsAutoPauseAndResume = proto.isAutoPauseAndResumeSupported,
+        exerciseEventCapabilities = proto.supportedExerciseEventsList
+            .filter { ExerciseEventCapabilities.fromProto(it) != null }.associate { entry ->
+                ExerciseEventType.fromProto(entry.exerciseEventType) to
+                    ExerciseEventCapabilities.fromProto(entry)!!
+            },
     )
 
     internal val proto: DataProto.ExerciseTypeCapabilities =
@@ -88,7 +98,20 @@ public class ExerciseTypeCapabilities(
                     .sortedBy { it.dataType.name } // Sorting to ensure equals() works
             )
             .setIsAutoPauseAndResumeSupported(supportsAutoPauseAndResume)
+            .addAllSupportedExerciseEvents(exerciseEventCapabilities.map { it.value.toProto() })
             .build()
+
+    /** Returns the set of supported [ExerciseEventType]s on this device. */
+    public val supportedExerciseEvents: Set<ExerciseEventType<*>>
+        get() = this.exerciseEventCapabilities.keys
+
+    /** Returns the [ExerciseEventCapabilities] for a requested [ExerciseEventType]. */
+    public fun <C : ExerciseEventCapabilities> getExerciseEventCapabilityDetails(
+        exerciseEventType: ExerciseEventType<C>
+    ): C? {
+        @Suppress("UNCHECKED_CAST") // Map's keys' and values' types will match
+        return exerciseEventCapabilities[exerciseEventType] as C?
+    }
 
     override fun toString(): String =
         "ExerciseTypeCapabilities(" +

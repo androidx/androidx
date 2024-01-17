@@ -34,7 +34,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Face
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -241,30 +241,30 @@ fun ToolBarLazyDslDemo() {
 
     val maxPx = with(LocalDensity.current) { big.roundToPx().toFloat() }
     val minPx = with(LocalDensity.current) { small.roundToPx().toFloat() }
-    val toolbarHeight = remember { mutableStateOf(maxPx) }
+    val toolbarHeight = remember { mutableFloatStateOf(maxPx) }
 
     val nestedScrollConnection = remember {
         object : NestedScrollConnection {
             override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
-                val height = toolbarHeight.value
+                val height = toolbarHeight.floatValue
 
                 if (height + available.y > maxPx) {
-                    toolbarHeight.value = maxPx
+                    toolbarHeight.floatValue = maxPx
                     return Offset(0f, maxPx - height)
                 }
 
                 if (height + available.y < minPx) {
-                    toolbarHeight.value = minPx
+                    toolbarHeight.floatValue = minPx
                     return Offset(0f, minPx - height)
                 }
 
-                toolbarHeight.value += available.y
+                toolbarHeight.floatValue += available.y
                 return Offset(0f, available.y)
             }
         }
     }
 
-    val progress = 1 - (toolbarHeight.value - minPx) / (maxPx - minPx)
+    val progress = 1 - (toolbarHeight.floatValue - minPx) / (maxPx - minPx)
 
     Column {
         MotionLayout(

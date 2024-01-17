@@ -32,14 +32,12 @@ import android.view.animation.AccelerateInterpolator;
 import android.view.animation.AnimationUtils;
 import android.view.animation.DecelerateInterpolator;
 
-import androidx.annotation.RequiresApi;
 import androidx.leanback.R;
 
 /**
  * Slide distance toward/from a edge.
  * This is a limited Slide implementation for KitKat without propagation support.
  */
-@RequiresApi(19)
 class SlideKitkat extends Visibility {
     private static final String TAG = "SlideKitkat";
 

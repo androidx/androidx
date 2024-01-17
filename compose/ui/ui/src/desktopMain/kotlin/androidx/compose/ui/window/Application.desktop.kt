@@ -35,6 +35,7 @@ import androidx.compose.ui.awt.ComposePanel
 import androidx.compose.ui.configureSwingGlobalsForCompose
 import androidx.compose.ui.platform.GlobalSnapshotManager
 import androidx.compose.ui.platform.LocalDensity
+import java.awt.Window
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -43,7 +44,6 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.swing.Swing
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
-import java.awt.Window
 
 /**
  * An entry point for the Compose application. See [awaitApplication] for more information.

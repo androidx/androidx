@@ -29,13 +29,23 @@ import androidx.annotation.RequiresApi
 import androidx.test.core.app.ApplicationProvider
 import androidx.wear.phone.interactions.WearPhoneInteractionsTestRunner
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.Executor
+import java.util.function.Consumer
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito
+import org.mockito.kotlin.any
+import org.mockito.kotlin.doAnswer
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.never
+import org.mockito.kotlin.reset
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.whenever
 import org.robolectric.Shadows
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
-import java.util.concurrent.Executor
 
 /** Unit tests for [RemoteAuthClient].  */
 @RunWith(WearPhoneInteractionsTestRunner::class)
@@ -90,8 +100,13 @@ public class RemoteAuthTest {
 
     private var fakeServiceBinder: FakeServiceBinder = FakeServiceBinder()
     private var fakeService: FakeClockworkHomeAuthService = FakeClockworkHomeAuthService()
+    private val remoteInteractionsManager: IRemoteInteractionsManager = mock()
     private var clientUnderTest: RemoteAuthClient =
-        RemoteAuthClient(fakeServiceBinder, DIRECT_EXECUTOR, appPackageName)
+        RemoteAuthClient(
+            remoteInteractionsManager,
+            fakeServiceBinder,
+            DIRECT_EXECUTOR,
+            appPackageName)
     private val executor: Executor = SyncExecutor()
 
     @Test
@@ -200,6 +215,44 @@ public class RemoteAuthTest {
         assertThat(fakeServiceBinder.state).isEqualTo(ConnectionState.DISCONNECTED)
     }
 
+    @Test
+    fun remoteAuthClientStatus_notSupported_unknown() {
+        whenever(remoteInteractionsManager.isAvailabilityStatusApiSupported).thenReturn(false)
+        val isAvailable = runBlocking {
+            clientUnderTest.availabilityStatus.first()
+        }
+
+        assertThat(isAvailable).isEqualTo(RemoteAuthClient.STATUS_UNKNOWN)
+        verify(remoteInteractionsManager, never())
+            .registerRemoteAuthClientStatusListener(any(), any())
+    }
+
+    @Test
+    fun remoteAuthClientStatus_isSupported_propagateListenerValues() {
+        for (remoteStatus in listOf(
+            RemoteAuthClient.STATUS_AVAILABLE,
+            RemoteAuthClient.STATUS_UNAVAILABLE,
+            RemoteAuthClient.STATUS_TEMPORARILY_UNAVAILABLE)) {
+        whenever(remoteInteractionsManager.isAvailabilityStatusApiSupported).thenReturn(true)
+            doAnswer {
+                    @Suppress("UNCHECKED_CAST")
+                    val consumer: Consumer<Int> = it.arguments[1] as (Consumer<Int>)
+                    consumer.accept(remoteStatus)
+                }
+                .whenever(remoteInteractionsManager)
+                .registerRemoteAuthClientStatusListener(any(), any())
+
+            val isAvailable = runBlocking {
+                clientUnderTest.availabilityStatus.first()
+            }
+
+            assertThat(isAvailable).isEqualTo(remoteStatus)
+            verify(remoteInteractionsManager).registerRemoteAuthClientStatusListener(any(), any())
+            verify(remoteInteractionsManager).unregisterRemoteAuthClientStatusListener(any())
+            reset(remoteInteractionsManager)
+        }
+    }
+
     internal enum class ConnectionState {
         DISCONNECTED, CONNECTING, CONNECTED
     }
@@ -209,11 +262,11 @@ public class RemoteAuthTest {
         var state = ConnectionState.DISCONNECTED
         private var serviceConnection: ServiceConnection? = null
         override fun bindService(
-            intent: Intent?,
-            connection: ServiceConnection?,
+            intent: Intent,
+            connection: ServiceConnection,
             flags: Int
         ): Boolean {
-            if (intent!!.getPackage() != RemoteAuthClient.WEARABLE_PACKAGE_NAME) {
+            if (intent.getPackage() != RemoteAuthClient.WEARABLE_PACKAGE_NAME) {
                 throw UnsupportedOperationException()
             }
             if (intent.action != RemoteAuthClient.ACTION_AUTH) {

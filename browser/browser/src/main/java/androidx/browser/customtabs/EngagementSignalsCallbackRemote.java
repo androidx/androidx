@@ -20,16 +20,21 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.support.customtabs.IEngagementSignalsCallback;
+import android.util.Log;
 
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 
 /**
  * Remote class used to execute callbacks from a binder of {@link EngagementSignalsCallback}. This
  * is a thin wrapper around {@link IEngagementSignalsCallback} that is passed to the Custom Tabs
  * implementation for the calls across process boundaries.
  */
-public final class EngagementSignalsCallbackRemote {
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+/* package */ final class EngagementSignalsCallbackRemote implements EngagementSignalsCallback {
+    private static final String TAG = "EngagementSigsCallbkRmt";
+
     private final IEngagementSignalsCallback mCallbackBinder;
 
     private EngagementSignalsCallbackRemote(@NonNull IEngagementSignalsCallback callbackBinder) {
@@ -53,9 +58,13 @@ public final class EngagementSignalsCallbackRemote {
      *                      user scrolls back up toward the top of the page.
      * @param extras Reserved for future use.
      */
-    public void onVerticalScrollEvent(boolean isDirectionUp, @NonNull Bundle extras) throws
-            RemoteException {
-        mCallbackBinder.onVerticalScrollEvent(isDirectionUp, extras);
+    @Override
+    public void onVerticalScrollEvent(boolean isDirectionUp, @NonNull Bundle extras) {
+        try {
+            mCallbackBinder.onVerticalScrollEvent(isDirectionUp, extras);
+        } catch (RemoteException e) {
+            Log.e(TAG, "RemoteException during IEngagementSignalsCallback transaction");
+        }
     }
 
     /**
@@ -68,10 +77,14 @@ public final class EngagementSignalsCallbackRemote {
      *                         made down the current page.
      * @param extras Reserved for future use.
      */
+    @Override
     public void onGreatestScrollPercentageIncreased(
-            @IntRange(from = 1, to = 100) int scrollPercentage, @NonNull Bundle extras) throws
-            RemoteException {
-        mCallbackBinder.onGreatestScrollPercentageIncreased(scrollPercentage, extras);
+            @IntRange(from = 1, to = 100) int scrollPercentage, @NonNull Bundle extras) {
+        try {
+            mCallbackBinder.onGreatestScrollPercentageIncreased(scrollPercentage, extras);
+        } catch (RemoteException e) {
+            Log.e(TAG, "RemoteException during IEngagementSignalsCallback transaction");
+        }
     }
 
     /**
@@ -82,8 +95,12 @@ public final class EngagementSignalsCallbackRemote {
      *                        scrolling.
      * @param extras Reserved for future use.
      */
-    public void onSessionEnded(boolean didUserInteract, @NonNull Bundle extras)
-            throws RemoteException {
-        mCallbackBinder.onSessionEnded(didUserInteract, extras);
+    @Override
+    public void onSessionEnded(boolean didUserInteract, @NonNull Bundle extras) {
+        try {
+            mCallbackBinder.onSessionEnded(didUserInteract, extras);
+        } catch (RemoteException e) {
+            Log.e(TAG, "RemoteException during IEngagementSignalsCallback transaction");
+        }
     }
 }

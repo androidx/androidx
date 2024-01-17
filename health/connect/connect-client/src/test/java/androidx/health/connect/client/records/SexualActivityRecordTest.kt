@@ -26,8 +26,7 @@ class SexualActivityRecordTest {
 
     @Test
     fun protectionEnums_existInMapping() {
-        val allEnums =
-            SexualActivityRecord.Companion::class.allIntDefEnumsWithPrefix("PROTECTION_USED")
+        val allEnums = getAllIntDefEnums<SexualActivityRecord>("""PROTECTION_USED.*(?<!UNKNOWN)$""")
 
         Truth.assertThat(SexualActivityRecord.PROTECTION_USED_STRING_TO_INT_MAP.values)
             .containsExactlyElementsIn(allEnums)

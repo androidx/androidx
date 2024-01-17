@@ -47,6 +47,9 @@ class CameraQuirks @Inject constructor(
 
         // Go through all defined camera quirks in lexicographical order,
         // and add them to `quirks` if they should be loaded
+        if (AeFpsRangeLegacyQuirk.isEnabled(cameraMetadata)) {
+            quirks.add(AeFpsRangeLegacyQuirk(cameraMetadata))
+        }
         if (AfRegionFlipHorizontallyQuirk.isEnabled(cameraMetadata)) {
             quirks.add(AfRegionFlipHorizontallyQuirk())
         }
@@ -59,8 +62,17 @@ class CameraQuirks @Inject constructor(
         if (CameraNoResponseWhenEnablingFlashQuirk.isEnabled(cameraMetadata)) {
             quirks.add(CameraNoResponseWhenEnablingFlashQuirk())
         }
+        if (CaptureSessionStuckQuirk.isEnabled()) {
+            quirks.add(CaptureSessionStuckQuirk())
+        }
+        if (CloseCaptureSessionOnVideoQuirk.isEnabled()) {
+            quirks.add(CloseCaptureSessionOnVideoQuirk())
+        }
         if (ConfigureSurfaceToSecondarySessionFailQuirk.isEnabled(cameraMetadata)) {
             quirks.add(ConfigureSurfaceToSecondarySessionFailQuirk())
+        }
+        if (FinalizeSessionOnCloseQuirk.isEnabled()) {
+            quirks.add(FinalizeSessionOnCloseQuirk())
         }
         if (FlashTooSlowQuirk.isEnabled(cameraMetadata)) {
             quirks.add(FlashTooSlowQuirk())
@@ -89,10 +101,18 @@ class CameraQuirks @Inject constructor(
         if (YuvImageOnePixelShiftQuirk.isEnabled()) {
             quirks.add(YuvImageOnePixelShiftQuirk())
         }
-        if (CaptureSessionStuckQuirk.isEnabled()) {
-            quirks.add(CaptureSessionStuckQuirk())
-        }
 
         Quirks(quirks)
+    }
+
+    companion object {
+        fun isImmediateSurfaceReleaseAllowed(): Boolean {
+            // TODO(b/285956022): Releasing a Surface too early turns out to cause memory leaks
+            //  where an Image may not be eventually closed. When the issue is resolved on an
+            //  architectural level, uncomment the following, allowing compliant devices to recycle
+            //  Surfaces and shutdown sooner.
+            //  Build.BRAND == "google" && Build.VERSION.SDK_INT > Build.VERSION_CODES.O_MR1
+            return false
+        }
     }
 }

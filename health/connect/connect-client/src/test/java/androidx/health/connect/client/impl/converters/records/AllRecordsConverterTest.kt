@@ -30,8 +30,12 @@ import androidx.health.connect.client.records.CervicalMucusRecord
 import androidx.health.connect.client.records.CyclingPedalingCadenceRecord
 import androidx.health.connect.client.records.DistanceRecord
 import androidx.health.connect.client.records.ElevationGainedRecord
+import androidx.health.connect.client.records.ExerciseLap
+import androidx.health.connect.client.records.ExerciseRoute
+import androidx.health.connect.client.records.ExerciseSegment
 import androidx.health.connect.client.records.ExerciseSessionRecord
 import androidx.health.connect.client.records.ExerciseSessionRecord.Companion.EXERCISE_TYPE_BADMINTON
+import androidx.health.connect.client.records.ExerciseSessionRecord.Companion.EXERCISE_TYPE_CALISTHENICS
 import androidx.health.connect.client.records.FloorsClimbedRecord
 import androidx.health.connect.client.records.HeartRateRecord
 import androidx.health.connect.client.records.HeartRateVariabilityRmssdRecord
@@ -51,8 +55,6 @@ import androidx.health.connect.client.records.RespiratoryRateRecord
 import androidx.health.connect.client.records.RestingHeartRateRecord
 import androidx.health.connect.client.records.SexualActivityRecord
 import androidx.health.connect.client.records.SleepSessionRecord
-import androidx.health.connect.client.records.SleepStageRecord
-import androidx.health.connect.client.records.SleepStageRecord.Companion.STAGE_TYPE_AWAKE
 import androidx.health.connect.client.records.SpeedRecord
 import androidx.health.connect.client.records.StepsCadenceRecord
 import androidx.health.connect.client.records.StepsRecord
@@ -64,6 +66,7 @@ import androidx.health.connect.client.records.metadata.DataOrigin
 import androidx.health.connect.client.records.metadata.Device
 import androidx.health.connect.client.records.metadata.Metadata
 import androidx.health.connect.client.units.BloodGlucose
+import androidx.health.connect.client.units.Length
 import androidx.health.connect.client.units.celsius
 import androidx.health.connect.client.units.grams
 import androidx.health.connect.client.units.kilocalories
@@ -84,10 +87,13 @@ import org.junit.runner.RunWith
 
 @SuppressWarnings("GoodTime") // Safe to use in test
 private val START_TIME = Instant.ofEpochMilli(1234L)
+
 @SuppressWarnings("GoodTime") // Safe to use in test
 private val END_TIME = Instant.ofEpochMilli(5678L)
+
 @SuppressWarnings("GoodTime") // Safe to use in test
 private val START_ZONE_OFFSET = ZoneOffset.ofHours(1)
+
 @SuppressWarnings("GoodTime") // Safe to use in test
 private val END_ZONE_OFFSET = ZoneOffset.ofHours(2)
 private val TEST_METADATA =
@@ -600,14 +606,75 @@ class AllRecordsConverterTest {
     fun testActivitySession() {
         val data =
             ExerciseSessionRecord(
-                exerciseType = EXERCISE_TYPE_BADMINTON,
-                title = null,
-                notes = null,
+                exerciseType = EXERCISE_TYPE_CALISTHENICS,
+                title = "title",
+                notes = "notes",
                 startTime = START_TIME,
                 startZoneOffset = START_ZONE_OFFSET,
                 endTime = END_TIME,
                 endZoneOffset = END_ZONE_OFFSET,
-                metadata = TEST_METADATA
+                metadata = TEST_METADATA,
+                segments =
+                    listOf(
+                        ExerciseSegment(
+                            startTime = Instant.ofEpochMilli(1234L),
+                            endTime = Instant.ofEpochMilli(1235L),
+                            segmentType = ExerciseSegment.EXERCISE_SEGMENT_TYPE_CRUNCH,
+                            repetitions = 10
+                        ),
+                        ExerciseSegment(
+                            startTime = Instant.ofEpochMilli(1235L),
+                            endTime = Instant.ofEpochMilli(1236L),
+                            segmentType = ExerciseSegment.EXERCISE_SEGMENT_TYPE_CRUNCH,
+                        )
+                    ),
+                laps =
+                    listOf(
+                        ExerciseLap(
+                            startTime = Instant.ofEpochMilli(1234L),
+                            endTime = Instant.ofEpochMilli(1235L),
+                            length = 1.meters
+                        ),
+                        ExerciseLap(
+                            startTime = Instant.ofEpochMilli(1235L),
+                            endTime = Instant.ofEpochMilli(1236L),
+                        )
+                    ),
+                exerciseRoute =
+                    ExerciseRoute(
+                        route =
+                            listOf(
+                                ExerciseRoute.Location(
+                                    time = Instant.ofEpochMilli(1234L),
+                                    latitude = 34.5,
+                                    longitude = -34.5,
+                                    horizontalAccuracy = Length.meters(0.4),
+                                    verticalAccuracy = Length.meters(1.3),
+                                    altitude = Length.meters(23.4)
+                                ),
+                                ExerciseRoute.Location(
+                                    time = Instant.ofEpochMilli(1235L),
+                                    latitude = 34.5,
+                                    longitude = -34.5,
+                                ),
+                            )
+                    ),
+            )
+
+        checkProtoAndRecordTypeNameMatch(data)
+        assertThat(toRecord(data.toProto())).isEqualTo(data)
+    }
+
+    @Test
+    fun testActivitySessionWithOnlyRequiredData() {
+        val data =
+            ExerciseSessionRecord(
+                exerciseType = EXERCISE_TYPE_BADMINTON,
+                startTime = START_TIME,
+                startZoneOffset = null,
+                endTime = END_TIME,
+                endZoneOffset = null,
+                exerciseRoute = null,
             )
 
         checkProtoAndRecordTypeNameMatch(data)
@@ -741,13 +808,21 @@ class AllRecordsConverterTest {
     fun testSleepSession() {
         val data =
             SleepSessionRecord(
-                title = null,
-                notes = null,
+                title = "title",
+                notes = "notes",
                 startTime = START_TIME,
                 startZoneOffset = START_ZONE_OFFSET,
                 endTime = END_TIME,
                 endZoneOffset = END_ZONE_OFFSET,
-                metadata = TEST_METADATA
+                metadata = TEST_METADATA,
+                stages =
+                    listOf(
+                        SleepSessionRecord.Stage(
+                            startTime = Instant.ofEpochMilli(1234L),
+                            endTime = Instant.ofEpochMilli(1236L),
+                            stage = SleepSessionRecord.STAGE_TYPE_DEEP,
+                        )
+                    )
             )
 
         checkProtoAndRecordTypeNameMatch(data)
@@ -755,10 +830,9 @@ class AllRecordsConverterTest {
     }
 
     @Test
-    fun testSleepStage() {
+    fun testSleepSessionWithEmptyStageList() {
         val data =
-            SleepStageRecord(
-                stage = STAGE_TYPE_AWAKE,
+            SleepSessionRecord(
                 startTime = START_TIME,
                 startZoneOffset = START_ZONE_OFFSET,
                 endTime = END_TIME,

@@ -19,15 +19,19 @@ package androidx.wear.protolayout.material;
 import static androidx.annotation.Dimension.DP;
 import static androidx.wear.protolayout.DimensionBuilders.degrees;
 import static androidx.wear.protolayout.DimensionBuilders.dp;
-import static androidx.wear.protolayout.material.Helper.checkNotNull;
-import static androidx.wear.protolayout.material.Helper.checkTag;
-import static androidx.wear.protolayout.material.Helper.getMetadataTagName;
-import static androidx.wear.protolayout.material.Helper.getTagBytes;
 import static androidx.wear.protolayout.material.ProgressIndicatorDefaults.DEFAULT_COLORS;
 import static androidx.wear.protolayout.material.ProgressIndicatorDefaults.DEFAULT_END_ANGLE;
 import static androidx.wear.protolayout.material.ProgressIndicatorDefaults.DEFAULT_PADDING;
 import static androidx.wear.protolayout.material.ProgressIndicatorDefaults.DEFAULT_START_ANGLE;
 import static androidx.wear.protolayout.material.ProgressIndicatorDefaults.DEFAULT_STROKE_WIDTH;
+import static androidx.wear.protolayout.materialcore.Helper.checkNotNull;
+import static androidx.wear.protolayout.materialcore.Helper.checkTag;
+import static androidx.wear.protolayout.materialcore.Helper.getMetadataTagName;
+import static androidx.wear.protolayout.materialcore.Helper.getTagBytes;
+import static androidx.wear.protolayout.materialcore.Helper.staticFloat;
+
+import static java.lang.Math.max;
+import static java.lang.Math.min;
 
 import androidx.annotation.Dimension;
 import androidx.annotation.FloatRange;
@@ -35,6 +39,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
+import androidx.wear.protolayout.DimensionBuilders.AngularLayoutConstraint;
 import androidx.wear.protolayout.DimensionBuilders.DegreesProp;
 import androidx.wear.protolayout.DimensionBuilders.DpProp;
 import androidx.wear.protolayout.LayoutElementBuilders;
@@ -46,15 +51,16 @@ import androidx.wear.protolayout.ModifiersBuilders.ElementMetadata;
 import androidx.wear.protolayout.ModifiersBuilders.Modifiers;
 import androidx.wear.protolayout.ModifiersBuilders.Padding;
 import androidx.wear.protolayout.ModifiersBuilders.Semantics;
+import androidx.wear.protolayout.TypeBuilders.FloatProp;
 import androidx.wear.protolayout.TypeBuilders.StringProp;
+import androidx.wear.protolayout.expression.DynamicBuilders;
+import androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat;
 import androidx.wear.protolayout.expression.Fingerprint;
 import androidx.wear.protolayout.proto.LayoutElementProto;
 
 /**
  * ProtoLayout component {@link CircularProgressIndicator} that represents circular progress
  * indicator which supports a gap in the circular track between startAngle and endAngle.
- * [Progress Indicator
- * doc] (https://developer.android.com/training/wearables/components/progress-indicator)
  *
  * <p>The CircularProgressIndicator is a colored arc around the edge of the screen with the given
  * start and end angles, which can describe a full or partial circle. Behind it is an arc with
@@ -107,24 +113,40 @@ public class CircularProgressIndicator implements LayoutElement {
     public static final class Builder implements LayoutElement.Builder {
         @NonNull private ProgressIndicatorColors mCircularProgressIndicatorColors = DEFAULT_COLORS;
         @NonNull private DpProp mStrokeWidth = DEFAULT_STROKE_WIDTH;
-        @NonNull private CharSequence mContentDescription = "";
+        @Nullable private StringProp mContentDescription;
         @NonNull private DegreesProp mStartAngle = degrees(DEFAULT_START_ANGLE);
         @NonNull private DegreesProp mEndAngle = degrees(DEFAULT_END_ANGLE);
-
-        @FloatRange(from = 0, to = 1)
-        private float mProgress = 0;
+        @NonNull private FloatProp mProgress = staticFloat(0f);
 
         /** Creates a builder for the {@link CircularProgressIndicator}. */
         public Builder() {}
 
         /**
-         * Sets the progress of the {@link CircularProgressIndicator}. Progress should be percentage
-         * from 0 to 1. Progress will be colored in {@link ProgressIndicatorColors#getTrackColor}.
-         * If not set, 0 will be used.
+         * Sets the progress of the {@link CircularProgressIndicator}. Progress ratio should be a
+         * value between 0 and 1. If not set, 0 will be used. Progress will be colored in {@link
+         * ProgressIndicatorColors#getIndicatorColor()}.
          */
         @NonNull
-        public Builder setProgress(@FloatRange(from = 0, to = 1) float progressPercentage) {
-            this.mProgress = progressPercentage;
+        public Builder setProgress(@FloatRange(from = 0, to = 1) float progressRatio) {
+            this.mProgress = staticFloat(progressRatio);
+            return this;
+        }
+
+        /**
+         * Sets the progress of the {@link CircularProgressIndicator}. If not set, static value
+         * provided using {@link #setProgress(float)} will be used, or 0. Progress will be colored
+         * in {@link ProgressIndicatorColors#getIndicatorColor()}.
+         *
+         * <p>While this field is statically accessible from 1.0, it's only bindable since version
+         * 1.2 and renderers supporting version 1.2 will use the dynamic value (if set).
+         *
+         * @param progressRatio The progress between 0 and 1. This field supports setting a dynamic
+         *     value. The static value of {@code progressRatio} will be considered as 0 if it's
+         *     smaller than zero and as 1 if it's larger than one.
+         */
+        @NonNull
+        public Builder setProgress(@NonNull FloatProp progressRatio) {
+            this.mProgress = progressRatio;
             return this;
         }
 
@@ -152,11 +174,25 @@ public class CircularProgressIndicator implements LayoutElement {
         }
 
         /**
-         * Sets the content description of the {@link CircularProgressIndicator} to be used for
-         * accessibility support.
+         * Sets the static content description of the {@link CircularProgressIndicator} to be used
+         * for accessibility support.
          */
         @NonNull
         public Builder setContentDescription(@NonNull CharSequence contentDescription) {
+            this.mContentDescription =
+                    new StringProp.Builder(contentDescription.toString()).build();
+            return this;
+        }
+
+        /**
+         * Sets the content description of the {@link CircularProgressIndicator} to be used for
+         * accessibility support.
+         *
+         * <p>While this field is statically accessible from 1.0, it's only bindable since version
+         * 1.2 and renderers supporting version 1.2 will use the dynamic value (if set).
+         */
+        @NonNull
+        public Builder setContentDescription(@NonNull StringProp contentDescription) {
             this.mContentDescription = contentDescription;
             return this;
         }
@@ -206,26 +242,38 @@ public class CircularProgressIndicator implements LayoutElement {
             DegreesProp length = getLength();
             Modifiers.Builder modifiers =
                     new Modifiers.Builder()
-                            .setPadding(new Padding.Builder().setAll(DEFAULT_PADDING).build())
+                            .setPadding(
+                                    new Padding.Builder()
+                                            .setRtlAware(true)
+                                            .setAll(DEFAULT_PADDING)
+                                            .build())
                             .setMetadata(
                                     new ElementMetadata.Builder()
                                             .setTagData(getTagBytes(METADATA_TAG))
                                             .build());
 
-            if (mContentDescription.length() > 0) {
+            if (mContentDescription != null) {
                 modifiers.setSemantics(
-                        new Semantics.Builder()
-                                .setContentDescription(mContentDescription.toString())
-                                .build());
+                        new Semantics.Builder().setContentDescription(mContentDescription).build());
             }
+
+            ArcLine.Builder progressArcLineBuilder =
+                    new ArcLine.Builder()
+                            .setArcDirection(LayoutElementBuilders.ARC_DIRECTION_CLOCKWISE)
+                            .setColor(mCircularProgressIndicatorColors.getIndicatorColor())
+                            .setThickness(mStrokeWidth);
+            applyCorrectValue(progressArcLineBuilder);
 
             Arc.Builder element =
                     new Arc.Builder()
+                            .setArcDirection(LayoutElementBuilders.ARC_DIRECTION_CLOCKWISE)
                             .setAnchorType(LayoutElementBuilders.ARC_ANCHOR_START)
                             .setAnchorAngle(mStartAngle)
                             .setModifiers(modifiers.build())
                             .addContent(
                                     new ArcLine.Builder()
+                                            .setArcDirection(
+                                                    LayoutElementBuilders.ARC_DIRECTION_CLOCKWISE)
                                             .setColor(
                                                     mCircularProgressIndicatorColors
                                                             .getTrackColor())
@@ -238,15 +286,34 @@ public class CircularProgressIndicator implements LayoutElement {
                                     new ArcSpacer.Builder()
                                             .setLength(degrees(360 - length.getValue()))
                                             .build())
-                            .addContent(
-                                    new ArcLine.Builder()
-                                            .setColor(
-                                                    mCircularProgressIndicatorColors
-                                                            .getIndicatorColor())
-                                            .setThickness(mStrokeWidth)
-                                            .setLength(degrees(mProgress * length.getValue()))
-                                            .build());
+                            .addContent(progressArcLineBuilder.build());
+
             return new CircularProgressIndicator(element.build());
+        }
+
+        private void applyCorrectValue(ArcLine.Builder builder) {
+            float length = getLength().getValue();
+            float staticValue = mProgress.getValue();
+            staticValue = max(0, staticValue);
+            staticValue = min(1, staticValue);
+            if (mProgress.getDynamicValue() != null) {
+                DynamicFloat progressRatio = mProgress.getDynamicValue();
+                DynamicFloat dynamicLength =
+                        DynamicBuilders.dynamicFloatFromProto(
+                                        progressRatio.toDynamicFloatProto(),
+                                        mProgress.getFingerprint())
+                                .times(length);
+                builder.setLength(
+                        new DegreesProp.Builder(staticValue)
+                                .setDynamicValue(dynamicLength)
+                                .build());
+                builder.setLayoutConstraintsForDynamicLength(
+                        new AngularLayoutConstraint.Builder(length)
+                                .setAngularAlignment(LayoutElementBuilders.ANGULAR_ALIGNMENT_START)
+                                .build());
+            } else {
+                builder.setLength(degrees(staticValue * length));
+            }
         }
 
         private void checkAngles() {
@@ -300,16 +367,12 @@ public class CircularProgressIndicator implements LayoutElement {
 
     /** Returns content description of this CircularProgressIndicator. */
     @Nullable
-    public CharSequence getContentDescription() {
+    public StringProp getContentDescription() {
         Semantics semantics = checkNotNull(mElement.getModifiers()).getSemantics();
         if (semantics == null) {
             return null;
         }
-        StringProp contentDescriptionProp = semantics.getContentDescription();
-        if (contentDescriptionProp == null) {
-            return null;
-        }
-        return contentDescriptionProp.getValue();
+        return semantics.getContentDescription();
     }
 
     /**

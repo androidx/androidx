@@ -17,10 +17,10 @@
 package androidx.hilt.ext
 
 import androidx.hilt.AndroidXHiltProcessor
-import com.google.auto.common.GeneratedAnnotationSpecs
+import androidx.room.compiler.processing.XProcessingEnv
+import com.squareup.javapoet.AnnotationSpec
+import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.TypeSpec
-import javax.lang.model.SourceVersion
-import javax.lang.model.util.Elements
 
 const val L = "\$L"
 const val T = "\$T"
@@ -28,15 +28,13 @@ const val N = "\$N"
 const val S = "\$S"
 const val W = "\$W"
 
-internal fun TypeSpec.Builder.addGeneratedAnnotation(
-    elements: Elements,
-    sourceVersion: SourceVersion
-) = apply {
-    GeneratedAnnotationSpecs.generatedAnnotationSpec(
-        elements,
-        sourceVersion,
-        AndroidXHiltProcessor::class.java
-    ).ifPresent { generatedAnnotation ->
-        addAnnotation(generatedAnnotation)
+internal fun TypeSpec.Builder.addGeneratedAnnotation(env: XProcessingEnv) = apply {
+    env.findGeneratedAnnotation()?.let {
+        addAnnotation(
+            AnnotationSpec.builder(ClassName.bestGuess(it.asClassName().canonicalName))
+                .addMember("value", S, AndroidXHiltProcessor::class.java.canonicalName)
+                .build()
+
+        )
     }
 }

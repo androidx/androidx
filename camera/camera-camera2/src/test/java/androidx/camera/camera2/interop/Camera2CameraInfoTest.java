@@ -83,6 +83,7 @@ public final class Camera2CameraInfoTest {
         Camera2CameraInfo camera2CameraInfo = mock(Camera2CameraInfo.class);
         Camera2CameraInfoImpl cameraInfoImpl = mock(Camera2CameraInfoImpl.class);
         when(cameraInfoImpl.getCamera2CameraInfo()).thenAnswer(ignored -> camera2CameraInfo);
+        when(cameraInfoImpl.getImplementation()).thenAnswer(ignored -> cameraInfoImpl);
         Camera2CameraInfo resultCamera2CameraInfo = Camera2CameraInfo.from(cameraInfoImpl);
 
         assertThat(resultCamera2CameraInfo).isEqualTo(camera2CameraInfo);

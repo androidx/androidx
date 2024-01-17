@@ -26,13 +26,13 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.CanvasHolder
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.CompositingStrategy
+import androidx.compose.ui.graphics.Fields
 import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.RenderEffect
-import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.ReusableGraphicsLayerScope
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.GraphicLayerInfo
@@ -124,53 +124,67 @@ internal class ViewLayer(
             cameraDistance = value * resources.displayMetrics.densityDpi
         }
 
+    private var mutatedFields: Int = 0
+
     override fun updateLayerProperties(
-        scaleX: Float,
-        scaleY: Float,
-        alpha: Float,
-        translationX: Float,
-        translationY: Float,
-        shadowElevation: Float,
-        rotationX: Float,
-        rotationY: Float,
-        rotationZ: Float,
-        cameraDistance: Float,
-        transformOrigin: TransformOrigin,
-        shape: Shape,
-        clip: Boolean,
-        renderEffect: RenderEffect?,
-        ambientShadowColor: Color,
-        spotShadowColor: Color,
-        compositingStrategy: CompositingStrategy,
+        scope: ReusableGraphicsLayerScope,
         layoutDirection: LayoutDirection,
-        density: Density
+        density: Density,
     ) {
-        this.mTransformOrigin = transformOrigin
-        this.scaleX = scaleX
-        this.scaleY = scaleY
-        this.alpha = alpha
-        this.translationX = translationX
-        this.translationY = translationY
-        this.elevation = shadowElevation
-        this.rotation = rotationZ
-        this.rotationX = rotationX
-        this.rotationY = rotationY
-        this.pivotX = mTransformOrigin.pivotFractionX * width
-        this.pivotY = mTransformOrigin.pivotFractionY * height
-        this.cameraDistancePx = cameraDistance
-        this.clipToBounds = clip && shape === RectangleShape
-        resetClipBounds()
+        val maybeChangedFields = scope.mutatedFields or mutatedFields
+        if (maybeChangedFields and Fields.TransformOrigin != 0) {
+            this.mTransformOrigin = scope.transformOrigin
+            this.pivotX = mTransformOrigin.pivotFractionX * width
+            this.pivotY = mTransformOrigin.pivotFractionY * height
+        }
+        if (maybeChangedFields and Fields.ScaleX != 0) {
+            this.scaleX = scope.scaleX
+        }
+        if (maybeChangedFields and Fields.ScaleY != 0) {
+            this.scaleY = scope.scaleY
+        }
+        if (maybeChangedFields and Fields.Alpha != 0) {
+            this.alpha = scope.alpha
+        }
+        if (maybeChangedFields and Fields.TranslationX != 0) {
+            this.translationX = scope.translationX
+        }
+        if (maybeChangedFields and Fields.TranslationY != 0) {
+            this.translationY = scope.translationY
+        }
+        if (maybeChangedFields and Fields.ShadowElevation != 0) {
+            this.elevation = scope.shadowElevation
+        }
+        if (maybeChangedFields and Fields.RotationZ != 0) {
+            this.rotation = scope.rotationZ
+        }
+        if (maybeChangedFields and Fields.RotationX != 0) {
+            this.rotationX = scope.rotationX
+        }
+        if (maybeChangedFields and Fields.RotationY != 0) {
+            this.rotationY = scope.rotationY
+        }
+        if (maybeChangedFields and Fields.CameraDistance != 0) {
+            this.cameraDistancePx = scope.cameraDistance
+        }
         val wasClippingManually = manualClipPath != null
-        this.clipToOutline = clip && shape !== RectangleShape
+        val clipToOutline = scope.clip && scope.shape !== RectangleShape
+        if (maybeChangedFields and (Fields.Clip or Fields.Shape) != 0) {
+            this.clipToBounds = scope.clip && scope.shape === RectangleShape
+            resetClipBounds()
+            this.clipToOutline = clipToOutline
+        }
         val shapeChanged = outlineResolver.update(
-            shape,
-            this.alpha,
-            this.clipToOutline,
-            this.elevation,
+            scope.shape,
+            scope.alpha,
+            clipToOutline,
+            scope.shadowElevation,
             layoutDirection,
             density
         )
-        updateOutlineResolver()
+        if (outlineResolver.cacheIsDirty) {
+            updateOutlineResolver()
+        }
         val isClippingManually = manualClipPath != null
         if (wasClippingManually != isClippingManually || (isClippingManually && shapeChanged)) {
             invalidate() // have to redraw the content
@@ -178,33 +192,48 @@ internal class ViewLayer(
         if (!drawnWithZ && elevation > 0) {
             invalidateParentLayer?.invoke()
         }
-        matrixCache.invalidate()
+        if (maybeChangedFields and Fields.MatrixAffectingFields != 0) {
+            matrixCache.invalidate()
+        }
         if (Build.VERSION.SDK_INT >= 28) {
-            ViewLayerVerificationHelper28.setOutlineAmbientShadowColor(
-                this,
-                ambientShadowColor.toArgb()
-            )
-            ViewLayerVerificationHelper28.setOutlineSpotShadowColor(this, spotShadowColor.toArgb())
+            if (maybeChangedFields and Fields.AmbientShadowColor != 0) {
+                ViewLayerVerificationHelper28.setOutlineAmbientShadowColor(
+                    this,
+                    scope.ambientShadowColor.toArgb()
+                )
+            }
+            if (maybeChangedFields and Fields.SpotShadowColor != 0) {
+                ViewLayerVerificationHelper28.setOutlineSpotShadowColor(
+                    this,
+                    scope.spotShadowColor.toArgb()
+                )
+            }
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            ViewLayerVerificationHelper31.setRenderEffect(this, renderEffect)
-        }
-
-        mHasOverlappingRendering = when (compositingStrategy) {
-            CompositingStrategy.Offscreen -> {
-                setLayerType(LAYER_TYPE_HARDWARE, null)
-                true
-            }
-
-            CompositingStrategy.ModulateAlpha -> {
-                setLayerType(LAYER_TYPE_NONE, null)
-                false
-            }
-            else -> { // CompositingStrategy.Auto
-                setLayerType(LAYER_TYPE_NONE, null)
-                true
+            if (maybeChangedFields and Fields.RenderEffect != 0) {
+                ViewLayerVerificationHelper31.setRenderEffect(this, scope.renderEffect)
             }
         }
+
+        if (maybeChangedFields and Fields.CompositingStrategy != 0) {
+            mHasOverlappingRendering = when (scope.compositingStrategy) {
+                CompositingStrategy.Offscreen -> {
+                    setLayerType(LAYER_TYPE_HARDWARE, null)
+                    true
+                }
+
+                CompositingStrategy.ModulateAlpha -> {
+                    setLayerType(LAYER_TYPE_NONE, null)
+                    false
+                }
+
+                else -> { // CompositingStrategy.Auto
+                    setLayerType(LAYER_TYPE_NONE, null)
+                    true
+                }
+            }
+        }
+        mutatedFields = scope.mutatedFields
     }
 
     override fun hasOverlappingRendering(): Boolean {
@@ -286,7 +315,6 @@ internal class ViewLayer(
     }
 
     override fun dispatchDraw(canvas: android.graphics.Canvas) {
-        isInvalidated = false
         canvasHolder.drawInto(canvas) {
             var didClip = false
             val clipPath = manualClipPath
@@ -300,6 +328,7 @@ internal class ViewLayer(
                 restore()
             }
         }
+        isInvalidated = false
     }
 
     override fun invalidate() {
@@ -335,8 +364,8 @@ internal class ViewLayer(
 
     override fun updateDisplayList() {
         if (isInvalidated && !shouldUseDispatchDraw) {
-            isInvalidated = false
             updateDisplayList(this)
+            isInvalidated = false
         }
     }
 

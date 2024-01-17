@@ -19,7 +19,9 @@ package androidx.baselineprofile.gradle.producer
 import androidx.baselineprofile.gradle.configuration.ConfigurationManager
 import androidx.baselineprofile.gradle.producer.tasks.CollectBaselineProfileTask
 import androidx.baselineprofile.gradle.producer.tasks.InstrumentationTestTaskWrapper
-import androidx.baselineprofile.gradle.utils.AgpFeature
+import androidx.baselineprofile.gradle.utils.AgpFeature.TEST_MODULE_SUPPORTS_MULTIPLE_BUILD_TYPES
+import androidx.baselineprofile.gradle.utils.AgpFeature.TEST_VARIANT_SUPPORTS_INSTRUMENTATION_RUNNER_ARGUMENTS
+import androidx.baselineprofile.gradle.utils.AgpFeature.TEST_VARIANT_TESTED_APKS
 import androidx.baselineprofile.gradle.utils.AgpPlugin
 import androidx.baselineprofile.gradle.utils.AgpPluginId
 import androidx.baselineprofile.gradle.utils.AndroidTestModuleWrapper
@@ -27,9 +29,15 @@ import androidx.baselineprofile.gradle.utils.BUILD_TYPE_BASELINE_PROFILE_PREFIX
 import androidx.baselineprofile.gradle.utils.BUILD_TYPE_BENCHMARK_PREFIX
 import androidx.baselineprofile.gradle.utils.CONFIGURATION_ARTIFACT_TYPE
 import androidx.baselineprofile.gradle.utils.CONFIGURATION_NAME_BASELINE_PROFILES
+import androidx.baselineprofile.gradle.utils.INSTRUMENTATION_ARG_ENABLED_RULES
+import androidx.baselineprofile.gradle.utils.INSTRUMENTATION_ARG_ENABLED_RULES_BASELINE_PROFILE
+import androidx.baselineprofile.gradle.utils.INSTRUMENTATION_ARG_ENABLED_RULES_BENCHMARK
+import androidx.baselineprofile.gradle.utils.INSTRUMENTATION_ARG_TARGET_PACKAGE_NAME
+import androidx.baselineprofile.gradle.utils.InstrumentationTestRunnerArgumentsAgp82
 import androidx.baselineprofile.gradle.utils.MAX_AGP_VERSION_REQUIRED
 import androidx.baselineprofile.gradle.utils.MIN_AGP_VERSION_REQUIRED
 import androidx.baselineprofile.gradle.utils.RELEASE
+import androidx.baselineprofile.gradle.utils.TestedApksAgp83
 import androidx.baselineprofile.gradle.utils.camelCase
 import androidx.baselineprofile.gradle.utils.createBuildTypeIfNotExists
 import androidx.baselineprofile.gradle.utils.createExtendedBuildTypes
@@ -60,8 +68,25 @@ private class BaselineProfileProducerAgpPlugin(private val project: Project) : A
     maxAgpVersion = MAX_AGP_VERSION_REQUIRED
 ) {
 
+    companion object {
+        private const val PROP_ENABLED_RULES =
+            "android.testInstrumentationRunnerArguments.androidx.benchmark.enabledRules"
+    }
+
     private val baselineProfileExtension = BaselineProfileProducerExtension.register(project)
     private val configurationManager = ConfigurationManager(project)
+    private val shouldSkipGeneration by lazy {
+        project.properties.containsKey(PROP_SKIP_GENERATION)
+    }
+    private val forceOnlyConnectedDevices: Boolean by lazy {
+        project.properties.containsKey(PROP_FORCE_ONLY_CONNECTED_DEVICES)
+    }
+    private val addEnabledRulesInstrumentationArgument by lazy {
+        !project.properties.containsKey(PROP_DONT_DISABLE_RULES)
+    }
+    private val addTargetPackageNameInstrumentationArgument by lazy {
+        !project.properties.containsKey(PROP_SEND_TARGET_PACKAGE_NAME)
+    }
 
     // This maps all the extended build types to the original ones. Note that release does not
     // exist by default so we need to create nonMinifiedRelease and map it manually to `release`.
@@ -163,7 +188,7 @@ private class BaselineProfileProducerAgpPlugin(private val project: Project) : A
 
         // Similarly to baseline profile build types we also create benchmark build types if this
         // version of AGP has the support for it.
-        if (supportsFeature(AgpFeature.TEST_MODULE_SUPPORTS_MULTIPLE_BUILD_TYPES)) {
+        if (supportsFeature(TEST_MODULE_SUPPORTS_MULTIPLE_BUILD_TYPES)) {
             createExtendedBuildTypes(
                 project = project,
                 extensionBuildTypes = extension.buildTypes,
@@ -181,6 +206,14 @@ private class BaselineProfileProducerAgpPlugin(private val project: Project) : A
                 extensionBuildTypes = extension.buildTypes,
                 buildTypeName = benchmarkReleaseName,
                 configureBlock = configureBlock
+            )
+        }
+
+        if (shouldSkipGeneration) {
+            logger.info(
+                """
+                Property `$PROP_SKIP_GENERATION` set. Baseline profile generation will be skipped.
+            """.trimIndent()
             )
         }
     }
@@ -201,27 +234,81 @@ private class BaselineProfileProducerAgpPlugin(private val project: Project) : A
         // api so the actual creation of the tasks is postponed to be executed when all the
         // agp tasks have been created, using the old api.
 
-        // Creating configurations only for the extended build types.
-        if (variant.buildType !in baselineProfileExtendedToOriginalTypeMap.keys) {
-            return
+        // The enabled rules property is passed automatically according to the variant, if it was
+        // not set by the user.
+        val enabledRulesNotSet = !project
+            .gradle
+            .startParameter
+            .projectProperties
+            .any { it.key!!.contentEquals(PROP_ENABLED_RULES) }
+
+        // If this is a benchmark variant sets the instrumentation runner argument to run only
+        // tests with MacroBenchmark rules.
+        if (addEnabledRulesInstrumentationArgument &&
+            enabledRulesNotSet &&
+            variant.buildType in benchmarkExtendedToOriginalTypeMap.keys
+        ) {
+            if (supportsFeature(TEST_VARIANT_SUPPORTS_INSTRUMENTATION_RUNNER_ARGUMENTS)) {
+                InstrumentationTestRunnerArgumentsAgp82.set(
+                    variant = variant,
+                    arguments = listOf(
+                        INSTRUMENTATION_ARG_ENABLED_RULES
+                            to INSTRUMENTATION_ARG_ENABLED_RULES_BENCHMARK
+                    )
+                )
+            }
         }
 
-        // Creates the configuration to handle this variant. Note that in the attributes
-        // to match the configuration we use the original build type without `nonObfuscated`.
-        val configuration = createConfigurationForVariant(
-            variant = variant,
-            originalBuildTypeName = baselineProfileExtendedToOriginalTypeMap[variant.buildType]
-                ?: "",
-        )
-
-        // Prepares a block to execute later that creates the tasks for this variant
-        afterVariants {
-            createTasksForVariant(
-                project = project,
+        // If AGP api support it, the application id of the target app is sent to instrumentation
+        // app as an instrumentation runner argument. BaselineProfileRule and MacrobenchmarkRule
+        // can pick that up during the test execution.
+        if (addTargetPackageNameInstrumentationArgument &&
+            supportsFeature(TEST_VARIANT_TESTED_APKS)) {
+            InstrumentationTestRunnerArgumentsAgp82.set(
                 variant = variant,
-                configurationName = configuration.name,
-                baselineProfileExtension = baselineProfileExtension
+                key = INSTRUMENTATION_ARG_TARGET_PACKAGE_NAME,
+                value = TestedApksAgp83.getTargetAppApplicationId(variant)
             )
+        }
+
+        // If this is a baseline profile variant sets the instrumentation runner argument to run
+        // only tests with BaselineProfileRule, create the consumable configurations to expose
+        // the baseline profile artifacts and the tasks to generate the baseline profile artifacts.
+        // Configuration and tasks are created only for baseline profile variants.
+        if (variant.buildType in baselineProfileExtendedToOriginalTypeMap.keys) {
+
+            // If this is a benchmark variant sets the instrumentation runner argument to run only
+            // tests with MacroBenchmark rules.
+            if (addEnabledRulesInstrumentationArgument &&
+                enabledRulesNotSet &&
+                supportsFeature(TEST_VARIANT_SUPPORTS_INSTRUMENTATION_RUNNER_ARGUMENTS)
+            ) {
+                InstrumentationTestRunnerArgumentsAgp82.set(
+                    variant = variant,
+                    arguments = listOf(
+                        INSTRUMENTATION_ARG_ENABLED_RULES
+                            to INSTRUMENTATION_ARG_ENABLED_RULES_BASELINE_PROFILE
+                    )
+                )
+            }
+
+            // Creates the configuration to handle this variant. Note that in the attributes
+            // to match the configuration we use the original build type without `nonObfuscated`.
+            val configuration = createConfigurationForVariant(
+                variant = variant,
+                originalBuildTypeName = baselineProfileExtendedToOriginalTypeMap[variant.buildType]
+                    ?: "",
+            )
+
+            // Prepares a block to execute later that creates the tasks for this variant
+            afterVariants {
+                createTasksForVariant(
+                    project = project,
+                    variant = variant,
+                    configurationName = configuration.name,
+                    baselineProfileExtension = baselineProfileExtension
+                )
+            }
         }
     }
 
@@ -246,9 +333,17 @@ private class BaselineProfileProducerAgpPlugin(private val project: Project) : A
     ) {
 
         // Prepares the devices list to use to generate the baseline profile.
+        // Note that when running gradle with
+        // `androidx.baselineprofile.forceonlyconnecteddevices=false`
+        // this DSL specification is not respected. This is used by Android Studio to run
+        // baseline profile generation only on the selected devices.
         val devices = mutableSetOf<String>()
-        devices.addAll(baselineProfileExtension.managedDevices)
-        if (baselineProfileExtension.useConnectedDevices) devices.add("connected")
+        if (forceOnlyConnectedDevices) {
+            devices.add("connected")
+        } else {
+            devices.addAll(baselineProfileExtension.managedDevices)
+            if (baselineProfileExtension.useConnectedDevices) devices.add("connected")
+        }
 
         // The test task runs the ui tests
         val testTasks = devices.map { device ->
@@ -268,21 +363,41 @@ private class BaselineProfileProducerAgpPlugin(private val project: Project) : A
 
                 throw GradleException(
                     """
-                    It wasn't possible to determine the test task for managed device `$device`.
-                    Please check the managed devices specified in the baseline profile
-                    configuration.
+                No managed device named `$device` was found. Please check your GMD configuration
+                and make sure that the `baselineProfile.managedDevices` property contains only
+                existing gradle managed devices. Example:
+
+                android {
+                    testOptions.managedDevices.devices {
+                        pixel6Api31(ManagedVirtualDevice) {
+                            device = "Pixel 6"
+                            apiLevel = 31
+                            systemImageSource = "aosp"
+                        }
+                    }
+                }
+
+                baselineProfile {
+                    managedDevices = ["pixel6Api31"]
+                    useConnectedDevices = false
+                }
+
                     """.trimIndent()
                 )
             }
 
             task
-        }.onEach { it.setEnableEmulatorDisplay(baselineProfileExtension.enableEmulatorDisplay) }
+        }.onEach {
+            it.setEnableEmulatorDisplay(baselineProfileExtension.enableEmulatorDisplay)
+            if (shouldSkipGeneration) it.setTaskEnabled(false)
+        }
 
         // The collect task collects the baseline profile files from the ui test results
         val collectTaskProvider = CollectBaselineProfileTask.registerForVariant(
             project = project,
             variant = variant,
-            testTaskDependencies = testTasks
+            testTaskDependencies = testTasks,
+            shouldSkipGeneration = shouldSkipGeneration
         )
 
         // The artifacts are added to the configuration that exposes the generated baseline profile

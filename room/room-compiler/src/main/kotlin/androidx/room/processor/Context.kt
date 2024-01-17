@@ -147,10 +147,32 @@ class Context private constructor(
         }
     }
 
+    val schemaInFolderPath by lazy {
+        val internalInputFolder =
+            processingEnv.options[ProcessorOptions.INTERNAL_SCHEMA_INPUT_FOLDER.argName]
+        val legacySchemaFolder =
+            processingEnv.options[ProcessorOptions.OPTION_SCHEMA_FOLDER.argName]
+        if (!internalInputFolder.isNullOrBlank()) {
+            internalInputFolder
+        } else if (!legacySchemaFolder.isNullOrBlank()) {
+            legacySchemaFolder
+        } else {
+            null
+        }
+    }
+
     val schemaOutFolderPath by lazy {
-        val arg = processingEnv.options[ProcessorOptions.OPTION_SCHEMA_FOLDER.argName]
-        if (arg?.isNotEmpty() == true) {
-            arg
+        val internalOutputFolder =
+            processingEnv.options[ProcessorOptions.INTERNAL_SCHEMA_OUTPUT_FOLDER.argName]
+        val legacySchemaFolder =
+            processingEnv.options[ProcessorOptions.OPTION_SCHEMA_FOLDER.argName]
+        if (!internalOutputFolder.isNullOrBlank() && !legacySchemaFolder.isNullOrBlank()) {
+            logger.e(ProcessorErrors.INVALID_GRADLE_PLUGIN_AND_SCHEMA_LOCATION_OPTION)
+        }
+        if (!internalOutputFolder.isNullOrBlank()) {
+            internalOutputFolder
+        } else if (!legacySchemaFolder.isNullOrBlank()) {
+            legacySchemaFolder
         } else {
             null
         }
@@ -256,7 +278,9 @@ class Context private constructor(
     }
 
     enum class ProcessorOptions(val argName: String) {
-        OPTION_SCHEMA_FOLDER("room.schemaLocation")
+        OPTION_SCHEMA_FOLDER("room.schemaLocation"),
+        INTERNAL_SCHEMA_INPUT_FOLDER("room.internal.schemaInput"),
+        INTERNAL_SCHEMA_OUTPUT_FOLDER("room.internal.schemaOutput"),
     }
 
     enum class BooleanProcessorOptions(val argName: String, private val defaultValue: Boolean) {

@@ -23,6 +23,7 @@ import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.DefaultShadowColor
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.RenderEffect
+import androidx.compose.ui.graphics.ReusableGraphicsLayerScope
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -31,14 +32,14 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.round
+import kotlin.math.PI
+import kotlin.math.cos
+import kotlin.math.roundToInt
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
-import kotlin.math.PI
-import kotlin.math.cos
-import kotlin.math.roundToInt
 
 class SkiaLayerTest {
     @get:Rule
@@ -395,11 +396,25 @@ class SkiaLayerTest {
         renderEffect: RenderEffect? = null,
         compositingStrategy: CompositingStrategy = CompositingStrategy.Auto
     ) {
-        updateLayerProperties(
-            scaleX, scaleY, alpha, translationX, translationY, shadowElevation, rotationX,
-            rotationY, rotationZ, cameraDistance, transformOrigin, shape, clip, renderEffect,
-            ambientShadowColor, spotShadowColor, compositingStrategy, LayoutDirection.Ltr,
-            Density(1f, 1f)
-        )
+        val scope = ReusableGraphicsLayerScope()
+        scope.cameraDistance = cameraDistance
+        scope.scaleX = scaleX
+        scope.scaleY = scaleY
+        scope.alpha = alpha
+        scope.translationX = translationX
+        scope.translationY = translationY
+        scope.shadowElevation = shadowElevation
+        scope.ambientShadowColor = ambientShadowColor
+        scope.spotShadowColor = spotShadowColor
+        scope.rotationX = rotationX
+        scope.rotationY = rotationY
+        scope.rotationZ = rotationZ
+        scope.cameraDistance = cameraDistance
+        scope.transformOrigin = transformOrigin
+        scope.shape = shape
+        scope.clip = clip
+        scope.renderEffect = renderEffect
+        scope.compositingStrategy = compositingStrategy
+        updateLayerProperties(scope, LayoutDirection.Ltr, Density(1f))
     }
 }

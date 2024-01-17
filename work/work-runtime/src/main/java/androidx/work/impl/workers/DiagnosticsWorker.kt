@@ -22,11 +22,11 @@ import androidx.work.Worker
 import androidx.work.WorkerParameters
 import androidx.work.impl.Scheduler
 import androidx.work.impl.WorkManagerImpl
-import androidx.work.impl.model.generationalId
 import androidx.work.impl.model.SystemIdInfoDao
 import androidx.work.impl.model.WorkNameDao
 import androidx.work.impl.model.WorkSpec
 import androidx.work.impl.model.WorkTagDao
+import androidx.work.impl.model.generationalId
 import java.util.concurrent.TimeUnit
 
 internal class DiagnosticsWorker(context: Context, parameters: WorkerParameters) :
@@ -38,7 +38,8 @@ internal class DiagnosticsWorker(context: Context, parameters: WorkerParameters)
         val workNameDao = database.workNameDao()
         val workTagDao = database.workTagDao()
         val systemIdInfoDao = database.systemIdInfoDao()
-        val startAt = System.currentTimeMillis() - TimeUnit.DAYS.toMillis(1)
+        val startAt =
+            workManager.configuration.clock.currentTimeMillis() - TimeUnit.DAYS.toMillis(1)
         val completed = workSpecDao.getRecentlyCompletedWork(startAt)
         val running = workSpecDao.getRunningWork()
         val enqueued = workSpecDao.getAllEligibleWorkSpecsForScheduling(

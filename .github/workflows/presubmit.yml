@@ -99,14 +99,14 @@ jobs:
 
           # Limit the size of the cache entry.
           # These directories contain instrumented/transformed dependency jars which can be reconstructed relatively quickly.
-          gradle-home-cache-excludes: | 
+          gradle-home-cache-excludes: |
             caches/jars-9
             caches/transforms-3
 
       - name: "ktlint"
         env:
           JAVA_HOME: ${{ steps.setup-java.outputs.path }}
-        working-directory: activity
+        working-directory: playground-projects/ktlint-playground
         run: ./gradlew -q :ktlintCheckFile ${{ steps.ktlint-file-args.outputs.ktlint-file-args }} ${{ needs.setup.outputs.gradlew_flags }}
 
   build-modules:
@@ -126,7 +126,7 @@ jobs:
     needs: [setup, lint]
     env:
       artifact-id: ${{matrix.project}}
-      project-root: ${{matrix.project-root || matrix.project}}
+      project-root: playground-projects/${{matrix.project-root || matrix.project}}-playground
       GRADLE_BUILD_CACHE_PASSWORD: ${{ secrets.GRADLE_BUILD_CACHE_PASSWORD }}
       GRADLE_ENTERPRISE_ACCESS_KEY: ${{ secrets.GRADLE_ENTERPRISE_ACCESS_KEY }}
     steps:
@@ -145,7 +145,7 @@ jobs:
         if: ${{ steps.check-ci-config.outputs.enabled == 'true' }}
         with:
           project: ${{ matrix.project }}
-          project-root: ${{matrix.project-root || matrix.project }}
+          project-root: ${{ env.project-root }}
           gradle-cache-password: ${{ secrets.GRADLE_BUILD_CACHE_PASSWORD }}
           gradle-enterprise-access-key: ${{ secrets.GRADLE_ENTERPRISE_ACCESS_KEY }}
           gradle-flags: ${{ needs.setup.outputs.gradlew_flags }}

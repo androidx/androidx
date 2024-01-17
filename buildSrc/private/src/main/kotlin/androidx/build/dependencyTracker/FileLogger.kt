@@ -16,41 +16,29 @@
 
 package androidx.build.dependencyTracker
 
+import java.io.File
+import java.io.Serializable
 import org.gradle.api.logging.LogLevel
 import org.gradle.internal.logging.slf4j.OutputEventListenerBackedLogger
 import org.gradle.internal.logging.slf4j.OutputEventListenerBackedLoggerContext
 import org.gradle.internal.time.Clock
 
-import java.io.File
-import java.io.Serializable
-
-/**
- * Gradle logger that logs to a file
- */
-class FileLogger(
-    val file: File
-) : Serializable {
-    @Transient
-    var impl: OutputEventListenerBackedLogger? = null
+/** Gradle logger that logs to a file */
+class FileLogger(val file: File) : Serializable {
+    @Transient var impl: OutputEventListenerBackedLogger? = null
 
     fun toLogger(): OutputEventListenerBackedLogger {
         if (impl == null) {
-            impl = OutputEventListenerBackedLogger(
-                "my_logger",
-                OutputEventListenerBackedLoggerContext(
-                    Clock {
-                        System.currentTimeMillis()
-                    }
-                ).also {
-                    it.level = LogLevel.DEBUG
-                    it.setOutputEventListener {
-                        file.appendText(it.toString() + "\n")
-                    }
-                },
-                Clock {
-                    System.currentTimeMillis()
-                }
-            )
+            impl =
+                OutputEventListenerBackedLogger(
+                    "my_logger",
+                    OutputEventListenerBackedLoggerContext(Clock { System.currentTimeMillis() })
+                        .also {
+                            it.level = LogLevel.DEBUG
+                            it.setOutputEventListener { file.appendText(it.toString() + "\n") }
+                        },
+                    Clock { System.currentTimeMillis() }
+                )
         }
         return impl!!
     }

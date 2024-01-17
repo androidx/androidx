@@ -393,16 +393,23 @@ public class BrowseFragmentTest {
             leakDetector.observeObject(gridView.getChildAt(i));
         }
         gridView = null;
-        EmptyFragment emptyFragment = new EmptyFragment();
-        mActivity.getFragmentManager().beginTransaction()
-                .replace(R.id.main_frame, emptyFragment)
-                .addToBackStack("BK")
-                .commit();
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        mActivity.getFragmentManager().beginTransaction()
+                               .replace(R.id.main_frame, new EmptyFragment())
+                               .addToBackStack("BK")
+                               .commit();
+                    }
+                }
+        );
 
         PollingCheck.waitFor(1000, new PollingCheck.PollingCheckCondition() {
             @Override
             public boolean canProceed() {
-                return emptyFragment.isResumed();
+                return mActivity.getFragmentManager()
+                        .findFragmentById(R.id.main_frame).isResumed();
             }
         });
         leakDetector.assertNoLeak();

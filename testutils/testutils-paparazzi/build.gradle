@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.BundleInsideHelper
 import androidx.build.LibraryType
 
@@ -30,12 +37,15 @@ BundleInsideHelper.forInsideJar(
         // both :internal-testutils-paparazzi and :test:screenshot:screenshot are added to the
         // classpath and picking a different package will cause missing class exceptions due to
         // class shadowing
-        "androidx.test.screenshot.protobuf"
+        "androidx.test.screenshot.protobuf",
+        // proto-lite dependency includes .proto files, which are not used and would clash if
+        // users also use proto library directly
+        /* dropResourcesWithSuffix = */ ".proto"
 )
 
 dependencies {
     api(project(":external:paparazzi:paparazzi"))
-    bundleInside(project(path: ":test:screenshot:screenshot-proto", configuration: "export"))
+    bundleInside(project(path: ":test:screenshot:screenshot-proto"))
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlinTestJunit)

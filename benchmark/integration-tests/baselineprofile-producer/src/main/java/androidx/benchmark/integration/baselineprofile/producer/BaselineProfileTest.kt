@@ -40,9 +40,10 @@ class BaselineProfileTest {
     }
 
     @Test
-    fun standardBaselineProfile() = baselineRule.collectBaselineProfile(
+    fun standardBaselineProfile() = baselineRule.collect(
         packageName = PACKAGE_NAME,
         includeInStartupProfile = false,
+        maxIterations = 1,
         profileBlock = {
             startActivityAndWait(Intent(ACTION))
             device.waitForIdle()
@@ -50,9 +51,10 @@ class BaselineProfileTest {
     )
 
     @Test
-    fun startupBaselineProfile() = baselineRule.collectBaselineProfile(
+    fun startupBaselineProfile() = baselineRule.collect(
         packageName = PACKAGE_NAME,
         includeInStartupProfile = true,
+        maxIterations = 1,
         profileBlock = {
             startActivityAndWait(Intent(ACTION))
             device.waitForIdle()

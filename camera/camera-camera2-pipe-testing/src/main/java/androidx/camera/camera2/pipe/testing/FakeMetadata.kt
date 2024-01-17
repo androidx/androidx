@@ -25,6 +25,7 @@ import android.hardware.camera2.CaptureResult
 import android.hardware.camera2.TotalCaptureResult
 import android.view.Surface
 import androidx.annotation.RequiresApi
+import androidx.camera.camera2.pipe.CameraExtensionMetadata
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.FrameInfo
@@ -84,6 +85,7 @@ class FakeCameraMetadata(
     override val sessionKeys: Set<CaptureRequest.Key<*>> = emptySet(),
     val physicalMetadata: Map<CameraId, CameraMetadata> = emptyMap(),
     override val physicalRequestKeys: Set<CaptureRequest.Key<*>> = emptySet(),
+    override val supportedExtensions: Set<Int> = emptySet(),
 ) : FakeMetadata(metadata), CameraMetadata {
 
     override fun <T> get(key: CameraCharacteristics.Key<T>): T? = characteristics[key] as T?
@@ -94,11 +96,20 @@ class FakeCameraMetadata(
     override val isRedacted: Boolean = false
 
     override val physicalCameraIds: Set<CameraId> = physicalMetadata.keys
+
     override suspend fun getPhysicalMetadata(cameraId: CameraId): CameraMetadata =
         physicalMetadata[cameraId]!!
 
     override fun awaitPhysicalMetadata(cameraId: CameraId): CameraMetadata =
         physicalMetadata[cameraId]!!
+
+    override suspend fun getExtensionMetadata(extension: Int): CameraExtensionMetadata {
+        TODO("b/299356087 - Add support for fake extension metadata")
+    }
+
+    override fun awaitExtensionMetadata(extension: Int): CameraExtensionMetadata {
+        TODO("b/299356087 - Add support for fake extension metadata")
+    }
 
     override fun <T : Any> unwrapAs(type: KClass<T>): T? = null
 }
@@ -120,6 +131,26 @@ class FakeRequestMetadata(
     override fun <T> getOrDefault(key: CaptureRequest.Key<T>, default: T): T = get(key) ?: default
 
     override fun <T : Any> unwrapAs(type: KClass<T>): T? = null
+
+    companion object {
+        /**
+         * Initialize FakeRequestMetadata based on a specific [Request] object.
+         */
+        fun from(
+            request: Request,
+            streamToSurfaces: Map<StreamId, Surface>,
+            repeating: Boolean = false
+        ): FakeRequestMetadata {
+            check(streamToSurfaces.keys.containsAll(request.streams))
+            return FakeRequestMetadata(
+                requestParameters = request.parameters,
+                template = request.template ?: RequestTemplate(0),
+                streams = request.streams.map { it to streamToSurfaces[it]!! }.toMap(),
+                repeating = repeating,
+                request = request
+            )
+        }
+    }
 }
 
 /**
@@ -144,7 +175,6 @@ class FakeFrameMetadata(
 /**
  * Utility class for interacting with objects require specific [TotalCaptureResult] metadata
  */
-@Suppress("SyntheticAccessor") // Using an inline class generates a synthetic constructor
 class FakeFrameInfo(
     override val metadata: FrameMetadata = FakeFrameMetadata(),
     override val requestMetadata: RequestMetadata = FakeRequestMetadata(),

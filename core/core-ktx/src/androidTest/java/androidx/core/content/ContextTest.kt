@@ -17,8 +17,8 @@
 package androidx.core.content
 
 import android.content.ContextWrapper
-import androidx.core.ktx.test.R
 import androidx.core.getAttributeSet
+import androidx.core.ktx.test.R
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest

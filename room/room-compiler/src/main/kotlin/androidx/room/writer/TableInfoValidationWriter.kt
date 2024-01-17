@@ -35,7 +35,7 @@ class TableInfoValidationWriter(val entity: Entity) : ValidationWriter() {
         const val CREATED_FROM_ENTITY = "CREATED_FROM_ENTITY"
     }
 
-    override fun write(dbParamName: String, scope: CountingCodeGenScope) {
+    override fun write(connectionParamName: String, scope: CountingCodeGenScope) {
         val suffix = entity.tableName.stripNonJava().capitalize(Locale.US)
         val expectedInfoVar = scope.getTmpVar("_info$suffix")
         scope.builder.apply {
@@ -153,7 +153,7 @@ class TableInfoValidationWriter(val entity: Entity) : ValidationWriter() {
                 existingVar,
                 RoomTypeNames.TABLE_INFO,
                 "%M(%L, %S)",
-                RoomMemberNames.TABLE_INFO_READ, dbParamName, entity.tableName
+                RoomMemberNames.TABLE_INFO_READ, connectionParamName, entity.tableName
             )
 
             beginControlFlow("if (!%L.equals(%L))", expectedInfoVar, existingVar).apply {
@@ -161,7 +161,7 @@ class TableInfoValidationWriter(val entity: Entity) : ValidationWriter() {
                     "return %L",
                     XCodeBlock.ofNewInstance(
                         language,
-                        RoomTypeNames.OPEN_HELPER_VALIDATION_RESULT,
+                        RoomTypeNames.ROOM_OPEN_DELEGATE_VALIDATION_RESULT,
                         "false, %S + %L + %S + %L",
                         "${entity.tableName}(${entity.element.qualifiedName}).\n Expected:\n",
                         expectedInfoVar,

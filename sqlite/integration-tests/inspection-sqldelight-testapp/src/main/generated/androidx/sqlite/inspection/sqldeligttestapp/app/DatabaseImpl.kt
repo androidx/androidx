@@ -16,9 +16,9 @@
 
 package androidx.sqlite.inspection.sqldeligttestapp.app
 
+import androidx.sqlite.inspection.sqldeligttestapp.Database
 import androidx.sqlite.inspection.test.TestEntity
 import androidx.sqlite.inspection.test.TestEntityQueries
-import androidx.sqlite.inspection.sqldeligttestapp.Database
 import com.squareup.sqldelight.Query
 import com.squareup.sqldelight.TransacterImpl
 import com.squareup.sqldelight.db.SqlDriver

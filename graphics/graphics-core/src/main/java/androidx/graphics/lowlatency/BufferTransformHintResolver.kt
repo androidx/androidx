@@ -16,11 +16,13 @@
 
 package androidx.graphics.lowlatency
 
+import android.graphics.Matrix
 import android.os.Build
 import android.util.Log
 import android.view.Surface
 import android.view.View
 import androidx.annotation.RequiresApi
+import androidx.graphics.surface.JniBindings
 import androidx.graphics.surface.SurfaceControlCompat
 
 /**
@@ -35,7 +37,7 @@ internal class BufferTransformHintResolver {
         } else {
             val orientation: String?
             return try {
-                orientation = getDisplayOrientation()
+                orientation = JniBindings.nGetDisplayOrientation()
                 val rotation = view.display?.rotation
                 if (rotation != null) {
                     val transform = getBufferTransformHintFromInstallOrientation(
@@ -113,12 +115,34 @@ internal class BufferTransformHintResolver {
         const val ORIENTATION_180 = "ORIENTATION_180"
         const val ORIENTATION_270 = "ORIENTATION_270"
 
-        init {
-            System.loadLibrary("graphics-core")
-        }
-
-        @JvmStatic
-        external fun getDisplayOrientation(): String
+        @RequiresApi(Build.VERSION_CODES.Q)
+        internal fun configureTransformMatrix(
+            matrix: Matrix,
+            width: Float,
+            height: Float,
+            @SurfaceControlCompat.Companion.BufferTransform transform: Int
+        ): Matrix = matrix.apply {
+                when (transform) {
+                    SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_90 -> {
+                        reset()
+                        setRotate(90f)
+                        postTranslate(width, 0f)
+                    }
+                    SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_180 -> {
+                        reset()
+                        setRotate(180f)
+                        postTranslate(width, height)
+                    }
+                    SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_270 -> {
+                        reset()
+                        setRotate(270f)
+                        postTranslate(0f, height)
+                    }
+                    else -> {
+                        reset()
+                    }
+                }
+            }
     }
 }
 

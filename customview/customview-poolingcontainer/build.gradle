@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.LibraryType
 
 plugins {
@@ -36,11 +43,12 @@ dependencies {
 }
 
 androidx {
-    name = "androidx.customview:poolingcontainer"
+    name = "CustomView Pooling Container"
     type = LibraryType.PUBLISHED_LIBRARY
     mavenVersion = LibraryVersions.CUSTOMVIEW_POOLINGCONTAINER
     inceptionYear = "2021"
     description = "Utilities for listening to the lifecycle of containers that manage their child Views' lifecycle, such as RecyclerView"
+    metalavaK2UastEnabled = true
 }
 
 android {

@@ -39,7 +39,7 @@ constructor(
     surfaceHolder: SurfaceHolder,
     currentUserStyleRepository: CurrentUserStyleRepository,
     watchState: WatchState,
-    @CanvasType private val canvasType: Int,
+    @CanvasTypeIntDef private val canvasType: Int,
     @IntRange(from = 0, to = 60000) interactiveDrawModeUpdateDelayMillis: Long,
     clearWithBackgroundTintBeforeRenderingHighlightLayer: Boolean = false
 ) :
@@ -80,7 +80,7 @@ constructor(
     surfaceHolder: SurfaceHolder,
     currentUserStyleRepository: CurrentUserStyleRepository,
     watchState: WatchState,
-    @CanvasType private val canvasType: Int,
+    @CanvasTypeIntDef private val canvasType: Int,
     @IntRange(from = 0, to = 60000) interactiveDrawModeUpdateDelayMillis: Long,
     clearWithBackgroundTintBeforeRenderingHighlightLayer: Boolean = false
 ) :

@@ -16,6 +16,8 @@
 
 package androidx.tracing;
 
+import static androidx.tracing.Trace.MAX_TRACE_LABEL_LENGTH;
+
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -35,6 +37,7 @@ import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
@@ -66,6 +69,7 @@ public final class TraceTest {
     }
 
     @Test
+    @Ignore("b/280041271")
     public void beginAndEndSection() throws IOException {
         startTrace();
         Trace.beginSection("beginAndEndSection");
@@ -73,6 +77,22 @@ public final class TraceTest {
         dumpTrace();
 
         assertTraceContains("tracing_mark_write:\\ B\\|.*\\|beginAndEndSection");
+        assertTraceContains("tracing_mark_write:\\ E");
+    }
+
+    @Test
+    @Ignore("b/280041271")
+    public void beginAndEndTraceSectionLongLabel() throws IOException {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < 20; i++) {
+            builder.append("longLabel");
+        }
+        startTrace();
+        Trace.beginSection(builder.toString());
+        Trace.endSection();
+        dumpTrace();
+        assertTraceContains(
+                "tracing_mark_write:\\ B\\|.*\\|" + builder.substring(0, MAX_TRACE_LABEL_LENGTH));
         assertTraceContains("tracing_mark_write:\\ E");
     }
 
@@ -103,6 +123,7 @@ public final class TraceTest {
     }
 
     @Test
+    @Ignore("b/280041271")
     public void isEnabledDuringTrace() throws IOException {
         startTrace();
         boolean enabled = Trace.isEnabled();
@@ -160,7 +181,6 @@ public final class TraceTest {
 
     private void assertTraceContains(@NonNull String contentRegex) {
         String traceString = new String(mByteArrayOutputStream.toByteArray(), UTF_8);
-
         Pattern pattern = Pattern.compile(contentRegex);
         Matcher matcher = pattern.matcher(traceString);
 

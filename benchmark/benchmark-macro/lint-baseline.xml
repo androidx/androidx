@@ -1,5 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.0.0-beta03" type="baseline" client="gradle" dependencies="false" name="AGP (8.0.0-beta03)" variant="all" version="8.0.0-beta03">
+<issues format="6" by="lint 8.3.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-beta01)" variant="all" version="8.3.0-beta01">
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 29 (current min is 23): `Power`"
+        errorLine1="            return if (type is PowerMetric.Type.Power) powerUw else energyUws"
+        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/benchmark/macro/perfetto/PowerQuery.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 29 (current min is 23): `Power`"
+        errorLine1="            return if (type is PowerMetric.Type.Power) powerUw else energyUws"
+        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/benchmark/macro/perfetto/PowerQuery.kt"/>
+    </issue>
 
     <issue
         id="BanThreadSleep"
@@ -22,24 +40,6 @@
     <issue
         id="BanThreadSleep"
         message="Uses Thread.sleep()"
-        errorLine1="        Thread.sleep(Arguments.killProcessDelayMillis)"
-        errorLine2="               ~~~~~">
-        <location
-            file="src/main/java/androidx/benchmark/macro/BaselineProfiles.kt"/>
-    </issue>
-
-    <issue
-        id="BanThreadSleep"
-        message="Uses Thread.sleep()"
-        errorLine1="                Thread.sleep(5000)"
-        errorLine2="                       ~~~~~">
-        <location
-            file="src/main/java/androidx/benchmark/macro/CompilationMode.kt"/>
-    </issue>
-
-    <issue
-        id="BanThreadSleep"
-        message="Uses Thread.sleep()"
         errorLine1="            Thread.sleep(sleepDurMs)"
         errorLine2="                   ~~~~~">
         <location
@@ -47,84 +47,45 @@
     </issue>
 
     <issue
-        id="BanThreadSleep"
-        message="Uses Thread.sleep()"
-        errorLine1="            Thread.sleep(2000)"
-        errorLine2="                   ~~~~~">
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with `@androidx.benchmark.perfetto.ExperimentalPerfettoTraceProcessorApi` or `@OptIn(markerClass = androidx.benchmark.perfetto.ExperimentalPerfettoTraceProcessorApi.class)`">
         <location
-            file="src/main/java/androidx/benchmark/macro/MacrobenchmarkScope.kt"/>
+            file="src/main/java/androidx/benchmark/macro/perfetto/MemoryCountersQuery.kt"/>
     </issue>
 
     <issue
-        id="BanThreadSleep"
-        message="Uses Thread.sleep()"
-        errorLine1="                Thread.sleep(100)"
-        errorLine2="                       ~~~~~">
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with `@androidx.benchmark.macro.ExperimentalMetricApi` or `@OptIn(markerClass = androidx.benchmark.macro.ExperimentalMetricApi.class)`">
         <location
-            file="src/main/java/androidx/benchmark/macro/MacrobenchmarkScope.kt"/>
+            file="src/main/java/androidx/benchmark/macro/perfetto/MemoryUsageQuery.kt"/>
     </issue>
 
     <issue
-        id="BanThreadSleep"
-        message="Uses Thread.sleep()"
-        errorLine1="        Thread.sleep(delayDurationMs)"
-        errorLine2="               ~~~~~">
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with `@androidx.benchmark.macro.ExperimentalMetricApi` or `@OptIn(markerClass = androidx.benchmark.macro.ExperimentalMetricApi.class)`">
         <location
-            file="src/main/java/androidx/benchmark/macro/MacrobenchmarkScope.kt"/>
+            file="src/main/java/androidx/benchmark/macro/MetricResultExtensions.kt"/>
     </issue>
 
     <issue
-        id="BanThreadSleep"
-        message="Uses Thread.sleep()"
-        errorLine1="        Thread.sleep(delayDurationMs)"
-        errorLine2="               ~~~~~">
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with `@androidx.benchmark.macro.ExperimentalMetricApi` or `@OptIn(markerClass = androidx.benchmark.macro.ExperimentalMetricApi.class)`">
         <location
-            file="src/main/java/androidx/benchmark/macro/MacrobenchmarkScope.kt"/>
+            file="src/main/java/androidx/benchmark/macro/MetricResultExtensions.kt"/>
     </issue>
 
     <issue
-        id="BanThreadSleep"
-        message="Uses Thread.sleep()"
-        errorLine1="            Thread.sleep(50)"
-        errorLine2="                   ~~~~~">
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with `@androidx.benchmark.perfetto.ExperimentalPerfettoTraceProcessorApi` or `@OptIn(markerClass = androidx.benchmark.perfetto.ExperimentalPerfettoTraceProcessorApi.class)`">
         <location
-            file="src/main/java/androidx/benchmark/macro/MacrobenchmarkScope.kt"/>
+            file="src/main/java/androidx/benchmark/macro/perfetto/PowerQuery.kt"/>
     </issue>
 
     <issue
-        id="BanThreadSleep"
-        message="Uses Thread.sleep()"
-        errorLine1="        Thread.sleep(5000) // sleep to await flushing cache to disk"
-        errorLine2="               ~~~~~">
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with `@androidx.benchmark.perfetto.ExperimentalPerfettoTraceProcessorApi` or `@OptIn(markerClass = androidx.benchmark.perfetto.ExperimentalPerfettoTraceProcessorApi.class)`">
         <location
-            file="src/androidTest/java/androidx/benchmark/macro/MacrobenchmarkScopeTest.kt"/>
-    </issue>
-
-    <issue
-        id="BanThreadSleep"
-        message="Uses Thread.sleep()"
-        errorLine1="                trace(label) { Thread.sleep(50) }"
-        errorLine2="                                      ~~~~~">
-        <location
-            file="src/androidTest/java/androidx/benchmark/macro/perfetto/PerfettoCaptureSweepTest.kt"/>
-    </issue>
-
-    <issue
-        id="BanThreadSleep"
-        message="Uses Thread.sleep()"
-        errorLine1="            Thread.sleep(5)"
-        errorLine2="                   ~~~~~">
-        <location
-            file="src/main/java/androidx/benchmark/macro/perfetto/server/PerfettoHttpServer.kt"/>
-    </issue>
-
-    <issue
-        id="BanThreadSleep"
-        message="Uses Thread.sleep()"
-        errorLine1="                Thread.sleep(500)"
-        errorLine2="                       ~~~~~">
-        <location
-            file="src/main/java/androidx/benchmark/macro/ProfileInstallBroadcast.kt"/>
+            file="src/main/java/androidx/benchmark/perfetto/Slice.kt"/>
     </issue>
 
 </issues>

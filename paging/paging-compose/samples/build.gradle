@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.LibraryType
 
 plugins {
@@ -26,17 +33,16 @@ plugins {
 dependencies {
     implementation(libs.kotlinStdlib)
 
-    compileOnly(projectOrArtifact(":annotation:annotation-sampled"))
-    implementation(projectOrArtifact(":compose:foundation:foundation"))
-    implementation(projectOrArtifact(":compose:material:material"))
+    compileOnly(project(":annotation:annotation-sampled"))
+    implementation("androidx.compose.foundation:foundation:1.5.0")
+    implementation("androidx.compose.material:material:1.5.0")
+    implementation("androidx.compose.ui:ui-tooling:1.5.0")
     implementation(project(":paging:paging-compose"))
-    implementation(project(":internal-testutils-paging"))
 }
 
 androidx {
-    name = "AndroidX Paging Compose Samples"
+    name = "Paging Compose Samples"
     type = LibraryType.SAMPLES
-    mavenVersion = LibraryVersions.PAGING_COMPOSE
     inceptionYear = "2020"
     description = "Contains the sample code for the Androidx Paging library compose interop"
 }

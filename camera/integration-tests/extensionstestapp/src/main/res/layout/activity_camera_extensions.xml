@@ -64,6 +64,17 @@
         app:layout_constraintVertical_bias="1.0"/>
 
     <Button
+        android:id="@+id/record"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:scaleType="fitXY"
+        android:text="@string/button_record_start"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@+id/Picture"
+        app:layout_constraintEnd_toEndOf="@+id/Picture"
+        app:layout_constraintStart_toStartOf="@+id/Picture" />
+
+    <Button
         android:id="@+id/PhotoToggle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -83,6 +94,17 @@
         app:layout_constraintEnd_toStartOf="@+id/Picture"
         app:layout_constraintTop_toTopOf="@+id/Picture" />
 
+    <ToggleButton
+        android:id="@+id/videoToggle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:checked="false"
+        android:textOff="@string/toggle_video_off"
+        android:textOn="@string/toggle_video_on"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/PhotoToggle" />
+
     <ImageButton
         android:id="@+id/ExtensionToggle"
         android:layout_width="wrap_content"
@@ -97,8 +119,31 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <Switch
+        android:id="@+id/videoStabilizationToggle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:visibility="gone"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        />
+
     <TextView
-        android:id="@+id/frameInfo"
+        android:id="@+id/videoStabilizationMode"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:text="Video Stabilization Mode: Off"
+        android:visibility="gone"
+        android:padding="8dp"
+        android:background="@drawable/bg_pill"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/videoStabilizationToggle"
+        />
+
+    <TextView
+        android:id="@+id/infoBlock"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:shadowColor="#000000"

@@ -20,14 +20,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.atMost;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
-import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.drawable.ColorDrawable;
@@ -41,11 +38,11 @@ import android.widget.ImageView;
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.test.filters.LargeTest;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.transition.test.R;
 
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
 
 import javax.annotation.Nullable;
 
@@ -151,6 +148,88 @@ public class ChangeImageTransformTest extends BaseTransitionTest {
         waitForEnd();
 
         assertEquals(ImageView.ScaleType.CENTER_CROP, imageView.getScaleType());
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
+    @Test
+    public void testSeekInterruption() throws Throwable {
+        if (Build.VERSION.SDK_INT < 34) {
+            return; // only supported on U+
+        }
+        final ImageView imageView = enterImageViewScene(ImageView.ScaleType.FIT_START,
+                null, false);
+
+        TransitionSet transition = new TransitionSet();
+        transition.addTransition(new AlwaysTransition("before"));
+        transition.addTransition(new ChangeImageTransform());
+        transition.addTransition(new AlwaysTransition("after"));
+        transition.setOrdering(TransitionSet.ORDERING_SEQUENTIAL);
+
+        TransitionSeekController[] seekControllerArr = new TransitionSeekController[1];
+
+        rule.runOnUiThread(() -> {
+            seekControllerArr[0] = TransitionManager.controlDelayedTransition(mRoot, transition);
+            imageView.setScaleType(ImageView.ScaleType.FIT_XY);
+        });
+
+        rule.runOnUiThread(() -> {
+            verifyMatrixMatches(fitStartMatrix(), getDrawMatrixCompat(imageView));
+            // Seek to the end
+            seekControllerArr[0].setCurrentPlayTimeMillis(900);
+            verifyMatrixMatches(fitXYMatrix(), getDrawMatrixCompat(imageView));
+            // Seek back to the beginning
+            seekControllerArr[0].setCurrentPlayTimeMillis(0);
+            verifyMatrixMatches(fitStartMatrix(), getDrawMatrixCompat(imageView));
+
+            seekControllerArr[0] = TransitionManager.controlDelayedTransition(mRoot, transition);
+            imageView.setScaleType(ImageView.ScaleType.FIT_END);
+        });
+
+        rule.runOnUiThread(() -> {
+            verifyMatrixMatches(fitStartMatrix(), getDrawMatrixCompat(imageView));
+            // Seek to the end
+            seekControllerArr[0].setCurrentPlayTimeMillis(900);
+            verifyMatrixMatches(fitEndMatrix(), getDrawMatrixCompat(imageView));
+
+            seekControllerArr[0] = TransitionManager.controlDelayedTransition(mRoot, transition);
+            imageView.setScaleType(ImageView.ScaleType.FIT_START);
+        });
+
+        rule.runOnUiThread(() -> {
+            verifyMatrixMatches(fitEndMatrix(), getDrawMatrixCompat(imageView));
+            // Seek to the end
+            seekControllerArr[0].setCurrentPlayTimeMillis(900);
+            verifyMatrixMatches(fitStartMatrix(), getDrawMatrixCompat(imageView));
+
+            // Seek to the middle
+            seekControllerArr[0].setCurrentPlayTimeMillis(450);
+            seekControllerArr[0] = TransitionManager.controlDelayedTransition(mRoot, transition);
+            imageView.setScaleType(ImageView.ScaleType.FIT_XY);
+        });
+
+        rule.runOnUiThread(() -> {
+            verifyMatrixMatches(betweenStartAndEnd(), getDrawMatrixCompat(imageView));
+            // Seek to the end
+            seekControllerArr[0].setCurrentPlayTimeMillis(900);
+            verifyMatrixMatches(fitXYMatrix(), getDrawMatrixCompat(imageView));
+        });
+    }
+
+    private Matrix betweenStartAndEnd() {
+        Matrix start = fitStartMatrix();
+        float[] startVals = new float[9];
+        start.getValues(startVals);
+        Matrix end = fitEndMatrix();
+        float[] endVals = new float[9];
+        end.getValues(endVals);
+
+        float[] middleVals = new float[9];
+        for (int i = 0; i < 9; i++) {
+            middleVals[i] = (startVals[i] + endVals[i]) / 2f;
+        }
+        Matrix middle = new Matrix();
+        middle.setValues(middleVals);
+        return middle;
     }
 
     private Matrix centerMatrix() {
@@ -392,15 +471,6 @@ public class ChangeImageTransformTest extends BaseTransitionTest {
     }
 
     private Matrix getDrawMatrixCompat(ImageView imageView) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-            return imageView.getImageMatrix();
-        } else {
-            Canvas canvas = mock(Canvas.class);
-            imageView.draw(canvas);
-            ArgumentCaptor<Matrix> matrixCaptor = ArgumentCaptor.forClass(Matrix.class);
-            verify(canvas, atMost(1)).concat(matrixCaptor.capture());
-            return !matrixCaptor.getAllValues().isEmpty() ? matrixCaptor.getValue() : new Matrix();
-        }
+        return imageView.getImageMatrix();
     }
-
 }

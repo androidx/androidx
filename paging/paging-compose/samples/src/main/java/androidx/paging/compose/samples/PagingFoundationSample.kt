@@ -40,27 +40,30 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
-import androidx.paging.TestPagingSource
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
 
-val pager = Pager(
+private val db: TestBackend = TestBackend(
+    loadDelay = 0,
+    backendDataList = (0..500).toList().map { "$it" }
+)
+
+private val pager = Pager(
     config = PagingConfig(pageSize = 5, initialLoadSize = 15, enablePlaceholders = true),
-    pagingSourceFactory = { TestPagingSource() }
+    pagingSourceFactory = { db.getAllData() }
 ).flow
 
 @OptIn(ExperimentalFoundationApi::class)
 @Sampled
 @Composable
 public fun PagingWithHorizontalPager() {
-    val pagerState = rememberPagerState()
     val lazyPagingItems = pager.collectAsLazyPagingItems()
+    val pagerState = rememberPagerState { lazyPagingItems.itemCount }
 
     HorizontalPager(
         modifier = Modifier.fillMaxSize(),
         state = pagerState,
-        pageCount = lazyPagingItems.itemCount,
         pageSize = PageSize.Fixed(200.dp),
         key = lazyPagingItems.itemKey { it }
     ) { index ->
@@ -72,13 +75,12 @@ public fun PagingWithHorizontalPager() {
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 public fun PagingWithVerticalPager() {
-    val pagerState = rememberPagerState()
     val lazyPagingItems = pager.collectAsLazyPagingItems()
+    val pagerState = rememberPagerState { lazyPagingItems.itemCount }
 
     VerticalPager(
         modifier = Modifier.fillMaxSize(),
         state = pagerState,
-        pageCount = lazyPagingItems.itemCount,
         pageSize = PageSize.Fixed(200.dp),
         key = lazyPagingItems.itemKey { it }
     ) { index ->
@@ -137,7 +139,7 @@ public fun PagingWithLazyList() {
 }
 
 @Composable
-private fun PagingItem(item: Int?) {
+private fun PagingItem(item: String?) {
     Box(
         modifier = Modifier
             .padding(10.dp)
@@ -147,7 +149,7 @@ private fun PagingItem(item: Int?) {
         contentAlignment = Alignment.Center
     ) {
         if (item != null) {
-            Text(text = item.toString(), fontSize = 32.sp)
+            Text(text = item, fontSize = 32.sp)
         } else {
             Text(text = "placeholder", fontSize = 32.sp)
         }

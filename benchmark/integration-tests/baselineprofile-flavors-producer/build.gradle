@@ -1,3 +1,10 @@
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import com.android.build.api.dsl.ManagedVirtualDevice
 
 /*
@@ -36,9 +43,12 @@ android {
         }
     }
     productFlavors {
-        flavorDimensions = ["version"]
+        flavorDimensions = ["version", "color"]
         free { dimension "version" }
         paid { dimension "version" }
+        red { dimension "color" }
+        // Note that the consumer has an additional `blue` flavor for dimension `color`. This is
+        // not in this producer to test baseline profile matching fallback.
     }
     targetProjectPath = ":benchmark:integration-tests:baselineprofile-flavors-consumer"
     namespace "androidx.benchmark.integration.baselineprofile.flavors.producer"
@@ -61,5 +71,7 @@ baselineProfile {
 }
 
 androidx {
-    disableDeviceTests = true
+    deviceTests {
+        enabled = false
+    }
 }

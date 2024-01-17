@@ -18,11 +18,11 @@ package androidx.paging
 
 import androidx.arch.core.executor.ArchTaskExecutor
 import androidx.lifecycle.LiveData
+import java.util.concurrent.Executor
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.asCoroutineDispatcher
-import java.util.concurrent.Executor
 
 /**
  * Builder for `LiveData<PagedList>` for Java users, given a [androidx.paging.DataSource.Factory]

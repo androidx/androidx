@@ -44,8 +44,10 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.demos.R
@@ -73,14 +75,14 @@ private val ToolbarHeight = 48.dp
 @Composable
 private fun OuterComposeWithNestedScroll(factory: (Context) -> View) {
     val toolbarHeightPx = with(LocalDensity.current) { ToolbarHeight.roundToPx().toFloat() }
-    val toolbarOffsetHeightPx = remember { mutableStateOf(0f) }
+    var toolbarOffsetHeightPx by remember { mutableFloatStateOf(0f) }
 
     val nestedScrollConnection = remember {
         object : NestedScrollConnection {
             override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
                 val delta = available.y
-                val newOffset = toolbarOffsetHeightPx.value + delta
-                toolbarOffsetHeightPx.value = newOffset.coerceIn(-toolbarHeightPx, 0f)
+                val newOffset = toolbarOffsetHeightPx + delta
+                toolbarOffsetHeightPx = newOffset.coerceIn(-toolbarHeightPx, 0f)
                 return Offset.Zero
             }
         }
@@ -96,8 +98,8 @@ private fun OuterComposeWithNestedScroll(factory: (Context) -> View) {
         TopAppBar(
             modifier = Modifier
                 .height(ToolbarHeight)
-                .offset { IntOffset(x = 0, y = toolbarOffsetHeightPx.value.roundToInt()) },
-            title = { Text("toolbar offset is ${toolbarOffsetHeightPx.value}") }
+                .offset { IntOffset(x = 0, y = toolbarOffsetHeightPx.roundToInt()) },
+            title = { Text("toolbar offset is $toolbarOffsetHeightPx") }
         )
 
         // Android View

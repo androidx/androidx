@@ -17,7 +17,6 @@
 package sample.optin
 
 import androidx.annotation.OptIn
-
 import sample.optin.foo.AnnotatedJavaPackage
 
 @Suppress("unused", "MemberVisibilityCanBePrivate")

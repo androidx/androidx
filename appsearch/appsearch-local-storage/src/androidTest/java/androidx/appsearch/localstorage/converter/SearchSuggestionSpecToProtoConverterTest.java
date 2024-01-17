@@ -42,7 +42,6 @@ public class SearchSuggestionSpecToProtoConverterTest {
                         .addFilterNamespaces("namespace1", "namespace2")
                         .addFilterDocumentIds("namespace1", ImmutableList.of("doc1", "doc2"))
                         .addFilterSchemas("typeA", "typeB")
-                        .addFilterProperties("typeA", ImmutableList.of("property1", "property2"))
                         .build();
 
         String prefix1 = PrefixUtil.createPrefix("package", "database");
@@ -68,15 +67,41 @@ public class SearchSuggestionSpecToProtoConverterTest {
                 "package$database/typeA", "package$database/typeB");
         assertThat(proto.getNamespaceFiltersList()).containsExactly(
                 "package$database/namespace1", "package$database/namespace2");
-        assertThat(proto.getTypePropertyFiltersList()).containsExactly(
-                TypePropertyMask.newBuilder()
-                        .setSchemaType("package$database/typeA")
-                        .addPaths("property1").addPaths("property2")
-                        .build());
         assertThat(proto.getDocumentUriFiltersList()).containsExactly(
                 NamespaceDocumentUriGroup.newBuilder()
                         .setNamespace("package$database/namespace1")
                         .addDocumentUris("doc1").addDocumentUris("doc2")
                         .build());
     }
+
+    // @exportToFramework:startStrip()
+    // TODO(b/230553264) remove this when it is deprecated and replaced by
+    //  advanced query property filters or it is exportable.
+    @Test
+    public void testToProto_propertyFilters() throws Exception {
+        SearchSuggestionSpec searchSuggestionSpec =
+                new SearchSuggestionSpec.Builder(/*totalResultCount=*/123)
+                        .addFilterProperties("typeA", ImmutableList.of("property1", "property2"))
+                        .build();
+
+        String prefix1 = PrefixUtil.createPrefix("package", "database");
+        SchemaTypeConfigProto configProto = SchemaTypeConfigProto.getDefaultInstance();
+        SearchSuggestionSpecToProtoConverter converter = new SearchSuggestionSpecToProtoConverter(
+                /*queryExpression=*/"prefix",
+                searchSuggestionSpec,
+                /*prefixes=*/ImmutableSet.of(prefix1),
+                /*namespaceMap=*/ImmutableMap.of(),
+                /*schemaMap=*/ImmutableMap.of(
+                prefix1, ImmutableMap.of(
+                        prefix1 + "typeA", configProto,
+                        prefix1 + "typeB", configProto)));
+
+        SuggestionSpecProto proto = converter.toSearchSuggestionSpecProto();
+        assertThat(proto.getTypePropertyFiltersList()).containsExactly(
+                TypePropertyMask.newBuilder()
+                        .setSchemaType("package$database/typeA")
+                        .addPaths("property1").addPaths("property2")
+                        .build());
+    }
+    // @exportToFramework:endStrip()
 }

@@ -33,7 +33,6 @@ import android.view.accessibility.AccessibilityEvent;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-import androidx.core.view.ViewCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
 
 import java.util.ArrayList;
@@ -565,7 +564,7 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
     }
 
     boolean isLayoutRTL() {
-        return getLayoutDirection() == ViewCompat.LAYOUT_DIRECTION_RTL;
+        return getLayoutDirection() == View.LAYOUT_DIRECTION_RTL;
     }
 
     /**
@@ -2048,6 +2047,11 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
     @Override
     public boolean canScrollHorizontally() {
         return mOrientation == HORIZONTAL;
+    }
+
+    @Override
+    public boolean isLayoutReversed() {
+        return mReverseLayout;
     }
 
     @Override

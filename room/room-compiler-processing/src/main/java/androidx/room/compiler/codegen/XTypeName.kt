@@ -16,8 +16,6 @@
 
 package androidx.room.compiler.codegen
 
-import com.squareup.kotlinpoet.asClassName as asKClassName
-import com.squareup.kotlinpoet.asTypeName as asKTypeName
 import androidx.room.compiler.processing.XNullability
 import com.squareup.kotlinpoet.ARRAY
 import com.squareup.kotlinpoet.BOOLEAN_ARRAY
@@ -35,13 +33,17 @@ import com.squareup.kotlinpoet.MUTABLE_MAP_ENTRY
 import com.squareup.kotlinpoet.MUTABLE_SET
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.SHORT_ARRAY
+import com.squareup.kotlinpoet.asClassName as asKClassName
+import com.squareup.kotlinpoet.asTypeName as asKTypeName
 import com.squareup.kotlinpoet.javapoet.JClassName
 import com.squareup.kotlinpoet.javapoet.JParameterizedTypeName
 import com.squareup.kotlinpoet.javapoet.JTypeName
+import com.squareup.kotlinpoet.javapoet.JTypeVariableName
 import com.squareup.kotlinpoet.javapoet.JWildcardTypeName
 import com.squareup.kotlinpoet.javapoet.KClassName
 import com.squareup.kotlinpoet.javapoet.KParameterizedTypeName
 import com.squareup.kotlinpoet.javapoet.KTypeName
+import com.squareup.kotlinpoet.javapoet.KTypeVariableName
 import com.squareup.kotlinpoet.javapoet.KWildcardTypeName
 import kotlin.reflect.KClass
 
@@ -257,6 +259,16 @@ open class XTypeName protected constructor(
                 }
             )
         }
+
+        /**
+         * Creates a type variable named with bounds.
+         */
+        fun getTypeVariableName(name: String, bounds: List<XTypeName> = emptyList()): XTypeName {
+            return XTypeName(
+                java = JTypeVariableName.get(name, *bounds.map { it.java }.toTypedArray()),
+                kotlin = KTypeVariableName(name, bounds.map { it.kotlin })
+            )
+        }
     }
 }
 
@@ -441,3 +453,5 @@ fun XTypeName.unbox() = XTypeName(java.unbox(), kotlin.copy(nullable = false), X
 
 fun XTypeName.toJavaPoet(): JTypeName = this.java
 fun XClassName.toJavaPoet(): JClassName = this.java
+fun XTypeName.toKotlinPoet(): KTypeName = this.kotlin
+fun XClassName.toKotlinPoet(): KClassName = this.kotlin

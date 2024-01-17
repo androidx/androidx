@@ -18,6 +18,8 @@ package androidx.appsearch.cts.app;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assert.assertThrows;
+
 import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.GetSchemaResponse;
 import androidx.appsearch.app.PackageIdentifier;
@@ -135,10 +137,10 @@ public class GetSchemaResponseCtsTest {
                                 ImmutableSet.of(packageIdentifier1, packageIdentifier2))
                         .setRequiredPermissionsForSchemaTypeVisibility("Email",
                                 ImmutableSet.of(
-                                                ImmutableSet.of(SetSchemaRequest.READ_CONTACTS,
-                                                        SetSchemaRequest.READ_EXTERNAL_STORAGE),
-                                                ImmutableSet.of(SetSchemaRequest
-                                                        .READ_ASSISTANT_APP_SEARCH_DATA)))
+                                        ImmutableSet.of(SetSchemaRequest.READ_CONTACTS,
+                                                SetSchemaRequest.READ_EXTERNAL_STORAGE),
+                                        ImmutableSet.of(SetSchemaRequest
+                                                .READ_ASSISTANT_APP_SEARCH_DATA)))
                         .build();
 
         assertThat(getSchemaResponse.getSchemaTypesNotDisplayedBySystem())
@@ -163,4 +165,87 @@ public class GetSchemaResponseCtsTest {
         assertThat(getSchemaResponse.getSchemaTypesVisibleToPackages()).isEmpty();
         assertThat(getSchemaResponse.getRequiredPermissionsForSchemaTypeVisibility()).isEmpty();
     }
+
+    // @exportToFramework:startStrip()
+    // Not exported as setVisibilitySettingSupported is hidden in framework
+     /**
+     * Makes sure an exception is thrown when visibility getters are called after visibility is set
+      * to no supported.
+     */
+    @Test
+    public void setVisibility_setFalse() {
+        byte[] sha256cert1 = new byte[32];
+        byte[] sha256cert2 = new byte[32];
+        Arrays.fill(sha256cert1, (byte) 1);
+        Arrays.fill(sha256cert2, (byte) 2);
+        PackageIdentifier packageIdentifier1 = new PackageIdentifier("Email", sha256cert1);
+        PackageIdentifier packageIdentifier2 = new PackageIdentifier("Email", sha256cert2);
+
+        GetSchemaResponse getSchemaResponse =
+                new GetSchemaResponse.Builder().setVersion(42)
+                        .addSchemaTypeNotDisplayedBySystem("Email")
+                        .addSchemaTypeNotDisplayedBySystem("Text")
+                        .setSchemaTypeVisibleToPackages("Email",
+                                ImmutableSet.of(packageIdentifier1, packageIdentifier2))
+                        .setRequiredPermissionsForSchemaTypeVisibility("Email",
+                                ImmutableSet.of(
+                                        ImmutableSet.of(SetSchemaRequest.READ_CONTACTS,
+                                                SetSchemaRequest.READ_EXTERNAL_STORAGE),
+                                        ImmutableSet.of(SetSchemaRequest
+                                                .READ_ASSISTANT_APP_SEARCH_DATA)))
+                        // This should clear all visibility settings.
+                        .setVisibilitySettingSupported(false)
+                        .build();
+
+        Exception e = assertThrows(UnsupportedOperationException.class,
+                getSchemaResponse::getSchemaTypesNotDisplayedBySystem);
+        assertThat(e.getMessage()).isEqualTo("Get visibility setting is not supported with"
+                + " this backend/Android API level combination.");
+        e = assertThrows(UnsupportedOperationException.class,
+                getSchemaResponse::getSchemaTypesVisibleToPackages);
+        assertThat(e.getMessage()).isEqualTo("Get visibility setting is not supported with"
+                + " this backend/Android API level combination.");
+        e = assertThrows(UnsupportedOperationException.class,
+                getSchemaResponse::getRequiredPermissionsForSchemaTypeVisibility);
+        assertThat(e.getMessage()).isEqualTo("Get visibility setting is not supported with"
+                + " this backend/Android API level combination.");
+    }
+
+    /**
+     * Makes sure an exception is thrown when visibility getters are called after visibility is set
+     * to no supported, even on a rebuild.
+     */
+    @Test
+    public void testRebuild_notSupportedException() {
+        AppSearchSchema schema1 = new AppSearchSchema.Builder("Email1")
+                .addProperty(new AppSearchSchema.StringPropertyConfig.Builder("subject")
+                        .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setIndexingType(
+                                AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                        .setTokenizerType(AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .build()
+                ).build();
+
+        GetSchemaResponse.Builder builder =
+                new GetSchemaResponse.Builder().setVisibilitySettingSupported(false)
+                        .setVersion(42).addSchema(schema1);
+
+        GetSchemaResponse original = builder.build();
+        assertThrows(UnsupportedOperationException.class,
+                original::getSchemaTypesNotDisplayedBySystem);
+        assertThrows(UnsupportedOperationException.class,
+                original::getSchemaTypesVisibleToPackages);
+        assertThrows(UnsupportedOperationException.class,
+                original::getRequiredPermissionsForSchemaTypeVisibility);
+
+        // rebuild will throw same exception
+        GetSchemaResponse rebuild = builder.setVersion(42).build();
+        assertThrows(UnsupportedOperationException.class,
+                rebuild::getSchemaTypesNotDisplayedBySystem);
+        assertThrows(UnsupportedOperationException.class,
+                rebuild::getSchemaTypesVisibleToPackages);
+        assertThrows(UnsupportedOperationException.class,
+                original::getRequiredPermissionsForSchemaTypeVisibility);
+    }
+    // @exportToFramework:endStrip()
 }

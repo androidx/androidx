@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.Publish
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -42,14 +49,8 @@ dependencies {
     implementation(project(":compose:ui:ui-viewbinding"))
     implementation(project(":navigation:navigation-compose"))
     implementation("androidx.activity:activity-compose:1.3.1")
-    implementation(project(":lifecycle:lifecycle-viewmodel-compose"))
-    // old version of common-java8 conflicts with newer version, because both have
-    // DefaultLifecycleEventObserver.
-    // Outside of androidx this is resolved via constraint added to lifecycle-common,
-    // but it doesn't work in androidx.
-    // See aosp/1804059
-    implementation("androidx.lifecycle:lifecycle-common-java8:2.5.1")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-savedstate:2.5.1")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-savedstate:2.6.1")
     implementation(project(":paging:paging-compose"))
 
     implementation(libs.kotlinStdlib)

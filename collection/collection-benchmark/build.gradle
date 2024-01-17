@@ -14,7 +14,13 @@
  * limitations under the License.
  */
 
-
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.KmpPlatformsKt
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.plugin.mpp.BitcodeEmbeddingMode
@@ -62,7 +68,7 @@ androidXMultiplatform {
             }
         }
 
-        androidTest {
+        androidInstrumentedTest {
             dependsOn(commonTest)
             dependencies {
                 implementation(projectOrArtifact(":benchmark:benchmark-junit4"))
@@ -83,7 +89,7 @@ androidXMultiplatform {
             }
         }
 
-        targets.all { target ->
+        targets.configureEach { target ->
             if (target.platformType == KotlinPlatformType.native) {
                 target.compilations["main"].defaultSourceSet {
                     def konanTargetFamily = target.konanTarget.family
@@ -92,6 +98,9 @@ androidXMultiplatform {
                     } else {
                         throw new GradleException("unknown native target ${target}")
                     }
+                }
+                target.compilations.configureEach {
+                    compilerOptions.options.optIn.add("kotlinx.cinterop.ExperimentalForeignApi")
                 }
             }
         }
@@ -105,7 +114,7 @@ androidXMultiplatform {
 }
 
 androidx {
-    name = "AndroidX Collections Benchmarks (Android / iOS)"
+    name = "Collections Benchmarks (Android / iOS)"
     inceptionYear = "2022"
     description = "AndroidX Collections Benchmarks (Android / iOS)"
 }
@@ -116,11 +125,14 @@ darwinBenchmark {
     )
     xcodeProjectName = "collection-benchmark-ios"
     scheme = "testapp-ios"
-    // ios 13, 15.2
+    // To run locally switch to iOS 17.0 simulators
     destination = "platform=iOS Simulator,name=iPhone 13,OS=15.2"
     referenceSha.set(androidx.getReferenceSha())
 }
 
 android {
     namespace "androidx.collection.benchmark"
+    defaultConfig {
+        minSdkVersion 22 // b/294570164
+    }
 }

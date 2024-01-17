@@ -80,7 +80,8 @@ class TestContext internal constructor(internal val testOwner: TestOwner) {
      */
     internal fun getAllSemanticsNodes(
         atLeastOneRootRequired: Boolean,
-        useUnmergedTree: Boolean
+        useUnmergedTree: Boolean,
+        skipDeactivatedNodes: Boolean = true
     ): Iterable<SemanticsNode> {
         val roots = testOwner.getRoots(atLeastOneRootRequired).also {
             check(!atLeastOneRootRequired || it.isNotEmpty()) {
@@ -93,8 +94,13 @@ class TestContext internal constructor(internal val testOwner: TestOwner) {
             }
         }
 
-        return roots.flatMap {
-            it.semanticsOwner.getAllSemanticsNodes(mergingEnabled = !useUnmergedTree)
+        return testOwner.runOnUiThread {
+            roots.flatMap {
+                it.semanticsOwner.getAllSemanticsNodes(
+                    mergingEnabled = !useUnmergedTree,
+                    skipDeactivatedNodes = skipDeactivatedNodes
+                )
+            }
         }
     }
 }

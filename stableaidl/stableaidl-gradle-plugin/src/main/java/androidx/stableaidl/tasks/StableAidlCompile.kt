@@ -21,6 +21,7 @@ import androidx.stableaidl.internal.LoggerWrapper
 import androidx.stableaidl.internal.compiling.DependencyFileProcessor
 import androidx.stableaidl.internal.incremental.DependencyData
 import androidx.stableaidl.internal.process.GradleProcessExecutor
+import com.android.build.api.variant.AndroidVersion
 import com.android.ide.common.process.LoggedProcessOutputHandler
 import com.android.utils.FileUtils
 import com.google.common.annotations.VisibleForTesting
@@ -33,9 +34,11 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.Directory
 import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.file.FileSystemLocation
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
+import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
@@ -74,6 +77,13 @@ abstract class StableAidlCompile : DefaultTask() {
     @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val importDirs: ListProperty<Directory>
 
+    /**
+     * List of file system locations containing AIDL sources available as imports from dependencies.
+     */
+    @get:InputFiles
+    @get:PathSensitive(PathSensitivity.RELATIVE)
+    abstract val dependencyImportDirs: SetProperty<FileSystemLocation>
+
     @get:InputFile
     @get:PathSensitive(PathSensitivity.NONE)
     abstract val aidlFrameworkProvider: RegularFileProperty
@@ -81,6 +91,19 @@ abstract class StableAidlCompile : DefaultTask() {
     @get:InputFile
     @get:PathSensitive(PathSensitivity.NONE)
     abstract val aidlExecutable: RegularFileProperty
+
+    @get:Input
+    abstract val aidlVersion: Property<String>
+
+    /**
+     * Variant's minimum SDK version.
+     *
+     * This should only be specified when generating code. Do not specify this when dumping the API
+     * surface, e.g. passing `--dumpapi` as an extra argument.
+     */
+    @get:Input
+    @get:Optional
+    abstract val minSdkVersion: Property<AndroidVersion>
 
     /**
      * Directory for storing AIDL-generated Java sources.
@@ -126,15 +149,25 @@ abstract class StableAidlCompile : DefaultTask() {
         val fullImportList = sourceDirs.get() + importDirs.get()
         val sourceDirsAsFiles = sourceDirs.get().map { it.asFile }
 
+        // When using AIDL from build tools version 33 and later, pass the variant's minimum SDK
+        // version. If it's a pre-release SDK, pass the most recently stabilized SDK version.
+        val aidlMajorVersion = aidlVersion.get().substringBefore('.').toIntOrNull() ?: 0
+        val extraArgsWithSdk = if (minSdkVersion.isPresent && aidlMajorVersion >= 33) {
+            extraArgs.get() + listOf("--min_sdk_version", "${minSdkVersion.get().apiLevel}")
+        } else {
+            extraArgs.get()
+        }
+
         aidlCompileDelegate(
             workerExecutor,
             aidlExecutable.get().asFile,
             aidlFrameworkProvider.get().asFile,
             destinationDir,
             parcelableDir?.asFile,
-            extraArgs.get(),
+            extraArgsWithSdk,
             sourceDirsAsFiles,
-            fullImportList
+            fullImportList,
+            dependencyImportDirs.get().map { it.asFile }
         )
     }
 
@@ -211,13 +244,14 @@ abstract class StableAidlCompile : DefaultTask() {
             parcelableDir: File?,
             extraArgs: List<String>,
             sourceFolders: Collection<File>,
-            fullImportList: Collection<Directory>
+            projectImportList: Collection<Directory>,
+            dependencyImportList: Collection<File>
         ) {
             for (dir in sourceFolders) {
                 workerExecutor.noIsolation().submit(StableAidlCompileRunnable::class.java) {
                     it.aidlExecutable.set(aidlExecutable)
                     it.frameworkLocation.set(frameworkLocation)
-                    it.importFolders.from(fullImportList)
+                    it.importFolders.from(projectImportList, dependencyImportList)
                     it.sourceOutputDir.set(destinationDir)
                     it.packagedOutputDir.set(parcelableDir)
                     it.extraArgs.set(extraArgs)

@@ -20,6 +20,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import javax.annotation.processing.Messager;
@@ -28,10 +29,10 @@ import javax.tools.Diagnostic;
 
 /**
  * An exception thrown from the appsearch annotation processor to indicate something went wrong.
- * @hide
+ * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-final class ProcessingException extends Exception {
+public final class ProcessingException extends Exception {
     @Nullable
     private final Element mCulprit;
 
@@ -40,13 +41,17 @@ final class ProcessingException extends Exception {
      */
     private final List<ProcessingException> mWarnings = new ArrayList<>();
 
-    ProcessingException(@NonNull String message, @Nullable Element culprit) {
+    public ProcessingException(@NonNull String message, @Nullable Element culprit) {
         super(message);
         mCulprit = culprit;
     }
 
     public void addWarning(@NonNull ProcessingException warning) {
         mWarnings.add(warning);
+    }
+
+    public void addWarnings(@NonNull Collection<ProcessingException> warnings) {
+        mWarnings.addAll(warnings);
     }
 
     public void printDiagnostic(Messager messager) {

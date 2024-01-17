@@ -14,46 +14,62 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryType
-import androidx.build.RunApiTasks
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
+import androidx.build.AndroidXConfig
 import androidx.build.BuildOnServerKt
-import androidx.build.SupportConfigKt
+import androidx.build.LibraryType
+import androidx.build.Publish
+import androidx.build.RunApiTasks
 
 plugins {
     id("AndroidXPlugin")
-    id("java") // https://github.com/gradle/gradle/issues/18622
     id("AndroidXComposePlugin")
-    id("kotlin-multiplatform")
 }
 
-dependencies {
-}
-
-kotlin {
-    jvm() {
-        withJava()
-    }
+androidXMultiplatform {
+    // Compose Desktop is qualified on "desktop" but actually builds as "jvm".
+    jvm()
 
     sourceSets {
-        commonMain.dependencies {
-            implementation(libs.kotlinStdlibCommon)
-            implementation(project(":compose:ui:ui-util"))
-            api(project(":compose:foundation:foundation"))
-            api(project(":compose:material:material"))
-            api(project(":compose:runtime:runtime"))
-            api(project(":compose:ui:ui"))
-            api(project(":compose:ui:ui-tooling-preview"))
+        commonMain {
+            dependencies {
+                implementation(libs.kotlinStdlibCommon)
+                implementation(project(":compose:ui:ui-util"))
+                api(project(":compose:foundation:foundation"))
+                api(project(":compose:material:material"))
+                api(project(":compose:runtime:runtime"))
+                api(project(":compose:ui:ui"))
+                api(project(":compose:ui:ui-tooling-preview"))
+            }
         }
 
-        jvmMain.dependencies {
-            implementation(libs.kotlinStdlib)
-            implementation(libs.kotlinStdlibJdk8)
-            implementation(libs.kotlinCoroutinesCore)
+        commonTest {
+            dependencies {
+            }
+        }
+
+        jvmMain {
+            dependsOn(commonMain)
+            dependencies {
+                implementation(libs.kotlinStdlib)
+                implementation(libs.kotlinStdlibJdk8)
+                implementation(libs.kotlinCoroutinesCore)
+            }
         }
 
         jvmTest {
-            resources.srcDirs += new File(SupportConfigKt.getExternalProjectPath(project), "noto-fonts/other/")
+            dependsOn(commonTest)
+
+            resources.srcDirs += new File(AndroidXConfig.getExternalProjectPath(project),
+                    "noto-fonts/other/")
             resources.srcDirs += "src/jvmTest/res"
+
             dependencies {
                 implementation(libs.kotlinCoroutinesTest)
                 implementation(libs.skikoCurrentOs)
@@ -74,18 +90,21 @@ File getGoldenPath(Project project) {
     }
 }
 
+// Set golden images path based on whether this is the GitHub or AndroidX repo.
 tasks.findByName("jvmTest").configure {
     systemProperties["GOLDEN_PATH"] = getGoldenPath(project).toString()
 }
 
 androidx {
-    name = "Jetpack Compose desktop implementation"
+    name = "Compose Desktop"
     type = LibraryType.PUBLISHED_LIBRARY
+    publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2020"
     legacyDisableKotlinStrictApiMode = true
-    runApiTasks = new RunApiTasks.No(
-            "API tracking for desktop isn't supported at the moment, see b/163110180"
-    )
+    runApiTasks = new RunApiTasks.No("Not supported yet, see b/163110180")
+
+    // Project parser does not support dynamic configuration of `publish`.
+    runProjectParser = false
 }
 
 def jvmOs(container, name, skikoDep) {
@@ -115,6 +134,7 @@ def jvmOs(container, name, skikoDep) {
     }
 }
 
+// Set up additional publications containing native Skiko dependencies.
 afterEvaluate {
     publishing {
         publications {
@@ -127,4 +147,5 @@ afterEvaluate {
     }
 }
 
+// Validate desktop build by explicitly building the jvmJar task as part of bOS.
 BuildOnServerKt.addToBuildOnServer(project, "${project.path}:jvmJar")

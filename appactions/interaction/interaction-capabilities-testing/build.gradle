@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.LibraryType
 
 plugins {
@@ -29,11 +36,16 @@ dependencies {
     implementation("androidx.annotation:annotation:1.1.0")
     implementation("androidx.concurrent:concurrent-futures:1.1.0")
     implementation(project(":appactions:interaction:interaction-capabilities-core"))
+
+    // depending on productivity (any vertical works) capability artifact for writing unit tests
+    // for this library
+    testImplementation(project(":appactions:interaction:interaction-capabilities-productivity"))
+    testImplementation(libs.junit)
+    testImplementation(libs.truth)
 }
 
 android {
     defaultConfig {
-        // TODO(b/266649259): lower minSdk version to 19.
         minSdkVersion 26
     }
     namespace "androidx.appactions.interaction.capabilities.testing.internal"
@@ -44,4 +56,5 @@ androidx {
     type = LibraryType.PUBLISHED_TEST_LIBRARY
     inceptionYear = "2023"
     description = "Test integrations with App Actions Interactions capabilities libraries."
+    metalavaK2UastEnabled = true
 }

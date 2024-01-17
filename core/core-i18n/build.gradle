@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.LibraryType
 
 plugins {
@@ -41,6 +48,7 @@ androidx {
     mavenVersion = LibraryVersions.CORE_I18N
     inceptionYear = "2022"
     description = "This library provides functionality for good internationalization (messages, plurals, date / time formatting)."
+    metalavaK2UastEnabled = true
 }
 
 android {

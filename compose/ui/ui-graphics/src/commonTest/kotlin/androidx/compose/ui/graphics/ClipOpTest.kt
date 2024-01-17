@@ -16,8 +16,8 @@
 
 package androidx.compose.ui.graphics
 
-import kotlin.test.assertEquals
 import kotlin.test.Test
+import kotlin.test.assertEquals
 
 class ClipOpTest {
 

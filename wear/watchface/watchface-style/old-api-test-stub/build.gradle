@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.LibraryType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -32,7 +39,7 @@ dependencies {
 }
 
 androidx {
-    name = "AndroidX WatchFace Style Old Api Test Stub"
+    name = "WatchFace Style Old Api Test Stub"
     type = LibraryType.INTERNAL_TEST_LIBRARY
     inceptionYear = "2022"
     description = "Test stub built with v1.0.0 of the API, used to check for binary AIDL compat"

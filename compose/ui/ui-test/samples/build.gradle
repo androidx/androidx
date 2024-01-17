@@ -14,7 +14,13 @@
  * limitations under the License.
  */
 
-
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.LibraryType
 
 plugins {
@@ -38,7 +44,7 @@ dependencies {
 }
 
 androidx {
-    name = "AndroidX Compose Testing Samples"
+    name = "Compose Testing Samples"
     type = LibraryType.SAMPLES
     inceptionYear = "2022"
     description = "Contains samples for AndroidX Compose Testing."

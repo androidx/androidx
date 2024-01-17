@@ -34,13 +34,13 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.CameraEffect;
 import androidx.camera.core.Logger;
 import androidx.camera.core.SurfaceOutput;
 import androidx.camera.core.SurfaceProcessor;
 import androidx.camera.core.impl.CameraInternal;
+import androidx.camera.core.impl.utils.MatrixExt;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.util.Consumer;
 
@@ -95,6 +95,8 @@ final class SurfaceOutputImpl implements SurfaceOutput {
     private CallbackToFutureAdapter.Completer<Void> mCloseFutureCompleter;
     @Nullable
     private CameraInternal mCameraInternal;
+    @NonNull
+    private android.graphics.Matrix mSensorToBufferTransform;
 
     SurfaceOutputImpl(
             @NonNull Surface surface,
@@ -105,7 +107,8 @@ final class SurfaceOutputImpl implements SurfaceOutput {
             @NonNull Rect inputCropRect,
             int rotationDegree,
             boolean mirroring,
-            @Nullable CameraInternal cameraInternal) {
+            @Nullable CameraInternal cameraInternal,
+            @NonNull android.graphics.Matrix sensorToBufferTransform) {
         mSurface = surface;
         mTargets = targets;
         mFormat = format;
@@ -115,6 +118,7 @@ final class SurfaceOutputImpl implements SurfaceOutput {
         mMirroring = mirroring;
         mRotationDegrees = rotationDegree;
         mCameraInternal = cameraInternal;
+        mSensorToBufferTransform = sensorToBufferTransform;
         calculateAdditionalTransform();
         mCloseFuture = CallbackToFutureAdapter.getFuture(
                 completer -> {
@@ -211,7 +215,7 @@ final class SurfaceOutputImpl implements SurfaceOutput {
     }
 
     @VisibleForTesting
-    public boolean getMirroring() {
+    public boolean isMirroring() {
         return mMirroring;
     }
 
@@ -239,7 +243,7 @@ final class SurfaceOutputImpl implements SurfaceOutput {
     /**
      * Returns the close state.
      */
-    @RestrictTo(RestrictTo.Scope.TESTS)
+    @VisibleForTesting
     public boolean isClosed() {
         synchronized (mLock) {
             return mIsClosed;
@@ -261,6 +265,15 @@ final class SurfaceOutputImpl implements SurfaceOutput {
     @Override
     public void updateTransformMatrix(@NonNull float[] output, @NonNull float[] input) {
         Matrix.multiplyMM(output, 0, input, 0, mAdditionalTransform, 0);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    @NonNull
+    @Override
+    public android.graphics.Matrix getSensorToBufferTransform() {
+        return new android.graphics.Matrix(mSensorToBufferTransform);
     }
 
     /**
@@ -291,8 +304,7 @@ final class SurfaceOutputImpl implements SurfaceOutput {
         // - Apply the crop rect
 
         // Flipping for GL.
-        Matrix.translateM(mAdditionalTransform, 0, 0f, 1f, 0f);
-        Matrix.scaleM(mAdditionalTransform, 0, 1f, -1f, 1f);
+        MatrixExt.preVerticalFlip(mAdditionalTransform, 0.5f);
 
         // Rotation
         preRotate(mAdditionalTransform, mRotationDegrees, 0.5f, 0.5f);
@@ -342,8 +354,7 @@ final class SurfaceOutputImpl implements SurfaceOutput {
 
         // Flip for GL. SurfaceTexture#getTransformMatrix always contains this flipping regardless
         // of whether it has the camera transform.
-        Matrix.translateM(mInvertedTextureTransform, 0, 0f, 1f, 0f);
-        Matrix.scaleM(mInvertedTextureTransform, 0, 1f, -1f, 1f);
+        MatrixExt.preVerticalFlip(mInvertedTextureTransform, 0.5f);
 
         // Applies the camera sensor orientation if the input surface contains camera transform.
         if (mCameraInternal != null) {

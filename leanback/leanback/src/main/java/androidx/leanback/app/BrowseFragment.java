@@ -1122,8 +1122,8 @@ public class BrowseFragment extends BaseFragment {
                         ? mHeadersFragment.getVerticalGridView() : mMainFragment.getView();
             }
 
-            boolean isRtl = ViewCompat.getLayoutDirection(focused)
-                    == ViewCompat.LAYOUT_DIRECTION_RTL;
+            boolean isRtl = focused.getLayoutDirection()
+                    == View.LAYOUT_DIRECTION_RTL;
             int towardStart = isRtl ? View.FOCUS_RIGHT : View.FOCUS_LEFT;
             int towardEnd = isRtl ? View.FOCUS_LEFT : View.FOCUS_RIGHT;
             if (mCanShowHeaders && direction == towardStart) {
@@ -1269,8 +1269,8 @@ public class BrowseFragment extends BaseFragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
+    @Nullable
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
 
         if (getChildFragmentManager().findFragmentById(R.id.scale_frame) == null) {
             mHeadersFragment = onCreateHeadersFragment();

@@ -30,7 +30,6 @@ import static androidx.slice.core.SliceHints.HINT_RAW;
 import static androidx.slice.core.SliceHints.HINT_SHOW_LABEL;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.slice.Clock;
 import androidx.slice.Slice;
@@ -40,10 +39,9 @@ import androidx.slice.SystemClock;
 import java.util.ArrayList;
 
 /**
- * @hide
  */
 @RestrictTo(LIBRARY)
-@RequiresApi(19)
+@Deprecated
 public abstract class TemplateBuilderImpl {
 
     private Slice.Builder mSliceBuilder;
@@ -74,7 +72,6 @@ public abstract class TemplateBuilderImpl {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public Slice.Builder getBuilder() {
@@ -82,7 +79,6 @@ public abstract class TemplateBuilderImpl {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public Slice.Builder createChildBuilder() {
@@ -90,13 +86,11 @@ public abstract class TemplateBuilderImpl {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public abstract void apply(@NonNull Slice.Builder builder);
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public Clock getClock() {
@@ -104,7 +98,6 @@ public abstract class TemplateBuilderImpl {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public SliceSpec getSpec() {
@@ -112,7 +105,6 @@ public abstract class TemplateBuilderImpl {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @NonNull

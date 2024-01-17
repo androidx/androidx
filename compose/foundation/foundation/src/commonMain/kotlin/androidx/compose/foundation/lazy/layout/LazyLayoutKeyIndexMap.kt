@@ -16,12 +16,10 @@
 
 package androidx.compose.foundation.lazy.layout
 
+import androidx.collection.MutableObjectIntMap
+import androidx.collection.ObjectIntMap
+import androidx.collection.emptyObjectIntMap
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.runtime.State
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.referentialEqualityPolicy
-import androidx.compose.runtime.structuralEqualityPolicy
 
 /**
  * A key-index mapping used inside the [LazyLayoutItemProvider]. It might not contain all items
@@ -33,51 +31,20 @@ internal interface LazyLayoutKeyIndexMap {
     /**
      * @return current index for given [key] or `-1` if not found.
      */
-    operator fun get(key: Any): Int
+    fun getIndex(key: Any): Int
+
+    /**
+     * @return key for a given [index] if it is known, or null otherwise.
+     */
+    fun getKey(index: Int): Any?
 
     /**
      * Empty map implementation, always returning `-1` for any key.
      */
     companion object Empty : LazyLayoutKeyIndexMap {
         @Suppress("AutoBoxing")
-        override fun get(key: Any): Int = -1
-    }
-}
-
-/**
- * State containing [LazyLayoutKeyIndexMap] precalculated for range of indexes near first visible
- * item.
- * It is optimized to return the same range for small changes in the firstVisibleItemIndex
- * value so we do not regenerate the map on each scroll.
- *
- * @param firstVisibleItemIndex Provider of the first item index currently visible on screen.
- * @param slidingWindowSize Number of items between current and `firstVisibleItem` until
- * [LazyLayoutKeyIndexMap] is regenerated.
- * @param extraItemCount The minimum amount of items in one direction near the first visible item
- * to calculate mapping for.
- * @param content Provider of [LazyLayoutIntervalContent] to generate key index mapping for.
- */
-@ExperimentalFoundationApi
-internal class NearestRangeKeyIndexMapState(
-    firstVisibleItemIndex: () -> Int,
-    slidingWindowSize: () -> Int,
-    extraItemCount: () -> Int,
-    content: () -> LazyLayoutIntervalContent<*>
-) : State<LazyLayoutKeyIndexMap> {
-    private val nearestRangeState by derivedStateOf(structuralEqualityPolicy()) {
-        if (content().itemCount < extraItemCount() * 2 + slidingWindowSize()) {
-            0 until content().itemCount
-        } else {
-            calculateNearestItemsRange(
-                firstVisibleItemIndex(),
-                slidingWindowSize(),
-                extraItemCount()
-            )
-        }
-    }
-
-    override val value: LazyLayoutKeyIndexMap by derivedStateOf(referentialEqualityPolicy()) {
-        NearestRangeKeyIndexMap(nearestRangeState, content())
+        override fun getIndex(key: Any): Int = -1
+        override fun getKey(index: Int) = null
     }
 }
 
@@ -86,63 +53,50 @@ internal class NearestRangeKeyIndexMapState(
  * Items outside of given range are considered unknown, with null returned as the index.
  */
 @ExperimentalFoundationApi
-private class NearestRangeKeyIndexMap(
+internal class NearestRangeKeyIndexMap(
     nearestRange: IntRange,
-    content: LazyLayoutIntervalContent<*>
+    intervalContent: LazyLayoutIntervalContent<*>
 ) : LazyLayoutKeyIndexMap {
-    private val map = generateKeyToIndexMap(nearestRange, content.intervals)
+    private val map: ObjectIntMap<Any>
+    private val keys: Array<Any?>
+    private val keysStartIndex: Int
 
-    override fun get(key: Any): Int = map.getOrElse(key) { -1 }
-
-    companion object {
-        /**
-         * Traverses the interval [list] in order to create a mapping from the key to the index for all
-         * the indexes in the passed [range].
-         * The returned map will not contain the values for intervals with no key mapping provided.
-         */
-        private fun generateKeyToIndexMap(
-            range: IntRange,
-            list: IntervalList<LazyLayoutIntervalContent.Interval>
-        ): Map<Any, Int> {
-            val first = range.first
-            check(first >= 0)
-            val last = minOf(range.last, list.size - 1)
-            return if (last < first) {
-                emptyMap()
-            } else {
-                hashMapOf<Any, Int>().also { map ->
-                    list.forEach(
-                        fromIndex = first,
-                        toIndex = last,
-                    ) {
-                        if (it.value.key != null) {
-                            val keyFactory = requireNotNull(it.value.key)
-                            val start = maxOf(first, it.startIndex)
-                            val end = minOf(last, it.startIndex + it.size - 1)
-                            for (i in start..end) {
-                                map[keyFactory(i - it.startIndex)] = i
-                            }
-                        }
+    init {
+        // Traverses the interval [list] in order to create a mapping from the key to the index for
+        // all the indexes in the passed [range].
+        val list = intervalContent.intervals
+        val first = nearestRange.first
+        check(first >= 0) { "negative nearestRange.first" }
+        val last = minOf(nearestRange.last, list.size - 1)
+        if (last < first) {
+            map = emptyObjectIntMap()
+            keys = emptyArray()
+            keysStartIndex = 0
+        } else {
+            val size = last - first + 1
+            keys = arrayOfNulls<Any?>(size)
+            keysStartIndex = first
+            map = MutableObjectIntMap<Any>(size).also { map ->
+                list.forEach(
+                    fromIndex = first,
+                    toIndex = last,
+                ) {
+                    val keyFactory = it.value.key
+                    val start = maxOf(first, it.startIndex)
+                    val end = minOf(last, it.startIndex + it.size - 1)
+                    for (i in start..end) {
+                        val key =
+                            keyFactory?.invoke(i - it.startIndex) ?: getDefaultLazyLayoutKey(i)
+                        map[key] = i
+                        keys[i - keysStartIndex] = key
                     }
                 }
             }
         }
     }
-}
 
-/**
- * Returns a range of indexes which contains at least [extraItemCount] items near
- * the first visible item. It is optimized to return the same range for small changes in the
- * firstVisibleItem value so we do not regenerate the map on each scroll.
- */
-private fun calculateNearestItemsRange(
-    firstVisibleItem: Int,
-    slidingWindowSize: Int,
-    extraItemCount: Int
-): IntRange {
-    val slidingWindowStart = slidingWindowSize * (firstVisibleItem / slidingWindowSize)
+    override fun getIndex(key: Any): Int = map.getOrElse(key) { -1 }
 
-    val start = maxOf(slidingWindowStart - extraItemCount, 0)
-    val end = slidingWindowStart + slidingWindowSize + extraItemCount
-    return start until end
+    override fun getKey(index: Int) =
+        keys.getOrElse(index - keysStartIndex) { null }
 }

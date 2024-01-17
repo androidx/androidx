@@ -37,9 +37,7 @@ import android.support.v4.testutils.TestUtils;
 import android.util.DisplayMetrics;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.OptIn;
 import androidx.core.graphics.TypefaceCompat;
-import androidx.core.os.BuildCompat;
 import androidx.core.provider.FontsContractCompat;
 import androidx.core.provider.MockFontProvider;
 import androidx.core.test.R;
@@ -181,8 +179,7 @@ public class ResourcesCompatTest {
         // For pre-v15 devices we should get a drawable that corresponds to the density of the
         // current device. For v15+ devices we should get a drawable that corresponds to the
         // density requested in the API call.
-        final int expectedSizeForMediumDensity = (SDK_INT < 15) ?
-                mResources.getDimensionPixelSize(R.dimen.density_aware_size) : 12;
+        final int expectedSizeForMediumDensity = 12;
         assertEquals("Unthemed density-aware drawable load: medium width",
                 expectedSizeForMediumDensity, unthemedDrawableForMediumDensity.getIntrinsicWidth());
         assertEquals("Unthemed density-aware drawable load: medium height",
@@ -192,11 +189,8 @@ public class ResourcesCompatTest {
         final Drawable unthemedDrawableForHighDensity =
                 ResourcesCompat.getDrawableForDensity(mResources, R.drawable.density_aware_drawable,
                         DisplayMetrics.DENSITY_HIGH, null);
-        // For pre-v15 devices we should get a drawable that corresponds to the density of the
-        // current device. For v15+ devices we should get a drawable that corresponds to the
-        // density requested in the API call.
-        final int expectedSizeForHighDensity = (SDK_INT < 15) ?
-                mResources.getDimensionPixelSize(R.dimen.density_aware_size) : 21;
+
+        final int expectedSizeForHighDensity = 21;
         assertEquals("Unthemed density-aware drawable load: high width",
                 expectedSizeForHighDensity, unthemedDrawableForHighDensity.getIntrinsicWidth());
         assertEquals("Unthemed density-aware drawable load: high height",
@@ -205,11 +199,8 @@ public class ResourcesCompatTest {
         final Drawable unthemedDrawableForXHighDensity =
                 ResourcesCompat.getDrawableForDensity(mResources, R.drawable.density_aware_drawable,
                         DisplayMetrics.DENSITY_XHIGH, null);
-        // For pre-v15 devices we should get a drawable that corresponds to the density of the
-        // current device. For v15+ devices we should get a drawable that corresponds to the
-        // density requested in the API call.
-        final int expectedSizeForXHighDensity = (SDK_INT < 15) ?
-                mResources.getDimensionPixelSize(R.dimen.density_aware_size) : 32;
+
+        final int expectedSizeForXHighDensity = 32;
         assertEquals("Unthemed density-aware drawable load: xhigh width",
                 expectedSizeForXHighDensity, unthemedDrawableForXHighDensity.getIntrinsicWidth());
         assertEquals("Unthemed density-aware drawable load: xhigh height",
@@ -218,11 +209,8 @@ public class ResourcesCompatTest {
         final Drawable unthemedDrawableForXXHighDensity =
                 ResourcesCompat.getDrawableForDensity(mResources, R.drawable.density_aware_drawable,
                         DisplayMetrics.DENSITY_XXHIGH, null);
-        // For pre-v15 devices we should get a drawable that corresponds to the density of the
-        // current device. For v15+ devices we should get a drawable that corresponds to the
-        // density requested in the API call.
-        final int expectedSizeForXXHighDensity = (SDK_INT < 15) ?
-                mResources.getDimensionPixelSize(R.dimen.density_aware_size) : 54;
+
+        final int expectedSizeForXXHighDensity = 54;
         assertEquals("Unthemed density-aware drawable load: xxhigh width",
                 expectedSizeForXXHighDensity, unthemedDrawableForXXHighDensity.getIntrinsicWidth());
         assertEquals("Unthemed density-aware drawable load: xxhigh height",
@@ -526,8 +514,6 @@ public class ResourcesCompatTest {
         assertTrue(drawable instanceof TransitionDrawable);
         assertTrue(mutated instanceof TransitionDrawable);
     }
-
-    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
     @Test
     public void testClearCachesForTheme() {
         Resources.Theme theme = mResources.newTheme();

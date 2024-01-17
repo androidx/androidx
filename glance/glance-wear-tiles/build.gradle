@@ -14,18 +14,21 @@
  * limitations under the License.
  */
 
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.LibraryType
-import androidx.build.Publish
-import androidx.build.AndroidXComposePlugin
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
+    id("org.jetbrains.kotlin.android")
     id("AndroidXComposePlugin")
 }
-
-// Disable multi-platform; this will only be used on Android.
-AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project, /* isMultiplatformEnabled= */false)
 
 dependencies {
 
@@ -38,9 +41,8 @@ dependencies {
 
     implementation(libs.kotlinStdlib)
     implementation(libs.kotlinCoroutinesGuava)
-    implementation(projectOrArtifact(":lifecycle:lifecycle-runtime"))
-    implementation(projectOrArtifact(":lifecycle:lifecycle-runtime-ktx"))
-    implementation(projectOrArtifact(":lifecycle:lifecycle-service"))
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1")
+    implementation("androidx.lifecycle:lifecycle-service:2.6.1")
 
     testImplementation(libs.testCore)
     testImplementation(libs.testRules)
@@ -92,6 +94,7 @@ android {
 androidx {
     name = "Glance for Wear Tiles"
     type = LibraryType.PUBLISHED_LIBRARY
+    mavenVersion = LibraryVersions.GLANCE_WEAR_TILES
     inceptionYear = "2021"
     description = "Glance allows developers to build layouts for Wear Tiles using a Jetpack " +
             "Compose-style API."

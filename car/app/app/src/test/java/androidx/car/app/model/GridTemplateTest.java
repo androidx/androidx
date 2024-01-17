@@ -174,6 +174,7 @@ public class GridTemplateTest {
                         .setSingleList(TestUtils.getGridItemList(2))
                         .addAction(customAction)
                         .addAction(customAction)
+                        .addAction(customAction)
                         .build());
     }
 
@@ -237,6 +238,23 @@ public class GridTemplateTest {
                 .build();
 
         assertThat(template.getItemSize()).isEqualTo(GridTemplate.ITEM_SIZE_SMALL);
+    }
+
+    @Test
+    public void createInstance_defaultItemImageShape() {
+        ItemList list = TestUtils.getGridItemList(2);
+        GridTemplate template = new GridTemplate.Builder().setSingleList(list).build();
+        assertThat(template.getItemImageShape()).isEqualTo(GridTemplate.ITEM_IMAGE_SHAPE_UNSET);
+    }
+
+    @Test
+    public void createInstance_setItemImageShape() {
+        ItemList list = TestUtils.getGridItemList(2);
+        GridTemplate template =
+                new GridTemplate.Builder()
+                        .setSingleList(list)
+                        .setItemImageShape(GridTemplate.ITEM_IMAGE_SHAPE_CIRCLE).build();
+        assertThat(template.getItemImageShape()).isEqualTo(GridTemplate.ITEM_IMAGE_SHAPE_CIRCLE);
     }
 
     @Test
@@ -366,7 +384,23 @@ public class GridTemplateTest {
                         .setLoading(true)
                         .setItemSize(GridTemplate.ITEM_SIZE_SMALL)
                         .build();
+        assertThat(template1).isNotEqualTo(template2);
+    }
 
+    @Test
+    public void notEquals_differentItemImageShape() {
+        ItemList itemList = new ItemList.Builder().build();
+
+        GridTemplate template1 =
+                new GridTemplate.Builder()
+                        .setSingleList(itemList)
+                        .setItemImageShape(GridTemplate.ITEM_IMAGE_SHAPE_CIRCLE)
+                        .build();
+        GridTemplate template2 =
+                new GridTemplate.Builder()
+                        .setSingleList(itemList)
+                        .setItemImageShape(GridTemplate.ITEM_IMAGE_SHAPE_UNSET)
+                        .build();
         assertThat(template1).isNotEqualTo(template2);
     }
 }

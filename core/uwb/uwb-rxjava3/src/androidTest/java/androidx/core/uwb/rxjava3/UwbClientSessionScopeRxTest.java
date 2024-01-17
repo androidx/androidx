@@ -24,6 +24,7 @@ import androidx.core.uwb.RangingResult.RangingResultPosition;
 import androidx.core.uwb.UwbControleeSessionScope;
 import androidx.core.uwb.UwbDevice;
 import androidx.core.uwb.UwbManager;
+import androidx.core.uwb.UwbRangeDataNtfConfig;
 import androidx.core.uwb.rxjava3.mock.TestUwbManager;
 
 import com.google.common.collect.ImmutableList;
@@ -41,10 +42,17 @@ public class UwbClientSessionScopeRxTest {
     private final RangingParameters rangingParameters = new RangingParameters(
             RangingParameters.CONFIG_UNICAST_DS_TWR,
             0,
-            /*sessionKeyInfo=*/ null,
+            0,
+            /*sessionKeyInfo=*/ new byte[] {
+                /*Vendor ID=*/ 0x07, 0x08,
+                /*Static STS IV=*/ 0x01, 0x02, 0x03, 0x04, 0x05, 0x06},
+            /*subSessionKeyInfo=*/ null,
             /*complexChannel=*/ null,
             ImmutableList.of(UWB_DEVICE),
-            RangingParameters.RANGING_UPDATE_RATE_AUTOMATIC
+            RangingParameters.RANGING_UPDATE_RATE_AUTOMATIC,
+            new UwbRangeDataNtfConfig(1, 1, 100),
+            /*slotDuration=*/ 2,
+            false
     );
 
     @Test

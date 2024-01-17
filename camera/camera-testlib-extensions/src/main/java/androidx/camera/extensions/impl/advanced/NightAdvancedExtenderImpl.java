@@ -16,75 +16,19 @@
 
 package androidx.camera.extensions.impl.advanced;
 
-import android.annotation.SuppressLint;
-import android.hardware.camera2.CameraCharacteristics;
-import android.hardware.camera2.CaptureRequest;
-import android.hardware.camera2.CaptureResult;
-import android.util.Range;
-import android.util.Size;
+import android.graphics.ImageFormat;
 
-import java.util.List;
-import java.util.Map;
+import androidx.annotation.RequiresApi;
 
 /**
- * Stub advanced extender implementation for night.
- *
- * <p>This class should be implemented by OEM and deployed to the target devices.
+ * A sample night implementation for testing long processing capture. It is capable of outputting
+ * the postview(YUV format) and the process progress event. ImageAnalysis is not supported.
  *
  * @since 1.2
  */
-@SuppressLint("UnknownNullness")
-public class NightAdvancedExtenderImpl implements AdvancedExtenderImpl {
+@RequiresApi(21)
+public class NightAdvancedExtenderImpl extends LongCaptureAdvancedExtenderImpl {
     public NightAdvancedExtenderImpl() {
-    }
-
-    @Override
-    public boolean isExtensionAvailable(String cameraId,
-            Map<String, CameraCharacteristics> characteristicsMap) {
-        return false;
-    }
-
-    @Override
-    public void init(String cameraId,
-            Map<String, CameraCharacteristics> characteristicsMap) {
-    }
-
-    @Override
-    public Range<Long> getEstimatedCaptureLatencyRange(
-            String cameraId, Size size, int imageFormat) {
-        return null;
-    }
-
-    @Override
-    public Map<Integer, List<Size>> getSupportedPreviewOutputResolutions(
-            String cameraId) {
-        return null;
-    }
-
-    @Override
-    public Map<Integer, List<Size>> getSupportedCaptureOutputResolutions(
-            String cameraId) {
-        return null;
-    }
-
-    @Override
-    public List<Size> getSupportedYuvAnalysisResolutions(
-            String cameraId) {
-        return null;
-    }
-
-    @Override
-    public SessionProcessorImpl createSessionProcessor() {
-        return null;
-    }
-
-    @Override
-    public List<CaptureRequest.Key> getAvailableCaptureRequestKeys() {
-        return null;
-    }
-
-    @Override
-    public List<CaptureResult.Key> getAvailableCaptureResultKeys() {
-        return null;
+        super(/* postviewFormat */ ImageFormat.YUV_420_888);
     }
 }

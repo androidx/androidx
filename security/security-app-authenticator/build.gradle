@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.LibraryType
 
 plugins {
@@ -48,9 +55,10 @@ android {
 }
 
 androidx {
-    name = "Android Security App Package Authenitcator Library"
+    name = "Security App Authenitcator"
     type = LibraryType.PUBLISHED_LIBRARY
     mavenVersion = LibraryVersions.SECURITY_APP_AUTHENTICATOR
     inceptionYear = "2020"
     description = "Verify app packages for proper app to app authentication."
+    metalavaK2UastEnabled = true
 }

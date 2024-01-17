@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.LibraryType
 
 plugins {
@@ -26,7 +33,7 @@ plugins {
 dependencies {
     implementation(libs.kotlinStdlib)
 
-    compileOnly projectOrArtifact(":annotation:annotation-sampled")
+    compileOnly project(":annotation:annotation-sampled")
     implementation "androidx.compose.foundation:foundation:1.0.1"
     implementation projectOrArtifact(":activity:activity-compose")
     implementation projectOrArtifact(":activity:activity-ktx")
@@ -40,7 +47,7 @@ dependencies {
 }
 
 androidx {
-    name = "AndroidX Compose UI Activity Integration Samples"
+    name = "Compose UI Activity Integration Samples"
     type = LibraryType.SAMPLES
     inceptionYear = "2020"
     description = "Samples for Compose integration with Activity"

@@ -35,7 +35,8 @@ internal object FrameTimingQuery {
             INNER JOIN thread USING(utid)
             INNER JOIN process USING(upid)
         WHERE (
-            ( slice.name LIKE "Choreographer#doFrame%" AND process.pid LIKE thread.tid ) OR
+            ---- parent_stack_id = 0 to filter to top of trace stack
+            ( slice.name LIKE "Choreographer#doFrame%" AND process.pid LIKE thread.tid AND slice.parent_stack_id = 0) OR
             ( slice.name LIKE "DrawFrame%" AND thread.name like "RenderThread" )
         ) AND ${processNameLikePkg(packageName)}
         ------ Add in actual frame slices (prepended with "actual " to differentiate)
@@ -83,7 +84,7 @@ internal object FrameTimingQuery {
      *
      * Nullable slices are always present on API 31+
      */
-    private class FrameData(
+    internal class FrameData(
         val uiSlice: Slice,
         val rtSlice: Slice,
         val expectedSlice: Slice?,
@@ -93,7 +94,10 @@ internal object FrameTimingQuery {
             return when (subMetric) {
                 SubMetric.FrameDurationCpuNs -> rtSlice.endTs - uiSlice.ts
                 SubMetric.FrameDurationUiNs -> uiSlice.dur
-                SubMetric.FrameOverrunNs -> actualSlice!!.endTs - expectedSlice!!.endTs
+                SubMetric.FrameOverrunNs -> {
+                    // workaround b/279088460, where actual slice ends too early
+                    maxOf(actualSlice!!.endTs, rtSlice.endTs) - expectedSlice!!.endTs
+                }
             }
         }
         companion object {
@@ -141,11 +145,11 @@ internal object FrameTimingQuery {
         }
     }
 
-    fun getFrameSubMetrics(
+    internal fun getFrameData(
         session: PerfettoTraceProcessor.Session,
         captureApiLevel: Int,
         packageName: String,
-    ): Map<SubMetric, List<Long>> {
+    ): List<FrameData> {
         val queryResultIterator = session.query(
             query = getFullQuery(packageName)
         )
@@ -155,6 +159,7 @@ internal object FrameTimingQuery {
 
         val groupedData = slices
             .filter { it.dur > 0 } // drop non-terminated slices
+            .filter { !it.name.contains("resynced") } // drop "#doFrame - resynced to" slices
             .groupBy {
                 when {
                     // note: we use "startsWith" as starting in S, all of these will end
@@ -173,28 +178,57 @@ internal object FrameTimingQuery {
         val expectedSlices = groupedData.getOrElse(FrameSliceType.Expected) { listOf() }
 
         if (uiSlices.isEmpty()) {
-            return emptyMap()
+            return emptyList()
         }
 
-        // check data looks reasonable
-        val newSlicesShouldBeEmpty = captureApiLevel < 31
-        require(actualSlices.isEmpty() == newSlicesShouldBeEmpty)
-        require(expectedSlices.isEmpty() == newSlicesShouldBeEmpty)
+        check(rtSlices.isNotEmpty()) {
+            "Observed no renderthread slices in trace - verify that your benchmark is redrawing" +
+                " and is hardware accelerated (which is the default)."
+        }
 
-        val frameData = if (captureApiLevel >= 31) {
-            // No slice should be missing a frameId
-            require(slices.none { it.frameId == null })
+        return if (captureApiLevel >= 31) {
+            check(actualSlices.isNotEmpty() && expectedSlices.isNotEmpty()) {
+                "Observed no expect/actual slices in trace," +
+                    " please report bug and attach perfetto trace."
+            }
+            check(slices.none { it.frameId == null }) {
+                "Observed frame in trace missing id, please report bug and attach perfetto trace."
+            }
+
+            val actualSlicesPool = actualSlices.toMutableList()
             rtSlices.mapNotNull { rtSlice ->
                 val frameId = rtSlice.frameId!!
-                FrameData.tryCreate31(
-                    uiSlice = uiSlices.binarySearchFrameId(frameId),
-                    rtSlice = rtSlice,
-                    expectedSlice = expectedSlices.binarySearchFrameId(frameId),
-                    actualSlice = actualSlices.binarySearchFrameId(frameId)
-                )
+
+                val uiSlice = uiSlices.binarySearchFrameId(frameId)
+
+                // Ideally, we'd rely on frameIds, but these can fall out of sync due to b/279088460
+                //     expectedSlice = expectedSlices.binarySearchFrameId(frameId),
+                //     actualSlice = actualSlices.binarySearchFrameId(frameId)
+                // A pool of actual slices is used to prevent incorrect duplicate mapping. At the
+                //     end of the trace, the synthetic expect/actual slices may be missing even if
+                //     the complete end of frame is present, and we want to discard those. This
+                //     doesn't happen at front of trace, since we find actuals from the end.
+                if (uiSlice != null) {
+                    // Use fixed offset since synthetic tracepoint for actual may start after the
+                    // actual UI slice (have observed 2us in practice)
+                    val actualSlice = actualSlicesPool.lastOrNull { it.ts < uiSlice.ts + 50_000 }
+                    actualSlicesPool.remove(actualSlice)
+                    val expectedSlice = actualSlice?.frameId?.run {
+                        expectedSlices.binarySearchFrameId(this)
+                    }
+                    FrameData.tryCreate31(
+                        uiSlice = uiSlice,
+                        rtSlice = rtSlice,
+                        expectedSlice = expectedSlice,
+                        actualSlice = actualSlice
+                    )
+                } else {
+                    null
+                }
             }
         } else {
-            require(slices.none { it.frameId != null })
+            // note that we expect no frame ids on API < 31, and don't observe them
+            // on most devices, but it has been observed, so we just ignore them
             rtSlices.mapNotNull { rtSlice ->
                 FrameData.tryCreateBasic(
                     uiSlice = uiSlices.firstOrNull { it.contains(rtSlice.ts) },
@@ -202,11 +236,13 @@ internal object FrameTimingQuery {
                 )
             }
         }
+    }
 
+    fun List<FrameData>.getFrameSubMetrics(captureApiLevel: Int): Map<SubMetric, List<Long>> {
         return SubMetric.values()
             .filter { it.supportedOnApiLevel(captureApiLevel) }
             .associateWith { subMetric ->
-                frameData.map { frame -> frame.get(subMetric) }
+                map { frame -> frame.get(subMetric) }
             }
     }
 }

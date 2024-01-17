@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.layout
 
-import androidx.core.graphics.Insets as AndroidXInsets
 import android.os.Build
 import android.view.View
 import android.view.View.OnAttachStateChangeListener
@@ -28,16 +27,18 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
+import androidx.compose.ui.R
+import androidx.compose.ui.platform.AbstractComposeView
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.core.graphics.Insets as AndroidXInsets
 import androidx.core.view.OnApplyWindowInsetsListener
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsAnimationCompat
 import androidx.core.view.WindowInsetsCompat
 import java.util.WeakHashMap
-import androidx.compose.ui.R
-import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.LayoutDirection
 import org.jetbrains.annotations.TestOnly
 
 internal fun AndroidXInsets.toInsetsValues(): InsetsValues =
@@ -111,6 +112,22 @@ internal class AndroidWindowInsets(
  *
  * This property should be set prior to first composition.
  */
+var AbstractComposeView.consumeWindowInsets: Boolean
+    get() = getTag(R.id.consume_window_insets_tag) as? Boolean ?: true
+    set(value) {
+        setTag(R.id.consume_window_insets_tag, value)
+    }
+
+/**
+ * Indicates whether access to [WindowInsets] within the [content][ComposeView.setContent]
+ * should consume the Android  [android.view.WindowInsets]. The default value is `true`, meaning
+ * that access to [WindowInsets.Companion] will consume the Android WindowInsets.
+ *
+ * This property should be set prior to first composition.
+ */
+@Deprecated(
+    level = DeprecationLevel.HIDDEN,
+    message = "Please use AbstractComposeView.consumeWindowInsets")
 var ComposeView.consumeWindowInsets: Boolean
     get() = getTag(R.id.consume_window_insets_tag) as? Boolean ?: true
     set(value) {
@@ -120,7 +137,7 @@ var ComposeView.consumeWindowInsets: Boolean
 /**
  * For the [WindowInsetsCompat.Type.captionBar].
  */
-val WindowInsets.Companion.captionBar: WindowInsets
+actual val WindowInsets.Companion.captionBar: WindowInsets
     @Composable
     @NonRestartableComposable
     get() = WindowInsetsHolder.current().captionBar
@@ -129,7 +146,7 @@ val WindowInsets.Companion.captionBar: WindowInsets
  * For the [WindowInsetsCompat.Type.displayCutout]. This insets represents the area that the
  * display cutout (e.g. for camera) is and important content should be excluded from.
  */
-val WindowInsets.Companion.displayCutout: WindowInsets
+actual val WindowInsets.Companion.displayCutout: WindowInsets
     @Composable
     @NonRestartableComposable
     get() = WindowInsetsHolder.current().displayCutout
@@ -143,7 +160,7 @@ val WindowInsets.Companion.displayCutout: WindowInsets
  * `AndroidManifest.xml` file and call `WindowCompat.setDecorFitsSystemWindows(window, false)`
  * in their [android.app.Activity.onCreate].
  */
-val WindowInsets.Companion.ime: WindowInsets
+actual val WindowInsets.Companion.ime: WindowInsets
     @Composable
     @NonRestartableComposable
     get() = WindowInsetsHolder.current().ime
@@ -152,7 +169,7 @@ val WindowInsets.Companion.ime: WindowInsets
  * For the [WindowInsetsCompat.Type.mandatorySystemGestures]. These insets represents the
  * space where system gestures have priority over application gestures.
  */
-val WindowInsets.Companion.mandatorySystemGestures: WindowInsets
+actual val WindowInsets.Companion.mandatorySystemGestures: WindowInsets
     @Composable
     @NonRestartableComposable
     get() = WindowInsetsHolder.current().mandatorySystemGestures
@@ -162,7 +179,7 @@ val WindowInsets.Companion.mandatorySystemGestures: WindowInsets
  * system UI places navigation bars. Interactive UI should avoid the navigation bars
  * area.
  */
-val WindowInsets.Companion.navigationBars: WindowInsets
+actual val WindowInsets.Companion.navigationBars: WindowInsets
     @Composable
     @NonRestartableComposable
     get() = WindowInsetsHolder.current().navigationBars
@@ -170,7 +187,7 @@ val WindowInsets.Companion.navigationBars: WindowInsets
 /**
  * For the [WindowInsetsCompat.Type.statusBars].
  */
-val WindowInsets.Companion.statusBars: WindowInsets
+actual val WindowInsets.Companion.statusBars: WindowInsets
     @Composable
     @NonRestartableComposable
     get() = WindowInsetsHolder.current().statusBars
@@ -178,7 +195,7 @@ val WindowInsets.Companion.statusBars: WindowInsets
 /**
  * For the [WindowInsetsCompat.Type.systemBars].
  */
-val WindowInsets.Companion.systemBars: WindowInsets
+actual val WindowInsets.Companion.systemBars: WindowInsets
     @Composable
     @NonRestartableComposable
     get() = WindowInsetsHolder.current().systemBars
@@ -186,7 +203,7 @@ val WindowInsets.Companion.systemBars: WindowInsets
 /**
  * For the [WindowInsetsCompat.Type.systemGestures].
  */
-val WindowInsets.Companion.systemGestures: WindowInsets
+actual val WindowInsets.Companion.systemGestures: WindowInsets
     @Composable
     @NonRestartableComposable
     get() = WindowInsetsHolder.current().systemGestures
@@ -194,7 +211,7 @@ val WindowInsets.Companion.systemGestures: WindowInsets
 /**
  * For the [WindowInsetsCompat.Type.tappableElement].
  */
-val WindowInsets.Companion.tappableElement: WindowInsets
+actual val WindowInsets.Companion.tappableElement: WindowInsets
     @Composable
     @NonRestartableComposable
     get() = WindowInsetsHolder.current().tappableElement
@@ -202,7 +219,7 @@ val WindowInsets.Companion.tappableElement: WindowInsets
 /**
  * The insets for the curved areas in a waterfall display.
  */
-val WindowInsets.Companion.waterfall: WindowInsets
+actual val WindowInsets.Companion.waterfall: WindowInsets
     @Composable
     @NonRestartableComposable
     get() = WindowInsetsHolder.current().waterfall
@@ -212,7 +229,7 @@ val WindowInsets.Companion.waterfall: WindowInsets
  * This includes all [system bars][systemBars], [display cutout][displayCutout], and
  * [soft keyboard][ime].
  */
-val WindowInsets.Companion.safeDrawing: WindowInsets
+actual val WindowInsets.Companion.safeDrawing: WindowInsets
     @Composable
     @NonRestartableComposable
     get() = WindowInsetsHolder.current().safeDrawing
@@ -223,7 +240,7 @@ val WindowInsets.Companion.safeDrawing: WindowInsets
  * [mandatory system gestures][mandatorySystemGestures],
  * [rounded display areas][waterfall], and [tappable areas][tappableElement].
  */
-val WindowInsets.Companion.safeGestures: WindowInsets
+actual val WindowInsets.Companion.safeGestures: WindowInsets
     @Composable
     @NonRestartableComposable
     get() = WindowInsetsHolder.current().safeGestures
@@ -232,7 +249,7 @@ val WindowInsets.Companion.safeGestures: WindowInsets
  * The insets that include all areas that may be drawn over or have gesture confusion,
  * including everything in [safeDrawing] and [safeGestures].
  */
-val WindowInsets.Companion.safeContent: WindowInsets
+actual val WindowInsets.Companion.safeContent: WindowInsets
     @Composable
     @NonRestartableComposable
     get() = WindowInsetsHolder.current().safeContent
@@ -469,7 +486,8 @@ internal class WindowInsetsHolder private constructor(insets: WindowInsetsCompat
     )
 
     /**
-     * `true` unless the `ComposeView` [ComposeView.consumeWindowInsets] is set to `false`.
+     * `true` unless the `AbstractComposeView` [AbstractComposeView.consumeWindowInsets] is set to
+     * `false`.
      */
     val consumes = (view.parent as? View)?.getTag(R.id.consume_window_insets_tag)
         as? Boolean ?: true

@@ -18,8 +18,8 @@ package androidx.compose.ui.res
 
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.toComposeImageBitmap
-import org.jetbrains.skia.Image
 import java.io.InputStream
+import org.jetbrains.skia.Image
 
 /**
  * Load and decode [ImageBitmap] from the given [inputStream]. [inputStream] should contain encoded

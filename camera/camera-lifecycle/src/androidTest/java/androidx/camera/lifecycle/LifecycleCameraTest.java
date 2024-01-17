@@ -23,11 +23,11 @@ import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.MutableOptionsBundle;
 import androidx.camera.core.internal.CameraUseCaseAdapter;
 import androidx.camera.testing.fakes.FakeCamera;
-import androidx.camera.testing.fakes.FakeCameraCoordinator;
-import androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager;
-import androidx.camera.testing.fakes.FakeLifecycleOwner;
-import androidx.camera.testing.fakes.FakeUseCase;
-import androidx.camera.testing.fakes.FakeUseCaseConfigFactory;
+import androidx.camera.testing.impl.fakes.FakeCameraCoordinator;
+import androidx.camera.testing.impl.fakes.FakeCameraDeviceSurfaceManager;
+import androidx.camera.testing.impl.fakes.FakeLifecycleOwner;
+import androidx.camera.testing.impl.fakes.FakeUseCase;
+import androidx.camera.testing.impl.fakes.FakeUseCaseConfigFactory;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
@@ -37,7 +37,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.Collections;
-import java.util.LinkedHashSet;
 
 @SmallTest
 @RunWith(AndroidJUnit4.class)
@@ -56,7 +55,7 @@ public class LifecycleCameraTest {
         mFakeCamera = new FakeCamera();
         mCameraCoordinator = new FakeCameraCoordinator();
         mCameraUseCaseAdapter = new CameraUseCaseAdapter(
-                new LinkedHashSet<>(Collections.singleton(mFakeCamera)),
+                mFakeCamera,
                 mCameraCoordinator,
                 new FakeCameraDeviceSurfaceManager(),
                 new FakeUseCaseConfigFactory());
@@ -127,12 +126,12 @@ public class LifecycleCameraTest {
         FakeLifecycleOwner lifecycle2 = new FakeLifecycleOwner();
 
         CameraUseCaseAdapter adapter1 = new CameraUseCaseAdapter(
-                new LinkedHashSet<>(Collections.singleton(mFakeCamera)),
+                mFakeCamera,
                 mCameraCoordinator,
                 new FakeCameraDeviceSurfaceManager(),
                 new FakeUseCaseConfigFactory());
         CameraUseCaseAdapter adapter2 = new CameraUseCaseAdapter(
-                new LinkedHashSet<>(Collections.singleton(mFakeCamera)),
+                mFakeCamera,
                 mCameraCoordinator,
                 new FakeCameraDeviceSurfaceManager(),
                 new FakeUseCaseConfigFactory());

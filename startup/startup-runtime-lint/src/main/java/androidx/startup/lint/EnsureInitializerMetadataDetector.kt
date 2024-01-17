@@ -34,11 +34,11 @@ import com.android.tools.lint.detector.api.SourceCodeScanner
 import com.android.tools.lint.detector.api.XmlContext
 import com.android.tools.lint.detector.api.XmlScanner
 import com.intellij.psi.impl.source.PsiClassReferenceType
+import java.util.EnumSet
 import org.jetbrains.uast.UClass
 import org.jetbrains.uast.UClassLiteralExpression
 import org.jetbrains.uast.visitor.AbstractUastVisitor
 import org.w3c.dom.Element
-import java.util.EnumSet
 
 /**
  * A [Detector] which ensures that every `ComponentInitializer` is accompanied by a corresponding

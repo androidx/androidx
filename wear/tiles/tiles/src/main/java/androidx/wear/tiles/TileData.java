@@ -23,7 +23,6 @@ import androidx.annotation.RestrictTo;
  * Holder for Tiles' Tile class, to be parceled and transferred to Wear.
  *
  * <p>All this does is to serialize Tile as a protobuf and transmit it.
- *
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class TileData extends ProtoParcelable {

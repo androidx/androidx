@@ -22,16 +22,16 @@ import android.hardware.camera2.CameraCharacteristics
 import android.util.Pair
 import android.util.Size
 import androidx.camera.camera2.Camera2Config
-import androidx.camera.camera2.interop.Camera2CameraInfo
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
+import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.impl.ImageOutputConfig
 import androidx.camera.extensions.ExtensionMode
 import androidx.camera.extensions.impl.ImageCaptureExtenderImpl
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.testing.CameraUtil
-import androidx.camera.testing.CameraUtil.PreTestCameraIdList
-import androidx.camera.testing.fakes.FakeLifecycleOwner
+import androidx.camera.testing.impl.CameraUtil
+import androidx.camera.testing.impl.CameraUtil.PreTestCameraIdList
+import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -82,7 +82,7 @@ class ImageCaptureConfigProviderTest {
     @After
     fun cleanUp(): Unit = runBlocking {
         if (::cameraProvider.isInitialized) {
-            cameraProvider.shutdown()[10000, TimeUnit.MILLISECONDS]
+            cameraProvider.shutdownAsync()[10000, TimeUnit.MILLISECONDS]
         }
     }
 
@@ -135,16 +135,16 @@ class ImageCaptureConfigProviderTest {
             basicVendorExtender.init(camera.cameraInfo)
         }
         return ImageCapture.Builder().also {
-            ImageCaptureConfigProvider(extensionMode, basicVendorExtender).apply {
-                updateBuilderConfig(it, extensionMode, basicVendorExtender)
+            ImageCaptureConfigProvider(basicVendorExtender).apply {
+                updateBuilderConfig(it, basicVendorExtender)
             }
         }.build()
     }
 
     private fun generateImageCaptureSupportedResolutions(): List<Pair<Int, Array<Size>>> {
         val formatResolutionsPairList = mutableListOf<Pair<Int, Array<Size>>>()
-        val cameraInfo = cameraProvider.availableCameraInfos[0]
-        val characteristics = Camera2CameraInfo.extractCameraCharacteristics(cameraInfo)
+        val cameraInfo = cameraProvider.availableCameraInfos[0] as CameraInfoInternal
+        val characteristics = cameraInfo.cameraCharacteristics as CameraCharacteristics
         val map = characteristics[CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP]
 
         // Retrieves originally supported resolutions from CameraCharacteristics for JPEG

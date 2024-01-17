@@ -34,11 +34,11 @@ import androidx.camera.core.imagecapture.Utils.injectRotationOptionQuirk
 import androidx.camera.core.impl.utils.futures.Futures
 import androidx.camera.core.internal.CameraCaptureResultImageInfo
 import androidx.camera.core.internal.utils.ImageUtil.jpegImageToJpegByteArray
-import androidx.camera.testing.ExifUtil.updateExif
-import androidx.camera.testing.TestImageUtil.createJpegBytes
-import androidx.camera.testing.TestImageUtil.createJpegFakeImageProxy
-import androidx.camera.testing.TestImageUtil.createYuvFakeImageProxy
-import androidx.camera.testing.TestImageUtil.getAverageDiff
+import androidx.camera.testing.impl.ExifUtil.updateExif
+import androidx.camera.testing.impl.TestImageUtil.createJpegBytes
+import androidx.camera.testing.impl.TestImageUtil.createJpegFakeImageProxy
+import androidx.camera.testing.impl.TestImageUtil.createYuvFakeImageProxy
+import androidx.camera.testing.impl.TestImageUtil.getAverageDiff
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -65,7 +65,7 @@ class ProcessingInput2PacketTest {
             HEIGHT
         )
         val processingRequest = createProcessingRequest()
-        val input = ProcessingNode.InputPacket.of(processingRequest, image, false)
+        val input = ProcessingNode.InputPacket.of(processingRequest, image)
 
         // Act.
         val output = operation.apply(input)
@@ -89,7 +89,7 @@ class ProcessingInput2PacketTest {
         }
         val image = createJpegFakeImageProxy(jpegBytes)
         val processingRequest = createProcessingRequest()
-        val input = ProcessingNode.InputPacket.of(processingRequest, image, false)
+        val input = ProcessingNode.InputPacket.of(processingRequest, image)
 
         // Act.
         val output = operation.apply(input)
@@ -121,7 +121,7 @@ class ProcessingInput2PacketTest {
             FakeTakePictureCallback(),
             Futures.immediateFuture(null)
         )
-        val input = ProcessingNode.InputPacket.of(processingRequest, image, false)
+        val input = ProcessingNode.InputPacket.of(processingRequest, image)
 
         // Act.
         val output = operation.apply(input)
@@ -146,25 +146,7 @@ class ProcessingInput2PacketTest {
         injectRotationOptionQuirk()
         val image = createJpegFakeImageProxy(createJpegBytes(WIDTH, HEIGHT))
         val processingRequest = createProcessingRequest()
-        val input = ProcessingNode.InputPacket.of(processingRequest, image, false)
-
-        // Act.
-        val output = operation.apply(input)
-
-        // Assert: the metadata are based on Packet only.
-        assertThat(output.cropRect).isEqualTo(CROP_RECT)
-        assertThat(output.rotationDegrees).isEqualTo(ROTATION_DEGREES)
-        assertThat(output.format).isEqualTo(ImageFormat.JPEG)
-        assertThat(output.size).isEqualTo(Size(WIDTH, HEIGHT))
-        assertThat(output.sensorToBufferTransform).isEqualTo(SENSOR_TO_BUFFER)
-    }
-
-    @Test
-    fun isVirtualCamera_outputIgnoresExifRotation() {
-        // Arrange: create input
-        val image = createJpegFakeImageProxy(createJpegBytes(WIDTH, HEIGHT))
-        val processingRequest = createProcessingRequest()
-        val input = ProcessingNode.InputPacket.of(processingRequest, image, true)
+        val input = ProcessingNode.InputPacket.of(processingRequest, image)
 
         // Act.
         val output = operation.apply(input)

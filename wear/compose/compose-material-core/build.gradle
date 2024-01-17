@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.LibraryType
 import androidx.build.AndroidXComposePlugin
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
@@ -22,10 +29,8 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXComposePlugin")
+    id("org.jetbrains.kotlin.android")
 }
-
-// Disable multi-platform.
-AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project, /* isMultiplatformEnabled= */ false)
 
 dependencies {
     api(project(":compose:foundation:foundation"))
@@ -66,9 +71,6 @@ android {
         consumerProguardFiles("proguard-rules.pro")
     }
     namespace "androidx.wear.compose.material.core"
-    lint {
-        baseline = file("lint-baseline.xml")
-    }
 }
 
 androidx {
@@ -79,6 +81,7 @@ androidx {
             "components that are shared between different WearOS Compose Material libraries. It " +
             "builds upon the Jetpack Compose libraries."
     targetsJavaConsumers = false
+    metalavaK2UastEnabled = true
 }
 
 tasks.withType(KotlinCompile).configureEach {

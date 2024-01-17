@@ -49,11 +49,11 @@ import androidx.compose.ui.window.launchApplication
 import androidx.compose.ui.window.rememberWindowState
 import androidx.compose.ui.window.runApplicationTest
 import com.google.common.truth.Truth.assertThat
-import org.junit.Test
 import java.awt.Toolkit
 import java.awt.event.KeyEvent
 import java.awt.event.MouseEvent
 import java.awt.event.MouseWheelEvent
+import org.junit.Test
 
 @OptIn(ExperimentalComposeUiApi::class)
 class WindowInputEventTest {

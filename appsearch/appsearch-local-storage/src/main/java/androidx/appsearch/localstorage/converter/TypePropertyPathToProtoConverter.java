@@ -29,7 +29,7 @@ import java.util.Map;
 /**
  * Translates a <code>Map<String, List<String>></code> into <code>List<TypePropertyMask></code>.
  *
- * @hide
+ * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class TypePropertyPathToProtoConverter {

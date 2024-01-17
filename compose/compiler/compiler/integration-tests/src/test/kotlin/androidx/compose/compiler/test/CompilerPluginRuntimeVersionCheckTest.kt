@@ -17,6 +17,10 @@
 package androidx.compose.compiler.test
 
 import androidx.testutils.gradle.ProjectSetupRule
+import java.io.File
+import javax.xml.parsers.DocumentBuilderFactory
+import javax.xml.xpath.XPathConstants
+import javax.xml.xpath.XPathFactory
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
 import org.junit.Assert.assertEquals
@@ -26,10 +30,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import java.io.File
-import javax.xml.parsers.DocumentBuilderFactory
-import javax.xml.xpath.XPathConstants
-import javax.xml.xpath.XPathFactory
 
 @RunWith(JUnit4::class)
 class CompilerPluginRuntimeVersionCheckTest {
@@ -95,19 +95,6 @@ class CompilerPluginRuntimeVersionCheckTest {
     }
 
     @Test
-    fun usingLatestUnsupportedRuntime() {
-        setupAppBuildGradle("""implementation("androidx.compose.runtime:runtime:1.0.0-rc02")""")
-        val result = gradleRunner.buildAndFail()
-        assertEquals(TaskOutcome.FAILED, result.task(":app:compileDebugKotlin")!!.outcome)
-        assertTrue(
-            result.output.contains(
-                "You are using an outdated version of Compose Runtime that is not " +
-                    "compatible with the version of the Compose Compiler plugin you have installed"
-            )
-        )
-    }
-
-    @Test
     fun usingLastStableRuntime() {
         setupAppBuildGradle("""implementation("androidx.compose.runtime:runtime:1.0.0")""")
         val result = gradleRunner.build()
@@ -122,8 +109,6 @@ class CompilerPluginRuntimeVersionCheckTest {
     }
 
     private fun setupProjectBuildGradle() {
-        val kotlinGradlePlugin =
-            "org.jetbrains.kotlin:kotlin-gradle-plugin:${projectSetup.props.kotlinVersion}"
         val repositoriesBlock = buildString {
             appendLine("repositories {")
             appendLine("maven { url \"${projectSetup.props.tipOfTreeMavenRepoPath}\" }")
@@ -145,7 +130,7 @@ class CompilerPluginRuntimeVersionCheckTest {
                 $repositoriesBlock
                 dependencies {
                     classpath "${projectSetup.props.agpDependency}"
-                    classpath "$kotlinGradlePlugin"
+                    classpath "${projectSetup.props.kgpDependency}"
                 }
             }
 

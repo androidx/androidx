@@ -1,3 +1,13 @@
 // Baseline format: 1.0
+GetterSetterNames: androidx.compose.ui.unit.Constraints#getHasBoundedHeight():
+    Getter for boolean property `hasBoundedHeight` is named `getHasBoundedHeight` but should match the property name. Use `@get:JvmName` to rename.
+GetterSetterNames: androidx.compose.ui.unit.Constraints#getHasBoundedWidth():
+    Getter for boolean property `hasBoundedWidth` is named `getHasBoundedWidth` but should match the property name. Use `@get:JvmName` to rename.
+GetterSetterNames: androidx.compose.ui.unit.Constraints#getHasFixedHeight():
+    Getter for boolean property `hasFixedHeight` is named `getHasFixedHeight` but should match the property name. Use `@get:JvmName` to rename.
+GetterSetterNames: androidx.compose.ui.unit.Constraints#getHasFixedWidth():
+    Getter for boolean property `hasFixedWidth` is named `getHasFixedWidth` but should match the property name. Use `@get:JvmName` to rename.
+
+
 KotlinOperator: androidx.compose.ui.unit.IntRect#contains(long):
     Note that adding the `operator` keyword would allow calling this method using operator syntax

@@ -23,17 +23,6 @@ plugins {
 android {
     defaultConfig {
         applicationId "androidx.biometric.integration.testapp"
-        minSdkVersion 18
-        versionCode 1
-        testInstrumentationRunnerArgument "listener", "leakcanary.FailTestOnLeakRunListener"
-    }
-
-    sourceSets {
-        main.manifest.srcFile "src/main/AndroidManifest.xml"
-        main.java.srcDirs = ["src/main/java"]
-        main.java.includes = ["**/*.java"]
-        main.java.excludes = ["**/build/**"]
-        main.res.srcDirs = ["src/main/res"]
     }
 
     buildTypes {

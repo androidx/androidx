@@ -19,7 +19,6 @@ package androidx.camera.integration.diagnose
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Color.BLUE
-
 import androidx.camera.view.LifecycleCameraController
 
 class FakeTextAndImageSavingTask : DiagnosisTask("FakeTextAndImageSavingTask") {

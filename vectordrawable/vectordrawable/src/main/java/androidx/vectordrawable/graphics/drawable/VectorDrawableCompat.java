@@ -50,6 +50,7 @@ import android.os.Build;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.Xml;
+import android.view.View;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.DrawableRes;
@@ -63,7 +64,6 @@ import androidx.core.content.res.ResourcesCompat;
 import androidx.core.content.res.TypedArrayUtils;
 import androidx.core.graphics.PathParser;
 import androidx.core.graphics.drawable.DrawableCompat;
-import androidx.core.view.ViewCompat;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -918,12 +918,8 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
 
     // We don't support RTL auto mirroring since the getLayoutDirection() is for API 17+.
     private boolean needMirroring() {
-        if (Build.VERSION.SDK_INT >= 17) {
-            return isAutoMirrored()
-                    && DrawableCompat.getLayoutDirection(this) == ViewCompat.LAYOUT_DIRECTION_RTL;
-        } else {
-            return false;
-        }
+        return isAutoMirrored()
+                && DrawableCompat.getLayoutDirection(this) == View.LAYOUT_DIRECTION_RTL;
     }
 
     // Extra override functions for delegation for SDK >= 7.
@@ -1723,8 +1719,8 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
         public String nodesToString(PathParser.PathDataNode[] nodes) {
             StringBuilder result = new StringBuilder(" ");
             for (PathParser.PathDataNode node : nodes) {
-                result.append(node.mType).append(":");
-                float[] params = node.mParams;
+                result.append(node.getType()).append(":");
+                float[] params = node.getParams();
                 for (float param : params) {
                     result.append(param).append(",");
                 }

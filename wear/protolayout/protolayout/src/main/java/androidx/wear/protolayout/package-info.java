@@ -14,7 +14,5 @@
  * limitations under the License.
  */
 
-/**
- * Allows creating layouts and expressions that can be rendered or evaluated at a remote host.
- */
+/** Allows creating layouts and expressions that can be rendered or evaluated at a remote host. */
 package androidx.wear.protolayout;

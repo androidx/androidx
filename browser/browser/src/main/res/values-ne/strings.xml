@@ -19,5 +19,5 @@
     <string name="fallback_menu_item_open_in_browser" msgid="3413186855122069269">"ब्राउजरमा खोल्नुहोस्"</string>
     <string name="fallback_menu_item_copy_link" msgid="4566929209979330987">"लिंक प्रतिलिपि गर्नुहोस्"</string>
     <string name="fallback_menu_item_share_link" msgid="7145444925855055364">"लिंक सेयर गर्नुहोस्"</string>
-    <string name="copy_toast_msg" msgid="3260749812566568062">"क्लिपबोर्डमा लिंक प्रतिलिपि गरियो"</string>
+    <string name="copy_toast_msg" msgid="3260749812566568062">"क्लिपबोर्डमा लिंक कपी गरियो"</string>
 </resources>

@@ -30,13 +30,13 @@ import android.os.Bundle
 import android.widget.FrameLayout
 import android.widget.RemoteViews
 import android.widget.TextView
-import androidx.annotation.RequiresApi
 import androidx.core.remoteviews.test.R
 import androidx.core.util.SizeFCompat
 import androidx.core.util.component1
 import androidx.core.util.component2
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
+import kotlin.test.assertFailsWith
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -44,12 +44,10 @@ import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 import org.robolectric.util.ReflectionHelpers
-import kotlin.test.assertFailsWith
 
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
-@Config(sdk = [17])
-@RequiresApi(17)
+@Config(sdk = [19])
 class AppWidgetManagerCompatTest {
 
     private val context = ApplicationProvider.getApplicationContext<Context>()
@@ -274,7 +272,6 @@ class AppWidgetManagerCompatTest {
     private val RemoteViews.portrait: RemoteViews?
         get() = ReflectionHelpers.getField(this, "mPortrait")
 
-    @RequiresApi(17)
     private fun configurationContext(modifier: Configuration.() -> Unit): Context {
         val configuration = Configuration()
         configuration.apply(modifier)

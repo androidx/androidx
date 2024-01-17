@@ -18,7 +18,8 @@ package androidx.wear.protolayout;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import androidx.wear.protolayout.expression.StateEntryBuilders;
+import androidx.wear.protolayout.expression.AppDataKey;
+import androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,25 +31,29 @@ public class StateBuildersTest {
     public void emptyState() {
         StateBuilders.State state = new StateBuilders.State.Builder().build();
 
-        assertThat(state.getIdToValueMapping()).isEmpty();
+        assertThat(state.getKeyToValueMapping()).isEmpty();
     }
 
     @Test
     public void additionalState() {
-        StateEntryBuilders.StateEntryValue boolValue =
-                StateEntryBuilders.StateEntryValue.fromBool(true);
-        StateEntryBuilders.StateEntryValue stringValue =
-                StateEntryBuilders.StateEntryValue.fromString("string");
-        StateBuilders.State state = new StateBuilders.State.Builder()
-                .addIdToValueMapping("boolValue", boolValue)
-                .addIdToValueMapping("stringValue", stringValue)
-                .build();
-
-        assertThat(state.getIdToValueMapping()).hasSize(2);
-        assertThat(state.getIdToValueMapping().get("boolValue").toStateEntryValueProto()).isEqualTo(
-                boolValue.toStateEntryValueProto());
+        StateBuilders.State state =
+                new StateBuilders.State.Builder()
+                        .addKeyToValueMapping(
+                                new AppDataKey<>("boolValue"), DynamicDataValue.fromBool(true))
+                        .addKeyToValueMapping(
+                                new AppDataKey<>("stringValue"),
+                                DynamicDataValue.fromString("string"))
+                        .build();
+        assertThat(state.getKeyToValueMapping()).hasSize(2);
         assertThat(
-                state.getIdToValueMapping().get("stringValue").toStateEntryValueProto()).isEqualTo(
-                stringValue.toStateEntryValueProto());
+                        state.getKeyToValueMapping()
+                                .get(new AppDataKey<>("boolValue"))
+                                .toDynamicDataValueProto())
+                .isEqualTo(DynamicDataValue.fromBool(true).toDynamicDataValueProto());
+        assertThat(
+                        state.getKeyToValueMapping()
+                                .get(new AppDataKey<>("stringValue"))
+                                .toDynamicDataValueProto())
+                .isEqualTo(DynamicDataValue.fromString("string").toDynamicDataValueProto());
     }
 }

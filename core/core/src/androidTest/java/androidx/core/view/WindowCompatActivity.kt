@@ -18,7 +18,5 @@ package androidx.core.view
 
 import androidx.core.app.TestActivity
 
-/**
- * No-op test Activity which uses a no-title-bar theme
- */
+/** No-op test Activity which uses a no-title-bar theme */
 class WindowCompatActivity : TestActivity()

@@ -14,18 +14,25 @@
  * limitations under the License.
  */
 
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("androidx.stableaidl")
 }
 
 dependencies {
     api("androidx.core:core:1.6.0")
     implementation("androidx.annotation:annotation:1.2.0")
     implementation("androidx.collection:collection:1.1.0")
+    implementation("androidx.core:core:1.9.0")
 
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
@@ -47,19 +54,16 @@ android {
 
     buildTypes.all {
         consumerProguardFiles "proguard-rules.pro"
-
-        stableAidl {
-            version 1
-        }
     }
     namespace "androidx.media"
 }
 
 androidx {
-    name = "Android Support Library media compat"
+    name = "Media"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.MEDIA
     inceptionYear = "2011"
     description = "The Support Library is a static library that you can add to your Android application in order to use APIs that are either not available for older platform versions or utility APIs that aren't a part of the framework APIs. Compatible on devices running API 14 or later."
     failOnDeprecationWarnings = false
+    metalavaK2UastEnabled = true
 }

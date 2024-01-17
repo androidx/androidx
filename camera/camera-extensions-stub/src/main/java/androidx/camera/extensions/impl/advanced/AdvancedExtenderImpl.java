@@ -131,8 +131,9 @@ public interface AdvancedExtenderImpl {
      * Returns supported output format/size map for postview image. OEM is required to support
      * both JPEG and YUV_420_888 format output.
      *
-     * <p>The surface created with this supported format/size could configure
-     * intermediate surfaces(YUV/RAW..) and write the output to the output surface.</p>
+     * <p>The returned sizes must be smaller than or equal to the provided capture size and have the
+     * same aspect ratio as the given capture size. If no supported resolution exists for the
+     * provided capture size then an empty map is returned.
      *
      * @since 1.4
      */

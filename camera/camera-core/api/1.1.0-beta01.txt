@@ -138,6 +138,9 @@ package androidx.camera.core {
     ctor public DisplayOrientedMeteringPointFactory(android.view.Display, androidx.camera.core.CameraInfo, float, float);
   }
 
+  @RequiresApi(21) @RequiresOptIn @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalGetImage {
+  }
+
   @RequiresApi(21) public interface ExposureState {
     method public int getExposureCompensationIndex();
     method public android.util.Range<java.lang.Integer!> getExposureCompensationRange();
@@ -296,6 +299,7 @@ package androidx.camera.core {
     method public android.graphics.Rect getCropRect();
     method public int getFormat();
     method public int getHeight();
+    method @androidx.camera.core.ExperimentalGetImage public android.media.Image? getImage();
     method public androidx.camera.core.ImageInfo getImageInfo();
     method public androidx.camera.core.ImageProxy.PlaneProxy![] getPlanes();
     method public int getWidth();

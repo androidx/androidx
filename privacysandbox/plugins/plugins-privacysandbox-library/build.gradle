@@ -1,3 +1,10 @@
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.LibraryType
 import androidx.build.SdkResourceGenerator
 
@@ -7,19 +14,32 @@ plugins {
     id("java-gradle-plugin")
 }
 
-SdkResourceGenerator.generateForHostTest(project)
+configurations {
+    // Config for plugin classpath to be used during tests
+    testPlugin {
+        canBeConsumed = false
+        canBeResolved = true
+    }
+}
+
 apply from: "../../../buildSrc/kotlin-dsl-dependency.gradle"
 
 dependencies {
     implementation(findGradleKotlinDsl())
-    implementation("com.android.tools.build:gradle-api:8.0.0-alpha07")
-    implementation(libs.androidGradlePluginz)
+    implementation("com.android.tools.build:gradle-api:8.0.0")
     implementation(libs.kotlinStdlib)
-    implementation(libs.kspApi)
-    implementation(libs.kspGradlePluginz)
+    compileOnly(libs.androidGradlePluginz)
+    compileOnly(libs.kspGradlePluginz)
 
     testImplementation(libs.junit)
     testImplementation(project(":internal-testutils-gradle-plugin"))
+
+    testPlugin("com.android.tools.build:gradle:8.0.0")
+    testPlugin("com.android.tools.build:aapt2:8.0.0-9289358")
+    testPlugin("com.android.tools.build:aapt2:8.0.0-9289358:linux")
+    testPlugin("com.android.tools.build:aapt2:8.0.0-9289358:osx")
+    testPlugin(libs.kotlinGradlePluginz)
+    testPlugin(libs.kspGradlePluginz)
 }
 
 gradlePlugin {
@@ -31,11 +51,12 @@ gradlePlugin {
     }
 }
 
-tasks {
-    validatePlugins {
-        failOnWarning.set(true)
-        enableStricterValidation.set(true)
-    }
+// Configure the generating task of plugin-under-test-metadata.properties to
+// include additional dependencies for the injected plugin classpath that
+// are not present in the main runtime dependencies. This allows us to test
+// the KAPT / KSP plugins while keeping a compileOnly dep on the main source.
+tasks.withType(PluginUnderTestMetadata.class).named("pluginUnderTestMetadata").configure {
+    it.pluginClasspath.from(configurations.testPlugin)
 }
 
 androidx {

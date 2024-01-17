@@ -16,6 +16,7 @@
 
 package androidx.baselineprofile.gradle.utils
 
+import androidx.baselineprofile.gradle.utils.TestAgpVersion.TEST_AGP_VERSION_8_3_0
 import androidx.testutils.gradle.ProjectSetupRule
 import com.google.testing.platform.proto.api.core.LabelProto
 import com.google.testing.platform.proto.api.core.PathProto
@@ -36,10 +37,14 @@ import org.junit.runners.model.Statement
 internal const val ANDROID_APPLICATION_PLUGIN = "com.android.application"
 internal const val ANDROID_LIBRARY_PLUGIN = "com.android.library"
 internal const val ANDROID_TEST_PLUGIN = "com.android.test"
+internal const val EXPECTED_PROFILE_FOLDER = "generated/baselineProfiles"
 
 class BaselineProfileProjectSetupRule(
-    private val forceAgpVersion: String? = null
+    private val forceAgpVersion: String? = null,
+    private val addKotlinGradlePluginToClasspath: Boolean = false
 ) : ExternalResource() {
+
+    private val forcedTestAgpVersion = TestAgpVersion.fromVersionString(forceAgpVersion)
 
     /**
      * Root folder for the project setup that contains 3 modules.
@@ -63,7 +68,8 @@ class BaselineProfileProjectSetupRule(
         ConsumerModule(
             rule = consumerSetupRule,
             name = consumerName,
-            producerName = producerName
+            producerName = producerName,
+            dependencyName = dependencyName
         )
     }
 
@@ -79,6 +85,15 @@ class BaselineProfileProjectSetupRule(
         )
     }
 
+    /**
+     * Represents a simple java library dependency module.
+     */
+    val dependency by lazy {
+        DependencyModule(
+            name = dependencyName
+        )
+    }
+
     // Temp folder for temp generated files that need to be referenced by a module.
     private val tempFolder by lazy { File(rootFolder.root, "temp").apply { mkdirs() } }
 
@@ -86,6 +101,7 @@ class BaselineProfileProjectSetupRule(
     private val appTargetSetupRule by lazy { ProjectSetupRule(rootFolder.root) }
     private val consumerSetupRule by lazy { ProjectSetupRule(rootFolder.root) }
     private val producerSetupRule by lazy { ProjectSetupRule(rootFolder.root) }
+    private val dependencySetupRule by lazy { ProjectSetupRule(rootFolder.root) }
 
     // Module names (generated automatically)
     private val appTargetName: String by lazy {
@@ -97,11 +113,15 @@ class BaselineProfileProjectSetupRule(
     private val producerName: String by lazy {
         producerSetupRule.rootDir.relativeTo(rootFolder.root).name
     }
+    private val dependencyName: String by lazy {
+        dependencySetupRule.rootDir.relativeTo(rootFolder.root).name
+    }
 
     override fun apply(base: Statement, description: Description): Statement {
         return RuleChain
             .outerRule(appTargetSetupRule)
             .around(producerSetupRule)
+            .around(dependencySetupRule)
             .around(consumerSetupRule)
             .around { b, _ -> applyInternal(b) }
             .apply(base, description)
@@ -129,6 +149,7 @@ class BaselineProfileProjectSetupRule(
                 """
                 include '$appTargetName'
                 include '$producerName'
+                include '$dependencyName'
                 include '$consumerName'
             """.trimIndent()
             )
@@ -146,6 +167,15 @@ class BaselineProfileProjectSetupRule(
                     ("com.android.tools.build:gradle") { version { strictly "$forceAgpVersion" } }
                     """.trimIndent()
             }
+
+            val kotlinGradlePluginDependency = if (addKotlinGradlePluginToClasspath) {
+                """
+             "${appTargetSetupRule.props.kgpDependency}"
+                    """.trimIndent()
+            } else {
+                null
+            }
+
             rootFolder.newFile("build.gradle").writeText(
                 """
                 buildscript {
@@ -153,7 +183,12 @@ class BaselineProfileProjectSetupRule(
                     dependencies {
 
                         // Specifies agp dependency
-                        classpath $agpDependency
+                        ${
+                    listOfNotNull(
+                        agpDependency,
+                        kotlinGradlePluginDependency
+                    ).joinToString("\n") { "classpath $it" }
+                }
 
                         // Specifies plugin dependency
                         classpath "androidx.baselineprofile.consumer:androidx.baselineprofile.consumer.gradle.plugin:+"
@@ -173,25 +208,101 @@ class BaselineProfileProjectSetupRule(
             mapOf(
                 "app-target" to appTargetSetupRule,
                 "consumer" to consumerSetupRule,
-                "producer" to producerSetupRule
+                "producer" to producerSetupRule,
+                "dependency" to dependencySetupRule,
             ).forEach { (folder, project) ->
                 File("src/test/test-data", folder)
                     .apply { deleteOnExit() }
-                    .copyRecursively(project.rootDir)
+                    .copyRecursively(project.rootDir, overwrite = true)
             }
 
             base.evaluate()
         }
     }
+
+    fun baselineProfileFile(variantName: String): File {
+        // Warning: support for baseline profile source sets in library module was added with
+        // agp 8.3.0 alpha 15 (b/309858620). Therefore, before then, we can only always merge into
+        // main and always output only in src/main/baseline-prof.txt.
+        return if (
+            consumer.isLibraryModule == false ||
+            (consumer.isLibraryModule == true &&
+                forcedTestAgpVersion.isAtLeast(TEST_AGP_VERSION_8_3_0))
+        ) {
+            File(
+                consumer.rootDir,
+                "src/$variantName/$EXPECTED_PROFILE_FOLDER/baseline-prof.txt"
+            )
+        } else if (consumer.isLibraryModule == true /* and version is not at least AGP 8.3.0 */) {
+            if (variantName != "main") {
+                throw IllegalArgumentException(
+                    """
+                    Invalid variant name `$variantName` for library pre-agp 8.3.0. Only main is supported.
+                """.trimIndent()
+                )
+            }
+            File(
+                consumer.rootDir,
+                "src/main/baseline-prof.txt"
+            )
+        } else {
+            // This happens only when trying to read the baseline profile file before defining
+            // the consumer type (library or app).
+            throw IllegalStateException("Consumer is nether a library or app.")
+        }
+    }
+
+    fun startupProfileFile(variantName: String) = File(
+        consumer.rootDir,
+        "src/$variantName/$EXPECTED_PROFILE_FOLDER/startup-prof.txt"
+    )
+
+    fun mergedArtProfile(variantName: String): File {
+        // Task name folder in path was first observed in the update to AGP 8.3.0-alpha10.
+        // Before that, the folder was omitted in path.
+        val taskNameFolder =
+            if (forcedTestAgpVersion.isAtLeast(TEST_AGP_VERSION_8_3_0)) {
+                camelCase("merge", variantName, "artProfile")
+            } else {
+                ""
+            }
+        return File(
+            consumer.rootDir,
+            "build/intermediates/merged_art_profile/$variantName/$taskNameFolder/baseline-prof.txt"
+        )
+    }
+
+    fun readBaselineProfileFileContent(variantName: String): List<String> =
+        baselineProfileFile(variantName).readLines()
+
+    fun readStartupProfileFileContent(variantName: String): List<String> =
+        startupProfileFile(variantName).readLines()
 }
 
 data class VariantProfile(
-    val flavor: String?,
-    val buildType: String = "release",
-    val profileFileLines: Map<String, List<String>> = mapOf(),
-    val startupFileLines: Map<String, List<String>> = mapOf()
+    val flavorDimensions: Map<String, String>,
+    val buildType: String,
+    val profileFileLines: Map<String, List<String>>,
+    val startupFileLines: Map<String, List<String>>
 ) {
-    val nonMinifiedVariant = "${flavor ?: ""}NonMinified${buildType.capitalized()}"
+
+    val nonMinifiedVariant = camelCase(
+        *flavorDimensions.map { it.value }.toTypedArray(),
+        "nonMinified",
+        buildType
+    )
+
+    constructor(
+        flavor: String?,
+        buildType: String = "release",
+        profileFileLines: Map<String, List<String>> = mapOf(),
+        startupFileLines: Map<String, List<String>> = mapOf()
+    ) : this(
+        flavorDimensions = if (flavor != null) mapOf("version" to flavor) else mapOf(),
+        buildType = buildType,
+        profileFileLines = profileFileLines,
+        startupFileLines = startupFileLines
+    )
 }
 
 interface Module {
@@ -212,14 +323,17 @@ interface Module {
         )
 }
 
+class DependencyModule(
+    val name: String,
+)
+
 class AppTargetModule(
     override val rule: ProjectSetupRule,
     override val name: String,
 ) : Module {
 
-    fun setup() {
-        setBuildGradle(
-            """
+    fun setup(
+        buildGradleContent: String = """
                 plugins {
                     id("com.android.application")
                     id("androidx.baselineprofile.apptarget")
@@ -228,7 +342,8 @@ class AppTargetModule(
                     namespace 'com.example.namespace'
                 }
             """.trimIndent()
-        )
+    ) {
+        setBuildGradle(buildGradleContent)
     }
 }
 
@@ -302,7 +417,7 @@ class ProducerModule(
     }
 
     fun setupWithoutFlavors(
-        releaseProfileLines: List<String>,
+        releaseProfileLines: List<String> = listOf(),
         releaseStartupProfileLines: List<String> = listOf(),
     ) {
         setup(
@@ -362,14 +477,21 @@ class ProducerModule(
             }
         """.trimIndent()
 
+        val flavors = variantProfiles.flatMap { it.flavorDimensions.toList() }
+        val flavorDimensionNames = flavors
+            .map { it.first }
+            .toSet()
+            .joinToString { """ "$it"""" }
+        val flavorBlocks = flavors
+            .groupBy { it.second }
+            .toList()
+            .map { it.second }
+            .flatten()
+            .joinToString("\n") { """ ${it.second} { dimension "${it.first}" } """ }
         val flavorsBlock = """
             productFlavors {
-                flavorDimensions = ["version"]
-                ${
-            variantProfiles
-                .filter { !it.flavor.isNullOrBlank() }
-                .joinToString("\n") { " ${it.flavor} { dimension \"version\" } " }
-        }
+                flavorDimensions = [$flavorDimensionNames]
+                $flavorBlocks
             }
         """.trimIndent()
 
@@ -500,55 +622,84 @@ class ProducerModule(
 class ConsumerModule(
     override val rule: ProjectSetupRule,
     override val name: String,
-    private val producerName: String
+    private val producerName: String,
+    private val dependencyName: String,
 ) : Module {
+
+    var isLibraryModule: Boolean? = null
 
     fun setup(
         androidPlugin: String,
         flavors: Boolean = false,
+        dependenciesBlock: String = """
+            implementation(project(":$dependencyName"))
+        """.trimIndent(),
         dependencyOnProducerProject: Boolean = true,
         buildTypeAnotherRelease: Boolean = false,
         addAppTargetPlugin: Boolean = androidPlugin == ANDROID_APPLICATION_PLUGIN,
         baselineProfileBlock: String = "",
         additionalGradleCodeBlock: String = "",
-    ) {
-        val flavorsBlock = """
-            productFlavors {
+    ) = setupWithBlocks(
+        androidPlugin = androidPlugin,
+        otherPluginsBlock = "",
+        flavorsBlock = if (flavors) """
                 flavorDimensions = ["version"]
                 free { dimension "version" }
                 paid { dimension "version" }
-            }
-
-        """.trimIndent()
-
-        val buildTypeAnotherReleaseBlock = """
-            buildTypes {
+            """.trimIndent() else "",
+        dependencyOnProducerProject = dependencyOnProducerProject,
+        dependenciesBlock = dependenciesBlock,
+        buildTypesBlock = if (buildTypeAnotherRelease) """
                 anotherRelease { initWith(release) }
-            }
+        """.trimIndent() else "",
+        addAppTargetPlugin = addAppTargetPlugin,
+        baselineProfileBlock = baselineProfileBlock,
+        additionalGradleCodeBlock = additionalGradleCodeBlock
+    )
 
-        """.trimIndent()
-
-        val dependencyOnProducerProjectBlock = """
-            dependencies {
-                baselineProfile(project(":$producerName"))
-            }
-
-        """.trimIndent()
-
+    fun setupWithBlocks(
+        androidPlugin: String,
+        otherPluginsBlock: String = "",
+        flavorsBlock: String = "",
+        buildTypesBlock: String = "",
+        dependenciesBlock: String = "",
+        dependencyOnProducerProject: Boolean = true,
+        addAppTargetPlugin: Boolean = androidPlugin == ANDROID_APPLICATION_PLUGIN,
+        baselineProfileBlock: String = "",
+        additionalGradleCodeBlock: String = "",
+    ) {
+        isLibraryModule = androidPlugin == ANDROID_LIBRARY_PLUGIN
         setBuildGradle(
             """
                 plugins {
                     id("$androidPlugin")
                     id("androidx.baselineprofile.consumer")
                     ${if (addAppTargetPlugin) "id(\"androidx.baselineprofile.apptarget\")" else ""}
+                    $otherPluginsBlock
                 }
                 android {
                     namespace 'com.example.namespace'
-                    ${if (flavors) flavorsBlock else ""}
-                    ${if (buildTypeAnotherRelease) buildTypeAnotherReleaseBlock else ""}
+                    ${
+                """
+                    productFlavors {
+                        $flavorsBlock
+                    }
+                    """.trimIndent()
+            }
+                    ${
+                """
+                    buildTypes {
+                        $buildTypesBlock
+                    }
+                    """.trimIndent()
+            }
                 }
 
-               ${if (dependencyOnProducerProject) dependencyOnProducerProjectBlock else ""}
+                dependencies {
+                    ${if (dependencyOnProducerProject) """baselineProfile(project(":$producerName"))""" else ""}
+                    $dependenciesBlock
+
+                }
 
                 baselineProfile {
                     $baselineProfileBlock

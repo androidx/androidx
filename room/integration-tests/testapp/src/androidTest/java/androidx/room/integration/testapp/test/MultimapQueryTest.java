@@ -53,6 +53,8 @@ import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSetMultimap;
 
+import io.reactivex.Flowable;
+
 import org.hamcrest.MatcherAssert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -69,8 +71,6 @@ import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-
-import io.reactivex.Flowable;
 
 /**
  * Tests multimap return type for JOIN statements.
@@ -761,6 +761,18 @@ public class MultimapQueryTest {
         assertThat(artistNameToSongsMap.containsKey("Pink Floyd")).isTrue();
         assertThat(artistNameToSongsMap.get("Red Hot Chili Peppers")).containsExactlyElementsIn(
                 Arrays.asList(mRhcpSong1, mRhcpSong2)
+        );
+    }
+
+    @Test
+    public void testStringToListOfSongsMapColumn() {
+        mMusicDao.addSongs(mRhcpSong1, mRhcpSong2, mAcdcSong1, mPinkFloydSong1);
+        mMusicDao.addArtists(mRhcp, mAcDc, mTheClash, mPinkFloyd);
+
+        Map<String, List<Integer>> artistNameToSongsMap = mMusicDao.getArtistNameToSongsMapColumn();
+        assertThat(artistNameToSongsMap.containsKey("Pink Floyd")).isTrue();
+        assertThat(artistNameToSongsMap.get("Red Hot Chili Peppers")).containsExactlyElementsIn(
+                Arrays.asList(mRhcpSong1.mReleasedYear, mRhcpSong2.mReleasedYear)
         );
     }
 

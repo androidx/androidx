@@ -23,10 +23,9 @@ import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
-import org.junit.Test
-
 import org.junit.Before
 import org.junit.Rule
+import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
@@ -40,9 +39,6 @@ class PrivacySandboxLibraryPluginTest {
 
     @Before
     fun setUp() {
-        File("src/test/test-data", "app-project")
-            .also { it.mkdirs() }
-            .copyRecursively(projectSetup.rootDir)
         File(projectSetup.rootDir, "settings.gradle")
             .writeText("rootProject.name = \"test-privacysandbox-library\"")
         projectSetup.writeDefaultBuildGradle(

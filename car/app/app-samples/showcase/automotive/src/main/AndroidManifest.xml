@@ -24,6 +24,9 @@
   <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
   <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
 
+  <!-- SDK 33 onwards, apps require this permission to send any notifications to the system -->
+  <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
   <!-- For PlaceListMapTemplate -->
   <uses-permission android:name="androidx.car.app.MAP_TEMPLATES"/>
 
@@ -102,6 +105,7 @@
 
     <activity
         android:name="androidx.car.app.activity.CarAppActivity"
+        android:configChanges="uiMode"
         android:theme="@android:style/Theme.DeviceDefault.NoActionBar"
         android:exported="true"
         android:launchMode="singleTask"

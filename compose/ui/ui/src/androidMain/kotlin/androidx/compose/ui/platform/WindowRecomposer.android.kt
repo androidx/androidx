@@ -28,12 +28,13 @@ import androidx.compose.runtime.MonotonicFrameClock
 import androidx.compose.runtime.PausableMonotonicFrameClock
 import androidx.compose.runtime.Recomposer
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.MotionDurationScale
 import androidx.compose.ui.R
+import androidx.compose.ui.internal.checkPrecondition
 import androidx.core.os.HandlerCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -292,7 +293,7 @@ private val View.contentChild: View
 @OptIn(InternalComposeUiApi::class)
 internal val View.windowRecomposer: Recomposer
     get() {
-        check(isAttachedToWindow) {
+        checkPrecondition(isAttachedToWindow) {
             "Cannot locate windowRecomposer; View $this is not attached to a window"
         }
         val rootView = contentChild
@@ -437,5 +438,5 @@ fun View.createLifecycleAwareWindowRecomposer(
 }
 
 private class MotionDurationScaleImpl : MotionDurationScale {
-    override var scaleFactor by mutableStateOf(1f)
+    override var scaleFactor by mutableFloatStateOf(1f)
 }

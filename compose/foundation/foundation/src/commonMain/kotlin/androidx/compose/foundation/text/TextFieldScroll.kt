@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.listSaver
@@ -48,8 +49,8 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.util.fastRoundToInt
 import kotlin.math.min
-import kotlin.math.roundToInt
 
 // Scrollable
 internal fun Modifier.textFieldScrollable(
@@ -161,7 +162,7 @@ private data class VerticalScrollLayoutModifier(
             )
 
             val offset = -scrollerPosition.offset
-            placeable.placeRelative(0, offset.roundToInt())
+            placeable.placeRelative(0, offset.fastRoundToInt())
         }
     }
 }
@@ -205,7 +206,7 @@ private data class HorizontalScrollLayoutModifier(
             )
 
             val offset = -scrollerPosition.offset
-            placeable.placeRelative(offset.roundToInt(), 0)
+            placeable.placeRelative(offset.fastRoundToInt(), 0)
         }
     }
 }
@@ -250,13 +251,13 @@ internal class TextFieldScrollerPosition(
      * Taken with the opposite sign defines the x or y position of the text field in the
      * horizontal or vertical scroller container correspondingly.
      */
-    var offset by mutableStateOf(initial)
+    var offset by mutableFloatStateOf(initial)
 
     /**
      * Maximum length by which the text field can be scrolled. Defined as a difference in
      * size between the scroller container and the text field.
      */
-    var maximum by mutableStateOf(0f)
+    var maximum by mutableFloatStateOf(0f)
         private set
 
     /**

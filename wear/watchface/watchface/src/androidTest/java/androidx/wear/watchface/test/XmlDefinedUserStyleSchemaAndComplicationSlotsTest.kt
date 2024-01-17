@@ -67,11 +67,12 @@ import org.junit.After
 import org.junit.Assert
 import org.junit.Assume
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.Mockito
-import org.mockito.MockitoAnnotations
+import org.mockito.junit.MockitoJUnit
 
 private const val BITMAP_WIDTH = 400
 private const val BITMAP_HEIGHT = 400
@@ -157,8 +158,10 @@ class TestXmlWatchFaceService(
 @MediumTest
 public class XmlDefinedUserStyleSchemaAndComplicationSlotsTest {
 
-    @Mock private lateinit var surfaceHolder: SurfaceHolder
+    @get:Rule
+    val mocks = MockitoJUnit.rule()
 
+    @Mock private lateinit var surfaceHolder: SurfaceHolder
     @Mock private lateinit var surface: Surface
 
     private val bitmap = Bitmap.createBitmap(BITMAP_WIDTH, BITMAP_HEIGHT, Bitmap.Config.ARGB_8888)
@@ -166,11 +169,9 @@ public class XmlDefinedUserStyleSchemaAndComplicationSlotsTest {
     private var initLatch = CountDownLatch(1)
     private lateinit var interactiveWatchFaceInstance: IInteractiveWatchFace
 
-    @Suppress("DEPRECATION") // b/251211092
     @Before
     public fun setUp() {
         Assume.assumeTrue("This test suite assumes API 29", Build.VERSION.SDK_INT >= 29)
-        MockitoAnnotations.initMocks(this)
     }
 
     @After

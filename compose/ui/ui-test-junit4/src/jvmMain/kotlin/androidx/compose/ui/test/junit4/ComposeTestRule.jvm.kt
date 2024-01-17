@@ -17,7 +17,6 @@
 package androidx.compose.ui.test.junit4
 
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.test.ComposeTimeoutException
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.IdlingResource
 import androidx.compose.ui.test.MainTestClock

@@ -23,6 +23,10 @@ import androidx.compose.runtime.Stable
 /**
  * Provides all the needed info about the items which could be later composed and displayed as
  * children or [LazyLayout].
+ *
+ * Note: this interface is a part of [LazyLayout] harness that allows for building custom lazy
+ * layouts. LazyLayout and all corresponding APIs are still under development and are subject to
+ * change.
  */
 @Stable
 @ExperimentalFoundationApi
@@ -34,10 +38,10 @@ interface LazyLayoutItemProvider {
     val itemCount: Int
 
     /**
-     * The item for the given [index].
+     * The item for the given [index] and [key].
      */
     @Composable
-    fun Item(index: Int)
+    fun Item(index: Int, key: Any)
 
     /**
      * Returns the content type for the item on this index. It is used to improve the item
@@ -70,7 +74,7 @@ internal fun LazyLayoutItemProvider.findIndexByKey(
     key: Any?,
     lastKnownIndex: Int,
 ): Int {
-    if (key == null) {
+    if (key == null || itemCount == 0) {
         // there were no real item during the previous measure
         return lastKnownIndex
     }
@@ -93,6 +97,10 @@ internal fun LazyLayoutItemProvider.findIndexByKey(
  * 1) Objects created for the same index are equals and never equals for different indexes.
  * 2) This class is saveable via a default SaveableStateRegistry on the platform.
  * 3) This objects can't be equals to any object which could be provided by a user as a custom key.
+ *
+ * Note: this function is a part of [LazyLayout] harness that allows for building custom lazy
+ * layouts. LazyLayout and all corresponding APIs are still under development and are subject to
+ * change.
  */
 @ExperimentalFoundationApi
 @Suppress("MissingNullability")

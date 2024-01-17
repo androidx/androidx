@@ -18,12 +18,10 @@ package androidx.constraintlayout.helper.widget;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.os.Build;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 
-import androidx.annotation.RequiresApi;
 import androidx.constraintlayout.motion.widget.MotionHelper;
 import androidx.constraintlayout.motion.widget.MotionLayout;
 import androidx.constraintlayout.motion.widget.MotionScene;
@@ -135,6 +133,25 @@ public class Carousel extends MotionHelper {
 
     public void setAdapter(Adapter adapter) {
         mAdapter = adapter;
+    }
+
+    /**
+     * A setter method for whether it should be a infinite Carousel.
+     * Remember to call {@link #refresh} after calling this method.
+     *
+     * @param infiniteCarousel true if it should be a infinite Carousel, otherwise, false
+     */
+    public void setInfinite(boolean infiniteCarousel) {
+        this.mInfiniteCarousel = infiniteCarousel;
+    }
+
+    /**
+     * Returns whether it's a infinite Carousel
+     *
+     * @return true if it's a infinite Carousel, otherwise, false.
+     */
+    public boolean isInfinite() {
+        return this.mInfiniteCarousel;
     }
 
     /**
@@ -306,7 +323,6 @@ public class Carousel extends MotionHelper {
         mList.clear();
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();

@@ -34,6 +34,7 @@ package androidx.compose.foundation.demos.pager
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -66,17 +67,17 @@ val SimplePager = listOf(
 val PagerDemos = listOf(
     DemoCategory("Simple", SimplePager),
     DemoCategory("Carrousel", Carrousel),
-    DemoCategory("State Interactions", PagerStateInteractions)
+    DemoCategory("State Interactions", PagerStateInteractions),
+    DemoCategory("Snap Position", SnapPositionDemos),
 )
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun VerticalPagerDemo() {
-    val pagerState = rememberPagerState()
+    val pagerState = rememberPagerState { PagesCount }
     VerticalPager(
         modifier = Modifier.fillMaxSize(),
         state = pagerState,
-        pageCount = PagesCount
     ) {
         PagerItem(it)
     }
@@ -85,12 +86,11 @@ private fun VerticalPagerDemo() {
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal fun HorizontalPagerDemo() {
-    val pagerState = rememberPagerState()
+    val pagerState = rememberPagerState { PagesCount }
 
     HorizontalPager(
         modifier = Modifier.fillMaxSize(),
         state = pagerState,
-        pageCount = PagesCount
     ) {
         PagerItem(it)
     }
@@ -100,6 +100,7 @@ internal fun HorizontalPagerDemo() {
 internal fun PagerItem(index: Int) {
     Box(
         modifier = Modifier
+            .focusable()
             .padding(10.dp)
             .background(Color.Blue)
             .fillMaxWidth()

@@ -23,10 +23,7 @@ import androidx.annotation.RestrictTo.Scope;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-/**
- * The visibility state of the layout.
- *
- */
+/** The visibility state of the layout. */
 @IntDef({
     ProtoLayoutVisibilityState.VISIBILITY_STATE_FULLY_VISIBLE,
     ProtoLayoutVisibilityState.VISIBILITY_STATE_PARTIALLY_VISIBLE,

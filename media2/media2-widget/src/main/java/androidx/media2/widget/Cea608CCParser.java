@@ -863,6 +863,7 @@ class Cea608CCParser {
             return sCtrlCodeMap[ctrlCode - 0x20];
         }
 
+        @SuppressWarnings("ComparisonOutOfRange")
         private boolean isBasicChar() {
             return mData1 >= 0x20 && mData1 <= 0x7f;
         }
@@ -897,6 +898,7 @@ class Cea608CCParser {
             return c;
         }
 
+        @SuppressWarnings("ComparisonOutOfRange")
         private String getBasicChars() {
             if (mData1 >= 0x20 && mData1 <= 0x7f) {
                 StringBuilder builder = new StringBuilder(2);

@@ -54,12 +54,8 @@ public final class ProcessCompat {
     public static boolean isApplicationUid(int uid) {
         if (Build.VERSION.SDK_INT >= 24) {
             return Api24Impl.isApplicationUid(uid);
-        } else if (Build.VERSION.SDK_INT >= 17) {
-            return Api17Impl.isApplicationUid(uid);
-        } else if (Build.VERSION.SDK_INT == 16) {
-            return Api16Impl.isApplicationUid(uid);
         } else {
-            return true;
+            return Api17Impl.isApplicationUid(uid);
         }
     }
 
@@ -76,7 +72,6 @@ public final class ProcessCompat {
         }
     }
 
-    @RequiresApi(17)
     static class Api17Impl {
         private static final Object sResolvedLock = new Object();
 
@@ -102,45 +97,6 @@ public final class ProcessCompat {
                 }
                 if (sMethodUserHandleIsAppMethod != null) {
                     Boolean result = (Boolean) sMethodUserHandleIsAppMethod.invoke(null, uid);
-                    if (result == null) {
-                        // This should never happen, as the method returns a boolean primitive.
-                        throw new NullPointerException();
-                    }
-                    return result;
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return true;
-        }
-    }
-
-    @RequiresApi(16)
-    static class Api16Impl {
-        private static final Object sResolvedLock = new Object();
-
-        private static Method sMethodUserIdIsAppMethod;
-        private static boolean sResolved;
-
-        private Api16Impl() {
-            // This class is non-instantiable.
-        }
-
-        @SuppressLint("PrivateApi")
-        @SuppressWarnings("CatchAndPrintStackTrace")
-        static boolean isApplicationUid(int uid) {
-            // In JELLY_BEAN_MR1, the equivalent isApp(int) hidden method was available on hidden
-            // class android.os.UserId.
-            try {
-                synchronized (sResolvedLock) {
-                    if (!sResolved) {
-                        sResolved = true;
-                        sMethodUserIdIsAppMethod = Class.forName("android.os.UserId")
-                                .getDeclaredMethod("isApp", int.class);
-                    }
-                }
-                if (sMethodUserIdIsAppMethod != null) {
-                    Boolean result = (Boolean) sMethodUserIdIsAppMethod.invoke(null, uid);
                     if (result == null) {
                         // This should never happen, as the method returns a boolean primitive.
                         throw new NullPointerException();

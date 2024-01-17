@@ -32,18 +32,18 @@ import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.node.RootForTest
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.cancel
-import org.jetbrains.skia.Surface
-import org.jetbrains.skiko.FrameDispatcher
 import java.awt.Component
 import java.awt.event.MouseWheelEvent
 import kotlin.coroutines.CoroutineContext
 import kotlin.math.abs
 import kotlin.math.roundToInt
 import kotlin.math.sign
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
+import org.jetbrains.skia.Surface
+import org.jetbrains.skiko.FrameDispatcher
 
 @PublishedApi
 internal val EmptyDispatcher = object : CoroutineDispatcher() {

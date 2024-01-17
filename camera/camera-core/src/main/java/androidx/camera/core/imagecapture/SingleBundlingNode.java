@@ -43,17 +43,17 @@ class SingleBundlingNode implements BundlingNode {
 
     ProcessingRequest mPendingRequest;
     private ProcessingNode.In mOutputEdge;
-    private boolean mIsVirtualCamera;
 
     @NonNull
     @Override
     public ProcessingNode.In transform(@NonNull CaptureNode.Out captureNodeOut) {
-        mIsVirtualCamera = captureNodeOut.isVirtualCamera();
         // Listen to input edges.
         captureNodeOut.getImageEdge().setListener(this::matchImageWithRequest);
+        captureNodeOut.getPostviewImageEdge().setListener(this::matchPostviewImageWithRequest);
         captureNodeOut.getRequestEdge().setListener(this::trackIncomingRequest);
         // Set up output edge.
-        mOutputEdge = ProcessingNode.In.of(captureNodeOut.getFormat());
+        mOutputEdge = ProcessingNode.In.of(captureNodeOut.getInputFormat(),
+                captureNodeOut.getOutputFormat());
         return mOutputEdge;
     }
 
@@ -96,8 +96,20 @@ class SingleBundlingNode implements BundlingNode {
                         mPendingRequest.getTagBundleKey()));
         checkState(stageId == mPendingRequest.getStageIds().get(0));
 
-        mOutputEdge.getEdge().accept(
-                ProcessingNode.InputPacket.of(mPendingRequest, imageProxy, mIsVirtualCamera));
+        mOutputEdge.getEdge().accept(ProcessingNode.InputPacket.of(mPendingRequest, imageProxy));
         mPendingRequest = null;
+    }
+
+    @MainThread
+    private void matchPostviewImageWithRequest(@NonNull ImageProxy imageProxy) {
+        checkMainThread();
+        // if the final image arrives earlier than the post image, mPendingRequest will be set to
+        // null in matchImageWithRequest. In this case, we will ignore the postview processing.
+        if (mPendingRequest == null) {
+            imageProxy.close();
+            return;
+        }
+        mOutputEdge.getPostviewEdge().accept(
+                ProcessingNode.InputPacket.of(mPendingRequest, imageProxy));
     }
 }

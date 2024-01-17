@@ -16,13 +16,13 @@
 
 package androidx.health.services.client.data
 
-import androidx.health.services.client.proto.DataProto.ExerciseUpdate.LatestMetricsEntry as LatestMetricsEntryProto
 import androidx.annotation.RestrictTo
 import androidx.annotation.RestrictTo.Scope
 import androidx.health.services.client.data.ExerciseEndReason.Companion.toProto
 import androidx.health.services.client.data.ExerciseUpdate.ActiveDurationCheckpoint
 import androidx.health.services.client.proto.DataProto
 import androidx.health.services.client.proto.DataProto.AchievedExerciseGoal
+import androidx.health.services.client.proto.DataProto.ExerciseUpdate.LatestMetricsEntry as LatestMetricsEntryProto
 import java.time.Duration
 import java.time.Instant
 

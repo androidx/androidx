@@ -19,6 +19,8 @@ package androidx.compose.ui.samples
 import android.graphics.Color
 import androidx.annotation.Sampled
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.viewbinding.samples.databinding.SampleButtonLayoutBinding
 import androidx.compose.ui.viewbinding.samples.databinding.SampleLayoutBinding
 import androidx.compose.ui.viewinterop.AndroidViewBinding
 
@@ -29,5 +31,29 @@ fun AndroidViewBindingSample() {
     // The `second` View is part of sample_layout.xml.
     AndroidViewBinding(SampleLayoutBinding::inflate) {
         second.setBackgroundColor(Color.GRAY)
+    }
+}
+
+@Sampled
+@Composable
+fun AndroidViewBindingReusableSample() {
+    @Composable
+    fun MyButton(
+        label: String,
+        action: () -> Unit,
+        modifier: Modifier = Modifier
+    ) {
+        AndroidViewBinding(
+            SampleButtonLayoutBinding::inflate,
+            modifier = modifier,
+            onReset = {
+                // Null out the OnClickListener to avoid leaking the `action` lambda.
+                myButton.setOnClickListener(null)
+            },
+            update = {
+                myButton.text = label
+                myButton.setOnClickListener { action() }
+            }
+        )
     }
 }

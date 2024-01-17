@@ -26,12 +26,13 @@ import androidx.camera.camera2.pipe.integration.adapter.CameraControlAdapter
 import androidx.camera.camera2.pipe.integration.impl.ComboRequestListener
 import androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop
 import androidx.camera.camera2.pipe.testing.VerifyResultListener
+import androidx.camera.camera2.pipe.testing.toCameraControlAdapter
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.internal.CameraUseCaseAdapter
-import androidx.camera.testing.CameraUtil
-import androidx.camera.testing.CameraXUtil
+import androidx.camera.testing.impl.CameraUtil
+import androidx.camera.testing.impl.CameraXUtil
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -92,7 +93,7 @@ class EvCompDeviceTest {
             CameraSelector.LENS_FACING_BACK
         ).build()
         camera = CameraUtil.createCameraUseCaseAdapter(context, cameraSelector)
-        cameraControl = camera.cameraControl as CameraControlAdapter
+        cameraControl = camera.cameraControl.toCameraControlAdapter()
 
         @OptIn(ExperimentalCamera2Interop::class)
         comboListener = cameraControl.camera2cameraControl.requestListener
@@ -267,6 +268,6 @@ class EvCompDeviceTest {
                 }
             },
         )
-        cameraControl = camera.cameraControl as CameraControlAdapter
+        cameraControl = camera.cameraControl.toCameraControlAdapter()
     }
 }

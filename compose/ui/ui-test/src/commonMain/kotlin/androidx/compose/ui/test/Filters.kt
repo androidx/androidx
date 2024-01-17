@@ -397,9 +397,9 @@ fun hasInsertTextAtCursorAction() =
  * Returns whether the node defines a semantics action to perform the
  * [IME action][SemanticsProperties.ImeAction] on it.
  *
- * @see SemanticsActions.PerformImeAction
+ * @see SemanticsActions.OnImeAction
  */
-fun hasPerformImeAction() = hasKey(SemanticsActions.PerformImeAction)
+fun hasPerformImeAction() = hasKey(SemanticsActions.OnImeAction)
 
 /**
  * Returns whether the node defines a semantics action to request focus.
@@ -437,6 +437,13 @@ fun hasScrollToNodeAction() =
             hasKey(SemanticsProperties.HorizontalScrollAxisRange)
                 .or(hasKey(SemanticsProperties.VerticalScrollAxisRange))
         )
+
+/**
+ * Returns whether the node is editable.
+ *
+ * @see SemanticsProperties.Editable
+ */
+fun isEditable() = hasKey(SemanticsProperties.Editable)
 
 /**
  * Return whether the node is the root semantics node.

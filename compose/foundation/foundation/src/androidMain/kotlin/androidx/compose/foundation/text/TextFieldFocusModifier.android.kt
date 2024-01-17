@@ -44,7 +44,7 @@ import androidx.compose.ui.input.key.type
  * NOTE: Key events from non-dpad sources or virtual keyboards are ignored.
  */
 internal actual fun Modifier.interceptDPadAndMoveFocus(
-    state: TextFieldState,
+    state: LegacyTextFieldState,
     focusManager: FocusManager
 ): Modifier {
     return this
@@ -68,7 +68,7 @@ internal actual fun Modifier.interceptDPadAndMoveFocus(
                 keyEvent.isKeyCode(KEYCODE_DPAD_RIGHT) -> focusManager.moveFocus(Right)
                 keyEvent.isKeyCode(KEYCODE_DPAD_CENTER) -> {
                     // Enable keyboard on center key press
-                    state.inputSession?.showSoftwareKeyboard()
+                    state.keyboardController?.show()
                     true
                 }
                 else -> false

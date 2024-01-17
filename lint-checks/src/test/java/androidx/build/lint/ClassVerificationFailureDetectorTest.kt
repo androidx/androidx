@@ -19,8 +19,8 @@
 package androidx.build.lint
 
 import androidx.build.lint.Stubs.Companion.DoNotInline
-import androidx.build.lint.Stubs.Companion.RequiresApi
 import androidx.build.lint.Stubs.Companion.IntRange
+import androidx.build.lint.Stubs.Companion.RequiresApi
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4

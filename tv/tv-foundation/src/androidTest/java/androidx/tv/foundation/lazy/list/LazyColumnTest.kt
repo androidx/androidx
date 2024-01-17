@@ -17,7 +17,6 @@
 package androidx.tv.foundation.lazy.list
 
 import android.os.Build
-import androidx.tv.foundation.lazy.AutoTestFrameClock
 import androidx.compose.foundation.background
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.scrollBy
@@ -58,6 +57,7 @@ import androidx.test.filters.FlakyTest
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.tv.foundation.PivotOffsets
+import androidx.tv.foundation.lazy.AutoTestFrameClock
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import kotlinx.coroutines.runBlocking

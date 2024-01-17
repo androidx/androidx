@@ -59,12 +59,23 @@ class SemanticsConfiguration :
     }
 
     override fun <T> set(key: SemanticsPropertyKey<T>, value: T) {
-        props[key] = value
+        if (value is AccessibilityAction<*> && contains(key)) {
+            val prev = props[key] as AccessibilityAction<*>
+            props[key] = AccessibilityAction(
+                value.label ?: prev.label,
+                value.action ?: prev.action
+            )
+        } else {
+            props[key] = value
+        }
     }
 
     operator fun <T> contains(key: SemanticsPropertyKey<T>): Boolean {
         return props.containsKey(key)
     }
+
+    internal fun containsImportantForAccessibility() =
+        props.keys.any { it.isImportantForAccessibility }
 
     /**
      * Whether the semantic information provided by the owning component and

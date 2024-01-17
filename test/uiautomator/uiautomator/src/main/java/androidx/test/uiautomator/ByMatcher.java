@@ -16,10 +16,17 @@
 
 package androidx.test.uiautomator;
 
+import android.os.Build;
 import android.util.Log;
+import android.view.Display;
 import android.view.accessibility.AccessibilityNodeInfo;
+import android.view.accessibility.AccessibilityWindowInfo;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
+import androidx.test.uiautomator.util.Traces;
+import androidx.test.uiautomator.util.Traces.Section;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -37,7 +44,10 @@ class ByMatcher {
     private static final String TAG = ByMatcher.class.getSimpleName();
 
     private final UiDevice mDevice;
-    private final BySelector mSelector;
+    // Selector which denotes the nodes to return from the search.
+    private final BySelector mTargetSelector;
+    // Root selector obtained by walking up the target selector's parents.
+    private final BySelector mRootSelector;
     private final boolean mShortCircuit;
 
     /**
@@ -48,8 +58,22 @@ class ByMatcher {
      */
     private ByMatcher(UiDevice device, BySelector selector, boolean shortCircuit) {
         mDevice = device;
-        mSelector = selector;
         mShortCircuit = shortCircuit;
+        // Create a copy of the target selector and determine the root selector to match.
+        mTargetSelector = new BySelector(selector);
+        mRootSelector = invertSelector(mTargetSelector);
+    }
+
+    // Inverts parent-child relationships until a root selector is found.
+    private BySelector invertSelector(BySelector selector) {
+        if (selector.mAncestorSelector == null) {
+            return selector;
+        }
+        BySelector ancestor = new BySelector(selector.mAncestorSelector);
+        selector.mAncestorSelector = null;
+        selector.mMaxDepth = selector.mMaxAncestorDistance;
+        selector.mMaxAncestorDistance = null;
+        return invertSelector(ancestor.hasDescendant(selector));
     }
 
     /**
@@ -58,14 +82,16 @@ class ByMatcher {
      */
     static AccessibilityNodeInfo findMatch(UiDevice device, BySelector selector,
             AccessibilityNodeInfo... roots) {
-        ByMatcher matcher = new ByMatcher(device, selector, true);
-        for (AccessibilityNodeInfo root : roots) {
-            List<AccessibilityNodeInfo> matches = matcher.findMatches(root);
-            if (!matches.isEmpty()) {
-                return matches.get(0);
+        try (Section ignored = Traces.trace("ByMatcher.findMatch")) {
+            ByMatcher matcher = new ByMatcher(device, selector, true);
+            for (AccessibilityNodeInfo root : roots) {
+                List<AccessibilityNodeInfo> matches = matcher.findMatches(root);
+                if (!matches.isEmpty()) {
+                    return matches.get(0);
+                }
             }
+            return null;
         }
-        return null;
     }
 
     /**
@@ -74,16 +100,21 @@ class ByMatcher {
      */
     static List<AccessibilityNodeInfo> findMatches(UiDevice device, BySelector selector,
             AccessibilityNodeInfo... roots) {
-        List<AccessibilityNodeInfo> ret = new ArrayList<>();
-        ByMatcher matcher = new ByMatcher(device, selector, false);
-        for (AccessibilityNodeInfo root : roots) {
-            ret.addAll(matcher.findMatches(root));
+        try (Section ignored = Traces.trace("ByMatcher.findMatches")) {
+            List<AccessibilityNodeInfo> ret = new ArrayList<>();
+            ByMatcher matcher = new ByMatcher(device, selector, false);
+            for (AccessibilityNodeInfo root : roots) {
+                ret.addAll(matcher.findMatches(root));
+            }
+            return ret;
         }
-        return ret;
     }
 
     /** Searches the hierarchy under the root for nodes that match the selector. */
     private List<AccessibilityNodeInfo> findMatches(AccessibilityNodeInfo root) {
+        if (!matchesDisplayId(root)) {
+            return new ArrayList<>();
+        }
         List<AccessibilityNodeInfo> ret = findMatches(root, 0, new PartialMatchList());
         if (ret.isEmpty()) {
             // No matches found, run watchers and retry.
@@ -105,24 +136,24 @@ class ByMatcher {
             PartialMatchList partialMatches) {
         List<AccessibilityNodeInfo> ret = new ArrayList<>();
 
-        // Don't bother searching the subtree if it is not visible
+        // Don't bother searching the subtree if it is not visible.
         if (!node.isVisibleToUser()) {
-            Log.v(TAG, String.format("Skipping invisible child: %s", node));
             return ret;
         }
 
-        // Update partial matches
+        // Update partial matches (check if this node satisfies a previous child selector).
         for (PartialMatch partialMatch : partialMatches) {
             partialMatches = partialMatch.matchChildren(node, depth, partialMatches);
         }
 
-        // Create a new match, if necessary
-        PartialMatch currentMatch = PartialMatch.create(mSelector, node, depth, depth);
+        // Create a new match if possible (check if this node satisfied the root selector).
+        PartialMatch currentMatch = PartialMatch.create(
+                mTargetSelector, mRootSelector, node, depth, depth);
         if (currentMatch != null) {
             partialMatches = partialMatches.prepend(currentMatch);
         }
 
-        // For each child
+        // Iterate over the child subtree (depth-first search).
         int numChildren = node.getChildCount();
         boolean hasNullChild = false;
         for (int i = 0; i < numChildren; i++) {
@@ -136,24 +167,52 @@ class ByMatcher {
                 continue;
             }
 
-            // Add any matches found under the child subtree
+            // Add any matches found in the child subtree, and return early if possible.
             ret.addAll(findMatches(child, depth + 1, partialMatches));
-
-            // We're done with the child
             child.recycle();
-
-            // Return early if we sound a match and shortCircuit is true
             if (!ret.isEmpty() && mShortCircuit) {
+                if (currentMatch != null) {
+                    currentMatch.recycleNodes();
+                }
                 return ret;
             }
         }
 
-        // Finalize match, if necessary
-        if (currentMatch != null && currentMatch.isComplete()) {
-            ret.add(AccessibilityNodeInfo.obtain(node));
+        // If this node was a partial match, check or recycle it after traversing its children.
+        if (currentMatch != null) {
+            if (currentMatch.isComplete()) {
+                ret.addAll(currentMatch.getNodes());
+            } else {
+                currentMatch.recycleNodes();
+            }
         }
-
         return ret;
+    }
+
+    /** Returns true if the display ID criteria is null or equal to that of the node. */
+    private boolean matchesDisplayId(AccessibilityNodeInfo node) {
+        Set<Integer> displayIds = getDisplayIds(mRootSelector);
+        if (displayIds.size() == 0) {
+            // No display ID specified in the selector tree.
+            return true;
+        } else if (displayIds.size() > 1) {
+            // A selector tree with multiple display IDs is invalid.
+            return false;
+        }
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
+                && displayIds.contains(Api30Impl.getDisplayId(node));
+    }
+
+    /** Returns all the specified display IDs in the selector tree. */
+    private Set<Integer> getDisplayIds(BySelector selector) {
+        Set<Integer> displayIds = new HashSet<>();
+        if (selector.mDisplayId != null) {
+            displayIds.add(selector.mDisplayId);
+        }
+        for (BySelector childSelector : selector.mChildSelectors) {
+            displayIds.addAll(getDisplayIds(childSelector));
+        }
+        return displayIds;
     }
 
     /**
@@ -161,38 +220,45 @@ class ByMatcher {
      * matched, but its child selectors may not have been matched.
      */
     private static class PartialMatch {
+        private final BySelector mTargetSelector;
         private final BySelector mMatchSelector;
         private final int mMatchDepth;
+        private final AccessibilityNodeInfo mMatchNode;
         private final List<PartialMatch> mChildMatches = new ArrayList<>();
 
-        private PartialMatch(BySelector selector, int depth) {
+        private PartialMatch(BySelector target, BySelector selector, int depth,
+                AccessibilityNodeInfo node) {
+            mTargetSelector = target;
             mMatchSelector = selector;
             mMatchDepth = depth;
+            // Keep a copy of the matched node if it has matched with the target selector.
+            mMatchNode = target == selector ? AccessibilityNodeInfo.obtain(node) : null;
         }
 
         /**
          * Creates a match if the provided selector matches the node.
          *
-         * @param selector      search criteria
+         * @param target        search criteria to return nodes for
+         * @param selector      current search criteria to match
          * @param node          node to check
          * @param absoluteDepth distance between the node and the search root
          * @param relativeDepth distance between the node and its relevant ancestor
          * @return potential match or null
          */
-        static PartialMatch create(BySelector selector, AccessibilityNodeInfo node,
-                int absoluteDepth, int relativeDepth) {
+        static PartialMatch create(BySelector target, BySelector selector,
+                AccessibilityNodeInfo node, int absoluteDepth, int relativeDepth) {
             if (!matchesSelector(selector, node, relativeDepth)) {
                 return null;
             }
-            return new PartialMatch(selector, absoluteDepth);
+            return new PartialMatch(target, selector, absoluteDepth, node);
         }
 
         /**
          * Returns true if the node matches the selector, ignoring child selectors.
          *
          * @param selector search criteria to match
-         * @param node node to check
-         * @param depth distance between the node and its relevant ancestor
+         * @param node     node to check
+         * @param depth    distance between the node and its relevant ancestor
          */
         private static boolean matchesSelector(
                 BySelector selector, AccessibilityNodeInfo node, int depth) {
@@ -211,7 +277,8 @@ class ByMatcher {
                     && matchesCriteria(selector.mFocusable, node.isFocusable())
                     && matchesCriteria(selector.mLongClickable, node.isLongClickable())
                     && matchesCriteria(selector.mScrollable, node.isScrollable())
-                    && matchesCriteria(selector.mSelected, node.isSelected());
+                    && matchesCriteria(selector.mSelected, node.isSelected())
+                    && matchesHint(selector.mHint, node);
         }
 
         /** Returns true if the criteria is null or matches the value. */
@@ -227,6 +294,15 @@ class ByMatcher {
             return criteria == null || criteria.equals(value);
         }
 
+        /** Returns true if the criteria is null or equal to the hint text of node. */
+        private static boolean matchesHint(Pattern criteria, AccessibilityNodeInfo node) {
+            if (criteria == null) {
+                return true;
+            }
+            return Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && matchesCriteria(criteria,
+                    Api26Impl.getHintText(node));
+        }
+
         /**
          * Checks whether a node matches any child selector. Creates a child match if it does and
          * adds it to the list of tracked matches.
@@ -240,7 +316,7 @@ class ByMatcher {
                 PartialMatchList partialMatches) {
             for (BySelector childSelector : mMatchSelector.mChildSelectors) {
                 PartialMatch pm = PartialMatch.create(
-                        childSelector, node, depth, depth - mMatchDepth);
+                        mTargetSelector, childSelector, node, depth, depth - mMatchDepth);
                 if (pm != null) {
                     mChildMatches.add(pm);
                     partialMatches = partialMatches.prepend(pm);
@@ -258,6 +334,42 @@ class ByMatcher {
                 }
             }
             return matches.containsAll(mMatchSelector.mChildSelectors);
+        }
+
+        /** Returns all nodes matched by selector and its children. */
+        List<AccessibilityNodeInfo> getNodes() {
+            if (!isComplete()) return new ArrayList<>();
+
+            List<AccessibilityNodeInfo> nodes = new ArrayList<>();
+            if (mMatchNode != null) {
+                nodes.add(mMatchNode);
+            }
+            for (PartialMatch pm : mChildMatches) {
+                nodes.addAll(pm.getNodes());
+            }
+            return nodes;
+        }
+
+        /** Recycles all nodes matched by selector and its children. */
+        void recycleNodes() {
+            if (mMatchNode != null) {
+                mMatchNode.recycle();
+            }
+            for (PartialMatch pm : mChildMatches) {
+                pm.recycleNodes();
+            }
+        }
+
+        @RequiresApi(26)
+        static class Api26Impl {
+            private Api26Impl() {
+            }
+
+            @DoNotInline
+            static String getHintText(AccessibilityNodeInfo accessibilityNodeInfo) {
+                CharSequence chars = accessibilityNodeInfo.getHintText();
+                return chars != null ? chars.toString() : null;
+            }
         }
     }
 
@@ -307,6 +419,19 @@ class ByMatcher {
                 mMatch = match;
                 mNext = next;
             }
+        }
+    }
+
+    @RequiresApi(30)
+    static class Api30Impl {
+        private Api30Impl() {
+        }
+
+        @DoNotInline
+        static int getDisplayId(AccessibilityNodeInfo accessibilityNodeInfo) {
+            AccessibilityWindowInfo accessibilityWindowInfo = accessibilityNodeInfo.getWindow();
+            return accessibilityWindowInfo == null ? Display.DEFAULT_DISPLAY :
+                    accessibilityWindowInfo.getDisplayId();
         }
     }
 }

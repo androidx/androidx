@@ -31,7 +31,9 @@ import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.KeyEvent
@@ -223,13 +225,13 @@ private fun SelectorsSnippet() {
 
 private object SyncSnippet {
     @Test fun counterTest() {
-        val myCounter = mutableStateOf(0) // State that can cause recompositions
+        var myCounter by mutableIntStateOf(0) // State that can cause recompositions
         var lastSeenValue = 0 // Used to track recompositions
         composeTestRule.setContent {
-            Text(myCounter.value.toString())
-            lastSeenValue = myCounter.value
+            Text(myCounter.toString())
+            lastSeenValue = myCounter
         }
-        myCounter.value = 1 // The state changes, but there is no recomposition
+        myCounter = 1 // The state changes, but there is no recomposition
 
         // Fails because nothing triggered a recomposition
         assertTrue(lastSeenValue == 1)

@@ -21,9 +21,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -224,6 +224,30 @@ class ComposeBenchmark : ComposeBenchmarkBase() {
             reset {
                 state1 = 1
             }
+        }
+    }
+
+    @UiThreadTest
+    @Test
+    fun benchmark_f_compose_Rect_1() = runBlockingTestWithFrameClock {
+        measureComposeFocused {
+            Rect()
+        }
+    }
+
+    @UiThreadTest
+    @Test
+    fun benchmark_f_compose_Rect_10() = runBlockingTestWithFrameClock {
+        measureComposeFocused {
+            repeat(10) { Rect() }
+        }
+    }
+
+    @UiThreadTest
+    @Test
+    fun benchmark_f_compose_Rect_100() = runBlockingTestWithFrameClock {
+        measureComposeFocused {
+            repeat(100) { Rect() }
         }
     }
 }

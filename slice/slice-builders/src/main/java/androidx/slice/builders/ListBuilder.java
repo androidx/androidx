@@ -140,8 +140,12 @@ import java.util.Set;
  * @see androidx.slice.SliceProvider
  * @see androidx.slice.SliceProvider#onBindSlice(Uri)
  * @see androidx.slice.widget.SliceView
+ *
+ * @deprecated Slice framework has been deprecated, it will not receive any updates moving
+ * forward. If you are looking for a framework that handles communication across apps,
+ * consider using {@link android.app.appsearch.AppSearchManager}.
  */
-@RequiresApi(19)
+@Deprecated
 public class ListBuilder extends TemplateSliceBuilder {
 
     private boolean mHasSeeMore;
@@ -180,7 +184,6 @@ public class ListBuilder extends TemplateSliceBuilder {
     public static final int UNKNOWN_IMAGE = SliceHints.UNKNOWN_IMAGE;
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef({
@@ -197,7 +200,6 @@ public class ListBuilder extends TemplateSliceBuilder {
     public static final long INFINITY = SliceHints.INFINITY;
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef({
@@ -494,7 +496,6 @@ public class ListBuilder extends TemplateSliceBuilder {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @Override
@@ -511,7 +512,6 @@ public class ListBuilder extends TemplateSliceBuilder {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @NonNull
@@ -520,7 +520,6 @@ public class ListBuilder extends TemplateSliceBuilder {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef({
@@ -570,7 +569,12 @@ public class ListBuilder extends TemplateSliceBuilder {
      * A range row supports displaying a horizontal progress indicator.
      *
      * @see ListBuilder#addRange(RangeBuilder)
+     *
+     * @deprecated Slice framework has been deprecated, it will not receive any updates moving
+     * forward. If you are looking for a framework that handles communication across apps,
+     * consider using {@link android.app.appsearch.AppSearchManager}.
      */
+    @Deprecated
     public static class RangeBuilder {
 
         private int mValue;
@@ -727,7 +731,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public boolean isTitleItemLoading() {
@@ -735,7 +738,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public int getTitleImageMode() {
@@ -743,7 +745,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         @Nullable
@@ -752,7 +753,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public int getValue() {
@@ -760,7 +760,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public int getMax() {
@@ -768,7 +767,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public boolean isValueSet() {
@@ -776,7 +774,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         @Nullable
@@ -785,7 +782,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         @Nullable
@@ -794,7 +790,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         @Nullable
@@ -803,7 +798,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         @Nullable
@@ -812,7 +806,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public int getLayoutDirection() {
@@ -820,7 +813,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public int getMode() {
@@ -834,11 +826,15 @@ public class ListBuilder extends TemplateSliceBuilder {
      * An star rating row supports displaying a horizontal tappable stars allowing rating input.
      *
      * @see ListBuilder#addRating(RatingBuilder)
+     *
+     * @deprecated Slice framework has been deprecated, it will not receive any updates moving
+     * forward. If you are looking for a framework that handles communication across apps,
+     * consider using {@link android.app.appsearch.AppSearchManager}.
      */
     @SuppressLint("MissingBuildMethod")
+    @Deprecated
     public static final class RatingBuilder {
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public static final int TYPE_ACTION = 2;
@@ -867,7 +863,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public int getMin() {
@@ -884,7 +879,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public int getMax() {
@@ -901,7 +895,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public float getValue() {
@@ -922,7 +915,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public boolean isValueSet() {
@@ -930,7 +922,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         @Nullable
@@ -939,7 +930,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         @Nullable
@@ -1029,7 +1019,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         @Nullable
@@ -1058,7 +1047,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         @Nullable
@@ -1067,7 +1055,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         @Nullable
@@ -1076,7 +1063,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         @Nullable
@@ -1085,7 +1071,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public boolean isTitleItemLoading() {
@@ -1093,7 +1078,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public int getTitleImageMode() {
@@ -1101,7 +1085,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         @Nullable
@@ -1116,7 +1099,12 @@ public class ListBuilder extends TemplateSliceBuilder {
      * An input range row supports displaying a horizontal slider allowing slider input.
      *
      * @see ListBuilder#addInputRange(InputRangeBuilder)
+     *
+     * @deprecated Slice framework has been deprecated, it will not receive any updates moving
+     * forward. If you are looking for a framework that handles communication across apps,
+     * consider using {@link android.app.appsearch.AppSearchManager}.
      */
+    @Deprecated
     public static class InputRangeBuilder {
 
         private int mMin = 0;
@@ -1338,7 +1326,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public boolean isTitleItemLoading() {
@@ -1346,7 +1333,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public int getTitleImageMode() {
@@ -1354,7 +1340,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         @Nullable
@@ -1363,13 +1348,11 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public static final int TYPE_ACTION = 2;
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         @NonNull
@@ -1378,7 +1361,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         @NonNull
@@ -1387,7 +1369,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         @NonNull
@@ -1396,7 +1377,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public int getMin() {
@@ -1404,7 +1384,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public int getMax() {
@@ -1412,7 +1391,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public int getValue() {
@@ -1420,7 +1398,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public boolean isValueSet() {
@@ -1428,7 +1405,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         @Nullable
@@ -1437,7 +1413,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         @Nullable
@@ -1446,7 +1421,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         @Nullable
@@ -1455,7 +1429,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         @Nullable
@@ -1464,7 +1437,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         @Nullable
@@ -1473,7 +1445,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         @Nullable
@@ -1482,7 +1453,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         @Nullable
@@ -1491,7 +1461,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public int getLayoutDirection() {
@@ -1531,7 +1500,12 @@ public class ListBuilder extends TemplateSliceBuilder {
      * </ul>
      *
      * @see ListBuilder#addRow(RowBuilder)
+     *
+     * @deprecated Slice framework has been deprecated, it will not receive any updates moving
+     * forward. If you are looking for a framework that handles communication across apps,
+     * consider using {@link android.app.appsearch.AppSearchManager}.
      */
+    @Deprecated
     public static class RowBuilder {
 
         private final Uri mUri;
@@ -1558,17 +1532,14 @@ public class ListBuilder extends TemplateSliceBuilder {
         private boolean mTitleActionLoading;
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public static final int TYPE_TIMESTAMP = 0;
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public static final int TYPE_ICON = 1;
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public static final int TYPE_ACTION = 2;
@@ -1873,7 +1844,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         @Nullable
@@ -1882,7 +1852,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public boolean isEndOfSection() {
@@ -1890,7 +1859,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public boolean hasEndActionOrToggle() {
@@ -1898,7 +1866,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public boolean hasEndImage() {
@@ -1906,7 +1873,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public boolean hasDefaultToggle() {
@@ -1914,7 +1880,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public boolean hasTimestamp() {
@@ -1922,7 +1887,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public long getTimeStamp() {
@@ -1930,7 +1894,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public boolean isTitleItemLoading() {
@@ -1938,7 +1901,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public int getTitleImageMode() {
@@ -1946,7 +1908,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         @Nullable
@@ -1955,7 +1916,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         @Nullable
@@ -1964,7 +1924,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         @Nullable
@@ -1973,7 +1932,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         @Nullable
@@ -1982,7 +1940,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public boolean isTitleLoading() {
@@ -1990,7 +1947,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         @Nullable
@@ -1999,7 +1955,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public boolean isSubtitleLoading() {
@@ -2007,7 +1962,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         @Nullable
@@ -2016,7 +1970,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public int getLayoutDirection() {
@@ -2024,7 +1977,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         @NonNull
@@ -2033,7 +1985,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         @NonNull
@@ -2042,7 +1993,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         @NonNull
@@ -2051,7 +2001,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public boolean isTitleActionLoading() {
@@ -2082,7 +2031,12 @@ public class ListBuilder extends TemplateSliceBuilder {
      * @see ListBuilder#setHeader(HeaderBuilder)
      * @see ListBuilder#addAction(SliceAction)
      * @see SliceAction
+     *
+     * @deprecated Slice framework has been deprecated, it will not receive any updates moving
+     * forward. If you are looking for a framework that handles communication across apps,
+     * consider using {@link android.app.appsearch.AppSearchManager}.
      */
+    @Deprecated
     public static class HeaderBuilder {
         private final Uri mUri;
         private CharSequence mTitle;
@@ -2103,7 +2057,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         public HeaderBuilder(@NonNull final Uri uri) {
@@ -2227,7 +2180,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         @Nullable
@@ -2236,7 +2188,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         @Nullable
@@ -2245,7 +2196,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public boolean isTitleLoading() {
@@ -2253,7 +2203,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         @Nullable
@@ -2262,7 +2211,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public boolean isSubtitleLoading() {
@@ -2270,7 +2218,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         @Nullable
@@ -2279,7 +2226,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public boolean isSummaryLoading() {
@@ -2287,7 +2233,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         @Nullable
@@ -2296,7 +2241,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         @Nullable
@@ -2305,7 +2249,6 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public int getLayoutDirection() {

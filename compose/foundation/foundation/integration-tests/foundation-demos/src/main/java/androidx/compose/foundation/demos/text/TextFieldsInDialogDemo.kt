@@ -32,6 +32,7 @@ import androidx.compose.material.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -106,7 +107,7 @@ private val dialogDemos = listOf(
 @Composable
 fun TextFieldsInDialogDemo() {
     val listState = rememberLazyListState()
-    val (currentDemoIndex, setDemoIndex) = rememberSaveable { mutableStateOf(-1) }
+    val (currentDemoIndex, setDemoIndex) = rememberSaveable { mutableIntStateOf(-1) }
 
     if (currentDemoIndex == -1) {
         LazyColumn(state = listState) {
@@ -126,7 +127,7 @@ fun TextFieldsInDialogDemo() {
             textAlign = TextAlign.Center
         )
         Layout(
-            content = { currentDemo.content(onNavigateUp = { setDemoIndex(-1) }) }
+            content = { currentDemo.content { setDemoIndex(-1) } }
         ) { measurables, _ ->
             check(measurables.isEmpty()) { "Dialog demo must only emit a Dialog composable." }
             layout(0, 0) {}

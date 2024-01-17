@@ -16,17 +16,10 @@
 
 package androidx.wear.tiles.material;
 
-import static androidx.wear.tiles.DimensionBuilders.dp;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
-import androidx.wear.tiles.DeviceParametersBuilders;
-import androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters;
-import androidx.wear.tiles.DimensionBuilders.DpProp;
-import androidx.wear.tiles.ModifiersBuilders.ElementMetadata;
-import androidx.wear.tiles.ModifiersBuilders.Modifiers;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -44,10 +37,7 @@ import java.util.Collection;
 public class Helper {
     private Helper() {}
 
-    /**
-     * Returns given value if not null or throws {@code NullPointerException} otherwise.
-     *
-     */
+    /** Returns given value if not null or throws {@code NullPointerException} otherwise. */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     public static <T> T checkNotNull(@Nullable T value) {
@@ -57,77 +47,94 @@ public class Helper {
         return value;
     }
 
-    /** Returns radius in {@link DpProp} of the given diameter. */
+    /**
+     * Returns radius in {@link androidx.wear.tiles.DimensionBuilders.DpProp} of the given diameter.
+     */
     @NonNull
-    static DpProp radiusOf(DpProp diameter) {
-        return dp(diameter.getValue() / 2);
+    static androidx.wear.tiles.DimensionBuilders.DpProp radiusOf(
+            androidx.wear.tiles.DimensionBuilders.DpProp diameter) {
+        return androidx.wear.tiles.DimensionBuilders.dp(diameter.getValue() / 2);
     }
 
     /**
-     * Returns true if the given DeviceParameters belong to the round screen device.
-     *
+     * Returns true if the given androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters
+     * belong to the round screen device.
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    public static boolean isRoundDevice(@NonNull DeviceParameters deviceParameters) {
-        return deviceParameters.getScreenShape() == DeviceParametersBuilders.SCREEN_SHAPE_ROUND;
+    public static boolean isRoundDevice(
+            @NonNull
+                    androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters
+                            deviceParameters) {
+        return deviceParameters.getScreenShape()
+                == androidx.wear.tiles.DeviceParametersBuilders.SCREEN_SHAPE_ROUND;
     }
 
-    /**
-     * Returns String representation of tag from byte array.
-     *
-     */
+    /** Returns String representation of tag from byte array. */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     public static String getTagName(@NonNull byte[] tagData) {
         return new String(tagData, StandardCharsets.UTF_8);
     }
 
-    /**
-     * Returns byte array representation of tag from String.
-     *
-     */
+    /** Returns byte array representation of tag from String. */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     public static byte[] getTagBytes(@NonNull String tagName) {
         return tagName.getBytes(StandardCharsets.UTF_8);
     }
 
-    /** Returns the String representation of metadata tag from the given ElementMetadata. */
+    /**
+     * Returns the String representation of metadata tag from the given
+     * androidx.wear.tiles.ModifiersBuilders.ElementMetadata.
+     */
     @NonNull
-    public static String getMetadataTagName(@NonNull ElementMetadata metadata) {
+    public static String getMetadataTagName(
+            @NonNull androidx.wear.tiles.ModifiersBuilders.ElementMetadata metadata) {
         return getTagName(getMetadataTagBytes(metadata));
     }
 
-    /** Returns the metadata tag from the given ElementMetadata. */
+    /**
+     * Returns the metadata tag from the given
+     * androidx.wear.tiles.ModifiersBuilders.ElementMetadata.
+     */
     @NonNull
-    public static byte[] getMetadataTagBytes(@NonNull ElementMetadata metadata) {
+    public static byte[] getMetadataTagBytes(
+            @NonNull androidx.wear.tiles.ModifiersBuilders.ElementMetadata metadata) {
         return checkNotNull(metadata).getTagData();
     }
 
-    /** Returns true if the given Modifiers have Metadata tag set to the given String value. */
-    public static boolean checkTag(@Nullable Modifiers modifiers, @NonNull String validTag) {
+    /**
+     * Returns true if the given androidx.wear.tiles.ModifiersBuilders.Modifiers have Metadata tag
+     * set to the given String value.
+     */
+    public static boolean checkTag(
+            @Nullable androidx.wear.tiles.ModifiersBuilders.Modifiers modifiers,
+            @NonNull String validTag) {
         return modifiers != null
                 && modifiers.getMetadata() != null
                 && validTag.equals(getMetadataTagName(modifiers.getMetadata()));
     }
 
     /**
-     * Returns true if the given Modifiers have Metadata tag set to any of the value in the given
-     * String collection.
+     * Returns true if the given androidx.wear.tiles.ModifiersBuilders.Modifiers have Metadata tag
+     * set to any of the value in the given String collection.
      */
     public static boolean checkTag(
-            @Nullable Modifiers modifiers, @NonNull Collection<String> validTags) {
+            @Nullable androidx.wear.tiles.ModifiersBuilders.Modifiers modifiers,
+            @NonNull Collection<String> validTags) {
         return modifiers != null
                 && modifiers.getMetadata() != null
                 && validTags.contains(getMetadataTagName(modifiers.getMetadata()));
     }
 
     /**
-     * Returns true if the given Modifiers have Metadata tag set with prefix that is equal to the
-     * given String and its length is of the given base array.
+     * Returns true if the given androidx.wear.tiles.ModifiersBuilders.Modifiers have Metadata tag
+     * set with prefix that is equal to the given String and its length is of the given base array.
      */
     public static boolean checkTag(
-            @Nullable Modifiers modifiers, @NonNull String validPrefix, @NonNull byte[] validBase) {
+            @Nullable androidx.wear.tiles.ModifiersBuilders.Modifiers modifiers,
+            @NonNull String validPrefix,
+            @NonNull byte[] validBase) {
         if (modifiers == null || modifiers.getMetadata() == null) {
             return false;
         }

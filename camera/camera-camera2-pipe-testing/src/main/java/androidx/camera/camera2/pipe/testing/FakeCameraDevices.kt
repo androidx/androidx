@@ -28,6 +28,7 @@ import androidx.camera.camera2.pipe.CameraMetadata
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class FakeCameraDevices(
     private val defaultCameraBackendId: CameraBackendId,
+    private val concurrentCameraBackendIds: Set<Set<CameraBackendId>>,
     private val cameraMetadataMap: Map<CameraBackendId, List<CameraMetadata>>
 ) : CameraDevices {
     init {
@@ -42,6 +43,18 @@ class FakeCameraDevices(
     override fun awaitCameraIds(cameraBackendId: CameraBackendId?): List<CameraId>? {
         val backendId = cameraBackendId ?: defaultCameraBackendId
         return cameraMetadataMap[backendId]?.map { it.camera }
+    }
+
+    override suspend fun getConcurrentCameraIds(
+        cameraBackendId: CameraBackendId?
+    ): Set<Set<CameraId>> = awaitConcurrentCameraIds(cameraBackendId)
+
+    override fun awaitConcurrentCameraIds(cameraBackendId: CameraBackendId?): Set<Set<CameraId>> {
+        return concurrentCameraBackendIds.map { concurrentCameraIds ->
+            concurrentCameraIds.map {
+                    cameraId -> CameraId.fromCamera2Id(cameraId.value)
+            }.toSet()
+        }.toSet()
     }
 
     override suspend fun getCameraMetadata(

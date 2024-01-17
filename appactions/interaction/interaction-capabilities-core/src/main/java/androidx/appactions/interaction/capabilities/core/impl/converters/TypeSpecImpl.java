@@ -25,7 +25,6 @@ import androidx.appactions.interaction.protobuf.Value;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -35,26 +34,31 @@ import java.util.function.Supplier;
  */
 final class TypeSpecImpl<T, BuilderT> implements TypeSpec<T> {
     /* The function to retrieve the identifier. */
-    final Function<T, Optional<String>> mIdentifierGetter;
+    @NonNull
+    final Function<T, String> mIdentifierGetter;
 
     /** The list of FieldBinding objects. */
+    @NonNull
     final List<FieldBinding<T, BuilderT>> mBindings;
 
     /** Validates the Struct during conversion to java object. */
-    final Optional<CheckedInterfaces.Consumer<Struct>> mStructValidator;
+    @Nullable
+    final CheckedInterfaces.Consumer<Struct> mStructValidator;
 
     /** Supplies BuilderT instances. */
+    @NonNull
     final Supplier<BuilderT> mBuilderSupplier;
 
     /** Builds the object instance. */
+    @NonNull
     final Function<BuilderT, T> mBuilderFinalizer;
 
     TypeSpecImpl(
-            Function<T, Optional<String>> identifierGetter,
-            List<FieldBinding<T, BuilderT>> bindings,
-            Supplier<BuilderT> builderSupplier,
-            Function<BuilderT, T> builderFinalizer,
-            Optional<CheckedInterfaces.Consumer<Struct>> structValidator) {
+            @NonNull Function<T, String> identifierGetter,
+            @NonNull List<FieldBinding<T, BuilderT>> bindings,
+            @NonNull Supplier<BuilderT> builderSupplier,
+            @NonNull Function<BuilderT, T> builderFinalizer,
+            @Nullable CheckedInterfaces.Consumer<Struct> structValidator) {
         this.mIdentifierGetter = identifierGetter;
         this.mBindings = Collections.unmodifiableList(bindings);
         this.mBuilderSupplier = builderSupplier;
@@ -65,7 +69,7 @@ final class TypeSpecImpl<T, BuilderT> implements TypeSpec<T> {
     @Nullable
     @Override
     public String getIdentifier(T obj) {
-        return mIdentifierGetter.apply(obj).orElse(null);
+        return mIdentifierGetter.apply(obj);
     }
 
     /** Converts a java object into a Struct proto using List of FieldBinding. */
@@ -74,9 +78,10 @@ final class TypeSpecImpl<T, BuilderT> implements TypeSpec<T> {
     public Value toValue(@NonNull T obj) {
         Struct.Builder structBuilder = Struct.newBuilder();
         for (FieldBinding<T, BuilderT> binding : mBindings) {
-            binding.valueGetter()
-                    .apply(obj)
-                    .ifPresent(value -> structBuilder.putFields(binding.name(), value));
+            Value value = binding.getValueGetter().apply(obj);
+            if (value != null) {
+                structBuilder.putFields(binding.getName(), value);
+            }
         }
         return Value.newBuilder().setStructValue(structBuilder).build();
     }
@@ -94,15 +99,17 @@ final class TypeSpecImpl<T, BuilderT> implements TypeSpec<T> {
             throw new StructConversionException(
                     String.format("TypeSpecImpl cannot deserializes non-Struct value: %s", value));
         }
-        if (mStructValidator.isPresent()) {
-            mStructValidator.get().accept(struct);
+        if (mStructValidator != null) {
+            mStructValidator.accept(struct);
         }
 
         BuilderT builder = mBuilderSupplier.get();
         Map<String, Value> fieldsMap = struct.getFieldsMap();
         for (FieldBinding<T, BuilderT> binding : mBindings) {
-            Optional<Value> fieldValue = Optional.ofNullable(fieldsMap.get(binding.name()));
-            binding.valueSetter().accept(builder, fieldValue);
+            Value fieldValue = fieldsMap.get(binding.getName());
+            if (fieldValue != null) {
+                binding.getValueSetter().accept(builder, fieldValue);
+            }
         }
         return mBuilderFinalizer.apply(builder);
     }

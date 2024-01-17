@@ -29,13 +29,13 @@ import com.google.wireless.android.sdk.stats.GradleBuildProfileSpan
 import com.google.wireless.android.sdk.stats.GradleBuildProject
 import com.google.wireless.android.sdk.stats.GradleBuildVariant
 import com.google.wireless.android.sdk.stats.GradleTransformExecution
+import java.io.File
+import java.util.Base64
+import java.util.concurrent.ConcurrentLinkedQueue
 import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
 import org.gradle.tooling.events.FinishEvent
-import java.io.File
-import java.util.Base64
-import java.util.concurrent.ConcurrentLinkedQueue
 
 /**
  * A no-operation implementation of [AnalyticsService] for unit tests.

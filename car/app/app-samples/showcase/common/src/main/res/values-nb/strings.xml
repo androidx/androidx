@@ -264,6 +264,7 @@
     <string name="tab_title_list" msgid="5104962518489668123">"Listefane"</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"Rutenettfane med lang fanetittel"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"Søkefane"</string>
+    <string name="tab_title_loading" msgid="5385807479734490989">"Laster inn fanen"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"Laster inn demo av fanemal"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"Demo av fanemal uten faner"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"Bilder kan ikke vises for en ukjent vert"</string>
@@ -364,4 +365,8 @@
     <string name="route_options_demo_title" msgid="4599699012716426514">"Rutealternativer"</string>
     <string name="avoid_highways_row_title" msgid="4711913426200490304">"Unngå motorveier"</string>
     <string name="avoid_ferries_row_title" msgid="8232883866013711974">"Unngå ferger"</string>
+    <string name="map_demos_title" msgid="2169766615521476592">"Kartdemoer"</string>
+    <string name="map_with_content_demo_title" msgid="1032610482145018739">"Kart med innholdsdemoer"</string>
+    <string name="map_with_message_demo_title" msgid="7007078234918054436">"Kart med demo av meldingsmaler"</string>
+    <string name="map_with_grid_demo_title" msgid="688667167861193192">"Kart med demo av rutenettmaler"</string>
 </resources>

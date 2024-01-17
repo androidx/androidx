@@ -19,6 +19,8 @@
 package androidx.camera.camera2.pipe.integration.adapter
 
 import android.content.Context
+import android.hardware.camera2.CameraCharacteristics
+import android.util.Pair
 import android.util.Size
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraId
@@ -26,6 +28,9 @@ import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.DoNotDisturbException
 import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.core.Log.debug
+import androidx.camera.camera2.pipe.integration.compat.StreamConfigurationMapCompat
+import androidx.camera.camera2.pipe.integration.compat.quirk.CameraQuirks
+import androidx.camera.camera2.pipe.integration.compat.workaround.OutputSizesCorrector
 import androidx.camera.camera2.pipe.integration.config.CameraAppComponent
 import androidx.camera.core.impl.AttachedSurfaceInfo
 import androidx.camera.core.impl.CameraDeviceSurfaceManager
@@ -64,11 +69,19 @@ class CameraSurfaceAdapter(
         for (cameraId in availableCameraIds) {
             try {
                 val cameraMetadata =
-                    component.getCameraDevices().awaitCameraMetadata(CameraId(cameraId))
+                    component.getCameraDevices().awaitCameraMetadata(CameraId(cameraId))!!
+                val streamConfigurationMap =
+                    cameraMetadata[CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP]
+                val cameraQuirks = CameraQuirks(
+                    cameraMetadata, StreamConfigurationMapCompat(
+                        streamConfigurationMap,
+                        OutputSizesCorrector(cameraMetadata, streamConfigurationMap)
+                    )
+                )
                 supportedSurfaceCombinationMap[cameraId] = SupportedSurfaceCombination(
                     context,
-                    checkNotNull(cameraMetadata),
-                    EncoderProfilesProviderAdapter(cameraId)
+                    cameraMetadata,
+                    EncoderProfilesProviderAdapter(cameraId, cameraQuirks.quirks)
                 )
             } catch (exception: DoNotDisturbException) {
                 Log.error {
@@ -121,6 +134,7 @@ class CameraSurfaceAdapter(
      * @param newUseCaseConfigsSupportedSizeMap map of configurations of the use cases to the
      *                                          supported sizes list that will be given a
      *                                          suggested stream specification
+     * @param isPreviewStabilizationOn          whether the preview stabilization is enabled.
      * @return map of suggested stream specifications for given use cases
      * @throws IllegalArgumentException if {@code newUseCaseConfigs} is an empty list, if
      *                                  there isn't a supported combination of surfaces
@@ -131,8 +145,9 @@ class CameraSurfaceAdapter(
         cameraMode: Int,
         cameraId: String,
         existingSurfaces: List<AttachedSurfaceInfo>,
-        newUseCaseConfigsSupportedSizeMap: Map<UseCaseConfig<*>, List<Size>>
-    ): Map<UseCaseConfig<*>, StreamSpec> {
+        newUseCaseConfigsSupportedSizeMap: Map<UseCaseConfig<*>, List<Size>>,
+        isPreviewStabilizationOn: Boolean
+    ): Pair<Map<UseCaseConfig<*>, StreamSpec>, Map<AttachedSurfaceInfo, StreamSpec>> {
 
         if (!checkIfSupportedCombinationExist(cameraId)) {
             throw IllegalArgumentException(
@@ -143,7 +158,8 @@ class CameraSurfaceAdapter(
         return supportedSurfaceCombinationMap[cameraId]!!.getSuggestedStreamSpecifications(
             cameraMode,
             existingSurfaces,
-            newUseCaseConfigsSupportedSizeMap
+            newUseCaseConfigsSupportedSizeMap,
+            isPreviewStabilizationOn
         )
     }
 }

@@ -17,13 +17,11 @@
 package androidx.appsearch.builtintypes;
 
 import android.content.Context;
-import android.os.Build;
 import android.os.SystemClock;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.Document;
 import androidx.appsearch.utils.BootCountUtil;
@@ -41,7 +39,7 @@ import java.util.List;
  */
 @Document(name = "builtin:Stopwatch")
 public class Stopwatch extends Thing {
-    /** @hide */
+    /** @exportToFramework:hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef({STATUS_UNKNOWN, STATUS_RESET, STATUS_RUNNING, STATUS_PAUSED})
     @Retention(RetentionPolicy.SOURCE)
@@ -77,11 +75,12 @@ public class Stopwatch extends Thing {
     Stopwatch(@NonNull String namespace, @NonNull String id, int documentScore,
             long creationTimestampMillis, long documentTtlMillis, @Nullable String name,
             @Nullable List<String> alternateNames, @Nullable String description,
-            @Nullable String image, @Nullable String url, long baseTimeMillis,
-            long baseTimeMillisInElapsedRealtime, int bootCount, int status,
+            @Nullable String image, @Nullable String url,
+            @NonNull List<PotentialAction> potentialActions,
+            long baseTimeMillis, long baseTimeMillisInElapsedRealtime, int bootCount, int status,
             long accumulatedDurationMillis, @NonNull List<StopwatchLap> laps) {
         super(namespace, id, documentScore, creationTimestampMillis, documentTtlMillis, name,
-                alternateNames, description, image, url);
+                alternateNames, description, image, url, potentialActions);
         mBaseTimeMillis = baseTimeMillis;
         mBaseTimeMillisInElapsedRealtime = baseTimeMillisInElapsedRealtime;
         mBootCount = bootCount;
@@ -161,7 +160,6 @@ public class Stopwatch extends Thing {
      * in the {@link System#currentTimeMillis()} time base. Otherwise return
      * {@link #getBaseTimeMillis()}.
      */
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)
     public long calculateBaseTimeMillis(@NonNull Context context) {
         int currentBootCount = BootCountUtil.getCurrentBootCount(context);
         if (currentBootCount == -1 || currentBootCount != mBootCount) {
@@ -183,7 +181,6 @@ public class Stopwatch extends Thing {
      * {@link #getAccumulatedDurationMillis()} to get the static accumulated time stored in the
      * document.
      */
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)
     public long calculateCurrentAccumulatedDurationMillis(@NonNull Context context) {
         if (mStatus == STATUS_PAUSED || mStatus == STATUS_RESET) {
             return mAccumulatedDurationMillis;
@@ -275,7 +272,6 @@ public class Stopwatch extends Thing {
          * @param baseTimeMillisInElapsedRealtime The base time in milliseconds using the
          * {@link android.os.SystemClock#elapsedRealtime()} time base.
          */
-        @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)
         @NonNull
         public T setBaseTimeMillis(@NonNull Context context, long baseTimeMillis,
                 long baseTimeMillisInElapsedRealtime) {
@@ -318,6 +314,7 @@ public class Stopwatch extends Thing {
         public Stopwatch build() {
             return new Stopwatch(mNamespace, mId, mDocumentScore, mCreationTimestampMillis,
                     mDocumentTtlMillis, mName, mAlternateNames, mDescription, mImage, mUrl,
+                    mPotentialActions,
                     mBaseTimeMillis, mBaseTimeMillisInElapsedRealtime, mBootCount, mStatus,
                     mAccumulatedDurationMillis, mLaps);
         }

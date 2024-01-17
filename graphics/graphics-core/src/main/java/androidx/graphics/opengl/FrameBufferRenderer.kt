@@ -25,13 +25,13 @@ import android.os.Build
 import android.util.Log
 import android.view.Surface
 import androidx.annotation.RequiresApi
-import androidx.hardware.SyncFenceCompat
 import androidx.graphics.opengl.egl.EGLManager
 import androidx.graphics.opengl.egl.EGLSpec
+import androidx.hardware.SyncFenceCompat
 import androidx.opengl.EGLExt
-import java.util.concurrent.atomic.AtomicBoolean
 import androidx.opengl.EGLExt.Companion.EGL_ANDROID_NATIVE_FENCE_SYNC
 import androidx.opengl.EGLExt.Companion.EGL_KHR_FENCE_SYNC
+import java.util.concurrent.atomic.AtomicBoolean
 
 /**
  * [GLRenderer.RenderCallback] implementation that renders content into a frame buffer object
@@ -211,7 +211,6 @@ interface SyncStrategy {
      *
      * @param eglSpec an [EGLSpec] object to dictate the version of EGL and make EGL calls.
      */
-    @RequiresApi(Build.VERSION_CODES.KITKAT)
     fun createSyncFence(eglSpec: EGLSpec): SyncFenceCompat?
 
     companion object {
@@ -220,7 +219,6 @@ interface SyncStrategy {
          */
         @JvmField
         val ALWAYS = object : SyncStrategy {
-            @RequiresApi(Build.VERSION_CODES.KITKAT)
             override fun createSyncFence(eglSpec: EGLSpec): SyncFenceCompat? {
                 return SyncFenceCompat.createNativeSyncFence()
             }

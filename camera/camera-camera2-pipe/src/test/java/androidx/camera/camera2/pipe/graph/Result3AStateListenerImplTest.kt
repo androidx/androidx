@@ -18,6 +18,7 @@ package androidx.camera.camera2.pipe.graph
 
 import android.hardware.camera2.CaptureResult
 import android.os.Build
+import androidx.camera.camera2.pipe.FrameMetadata
 import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.RequestNumber
 import androidx.camera.camera2.pipe.Result3A
@@ -393,5 +394,47 @@ internal class Result3AStateListenerImplTest {
         // The update is from the same or later request number so it will be accepted.
         listenerForKeys.update(RequestNumber(3), frameMetadata)
         assertThat(listenerForKeys.result.isCompleted).isTrue()
+    }
+
+    @Test
+    fun testExitFunctionWithDesiredValue() {
+        val exitCondition: (FrameMetadata) -> Boolean = { frameMetadata ->
+            frameMetadata[CaptureResult.CONTROL_AF_STATE] ==
+                CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED
+        }
+
+        val listenerForKeys = Result3AStateListenerImpl(exitCondition)
+        listenerForKeys.onRequestSequenceCreated(RequestNumber(1))
+        val frameMetadata = FakeFrameMetadata(
+            resultMetadata = mapOf(
+                CaptureResult.CONTROL_AF_STATE to
+                    CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED
+            )
+        )
+        listenerForKeys.update(RequestNumber(1), frameMetadata)
+
+        // Assert. Task is completed when receiving the desired value in the FrameMetadata.
+        assertThat(listenerForKeys.result.isCompleted).isTrue()
+    }
+
+    @Test
+    fun testExitFunctionWithUndesirableValue() {
+        val exitCondition: (FrameMetadata) -> Boolean = { frameMetadata ->
+            frameMetadata[CaptureResult.CONTROL_AF_STATE] ==
+                CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED
+        }
+
+        val listenerForKeys = Result3AStateListenerImpl(exitCondition)
+        listenerForKeys.onRequestSequenceCreated(RequestNumber(1))
+        val frameMetadata = FakeFrameMetadata(
+            resultMetadata = mapOf(
+                CaptureResult.CONTROL_AF_STATE to
+                    CaptureResult.CONTROL_AF_STATE_INACTIVE
+            )
+        )
+        listenerForKeys.update(RequestNumber(1), frameMetadata)
+
+        // Assert. Task is completed when receiving the desired value in the FrameMetadata.
+        assertThat(listenerForKeys.result.isCompleted).isFalse()
     }
 }

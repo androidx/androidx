@@ -66,11 +66,8 @@ public class ActivityOptionsCompat {
     @NonNull
     public static ActivityOptionsCompat makeCustomAnimation(@NonNull Context context,
             int enterResId, int exitResId) {
-        if (Build.VERSION.SDK_INT >= 16) {
-            return new ActivityOptionsCompatImpl(
-                    Api16Impl.makeCustomAnimation(context, enterResId, exitResId));
-        }
-        return new ActivityOptionsCompat();
+        return new ActivityOptionsCompatImpl(
+                ActivityOptions.makeCustomAnimation(context, enterResId, exitResId));
     }
 
     /**
@@ -96,11 +93,9 @@ public class ActivityOptionsCompat {
     @NonNull
     public static ActivityOptionsCompat makeScaleUpAnimation(@NonNull View source,
             int startX, int startY, int startWidth, int startHeight) {
-        if (Build.VERSION.SDK_INT >= 16) {
-            return new ActivityOptionsCompatImpl(Api16Impl.makeScaleUpAnimation(source, startX,
-                    startY, startWidth, startHeight));
-        }
-        return new ActivityOptionsCompat();
+        return new ActivityOptionsCompatImpl(
+                ActivityOptions.makeScaleUpAnimation(source, startX, startY, startWidth,
+                        startHeight));
     }
 
     /**
@@ -149,11 +144,8 @@ public class ActivityOptionsCompat {
     @NonNull
     public static ActivityOptionsCompat makeThumbnailScaleUpAnimation(@NonNull View source,
             @NonNull Bitmap thumbnail, int startX, int startY) {
-        if (Build.VERSION.SDK_INT >= 16) {
-            return new ActivityOptionsCompatImpl(
-                    Api16Impl.makeThumbnailScaleUpAnimation(source, thumbnail, startX, startY));
-        }
-        return new ActivityOptionsCompat();
+        return new ActivityOptionsCompatImpl(
+                ActivityOptions.makeThumbnailScaleUpAnimation(source, thumbnail, startX, startY));
     }
 
     /**
@@ -251,7 +243,6 @@ public class ActivityOptionsCompat {
         return new ActivityOptionsCompat();
     }
 
-    @RequiresApi(16)
     private static class ActivityOptionsCompatImpl extends ActivityOptionsCompat {
         private final ActivityOptions mActivityOptions;
 
@@ -296,6 +287,15 @@ public class ActivityOptionsCompat {
                 return null;
             }
             return Api24Impl.getLaunchBounds(mActivityOptions);
+        }
+
+        @Override
+        public ActivityOptionsCompat setShareIdentityEnabled(boolean shareIdentity) {
+            if (Build.VERSION.SDK_INT < 34) {
+                return this;
+            }
+            return new ActivityOptionsCompatImpl(
+                    Api34Impl.setShareIdentityEnabled(mActivityOptions, shareIdentity));
         }
     }
 
@@ -376,28 +376,30 @@ public class ActivityOptionsCompat {
         // Do nothing.
     }
 
-    @RequiresApi(16)
-    static class Api16Impl {
-        private Api16Impl() {
-            // This class is not instantiable.
-        }
-
-        @DoNotInline
-        static ActivityOptions makeCustomAnimation(Context context, int enterResId, int exitResId) {
-            return ActivityOptions.makeCustomAnimation(context, enterResId, exitResId);
-        }
-
-        @DoNotInline
-        static ActivityOptions makeScaleUpAnimation(View source, int startX, int startY, int width,
-                int height) {
-            return ActivityOptions.makeScaleUpAnimation(source, startX, startY, width, height);
-        }
-
-        @DoNotInline
-        static ActivityOptions makeThumbnailScaleUpAnimation(View source, Bitmap thumbnail,
-                int startX, int startY) {
-            return ActivityOptions.makeThumbnailScaleUpAnimation(source, thumbnail, startX, startY);
-        }
+    /**
+     * Sets whether the identity of the launching app should be shared with the activity.
+     *
+     * <p>Use this option when starting an activity that needs to know the identity of the
+     * launching app; with this set to {@code true}, the activity will have access to the launching
+     * app's package name and uid.
+     *
+     * <p>Defaults to {@code false} if not set. This is a no-op before U.
+     *
+     * <p>Note, even if the launching app does not explicitly enable sharing of its identity, if
+     * the activity is started with {@code Activity#startActivityForResult}, then {@link
+     * Activity#getCallingPackage()} will still return the launching app's package name to
+     * allow validation of the result's recipient. Also, an activity running within a package
+     * signed by the same key used to sign the platform (some system apps such as Settings will
+     * be signed with the platform's key) will have access to the launching app's identity.
+     *
+     * @param shareIdentity whether the launching app's identity should be shared with the activity
+     * @return {@code this} {@link ActivityOptions} instance.
+     * @see Activity#getLaunchedFromPackage()
+     * @see Activity#getLaunchedFromUid()
+     */
+    @NonNull
+    public ActivityOptionsCompat setShareIdentityEnabled(boolean shareIdentity) {
+        return this;
     }
 
     @RequiresApi(23)
@@ -465,6 +467,19 @@ public class ActivityOptionsCompat {
         @DoNotInline
         static Rect getLaunchBounds(ActivityOptions activityOptions) {
             return activityOptions.getLaunchBounds();
+        }
+    }
+
+    @RequiresApi(34)
+    static class Api34Impl {
+        private Api34Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static ActivityOptions setShareIdentityEnabled(ActivityOptions activityOptions,
+                boolean shareIdentity) {
+            return activityOptions.setShareIdentityEnabled(shareIdentity);
         }
     }
 }

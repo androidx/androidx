@@ -22,8 +22,8 @@ import android.os.CancellationSignal
 import androidx.annotation.RestrictTo
 import androidx.paging.PagingSource
 import androidx.paging.PagingSource.LoadParams
-import androidx.paging.PagingSource.LoadParams.Prepend
 import androidx.paging.PagingSource.LoadParams.Append
+import androidx.paging.PagingSource.LoadParams.Prepend
 import androidx.paging.PagingSource.LoadParams.Refresh
 import androidx.paging.PagingSource.LoadResult
 import androidx.paging.PagingState

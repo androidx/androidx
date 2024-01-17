@@ -16,15 +16,13 @@
 
 package androidx.tv.material3
 
-import android.view.KeyEvent.KEYCODE_BACK
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.focusable
+import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
@@ -35,29 +33,17 @@ import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusDirection
-import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.FocusState
-import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.key.KeyEventType.Companion.KeyDown
-import androidx.compose.ui.input.key.key
-import androidx.compose.ui.input.key.nativeKeyCode
-import androidx.compose.ui.input.key.onKeyEvent
-import androidx.compose.ui.input.key.type
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.LayoutDirection.Ltr
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 
 /**
@@ -71,7 +57,8 @@ import androidx.compose.ui.zIndex
  * layout grid.
  *
  * Example:
- * @sample androidx.tv.samples.SampleModalNavigationDrawer
+ * @sample androidx.tv.samples.SampleModalNavigationDrawerWithSolidScrim
+ * @sample androidx.tv.samples.SampleModalNavigationDrawerWithGradientScrim
  *
  * @param drawerContent Content that needs to be displayed on the drawer based on whether the drawer
  * is [DrawerValue.Open] or [DrawerValue.Closed].
@@ -84,32 +71,24 @@ import androidx.compose.ui.zIndex
  *
  * @param modifier the [Modifier] to be applied to this drawer
  * @param drawerState state of the drawer
- * @param scrimColor color of the scrim that obscures content when the drawer is open
- * @param content content of the rest of the UI
+ * @param scrimBrush brush to paint the scrim that obscures content when the drawer is open
+ * @param content content of the rest of the UI. The content extends to the edge of the container
+ * under the modal navigation drawer. Focusable content that is not part of the background must have
+ * start-padding sufficient to prevent it from being drawn under the drawer in the Closed state.
  */
 @ExperimentalTvMaterial3Api
 @Composable
 fun ModalNavigationDrawer(
-    drawerContent: @Composable (DrawerValue) -> Unit,
+    drawerContent: @Composable NavigationDrawerScope.(DrawerValue) -> Unit,
     modifier: Modifier = Modifier,
     drawerState: DrawerState = rememberDrawerState(DrawerValue.Closed),
-    scrimColor: Color = LocalColorScheme.current.scrim.copy(alpha = 0.5f),
+    scrimBrush: Brush = SolidColor(LocalColorScheme.current.scrim.copy(alpha = 0.5f)),
     content: @Composable () -> Unit
 ) {
-    val layoutDirection = LocalLayoutDirection.current
     val localDensity = LocalDensity.current
-    val exitDirection =
-        if (layoutDirection == Ltr) FocusDirection.Right else FocusDirection.Left
-    val drawerFocusRequester = remember { FocusRequester() }
     val closedDrawerWidth: MutableState<Dp?> = remember { mutableStateOf(null) }
     val internalDrawerModifier =
         Modifier
-            .modalDrawerNavigation(
-                drawerFocusRequester = drawerFocusRequester,
-                exitDirection = exitDirection,
-                drawerState = drawerState,
-                focusManager = LocalFocusManager.current
-            )
             .zIndex(Float.MAX_VALUE)
             .onSizeChanged {
                 if (closedDrawerWidth.value == null &&
@@ -135,13 +114,12 @@ fun ModalNavigationDrawer(
             content = drawerContent
         )
 
-        Box(Modifier.padding(start = closedDrawerWidth.value ?: ClosedDrawerWidth.dp)) {
-            content()
-            if (drawerState.currentValue == DrawerValue.Open) {
-                // Scrim
-                Canvas(Modifier.fillMaxSize()) {
-                    drawRect(scrimColor)
-                }
+        content()
+
+        if (drawerState.currentValue == DrawerValue.Open) {
+            // Scrim
+            Canvas(Modifier.fillMaxSize()) {
+                drawRect(scrimBrush)
             }
         }
     }
@@ -176,7 +154,7 @@ fun ModalNavigationDrawer(
 @ExperimentalTvMaterial3Api
 @Composable
 fun NavigationDrawer(
-    drawerContent: @Composable (DrawerValue) -> Unit,
+    drawerContent: @Composable NavigationDrawerScope.(DrawerValue) -> Unit,
     modifier: Modifier = Modifier,
     drawerState: DrawerState = rememberDrawerState(DrawerValue.Closed),
     content: @Composable () -> Unit
@@ -251,48 +229,18 @@ fun rememberDrawerState(initialValue: DrawerValue): DrawerState {
     }
 }
 
-@Suppress("IllegalExperimentalApiUsage") // TODO (b/233188423): Address before moving to beta
-@OptIn(ExperimentalComposeUiApi::class, ExperimentalTvMaterial3Api::class)
-private fun Modifier.modalDrawerNavigation(
-    drawerFocusRequester: FocusRequester,
-    exitDirection: FocusDirection,
-    drawerState: DrawerState,
-    focusManager: FocusManager
-): Modifier {
-    return this
-        .focusRequester(drawerFocusRequester)
-        .focusProperties {
-            exit = {
-                if (it == exitDirection) {
-                    drawerFocusRequester.requestFocus()
-                    drawerState.setValue(DrawerValue.Closed)
-                    focusManager.moveFocus(it)
-                    FocusRequester.Cancel
-                } else {
-                    FocusRequester.Default
-                }
-            }
-        }
-}
-
-@Suppress("IllegalExperimentalApiUsage") // TODO (b/233188423): Address before moving to beta
-@OptIn(ExperimentalComposeUiApi::class, ExperimentalTvMaterial3Api::class)
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun DrawerSheet(
     modifier: Modifier = Modifier,
     drawerState: DrawerState = remember { DrawerState() },
     sizeAnimationFinishedListener: ((initialValue: IntSize, targetValue: IntSize) -> Unit)? = null,
-    content: @Composable (DrawerValue) -> Unit
+    content: @Composable NavigationDrawerScope.(DrawerValue) -> Unit
 ) {
     // indicates that the drawer has been set to its initial state and has grabbed focus if
     // necessary. Controls whether focus is used to decide the state of the drawer going forward.
     var initializationComplete: Boolean by remember { mutableStateOf(false) }
-    val focusManager = LocalFocusManager.current
     var focusState by remember { mutableStateOf<FocusState?>(null) }
-
-    val isDrawerOpen = drawerState.currentValue == DrawerValue.Open
-    val isDrawerClosed = drawerState.currentValue == DrawerValue.Closed
-
     val focusRequester = remember { FocusRequester() }
     LaunchedEffect(key1 = drawerState.currentValue) {
         if (drawerState.currentValue == DrawerValue.Open && focusState?.hasFocus == false) {
@@ -312,27 +260,16 @@ private fun DrawerSheet(
             .then(modifier)
             .onFocusChanged {
                 focusState = it
-                when {
-                    it.isFocused && isDrawerClosed -> {
-                        drawerState.setValue(DrawerValue.Open)
-                        focusManager.moveFocus(FocusDirection.Enter)
-                    }
 
-                    !it.hasFocus && isDrawerOpen && initializationComplete -> {
-                        drawerState.setValue(DrawerValue.Closed)
-                    }
+                if (initializationComplete) {
+                    drawerState.setValue(if (it.hasFocus) DrawerValue.Open else DrawerValue.Closed)
                 }
             }
-            .onKeyEvent {
-                // Handle back press key event
-                if (it.key.nativeKeyCode == KEYCODE_BACK && it.type == KeyDown) {
-                    focusManager.moveFocus(FocusDirection.Exit)
-                }
-                KeyEventPropagation.ContinuePropagation
-            }
-            .focusable()
+            .focusGroup()
 
-    Box(modifier = internalModifier) { content.invoke(drawerState.currentValue) }
+    Box(modifier = internalModifier) {
+        NavigationDrawerScopeImpl(drawerState.currentValue == DrawerValue.Open).apply {
+            content(drawerState.currentValue)
+        }
+    }
 }
-
-private const val ClosedDrawerWidth = 80

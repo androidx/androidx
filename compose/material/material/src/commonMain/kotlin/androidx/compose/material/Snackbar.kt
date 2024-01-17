@@ -35,6 +35,7 @@ import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastFirst
 import kotlin.math.max
 
 /**
@@ -305,11 +306,12 @@ private fun OneRowSnackbar(
             end = HorizontalSpacingButtonSide
         )
     ) { measurables, constraints ->
-        val buttonPlaceable = measurables.first { it.layoutId == actionTag }.measure(constraints)
+        val buttonPlaceable = measurables.fastFirst { it.layoutId == actionTag }
+            .measure(constraints)
         val textMaxWidth =
             (constraints.maxWidth - buttonPlaceable.width - TextEndExtraSpacing.roundToPx())
                 .coerceAtLeast(constraints.minWidth)
-        val textPlaceable = measurables.first { it.layoutId == textTag }.measure(
+        val textPlaceable = measurables.fastFirst { it.layoutId == textTag }.measure(
             constraints.copy(minHeight = 0, maxWidth = textMaxWidth)
         )
 

@@ -45,7 +45,7 @@ import java.util.List;
 public class Person extends Thing {
     /** Holds type information for additional names for Person. */
     public static class AdditionalName {
-        /** @hide */
+        /** @exportToFramework:hide */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @IntDef({
                 TYPE_UNKNOWN,
@@ -158,6 +158,7 @@ public class Person extends Thing {
             @Nullable String description,
             @Nullable String image,
             @Nullable String url,
+            @NonNull List<PotentialAction> potentialActions,
             @Nullable String givenName,
             @Nullable String middleName,
             @Nullable String familyName,
@@ -172,7 +173,7 @@ public class Person extends Thing {
             @NonNull List<String> relations,
             @NonNull List<ContactPoint> contactPoints) {
         super(namespace, id, documentScore, creationTimestampMillis, documentTtlMillis, name,
-                alternateNames, description, image, url);
+                alternateNames, description, image, url, potentialActions);
         mGivenName = givenName;
         mMiddleName = middleName;
         mFamilyName = familyName;
@@ -222,11 +223,11 @@ public class Person extends Thing {
     /**
      * Returns an external uri for this {@link Person}. Or {@code null} if no {@link Uri} is
      * provided. A {@link Uri} can be any of the following:
-     *
+     * <ul>
      * <li>A {@link android.provider.ContactsContract.Contacts#CONTENT_LOOKUP_URI}.
      * <li>A {@code mailto:} schema*
      * <li>A {@code tel:} schema*
-     *
+     * </ul>
      * <p>For mailto: and tel: URI schemes, it is recommended that the path portion
      * refers to a valid contact in the Contacts Provider.
      */
@@ -416,11 +417,11 @@ public class Person extends Thing {
         /**
          * Sets an external {@link Uri} for this {@link Person}. Or {@code null} if no
          * {@link Uri} is provided. A {@link Uri} can be any of the following:
-         *
+         * <ul>
          * <li>A {@link android.provider.ContactsContract.Contacts#CONTENT_LOOKUP_URI}.
          * <li>A {@code mailto:} schema*
          * <li>A {@code tel:} schema*
-         *
+         * </ul>
          * <p>For mailto: and tel: URI schemes, it is recommended that the path
          * portion refers to a valid contact in the Contacts Provider.
          */
@@ -524,6 +525,7 @@ public class Person extends Thing {
                     /*description=*/ mDescription,
                     /*image=*/ mImage,
                     /*url=*/ mUrl,
+                    /*potentialActions=*/ mPotentialActions,
                     /*givenName=*/ mGivenName,
                     /*middleName=*/ mMiddleName,
                     /*familyName=*/ mFamilyName,

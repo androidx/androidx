@@ -18,20 +18,18 @@ package androidx.testutils
 
 import android.content.Context
 import android.content.res.Configuration
-import android.os.Build
+import android.view.View
 import androidx.core.os.ConfigurationCompat
-import androidx.core.view.ViewCompat.LAYOUT_DIRECTION_LTR
-import androidx.core.view.ViewCompat.LAYOUT_DIRECTION_RTL
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import java.util.Locale
 import org.hamcrest.CoreMatchers
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.util.Locale
 
 // Fetch default locale as early as possible (e.g., before initializing LocaleTestUtilsTest class)
 private val DEFAULT_LANGUAGE = Locale.getDefault().toString()
@@ -115,13 +113,13 @@ class LocaleTestUtilsTest {
             configuration.language,
             CoreMatchers.equalTo(lang)
         )
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-            assertThat(
-                "Layout direction should be ${if (expectRtl) "RTL" else "LTR"}",
-                configuration.layoutDirection,
-                CoreMatchers.equalTo(if (expectRtl) LAYOUT_DIRECTION_RTL else LAYOUT_DIRECTION_LTR)
+        assertThat(
+            "Layout direction should be ${if (expectRtl) "RTL" else "LTR"}",
+            configuration.layoutDirection,
+            CoreMatchers.equalTo(
+                if (expectRtl) View.LAYOUT_DIRECTION_RTL else View.LAYOUT_DIRECTION_LTR
             )
-        }
+        )
     }
 
     private fun determineDefaultLayoutDirection() {
@@ -130,8 +128,6 @@ class LocaleTestUtilsTest {
             configuration.language,
             CoreMatchers.equalTo(DEFAULT_LANGUAGE)
         )
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-            expectRtlInDefaultLanguage = configuration.layoutDirection == LAYOUT_DIRECTION_RTL
-        }
+        expectRtlInDefaultLanguage = configuration.layoutDirection == View.LAYOUT_DIRECTION_RTL
     }
 }

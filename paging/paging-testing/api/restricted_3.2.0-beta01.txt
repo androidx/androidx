@@ -1,0 +1,45 @@
+// Signature format: 4.0
+package androidx.paging.testing {
+
+  @VisibleForTesting public enum ErrorRecovery {
+    method public static androidx.paging.testing.ErrorRecovery valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
+    method public static androidx.paging.testing.ErrorRecovery[] values();
+    enum_constant public static final androidx.paging.testing.ErrorRecovery RETRY;
+    enum_constant public static final androidx.paging.testing.ErrorRecovery RETURN_CURRENT_SNAPSHOT;
+    enum_constant public static final androidx.paging.testing.ErrorRecovery THROW;
+  }
+
+  @VisibleForTesting public fun interface LoadErrorHandler {
+    method public androidx.paging.testing.ErrorRecovery onError(androidx.paging.CombinedLoadStates combinedLoadStates);
+  }
+
+  public final class PagerFlowSnapshotKt {
+    method @VisibleForTesting public static suspend <Value> Object? asSnapshot(kotlinx.coroutines.flow.Flow<androidx.paging.PagingData<Value>>, optional androidx.paging.testing.LoadErrorHandler onError, optional kotlin.jvm.functions.Function2<? super androidx.paging.testing.SnapshotLoader<Value>,? super kotlin.coroutines.Continuation<kotlin.Unit>,?> loadOperations, optional kotlin.coroutines.Continuation<java.util.List<Value>>);
+  }
+
+  @VisibleForTesting public final class SnapshotLoader<Value> {
+    method public suspend Object? appendScrollWhile(kotlin.jvm.functions.Function1<Value,java.lang.Boolean> predicate, kotlin.coroutines.Continuation<kotlin.Unit>);
+    method public suspend Object? flingTo(int index, kotlin.coroutines.Continuation<kotlin.Unit>);
+    method public suspend Object? prependScrollWhile(kotlin.jvm.functions.Function1<Value,java.lang.Boolean> predicate, kotlin.coroutines.Continuation<kotlin.Unit>);
+    method public suspend Object? refresh(kotlin.coroutines.Continuation<kotlin.Unit>);
+    method public suspend Object? scrollTo(int index, kotlin.coroutines.Continuation<kotlin.Unit>);
+  }
+
+  public final class StaticListPagingSourceFactoryKt {
+    method @VisibleForTesting public static <Value> androidx.paging.PagingSourceFactory<java.lang.Integer,Value> asPagingSourceFactory(java.util.List<? extends Value>);
+    method @VisibleForTesting public static <Value> androidx.paging.PagingSourceFactory<java.lang.Integer,Value> asPagingSourceFactory(kotlinx.coroutines.flow.Flow<java.util.List<Value>>, kotlinx.coroutines.CoroutineScope coroutineScope);
+  }
+
+  @VisibleForTesting public final class TestPager<Key, Value> {
+    ctor public TestPager(androidx.paging.PagingConfig config, androidx.paging.PagingSource<Key,Value> pagingSource);
+    method public suspend Object? append(kotlin.coroutines.Continuation<androidx.paging.PagingSource.LoadResult<Key,Value>>);
+    method public suspend Object? getLastLoadedPage(kotlin.coroutines.Continuation<androidx.paging.PagingSource.LoadResult.Page<Key,Value>>);
+    method public suspend Object? getPages(kotlin.coroutines.Continuation<java.util.List<androidx.paging.PagingSource.LoadResult.Page<Key,Value>>>);
+    method public suspend Object? getPagingState(int anchorPosition, kotlin.coroutines.Continuation<androidx.paging.PagingState<Key,Value>>);
+    method public suspend Object? getPagingState(kotlin.jvm.functions.Function1<Value,java.lang.Boolean> anchorPositionLookup, kotlin.coroutines.Continuation<androidx.paging.PagingState<Key,Value>>);
+    method public suspend Object? prepend(kotlin.coroutines.Continuation<androidx.paging.PagingSource.LoadResult<Key,Value>>);
+    method public suspend Object? refresh(optional Key? initialKey, optional kotlin.coroutines.Continuation<androidx.paging.PagingSource.LoadResult<Key,Value>>);
+  }
+
+}
+

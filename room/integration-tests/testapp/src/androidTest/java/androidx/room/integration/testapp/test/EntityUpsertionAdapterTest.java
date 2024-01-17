@@ -19,7 +19,6 @@ package androidx.room.integration.testapp.test;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.database.sqlite.SQLiteConstraintException;
-import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -36,7 +35,6 @@ import androidx.sqlite.db.SupportSQLiteStatement;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
-import androidx.test.filters.SdkSuppress;
 
 import org.junit.After;
 import org.junit.Before;
@@ -45,10 +43,10 @@ import org.junit.runner.RunWith;
 
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 @RunWith(AndroidJUnit4.class)
 @MediumTest
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
 public class EntityUpsertionAdapterTest{
     private TestDatabase mTestDatabase;
     private PetDao mPetDao;
@@ -231,6 +229,33 @@ public class EntityUpsertionAdapterTest{
             mUpsertionAdapterToy.upsertAndReturnId(testToy);
         } catch (SQLiteConstraintException ex) {
             assertThat(ex.toString().contains("foreign key"));
+        }
+    }
+
+    @Test
+    public void upsertFKUnique2067Error() {
+        Pet pet = new Pet();
+        pet.setPetId(232);
+        pet.setName(UUID.randomUUID().toString());
+        pet.setAdoptionDate(new Date());
+        mInsertionAdapter.insert(pet);
+
+        Toy testToy = new Toy();
+        testToy.setId(2);
+        testToy.setName("toy name");
+        testToy.setPetId(232);
+
+        Toy testToy2 = new Toy();
+        testToy2.setId(3);
+        testToy2.setName("toy name");
+        testToy2.setPetId(232);
+
+        mUpsertionAdapter.upsertAndReturnId(pet);
+        mUpsertionAdapterToy.upsertAndReturnId(testToy);
+        try {
+            mUpsertionAdapterToy.upsertAndReturnId(testToy2);
+        } catch (SQLiteConstraintException ex) {
+            assertThat(ex.toString().contains("2067"));
         }
     }
 

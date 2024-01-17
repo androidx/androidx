@@ -25,13 +25,15 @@ import android.os.Build
 import androidx.arch.core.util.Function
 import androidx.camera.core.impl.EncoderProfilesProvider
 import androidx.camera.core.impl.EncoderProfilesProxy
-import androidx.camera.core.impl.EncoderProfilesProxy.VideoProfileProxy
 import androidx.camera.core.impl.EncoderProfilesProxy.VideoProfileProxy.BIT_DEPTH_10
-import androidx.camera.testing.EncoderProfilesUtil.PROFILES_1080P
-import androidx.camera.testing.EncoderProfilesUtil.PROFILES_2160P
-import androidx.camera.testing.EncoderProfilesUtil.PROFILES_480P
-import androidx.camera.testing.EncoderProfilesUtil.PROFILES_720P
-import androidx.camera.testing.fakes.FakeEncoderProfilesProvider
+import androidx.camera.testing.impl.EncoderProfilesUtil.PROFILES_1080P
+import androidx.camera.testing.impl.EncoderProfilesUtil.PROFILES_2160P
+import androidx.camera.testing.impl.EncoderProfilesUtil.PROFILES_480P
+import androidx.camera.testing.impl.EncoderProfilesUtil.PROFILES_720P
+import androidx.camera.testing.impl.fakes.FakeEncoderProfilesProvider
+import androidx.camera.testing.impl.fakes.FakeVideoEncoderInfo
+import androidx.camera.video.internal.encoder.VideoEncoderConfig
+import androidx.camera.video.internal.encoder.VideoEncoderInfo
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -52,12 +54,13 @@ class BackupHdrProfileEncoderProfilesProviderTest {
             QUALITY_480P to PROFILES_480P
         )
     )
-    private val validator = createFakeVideoProfileValidator()
+    private val videoEncoderFinder =
+        Function<VideoEncoderConfig, VideoEncoderInfo> { FakeVideoEncoderInfo() }
 
     @Test
     fun hasNoProfile_canNotGetProfiles() {
         val emptyProvider = createFakeEncoderProfilesProvider()
-        val provider = BackupHdrProfileEncoderProfilesProvider(emptyProvider, validator)
+        val provider = BackupHdrProfileEncoderProfilesProvider(emptyProvider, videoEncoderFinder)
 
         assertThat(provider.hasProfile(QUALITY_2160P)).isFalse()
         assertThat(provider.hasProfile(QUALITY_1080P)).isFalse()
@@ -74,7 +77,8 @@ class BackupHdrProfileEncoderProfilesProviderTest {
         val qualities = listOf(QUALITY_2160P, QUALITY_1080P, QUALITY_720P, QUALITY_480P)
         for (quality in qualities) {
             val baseVideoProfilesSize = defaultProvider.getAll(quality)!!.videoProfiles.size
-            val provider = BackupHdrProfileEncoderProfilesProvider(defaultProvider, validator)
+            val provider =
+                BackupHdrProfileEncoderProfilesProvider(defaultProvider, videoEncoderFinder)
 
             assertThat(provider.hasProfile(quality)).isTrue()
             val videoProfiles = provider.getAll(quality)!!.videoProfiles
@@ -92,12 +96,5 @@ class BackupHdrProfileEncoderProfilesProviderTest {
                 builder.add(quality, profiles)
             }
         }.build()
-    }
-
-    private fun createFakeVideoProfileValidator(): Function<VideoProfileProxy, VideoProfileProxy> {
-        return Function<VideoProfileProxy, VideoProfileProxy> {
-            // Just returns the input video profile.
-            it
-        }
     }
 }

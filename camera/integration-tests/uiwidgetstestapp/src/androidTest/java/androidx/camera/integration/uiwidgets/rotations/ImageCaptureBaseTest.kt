@@ -24,11 +24,12 @@ import android.view.View
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.Logger
 import androidx.camera.integration.uiwidgets.R
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.testing.CameraPipeConfigTestRule
-import androidx.camera.testing.CameraUtil
-import androidx.camera.testing.CoreAppTestUtil
+import androidx.camera.testing.impl.CameraPipeConfigTestRule
+import androidx.camera.testing.impl.CameraUtil
+import androidx.camera.testing.impl.CoreAppTestUtil
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.platform.app.InstrumentationRegistry
@@ -37,7 +38,11 @@ import androidx.test.uiautomator.UiDevice
 import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import java.io.Closeable
 import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
 import org.junit.BeforeClass
@@ -109,10 +114,12 @@ abstract class ImageCaptureBaseTest<A : CameraActivity>(
         assumeTrue("Failed to create pictures directory", createPicturesFolder())
     }
 
-    protected fun tearDown() {
-        val context = ApplicationProvider.getApplicationContext<Context>()
-        val cameraProvider = ProcessCameraProvider.getInstance(context)[10, TimeUnit.SECONDS]
-        cameraProvider.shutdown()[10, TimeUnit.SECONDS]
+    protected fun tearDown(): Unit = runBlocking {
+        withContext(Dispatchers.Main) {
+            val context = ApplicationProvider.getApplicationContext<Context>()
+            val cameraProvider = ProcessCameraProvider.getInstance(context)[10, TimeUnit.SECONDS]
+            cameraProvider.shutdownAsync()[10, TimeUnit.SECONDS]
+        }
         mDevice.unfreezeRotation()
     }
 
@@ -133,7 +140,7 @@ abstract class ImageCaptureBaseTest<A : CameraActivity>(
     ) {
         val activityScenario: ActivityScenario<A> =
             launchActivity(lensFacing, captureMode, cameraXConfig)
-        activityScenario.use { scenario ->
+        activityScenario.useAndCatchFinallyException { scenario ->
 
             // Wait until the camera is set up and analysis starts receiving frames
             scenario.waitOnCameraFrames()
@@ -178,9 +185,13 @@ abstract class ImageCaptureBaseTest<A : CameraActivity>(
                 "The captured image rotation degrees [$imageRotationDegrees] was expected to be " +
                     "equal to [$sensorToTargetRotation], or the captured image's resolution " +
                     "[$imageSize] was expected to be equal to [$expectedResolution]"
-            )
-                .that(areRotationsEqual || areResolutionsEqual)
-                .isTrue()
+            ).that(areRotationsEqual || areResolutionsEqual).isTrue()
+
+            assertWithMessage(
+                "The captured image's resolution " +
+                    "[$imageSize] was expected to be equal to [$expectedResolution]"
+            ).that(expectedResolution.height * expectedResolution.width)
+                .isEqualTo(imageSize!!.height * imageSize.width)
 
             // Delete captured image
             scenario.withActivity { mCaptureResult?.delete() ?: Unit }
@@ -213,6 +224,30 @@ abstract class ImageCaptureBaseTest<A : CameraActivity>(
 
     protected inline fun <reified A : CameraActivity> ActivityScenario<A>.resetFramesCount() {
         withActivity { mAnalysisRunning.drainPermits() }
+    }
+
+    /**
+     * This function is similar to [kotlin.io.use] with additional handling for a known issue in
+     * older Android frameworks (bug b/316566763). This issue can cause the close() method of an
+     * ActivityScenario to throw an exception.
+     *
+     * Since the closing steps are already at the end of your test and device upgrades are
+     * unavailable, this function uses a try-catch block to suppress the exception and reduce test
+     * noise.
+     */
+    inline fun <T : Closeable?, R> T.useAndCatchFinallyException(block: (T) -> R): R {
+        try {
+            return block(this)
+        } finally {
+            when {
+                this == null -> {}
+                else -> try {
+                    close()
+                } catch (e: Throwable) {
+                    Logger.w("ImageCaptureBaseTest", "Exception in close()", e)
+                }
+            }
+        }
     }
 
     companion object {

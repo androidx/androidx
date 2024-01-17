@@ -16,6 +16,10 @@
 
 package com.android.build.gradle.internal.fixtures
 
+import java.io.File
+import java.lang.reflect.Method
+import java.lang.reflect.ParameterizedType
+import java.net.URLClassLoader
 import org.gradle.api.Action
 import org.gradle.api.model.ObjectFactory
 import org.gradle.workers.ClassLoaderWorkerSpec
@@ -32,10 +36,6 @@ import org.objectweb.asm.ClassWriter
 import org.objectweb.asm.FieldVisitor
 import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes
-import java.io.File
-import java.lang.reflect.Method
-import java.lang.reflect.ParameterizedType
-import java.net.URLClassLoader
 
 /**
  * Fake implementation of [WorkerExecutor]. [ObjectFactory] is used to instantiate parameters,

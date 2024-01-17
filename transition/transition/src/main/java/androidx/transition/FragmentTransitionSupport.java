@@ -20,13 +20,13 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.annotation.SuppressLint;
 import android.graphics.Rect;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-import androidx.core.os.CancellationSignal;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransitionImpl;
 
@@ -228,6 +228,60 @@ public class FragmentTransitionSupport extends FragmentTransitionImpl {
     }
 
     @Override
+    public boolean isSeekingSupported() {
+        return true;
+    }
+
+    @Override
+    public boolean isSeekingSupported(@NonNull Object transition) {
+        boolean supported = ((Transition) transition).isSeekingSupported();
+        if (!supported) {
+            Log.v("FragmentManager",
+                    "Predictive back not available for AndroidX Transition "
+                            + transition + ". Please enable seeking support for the designated "
+                            + "transition by overriding isSeekingSupported().");
+        }
+        return supported;
+    }
+
+    @Override
+    @Nullable
+    public Object controlDelayedTransition(@NonNull ViewGroup sceneRoot,
+            @NonNull Object transition) {
+        return TransitionManager.controlDelayedTransition(sceneRoot, (Transition) transition);
+    }
+
+    @Override
+    public void setCurrentPlayTime(@NonNull Object transitionController, float progress) {
+        TransitionSeekController controller = (TransitionSeekController) transitionController;
+        if (controller.isReady()) {
+            long time = (long) (progress * controller.getDurationMillis());
+            // We cannot let the time get to 0 or the totalDuration to avoid
+            // completing the operation accidentally.
+            if (time == 0L) {
+                time = 1L;
+            }
+            if (time == controller.getDurationMillis()) {
+                time = controller.getDurationMillis() - 1;
+            }
+            controller.setCurrentPlayTimeMillis(time);
+        }
+    }
+
+    @Override
+    public void animateToEnd(@NonNull Object transitionController) {
+        TransitionSeekController controller = (TransitionSeekController) transitionController;
+        controller.animateToEnd();
+    }
+
+    @Override
+    public void animateToStart(@NonNull Object transitionController,
+            @NonNull Runnable completeRunnable) {
+        TransitionSeekController controller = (TransitionSeekController) transitionController;
+        controller.animateToStart(completeRunnable);
+    }
+
+    @Override
     public void scheduleRemoveTargets(final @NonNull Object overallTransitionObj,
             final @Nullable Object enterTransition, final @Nullable ArrayList<View> enteringViews,
             final @Nullable Object exitTransition, final @Nullable ArrayList<View> exitingViews,
@@ -262,18 +316,31 @@ public class FragmentTransitionSupport extends FragmentTransitionImpl {
      * {@link Transition.TransitionListener#onTransitionEnd} listener is added that calls
      * {@link Runnable#run()} once the Transition ends.
      *
-     * If {@link CancellationSignal#cancel()} is called on the given signal, the transition calls
+     * If {@link androidx.core.os.CancellationSignal#cancel()} is called on the given signal, the
+     * transition calls
      * {@link Transition#cancel()}.
      */
+    @SuppressWarnings("deprecation")
     @Override
     public void setListenerForTransitionEnd(@NonNull final Fragment outFragment,
-            @NonNull final Object transition, @NonNull final CancellationSignal signal,
+            @NonNull final Object transition,
+            @NonNull final androidx.core.os.CancellationSignal signal,
             @NonNull final Runnable transitionCompleteRunnable) {
+        setListenerForTransitionEnd(outFragment, transition, signal,
+                null, transitionCompleteRunnable);
+    }
+
+    @SuppressWarnings("deprecation")
+    @Override
+    public void setListenerForTransitionEnd(@NonNull Fragment outFragment,
+            @NonNull Object transition, @NonNull androidx.core.os.CancellationSignal signal,
+            @Nullable Runnable cancelRunnable, @NonNull Runnable transitionCompleteRunnable) {
         final Transition realTransition = ((Transition) transition);
-        signal.setOnCancelListener(new CancellationSignal.OnCancelListener() {
-            @Override
-            public void onCancel() {
+        signal.setOnCancelListener(() -> {
+            if (cancelRunnable == null) {
                 realTransition.cancel();
+            } else {
+                cancelRunnable.run();
             }
         });
         realTransition.addListener(new Transition.TransitionListener() {

@@ -31,7 +31,6 @@ import androidx.camera.camera2.pipe.core.Log.error
 import androidx.camera.camera2.pipe.core.Log.warn
 import androidx.camera.camera2.pipe.integration.adapter.CameraUseCaseAdapter
 import androidx.camera.camera2.pipe.integration.compat.workaround.getSupportedRepeatingSurfaceSizes
-import androidx.camera.core.CameraSelector
 import androidx.camera.core.UseCase
 import androidx.camera.core.impl.CaptureConfig
 import androidx.camera.core.impl.Config
@@ -43,8 +42,10 @@ import androidx.camera.core.impl.MutableOptionsBundle
 import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.StreamSpec
 import androidx.camera.core.impl.UseCaseConfig
+import androidx.camera.core.impl.UseCaseConfig.OPTION_CAPTURE_TYPE
 import androidx.camera.core.impl.UseCaseConfig.OPTION_SESSION_CONFIG_UNPACKER
 import androidx.camera.core.impl.UseCaseConfigFactory
+import androidx.camera.core.impl.UseCaseConfigFactory.CaptureType
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import kotlin.math.min
 
@@ -78,7 +79,7 @@ class MeteringRepeating(
     override fun onSuggestedStreamSpecUpdated(suggestedStreamSpec: StreamSpec): StreamSpec {
         updateSessionConfig(createPipeline(meteringSurfaceSize).build())
         notifyActive()
-        return StreamSpec.builder(meteringSurfaceSize).build()
+        return suggestedStreamSpec.toBuilder().setResolution(meteringSurfaceSize).build()
     }
 
     override fun onUnbind() {
@@ -191,7 +192,10 @@ class MeteringRepeating(
                 OPTION_SESSION_CONFIG_UNPACKER,
                 CameraUseCaseAdapter.DefaultSessionOptionsUnpacker
             )
+            insertOption(OPTION_CAPTURE_TYPE, CaptureType.METERING_REPEATING)
         }
+
+        override fun getCaptureType() = UseCaseConfigFactory.CaptureType.METERING_REPEATING
 
         override fun getConfig() = config
 
@@ -224,11 +228,10 @@ class MeteringRepeating(
 
         override fun setSurfaceOccupancyPriority(priority: Int) = this
 
-        override fun setCameraSelector(cameraSelector: CameraSelector) = this
-
         override fun setZslDisabled(disabled: Boolean) = this
 
         override fun setHighResolutionDisabled(disabled: Boolean) = this
+        override fun setCaptureType(captureType: UseCaseConfigFactory.CaptureType) = this
 
         override fun build(): MeteringRepeating {
             return MeteringRepeating(cameraProperties, useCaseConfig, displayInfoManager)

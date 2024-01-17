@@ -25,13 +25,13 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.node.Ref
 import androidx.compose.ui.util.UpdateEffect
 import androidx.compose.ui.util.makeDisplayable
+import java.awt.Window
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.swing.Swing
-import java.awt.Window
 
 /**
  * Compose [Window] obtained from [create]. The [create] block will be called

@@ -16,6 +16,7 @@
 
 package androidx.compose.material3.demos
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -34,6 +35,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
+import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -42,20 +44,76 @@ fun ColorSchemeDemo() {
     Row(
         modifier = Modifier.padding(8.dp),
     ) {
-        Column(Modifier.weight(1f).verticalScroll(rememberScrollState())) {
+        Column(
+            Modifier
+                .weight(1f)
+                .verticalScroll(rememberScrollState())) {
             Text("Surfaces", style = MaterialTheme.typography.bodyLarge)
-            SurfaceColorSwatch(
-                surface = colorScheme.background,
-                surfaceText = "Background",
-                onSurface = colorScheme.onBackground,
-                onSurfaceText = "On Background"
-            )
             Spacer(modifier = Modifier.height(16.dp))
             SurfaceColorSwatch(
                 surface = colorScheme.surface,
                 surfaceText = "Surface",
                 onSurface = colorScheme.onSurface,
                 onSurfaceText = "On Surface"
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            DoubleTile(
+                leftTile = {
+                    ColorTile(
+                        text = "Surface Bright",
+                        color = colorScheme.surfaceBright,
+                    )
+                },
+                rightTile = {
+                    ColorTile(
+                        text = "Surface Dim",
+                        color = colorScheme.surfaceDim,
+                    )
+                },
+            )
+            DoubleTile(
+                leftTile = {
+                    ColorTile(
+                        text = "Surface Container",
+                        color = colorScheme.surfaceContainer,
+                    )
+                },
+                rightTile = {
+                    ColorTile(
+                        text = "Surface",
+                        color = colorScheme.surface,
+                    )
+                },
+            )
+            Text("Surface Container Variants", style = MaterialTheme.typography.bodyLarge)
+            Spacer(modifier = Modifier.height(16.dp))
+            DoubleTile(
+                leftTile = {
+                    ColorTile(
+                        text = "High Emphasis",
+                        color = colorScheme.surfaceContainerHigh,
+                    )
+                },
+                rightTile = {
+                    ColorTile(
+                        text = "Highest Emphasis",
+                        color = colorScheme.surfaceContainerHighest,
+                    )
+                },
+            )
+            DoubleTile(
+                leftTile = {
+                    ColorTile(
+                        text = "Low Emphasis",
+                        color = colorScheme.surfaceContainerLow,
+                    )
+                },
+                rightTile = {
+                    ColorTile(
+                        text = "Lowest Emphasis",
+                        color = colorScheme.surfaceContainerLowest,
+                    )
+                },
             )
             Spacer(modifier = Modifier.height(16.dp))
             SurfaceColorSwatch(
@@ -96,7 +154,10 @@ fun ColorSchemeDemo() {
             Spacer(modifier = Modifier.height(16.dp))
         }
         Spacer(modifier = Modifier.width(24.dp))
-        Column(Modifier.weight(1f).verticalScroll(rememberScrollState())) {
+        Column(
+            Modifier
+                .weight(1f)
+                .verticalScroll(rememberScrollState())) {
             Text("Content", style = MaterialTheme.typography.bodyLarge)
             ContentColorSwatch(
                 color = colorScheme.primary,
@@ -223,6 +284,8 @@ private fun DoubleTile(leftTile: @Composable () -> Unit, rightTile: @Composable 
     }
 }
 
+@SuppressLint("NullAnnotationGroup")
+@OptIn(ExperimentalTextApi::class)
 @Composable
 private fun ColorTile(text: String, color: Color) {
     var borderColor = Color.Transparent
@@ -231,7 +294,9 @@ private fun ColorTile(text: String, color: Color) {
     } else if (color == Color.White) borderColor = Color.Black
 
     Surface(
-        modifier = Modifier.height(48.dp).fillMaxWidth(),
+        modifier = Modifier
+            .height(48.dp)
+            .fillMaxWidth(),
         color = color,
         border = BorderStroke(1.dp, borderColor),
     ) {
@@ -239,9 +304,9 @@ private fun ColorTile(text: String, color: Color) {
             text,
             Modifier.padding(4.dp),
             style =
-                MaterialTheme.typography.bodyMedium.copy(
-                    if (color.luminance() < .25) Color.White else Color.Black
-                )
+            MaterialTheme.typography.bodyMedium.copy(
+                if (color.luminance() < .25) Color.White else Color.Black
+            )
         )
     }
 }

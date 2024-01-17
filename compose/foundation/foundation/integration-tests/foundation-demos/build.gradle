@@ -23,6 +23,7 @@ plugins {
 
 dependencies {
 
+    implementation("androidx.core:core:1.12.0")
     implementation(libs.kotlinStdlib)
 
     implementation(project(":compose:animation:animation"))
@@ -40,6 +41,7 @@ dependencies {
     implementation(project(":compose:ui:ui-tooling-preview"))
     debugImplementation(project(":compose:ui:ui-tooling"))
     implementation(project(":internal-testutils-fonts"))
+    implementation(project(":collection:collection"))
 }
 
 android {

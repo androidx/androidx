@@ -27,13 +27,13 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.work.impl.WorkDatabase
 import androidx.work.impl.WorkDatabasePathHelper
 import androidx.work.impl.WorkDatabaseVersions.VERSION_9
+import java.io.File
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.io.File
 
 @RunWith(AndroidJUnit4::class)
 @LargeTest

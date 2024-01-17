@@ -22,6 +22,7 @@ import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.os.Build
 import androidx.test.core.app.ApplicationProvider
+import com.google.common.truth.Truth.assertThat
 import java.io.BufferedReader
 import java.io.File
 import java.io.InputStreamReader
@@ -30,7 +31,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import com.google.common.truth.Truth.assertThat
 
 @RunWith(RobolectricTestRunner::class)
 @Config(minSdk = Build.VERSION_CODES.M, maxSdk = 32)

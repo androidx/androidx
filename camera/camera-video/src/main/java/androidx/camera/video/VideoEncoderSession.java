@@ -24,6 +24,7 @@ import android.view.Surface;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.camera.core.DynamicRange;
 import androidx.camera.core.Logger;
 import androidx.camera.core.SurfaceRequest;
 import androidx.camera.core.impl.Timebase;
@@ -31,7 +32,7 @@ import androidx.camera.core.impl.annotation.ExecutedBy;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.video.internal.VideoValidatedEncoderProfilesProxy;
-import androidx.camera.video.internal.config.MimeInfo;
+import androidx.camera.video.internal.config.VideoMimeInfo;
 import androidx.camera.video.internal.encoder.Encoder;
 import androidx.camera.video.internal.encoder.Encoder.SurfaceInput.OnSurfaceUpdateListener;
 import androidx.camera.video.internal.encoder.EncoderFactory;
@@ -111,6 +112,7 @@ final class VideoEncoderSession {
         switch (mVideoEncoderState) {
             case NOT_INITIALIZED:
                 mVideoEncoderState = VideoEncoderState.INITIALIZING;
+
                 mSurfaceRequest = surfaceRequest;
                 Logger.d(TAG, "Create VideoEncoderSession: " + this);
                 mReleasedFuture = CallbackToFutureAdapter.getFuture(closeCompleter -> {
@@ -287,7 +289,9 @@ final class VideoEncoderSession {
             @Nullable VideoValidatedEncoderProfilesProxy resolvedEncoderProfiles,
             @NonNull MediaSpec mediaSpec,
             @NonNull CallbackToFutureAdapter.Completer<Encoder> configureCompleter) {
-        MimeInfo videoMimeInfo = resolveVideoMimeInfo(mediaSpec, resolvedEncoderProfiles);
+        DynamicRange dynamicRange = surfaceRequest.getDynamicRange();
+        VideoMimeInfo videoMimeInfo = resolveVideoMimeInfo(mediaSpec, dynamicRange,
+                resolvedEncoderProfiles);
 
         // The VideoSpec from mediaSpec only contains settings requested by the recorder, but
         // the actual settings may need to differ depending on the FPS chosen by the camera.
@@ -297,6 +301,7 @@ final class VideoEncoderSession {
                 timebase,
                 mediaSpec.getVideoSpec(),
                 surfaceRequest.getResolution(),
+                dynamicRange,
                 surfaceRequest.getExpectedFrameRate());
 
         try {
@@ -333,6 +338,7 @@ final class VideoEncoderSession {
                                 closeInternal();
                                 break;
                             }
+
                             mActiveSurface = surface;
                             Logger.d(TAG, "provide surface: " + surface);
                             surfaceRequest.provideSurface(surface, mSequentialExecutor,

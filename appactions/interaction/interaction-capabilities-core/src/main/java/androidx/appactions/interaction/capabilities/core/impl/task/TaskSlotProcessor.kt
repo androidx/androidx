@@ -25,7 +25,6 @@ import androidx.appactions.interaction.capabilities.core.impl.task.exceptions.Mi
 import androidx.appactions.interaction.proto.CurrentValue
 import androidx.appactions.interaction.proto.DisambiguationData
 import androidx.appactions.interaction.proto.ParamValue
-import kotlin.IllegalStateException
 import kotlin.String
 import kotlin.Throws
 
@@ -114,7 +113,6 @@ internal object TaskSlotProcessor {
                 )
             }
             AppGroundingResult.Kind.FAILURE -> AppGroundingResult.ofFailure(pendingValue)
-            else -> throw IllegalStateException("unreachable")
         }
 
     /** enqueues processing of a pending value that requires app-driven grounding. */
@@ -132,7 +130,6 @@ internal object TaskSlotProcessor {
         when (groundingResult.kind) {
             AppGroundingResult.Kind.SUCCESS -> ground(pendingValue.value, taskParamBinding)
             AppGroundingResult.Kind.FAILURE -> AppGroundingResult.ofFailure(pendingValue)
-            else -> throw IllegalStateException("unreachable")
         }
 
     /**
@@ -149,9 +146,8 @@ internal object TaskSlotProcessor {
         ungroundedValues: MutableList<CurrentValue>,
     ): AppGroundingResult {
         when (groundingResult.kind) {
-            AppGroundingResult.Kind.SUCCESS -> groundedValues.add(groundingResult.success())
-            AppGroundingResult.Kind.FAILURE -> ungroundedValues.add(groundingResult.failure())
-            else -> throw IllegalStateException("unreachable")
+            AppGroundingResult.Kind.SUCCESS -> groundedValues.add(groundingResult.success!!)
+            AppGroundingResult.Kind.FAILURE -> ungroundedValues.add(groundingResult.failure!!)
         }
         return groundingResult
     }

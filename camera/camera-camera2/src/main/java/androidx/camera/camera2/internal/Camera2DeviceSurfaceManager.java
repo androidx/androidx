@@ -19,6 +19,7 @@ package androidx.camera.camera2.internal;
 import android.content.Context;
 import android.hardware.camera2.CameraDevice;
 import android.media.CamcorderProfile;
+import android.util.Pair;
 import android.util.Size;
 
 import androidx.annotation.NonNull;
@@ -60,7 +61,6 @@ public final class Camera2DeviceSurfaceManager implements CameraDeviceSurfaceMan
 
     /**
      * Creates a new, initialized Camera2DeviceSurfaceManager.
-     *
      */
     @RestrictTo(Scope.LIBRARY)
     public Camera2DeviceSurfaceManager(@NonNull Context context,
@@ -166,10 +166,13 @@ public final class Camera2DeviceSurfaceManager implements CameraDeviceSurfaceMan
      */
     @NonNull
     @Override
-    public Map<UseCaseConfig<?>, StreamSpec> getSuggestedStreamSpecs(
-            @CameraMode.Mode int cameraMode, @NonNull String cameraId,
+    public Pair<Map<UseCaseConfig<?>, StreamSpec>, Map<AttachedSurfaceInfo, StreamSpec>>
+            getSuggestedStreamSpecs(
+            @CameraMode.Mode int cameraMode,
+            @NonNull String cameraId,
             @NonNull List<AttachedSurfaceInfo> existingSurfaces,
-            @NonNull Map<UseCaseConfig<?>, List<Size>> newUseCaseConfigsSupportedSizeMap) {
+            @NonNull Map<UseCaseConfig<?>, List<Size>> newUseCaseConfigsSupportedSizeMap,
+            boolean isPreviewStabilizationOn) {
         Preconditions.checkArgument(!newUseCaseConfigsSupportedSizeMap.isEmpty(),
                 "No new use cases to be bound.");
 
@@ -184,6 +187,7 @@ public final class Camera2DeviceSurfaceManager implements CameraDeviceSurfaceMan
         return supportedSurfaceCombination.getSuggestedStreamSpecifications(
                 cameraMode,
                 existingSurfaces,
-                newUseCaseConfigsSupportedSizeMap);
+                newUseCaseConfigsSupportedSizeMap,
+                isPreviewStabilizationOn);
     }
 }

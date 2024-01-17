@@ -29,6 +29,8 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.leanback.R;
 
 /**
@@ -73,7 +75,7 @@ public class ErrorFragment extends BrandedFragment {
      *
      * @param drawable The drawable used for the background.
      */
-    public void setBackgroundDrawable(Drawable drawable) {
+    public void setBackgroundDrawable(@Nullable Drawable drawable) {
         mBackgroundDrawable = drawable;
         if (drawable != null) {
             final int opacity = drawable.getOpacity();
@@ -87,6 +89,7 @@ public class ErrorFragment extends BrandedFragment {
     /**
      * Returns the background drawable.  May be null if a default is used.
      */
+    @Nullable
     public Drawable getBackgroundDrawable() {
         return mBackgroundDrawable;
     }
@@ -96,7 +99,7 @@ public class ErrorFragment extends BrandedFragment {
      *
      * @param drawable The drawable used for the error image.
      */
-    public void setImageDrawable(Drawable drawable) {
+    public void setImageDrawable(@Nullable Drawable drawable) {
         mDrawable = drawable;
         updateImageDrawable();
     }
@@ -104,6 +107,7 @@ public class ErrorFragment extends BrandedFragment {
     /**
      * Returns the drawable used for the error image.
      */
+    @Nullable
     public Drawable getImageDrawable() {
         return mDrawable;
     }
@@ -113,7 +117,7 @@ public class ErrorFragment extends BrandedFragment {
      *
      * @param message The error message.
      */
-    public void setMessage(CharSequence message) {
+    public void setMessage(@Nullable CharSequence message) {
         mMessage = message;
         updateMessage();
     }
@@ -121,6 +125,7 @@ public class ErrorFragment extends BrandedFragment {
     /**
      * Returns the error message.
      */
+    @Nullable
     public CharSequence getMessage() {
         return mMessage;
     }
@@ -130,7 +135,7 @@ public class ErrorFragment extends BrandedFragment {
      *
      * @param text The button text.
      */
-    public void setButtonText(String text) {
+    public void setButtonText(@Nullable String text) {
         mButtonText = text;
         updateButton();
     }
@@ -138,6 +143,7 @@ public class ErrorFragment extends BrandedFragment {
     /**
      * Returns the button text.
      */
+    @Nullable
     public String getButtonText() {
         return mButtonText;
     }
@@ -147,7 +153,7 @@ public class ErrorFragment extends BrandedFragment {
      *
      * @param clickListener The click listener for the button.
      */
-    public void setButtonClickListener(View.OnClickListener clickListener) {
+    public void setButtonClickListener(@Nullable View.OnClickListener clickListener) {
         mButtonClickListener = clickListener;
         updateButton();
     }
@@ -155,13 +161,14 @@ public class ErrorFragment extends BrandedFragment {
     /**
      * Returns the button click listener.
      */
+    @Nullable
     public View.OnClickListener getButtonClickListener() {
         return mButtonClickListener;
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
+    @Nullable
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.lb_error_fragment, container, false);
 
         mErrorFrame = (ViewGroup) root.findViewById(R.id.error_frame);
@@ -179,12 +186,18 @@ public class ErrorFragment extends BrandedFragment {
         updateButton();
 
         FontMetricsInt metrics = getFontMetricsInt(mTextView);
-        int underImageBaselineMargin = container.getResources().getDimensionPixelSize(
-                R.dimen.lb_error_under_image_baseline_margin);
+        int underImageBaselineMargin = 0;
+        if (container != null) {
+            underImageBaselineMargin = container.getResources().getDimensionPixelSize(
+                    R.dimen.lb_error_under_image_baseline_margin);
+        }
         setTopMargin(mTextView, underImageBaselineMargin + metrics.ascent);
 
-        int underMessageBaselineMargin = container.getResources().getDimensionPixelSize(
-                R.dimen.lb_error_under_message_baseline_margin);
+        int underMessageBaselineMargin = 0;
+        if (container != null) {
+            underMessageBaselineMargin = container.getResources().getDimensionPixelSize(
+                    R.dimen.lb_error_under_message_baseline_margin);
+        }
         setTopMargin(mButton, underMessageBaselineMargin - metrics.descent);
 
         return root;

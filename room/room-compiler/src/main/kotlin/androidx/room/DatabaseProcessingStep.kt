@@ -16,6 +16,7 @@
 
 package androidx.room
 
+import androidx.room.compiler.codegen.CodeLanguage
 import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XProcessingEnv
 import androidx.room.compiler.processing.XProcessingEnvConfig
@@ -26,13 +27,12 @@ import androidx.room.processor.Context
 import androidx.room.processor.Context.BooleanProcessorOptions.GENERATE_KOTLIN
 import androidx.room.processor.DatabaseProcessor
 import androidx.room.processor.ProcessorErrors
-import androidx.room.util.SchemaFileResolver
 import androidx.room.vo.DaoMethod
 import androidx.room.vo.Warning
 import androidx.room.writer.AutoMigrationWriter
 import androidx.room.writer.DaoWriter
 import androidx.room.writer.DatabaseWriter
-import java.io.File
+import androidx.room.writer.InstantiateImplWriter
 import java.nio.file.Path
 
 class DatabaseProcessingStep : XProcessingStep {
@@ -107,6 +107,7 @@ class DatabaseProcessingStep : XProcessingStep {
                 val filename = "${db.version}.json"
                 val exportToResources =
                     Context.BooleanProcessorOptions.EXPORT_SCHEMA_RESOURCE.getValue(env)
+                val schemaInFolderPath = context.schemaInFolderPath
                 val schemaOutFolderPath = context.schemaOutFolderPath
                 if (exportToResources) {
                     context.logger.w(ProcessorErrors.EXPORTING_SCHEMA_TO_RESOURCES)
@@ -114,20 +115,11 @@ class DatabaseProcessingStep : XProcessingStep {
                         filePath = Path.of("schemas", qName, filename),
                         originatingElements = listOf(db.element)
                     )
-                    db.exportSchema(schemaFileOutputStream)
-                } else if (schemaOutFolderPath != null) {
-                    val schemaOutFolder = SchemaFileResolver.RESOLVER.getFile(
-                        Path.of(schemaOutFolderPath)
-                    )
-                    if (!schemaOutFolder.exists()) {
-                        schemaOutFolder.mkdirs()
-                    }
-                    val dbSchemaFolder = File(schemaOutFolder, qName)
-                    if (!dbSchemaFolder.exists()) {
-                        dbSchemaFolder.mkdirs()
-                    }
+                    db.exportSchemaOnly(schemaFileOutputStream)
+                } else if (schemaInFolderPath != null && schemaOutFolderPath != null) {
                     db.exportSchema(
-                        File(dbSchemaFolder, "${db.version}.json")
+                        inputPath = Path.of(schemaInFolderPath, qName, filename),
+                        outputPath = Path.of(schemaOutFolderPath, qName, filename)
                     )
                 } else {
                     context.logger.w(
@@ -140,6 +132,10 @@ class DatabaseProcessingStep : XProcessingStep {
             db.autoMigrations.forEach { autoMigration ->
                 AutoMigrationWriter(db.element, autoMigration, context.codeLanguage)
                     .write(context.processingEnv)
+            }
+
+            if (context.codeLanguage == CodeLanguage.KOTLIN) {
+                InstantiateImplWriter(db).write(context.processingEnv)
             }
         }
 

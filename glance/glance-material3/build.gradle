@@ -1,14 +1,18 @@
-import androidx.build.AndroidXComposePlugin
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.LibraryType
 
 plugins {
     id("AndroidXComposePlugin")
     id("AndroidXPlugin")
+    id("org.jetbrains.kotlin.android")
     id("com.android.library")
 }
-
-// Disable multi-platform; this will only be used on Android.
-AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project, /* isMultiplatformEnabled= */false)
 
 dependencies {
     implementation(libs.kotlinStdlib)
@@ -26,10 +30,12 @@ android {
 }
 
 androidx {
-    name = "Android Glance Material"
+    name = "Glance Material"
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2022"
     description = "Glance Material integration library." +
             " This library provides interop APIs with Material 3."
+    metalavaK2UastEnabled = true
+    targetsJavaConsumers = false
 }
 

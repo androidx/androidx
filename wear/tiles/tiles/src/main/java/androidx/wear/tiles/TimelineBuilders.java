@@ -21,7 +21,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.protolayout.proto.TimelineProto;
-import androidx.wear.tiles.LayoutElementBuilders.Layout;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -30,7 +29,10 @@ import java.util.List;
 /**
  * Builders for a timeline with entries representing content that should be displayed within given
  * time intervals.
+ *
+ * @deprecated Use {@link androidx.wear.protolayout.TimelineBuilders} instead.
  */
+@Deprecated
 public final class TimelineBuilders {
     private TimelineBuilders() {}
 
@@ -60,15 +62,13 @@ public final class TimelineBuilders {
             return mImpl.getEndMillis();
         }
 
-        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        public static TimeInterval fromProto(@NonNull TimelineProto.TimeInterval proto) {
+        static TimeInterval fromProto(@NonNull TimelineProto.TimeInterval proto) {
             return new TimeInterval(proto);
         }
 
-        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        public TimelineProto.TimeInterval toProto() {
+        TimelineProto.TimeInterval toProto() {
             return mImpl;
         }
 
@@ -121,9 +121,9 @@ public final class TimelineBuilders {
 
         /** Gets the contents of this timeline entry. Intended for testing purposes only. */
         @Nullable
-        public Layout getLayout() {
+        public LayoutElementBuilders.Layout getLayout() {
             if (mImpl.hasLayout()) {
-                return Layout.fromProto(mImpl.getLayout());
+                return LayoutElementBuilders.Layout.fromProto(mImpl.getLayout());
             } else {
                 return null;
             }
@@ -139,7 +139,9 @@ public final class TimelineBuilders {
         @NonNull
         public static TimelineEntry fromLayoutElement(
                 @NonNull LayoutElementBuilders.LayoutElement layoutElement) {
-            return new Builder().setLayout(Layout.fromLayoutElement(layoutElement)).build();
+            return new Builder()
+                    .setLayout(LayoutElementBuilders.Layout.fromLayoutElement(layoutElement))
+                    .build();
         }
 
         @RestrictTo(Scope.LIBRARY_GROUP)
@@ -164,7 +166,7 @@ public final class TimelineBuilders {
 
             /** Sets the contents of this timeline entry. */
             @NonNull
-            public Builder setLayout(@NonNull Layout layout) {
+            public Builder setLayout(@NonNull LayoutElementBuilders.Layout layout) {
                 mImpl.setLayout(layout.toProto());
                 return this;
             }

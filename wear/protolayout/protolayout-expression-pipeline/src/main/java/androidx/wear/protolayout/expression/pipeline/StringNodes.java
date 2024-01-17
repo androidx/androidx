@@ -19,6 +19,7 @@ package androidx.wear.protolayout.expression.pipeline;
 import static java.lang.Math.min;
 
 import androidx.annotation.UiThread;
+import androidx.wear.protolayout.expression.DynamicBuilders.DynamicString;
 import androidx.wear.protolayout.expression.proto.DynamicProto.StateStringSource;
 import androidx.wear.protolayout.expression.proto.FixedProto.FixedString;
 
@@ -99,12 +100,13 @@ class StringNodes {
     /** Dynamic string node that gets a value from the state. */
     static class StateStringNode extends StateSourceNode<String> {
         StateStringNode(
-                StateStore stateStore,
+                DataStore dataStore,
                 StateStringSource protoNode,
                 DynamicTypeValueReceiverWithPreUpdate<String> downstream) {
             super(
-                    stateStore,
-                    protoNode.getSourceKey(),
+                    dataStore,
+                    StateSourceNode.<DynamicString>createKey(
+                            protoNode.getSourceNamespace(), protoNode.getSourceKey()),
                     se -> truncate(se.getStringVal().getValue()),
                     downstream);
         }

@@ -1,9 +1,7 @@
 // Baseline format: 1.0
-AddedAbstractMethod: androidx.compose.runtime.Composer#getCurrentCompositionLocalMap():
-    Added method androidx.compose.runtime.Composer.getCurrentCompositionLocalMap()
-AddedAbstractMethod: androidx.compose.runtime.CompositionContext#getEffectCoroutineContext():
-    Added method androidx.compose.runtime.CompositionContext.getEffectCoroutineContext()
+AddedAbstractMethod: androidx.compose.runtime.ControlledComposition#abandonChanges():
+    Added method androidx.compose.runtime.ControlledComposition.abandonChanges()
 
 
-RemovedClass: androidx.compose.runtime.SnapshotStateKt:
-    Removed class androidx.compose.runtime.SnapshotStateKt
+RemovedClass: androidx.compose.runtime.ExpectKt:
+    Removed class androidx.compose.runtime.ExpectKt

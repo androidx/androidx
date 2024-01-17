@@ -28,8 +28,12 @@ darwinBenchmark {
     xcodeProjectName = "benchmark-darwin-samples-xcode"
     // iOS app scheme
     scheme = "testapp-ios"
-    // ios 13, 15.2
+
+    // Destination
+    destination = "platform=iOS Simulator,name=iPhone 13,OS=15.2"
+    // Or a target device id
     destination = "id=7F61C467-4E4A-437C-B6EF-026FEEF3904C"
+
     // The XCFrameworkConfig name
     xcFrameworkConfig = "AndroidXDarwinSampleBenchmarks"
 }

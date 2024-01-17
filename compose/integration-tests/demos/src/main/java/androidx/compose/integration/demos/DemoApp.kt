@@ -21,7 +21,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -31,7 +30,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.NewTextRendering1_5
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.integration.demos.common.ActivityDemo
 import androidx.compose.integration.demos.common.ComposableDemo
@@ -41,8 +39,7 @@ import androidx.compose.integration.demos.common.FragmentDemo
 import androidx.compose.integration.demos.common.allLaunchableDemos
 import androidx.compose.material.LocalContentColor
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -52,7 +49,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
@@ -66,15 +62,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentContainerView
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DemoApp(
     currentDemo: Demo,
@@ -254,7 +248,6 @@ private fun DemoAppBar(
             actions = {
                 AppBarIcons.Filter(onClick = onStartFiltering)
                 AppBarIcons.Settings(onClick = launchSettings)
-                AppBarIcons.NewTextToggler()
             }
         )
     }
@@ -263,12 +256,8 @@ private fun DemoAppBar(
 private object AppBarIcons {
     @Composable
     fun Back(onClick: () -> Unit) {
-        val icon = when (LocalLayoutDirection.current) {
-            LayoutDirection.Ltr -> Icons.Filled.ArrowBack
-            LayoutDirection.Rtl -> Icons.Filled.ArrowForward
-        }
         IconButton(onClick = onClick) {
-            Icon(icon, null)
+            Icon(Icons.AutoMirrored.Filled.ArrowBack, null)
         }
     }
 
@@ -283,24 +272,6 @@ private object AppBarIcons {
     fun Settings(onClick: () -> Unit) {
         IconButton(onClick = onClick) {
             Icon(Icons.Filled.Settings, null)
-        }
-    }
-
-    @Suppress("DEPRECATION")
-    @Composable
-    fun NewTextToggler() {
-        val isNewText = NewTextRendering1_5
-        val onClick = {
-            NewTextRendering1_5 = !NewTextRendering1_5
-        }
-        if (isNewText) {
-            TextButton(onClick = onClick) {
-                Text("New\nText!")
-            }
-        } else {
-            TextButton(onClick = onClick) {
-                Text("Old\nText")
-            }
         }
     }
 }

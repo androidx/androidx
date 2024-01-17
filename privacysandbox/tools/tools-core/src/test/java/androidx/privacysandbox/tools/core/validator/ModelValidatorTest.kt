@@ -148,7 +148,7 @@ class ModelValidatorTest {
                         )
                     )
                 )
-                ),
+            ),
         )
         assertThat(ModelValidator.validate(api).isSuccess).isTrue()
     }
@@ -165,6 +165,25 @@ class ModelValidatorTest {
         assertThat(validationResult.isFailure).isTrue()
         assertThat(validationResult.errors).containsExactly(
             "Multiple services are not supported. Found: com.mysdk.MySdk, com.mysdk.MySdk2."
+        )
+    }
+
+    @Test
+    fun serviceExtendsUiAdapter_throws() {
+        val api = ParsedApi(
+            services = setOf(
+                AnnotatedInterface(
+                    type = Type(packageName = "com.mysdk", simpleName = "MySdk"),
+                    superTypes = listOf(Types.sandboxedUiAdapter),
+                ),
+            )
+        )
+        val validationResult = ModelValidator.validate(api)
+        assertThat(validationResult.isFailure).isTrue()
+        assertThat(validationResult.errors).containsExactly(
+            "Interfaces annotated with @PrivacySandboxService may not extend any other " +
+                "interface. To define a SandboxedUiAdapter, use @PrivacySandboxInterface and " +
+                "return it from this service."
         )
     }
 
@@ -245,12 +264,12 @@ class ModelValidatorTest {
         assertThat(validationResult.isFailure).isTrue()
         assertThat(validationResult.errors).containsExactly(
             "Error in com.mysdk.MySdk.returnFoo: only primitives, lists, data classes annotated " +
-                "with @PrivacySandboxValue and interfaces annotated with " +
-                "@PrivacySandboxInterface are supported as return types.",
+                "with @PrivacySandboxValue, interfaces annotated with @PrivacySandboxInterface, " +
+                "and SdkActivityLaunchers are supported as return types.",
             "Error in com.mysdk.MySdk.receiveFoo: only primitives, lists, data classes " +
-                "annotated with @PrivacySandboxValue and interfaces annotated with " +
-                "@PrivacySandboxCallback or @PrivacySandboxInterface are supported as parameter " +
-                "types."
+                "annotated with @PrivacySandboxValue, interfaces annotated with " +
+                "@PrivacySandboxCallback or @PrivacySandboxInterface, and SdkActivityLaunchers " +
+                "are supported as parameter types."
         )
     }
 
@@ -280,9 +299,9 @@ class ModelValidatorTest {
         assertThat(validationResult.isFailure).isTrue()
         assertThat(validationResult.errors).containsExactly(
             "Error in com.mysdk.MySdk.processNestedList: only primitives, lists, data classes " +
-                "annotated with @PrivacySandboxValue and interfaces annotated with " +
-                "@PrivacySandboxCallback or @PrivacySandboxInterface are supported as " +
-                "parameter types."
+                "annotated with @PrivacySandboxValue, interfaces annotated with " +
+                "@PrivacySandboxCallback or @PrivacySandboxInterface, and SdkActivityLaunchers " +
+                "are supported as parameter types."
         )
     }
 
@@ -305,8 +324,8 @@ class ModelValidatorTest {
         assertThat(validationResult.isFailure).isTrue()
         assertThat(validationResult.errors).containsExactly(
             "Error in com.mysdk.Foo.bar: only primitives, lists, data classes annotated with " +
-                "@PrivacySandboxValue and interfaces annotated with @PrivacySandboxInterface " +
-                "are supported as properties."
+                "@PrivacySandboxValue, interfaces annotated with @PrivacySandboxInterface, and " +
+                "SdkActivityLaunchers are supported as properties."
         )
     }
 
@@ -372,8 +391,9 @@ class ModelValidatorTest {
         assertThat(validationResult.isFailure).isTrue()
         assertThat(validationResult.errors).containsExactly(
             "Error in com.mysdk.MySdkCallback.foo: only primitives, lists, data classes " +
-                "annotated with @PrivacySandboxValue and interfaces annotated with " +
-                "@PrivacySandboxInterface are supported as callback parameter types."
+                "annotated with @PrivacySandboxValue, interfaces annotated with " +
+                "@PrivacySandboxInterface, and SdkActivityLaunchers are supported as callback " +
+                "parameter types."
         )
     }
 }

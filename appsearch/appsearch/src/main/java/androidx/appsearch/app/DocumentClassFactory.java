@@ -17,7 +17,11 @@
 package androidx.appsearch.app;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appsearch.exceptions.AppSearchException;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * An interface for factories which can convert between instances of classes annotated with
@@ -39,6 +43,13 @@ public interface DocumentClassFactory<T> {
     AppSearchSchema getSchema() throws AppSearchException;
 
     /**
+     * Returns document classes that this document class depends on. This is useful so clients
+     * are not required to explicitly set all dependencies.
+     */
+    @NonNull
+    List<Class<?>> getDependencyDocumentClasses() throws AppSearchException;
+
+    /**
      * Converts an instance of the class annotated with
      * \@{@link androidx.appsearch.annotation.Document} into a
      * {@link androidx.appsearch.app.GenericDocument}.
@@ -48,8 +59,10 @@ public interface DocumentClassFactory<T> {
 
     /**
      * Converts a {@link androidx.appsearch.app.GenericDocument} into an instance of the document
-     * class.
+     * class. For nested document properties, this method should pass {@code documentClassMap} down
+     * to the nested calls of {@link GenericDocument#toDocumentClass(Class, Map)}.
      */
     @NonNull
-    T fromGenericDocument(@NonNull GenericDocument genericDoc) throws AppSearchException;
+    T fromGenericDocument(@NonNull GenericDocument genericDoc,
+            @Nullable Map<String, List<String>> documentClassMap) throws AppSearchException;
 }

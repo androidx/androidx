@@ -193,6 +193,33 @@ class NavigationUITest {
         assertThat(toolbar.title.toString()).isEqualTo(labelString)
     }
 
+    @UiThreadTest
+    @Test
+    fun navigateWithNonStringArg() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val navController = NavHostController(context)
+        navController.navigatorProvider.addNavigator(TestNavigator())
+
+        val startDestination = "start_destination"
+        val endDestination = "end_destination"
+
+        navController.graph = navController.createGraph(startDestination = startDestination) {
+            test(startDestination)
+            test("$endDestination/{test}") {
+                label = "{test}"
+                argument(name = "test") {
+                    type = NavType.LongType
+                }
+            }
+        }
+
+        val toolbar = Toolbar(context).apply { setupWithNavController(navController) }
+        navController.navigate("$endDestination/123")
+
+        val expected = "123"
+        assertThat(toolbar.title.toString()).isEqualTo(expected)
+    }
+
     private fun createToolbarOnDestinationChangedListener(
         toolbar: Toolbar,
         bundle: Bundle?,

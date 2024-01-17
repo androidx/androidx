@@ -309,7 +309,6 @@ public final class OngoingActivity {
          *
          * @throws IllegalArgumentException if the static icon or the touch intent are not provided.
          */
-        @SuppressWarnings("SyntheticAccessor")
         @NonNull
         public OngoingActivity build() {
             Notification notification = mNotificationBuilder.build();

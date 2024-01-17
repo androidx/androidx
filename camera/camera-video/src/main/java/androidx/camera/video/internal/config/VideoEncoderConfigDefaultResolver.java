@@ -20,13 +20,18 @@ import android.util.Range;
 import android.util.Size;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.camera.core.DynamicRange;
 import androidx.camera.core.Logger;
+import androidx.camera.core.SurfaceRequest;
 import androidx.camera.core.impl.Timebase;
 import androidx.camera.video.VideoSpec;
 import androidx.camera.video.internal.encoder.VideoEncoderConfig;
+import androidx.camera.video.internal.encoder.VideoEncoderDataSpace;
+import androidx.camera.video.internal.utils.DynamicRangeUtil;
 import androidx.core.util.Supplier;
+
+import java.util.Objects;
 
 /**
  * A {@link VideoEncoderConfig} supplier that resolves requested encoder settings from a
@@ -42,7 +47,8 @@ public class VideoEncoderConfigDefaultResolver implements Supplier<VideoEncoderC
     private static final int VIDEO_BITRATE_BASE = 14000000;
     private static final Size VIDEO_SIZE_BASE = new Size(1280, 720);
     private static final int VIDEO_FRAME_RATE_BASE = 30;
-    private static final int VIDEO_FRAME_RATE_FIXED_DEFAULT = 30;
+    static final int VIDEO_FRAME_RATE_FIXED_DEFAULT = 30;
+    private static final int VIDEO_BIT_DEPTH_BASE = 8;
     private static final Range<Integer> VALID_FRAME_RATE_RANGE = new Range<>(1, 60);
 
     private final String mMimeType;
@@ -50,25 +56,36 @@ public class VideoEncoderConfigDefaultResolver implements Supplier<VideoEncoderC
     private final Timebase mInputTimebase;
     private final VideoSpec mVideoSpec;
     private final Size mSurfaceSize;
-    @Nullable
+    private final DynamicRange mDynamicRange;
     private final Range<Integer> mExpectedFrameRateRange;
 
     /**
      * Constructor for a VideoEncoderConfigDefaultResolver.
      *
-     * @param mimeType      The mime type for the video encoder
-     * @param inputTimebase The time base of the input frame.
-     * @param videoSpec     The {@link VideoSpec} which defines the settings that should be used
-     *                      with the video encoder.
-     * @param surfaceSize   The size of the surface required by the camera for the video encoder.
+     * @param mimeType               The mime type for the video encoder
+     * @param inputTimebase          The time base of the input frame.
+     * @param videoSpec              The {@link VideoSpec} which defines the settings that should
+     *                               be used with the video encoder.
+     * @param surfaceSize            The size of the surface required by the camera for the video
+     *                               encoder.
+     * @param dynamicRange           The dynamic range of input frames.
+     * @param expectedFrameRateRange The expected source frame rate range. This should act as an
+     *                               envelope for any frame rate calculated from {@code videoSpec
+     *                               } and {@code videoProfile} since the source should not
+     *                               produce frames at a frame rate outside this range. If
+     *                               equal to {@link SurfaceRequest#FRAME_RATE_RANGE_UNSPECIFIED},
+     *                               then no information about the source frame rate is available
+     *                               and it does not need to be used in calculations.
      */
     public VideoEncoderConfigDefaultResolver(@NonNull String mimeType,
             @NonNull Timebase inputTimebase, @NonNull VideoSpec videoSpec,
-            @NonNull Size surfaceSize, @Nullable Range<Integer> expectedFrameRateRange) {
+            @NonNull Size surfaceSize, @NonNull DynamicRange dynamicRange,
+            @NonNull Range<Integer> expectedFrameRateRange) {
         mMimeType = mimeType;
         mInputTimebase = inputTimebase;
         mVideoSpec = videoSpec;
         mSurfaceSize = surfaceSize;
+        mDynamicRange = dynamicRange;
         mExpectedFrameRateRange = expectedFrameRateRange;
     }
 
@@ -83,10 +100,16 @@ public class VideoEncoderConfigDefaultResolver implements Supplier<VideoEncoderC
         // We have no other information to go off of. Scale based on fallback defaults.
         int resolvedBitrate = VideoConfigUtil.scaleAndClampBitrate(
                 VIDEO_BITRATE_BASE,
+                mDynamicRange.getBitDepth(), VIDEO_BIT_DEPTH_BASE,
                 resolvedFrameRate, VIDEO_FRAME_RATE_BASE,
                 mSurfaceSize.getWidth(), VIDEO_SIZE_BASE.getWidth(),
                 mSurfaceSize.getHeight(), VIDEO_SIZE_BASE.getHeight(),
                 videoSpecBitrateRange);
+
+        int resolvedProfile = DynamicRangeUtil.dynamicRangeToCodecProfileLevelForMime(
+                mMimeType, mDynamicRange);
+        VideoEncoderDataSpace dataSpace =
+                VideoConfigUtil.mimeAndProfileToEncoderDataSpace(mMimeType, resolvedProfile);
 
         return VideoEncoderConfig.builder()
                 .setMimeType(mMimeType)
@@ -94,30 +117,29 @@ public class VideoEncoderConfigDefaultResolver implements Supplier<VideoEncoderC
                 .setResolution(mSurfaceSize)
                 .setBitrate(resolvedBitrate)
                 .setFrameRate(resolvedFrameRate)
+                .setProfile(resolvedProfile)
+                .setDataSpace(dataSpace)
                 .build();
     }
 
     private int resolveFrameRate() {
-        Range<Integer> videoSpecFrameRateRange = mVideoSpec.getFrameRate();
-        // If the frame rate range isn't AUTO, we'll use the upper frame rate from the video spec
-        // as our default in an attempt to maximize the quality of the video. However, we need to
-        // ensure it is a valid frame rate, so clamp between 1 and 60fps.
-        int defaultFrameRate;
-        if (!VideoSpec.FRAME_RATE_RANGE_AUTO.equals(videoSpecFrameRateRange)) {
-            defaultFrameRate = VALID_FRAME_RATE_RANGE.clamp(videoSpecFrameRateRange.getUpper());
+        // If the operating frame rate range isn't unspecified, we'll use the upper frame rate from
+        // as our default in an attempt to maximize the quality of the video. Clamp the value to
+        // ensure it's a valid frame rate.
+        int resolvedFrameRate;
+        if (!Objects.equals(mExpectedFrameRateRange, SurfaceRequest.FRAME_RATE_RANGE_UNSPECIFIED)) {
+            resolvedFrameRate = VALID_FRAME_RATE_RANGE.clamp(mExpectedFrameRateRange.getUpper());
         } else {
-            // We have no information to base the frame rate on. Use a standard default.
-            defaultFrameRate = VIDEO_FRAME_RATE_FIXED_DEFAULT;
+            // If the frame rate range is unspecified, return a hard coded common default.
+            resolvedFrameRate = VIDEO_FRAME_RATE_FIXED_DEFAULT;
         }
 
         Logger.d(TAG,
-                String.format("Frame rate default: %dfps. [Requested range: %s, "
-                                + "Expected operating range: %s]", defaultFrameRate,
-                        videoSpecFrameRateRange, mExpectedFrameRateRange));
+                String.format("Default resolved frame rate: %dfps. [Expected operating range: %s]",
+                        resolvedFrameRate, Objects.equals(mExpectedFrameRateRange,
+                                SurfaceRequest.FRAME_RATE_RANGE_UNSPECIFIED)
+                                ? mExpectedFrameRateRange : "<UNSPECIFIED>"));
 
-        return VideoConfigUtil.resolveFrameRate(
-                /*preferredRange=*/ videoSpecFrameRateRange,
-                /*exactFrameRateHint=*/ defaultFrameRate,
-                /*strictOperatingFpsRange=*/mExpectedFrameRateRange);
+        return resolvedFrameRate;
     }
 }

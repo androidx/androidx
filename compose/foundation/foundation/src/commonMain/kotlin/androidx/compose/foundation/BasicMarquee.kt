@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:OptIn(ExperimentalFoundationApi::class)
-
 package androidx.compose.foundation
 
 import androidx.compose.animation.core.Animatable
@@ -29,65 +27,59 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.FixedMotionDurationScale.scaleFactor
 import androidx.compose.foundation.MarqueeAnimationMode.Companion.Immediately
 import androidx.compose.foundation.MarqueeAnimationMode.Companion.WhileFocused
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.MotionDurationScale
-import androidx.compose.ui.composed
-import androidx.compose.ui.draw.DrawModifier
+import androidx.compose.ui.focus.FocusEventModifierNode
 import androidx.compose.ui.focus.FocusState
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.drawscope.translate
+import androidx.compose.ui.layout.IntrinsicMeasurable
+import androidx.compose.ui.layout.IntrinsicMeasureScope
 import androidx.compose.ui.layout.LayoutCoordinates
-import androidx.compose.ui.layout.LayoutModifier
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.platform.debugInspectorInfo
+import androidx.compose.ui.node.DrawModifierNode
+import androidx.compose.ui.node.LayoutModifierNode
+import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.node.requireDensity
+import androidx.compose.ui.node.requireLayoutDirection
+import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.LayoutDirection.Ltr
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.constrainWidth
 import androidx.compose.ui.unit.dp
 import kotlin.math.absoluteValue
 import kotlin.math.ceil
 import kotlin.math.roundToInt
 import kotlin.math.sign
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 // From https://cs.android.com/android/platform/superproject/+/master:frameworks/base/core/java/android/widget/TextView.java;l=736;drc=6d97d6d7215fef247d1a90e05545cac3676f9212
-@Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-@ExperimentalFoundationApi
-@get:ExperimentalFoundationApi
+@Suppress("MayBeConstant")
 val DefaultMarqueeIterations: Int = 3
 
 // From https://cs.android.com/android/platform/superproject/+/master:frameworks/base/core/java/android/widget/TextView.java;l=13979;drc=6d97d6d7215fef247d1a90e05545cac3676f9212
-@Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-@ExperimentalFoundationApi
-@get:ExperimentalFoundationApi
+@Suppress("MayBeConstant")
 val DefaultMarqueeDelayMillis: Int = 1_200
 
 // From https://cs.android.com/android/platform/superproject/+/master:frameworks/base/core/java/android/widget/TextView.java;l=14088;drc=6d97d6d7215fef247d1a90e05545cac3676f9212
-@Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-@ExperimentalFoundationApi
-@get:ExperimentalFoundationApi
 val DefaultMarqueeSpacing: MarqueeSpacing = MarqueeSpacing.fractionOfContainer(1f / 3f)
 
 // From https://cs.android.com/android/platform/superproject/+/master:frameworks/base/core/java/android/widget/TextView.java;l=13980;drc=6d97d6d7215fef247d1a90e05545cac3676f9212
-@Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-@ExperimentalFoundationApi
-@get:ExperimentalFoundationApi
 val DefaultMarqueeVelocity: Dp = 30.dp
 
 /**
@@ -129,7 +121,7 @@ val DefaultMarqueeVelocity: Dp = 30.dp
  * content before showing the beginning again.
  * @param velocity The speed of the animation in dps / second.
  */
-@ExperimentalFoundationApi
+@Stable
 fun Modifier.basicMarquee(
     iterations: Int = DefaultMarqueeIterations,
     animationMode: MarqueeAnimationMode = Immediately,
@@ -138,8 +130,45 @@ fun Modifier.basicMarquee(
     initialDelayMillis: Int = if (animationMode == Immediately) delayMillis else 0,
     spacing: MarqueeSpacing = DefaultMarqueeSpacing,
     velocity: Dp = DefaultMarqueeVelocity
-): Modifier = composed(
-    inspectorInfo = debugInspectorInfo {
+): Modifier = this then MarqueeModifierElement(
+    iterations = iterations,
+    animationMode = animationMode,
+    delayMillis = delayMillis,
+    initialDelayMillis = initialDelayMillis,
+    spacing = spacing,
+    velocity = velocity,
+)
+
+private data class MarqueeModifierElement(
+    private val iterations: Int,
+    private val animationMode: MarqueeAnimationMode,
+    private val delayMillis: Int,
+    private val initialDelayMillis: Int,
+    private val spacing: MarqueeSpacing,
+    private val velocity: Dp,
+) : ModifierNodeElement<MarqueeModifierNode>() {
+    override fun create(): MarqueeModifierNode =
+        MarqueeModifierNode(
+            iterations = iterations,
+            animationMode = animationMode,
+            delayMillis = delayMillis,
+            initialDelayMillis = initialDelayMillis,
+            spacing = spacing,
+            velocity = velocity,
+        )
+
+    override fun update(node: MarqueeModifierNode) {
+        node.update(
+            iterations = iterations,
+            animationMode = animationMode,
+            delayMillis = delayMillis,
+            initialDelayMillis = initialDelayMillis,
+            spacing = spacing,
+            velocity = velocity,
+        )
+    }
+
+    override fun InspectorInfo.inspectableProperties() {
         name = "basicMarquee"
         properties["iterations"] = iterations
         properties["animationMode"] = animationMode
@@ -148,58 +177,75 @@ fun Modifier.basicMarquee(
         properties["spacing"] = spacing
         properties["velocity"] = velocity
     }
-) {
-    val density = LocalDensity.current
-    val layoutDirection = LocalLayoutDirection.current
-    val modifier = remember(
-        iterations,
-        delayMillis,
-        initialDelayMillis,
-        velocity,
-        density,
-        layoutDirection,
-    ) {
-        MarqueeModifier(
-            iterations = iterations,
-            delayMillis = delayMillis,
-            initialDelayMillis = initialDelayMillis,
-            velocity = velocity * if (layoutDirection == Ltr) 1f else -1f,
-            density = density
-        )
-    }
-    modifier.spacing = spacing
-    modifier.animationMode = animationMode
-
-    LaunchedEffect(modifier) {
-        modifier.runAnimation()
-    }
-
-    return@composed modifier
 }
 
-private class MarqueeModifier(
-    private val iterations: Int,
-    private val delayMillis: Int,
-    private val initialDelayMillis: Int,
-    private val velocity: Dp,
-    private val density: Density,
-) : Modifier.Element,
-    LayoutModifier,
-    DrawModifier,
-    @Suppress("DEPRECATION") androidx.compose.ui.focus.FocusEventModifier {
+private class MarqueeModifierNode(
+    private var iterations: Int,
+    animationMode: MarqueeAnimationMode,
+    private var delayMillis: Int,
+    private var initialDelayMillis: Int,
+    spacing: MarqueeSpacing,
+    private var velocity: Dp,
+) : Modifier.Node(),
+    LayoutModifierNode,
+    DrawModifierNode,
+    FocusEventModifierNode {
 
-    private var contentWidth by mutableStateOf(0)
-    private var containerWidth by mutableStateOf(0)
+    private var contentWidth by mutableIntStateOf(0)
+    private var containerWidth by mutableIntStateOf(0)
     private var hasFocus by mutableStateOf(false)
-    var spacing: MarqueeSpacing by mutableStateOf(DefaultMarqueeSpacing)
-    var animationMode: MarqueeAnimationMode by mutableStateOf(Immediately)
+    private var animationJob: Job? = null
+    var spacing: MarqueeSpacing by mutableStateOf(spacing)
+    var animationMode: MarqueeAnimationMode by mutableStateOf(animationMode)
 
     private val offset = Animatable(0f)
-    private val direction = sign(velocity.value)
+    private val direction
+        get() = sign(velocity.value) * when (requireLayoutDirection()) {
+            LayoutDirection.Ltr -> 1
+            LayoutDirection.Rtl -> -1
+        }
     private val spacingPx by derivedStateOf {
         with(spacing) {
-            density.calculateSpacing(contentWidth, containerWidth)
+            requireDensity().calculateSpacing(contentWidth, containerWidth)
         }
+    }
+
+    override fun onAttach() {
+        restartAnimation()
+    }
+
+    override fun onDetach() {
+        animationJob?.cancel()
+        animationJob = null
+    }
+
+    fun update(
+        iterations: Int,
+        animationMode: MarqueeAnimationMode,
+        delayMillis: Int,
+        initialDelayMillis: Int,
+        spacing: MarqueeSpacing,
+        velocity: Dp,
+    ) {
+        this.spacing = spacing
+        this.animationMode = animationMode
+
+        if (
+            this.iterations != iterations ||
+            this.delayMillis != delayMillis ||
+            this.initialDelayMillis != initialDelayMillis ||
+            this.velocity != velocity
+        ) {
+            this.iterations = iterations
+            this.delayMillis = delayMillis
+            this.initialDelayMillis = initialDelayMillis
+            this.velocity = velocity
+            restartAnimation()
+        }
+    }
+
+    override fun onFocusEvent(focusState: FocusState) {
+        hasFocus = focusState.hasFocus
     }
 
     override fun MeasureScope.measure(
@@ -216,6 +262,31 @@ private class MarqueeModifier(
             placeable.placeWithLayer(x = (-offset.value * direction).roundToInt(), y = 0)
         }
     }
+
+    // Override intrinsic calculations to avoid setting state (see b/278729564).
+
+    /** Always returns zero since the marquee has no minimum width. */
+    override fun IntrinsicMeasureScope.minIntrinsicWidth(
+        measurable: IntrinsicMeasurable,
+        height: Int
+    ): Int = 0
+
+    override fun IntrinsicMeasureScope.maxIntrinsicWidth(
+        measurable: IntrinsicMeasurable,
+        height: Int
+    ): Int = measurable.maxIntrinsicWidth(height)
+
+    /** Ignores width since marquee contents are always measured with infinite width. */
+    override fun IntrinsicMeasureScope.minIntrinsicHeight(
+        measurable: IntrinsicMeasurable,
+        width: Int
+    ): Int = measurable.minIntrinsicHeight(Constraints.Infinity)
+
+    /** Ignores width since marquee contents are always measured with infinite width. */
+    override fun IntrinsicMeasureScope.maxIntrinsicHeight(
+        measurable: IntrinsicMeasurable,
+        width: Int
+    ): Int = measurable.maxIntrinsicHeight(Constraints.Infinity)
 
     override fun ContentDrawScope.draw() {
         val clipOffset = offset.value * direction
@@ -249,11 +320,19 @@ private class MarqueeModifier(
         }
     }
 
-    override fun onFocusEvent(focusState: FocusState) {
-        hasFocus = focusState.hasFocus
+    private fun restartAnimation() {
+        val oldJob = animationJob
+        oldJob?.cancel()
+        if (isAttached) {
+            animationJob = coroutineScope.launch {
+                // Wait for the cancellation to finish.
+                oldJob?.join()
+                runAnimation()
+            }
+        }
     }
 
-    suspend fun runAnimation() {
+    private suspend fun runAnimation() {
         if (iterations <= 0) {
             // No animation.
             return
@@ -279,13 +358,15 @@ private class MarqueeModifier(
                     initialDelayMillis,
                     delayMillis,
                     velocity,
-                    density
+                    requireDensity()
                 )
 
                 offset.snapTo(0f)
                 try {
                     offset.animateTo(contentWithSpacingWidth, spec)
                 } finally {
+                    // This needs to be in a finally so the offset is reset if the animation is
+                    // cancelled when losing focus in WhileFocused mode.
                     offset.snapTo(0f)
                 }
             }
@@ -336,7 +417,6 @@ private fun velocityBasedTween(
 }
 
 /** Specifies when the [basicMarquee] animation runs. */
-@ExperimentalFoundationApi
 @JvmInline
 value class MarqueeAnimationMode private constructor(private val value: Int) {
 
@@ -351,17 +431,11 @@ value class MarqueeAnimationMode private constructor(private val value: Int) {
          * Starts animating immediately (accounting for any initial delay), irrespective of focus
          * state.
          */
-        @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-        @ExperimentalFoundationApi
-        @get:ExperimentalFoundationApi
         val Immediately = MarqueeAnimationMode(0)
 
         /**
          * Only animates while the marquee has focus or a node in the marquee's content has focus.
          */
-        @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-        @ExperimentalFoundationApi
-        @get:ExperimentalFoundationApi
         val WhileFocused = MarqueeAnimationMode(1)
     }
 }
@@ -369,14 +443,12 @@ value class MarqueeAnimationMode private constructor(private val value: Int) {
 /**
  * A [MarqueeSpacing] with a fixed size.
  */
-@ExperimentalFoundationApi
 fun MarqueeSpacing(spacing: Dp): MarqueeSpacing = MarqueeSpacing { _, _ -> spacing.roundToPx() }
 
 /**
  * Defines a [calculateSpacing] method that determines the space after the end of [basicMarquee]
  * content before drawing the content again.
  */
-@ExperimentalFoundationApi
 @Stable
 fun interface MarqueeSpacing {
     /**
@@ -393,7 +465,6 @@ fun interface MarqueeSpacing {
      * @return The space in pixels between the end of the content and the beginning of the content
      * when wrapping.
      */
-    @ExperimentalFoundationApi
     fun Density.calculateSpacing(
         contentWidth: Int,
         containerWidth: Int
@@ -403,7 +474,6 @@ fun interface MarqueeSpacing {
         /**
          * A [MarqueeSpacing] that is a fraction of the container's width.
          */
-        @ExperimentalFoundationApi
         fun fractionOfContainer(fraction: Float): MarqueeSpacing = MarqueeSpacing { _, width ->
             (fraction * width).roundToInt()
         }

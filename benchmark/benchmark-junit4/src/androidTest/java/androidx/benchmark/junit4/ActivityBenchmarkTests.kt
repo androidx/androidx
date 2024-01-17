@@ -41,7 +41,7 @@ fun BenchmarkRule.validateRunWithIsolationActivityHidden() {
 @RunWith(AndroidJUnit4::class)
 class ActivityScenarioTest {
     @get:Rule
-    val benchmarkRule = BenchmarkRule(enableReport = false)
+    val benchmarkRule = BenchmarkRule()
 
     private lateinit var activityScenario: ActivityScenario<Activity>
 
@@ -62,7 +62,7 @@ class ActivityScenarioTest {
 @RunWith(AndroidJUnit4::class)
 class ActivityScenarioRuleTest {
     @get:Rule
-    val benchmarkRule = BenchmarkRule(enableReport = false)
+    val benchmarkRule = BenchmarkRule()
 
     @get:Rule
     val activityRule = ActivityScenarioRule(Activity::class.java)
@@ -79,7 +79,7 @@ class ActivityScenarioRuleTest {
 @RunWith(AndroidJUnit4::class)
 class ActivityTestRuleTest {
     @get:Rule
-    val benchmarkRule = BenchmarkRule(enableReport = false)
+    val benchmarkRule = BenchmarkRule()
 
     @Suppress("DEPRECATION")
     @get:Rule

@@ -16,7 +16,6 @@
 package androidx.emoji2.text;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
-import static androidx.annotation.RestrictTo.Scope.TESTS;
 
 import android.annotation.SuppressLint;
 import android.graphics.Paint;
@@ -24,15 +23,14 @@ import android.text.style.ReplacementSpan;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
 import androidx.core.util.Preconditions;
 
 /**
  * Base span class for the emoji replacement. When an emoji is found and needs to be replaced in a
  * CharSequence, an instance of this class is added to the CharSequence.
  */
-@RequiresApi(19)
 public abstract class EmojiSpan extends ReplacementSpan {
 
     /**
@@ -68,7 +66,6 @@ public abstract class EmojiSpan extends ReplacementSpan {
      *
      * @param rasterizer information about the emoji, cannot be {@code null}
      *
-     * @hide
      */
     @RestrictTo(LIBRARY)
     EmojiSpan(@NonNull final TypefaceEmojiRasterizer rasterizer) {
@@ -113,7 +110,6 @@ public abstract class EmojiSpan extends ReplacementSpan {
     /**
      * @return width of the span
      *
-     * @hide
      */
     @RestrictTo(LIBRARY)
     final int getWidth() {
@@ -123,15 +119,14 @@ public abstract class EmojiSpan extends ReplacementSpan {
     /**
      * @return height of the span
      *
-     * @hide
      */
-    @RestrictTo(TESTS)
+    @RestrictTo(LIBRARY)
+    @VisibleForTesting
     public final int getHeight() {
         return mHeight;
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     final float getRatio() {
@@ -141,9 +136,9 @@ public abstract class EmojiSpan extends ReplacementSpan {
     /**
      * @return unique id for the emoji that this EmojiSpan is used for
      *
-     * @hide
      */
-    @RestrictTo(TESTS)
+    @RestrictTo(LIBRARY)
+    @VisibleForTesting
     public final int getId() {
         return getTypefaceRasterizer().getId();
     }

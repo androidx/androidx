@@ -21,17 +21,15 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 import androidx.annotation.IntDef;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 
 import java.lang.annotation.Retention;
 
 /**
  * Temporary class to contain hint constants for slices to be used.
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
-@RequiresApi(19)
+@Deprecated
 public class SliceHints {
 
     /**

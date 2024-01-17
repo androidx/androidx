@@ -123,6 +123,12 @@
             android:theme="@android:style/Theme.Light.NoTitleBar" />
 
         <activity
+            android:name="androidx.core.view.SoftwareKeyboardControllerCompatActivity"
+            android:exported="true"
+            android:windowSoftInputMode="adjustResize"
+            android:theme="@android:style/Theme.Light.NoTitleBar" />
+
+        <activity
             android:name="androidx.core.app.GetSystemLocalesActivity"
             android:exported="true" />
 
@@ -131,7 +137,16 @@
             android:exported="true" />
 
         <activity
+            android:name="androidx.core.view.inputmethod.ImeSecondarySplitViewCompatTestActivity"
+            android:exported="true" />
+
+        <activity
             android:name="androidx.core.view.inputmethod.ImeSecondarySplitTestActivity"
+            android:exported="true" />
+
+        <activity
+            android:name="androidx.core.app.GrammaticalInfectionActivity"
+            android:configChanges="grammaticalGender"
             android:exported="true" />
 
         <activity-alias

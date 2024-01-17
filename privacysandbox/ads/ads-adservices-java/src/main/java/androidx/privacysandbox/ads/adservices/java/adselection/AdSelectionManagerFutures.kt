@@ -16,9 +16,6 @@
 
 package androidx.privacysandbox.ads.adservices.java.adselection
 
-import androidx.privacysandbox.ads.adservices.java.internal.asListenableFuture
-import androidx.privacysandbox.ads.adservices.adselection.AdSelectionManager
-import androidx.privacysandbox.ads.adservices.adselection.AdSelectionManager.Companion.obtain
 import android.adservices.common.AdServicesPermissions
 import android.content.Context
 import android.os.LimitExceededException
@@ -26,8 +23,11 @@ import android.os.TransactionTooLargeException
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresPermission
 import androidx.privacysandbox.ads.adservices.adselection.AdSelectionConfig
+import androidx.privacysandbox.ads.adservices.adselection.AdSelectionManager
+import androidx.privacysandbox.ads.adservices.adselection.AdSelectionManager.Companion.obtain
 import androidx.privacysandbox.ads.adservices.adselection.AdSelectionOutcome
 import androidx.privacysandbox.ads.adservices.adselection.ReportImpressionRequest
+import androidx.privacysandbox.ads.adservices.java.internal.asListenableFuture
 import com.google.common.util.concurrent.ListenableFuture
 import java.util.concurrent.TimeoutException
 import kotlinx.coroutines.CoroutineScope

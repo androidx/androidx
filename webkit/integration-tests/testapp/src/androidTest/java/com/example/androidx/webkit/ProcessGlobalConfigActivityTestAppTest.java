@@ -18,6 +18,8 @@ package com.example.androidx.webkit;
 
 import static org.junit.Assert.assertTrue;
 
+import android.annotation.SuppressLint;
+
 import androidx.core.content.ContextCompat;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
@@ -41,6 +43,7 @@ public class ProcessGlobalConfigActivityTestAppTest {
     public ActivityScenarioRule<ProcessGlobalConfigActivity> mRule =
             new ActivityScenarioRule<>(ProcessGlobalConfigActivity.class);
 
+    @SuppressLint("BanThreadSleep")
     @Test
     public void testSetDataDirectorySuffix() throws Throwable {
         WebkitTestHelpers.assumeStartupFeature(
@@ -67,6 +70,7 @@ public class ProcessGlobalConfigActivityTestAppTest {
         assertTrue(file.exists());
     }
 
+    @SuppressLint("BanThreadSleep")
     @Test
     public void testSetDirectoryBasePaths() throws Throwable {
         WebkitTestHelpers.assumeStartupFeature(

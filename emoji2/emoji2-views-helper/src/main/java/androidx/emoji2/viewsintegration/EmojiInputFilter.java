@@ -15,6 +15,9 @@
  */
 package androidx.emoji2.viewsintegration;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
+
+import android.os.Handler;
 import android.text.InputFilter;
 import android.text.Selection;
 import android.text.Spannable;
@@ -23,7 +26,6 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.emoji2.text.EmojiCompat;
 import androidx.emoji2.text.EmojiCompat.InitCallback;
@@ -39,8 +41,7 @@ import java.lang.ref.WeakReference;
  * effects.
  *
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-@RequiresApi(19)
+@RestrictTo(LIBRARY)
 final class EmojiInputFilter implements android.text.InputFilter {
     private final TextView mTextView;
     private InitCallback mInitCallback;
@@ -88,15 +89,16 @@ final class EmojiInputFilter implements android.text.InputFilter {
         }
     }
 
-    private InitCallback getInitCallback() {
+    @RestrictTo(LIBRARY)
+    InitCallback getInitCallback() {
         if (mInitCallback == null) {
             mInitCallback = new InitCallbackImpl(mTextView, this);
         }
         return mInitCallback;
     }
 
-    @RequiresApi(19)
-    private static class InitCallbackImpl extends InitCallback {
+    @RestrictTo(LIBRARY)
+    static class InitCallbackImpl extends InitCallback implements Runnable  {
         private final Reference<TextView> mViewRef;
         private final Reference<EmojiInputFilter> mEmojiInputFilterReference;
 
@@ -109,6 +111,19 @@ final class EmojiInputFilter implements android.text.InputFilter {
         @Override
         public void onInitialized() {
             super.onInitialized();
+            final TextView textView = mViewRef.get();
+            if (textView == null) {
+                return;
+            }
+            // we need to move to the actual thread this view is using as main
+            Handler handler = textView.getHandler();
+            if (handler != null) {
+                handler.post(this);
+            }
+        }
+
+        @Override
+        public void run() {
             @Nullable final TextView textView = mViewRef.get();
             @Nullable final InputFilter myInputFilter = mEmojiInputFilterReference.get();
             if (!isInputFilterCurrentlyRegisteredOnTextView(textView, myInputFilter)) return;

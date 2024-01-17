@@ -18,7 +18,6 @@ package androidx.car.app.sample.showcase.common.screens.templatelayouts.tabtempl
 
 import static androidx.car.app.model.Action.APP_ICON;
 
-import android.annotation.SuppressLint;
 import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
@@ -81,7 +80,6 @@ public final class TabTemplateDemoScreen extends Screen {
     @Override
     public Template onGetTemplate() {
         mTabTemplateBuilder = new TabTemplate.Builder(new TabTemplate.TabCallback() {
-            @SuppressLint("SyntheticAccessor")
             @Override
             public void onTabSelected(@NonNull String tabContentId) {
                 mActiveContentId = tabContentId;
@@ -120,20 +118,17 @@ public final class TabTemplateDemoScreen extends Screen {
                             ICON_RES_IDS[i])).build())
                     .setContentId(contentId);
             if (TextUtils.isEmpty(mActiveContentId) && i == 0) {
-                tabBuilder.setActive(true);
+                mActiveContentId = contentId;
                 mTabTemplateBuilder.setTabContents(tabContents);
             } else if (TextUtils.equals(mActiveContentId, contentId)) {
-                tabBuilder.setActive(true);
                 mTabTemplateBuilder.setTabContents(tabContents);
-            } else {
-                tabBuilder.setActive(false);
             }
 
             Tab tab = tabBuilder.build();
             mTabs.put(tab.getContentId(), tab);
             mTabTemplateBuilder.addTab(tab);
         }
-        return mTabTemplateBuilder.build();
+        return mTabTemplateBuilder.setActiveTabContentId(mActiveContentId).build();
     }
 
     private ListTemplate createListTemplate() {

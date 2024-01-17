@@ -48,7 +48,15 @@ class UwbControllerSessionScopeImplTest {
         androidx.core.uwb.RangingCapabilities(
             RANGING_CAPABILITIES.supportsDistance(),
             RANGING_CAPABILITIES.supportsAzimuthalAngle(),
-            RANGING_CAPABILITIES.supportsElevationAngle()
+            RANGING_CAPABILITIES.supportsElevationAngle(),
+            RANGING_CAPABILITIES.minRangingInterval,
+            RANGING_CAPABILITIES.supportedChannels.toSet(),
+            RANGING_CAPABILITIES.supportedNtfConfigs.toSet(),
+            RANGING_CAPABILITIES.supportedConfigIds.toSet(),
+            RANGING_CAPABILITIES.supportedSlotDurations.toSet(),
+            RANGING_CAPABILITIES.supportedRangingUpdateRates.toSet(),
+            RANGING_CAPABILITIES.supportsRangingIntervalReconfigure(),
+            RANGING_CAPABILITIES.hasBackgroundRangingSupport()
         ),
         UwbAddress(LOCAL_ADDRESS.address)
     )
@@ -57,7 +65,15 @@ class UwbControllerSessionScopeImplTest {
         androidx.core.uwb.RangingCapabilities(
             RANGING_CAPABILITIES.supportsDistance(),
             RANGING_CAPABILITIES.supportsAzimuthalAngle(),
-            RANGING_CAPABILITIES.supportsElevationAngle()
+            RANGING_CAPABILITIES.supportsElevationAngle(),
+            RANGING_CAPABILITIES.minRangingInterval,
+            RANGING_CAPABILITIES.supportedChannels.toSet(),
+            RANGING_CAPABILITIES.supportedNtfConfigs.toSet(),
+            RANGING_CAPABILITIES.supportedConfigIds.toSet(),
+            RANGING_CAPABILITIES.supportedSlotDurations.toSet(),
+            RANGING_CAPABILITIES.supportedRangingUpdateRates.toSet(),
+            RANGING_CAPABILITIES.supportsRangingIntervalReconfigure(),
+            RANGING_CAPABILITIES.hasBackgroundRangingSupport()
         ),
         UwbAddress(LOCAL_ADDRESS.address),
         androidx.core.uwb.UwbComplexChannel(

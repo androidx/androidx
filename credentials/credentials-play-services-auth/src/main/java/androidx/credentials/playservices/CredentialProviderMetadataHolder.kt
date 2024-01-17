@@ -18,16 +18,30 @@ package androidx.credentials.playservices
 
 import android.app.Service
 import android.content.Intent
+import android.os.Binder
 import android.os.IBinder
+import androidx.annotation.RestrictTo
 
 /**
  * Metadata holder service for the purpose of defining the class that implements
  * the [androidx.credentials.CredentialProvider] interface
- *
- * @hide
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 class CredentialProviderMetadataHolder : Service() {
-    override fun onBind(p0: Intent?): IBinder? {
-        TODO("Not yet implemented")
+    // Binder given to clients.
+    private val binder = LocalBinder()
+
+    /**
+     * Class used for the client Binder. Because we know this service always
+     * runs in the same process as its clients, we don't need to deal with IPC.
+     */
+    inner class LocalBinder : Binder() {
+        // Return this instance of CredentialProviderMetadataHolder so clients
+        // can call public methods.
+        fun getService(): CredentialProviderMetadataHolder = this@CredentialProviderMetadataHolder
+    }
+
+    override fun onBind(intent: Intent): IBinder {
+        return binder
     }
 }

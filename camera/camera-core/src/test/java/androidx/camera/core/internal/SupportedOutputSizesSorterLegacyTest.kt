@@ -20,13 +20,14 @@ import android.graphics.ImageFormat
 import android.os.Build
 import android.util.Size
 import android.view.Surface
+import androidx.annotation.RequiresApi
 import androidx.camera.core.AspectRatio
 import androidx.camera.core.impl.UseCaseConfig
 import androidx.camera.core.impl.UseCaseConfigFactory.CaptureType
 import androidx.camera.core.impl.utils.AspectRatioUtil
 import androidx.camera.core.impl.utils.CompareSizesByArea
 import androidx.camera.testing.fakes.FakeCameraInfoInternal
-import androidx.camera.testing.fakes.FakeUseCaseConfig
+import androidx.camera.testing.impl.fakes.FakeUseCaseConfig
 import com.google.common.truth.Truth.assertThat
 import java.util.Arrays
 import org.junit.Test
@@ -35,6 +36,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.internal.DoNotInstrument
 
 private const val TARGET_ASPECT_RATIO_NONE = -99
+@RequiresApi(21)
 private val DEFAULT_SUPPORTED_SIZES = listOf(
     Size(4032, 3024), // 4:3
     Size(3840, 2160), // 16:9

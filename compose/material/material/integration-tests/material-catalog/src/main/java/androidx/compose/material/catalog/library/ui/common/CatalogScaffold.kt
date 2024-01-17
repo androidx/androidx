@@ -21,6 +21,7 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ModalBottomSheetLayout
 import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.Scaffold
+import androidx.compose.material.ScaffoldDefaults
 import androidx.compose.material.catalog.library.model.Theme
 import androidx.compose.material.catalog.library.ui.theme.ThemePicker
 import androidx.compose.material.catalog.library.util.GuidelinesUrl
@@ -76,6 +77,7 @@ fun CatalogScaffold(
     ) {
         val context = LocalContext.current
         Scaffold(
+            contentWindowInsets = ScaffoldDefaults.contentWindowInsets,
             topBar = {
                 CatalogTopAppBar(
                     title = topBarTitle,

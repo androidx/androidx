@@ -17,17 +17,17 @@
 package androidx.compose.foundation.text.modifiers
 
 import androidx.compose.foundation.text.DefaultMinLines
+import androidx.compose.ui.graphics.ColorProducer
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.platform.InspectorInfo
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextOverflow
 
 /**
- * Modifier element for any Text with [AnnotatedString] or [onTextLayout] parameters
+ * Modifier element for String based text
  *
- * This is slower than [TextAnnotatedStringElement]
+ * This is faster than [TextAnnotatedStringElement]
  */
 internal class TextStringSimpleElement(
     private val text: String,
@@ -37,6 +37,7 @@ internal class TextStringSimpleElement(
     private val softWrap: Boolean = true,
     private val maxLines: Int = Int.MAX_VALUE,
     private val minLines: Int = DefaultMinLines,
+    private val color: ColorProducer? = null
 ) : ModifierNodeElement<TextStringSimpleNode>() {
 
     override fun create(): TextStringSimpleNode = TextStringSimpleNode(
@@ -46,11 +47,16 @@ internal class TextStringSimpleElement(
         overflow,
         softWrap,
         maxLines,
-        minLines
+        minLines,
+        color
     )
 
-    override fun update(node: TextStringSimpleNode): TextStringSimpleNode {
+    override fun update(node: TextStringSimpleNode) {
         node.doInvalidations(
+            drawChanged = node.updateDraw(
+                color,
+                style
+            ),
             textChanged = node.updateText(
                 text = text
             ),
@@ -63,7 +69,6 @@ internal class TextStringSimpleElement(
                 overflow = overflow
             )
         )
-        return node
     }
 
     override fun equals(other: Any?): Boolean {
@@ -72,7 +77,8 @@ internal class TextStringSimpleElement(
         if (other !is TextStringSimpleElement) return false
 
         // these three are most likely to actually change
-        if (text != other.text) return false
+        if (color != other.color) return false
+        if (text != other.text) return false /* expensive to check, do after color */
         if (style != other.style) return false
 
         // these are equally unlikely to change
@@ -93,6 +99,7 @@ internal class TextStringSimpleElement(
         result = 31 * result + softWrap.hashCode()
         result = 31 * result + maxLines
         result = 31 * result + minLines
+        result = 31 * result + (color?.hashCode() ?: 0)
         return result
     }
 

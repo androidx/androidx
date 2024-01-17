@@ -20,6 +20,7 @@ import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.paging.DiffingChangePayload.ITEM_TO_PLACEHOLDER
 import androidx.paging.ListUpdateEvent.Changed
 import androidx.paging.ListUpdateEvent.Inserted
+import androidx.paging.ListUpdateEvent.Removed
 import androidx.paging.LoadState.Loading
 import androidx.paging.LoadState.NotLoading
 import androidx.recyclerview.widget.DiffUtil
@@ -33,6 +34,7 @@ import kotlin.coroutines.ContinuationInterceptor
 import kotlin.coroutines.CoroutineContext
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+import kotlin.test.fail
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -260,8 +262,11 @@ class AsyncPagingDataDifferTest {
             )
 
             // Load REFRESH [51, 52]
-            // Load PREPEND [50] to fulfill prefetch distance of transformed index
             currentPagedSource!!.invalidate()
+            advanceUntilIdle()
+
+            // UI access refreshed items. Load PREPEND [50] to fulfill prefetch distance
+            differ.getItem(51)
             advanceUntilIdle()
 
             assertEvents(
@@ -481,9 +486,7 @@ class AsyncPagingDataDifferTest {
             pager2.flow.collectLatest(differ::submitData)
         }
         advanceUntilIdle()
-        // This prepends an extra page due to transformedAnchorPosition re-sending an Access at the
-        // first position, we therefore load 19 + 7 items.
-        assertEquals(26, differ.itemCount)
+        assertEquals(19, differ.itemCount)
 
         // now if pager1 gets an invalidation, it overrides pager2
         source1.invalidate()
@@ -710,5 +713,357 @@ class AsyncPagingDataDifferTest {
             assertEquals(secondList, onInsertedSnapshot)
             assertEquals(secondList, onRemovedSnapshot)
         }
+    }
+
+    @Test
+    fun insertPageEmpty() = verifyPrependAppendCallback(
+        initialItems = 2,
+        initialNulls = 0,
+        newItems = 0,
+        newNulls = 0,
+        prependEvents = emptyList(),
+        appendEvents = emptyList()
+    )
+
+    @Test
+    fun insertPageSimple() = verifyPrependAppendCallback(
+        initialItems = 2,
+        initialNulls = 0,
+        newItems = 2,
+        newNulls = 0,
+        prependEvents = listOf(
+            Inserted(0, 2)
+        ),
+        appendEvents = listOf(
+            Inserted(2, 2)
+        )
+    )
+
+    @Test
+    fun insertPageSimplePlaceholders() = verifyPrependAppendCallback(
+        initialItems = 2,
+        initialNulls = 4,
+        newItems = 2,
+        newNulls = 2,
+        prependEvents = listOf(
+            Changed(2, 2, null)
+        ),
+        appendEvents = listOf(
+            Changed(2, 2, null)
+        )
+    )
+
+    @Test
+    fun insertPageInitPlaceholders() = verifyPrependAppendCallback(
+        initialItems = 2,
+        initialNulls = 0,
+        newItems = 2,
+        newNulls = 3,
+        prependEvents = listOf(
+            Inserted(0, 2),
+            Inserted(0, 3)
+        ),
+        appendEvents = listOf(
+            // NOTE: theoretically these could be combined
+            Inserted(2, 2),
+            Inserted(4, 3)
+        )
+    )
+
+    @Test
+    fun insertPageInitJustPlaceholders() = verifyPrependAppendCallback(
+        initialItems = 2,
+        initialNulls = 0,
+        newItems = 0,
+        newNulls = 3,
+        prependEvents = listOf(
+            Inserted(0, 3)
+        ),
+        appendEvents = listOf(
+            Inserted(2, 3)
+        )
+    )
+
+    @Test
+    fun insertPageInsertNulls() = verifyPrependAppendCallback(
+        initialItems = 2,
+        initialNulls = 3,
+        newItems = 2,
+        newNulls = 2,
+        prependEvents = listOf(
+            Changed(1, 2, null),
+            Inserted(0, 1)
+        ),
+        appendEvents = listOf(
+            Changed(2, 2, null),
+            Inserted(5, 1)
+        )
+    )
+
+    @Test
+    fun insertPageRemoveNulls() = verifyPrependAppendCallback(
+        initialItems = 2,
+        initialNulls = 7,
+        newItems = 2,
+        newNulls = 0,
+        prependEvents = listOf(
+            Changed(5, 2, null),
+            Removed(0, 5)
+        ),
+        appendEvents = listOf(
+            Changed(2, 2, null),
+            Removed(4, 5)
+        )
+    )
+
+    @Test
+    fun insertPageReduceNulls() = verifyPrependAppendCallback(
+        initialItems = 2,
+        initialNulls = 10,
+        newItems = 3,
+        newNulls = 4,
+        prependEvents = listOf(
+            Changed(7, 3, null),
+            Removed(0, 3)
+        ),
+        appendEvents = listOf(
+            Changed(2, 3, null),
+            Removed(9, 3)
+        )
+    )
+
+    @Test
+    fun dropPageMulti() = verifyDrop(
+        initialPages = listOf(
+            listOf(1, 2),
+            listOf(3, 4),
+            listOf(5)
+        ),
+        initialNulls = 0,
+        newNulls = 0,
+        pagesToDrop = 2,
+        startEvents = listOf(Removed(0, 3)),
+        endEvents = listOf(Removed(2, 3))
+    )
+
+    @Test
+    fun dropPageReturnNulls() = verifyDrop(
+        initialPages = listOf(
+            listOf(1, 2),
+            listOf(3, 4),
+            listOf(5)
+        ),
+        initialNulls = 1,
+        newNulls = 4,
+        pagesToDrop = 2,
+        startEvents = listOf(Changed(1, 3, null)),
+        endEvents = listOf(Changed(2, 3, null))
+    )
+
+    @Test
+    fun dropPageFromNoNullsToHavingNulls() = verifyDrop(
+        initialPages = listOf(
+            listOf(1, 2),
+            listOf(3, 4),
+            listOf(5)
+        ),
+        initialNulls = 0,
+        newNulls = 3,
+        pagesToDrop = 2,
+        startEvents = listOf(
+            // [null, null, null, 'a', 'b']
+            Changed(0, 3, null)
+        ),
+        endEvents = listOf(
+            // ['a', 'b', null, null, null]
+            Changed(2, 3, null)
+        )
+    )
+
+    @Test
+    fun dropPageChangeRemovePlaceholders() = verifyDrop(
+        initialPages = listOf(
+            listOf(1, 2),
+            listOf(3, 4),
+            listOf(5)
+        ),
+        initialNulls = 2,
+        newNulls = 4,
+        pagesToDrop = 2,
+        startEvents = listOf(
+            // [null, 'e', 'c', 'd', 'a', 'b']
+            Removed(0, 1),
+            // [null, null, null, null, 'a', 'b']
+            Changed(1, 3, null)
+        ),
+        endEvents = listOf(
+            // ['a', 'b', 'c', 'd', 'e', null]
+            Removed(6, 1),
+            // ['a', 'b', null, null, null, null]
+            Changed(2, 3, null)
+        )
+    )
+
+    @Test
+    fun dropPageChangeRemoveItems() = verifyDrop(
+        initialPages = listOf(
+            listOf(1, 2),
+            listOf(3, 4),
+            listOf(5)
+        ),
+        initialNulls = 0,
+        newNulls = 1,
+        pagesToDrop = 2,
+        startEvents = listOf(
+            // ['d', 'a', 'b']
+            Removed(0, 2),
+            // [null, 'a', 'b']
+            Changed(0, 1, null)
+        ),
+        endEvents = listOf(
+            // ['a', 'b', 'c']
+            Removed(3, 2),
+            // ['a', 'b', null]
+            Changed(2, 1, null)
+        )
+    )
+
+    @Test
+    fun dropPageChangeDoubleRemove() = verifyDrop(
+        initialPages = listOf(
+            listOf(1, 2),
+            listOf(3, 4),
+            listOf(5)
+        ),
+        initialNulls = 3,
+        newNulls = 1,
+        pagesToDrop = 2,
+        startEvents = listOf(
+            // ['d', 'a', 'b']
+            Removed(0, 5),
+            // [null, 'a', 'b']
+            Changed(0, 1, null)
+        ),
+        endEvents = listOf(
+            // ['a', 'b', 'c']
+            Removed(3, 5),
+            // ['a', 'b', null]
+            Changed(2, 1, null)
+        )
+    )
+
+    private fun verifyPrependAppendCallback(
+        initialItems: Int,
+        initialNulls: Int,
+        newItems: Int,
+        newNulls: Int,
+        prependEvents: List<ListUpdateEvent>,
+        appendEvents: List<ListUpdateEvent>
+    ) {
+        runTest {
+            verifyPrepend(initialItems, initialNulls, newItems, newNulls, prependEvents)
+            verifyAppend(initialItems, initialNulls, newItems, newNulls, appendEvents)
+        }
+    }
+
+    private suspend fun verifyPrepend(
+        initialItems: Int,
+        initialNulls: Int,
+        newItems: Int,
+        newNulls: Int,
+        events: List<ListUpdateEvent>
+    ) {
+        // send event to UI
+        differ.presenter.presentPagingDataEvent(
+            PagingDataEvent.Prepend(
+                inserted = List(newItems) { it + initialItems },
+                newPlaceholdersBefore = newNulls,
+                oldPlaceholdersBefore = initialNulls
+            )
+        )
+
+        // ... then assert events
+        assertEquals(events, listUpdateCapture.newEvents())
+    }
+
+    private suspend fun verifyAppend(
+        initialItems: Int,
+        initialNulls: Int,
+        newItems: Int,
+        newNulls: Int = PagingSource.LoadResult.Page.COUNT_UNDEFINED,
+        events: List<ListUpdateEvent>
+    ) {
+        // send event to UI
+        differ.presenter.presentPagingDataEvent(
+            PagingDataEvent.Append(
+                inserted = List(newItems) { it + initialItems },
+                startIndex = initialItems,
+                newPlaceholdersAfter = newNulls,
+                oldPlaceholdersAfter = initialNulls
+            )
+        )
+
+        // ... then assert events
+        assertEquals(events, listUpdateCapture.newEvents())
+    }
+
+    private fun verifyDrop(
+        initialPages: List<List<Int>>,
+        initialNulls: Int = 0,
+        newNulls: Int,
+        pagesToDrop: Int,
+        startEvents: List<ListUpdateEvent>,
+        endEvents: List<ListUpdateEvent>
+    ) {
+        runTest {
+            val dropCount = initialPages.reversed().take(pagesToDrop).flatten().size
+            verifyDropStart(initialPages, initialNulls, newNulls, dropCount, startEvents)
+            verifyDropEnd(initialPages, initialNulls, newNulls, dropCount, endEvents)
+        }
+    }
+
+    private suspend fun verifyDropStart(
+        initialPages: List<List<Int>>,
+        initialNulls: Int = 0,
+        newNulls: Int,
+        dropCount: Int,
+        events: List<ListUpdateEvent>
+    ) {
+        if (initialPages.size < 2) {
+            fail("require at least 2 pages")
+        }
+
+        differ.presenter.presentPagingDataEvent(
+            PagingDataEvent.DropPrepend(
+                dropCount = dropCount,
+                oldPlaceholdersBefore = initialNulls,
+                newPlaceholdersBefore = newNulls,
+            )
+        )
+
+        assertThat(listUpdateCapture.newEvents()).isEqualTo(events)
+    }
+
+    private suspend fun verifyDropEnd(
+        initialPages: List<List<Int>>,
+        initialNulls: Int = 0,
+        newNulls: Int,
+        dropCount: Int,
+        events: List<ListUpdateEvent>
+    ) {
+        if (initialPages.size < 2) {
+            fail("require at least 2 pages")
+        }
+
+        differ.presenter.presentPagingDataEvent(
+            PagingDataEvent.DropAppend(
+                startIndex = initialPages.flatten().size - dropCount,
+                dropCount = dropCount,
+                newPlaceholdersAfter = newNulls,
+                oldPlaceholdersAfter = initialNulls,
+            )
+        )
+
+        assertThat(listUpdateCapture.newEvents()).isEqualTo(events)
     }
 }

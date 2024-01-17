@@ -27,6 +27,7 @@ import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.style.AbsoluteSizeSpan;
 import android.view.View;
+import android.webkit.JavascriptInterface;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
@@ -52,7 +53,6 @@ import java.util.HashSet;
 /**
  * An {@link Activity} to exercise WebMessageListener related functionality.
  */
-@SuppressLint("RestrictedApi")
 public class WebMessageListenerActivity extends AppCompatActivity {
     private TextView mTextView;
     private final Uri mExampleUri = new Uri.Builder()
@@ -153,12 +153,29 @@ public class WebMessageListenerActivity extends AppCompatActivity {
         public void onPostMessage(@NonNull WebView view, @NonNull WebMessageCompat message,
                 @NonNull Uri sourceOrigin,
                 boolean isMainFrame, @NonNull JavaScriptReplyProxy replyProxy) {
-            replyProxy.postMessage(message.getData());
+            switch (message.getType()) {
+                case WebMessageCompat.TYPE_STRING:
+                    replyProxy.postMessage(message.getData());
+                    break;
+                case WebMessageCompat.TYPE_ARRAY_BUFFER:
+                    replyProxy.postMessage(message.getArrayBuffer());
+                    break;
+                default:
+                    throw new IllegalArgumentException("Invalid WebMessage type");
+            }
             mCounter++;
             if (mCounter % 100 == 0) {
                 mTextView.setText(TextUtils.concat(
                         createNativeTitle(), "\n", "" + mCounter + " messages received."));
             }
+        }
+    }
+
+    private static class NativeFeatureInterface {
+        @SuppressWarnings("unused") // used from Javascript
+        @JavascriptInterface
+        public boolean isArrayBufferSupported() {
+            return WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_ARRAY_BUFFER);
         }
     }
 
@@ -192,6 +209,7 @@ public class WebMessageListenerActivity extends AppCompatActivity {
         WebView webView = findViewById(R.id.webview);
         webView.setWebViewClient(new MyWebViewClient(assetLoader));
         webView.getSettings().setJavaScriptEnabled(true);
+        webView.addJavascriptInterface(new NativeFeatureInterface(), "nativeFeatures");
 
         HashSet<String> allowedOriginRules = new HashSet<>(Arrays.asList("https://example.com"));
         // Add WebMessageListeners.

@@ -17,13 +17,11 @@
 package androidx.appsearch.builtintypes;
 
 import android.content.Context;
-import android.os.Build;
 import android.os.SystemClock;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.Document;
 import androidx.appsearch.utils.BootCountUtil;
@@ -37,7 +35,7 @@ import java.util.List;
  */
 @Document(name = "builtin:Timer")
 public class Timer extends Thing {
-    /** @hide */
+    /** @exportToFramework:hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef({STATUS_UNKNOWN, STATUS_STARTED, STATUS_PAUSED, STATUS_EXPIRED, STATUS_MISSED,
             STATUS_RESET})
@@ -91,12 +89,13 @@ public class Timer extends Thing {
             long creationTimestampMillis, long documentTtlMillis, @Nullable String name,
             @Nullable List<String> alternateNames, @Nullable String description,
             @Nullable String image, @Nullable String url,
+            @Nullable List<PotentialAction> potentialActions,
             long durationMillis, long originalDurationMillis, long startTimeMillis,
             long baseTimeMillis, long baseTimeMillisInElapsedRealtime, int bootCount,
             long remainingDurationMillis, @Nullable String ringtone, int status,
             boolean shouldVibrate) {
         super(namespace, id, documentScore, creationTimestampMillis, documentTtlMillis, name,
-                alternateNames, description, image, url);
+                alternateNames, description, image, url, potentialActions);
         mDurationMillis = durationMillis;
         mOriginalDurationMillis = originalDurationMillis;
         mStartTimeMillis = startTimeMillis;
@@ -236,7 +235,6 @@ public class Timer extends Thing {
      * in the {@link System#currentTimeMillis()} time base. Otherwise return
      * {@link #getBaseTimeMillis()}.
      */
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)
     public long calculateBaseTimeMillis(@NonNull Context context) {
         int currentBootCount = BootCountUtil.getCurrentBootCount(context);
         if (currentBootCount == -1 || currentBootCount != mBootCount) {
@@ -263,7 +261,6 @@ public class Timer extends Thing {
      *
      * @param context The app context
      */
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)
     public long calculateExpirationTimeMillis(@NonNull Context context) {
         if (mStatus == STATUS_PAUSED || mStatus == STATUS_RESET) {
             return Long.MAX_VALUE;
@@ -283,7 +280,6 @@ public class Timer extends Thing {
      *
      * @param context The app context
      */
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)
     public long calculateCurrentRemainingDurationMillis(@NonNull Context context) {
         if (mStatus == STATUS_PAUSED || mStatus == STATUS_RESET) {
             // The timer has not started, so the remaining time is the same as the last updated one.
@@ -420,7 +416,6 @@ public class Timer extends Thing {
          * @param baseTimeMillisInElapsedRealtime The base time in milliseconds using the
          * {@link android.os.SystemClock#elapsedRealtime()} time base.
          */
-        @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)
         @NonNull
         public T setBaseTimeMillis(@NonNull Context context, long baseTimeMillis,
                 long baseTimeMillisInElapsedRealtime) {
@@ -477,6 +472,7 @@ public class Timer extends Thing {
         public Timer build() {
             return new Timer(mNamespace, mId, mDocumentScore, mCreationTimestampMillis,
                     mDocumentTtlMillis, mName, mAlternateNames, mDescription, mImage, mUrl,
+                    mPotentialActions,
                     mDurationMillis, mOriginalDurationMillis, mStartTimeMillis, mBaseTimeMillis,
                     mBaseTimeMillisInElapsedRealtime, mBootCount, mRemainingDurationMillis,
                     mRingtone, mStatus, mShouldVibrate);

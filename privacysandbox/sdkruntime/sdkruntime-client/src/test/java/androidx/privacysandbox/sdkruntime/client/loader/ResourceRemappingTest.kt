@@ -53,7 +53,7 @@ class ResourceRemappingTest {
             classLoader,
             ResourceRemappingConfig(
                 rPackageClassName = "RPackage",
-                packageId = 42
+                packageId = 0x2A
             )
         )
 
@@ -61,7 +61,7 @@ class ResourceRemappingTest {
         val packageIdField = rPackageClass.getDeclaredField("packageId")
         val value = packageIdField.getInt(null)
 
-        assertThat(value).isEqualTo(42)
+        assertThat(value).isEqualTo(0x2A000000)
     }
 
     @Test

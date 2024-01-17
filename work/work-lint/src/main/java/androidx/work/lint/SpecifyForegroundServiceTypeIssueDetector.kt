@@ -31,9 +31,9 @@ import com.android.tools.lint.detector.api.SourceCodeScanner
 import com.android.tools.lint.detector.api.XmlContext
 import com.android.tools.lint.detector.api.XmlScanner
 import com.intellij.psi.PsiMethod
+import java.util.EnumSet
 import org.jetbrains.uast.UCallExpression
 import org.w3c.dom.Element
-import java.util.EnumSet
 
 /**
  * Detects usage of `ForegroundInfo` with the `foregroundServiceType` and ensure that the service

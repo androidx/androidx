@@ -45,7 +45,6 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.slice.SliceItem;
 import androidx.slice.core.SliceAction;
@@ -57,10 +56,9 @@ import java.util.List;
 
 /**
  * Extracts information required to present content in a row format from a slice.
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-@RequiresApi(19)
+@Deprecated
 public class RowContent extends SliceContent {
     private static final String TAG = "RowContent";
 
@@ -353,7 +351,6 @@ public class RowContent extends SliceContent {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override

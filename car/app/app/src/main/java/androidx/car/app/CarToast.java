@@ -32,7 +32,6 @@ import java.lang.annotation.RetentionPolicy;
 
 /** A message to show to the user for a short period of time. */
 public final class CarToast {
-    /** @hide */
     @IntDef(value = {LENGTH_SHORT, LENGTH_LONG})
     @Retention(RetentionPolicy.SOURCE)
     @RestrictTo(LIBRARY)

@@ -30,12 +30,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.CarProtocol;
-import androidx.car.app.annotations.ExperimentalCarApi;
+import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.constraints.ActionsConstraints;
 import androidx.car.app.model.constraints.CarIconConstraints;
 import androidx.car.app.model.constraints.CarTextConstraints;
-import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.utils.CollectionUtils;
 
 import java.lang.annotation.Retention;
@@ -61,10 +60,9 @@ public final class Row implements Item {
     /**
      * The type of images supported within rows.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY)
-    @IntDef(value = {IMAGE_TYPE_SMALL, IMAGE_TYPE_ICON, IMAGE_TYPE_LARGE})
+    @IntDef(value = {IMAGE_TYPE_SMALL, IMAGE_TYPE_ICON, IMAGE_TYPE_LARGE, IMAGE_TYPE_EXTRA_SMALL})
     @Retention(RetentionPolicy.SOURCE)
     public @interface RowImageType {
     }
@@ -98,6 +96,15 @@ public final class Row implements Item {
      * default tint color as determined by the host will be applied.
      */
     public static final int IMAGE_TYPE_ICON = (1 << 2);
+
+    /**
+     * Represents an extra small image to be displayed in the row.
+     *
+     * <p>To minimize scaling artifacts across a wide range of car screens, apps should provide
+     * images targeting a 88 x 88 dp bounding box. If necessary, the image will be scaled down while
+     * preserving its aspect ratio.
+     */
+    public static final int IMAGE_TYPE_EXTRA_SMALL = (1 << 3);
 
     private final boolean mIsEnabled;
     @Nullable
@@ -155,7 +162,6 @@ public final class Row implements Item {
      *
      * @see Builder#addAction(Action)
      */
-    @ExperimentalCarApi
     @NonNull
     @RequiresCarApi(6)
     public List<Action> getActions() {
@@ -173,11 +179,12 @@ public final class Row implements Item {
      *
      * <p> Numeric decorations are displayed at the end of the row, but before any actions.
      *
+     * <p> Numeric decorations are only allowed in full-width lists.
+     *
      * <p> {@link Row#NO_DECORATION} will be returned if the row does not contain a decoration.
      *
      * @see Builder#setNumericDecoration(int)
      */
-    @ExperimentalCarApi
     @RequiresCarApi(6)
     public int getNumericDecoration() {
         return mNumericDecoration;
@@ -524,8 +531,7 @@ public final class Row implements Item {
         }
 
         /**
-         * Adds an additional action to the end of the row. Actions are not displayed in
-         * half-list templates.
+         * Adds an additional action to the end of the row.
          *
          * @throws NullPointerException     if {@code action} is {@code null}
          * @throws IllegalArgumentException if {@code action} contains unsupported Action types,
@@ -533,7 +539,6 @@ public final class Row implements Item {
          *                                  not contain a valid {@link CarIcon}.
          */
         //TODO(b/260557014): Update docs when half-list UX is defined
-        @ExperimentalCarApi
         @NonNull
         @RequiresCarApi(6)
         public Builder addAction(@NonNull Action action) {
@@ -559,7 +564,6 @@ public final class Row implements Item {
          * @throws IllegalArgumentException if {@code decoration} is invalid
          */
         //TODO(b/260557014): Update docs when half-list UX is defined
-        @ExperimentalCarApi
         @NonNull
         @RequiresCarApi(6)
         @IntRange(from = 0)

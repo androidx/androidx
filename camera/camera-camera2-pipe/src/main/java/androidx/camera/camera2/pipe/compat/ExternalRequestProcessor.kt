@@ -53,6 +53,7 @@ class ExternalCameraController(
 
     override val cameraId: CameraId
         get() = graphConfig.camera
+    override var isForeground = false
 
     override fun start() {
         if (started.compareAndSet(expect = false, update = true)) {
@@ -137,9 +138,12 @@ internal class ExternalCaptureSequenceProcessor(
         )
     }
 
-    override fun submit(captureSequence: ExternalCaptureSequence): Int {
-        check(!closed.value)
+    override fun submit(captureSequence: ExternalCaptureSequence): Int? {
         check(captureSequence.captureRequestList.isNotEmpty())
+        if (closed.value) {
+            Log.warn { "Cannot submit $captureSequence because $this is closed" }
+            return null
+        }
 
         if (captureSequence.repeating) {
             check(captureSequence.captureRequestList.size == 1)

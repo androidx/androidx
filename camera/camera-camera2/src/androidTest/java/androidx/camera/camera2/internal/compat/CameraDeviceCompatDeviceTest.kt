@@ -29,8 +29,8 @@ import androidx.camera.camera2.AsyncCameraDevice
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.camera2.internal.compat.params.OutputConfigurationCompat
 import androidx.camera.camera2.internal.compat.params.SessionConfigurationCompat
-import androidx.camera.testing.CameraUtil
-import androidx.camera.testing.CameraUtil.PreTestCameraIdList
+import androidx.camera.testing.impl.CameraUtil
+import androidx.camera.testing.impl.CameraUtil.PreTestCameraIdList
 import androidx.core.os.HandlerCompat
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4

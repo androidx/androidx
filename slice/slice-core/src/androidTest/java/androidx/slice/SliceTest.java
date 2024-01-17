@@ -51,7 +51,6 @@ import androidx.slice.core.test.R;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
-import androidx.test.filters.SdkSuppress;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -63,7 +62,6 @@ import java.util.concurrent.TimeUnit;
 
 @RunWith(AndroidJUnit4.class)
 @LargeTest
-@SdkSuppress(minSdkVersion = 19)
 public class SliceTest {
 
     public static boolean sFlag = false;

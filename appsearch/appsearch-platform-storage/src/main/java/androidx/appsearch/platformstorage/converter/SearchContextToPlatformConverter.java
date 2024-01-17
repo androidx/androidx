@@ -28,7 +28,7 @@ import androidx.core.util.Preconditions;
 /**
  * Translates a Jetpack {@link androidx.appsearch.platformstorage.PlatformStorage.SearchContext}
  * into a platform {@link android.app.appsearch.AppSearchManager.SearchContext}.
- * @hide
+ * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresApi(Build.VERSION_CODES.S)

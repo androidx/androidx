@@ -17,11 +17,11 @@
 package androidx.camera.integration.antelope
 
 import androidx.camera.integration.antelope.MainActivity.Companion.antelopeIdlingResource
-import com.google.common.math.Stats
 import androidx.camera.integration.antelope.MainActivity.Companion.cameraParams
 import androidx.camera.integration.antelope.MainActivity.Companion.isSingleTestRunning
 import androidx.camera.integration.antelope.MainActivity.Companion.logd
 import androidx.camera.integration.antelope.MainActivity.Companion.testsRemaining
+import com.google.common.math.Stats
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import kotlin.collections.ArrayList

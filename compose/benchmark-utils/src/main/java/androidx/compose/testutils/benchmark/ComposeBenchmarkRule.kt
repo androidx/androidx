@@ -16,9 +16,15 @@
 
 package androidx.compose.testutils.benchmark
 
+import android.os.Looper
 import androidx.activity.ComponentActivity
+import androidx.annotation.UiThread
+import androidx.annotation.WorkerThread
+import androidx.benchmark.ExperimentalBenchmarkConfigApi
+import androidx.benchmark.MicrobenchmarkConfig
 import androidx.benchmark.junit4.BenchmarkRule
 import androidx.benchmark.junit4.measureRepeated
+import androidx.benchmark.junit4.measureRepeatedOnMainThread
 import androidx.compose.testutils.ComposeBenchmarkScope
 import androidx.compose.testutils.ComposeTestCase
 import androidx.compose.testutils.benchmark.android.AndroidTestCase
@@ -32,12 +38,31 @@ import org.junit.runners.model.Statement
 /**
  * Rule to be used to run Compose / Android benchmarks.
  */
-class ComposeBenchmarkRule : TestRule {
+@OptIn(ExperimentalBenchmarkConfigApi::class)
+class ComposeBenchmarkRule internal constructor(
+    // this is a hack to avoid exposing the config param to all callers,
+    // can change to optional when MicrobenchmarkConfig is non-experimental
+    internalConfig: MicrobenchmarkConfig? = null,
+    // used to differentiate signature for internal constructor
+    @Suppress("UNUSED_PARAMETER") ignored: Int = 0
+) : TestRule {
+
+    constructor(config: MicrobenchmarkConfig) : this(internalConfig = config)
+
+    // Explicit constructor without config arg
+    constructor() : this(internalConfig = null)
+
     @Suppress("DEPRECATION")
     private val activityTestRule =
         androidx.test.rule.ActivityTestRule(ComponentActivity::class.java)
 
-    val benchmarkRule = BenchmarkRule()
+    // We don't use the config default constructor as a default, as it overrides values from
+    // instrumentation args, which may be surprising
+    val benchmarkRule = if (internalConfig == null) {
+        BenchmarkRule()
+    } else {
+        BenchmarkRule(internalConfig)
+    }
 
     override fun apply(base: Statement, description: Description?): Statement {
         @OptIn(InternalTestApi::class)
@@ -50,38 +75,63 @@ class ComposeBenchmarkRule : TestRule {
     /**
      * Runs benchmark for the given [ComposeTestCase].
      *
-     * Note that benchmark by default runs on the ui thread and disposes composition afterwards.
+     * Note that UI setup and benchmark measurements must be explicitly scheduled to the UI thread,
+     * as the block runs on the current (test) thread.
      *
      * @param givenTestCase The test case to be executed
      * @param block The benchmark instruction to be performed over the given test case
      */
     fun <T : ComposeTestCase> runBenchmarkFor(
         givenTestCase: () -> T,
+        @WorkerThread
         block: ComposeBenchmarkScope<T>.() -> Unit
     ) {
+        check(Looper.myLooper() != Looper.getMainLooper()) {
+            "Cannot invoke runBenchmarkFor from the main thread"
+        }
         require(givenTestCase !is AndroidTestCase) {
             "Expected ${ComposeTestCase::class.simpleName}!"
         }
 
-        activityTestRule.runOnUiThread {
-            // TODO(pavlis): Assert that there is no existing composition before we run benchmark
-            val runner = createAndroidComposeBenchmarkRunner(
+        lateinit var runner: ComposeBenchmarkScope<T>
+        runOnUiThread {
+            runner = createAndroidComposeBenchmarkRunner(
                 givenTestCase,
                 activityTestRule.activity
             )
-            try {
-                block(runner)
-            } finally {
+        }
+
+        try {
+            block(runner)
+        } finally {
+            runOnUiThread {
                 runner.disposeContent()
+                runner.close()
             }
         }
     }
 
     /**
      * Convenience proxy for [BenchmarkRule.measureRepeated].
+     *
+     * Should not be used for UI work.
      */
-    fun measureRepeated(block: BenchmarkRule.Scope.() -> Unit) {
+    fun measureRepeated(
+        @WorkerThread
+        block: BenchmarkRule.Scope.() -> Unit
+    ) {
         benchmarkRule.measureRepeated(block)
+    }
+
+    /**
+     * Convenience proxy for [BenchmarkRule.measureRepeatedOnMainThread].
+     */
+    @WorkerThread
+    fun measureRepeatedOnUiThread(
+        @UiThread
+        block: BenchmarkRule.Scope.() -> Unit
+    ) {
+        benchmarkRule.measureRepeatedOnMainThread(block)
     }
 
     /**

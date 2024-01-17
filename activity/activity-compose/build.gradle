@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.Publish
 import androidx.build.RunApiTasks
 
@@ -35,7 +42,7 @@ dependencies {
 
     androidTestImplementation projectOrArtifact(":compose:ui:ui-test-junit4")
     androidTestImplementation projectOrArtifact(":compose:material:material")
-    androidTestImplementation projectOrArtifact(":compose:test-utils")
+    androidTestImplementation project(":compose:test-utils")
     androidTestImplementation projectOrArtifact(":lifecycle:lifecycle-runtime-testing")
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testExtJunitKtx)
@@ -54,6 +61,7 @@ androidx {
     inceptionYear = "2020"
     description = "Compose integration with Activity"
     runApiTasks = new RunApiTasks.Yes()
+    metalavaK2UastEnabled = true
 }
 
 android {

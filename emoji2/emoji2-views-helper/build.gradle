@@ -1,3 +1,10 @@
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.Publish
 
 plugins {
@@ -27,8 +34,9 @@ android {
 }
 
 androidx {
-    name = "Android Emoji2 Compat view helpers"
+    name = "Emoji2 Views Helper"
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2017"
-    description = "View helpers for Emoji2"
+    description = "Provide helper classes for Emoji2 views."
+    metalavaK2UastEnabled = true
 }

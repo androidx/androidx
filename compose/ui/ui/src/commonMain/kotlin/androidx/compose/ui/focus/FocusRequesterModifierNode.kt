@@ -20,11 +20,11 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.focus.FocusDirection.Companion.Enter
 import androidx.compose.ui.node.DelegatableNode
 import androidx.compose.ui.node.Nodes
-import androidx.compose.ui.node.visitChildren
+import androidx.compose.ui.node.visitSelfAndChildren
 
 /**
  * Implement this interface to create a modifier node that can be used to request changes in
- * the focus state of a [FocusTargetModifierNode] down the hierarchy.
+ * the focus state of a [FocusTargetNode] down the hierarchy.
  */
 interface FocusRequesterModifierNode : DelegatableNode
 
@@ -37,9 +37,8 @@ interface FocusRequesterModifierNode : DelegatableNode
  */
 @OptIn(ExperimentalComposeUiApi::class)
 fun FocusRequesterModifierNode.requestFocus(): Boolean {
-    visitChildren(Nodes.FocusTarget) { focusTarget ->
-        val focusProperties = focusTarget.fetchFocusProperties()
-        return if (focusProperties.canFocus) {
+    visitSelfAndChildren(Nodes.FocusTarget) { focusTarget ->
+        return if (focusTarget.fetchFocusProperties().canFocus) {
             focusTarget.requestFocus()
         } else {
             focusTarget.findChildCorrespondingToFocusEnter(Enter) {
@@ -66,7 +65,7 @@ fun FocusRequesterModifierNode.requestFocus(): Boolean {
  * @sample androidx.compose.ui.samples.CaptureFocusSample
  */
 fun FocusRequesterModifierNode.captureFocus(): Boolean {
-    visitChildren(Nodes.FocusTarget) {
+    visitSelfAndChildren(Nodes.FocusTarget) {
         if (it.captureFocus()) {
             return true
         }
@@ -89,8 +88,42 @@ fun FocusRequesterModifierNode.captureFocus(): Boolean {
  * @sample androidx.compose.ui.samples.CaptureFocusSample
  */
 fun FocusRequesterModifierNode.freeFocus(): Boolean {
-    visitChildren(Nodes.FocusTarget) {
+    visitSelfAndChildren(Nodes.FocusTarget) {
         if (it.freeFocus()) return true
+    }
+    return false
+}
+
+/**
+ * Use this function to request the focus target to save a reference to the currently focused
+ * child in its saved instance state. After calling this, focus can be restored to the saved child
+ * by making a call to [restoreFocusedChild].
+ *
+ * @return true if the focus target associated with this node has a focused child
+ * and we successfully saved a reference to it.
+ */
+@ExperimentalComposeUiApi
+fun FocusRequesterModifierNode.saveFocusedChild(): Boolean {
+    visitSelfAndChildren(Nodes.FocusTarget) {
+        if (it.saveFocusedChild()) {
+            return true
+        }
+    }
+    return false
+}
+
+/**
+ * Use this function to restore focus to one of the children of the node pointed to by this
+ * [FocusRequester]. This restores focus to a previously focused child that was saved
+ * by using [saveFocusedChild].
+ *
+ * @return true if we successfully restored focus to one of the children of the [focusTarget]
+ * associated with this node.
+ */
+@ExperimentalComposeUiApi
+fun FocusRequesterModifierNode.restoreFocusedChild(): Boolean {
+    visitSelfAndChildren(Nodes.FocusTarget) {
+        if (it.restoreFocusedChild()) return true
     }
     return false
 }

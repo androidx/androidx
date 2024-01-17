@@ -1,15 +1,7 @@
 // Baseline format: 1.0
-RemovedClass: androidx.wear.watchface.complications.data.DataKt:
-    Removed class androidx.wear.watchface.complications.data.DataKt
-RemovedClass: androidx.wear.watchface.complications.data.DefaultComplicationDataSourcePolicyWireFormat:
-    Removed class androidx.wear.watchface.complications.data.DefaultComplicationDataSourcePolicyWireFormat
-RemovedClass: androidx.wear.watchface.complications.data.ImageKt:
-    Removed class androidx.wear.watchface.complications.data.ImageKt
-RemovedClass: androidx.wear.watchface.complications.data.TextKt:
-    Removed class androidx.wear.watchface.complications.data.TextKt
-RemovedClass: androidx.wear.watchface.complications.data.TypeKt:
-    Removed class androidx.wear.watchface.complications.data.TypeKt
+AddedMethod: androidx.wear.watchface.complications.data.ColorRamp#isInterpolated():
+    Added method androidx.wear.watchface.complications.data.ColorRamp.isInterpolated()
 
 
-RemovedPackage: androidx.wear.watchface.utility:
-    Removed package androidx.wear.watchface.utility
+RemovedMethod: androidx.wear.watchface.complications.data.ColorRamp#getInterpolated():
+    Removed method androidx.wear.watchface.complications.data.ColorRamp.getInterpolated()

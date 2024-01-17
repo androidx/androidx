@@ -20,7 +20,7 @@ import android.os.Build
 import android.util.Pair
 import androidx.camera.core.impl.CameraCaptureMetaData
 import androidx.camera.core.impl.TagBundle
-import androidx.camera.testing.fakes.FakeCameraCaptureResult
+import androidx.camera.testing.impl.fakes.FakeCameraCaptureResult
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -59,14 +59,17 @@ class VirtualCameraCaptureResultTest {
     @Test
     fun metadataWithBaseValue_returnBaseValue() {
         // Arrange.
-        val baseCameraCaptureResult = FakeCameraCaptureResult().apply {
-            timestamp = 2L
-            aeState = CameraCaptureMetaData.AeState.CONVERGED
-            afState = CameraCaptureMetaData.AfState.LOCKED_FOCUSED
-            awbState = CameraCaptureMetaData.AwbState.CONVERGED
-            flashState = CameraCaptureMetaData.FlashState.FIRED
-            afMode = CameraCaptureMetaData.AfMode.ON_CONTINUOUS_AUTO
-        }
+        val baseCameraCaptureResult = FakeCameraCaptureResult()
+            .apply {
+                timestamp = 2L
+                aeState = CameraCaptureMetaData.AeState.CONVERGED
+                afState = CameraCaptureMetaData.AfState.LOCKED_FOCUSED
+                awbState = CameraCaptureMetaData.AwbState.CONVERGED
+                flashState = CameraCaptureMetaData.FlashState.FIRED
+                afMode = CameraCaptureMetaData.AfMode.ON_CONTINUOUS_AUTO
+                aeMode = CameraCaptureMetaData.AeMode.ON
+                awbMode = CameraCaptureMetaData.AwbMode.AUTO
+            }
         // Act.
         val result = VirtualCameraCaptureResult(TAG_BUNDLE, baseCameraCaptureResult)
         // Assert.
@@ -77,5 +80,7 @@ class VirtualCameraCaptureResultTest {
         assertThat(result.awbState).isEqualTo(baseCameraCaptureResult.awbState)
         assertThat(result.flashState).isEqualTo(baseCameraCaptureResult.flashState)
         assertThat(result.afMode).isEqualTo(baseCameraCaptureResult.afMode)
+        assertThat(result.aeMode).isEqualTo(baseCameraCaptureResult.aeMode)
+        assertThat(result.awbMode).isEqualTo(baseCameraCaptureResult.awbMode)
     }
 }

@@ -32,8 +32,8 @@ import org.mockito.plugins.MockMaker
  * implementation is responsible for delegating to the inline variant should the regular variant
  * fall to instantiate a mock.
  *
- * This allows Mockito to mock final classes on test run on API 28+ devices, while still
- * functioning for normal non-final mocks API <28.
+ * This allows Mockito to mock final classes on test run on API 28+ devices, while still functioning
+ * for normal non-final mocks API <28.
  *
  * This class is placed in the core sources since the use case is rather unique to
  * [androidx.core.content.pm.PackageInfoCompatHasSignaturesTest], and other testing solutions should
@@ -42,25 +42,26 @@ import org.mockito.plugins.MockMaker
 class CustomMockMaker : InlineMockMaker {
 
     companion object {
-        private val MOCK_MAKERS = mutableListOf<MockMaker>(DexmakerMockMaker()).apply {
-            // Inline only works on API 28+
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                this += InlineDexmakerMockMaker()
+        private val MOCK_MAKERS =
+            mutableListOf<MockMaker>(DexmakerMockMaker()).apply {
+                // Inline only works on API 28+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    this += InlineDexmakerMockMaker()
+                }
             }
-        }
     }
 
     override fun <T> createMock(settings: MockCreationSettings<T>, handler: MockHandler<*>): T? {
         var lastException: Exception? = null
-        MOCK_MAKERS
-            .filter { it.isTypeMockable(settings.typeToMock).mockable() }
+        MOCK_MAKERS.filter { it.isTypeMockable(settings.typeToMock).mockable() }
             .forEach {
-                val mock = try {
-                    it.createMock(settings, handler)
-                } catch (e: Exception) {
-                    lastException = e
-                    null
-                }
+                val mock =
+                    try {
+                        it.createMock(settings, handler)
+                    } catch (e: Exception) {
+                        lastException = e
+                        null
+                    }
 
                 if (mock != null) {
                     return mock
@@ -86,9 +87,7 @@ class CustomMockMaker : InlineMockMaker {
         newHandler: MockHandler<*>?,
         settings: MockCreationSettings<*>?
     ) {
-        MOCK_MAKERS.forEach {
-            it.resetMock(mock, newHandler, settings)
-        }
+        MOCK_MAKERS.forEach { it.resetMock(mock, newHandler, settings) }
     }
 
     override fun isTypeMockable(type: Class<*>?): MockMaker.TypeMockability? {
@@ -103,14 +102,10 @@ class CustomMockMaker : InlineMockMaker {
     }
 
     override fun clearMock(mock: Any?) {
-        MOCK_MAKERS.forEach {
-            (it as? InlineMockMaker)?.clearMock(mock)
-        }
+        MOCK_MAKERS.forEach { (it as? InlineMockMaker)?.clearMock(mock) }
     }
 
     override fun clearAllMocks() {
-        MOCK_MAKERS.forEach {
-            (it as? InlineMockMaker)?.clearAllMocks()
-        }
+        MOCK_MAKERS.forEach { (it as? InlineMockMaker)?.clearAllMocks() }
     }
 }

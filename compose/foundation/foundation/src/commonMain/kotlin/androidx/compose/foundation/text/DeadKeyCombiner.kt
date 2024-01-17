@@ -23,7 +23,7 @@ import androidx.compose.ui.input.key.KeyEvent
  *
  * It is NOT thread safe.
  */
-internal expect class DeadKeyCombiner {
+internal expect class DeadKeyCombiner() {
 
     /**
      * @param event the key event received by the combiner

@@ -78,6 +78,11 @@ object COMMON {
     val BOOK by lazy {
         loadJavaCode("common/input/Book.java", "foo.bar.Book")
     }
+
+    val PAGE by lazy {
+        loadJavaCode("common/input/Page.java", "foo.bar.Page")
+    }
+
     val NOT_AN_ENTITY by lazy {
         loadJavaCode("common/input/NotAnEntity.java", "foo.bar.NotAnEntity")
     }
@@ -349,6 +354,11 @@ fun loadTestSource(fileName: String, qName: String): Source {
     val contents = File("src/test/test-data/$fileName")
     val relativePath = qName.replace('.', File.separatorChar) + "." + contents.extension
     return Source.load(contents, qName, relativePath)
+}
+
+fun writeTestSource(source: Source, fileName: String) {
+    val contents = File("src/test/test-data/$fileName")
+    contents.writeText(source.contents)
 }
 
 fun createVerifierFromEntitiesAndViews(invocation: XTestInvocation): DatabaseVerifier {

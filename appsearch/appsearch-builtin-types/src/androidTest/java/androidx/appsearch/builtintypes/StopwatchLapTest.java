@@ -135,5 +135,10 @@ public class StopwatchLapTest {
         assertThat(genericDocument.getPropertyLong("lapDurationMillis")).isEqualTo(100);
         assertThat(genericDocument.getPropertyLong("accumulatedLapDurationMillis"))
                 .isEqualTo(1100);
+
+        // Test that toDocumentClass doesn't lose information.
+        GenericDocument newGenericDocument = GenericDocument.fromDocumentClass(
+                genericDocument.toDocumentClass(StopwatchLap.class));
+        assertThat(newGenericDocument).isEqualTo(genericDocument);
     }
 }

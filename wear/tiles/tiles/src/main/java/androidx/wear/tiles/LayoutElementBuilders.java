@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2021-2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,8 @@
 
 package androidx.wear.tiles;
 
+import static androidx.wear.protolayout.expression.Preconditions.checkNotNull;
+
 import static java.util.stream.Collectors.toList;
 
 import android.annotation.SuppressLint;
@@ -27,22 +29,11 @@ import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
+import androidx.wear.protolayout.expression.Fingerprint;
 import androidx.wear.protolayout.proto.AlignmentProto;
-import androidx.wear.tiles.ColorBuilders.ColorProp;
-import androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters;
-import androidx.wear.tiles.DimensionBuilders.ContainerDimension;
-import androidx.wear.tiles.DimensionBuilders.DegreesProp;
-import androidx.wear.tiles.DimensionBuilders.DpProp;
-import androidx.wear.tiles.DimensionBuilders.EmProp;
-import androidx.wear.tiles.DimensionBuilders.ImageDimension;
-import androidx.wear.tiles.DimensionBuilders.SpProp;
-import androidx.wear.tiles.DimensionBuilders.SpacerDimension;
-import androidx.wear.tiles.ModifiersBuilders.ArcModifiers;
-import androidx.wear.tiles.ModifiersBuilders.Modifiers;
-import androidx.wear.tiles.ModifiersBuilders.SpanModifiers;
-import androidx.wear.tiles.TypeBuilders.BoolProp;
-import androidx.wear.tiles.TypeBuilders.Int32Prop;
-import androidx.wear.tiles.TypeBuilders.StringProp;
+import androidx.wear.protolayout.proto.DimensionProto;
+import androidx.wear.protolayout.proto.FingerprintProto;
+import androidx.wear.protolayout.proto.FingerprintProto.TreeFingerprint;
 import androidx.wear.protolayout.proto.LayoutElementProto;
 import androidx.wear.protolayout.proto.TypesProto;
 import androidx.wear.protolayout.protobuf.InvalidProtocolBufferException;
@@ -55,14 +46,14 @@ import java.util.List;
 /**
  * Builders for composable layout elements that can be combined together to create renderable UI
  * layouts.
+ *
+ * @deprecated Use {@link androidx.wear.protolayout.LayoutElementBuilders} instead.
  */
+@Deprecated
 public final class LayoutElementBuilders {
     private LayoutElementBuilders() {}
 
-    /**
-     * The horizontal alignment of an element within its container.
-     *
-     */
+    /** The horizontal alignment of an element within its container. */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef({
         HORIZONTAL_ALIGN_UNDEFINED,
@@ -93,10 +84,7 @@ public final class LayoutElementBuilders {
     /** Horizontally align to the content end (right in LTR layouts, left in RTL layouts). */
     public static final int HORIZONTAL_ALIGN_END = 5;
 
-    /**
-     * The vertical alignment of an element within its container.
-     *
-     */
+    /** The vertical alignment of an element within its container. */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef({
         VERTICAL_ALIGN_UNDEFINED,
@@ -119,10 +107,7 @@ public final class LayoutElementBuilders {
     /** Vertically align to the bottom. */
     public static final int VERTICAL_ALIGN_BOTTOM = 3;
 
-    /**
-     * The weight to be applied to the font.
-     *
-     */
+    /** The weight to be applied to the font. */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef({FONT_WEIGHT_UNDEFINED, FONT_WEIGHT_NORMAL, FONT_WEIGHT_MEDIUM, FONT_WEIGHT_BOLD})
     @Retention(RetentionPolicy.SOURCE)
@@ -144,7 +129,6 @@ public final class LayoutElementBuilders {
     /**
      * The variant of a font. Some renderers may use different fonts for title and body text, which
      * can be selected using this field.
-     *
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef({FONT_VARIANT_UNDEFINED, FONT_VARIANT_TITLE, FONT_VARIANT_BODY})
@@ -163,7 +147,6 @@ public final class LayoutElementBuilders {
     /**
      * The alignment of a {@link SpanImage} within the line height of the surrounding {@link
      * Spannable}.
-     *
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef({
@@ -191,10 +174,7 @@ public final class LayoutElementBuilders {
      */
     public static final int SPAN_VERTICAL_ALIGN_TEXT_BASELINE = 2;
 
-    /**
-     * Alignment of a text element.
-     *
-     */
+    /** Alignment of a text element. */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef({TEXT_ALIGN_UNDEFINED, TEXT_ALIGN_START, TEXT_ALIGN_CENTER, TEXT_ALIGN_END})
     @Retention(RetentionPolicy.SOURCE)
@@ -204,22 +184,23 @@ public final class LayoutElementBuilders {
     public static final int TEXT_ALIGN_UNDEFINED = 0;
 
     /**
-     * Align to the "start" of the {@link Text} element (left in LTR layouts, right in RTL layouts).
+     * Align to the "start" of the {@link androidx.wear.tiles.LayoutElementBuilders.Text} element
+     * (left in LTR layouts, right in RTL layouts).
      */
     public static final int TEXT_ALIGN_START = 1;
 
-    /** Align to the center of the {@link Text} element. */
+    /**
+     * Align to the center of the {@link androidx.wear.tiles.LayoutElementBuilders.Text} element.
+     */
     public static final int TEXT_ALIGN_CENTER = 2;
 
     /**
-     * Align to the "end" of the {@link Text} element (right in LTR layouts, left in RTL layouts).
+     * Align to the "end" of the {@link androidx.wear.tiles.LayoutElementBuilders.Text} element
+     * (right in LTR layouts, left in RTL layouts).
      */
     public static final int TEXT_ALIGN_END = 3;
 
-    /**
-     * How text that will not fit inside the bounds of a {@link Text} element will be handled.
-     *
-     */
+    /** How text that will not fit inside the bounds of a {@link Text} element will be handled. */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef({TEXT_OVERFLOW_UNDEFINED, TEXT_OVERFLOW_TRUNCATE, TEXT_OVERFLOW_ELLIPSIZE_END})
     @Retention(RetentionPolicy.SOURCE)
@@ -241,12 +222,15 @@ public final class LayoutElementBuilders {
     public static final int TEXT_OVERFLOW_ELLIPSIZE_END = 2;
 
     /**
-     * The anchor position of an {@link Arc}'s elements. This is used to specify how elements added
-     * to an {@link Arc} should be laid out with respect to anchor_angle.
+     * The anchor position of an {@link androidx.wear.tiles.LayoutElementBuilders.Arc}'s elements.
+     * This is used to specify how elements added to an {@link
+     * androidx.wear.tiles.LayoutElementBuilders.Arc} should be laid out with respect to
+     * anchor_angle.
      *
      * <p>As an example, assume that the following diagrams are wrapped to an arc, and each
-     * represents an {@link Arc} element containing a single {@link Text} element. The {@link Text}
-     * element's anchor_angle is "0" for all cases.
+     * represents an {@link androidx.wear.tiles.LayoutElementBuilders.Arc} element containing a
+     * single {@link androidx.wear.tiles.LayoutElementBuilders.Text} element. The {@link
+     * androidx.wear.tiles.LayoutElementBuilders.Text} element's anchor_angle is "0" for all cases.
      *
      * <pre>{@code
      * ARC_ANCHOR_START:
@@ -263,7 +247,6 @@ public final class LayoutElementBuilders {
      *                          Hello World!
      *
      * }</pre>
-     *
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef({ARC_ANCHOR_UNDEFINED, ARC_ANCHOR_START, ARC_ANCHOR_CENTER, ARC_ANCHOR_END})
@@ -294,7 +277,6 @@ public final class LayoutElementBuilders {
     /**
      * How content which does not match the dimensions of its bounds (e.g. an image resource being
      * drawn inside an {@link Image}) will be resized to fit its bounds.
-     *
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef({
@@ -334,9 +316,12 @@ public final class LayoutElementBuilders {
     /** An extensible {@code HorizontalAlignment} property. */
     public static final class HorizontalAlignmentProp {
         private final AlignmentProto.HorizontalAlignmentProp mImpl;
+        @Nullable private final Fingerprint mFingerprint;
 
-        private HorizontalAlignmentProp(AlignmentProto.HorizontalAlignmentProp impl) {
+        private HorizontalAlignmentProp(
+                AlignmentProto.HorizontalAlignmentProp impl, @Nullable Fingerprint fingerprint) {
             this.mImpl = impl;
+            this.mFingerprint = fingerprint;
         }
 
         /** Gets the value. Intended for testing purposes only. */
@@ -345,16 +330,21 @@ public final class LayoutElementBuilders {
             return mImpl.getValue().getNumber();
         }
 
+        /** Get the fingerprint for this object, or null if unknown. */
         @RestrictTo(Scope.LIBRARY_GROUP)
-        @NonNull
-        public static HorizontalAlignmentProp fromProto(
-                @NonNull AlignmentProto.HorizontalAlignmentProp proto) {
-            return new HorizontalAlignmentProp(proto);
+        @Nullable
+        public Fingerprint getFingerprint() {
+            return mFingerprint;
         }
 
-        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        public AlignmentProto.HorizontalAlignmentProp toProto() {
+        static HorizontalAlignmentProp fromProto(
+                @NonNull AlignmentProto.HorizontalAlignmentProp proto) {
+            return new HorizontalAlignmentProp(proto, null);
+        }
+
+        @NonNull
+        AlignmentProto.HorizontalAlignmentProp toProto() {
             return mImpl;
         }
 
@@ -362,6 +352,7 @@ public final class LayoutElementBuilders {
         public static final class Builder {
             private final AlignmentProto.HorizontalAlignmentProp.Builder mImpl =
                     AlignmentProto.HorizontalAlignmentProp.newBuilder();
+            private final Fingerprint mFingerprint = new Fingerprint(-384830516);
 
             public Builder() {}
 
@@ -369,6 +360,7 @@ public final class LayoutElementBuilders {
             @NonNull
             public Builder setValue(@HorizontalAlignment int value) {
                 mImpl.setValue(AlignmentProto.HorizontalAlignment.forNumber(value));
+                mFingerprint.recordPropertyUpdate(1, value);
                 return this;
             }
 
@@ -383,9 +375,12 @@ public final class LayoutElementBuilders {
     /** An extensible {@code VerticalAlignment} property. */
     public static final class VerticalAlignmentProp {
         private final AlignmentProto.VerticalAlignmentProp mImpl;
+        @Nullable private final Fingerprint mFingerprint;
 
-        private VerticalAlignmentProp(AlignmentProto.VerticalAlignmentProp impl) {
+        VerticalAlignmentProp(
+                AlignmentProto.VerticalAlignmentProp impl, @Nullable Fingerprint fingerprint) {
             this.mImpl = impl;
+            this.mFingerprint = fingerprint;
         }
 
         /** Gets the value. Intended for testing purposes only. */
@@ -394,16 +389,21 @@ public final class LayoutElementBuilders {
             return mImpl.getValue().getNumber();
         }
 
+        /** Get the fingerprint for this object, or null if unknown. */
         @RestrictTo(Scope.LIBRARY_GROUP)
-        @NonNull
-        public static VerticalAlignmentProp fromProto(
-                @NonNull AlignmentProto.VerticalAlignmentProp proto) {
-            return new VerticalAlignmentProp(proto);
+        @Nullable
+        public Fingerprint getFingerprint() {
+            return mFingerprint;
         }
 
-        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        public AlignmentProto.VerticalAlignmentProp toProto() {
+        static VerticalAlignmentProp fromProto(
+                @NonNull AlignmentProto.VerticalAlignmentProp proto) {
+            return new VerticalAlignmentProp(proto, null);
+        }
+
+        @NonNull
+        AlignmentProto.VerticalAlignmentProp toProto() {
             return mImpl;
         }
 
@@ -411,6 +411,7 @@ public final class LayoutElementBuilders {
         public static final class Builder {
             private final AlignmentProto.VerticalAlignmentProp.Builder mImpl =
                     AlignmentProto.VerticalAlignmentProp.newBuilder();
+            private final Fingerprint mFingerprint = new Fingerprint(1443510393);
 
             public Builder() {}
 
@@ -418,13 +419,14 @@ public final class LayoutElementBuilders {
             @NonNull
             public Builder setValue(@VerticalAlignment int value) {
                 mImpl.setValue(AlignmentProto.VerticalAlignment.forNumber(value));
+                mFingerprint.recordPropertyUpdate(1, value);
                 return this;
             }
 
             /** Builds an instance from accumulated values. */
             @NonNull
             public VerticalAlignmentProp build() {
-                return VerticalAlignmentProp.fromProto(mImpl.build());
+                return new VerticalAlignmentProp(mImpl.build(), mFingerprint);
             }
         }
     }
@@ -432,9 +434,11 @@ public final class LayoutElementBuilders {
     /** An extensible {@code FontWeight} property. */
     public static final class FontWeightProp {
         private final LayoutElementProto.FontWeightProp mImpl;
+        @Nullable private final Fingerprint mFingerprint;
 
-        private FontWeightProp(LayoutElementProto.FontWeightProp impl) {
+        FontWeightProp(LayoutElementProto.FontWeightProp impl, @Nullable Fingerprint fingerprint) {
             this.mImpl = impl;
+            this.mFingerprint = fingerprint;
         }
 
         /** Gets the value. Intended for testing purposes only. */
@@ -443,15 +447,20 @@ public final class LayoutElementBuilders {
             return mImpl.getValue().getNumber();
         }
 
+        /** Get the fingerprint for this object, or null if unknown. */
         @RestrictTo(Scope.LIBRARY_GROUP)
-        @NonNull
-        public static FontWeightProp fromProto(@NonNull LayoutElementProto.FontWeightProp proto) {
-            return new FontWeightProp(proto);
+        @Nullable
+        public Fingerprint getFingerprint() {
+            return mFingerprint;
         }
 
-        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        public LayoutElementProto.FontWeightProp toProto() {
+        static FontWeightProp fromProto(@NonNull LayoutElementProto.FontWeightProp proto) {
+            return new FontWeightProp(proto, null);
+        }
+
+        @NonNull
+        LayoutElementProto.FontWeightProp toProto() {
             return mImpl;
         }
 
@@ -459,6 +468,7 @@ public final class LayoutElementBuilders {
         public static final class Builder {
             private final LayoutElementProto.FontWeightProp.Builder mImpl =
                     LayoutElementProto.FontWeightProp.newBuilder();
+            private final Fingerprint mFingerprint = new Fingerprint(1793388920);
 
             public Builder() {}
 
@@ -466,13 +476,14 @@ public final class LayoutElementBuilders {
             @NonNull
             public Builder setValue(@FontWeight int value) {
                 mImpl.setValue(LayoutElementProto.FontWeight.forNumber(value));
+                mFingerprint.recordPropertyUpdate(1, value);
                 return this;
             }
 
             /** Builds an instance from accumulated values. */
             @NonNull
             public FontWeightProp build() {
-                return FontWeightProp.fromProto(mImpl.build());
+                return new FontWeightProp(mImpl.build(), mFingerprint);
             }
         }
     }
@@ -481,9 +492,12 @@ public final class LayoutElementBuilders {
     @TilesExperimental
     public static final class FontVariantProp {
         private final LayoutElementProto.FontVariantProp mImpl;
+        @Nullable private final Fingerprint mFingerprint;
 
-        private FontVariantProp(LayoutElementProto.FontVariantProp impl) {
+        FontVariantProp(
+                LayoutElementProto.FontVariantProp impl, @Nullable Fingerprint fingerprint) {
             this.mImpl = impl;
+            this.mFingerprint = fingerprint;
         }
 
         /** Gets the value. Intended for testing purposes only. */
@@ -492,15 +506,20 @@ public final class LayoutElementBuilders {
             return mImpl.getValue().getNumber();
         }
 
+        /** Get the fingerprint for this object, or null if unknown. */
         @RestrictTo(Scope.LIBRARY_GROUP)
-        @NonNull
-        public static FontVariantProp fromProto(@NonNull LayoutElementProto.FontVariantProp proto) {
-            return new FontVariantProp(proto);
+        @Nullable
+        public Fingerprint getFingerprint() {
+            return mFingerprint;
         }
 
-        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        public LayoutElementProto.FontVariantProp toProto() {
+        static FontVariantProp fromProto(@NonNull LayoutElementProto.FontVariantProp proto) {
+            return new FontVariantProp(proto, null);
+        }
+
+        @NonNull
+        LayoutElementProto.FontVariantProp toProto() {
             return mImpl;
         }
 
@@ -508,6 +527,7 @@ public final class LayoutElementBuilders {
         public static final class Builder {
             private final LayoutElementProto.FontVariantProp.Builder mImpl =
                     LayoutElementProto.FontVariantProp.newBuilder();
+            private final Fingerprint mFingerprint = new Fingerprint(-293831500);
 
             public Builder() {}
 
@@ -515,13 +535,14 @@ public final class LayoutElementBuilders {
             @NonNull
             public Builder setValue(@FontVariant int value) {
                 mImpl.setValue(LayoutElementProto.FontVariant.forNumber(value));
+                mFingerprint.recordPropertyUpdate(1, value);
                 return this;
             }
 
             /** Builds an instance from accumulated values. */
             @NonNull
             public FontVariantProp build() {
-                return FontVariantProp.fromProto(mImpl.build());
+                return new FontVariantProp(mImpl.build(), mFingerprint);
             }
         }
     }
@@ -529,9 +550,13 @@ public final class LayoutElementBuilders {
     /** An extensible {@code SpanVerticalAlignment} property. */
     public static final class SpanVerticalAlignmentProp {
         private final LayoutElementProto.SpanVerticalAlignmentProp mImpl;
+        @Nullable private final Fingerprint mFingerprint;
 
-        private SpanVerticalAlignmentProp(LayoutElementProto.SpanVerticalAlignmentProp impl) {
+        SpanVerticalAlignmentProp(
+                LayoutElementProto.SpanVerticalAlignmentProp impl,
+                @Nullable Fingerprint fingerprint) {
             this.mImpl = impl;
+            this.mFingerprint = fingerprint;
         }
 
         /** Gets the value. Intended for testing purposes only. */
@@ -540,16 +565,21 @@ public final class LayoutElementBuilders {
             return mImpl.getValue().getNumber();
         }
 
+        /** Get the fingerprint for this object, or null if unknown. */
         @RestrictTo(Scope.LIBRARY_GROUP)
-        @NonNull
-        public static SpanVerticalAlignmentProp fromProto(
-                @NonNull LayoutElementProto.SpanVerticalAlignmentProp proto) {
-            return new SpanVerticalAlignmentProp(proto);
+        @Nullable
+        public Fingerprint getFingerprint() {
+            return mFingerprint;
         }
 
-        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        public LayoutElementProto.SpanVerticalAlignmentProp toProto() {
+        static SpanVerticalAlignmentProp fromProto(
+                @NonNull LayoutElementProto.SpanVerticalAlignmentProp proto) {
+            return new SpanVerticalAlignmentProp(proto, null);
+        }
+
+        @NonNull
+        LayoutElementProto.SpanVerticalAlignmentProp toProto() {
             return mImpl;
         }
 
@@ -557,6 +587,7 @@ public final class LayoutElementBuilders {
         public static final class Builder {
             private final LayoutElementProto.SpanVerticalAlignmentProp.Builder mImpl =
                     LayoutElementProto.SpanVerticalAlignmentProp.newBuilder();
+            private final Fingerprint mFingerprint = new Fingerprint(1008812329);
 
             public Builder() {}
 
@@ -564,13 +595,14 @@ public final class LayoutElementBuilders {
             @NonNull
             public Builder setValue(@SpanVerticalAlignment int value) {
                 mImpl.setValue(LayoutElementProto.SpanVerticalAlignment.forNumber(value));
+                mFingerprint.recordPropertyUpdate(1, value);
                 return this;
             }
 
             /** Builds an instance from accumulated values. */
             @NonNull
             public SpanVerticalAlignmentProp build() {
-                return SpanVerticalAlignmentProp.fromProto(mImpl.build());
+                return new SpanVerticalAlignmentProp(mImpl.build(), mFingerprint);
             }
         }
     }
@@ -578,9 +610,11 @@ public final class LayoutElementBuilders {
     /** The styling of a font (e.g. font size, and metrics). */
     public static final class FontStyle {
         private final LayoutElementProto.FontStyle mImpl;
+        @Nullable private final Fingerprint mFingerprint;
 
-        private FontStyle(LayoutElementProto.FontStyle impl) {
+        FontStyle(LayoutElementProto.FontStyle impl, @Nullable Fingerprint fingerprint) {
             this.mImpl = impl;
+            this.mFingerprint = fingerprint;
         }
 
         /**
@@ -588,9 +622,10 @@ public final class LayoutElementBuilders {
          * of the system's "body" font. Intended for testing purposes only.
          */
         @Nullable
-        public SpProp getSize() {
-            if (mImpl.hasSize()) {
-                return SpProp.fromProto(mImpl.getSize());
+        public DimensionBuilders.SpProp getSize() {
+            List<DimensionProto.SpProp> sizes = mImpl.getSizeList();
+            if (!sizes.isEmpty()) {
+                return DimensionBuilders.SpProp.fromProto(sizes.get(0));
             } else {
                 return null;
             }
@@ -601,9 +636,9 @@ public final class LayoutElementBuilders {
          * to "false". Intended for testing purposes only.
          */
         @Nullable
-        public BoolProp getItalic() {
+        public TypeBuilders.BoolProp getItalic() {
             if (mImpl.hasItalic()) {
-                return BoolProp.fromProto(mImpl.getItalic());
+                return TypeBuilders.BoolProp.fromProto(mImpl.getItalic());
             } else {
                 return null;
             }
@@ -614,9 +649,9 @@ public final class LayoutElementBuilders {
          * "false". Intended for testing purposes only.
          */
         @Nullable
-        public BoolProp getUnderline() {
+        public TypeBuilders.BoolProp getUnderline() {
             if (mImpl.hasUnderline()) {
-                return BoolProp.fromProto(mImpl.getUnderline());
+                return TypeBuilders.BoolProp.fromProto(mImpl.getUnderline());
             } else {
                 return null;
             }
@@ -627,9 +662,9 @@ public final class LayoutElementBuilders {
          * only.
          */
         @Nullable
-        public ColorProp getColor() {
+        public ColorBuilders.ColorProp getColor() {
             if (mImpl.hasColor()) {
-                return ColorProp.fromProto(mImpl.getColor());
+                return ColorBuilders.ColorProp.fromProto(mImpl.getColor());
             } else {
                 return null;
             }
@@ -655,9 +690,9 @@ public final class LayoutElementBuilders {
          * purposes only.
          */
         @Nullable
-        public EmProp getLetterSpacing() {
+        public DimensionBuilders.EmProp getLetterSpacing() {
             if (mImpl.hasLetterSpacing()) {
-                return EmProp.fromProto(mImpl.getLetterSpacing());
+                return DimensionBuilders.EmProp.fromProto(mImpl.getLetterSpacing());
             } else {
                 return null;
             }
@@ -678,12 +713,19 @@ public final class LayoutElementBuilders {
             }
         }
 
+        /** Get the fingerprint for this object, or null if unknown. */
         @RestrictTo(Scope.LIBRARY_GROUP)
-        @NonNull
-        public static FontStyle fromProto(@NonNull LayoutElementProto.FontStyle proto) {
-            return new FontStyle(proto);
+        @Nullable
+        public Fingerprint getFingerprint() {
+            return mFingerprint;
         }
 
+        @NonNull
+        static FontStyle fromProto(@NonNull LayoutElementProto.FontStyle proto) {
+            return new FontStyle(proto, null);
+        }
+
+        /** Returns the internal proto instance. */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public LayoutElementProto.FontStyle toProto() {
@@ -694,6 +736,7 @@ public final class LayoutElementBuilders {
         public static final class Builder {
             private final LayoutElementProto.FontStyle.Builder mImpl =
                     LayoutElementProto.FontStyle.newBuilder();
+            private final Fingerprint mFingerprint = new Fingerprint(181264306);
 
             public Builder() {}
 
@@ -702,8 +745,11 @@ public final class LayoutElementBuilders {
              * size of the system's "body" font.
              */
             @NonNull
-            public Builder setSize(@NonNull SpProp size) {
-                mImpl.setSize(size.toProto());
+            public Builder setSize(@NonNull DimensionBuilders.SpProp size) {
+                mImpl.clearSize();
+                mImpl.addSize(size.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        1, checkNotNull(size.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
 
@@ -712,10 +758,13 @@ public final class LayoutElementBuilders {
              * defaults to "false".
              */
             @NonNull
-            public Builder setItalic(@NonNull BoolProp italic) {
+            public Builder setItalic(@NonNull TypeBuilders.BoolProp italic) {
                 mImpl.setItalic(italic.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        2, checkNotNull(italic.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
+
             /**
              * Sets whether the text should be rendered in a italic typeface. If not specified,
              * defaults to "false".
@@ -724,6 +773,7 @@ public final class LayoutElementBuilders {
             @NonNull
             public Builder setItalic(boolean italic) {
                 mImpl.setItalic(TypesProto.BoolProp.newBuilder().setValue(italic));
+                mFingerprint.recordPropertyUpdate(2, Boolean.hashCode(italic));
                 return this;
             }
 
@@ -732,10 +782,13 @@ public final class LayoutElementBuilders {
              * defaults to "false".
              */
             @NonNull
-            public Builder setUnderline(@NonNull BoolProp underline) {
+            public Builder setUnderline(@NonNull TypeBuilders.BoolProp underline) {
                 mImpl.setUnderline(underline.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        3, checkNotNull(underline.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
+
             /**
              * Sets whether the text should be rendered with an underline. If not specified,
              * defaults to "false".
@@ -744,13 +797,16 @@ public final class LayoutElementBuilders {
             @NonNull
             public Builder setUnderline(boolean underline) {
                 mImpl.setUnderline(TypesProto.BoolProp.newBuilder().setValue(underline));
+                mFingerprint.recordPropertyUpdate(3, Boolean.hashCode(underline));
                 return this;
             }
 
             /** Sets the text color. If not defined, defaults to white. */
             @NonNull
-            public Builder setColor(@NonNull ColorProp color) {
+            public Builder setColor(@NonNull ColorBuilders.ColorProp color) {
                 mImpl.setColor(color.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        4, checkNotNull(color.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
 
@@ -762,8 +818,11 @@ public final class LayoutElementBuilders {
             @NonNull
             public Builder setWeight(@NonNull FontWeightProp weight) {
                 mImpl.setWeight(weight.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        5, checkNotNull(weight.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
+
             /**
              * Sets the weight of the font. If the provided value is not supported on a platform,
              * the nearest supported value will be used. If not defined, or when set to an invalid
@@ -774,6 +833,7 @@ public final class LayoutElementBuilders {
                 mImpl.setWeight(
                         LayoutElementProto.FontWeightProp.newBuilder()
                                 .setValue(LayoutElementProto.FontWeight.forNumber(weight)));
+                mFingerprint.recordPropertyUpdate(5, weight);
                 return this;
             }
 
@@ -782,8 +842,10 @@ public final class LayoutElementBuilders {
              * while negative numbers tighten the space. If not specified, defaults to 0.
              */
             @NonNull
-            public Builder setLetterSpacing(@NonNull EmProp letterSpacing) {
+            public Builder setLetterSpacing(@NonNull DimensionBuilders.EmProp letterSpacing) {
                 mImpl.setLetterSpacing(letterSpacing.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        6, checkNotNull(letterSpacing.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
 
@@ -795,8 +857,11 @@ public final class LayoutElementBuilders {
             @NonNull
             public Builder setVariant(@NonNull FontVariantProp variant) {
                 mImpl.setVariant(variant.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        7, checkNotNull(variant.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
+
             /**
              * Sets the variant of a font. Some renderers may use different fonts for title and body
              * text, which can be selected using this field. If not specified, defaults to "body".
@@ -807,13 +872,14 @@ public final class LayoutElementBuilders {
                 mImpl.setVariant(
                         LayoutElementProto.FontVariantProp.newBuilder()
                                 .setValue(LayoutElementProto.FontVariant.forNumber(variant)));
+                mFingerprint.recordPropertyUpdate(7, variant);
                 return this;
             }
 
             /** Builds an instance from accumulated values. */
             @NonNull
             public FontStyle build() {
-                return FontStyle.fromProto(mImpl.build());
+                return new FontStyle(mImpl.build(), mFingerprint);
             }
         }
     }
@@ -821,9 +887,12 @@ public final class LayoutElementBuilders {
     /** An extensible {@code TextAlignment} property. */
     public static final class TextAlignmentProp {
         private final AlignmentProto.TextAlignmentProp mImpl;
+        @Nullable private final Fingerprint mFingerprint;
 
-        private TextAlignmentProp(AlignmentProto.TextAlignmentProp impl) {
+        TextAlignmentProp(
+                AlignmentProto.TextAlignmentProp impl, @Nullable Fingerprint fingerprint) {
             this.mImpl = impl;
+            this.mFingerprint = fingerprint;
         }
 
         /** Gets the value. Intended for testing purposes only. */
@@ -832,16 +901,20 @@ public final class LayoutElementBuilders {
             return mImpl.getValue().getNumber();
         }
 
+        /** Get the fingerprint for this object, or null if unknown. */
         @RestrictTo(Scope.LIBRARY_GROUP)
-        @NonNull
-        public static TextAlignmentProp fromProto(
-                @NonNull AlignmentProto.TextAlignmentProp proto) {
-            return new TextAlignmentProp(proto);
+        @Nullable
+        public Fingerprint getFingerprint() {
+            return mFingerprint;
         }
 
-        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        public AlignmentProto.TextAlignmentProp toProto() {
+        static TextAlignmentProp fromProto(@NonNull AlignmentProto.TextAlignmentProp proto) {
+            return new TextAlignmentProp(proto, null);
+        }
+
+        @NonNull
+        AlignmentProto.TextAlignmentProp toProto() {
             return mImpl;
         }
 
@@ -849,6 +922,7 @@ public final class LayoutElementBuilders {
         public static final class Builder {
             private final AlignmentProto.TextAlignmentProp.Builder mImpl =
                     AlignmentProto.TextAlignmentProp.newBuilder();
+            private final Fingerprint mFingerprint = new Fingerprint(797507251);
 
             public Builder() {}
 
@@ -856,13 +930,14 @@ public final class LayoutElementBuilders {
             @NonNull
             public Builder setValue(@TextAlignment int value) {
                 mImpl.setValue(AlignmentProto.TextAlignment.forNumber(value));
+                mFingerprint.recordPropertyUpdate(1, value);
                 return this;
             }
 
             /** Builds an instance from accumulated values. */
             @NonNull
             public TextAlignmentProp build() {
-                return TextAlignmentProp.fromProto(mImpl.build());
+                return new TextAlignmentProp(mImpl.build(), mFingerprint);
             }
         }
     }
@@ -870,9 +945,12 @@ public final class LayoutElementBuilders {
     /** An extensible {@code TextOverflow} property. */
     public static final class TextOverflowProp {
         private final LayoutElementProto.TextOverflowProp mImpl;
+        @Nullable private final Fingerprint mFingerprint;
 
-        private TextOverflowProp(LayoutElementProto.TextOverflowProp impl) {
+        TextOverflowProp(
+                LayoutElementProto.TextOverflowProp impl, @Nullable Fingerprint fingerprint) {
             this.mImpl = impl;
+            this.mFingerprint = fingerprint;
         }
 
         /** Gets the value. Intended for testing purposes only. */
@@ -881,16 +959,20 @@ public final class LayoutElementBuilders {
             return mImpl.getValue().getNumber();
         }
 
+        /** Get the fingerprint for this object, or null if unknown. */
         @RestrictTo(Scope.LIBRARY_GROUP)
-        @NonNull
-        public static TextOverflowProp fromProto(
-                @NonNull LayoutElementProto.TextOverflowProp proto) {
-            return new TextOverflowProp(proto);
+        @Nullable
+        public Fingerprint getFingerprint() {
+            return mFingerprint;
         }
 
-        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        public LayoutElementProto.TextOverflowProp toProto() {
+        static TextOverflowProp fromProto(@NonNull LayoutElementProto.TextOverflowProp proto) {
+            return new TextOverflowProp(proto, null);
+        }
+
+        @NonNull
+        LayoutElementProto.TextOverflowProp toProto() {
             return mImpl;
         }
 
@@ -898,6 +980,7 @@ public final class LayoutElementBuilders {
         public static final class Builder {
             private final LayoutElementProto.TextOverflowProp.Builder mImpl =
                     LayoutElementProto.TextOverflowProp.newBuilder();
+            private final Fingerprint mFingerprint = new Fingerprint(1183432233);
 
             public Builder() {}
 
@@ -905,13 +988,14 @@ public final class LayoutElementBuilders {
             @NonNull
             public Builder setValue(@TextOverflow int value) {
                 mImpl.setValue(LayoutElementProto.TextOverflow.forNumber(value));
+                mFingerprint.recordPropertyUpdate(1, value);
                 return this;
             }
 
             /** Builds an instance from accumulated values. */
             @NonNull
             public TextOverflowProp build() {
-                return TextOverflowProp.fromProto(mImpl.build());
+                return new TextOverflowProp(mImpl.build(), mFingerprint);
             }
         }
     }
@@ -919,9 +1003,12 @@ public final class LayoutElementBuilders {
     /** An extensible {@code ArcAnchorType} property. */
     public static final class ArcAnchorTypeProp {
         private final AlignmentProto.ArcAnchorTypeProp mImpl;
+        @Nullable private final Fingerprint mFingerprint;
 
-        private ArcAnchorTypeProp(AlignmentProto.ArcAnchorTypeProp impl) {
+        ArcAnchorTypeProp(
+                AlignmentProto.ArcAnchorTypeProp impl, @Nullable Fingerprint fingerprint) {
             this.mImpl = impl;
+            this.mFingerprint = fingerprint;
         }
 
         /** Gets the value. Intended for testing purposes only. */
@@ -930,16 +1017,20 @@ public final class LayoutElementBuilders {
             return mImpl.getValue().getNumber();
         }
 
+        /** Get the fingerprint for this object, or null if unknown. */
         @RestrictTo(Scope.LIBRARY_GROUP)
-        @NonNull
-        public static ArcAnchorTypeProp fromProto(
-                @NonNull AlignmentProto.ArcAnchorTypeProp proto) {
-            return new ArcAnchorTypeProp(proto);
+        @Nullable
+        public Fingerprint getFingerprint() {
+            return mFingerprint;
         }
 
-        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        public AlignmentProto.ArcAnchorTypeProp toProto() {
+        static ArcAnchorTypeProp fromProto(@NonNull AlignmentProto.ArcAnchorTypeProp proto) {
+            return new ArcAnchorTypeProp(proto, null);
+        }
+
+        @NonNull
+        AlignmentProto.ArcAnchorTypeProp toProto() {
             return mImpl;
         }
 
@@ -947,6 +1038,7 @@ public final class LayoutElementBuilders {
         public static final class Builder {
             private final AlignmentProto.ArcAnchorTypeProp.Builder mImpl =
                     AlignmentProto.ArcAnchorTypeProp.newBuilder();
+            private final Fingerprint mFingerprint = new Fingerprint(1193249074);
 
             public Builder() {}
 
@@ -954,13 +1046,14 @@ public final class LayoutElementBuilders {
             @NonNull
             public Builder setValue(@ArcAnchorType int value) {
                 mImpl.setValue(AlignmentProto.ArcAnchorType.forNumber(value));
+                mFingerprint.recordPropertyUpdate(1, value);
                 return this;
             }
 
             /** Builds an instance from accumulated values. */
             @NonNull
             public ArcAnchorTypeProp build() {
-                return ArcAnchorTypeProp.fromProto(mImpl.build());
+                return new ArcAnchorTypeProp(mImpl.build(), mFingerprint);
             }
         }
     }
@@ -968,16 +1061,18 @@ public final class LayoutElementBuilders {
     /** A text string. */
     public static final class Text implements LayoutElement {
         private final LayoutElementProto.Text mImpl;
+        @Nullable private final Fingerprint mFingerprint;
 
-        private Text(LayoutElementProto.Text impl) {
+        Text(LayoutElementProto.Text impl, @Nullable Fingerprint fingerprint) {
             this.mImpl = impl;
+            this.mFingerprint = fingerprint;
         }
 
         /** Gets the text to render. Intended for testing purposes only. */
         @Nullable
-        public StringProp getText() {
+        public TypeBuilders.StringProp getText() {
             if (mImpl.hasText()) {
-                return StringProp.fromProto(mImpl.getText());
+                return TypeBuilders.StringProp.fromProto(mImpl.getText());
             } else {
                 return null;
             }
@@ -1001,9 +1096,9 @@ public final class LayoutElementBuilders {
          * for testing purposes only.
          */
         @Nullable
-        public Modifiers getModifiers() {
+        public ModifiersBuilders.Modifiers getModifiers() {
             if (mImpl.hasModifiers()) {
-                return Modifiers.fromProto(mImpl.getModifiers());
+                return ModifiersBuilders.Modifiers.fromProto(mImpl.getModifiers());
             } else {
                 return null;
             }
@@ -1015,9 +1110,9 @@ public final class LayoutElementBuilders {
          * for testing purposes only.
          */
         @Nullable
-        public Int32Prop getMaxLines() {
+        public TypeBuilders.Int32Prop getMaxLines() {
             if (mImpl.hasMaxLines()) {
-                return Int32Prop.fromProto(mImpl.getMaxLines());
+                return TypeBuilders.Int32Prop.fromProto(mImpl.getMaxLines());
             } else {
                 return null;
             }
@@ -1061,21 +1156,27 @@ public final class LayoutElementBuilders {
          * interline spacing. Intended for testing purposes only.
          */
         @Nullable
-        public SpProp getLineHeight() {
+        public DimensionBuilders.SpProp getLineHeight() {
             if (mImpl.hasLineHeight()) {
-                return SpProp.fromProto(mImpl.getLineHeight());
+                return DimensionBuilders.SpProp.fromProto(mImpl.getLineHeight());
             } else {
                 return null;
             }
         }
 
+        @Override
         @RestrictTo(Scope.LIBRARY_GROUP)
-        @NonNull
-        public static Text fromProto(@NonNull LayoutElementProto.Text proto) {
-            return new Text(proto);
+        @Nullable
+        public Fingerprint getFingerprint() {
+            return mFingerprint;
         }
 
-        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        static Text fromProto(
+                @NonNull LayoutElementProto.Text proto, @Nullable Fingerprint fingerprint) {
+            return new Text(proto, fingerprint);
+        }
+
         @NonNull
         LayoutElementProto.Text toProto() {
             return mImpl;
@@ -1092,19 +1193,24 @@ public final class LayoutElementBuilders {
         public static final class Builder implements LayoutElement.Builder {
             private final LayoutElementProto.Text.Builder mImpl =
                     LayoutElementProto.Text.newBuilder();
+            private final Fingerprint mFingerprint = new Fingerprint(1976530157);
 
             public Builder() {}
 
             /** Sets the text to render. */
             @NonNull
-            public Builder setText(@NonNull StringProp text) {
+            public Builder setText(@NonNull TypeBuilders.StringProp text) {
                 mImpl.setText(text.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        1, checkNotNull(text.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
+
             /** Sets the text to render. */
             @NonNull
             public Builder setText(@NonNull String text) {
-                mImpl.setText(TypesProto.StringProp.newBuilder().setValue(text));
+                mImpl.mergeText(TypesProto.StringProp.newBuilder().setValue(text).build());
+                mFingerprint.recordPropertyUpdate(1, text.hashCode());
                 return this;
             }
 
@@ -1115,13 +1221,17 @@ public final class LayoutElementBuilders {
             @NonNull
             public Builder setFontStyle(@NonNull FontStyle fontStyle) {
                 mImpl.setFontStyle(fontStyle.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        2, checkNotNull(fontStyle.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
 
             /** Sets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. */
             @NonNull
-            public Builder setModifiers(@NonNull Modifiers modifiers) {
+            public Builder setModifiers(@NonNull ModifiersBuilders.Modifiers modifiers) {
                 mImpl.setModifiers(modifiers.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        3, checkNotNull(modifiers.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
 
@@ -1130,10 +1240,13 @@ public final class LayoutElementBuilders {
              * If not defined, the {@link Text} element will be treated as a single-line element.
              */
             @NonNull
-            public Builder setMaxLines(@NonNull Int32Prop maxLines) {
+            public Builder setMaxLines(@NonNull TypeBuilders.Int32Prop maxLines) {
                 mImpl.setMaxLines(maxLines.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        4, checkNotNull(maxLines.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
+
             /**
              * Sets the maximum number of lines that can be represented by the {@link Text} element.
              * If not defined, the {@link Text} element will be treated as a single-line element.
@@ -1141,6 +1254,7 @@ public final class LayoutElementBuilders {
             @NonNull
             public Builder setMaxLines(@IntRange(from = 1) int maxLines) {
                 mImpl.setMaxLines(TypesProto.Int32Prop.newBuilder().setValue(maxLines));
+                mFingerprint.recordPropertyUpdate(4, maxLines);
                 return this;
             }
 
@@ -1154,8 +1268,11 @@ public final class LayoutElementBuilders {
             @NonNull
             public Builder setMultilineAlignment(@NonNull TextAlignmentProp multilineAlignment) {
                 mImpl.setMultilineAlignment(multilineAlignment.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        5, checkNotNull(multilineAlignment.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
+
             /**
              * Sets alignment of the text within its bounds. Note that a {@link Text} element will
              * size itself to wrap its contents, so this option is meaningless for single-line text
@@ -1170,6 +1287,7 @@ public final class LayoutElementBuilders {
                                 .setValue(
                                         AlignmentProto.TextAlignment.forNumber(
                                                 multilineAlignment)));
+                mFingerprint.recordPropertyUpdate(5, multilineAlignment);
                 return this;
             }
 
@@ -1183,8 +1301,11 @@ public final class LayoutElementBuilders {
             @NonNull
             public Builder setOverflow(@NonNull TextOverflowProp overflow) {
                 mImpl.setOverflow(overflow.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        6, checkNotNull(overflow.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
+
             /**
              * Sets how to handle text which overflows the bound of the {@link Text} element. A
              * {@link Text} element will grow as large as possible inside its parent container
@@ -1197,6 +1318,7 @@ public final class LayoutElementBuilders {
                 mImpl.setOverflow(
                         LayoutElementProto.TextOverflowProp.newBuilder()
                                 .setValue(LayoutElementProto.TextOverflow.forNumber(overflow)));
+                mFingerprint.recordPropertyUpdate(6, overflow);
                 return this;
             }
 
@@ -1206,15 +1328,17 @@ public final class LayoutElementBuilders {
              * recommended interline spacing.
              */
             @NonNull
-            public Builder setLineHeight(@NonNull SpProp lineHeight) {
+            public Builder setLineHeight(@NonNull DimensionBuilders.SpProp lineHeight) {
                 mImpl.setLineHeight(lineHeight.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        7, checkNotNull(lineHeight.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
 
             @Override
             @NonNull
             public Text build() {
-                return Text.fromProto(mImpl.build());
+                return new Text(mImpl.build(), mFingerprint);
             }
         }
     }
@@ -1222,9 +1346,12 @@ public final class LayoutElementBuilders {
     /** An extensible {@code ContentScaleMode} property. */
     public static final class ContentScaleModeProp {
         private final LayoutElementProto.ContentScaleModeProp mImpl;
+        @Nullable private final Fingerprint mFingerprint;
 
-        private ContentScaleModeProp(LayoutElementProto.ContentScaleModeProp impl) {
+        ContentScaleModeProp(
+                LayoutElementProto.ContentScaleModeProp impl, @Nullable Fingerprint fingerprint) {
             this.mImpl = impl;
+            this.mFingerprint = fingerprint;
         }
 
         /** Gets the value. Intended for testing purposes only. */
@@ -1233,16 +1360,21 @@ public final class LayoutElementBuilders {
             return mImpl.getValue().getNumber();
         }
 
+        /** Get the fingerprint for this object, or null if unknown. */
         @RestrictTo(Scope.LIBRARY_GROUP)
-        @NonNull
-        public static ContentScaleModeProp fromProto(
-                @NonNull LayoutElementProto.ContentScaleModeProp proto) {
-            return new ContentScaleModeProp(proto);
+        @Nullable
+        public Fingerprint getFingerprint() {
+            return mFingerprint;
         }
 
-        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        public LayoutElementProto.ContentScaleModeProp toProto() {
+        static ContentScaleModeProp fromProto(
+                @NonNull LayoutElementProto.ContentScaleModeProp proto) {
+            return new ContentScaleModeProp(proto, null);
+        }
+
+        @NonNull
+        LayoutElementProto.ContentScaleModeProp toProto() {
             return mImpl;
         }
 
@@ -1250,6 +1382,7 @@ public final class LayoutElementBuilders {
         public static final class Builder {
             private final LayoutElementProto.ContentScaleModeProp.Builder mImpl =
                     LayoutElementProto.ContentScaleModeProp.newBuilder();
+            private final Fingerprint mFingerprint = new Fingerprint(-893830536);
 
             public Builder() {}
 
@@ -1257,13 +1390,14 @@ public final class LayoutElementBuilders {
             @NonNull
             public Builder setValue(@ContentScaleMode int value) {
                 mImpl.setValue(LayoutElementProto.ContentScaleMode.forNumber(value));
+                mFingerprint.recordPropertyUpdate(1, value);
                 return this;
             }
 
             /** Builds an instance from accumulated values. */
             @NonNull
             public ContentScaleModeProp build() {
-                return ContentScaleModeProp.fromProto(mImpl.build());
+                return new ContentScaleModeProp(mImpl.build(), mFingerprint);
             }
         }
     }
@@ -1271,9 +1405,11 @@ public final class LayoutElementBuilders {
     /** Filtering parameters used for images. This can be used to apply a color tint to images. */
     public static final class ColorFilter {
         private final LayoutElementProto.ColorFilter mImpl;
+        @Nullable private final Fingerprint mFingerprint;
 
-        private ColorFilter(LayoutElementProto.ColorFilter impl) {
+        ColorFilter(LayoutElementProto.ColorFilter impl, @Nullable Fingerprint fingerprint) {
             this.mImpl = impl;
+            this.mFingerprint = fingerprint;
         }
 
         /**
@@ -1285,23 +1421,28 @@ public final class LayoutElementBuilders {
          * tinted, and this property will have no effect. Intended for testing purposes only.
          */
         @Nullable
-        public ColorProp getTint() {
+        public ColorBuilders.ColorProp getTint() {
             if (mImpl.hasTint()) {
-                return ColorProp.fromProto(mImpl.getTint());
+                return ColorBuilders.ColorProp.fromProto(mImpl.getTint());
             } else {
                 return null;
             }
         }
 
+        /** Get the fingerprint for this object, or null if unknown. */
         @RestrictTo(Scope.LIBRARY_GROUP)
-        @NonNull
-        public static ColorFilter fromProto(@NonNull LayoutElementProto.ColorFilter proto) {
-            return new ColorFilter(proto);
+        @Nullable
+        public Fingerprint getFingerprint() {
+            return mFingerprint;
         }
 
-        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        public LayoutElementProto.ColorFilter toProto() {
+        static ColorFilter fromProto(@NonNull LayoutElementProto.ColorFilter proto) {
+            return new ColorFilter(proto, null);
+        }
+
+        @NonNull
+        LayoutElementProto.ColorFilter toProto() {
             return mImpl;
         }
 
@@ -1309,6 +1450,7 @@ public final class LayoutElementBuilders {
         public static final class Builder {
             private final LayoutElementProto.ColorFilter.Builder mImpl =
                     LayoutElementProto.ColorFilter.newBuilder();
+            private final Fingerprint mFingerprint = new Fingerprint(181311326);
 
             public Builder() {}
 
@@ -1321,15 +1463,18 @@ public final class LayoutElementBuilders {
              * tinted, and this property will have no effect.
              */
             @NonNull
-            public Builder setTint(@NonNull ColorProp tint) {
+            public LayoutElementBuilders.ColorFilter.Builder setTint(
+                    @NonNull ColorBuilders.ColorProp tint) {
                 mImpl.setTint(tint.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        1, checkNotNull(tint.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
 
             /** Builds an instance from accumulated values. */
             @NonNull
             public ColorFilter build() {
-                return ColorFilter.fromProto(mImpl.build());
+                return new ColorFilter(mImpl.build(), mFingerprint);
             }
         }
     }
@@ -1343,9 +1488,11 @@ public final class LayoutElementBuilders {
      */
     public static final class Image implements LayoutElement {
         private final LayoutElementProto.Image mImpl;
+        @Nullable private final Fingerprint mFingerprint;
 
-        private Image(LayoutElementProto.Image impl) {
+        Image(LayoutElementProto.Image impl, @Nullable Fingerprint fingerprint) {
             this.mImpl = impl;
+            this.mFingerprint = fingerprint;
         }
 
         /**
@@ -1353,9 +1500,9 @@ public final class LayoutElementBuilders {
          * bundle. Intended for testing purposes only.
          */
         @Nullable
-        public StringProp getResourceId() {
+        public TypeBuilders.StringProp getResourceId() {
             if (mImpl.hasResourceId()) {
-                return StringProp.fromProto(mImpl.getResourceId());
+                return TypeBuilders.StringProp.fromProto(mImpl.getResourceId());
             } else {
                 return null;
             }
@@ -1366,9 +1513,9 @@ public final class LayoutElementBuilders {
          * for testing purposes only.
          */
         @Nullable
-        public ImageDimension getWidth() {
+        public DimensionBuilders.ImageDimension getWidth() {
             if (mImpl.hasWidth()) {
-                return ImageDimension.fromImageDimensionProto(mImpl.getWidth());
+                return DimensionBuilders.imageDimensionFromProto(mImpl.getWidth());
             } else {
                 return null;
             }
@@ -1379,9 +1526,9 @@ public final class LayoutElementBuilders {
          * for testing purposes only.
          */
         @Nullable
-        public ImageDimension getHeight() {
+        public DimensionBuilders.ImageDimension getHeight() {
             if (mImpl.hasHeight()) {
-                return ImageDimension.fromImageDimensionProto(mImpl.getHeight());
+                return DimensionBuilders.imageDimensionFromProto(mImpl.getHeight());
             } else {
                 return null;
             }
@@ -1406,17 +1553,15 @@ public final class LayoutElementBuilders {
          * for testing purposes only.
          */
         @Nullable
-        public Modifiers getModifiers() {
+        public ModifiersBuilders.Modifiers getModifiers() {
             if (mImpl.hasModifiers()) {
-                return Modifiers.fromProto(mImpl.getModifiers());
+                return ModifiersBuilders.Modifiers.fromProto(mImpl.getModifiers());
             } else {
                 return null;
             }
         }
 
-        /**
-         * Gets filtering parameters for this image. If not specified, defaults to no filtering.
-         */
+        /** Gets filtering parameters for this image. If not specified, defaults to no filtering. */
         @Nullable
         public ColorFilter getColorFilter() {
             if (mImpl.hasColorFilter()) {
@@ -1426,13 +1571,19 @@ public final class LayoutElementBuilders {
             }
         }
 
+        @Override
         @RestrictTo(Scope.LIBRARY_GROUP)
-        @NonNull
-        public static Image fromProto(@NonNull LayoutElementProto.Image proto) {
-            return new Image(proto);
+        @Nullable
+        public Fingerprint getFingerprint() {
+            return mFingerprint;
         }
 
-        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        static Image fromProto(
+                @NonNull LayoutElementProto.Image proto, @Nullable Fingerprint fingerprint) {
+            return new Image(proto, fingerprint);
+        }
+
         @NonNull
         LayoutElementProto.Image toProto() {
             return mImpl;
@@ -1449,6 +1600,7 @@ public final class LayoutElementBuilders {
         public static final class Builder implements LayoutElement.Builder {
             private final LayoutElementProto.Image.Builder mImpl =
                     LayoutElementProto.Image.newBuilder();
+            private final Fingerprint mFingerprint = new Fingerprint(-543078544);
 
             public Builder() {}
 
@@ -1457,10 +1609,13 @@ public final class LayoutElementBuilders {
              * bundle.
              */
             @NonNull
-            public Builder setResourceId(@NonNull StringProp resourceId) {
+            public Builder setResourceId(@NonNull TypeBuilders.StringProp resourceId) {
                 mImpl.setResourceId(resourceId.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        1, checkNotNull(resourceId.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
+
             /**
              * Sets the resource_id of the image to render. This must exist in the supplied resource
              * bundle.
@@ -1468,20 +1623,25 @@ public final class LayoutElementBuilders {
             @NonNull
             public Builder setResourceId(@NonNull String resourceId) {
                 mImpl.setResourceId(TypesProto.StringProp.newBuilder().setValue(resourceId));
+                mFingerprint.recordPropertyUpdate(1, resourceId.hashCode());
                 return this;
             }
 
             /** Sets the width of this image. If not defined, the image will not be rendered. */
             @NonNull
-            public Builder setWidth(@NonNull ImageDimension width) {
+            public Builder setWidth(@NonNull DimensionBuilders.ImageDimension width) {
                 mImpl.setWidth(width.toImageDimensionProto());
+                mFingerprint.recordPropertyUpdate(
+                        2, checkNotNull(width.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
 
             /** Sets the height of this image. If not defined, the image will not be rendered. */
             @NonNull
-            public Builder setHeight(@NonNull ImageDimension height) {
+            public Builder setHeight(@NonNull DimensionBuilders.ImageDimension height) {
                 mImpl.setHeight(height.toImageDimensionProto());
+                mFingerprint.recordPropertyUpdate(
+                        3, checkNotNull(height.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
 
@@ -1492,8 +1652,11 @@ public final class LayoutElementBuilders {
             @NonNull
             public Builder setContentScaleMode(@NonNull ContentScaleModeProp contentScaleMode) {
                 mImpl.setContentScaleMode(contentScaleMode.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        4, checkNotNull(contentScaleMode.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
+
             /**
              * Sets how to scale the image resource inside the bounds specified by width/height if
              * its size does not match those bounds. Defaults to CONTENT_SCALE_MODE_FIT.
@@ -1505,13 +1668,16 @@ public final class LayoutElementBuilders {
                                 .setValue(
                                         LayoutElementProto.ContentScaleMode.forNumber(
                                                 contentScaleMode)));
+                mFingerprint.recordPropertyUpdate(4, contentScaleMode);
                 return this;
             }
 
             /** Sets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. */
             @NonNull
-            public Builder setModifiers(@NonNull Modifiers modifiers) {
+            public Builder setModifiers(@NonNull ModifiersBuilders.Modifiers modifiers) {
                 mImpl.setModifiers(modifiers.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        5, checkNotNull(modifiers.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
 
@@ -1519,15 +1685,17 @@ public final class LayoutElementBuilders {
              * Sets filtering parameters for this image. If not specified, defaults to no filtering.
              */
             @NonNull
-            public Builder setColorFilter(@NonNull ColorFilter filter) {
-                mImpl.setColorFilter(filter.toProto());
+            public Builder setColorFilter(@NonNull ColorFilter colorFilter) {
+                mImpl.setColorFilter(colorFilter.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        6, checkNotNull(colorFilter.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
 
             @Override
             @NonNull
             public Image build() {
-                return Image.fromProto(mImpl.build());
+                return new Image(mImpl.build(), mFingerprint);
             }
         }
     }
@@ -1535,9 +1703,11 @@ public final class LayoutElementBuilders {
     /** A simple spacer, typically used to provide padding between adjacent elements. */
     public static final class Spacer implements LayoutElement {
         private final LayoutElementProto.Spacer mImpl;
+        @Nullable private final Fingerprint mFingerprint;
 
-        private Spacer(LayoutElementProto.Spacer impl) {
+        Spacer(LayoutElementProto.Spacer impl, @Nullable Fingerprint fingerprint) {
             this.mImpl = impl;
+            this.mFingerprint = fingerprint;
         }
 
         /**
@@ -1546,9 +1716,9 @@ public final class LayoutElementBuilders {
          * must be used. If not defined, defaults to 0. Intended for testing purposes only.
          */
         @Nullable
-        public SpacerDimension getWidth() {
+        public DimensionBuilders.SpacerDimension getWidth() {
             if (mImpl.hasWidth()) {
-                return SpacerDimension.fromSpacerDimensionProto(mImpl.getWidth());
+                return DimensionBuilders.spacerDimensionFromProto(mImpl.getWidth());
             } else {
                 return null;
             }
@@ -1559,9 +1729,9 @@ public final class LayoutElementBuilders {
          * purposes only.
          */
         @Nullable
-        public SpacerDimension getHeight() {
+        public DimensionBuilders.SpacerDimension getHeight() {
             if (mImpl.hasHeight()) {
-                return SpacerDimension.fromSpacerDimensionProto(mImpl.getHeight());
+                return DimensionBuilders.spacerDimensionFromProto(mImpl.getHeight());
             } else {
                 return null;
             }
@@ -1572,21 +1742,27 @@ public final class LayoutElementBuilders {
          * for testing purposes only.
          */
         @Nullable
-        public Modifiers getModifiers() {
+        public ModifiersBuilders.Modifiers getModifiers() {
             if (mImpl.hasModifiers()) {
-                return Modifiers.fromProto(mImpl.getModifiers());
+                return ModifiersBuilders.Modifiers.fromProto(mImpl.getModifiers());
             } else {
                 return null;
             }
         }
 
+        @Override
         @RestrictTo(Scope.LIBRARY_GROUP)
-        @NonNull
-        public static Spacer fromProto(@NonNull LayoutElementProto.Spacer proto) {
-            return new Spacer(proto);
+        @Nullable
+        public Fingerprint getFingerprint() {
+            return mFingerprint;
         }
 
-        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        static Spacer fromProto(
+                @NonNull LayoutElementProto.Spacer proto, @Nullable Fingerprint fingerprint) {
+            return new Spacer(proto, fingerprint);
+        }
+
         @NonNull
         LayoutElementProto.Spacer toProto() {
             return mImpl;
@@ -1603,6 +1779,7 @@ public final class LayoutElementBuilders {
         public static final class Builder implements LayoutElement.Builder {
             private final LayoutElementProto.Spacer.Builder mImpl =
                     LayoutElementProto.Spacer.newBuilder();
+            private final Fingerprint mFingerprint = new Fingerprint(-1748084575);
 
             public Builder() {}
 
@@ -1612,29 +1789,35 @@ public final class LayoutElementBuilders {
              * dimension must be used. If not defined, defaults to 0.
              */
             @NonNull
-            public Builder setWidth(@NonNull SpacerDimension width) {
+            public Builder setWidth(@NonNull DimensionBuilders.SpacerDimension width) {
                 mImpl.setWidth(width.toSpacerDimensionProto());
+                mFingerprint.recordPropertyUpdate(
+                        1, checkNotNull(width.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
 
             /** Sets the height of this spacer. If not defined, defaults to 0. */
             @NonNull
-            public Builder setHeight(@NonNull SpacerDimension height) {
+            public Builder setHeight(@NonNull DimensionBuilders.SpacerDimension height) {
                 mImpl.setHeight(height.toSpacerDimensionProto());
+                mFingerprint.recordPropertyUpdate(
+                        2, checkNotNull(height.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
 
             /** Sets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. */
             @NonNull
-            public Builder setModifiers(@NonNull Modifiers modifiers) {
+            public Builder setModifiers(@NonNull ModifiersBuilders.Modifiers modifiers) {
                 mImpl.setModifiers(modifiers.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        3, checkNotNull(modifiers.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
 
             @Override
             @NonNull
             public Spacer build() {
-                return Spacer.fromProto(mImpl.build());
+                return new Spacer(mImpl.build(), mFingerprint);
             }
         }
     }
@@ -1645,9 +1828,11 @@ public final class LayoutElementBuilders {
      */
     public static final class Box implements LayoutElement {
         private final LayoutElementProto.Box mImpl;
+        @Nullable private final Fingerprint mFingerprint;
 
-        private Box(LayoutElementProto.Box impl) {
+        Box(LayoutElementProto.Box impl, @Nullable Fingerprint fingerprint) {
             this.mImpl = impl;
+            this.mFingerprint = fingerprint;
         }
 
         /** Gets the child element(s) to wrap. Intended for testing purposes only. */
@@ -1655,7 +1840,7 @@ public final class LayoutElementBuilders {
         public List<LayoutElement> getContents() {
             return Collections.unmodifiableList(
                     mImpl.getContentsList().stream()
-                            .map(LayoutElement::fromLayoutElementProto)
+                            .map(LayoutElementBuilders::layoutElementFromProto)
                             .collect(toList()));
         }
 
@@ -1664,9 +1849,9 @@ public final class LayoutElementBuilders {
          * its children (i.e. a WrappedDimension). Intended for testing purposes only.
          */
         @Nullable
-        public ContainerDimension getHeight() {
+        public DimensionBuilders.ContainerDimension getHeight() {
             if (mImpl.hasHeight()) {
-                return ContainerDimension.fromContainerDimensionProto(mImpl.getHeight());
+                return DimensionBuilders.containerDimensionFromProto(mImpl.getHeight());
             } else {
                 return null;
             }
@@ -1677,9 +1862,9 @@ public final class LayoutElementBuilders {
          * its children (i.e. a WrappedDimension). Intended for testing purposes only.
          */
         @Nullable
-        public ContainerDimension getWidth() {
+        public DimensionBuilders.ContainerDimension getWidth() {
             if (mImpl.hasWidth()) {
-                return ContainerDimension.fromContainerDimensionProto(mImpl.getWidth());
+                return DimensionBuilders.containerDimensionFromProto(mImpl.getWidth());
             } else {
                 return null;
             }
@@ -1716,21 +1901,27 @@ public final class LayoutElementBuilders {
          * for testing purposes only.
          */
         @Nullable
-        public Modifiers getModifiers() {
+        public ModifiersBuilders.Modifiers getModifiers() {
             if (mImpl.hasModifiers()) {
-                return Modifiers.fromProto(mImpl.getModifiers());
+                return ModifiersBuilders.Modifiers.fromProto(mImpl.getModifiers());
             } else {
                 return null;
             }
         }
 
+        @Override
         @RestrictTo(Scope.LIBRARY_GROUP)
-        @NonNull
-        public static Box fromProto(@NonNull LayoutElementProto.Box proto) {
-            return new Box(proto);
+        @Nullable
+        public Fingerprint getFingerprint() {
+            return mFingerprint;
         }
 
-        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        static Box fromProto(
+                @NonNull LayoutElementProto.Box proto, @Nullable Fingerprint fingerprint) {
+            return new Box(proto, fingerprint);
+        }
+
         @NonNull
         LayoutElementProto.Box toProto() {
             return mImpl;
@@ -1747,6 +1938,7 @@ public final class LayoutElementBuilders {
         public static final class Builder implements LayoutElement.Builder {
             private final LayoutElementProto.Box.Builder mImpl =
                     LayoutElementProto.Box.newBuilder();
+            private final Fingerprint mFingerprint = new Fingerprint(-1881256071);
 
             public Builder() {}
 
@@ -1754,6 +1946,7 @@ public final class LayoutElementBuilders {
             @NonNull
             public Builder addContent(@NonNull LayoutElement content) {
                 mImpl.addContents(content.toLayoutElementProto());
+                mFingerprint.addChildNode(checkNotNull(content.getFingerprint()));
                 return this;
             }
 
@@ -1762,8 +1955,10 @@ public final class LayoutElementBuilders {
              * of its children (i.e. a WrappedDimension).
              */
             @NonNull
-            public Builder setHeight(@NonNull ContainerDimension height) {
+            public Builder setHeight(@NonNull DimensionBuilders.ContainerDimension height) {
                 mImpl.setHeight(height.toContainerDimensionProto());
+                mFingerprint.recordPropertyUpdate(
+                        2, checkNotNull(height.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
 
@@ -1772,8 +1967,10 @@ public final class LayoutElementBuilders {
              * of its children (i.e. a WrappedDimension).
              */
             @NonNull
-            public Builder setWidth(@NonNull ContainerDimension width) {
+            public Builder setWidth(@NonNull DimensionBuilders.ContainerDimension width) {
                 mImpl.setWidth(width.toContainerDimensionProto());
+                mFingerprint.recordPropertyUpdate(
+                        3, checkNotNull(width.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
 
@@ -1785,8 +1982,12 @@ public final class LayoutElementBuilders {
             public Builder setHorizontalAlignment(
                     @NonNull HorizontalAlignmentProp horizontalAlignment) {
                 mImpl.setHorizontalAlignment(horizontalAlignment.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        4,
+                        checkNotNull(horizontalAlignment.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
+
             /**
              * Sets the horizontal alignment of the element inside this {@link Box}. If not defined,
              * defaults to HORIZONTAL_ALIGN_CENTER.
@@ -1798,6 +1999,7 @@ public final class LayoutElementBuilders {
                                 .setValue(
                                         AlignmentProto.HorizontalAlignment.forNumber(
                                                 horizontalAlignment)));
+                mFingerprint.recordPropertyUpdate(4, horizontalAlignment);
                 return this;
             }
 
@@ -1808,8 +2010,11 @@ public final class LayoutElementBuilders {
             @NonNull
             public Builder setVerticalAlignment(@NonNull VerticalAlignmentProp verticalAlignment) {
                 mImpl.setVerticalAlignment(verticalAlignment.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        5, checkNotNull(verticalAlignment.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
+
             /**
              * Sets the vertical alignment of the element inside this {@link Box}. If not defined,
              * defaults to VERTICAL_ALIGN_CENTER.
@@ -1821,20 +2026,23 @@ public final class LayoutElementBuilders {
                                 .setValue(
                                         AlignmentProto.VerticalAlignment.forNumber(
                                                 verticalAlignment)));
+                mFingerprint.recordPropertyUpdate(5, verticalAlignment);
                 return this;
             }
 
             /** Sets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. */
             @NonNull
-            public Builder setModifiers(@NonNull Modifiers modifiers) {
+            public Builder setModifiers(@NonNull ModifiersBuilders.Modifiers modifiers) {
                 mImpl.setModifiers(modifiers.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        6, checkNotNull(modifiers.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
 
             @Override
             @NonNull
             public Box build() {
-                return Box.fromProto(mImpl.build());
+                return new Box(mImpl.build(), mFingerprint);
             }
         }
     }
@@ -1846,16 +2054,18 @@ public final class LayoutElementBuilders {
      */
     public static final class SpanText implements Span {
         private final LayoutElementProto.SpanText mImpl;
+        @Nullable private final Fingerprint mFingerprint;
 
-        private SpanText(LayoutElementProto.SpanText impl) {
+        SpanText(LayoutElementProto.SpanText impl, @Nullable Fingerprint fingerprint) {
             this.mImpl = impl;
+            this.mFingerprint = fingerprint;
         }
 
         /** Gets the text to render. Intended for testing purposes only. */
         @Nullable
-        public StringProp getText() {
+        public TypeBuilders.StringProp getText() {
             if (mImpl.hasText()) {
-                return StringProp.fromProto(mImpl.getText());
+                return TypeBuilders.StringProp.fromProto(mImpl.getText());
             } else {
                 return null;
             }
@@ -1879,21 +2089,26 @@ public final class LayoutElementBuilders {
          * for testing purposes only.
          */
         @Nullable
-        public SpanModifiers getModifiers() {
+        public ModifiersBuilders.SpanModifiers getModifiers() {
             if (mImpl.hasModifiers()) {
-                return SpanModifiers.fromProto(mImpl.getModifiers());
+                return ModifiersBuilders.SpanModifiers.fromProto(mImpl.getModifiers());
             } else {
                 return null;
             }
         }
 
+        @Override
         @RestrictTo(Scope.LIBRARY_GROUP)
-        @NonNull
-        public static SpanText fromProto(@NonNull LayoutElementProto.SpanText proto) {
-            return new SpanText(proto);
+        @Nullable
+        public Fingerprint getFingerprint() {
+            return mFingerprint;
         }
 
-        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        static SpanText fromProto(@NonNull LayoutElementProto.SpanText proto) {
+            return new SpanText(proto, null);
+        }
+
         @NonNull
         LayoutElementProto.SpanText toProto() {
             return mImpl;
@@ -1910,19 +2125,24 @@ public final class LayoutElementBuilders {
         public static final class Builder implements Span.Builder {
             private final LayoutElementProto.SpanText.Builder mImpl =
                     LayoutElementProto.SpanText.newBuilder();
+            private final Fingerprint mFingerprint = new Fingerprint(-221774557);
 
             public Builder() {}
 
             /** Sets the text to render. */
             @NonNull
-            public Builder setText(@NonNull StringProp text) {
+            public Builder setText(@NonNull TypeBuilders.StringProp text) {
                 mImpl.setText(text.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        1, checkNotNull(text.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
+
             /** Sets the text to render. */
             @NonNull
             public Builder setText(@NonNull String text) {
                 mImpl.setText(TypesProto.StringProp.newBuilder().setValue(text));
+                mFingerprint.recordPropertyUpdate(1, text.hashCode());
                 return this;
             }
 
@@ -1933,20 +2153,24 @@ public final class LayoutElementBuilders {
             @NonNull
             public Builder setFontStyle(@NonNull FontStyle fontStyle) {
                 mImpl.setFontStyle(fontStyle.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        2, checkNotNull(fontStyle.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
 
             /** Sets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. */
             @NonNull
-            public Builder setModifiers(@NonNull SpanModifiers modifiers) {
+            public Builder setModifiers(@NonNull ModifiersBuilders.SpanModifiers modifiers) {
                 mImpl.setModifiers(modifiers.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        3, checkNotNull(modifiers.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
 
             @Override
             @NonNull
             public SpanText build() {
-                return SpanText.fromProto(mImpl.build());
+                return new SpanText(mImpl.build(), mFingerprint);
             }
         }
     }
@@ -1954,9 +2178,11 @@ public final class LayoutElementBuilders {
     /** An image which can be added to a {@link Span}. */
     public static final class SpanImage implements Span {
         private final LayoutElementProto.SpanImage mImpl;
+        @Nullable private final Fingerprint mFingerprint;
 
-        private SpanImage(LayoutElementProto.SpanImage impl) {
+        SpanImage(LayoutElementProto.SpanImage impl, @Nullable Fingerprint fingerprint) {
             this.mImpl = impl;
+            this.mFingerprint = fingerprint;
         }
 
         /**
@@ -1964,9 +2190,9 @@ public final class LayoutElementBuilders {
          * bundle. Intended for testing purposes only.
          */
         @Nullable
-        public StringProp getResourceId() {
+        public TypeBuilders.StringProp getResourceId() {
             if (mImpl.hasResourceId()) {
-                return StringProp.fromProto(mImpl.getResourceId());
+                return TypeBuilders.StringProp.fromProto(mImpl.getResourceId());
             } else {
                 return null;
             }
@@ -1977,9 +2203,9 @@ public final class LayoutElementBuilders {
          * for testing purposes only.
          */
         @Nullable
-        public DpProp getWidth() {
+        public DimensionBuilders.DpProp getWidth() {
             if (mImpl.hasWidth()) {
-                return DpProp.fromProto(mImpl.getWidth());
+                return DimensionBuilders.DpProp.fromProto(mImpl.getWidth());
             } else {
                 return null;
             }
@@ -1990,9 +2216,9 @@ public final class LayoutElementBuilders {
          * for testing purposes only.
          */
         @Nullable
-        public DpProp getHeight() {
+        public DimensionBuilders.DpProp getHeight() {
             if (mImpl.hasHeight()) {
-                return DpProp.fromProto(mImpl.getHeight());
+                return DimensionBuilders.DpProp.fromProto(mImpl.getHeight());
             } else {
                 return null;
             }
@@ -2003,9 +2229,9 @@ public final class LayoutElementBuilders {
          * for testing purposes only.
          */
         @Nullable
-        public SpanModifiers getModifiers() {
+        public ModifiersBuilders.SpanModifiers getModifiers() {
             if (mImpl.hasModifiers()) {
-                return SpanModifiers.fromProto(mImpl.getModifiers());
+                return ModifiersBuilders.SpanModifiers.fromProto(mImpl.getModifiers());
             } else {
                 return null;
             }
@@ -2024,13 +2250,18 @@ public final class LayoutElementBuilders {
             }
         }
 
+        @Override
         @RestrictTo(Scope.LIBRARY_GROUP)
-        @NonNull
-        public static SpanImage fromProto(@NonNull LayoutElementProto.SpanImage proto) {
-            return new SpanImage(proto);
+        @Nullable
+        public Fingerprint getFingerprint() {
+            return mFingerprint;
         }
 
-        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        static SpanImage fromProto(@NonNull LayoutElementProto.SpanImage proto) {
+            return new SpanImage(proto, null);
+        }
+
         @NonNull
         LayoutElementProto.SpanImage toProto() {
             return mImpl;
@@ -2047,6 +2278,7 @@ public final class LayoutElementBuilders {
         public static final class Builder implements Span.Builder {
             private final LayoutElementProto.SpanImage.Builder mImpl =
                     LayoutElementProto.SpanImage.newBuilder();
+            private final Fingerprint mFingerprint = new Fingerprint(502289772);
 
             public Builder() {}
 
@@ -2055,10 +2287,13 @@ public final class LayoutElementBuilders {
              * bundle.
              */
             @NonNull
-            public Builder setResourceId(@NonNull StringProp resourceId) {
+            public Builder setResourceId(@NonNull TypeBuilders.StringProp resourceId) {
                 mImpl.setResourceId(resourceId.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        1, checkNotNull(resourceId.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
+
             /**
              * Sets the resource_id of the image to render. This must exist in the supplied resource
              * bundle.
@@ -2066,27 +2301,34 @@ public final class LayoutElementBuilders {
             @NonNull
             public Builder setResourceId(@NonNull String resourceId) {
                 mImpl.setResourceId(TypesProto.StringProp.newBuilder().setValue(resourceId));
+                mFingerprint.recordPropertyUpdate(1, resourceId.hashCode());
                 return this;
             }
 
             /** Sets the width of this image. If not defined, the image will not be rendered. */
             @NonNull
-            public Builder setWidth(@NonNull DpProp width) {
+            public Builder setWidth(@NonNull DimensionBuilders.DpProp width) {
                 mImpl.setWidth(width.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        2, checkNotNull(width.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
 
             /** Sets the height of this image. If not defined, the image will not be rendered. */
             @NonNull
-            public Builder setHeight(@NonNull DpProp height) {
+            public Builder setHeight(@NonNull DimensionBuilders.DpProp height) {
                 mImpl.setHeight(height.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        3, checkNotNull(height.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
 
             /** Sets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. */
             @NonNull
-            public Builder setModifiers(@NonNull SpanModifiers modifiers) {
+            public Builder setModifiers(@NonNull ModifiersBuilders.SpanModifiers modifiers) {
                 mImpl.setModifiers(modifiers.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        4, checkNotNull(modifiers.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
 
@@ -2097,8 +2339,11 @@ public final class LayoutElementBuilders {
             @NonNull
             public Builder setAlignment(@NonNull SpanVerticalAlignmentProp alignment) {
                 mImpl.setAlignment(alignment.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        5, checkNotNull(alignment.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
+
             /**
              * Sets alignment of this image within the line height of the surrounding {@link
              * Spannable}. If undefined, defaults to SPAN_VERTICAL_ALIGN_BOTTOM.
@@ -2110,13 +2355,14 @@ public final class LayoutElementBuilders {
                                 .setValue(
                                         LayoutElementProto.SpanVerticalAlignment.forNumber(
                                                 alignment)));
+                mFingerprint.recordPropertyUpdate(5, alignment);
                 return this;
             }
 
             @Override
             @NonNull
             public SpanImage build() {
-                return SpanImage.fromProto(mImpl.build());
+                return new SpanImage(mImpl.build(), mFingerprint);
             }
         }
     }
@@ -2127,30 +2373,15 @@ public final class LayoutElementBuilders {
      * containers are {@link SpanText} and {@link SpanImage} elements.
      */
     public interface Span {
-        /**
-         * Get the protocol buffer representation of this object.
-         *
-         */
+        /** Get the protocol buffer representation of this object. */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         LayoutElementProto.Span toSpanProto();
 
-        /**
-         * Return an instance of one of this object's subtypes, from the protocol buffer
-         * representation.
-         *
-         */
+        /** Get the fingerprint for this object or null if unknown. */
         @RestrictTo(Scope.LIBRARY_GROUP)
-        @NonNull
-        static Span fromSpanProto(@NonNull LayoutElementProto.Span proto) {
-            if (proto.hasText()) {
-                return SpanText.fromProto(proto.getText());
-            }
-            if (proto.hasImage()) {
-                return SpanImage.fromProto(proto.getImage());
-            }
-            throw new IllegalStateException("Proto was not a recognised instance of Span");
-        }
+        @Nullable
+        Fingerprint getFingerprint();
 
         /** Builder to create {@link Span} objects. */
         @SuppressLint("StaticFinalBuilder")
@@ -2163,16 +2394,32 @@ public final class LayoutElementBuilders {
     }
 
     /**
-     * A container of {@link Span} elements. Currently, this only supports {@link Text} elements,
-     * where each individual {@link Span} can have different styling applied to it but the resulting
-     * text will flow naturally. This allows sections of a paragraph of text to have different
-     * styling applied to it, for example, making one or two words bold or italic.
+     * Return an instance of one of this object's subtypes, from the protocol buffer representation.
+     */
+    @NonNull
+    static Span spanFromProto(@NonNull LayoutElementProto.Span proto) {
+        if (proto.hasText()) {
+            return SpanText.fromProto(proto.getText());
+        }
+        if (proto.hasImage()) {
+            return SpanImage.fromProto(proto.getImage());
+        }
+        throw new IllegalStateException("Proto was not a recognised instance of Span");
+    }
+
+    /**
+     * A container of {@link Span} elements. Currently, this supports {@link SpanImage} and {@link
+     * SpanText} elements, where each individual {@link Span} can have different styling applied to
+     * it but the resulting text will flow naturally. This allows sections of a paragraph of text to
+     * have different styling applied to it, for example, making one or two words bold or italic.
      */
     public static final class Spannable implements LayoutElement {
         private final LayoutElementProto.Spannable mImpl;
+        @Nullable private final Fingerprint mFingerprint;
 
-        private Spannable(LayoutElementProto.Spannable impl) {
+        Spannable(LayoutElementProto.Spannable impl, @Nullable Fingerprint fingerprint) {
             this.mImpl = impl;
+            this.mFingerprint = fingerprint;
         }
 
         /**
@@ -2182,7 +2429,9 @@ public final class LayoutElementBuilders {
         @NonNull
         public List<Span> getSpans() {
             return Collections.unmodifiableList(
-                    mImpl.getSpansList().stream().map(Span::fromSpanProto).collect(toList()));
+                    mImpl.getSpansList().stream()
+                            .map(LayoutElementBuilders::spanFromProto)
+                            .collect(toList()));
         }
 
         /**
@@ -2190,9 +2439,9 @@ public final class LayoutElementBuilders {
          * for testing purposes only.
          */
         @Nullable
-        public Modifiers getModifiers() {
+        public ModifiersBuilders.Modifiers getModifiers() {
             if (mImpl.hasModifiers()) {
-                return Modifiers.fromProto(mImpl.getModifiers());
+                return ModifiersBuilders.Modifiers.fromProto(mImpl.getModifiers());
             } else {
                 return null;
             }
@@ -2204,9 +2453,9 @@ public final class LayoutElementBuilders {
          * element. Intended for testing purposes only.
          */
         @Nullable
-        public Int32Prop getMaxLines() {
+        public TypeBuilders.Int32Prop getMaxLines() {
             if (mImpl.hasMaxLines()) {
-                return Int32Prop.fromProto(mImpl.getMaxLines());
+                return TypeBuilders.Int32Prop.fromProto(mImpl.getMaxLines());
             } else {
                 return null;
             }
@@ -2251,21 +2500,27 @@ public final class LayoutElementBuilders {
          * interline spacing. Intended for testing purposes only.
          */
         @Nullable
-        public SpProp getLineHeight() {
+        public DimensionBuilders.SpProp getLineHeight() {
             if (mImpl.hasLineHeight()) {
-                return SpProp.fromProto(mImpl.getLineHeight());
+                return DimensionBuilders.SpProp.fromProto(mImpl.getLineHeight());
             } else {
                 return null;
             }
         }
 
+        @Override
         @RestrictTo(Scope.LIBRARY_GROUP)
-        @NonNull
-        public static Spannable fromProto(@NonNull LayoutElementProto.Spannable proto) {
-            return new Spannable(proto);
+        @Nullable
+        public Fingerprint getFingerprint() {
+            return mFingerprint;
         }
 
-        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        static Spannable fromProto(
+                @NonNull LayoutElementProto.Spannable proto, @Nullable Fingerprint fingerprint) {
+            return new Spannable(proto, fingerprint);
+        }
+
         @NonNull
         LayoutElementProto.Spannable toProto() {
             return mImpl;
@@ -2282,6 +2537,7 @@ public final class LayoutElementBuilders {
         public static final class Builder implements LayoutElement.Builder {
             private final LayoutElementProto.Spannable.Builder mImpl =
                     LayoutElementProto.Spannable.newBuilder();
+            private final Fingerprint mFingerprint = new Fingerprint(-1690284372);
 
             public Builder() {}
 
@@ -2289,13 +2545,17 @@ public final class LayoutElementBuilders {
             @NonNull
             public Builder addSpan(@NonNull Span span) {
                 mImpl.addSpans(span.toSpanProto());
+                mFingerprint.recordPropertyUpdate(
+                        1, checkNotNull(span.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
 
             /** Sets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. */
             @NonNull
-            public Builder setModifiers(@NonNull Modifiers modifiers) {
+            public Builder setModifiers(@NonNull ModifiersBuilders.Modifiers modifiers) {
                 mImpl.setModifiers(modifiers.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        2, checkNotNull(modifiers.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
 
@@ -2305,10 +2565,13 @@ public final class LayoutElementBuilders {
              * single-line element.
              */
             @NonNull
-            public Builder setMaxLines(@NonNull Int32Prop maxLines) {
+            public Builder setMaxLines(@NonNull TypeBuilders.Int32Prop maxLines) {
                 mImpl.setMaxLines(maxLines.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        3, checkNotNull(maxLines.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
+
             /**
              * Sets the maximum number of lines that can be represented by the {@link Spannable}
              * element. If not defined, the {@link Spannable} element will be treated as a
@@ -2317,6 +2580,7 @@ public final class LayoutElementBuilders {
             @NonNull
             public Builder setMaxLines(@IntRange(from = 1) int maxLines) {
                 mImpl.setMaxLines(TypesProto.Int32Prop.newBuilder().setValue(maxLines));
+                mFingerprint.recordPropertyUpdate(3, maxLines);
                 return this;
             }
 
@@ -2331,8 +2595,11 @@ public final class LayoutElementBuilders {
             public Builder setMultilineAlignment(
                     @NonNull HorizontalAlignmentProp multilineAlignment) {
                 mImpl.setMultilineAlignment(multilineAlignment.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        4, checkNotNull(multilineAlignment.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
+
             /**
              * Sets alignment of the {@link Spannable} content within its bounds. Note that a {@link
              * Spannable} element will size itself to wrap its contents, so this option is
@@ -2347,6 +2614,7 @@ public final class LayoutElementBuilders {
                                 .setValue(
                                         AlignmentProto.HorizontalAlignment.forNumber(
                                                 multilineAlignment)));
+                mFingerprint.recordPropertyUpdate(4, multilineAlignment);
                 return this;
             }
 
@@ -2360,8 +2628,11 @@ public final class LayoutElementBuilders {
             @NonNull
             public Builder setOverflow(@NonNull TextOverflowProp overflow) {
                 mImpl.setOverflow(overflow.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        5, checkNotNull(overflow.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
+
             /**
              * Sets how to handle content which overflows the bound of the {@link Spannable}
              * element. A {@link Spannable} element will grow as large as possible inside its parent
@@ -2374,6 +2645,7 @@ public final class LayoutElementBuilders {
                 mImpl.setOverflow(
                         LayoutElementProto.TextOverflowProp.newBuilder()
                                 .setValue(LayoutElementProto.TextOverflow.forNumber(overflow)));
+                mFingerprint.recordPropertyUpdate(5, overflow);
                 return this;
             }
 
@@ -2383,15 +2655,17 @@ public final class LayoutElementBuilders {
              * recommended interline spacing.
              */
             @NonNull
-            public Builder setLineHeight(@NonNull SpProp lineHeight) {
+            public Builder setLineHeight(@NonNull DimensionBuilders.SpProp lineHeight) {
                 mImpl.setLineHeight(lineHeight.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        7, checkNotNull(lineHeight.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
 
             @Override
             @NonNull
             public Spannable build() {
-                return Spannable.fromProto(mImpl.build());
+                return new Spannable(mImpl.build(), mFingerprint);
             }
         }
     }
@@ -2408,9 +2682,11 @@ public final class LayoutElementBuilders {
      */
     public static final class Column implements LayoutElement {
         private final LayoutElementProto.Column mImpl;
+        @Nullable private final Fingerprint mFingerprint;
 
-        private Column(LayoutElementProto.Column impl) {
+        Column(LayoutElementProto.Column impl, @Nullable Fingerprint fingerprint) {
             this.mImpl = impl;
+            this.mFingerprint = fingerprint;
         }
 
         /**
@@ -2421,7 +2697,7 @@ public final class LayoutElementBuilders {
         public List<LayoutElement> getContents() {
             return Collections.unmodifiableList(
                     mImpl.getContentsList().stream()
-                            .map(LayoutElement::fromLayoutElementProto)
+                            .map(LayoutElementBuilders::layoutElementFromProto)
                             .collect(toList()));
         }
 
@@ -2444,9 +2720,9 @@ public final class LayoutElementBuilders {
          * children (i.e. a WrappedDimension). Intended for testing purposes only.
          */
         @Nullable
-        public ContainerDimension getWidth() {
+        public DimensionBuilders.ContainerDimension getWidth() {
             if (mImpl.hasWidth()) {
-                return ContainerDimension.fromContainerDimensionProto(mImpl.getWidth());
+                return DimensionBuilders.containerDimensionFromProto(mImpl.getWidth());
             } else {
                 return null;
             }
@@ -2457,9 +2733,9 @@ public final class LayoutElementBuilders {
          * children (i.e. a WrappedDimension). Intended for testing purposes only.
          */
         @Nullable
-        public ContainerDimension getHeight() {
+        public DimensionBuilders.ContainerDimension getHeight() {
             if (mImpl.hasHeight()) {
-                return ContainerDimension.fromContainerDimensionProto(mImpl.getHeight());
+                return DimensionBuilders.containerDimensionFromProto(mImpl.getHeight());
             } else {
                 return null;
             }
@@ -2470,21 +2746,27 @@ public final class LayoutElementBuilders {
          * for testing purposes only.
          */
         @Nullable
-        public Modifiers getModifiers() {
+        public ModifiersBuilders.Modifiers getModifiers() {
             if (mImpl.hasModifiers()) {
-                return Modifiers.fromProto(mImpl.getModifiers());
+                return ModifiersBuilders.Modifiers.fromProto(mImpl.getModifiers());
             } else {
                 return null;
             }
         }
 
+        @Override
         @RestrictTo(Scope.LIBRARY_GROUP)
-        @NonNull
-        public static Column fromProto(@NonNull LayoutElementProto.Column proto) {
-            return new Column(proto);
+        @Nullable
+        public Fingerprint getFingerprint() {
+            return mFingerprint;
         }
 
-        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        static Column fromProto(
+                @NonNull LayoutElementProto.Column proto, @Nullable Fingerprint fingerprint) {
+            return new Column(proto, fingerprint);
+        }
+
         @NonNull
         LayoutElementProto.Column toProto() {
             return mImpl;
@@ -2501,6 +2783,7 @@ public final class LayoutElementBuilders {
         public static final class Builder implements LayoutElement.Builder {
             private final LayoutElementProto.Column.Builder mImpl =
                     LayoutElementProto.Column.newBuilder();
+            private final Fingerprint mFingerprint = new Fingerprint(-1411218529);
 
             public Builder() {}
 
@@ -2508,6 +2791,7 @@ public final class LayoutElementBuilders {
             @NonNull
             public Builder addContent(@NonNull LayoutElement content) {
                 mImpl.addContents(content.toLayoutElementProto());
+                mFingerprint.addChildNode(checkNotNull(content.getFingerprint()));
                 return this;
             }
 
@@ -2520,8 +2804,12 @@ public final class LayoutElementBuilders {
             public Builder setHorizontalAlignment(
                     @NonNull HorizontalAlignmentProp horizontalAlignment) {
                 mImpl.setHorizontalAlignment(horizontalAlignment.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        2,
+                        checkNotNull(horizontalAlignment.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
+
             /**
              * Sets the horizontal alignment of elements inside this column, if they are narrower
              * than the resulting width of the column. If not defined, defaults to
@@ -2534,6 +2822,7 @@ public final class LayoutElementBuilders {
                                 .setValue(
                                         AlignmentProto.HorizontalAlignment.forNumber(
                                                 horizontalAlignment)));
+                mFingerprint.recordPropertyUpdate(2, horizontalAlignment);
                 return this;
             }
 
@@ -2542,8 +2831,10 @@ public final class LayoutElementBuilders {
              * its children (i.e. a WrappedDimension).
              */
             @NonNull
-            public Builder setWidth(@NonNull ContainerDimension width) {
+            public Builder setWidth(@NonNull DimensionBuilders.ContainerDimension width) {
                 mImpl.setWidth(width.toContainerDimensionProto());
+                mFingerprint.recordPropertyUpdate(
+                        3, checkNotNull(width.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
 
@@ -2552,22 +2843,26 @@ public final class LayoutElementBuilders {
              * its children (i.e. a WrappedDimension).
              */
             @NonNull
-            public Builder setHeight(@NonNull ContainerDimension height) {
+            public Builder setHeight(@NonNull DimensionBuilders.ContainerDimension height) {
                 mImpl.setHeight(height.toContainerDimensionProto());
+                mFingerprint.recordPropertyUpdate(
+                        4, checkNotNull(height.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
 
             /** Sets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. */
             @NonNull
-            public Builder setModifiers(@NonNull Modifiers modifiers) {
+            public Builder setModifiers(@NonNull ModifiersBuilders.Modifiers modifiers) {
                 mImpl.setModifiers(modifiers.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        5, checkNotNull(modifiers.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
 
             @Override
             @NonNull
             public Column build() {
-                return Column.fromProto(mImpl.build());
+                return new Column(mImpl.build(), mFingerprint);
             }
         }
     }
@@ -2584,9 +2879,11 @@ public final class LayoutElementBuilders {
      */
     public static final class Row implements LayoutElement {
         private final LayoutElementProto.Row mImpl;
+        @Nullable private final Fingerprint mFingerprint;
 
-        private Row(LayoutElementProto.Row impl) {
+        Row(LayoutElementProto.Row impl, @Nullable Fingerprint fingerprint) {
             this.mImpl = impl;
+            this.mFingerprint = fingerprint;
         }
 
         /**
@@ -2597,7 +2894,7 @@ public final class LayoutElementBuilders {
         public List<LayoutElement> getContents() {
             return Collections.unmodifiableList(
                     mImpl.getContentsList().stream()
-                            .map(LayoutElement::fromLayoutElementProto)
+                            .map(LayoutElementBuilders::layoutElementFromProto)
                             .collect(toList()));
         }
 
@@ -2620,9 +2917,9 @@ public final class LayoutElementBuilders {
          * children (i.e. a WrappedDimension). Intended for testing purposes only.
          */
         @Nullable
-        public ContainerDimension getWidth() {
+        public DimensionBuilders.ContainerDimension getWidth() {
             if (mImpl.hasWidth()) {
-                return ContainerDimension.fromContainerDimensionProto(mImpl.getWidth());
+                return DimensionBuilders.containerDimensionFromProto(mImpl.getWidth());
             } else {
                 return null;
             }
@@ -2633,9 +2930,9 @@ public final class LayoutElementBuilders {
          * children (i.e. a WrappedDimension). Intended for testing purposes only.
          */
         @Nullable
-        public ContainerDimension getHeight() {
+        public DimensionBuilders.ContainerDimension getHeight() {
             if (mImpl.hasHeight()) {
-                return ContainerDimension.fromContainerDimensionProto(mImpl.getHeight());
+                return DimensionBuilders.containerDimensionFromProto(mImpl.getHeight());
             } else {
                 return null;
             }
@@ -2646,21 +2943,27 @@ public final class LayoutElementBuilders {
          * for testing purposes only.
          */
         @Nullable
-        public Modifiers getModifiers() {
+        public ModifiersBuilders.Modifiers getModifiers() {
             if (mImpl.hasModifiers()) {
-                return Modifiers.fromProto(mImpl.getModifiers());
+                return ModifiersBuilders.Modifiers.fromProto(mImpl.getModifiers());
             } else {
                 return null;
             }
         }
 
+        @Override
         @RestrictTo(Scope.LIBRARY_GROUP)
-        @NonNull
-        public static Row fromProto(@NonNull LayoutElementProto.Row proto) {
-            return new Row(proto);
+        @Nullable
+        public Fingerprint getFingerprint() {
+            return mFingerprint;
         }
 
-        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        static Row fromProto(
+                @NonNull LayoutElementProto.Row proto, @Nullable Fingerprint fingerprint) {
+            return new Row(proto, fingerprint);
+        }
+
         @NonNull
         LayoutElementProto.Row toProto() {
             return mImpl;
@@ -2677,6 +2980,7 @@ public final class LayoutElementBuilders {
         public static final class Builder implements LayoutElement.Builder {
             private final LayoutElementProto.Row.Builder mImpl =
                     LayoutElementProto.Row.newBuilder();
+            private final Fingerprint mFingerprint = new Fingerprint(1537205448);
 
             public Builder() {}
 
@@ -2684,6 +2988,7 @@ public final class LayoutElementBuilders {
             @NonNull
             public Builder addContent(@NonNull LayoutElement content) {
                 mImpl.addContents(content.toLayoutElementProto());
+                mFingerprint.addChildNode(checkNotNull(content.getFingerprint()));
                 return this;
             }
 
@@ -2694,8 +2999,11 @@ public final class LayoutElementBuilders {
             @NonNull
             public Builder setVerticalAlignment(@NonNull VerticalAlignmentProp verticalAlignment) {
                 mImpl.setVerticalAlignment(verticalAlignment.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        2, checkNotNull(verticalAlignment.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
+
             /**
              * Sets the vertical alignment of elements inside this row, if they are narrower than
              * the resulting height of the row. If not defined, defaults to VERTICAL_ALIGN_CENTER.
@@ -2707,6 +3015,7 @@ public final class LayoutElementBuilders {
                                 .setValue(
                                         AlignmentProto.VerticalAlignment.forNumber(
                                                 verticalAlignment)));
+                mFingerprint.recordPropertyUpdate(2, verticalAlignment);
                 return this;
             }
 
@@ -2715,8 +3024,10 @@ public final class LayoutElementBuilders {
              * children (i.e. a WrappedDimension).
              */
             @NonNull
-            public Builder setWidth(@NonNull ContainerDimension width) {
+            public Builder setWidth(@NonNull DimensionBuilders.ContainerDimension width) {
                 mImpl.setWidth(width.toContainerDimensionProto());
+                mFingerprint.recordPropertyUpdate(
+                        3, checkNotNull(width.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
 
@@ -2725,22 +3036,26 @@ public final class LayoutElementBuilders {
              * children (i.e. a WrappedDimension).
              */
             @NonNull
-            public Builder setHeight(@NonNull ContainerDimension height) {
+            public Builder setHeight(@NonNull DimensionBuilders.ContainerDimension height) {
                 mImpl.setHeight(height.toContainerDimensionProto());
+                mFingerprint.recordPropertyUpdate(
+                        4, checkNotNull(height.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
 
             /** Sets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. */
             @NonNull
-            public Builder setModifiers(@NonNull Modifiers modifiers) {
+            public Builder setModifiers(@NonNull ModifiersBuilders.Modifiers modifiers) {
                 mImpl.setModifiers(modifiers.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        5, checkNotNull(modifiers.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
 
             @Override
             @NonNull
             public Row build() {
-                return Row.fromProto(mImpl.build());
+                return new Row(mImpl.build(), mFingerprint);
             }
         }
     }
@@ -2752,9 +3067,11 @@ public final class LayoutElementBuilders {
      */
     public static final class Arc implements LayoutElement {
         private final LayoutElementProto.Arc mImpl;
+        @Nullable private final Fingerprint mFingerprint;
 
-        private Arc(LayoutElementProto.Arc impl) {
+        Arc(LayoutElementProto.Arc impl, @Nullable Fingerprint fingerprint) {
             this.mImpl = impl;
+            this.mFingerprint = fingerprint;
         }
 
         /** Gets contents of this container. Intended for testing purposes only. */
@@ -2762,7 +3079,7 @@ public final class LayoutElementBuilders {
         public List<ArcLayoutElement> getContents() {
             return Collections.unmodifiableList(
                     mImpl.getContentsList().stream()
-                            .map(ArcLayoutElement::fromArcLayoutElementProto)
+                            .map(LayoutElementBuilders::arcLayoutElementFromProto)
                             .collect(toList()));
         }
 
@@ -2776,9 +3093,9 @@ public final class LayoutElementBuilders {
          * will be be placed at X mod 360 degrees. Intended for testing purposes only.
          */
         @Nullable
-        public DegreesProp getAnchorAngle() {
+        public DimensionBuilders.DegreesProp getAnchorAngle() {
             if (mImpl.hasAnchorAngle()) {
-                return DegreesProp.fromProto(mImpl.getAnchorAngle());
+                return DimensionBuilders.DegreesProp.fromProto(mImpl.getAnchorAngle());
             } else {
                 return null;
             }
@@ -2817,21 +3134,27 @@ public final class LayoutElementBuilders {
          * for testing purposes only.
          */
         @Nullable
-        public Modifiers getModifiers() {
+        public ModifiersBuilders.Modifiers getModifiers() {
             if (mImpl.hasModifiers()) {
-                return Modifiers.fromProto(mImpl.getModifiers());
+                return ModifiersBuilders.Modifiers.fromProto(mImpl.getModifiers());
             } else {
                 return null;
             }
         }
 
+        @Override
         @RestrictTo(Scope.LIBRARY_GROUP)
-        @NonNull
-        public static Arc fromProto(@NonNull LayoutElementProto.Arc proto) {
-            return new Arc(proto);
+        @Nullable
+        public Fingerprint getFingerprint() {
+            return mFingerprint;
         }
 
-        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        static Arc fromProto(
+                @NonNull LayoutElementProto.Arc proto, @Nullable Fingerprint fingerprint) {
+            return new Arc(proto, fingerprint);
+        }
+
         @NonNull
         LayoutElementProto.Arc toProto() {
             return mImpl;
@@ -2848,6 +3171,7 @@ public final class LayoutElementBuilders {
         public static final class Builder implements LayoutElement.Builder {
             private final LayoutElementProto.Arc.Builder mImpl =
                     LayoutElementProto.Arc.newBuilder();
+            private final Fingerprint mFingerprint = new Fingerprint(299028337);
 
             public Builder() {}
 
@@ -2855,6 +3179,7 @@ public final class LayoutElementBuilders {
             @NonNull
             public Builder addContent(@NonNull ArcLayoutElement content) {
                 mImpl.addContents(content.toArcLayoutElementProto());
+                mFingerprint.addChildNode(checkNotNull(content.getFingerprint()));
                 return this;
             }
 
@@ -2868,8 +3193,10 @@ public final class LayoutElementBuilders {
              * >360 will be be placed at X mod 360 degrees.
              */
             @NonNull
-            public Builder setAnchorAngle(@NonNull DegreesProp anchorAngle) {
+            public Builder setAnchorAngle(@NonNull DimensionBuilders.DegreesProp anchorAngle) {
                 mImpl.setAnchorAngle(anchorAngle.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        2, checkNotNull(anchorAngle.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
 
@@ -2880,8 +3207,11 @@ public final class LayoutElementBuilders {
             @NonNull
             public Builder setAnchorType(@NonNull ArcAnchorTypeProp anchorType) {
                 mImpl.setAnchorType(anchorType.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        3, checkNotNull(anchorType.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
+
             /**
              * Sets how to align the contents of this container relative to anchor_angle. If not
              * defined, defaults to ARC_ANCHOR_CENTER.
@@ -2891,6 +3221,7 @@ public final class LayoutElementBuilders {
                 mImpl.setAnchorType(
                         AlignmentProto.ArcAnchorTypeProp.newBuilder()
                                 .setValue(AlignmentProto.ArcAnchorType.forNumber(anchorType)));
+                mFingerprint.recordPropertyUpdate(3, anchorType);
                 return this;
             }
 
@@ -2903,8 +3234,11 @@ public final class LayoutElementBuilders {
             @NonNull
             public Builder setVerticalAlign(@NonNull VerticalAlignmentProp verticalAlign) {
                 mImpl.setVerticalAlign(verticalAlign.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        4, checkNotNull(verticalAlign.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
+
             /**
              * Sets vertical alignment of elements within the arc. If the {@link Arc}'s thickness is
              * larger than the thickness of the element being drawn, this controls whether the
@@ -2916,22 +3250,24 @@ public final class LayoutElementBuilders {
                 mImpl.setVerticalAlign(
                         AlignmentProto.VerticalAlignmentProp.newBuilder()
                                 .setValue(
-                                        AlignmentProto.VerticalAlignment.forNumber(
-                                                verticalAlign)));
+                                        AlignmentProto.VerticalAlignment.forNumber(verticalAlign)));
+                mFingerprint.recordPropertyUpdate(4, verticalAlign);
                 return this;
             }
 
             /** Sets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. */
             @NonNull
-            public Builder setModifiers(@NonNull Modifiers modifiers) {
+            public Builder setModifiers(@NonNull ModifiersBuilders.Modifiers modifiers) {
                 mImpl.setModifiers(modifiers.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        5, checkNotNull(modifiers.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
 
             @Override
             @NonNull
             public Arc build() {
-                return Arc.fromProto(mImpl.build());
+                return new Arc(mImpl.build(), mFingerprint);
             }
         }
     }
@@ -2939,16 +3275,18 @@ public final class LayoutElementBuilders {
     /** A text element that can be used in an {@link Arc}. */
     public static final class ArcText implements ArcLayoutElement {
         private final LayoutElementProto.ArcText mImpl;
+        @Nullable private final Fingerprint mFingerprint;
 
-        private ArcText(LayoutElementProto.ArcText impl) {
+        ArcText(LayoutElementProto.ArcText impl, @Nullable Fingerprint fingerprint) {
             this.mImpl = impl;
+            this.mFingerprint = fingerprint;
         }
 
         /** Gets the text to render. Intended for testing purposes only. */
         @Nullable
-        public StringProp getText() {
+        public TypeBuilders.StringProp getText() {
             if (mImpl.hasText()) {
-                return StringProp.fromProto(mImpl.getText());
+                return TypeBuilders.StringProp.fromProto(mImpl.getText());
             } else {
                 return null;
             }
@@ -2972,21 +3310,26 @@ public final class LayoutElementBuilders {
          * for testing purposes only.
          */
         @Nullable
-        public ArcModifiers getModifiers() {
+        public ModifiersBuilders.ArcModifiers getModifiers() {
             if (mImpl.hasModifiers()) {
-                return ArcModifiers.fromProto(mImpl.getModifiers());
+                return ModifiersBuilders.ArcModifiers.fromProto(mImpl.getModifiers());
             } else {
                 return null;
             }
         }
 
+        @Override
         @RestrictTo(Scope.LIBRARY_GROUP)
-        @NonNull
-        public static ArcText fromProto(@NonNull LayoutElementProto.ArcText proto) {
-            return new ArcText(proto);
+        @Nullable
+        public Fingerprint getFingerprint() {
+            return mFingerprint;
         }
 
-        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        static ArcText fromProto(@NonNull LayoutElementProto.ArcText proto) {
+            return new ArcText(proto, null);
+        }
+
         @NonNull
         LayoutElementProto.ArcText toProto() {
             return mImpl;
@@ -3003,19 +3346,24 @@ public final class LayoutElementBuilders {
         public static final class Builder implements ArcLayoutElement.Builder {
             private final LayoutElementProto.ArcText.Builder mImpl =
                     LayoutElementProto.ArcText.newBuilder();
+            private final Fingerprint mFingerprint = new Fingerprint(434391973);
 
             public Builder() {}
 
             /** Sets the text to render. */
             @NonNull
-            public Builder setText(@NonNull StringProp text) {
+            public Builder setText(@NonNull TypeBuilders.StringProp text) {
                 mImpl.setText(text.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        1, checkNotNull(text.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
+
             /** Sets the text to render. */
             @NonNull
             public Builder setText(@NonNull String text) {
                 mImpl.setText(TypesProto.StringProp.newBuilder().setValue(text));
+                mFingerprint.recordPropertyUpdate(1, text.hashCode());
                 return this;
             }
 
@@ -3026,20 +3374,24 @@ public final class LayoutElementBuilders {
             @NonNull
             public Builder setFontStyle(@NonNull FontStyle fontStyle) {
                 mImpl.setFontStyle(fontStyle.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        2, checkNotNull(fontStyle.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
 
             /** Sets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. */
             @NonNull
-            public Builder setModifiers(@NonNull ArcModifiers modifiers) {
+            public Builder setModifiers(@NonNull ModifiersBuilders.ArcModifiers modifiers) {
                 mImpl.setModifiers(modifiers.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        3, checkNotNull(modifiers.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
 
             @Override
             @NonNull
             public ArcText build() {
-                return ArcText.fromProto(mImpl.build());
+                return new ArcText(mImpl.build(), mFingerprint);
             }
         }
     }
@@ -3047,9 +3399,11 @@ public final class LayoutElementBuilders {
     /** A line that can be used in an {@link Arc} and renders as a round progress bar. */
     public static final class ArcLine implements ArcLayoutElement {
         private final LayoutElementProto.ArcLine mImpl;
+        @Nullable private final Fingerprint mFingerprint;
 
-        private ArcLine(LayoutElementProto.ArcLine impl) {
+        ArcLine(LayoutElementProto.ArcLine impl, @Nullable Fingerprint fingerprint) {
             this.mImpl = impl;
+            this.mFingerprint = fingerprint;
         }
 
         /**
@@ -3057,9 +3411,9 @@ public final class LayoutElementBuilders {
          * testing purposes only.
          */
         @Nullable
-        public DegreesProp getLength() {
+        public DimensionBuilders.DegreesProp getLength() {
             if (mImpl.hasLength()) {
-                return DegreesProp.fromProto(mImpl.getLength());
+                return DimensionBuilders.DegreesProp.fromProto(mImpl.getLength());
             } else {
                 return null;
             }
@@ -3070,9 +3424,9 @@ public final class LayoutElementBuilders {
          * purposes only.
          */
         @Nullable
-        public DpProp getThickness() {
+        public DimensionBuilders.DpProp getThickness() {
             if (mImpl.hasThickness()) {
-                return DpProp.fromProto(mImpl.getThickness());
+                return DimensionBuilders.DpProp.fromProto(mImpl.getThickness());
             } else {
                 return null;
             }
@@ -3080,9 +3434,9 @@ public final class LayoutElementBuilders {
 
         /** Gets the color of this line. Intended for testing purposes only. */
         @Nullable
-        public ColorProp getColor() {
+        public ColorBuilders.ColorProp getColor() {
             if (mImpl.hasColor()) {
-                return ColorProp.fromProto(mImpl.getColor());
+                return ColorBuilders.ColorProp.fromProto(mImpl.getColor());
             } else {
                 return null;
             }
@@ -3093,21 +3447,26 @@ public final class LayoutElementBuilders {
          * for testing purposes only.
          */
         @Nullable
-        public ArcModifiers getModifiers() {
+        public ModifiersBuilders.ArcModifiers getModifiers() {
             if (mImpl.hasModifiers()) {
-                return ArcModifiers.fromProto(mImpl.getModifiers());
+                return ModifiersBuilders.ArcModifiers.fromProto(mImpl.getModifiers());
             } else {
                 return null;
             }
         }
 
+        @Override
         @RestrictTo(Scope.LIBRARY_GROUP)
-        @NonNull
-        public static ArcLine fromProto(@NonNull LayoutElementProto.ArcLine proto) {
-            return new ArcLine(proto);
+        @Nullable
+        public Fingerprint getFingerprint() {
+            return mFingerprint;
         }
 
-        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        static ArcLine fromProto(@NonNull LayoutElementProto.ArcLine proto) {
+            return new ArcLine(proto, null);
+        }
+
         @NonNull
         LayoutElementProto.ArcLine toProto() {
             return mImpl;
@@ -3124,41 +3483,50 @@ public final class LayoutElementBuilders {
         public static final class Builder implements ArcLayoutElement.Builder {
             private final LayoutElementProto.ArcLine.Builder mImpl =
                     LayoutElementProto.ArcLine.newBuilder();
+            private final Fingerprint mFingerprint = new Fingerprint(-1371793535);
 
             public Builder() {}
 
             /** Sets the length of this line, in degrees. If not defined, defaults to 0. */
             @NonNull
-            public Builder setLength(@NonNull DegreesProp length) {
+            public Builder setLength(@NonNull DimensionBuilders.DegreesProp length) {
                 mImpl.setLength(length.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        1, checkNotNull(length.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
 
             /** Sets the thickness of this line. If not defined, defaults to 0. */
             @NonNull
-            public Builder setThickness(@NonNull DpProp thickness) {
+            public Builder setThickness(@NonNull DimensionBuilders.DpProp thickness) {
                 mImpl.setThickness(thickness.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        2, checkNotNull(thickness.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
 
             /** Sets the color of this line. */
             @NonNull
-            public Builder setColor(@NonNull ColorProp color) {
+            public Builder setColor(@NonNull ColorBuilders.ColorProp color) {
                 mImpl.setColor(color.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        3, checkNotNull(color.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
 
             /** Sets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. */
             @NonNull
-            public Builder setModifiers(@NonNull ArcModifiers modifiers) {
+            public Builder setModifiers(@NonNull ModifiersBuilders.ArcModifiers modifiers) {
                 mImpl.setModifiers(modifiers.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        4, checkNotNull(modifiers.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
 
             @Override
             @NonNull
             public ArcLine build() {
-                return ArcLine.fromProto(mImpl.build());
+                return new ArcLine(mImpl.build(), mFingerprint);
             }
         }
     }
@@ -3166,9 +3534,11 @@ public final class LayoutElementBuilders {
     /** A simple spacer used to provide padding between adjacent elements in an {@link Arc}. */
     public static final class ArcSpacer implements ArcLayoutElement {
         private final LayoutElementProto.ArcSpacer mImpl;
+        @Nullable private final Fingerprint mFingerprint;
 
-        private ArcSpacer(LayoutElementProto.ArcSpacer impl) {
+        ArcSpacer(LayoutElementProto.ArcSpacer impl, @Nullable Fingerprint fingerprint) {
             this.mImpl = impl;
+            this.mFingerprint = fingerprint;
         }
 
         /**
@@ -3176,9 +3546,9 @@ public final class LayoutElementBuilders {
          * testing purposes only.
          */
         @Nullable
-        public DegreesProp getLength() {
+        public DimensionBuilders.DegreesProp getLength() {
             if (mImpl.hasLength()) {
-                return DegreesProp.fromProto(mImpl.getLength());
+                return DimensionBuilders.DegreesProp.fromProto(mImpl.getLength());
             } else {
                 return null;
             }
@@ -3189,9 +3559,9 @@ public final class LayoutElementBuilders {
          * testing purposes only.
          */
         @Nullable
-        public DpProp getThickness() {
+        public DimensionBuilders.DpProp getThickness() {
             if (mImpl.hasThickness()) {
-                return DpProp.fromProto(mImpl.getThickness());
+                return DimensionBuilders.DpProp.fromProto(mImpl.getThickness());
             } else {
                 return null;
             }
@@ -3202,21 +3572,26 @@ public final class LayoutElementBuilders {
          * for testing purposes only.
          */
         @Nullable
-        public ArcModifiers getModifiers() {
+        public ModifiersBuilders.ArcModifiers getModifiers() {
             if (mImpl.hasModifiers()) {
-                return ArcModifiers.fromProto(mImpl.getModifiers());
+                return ModifiersBuilders.ArcModifiers.fromProto(mImpl.getModifiers());
             } else {
                 return null;
             }
         }
 
+        @Override
         @RestrictTo(Scope.LIBRARY_GROUP)
-        @NonNull
-        public static ArcSpacer fromProto(@NonNull LayoutElementProto.ArcSpacer proto) {
-            return new ArcSpacer(proto);
+        @Nullable
+        public Fingerprint getFingerprint() {
+            return mFingerprint;
         }
 
-        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        static ArcSpacer fromProto(@NonNull LayoutElementProto.ArcSpacer proto) {
+            return new ArcSpacer(proto, null);
+        }
+
         @NonNull
         LayoutElementProto.ArcSpacer toProto() {
             return mImpl;
@@ -3233,34 +3608,41 @@ public final class LayoutElementBuilders {
         public static final class Builder implements ArcLayoutElement.Builder {
             private final LayoutElementProto.ArcSpacer.Builder mImpl =
                     LayoutElementProto.ArcSpacer.newBuilder();
+            private final Fingerprint mFingerprint = new Fingerprint(-179760535);
 
             public Builder() {}
 
             /** Sets the length of this spacer, in degrees. If not defined, defaults to 0. */
             @NonNull
-            public Builder setLength(@NonNull DegreesProp length) {
+            public Builder setLength(@NonNull DimensionBuilders.DegreesProp length) {
                 mImpl.setLength(length.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        1, checkNotNull(length.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
 
             /** Sets the thickness of this spacer, in DP. If not defined, defaults to 0. */
             @NonNull
-            public Builder setThickness(@NonNull DpProp thickness) {
+            public Builder setThickness(@NonNull DimensionBuilders.DpProp thickness) {
+                mFingerprint.recordPropertyUpdate(
+                        2, checkNotNull(thickness.getFingerprint()).aggregateValueAsInt());
                 mImpl.setThickness(thickness.toProto());
                 return this;
             }
 
             /** Sets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. */
             @NonNull
-            public Builder setModifiers(@NonNull ArcModifiers modifiers) {
+            public Builder setModifiers(@NonNull ModifiersBuilders.ArcModifiers modifiers) {
                 mImpl.setModifiers(modifiers.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        3, checkNotNull(modifiers.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
 
             @Override
             @NonNull
             public ArcSpacer build() {
-                return ArcSpacer.fromProto(mImpl.build());
+                return new ArcSpacer(mImpl.build(), mFingerprint);
             }
         }
     }
@@ -3268,16 +3650,18 @@ public final class LayoutElementBuilders {
     /** A container that allows a standard {@link LayoutElement} to be added to an {@link Arc}. */
     public static final class ArcAdapter implements ArcLayoutElement {
         private final LayoutElementProto.ArcAdapter mImpl;
+        @Nullable private final Fingerprint mFingerprint;
 
-        private ArcAdapter(LayoutElementProto.ArcAdapter impl) {
+        ArcAdapter(LayoutElementProto.ArcAdapter impl, @Nullable Fingerprint fingerprint) {
             this.mImpl = impl;
+            this.mFingerprint = fingerprint;
         }
 
         /** Gets the element to adapt to an {@link Arc}. Intended for testing purposes only. */
         @Nullable
         public LayoutElement getContent() {
             if (mImpl.hasContent()) {
-                return LayoutElement.fromLayoutElementProto(mImpl.getContent());
+                return LayoutElementBuilders.layoutElementFromProto(mImpl.getContent());
             } else {
                 return null;
             }
@@ -3293,21 +3677,26 @@ public final class LayoutElementBuilders {
          * only.
          */
         @Nullable
-        public BoolProp getRotateContents() {
+        public TypeBuilders.BoolProp getRotateContents() {
             if (mImpl.hasRotateContents()) {
-                return BoolProp.fromProto(mImpl.getRotateContents());
+                return TypeBuilders.BoolProp.fromProto(mImpl.getRotateContents());
             } else {
                 return null;
             }
         }
 
+        @Override
         @RestrictTo(Scope.LIBRARY_GROUP)
-        @NonNull
-        public static ArcAdapter fromProto(@NonNull LayoutElementProto.ArcAdapter proto) {
-            return new ArcAdapter(proto);
+        @Nullable
+        public Fingerprint getFingerprint() {
+            return mFingerprint;
         }
 
-        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        static ArcAdapter fromProto(@NonNull LayoutElementProto.ArcAdapter proto) {
+            return new ArcAdapter(proto, null);
+        }
+
         @NonNull
         LayoutElementProto.ArcAdapter toProto() {
             return mImpl;
@@ -3324,6 +3713,7 @@ public final class LayoutElementBuilders {
         public static final class Builder implements ArcLayoutElement.Builder {
             private final LayoutElementProto.ArcAdapter.Builder mImpl =
                     LayoutElementProto.ArcAdapter.newBuilder();
+            private final Fingerprint mFingerprint = new Fingerprint(1696473935);
 
             public Builder() {}
 
@@ -3331,6 +3721,7 @@ public final class LayoutElementBuilders {
             @NonNull
             public Builder setContent(@NonNull LayoutElement content) {
                 mImpl.setContent(content.toLayoutElementProto());
+                mFingerprint.addChildNode(checkNotNull(content.getFingerprint()));
                 return this;
             }
 
@@ -3343,10 +3734,13 @@ public final class LayoutElementBuilders {
              * position, but itself will not be rotated. If not defined, defaults to false.
              */
             @NonNull
-            public Builder setRotateContents(@NonNull BoolProp rotateContents) {
+            public Builder setRotateContents(@NonNull TypeBuilders.BoolProp rotateContents) {
                 mImpl.setRotateContents(rotateContents.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        2, checkNotNull(rotateContents.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
+
             /**
              * Sets whether this adapter's contents should be rotated, according to its position in
              * the arc or not. As an example, assume that an {@link Image} has been added to the
@@ -3359,13 +3753,14 @@ public final class LayoutElementBuilders {
             @NonNull
             public Builder setRotateContents(boolean rotateContents) {
                 mImpl.setRotateContents(TypesProto.BoolProp.newBuilder().setValue(rotateContents));
+                mFingerprint.recordPropertyUpdate(2, Boolean.hashCode(rotateContents));
                 return this;
             }
 
             @Override
             @NonNull
             public ArcAdapter build() {
-                return ArcAdapter.fromProto(mImpl.build());
+                return new ArcAdapter(mImpl.build(), mFingerprint);
             }
         }
     }
@@ -3375,49 +3770,15 @@ public final class LayoutElementBuilders {
      * the actual layout elements above.
      */
     public interface LayoutElement {
-        /**
-         * Get the protocol buffer representation of this object.
-         *
-         */
+        /** Get the protocol buffer representation of this object. */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         LayoutElementProto.LayoutElement toLayoutElementProto();
 
-        /**
-         * Return an instance of one of this object's subtypes, from the protocol buffer
-         * representation.
-         *
-         */
+        /** Get the fingerprint for this object or null if unknown. */
         @RestrictTo(Scope.LIBRARY_GROUP)
-        @NonNull
-        static LayoutElement fromLayoutElementProto(
-                @NonNull LayoutElementProto.LayoutElement proto) {
-            if (proto.hasColumn()) {
-                return Column.fromProto(proto.getColumn());
-            }
-            if (proto.hasRow()) {
-                return Row.fromProto(proto.getRow());
-            }
-            if (proto.hasBox()) {
-                return Box.fromProto(proto.getBox());
-            }
-            if (proto.hasSpacer()) {
-                return Spacer.fromProto(proto.getSpacer());
-            }
-            if (proto.hasText()) {
-                return Text.fromProto(proto.getText());
-            }
-            if (proto.hasImage()) {
-                return Image.fromProto(proto.getImage());
-            }
-            if (proto.hasArc()) {
-                return Arc.fromProto(proto.getArc());
-            }
-            if (proto.hasSpannable()) {
-                return Spannable.fromProto(proto.getSpannable());
-            }
-            throw new IllegalStateException("Proto was not a recognised instance of LayoutElement");
-        }
+        @Nullable
+        Fingerprint getFingerprint();
 
         /** Builder to create {@link LayoutElement} objects. */
         @SuppressLint("StaticFinalBuilder")
@@ -3429,43 +3790,57 @@ public final class LayoutElementBuilders {
         }
     }
 
+    /** Creates a new wrapper instance from the proto. */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    public static LayoutElement layoutElementFromProto(
+            @NonNull LayoutElementProto.LayoutElement proto, @Nullable Fingerprint fingerprint) {
+        if (proto.hasColumn()) {
+            return Column.fromProto(proto.getColumn(), fingerprint);
+        }
+        if (proto.hasRow()) {
+            return Row.fromProto(proto.getRow(), fingerprint);
+        }
+        if (proto.hasBox()) {
+            return Box.fromProto(proto.getBox(), fingerprint);
+        }
+        if (proto.hasSpacer()) {
+            return Spacer.fromProto(proto.getSpacer(), fingerprint);
+        }
+        if (proto.hasText()) {
+            return Text.fromProto(proto.getText(), fingerprint);
+        }
+        if (proto.hasImage()) {
+            return Image.fromProto(proto.getImage(), fingerprint);
+        }
+        if (proto.hasArc()) {
+            return Arc.fromProto(proto.getArc(), fingerprint);
+        }
+        if (proto.hasSpannable()) {
+            return Spannable.fromProto(proto.getSpannable(), fingerprint);
+        }
+        throw new IllegalStateException("Proto was not a recognised instance of LayoutElement");
+    }
+
+    @NonNull
+    static LayoutElement layoutElementFromProto(@NonNull LayoutElementProto.LayoutElement proto) {
+        return layoutElementFromProto(proto, null);
+    }
+
     /**
      * Interface defining the root of all elements that can be used in an {@link Arc}. This exists
      * to act as a holder for all of the actual arc layout elements above.
      */
     public interface ArcLayoutElement {
-        /**
-         * Get the protocol buffer representation of this object.
-         *
-         */
+        /** Get the protocol buffer representation of this object. */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         LayoutElementProto.ArcLayoutElement toArcLayoutElementProto();
 
-        /**
-         * Return an instance of one of this object's subtypes, from the protocol buffer
-         * representation.
-         *
-         */
+        /** Get the fingerprint for this object or null if unknown. */
         @RestrictTo(Scope.LIBRARY_GROUP)
-        @NonNull
-        static ArcLayoutElement fromArcLayoutElementProto(
-                @NonNull LayoutElementProto.ArcLayoutElement proto) {
-            if (proto.hasText()) {
-                return ArcText.fromProto(proto.getText());
-            }
-            if (proto.hasLine()) {
-                return ArcLine.fromProto(proto.getLine());
-            }
-            if (proto.hasSpacer()) {
-                return ArcSpacer.fromProto(proto.getSpacer());
-            }
-            if (proto.hasAdapter()) {
-                return ArcAdapter.fromProto(proto.getAdapter());
-            }
-            throw new IllegalStateException(
-                    "Proto was not a recognised instance of ArcLayoutElement");
-        }
+        @Nullable
+        Fingerprint getFingerprint();
 
         /** Builder to create {@link ArcLayoutElement} objects. */
         @SuppressLint("StaticFinalBuilder")
@@ -3475,6 +3850,24 @@ public final class LayoutElementBuilders {
             @NonNull
             ArcLayoutElement build();
         }
+    }
+
+    @NonNull
+    static ArcLayoutElement arcLayoutElementFromProto(
+            @NonNull LayoutElementProto.ArcLayoutElement proto) {
+        if (proto.hasText()) {
+            return ArcText.fromProto(proto.getText());
+        }
+        if (proto.hasLine()) {
+            return ArcLine.fromProto(proto.getLine());
+        }
+        if (proto.hasSpacer()) {
+            return ArcSpacer.fromProto(proto.getSpacer());
+        }
+        if (proto.hasAdapter()) {
+            return ArcAdapter.fromProto(proto.getAdapter());
+        }
+        throw new IllegalStateException("Proto was not a recognised instance of ArcLayoutElement");
     }
 
     /** A complete layout. */
@@ -3489,7 +3882,7 @@ public final class LayoutElementBuilders {
         @Nullable
         public LayoutElement getRoot() {
             if (mImpl.hasRoot()) {
-                return LayoutElement.fromLayoutElementProto(mImpl.getRoot());
+                return LayoutElementBuilders.layoutElementFromProto(mImpl.getRoot());
             } else {
                 return null;
             }
@@ -3501,12 +3894,13 @@ public final class LayoutElementBuilders {
             return new Layout(proto);
         }
 
-        /** Returns the {@link Layout} object containing the given layout element. */
+        /** Creates a {@link Layout} object containing the given layout element. */
         @NonNull
         public static Layout fromLayoutElement(@NonNull LayoutElement layoutElement) {
             return new Builder().setRoot(layoutElement).build();
         }
 
+        /** Returns the internal proto instance. */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public LayoutElementProto.Layout toProto() {
@@ -3542,7 +3936,31 @@ public final class LayoutElementBuilders {
             @NonNull
             public Builder setRoot(@NonNull LayoutElement root) {
                 mImpl.setRoot(root.toLayoutElementProto());
+                @Nullable Fingerprint fingerprint = root.getFingerprint();
+                if (fingerprint != null) {
+                    mImpl.setFingerprint(
+                            TreeFingerprint.newBuilder().setRoot(fingerprintToProto(fingerprint)));
+                }
                 return this;
+            }
+
+            private static FingerprintProto.NodeFingerprint fingerprintToProto(
+                    Fingerprint fingerprint) {
+                FingerprintProto.NodeFingerprint.Builder builder =
+                        FingerprintProto.NodeFingerprint.newBuilder();
+                if (fingerprint.selfTypeValue() != 0) {
+                    builder.setSelfTypeValue(fingerprint.selfTypeValue());
+                }
+                if (fingerprint.selfPropsValue() != 0) {
+                    builder.setSelfPropsValue(fingerprint.selfPropsValue());
+                }
+                if (fingerprint.childNodesValue() != 0) {
+                    builder.setChildNodesValue(fingerprint.childNodesValue());
+                }
+                for (Fingerprint childNode : fingerprint.childNodes()) {
+                    builder.addChildNodes(fingerprintToProto(childNode));
+                }
+                return builder.build();
             }
 
             /** Builds an instance from accumulated values. */
@@ -3557,16 +3975,17 @@ public final class LayoutElementBuilders {
     public static class FontStyles {
         private static final int LARGE_SCREEN_WIDTH_DP = 210;
 
-        private FontStyles() {
-        }
+        private FontStyles() {}
 
-        private static boolean isLargeScreen(@NonNull DeviceParameters deviceParameters) {
+        private static boolean isLargeScreen(
+                @NonNull DeviceParametersBuilders.DeviceParameters deviceParameters) {
             return deviceParameters.getScreenWidthDp() >= LARGE_SCREEN_WIDTH_DP;
         }
 
         /** Font style for large display text. */
         @NonNull
-        public static FontStyle.Builder display1(@NonNull DeviceParameters deviceParameters) {
+        public static FontStyle.Builder display1(
+                @NonNull DeviceParametersBuilders.DeviceParameters deviceParameters) {
             return new FontStyle.Builder()
                     .setWeight(FONT_WEIGHT_BOLD)
                     .setSize(DimensionBuilders.sp(isLargeScreen(deviceParameters) ? 54 : 50));
@@ -3574,7 +3993,8 @@ public final class LayoutElementBuilders {
 
         /** Font style for medium display text. */
         @NonNull
-        public static FontStyle.Builder display2(@NonNull DeviceParameters deviceParameters) {
+        public static FontStyle.Builder display2(
+                @NonNull DeviceParametersBuilders.DeviceParameters deviceParameters) {
             return new FontStyle.Builder()
                     .setWeight(FONT_WEIGHT_BOLD)
                     .setSize(DimensionBuilders.sp(isLargeScreen(deviceParameters) ? 44 : 40));
@@ -3582,7 +4002,8 @@ public final class LayoutElementBuilders {
 
         /** Font style for small display text. */
         @NonNull
-        public static FontStyle.Builder display3(@NonNull DeviceParameters deviceParameters) {
+        public static FontStyle.Builder display3(
+                @NonNull DeviceParametersBuilders.DeviceParameters deviceParameters) {
             return new FontStyle.Builder()
                     .setWeight(FONT_WEIGHT_BOLD)
                     .setSize(DimensionBuilders.sp(isLargeScreen(deviceParameters) ? 34 : 30));
@@ -3590,7 +4011,8 @@ public final class LayoutElementBuilders {
 
         /** Font style for large title text. */
         @NonNull
-        public static FontStyle.Builder title1(@NonNull DeviceParameters deviceParameters) {
+        public static FontStyle.Builder title1(
+                @NonNull DeviceParametersBuilders.DeviceParameters deviceParameters) {
             return new FontStyle.Builder()
                     .setWeight(FONT_WEIGHT_BOLD)
                     .setSize(DimensionBuilders.sp(isLargeScreen(deviceParameters) ? 26 : 24));
@@ -3598,7 +4020,8 @@ public final class LayoutElementBuilders {
 
         /** Font style for medium title text. */
         @NonNull
-        public static FontStyle.Builder title2(@NonNull DeviceParameters deviceParameters) {
+        public static FontStyle.Builder title2(
+                @NonNull DeviceParametersBuilders.DeviceParameters deviceParameters) {
             return new FontStyle.Builder()
                     .setWeight(FONT_WEIGHT_BOLD)
                     .setSize(DimensionBuilders.sp(isLargeScreen(deviceParameters) ? 22 : 20));
@@ -3606,7 +4029,8 @@ public final class LayoutElementBuilders {
 
         /** Font style for small title text. */
         @NonNull
-        public static FontStyle.Builder title3(@NonNull DeviceParameters deviceParameters) {
+        public static FontStyle.Builder title3(
+                @NonNull DeviceParametersBuilders.DeviceParameters deviceParameters) {
             return new FontStyle.Builder()
                     .setWeight(FONT_WEIGHT_BOLD)
                     .setSize(DimensionBuilders.sp(isLargeScreen(deviceParameters) ? 18 : 16));
@@ -3614,21 +4038,24 @@ public final class LayoutElementBuilders {
 
         /** Font style for large body text. */
         @NonNull
-        public static FontStyle.Builder body1(@NonNull DeviceParameters deviceParameters) {
+        public static FontStyle.Builder body1(
+                @NonNull DeviceParametersBuilders.DeviceParameters deviceParameters) {
             return new FontStyle.Builder()
                     .setSize(DimensionBuilders.sp(isLargeScreen(deviceParameters) ? 18 : 16));
         }
 
         /** Font style for medium body text. */
         @NonNull
-        public static FontStyle.Builder body2(@NonNull DeviceParameters deviceParameters) {
+        public static FontStyle.Builder body2(
+                @NonNull DeviceParametersBuilders.DeviceParameters deviceParameters) {
             return new FontStyle.Builder()
                     .setSize(DimensionBuilders.sp(isLargeScreen(deviceParameters) ? 16 : 14));
         }
 
         /** Font style for button text. */
         @NonNull
-        public static FontStyle.Builder button(@NonNull DeviceParameters deviceParameters) {
+        public static FontStyle.Builder button(
+                @NonNull DeviceParametersBuilders.DeviceParameters deviceParameters) {
             return new FontStyle.Builder()
                     .setWeight(FONT_WEIGHT_BOLD)
                     .setSize(DimensionBuilders.sp(isLargeScreen(deviceParameters) ? 16 : 14));
@@ -3636,14 +4063,16 @@ public final class LayoutElementBuilders {
 
         /** Font style for large caption text. */
         @NonNull
-        public static FontStyle.Builder caption1(@NonNull DeviceParameters deviceParameters) {
+        public static FontStyle.Builder caption1(
+                @NonNull DeviceParametersBuilders.DeviceParameters deviceParameters) {
             return new FontStyle.Builder()
                     .setSize(DimensionBuilders.sp(isLargeScreen(deviceParameters) ? 16 : 14));
         }
 
         /** Font style for medium caption text. */
         @NonNull
-        public static FontStyle.Builder caption2(@NonNull DeviceParameters deviceParameters) {
+        public static FontStyle.Builder caption2(
+                @NonNull DeviceParametersBuilders.DeviceParameters deviceParameters) {
             return new FontStyle.Builder()
                     .setSize(DimensionBuilders.sp(isLargeScreen(deviceParameters) ? 14 : 12));
         }

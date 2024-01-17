@@ -55,11 +55,16 @@ class SemanticsNodeInteraction constructor(
 
     internal fun fetchSemanticsNodes(
         atLeastOneRootRequired: Boolean,
-        errorMessageOnFail: String? = null
+        errorMessageOnFail: String? = null,
+        skipDeactivatedNodes: Boolean = true
     ): SelectionResult {
         return selector
             .map(
-                testContext.getAllSemanticsNodes(atLeastOneRootRequired, useUnmergedTree),
+                testContext.getAllSemanticsNodes(
+                    atLeastOneRootRequired = atLeastOneRootRequired,
+                    useUnmergedTree = useUnmergedTree,
+                    skipDeactivatedNodes = skipDeactivatedNodes
+                ),
                 errorMessageOnFail.orEmpty()
             )
     }
@@ -121,11 +126,39 @@ class SemanticsNodeInteraction constructor(
         return this
     }
 
-    private fun fetchOneOrDie(errorMessageOnFail: String? = null): SemanticsNode {
+    /**
+     * Asserts that the component was found and it is deactivated.
+     *
+     * For example, the children of [androidx.compose.ui.layout.SubcomposeLayout] which are
+     * retained to be reused in future are considered deactivated.
+     *
+     * @throws [AssertionError] if the assert fails.
+     */
+    fun assertIsDeactivated(errorMessageOnFail: String? = null) {
+        val node = fetchOneOrDie(skipDeactivatedNodes = false)
+        if (!node.layoutInfo.isDeactivated) {
+            throw AssertionError(
+                buildGeneralErrorMessage(
+                    errorMessage = errorMessageOnFail ?: "Failed: assertDeactivated",
+                    selector = selector,
+                    node = node
+                )
+            )
+        }
+    }
+
+    private fun fetchOneOrDie(
+        errorMessageOnFail: String? = null,
+        skipDeactivatedNodes: Boolean = true
+    ): SemanticsNode {
         val finalErrorMessage = errorMessageOnFail
             ?: "Failed: assertExists."
 
-        val result = fetchSemanticsNodes(atLeastOneRootRequired = true, finalErrorMessage)
+        val result = fetchSemanticsNodes(
+            atLeastOneRootRequired = true,
+            errorMessageOnFail = finalErrorMessage,
+            skipDeactivatedNodes = skipDeactivatedNodes
+        )
         if (result.selectedNodes.count() != 1) {
             if (result.selectedNodes.isEmpty() && lastSeenSemantics != null) {
                 // This means that node we used to have is no longer in the tree.

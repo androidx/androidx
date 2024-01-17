@@ -23,9 +23,9 @@ import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import com.google.common.truth.Truth.assertThat
-import org.junit.runners.JUnit4
-import org.junit.runner.RunWith
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
 class DesktopMenuTest {

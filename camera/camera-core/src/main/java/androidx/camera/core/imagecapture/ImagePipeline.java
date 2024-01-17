@@ -17,6 +17,7 @@
 package androidx.camera.core.imagecapture;
 
 import static androidx.camera.core.CaptureBundles.singleDefaultCaptureBundle;
+import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_BUFFER_FORMAT;
 import static androidx.camera.core.impl.utils.Threads.checkMainThread;
 import static androidx.camera.core.impl.utils.TransformUtils.hasCropping;
 
@@ -64,6 +65,8 @@ public class ImagePipeline {
     static final byte JPEG_QUALITY_MAX_QUALITY = 100;
     static final byte JPEG_QUALITY_MIN_LATENCY = 95;
 
+    private static int sNextRequestId = 0;
+
     static final ExifRotationAvailability EXIF_ROTATION_AVAILABILITY =
             new ExifRotationAvailability();
     // Use case configs.
@@ -90,7 +93,7 @@ public class ImagePipeline {
             @NonNull ImageCaptureConfig useCaseConfig,
             @NonNull Size cameraSurfaceSize) {
         this(useCaseConfig, cameraSurfaceSize, /*cameraEffect=*/ null,
-                /*isVirtualCamera=*/ false);
+                /*isVirtualCamera=*/ false, /* postviewSize */ null, ImageFormat.YUV_420_888);
     }
 
     @MainThread
@@ -99,6 +102,18 @@ public class ImagePipeline {
             @NonNull Size cameraSurfaceSize,
             @Nullable CameraEffect cameraEffect,
             boolean isVirtualCamera) {
+        this(useCaseConfig, cameraSurfaceSize, cameraEffect, isVirtualCamera,
+                null, ImageFormat.YUV_420_888);
+    }
+
+    @MainThread
+    public ImagePipeline(
+            @NonNull ImageCaptureConfig useCaseConfig,
+            @NonNull Size cameraSurfaceSize,
+            @Nullable CameraEffect cameraEffect,
+            boolean isVirtualCamera,
+            @Nullable Size postviewSize,
+            int postviewImageFormat) {
         checkMainThread();
         mUseCaseConfig = useCaseConfig;
         mCaptureConfig = CaptureConfig.Builder.createFrom(useCaseConfig).build();
@@ -111,8 +126,14 @@ public class ImagePipeline {
                 cameraEffect != null ? new InternalImageProcessor(cameraEffect) : null);
 
         // Connect nodes
-        mPipelineIn = CaptureNode.In.of(cameraSurfaceSize, mUseCaseConfig.getInputFormat(),
-                isVirtualCamera);
+        mPipelineIn = CaptureNode.In.of(
+                cameraSurfaceSize,
+                mUseCaseConfig.getInputFormat(),
+                getOutputFormat(),
+                isVirtualCamera,
+                mUseCaseConfig.getImageReaderProxyProvider(),
+                postviewSize,
+                postviewImageFormat);
         CaptureNode.Out captureOut = mCaptureNode.transform(mPipelineIn);
         ProcessingNode.In processingIn = mBundlingNode.transform(captureOut);
         mProcessingNode.transform(processingIn);
@@ -126,6 +147,11 @@ public class ImagePipeline {
         SessionConfig.Builder builder = SessionConfig.Builder.createFrom(mUseCaseConfig,
                 resolution);
         builder.addNonRepeatingSurface(mPipelineIn.getSurface());
+
+        // Postview surface is generated when initializing CaptureNode.
+        if (mPipelineIn.getPostviewSurface() != null) {
+            builder.setPostviewSurface(mPipelineIn.getPostviewSurface());
+        }
         return builder;
     }
 
@@ -185,12 +211,17 @@ public class ImagePipeline {
             @NonNull ListenableFuture<Void> captureFuture) {
         checkMainThread();
         CaptureBundle captureBundle = createCaptureBundle();
+        // sNextRequestId is not thread-safe. Changed it to use AtomicInteger if thread safety is
+        // needed in the future.
+        int requestId = sNextRequestId++;
         return new Pair<>(
                 createCameraRequest(
+                        requestId,
                         captureBundle,
                         takePictureRequest,
                         takePictureCallback),
                 createProcessingRequest(
+                        requestId,
                         captureBundle,
                         takePictureRequest,
                         takePictureCallback,
@@ -211,6 +242,16 @@ public class ImagePipeline {
 
     // ===== private methods =====
 
+    private int getOutputFormat() {
+        Integer bufferFormat = mUseCaseConfig.retrieveOption(OPTION_BUFFER_FORMAT, null);
+        // Return the buffer format if it is set.
+        if (bufferFormat != null) {
+            return bufferFormat;
+        }
+        // By default, use JPEG format.
+        return ImageFormat.JPEG;
+    }
+
     @NonNull
     private CaptureBundle createCaptureBundle() {
         return requireNonNull(mUseCaseConfig.getCaptureBundle(singleDefaultCaptureBundle()));
@@ -218,6 +259,7 @@ public class ImagePipeline {
 
     @NonNull
     private ProcessingRequest createProcessingRequest(
+            int requestId,
             @NonNull CaptureBundle captureBundle,
             @NonNull TakePictureRequest takePictureRequest,
             @NonNull TakePictureCallback takePictureCallback,
@@ -230,10 +272,22 @@ public class ImagePipeline {
                 takePictureRequest.getJpegQuality(),
                 takePictureRequest.getSensorToBufferTransform(),
                 takePictureCallback,
-                captureFuture);
+                captureFuture,
+                requestId);
+    }
+
+    private boolean shouldEnablePostview() {
+        return mPipelineIn.getPostviewSurface() != null;
+    }
+
+    @VisibleForTesting
+    @Nullable
+    public Size getPostviewSize() {
+        return mPipelineIn.getPostviewSize();
     }
 
     private CameraRequest createCameraRequest(
+            int requestId,
             @NonNull CaptureBundle captureBundle,
             @NonNull TakePictureRequest takePictureRequest,
             @NonNull TakePictureCallback takePictureCallback) {
@@ -248,10 +302,11 @@ public class ImagePipeline {
             builder.addAllCameraCaptureCallbacks(
                     takePictureRequest.getSessionConfigCameraCaptureCallbacks());
             builder.addSurface(mPipelineIn.getSurface());
+            builder.setPostviewEnabled(shouldEnablePostview());
 
             // Only sets the JPEG rotation and quality for JPEG format. Some devices do not
             // handle these configs for non-JPEG images. See b/204375890.
-            if (mPipelineIn.getFormat() == ImageFormat.JPEG) {
+            if (mPipelineIn.getInputFormat() == ImageFormat.JPEG) {
                 if (EXIF_ROTATION_AVAILABILITY.isRotationOptionSupported()) {
                     builder.addImplementationOption(CaptureConfig.OPTION_ROTATION,
                             takePictureRequest.getRotationDegrees());
@@ -266,6 +321,7 @@ public class ImagePipeline {
 
             // Use CaptureBundle object as the key for TagBundle
             builder.addTag(tagBundleKey, captureStage.getId());
+            builder.setId(requestId);
             builder.addCameraCaptureCallback(mPipelineIn.getCameraCaptureCallback());
             captureConfigs.add(builder.build());
         }

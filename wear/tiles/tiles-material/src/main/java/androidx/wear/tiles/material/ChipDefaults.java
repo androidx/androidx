@@ -16,12 +16,9 @@
 
 package androidx.wear.tiles.material;
 
-import static androidx.wear.tiles.DimensionBuilders.dp;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
-import androidx.wear.tiles.DimensionBuilders.DpProp;
 
 /**
  * Contains the default values used by chip Tiles components.
@@ -34,84 +31,63 @@ import androidx.wear.tiles.DimensionBuilders.DpProp;
 public class ChipDefaults {
     private ChipDefaults() {}
 
-    /**
-     * The default height for standard {@link Chip}
-     *
-     */
+    /** The default height for standard {@link Chip} */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
-    public static final DpProp DEFAULT_HEIGHT = dp(52);
+    public static final androidx.wear.tiles.DimensionBuilders.DpProp DEFAULT_HEIGHT =
+            androidx.wear.tiles.DimensionBuilders.dp(52);
 
-    /**
-     * The default height for standard {@link CompactChip}
-     *
-     */
+    /** The default height for standard {@link CompactChip} */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
-    public static final DpProp COMPACT_HEIGHT = dp(32);
+    public static final androidx.wear.tiles.DimensionBuilders.DpProp COMPACT_HEIGHT =
+            androidx.wear.tiles.DimensionBuilders.dp(32);
 
-    /**
-     * The default height of tappable area for standard {@link CompactChip}
-     *
-     */
+    /** The default height of tappable area for standard {@link CompactChip} */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
-    public static final DpProp COMPACT_HEIGHT_TAPPABLE = dp(48);
+    public static final androidx.wear.tiles.DimensionBuilders.DpProp COMPACT_HEIGHT_TAPPABLE =
+            androidx.wear.tiles.DimensionBuilders.dp(48);
 
-    /**
-     * The default height for standard {@link TitleChip}
-     *
-     */
+    /** The default height for standard {@link TitleChip} */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
-    public static final DpProp TITLE_HEIGHT = dp(60);
+    public static final androidx.wear.tiles.DimensionBuilders.DpProp TITLE_HEIGHT =
+            androidx.wear.tiles.DimensionBuilders.dp(60);
 
-    /**
-     * The recommended horizontal margin used for width for standard {@link Chip}
-     *
-     */
+    /** The recommended horizontal margin used for width for standard {@link Chip} */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static final float DEFAULT_MARGIN_PERCENT = 5.2f;
 
-    /**
-     * The recommended horizontal padding for standard {@link Chip}
-     *
-     */
+    /** The recommended horizontal padding for standard {@link Chip} */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
-    public static final DpProp HORIZONTAL_PADDING = dp(14);
+    public static final androidx.wear.tiles.DimensionBuilders.DpProp HORIZONTAL_PADDING =
+            androidx.wear.tiles.DimensionBuilders.dp(14);
 
-    /**
-     * The recommended horizontal padding for standard {@link CompactChip}
-     *
-     */
+    /** The recommended horizontal padding for standard {@link CompactChip} */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
-    public static final DpProp COMPACT_HORIZONTAL_PADDING = dp(12);
+    public static final androidx.wear.tiles.DimensionBuilders.DpProp COMPACT_HORIZONTAL_PADDING =
+            androidx.wear.tiles.DimensionBuilders.dp(12);
 
-    /**
-     * The recommended horizontal padding for standard {@link TitleChip}
-     *
-     */
+    /** The recommended horizontal padding for standard {@link TitleChip} */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
-    public static final DpProp TITLE_HORIZONTAL_PADDING = dp(16);
+    public static final androidx.wear.tiles.DimensionBuilders.DpProp TITLE_HORIZONTAL_PADDING =
+            androidx.wear.tiles.DimensionBuilders.dp(16);
 
-    /**
-     * The recommended vertical space between icon and text in standard {@link Chip}
-     *
-     */
+    /** The recommended vertical space between icon and text in standard {@link Chip} */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
-    public static final DpProp ICON_SPACER_WIDTH = dp(6);
+    public static final androidx.wear.tiles.DimensionBuilders.DpProp ICON_SPACER_WIDTH =
+            androidx.wear.tiles.DimensionBuilders.dp(6);
 
-    /**
-     * The icon size used in standard {@link Chip}
-     *
-     */
+    /** The icon size used in standard {@link Chip} */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
-    public static final DpProp ICON_SIZE = dp(24);
+    public static final androidx.wear.tiles.DimensionBuilders.DpProp ICON_SIZE =
+            androidx.wear.tiles.DimensionBuilders.dp(24);
 
     /** The recommended colors for a primary {@link Chip}. */
     @NonNull

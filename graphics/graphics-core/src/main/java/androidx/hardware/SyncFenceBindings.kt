@@ -16,18 +16,31 @@
 
 package androidx.hardware
 
+import androidx.graphics.utils.JniVisible
+
 /**
  * Helper class of jni bindings to verify dlopen/dlsym behavior to resolve sync_info_file and
  * sync_info_file_free methods
  */
+@JniVisible
 internal class SyncFenceBindings private constructor() {
     companion object {
 
         @JvmStatic
+        @JniVisible
         external fun nResolveSyncFileInfo(): Boolean
 
         @JvmStatic
+        @JniVisible
         external fun nResolveSyncFileInfoFree(): Boolean
+
+        @JvmStatic
+        @JniVisible
+        external fun nGetSignalTime(fd: Int): Long
+
+        @JvmStatic
+        @JniVisible
+        external fun nForceClose(fd: Int)
 
         init {
             System.loadLibrary("graphics-core")

@@ -19,8 +19,8 @@ package androidx.room.processor
 import androidx.room.Upsert
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XType
-import androidx.room.processor.ProcessorErrors.UPSERTION_DOES_NOT_HAVE_ANY_PARAMETERS_TO_UPSERT
 import androidx.room.processor.ProcessorErrors.CANNOT_FIND_UPSERT_RESULT_ADAPTER
+import androidx.room.processor.ProcessorErrors.UPSERTION_DOES_NOT_HAVE_ANY_PARAMETERS_TO_UPSERT
 import androidx.room.processor.ProcessorErrors.UPSERT_MULTI_PARAM_SINGLE_RETURN_MISMATCH
 import androidx.room.processor.ProcessorErrors.UPSERT_SINGLE_PARAM_MULTI_RETURN_MISMATCH
 import androidx.room.vo.UpsertionMethod

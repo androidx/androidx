@@ -19,8 +19,7 @@ package androidx.room.migration.bundle
 import androidx.annotation.RestrictTo
 
 /**
- * utility class to run schema equality on collections.
- *
+ * Utility class to run schema equality on collections.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public object SchemaEqualityUtil {

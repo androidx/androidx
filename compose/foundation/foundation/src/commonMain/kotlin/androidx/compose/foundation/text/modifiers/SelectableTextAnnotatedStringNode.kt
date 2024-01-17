@@ -18,6 +18,7 @@ package androidx.compose.foundation.text.modifiers
 
 import androidx.compose.foundation.text.DefaultMinLines
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.ColorProducer
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.layout.IntrinsicMeasurable
 import androidx.compose.ui.layout.IntrinsicMeasureScope
@@ -29,9 +30,7 @@ import androidx.compose.ui.node.DelegatingNode
 import androidx.compose.ui.node.DrawModifierNode
 import androidx.compose.ui.node.GlobalPositionAwareModifierNode
 import androidx.compose.ui.node.LayoutModifierNode
-import androidx.compose.ui.node.SemanticsModifierNode
-import androidx.compose.ui.node.invalidateMeasurements
-import androidx.compose.ui.semantics.SemanticsConfiguration
+import androidx.compose.ui.node.invalidateMeasurement
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.TextLayoutResult
@@ -56,11 +55,12 @@ internal class SelectableTextAnnotatedStringNode(
     minLines: Int = DefaultMinLines,
     placeholders: List<AnnotatedString.Range<Placeholder>>? = null,
     onPlaceholderLayout: ((List<Rect?>) -> Unit)? = null,
-    private val selectionController: SelectionController? = null
-) : DelegatingNode(), LayoutModifierNode, DrawModifierNode, GlobalPositionAwareModifierNode,
-    SemanticsModifierNode {
+    private var selectionController: SelectionController? = null,
+    overrideColor: ColorProducer? = null,
+    private var onShowTranslation: ((TextAnnotatedStringNode.TextSubstitutionValue) -> Unit)? = null
+) : DelegatingNode(), LayoutModifierNode, DrawModifierNode, GlobalPositionAwareModifierNode {
 
-    private val delegate = delegated {
+    private val delegate = delegate(
         TextAnnotatedStringNode(
             text = text,
             style = style,
@@ -72,9 +72,11 @@ internal class SelectableTextAnnotatedStringNode(
             minLines = minLines,
             placeholders = placeholders,
             onPlaceholderLayout = onPlaceholderLayout,
-            selectionController = selectionController
+            selectionController = selectionController,
+            overrideColor = overrideColor,
+            onShowTranslation = onShowTranslation
         )
-    }
+    )
 
     init {
         requireNotNull(selectionController) {
@@ -92,9 +94,6 @@ internal class SelectableTextAnnotatedStringNode(
         measurable: Measurable,
         constraints: Constraints
     ): MeasureResult = delegate.measureNonExtension(this, measurable, constraints)
-
-    override val semanticsConfiguration: SemanticsConfiguration
-        get() = delegate.semanticsConfiguration
 
     override fun IntrinsicMeasureScope.minIntrinsicWidth(
         measurable: IntrinsicMeasurable,
@@ -127,9 +126,11 @@ internal class SelectableTextAnnotatedStringNode(
         overflow: TextOverflow,
         onTextLayout: ((TextLayoutResult) -> Unit)?,
         onPlaceholderLayout: ((List<Rect?>) -> Unit)?,
-        selectionController: SelectionController?
+        selectionController: SelectionController?,
+        color: ColorProducer?
     ) {
         delegate.doInvalidations(
+            drawChanged = delegate.updateDraw(color, style),
             textChanged = delegate.updateText(
                 text = text
             ),
@@ -145,10 +146,12 @@ internal class SelectableTextAnnotatedStringNode(
             callbacksChanged = delegate.updateCallbacks(
                 onTextLayout = onTextLayout,
                 onPlaceholderLayout = onPlaceholderLayout,
-                selectionController = selectionController
-            )
+                selectionController = selectionController,
+                onShowTranslation = onShowTranslation
+            ),
         )
+        this.selectionController = selectionController
         // we always relayout when we're selectable
-        invalidateMeasurements()
+        invalidateMeasurement()
     }
 }

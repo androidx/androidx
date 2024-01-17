@@ -1,1 +1,0 @@
-./androidx_multiplatform_mac.sh

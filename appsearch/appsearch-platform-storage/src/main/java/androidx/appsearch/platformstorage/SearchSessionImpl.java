@@ -15,8 +15,11 @@
  */
 package androidx.appsearch.platformstorage;
 
+import android.annotation.SuppressLint;
+import android.app.appsearch.AppSearchResult;
 import android.os.Build;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
@@ -43,10 +46,11 @@ import androidx.appsearch.platformstorage.converter.GetSchemaResponseToPlatformC
 import androidx.appsearch.platformstorage.converter.RequestToPlatformConverter;
 import androidx.appsearch.platformstorage.converter.ResponseToPlatformConverter;
 import androidx.appsearch.platformstorage.converter.SearchSpecToPlatformConverter;
+import androidx.appsearch.platformstorage.converter.SearchSuggestionResultToPlatformConverter;
+import androidx.appsearch.platformstorage.converter.SearchSuggestionSpecToPlatformConverter;
 import androidx.appsearch.platformstorage.converter.SetSchemaRequestToPlatformConverter;
 import androidx.appsearch.platformstorage.util.BatchResultCallbackAdapter;
 import androidx.concurrent.futures.ResolvableFuture;
-import androidx.core.os.BuildCompat;
 import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -54,11 +58,12 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Executor;
+import java.util.function.Consumer;
 
 /**
  * An implementation of {@link AppSearchSession} which proxies to a platform
  * {@link android.app.appsearch.AppSearchSession}.
- * @hide
+ * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresApi(Build.VERSION_CODES.S)
@@ -78,7 +83,6 @@ class SearchSessionImpl implements AppSearchSession {
 
     @Override
     @NonNull
-    @BuildCompat.PrereleaseSdkCheck
     public ListenableFuture<SetSchemaResponse> setSchemaAsync(@NonNull SetSchemaRequest request) {
         Preconditions.checkNotNull(request);
         ResolvableFuture<SetSchemaResponse> future = ResolvableFuture.create();
@@ -95,7 +99,6 @@ class SearchSessionImpl implements AppSearchSession {
 
     @Override
     @NonNull
-    @BuildCompat.PrereleaseSdkCheck
     public ListenableFuture<GetSchemaResponse> getSchemaAsync() {
         ResolvableFuture<GetSchemaResponse> future = ResolvableFuture.create();
         mPlatformSession.getSchema(
@@ -163,10 +166,28 @@ class SearchSessionImpl implements AppSearchSession {
     @NonNull
     @Override
     public ListenableFuture<List<SearchSuggestionResult>> searchSuggestionAsync(
-            @NonNull String suggestionQueryExpression, @NonNull SearchSuggestionSpec searchSpec) {
-        // TODO(b/227356108) Implement this after we export to framework.
-        throw new UnsupportedOperationException(
-                "Search Suggestion is not supported on this AppSearch implementation.");
+            @NonNull String suggestionQueryExpression,
+            @NonNull SearchSuggestionSpec searchSuggestionSpec) {
+        Preconditions.checkNotNull(suggestionQueryExpression);
+        Preconditions.checkNotNull(searchSuggestionSpec);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            ResolvableFuture<List<SearchSuggestionResult>> future = ResolvableFuture.create();
+            ApiHelperForU.searchSuggestion(
+                    mPlatformSession,
+                    suggestionQueryExpression,
+                    SearchSuggestionSpecToPlatformConverter
+                            .toPlatformSearchSuggestionSpec(searchSuggestionSpec),
+                    mExecutor,
+                    result -> AppSearchResultToPlatformConverter.platformAppSearchResultToFuture(
+                            result,
+                            future,
+                            SearchSuggestionResultToPlatformConverter
+                                    ::toJetpackSearchSuggestionResults));
+            return future;
+        } else {
+            throw new UnsupportedOperationException(
+                    "Search Suggestion is not supported on this AppSearch implementation.");
+        }
     }
 
     @Override
@@ -195,9 +216,9 @@ class SearchSessionImpl implements AppSearchSession {
         return future;
     }
 
+    @SuppressLint("WrongConstant")
     @Override
     @NonNull
-    @BuildCompat.PrereleaseSdkCheck
     public ListenableFuture<Void> removeAsync(
             @NonNull String queryExpression, @NonNull SearchSpec searchSpec) {
         Preconditions.checkNotNull(queryExpression);
@@ -209,7 +230,8 @@ class SearchSessionImpl implements AppSearchSession {
                     + "JoinSpec was provided.");
         }
 
-        if (Build.VERSION.SDK_INT < 33 && !searchSpec.getFilterNamespaces().isEmpty()) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU
+                && !searchSpec.getFilterNamespaces().isEmpty()) {
             // This is a patch for b/197361770, framework-appsearch in Android S will
             // disable the given namespace filter if it is not empty and none of given namespaces
             // exist.
@@ -294,5 +316,24 @@ class SearchSessionImpl implements AppSearchSession {
     @Override
     public void close() {
         mPlatformSession.close();
+    }
+
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    static class ApiHelperForU {
+        private ApiHelperForU() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static void searchSuggestion(
+                @NonNull android.app.appsearch.AppSearchSession appSearchSession,
+                @NonNull String suggestionQueryExpression,
+                @NonNull android.app.appsearch.SearchSuggestionSpec searchSuggestionSpec,
+                @NonNull Executor executor,
+                @NonNull Consumer<AppSearchResult<
+                        List<android.app.appsearch.SearchSuggestionResult>>> callback) {
+            appSearchSession.searchSuggestion(suggestionQueryExpression, searchSuggestionSpec,
+                    executor, callback);
+        }
     }
 }

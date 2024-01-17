@@ -71,6 +71,16 @@
     <string name="app_compat_button_auto_size_activity">AppCompat button auto-size</string>
     <string name="sample_text1">Sample text 1</string>
     <string name="sample_text2">Sample text 2</string>
+    <string name="sample_text_long">This is a really long string which exceeds the width of the
+view. New devices have a much larger screen which actually enables long strings to be displayed
+with no fading. I have made this string longer to fix this case. If you are correcting this
+text, I would love to see the kind of devices you guys now use! Guys, maybe some devices need longer
+string! I think so, so how about double this string, like copy and paste!
+This is a really long string which exceeds the width of the view.
+New devices have a much larger screen which actually enables long strings to be displayed
+with no fading. I have made this string longer to fix this case. If you are correcting this
+text, I would love to see the kind of devices you guys now use! Guys, maybe some devices need longer
+string! I think so, so how about double this string, like copy and paste!</string>
     <string name="app_compat_image_button_activity">AppCompat image button</string>
     <string name="app_compat_image_view_activity">AppCompat image view</string>
     <string name="app_compat_button_activity">AppCompat button</string>

@@ -27,8 +27,7 @@ class GetCredentialCancellationException @JvmOverloads constructor(
     errorMessage: CharSequence? = null
 ) : GetCredentialException(TYPE_GET_CREDENTIAL_CANCELLATION_EXCEPTION, errorMessage) {
 
-    /** @hide */
-    companion object {
+    internal companion object {
         internal const val TYPE_GET_CREDENTIAL_CANCELLATION_EXCEPTION =
             "android.credentials.GetCredentialException.TYPE_USER_CANCELED"
     }

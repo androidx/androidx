@@ -28,14 +28,15 @@ import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
 import com.intellij.psi.PsiMethod
+import java.util.EnumSet
 import org.jetbrains.uast.UBlockExpression
 import org.jetbrains.uast.UCallExpression
 import org.jetbrains.uast.UQualifiedReferenceExpression
 import org.jetbrains.uast.USimpleNameReferenceExpression
 import org.jetbrains.uast.getParentOfType
+import org.jetbrains.uast.skipParenthesizedExprDown
 import org.jetbrains.uast.toUElement
 import org.jetbrains.uast.visitor.AbstractUastVisitor
-import java.util.EnumSet
 
 /**
  * Warns when a developer uses both idle + battery charging constraints in WorkManager.
@@ -110,9 +111,10 @@ class IdleBatteryChargingConstraintsDetector : Detector(), SourceCodeScanner {
     }
 
     fun UCallExpression.identifierName(): String? {
-        var current = receiver
+        var current = receiver?.skipParenthesizedExprDown()
         while (current != null && current !is USimpleNameReferenceExpression) {
-            current = (current as? UQualifiedReferenceExpression)?.receiver
+            current =
+                (current as? UQualifiedReferenceExpression)?.receiver?.skipParenthesizedExprDown()
         }
         if (current != null && current is USimpleNameReferenceExpression) {
             return current.identifier

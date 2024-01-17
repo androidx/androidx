@@ -16,9 +16,14 @@
 
 package androidx.credentials.exceptions.publickeycredential
 
+import androidx.credentials.exceptions.GetCredentialCustomException
 import androidx.credentials.exceptions.domerrors.AbortError
+import androidx.credentials.exceptions.domerrors.DomError
 import androidx.credentials.exceptions.domerrors.EncodingError
-import com.google.common.truth.Truth
+import androidx.credentials.exceptions.publickeycredential.DomExceptionUtils.Companion.SEPARATOR
+import androidx.credentials.exceptions.publickeycredential.GetPublicKeyCredentialDomException.Companion.createFrom
+import androidx.credentials.exceptions.publickeycredential.GetPublicKeyCredentialException.Companion.createFrom
+import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 
 class GetPublicKeyCredentialDomExceptionTest {
@@ -35,11 +40,48 @@ class GetPublicKeyCredentialDomExceptionTest {
         val expectedDomError = EncodingError()
         val expectedType =
             GetPublicKeyCredentialDomException.TYPE_GET_PUBLIC_KEY_CREDENTIAL_DOM_EXCEPTION +
-                expectedDomError.type
+                SEPARATOR + expectedDomError.type
 
         val exception = GetPublicKeyCredentialDomException(expectedDomError, expectedMessage)
 
-        Truth.assertThat(exception.type).isEqualTo(expectedType)
-        Truth.assertThat(exception.errorMessage).isEqualTo(expectedMessage)
+        assertThat(exception.type).isEqualTo(expectedType)
+        assertThat(exception.errorMessage).isEqualTo(expectedMessage)
+    }
+
+    @Test
+    fun frameworkToJetpackConversion_success() {
+        val expectedMessage = "msg"
+        val expectedDomError: DomError = EncodingError()
+        val expectedType =
+            GetPublicKeyCredentialDomException.TYPE_GET_PUBLIC_KEY_CREDENTIAL_DOM_EXCEPTION +
+                SEPARATOR + expectedDomError.type
+
+        val exception = GetPublicKeyCredentialException
+            .createFrom(expectedType, expectedMessage)
+
+        assertThat(exception).isInstanceOf(
+            GetPublicKeyCredentialDomException::class.java
+        )
+        assertThat((exception as GetPublicKeyCredentialDomException).domError)
+            .isInstanceOf(EncodingError::class.java)
+        assertThat(exception.type).isEqualTo(expectedType)
+        assertThat(exception.message).isEqualTo(expectedMessage)
+    }
+
+    @Test
+    fun frameworkToJetpackConversion_failure_createsCustomException() {
+        val expectedMessage = "CustomMessage"
+        val expectedType =
+            GetPublicKeyCredentialDomException.TYPE_GET_PUBLIC_KEY_CREDENTIAL_DOM_EXCEPTION +
+                "/CustomType"
+
+        val exception = GetPublicKeyCredentialException
+            .createFrom(expectedType, expectedMessage)
+
+        assertThat(exception).isInstanceOf(
+            GetCredentialCustomException::class.java
+        )
+        assertThat(exception.type).isEqualTo(expectedType)
+        assertThat(exception.message).isEqualTo(expectedMessage)
     }
 }

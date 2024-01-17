@@ -26,8 +26,8 @@ import com.android.tools.lint.detector.api.ResourceXmlDetector
 import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.XmlContext
-import org.w3c.dom.Element
 import java.util.Collections
+import org.w3c.dom.Element
 
 /**
  * Lint check for detecting use of fragment tag in layout xml files. This provides a warning that

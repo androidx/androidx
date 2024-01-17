@@ -16,11 +16,11 @@
 
 package androidx.compose.ui.text.platform
 
-import androidx.compose.ui.text.font.Typeface
+import android.graphics.Typeface as NativeTypeface
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontSynthesis
 import androidx.compose.ui.text.font.FontWeight
-import android.graphics.Typeface as NativeTypeface
+import androidx.compose.ui.text.font.Typeface
 
 /**
  * An interface of Android specific Typeface.

@@ -14,5 +14,7 @@
  * limitations under the License.
  */
 
-/** @hide */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 package androidx.appactions.interaction.proto;
+
+import androidx.annotation.RestrictTo;

@@ -30,9 +30,9 @@ import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.UiComposable
 import androidx.compose.ui.node.InternalCoreApi
 import androidx.compose.ui.node.Owner
-import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.findViewTreeLifecycleOwner
 import java.lang.ref.WeakReference
 
 /**
@@ -151,7 +151,7 @@ abstract class AbstractComposeView @JvmOverloads constructor(
 
     /**
      * Enables the display of visual layout bounds for the Compose UI content of this view.
-     * This is typically managed
+     * This is typically configured using the system developer setting for "Show layout bounds."
      */
     @OptIn(InternalCoreApi::class)
     @InternalComposeUiApi

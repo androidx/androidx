@@ -16,163 +16,64 @@
 
 package androidx.appactions.interaction.capabilities.productivity
 
+import androidx.appactions.builtintypes.types.GenericErrorStatus
+import androidx.appactions.builtintypes.types.SuccessStatus
+import androidx.appactions.interaction.capabilities.core.BaseExecutionSession
 import androidx.appactions.interaction.capabilities.core.Capability
-import androidx.appactions.interaction.capabilities.core.BaseSession
-import androidx.appactions.interaction.capabilities.core.CapabilityBuilderBase
-import androidx.appactions.interaction.capabilities.core.SessionFactory
-import androidx.appactions.interaction.capabilities.core.ValueListener
-import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
+import androidx.appactions.interaction.capabilities.core.CapabilityFactory
+import androidx.appactions.interaction.capabilities.core.impl.converters.ParamValueConverter
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
+import androidx.appactions.interaction.capabilities.core.impl.converters.UnionTypeSpec
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
+import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecRegistry
+import androidx.appactions.interaction.capabilities.core.properties.Property
 import androidx.appactions.interaction.capabilities.core.properties.StringValue
-import androidx.appactions.interaction.capabilities.core.properties.ParamProperty
-import androidx.appactions.interaction.capabilities.core.impl.task.SessionBridge
-import androidx.appactions.interaction.capabilities.core.impl.task.TaskHandler
-import androidx.appactions.interaction.capabilities.core.values.GenericErrorStatus
-import androidx.appactions.interaction.capabilities.core.values.SuccessStatus
-import androidx.appactions.interaction.proto.ParamValue
-import androidx.appactions.interaction.protobuf.Struct
-import androidx.appactions.interaction.protobuf.Value
+import androidx.appactions.interaction.capabilities.serializers.types.GENERIC_ERROR_STATUS_TYPE_SPEC
+import androidx.appactions.interaction.capabilities.serializers.types.SUCCESS_STATUS_TYPE_SPEC
 import java.time.Duration
-import java.util.Optional
 
-/** StartTimer.kt in interaction-capabilities-productivity */
-private const val CAPABILITY_NAME = "actions.intent.START_TIMER"
-
-private val ACTION_SPEC =
-    ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
-        .setDescriptor(StartTimer.Property::class.java)
-        .setArguments(StartTimer.Arguments::class.java, StartTimer.Arguments::Builder)
-        .setOutput(StartTimer.Output::class.java)
-        .bindOptionalParameter(
-            "timer.identifier",
-            { property -> Optional.ofNullable(property.identifier) },
-            StartTimer.Arguments.Builder::setIdentifier,
-            TypeConverters.STRING_PARAM_VALUE_CONVERTER,
-            TypeConverters.STRING_VALUE_ENTITY_CONVERTER,
-        )
-        .bindOptionalParameter(
-            "timer.name",
-            { property -> Optional.ofNullable(property.name) },
-            StartTimer.Arguments.Builder::setName,
-            TypeConverters.STRING_PARAM_VALUE_CONVERTER,
-            TypeConverters.STRING_VALUE_ENTITY_CONVERTER,
-        )
-        .bindOptionalParameter(
-            "timer.duration",
-            { property -> Optional.ofNullable(property.duration) },
-            StartTimer.Arguments.Builder::setDuration,
-            TypeConverters.DURATION_PARAM_VALUE_CONVERTER,
-            TypeConverters.DURATION_ENTITY_CONVERTER,
-        )
-        .bindOptionalOutput(
-            "executionStatus",
-            { output -> Optional.ofNullable(output.executionStatus) },
-            StartTimer.ExecutionStatus::toParamValue,
-        )
-        .build()
-
-private val SESSION_BRIDGE = SessionBridge<StartTimer.Session, StartTimer.Confirmation> {
-        session ->
-    val taskHandlerBuilder = TaskHandler.Builder<StartTimer.Confirmation>()
-    session.nameListener?.let {
-        taskHandlerBuilder.registerValueTaskParam(
-            "timer.name",
-            it,
-            TypeConverters.STRING_PARAM_VALUE_CONVERTER,
-        )
-    }
-    session.durationListener?.let {
-        taskHandlerBuilder.registerValueTaskParam(
-            "timer.duration",
-            it,
-            TypeConverters.DURATION_PARAM_VALUE_CONVERTER,
-        )
-    }
-    taskHandlerBuilder.build()
-}
-
-// TODO(b/267806701): Add capability factory annotation once the testing library is fully migrated.
+/** A capability corresponding to actions.intent.START_TIMER */
+@CapabilityFactory(name = StartTimer.CAPABILITY_NAME)
 class StartTimer private constructor() {
+    internal enum class SlotMetadata(val path: String) {
+        IDENTIFIER("timer.identifier"),
+        NAME("timer.name"),
+        DURATION("timer.duration")
+    }
 
     class CapabilityBuilder :
-        CapabilityBuilderBase<
-            CapabilityBuilder, Property, Arguments, Output, Confirmation, Session,
+        Capability.Builder<
+            CapabilityBuilder,
+            Arguments,
+            Output,
+            Confirmation,
+            ExecutionSession
             >(ACTION_SPEC) {
+        fun setIdentifierProperty(
+            identifier: Property<StringValue>
+        ): CapabilityBuilder = setProperty(
+            SlotMetadata.IDENTIFIER.path,
+            identifier,
+            TypeConverters.STRING_VALUE_ENTITY_CONVERTER
+        )
 
-        override val sessionBridge: SessionBridge<Session, Confirmation> = SESSION_BRIDGE
+        fun setNameProperty(name: Property<StringValue>): CapabilityBuilder = setProperty(
+            SlotMetadata.NAME.path,
+            name,
+            TypeConverters.STRING_VALUE_ENTITY_CONVERTER
+        )
 
-        public override fun setSessionFactory(
-            sessionFactory: SessionFactory<Session>,
-        ): CapabilityBuilder = super.setSessionFactory(sessionFactory)
-
-        override fun build(): Capability {
-            super.setProperty(Property.Builder().build())
-            return super.build()
-        }
-    }
-
-    interface Session : BaseSession<Arguments, Output> {
-        val nameListener: ValueListener<String>?
-            get() = null
-        val durationListener: ValueListener<Duration>?
-            get() = null
-    }
-
-    // TODO(b/268369632): Remove Property from public capability APIs.
-    class Property
-    internal constructor(
-        val identifier: ParamProperty<StringValue>?,
-        val name: ParamProperty<StringValue>?,
-        val duration: ParamProperty<Duration>?,
-    ) {
-        override fun toString(): String {
-            return "Property(identifier=$identifier,name=$name,duration=$duration}"
-        }
-
-        override fun equals(other: Any?): Boolean {
-            if (this === other) return true
-            if (javaClass != other?.javaClass) return false
-
-            other as Property
-
-            if (identifier != other.identifier) return false
-            if (name != other.name) return false
-            if (duration != other.duration) return false
-
-            return true
-        }
-
-        override fun hashCode(): Int {
-            var result = identifier.hashCode()
-            result += 31 * name.hashCode()
-            result += 31 * duration.hashCode()
-            return result
-        }
-
-        class Builder {
-            private var identifier: ParamProperty<StringValue>? = null
-            private var name: ParamProperty<StringValue>? = null
-            private var duration: ParamProperty<Duration>? = null
-
-            fun setIdentifier(identifier: ParamProperty<StringValue>): Builder = apply {
-                this.identifier = identifier
-            }
-
-            fun setName(name: ParamProperty<StringValue>): Builder = apply { this.name = name }
-
-            fun setDuration(duration: ParamProperty<Duration>): Builder = apply {
-                this.duration = duration
-            }
-
-            fun build(): Property = Property(identifier, name, duration)
-        }
+        fun setDurationProperty(duration: Property<Duration>): CapabilityBuilder = setProperty(
+            SlotMetadata.DURATION.path,
+            duration,
+            TypeConverters.DURATION_ENTITY_CONVERTER
+        )
     }
 
     class Arguments internal constructor(
         val identifier: String?,
         val name: String?,
-        val duration: Duration?,
+        val duration: Duration?
     ) {
         override fun toString(): String {
             return "Arguments(identifier=$identifier,name=$name,duration=$duration)"
@@ -198,7 +99,7 @@ class StartTimer private constructor() {
             return result
         }
 
-        class Builder : BuilderOf<Arguments> {
+        class Builder {
             private var identifier: String? = null
             private var name: String? = null
             private var duration: Duration? = null
@@ -209,10 +110,9 @@ class StartTimer private constructor() {
 
             fun setDuration(duration: Duration): Builder = apply { this.duration = duration }
 
-            override fun build(): Arguments = Arguments(identifier, name, duration)
+            fun build(): Arguments = Arguments(identifier, name, duration)
         }
     }
-
     class Output internal constructor(val executionStatus: ExecutionStatus?) {
         override fun toString(): String {
             return "Output(executionStatus=$executionStatus)"
@@ -236,6 +136,14 @@ class StartTimer private constructor() {
         class Builder {
             private var executionStatus: ExecutionStatus? = null
 
+            fun setExecutionStatus(successStatus: SuccessStatus) = setExecutionStatus(
+                ExecutionStatus(successStatus)
+            )
+
+            fun setExecutionStatus(genericErrorStatus: GenericErrorStatus) = setExecutionStatus(
+                ExecutionStatus(genericErrorStatus)
+            )
+
             fun setExecutionStatus(executionStatus: ExecutionStatus): Builder = apply {
                 this.executionStatus = executionStatus
             }
@@ -256,22 +164,57 @@ class StartTimer private constructor() {
             this.genericErrorStatus = genericErrorStatus
         }
 
-        internal fun toParamValue(): ParamValue {
-            var status: String = ""
-            if (successStatus != null) {
-                status = successStatus.toString()
-            }
-            if (genericErrorStatus != null) {
-                status = genericErrorStatus.toString()
-            }
-            val value: Value = Value.newBuilder().setStringValue(status).build()
-            return ParamValue.newBuilder()
-                .setStructValue(
-                    Struct.newBuilder().putFields(TypeConverters.FIELD_NAME_TYPE, value).build(),
-                )
-                .build()
+        companion object {
+            private val TYPE_SPEC = UnionTypeSpec.Builder<ExecutionStatus>()
+                .bindMemberType(
+                    memberGetter = ExecutionStatus::successStatus,
+                    ctor = { ExecutionStatus(it) },
+                    typeSpec = SUCCESS_STATUS_TYPE_SPEC
+                ).bindMemberType(
+                    memberGetter = ExecutionStatus::genericErrorStatus,
+                    ctor = { ExecutionStatus(it) },
+                    typeSpec = GENERIC_ERROR_STATUS_TYPE_SPEC
+                ).build()
+            internal val PARAM_VALUE_CONVERTER = ParamValueConverter.of(TYPE_SPEC)
         }
     }
 
+    sealed interface ExecutionSession : BaseExecutionSession<Arguments, Output>
     class Confirmation internal constructor()
+
+    companion object {
+        /** Canonical name for [StartTimer] capability */
+        const val CAPABILITY_NAME = "actions.intent.START_TIMER"
+        private val ACTION_SPEC =
+            ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
+                .setArguments(Arguments::class.java, Arguments::Builder, Arguments.Builder::build)
+                .setOutput(Output::class.java)
+                .bindParameter(
+                    SlotMetadata.IDENTIFIER.path,
+                    Arguments::identifier,
+                    Arguments.Builder::setIdentifier,
+                    TypeConverters.STRING_PARAM_VALUE_CONVERTER
+                )
+                .bindParameter(
+                    SlotMetadata.NAME.path,
+                    Arguments::name,
+                    Arguments.Builder::setName,
+                    TypeConverters.STRING_PARAM_VALUE_CONVERTER
+                )
+                .bindParameter(
+                    SlotMetadata.DURATION.path,
+                    Arguments::duration,
+                    Arguments.Builder::setDuration,
+                    TypeConverters.DURATION_PARAM_VALUE_CONVERTER
+                )
+                .bindOutput(
+                    "executionStatus",
+                    Output::executionStatus,
+                    ExecutionStatus.PARAM_VALUE_CONVERTER
+                )
+                .build()
+        init {
+            ActionSpecRegistry.registerActionSpec(Arguments::class, Output::class, ACTION_SPEC)
+        }
     }
+}

@@ -34,13 +34,13 @@ import androidx.core.view.WindowInsetsControllerCompat
 
 // The light scrim color used in the platform API 29+
 // https://cs.android.com/android/platform/superproject/+/master:frameworks/base/core/java/com/android/internal/policy/DecorView.java;drc=6ef0f022c333385dba2c294e35b8de544455bf19;l=142
-@VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+@VisibleForTesting
 internal val DefaultLightScrim = Color.argb(0xe6, 0xFF, 0xFF, 0xFF)
 
 // The dark scrim color used in the platform.
 // https://cs.android.com/android/platform/superproject/+/master:frameworks/base/core/res/res/color/system_bar_background_semi_transparent.xml
 // https://cs.android.com/android/platform/superproject/+/master:frameworks/base/core/res/remote_color_resources_res/values/colors.xml;l=67
-@VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+@VisibleForTesting
 internal val DefaultDarkScrim = Color.argb(0x80, 0x1b, 0x1b, 0x1b)
 
 private var Impl: EdgeToEdgeImpl? = null
@@ -73,10 +73,14 @@ fun ComponentActivity.enableEdgeToEdge(
     navigationBarStyle: SystemBarStyle = SystemBarStyle.auto(DefaultLightScrim, DefaultDarkScrim)
 ) {
     val view = window.decorView
-    val statusBarIsDark = statusBarStyle.isDark(view.resources)
-    val navigationBarIsDark = navigationBarStyle.isDark(view.resources)
-    val impl = Impl ?: if (Build.VERSION.SDK_INT >= 29) {
+    val statusBarIsDark = statusBarStyle.detectDarkMode(view.resources)
+    val navigationBarIsDark = navigationBarStyle.detectDarkMode(view.resources)
+    val impl = Impl ?: if (Build.VERSION.SDK_INT >= 30) {
+        EdgeToEdgeApi30()
+    } else if (Build.VERSION.SDK_INT >= 29) {
         EdgeToEdgeApi29()
+    } else if (Build.VERSION.SDK_INT >= 28) {
+        EdgeToEdgeApi28()
     } else if (Build.VERSION.SDK_INT >= 26) {
         EdgeToEdgeApi26()
     } else if (Build.VERSION.SDK_INT >= 23) {
@@ -89,6 +93,7 @@ fun ComponentActivity.enableEdgeToEdge(
     impl.setUp(
         statusBarStyle, navigationBarStyle, window, view, statusBarIsDark, navigationBarIsDark
     )
+    impl.adjustLayoutInDisplayCutoutMode(window)
 }
 
 /**
@@ -97,29 +102,47 @@ fun ComponentActivity.enableEdgeToEdge(
 class SystemBarStyle private constructor(
     private val lightScrim: Int,
     internal val darkScrim: Int,
-    internal val nightMode: Int
+    internal val nightMode: Int,
+    internal val detectDarkMode: (Resources) -> Boolean
 ) {
 
     companion object {
 
         /**
          * Creates a new instance of [SystemBarStyle]. This style detects the dark mode
-         * automatically.
-         * - On API level 29 and above, the bar will be transparent in the gesture navigation mode.
-         *   If this is used for the navigation bar, it will have the scrim automatically applied
-         *   by the system in the 3-button navigation mode. _Note that neither of the specified
-         *   colors are used_. If you really want a custom color on these API levels, use [dark] or
-         *   [light].
-         * - On API level 28 and below, the bar will be one of the specified scrim colors depending
-         *   on the dark mode.
+         * automatically and applies the recommended style for each of the status bar and the
+         * navigation bar. If this style doesn't work for your app, consider using either [dark] or
+         * [light].
+         * - On API level 29 and above, both the status bar and the navigation bar will be
+         *   transparent. However, the navigation bar with 3 or 2 buttons will have a translucent
+         *   scrim. This scrim color is provided by the platform and *cannot be customized*.
+         * - On API level 28 and below, the status bar will be transparent, and the navigation bar
+         *   will have one of the specified scrim colors depending on the dark mode.
          * @param lightScrim The scrim color to be used for the background when the app is in light
-         * mode.
+         * mode. Note that this is used only on API level 28 and below.
          * @param darkScrim The scrim color to be used for the background when the app is in dark
-         * mode. This is also used on devices where the system icon color is always light.
+         * mode. This is also used on devices where the system icon color is always light. Note that
+         * this is used only on API level 28 and below.
+         * @param detectDarkMode Optional. Detects whether UI currently uses dark mode or not. The
+         * default implementation can detect any of the standard dark mode features from the
+         * platform, appcompat, and Jetpack Compose.
          */
         @JvmStatic
-        fun auto(@ColorInt lightScrim: Int, @ColorInt darkScrim: Int): SystemBarStyle {
-            return SystemBarStyle(lightScrim, darkScrim, UiModeManager.MODE_NIGHT_AUTO)
+        @JvmOverloads
+        fun auto(
+            @ColorInt lightScrim: Int,
+            @ColorInt darkScrim: Int,
+            detectDarkMode: (Resources) -> Boolean = { resources ->
+                (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) ==
+                    Configuration.UI_MODE_NIGHT_YES
+            }
+        ): SystemBarStyle {
+            return SystemBarStyle(
+                lightScrim = lightScrim,
+                darkScrim = darkScrim,
+                nightMode = UiModeManager.MODE_NIGHT_AUTO,
+                detectDarkMode = detectDarkMode
+            )
         }
 
         /**
@@ -131,7 +154,12 @@ class SystemBarStyle private constructor(
          */
         @JvmStatic
         fun dark(@ColorInt scrim: Int): SystemBarStyle {
-            return SystemBarStyle(scrim, scrim, UiModeManager.MODE_NIGHT_YES)
+            return SystemBarStyle(
+                lightScrim = scrim,
+                darkScrim = scrim,
+                nightMode = UiModeManager.MODE_NIGHT_YES,
+                detectDarkMode = { _ -> true }
+            )
         }
 
         /**
@@ -145,16 +173,12 @@ class SystemBarStyle private constructor(
          */
         @JvmStatic
         fun light(@ColorInt scrim: Int, @ColorInt darkScrim: Int): SystemBarStyle {
-            return SystemBarStyle(scrim, darkScrim, UiModeManager.MODE_NIGHT_NO)
-        }
-    }
-
-    internal fun isDark(resources: Resources): Boolean {
-        return when (nightMode) {
-            UiModeManager.MODE_NIGHT_YES -> true
-            UiModeManager.MODE_NIGHT_NO -> false
-            else -> (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) ==
-                Configuration.UI_MODE_NIGHT_YES
+            return SystemBarStyle(
+                lightScrim = scrim,
+                darkScrim = darkScrim,
+                nightMode = UiModeManager.MODE_NIGHT_NO,
+                detectDarkMode = { _ -> false }
+            )
         }
     }
 
@@ -179,9 +203,11 @@ private interface EdgeToEdgeImpl {
         statusBarIsDark: Boolean,
         navigationBarIsDark: Boolean
     )
+
+    fun adjustLayoutInDisplayCutoutMode(window: Window)
 }
 
-private class EdgeToEdgeBase : EdgeToEdgeImpl {
+private open class EdgeToEdgeBase : EdgeToEdgeImpl {
 
     override fun setUp(
         statusBarStyle: SystemBarStyle,
@@ -193,10 +219,14 @@ private class EdgeToEdgeBase : EdgeToEdgeImpl {
     ) {
         // No edge-to-edge before SDK 21.
     }
+
+    override fun adjustLayoutInDisplayCutoutMode(window: Window) {
+        // No display cutout before SDK 28.
+    }
 }
 
 @RequiresApi(21)
-private class EdgeToEdgeApi21 : EdgeToEdgeImpl {
+private class EdgeToEdgeApi21 : EdgeToEdgeBase() {
 
     @Suppress("DEPRECATION")
     @DoNotInline
@@ -215,7 +245,7 @@ private class EdgeToEdgeApi21 : EdgeToEdgeImpl {
 }
 
 @RequiresApi(23)
-private class EdgeToEdgeApi23 : EdgeToEdgeImpl {
+private class EdgeToEdgeApi23 : EdgeToEdgeBase() {
 
     @DoNotInline
     override fun setUp(
@@ -234,7 +264,7 @@ private class EdgeToEdgeApi23 : EdgeToEdgeImpl {
 }
 
 @RequiresApi(26)
-private class EdgeToEdgeApi26 : EdgeToEdgeImpl {
+private open class EdgeToEdgeApi26 : EdgeToEdgeBase() {
 
     @DoNotInline
     override fun setUp(
@@ -255,8 +285,18 @@ private class EdgeToEdgeApi26 : EdgeToEdgeImpl {
     }
 }
 
+@RequiresApi(28)
+private class EdgeToEdgeApi28 : EdgeToEdgeApi26() {
+
+    @DoNotInline
+    override fun adjustLayoutInDisplayCutoutMode(window: Window) {
+        window.attributes.layoutInDisplayCutoutMode =
+            WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
+    }
+}
+
 @RequiresApi(29)
-private class EdgeToEdgeApi29 : EdgeToEdgeImpl {
+private open class EdgeToEdgeApi29 : EdgeToEdgeBase() {
 
     @DoNotInline
     override fun setUp(
@@ -278,5 +318,15 @@ private class EdgeToEdgeApi29 : EdgeToEdgeImpl {
             isAppearanceLightStatusBars = !statusBarIsDark
             isAppearanceLightNavigationBars = !navigationBarIsDark
         }
+    }
+}
+
+@RequiresApi(29)
+private class EdgeToEdgeApi30 : EdgeToEdgeApi29() {
+
+    @DoNotInline
+    override fun adjustLayoutInDisplayCutoutMode(window: Window) {
+        window.attributes.layoutInDisplayCutoutMode =
+            WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS
     }
 }

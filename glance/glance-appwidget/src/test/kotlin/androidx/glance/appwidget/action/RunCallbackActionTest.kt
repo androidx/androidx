@@ -23,13 +23,13 @@ import androidx.glance.action.ActionModifier
 import androidx.glance.action.ActionParameters
 import androidx.glance.action.clickable
 import androidx.glance.findModifier
+import kotlin.test.assertIs
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestScope
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import kotlin.test.assertIs
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(RobolectricTestRunner::class)

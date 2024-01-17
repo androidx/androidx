@@ -31,8 +31,8 @@ import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
 import com.intellij.psi.PsiMethod
-import org.jetbrains.uast.UCallExpression
 import java.util.EnumSet
+import org.jetbrains.uast.UCallExpression
 
 /**
  * [Detector] that checks `composable` calls to make sure that they are not called inside a

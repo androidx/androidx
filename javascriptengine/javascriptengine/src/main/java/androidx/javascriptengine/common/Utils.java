@@ -32,13 +32,17 @@ import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ExecutorService;
 
 /**
- * Utility methods for use in both service and client side of JavaScriptEngine
+ * Utility methods for use in both service and client side of JavaScriptEngine.
  */
 public class Utils {
     private static final String TAG = "JavaScriptEngineUtils";
 
+    private Utils() {
+        throw new AssertionError();
+    }
+
     /**
-     * Utility method to write a byte array into a stream
+     * Utility method to write a byte array into a stream.
      */
     public static void writeByteArrayToStream(@NonNull byte[] inputBytes,
             @NonNull OutputStream outputStream) {
@@ -53,7 +57,7 @@ public class Utils {
     }
 
     /**
-     * Close ignoring exception
+     * Close, ignoring exception.
      */
     public static void closeQuietly(@Nullable Closeable closeable) {
         if (closeable == null) return;
@@ -76,34 +80,43 @@ public class Utils {
         OutputStream outputStream =
                 new ParcelFileDescriptor.AutoCloseOutputStream(writeSide);
         executorService.execute(
-                () -> {
-                    Utils.writeByteArrayToStream(inputBytes, outputStream);
-                });
+                () -> Utils.writeByteArrayToStream(inputBytes, outputStream));
         return new AssetFileDescriptor(readSide, 0, inputBytes.length);
     }
 
     /**
-     * Checks if the given AssetFileDescriptor passes certain conditions
+     * Checks if the given AssetFileDescriptor passes certain conditions.
      */
+
     public static void checkAssetFileDescriptor(@NonNull AssetFileDescriptor afd,
-            int maxLength) {
-        if (afd.getStartOffset() != 0) {
-            throw new UnsupportedOperationException(
-                    "AssetFileDescriptor.getStartOffset() != 0");
-        }
-        if (afd.getLength() < 0) {
-            throw new UnsupportedOperationException(
-                    "AssetFileDescriptor.getLength() should be >=0");
-        }
-        if (afd.getLength() > maxLength) {
+            boolean allowUnknownLength) {
+        if (afd.getStartOffset() < 0) {
             throw new IllegalArgumentException(
-                    "AssetFileDescriptor.getLength() should be <= " + Integer.toString(maxLength));
+                    "AssetFileDescriptor offset should be >= 0");
+        }
+        if (afd.getLength() != AssetFileDescriptor.UNKNOWN_LENGTH && afd.getLength() < 0) {
+            throw new IllegalArgumentException(
+                    "AssetFileDescriptor should have valid length");
+        }
+        if (afd.getDeclaredLength() != AssetFileDescriptor.UNKNOWN_LENGTH
+                && afd.getDeclaredLength() < 0) {
+            throw new IllegalArgumentException(
+                    "AssetFileDescriptor should have valid declared length");
+        }
+        if (afd.getLength() == AssetFileDescriptor.UNKNOWN_LENGTH && afd.getStartOffset() != 0) {
+            throw new UnsupportedOperationException(
+                    "AssetFileDescriptor offset should be 0 for unknown length");
+        }
+
+        if (!allowUnknownLength && afd.getLength() == AssetFileDescriptor.UNKNOWN_LENGTH) {
+            throw new UnsupportedOperationException(
+                    "AssetFileDescriptor should have known length");
         }
     }
 
     /**
-     * Read a given number of bytes from a given stream into a byte array
-     *
+     * Read a given number of bytes from a given stream into a byte array.
+     * <p>
      * This allows us to use
      * <a href=https://developer.android.com/reference/java/io/InputStream#readNBytes(byte[],%20int,%20int)">
      * this </a>
@@ -136,7 +149,7 @@ public class Utils {
 
     /**
      * Returns the index of right-most UTF-8 starting byte.
-     *
+     * <p>
      * The input must be valid (or truncated) UTF-8 encoded bytes.
      * Returns -1 if there is no starting byte.
      */
@@ -156,18 +169,18 @@ public class Utils {
     @NonNull
     public static String readToString(@NonNull AssetFileDescriptor afd, int maxLength,
             boolean truncate)
-            throws IOException {
+            throws IOException, LengthLimitExceededException {
         try {
-            int lengthToRead;
-            try {
-                Utils.checkAssetFileDescriptor(afd, maxLength);
-                lengthToRead = (int) afd.getLength();
-            } catch (IllegalArgumentException ex) {
-                if (!truncate) {
-                    throw ex;
-                } else {
+            Utils.checkAssetFileDescriptor(afd, /*allowUnknownLength=*/ false);
+            int lengthToRead = (int) afd.getLength();
+            if (afd.getLength() > maxLength) {
+                if (truncate) {
                     // If truncate is true, read how much ever you are allowed to read.
                     lengthToRead = maxLength;
+                } else {
+                    throw new LengthLimitExceededException(
+                            "AssetFileDescriptor.getLength() should be"
+                                    + " <= " + maxLength);
                 }
             }
             byte[] bytes = new byte[lengthToRead];
@@ -192,6 +205,27 @@ public class Utils {
             return new String(bytes, 0, validUtf8PrefixLength, StandardCharsets.UTF_8);
         } finally {
             afd.close();
+        }
+    }
+
+    /**
+     * Convert an Exception to a RuntimeException if needed, without needlessly wrapping up an
+     * existing RuntimeException.
+     * <p>
+     * Compared to {@code new RuntimeException(e)}, this avoids hiding a specific subclass of
+     * RuntimeException from catch blocks if one is available.
+     *
+     * @param e Exception to potentially wrap.
+     * @return e if e was a RuntimeException, else e wrapped in a RuntimeException.
+     */
+    @NonNull
+    public static RuntimeException exceptionToRuntimeException(@NonNull Exception e) {
+        if (e instanceof RuntimeException) {
+            // Don't hide the original RuntimeException type by wrapping it in another
+            // RuntimeException. Just return it directly.
+            return (RuntimeException) e;
+        } else {
+            return new RuntimeException(e);
         }
     }
 }

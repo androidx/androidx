@@ -1,49 +1,7 @@
 // Baseline format: 1.0
-RemovedClass: androidx.wear.watchface.style.UserStyleSettingKt:
-    Removed class androidx.wear.watchface.style.UserStyleSettingKt
+AddedMethod: androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay#isEnabled():
+    Added method androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay.isEnabled()
 
 
-RemovedMethod: androidx.wear.watchface.style.UserStyle#toWireFormat():
-    Removed method androidx.wear.watchface.style.UserStyle.toWireFormat()
-RemovedMethod: androidx.wear.watchface.style.UserStyleData#UserStyleData(androidx.wear.watchface.style.data.UserStyleWireFormat):
-    Removed constructor androidx.wear.watchface.style.UserStyleData(androidx.wear.watchface.style.data.UserStyleWireFormat)
-RemovedMethod: androidx.wear.watchface.style.UserStyleData#toWireFormat():
-    Removed method androidx.wear.watchface.style.UserStyleData.toWireFormat()
-RemovedMethod: androidx.wear.watchface.style.UserStyleSchema#UserStyleSchema(androidx.wear.watchface.style.data.UserStyleSchemaWireFormat):
-    Removed constructor androidx.wear.watchface.style.UserStyleSchema(androidx.wear.watchface.style.data.UserStyleSchemaWireFormat)
-RemovedMethod: androidx.wear.watchface.style.UserStyleSchema#getDefaultUserStyle():
-    Removed method androidx.wear.watchface.style.UserStyleSchema.getDefaultUserStyle()
-RemovedMethod: androidx.wear.watchface.style.UserStyleSchema#toWireFormat():
-    Removed method androidx.wear.watchface.style.UserStyleSchema.toWireFormat()
-RemovedMethod: androidx.wear.watchface.style.UserStyleSetting#getWireFormatOptionsList():
-    Removed method androidx.wear.watchface.style.UserStyleSetting.getWireFormatOptionsList()
-RemovedMethod: androidx.wear.watchface.style.UserStyleSetting#toWireFormat():
-    Removed method androidx.wear.watchface.style.UserStyleSetting.toWireFormat()
-RemovedMethod: androidx.wear.watchface.style.UserStyleSetting.BooleanUserStyleSetting#toWireFormat():
-    Removed method androidx.wear.watchface.style.UserStyleSetting.BooleanUserStyleSetting.toWireFormat()
-RemovedMethod: androidx.wear.watchface.style.UserStyleSetting.BooleanUserStyleSetting.BooleanOption#toWireFormat():
-    Removed method androidx.wear.watchface.style.UserStyleSetting.BooleanUserStyleSetting.BooleanOption.toWireFormat()
-RemovedMethod: androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting#toWireFormat():
-    Removed method androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.toWireFormat()
-RemovedMethod: androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotsOption#toWireFormat():
-    Removed method androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotsOption.toWireFormat()
-RemovedMethod: androidx.wear.watchface.style.UserStyleSetting.CustomValueUserStyleSetting#toWireFormat():
-    Removed method androidx.wear.watchface.style.UserStyleSetting.CustomValueUserStyleSetting.toWireFormat()
-RemovedMethod: androidx.wear.watchface.style.UserStyleSetting.CustomValueUserStyleSetting.CustomValueOption#toWireFormat():
-    Removed method androidx.wear.watchface.style.UserStyleSetting.CustomValueUserStyleSetting.CustomValueOption.toWireFormat()
-RemovedMethod: androidx.wear.watchface.style.UserStyleSetting.DoubleRangeUserStyleSetting#toWireFormat():
-    Removed method androidx.wear.watchface.style.UserStyleSetting.DoubleRangeUserStyleSetting.toWireFormat()
-RemovedMethod: androidx.wear.watchface.style.UserStyleSetting.DoubleRangeUserStyleSetting.DoubleRangeOption#toWireFormat():
-    Removed method androidx.wear.watchface.style.UserStyleSetting.DoubleRangeUserStyleSetting.DoubleRangeOption.toWireFormat()
-RemovedMethod: androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting#toWireFormat():
-    Removed method androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting.toWireFormat()
-RemovedMethod: androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting.ListOption#toWireFormat():
-    Removed method androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting.ListOption.toWireFormat()
-RemovedMethod: androidx.wear.watchface.style.UserStyleSetting.LongRangeUserStyleSetting#toWireFormat():
-    Removed method androidx.wear.watchface.style.UserStyleSetting.LongRangeUserStyleSetting.toWireFormat()
-RemovedMethod: androidx.wear.watchface.style.UserStyleSetting.LongRangeUserStyleSetting.LongRangeOption#toWireFormat():
-    Removed method androidx.wear.watchface.style.UserStyleSetting.LongRangeUserStyleSetting.LongRangeOption.toWireFormat()
-RemovedMethod: androidx.wear.watchface.style.UserStyleSetting.Option#toWireFormat():
-    Removed method androidx.wear.watchface.style.UserStyleSetting.Option.toWireFormat()
-RemovedMethod: androidx.wear.watchface.style.UserStyleSetting.Option.Companion#createFromWireFormat(androidx.wear.watchface.style.data.OptionWireFormat):
-    Removed method androidx.wear.watchface.style.UserStyleSetting.Option.Companion.createFromWireFormat(androidx.wear.watchface.style.data.OptionWireFormat)
+RemovedMethod: androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay#getEnabled():
+    Removed method androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay.getEnabled()

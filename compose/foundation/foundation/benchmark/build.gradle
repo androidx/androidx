@@ -14,7 +14,15 @@
  * limitations under the License.
  */
 
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.LibraryType
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
@@ -41,12 +49,17 @@ dependencies {
     androidTestImplementation(libs.truth)
 }
 
+tasks.withType(KotlinCompile).configureEach {
+    it.kotlinOptions {
+        freeCompilerArgs += [
+                // Enable experimental benchmark APIs internally
+                "-opt-in=androidx.benchmark.ExperimentalBenchmarkConfigApi",
+        ]
+    }
+}
+
 android {
     namespace "androidx.compose.foundation.benchmark"
-    defaultConfig {
-        // must be one of: 'None', 'StackSampling', or 'MethodTracing'
-        testInstrumentationRunnerArguments["androidx.benchmark.profiling.mode"]= 'None'
-    }
 }
 
 androidx {

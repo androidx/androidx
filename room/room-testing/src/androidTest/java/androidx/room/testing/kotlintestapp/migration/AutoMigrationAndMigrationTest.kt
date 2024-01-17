@@ -17,13 +17,13 @@
 package androidx.room.testing.kotlintestapp.migration
 
 import android.database.sqlite.SQLiteException
+import androidx.kruth.assertThat
 import androidx.room.migration.Migration
 import androidx.room.testing.MigrationTestHelper
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
-import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -63,7 +63,7 @@ class AutoMigrationAndMigrationTest {
                 MIGRATION_1_2
             )
         } catch (e: SQLiteException) {
-            assertThat(e.message).containsMatch("no such table: Entity0")
+            assertThat(e.message).contains("no such table: Entity0")
         }
     }
 

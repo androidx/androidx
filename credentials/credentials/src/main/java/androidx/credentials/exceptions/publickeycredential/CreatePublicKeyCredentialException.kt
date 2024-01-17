@@ -18,7 +18,9 @@ package androidx.credentials.exceptions.publickeycredential
 
 import androidx.annotation.RestrictTo
 import androidx.credentials.CredentialManager
+import androidx.credentials.exceptions.CreateCredentialCustomException
 import androidx.credentials.exceptions.CreateCredentialException
+import androidx.credentials.internal.FrameworkClassParsingException
 
 /**
  * A subclass of CreateCredentialException for unique exceptions thrown specific only to
@@ -29,12 +31,32 @@ import androidx.credentials.exceptions.CreateCredentialException
  * @throws IllegalArgumentException if [type] is empty
  */
 open class CreatePublicKeyCredentialException @JvmOverloads internal constructor(
-    /** @hide */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override val type: String,
     errorMessage: CharSequence? = null
 ) : CreateCredentialException(type, errorMessage) {
     init {
         require(type.isNotEmpty()) { "type must not be empty" }
+    }
+
+    internal companion object {
+        @JvmStatic
+        @RestrictTo(RestrictTo.Scope.LIBRARY) // used from java tests
+        fun createFrom(type: String, msg: String?): CreateCredentialException {
+            return try {
+                with(type) {
+                    when {
+                        contains(CreatePublicKeyCredentialDomException
+                            .TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_DOM_EXCEPTION) ->
+                            CreatePublicKeyCredentialDomException.createFrom(type, msg)
+                        else -> { throw FrameworkClassParsingException() }
+                    }
+                }
+            } catch (t: FrameworkClassParsingException) {
+                // Parsing failed but don't crash the process. Instead just output a response
+                // with the raw framework values.
+                CreateCredentialCustomException(type, msg)
+            }
+        }
     }
 }

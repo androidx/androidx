@@ -47,7 +47,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Tests {@link MediaController#setSurface(Surface)}.
  */
-@SdkSuppress(maxSdkVersion = 32, minSdkVersion = 19) // b/244312419 and b/259936005
+@SdkSuppress(maxSdkVersion = 32) // b/244312419 and b/259936005
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 public class MediaController_SurfaceTest extends MediaSessionTestBase {

@@ -16,6 +16,8 @@
 
 package androidx.camera.core.processing;
 
+import static androidx.camera.core.impl.ImageOutputConfig.ROTATION_NOT_SPECIFIED;
+import static androidx.camera.core.impl.utils.Threads.isMainThread;
 import static androidx.camera.core.impl.utils.TransformUtils.getRectToRect;
 import static androidx.camera.core.impl.utils.TransformUtils.getRotatedSize;
 import static androidx.camera.core.impl.utils.TransformUtils.isAspectRatioMatchingWithRoundingError;
@@ -23,11 +25,13 @@ import static androidx.camera.core.impl.utils.TransformUtils.sizeToRect;
 import static androidx.camera.core.impl.utils.TransformUtils.sizeToRectF;
 import static androidx.camera.core.impl.utils.TransformUtils.within360;
 import static androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor;
+import static androidx.camera.core.processing.TargetUtils.getHumanReadableName;
 import static androidx.core.util.Preconditions.checkArgument;
 
 import static java.util.UUID.randomUUID;
 
 import android.graphics.Rect;
+import android.graphics.RectF;
 import android.util.Size;
 
 import androidx.annotation.MainThread;
@@ -55,6 +59,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.CancellationException;
 
 /**
  * A {@link Node} implementation that wraps around the public {@link SurfaceProcessor} interface.
@@ -127,13 +132,13 @@ public class SurfaceProcessorNode implements
         SurfaceEdge outputSurface;
         Rect cropRect = outConfig.getCropRect();
         int rotationDegrees = outConfig.getRotationDegrees();
-        boolean mirroring = outConfig.getMirroring();
+        boolean mirroring = outConfig.isMirroring();
 
         // Calculate sensorToBufferTransform
         android.graphics.Matrix sensorToBufferTransform =
                 new android.graphics.Matrix(input.getSensorToBufferTransform());
         android.graphics.Matrix imageTransform = getRectToRect(
-                sizeToRectF(input.getStreamSpec().getResolution()),
+                new RectF(cropRect),
                 sizeToRectF(outConfig.getSize()), rotationDegrees, mirroring);
         sensorToBufferTransform.postConcat(imageTransform);
 
@@ -156,7 +161,9 @@ public class SurfaceProcessorNode implements
                 // Crop rect is always the full size.
                 sizeToRect(outConfig.getSize()),
                 /*rotationDegrees=*/input.getRotationDegrees() - rotationDegrees,
-                /*mirroring=*/input.getMirroring() != mirroring);
+                // Once copied, the target rotation is no longer useful.
+                /*targetRotation*/ ROTATION_NOT_SPECIFIED,
+                /*mirroring=*/input.isMirroring() != mirroring);
 
         return outputSurface;
     }
@@ -193,12 +200,13 @@ public class SurfaceProcessorNode implements
      */
     private void createAndSendSurfaceOutput(@NonNull SurfaceEdge input,
             Map.Entry<OutConfig, SurfaceEdge> output) {
-        ListenableFuture<SurfaceOutput> future = output.getValue().createSurfaceOutputFuture(
+        SurfaceEdge outputEdge = output.getValue();
+        ListenableFuture<SurfaceOutput> future = outputEdge.createSurfaceOutputFuture(
                 input.getStreamSpec().getResolution(),
                 output.getKey().getFormat(),
                 output.getKey().getCropRect(),
                 output.getKey().getRotationDegrees(),
-                output.getKey().getMirroring(),
+                output.getKey().isMirroring(),
                 input.hasCameraTransform() ? mCameraInternal : null);
         Futures.addCallback(future, new FutureCallback<SurfaceOutput>() {
             @Override
@@ -213,7 +221,13 @@ public class SurfaceProcessorNode implements
 
             @Override
             public void onFailure(@NonNull Throwable t) {
-                Logger.w(TAG, "Downstream node failed to provide Surface.", t);
+                if (outputEdge.getTargets() == CameraEffect.VIDEO_CAPTURE
+                        && t instanceof CancellationException) {
+                    Logger.d(TAG, "Downstream VideoCapture failed to provide Surface.");
+                } else {
+                    Logger.w(TAG, "Downstream node failed to provide Surface. Target: "
+                            + getHumanReadableName(outputEdge.getTargets()), t);
+                }
             }
         }, mainThreadExecutor());
     }
@@ -241,13 +255,14 @@ public class SurfaceProcessorNode implements
                 // eliminated.
                 int rotationDegrees =
                         info.getRotationDegrees() - output.getKey().getRotationDegrees();
-                if (output.getKey().getMirroring()) {
+                if (output.getKey().isMirroring()) {
                     // The order of transformation is cropping -> rotation -> mirroring. To
                     // change the rotation, one must consider the mirroring.
                     rotationDegrees = -rotationDegrees;
                 }
                 rotationDegrees = within360(rotationDegrees);
-                output.getValue().setRotationDegrees(rotationDegrees);
+                // Once copied, the target rotation is no longer useful.
+                output.getValue().updateTransformation(rotationDegrees, ROTATION_NOT_SPECIFIED);
             }
         });
     }
@@ -258,7 +273,7 @@ public class SurfaceProcessorNode implements
     @Override
     public void release() {
         mSurfaceProcessor.release();
-        mainThreadExecutor().execute(() -> {
+        runOnMainThread(() -> {
             if (mOutput != null) {
                 for (SurfaceEdge surface : mOutput.values()) {
                     // The output DeferrableSurface will later be terminated by the processor.
@@ -266,6 +281,23 @@ public class SurfaceProcessorNode implements
                 }
             }
         });
+    }
+
+    /**
+     * Runs the given {@link Runnable} on the main thread.
+     *
+     * <p>If the current thread is the main thread, the runnable is executed immediately.
+     * Otherwise, the runnable is posted to the main thread.
+     *
+     * <p>This is added for b/309409701. For some reason, the cleanup posted on
+     * {@link #release()} is not executed in unit tests which causes failures.
+     */
+    private static void runOnMainThread(@NonNull Runnable runnable) {
+        if (isMainThread()) {
+            runnable.run();
+        } else {
+            mainThreadExecutor().execute(runnable);
+        }
     }
 
     /**
@@ -372,7 +404,7 @@ public class SurfaceProcessorNode implements
         /**
          * The whether the stream should be mirrored.
          */
-        public abstract boolean getMirroring();
+        public abstract boolean isMirroring();
 
         /**
          * Creates an {@link OutConfig} instance from the input edge.
@@ -386,7 +418,7 @@ public class SurfaceProcessorNode implements
                     inputEdge.getCropRect(),
                     getRotatedSize(inputEdge.getCropRect(), inputEdge.getRotationDegrees()),
                     inputEdge.getRotationDegrees(),
-                    inputEdge.getMirroring());
+                    inputEdge.isMirroring());
         }
 
         /**

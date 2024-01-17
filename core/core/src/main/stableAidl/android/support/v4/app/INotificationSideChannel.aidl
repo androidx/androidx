@@ -21,9 +21,8 @@ import android.app.Notification;
 /**
  * Interface used for delivering notifications via a side channel that bypasses
  * the NotificationManagerService.
- *
- * @hide
  */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 oneway interface INotificationSideChannel {
     /**
      * Send an ambient notification to the service.

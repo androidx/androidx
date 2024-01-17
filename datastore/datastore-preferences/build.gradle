@@ -14,6 +14,14 @@
  * limitations under the License.
  */
 
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
+import androidx.build.PlatformIdentifier
 import androidx.build.Publish
 
 plugins {
@@ -22,9 +30,6 @@ plugins {
 }
 
 android{
-    buildTypes.all{
-        consumerProguardFiles "proguard-rules.pro"
-    }
     namespace "androidx.datastore.preferences"
 }
 androidXMultiplatform {
@@ -33,6 +38,9 @@ androidXMultiplatform {
     linux()
     ios()
     android()
+
+    defaultPlatform(PlatformIdentifier.ANDROID)
+
     sourceSets {
         commonMain {
             dependencies {
@@ -49,24 +57,30 @@ androidXMultiplatform {
                 implementation(libs.kotlinCoroutinesTest)
             }
         }
-        jvmMain {
+        commonJvmMain {
             dependsOn(commonMain)
         }
-        jvmTest {
+        commonJvmTest {
             dependsOn(commonTest)
             dependencies {
                 implementation(libs.junit)
                 implementation(libs.kotlinTest)
             }
         }
+        jvmMain {
+            dependsOn(commonJvmMain)
+        }
+        jvmTest {
+            dependsOn(commonJvmTest)
+        }
         androidMain {
-            dependsOn(jvmMain)
+            dependsOn(commonJvmMain)
         }
-        androidTest {
-            dependsOn(jvmTest)
+        androidUnitTest {
+            dependsOn(commonJvmTest)
         }
-        androidAndroidTest {
-            dependsOn(androidTest)
+        androidInstrumentedTest {
+            dependsOn(commonJvmTest)
             dependencies {
                 implementation(libs.testRunner)
                 implementation(libs.testCore)
@@ -77,7 +91,7 @@ androidXMultiplatform {
 
 
 androidx {
-    name = "Android Preferences DataStore"
+    name = "Preferences DataStore"
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2020"
     description = "Android Preferences DataStore"

@@ -16,10 +16,21 @@
 
 package androidx.baselineprofile.gradle.utils
 
-internal const val TEST_AGP_VERSION_8_0_0 = "8.0.0-beta03"
-internal const val TEST_AGP_VERSION_8_1_0 = "8.1.0-alpha11"
+enum class TestAgpVersion(val versionString: String?) {
+    TEST_AGP_VERSION_8_0_0("8.0.0"),
+    TEST_AGP_VERSION_8_1_0("8.1.0"),
+    TEST_AGP_VERSION_8_2_0("8.2.0"),
+    TEST_AGP_VERSION_8_3_0("8.3.0-alpha18");
+    fun isAtLeast(version: TestAgpVersion) = this in TestAgpVersion.atLeast(version)
 
-internal val TEST_AGP_VERSION_ALL = arrayOf(
-    TEST_AGP_VERSION_8_0_0,
-    TEST_AGP_VERSION_8_1_0,
-)
+    fun isAtMost(version: TestAgpVersion) = this in TestAgpVersion.atMost(version)
+
+    companion object {
+        fun fromVersionString(versionString: String?) =
+            TestAgpVersion.values().first { it.versionString == versionString }
+
+        fun all() = values()
+        fun atLeast(version: TestAgpVersion) = values().filter { it.ordinal >= version.ordinal }
+        fun atMost(version: TestAgpVersion) = values().filter { it.ordinal <= version.ordinal }
+    }
+}

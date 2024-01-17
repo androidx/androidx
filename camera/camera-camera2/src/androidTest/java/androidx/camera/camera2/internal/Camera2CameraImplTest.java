@@ -16,12 +16,17 @@
 
 package androidx.camera.camera2.internal;
 
+import static android.graphics.ImageFormat.JPEG;
+import static android.graphics.ImageFormat.PRIVATE;
+import static android.graphics.ImageFormat.YUV_420_888;
+
 import static androidx.camera.camera2.internal.Camera2CameraImplTest.TestUseCase.SurfaceOption;
 import static androidx.camera.camera2.internal.Camera2CameraImplTest.TestUseCase.SurfaceOption.NON_REPEATING;
 import static androidx.camera.camera2.internal.Camera2CameraImplTest.TestUseCase.SurfaceOption.REPEATING;
 import static androidx.camera.core.CameraSelector.DEFAULT_BACK_CAMERA;
 import static androidx.camera.core.concurrent.CameraCoordinator.CAMERA_OPERATING_MODE_CONCURRENT;
 import static androidx.camera.core.concurrent.CameraCoordinator.CAMERA_OPERATING_MODE_SINGLE;
+import static androidx.camera.core.resolutionselector.ResolutionSelector.PREFER_HIGHER_RESOLUTION_OVER_CAPTURE_RATE;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
@@ -29,7 +34,9 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static junit.framework.TestCase.assertTrue;
 
+import static org.junit.Assume.assumeTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
@@ -42,12 +49,12 @@ import static java.util.Collections.singletonList;
 
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.graphics.ImageFormat;
+import android.graphics.SurfaceTexture;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.CaptureResult;
+import android.media.Image;
 import android.media.ImageReader;
-import android.media.ImageReader.OnImageAvailableListener;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
@@ -64,6 +71,7 @@ import androidx.camera.core.Camera;
 import androidx.camera.core.CameraControl;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageCapture;
+import androidx.camera.core.Preview;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.CameraCaptureResult;
@@ -75,21 +83,27 @@ import androidx.camera.core.impl.ImmediateSurface;
 import androidx.camera.core.impl.Observable;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.StreamSpec;
+import androidx.camera.core.impl.UseCaseConfig;
+import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.resolutionselector.ResolutionSelector;
-import androidx.camera.testing.CameraUtil;
-import androidx.camera.testing.HandlerUtil;
-import androidx.camera.testing.fakes.FakeCameraCoordinator;
-import androidx.camera.testing.fakes.FakeUseCase;
-import androidx.camera.testing.fakes.FakeUseCaseConfig;
-import androidx.camera.testing.mocks.MockObserver;
-import androidx.camera.testing.mocks.helpers.CallTimes;
-import androidx.camera.testing.mocks.helpers.CallTimesAtLeast;
+import androidx.camera.core.streamsharing.StreamSharing;
+import androidx.camera.testing.impl.CameraUtil;
+import androidx.camera.testing.impl.HandlerUtil;
+import androidx.camera.testing.impl.fakes.FakeCameraCoordinator;
+import androidx.camera.testing.impl.fakes.FakeUseCase;
+import androidx.camera.testing.impl.fakes.FakeUseCaseConfig;
+import androidx.camera.testing.impl.mocks.MockObserver;
+import androidx.camera.testing.impl.mocks.helpers.CallTimes;
+import androidx.camera.testing.impl.mocks.helpers.CallTimesAtLeast;
+import androidx.camera.video.Recorder;
+import androidx.camera.video.VideoCapture;
 import androidx.core.os.HandlerCompat;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
+import androidx.test.platform.app.InstrumentationRegistry;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -136,11 +150,13 @@ public final class Camera2CameraImplTest {
 
     static {
         DEFAULT_TEMPLATE_TO_ZSL_DISABLED.put(CameraDevice.TEMPLATE_PREVIEW, false);
+        DEFAULT_TEMPLATE_TO_ZSL_DISABLED.put(CameraDevice.TEMPLATE_STILL_CAPTURE, true);
         DEFAULT_TEMPLATE_TO_ZSL_DISABLED.put(CameraDevice.TEMPLATE_RECORD, true);
         DEFAULT_TEMPLATE_TO_ZSL_DISABLED.put(CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG, false);
     }
 
     private static final SurfaceOption DEFAULT_SURFACE_OPTION = REPEATING;
+    private static final int DEFAULT_IMAGE_FORMAT = PRIVATE;
 
     private static final Set<CameraInternal.State> STABLE_STATES = new HashSet<>(asList(
             CameraInternal.State.CLOSED,
@@ -154,14 +170,13 @@ public final class Camera2CameraImplTest {
             new CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
     );
 
-    private final ArrayList<FakeUseCase> mFakeUseCases = new ArrayList<>();
+    private final ArrayList<UseCase> mFakeUseCases = new ArrayList<>();
     private Camera2CameraImpl mCamera2CameraImpl;
     private static HandlerThread sCameraHandlerThread;
     private static Handler sCameraHandler;
     private FakeCameraCoordinator mCameraCoordinator;
     private CameraStateRegistry mCameraStateRegistry;
     Semaphore mSemaphore;
-    OnImageAvailableListener mMockOnImageAvailableListener;
     CameraCaptureCallback mMockRepeatingCaptureCallback;
     String mCameraId;
     String mPairedCameraId;
@@ -182,7 +197,6 @@ public final class Camera2CameraImplTest {
 
     @Before
     public void setup() throws Exception {
-        mMockOnImageAvailableListener = Mockito.mock(ImageReader.OnImageAvailableListener.class);
         mMockRepeatingCaptureCallback = Mockito.mock(CameraCaptureCallback.class);
         mSessionStateCallback = new SemaphoreReleasingCamera2Callbacks.SessionStateCallback();
         mCameraId = CameraUtil.getCameraIdWithLensFacing(DEFAULT_LENS_FACING);
@@ -197,18 +211,22 @@ public final class Camera2CameraImplTest {
         Camera2CameraInfoImpl camera2CameraInfo = new Camera2CameraInfoImpl(
                 mCameraId, cameraManagerCompat);
         mCamera2CameraImpl = new Camera2CameraImpl(
+                (Context) ApplicationProvider.getApplicationContext(),
                 cameraManagerCompat, mCameraId, camera2CameraInfo, mCameraCoordinator,
                 mCameraStateRegistry, sCameraExecutor, sCameraHandler,
-                DisplayInfoManager.getInstance(ApplicationProvider.getApplicationContext())
+                DisplayInfoManager.getInstance(ApplicationProvider.getApplicationContext()),
+                -1L
         );
     }
 
     @After
     public void teardown() throws InterruptedException, ExecutionException {
-        for (FakeUseCase fakeUseCase : mFakeUseCases) {
-            fakeUseCase.unbindFromCamera(mCamera2CameraImpl);
-            fakeUseCase.onUnbind();
+        for (UseCase fakeUseCase : mFakeUseCases) {
+            InstrumentationRegistry.getInstrumentation().runOnMainSync(
+                    () -> fakeUseCase.unbindFromCamera(mCamera2CameraImpl));
         }
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync();
+
         // Need to release the camera no matter what is done, otherwise the CameraDevice is not
         // closed.
         // When the CameraDevice is not closed, then it can cause problems with interferes with
@@ -230,7 +248,7 @@ public final class Camera2CameraImplTest {
         UseCase useCase = createUseCase();
         mCamera2CameraImpl.attachUseCases(singletonList(useCase));
 
-        verify(mMockOnImageAvailableListener, never()).onImageAvailable(any(ImageReader.class));
+        verify(mMockRepeatingCaptureCallback, never()).onCaptureCompleted(anyInt(), any());
 
         mCamera2CameraImpl.detachUseCases(singletonList(useCase));
         mCamera2CameraImpl.release();
@@ -241,7 +259,7 @@ public final class Camera2CameraImplTest {
         mCamera2CameraImpl.open();
         mCamera2CameraImpl.onUseCaseActive(createUseCase());
 
-        verify(mMockOnImageAvailableListener, never()).onImageAvailable(any(ImageReader.class));
+        verify(mMockRepeatingCaptureCallback, never()).onCaptureCompleted(anyInt(), any());
 
         mCamera2CameraImpl.release();
     }
@@ -252,8 +270,8 @@ public final class Camera2CameraImplTest {
         mCamera2CameraImpl.attachUseCases(singletonList(useCase1));
         mCamera2CameraImpl.onUseCaseActive(useCase1);
 
-        verify(mMockOnImageAvailableListener, timeout(4000).atLeastOnce())
-                .onImageAvailable(any(ImageReader.class));
+        verify(mMockRepeatingCaptureCallback, timeout(4000).atLeastOnce())
+                .onCaptureCompleted(anyInt(), any());
 
         mCamera2CameraImpl.detachUseCases(singletonList(useCase1));
     }
@@ -266,7 +284,7 @@ public final class Camera2CameraImplTest {
         mCamera2CameraImpl.detachUseCases(singletonList(useCase1));
         mCamera2CameraImpl.onUseCaseActive(useCase1);
 
-        verify(mMockOnImageAvailableListener, never()).onImageAvailable(any(ImageReader.class));
+        verify(mMockRepeatingCaptureCallback, never()).onCaptureCompleted(anyInt(), any());
 
         assertThat(mCamera2CameraImpl.getCameraControlInternal()
                 .isZslDisabledByByUserCaseConfig()).isFalse();
@@ -278,7 +296,7 @@ public final class Camera2CameraImplTest {
         mCamera2CameraImpl.attachUseCases(singletonList(useCase1));
         mCamera2CameraImpl.detachUseCases(singletonList(useCase1));
 
-        verify(mMockOnImageAvailableListener, never()).onImageAvailable(any(ImageReader.class));
+        verify(mMockRepeatingCaptureCallback, never()).onCaptureCompleted(anyInt(), any());
     }
 
     @Test
@@ -287,7 +305,7 @@ public final class Camera2CameraImplTest {
         mCamera2CameraImpl.attachUseCases(singletonList(useCase1));
         mCamera2CameraImpl.detachUseCases(singletonList(useCase1));
 
-        verify(mMockOnImageAvailableListener, never()).onImageAvailable(any(ImageReader.class));
+        verify(mMockRepeatingCaptureCallback, never()).onCaptureCompleted(anyInt(), any());
     }
 
     @Test
@@ -300,7 +318,7 @@ public final class Camera2CameraImplTest {
         mCamera2CameraImpl.attachUseCases(singletonList(useCase1));
         mCamera2CameraImpl.onUseCaseActive(useCase1);
 
-        verify(mMockOnImageAvailableListener, never()).onImageAvailable(any(ImageReader.class));
+        verify(mMockRepeatingCaptureCallback, never()).onCaptureCompleted(anyInt(), any());
 
         mCamera2CameraImpl.detachUseCases(singletonList(useCase1));
     }
@@ -314,7 +332,7 @@ public final class Camera2CameraImplTest {
         mCamera2CameraImpl.attachUseCases(singletonList(useCase1));
         mCamera2CameraImpl.onUseCaseActive(useCase1);
 
-        verify(mMockOnImageAvailableListener, never()).onImageAvailable(any(ImageReader.class));
+        verify(mMockRepeatingCaptureCallback, never()).onCaptureCompleted(anyInt(), any());
 
         mCamera2CameraImpl.detachUseCases(singletonList(useCase1));
     }
@@ -460,7 +478,7 @@ public final class Camera2CameraImplTest {
 
         // CameraCaptureCallback.onCaptureCompleted() should be called to signal a capture attempt.
         verify(captureCallback, timeout(3000).times(1))
-                .onCaptureCompleted(any(CameraCaptureResult.class));
+                .onCaptureCompleted(anyInt(), any(CameraCaptureResult.class));
 
         mCamera2CameraImpl.detachUseCases(asList(useCase1, useCase2));
     }
@@ -500,7 +518,7 @@ public final class Camera2CameraImplTest {
 
         // CameraCaptureCallback.onCaptureCompleted() is not called and there is no crash.
         verify(captureCallback, times(0))
-                .onCaptureCompleted(any(CameraCaptureResult.class));
+                .onCaptureCompleted(anyInt(), any(CameraCaptureResult.class));
 
         mCamera2CameraImpl.detachUseCases(singletonList(useCase2));
     }
@@ -528,6 +546,92 @@ public final class Camera2CameraImplTest {
     }
 
     @Test
+    public void attachNonRepeatingUseCase_whenCameraModeConcurrent_meteringRepeatingIsAttached() {
+        PackageManager pm = ApplicationProvider.getApplicationContext().getPackageManager();
+        assumeTrue(pm.hasSystemFeature(PackageManager.FEATURE_CAMERA_CONCURRENT));
+
+        mCameraCoordinator.setCameraOperatingMode(CAMERA_OPERATING_MODE_CONCURRENT);
+        UseCase nonRepeating = createUseCase(NON_REPEATING);
+
+        mCamera2CameraImpl.attachUseCases(singletonList(nonRepeating));
+
+        assertThat(mCamera2CameraImpl.isMeteringRepeatingAttached()).isTrue();
+
+        mCamera2CameraImpl.detachUseCases(singletonList(nonRepeating));
+    }
+
+    @Test
+    public void attachImageCapture_meteringRepeatingIsAttached() {
+        // attaching ImageCapture will allow StreamUseCase to be enabled in supported devices
+        UseCase imageCapture = createImageCapture();
+
+        mCamera2CameraImpl.attachUseCases(singletonList(imageCapture));
+
+        assertThat(mCamera2CameraImpl.isMeteringRepeatingAttached()).isTrue();
+
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(
+                () -> mCamera2CameraImpl.detachUseCases(singletonList(imageCapture)));
+    }
+
+    @Test
+    public void attachStreamSharingWithNonRepeatingChildren_meteringRepeatingIsNotAttached() {
+        // StreamSharing use case adds a repeating surface by default, no need for MeteringRepeating
+        Set<UseCase> useCases = new HashSet<>();
+
+        Preview preview = new Preview.Builder().build();
+        // No repeating surface is added for Preview when surface provider is not set
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(
+                () -> preview.setSurfaceProvider(null));
+        useCases.add(preview);
+
+        useCases.add(new VideoCapture.Builder<>(new Recorder.Builder().build()).build());
+
+        StreamSharing streamSharing = createStreamSharingUseCase(useCases);
+
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(
+                () -> mCamera2CameraImpl.attachUseCases(singletonList(streamSharing)));
+
+        assertThat(mCamera2CameraImpl.isMeteringRepeatingAttached()).isFalse();
+
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(
+                () -> mCamera2CameraImpl.detachUseCases(singletonList(streamSharing)));
+    }
+
+    @Test
+    public void exceedSupportedUseCaseCount_meteringRepeatingIsNotAttached() {
+        // adding a lot of use cases will ensure surface combination is no longer supported
+        List<UseCase> useCases = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            useCases.add(createUseCase(NON_REPEATING));
+        }
+        mCamera2CameraImpl.attachUseCases(useCases);
+
+        assertThat(mCamera2CameraImpl.isMeteringRepeatingAttached()).isFalse();
+
+        mCamera2CameraImpl.detachUseCases(useCases);
+    }
+
+    @Test
+    public void exceedSupportedUseCaseCountLater_meteringRepeatingIsRemoved() {
+        UseCase imageCapture = createImageCapture();
+        mCamera2CameraImpl.attachUseCases(singletonList(imageCapture));
+        assertThat(mCamera2CameraImpl.isMeteringRepeatingAttached()).isTrue();
+
+        // adding a lot of use cases will ensure surface combination is no longer supported
+        List<UseCase> useCases = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            useCases.add(createUseCase(NON_REPEATING));
+        }
+        mCamera2CameraImpl.attachUseCases(useCases);
+
+        assertThat(mCamera2CameraImpl.isMeteringRepeatingAttached()).isFalse();
+
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(
+                () -> mCamera2CameraImpl.detachUseCases(singletonList(imageCapture)));
+        mCamera2CameraImpl.detachUseCases(useCases);
+    }
+
+    @Test
     public void attachRepeatingUseCaseLater_meteringRepeatingIsRemoved() {
         UseCase nonRepeating = createUseCase(NON_REPEATING);
         UseCase repeating = createUseCase(REPEATING);
@@ -541,6 +645,36 @@ public final class Camera2CameraImplTest {
         assertThat(mCamera2CameraImpl.isMeteringRepeatingAttached()).isFalse();
 
         mCamera2CameraImpl.detachUseCases(asList(nonRepeating, repeating));
+    }
+
+    @Test
+    public void attachStreamSharingUseCaseLater_meteringRepeatingIsRemoved() {
+        UseCase nonRepeating = createUseCase(NON_REPEATING);
+
+        mCamera2CameraImpl.attachUseCases(singletonList(nonRepeating));
+
+        assertThat(mCamera2CameraImpl.isMeteringRepeatingAttached()).isTrue();
+
+        // StreamSharing use case adds a repeating surface by default, no need for MeteringRepeating
+        Set<UseCase> useCases = new HashSet<>();
+
+        Preview preview = new Preview.Builder().build();
+        // No repeating surface is added for Preview when surface provider is not set
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(
+                () -> preview.setSurfaceProvider(null));
+        useCases.add(preview);
+
+        useCases.add(new VideoCapture.Builder<>(new Recorder.Builder().build()).build());
+
+        StreamSharing streamSharing = createStreamSharingUseCase(useCases);
+
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(
+                () -> mCamera2CameraImpl.attachUseCases(singletonList(streamSharing)));
+
+        assertThat(mCamera2CameraImpl.isMeteringRepeatingAttached()).isFalse();
+
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(
+                () -> mCamera2CameraImpl.detachUseCases(asList(nonRepeating, streamSharing)));
     }
 
     @Test
@@ -769,40 +903,100 @@ public final class Camera2CameraImplTest {
 
     @NonNull
     private TestUseCase createUseCase(int template) {
-        return createUseCase(template, DEFAULT_SURFACE_OPTION);
+        return createUseCase(template, DEFAULT_IMAGE_FORMAT);
+    }
+
+    @NonNull
+    private TestUseCase createUseCase(int template, int imageFormat) {
+        return createUseCase(template, DEFAULT_SURFACE_OPTION, imageFormat);
     }
 
     @NonNull
     private TestUseCase createUseCase(@NonNull SurfaceOption surfaceOption) {
-        return createUseCase(DEFAULT_TEMPLATE_TYPE, surfaceOption);
+        return createUseCase(DEFAULT_TEMPLATE_TYPE, surfaceOption, DEFAULT_IMAGE_FORMAT);
     }
 
     @NonNull
-    private TestUseCase createUseCase(int template, @NonNull SurfaceOption surfaceOption) {
+    private TestUseCase createUseCase(int template, @NonNull SurfaceOption surfaceOption,
+            int imageFormat) {
         boolean isZslDisabled = getDefaultZslDisabled(template);
         FakeUseCaseConfig.Builder configBuilder =
                 new FakeUseCaseConfig.Builder().setSessionOptionUnpacker(
                                 new Camera2SessionOptionUnpacker()).setTargetName("UseCase")
                         .setZslDisabled(isZslDisabled);
         new Camera2Interop.Extender<>(configBuilder).setSessionStateCallback(mSessionStateCallback);
-        return createUseCase(configBuilder.getUseCaseConfig(), template, surfaceOption);
+        return createUseCase(configBuilder.getUseCaseConfig(), template, surfaceOption,
+                imageFormat);
     }
 
     @NonNull
     private TestUseCase createUseCase(@NonNull FakeUseCaseConfig config, int template,
-            @NonNull SurfaceOption surfaceOption) {
+            @NonNull SurfaceOption surfaceOption, int imageFormat) {
         TestUseCase testUseCase = new TestUseCase(
                 template,
                 config,
                 mCamera2CameraImpl,
-                mMockOnImageAvailableListener,
                 mMockRepeatingCaptureCallback,
-                surfaceOption
+                surfaceOption,
+                imageFormat
         );
 
-        testUseCase.updateSuggestedStreamSpec(StreamSpec.builder(new Size(640, 480)).build());
+        testUseCase.updateSuggestedStreamSpec(StreamSpec.builder(
+                new Size(640, 480)).setImplementationOptions(
+                StreamUseCaseUtil.getStreamSpecImplementationOptions(config)).build());
         mFakeUseCases.add(testUseCase);
         return testUseCase;
+    }
+
+    @NonNull
+    private ImageCapture createImageCapture() {
+        UseCaseConfigFactory useCaseConfigFactory =
+                new Camera2UseCaseConfigFactory(ApplicationProvider.getApplicationContext());
+
+        ImageCapture imageCapture = new ImageCapture.Builder().build();
+
+        FakeUseCaseConfig.Builder configBuilder =
+                new FakeUseCaseConfig.Builder().setSessionOptionUnpacker(
+                        new Camera2SessionOptionUnpacker()).setTargetName("UseCase");
+        new Camera2Interop.Extender<>(configBuilder).setSessionStateCallback(mSessionStateCallback);
+        UseCaseConfig<?> config = configBuilder.getUseCaseConfig();
+
+        imageCapture.bindToCamera(mCamera2CameraImpl, null, imageCapture.getDefaultConfig(true,
+                useCaseConfigFactory));
+
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(
+                () -> imageCapture.updateSuggestedStreamSpec(StreamSpec.builder(
+                        new Size(640, 480)).setImplementationOptions(
+                        StreamUseCaseUtil.getStreamSpecImplementationOptions(config)).build()));
+
+        mFakeUseCases.add(imageCapture);
+        return imageCapture;
+    }
+
+    @NonNull
+    private StreamSharing createStreamSharingUseCase(@NonNull Set<UseCase> children) {
+        UseCaseConfigFactory useCaseConfigFactory =
+                new Camera2UseCaseConfigFactory(ApplicationProvider.getApplicationContext());
+
+        StreamSharing streamSharing =
+                new StreamSharing(mCamera2CameraImpl, children, useCaseConfigFactory);
+
+        FakeUseCaseConfig.Builder configBuilder =
+                new FakeUseCaseConfig.Builder().setSessionOptionUnpacker(
+                        new Camera2SessionOptionUnpacker()).setTargetName("UseCase");
+        new Camera2Interop.Extender<>(configBuilder).setSessionStateCallback(mSessionStateCallback);
+        UseCaseConfig<?> config = configBuilder.getUseCaseConfig();
+
+        streamSharing.bindToCamera(mCamera2CameraImpl, null, streamSharing.getDefaultConfig(true,
+                useCaseConfigFactory));
+
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(
+                () -> streamSharing.updateSuggestedStreamSpec(StreamSpec.builder(
+                        new Size(640, 480)).setImplementationOptions(
+                        StreamUseCaseUtil.getStreamSpecImplementationOptions(config)).build()));
+
+        mFakeUseCases.add(streamSharing);
+        return streamSharing;
     }
 
     @Test
@@ -903,7 +1097,7 @@ public final class Camera2CameraImplTest {
         ArgumentCaptor<CameraCaptureResult> captor =
                 ArgumentCaptor.forClass(CameraCaptureResult.class);
         verify(mMockRepeatingCaptureCallback, timeout(4000).atLeastOnce())
-                .onCaptureCompleted(captor.capture());
+                .onCaptureCompleted(anyInt(), captor.capture());
 
         CaptureResult captureResult =
                 ((Camera2CameraCaptureResult) captor.getValue()).getCaptureResult();
@@ -927,7 +1121,7 @@ public final class Camera2CameraImplTest {
         ArgumentCaptor<CameraCaptureResult> captor =
                 ArgumentCaptor.forClass(CameraCaptureResult.class);
         verify(mMockRepeatingCaptureCallback, timeout(4000).atLeastOnce())
-                .onCaptureCompleted(captor.capture());
+                .onCaptureCompleted(anyInt(), captor.capture());
 
         CaptureResult captureResult =
                 ((Camera2CameraCaptureResult) captor.getValue()).getCaptureResult();
@@ -955,7 +1149,7 @@ public final class Camera2CameraImplTest {
         ArgumentCaptor<CameraCaptureResult> captor =
                 ArgumentCaptor.forClass(CameraCaptureResult.class);
         verify(mMockRepeatingCaptureCallback, timeout(4000).atLeastOnce())
-                .onCaptureCompleted(captor.capture());
+                .onCaptureCompleted(anyInt(), captor.capture());
 
         CaptureResult captureResult =
                 ((Camera2CameraCaptureResult) captor.getValue()).getCaptureResult();
@@ -978,9 +1172,10 @@ public final class Camera2CameraImplTest {
         if (!mCamera2CameraImpl.getCameraInfo().isZslSupported()) {
             return;
         }
-        UseCase preview = createUseCase(CameraDevice.TEMPLATE_PREVIEW);
-        UseCase record = createUseCase(CameraDevice.TEMPLATE_RECORD);
-        UseCase zsl = createUseCase(CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG);
+        // Legacy device can support surface combination PRIV + YUV + JPEG
+        UseCase preview = createUseCase(CameraDevice.TEMPLATE_PREVIEW, PRIVATE);
+        UseCase record = createUseCase(CameraDevice.TEMPLATE_RECORD, YUV_420_888);
+        UseCase zsl = createUseCase(CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG, NON_REPEATING, JPEG);
 
         mCamera2CameraImpl.attachUseCases(asList(preview, record, zsl));
         mCamera2CameraImpl.onUseCaseActive(preview);
@@ -991,7 +1186,7 @@ public final class Camera2CameraImplTest {
         ArgumentCaptor<CameraCaptureResult> captor =
                 ArgumentCaptor.forClass(CameraCaptureResult.class);
         verify(mMockRepeatingCaptureCallback, timeout(4000).atLeastOnce())
-                .onCaptureCompleted(captor.capture());
+                .onCaptureCompleted(anyInt(), captor.capture());
 
         CaptureResult captureResult =
                 ((Camera2CameraCaptureResult) captor.getValue()).getCaptureResult();
@@ -1015,9 +1210,10 @@ public final class Camera2CameraImplTest {
         if (!mCamera2CameraImpl.getCameraInfo().isZslSupported()) {
             return;
         }
-        UseCase preview = createUseCase(CameraDevice.TEMPLATE_PREVIEW);
-        UseCase record = createUseCase(CameraDevice.TEMPLATE_RECORD);
-        UseCase zsl = createUseCase(CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG);
+        // Legacy device can support surface combination PRIV + YUV + JPEG
+        UseCase preview = createUseCase(CameraDevice.TEMPLATE_PREVIEW, PRIVATE);
+        UseCase record = createUseCase(CameraDevice.TEMPLATE_RECORD, YUV_420_888);
+        UseCase zsl = createUseCase(CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG, NON_REPEATING, JPEG);
 
         mCamera2CameraImpl.attachUseCases(asList(preview, zsl));
         mCamera2CameraImpl.onUseCaseActive(preview);
@@ -1075,15 +1271,15 @@ public final class Camera2CameraImplTest {
 
         // Creates a test use case with high resolution enabled.
         ResolutionSelector highResolutionSelector =
-                new ResolutionSelector.Builder().setHighResolutionEnabledFlag(
-                        ResolutionSelector.HIGH_RESOLUTION_FLAG_ON).build();
+                new ResolutionSelector.Builder().setAllowedResolutionMode(
+                        PREFER_HIGHER_RESOLUTION_OVER_CAPTURE_RATE).build();
         FakeUseCaseConfig.Builder configBuilder =
                 new FakeUseCaseConfig.Builder().setSessionOptionUnpacker(
                         new Camera2SessionOptionUnpacker()).setTargetName(
                         "UseCase").setResolutionSelector(highResolutionSelector);
         new Camera2Interop.Extender<>(configBuilder).setSessionStateCallback(mSessionStateCallback);
         UseCase highResolutionUseCase = createUseCase(configBuilder.getUseCaseConfig(),
-                CameraDevice.TEMPLATE_PREVIEW, DEFAULT_SURFACE_OPTION);
+                CameraDevice.TEMPLATE_PREVIEW, DEFAULT_SURFACE_OPTION, DEFAULT_IMAGE_FORMAT);
 
         // Checks zsl is disabled after UseCase#onAttach() is called to merge/update config.
         assertThat(highResolutionUseCase.getCurrentConfig().isZslDisabled(false)).isTrue();
@@ -1112,10 +1308,12 @@ public final class Camera2CameraImplTest {
             Camera2CameraInfoImpl pairedCamera2CameraInfo = new Camera2CameraInfoImpl(
                     mPairedCameraId, cameraManagerCompat);
             Camera2CameraImpl pairedCamera2CameraImpl = new Camera2CameraImpl(
+                    (Context) ApplicationProvider.getApplicationContext(),
                     cameraManagerCompat, mPairedCameraId, pairedCamera2CameraInfo,
                     mCameraCoordinator,
                     mCameraStateRegistry, sCameraExecutor, sCameraHandler,
-                    DisplayInfoManager.getInstance(ApplicationProvider.getApplicationContext()));
+                    DisplayInfoManager.getInstance(ApplicationProvider.getApplicationContext()),
+                    -1L);
             mCameraCoordinator.addConcurrentCameraIdsAndCameraSelectors(
                     new HashMap<String, CameraSelector>() {{
                         put(mCameraId, DEFAULT_BACK_CAMERA);
@@ -1134,7 +1332,8 @@ public final class Camera2CameraImplTest {
             // Assert.
             ArgumentCaptor<CameraCaptureResult> captor =
                     ArgumentCaptor.forClass(CameraCaptureResult.class);
-            verify(mMockRepeatingCaptureCallback, never()).onCaptureCompleted(captor.capture());
+            verify(mMockRepeatingCaptureCallback, never()).onCaptureCompleted(anyInt(),
+                    captor.capture());
 
             // Act.
             UseCase preview2 = createUseCase(CameraDevice.TEMPLATE_PREVIEW);
@@ -1145,17 +1344,21 @@ public final class Camera2CameraImplTest {
             // Assert.
             captor = ArgumentCaptor.forClass(CameraCaptureResult.class);
             verify(mMockRepeatingCaptureCallback, timeout(4000).atLeastOnce())
-                    .onCaptureCompleted(captor.capture());
+                    .onCaptureCompleted(anyInt(), captor.capture());
             CaptureResult captureResult = (captor.getValue()).getCaptureResult();
             assertThat(captureResult.get(CaptureResult.CONTROL_CAPTURE_INTENT))
                     .isEqualTo(CaptureRequest.CONTROL_CAPTURE_INTENT_PREVIEW);
 
             mCamera2CameraImpl.detachUseCases(singletonList(preview1));
+            pairedCamera2CameraImpl.detachUseCases(singletonList(preview2));
         }
     }
 
     private void changeUseCaseSurface(UseCase useCase) {
-        useCase.updateSuggestedStreamSpec(StreamSpec.builder(new Size(640, 480)).build());
+        useCase.updateSuggestedStreamSpec(StreamSpec.builder(
+                new Size(640, 480)).setImplementationOptions(
+                StreamUseCaseUtil.getStreamSpecImplementationOptions(
+                        useCase.getCurrentConfig())).build());
     }
 
     private static boolean getDefaultZslDisabled(int templateType) {
@@ -1165,7 +1368,6 @@ public final class Camera2CameraImplTest {
     }
 
     public static class TestUseCase extends FakeUseCase {
-        private final ImageReader.OnImageAvailableListener mImageAvailableListener;
         HandlerThread mHandlerThread = new HandlerThread("HandlerThread");
         Handler mHandler;
         FakeUseCaseConfig mConfig;
@@ -1174,6 +1376,7 @@ public final class Camera2CameraImplTest {
         private final CameraCaptureCallback mRepeatingCaptureCallback;
         private final int mTemplate;
         private SessionConfig.Builder mSessionConfigBuilder;
+        private final int mImageFormat;
 
         @SuppressWarnings("NewClassNamingConvention")
         public enum SurfaceOption {
@@ -1189,21 +1392,23 @@ public final class Camera2CameraImplTest {
                 int template,
                 @NonNull FakeUseCaseConfig config,
                 @NonNull CameraInternal camera,
-                @NonNull ImageReader.OnImageAvailableListener listener,
                 @NonNull CameraCaptureCallback repeatingCaptureCallback,
-                @NonNull SurfaceOption surfaceOption) {
+                @NonNull SurfaceOption surfaceOption,
+                int imageFormat) {
             super(config);
             // Ensure we're using the combined configuration (user config + defaults)
             mConfig = (FakeUseCaseConfig) getCurrentConfig();
             mTemplate = template;
             mSurfaceOption = surfaceOption;
+            mImageFormat = imageFormat;
 
-            mImageAvailableListener = listener;
             mRepeatingCaptureCallback = repeatingCaptureCallback;
             mHandlerThread.start();
             mHandler = new Handler(mHandlerThread.getLooper());
             bindToCamera(camera, null, null);
-            updateSuggestedStreamSpec(StreamSpec.builder(new Size(640, 480)).build());
+            updateSuggestedStreamSpec(StreamSpec.builder(
+                    new Size(640, 480)).setImplementationOptions(
+                    StreamUseCaseUtil.getStreamSpecImplementationOptions(config)).build());
         }
 
         public void close() {
@@ -1228,7 +1433,7 @@ public final class Camera2CameraImplTest {
             if (mDeferrableSurface != null) {
                 mDeferrableSurface.close();
             }
-            mDeferrableSurface = createDeferrableSurface(suggestedStreamSpec);
+            mDeferrableSurface = createDeferrableSurface(suggestedStreamSpec, mImageFormat);
             mSessionConfigBuilder = SessionConfig.Builder.createFrom(mConfig,
                     suggestedStreamSpec.getResolution());
             mSessionConfigBuilder.setTemplateType(mTemplate);
@@ -1262,21 +1467,50 @@ public final class Camera2CameraImplTest {
         }
 
         @NonNull
-        private DeferrableSurface createDeferrableSurface(@NonNull StreamSpec streamSpec) {
+        private DeferrableSurface createDeferrableSurface(@NonNull StreamSpec streamSpec,
+                int imageFormat) {
             Size suggestedResolution = streamSpec.getResolution();
-            //noinspection resource
-            ImageReader imageReader =
-                    ImageReader.newInstance(
-                            suggestedResolution.getWidth(),
-                            suggestedResolution.getHeight(),
-                            ImageFormat.YUV_420_888, /*maxImages*/
-                            2);
-            imageReader.setOnImageAvailableListener(mImageAvailableListener, mHandler);
-            Surface surface = imageReader.getSurface();
+            Surface surface;
+            final SurfaceTexture surfaceTexture;
+            final ImageReader imageReader;
+            if (imageFormat == PRIVATE) {
+                surfaceTexture = new SurfaceTexture(0);
+                surfaceTexture.setDefaultBufferSize(suggestedResolution.getWidth(),
+                        suggestedResolution.getHeight());
+                surface = new Surface(surfaceTexture);
+                imageReader = null;
+            } else if (imageFormat == YUV_420_888 || imageFormat == JPEG) {
+                //noinspection resource
+                imageReader =
+                        ImageReader.newInstance(
+                                suggestedResolution.getWidth(),
+                                suggestedResolution.getHeight(),
+                                imageFormat, /*maxImages*/
+                                2);
+                imageReader.setOnImageAvailableListener(reader -> {
+                    try {
+                        Image image = reader.acquireLatestImage();
+                        if (image != null) {
+                            image.close();
+                        }
+                    } catch (RuntimeException e) {
+                        // ImageReader could be closed. Ignore.
+                    }
+                }, mHandler);
+                surface = imageReader.getSurface();
+                surfaceTexture = null;
+            } else {
+                throw new IllegalArgumentException("Unsupported image format: " + imageFormat);
+            }
             DeferrableSurface deferrableSurface = new ImmediateSurface(surface);
             deferrableSurface.getTerminationFuture().addListener(() -> {
                 surface.release();
-                imageReader.close();
+                if (surfaceTexture != null) {
+                    surfaceTexture.release();
+                }
+                if (imageReader != null) {
+                    imageReader.close();
+                }
             }, CameraXExecutors.directExecutor());
             return deferrableSurface;
         }

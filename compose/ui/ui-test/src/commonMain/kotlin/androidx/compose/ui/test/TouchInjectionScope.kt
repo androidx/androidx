@@ -19,12 +19,12 @@ package androidx.compose.ui.test
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.lerp
 import androidx.compose.ui.platform.ViewConfiguration
+import androidx.compose.ui.test.internal.JvmDefaultWithCompatibility
 import androidx.compose.ui.util.lerp
 import kotlin.math.ceil
 import kotlin.math.max
 import kotlin.math.roundToInt
 import kotlin.math.roundToLong
-import androidx.compose.ui.test.internal.JvmDefaultWithCompatibility
 
 /**
  * The receiver scope of the touch input injection lambda from [performTouchInput].
@@ -210,7 +210,15 @@ interface TouchInjectionScope : InjectionScope {
      */
     fun updatePointerBy(pointerId: Int, delta: Offset) {
         // Ignore currentPosition of null here, let updatePointerTo generate the error
-        val position = (currentPosition(pointerId) ?: Offset.Zero) + delta
+        val currentPosition = currentPosition(pointerId) ?: Offset.Zero
+
+        val position = if (currentPosition.isValid() && delta.isValid()) {
+            currentPosition + delta
+        } else {
+            // Allows invalid position to still pass back through Compose (for testing)
+            Offset.Unspecified
+        }
+
         updatePointerTo(pointerId, position)
     }
 
@@ -637,7 +645,10 @@ fun TouchInjectionScope.swipeWithVelocity(
     }
 
     val pathFinder = VelocityPathFinder(start, end, endVelocity, durationMillis)
-    swipe(pathFinder.generateFunction(), durationMillis)
+    val swipeFunction: (Long) -> Offset = {
+        pathFinder.calculateOffsetForTime(it)
+    }
+    swipe(swipeFunction, durationMillis)
 }
 
 /**

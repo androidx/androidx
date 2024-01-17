@@ -151,7 +151,7 @@ class TooltipCompatHandler implements View.OnLongClickListener, View.OnHoverList
 
     @SuppressWarnings("deprecation")
     void show(boolean fromTouch) {
-        if (!ViewCompat.isAttachedToWindow(mAnchor)) {
+        if (!mAnchor.isAttachedToWindow()) {
             return;
         }
 

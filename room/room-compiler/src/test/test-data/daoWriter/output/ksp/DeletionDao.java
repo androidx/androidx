@@ -43,12 +43,12 @@ public final class DeletionDao_Impl implements DeletionDao {
         this.__deletionAdapterOfUser = new EntityDeletionOrUpdateAdapter<User>(__db) {
             @Override
             @NonNull
-            public String createQuery() {
+            protected String createQuery() {
                 return "DELETE FROM `User` WHERE `uid` = ?";
             }
 
             @Override
-            public void bind(@NonNull final SupportSQLiteStatement statement,
+            protected void bind(@NonNull final SupportSQLiteStatement statement,
                     @NonNull final User entity) {
                 statement.bindLong(1, entity.uid);
             }
@@ -56,12 +56,12 @@ public final class DeletionDao_Impl implements DeletionDao {
         this.__deletionAdapterOfMultiPKeyEntity = new EntityDeletionOrUpdateAdapter<MultiPKeyEntity>(__db) {
             @Override
             @NonNull
-            public String createQuery() {
+            protected String createQuery() {
                 return "DELETE FROM `MultiPKeyEntity` WHERE `name` = ? AND `lastName` = ?";
             }
 
             @Override
-            public void bind(@NonNull final SupportSQLiteStatement statement,
+            protected void bind(@NonNull final SupportSQLiteStatement statement,
                     @NonNull final MultiPKeyEntity entity) {
                 statement.bindString(1, entity.name);
                 statement.bindString(2, entity.lastName);
@@ -70,12 +70,12 @@ public final class DeletionDao_Impl implements DeletionDao {
         this.__deletionAdapterOfBook = new EntityDeletionOrUpdateAdapter<Book>(__db) {
             @Override
             @NonNull
-            public String createQuery() {
+            protected String createQuery() {
                 return "DELETE FROM `Book` WHERE `bookId` = ?";
             }
 
             @Override
-            public void bind(@NonNull final SupportSQLiteStatement statement,
+            protected void bind(@NonNull final SupportSQLiteStatement statement,
                     @NonNull final Book entity) {
                 statement.bindLong(1, entity.bookId);
             }
@@ -281,13 +281,16 @@ public final class DeletionDao_Impl implements DeletionDao {
         final SupportSQLiteStatement _stmt = __preparedStmtOfDeleteByUid.acquire();
         int _argIndex = 1;
         _stmt.bindLong(_argIndex, uid);
-        __db.beginTransaction();
         try {
-            final int _result = _stmt.executeUpdateDelete();
-            __db.setTransactionSuccessful();
-            return _result;
+            __db.beginTransaction();
+            try {
+                final int _result = _stmt.executeUpdateDelete();
+                __db.setTransactionSuccessful();
+                return _result;
+            } finally {
+                __db.endTransaction();
+            }
         } finally {
-            __db.endTransaction();
             __preparedStmtOfDeleteByUid.release(_stmt);
         }
     }
@@ -301,13 +304,16 @@ public final class DeletionDao_Impl implements DeletionDao {
                 final SupportSQLiteStatement _stmt = __preparedStmtOfDeleteByUid.acquire();
                 int _argIndex = 1;
                 _stmt.bindLong(_argIndex, uid);
-                __db.beginTransaction();
                 try {
-                    _stmt.executeUpdateDelete();
-                    __db.setTransactionSuccessful();
-                    return null;
+                    __db.beginTransaction();
+                    try {
+                        _stmt.executeUpdateDelete();
+                        __db.setTransactionSuccessful();
+                        return null;
+                    } finally {
+                        __db.endTransaction();
+                    }
                 } finally {
-                    __db.endTransaction();
                     __preparedStmtOfDeleteByUid.release(_stmt);
                 }
             }
@@ -323,13 +329,16 @@ public final class DeletionDao_Impl implements DeletionDao {
                 final SupportSQLiteStatement _stmt = __preparedStmtOfDeleteByUid.acquire();
                 int _argIndex = 1;
                 _stmt.bindLong(_argIndex, uid);
-                __db.beginTransaction();
                 try {
-                    final Integer _result = _stmt.executeUpdateDelete();
-                    __db.setTransactionSuccessful();
-                    return _result;
+                    __db.beginTransaction();
+                    try {
+                        final Integer _result = _stmt.executeUpdateDelete();
+                        __db.setTransactionSuccessful();
+                        return _result;
+                    } finally {
+                        __db.endTransaction();
+                    }
                 } finally {
-                    __db.endTransaction();
                     __preparedStmtOfDeleteByUid.release(_stmt);
                 }
             }
@@ -345,13 +354,16 @@ public final class DeletionDao_Impl implements DeletionDao {
                 final SupportSQLiteStatement _stmt = __preparedStmtOfDeleteByUid.acquire();
                 int _argIndex = 1;
                 _stmt.bindLong(_argIndex, uid);
-                __db.beginTransaction();
                 try {
-                    final Integer _result = _stmt.executeUpdateDelete();
-                    __db.setTransactionSuccessful();
-                    return _result;
+                    __db.beginTransaction();
+                    try {
+                        final Integer _result = _stmt.executeUpdateDelete();
+                        __db.setTransactionSuccessful();
+                        return _result;
+                    } finally {
+                        __db.endTransaction();
+                    }
                 } finally {
-                    __db.endTransaction();
                     __preparedStmtOfDeleteByUid.release(_stmt);
                 }
             }
@@ -362,13 +374,16 @@ public final class DeletionDao_Impl implements DeletionDao {
     public int deleteEverything() {
         __db.assertNotSuspendingTransaction();
         final SupportSQLiteStatement _stmt = __preparedStmtOfDeleteEverything.acquire();
-        __db.beginTransaction();
         try {
-            final int _result = _stmt.executeUpdateDelete();
-            __db.setTransactionSuccessful();
-            return _result;
+            __db.beginTransaction();
+            try {
+                final int _result = _stmt.executeUpdateDelete();
+                __db.setTransactionSuccessful();
+                return _result;
+            } finally {
+                __db.endTransaction();
+            }
         } finally {
-            __db.endTransaction();
             __preparedStmtOfDeleteEverything.release(_stmt);
         }
     }

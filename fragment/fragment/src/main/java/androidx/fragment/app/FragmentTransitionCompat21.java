@@ -21,13 +21,13 @@ import android.graphics.Rect;
 import android.transition.Transition;
 import android.transition.TransitionManager;
 import android.transition.TransitionSet;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.core.os.CancellationSignal;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -221,6 +221,27 @@ class FragmentTransitionCompat21 extends FragmentTransitionImpl {
     }
 
     @Override
+    public boolean isSeekingSupported() {
+        if (FragmentManager.isLoggingEnabled(Log.INFO)) {
+            Log.i(FragmentManager.TAG,
+                    "Predictive back not available using Framework Transitions. Please switch"
+                            + " to AndroidX Transition 1.5.0 or higher to enable seeking.");
+        }
+        return false;
+    }
+
+    @Override
+    public boolean isSeekingSupported(@NonNull Object transition) {
+        if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+            Log.v(FragmentManager.TAG,
+                    "Predictive back not available for framework transition "
+                            + transition + ". Please switch to AndroidX Transition 1.5.0 or higher "
+                            + "to enable seeking.");
+        }
+        return false;
+    }
+
+    @Override
     public void scheduleRemoveTargets(@NonNull final Object overallTransitionObj,
             @Nullable final Object enterTransition, @Nullable final ArrayList<View> enteringViews,
             @Nullable final Object exitTransition, @Nullable final ArrayList<View> exitingViews,
@@ -269,9 +290,10 @@ class FragmentTransitionCompat21 extends FragmentTransitionImpl {
      *
      * Destroying the view of the Fragment is how the Transition gets canceled.
      */
+    @SuppressWarnings("deprecation")
     @Override
     public void setListenerForTransitionEnd(@NonNull final Fragment outFragment,
-            @NonNull Object transition, @NonNull final CancellationSignal signal,
+            @NonNull Object transition, @NonNull final androidx.core.os.CancellationSignal signal,
             @NonNull final Runnable transitionCompleteRunnable) {
         ((Transition) transition).addListener(new Transition.TransitionListener() {
             @Override

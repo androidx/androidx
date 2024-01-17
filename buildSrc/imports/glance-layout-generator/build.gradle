@@ -1,0 +1,6 @@
+apply from: "../../shared.gradle"
+
+sourceSets {
+    main.java.srcDirs += "${supportRootFolder}/glance/glance-appwidget/glance-layout-generator/" +
+            "src/main/kotlin"
+}

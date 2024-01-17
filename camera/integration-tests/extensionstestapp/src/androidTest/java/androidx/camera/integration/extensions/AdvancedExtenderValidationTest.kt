@@ -19,7 +19,7 @@ package androidx.camera.integration.extensions
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil
 import androidx.camera.integration.extensions.utils.CameraIdExtensionModePair
-import androidx.camera.testing.CameraUtil
+import androidx.camera.testing.impl.CameraUtil
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import org.junit.After
@@ -100,4 +100,24 @@ class AdvancedExtenderValidationTest(config: CameraIdExtensionModePair) {
     @Test
     fun initSessionWithAnalysis_medianSize_canConfigureSession() =
         validation.initSessionWithAnalysis_medianSize_canConfigureSession()
+
+    @Test
+    fun initSessionWithOutputSurfaceConfigurationImpl_maxSize_canConfigureSession() =
+        validation.initSessionWithOutputSurfaceConfigurationImpl_maxSize_canConfigureSession()
+
+    @Test
+    fun validateSessionTypeSupport_sinceVersion_1_4() =
+        validation.validateSessionTypeSupport_sinceVersion_1_4()
+
+    @Test
+    fun validateSessionTypeSupportWithOutputSurfaceConfigurationImpl_sinceVersion_1_4() =
+        validation.validateSessionTypeSupportWithOutputSurfaceConfigurationImpl_sinceVersion_1_4()
+
+    @Test
+    fun validatePostviewSupport_sinceVersion_1_4() =
+        validation.validatePostviewSupport_sinceVersion_1_4()
+
+    @Test
+    fun validateProcessProgressSupport_sinceVersion_1_4() =
+        validation.validateProcessProgressSupport_sinceVersion_1_4()
 }

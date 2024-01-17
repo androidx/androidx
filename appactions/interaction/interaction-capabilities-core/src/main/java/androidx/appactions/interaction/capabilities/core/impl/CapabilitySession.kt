@@ -21,8 +21,6 @@ import androidx.appactions.interaction.proto.AppActionsContext.AppDialogState
 
 /**
  * Internal interface for a session, contains developer's Session instance
- *
- * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 interface CapabilitySession {
@@ -37,7 +35,7 @@ interface CapabilitySession {
      */
     fun execute(
         argumentsWrapper: ArgumentsWrapper,
-        callback: CallbackInternal,
+        callback: CallbackInternal
     )
 
     /**
@@ -55,21 +53,14 @@ interface CapabilitySession {
     /**
      * The current state of the multi-turn session including slot values and their statuses.
      */
-    val state: AppDialogState
+    val state: AppDialogState?
 
     /** The current status of the CapabilitySession. */
-    val status: Status
+    val isActive: Boolean
 
     /**
-     * The developer-provided external object (either a BaseSession instance or an ActionExecutor instance).
+     * The developer-provided external object (either a BaseExecutionSession instance or an
+     * ExecutionCallback instance).
      */
     val uiHandle: Any
-
-    /** This enum describes the current status of the CapabilitySession. */
-    enum class Status {
-        UNINITIATED,
-        IN_PROGRESS,
-        COMPLETED,
-        DESTROYED,
-    }
 }

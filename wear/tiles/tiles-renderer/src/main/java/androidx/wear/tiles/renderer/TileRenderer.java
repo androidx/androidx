@@ -28,18 +28,27 @@ import androidx.annotation.StyleRes;
 import androidx.wear.protolayout.LayoutElementBuilders;
 import androidx.wear.protolayout.ResourceBuilders;
 import androidx.wear.protolayout.StateBuilders;
+import androidx.wear.protolayout.expression.AppDataKey;
+import androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue;
 import androidx.wear.protolayout.expression.pipeline.StateStore;
 import androidx.wear.protolayout.proto.LayoutElementProto;
 import androidx.wear.protolayout.proto.ResourceProto;
 import androidx.wear.protolayout.renderer.impl.ProtoLayoutViewInstance;
+import androidx.wear.protolayout.renderer.inflater.ProtoLayoutThemeImpl;
 import androidx.wear.tiles.TileService;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.util.concurrent.FluentFuture;
+import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 
+import java.util.Map;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 
 /**
@@ -70,6 +79,7 @@ public final class TileRenderer {
     @Nullable private final LayoutElementProto.Layout mLayout;
     @Nullable private final ResourceProto.Resources mResources;
     @NonNull private final ListeningExecutorService mUiExecutor;
+    @NonNull private final StateStore mStateStore = new StateStore(ImmutableMap.of());
 
     /**
      * Default constructor.
@@ -80,8 +90,8 @@ public final class TileRenderer {
      * @param loadActionExecutor Executor for {@code loadActionListener}.
      * @param loadActionListener Listener for clicks that will cause the contents to be reloaded.
      * @deprecated Use {@link #TileRenderer(Context, Executor, Consumer)} which accepts Layout and
-     *     Resources in {@link #inflate(LayoutElementBuilders.Layout, ResourceBuilders.Resources,
-     *     ViewGroup)} method.
+     *     Resources in {@link #inflateAsync(LayoutElementBuilders.Layout,
+     *     ResourceBuilders.Resources, ViewGroup)} method.
      */
     @Deprecated
     public TileRenderer(
@@ -92,6 +102,7 @@ public final class TileRenderer {
             @NonNull LoadActionListener loadActionListener) {
         this(
                 uiContext,
+                /* tilesTheme= */ 0,
                 loadActionExecutor,
                 toStateConsumer(loadActionListener),
                 layout.toProto(),
@@ -109,8 +120,8 @@ public final class TileRenderer {
      * @param loadActionExecutor Executor for {@code loadActionListener}.
      * @param loadActionListener Listener for clicks that will cause the contents to be reloaded.
      * @deprecated Use {@link #TileRenderer(Context, Executor, Consumer)} which accepts Layout and
-     *     Resources in {@link #inflate(LayoutElementBuilders.Layout, ResourceBuilders.Resources,
-     *     ViewGroup)} method.
+     *     Resources in {@link #inflateAsync(LayoutElementBuilders.Layout,
+     *     ResourceBuilders.Resources, ViewGroup)} method.
      */
     @Deprecated
     public TileRenderer(
@@ -120,9 +131,9 @@ public final class TileRenderer {
             @NonNull androidx.wear.tiles.ResourceBuilders.Resources resources,
             @NonNull Executor loadActionExecutor,
             @NonNull LoadActionListener loadActionListener) {
-        // TODO(b/272527869): Enable setting theme.
         this(
                 uiContext,
+                tilesTheme,
                 loadActionExecutor,
                 toStateConsumer(loadActionListener),
                 layout.toProto(),
@@ -140,6 +151,7 @@ public final class TileRenderer {
             @NonNull Consumer<StateBuilders.State> loadActionListener) {
         this(
                 uiContext,
+                /* tilesTheme= */ 0,
                 loadActionExecutor,
                 loadActionListener,
                 /* layout= */ null,
@@ -148,10 +160,12 @@ public final class TileRenderer {
 
     private TileRenderer(
             @NonNull Context uiContext,
+            @StyleRes int tilesTheme,
             @NonNull Executor loadActionExecutor,
             @NonNull Consumer<StateBuilders.State> loadActionListener,
             @Nullable LayoutElementProto.Layout layout,
             @Nullable ResourceProto.Resources resources) {
+
         this.mLayout = layout;
         this.mResources = resources;
         this.mUiExecutor = MoreExecutors.newDirectExecutorService();
@@ -167,12 +181,16 @@ public final class TileRenderer {
                                 uiContext, mUiExecutor, mUiExecutor, TileService.EXTRA_CLICKABLE_ID)
                         .setAnimationEnabled(true)
                         .setIsViewFullyVisible(true)
-                        .setStateStore(new StateStore(ImmutableMap.of()))
+                        .setStateStore(mStateStore)
                         .setLoadActionListener(instanceListener);
+        if (tilesTheme != 0) {
+            config.setProtoLayoutTheme(new ProtoLayoutThemeImpl(uiContext, tilesTheme));
+        }
         this.mInstance = new ProtoLayoutViewInstance(config.build());
     }
 
     @NonNull
+    @SuppressWarnings("deprecation") // For backward compatibility
     private static Consumer<StateBuilders.State> toStateConsumer(
             @NonNull LoadActionListener loadActionListener) {
         return nextState ->
@@ -187,20 +205,44 @@ public final class TileRenderer {
      * @return The first child that was inflated. This may be null if the Layout is empty or the
      *     top-level LayoutElement has no inner set, or the top-level LayoutElement contains an
      *     unsupported inner type.
-     * @deprecated Use {@link #inflate(LayoutElementBuilders.Layout, ResourceBuilders.Resources,
-     *     ViewGroup)} instead. Note: This method only works with the deprecated constructors that
-     *     accept Layout and Resources.
+     * @deprecated Use {@link #inflateAsync(LayoutElementBuilders.Layout,
+     *     ResourceBuilders.Resources, ViewGroup)} instead. Note: This method only works with the
+     *     deprecated constructors that accept Layout and Resources.
      */
     @Deprecated
     @Nullable
     public View inflate(@NonNull ViewGroup parent) {
         String errorMessage =
                 "This method only works with the deprecated constructors that accept Layout and"
-                    + " Resources.";
-        return inflateLayout(
-                checkNotNull(mLayout, errorMessage),
-                checkNotNull(mResources, errorMessage),
-                parent);
+                        + " Resources.";
+        try {
+            // Waiting for the result from future for backwards compatibility.
+            return inflateLayout(
+                            checkNotNull(mLayout, errorMessage),
+                            checkNotNull(mResources, errorMessage),
+                            parent)
+                    .get(10, TimeUnit.SECONDS);
+        } catch (ExecutionException
+                | InterruptedException
+                | CancellationException
+                | TimeoutException e) {
+            // Wrap checked exceptions to avoid changing the method signature.
+            throw new RuntimeException("Rendering tile has not successfully finished.", e);
+        }
+    }
+
+    /**
+     * Sets the state for the current (and future) layouts. This is equivalent to setting the tile
+     * state via {@link StateBuilders.State.Builder#addKeyToValueMapping(AppDataKey,
+     * DynamicDataValue)}
+     *
+     * @param newState the state to use for the current layout (and any future layouts). This value
+     *     will replace any previously set state.
+     * @throws IllegalStateException if number of {@code newState} entries is greater than {@link
+     *     StateStore#getMaxStateEntryCount()}.
+     */
+    public void setState(@NonNull Map<AppDataKey<?>, DynamicDataValue<?>> newState) {
+        mStateStore.setAppStateEntryValues(newState);
     }
 
     /**
@@ -209,32 +251,24 @@ public final class TileRenderer {
      * @param layout The portion of the Tile to render.
      * @param resources The resources for the Tile.
      * @param parent The view to attach the tile into.
-     * @return The first child that was inflated. This may be null if the Layout is empty or the
-     *     top-level LayoutElement has no inner set, or the top-level LayoutElement contains an
-     *     unsupported inner type.
+     * @return The future with the first child that was inflated. This may be null if the Layout is
+     *     empty or the top-level LayoutElement has no inner set, or the top-level LayoutElement
+     *     contains an unsupported inner type.
      */
-    @Nullable
-    public View inflate(
+    @NonNull
+    public ListenableFuture<View> inflateAsync(
             @NonNull LayoutElementBuilders.Layout layout,
             @NonNull ResourceBuilders.Resources resources,
             @NonNull ViewGroup parent) {
         return inflateLayout(layout.toProto(), resources.toProto(), parent);
     }
 
-    @Nullable
-    private View inflateLayout(
+    @NonNull
+    private ListenableFuture<View> inflateLayout(
             @NonNull LayoutElementProto.Layout layout,
             @NonNull ResourceProto.Resources resources,
             @NonNull ViewGroup parent) {
-        mInstance.renderAndAttach(layout, resources, parent);
-        boolean finished;
-        try {
-            mUiExecutor.shutdown();
-            finished = mUiExecutor.awaitTermination(30, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            throw new RuntimeException("Rendering tile has not successfully finished.");
-        }
-        // TODO(b/271076323): Update when renderAndAttach returns result.
-        return finished ? parent.getChildAt(0) : null;
+        ListenableFuture<Void> result = mInstance.renderAndAttach(layout, resources, parent);
+        return FluentFuture.from(result).transform(ignored -> parent.getChildAt(0), mUiExecutor);
     }
 }

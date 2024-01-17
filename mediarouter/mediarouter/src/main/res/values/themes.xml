@@ -27,6 +27,7 @@
         <item name="mediaRoutePauseDrawable">@drawable/mr_media_pause_dark</item>
         <item name="mediaRouteStopDrawable">@drawable/mr_media_stop_dark</item>
         <item name="mediaRouteAudioTrackDrawable">@drawable/mr_vol_type_audiotrack_dark</item>
+        <item name="mediaRouteWifiIconDrawable">@drawable/mr_wifi_icon_dark</item>
         <item name="mediaRouteDefaultIconDrawable">@drawable/ic_mr_button_disconnected_dark</item>
         <item name="mediaRouteTvIconDrawable">@drawable/ic_vol_type_tv_dark</item>
         <item name="mediaRouteSpeakerIconDrawable">@drawable/ic_vol_type_speaker_dark</item>
@@ -51,6 +52,7 @@
         <item name="mediaRoutePauseDrawable">@drawable/mr_media_pause_light</item>
         <item name="mediaRouteStopDrawable">@drawable/mr_media_stop_light</item>
         <item name="mediaRouteAudioTrackDrawable">@drawable/mr_vol_type_audiotrack_light</item>
+        <item name="mediaRouteWifiIconDrawable">@drawable/mr_wifi_icon_light</item>
         <item name="mediaRouteDefaultIconDrawable">@drawable/ic_mr_button_grey</item>
         <item name="mediaRouteTvIconDrawable">@drawable/ic_vol_type_tv_light</item>
         <item name="mediaRouteSpeakerIconDrawable">@drawable/ic_vol_type_speaker_light</item>

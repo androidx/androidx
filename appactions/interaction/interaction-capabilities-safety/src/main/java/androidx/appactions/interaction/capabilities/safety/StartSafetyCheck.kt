@@ -16,20 +16,20 @@
 
 package androidx.appactions.interaction.capabilities.safety
 
+import androidx.appactions.builtintypes.experimental.types.ActionNotInProgress
+import androidx.appactions.builtintypes.experimental.types.GenericErrorStatus
+import androidx.appactions.builtintypes.experimental.types.NoInternetConnection
+import androidx.appactions.builtintypes.experimental.types.SafetyCheck
+import androidx.appactions.builtintypes.experimental.types.SuccessStatus
+import androidx.appactions.interaction.capabilities.core.BaseExecutionSession
 import androidx.appactions.interaction.capabilities.core.Capability
-import androidx.appactions.interaction.capabilities.core.BaseSession
-import androidx.appactions.interaction.capabilities.core.CapabilityBuilderBase
-import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
+import androidx.appactions.interaction.capabilities.core.CapabilityFactory
 import androidx.appactions.interaction.capabilities.core.impl.converters.ParamValueConverter
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters.SAFETY_CHECK_TYPE_SPEC
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
-import androidx.appactions.interaction.capabilities.core.properties.ParamProperty
-import androidx.appactions.interaction.capabilities.core.values.GenericErrorStatus
-import androidx.appactions.interaction.capabilities.core.values.SafetyCheck
-import androidx.appactions.interaction.capabilities.core.values.SuccessStatus
-import androidx.appactions.interaction.capabilities.core.values.executionstatus.ActionNotInProgress
-import androidx.appactions.interaction.capabilities.core.values.executionstatus.NoInternetConnection
+import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecRegistry
+import androidx.appactions.interaction.capabilities.core.properties.Property
 import androidx.appactions.interaction.capabilities.safety.executionstatus.EmergencySharingInProgress
 import androidx.appactions.interaction.capabilities.safety.executionstatus.SafetyAccountNotLoggedIn
 import androidx.appactions.interaction.capabilities.safety.executionstatus.SafetyFeatureNotOnboarded
@@ -38,96 +38,32 @@ import androidx.appactions.interaction.protobuf.Struct
 import androidx.appactions.interaction.protobuf.Value
 import java.time.Duration
 import java.time.ZonedDateTime
-import java.util.Optional
 
-/** StartSafetyCheck.kt in interaction-capabilities-safety */
-private const val CAPABILITY_NAME = "actions.intent.START_SAFETY_CHECK"
-
-private val ACTION_SPEC =
-    ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
-        .setDescriptor(StartSafetyCheck.Property::class.java)
-        .setArguments(StartSafetyCheck.Arguments::class.java, StartSafetyCheck.Arguments::Builder)
-        .setOutput(StartSafetyCheck.Output::class.java)
-        .bindOptionalParameter(
-            "safetyCheck.duration",
-            { property -> Optional.ofNullable(property.duration) },
-            StartSafetyCheck.Arguments.Builder::setDuration,
-            TypeConverters.DURATION_PARAM_VALUE_CONVERTER,
-            TypeConverters.DURATION_ENTITY_CONVERTER
-        )
-        .bindOptionalParameter(
-            "safetyCheck.checkInTime",
-            { property -> Optional.ofNullable(property.checkInTime) },
-            StartSafetyCheck.Arguments.Builder::setCheckInTime,
-            TypeConverters.ZONED_DATETIME_PARAM_VALUE_CONVERTER,
-            TypeConverters.ZONED_DATETIME_ENTITY_CONVERTER
-        )
-        .bindOptionalOutput(
-            "safetyCheck",
-            { output -> Optional.ofNullable(output.safetyCheck) },
-            ParamValueConverter.of(SAFETY_CHECK_TYPE_SPEC)::toParamValue
-        )
-        .bindOptionalOutput(
-            "executionStatus",
-            { output -> Optional.ofNullable(output.executionStatus) },
-            StartSafetyCheck.ExecutionStatus::toParamValue
-        )
-        .build()
-
-// TODO(b/267806701): Add capability factory annotation once the testing library is fully migrated.
+/** A capability corresponding to actions.intent.START_SAFETY_CHECK */
+@CapabilityFactory(name = StartSafetyCheck.CAPABILITY_NAME)
 class StartSafetyCheck private constructor() {
-    // TODO(b/267805819): Update to include the SessionFactory once Session API is ready.
-    class CapabilityBuilder :
-        CapabilityBuilderBase<
-            CapabilityBuilder, Property, Arguments, Output, Confirmation, Session
-            >(ACTION_SPEC) {
-        override fun build(): Capability {
-            // TODO(b/268369632): No-op remove empty property builder after Property od removed
-            super.setProperty(Property.Builder().build())
-            return super.build()
-        }
+    internal enum class SlotMetadata(val path: String) {
+        DURATION("safetycheck.duration"),
+        CHECK_IN_TIME("safetycheck.checkInTime")
     }
 
-    // TODO(b/268369632): Remove Property from public capability APIs.
-    class Property internal constructor(
-        val duration: ParamProperty<Duration>?,
-        val checkInTime: ParamProperty<ZonedDateTime>?
-    ) {
-        override fun toString(): String {
-            return "Property(duration=$duration, checkInTime=$checkInTime)"
-        }
+    class CapabilityBuilder :
+        Capability.Builder<
+            CapabilityBuilder, Arguments, Output, Confirmation, ExecutionSession
+            >(ACTION_SPEC) {
+        fun setDurationProperty(duration: Property<Duration>): CapabilityBuilder = setProperty(
+            SlotMetadata.DURATION.path,
+            duration,
+            TypeConverters.DURATION_ENTITY_CONVERTER
+        )
 
-        override fun equals(other: Any?): Boolean {
-            if (this === other) return true
-            if (javaClass != other?.javaClass) return false
-
-            other as Property
-
-            if (duration != other.duration) return false
-            if (checkInTime != other.checkInTime) return false
-
-            return true
-        }
-
-        override fun hashCode(): Int {
-            var result = duration.hashCode()
-            result = 31 * result + checkInTime.hashCode()
-            return result
-        }
-
-        class Builder {
-            private var duration: ParamProperty<Duration>? = null
-
-            private var checkInTime: ParamProperty<ZonedDateTime>? = null
-
-            fun setDuration(duration: ParamProperty<Duration>): Builder =
-                apply { this.duration = duration }
-
-            fun setCheckInTime(checkInTime: ParamProperty<ZonedDateTime>): Builder =
-                apply { this.checkInTime = checkInTime }
-
-            fun build(): Property = Property(duration, checkInTime)
-        }
+        fun setCheckInTimeProperty(
+            checkInTime: Property<ZonedDateTime>
+        ): CapabilityBuilder = setProperty(
+            SlotMetadata.CHECK_IN_TIME.path,
+            checkInTime,
+            TypeConverters.ZONED_DATE_TIME_ENTITY_CONVERTER
+        )
     }
 
     class Arguments internal constructor(
@@ -156,7 +92,7 @@ class StartSafetyCheck private constructor() {
             return result
         }
 
-        class Builder : BuilderOf<Arguments> {
+        class Builder {
             private var duration: Duration? = null
 
             private var checkInTime: ZonedDateTime? = null
@@ -167,7 +103,7 @@ class StartSafetyCheck private constructor() {
             fun setCheckInTime(checkInTime: ZonedDateTime): Builder =
                 apply { this.checkInTime = checkInTime }
 
-            override fun build(): Arguments = Arguments(duration, checkInTime)
+            fun build(): Arguments = Arguments(duration, checkInTime)
         }
     }
 
@@ -277,7 +213,7 @@ class StartSafetyCheck private constructor() {
                 .setStructValue(
                     Struct.newBuilder()
                         .putFields(TypeConverters.FIELD_NAME_TYPE, value)
-                        .build(),
+                        .build()
                 )
                 .build()
         }
@@ -285,5 +221,40 @@ class StartSafetyCheck private constructor() {
 
     class Confirmation internal constructor()
 
-    sealed interface Session : BaseSession<Arguments, Output>
+    sealed interface ExecutionSession : BaseExecutionSession<Arguments, Output>
+
+    companion object {
+        /** Canonical name for [StartSafetyCheck] capability */
+        const val CAPABILITY_NAME = "actions.intent.START_SAFETY_CHECK"
+        private val ACTION_SPEC =
+            ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
+                .setArguments(Arguments::class.java, Arguments::Builder, Arguments.Builder::build)
+                .setOutput(Output::class.java)
+                .bindParameter(
+                    SlotMetadata.DURATION.path,
+                    Arguments::duration,
+                    Arguments.Builder::setDuration,
+                    TypeConverters.DURATION_PARAM_VALUE_CONVERTER
+                )
+                .bindParameter(
+                    SlotMetadata.CHECK_IN_TIME.path,
+                    Arguments::checkInTime,
+                    Arguments.Builder::setCheckInTime,
+                    TypeConverters.ZONED_DATE_TIME_PARAM_VALUE_CONVERTER
+                )
+                .bindOutput(
+                    "safetyCheck",
+                    Output::safetyCheck,
+                    ParamValueConverter.of(SAFETY_CHECK_TYPE_SPEC)::toParamValue
+                )
+                .bindOutput(
+                    "executionStatus",
+                    Output::executionStatus,
+                    ExecutionStatus::toParamValue
+                )
+                .build()
+        init {
+            ActionSpecRegistry.registerActionSpec(Arguments::class, Output::class, ACTION_SPEC)
+        }
+    }
 }

@@ -3,7 +3,7 @@ syntax = "proto3";
 
 package androidx.wear.protolayout.proto;
 
-import "state_entry.proto";
+import "dynamic_data.proto";
 
 option java_package = "androidx.wear.protolayout.proto";
 option java_outer_classname = "StateProto";
@@ -14,6 +14,6 @@ message State {
   string last_clickable_id = 1;
 
   // Any shared state between the provider and renderer.
-  map<string, androidx.wear.protolayout.expression.proto.StateEntryValue>
+  map<string, androidx.wear.protolayout.expression.proto.DynamicDataValue>
       id_to_value = 2;
 }

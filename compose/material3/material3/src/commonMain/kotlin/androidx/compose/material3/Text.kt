@@ -105,7 +105,7 @@ fun Text(
     softWrap: Boolean = true,
     maxLines: Int = Int.MAX_VALUE,
     minLines: Int = 1,
-    onTextLayout: (TextLayoutResult) -> Unit = {},
+    onTextLayout: ((TextLayoutResult) -> Unit)? = null,
     style: TextStyle = LocalTextStyle.current
 ) {
 
@@ -114,25 +114,21 @@ fun Text(
             LocalContentColor.current
         }
     }
-    // NOTE(text-perf-review): It might be worthwhile writing a bespoke merge implementation that
-    // will avoid reallocating if all of the options here are the defaults
-    val mergedStyle = style.merge(
-        TextStyle(
+
+    BasicText(
+        text,
+        modifier,
+        style.merge(
             color = textColor,
             fontSize = fontSize,
             fontWeight = fontWeight,
-            textAlign = textAlign,
+            textAlign = textAlign ?: TextAlign.Unspecified,
             lineHeight = lineHeight,
             fontFamily = fontFamily,
             textDecoration = textDecoration,
             fontStyle = fontStyle,
             letterSpacing = letterSpacing
-        )
-    )
-    BasicText(
-        text,
-        modifier,
-        mergedStyle,
+        ),
         onTextLayout,
         overflow,
         softWrap,
@@ -263,25 +259,21 @@ fun Text(
             LocalContentColor.current
         }
     }
-    // NOTE(text-perf-review): It might be worthwhile writing a bespoke merge implementation that
-    // will avoid reallocating if all of the options here are the defaults
-    val mergedStyle = style.merge(
-        TextStyle(
+
+    BasicText(
+        text = text,
+        modifier = modifier,
+        style = style.merge(
             color = textColor,
             fontSize = fontSize,
             fontWeight = fontWeight,
-            textAlign = textAlign,
+            textAlign = textAlign ?: TextAlign.Unspecified,
             lineHeight = lineHeight,
             fontFamily = fontFamily,
             textDecoration = textDecoration,
             fontStyle = fontStyle,
             letterSpacing = letterSpacing
-        )
-    )
-    BasicText(
-        text = text,
-        modifier = modifier,
-        style = mergedStyle,
+        ),
         onTextLayout = onTextLayout,
         overflow = overflow,
         softWrap = softWrap,

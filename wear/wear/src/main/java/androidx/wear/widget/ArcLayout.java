@@ -306,7 +306,6 @@ public class ArcLayout extends ViewGroup {
 
     private boolean mClockwise;
 
-    @SuppressWarnings("SyntheticAccessor")
     private final ChildArcAngles mChildArcAngles = new ChildArcAngles();
 
     public ArcLayout(@NonNull Context context) {

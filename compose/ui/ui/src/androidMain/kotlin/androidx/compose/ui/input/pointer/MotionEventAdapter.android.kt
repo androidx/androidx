@@ -25,6 +25,7 @@ import android.view.MotionEvent.ACTION_DOWN
 import android.view.MotionEvent.ACTION_HOVER_ENTER
 import android.view.MotionEvent.ACTION_HOVER_EXIT
 import android.view.MotionEvent.ACTION_HOVER_MOVE
+import android.view.MotionEvent.ACTION_OUTSIDE
 import android.view.MotionEvent.ACTION_POINTER_DOWN
 import android.view.MotionEvent.ACTION_POINTER_UP
 import android.view.MotionEvent.ACTION_SCROLL
@@ -85,7 +86,7 @@ internal class MotionEventAdapter {
         positionCalculator: PositionCalculator
     ): PointerInputEvent? {
         val action = motionEvent.actionMasked
-        if (action == ACTION_CANCEL) {
+        if (action == ACTION_CANCEL || action == ACTION_OUTSIDE) {
             motionEventToComposePointerIdMap.clear()
             canHover.clear()
             return null
@@ -157,6 +158,7 @@ internal class MotionEventAdapter {
                     motionEventToComposePointerIdMap.put(pointerId, nextId++)
                 }
             }
+
             ACTION_DOWN,
             ACTION_POINTER_DOWN -> {
                 val actionIndex = motionEvent.actionIndex
@@ -261,6 +263,7 @@ internal class MotionEventAdapter {
         val pressure = motionEvent.getPressure(index)
 
         var position = Offset(motionEvent.getX(index), motionEvent.getY(index))
+        val originalPositionEventPosition = position.copy()
         val rawPosition: Offset
         if (index == 0) {
             rawPosition = Offset(motionEvent.rawX, motionEvent.rawY)
@@ -280,15 +283,17 @@ internal class MotionEventAdapter {
             else -> PointerType.Unknown
         }
 
-        val historical = mutableListOf<HistoricalChange>()
+        val historical = ArrayList<HistoricalChange>(motionEvent.historySize)
         with(motionEvent) {
             repeat(historySize) { pos ->
                 val x = getHistoricalX(index, pos)
                 val y = getHistoricalY(index, pos)
                 if (x.isFinite() && y.isFinite()) {
+                    val originalEventPosition = Offset(x, y) // hit path will convert to local
                     val historicalChange = HistoricalChange(
                         getHistoricalEventTime(pos),
-                        Offset(x, y)
+                        originalEventPosition,
+                        originalEventPosition
                     )
                     historical.add(historicalChange)
                 }
@@ -329,7 +334,8 @@ internal class MotionEventAdapter {
             toolType,
             issuesEnterExit,
             historical,
-            scrollDelta
+            scrollDelta,
+            originalPositionEventPosition,
         )
     }
 }

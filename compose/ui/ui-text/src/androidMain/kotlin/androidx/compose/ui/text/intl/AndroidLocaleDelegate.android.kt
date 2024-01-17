@@ -16,10 +16,10 @@
 
 package androidx.compose.ui.text.intl
 
-import androidx.annotation.RequiresApi
 import android.os.LocaleList as AndroidLocaleList
-import java.util.Locale as JavaLocale
+import androidx.annotation.RequiresApi
 import androidx.compose.ui.text.platform.createSynchronizedObject
+import java.util.Locale as JavaLocale
 
 /**
  * An Android implementation of Locale object

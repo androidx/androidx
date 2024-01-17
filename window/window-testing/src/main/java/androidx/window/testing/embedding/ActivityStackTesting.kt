@@ -18,27 +18,31 @@
 package androidx.window.testing.embedding
 
 import android.app.Activity
-import androidx.window.core.ExperimentalWindowApi
+import android.os.Binder
+import androidx.annotation.RestrictTo
+import androidx.annotation.VisibleForTesting
 import androidx.window.embedding.ActivityStack
 
 /**
- * Creates an [ActivityStack] instance for testing, which defaults to an [ActivityStack] with
- * cross-process activities.
- *
- * The [activitiesInProcess] can be passed from the activity obtained from
- * [androidx.test.core.app.ActivityScenario] or even mock Activities.
+ * Creates an [ActivityStack] instance for testing. The default values are an empty list for
+ * [activitiesInProcess] but a false value for [isEmpty]. This is the same as being embedded with
+ * an [Activity] from another process.
  *
  * @param activitiesInProcess The [Activity] list with the same process of the host task with
- *     empty list as the default value
+ *     empty list as the default value.
  * @param isEmpty Indicates whether this `ActivityStack` contains any [Activity] regardless of the
- *     process with `false` as the default value
- * @return An [ActivityStack] instance for testing
+ *     process with `false` as the default value.
+ * @return An [ActivityStack] instance for testing.
  */
 @Suppress("FunctionName")
-@ExperimentalWindowApi
 @JvmName("createTestActivityStack")
 @JvmOverloads
 fun TestActivityStack(
     activitiesInProcess: List<Activity> = emptyList(),
     isEmpty: Boolean = false,
 ): ActivityStack = ActivityStack(activitiesInProcess, isEmpty)
+
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+@VisibleForTesting
+@JvmField
+val TEST_ACTIVITY_STACK_TOKEN = Binder()

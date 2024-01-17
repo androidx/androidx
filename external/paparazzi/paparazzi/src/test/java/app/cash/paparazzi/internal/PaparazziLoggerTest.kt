@@ -1,10 +1,10 @@
 package app.cash.paparazzi.internal
 
 import app.cash.paparazzi.internal.PaparazziLogger.MultipleFailuresException
+import java.io.FileNotFoundException
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.fail
 import org.junit.Test
-import java.io.FileNotFoundException
 
 class PaparazziLoggerTest {
   @Test

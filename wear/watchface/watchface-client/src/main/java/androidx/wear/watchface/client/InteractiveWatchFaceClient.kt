@@ -37,7 +37,7 @@ import androidx.wear.watchface.ComplicationSlotsManager
 import androidx.wear.watchface.ContentDescriptionLabel
 import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.Renderer
-import androidx.wear.watchface.TapType
+import androidx.wear.watchface.TapTypeIntDef
 import androidx.wear.watchface.WatchFaceColors
 import androidx.wear.watchface.WatchFaceExperimental
 import androidx.wear.watchface.complications.data.ComplicationData
@@ -52,10 +52,12 @@ import androidx.wear.watchface.data.WatchFaceColorsWireFormat
 import androidx.wear.watchface.data.WatchUiState
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleData
+import androidx.wear.watchface.style.UserStyleFlavors
 import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting
 import androidx.wear.watchface.toApiFormat
 import androidx.wear.watchface.utility.TraceEvent
+import androidx.wear.watchface.utility.aidlMethod
 import java.time.Instant
 import java.util.concurrent.Executor
 
@@ -88,10 +90,10 @@ public object DisconnectReasons {
 }
 
 /**
- * Intended for use by watch face editors, a RemoteWatchFaceViewHost allows the watch face to send
- * a [SurfaceControlViewHost.SurfacePackage] to the client, which the client can attach to a
- * [SurfaceView] with [SurfaceView.setChildSurfacePackage]. The client can request an updated
- * screen shot by calling [renderWatchFace].
+ * Intended for use by watch face editors, a RemoteWatchFaceViewHost allows the watch face to send a
+ * [SurfaceControlViewHost.SurfacePackage] to the client, which the client can attach to a
+ * [SurfaceView] with [SurfaceView.setChildSurfacePackage]. The client can request an updated screen
+ * shot by calling [renderWatchFace].
  */
 public interface RemoteWatchFaceViewHost : AutoCloseable {
     /**
@@ -160,9 +162,7 @@ public interface InteractiveWatchFaceClient : AutoCloseable {
     ): Bitmap
 
     /** Whether or not the watch face supports [RemoteWatchFaceViewHost]. */
-    public val isRemoteWatchFaceViewHostSupported: Boolean
-        @get:JvmName("isRemoteWatchFaceViewHostSupported")
-        get() = false
+    public val isRemoteWatchFaceViewHostSupported: Boolean get() = false
 
     /**
      * Constructs a [RemoteWatchFaceViewHost] whose [RemoteWatchFaceViewHost.surfacePackage] can be
@@ -180,7 +180,7 @@ public interface InteractiveWatchFaceClient : AutoCloseable {
      * @param width The width of the view in pixels
      * @param height The height of the view in pixels
      * @return The [RemoteWatchFaceViewHost] or null if the client has already been closed or if the
-     * watch face is not compatible.
+     *   watch face is not compatible.
      */
     @Throws(RemoteException::class)
     @RequiresApi(Build.VERSION_CODES.R)
@@ -194,13 +194,17 @@ public interface InteractiveWatchFaceClient : AutoCloseable {
     @get:Throws(RemoteException::class) public val previewReferenceInstant: Instant
 
     /**
-     * The watchface's [OverlayStyle] which configures the system status overlay on Wear 3.0 and
-     * beyond. Note for older watch faces which don't support this, the default value will be
-     * returned.
+     * The watchface's [OverlayStyle] which may be null.
+     *
+     * Note while this plumbing got built, it was never used by the system ui on any platform
+     * and it will be removed.
      */
+    @Deprecated("OverlayStyle will be removed in a future release.")
     @get:Throws(RemoteException::class)
+    @Suppress("Deprecation")
     public val overlayStyle: OverlayStyle
         // Default implementation, overridden below.
+        @Suppress("Deprecation")
         get() = OverlayStyle()
 
     /**
@@ -217,9 +221,7 @@ public interface InteractiveWatchFaceClient : AutoCloseable {
     /**
      * Renames this instance to [newInstanceId] (must be unique, usually this would be different
      * from the old ID but that's not a requirement). Sets the current [UserStyle] represented as a
-     * [UserStyleData> and clears any complication data. Setting the new UserStyle may have a side
-     * effect of enabling or disabling complicationSlots, which will be visible via
-     * [ComplicationSlotState.isEnabled].
+     * [UserStyleData> and clears any complication data. Setting the new UserStyle may have a side effect of enabling or disabling complicationSlots, which will be visible via [ComplicationSlotState.isEnabled].
      */
     @Throws(RemoteException::class)
     public fun updateWatchFaceInstance(newInstanceId: String, userStyle: UserStyleData)
@@ -286,10 +288,10 @@ public interface InteractiveWatchFaceClient : AutoCloseable {
      *
      * @param xPosition The x-coordinate of the tap in pixels
      * @param yPosition The y-coordinate of the tap in pixels
-     * @param tapType The [TapType] of the event
+     * @param tapType The [TapTypeIntDef] of the event
      */
     @Throws(RemoteException::class)
-    public fun sendTouchEvent(@Px xPosition: Int, @Px yPosition: Int, @TapType tapType: Int)
+    public fun sendTouchEvent(@Px xPosition: Int, @Px yPosition: Int, @TapTypeIntDef tapType: Int)
 
     /**
      * Returns the [ContentDescriptionLabel]s describing the watch face, for the use by screen
@@ -400,6 +402,15 @@ public interface InteractiveWatchFaceClient : AutoCloseable {
      * becomes unlocked for affected complications.
      */
     public fun isComplicationDisplayPolicySupported() = false
+
+    /**
+     * Returns the watch face's [UserStyleFlavors].
+     *
+     * @throws [RuntimeException] if the watch face threw an exception while trying to service the
+     *   request or there was a communication problem with watch face process.
+     */
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    public fun getUserStyleFlavors(): UserStyleFlavors = UserStyleFlavors()
 }
 
 /** Controls a stateful remote interactive watch face. */
@@ -425,34 +436,39 @@ internal constructor(
 
     private val iWatchFaceListener =
         object : IWatchfaceListener.Stub() {
-            override fun getApiVersion() = IWatchfaceListener.API_VERSION
+            override fun getApiVersion() =
+                aidlMethod(TAG, "getApiVersion") { IWatchfaceListener.API_VERSION }
 
-            override fun onWatchfaceReady() {
-                this@InteractiveWatchFaceClientImpl.onWatchFaceReady()
-            }
-
-            override fun onWatchfaceColorsChanged(watchFaceColors: WatchFaceColorsWireFormat?) {
-                var listenerCopy: HashMap<Consumer<WatchFaceColors?>, Executor>
-
-                synchronized(lock) {
-                    listenerCopy = HashMap(watchFaceColorsChangeListeners)
-                    lastWatchFaceColors = watchFaceColors?.toApiFormat()
+            override fun onWatchfaceReady() =
+                aidlMethod(TAG, "onWatchfaceReady") {
+                    this@InteractiveWatchFaceClientImpl.onWatchFaceReady()
                 }
 
-                for ((listener, executor) in listenerCopy) {
-                    executor.execute { listener.accept(lastWatchFaceColors) }
-                }
-            }
+            override fun onWatchfaceColorsChanged(watchFaceColors: WatchFaceColorsWireFormat?) =
+                aidlMethod(TAG, "onWatchfaceColorsChanged") {
+                    var listenerCopy: HashMap<Consumer<WatchFaceColors?>, Executor>
 
-            override fun onPreviewImageUpdateRequested(watchFaceId: String) {
-                previewImageUpdateRequestedExecutor?.execute {
-                    previewImageUpdateRequestedListener!!.accept(watchFaceId)
-                }
-            }
+                    synchronized(lock) {
+                        listenerCopy = HashMap(watchFaceColorsChangeListeners)
+                        lastWatchFaceColors = watchFaceColors?.toApiFormat()
+                    }
 
-            override fun onEngineDetached() {
-                sendDisconnectNotification(DisconnectReasons.ENGINE_DETACHED)
-            }
+                    for ((listener, executor) in listenerCopy) {
+                        executor.execute { listener.accept(lastWatchFaceColors) }
+                    }
+                }
+
+            override fun onPreviewImageUpdateRequested(watchFaceId: String): Unit =
+                aidlMethod(TAG, "onPreviewImageUpdateRequested") {
+                    previewImageUpdateRequestedExecutor?.execute {
+                        previewImageUpdateRequestedListener!!.accept(watchFaceId)
+                    }
+                }
+
+            override fun onEngineDetached() =
+                aidlMethod(TAG, "onEngineDetached") {
+                    sendDisconnectNotification(DisconnectReasons.ENGINE_DETACHED)
+                }
         }
 
     init {
@@ -558,9 +574,12 @@ internal constructor(
         }
     }
 
-    override val previewReferenceInstant: Instant
-        get() = Instant.ofEpochMilli(iInteractiveWatchFace.previewReferenceTimeMillis)
+    override val previewReferenceInstant: Instant by lazy {
+        Instant.ofEpochMilli(iInteractiveWatchFace.previewReferenceTimeMillis)
+    }
 
+    @Suppress("Deprecation")
+    @Deprecated("OverlayStyle will be removed in a future release.")
     override val overlayStyle: OverlayStyle
         get() {
             if (iInteractiveWatchFace.apiVersion >= 4) {
@@ -603,7 +622,7 @@ internal constructor(
             synchronized(lock) { closed = true }
         }
 
-    override fun sendTouchEvent(xPosition: Int, yPosition: Int, @TapType tapType: Int) =
+    override fun sendTouchEvent(xPosition: Int, yPosition: Int, @TapTypeIntDef tapType: Int) =
         TraceEvent("InteractiveWatchFaceClientImpl.sendTouchEvent").use {
             iInteractiveWatchFace.sendTouchEvent(xPosition, yPosition, tapType)
         }
@@ -639,7 +658,7 @@ internal constructor(
                 disconnectListeners.put(listener, executor)
                 disconnectReason
             }
-        disconnectReasonCopy?.let { listener.onClientDisconnected(it) }
+        disconnectReasonCopy?.let { executor.execute { listener.onClientDisconnected(it) } }
     }
 
     override fun removeClientDisconnectListener(
@@ -661,11 +680,13 @@ internal constructor(
             iInteractiveWatchFace.apiVersion >= 2 -> {
                 iInteractiveWatchFace.addWatchfaceReadyListener(
                     object : IWatchfaceReadyListener.Stub() {
-                        override fun getApiVersion(): Int = IWatchfaceReadyListener.API_VERSION
+                        override fun getApiVersion(): Int =
+                            aidlMethod(TAG, "getApiVersion") { IWatchfaceReadyListener.API_VERSION }
 
-                        override fun onWatchfaceReady() {
-                            this@InteractiveWatchFaceClientImpl.onWatchFaceReady()
-                        }
+                        override fun onWatchfaceReady() =
+                            aidlMethod(TAG, "onWatchfaceReady") {
+                                this@InteractiveWatchFaceClientImpl.onWatchFaceReady()
+                            }
                     }
                 )
             }
@@ -739,7 +760,7 @@ internal constructor(
                 lastWatchFaceColors
             }
 
-        listener.accept(colors)
+        executor.execute { listener.accept(colors) }
     }
 
     @WatchFaceClientExperimental
@@ -773,5 +794,17 @@ internal constructor(
             }
         }
 
+    override fun getUserStyleFlavors(): UserStyleFlavors = callRemote {
+        if (iInteractiveWatchFace.apiVersion >= 10) {
+            UserStyleFlavors(iInteractiveWatchFace.userStyleFlavors)
+        } else {
+            UserStyleFlavors()
+        }
+    }
+
     override fun isComplicationDisplayPolicySupported() = iInteractiveWatchFace.apiVersion >= 8
+
+    companion object {
+        private const val TAG = "InteractiveWatchFaceClientImpl"
+    }
 }

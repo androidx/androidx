@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,14 +19,15 @@ package androidx.window.area
 import androidx.window.core.ExperimentalWindowApi
 
 /**
- * Session interface to represent a long-standing
- * WindowArea mode or feature that provides a handle
- * to close the session.
+ * Session interface to represent an active window area feature.
  *
- * @hide
- *
+ * @see WindowAreaSessionCallback.onSessionStarted
  */
 @ExperimentalWindowApi
 interface WindowAreaSession {
+
+    /**
+     * Closes the active session, no-op if the session is not currently active.
+     */
     fun close()
 }

@@ -26,12 +26,11 @@ import androidx.compose.ui.unit.Constraints
  * Abstracts away the subcomposition from the measuring logic.
  */
 @OptIn(ExperimentalFoundationApi::class)
-internal class LazyListMeasuredItemProvider @ExperimentalFoundationApi constructor(
+internal abstract class LazyListMeasuredItemProvider @ExperimentalFoundationApi constructor(
     constraints: Constraints,
     isVertical: Boolean,
     private val itemProvider: LazyListItemProvider,
-    private val measureScope: LazyLayoutMeasureScope,
-    private val measuredItemFactory: MeasuredItemFactory
+    private val measureScope: LazyLayoutMeasureScope
 ) {
     // the constraints we will measure child with. the main axis is not restricted
     val childConstraints = Constraints(
@@ -43,24 +42,23 @@ internal class LazyListMeasuredItemProvider @ExperimentalFoundationApi construct
      * Used to subcompose items of lazy lists. Composed placeables will be measured with the
      * correct constraints and wrapped into [LazyListMeasuredItem].
      */
-    fun getAndMeasure(index: DataIndex): LazyListMeasuredItem {
-        val key = itemProvider.getKey(index.value)
-        val placeables = measureScope.measure(index.value, childConstraints)
-        return measuredItemFactory.createItem(index, key, placeables)
+    fun getAndMeasure(index: Int): LazyListMeasuredItem {
+        val key = itemProvider.getKey(index)
+        val contentType = itemProvider.getContentType(index)
+        val placeables = measureScope.measure(index, childConstraints)
+        return createItem(index, key, contentType, placeables)
     }
 
     /**
      * Contains the mapping between the key and the index. It could contain not all the items of
      * the list as an optimization.
-     **/
-    val keyToIndexMap: LazyLayoutKeyIndexMap get() = itemProvider.keyToIndexMap
-}
+     */
+    val keyIndexMap: LazyLayoutKeyIndexMap get() = itemProvider.keyIndexMap
 
-// This interface allows to avoid autoboxing on index param
-internal fun interface MeasuredItemFactory {
-    fun createItem(
-        index: DataIndex,
+    abstract fun createItem(
+        index: Int,
         key: Any,
+        contentType: Any?,
         placeables: List<Placeable>
     ): LazyListMeasuredItem
 }

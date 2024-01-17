@@ -21,18 +21,18 @@ import android.app.Service
 import android.content.ComponentName
 import android.content.Intent
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
+import androidx.wear.protolayout.ResourceBuilders
 import androidx.wear.tiles.RequestBuilders
-import androidx.wear.tiles.ResourceBuilders
 import androidx.wear.tiles.TileBuilders
 import androidx.wear.tiles.TileService
 import androidx.wear.tiles.client.TileClient
 import androidx.wear.tiles.connection.DefaultTileClient
 import com.google.common.util.concurrent.ListenableFuture
+import java.util.concurrent.Executor
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.android.controller.ServiceController
-import java.util.concurrent.Executor
 
 /**
  * [TileClient] for testing purposes. This will pass calls through to the given instance of
@@ -46,8 +46,7 @@ import java.util.concurrent.Executor
  * unbind, but not destroy the service. If you wish to test service destruction, you can instead
  * call [Service.onDestroy] on the passed in `service` instance.
  */
-public class TestTileClient<T : TileService> :
-    TileClient {
+public class TestTileClient<T : TileService> : TileClient {
     private val controller: ServiceController<T>
     private val componentName: ComponentName
     private val innerTileService: DefaultTileClient
@@ -114,9 +113,20 @@ public class TestTileClient<T : TileService> :
         return innerTileService.requestTile(requestParams)
     }
 
-    override fun requestResources(
+    override fun requestTileResourcesAsync(
         requestParams: RequestBuilders.ResourcesRequest
     ): ListenableFuture<ResourceBuilders.Resources> {
+        maybeBind()
+        return innerTileService.requestTileResourcesAsync(requestParams)
+    }
+
+    @Deprecated(
+        "Use requestTileResourcesAsync instead.",
+        replaceWith = ReplaceWith("requestTileResourcesAsync"))
+    @Suppress("deprecation")
+    override fun requestResources(
+        requestParams: RequestBuilders.ResourcesRequest
+    ): ListenableFuture<androidx.wear.tiles.ResourceBuilders.Resources> {
         maybeBind()
         return innerTileService.requestResources(requestParams)
     }

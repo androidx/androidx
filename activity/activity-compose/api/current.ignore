@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+ChangedType: androidx.activity.compose.ManagedActivityResultLauncher#getContract():
+    Method androidx.activity.compose.ManagedActivityResultLauncher.getContract has changed return type from androidx.activity.result.contract.ActivityResultContract<I,?> to androidx.activity.result.contract.ActivityResultContract<I,O>

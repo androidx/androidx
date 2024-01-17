@@ -82,7 +82,10 @@ internal class MultiModalInjectionScopeImpl(node: SemanticsNode, testContext: Te
 
     // TODO(b/133217292): Better error: explain which gesture couldn't be performed
     private var _inputDispatcher: InputDispatcher? =
-        createInputDispatcher(testContext, checkNotNull(semanticsNode.root))
+        createInputDispatcher(
+            testContext,
+            checkNotNull(semanticsNode.root) { "null semantics root" }
+        )
     internal val inputDispatcher
         get() = checkNotNull(_inputDispatcher) {
             "Can't send gesture, InjectionScope has already been disposed"
@@ -110,11 +113,21 @@ internal class MultiModalInjectionScopeImpl(node: SemanticsNode, testContext: Te
      * @return [position] transformed to coordinates relative to the containing root.
      */
     internal fun localToRoot(position: Offset): Offset {
-        return position + boundsInRoot.topLeft
+        return if (position.isValid()) {
+            position + boundsInRoot.topLeft
+        } else {
+            // Allows invalid position to still pass back through Compose (for testing)
+            position
+        }
     }
 
     internal fun rootToLocal(position: Offset): Offset {
-        return position - boundsInRoot.topLeft
+        return if (position.isValid()) {
+            position - boundsInRoot.topLeft
+        } else {
+            // Allows invalid position to still pass back through Compose (for testing)
+            position
+        }
     }
 
     override val viewConfiguration: ViewConfiguration

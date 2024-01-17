@@ -26,6 +26,7 @@ import androidx.compose.material.Slider
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -42,8 +43,8 @@ fun LetterSpacingDemo() {
     Column(
         Modifier.padding(horizontal = 16.dp)
     ) {
-        var letterSpacing: Float by remember { mutableStateOf(0.0f) }
-        var fontSize: Float by remember { mutableStateOf(12f) }
+        var letterSpacing: Float by remember { mutableFloatStateOf(0.0f) }
+        var fontSize: Float by remember { mutableFloatStateOf(12f) }
 
         Text("LetterSpacing: ${letterSpacing.toString().take(4)}.sp")
         Slider(

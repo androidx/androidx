@@ -31,7 +31,6 @@ import androidx.car.app.CarContext;
 import androidx.car.app.HostDispatcher;
 import androidx.car.app.HostException;
 import androidx.car.app.R;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.managers.Manager;
 import androidx.car.app.utils.LogTags;
@@ -51,7 +50,6 @@ public class ConstraintManager implements Manager {
     /**
      * Represents the types of lists that apps can create.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @IntDef({CONTENT_LIMIT_TYPE_LIST, CONTENT_LIMIT_TYPE_GRID, CONTENT_LIMIT_TYPE_PLACE_LIST,
@@ -149,7 +147,6 @@ public class ConstraintManager implements Manager {
      *
      */
     @RequiresCarApi(6)
-    @ExperimentalCarApi
     public boolean isAppDrivenRefreshEnabled() {
         Boolean result;
         try {
@@ -188,7 +185,6 @@ public class ConstraintManager implements Manager {
     /**
      * Creates an instance of {@link ConstraintManager}.
      *
-     * @hide
      */
     @NonNull
     @RestrictTo(LIBRARY)

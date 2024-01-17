@@ -264,6 +264,7 @@
     <string name="tab_title_list" msgid="5104962518489668123">"Listaflipi"</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"Töfluflipi með löngum flipatitli"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"Leitarflipi"</string>
+    <string name="tab_title_loading" msgid="5385807479734490989">"Hleður flipa"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"Prufuútgáfa hleðslu flipasniðmáts"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"Prufuútgáfa flipasniðmáts með engum flipum"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"Ekki er hægt að birta myndir fyrir óþekktan hýsil"</string>
@@ -364,4 +365,8 @@
     <string name="route_options_demo_title" msgid="4599699012716426514">"Leiðarvalkostir"</string>
     <string name="avoid_highways_row_title" msgid="4711913426200490304">"Forðast þjóðvegi"</string>
     <string name="avoid_ferries_row_title" msgid="8232883866013711974">"Forðast ferju"</string>
+    <string name="map_demos_title" msgid="2169766615521476592">"Sýnishorn af korti"</string>
+    <string name="map_with_content_demo_title" msgid="1032610482145018739">"Sýnishorn af korti með efni"</string>
+    <string name="map_with_message_demo_title" msgid="7007078234918054436">"Sýnishorn af korti með skilaboðasniðmáti"</string>
+    <string name="map_with_grid_demo_title" msgid="688667167861193192">"Sýnishorn af korti með töflusniðmáti"</string>
 </resources>

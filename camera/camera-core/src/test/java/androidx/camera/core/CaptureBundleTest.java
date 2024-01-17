@@ -22,7 +22,7 @@ import android.os.Build;
 
 import androidx.camera.core.impl.CaptureBundle;
 import androidx.camera.core.impl.CaptureStage;
-import androidx.camera.testing.fakes.FakeCaptureStage;
+import androidx.camera.testing.impl.fakes.FakeCaptureStage;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

@@ -31,7 +31,6 @@ private const val UNDEFINED_NAME_PREFIX = "androidx.constraintlayout"
  * @see TransitionScope
  * @see ConstraintSetScope
  */
-@ExperimentalMotionApi
 fun MotionScene(
     motionSceneContent: MotionSceneScope.() -> Unit
 ): MotionScene {
@@ -42,7 +41,6 @@ fun MotionScene(
     )
 }
 
-@ExperimentalMotionApi
 internal class MotionSceneDslImpl(
     private val constraintSetsByName: Map<String, ConstraintSet>,
     private val transitionsByName: Map<String, Transition>
@@ -118,7 +116,6 @@ internal class MotionSceneDslImpl(
  * The [defaultTransition] **should always be set**. It defines the initial state of the layout and
  * works as a fallback for undefined `from -> to` transitions.
  */
-@ExperimentalMotionApi
 class MotionSceneScope internal constructor() {
     /**
      * Count of generated ConstraintSet & Transition names.
@@ -370,7 +367,7 @@ class MotionSceneScope internal constructor() {
      * The value is `Float.NaN` by default. Note that when all widgets are set to `Float.NaN`,
      * MotionLayout will use the default way of calculating the weight.
      *
-     * @see TransitionScope.staggered
+     * @see TransitionScope.maxStaggerDelay
      */
     var ConstrainScope.staggeredWeight: Float
         get() {
@@ -430,8 +427,7 @@ class MotionSceneScope internal constructor() {
         customPropertiesValue[name] = value.value
     }
 
-    private fun Color.toJsonHexString() =
-        "#${this.toArgb().toUInt().toString(16)}"
+    private fun Color.toJsonHexString(): String = String.format("#%08X", this.toArgb())
 }
 
 data class ConstraintSetRef internal constructor(

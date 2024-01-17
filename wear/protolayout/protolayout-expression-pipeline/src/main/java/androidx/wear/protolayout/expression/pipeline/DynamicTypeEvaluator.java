@@ -18,17 +18,16 @@ package androidx.wear.protolayout.expression.pipeline;
 
 import static java.util.Collections.emptyMap;
 
+import android.annotation.SuppressLint;
 import android.icu.util.ULocale;
-import android.os.Handler;
-import android.os.Looper;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
-import androidx.annotation.UiThread;
-import androidx.wear.protolayout.expression.DynamicBuilders;
+import androidx.annotation.VisibleForTesting;
+import androidx.collection.ArrayMap;
+import androidx.wear.protolayout.expression.PlatformDataKey;
 import androidx.wear.protolayout.expression.pipeline.BoolNodes.ComparisonFloatNode;
 import androidx.wear.protolayout.expression.pipeline.BoolNodes.ComparisonInt32Node;
 import androidx.wear.protolayout.expression.pipeline.BoolNodes.FixedBoolNode;
@@ -40,6 +39,8 @@ import androidx.wear.protolayout.expression.pipeline.ColorNodes.DynamicAnimatedC
 import androidx.wear.protolayout.expression.pipeline.ColorNodes.FixedColorNode;
 import androidx.wear.protolayout.expression.pipeline.ColorNodes.StateColorSourceNode;
 import androidx.wear.protolayout.expression.pipeline.DurationNodes.BetweenInstancesNode;
+import androidx.wear.protolayout.expression.pipeline.DurationNodes.FixedDurationNode;
+import androidx.wear.protolayout.expression.pipeline.DurationNodes.StateDurationSourceNode;
 import androidx.wear.protolayout.expression.pipeline.FloatNodes.AnimatableFixedFloatNode;
 import androidx.wear.protolayout.expression.pipeline.FloatNodes.ArithmeticFloatNode;
 import androidx.wear.protolayout.expression.pipeline.FloatNodes.DynamicAnimatedFloatNode;
@@ -48,24 +49,30 @@ import androidx.wear.protolayout.expression.pipeline.FloatNodes.Int32ToFloatNode
 import androidx.wear.protolayout.expression.pipeline.FloatNodes.StateFloatSourceNode;
 import androidx.wear.protolayout.expression.pipeline.InstantNodes.FixedInstantNode;
 import androidx.wear.protolayout.expression.pipeline.InstantNodes.PlatformTimeSourceNode;
+import androidx.wear.protolayout.expression.pipeline.InstantNodes.StateInstantSourceNode;
 import androidx.wear.protolayout.expression.pipeline.Int32Nodes.AnimatableFixedInt32Node;
 import androidx.wear.protolayout.expression.pipeline.Int32Nodes.ArithmeticInt32Node;
 import androidx.wear.protolayout.expression.pipeline.Int32Nodes.DynamicAnimatedInt32Node;
 import androidx.wear.protolayout.expression.pipeline.Int32Nodes.FixedInt32Node;
 import androidx.wear.protolayout.expression.pipeline.Int32Nodes.FloatToInt32Node;
 import androidx.wear.protolayout.expression.pipeline.Int32Nodes.GetDurationPartOpNode;
-import androidx.wear.protolayout.expression.pipeline.Int32Nodes.PlatformInt32SourceNode;
+import androidx.wear.protolayout.expression.pipeline.Int32Nodes.GetZonedDateTimePartOpNode;
+import androidx.wear.protolayout.expression.pipeline.Int32Nodes.LegacyPlatformInt32SourceNode;
 import androidx.wear.protolayout.expression.pipeline.Int32Nodes.StateInt32SourceNode;
 import androidx.wear.protolayout.expression.pipeline.StringNodes.FixedStringNode;
 import androidx.wear.protolayout.expression.pipeline.StringNodes.FloatFormatNode;
 import androidx.wear.protolayout.expression.pipeline.StringNodes.Int32FormatNode;
 import androidx.wear.protolayout.expression.pipeline.StringNodes.StateStringNode;
 import androidx.wear.protolayout.expression.pipeline.StringNodes.StringConcatOpNode;
-import androidx.wear.protolayout.expression.pipeline.sensor.SensorGateway;
+import androidx.wear.protolayout.expression.pipeline.ZonedDateTimeNodes.InstantToZonedDateTimeOpNode;
+import androidx.wear.protolayout.expression.proto.DynamicProto;
 import androidx.wear.protolayout.expression.proto.DynamicProto.AnimatableDynamicColor;
 import androidx.wear.protolayout.expression.proto.DynamicProto.AnimatableDynamicFloat;
 import androidx.wear.protolayout.expression.proto.DynamicProto.AnimatableDynamicInt32;
+import androidx.wear.protolayout.expression.proto.DynamicProto.ConditionalColorOp;
+import androidx.wear.protolayout.expression.proto.DynamicProto.ConditionalDurationOp;
 import androidx.wear.protolayout.expression.proto.DynamicProto.ConditionalFloatOp;
+import androidx.wear.protolayout.expression.proto.DynamicProto.ConditionalInstantOp;
 import androidx.wear.protolayout.expression.proto.DynamicProto.ConditionalInt32Op;
 import androidx.wear.protolayout.expression.proto.DynamicProto.ConditionalStringOp;
 import androidx.wear.protolayout.expression.proto.DynamicProto.DynamicBool;
@@ -75,12 +82,16 @@ import androidx.wear.protolayout.expression.proto.DynamicProto.DynamicFloat;
 import androidx.wear.protolayout.expression.proto.DynamicProto.DynamicInstant;
 import androidx.wear.protolayout.expression.proto.DynamicProto.DynamicInt32;
 import androidx.wear.protolayout.expression.proto.DynamicProto.DynamicString;
+import androidx.wear.protolayout.expression.proto.DynamicProto.DynamicZonedDateTime;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Executor;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Supplier;
 
 /**
  * Evaluates protolayout dynamic types.
@@ -90,18 +101,18 @@ import java.util.concurrent.Executor;
  *
  * <p>Data source can include animations which will then emit value transitions.
  *
- * <p>In order to evaluate dynamic types, the caller needs to add any number of pending dynamic
- * types with {@link #bind} methods and then call {@link BoundDynamicType#startEvaluation()} on each
- * of them to start evaluation. Starting evaluation can be done for batches of dynamic types.
- *
- * <p>It's the callers responsibility to destroy those dynamic types after use, with {@link
- * BoundDynamicType#close()}.
+ * <p>In order to evaluate dynamic types, the caller needs to create a {@link
+ * DynamicTypeBindingRequest}, bind it using {@link #bind(DynamicTypeBindingRequest)} method and
+ * then call {@link BoundDynamicType#startEvaluation()} on the resulted {@link BoundDynamicType} to
+ * start evaluation. Starting evaluation can be done for batches of dynamic types.
  *
  * <p>It's the callers responsibility to destroy those dynamic types after use, with {@link
  * BoundDynamicType#close()}.
  */
-public class DynamicTypeEvaluator implements AutoCloseable {
+public class DynamicTypeEvaluator {
     private static final String TAG = "DynamicTypeEvaluator";
+    private static final QuotaManager NO_OP_QUOTA_MANAGER =
+            new FixedQuotaManagerImpl(Integer.MAX_VALUE, "dynamic nodes noop");
 
     @NonNull
     private static final QuotaManager DISABLED_ANIMATIONS_QUOTA_MANAGER =
@@ -118,56 +129,61 @@ public class DynamicTypeEvaluator implements AutoCloseable {
                 }
             };
 
+    /** Exception thrown when the binding of a {@link DynamicTypeBindingRequest} fails. */
+    public static class EvaluationException extends Exception {
+        public EvaluationException(@NonNull String message) {
+            super(message);
+        }
+    }
+
     @NonNull private static final StateStore EMPTY_STATE_STORE = new StateStore(emptyMap());
 
-    @NonNull private final Config mConfig;
     @NonNull private final StateStore mStateStore;
+    @NonNull private final PlatformDataStore mPlatformDataStore;
     @NonNull private final QuotaManager mAnimationQuotaManager;
-    @NonNull private final TimeGateway mTimeGateway;
-    @Nullable private final EpochTimePlatformDataSource mTimeDataSource;
-    @Nullable private final SensorGatewayPlatformDataSource mSensorGatewayDataSource;
+    @NonNull private final QuotaManager mDynamicTypesQuotaManager;
+    @NonNull private final EpochTimePlatformDataSource mTimeDataSource;
 
-    /** Configuration for {@link #DynamicTypeEvaluator(Config)}. */
+    /** Configuration for creating {@link DynamicTypeEvaluator}. */
     public static final class Config {
-        private final boolean mPlatformDataSourcesInitiallyEnabled;
         @Nullable private final StateStore mStateStore;
         @Nullable private final QuotaManager mAnimationQuotaManager;
-        @Nullable private final TimeGateway mTimeGateway;
-        @Nullable private final SensorGateway mSensorGateway;
+        @Nullable private final QuotaManager mDynamicTypesQuotaManager;
+
+        @NonNull
+        private final Map<PlatformDataKey<?>, PlatformDataProvider> mSourceKeyToDataProviders =
+                new ArrayMap<>();
+
+        @Nullable private final PlatformTimeUpdateNotifier mPlatformTimeUpdateNotifier;
+        @Nullable private final Supplier<Instant> mClock;
 
         Config(
-                boolean platformDataSourcesInitiallyEnabled,
                 @Nullable StateStore stateStore,
                 @Nullable QuotaManager animationQuotaManager,
-                @Nullable TimeGateway timeGateway,
-                @Nullable SensorGateway sensorGateway) {
-            this.mPlatformDataSourcesInitiallyEnabled = platformDataSourcesInitiallyEnabled;
+                @Nullable QuotaManager dynamicTypesQuotaManager,
+                @NonNull Map<PlatformDataKey<?>, PlatformDataProvider> sourceKeyToDataProviders,
+                @Nullable PlatformTimeUpdateNotifier platformTimeUpdateNotifier,
+                @Nullable Supplier<Instant> clock) {
             this.mStateStore = stateStore;
             this.mAnimationQuotaManager = animationQuotaManager;
-            this.mTimeGateway = timeGateway;
-            this.mSensorGateway = sensorGateway;
+            this.mDynamicTypesQuotaManager = dynamicTypesQuotaManager;
+            this.mSourceKeyToDataProviders.putAll(sourceKeyToDataProviders);
+            this.mPlatformTimeUpdateNotifier = platformTimeUpdateNotifier;
+            this.mClock = clock;
         }
 
         /** Builds a {@link DynamicTypeEvaluator.Config}. */
         public static final class Builder {
-            private boolean mPlatformDataSourcesInitiallyEnabled = false;
             @Nullable private StateStore mStateStore = null;
             @Nullable private QuotaManager mAnimationQuotaManager = null;
-            @Nullable private TimeGateway mTimeGateway = null;
-            @Nullable private SensorGateway mSensorGateway = null;
+            @Nullable private QuotaManager mDynamicTypesQuotaManager = null;
 
-            /**
-             * Sets whether sending updates from sensor and time sources should be allowed
-             * initially. After that, enabling updates from sensor and time sources can be done via
-             * {@link #enablePlatformDataSources()} or {@link #disablePlatformDataSources()}.
-             *
-             * <p>Defaults to {@code false}.
-             */
             @NonNull
-            public Builder setPlatformDataSourcesInitiallyEnabled(boolean value) {
-                mPlatformDataSourcesInitiallyEnabled = value;
-                return this;
-            }
+            private final Map<PlatformDataKey<?>, PlatformDataProvider> mSourceKeyToDataProviders =
+                    new ArrayMap<>();
+
+            @Nullable private PlatformTimeUpdateNotifier mPlatformTimeUpdateNotifier = null;
+            @Nullable private Supplier<Instant> mClock = null;
 
             /**
              * Sets the state store that will be used for dereferencing the state keys in the
@@ -196,47 +212,83 @@ public class DynamicTypeEvaluator implements AutoCloseable {
             }
 
             /**
-             * Sets the gateway used for time data.
+             * Sets the quota manager used for limiting the total size of dynamic types in the
+             * pipeline.
              *
-             * <p>If not set, a default 1hz {@link TimeGateway} implementation that utilizes a
-             * main-thread {@code Handler} to trigger is used.
+             * <p>If not set, number of dynamic types will not be restricted.
              */
             @NonNull
-            public Builder setTimeGateway(@NonNull TimeGateway value) {
-                mTimeGateway = value;
+            public Builder setDynamicTypesQuotaManager(@NonNull QuotaManager value) {
+                mDynamicTypesQuotaManager = value;
                 return this;
             }
 
             /**
-             * Sets the gateway used for sensor data.
+             * Add a platform data provider and specify the keys it can provide dynamic data for.
              *
-             * <p>If not set, sensor data will not be available (sensor bindings will trigger {@link
-             * DynamicTypeValueReceiver#onInvalidated()}).
+             * <p>The provider must support at least one key. If the provider supports multiple
+             * keys, they should not be independent, as their values should always update together.
+             * One data key must not have multiple providers, or an exception will be thrown.
+             *
+             * @throws IllegalArgumentException If a PlatformDataProvider supports an empty key set
+             *     or if a key has multiple data providers.
+             */
+            @SuppressLint("MissingGetterMatchingBuilder")
+            @NonNull
+            public Builder addPlatformDataProvider(
+                    @NonNull PlatformDataProvider platformDataProvider,
+                    @NonNull Set<PlatformDataKey<?>> supportedDataKeys) {
+                if (supportedDataKeys.isEmpty()) {
+                    throw new IllegalArgumentException(
+                            "The PlatformDataProvider must support at least one key");
+                }
+                for (PlatformDataKey<?> dataKey : supportedDataKeys) {
+                    // Throws exception when one data key has multiple providers.
+                    if (mSourceKeyToDataProviders.containsKey(dataKey)) {
+                        throw new IllegalArgumentException(
+                                String.format(
+                                        "Multiple data providers for PlatformDataKey (%s)",
+                                        dataKey));
+                    }
+                    mSourceKeyToDataProviders.put(dataKey, platformDataProvider);
+                }
+
+                return this;
+            }
+
+            /**
+             * Sets the notifier used for updating the platform time data. If not set, by default
+             * platform time will be updated at 1Hz using a {@code Handler} on the main thread.
              */
             @NonNull
-            public Builder setSensorGateway(@NonNull SensorGateway value) {
-                mSensorGateway = value;
+            public Builder setPlatformTimeUpdateNotifier(
+                    @NonNull PlatformTimeUpdateNotifier notifier) {
+                this.mPlatformTimeUpdateNotifier = notifier;
+                return this;
+            }
+
+            /**
+             * Sets the clock ({@link Instant} supplier) used for providing time data to bindings.
+             * If not set, on every reevaluation, platform time for dynamic values will be set to
+             * {@link Instant#now()}.
+             */
+            @VisibleForTesting
+            @NonNull
+            public Builder setClock(@NonNull Supplier<Instant> clock) {
+                this.mClock = clock;
                 return this;
             }
 
             @NonNull
             public Config build() {
                 return new Config(
-                        mPlatformDataSourcesInitiallyEnabled,
                         mStateStore,
                         mAnimationQuotaManager,
-                        mTimeGateway,
-                        mSensorGateway);
+                        mDynamicTypesQuotaManager,
+                        mSourceKeyToDataProviders,
+                        mPlatformTimeUpdateNotifier,
+                        mClock);
             }
-        }
-
-        /**
-         * Gets whether sending updates from sensor and time sources should be allowed initially.
-         * After that, enabling updates from sensor and time sources can be done via {@link
-         * #enablePlatformDataSources()} or {@link #disablePlatformDataSources()}.
-         */
-        public boolean isPlatformDataSourcesInitiallyEnabled() {
-            return mPlatformDataSourcesInitiallyEnabled;
         }
 
         /**
@@ -260,374 +312,162 @@ public class DynamicTypeEvaluator implements AutoCloseable {
         }
 
         /**
-         * Gets the gateway used for sensor data, or {@code null} if sensor data is unavailable
-         * (sensor bindings will trigger {@link DynamicTypeValueReceiver#onInvalidated()}).
+         * Gets the quota manager used for limiting the total number of dynamic types in the
+         * pipeline, or {@code null} if there are no restriction on the number of dynamic types. If
+         * present, the quota manager is used to prevent unreasonably expensive expressions.
          */
         @Nullable
-        public SensorGateway getSensorGateway() {
-            return mSensorGateway;
+        public QuotaManager getDynamicTypesQuotaManager() {
+            return mDynamicTypesQuotaManager;
+        }
+
+        /** Returns any available mapping between source key and its data provider. */
+        @NonNull
+        public Map<PlatformDataKey<?>, PlatformDataProvider> getPlatformDataProviders() {
+            return new ArrayMap<>(
+                    (ArrayMap<PlatformDataKey<?>, PlatformDataProvider>) mSourceKeyToDataProviders);
         }
 
         /**
-         * Gets the gateway used for time data, or {@code null} if a default 1hz {@link TimeGateway}
-         * that utilizes a main-thread {@code Handler} to trigger is used.
+         * Returns the clock ({@link Instant} supplier) used for providing time data to bindings, or
+         * {@code null} which means on every reevaluation, platform time for dynamic values will be
+         * set to {@link Instant#now()}.
          */
+        @VisibleForTesting
         @Nullable
-        public TimeGateway getTimeGateway() {
-            return mTimeGateway;
+        public Supplier<Instant> getClock() {
+            return mClock;
+        }
+
+        /** Gets the notifier used for updating the platform time data. */
+        @Nullable
+        public PlatformTimeUpdateNotifier getPlatformTimeUpdateNotifier() {
+            return mPlatformTimeUpdateNotifier;
         }
     }
 
     /** Constructs a {@link DynamicTypeEvaluator}. */
     public DynamicTypeEvaluator(@NonNull Config config) {
-        this.mConfig = config;
         this.mStateStore =
                 config.getStateStore() != null ? config.getStateStore() : EMPTY_STATE_STORE;
         this.mAnimationQuotaManager =
                 config.getAnimationQuotaManager() != null
                         ? config.getAnimationQuotaManager()
                         : DISABLED_ANIMATIONS_QUOTA_MANAGER;
-        Handler uiHandler = new Handler(Looper.getMainLooper());
-        MainThreadExecutor uiExecutor = new MainThreadExecutor(uiHandler);
-        this.mTimeGateway =
-                config.getTimeGateway() != null
-                        ? config.getTimeGateway()
-                        : new TimeGatewayImpl(uiHandler);
-        this.mTimeDataSource = new EpochTimePlatformDataSource(uiExecutor, mTimeGateway);
-        if (config.isPlatformDataSourcesInitiallyEnabled()
-                && this.mTimeGateway instanceof TimeGatewayImpl) {
-            ((TimeGatewayImpl) this.mTimeGateway).enableUpdates();
+        this.mDynamicTypesQuotaManager =
+                config.getDynamicTypesQuotaManager() != null
+                        ? config.getDynamicTypesQuotaManager()
+                        : NO_OP_QUOTA_MANAGER;
+        this.mPlatformDataStore = new PlatformDataStore(config.getPlatformDataProviders());
+        PlatformTimeUpdateNotifier notifier = config.getPlatformTimeUpdateNotifier();
+        if (notifier == null) {
+            notifier = new PlatformTimeUpdateNotifierImpl();
+            ((PlatformTimeUpdateNotifierImpl) notifier).setUpdatesEnabled(true);
         }
-        if (config.getSensorGateway() != null) {
-            if (config.isPlatformDataSourcesInitiallyEnabled()) {
-                config.getSensorGateway().enableUpdates();
-            } else {
-                config.getSensorGateway().disableUpdates();
-            }
-            this.mSensorGatewayDataSource =
-                    new SensorGatewayPlatformDataSource(uiExecutor, config.getSensorGateway());
-        } else {
-            this.mSensorGatewayDataSource = null;
-        }
+        Supplier<Instant> clock = config.getClock() != null ? config.getClock() : Instant::now;
+        this.mTimeDataSource = new EpochTimePlatformDataSource(clock, notifier);
     }
 
     /**
-     * Adds dynamic type from the given {@link DynamicBuilders.DynamicString} for evaluation.
+     * Binds a {@link DynamicTypeBindingRequest}.
      *
-     * <p>Evaluation of this dynamic type will start when {@link BoundDynamicType#startEvaluation()}
-     * is called on the returned object.
+     * <p>Evaluation of this request will start when {@link BoundDynamicType#startEvaluation()} is
+     * called on the returned object.
      *
-     * <p>Results of evaluation will be sent through the given {@link DynamicTypeValueReceiver} on
-     * the given {@link Executor}.
-     *
-     * @param stringSource The given String dynamic type that should be evaluated.
-     * @param locale The locale used for the given String source.
-     * @param executor The Executor to run the consumer on.
-     * @param consumer The registered consumer for results of the evaluation. It will be called from
-     *     UI thread.
+     * @throws EvaluationException when {@link QuotaManager} fails to allocate enough quota to bind
+     *     the {@link DynamicTypeBindingRequest}.
      */
     @NonNull
-    public BoundDynamicType bind(
-            @NonNull DynamicBuilders.DynamicString stringSource,
-            @NonNull ULocale locale,
-            @NonNull Executor executor,
-            @NonNull DynamicTypeValueReceiver<String> consumer) {
-        return bind(
-                stringSource.toDynamicStringProto(),
-                locale,
-                new DynamicTypeValueReceiverOnExecutor<>(executor, consumer));
+    public BoundDynamicType bind(@NonNull DynamicTypeBindingRequest request)
+            throws EvaluationException {
+        BoundDynamicTypeImpl boundDynamicType = request.callBindOn(this);
+        if (!mDynamicTypesQuotaManager.tryAcquireQuota(boundDynamicType.getDynamicNodeCount())) {
+            throw new EvaluationException(
+                    "Dynamic type expression limit reached. Try making the dynamic type expression"
+                            + " shorter or reduce the number of dynamic type expressions.");
+        }
+        return boundDynamicType;
     }
 
-    /**
-     * Adds pending dynamic type from the given {@link DynamicString} for future evaluation.
-     *
-     * <p>Evaluation of this dynamic type will start when {@link BoundDynamicType#startEvaluation()}
-     * is called on the returned object.
-     *
-     * @param stringSource The given String dynamic type that should be evaluated.
-     * @param consumer The registered consumer for results of the evaluation. It will be called from
-     *     UI thread.
-     * @param locale The locale used for the given String source.
-     */
     @NonNull
     @RestrictTo(Scope.LIBRARY_GROUP)
-    public BoundDynamicType bind(
+    BoundDynamicTypeImpl bindInternal(
             @NonNull DynamicString stringSource,
             @NonNull ULocale locale,
-            @NonNull DynamicTypeValueReceiver<String> consumer) {
+            @NonNull DynamicTypeValueReceiverWithPreUpdate<String> consumer) {
         List<DynamicDataNode<?>> resultBuilder = new ArrayList<>();
-        bindRecursively(
-                stringSource,
-                new DynamicTypeValueReceiverOnExecutor<>(consumer),
-                locale,
-                resultBuilder);
-        return new BoundDynamicTypeImpl(resultBuilder);
+        bindRecursively(stringSource, consumer, locale, resultBuilder);
+        return new BoundDynamicTypeImpl(resultBuilder, mDynamicTypesQuotaManager);
     }
 
-    /**
-     * Adds dynamic type from the given {@link DynamicBuilders.DynamicInt32} for evaluation.
-     *
-     * <p>Evaluation of this dynamic type will start when {@link BoundDynamicType#startEvaluation()}
-     * is called on the returned object.
-     *
-     * <p>Results of evaluation will be sent through the given {@link DynamicTypeValueReceiver} on
-     * the given {@link Executor}.
-     *
-     * @param int32Source The given integer dynamic type that should be evaluated.
-     * @param executor The Executor to run the consumer on.
-     * @param consumer The registered consumer for results of the evaluation. It will be called from
-     *     UI thread.
-     */
-    @NonNull
-    public BoundDynamicType bind(
-            @NonNull DynamicBuilders.DynamicInt32 int32Source,
-            @NonNull Executor executor,
-            @NonNull DynamicTypeValueReceiver<Integer> consumer) {
-        return bind(
-                int32Source.toDynamicInt32Proto(),
-                new DynamicTypeValueReceiverOnExecutor<>(executor, consumer));
-    }
-
-    /**
-     * Adds pending dynamic type from the given {@link DynamicInt32} for future evaluation.
-     *
-     * <p>Evaluation of this dynamic type will start when {@link BoundDynamicType#startEvaluation()}
-     * is called on the returned object.
-     *
-     * @param int32Source The given integer dynamic type that should be evaluated.
-     * @param consumer The registered consumer for results of the evaluation. It will be called from
-     *     UI thread.
-     */
     @NonNull
     @RestrictTo(Scope.LIBRARY_GROUP)
-    public BoundDynamicType bind(
+    BoundDynamicTypeImpl bindInternal(
             @NonNull DynamicInt32 int32Source,
-            @NonNull DynamicTypeValueReceiver<Integer> consumer) {
+            @NonNull DynamicTypeValueReceiverWithPreUpdate<Integer> consumer) {
         List<DynamicDataNode<?>> resultBuilder = new ArrayList<>();
-        bindRecursively(
-                int32Source, new DynamicTypeValueReceiverOnExecutor<>(consumer), resultBuilder);
-        return new BoundDynamicTypeImpl(resultBuilder);
+        bindRecursively(int32Source, consumer, resultBuilder);
+        return new BoundDynamicTypeImpl(resultBuilder, mDynamicTypesQuotaManager);
     }
 
-    /**
-     * Adds dynamic type from the given {@link DynamicBuilders.DynamicFloat} for evaluation.
-     *
-     * <p>Evaluation of this dynamic type will start when {@link BoundDynamicType#startEvaluation()}
-     * is called on the returned object.
-     *
-     * <p>Results of evaluation will be sent through the given {@link DynamicTypeValueReceiver} on
-     * the given {@link Executor}.
-     *
-     * @param floatSource The given float dynamic type that should be evaluated.
-     * @param executor The Executor to run the consumer on.
-     * @param consumer The registered consumer for results of the evaluation. It will be called from
-     *     UI thread.
-     */
-    @NonNull
-    public BoundDynamicType bind(
-            @NonNull DynamicBuilders.DynamicFloat floatSource,
-            @NonNull Executor executor,
-            @NonNull DynamicTypeValueReceiver<Float> consumer) {
-        return bind(
-                floatSource.toDynamicFloatProto(),
-                new DynamicTypeValueReceiverOnExecutor<>(executor, consumer));
-    }
-
-    /**
-     * Adds pending dynamic type from the given {@link DynamicFloat} for future evaluation.
-     *
-     * <p>Evaluation of this dynamic type will start when {@link BoundDynamicType#startEvaluation()}
-     * is called on the returned object.
-     *
-     * @param floatSource The given float dynamic type that should be evaluated.
-     * @param consumer The registered consumer for results of the evaluation. It will be called from
-     *     UI thread.
-     */
     @NonNull
     @RestrictTo(Scope.LIBRARY_GROUP)
-    public BoundDynamicType bind(
-            @NonNull DynamicFloat floatSource, @NonNull DynamicTypeValueReceiver<Float> consumer) {
+    BoundDynamicTypeImpl bindInternal(
+            @NonNull DynamicFloat floatSource,
+            @NonNull DynamicTypeValueReceiverWithPreUpdate<Float> consumer) {
         List<DynamicDataNode<?>> resultBuilder = new ArrayList<>();
-        bindRecursively(
-                floatSource, new DynamicTypeValueReceiverOnExecutor<>(consumer), resultBuilder);
-        return new BoundDynamicTypeImpl(resultBuilder);
+        bindRecursively(floatSource, consumer, resultBuilder);
+        return new BoundDynamicTypeImpl(resultBuilder, mDynamicTypesQuotaManager);
     }
 
-    /**
-     * Adds dynamic type from the given {@link DynamicBuilders.DynamicColor} for evaluation.
-     *
-     * <p>Evaluation of this dynamic type will start when {@link BoundDynamicType#startEvaluation()}
-     * is called on the returned object.
-     *
-     * <p>Results of evaluation will be sent through the given {@link DynamicTypeValueReceiver} on
-     * the given {@link Executor}.
-     *
-     * @param colorSource The given color dynamic type that should be evaluated.
-     * @param executor The Executor to run the consumer on.
-     * @param consumer The registered consumer for results of the evaluation. It will be called from
-     *     UI thread.
-     */
-    @NonNull
-    public BoundDynamicType bind(
-            @NonNull DynamicBuilders.DynamicColor colorSource,
-            @NonNull Executor executor,
-            @NonNull DynamicTypeValueReceiver<Integer> consumer) {
-        return bind(
-                colorSource.toDynamicColorProto(),
-                new DynamicTypeValueReceiverOnExecutor<>(executor, consumer));
-    }
-
-    /**
-     * Adds pending dynamic type from the given {@link DynamicColor} for future evaluation.
-     *
-     * <p>Evaluation of this dynamic type will start when {@link BoundDynamicType#startEvaluation()}
-     * is called on the returned object.
-     *
-     * @param colorSource The given color dynamic type that should be evaluated.
-     * @param consumer The registered consumer for results of the evaluation. It will be called from
-     *     UI thread.
-     */
     @NonNull
     @RestrictTo(Scope.LIBRARY_GROUP)
-    public BoundDynamicType bind(
+    BoundDynamicTypeImpl bindInternal(
             @NonNull DynamicColor colorSource,
-            @NonNull DynamicTypeValueReceiver<Integer> consumer) {
+            @NonNull DynamicTypeValueReceiverWithPreUpdate<Integer> consumer) {
         List<DynamicDataNode<?>> resultBuilder = new ArrayList<>();
-        bindRecursively(
-                colorSource, new DynamicTypeValueReceiverOnExecutor<>(consumer), resultBuilder);
-        return new BoundDynamicTypeImpl(resultBuilder);
+        bindRecursively(colorSource, consumer, resultBuilder);
+        return new BoundDynamicTypeImpl(resultBuilder, mDynamicTypesQuotaManager);
     }
 
-    /**
-     * Adds dynamic type from the given {@link DynamicBuilders.DynamicDuration} for evaluation.
-     *
-     * <p>Evaluation of this dynamic type will start when {@link BoundDynamicType#startEvaluation()}
-     * is called on the returned object.
-     *
-     * <p>Results of evaluation will be sent through the given {@link DynamicTypeValueReceiver} on
-     * the given {@link Executor}.
-     *
-     * @param durationSource The given duration dynamic type that should be evaluated.
-     * @param executor The Executor to run the consumer on.
-     * @param consumer The registered consumer for results of the evaluation. It will be called from
-     *     UI thread.
-     */
-    @NonNull
-    public BoundDynamicType bind(
-            @NonNull DynamicBuilders.DynamicDuration durationSource,
-            @NonNull Executor executor,
-            @NonNull DynamicTypeValueReceiver<Duration> consumer) {
-        return bind(
-                durationSource.toDynamicDurationProto(),
-                new DynamicTypeValueReceiverOnExecutor<>(executor, consumer));
-    }
-
-    /**
-     * Adds pending dynamic type from the given {@link DynamicDuration} for future evaluation.
-     *
-     * <p>Evaluation of this dynamic type will start when {@link BoundDynamicType#startEvaluation()}
-     * is called on the returned object.
-     *
-     * @param durationSource The given durations dynamic type that should be evaluated.
-     * @param consumer The registered consumer for results of the evaluation. It will be called from
-     *     UI thread.
-     */
     @NonNull
     @RestrictTo(Scope.LIBRARY_GROUP)
-    public BoundDynamicType bind(
+    BoundDynamicTypeImpl bindInternal(
             @NonNull DynamicDuration durationSource,
-            @NonNull DynamicTypeValueReceiver<Duration> consumer) {
+            @NonNull DynamicTypeValueReceiverWithPreUpdate<Duration> consumer) {
         List<DynamicDataNode<?>> resultBuilder = new ArrayList<>();
-        bindRecursively(
-                durationSource, new DynamicTypeValueReceiverOnExecutor<>(consumer), resultBuilder);
-        return new BoundDynamicTypeImpl(resultBuilder);
+        bindRecursively(durationSource, consumer, resultBuilder);
+        return new BoundDynamicTypeImpl(resultBuilder, mDynamicTypesQuotaManager);
     }
 
-    /**
-     * Adds dynamic type from the given {@link DynamicBuilders.DynamicInstant} for evaluation.
-     *
-     * <p>Evaluation of this dynamic type will start when {@link BoundDynamicType#startEvaluation()}
-     * is called on the returned object.
-     *
-     * <p>Results of evaluation will be sent through the given {@link DynamicTypeValueReceiver} on
-     * the given {@link Executor}.
-     *
-     * @param instantSource The given instant dynamic type that should be evaluated.
-     * @param executor The Executor to run the consumer on.
-     * @param consumer The registered consumer for results of the evaluation. It will be called from
-     *     UI thread.
-     */
-    @NonNull
-    public BoundDynamicType bind(
-            @NonNull DynamicBuilders.DynamicInstant instantSource,
-            @NonNull Executor executor,
-            @NonNull DynamicTypeValueReceiver<Instant> consumer) {
-        return bind(
-                instantSource.toDynamicInstantProto(),
-                new DynamicTypeValueReceiverOnExecutor<>(executor, consumer));
-    }
-
-    /**
-     * Adds pending dynamic type from the given {@link DynamicInstant} for future evaluation.
-     *
-     * <p>Evaluation of this dynamic type will start when {@link BoundDynamicType#startEvaluation()}
-     * is called on the returned object.
-     *
-     * @param instantSource The given instant dynamic type that should be evaluated.
-     * @param consumer The registered consumer for results of the evaluation. It will be called from
-     *     UI thread.
-     */
     @NonNull
     @RestrictTo(Scope.LIBRARY_GROUP)
-    public BoundDynamicType bind(
+    BoundDynamicTypeImpl bindInternal(
             @NonNull DynamicInstant instantSource,
-            @NonNull DynamicTypeValueReceiver<Instant> consumer) {
+            @NonNull DynamicTypeValueReceiverWithPreUpdate<Instant> consumer) {
         List<DynamicDataNode<?>> resultBuilder = new ArrayList<>();
-        bindRecursively(
-                instantSource, new DynamicTypeValueReceiverOnExecutor<>(consumer), resultBuilder);
-        return new BoundDynamicTypeImpl(resultBuilder);
+        bindRecursively(instantSource, consumer, resultBuilder);
+        return new BoundDynamicTypeImpl(resultBuilder, mDynamicTypesQuotaManager);
     }
 
-    /**
-     * Adds dynamic type from the given {@link DynamicBuilders.DynamicBool} for evaluation.
-     * Evaluation will start immediately.
-     *
-     * <p>Results of evaluation will be sent through the given {@link DynamicTypeValueReceiver} on
-     * the given {@link Executor}.
-     *
-     * @param boolSource The given boolean dynamic type that should be evaluated.
-     * @param executor The Executor to run the consumer on.
-     * @param consumer The registered consumer for results of the evaluation. It will be called from
-     *     UI thread.
-     */
-    @NonNull
-    public BoundDynamicType bind(
-            @NonNull DynamicBuilders.DynamicBool boolSource,
-            @NonNull Executor executor,
-            @NonNull DynamicTypeValueReceiver<Boolean> consumer) {
-        return bind(
-                boolSource.toDynamicBoolProto(),
-                new DynamicTypeValueReceiverOnExecutor<>(executor, consumer));
-    }
-
-    /**
-     * Adds pending dynamic type from the given {@link DynamicBool} for future evaluation.
-     *
-     * <p>Evaluation of this dynamic type will start when {@link BoundDynamicType#startEvaluation()}
-     * is called on the returned object.
-     *
-     * @param boolSource The given boolean dynamic type that should be evaluated.
-     * @param consumer The registered consumer for results of the evaluation. It will be called from
-     *     UI thread.
-     */
     @NonNull
     @RestrictTo(Scope.LIBRARY_GROUP)
-    public BoundDynamicType bind(
-            @NonNull DynamicBool boolSource, @NonNull DynamicTypeValueReceiver<Boolean> consumer) {
+    BoundDynamicTypeImpl bindInternal(
+            @NonNull DynamicZonedDateTime zdtSource,
+            @NonNull DynamicTypeValueReceiverWithPreUpdate<ZonedDateTime> consumer) {
         List<DynamicDataNode<?>> resultBuilder = new ArrayList<>();
-        bindRecursively(
-                boolSource, new DynamicTypeValueReceiverOnExecutor<>(consumer), resultBuilder);
-        return new BoundDynamicTypeImpl(resultBuilder);
+        bindRecursively(zdtSource, consumer, resultBuilder);
+        return new BoundDynamicTypeImpl(resultBuilder, mDynamicTypesQuotaManager);
+    }
+
+    @NonNull
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    BoundDynamicTypeImpl bindInternal(
+            @NonNull DynamicBool boolSource,
+            @NonNull DynamicTypeValueReceiverWithPreUpdate<Boolean> consumer) {
+        List<DynamicDataNode<?>> resultBuilder = new ArrayList<>();
+        bindRecursively(boolSource, consumer, resultBuilder);
+        return new BoundDynamicTypeImpl(resultBuilder, mDynamicTypesQuotaManager);
     }
 
     /**
@@ -671,9 +511,14 @@ public class DynamicTypeEvaluator implements AutoCloseable {
                 }
             case STATE_SOURCE:
                 {
+                    DynamicProto.StateStringSource stateSource = stringSource.getStateSource();
                     node =
                             new StateStringNode(
-                                    mStateStore, stringSource.getStateSource(), consumer);
+                                    stateSource.getSourceNamespace().isEmpty()
+                                            ? mStateStore
+                                            : mPlatformDataStore,
+                                    stateSource,
+                                    consumer);
                     break;
                 }
             case CONDITIONAL_OP:
@@ -705,12 +550,12 @@ public class DynamicTypeEvaluator implements AutoCloseable {
                     node = concatNode;
                     bindRecursively(
                             stringSource.getConcatOp().getInputLhs(),
-                            concatNode.getLhsIncomingCallback(),
+                            concatNode.getLhsUpstreamCallback(),
                             locale,
                             resultBuilder);
                     bindRecursively(
                             stringSource.getConcatOp().getInputRhs(),
-                            concatNode.getRhsIncomingCallback(),
+                            concatNode.getRhsUpstreamCallback(),
                             locale,
                             resultBuilder);
                     break;
@@ -739,12 +584,12 @@ public class DynamicTypeEvaluator implements AutoCloseable {
                 node = new FixedInt32Node(int32Source.getFixed(), consumer);
                 break;
             case PLATFORM_SOURCE:
-                node =
-                        new PlatformInt32SourceNode(
-                                int32Source.getPlatformSource(),
-                                mSensorGatewayDataSource,
-                                consumer);
-                break;
+                {
+                    node =
+                            new LegacyPlatformInt32SourceNode(
+                                    mPlatformDataStore, int32Source.getPlatformSource(), consumer);
+                    break;
+                }
             case ARITHMETIC_OPERATION:
                 {
                     ArithmeticInt32Node arithmeticNode =
@@ -753,20 +598,25 @@ public class DynamicTypeEvaluator implements AutoCloseable {
 
                     bindRecursively(
                             int32Source.getArithmeticOperation().getInputLhs(),
-                            arithmeticNode.getLhsIncomingCallback(),
+                            arithmeticNode.getLhsUpstreamCallback(),
                             resultBuilder);
                     bindRecursively(
                             int32Source.getArithmeticOperation().getInputRhs(),
-                            arithmeticNode.getRhsIncomingCallback(),
+                            arithmeticNode.getRhsUpstreamCallback(),
                             resultBuilder);
 
                     break;
                 }
             case STATE_SOURCE:
                 {
+                    DynamicProto.StateInt32Source stateSource = int32Source.getStateSource();
                     node =
                             new StateInt32SourceNode(
-                                    mStateStore, int32Source.getStateSource(), consumer);
+                                    stateSource.getSourceNamespace().isEmpty()
+                                            ? mStateStore
+                                            : mPlatformDataStore,
+                                    stateSource,
+                                    consumer);
                     break;
                 }
             case CONDITIONAL_OP:
@@ -811,6 +661,19 @@ public class DynamicTypeEvaluator implements AutoCloseable {
                     bindRecursively(
                             int32Source.getDurationPart().getInput(),
                             durationPartOpNode.getIncomingCallback(),
+                            resultBuilder);
+                    break;
+                }
+            case ZONED_DATE_TIME_PART:
+                {
+                    GetZonedDateTimePartOpNode zdtPartOpNode =
+                            new GetZonedDateTimePartOpNode(
+                                    int32Source.getZonedDateTimePart(), consumer);
+                    node = zdtPartOpNode;
+
+                    bindRecursively(
+                            int32Source.getZonedDateTimePart().getInput(),
+                            zdtPartOpNode.getIncomingCallback(),
                             resultBuilder);
                     break;
                 }
@@ -863,17 +726,84 @@ public class DynamicTypeEvaluator implements AutoCloseable {
                 node = betweenInstancesNode;
                 bindRecursively(
                         durationSource.getBetween().getStartInclusive(),
-                        betweenInstancesNode.getLhsIncomingCallback(),
+                        betweenInstancesNode.getLhsUpstreamCallback(),
                         resultBuilder);
                 bindRecursively(
                         durationSource.getBetween().getEndExclusive(),
-                        betweenInstancesNode.getRhsIncomingCallback(),
+                        betweenInstancesNode.getRhsUpstreamCallback(),
                         resultBuilder);
                 break;
+            case FIXED:
+                node = new FixedDurationNode(durationSource.getFixed(), consumer);
+                break;
+            case CONDITIONAL_OP:
+                ConditionalOpNode<Duration> conditionalNode = new ConditionalOpNode<>(consumer);
+
+                ConditionalDurationOp op = durationSource.getConditionalOp();
+                bindRecursively(
+                        op.getCondition(),
+                        conditionalNode.getConditionIncomingCallback(),
+                        resultBuilder);
+                bindRecursively(
+                        op.getValueIfTrue(),
+                        conditionalNode.getTrueValueIncomingCallback(),
+                        resultBuilder);
+                bindRecursively(
+                        op.getValueIfFalse(),
+                        conditionalNode.getFalseValueIncomingCallback(),
+                        resultBuilder);
+
+                node = conditionalNode;
+                break;
+            case STATE_SOURCE:
+                {
+                    DynamicProto.StateDurationSource stateSource = durationSource.getStateSource();
+                    node =
+                            new StateDurationSourceNode(
+                                    stateSource.getSourceNamespace().isEmpty()
+                                            ? mStateStore
+                                            : mPlatformDataStore,
+                                    stateSource,
+                                    consumer);
+                    break;
+                }
             case INNER_NOT_SET:
                 throw new IllegalArgumentException("DynamicDuration has no inner source set");
             default:
                 throw new IllegalArgumentException("Unknown DynamicDuration source type");
+        }
+
+        resultBuilder.add(node);
+    }
+
+    /**
+     * Same as {@link #bind}, but instead of returning one {@link BoundDynamicType}, all {@link
+     * DynamicDataNode} produced by evaluating given dynamic type are added to the given list.
+     */
+    private void bindRecursively(
+            @NonNull DynamicZonedDateTime zdtSource,
+            @NonNull DynamicTypeValueReceiverWithPreUpdate<ZonedDateTime> consumer,
+            @NonNull List<DynamicDataNode<?>> resultBuilder) {
+        DynamicDataNode<?> node;
+
+        switch (zdtSource.getInnerCase()) {
+            case INSTANT_TO_ZONED_DATE_TIME:
+                {
+                    InstantToZonedDateTimeOpNode conversionNode =
+                            new InstantToZonedDateTimeOpNode(
+                                    zdtSource.getInstantToZonedDateTime(), consumer);
+                    node = conversionNode;
+
+                    bindRecursively(
+                            zdtSource.getInstantToZonedDateTime().getInstant(),
+                            conversionNode.getIncomingCallback(),
+                            resultBuilder);
+                    break;
+                }
+            case INNER_NOT_SET:
+                throw new IllegalArgumentException("DynamicZonedDateTime has no inner source set");
+            default:
+                throw new IllegalArgumentException("Unknown DynamicZonedDateTime source type");
         }
 
         resultBuilder.add(node);
@@ -896,7 +826,38 @@ public class DynamicTypeEvaluator implements AutoCloseable {
             case PLATFORM_SOURCE:
                 node = new PlatformTimeSourceNode(mTimeDataSource, consumer);
                 break;
+            case CONDITIONAL_OP:
+                ConditionalOpNode<Instant> conditionalNode = new ConditionalOpNode<>(consumer);
 
+                ConditionalInstantOp op = instantSource.getConditionalOp();
+                bindRecursively(
+                        op.getCondition(),
+                        conditionalNode.getConditionIncomingCallback(),
+                        resultBuilder);
+                bindRecursively(
+                        op.getValueIfTrue(),
+                        conditionalNode.getTrueValueIncomingCallback(),
+                        resultBuilder);
+                bindRecursively(
+                        op.getValueIfFalse(),
+                        conditionalNode.getFalseValueIncomingCallback(),
+                        resultBuilder);
+
+                node = conditionalNode;
+                break;
+
+            case STATE_SOURCE:
+                {
+                    DynamicProto.StateInstantSource stateSource = instantSource.getStateSource();
+                    node =
+                            new StateInstantSourceNode(
+                                    stateSource.getSourceNamespace().isEmpty()
+                                            ? mStateStore
+                                            : mPlatformDataStore,
+                                    stateSource,
+                                    consumer);
+                    break;
+                }
             case INNER_NOT_SET:
                 throw new IllegalArgumentException("DynamicInstant has no inner source set");
             default:
@@ -921,10 +882,17 @@ public class DynamicTypeEvaluator implements AutoCloseable {
                 node = new FixedFloatNode(floatSource.getFixed(), consumer);
                 break;
             case STATE_SOURCE:
-                node =
-                        new StateFloatSourceNode(
-                                mStateStore, floatSource.getStateSource(), consumer);
-                break;
+                {
+                    DynamicProto.StateFloatSource stateSource = floatSource.getStateSource();
+                    node =
+                            new StateFloatSourceNode(
+                                    stateSource.getSourceNamespace().isEmpty()
+                                            ? mStateStore
+                                            : mPlatformDataStore,
+                                    stateSource,
+                                    consumer);
+                    break;
+                }
             case ARITHMETIC_OPERATION:
                 {
                     ArithmeticFloatNode arithmeticNode =
@@ -933,11 +901,11 @@ public class DynamicTypeEvaluator implements AutoCloseable {
 
                     bindRecursively(
                             floatSource.getArithmeticOperation().getInputLhs(),
-                            arithmeticNode.getLhsIncomingCallback(),
+                            arithmeticNode.getLhsUpstreamCallback(),
                             resultBuilder);
                     bindRecursively(
                             floatSource.getArithmeticOperation().getInputRhs(),
-                            arithmeticNode.getRhsIncomingCallback(),
+                            arithmeticNode.getRhsUpstreamCallback(),
                             resultBuilder);
 
                     break;
@@ -1022,9 +990,14 @@ public class DynamicTypeEvaluator implements AutoCloseable {
                 node = new FixedColorNode(colorSource.getFixed(), consumer);
                 break;
             case STATE_SOURCE:
+                DynamicProto.StateColorSource stateSource = colorSource.getStateSource();
                 node =
                         new StateColorSourceNode(
-                                mStateStore, colorSource.getStateSource(), consumer);
+                                stateSource.getSourceNamespace().isEmpty()
+                                        ? mStateStore
+                                        : mPlatformDataStore,
+                                stateSource,
+                                consumer);
                 break;
             case ANIMATABLE_FIXED:
                 // We don't have to check if enableAnimations is true, because if it's false and
@@ -1048,6 +1021,25 @@ public class DynamicTypeEvaluator implements AutoCloseable {
 
                 bindRecursively(
                         dynamicNode.getInput(), animationNode.getInputCallback(), resultBuilder);
+                break;
+            case CONDITIONAL_OP:
+                ConditionalOpNode<Integer> conditionalNode = new ConditionalOpNode<>(consumer);
+
+                ConditionalColorOp op = colorSource.getConditionalOp();
+                bindRecursively(
+                        op.getCondition(),
+                        conditionalNode.getConditionIncomingCallback(),
+                        resultBuilder);
+                bindRecursively(
+                        op.getValueIfTrue(),
+                        conditionalNode.getTrueValueIncomingCallback(),
+                        resultBuilder);
+                bindRecursively(
+                        op.getValueIfFalse(),
+                        conditionalNode.getFalseValueIncomingCallback(),
+                        resultBuilder);
+
+                node = conditionalNode;
                 break;
             case INNER_NOT_SET:
                 throw new IllegalArgumentException("DynamicColor has no inner source set");
@@ -1073,8 +1065,17 @@ public class DynamicTypeEvaluator implements AutoCloseable {
                 node = new FixedBoolNode(boolSource.getFixed(), consumer);
                 break;
             case STATE_SOURCE:
-                node = new StateBoolNode(mStateStore, boolSource.getStateSource(), consumer);
-                break;
+                {
+                    DynamicProto.StateBoolSource stateSource = boolSource.getStateSource();
+                    node =
+                            new StateBoolNode(
+                                    stateSource.getSourceNamespace().isEmpty()
+                                            ? mStateStore
+                                            : mPlatformDataStore,
+                                    stateSource,
+                                    consumer);
+                    break;
+                }
             case INT32_COMPARISON:
                 {
                     ComparisonInt32Node compNode =
@@ -1083,11 +1084,11 @@ public class DynamicTypeEvaluator implements AutoCloseable {
 
                     bindRecursively(
                             boolSource.getInt32Comparison().getInputLhs(),
-                            compNode.getLhsIncomingCallback(),
+                            compNode.getLhsUpstreamCallback(),
                             resultBuilder);
                     bindRecursively(
                             boolSource.getInt32Comparison().getInputRhs(),
-                            compNode.getRhsIncomingCallback(),
+                            compNode.getRhsUpstreamCallback(),
                             resultBuilder);
 
                     break;
@@ -1100,11 +1101,11 @@ public class DynamicTypeEvaluator implements AutoCloseable {
 
                     bindRecursively(
                             boolSource.getLogicalOp().getInputLhs(),
-                            logicalNode.getLhsIncomingCallback(),
+                            logicalNode.getLhsUpstreamCallback(),
                             resultBuilder);
                     bindRecursively(
                             boolSource.getLogicalOp().getInputRhs(),
-                            logicalNode.getRhsIncomingCallback(),
+                            logicalNode.getRhsUpstreamCallback(),
                             resultBuilder);
 
                     break;
@@ -1127,11 +1128,11 @@ public class DynamicTypeEvaluator implements AutoCloseable {
 
                     bindRecursively(
                             boolSource.getFloatComparison().getInputLhs(),
-                            compNode.getLhsIncomingCallback(),
+                            compNode.getLhsUpstreamCallback(),
                             resultBuilder);
                     bindRecursively(
                             boolSource.getFloatComparison().getInputRhs(),
-                            compNode.getRhsIncomingCallback(),
+                            compNode.getRhsUpstreamCallback(),
                             resultBuilder);
 
                     break;
@@ -1143,83 +1144,5 @@ public class DynamicTypeEvaluator implements AutoCloseable {
         }
 
         resultBuilder.add(node);
-    }
-
-    /** Enables sending updates on sensor and time. */
-    @UiThread
-    public void enablePlatformDataSources() {
-        if (this.mTimeGateway instanceof TimeGatewayImpl) {
-            ((TimeGatewayImpl) mTimeGateway).enableUpdates();
-        }
-        if (mConfig.getSensorGateway() != null) {
-            mConfig.getSensorGateway().enableUpdates();
-        }
-    }
-
-    /** Disables sending updates on sensor and time. */
-    @UiThread
-    public void disablePlatformDataSources() {
-        if (this.mTimeGateway instanceof TimeGatewayImpl) {
-            ((TimeGatewayImpl) mTimeGateway).disableUpdates();
-        }
-        if (mConfig.getSensorGateway() != null) {
-            mConfig.getSensorGateway().disableUpdates();
-        }
-    }
-
-    /**
-     * Closes resources owned by this {@link DynamicTypeEvaluator}.
-     *
-     * <p>This will not close provided resources, like the {@link TimeGateway} or {@link
-     * SensorGateway}.
-     */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @Override
-    public void close() {
-        if (mTimeGateway instanceof TimeGatewayImpl) {
-            try {
-                ((TimeGatewayImpl) mTimeGateway).close();
-            } catch (RuntimeException ex) {
-                Log.e(TAG, "Error while cleaning up time gateway", ex);
-            }
-        }
-    }
-
-    /**
-     * Wraps {@link DynamicTypeValueReceiver} and executes its methods on the given {@link
-     * Executor}.
-     */
-    private static class DynamicTypeValueReceiverOnExecutor<T>
-            implements DynamicTypeValueReceiverWithPreUpdate<T> {
-
-        @NonNull private final Executor mExecutor;
-        @NonNull private final DynamicTypeValueReceiver<T> mConsumer;
-
-        DynamicTypeValueReceiverOnExecutor(@NonNull DynamicTypeValueReceiver<T> consumer) {
-            this(Runnable::run, consumer);
-        }
-
-        DynamicTypeValueReceiverOnExecutor(
-                @NonNull Executor executor, @NonNull DynamicTypeValueReceiver<T> consumer) {
-            this.mConsumer = consumer;
-            this.mExecutor = executor;
-        }
-
-        /** This method is noop in this class. */
-        @Override
-        @SuppressWarnings("ExecutorTaskName")
-        public void onPreUpdate() {}
-
-        @Override
-        @SuppressWarnings("ExecutorTaskName")
-        public void onData(@NonNull T newData) {
-            mExecutor.execute(() -> mConsumer.onData(newData));
-        }
-
-        @Override
-        @SuppressWarnings("ExecutorTaskName")
-        public void onInvalidated() {
-            mExecutor.execute(mConsumer::onInvalidated);
-        }
     }
 }

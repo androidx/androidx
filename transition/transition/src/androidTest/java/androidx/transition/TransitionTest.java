@@ -26,6 +26,7 @@ import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -33,8 +34,10 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
 import android.animation.TimeInterpolator;
+import android.animation.ValueAnimator;
 import android.graphics.Rect;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -49,18 +52,27 @@ import androidx.annotation.Nullable;
 import androidx.core.view.ViewCompat;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.filters.MediumTest;
+import androidx.testutils.AnimationDurationScaleRule;
 import androidx.transition.test.R;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 @MediumTest
 public class TransitionTest extends BaseTest {
 
     private Scene[] mScenes = new Scene[2];
     private View[] mViews = new View[3];
+
+    @Rule
+    public final AnimationDurationScaleRule mAnimationDurationScaleRule =
+            AnimationDurationScaleRule.createForAllTests(1f);
 
     @Before
     public void prepareScenes() {
@@ -375,6 +387,201 @@ public class TransitionTest extends BaseTest {
         assertThat(transition.isTransitionRequired(start, end), is(false));
         end.values.put(propname, 2);
         assertThat(transition.isTransitionRequired(start, end), is(true));
+    }
+
+    // Any listener that is added by the transition itself should not be in the global set of
+    // listeners. They should be limited to the executing transition.
+    @Test
+    public void internalListenersNotGlobal() throws Throwable {
+        rule.runOnUiThread(() -> {
+            mScenes[0].enter();
+        });
+        View view = rule.getActivity().findViewById(R.id.view0);
+
+        int[] startCount = new int[1];
+        Transition transition = new Visibility() {
+            private Animator createAnimator() {
+                addListener(new TransitionListenerAdapter() {
+                    @Override
+                    public void onTransitionStart(@NonNull Transition transition) {
+                        startCount[0]++;
+                    }
+                });
+                return ValueAnimator.ofFloat(0f, 100f);
+            }
+
+            @Nullable
+            @Override
+            public Animator onDisappear(@NonNull ViewGroup sceneRoot, @NonNull View view,
+                    @Nullable TransitionValues startValues, @Nullable TransitionValues endValues) {
+                return createAnimator();
+            }
+
+            @Nullable
+            @Override
+            public Animator onAppear(@NonNull ViewGroup sceneRoot, @NonNull View view,
+                    @Nullable TransitionValues startValues, @Nullable TransitionValues endValues) {
+                return createAnimator();
+            }
+        };
+
+        rule.runOnUiThread(() -> {
+            ViewGroup root = rule.getActivity().getRoot();
+            TransitionManager.beginDelayedTransition(root, transition);
+            view.setVisibility(View.GONE);
+        });
+
+        rule.runOnUiThread(() -> {
+            assertEquals(1, startCount[0]);
+
+            ViewGroup root = rule.getActivity().getRoot();
+            TransitionManager.beginDelayedTransition(root, transition);
+            view.setVisibility(View.VISIBLE);
+        });
+
+        rule.runOnUiThread(() -> {
+            assertEquals(2, startCount[0]);
+        });
+    }
+
+    // A listener removed from the parent is also removed from the child.
+    @Test
+    public void removedListenerNotNotifying() throws Throwable {
+        rule.runOnUiThread(() -> {
+            mScenes[0].enter();
+        });
+        View view = rule.getActivity().findViewById(R.id.view0);
+
+        final Transition slide = new Slide();
+        slide.setDuration(1);
+        final CountDownLatch latch1 = new CountDownLatch(1);
+        final CountDownLatch latch2 = new CountDownLatch(1);
+        final TransitionListenerAdapter listener1 = new TransitionListenerAdapter() {
+            @Override
+            public void onTransitionEnd(@NonNull Transition transition, boolean isReverse) {
+                latch1.countDown();
+            }
+        };
+        final TransitionListenerAdapter listener2 = new TransitionListenerAdapter() {
+            @Override
+            public void onTransitionStart(@NonNull Transition transition, boolean isReverse) {
+                transition.addListener(listener1);
+                slide.removeListener(this);
+                slide.removeListener(listener1); // should do nothing
+            }
+
+            @Override
+            public void onTransitionEnd(@NonNull Transition transition, boolean isReverse) {
+                latch2.countDown();
+            }
+        };
+        slide.addListener(listener2);
+        rule.runOnUiThread(() -> {
+            ViewGroup root = rule.getActivity().getRoot();
+            TransitionManager.beginDelayedTransition(root, slide);
+            view.setVisibility(View.INVISIBLE);
+        });
+        assertTrue(latch1.await(1, TimeUnit.SECONDS));
+        rule.runOnUiThread(() -> assertEquals(1, latch2.getCount()));
+    }
+
+    // A listener added to the parent is also added to the child.
+    @Test
+    public void addedListenerNotifying() throws Throwable {
+        rule.runOnUiThread(() -> {
+            mScenes[0].enter();
+        });
+        View view = rule.getActivity().findViewById(R.id.view0);
+
+        final Transition slide = new Slide();
+        slide.setDuration(1);
+        final CountDownLatch latch1 = new CountDownLatch(1);
+        final CountDownLatch latch2 = new CountDownLatch(1);
+        final TransitionListenerAdapter listener1 = new TransitionListenerAdapter() {
+            @Override
+            public void onTransitionEnd(@NonNull Transition transition, boolean isReverse) {
+                latch1.countDown();
+            }
+        };
+        final TransitionListenerAdapter listener2 = new TransitionListenerAdapter() {
+            @Override
+            public void onTransitionStart(@NonNull Transition transition, boolean isReverse) {
+                slide.addListener(listener1);
+            }
+
+            @Override
+            public void onTransitionEnd(@NonNull Transition transition, boolean isReverse) {
+                latch2.countDown();
+            }
+        };
+        slide.addListener(listener2);
+        rule.runOnUiThread(() -> {
+            ViewGroup root = rule.getActivity().getRoot();
+            TransitionManager.beginDelayedTransition(root, slide);
+            view.setVisibility(View.INVISIBLE);
+        });
+        assertTrue(latch1.await(1, TimeUnit.SECONDS));
+        assertTrue(latch2.await(1, TimeUnit.SECONDS));
+    }
+
+    @Test
+    public void reentrantCancel() throws Throwable {
+        showInitialScene();
+
+        final CountDownLatch startLatch = new CountDownLatch(3);
+
+        class CancelingAnimator extends Slide {
+            @Nullable
+            @Override
+            public Animator createAnimator(@NonNull ViewGroup sceneRoot,
+                    @Nullable TransitionValues startValues, @Nullable TransitionValues endValues) {
+                Animator anim = super.createAnimator(sceneRoot, startValues, endValues);
+                if (anim != null) {
+                    anim.addListener(new AnimatorListenerAdapter() {
+                        @Override
+                        public void onAnimationStart(@NonNull Animator animation) {
+                            startLatch.countDown();
+                        }
+                        @Override
+                        public void onAnimationCancel(Animator animation) {
+                            if (animation.isRunning()) {
+                                animation.end();
+                                cancel();
+                            }
+                        }
+                    });
+                }
+                return anim;
+            }
+        }
+        Slide slide = new CancelingAnimator();
+        slide.setDuration(1000);
+        final AtomicReference<Transition> transitionRef = new AtomicReference<>(null);
+        slide.addListener(new TransitionListenerAdapter() {
+            @Override
+            public void onTransitionStart(@NonNull Transition transition, boolean isReverse) {
+                transitionRef.set(transition);
+            }
+        });
+        rule.runOnUiThread(() -> {
+            ViewGroup root = rule.getActivity().getRoot();
+            TransitionManager.beginDelayedTransition(root, slide);
+            mViews[0].setVisibility(View.INVISIBLE);
+            mViews[1].setVisibility(View.INVISIBLE);
+            mViews[2].setVisibility(View.INVISIBLE);
+        });
+        // Wait for all animations to start
+        assertTrue(startLatch.await(3, TimeUnit.SECONDS));
+        // wait one frame
+        rule.runOnUiThread(() -> {});
+
+        rule.runOnUiThread(() -> {
+            transitionRef.get().cancel();
+        });
+
+        rule.runOnUiThread(() -> {
+            assertEquals(View.VISIBLE, mViews[0].getVisibility());
+        });
     }
 
     private void showInitialScene() throws Throwable {

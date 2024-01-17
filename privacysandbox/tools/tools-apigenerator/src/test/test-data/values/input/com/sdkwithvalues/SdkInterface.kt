@@ -3,6 +3,8 @@ package com.sdkwithvalues
 import androidx.privacysandbox.tools.PrivacySandboxInterface
 import androidx.privacysandbox.tools.PrivacySandboxService
 import androidx.privacysandbox.tools.PrivacySandboxValue
+import androidx.privacysandbox.ui.core.SandboxedUiAdapter
+import androidx.privacysandbox.ui.core.SdkActivityLauncher
 
 @PrivacySandboxService
 interface SdkInterface {
@@ -23,6 +25,7 @@ data class InnerSdkValue(
     val floatingPoint: Float,
     val hugeNumber: Double,
     val myInterface: MyInterface,
+    val myUiInterface: MyUiInterface,
     val numbers: List<Int>,
     val maybeNumber: Int?,
     val maybeInterface: MyInterface?,
@@ -33,7 +36,8 @@ data class SdkRequest(
     val id: Long,
     val innerValue: InnerSdkValue,
     val maybeInnerValue: InnerSdkValue?,
-    val moreValues: List<InnerSdkValue>
+    val moreValues: List<InnerSdkValue>,
+    val activityLauncher: SdkActivityLauncher,
 )
 
 @PrivacySandboxValue
@@ -42,4 +46,9 @@ data class SdkResponse(val success: Boolean, val originalRequest: SdkRequest)
 @PrivacySandboxInterface
 interface MyInterface {
     fun doStuff()
+}
+
+@PrivacySandboxInterface
+interface MyUiInterface : SandboxedUiAdapter {
+    fun doUiStuff()
 }

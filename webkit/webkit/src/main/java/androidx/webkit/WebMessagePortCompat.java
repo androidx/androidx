@@ -93,6 +93,19 @@ public abstract class WebMessagePortCompat {
      * {@link WebViewFeature#isFeatureSupported(String)}
      * returns true for {@link WebViewFeature#WEB_MESSAGE_PORT_POST_MESSAGE}.
      *
+     * <p>
+     * When posting a {@link WebMessageCompat} with type {@link WebMessageCompat#TYPE_ARRAY_BUFFER},
+     * this method should check if {@link WebViewFeature#isFeatureSupported(String)} returns true
+     * for {@link WebViewFeature#WEB_MESSAGE_ARRAY_BUFFER}. Example:
+     * <pre class="prettyprint">
+     * if (message.getType() == WebMessageCompat.TYPE_ARRAY_BUFFER) {
+     *     if (WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_ARRAY_BUFFER) {
+     *         // ArrayBuffer message is supported, send message here.
+     *         port.postMessage(message);
+     *     }
+     * }
+     * </pre>
+     *
      * @param message  the message from Java to JS.
      *
      * @throws IllegalStateException If message port is already transferred or closed.

@@ -19,23 +19,26 @@ package androidx.compose.ui.demos.gestures
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.gestures.rememberScrollableState
+import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.rememberScrollableState
 import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.Layout
@@ -79,8 +82,8 @@ fun NestedScrollingDemo() {
  */
 @Composable
 private fun ScrollableContainer(content: @Composable () -> Unit) {
-    val offset = remember { mutableStateOf(0f) }
-    val maxOffset = remember { mutableStateOf(0f) }
+    var offset by remember { mutableFloatStateOf(0f) }
+    var maxOffset by remember { mutableFloatStateOf(0f) }
 
     Layout(
         content = content,
@@ -88,20 +91,20 @@ private fun ScrollableContainer(content: @Composable () -> Unit) {
             .scrollable(
                 orientation = Orientation.Vertical,
                 state = rememberScrollableState { scrollDistance ->
-                    val resultingOffset = offset.value + scrollDistance
+                    val resultingOffset = offset + scrollDistance
                     val dyToConsume =
                         when {
                             resultingOffset > 0f -> {
-                                0f - offset.value
+                                0f - offset
                             }
-                            resultingOffset < maxOffset.value -> {
-                                maxOffset.value - offset.value
+                            resultingOffset < maxOffset -> {
+                                maxOffset - offset
                             }
                             else -> {
                                 scrollDistance
                             }
                         }
-                    offset.value += dyToConsume
+                    offset += dyToConsume
                     dyToConsume
                 }
             )
@@ -111,10 +114,10 @@ private fun ScrollableContainer(content: @Composable () -> Unit) {
                 measurables.first()
                     .measure(constraints.copy(minHeight = 0, maxHeight = Constraints.Infinity))
 
-            maxOffset.value = (constraints.maxHeight - placeable.height).toFloat()
+            maxOffset = (constraints.maxHeight - placeable.height).toFloat()
 
             layout(constraints.maxWidth, constraints.maxHeight) {
-                placeable.placeRelative(0, offset.value.roundToInt())
+                placeable.placeRelative(0, offset.roundToInt())
             }
         }
     )

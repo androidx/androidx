@@ -16,6 +16,7 @@
 
 package androidx.room.compiler.processing
 
+import androidx.kruth.assertThat
 import androidx.room.compiler.processing.javac.JavacBasicAnnotationProcessor
 import androidx.room.compiler.processing.ksp.KspBasicAnnotationProcessor
 import androidx.room.compiler.processing.ksp.KspElement
@@ -30,7 +31,6 @@ import androidx.room.compiler.processing.util.compiler.TestCompilationArguments
 import androidx.room.compiler.processing.util.compiler.compile
 import androidx.room.compiler.processing.util.runProcessorTest
 import com.google.common.truth.Truth.assertAbout
-import com.google.common.truth.Truth.assertThat
 import com.google.devtools.ksp.processing.SymbolProcessor
 import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
 import com.google.devtools.ksp.processing.SymbolProcessorProvider
@@ -754,6 +754,7 @@ class XProcessingStepTest {
                 return deferredElements
             }
         }
+        val invokedPreRound = mutableListOf<Boolean>()
         val invokedPostRound = mutableListOf<Boolean>()
         assertAbout(
             JavaSourcesSubjectFactory.javaSources()
@@ -763,6 +764,10 @@ class XProcessingStepTest {
             object : JavacBasicAnnotationProcessor() {
                 override fun initialize(env: XProcessingEnv) {
                     invokedLifecycles.add("initialize")
+                }
+                override fun preRound(env: XProcessingEnv, round: XRoundEnv) {
+                    invokedLifecycles.add("preRound")
+                    invokedPreRound.add(round.isProcessingOver)
                 }
                 override fun processingSteps(): List<XProcessingStep> {
                     invokedLifecycles.add("processingSteps")
@@ -785,13 +790,20 @@ class XProcessingStepTest {
         assertThat(invokedLifecycles).containsExactly(
             "initialize",
             "processingSteps",
+            "preRound", // 1st round
             "process", // 1st round
             "postRound", // 1st round
+            "preRound", // 2nd round
             "process", // 2nd round
             "postRound", // 2nd round
+            "preRound", // final round
             "processOver", // final round
             "postRound", // final round
         ).inOrder()
+
+        // Assert preRound() is invoked exactly 3 times, and the last round env reported
+        // that processing was over.
+        assertThat(invokedPreRound).containsExactly(false, false, true)
 
         // Assert postRound() is invoked exactly 3 times, and the last round env reported
         // that processing was over.
@@ -936,6 +948,63 @@ class XProcessingStepTest {
     }
 
     @Test
+    fun kspProcessingStepLogsError() {
+        val main = Source.kotlin(
+            "Classes.kt",
+            """
+            package foo.bar
+            import androidx.room.compiler.processing.testcode.*
+            @MainAnnotation(
+                typeList = [],
+                singleType = Any::class,
+                intMethod = 3,
+                singleOtherAnnotation = OtherAnnotation("y")
+            )
+            class Main {
+            }
+            @OtherAnnotation("y")
+            class Other {
+            }
+            """.trimIndent()
+        )
+
+        var executedLastRound = false
+        val processorProvider = object : SymbolProcessorProvider {
+            override fun create(environment: SymbolProcessorEnvironment): SymbolProcessor {
+                return object : KspBasicAnnotationProcessor(environment) {
+                    override fun processingSteps() = listOf(
+                        object : XProcessingStep {
+                            override fun annotations() =
+                              setOf(MainAnnotation::class.qualifiedName!!)
+                            override fun process(
+                                env: XProcessingEnv,
+                                elementsByAnnotation: Map<String, Set<XElement>>,
+                                isLastRound: Boolean
+                            ): Set<XElement> {
+                                if (isLastRound) {
+                                    executedLastRound = true
+                                }
+                                environment.logger.error("logs error")
+                                return emptySet()
+                            }
+                        }
+                    )
+                }
+            }
+        }
+
+        compile(
+            workingDir = temporaryFolder.root,
+            arguments = TestCompilationArguments(
+                sources = listOf(main),
+                symbolProcessorProviders = listOf(processorProvider)
+            )
+        )
+
+        assertThat(executedLastRound).isTrue()
+    }
+
+    @Test
     fun kspAnnotatedElementsByStep() {
         val main = Source.kotlin(
             "Classes.kt",
@@ -1055,12 +1124,18 @@ class XProcessingStepTest {
                 return deferredElements
             }
         }
+        val invokedPreRound = mutableListOf<Boolean>()
         val invokedPostRound = mutableListOf<Boolean>()
         val processorProvider = object : SymbolProcessorProvider {
             override fun create(environment: SymbolProcessorEnvironment): SymbolProcessor {
                 return object : KspBasicAnnotationProcessor(environment) {
                     override fun initialize(env: XProcessingEnv) {
                         invokedLifecycles.add("initialize")
+                    }
+
+                    override fun preRound(env: XProcessingEnv, round: XRoundEnv) {
+                        invokedLifecycles.add("preRound")
+                        invokedPreRound.add(round.isProcessingOver)
                     }
 
                     override fun processingSteps(): List<XProcessingStep> {
@@ -1090,14 +1165,21 @@ class XProcessingStepTest {
         // Assert processOver() was only called once
         assertThat(invokedLifecycles).containsExactly(
             "initialize",
+            "preRound", // 1st round
             "processingSteps",
             "process", // 1st round
             "postRound", // 1st round
+            "preRound", // 2nd round
             "process", // 2nd round
             "postRound", // 2nd round
+            "preRound", // final round
             "processOver", // final round
             "postRound", // final round
         ).inOrder()
+
+        // Assert preRound() is invoked exactly 3 times, and the last round env reported
+        // that processing was over.
+        assertThat(invokedPreRound).containsExactly(false, false, true)
 
         // Assert postRound() is invoked exactly 3 times, and the last round env reported
         // that processing was over.
@@ -1507,5 +1589,66 @@ class XProcessingStepTest {
                 XProcessingEnv.Backend.KSP to 3,
             )
         )
+    }
+
+    @Test
+    fun validateElement() {
+        var round = 0
+        val processedElementNamesByRound = mutableMapOf<Int, Set<String>>()
+        val processingStep = object : XProcessingStep {
+            override fun process(
+                env: XProcessingEnv,
+                elementsByAnnotation: Map<String, Set<XElement>>,
+                isLastRound: Boolean
+            ): Set<XTypeElement> {
+              processedElementNamesByRound[round++] =
+                  elementsByAnnotation.values.flatten().map { it.name }.toSet()
+              return emptySet()
+            }
+            override fun annotations(): Set<String> {
+                return setOf("foo.bar.SomeAnnotation")
+            }
+        }
+        val someAnnotation = JavaFileObjects.forSourceString(
+            "foo.bar.SomeAnnotation",
+            """
+            package foo.bar;
+
+            import java.lang.annotation.ElementType;
+            import java.lang.annotation.Retention;
+            import java.lang.annotation.RetentionPolicy;
+            import java.lang.annotation.Target;
+
+            @Target(ElementType.METHOD)
+            @Retention(RetentionPolicy.RUNTIME)
+            public @interface SomeAnnotation {}
+            """.trimIndent()
+        )
+        val main = JavaFileObjects.forSourceString(
+            "foo.bar.Main",
+            """
+            package foo.bar;
+            class Main {
+              @SomeAnnotation
+              SomeType invalidMethod() { return null; }
+              @SomeAnnotation
+              void validMethod() {}
+            }
+            """.trimIndent()
+        )
+
+        assertAbout(
+            JavaSourcesSubjectFactory.javaSources()
+        ).that(
+            listOf(main, someAnnotation)
+        ).processedWith(
+            object : JavacBasicAnnotationProcessor() {
+                override fun processingSteps() = listOf(processingStep)
+            }
+        ).failsToCompile()
+
+        assertThat(processedElementNamesByRound).hasSize(1)
+        assertThat(processedElementNamesByRound.values.single())
+            .containsExactly("validMethod", "invalidMethod")
     }
 }

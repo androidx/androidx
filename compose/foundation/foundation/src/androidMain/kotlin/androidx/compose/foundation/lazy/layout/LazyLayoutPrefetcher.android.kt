@@ -154,6 +154,7 @@ internal class LazyLayoutPrefetcher(
         }
         val latestFrameVsyncNs = TimeUnit.MILLISECONDS.toNanos(view.drawingTime)
         val nextFrameNs = latestFrameVsyncNs + frameIntervalNs
+        var oneOverTimeTaskAllowed = System.nanoTime() > nextFrameNs
         var scheduleForNextFrame = false
         while (prefetchRequests.isNotEmpty() && !scheduleForNextFrame) {
             val request = prefetchRequests[0]
@@ -165,9 +166,13 @@ internal class LazyLayoutPrefetcher(
                     val beforeTimeNs = System.nanoTime()
                     // check if there is enough time left in this frame. otherwise, we schedule
                     // a next frame callback in which we will post the message in the handler again.
-                    if (enoughTimeLeft(beforeTimeNs, nextFrameNs, averagePrecomposeTimeNs)) {
+                    if (enoughTimeLeft(beforeTimeNs, nextFrameNs, averagePrecomposeTimeNs) ||
+                        oneOverTimeTaskAllowed
+                    ) {
+                        oneOverTimeTaskAllowed = false
                         val key = itemProvider.getKey(request.index)
-                        val content = itemContentFactory.getContent(request.index, key)
+                        val contentType = itemProvider.getContentType(request.index)
+                        val content = itemContentFactory.getContent(request.index, key, contentType)
                         request.precomposeHandle = subcomposeLayoutState.precompose(key, content)
                         averagePrecomposeTimeNs = calculateAverageTime(
                             System.nanoTime() - beforeTimeNs,
@@ -178,10 +183,13 @@ internal class LazyLayoutPrefetcher(
                     }
                 }
             } else {
-                check(!request.measured)
+                check(!request.measured) { "request already measured" }
                 trace("compose:lazylist:prefetch:measure") {
                     val beforeTimeNs = System.nanoTime()
-                    if (enoughTimeLeft(beforeTimeNs, nextFrameNs, averagePremeasureTimeNs)) {
+                    if (enoughTimeLeft(beforeTimeNs, nextFrameNs, averagePremeasureTimeNs) ||
+                        oneOverTimeTaskAllowed
+                    ) {
+                        oneOverTimeTaskAllowed = false
                         val handle = request.precomposeHandle!!
                         repeat(handle.placeablesCount) { placeableIndex ->
                             handle.premeasure(
@@ -212,7 +220,7 @@ internal class LazyLayoutPrefetcher(
     }
 
     private fun enoughTimeLeft(now: Long, nextFrame: Long, average: Long) =
-        now > nextFrame || now + average < nextFrame
+        now + average < nextFrame
 
     /**
      * Choreographer frame callback. It will be called when during the previous frame we didn't

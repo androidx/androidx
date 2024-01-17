@@ -18,6 +18,7 @@ package androidx.compose.foundation.text.modifiers
 
 import androidx.compose.foundation.text.DefaultMinLines
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.ColorProducer
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.text.AnnotatedString
@@ -41,7 +42,8 @@ internal data class SelectableTextAnnotatedStringElement(
     private val minLines: Int = DefaultMinLines,
     private val placeholders: List<AnnotatedString.Range<Placeholder>>? = null,
     private val onPlaceholderLayout: ((List<Rect?>) -> Unit)? = null,
-    private val selectionController: SelectionController? = null
+    private val selectionController: SelectionController? = null,
+    private val color: ColorProducer? = null
 ) : ModifierNodeElement<SelectableTextAnnotatedStringNode>() {
 
     override fun create(): SelectableTextAnnotatedStringNode = SelectableTextAnnotatedStringNode(
@@ -55,12 +57,13 @@ internal data class SelectableTextAnnotatedStringElement(
         minLines,
         placeholders,
         onPlaceholderLayout,
-        selectionController
+        selectionController,
+        color
     )
 
     override fun update(
         node: SelectableTextAnnotatedStringNode
-    ): SelectableTextAnnotatedStringNode {
+    ) {
         node.update(
             text = text,
             style = style,
@@ -72,9 +75,9 @@ internal data class SelectableTextAnnotatedStringElement(
             overflow = overflow,
             onTextLayout = onTextLayout,
             onPlaceholderLayout = onPlaceholderLayout,
-            selectionController = selectionController
+            selectionController = selectionController,
+            color = color
         )
-        return node
     }
 
     override fun equals(other: Any?): Boolean {
@@ -83,6 +86,7 @@ internal data class SelectableTextAnnotatedStringElement(
         if (other !is SelectableTextAnnotatedStringElement) return false
 
         // these three are most likely to actually change
+        if (color != other.color) return false
         if (text != other.text) return false
         if (style != other.style) return false
         if (placeholders != other.placeholders) return false
@@ -114,6 +118,7 @@ internal data class SelectableTextAnnotatedStringElement(
         result = 31 * result + (placeholders?.hashCode() ?: 0)
         result = 31 * result + (onPlaceholderLayout?.hashCode() ?: 0)
         result = 31 * result + (selectionController?.hashCode() ?: 0)
+        result = 31 * result + (color?.hashCode() ?: 0)
         return result
     }
 

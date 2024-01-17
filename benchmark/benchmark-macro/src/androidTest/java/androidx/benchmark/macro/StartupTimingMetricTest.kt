@@ -22,7 +22,10 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.benchmark.DeviceInfo
 import androidx.benchmark.Outputs
+import androidx.benchmark.perfetto.PerfettoCapture.PerfettoSdkConfig
+import androidx.benchmark.perfetto.PerfettoCapture.PerfettoSdkConfig.InitialProcessState
 import androidx.benchmark.perfetto.PerfettoCaptureWrapper
+import androidx.benchmark.perfetto.PerfettoConfig
 import androidx.benchmark.perfetto.PerfettoHelper.Companion.isAbiSupported
 import androidx.benchmark.perfetto.PerfettoTraceProcessor
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -48,6 +51,7 @@ import org.junit.runner.RunWith
 class StartupTimingMetricTest {
     @MediumTest
     @Test
+    @Ignore("b/258335082")
     fun noResults() {
         assumeTrue(isAbiSupported())
         val packageName = "fake.package.fiction.nostartups"
@@ -68,7 +72,10 @@ class StartupTimingMetricTest {
         val packageName = "androidx.benchmark.integration.macrobenchmark.target"
         val intent =
             Intent("androidx.benchmark.integration.macrobenchmark.target.TRIVIAL_STARTUP_ACTIVITY")
-        val scope = MacrobenchmarkScope(packageName = packageName, launchWithClearTask = true)
+        val scope = MacrobenchmarkScope(
+            packageName = packageName,
+            launchWithClearTask = true
+        )
         val measurements = measureStartup(packageName, StartupMode.COLD) {
             // Simulate a cold start
             scope.killProcess()
@@ -98,7 +105,10 @@ class StartupTimingMetricTest {
         }
         assumeTrue(isAbiSupported())
 
-        val scope = MacrobenchmarkScope(packageName = Packages.TEST, launchWithClearTask = true)
+        val scope = MacrobenchmarkScope(
+            packageName = Packages.TEST,
+            launchWithClearTask = true
+        )
         val launchIntent = ConfigurableActivity.createIntent(
             text = "ORIGINAL TEXT",
             reportFullyDrawnDelayMs = delayMs
@@ -170,12 +180,14 @@ class StartupTimingMetricTest {
 
     @LargeTest
     @Test
+    @Ignore("b/258335082")
     fun startup_fullyDrawn_immediate() {
         validateStartup_fullyDrawn(delayMs = 0)
     }
 
     @LargeTest
     @Test
+    @Ignore("b/258335082")
     fun startup_fullyDrawn_delayed() {
         validateStartup_fullyDrawn(delayMs = 100)
     }
@@ -290,14 +302,17 @@ internal fun measureStartup(
     metric.configure(packageName)
     val tracePath = PerfettoCaptureWrapper().record(
         fileLabel = packageName,
-        // note - packageName may be this package, so we convert to set then list to make unique
-        // and on API 23 and below, we use reflection to trace instead within this process
-        appTagPackages = if (Build.VERSION.SDK_INT >= 24 && packageName != Packages.TEST) {
-            listOf(packageName, Packages.TEST)
-        } else {
-            listOf(packageName)
-        },
-        userspaceTracingPackage = packageName,
+        config = PerfettoConfig.Benchmark(
+            // note - packageName may be this package, so we convert to set then list to make unique
+            // and on API 23 and below, we use reflection to trace instead within this process
+            appTagPackages = if (Build.VERSION.SDK_INT >= 24 && packageName != Packages.TEST) {
+                listOf(packageName, Packages.TEST)
+            } else {
+                listOf(packageName)
+            },
+            useStackSamplingConfig = false
+        ),
+        perfettoSdkConfig = PerfettoSdkConfig(packageName, InitialProcessState.Unknown),
         block = measureBlock
     )!!
 

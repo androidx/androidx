@@ -56,7 +56,7 @@ import java.util.concurrent.FutureTask;
  * A text object that contains the character metrics data and can be used to improve the performance
  * of text layout operations. When a PrecomputedTextCompat is created with a given
  * {@link CharSequence}, it will measure the text metrics during the creation. This PrecomputedText
- * instance can be set on {@linkandroid.widget.TextView} or {@link StaticLayout}. Since the text
+ * instance can be set on {@link android.widget.TextView} or {@link StaticLayout}. Since the text
  * layout information will be included in this instance, {@link android.widget.TextView} or
  * {@link StaticLayout} will not have to recalculate this information.
  *
@@ -122,11 +122,7 @@ public class PrecomputedTextCompat implements Spannable {
                 } else {
                     mBreakStrategy = mHyphenationFrequency = 0;
                 }
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-                    mTextDir = TextDirectionHeuristics.FIRSTSTRONG_LTR;
-                } else {
-                    mTextDir = null;
-                }
+                mTextDir = TextDirectionHeuristics.FIRSTSTRONG_LTR;
             }
 
             /**
@@ -177,7 +173,6 @@ public class PrecomputedTextCompat implements Spannable {
              * @return PrecomputedTextCompat.Builder instance
              * @see StaticLayout.Builder#setTextDirection
              */
-            @RequiresApi(18)
             public Builder setTextDirection(@NonNull TextDirectionHeuristic textDir) {
                 mTextDir = textDir;
                 return this;
@@ -236,7 +231,6 @@ public class PrecomputedTextCompat implements Spannable {
          *
          * @return the {@link TextDirectionHeuristic}
          */
-        @RequiresApi(18)
         public @Nullable TextDirectionHeuristic getTextDirection() {
             return mTextDir;
         }
@@ -305,7 +299,7 @@ public class PrecomputedTextCompat implements Spannable {
                 if (!mPaint.getTextLocales().equals(other.getTextPaint().getTextLocales())) {
                     return false;
                 }
-            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            } else {
                 if (!mPaint.getTextLocale().equals(other.getTextPaint().getTextLocale())) {
                     return false;
                 }
@@ -338,12 +332,7 @@ public class PrecomputedTextCompat implements Spannable {
             if (!equalsWithoutTextDirection(other)) {
                 return false;
             }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-                if (mTextDir != other.getTextDirection()) {
-                    return false;
-                }
-            }
-            return true;
+            return mTextDir == other.getTextDirection();
         }
 
         @Override
@@ -358,18 +347,10 @@ public class PrecomputedTextCompat implements Spannable {
                         mPaint.getTextSkewX(), mPaint.getLetterSpacing(), mPaint.getFlags(),
                         mPaint.getTextLocale(), mPaint.getTypeface(), mPaint.isElegantTextHeight(),
                         mTextDir, mBreakStrategy, mHyphenationFrequency);
-            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-                return ObjectsCompat.hash(mPaint.getTextSize(), mPaint.getTextScaleX(),
-                        mPaint.getTextSkewX(), mPaint.getFlags(), mPaint.getTextLocale(),
-                        mPaint.getTypeface(), mTextDir, mBreakStrategy, mHyphenationFrequency);
-            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                return ObjectsCompat.hash(mPaint.getTextSize(), mPaint.getTextScaleX(),
-                        mPaint.getTextSkewX(), mPaint.getFlags(), mPaint.getTextLocale(),
-                        mPaint.getTypeface(), mTextDir, mBreakStrategy, mHyphenationFrequency);
             } else {
                 return ObjectsCompat.hash(mPaint.getTextSize(), mPaint.getTextScaleX(),
-                        mPaint.getTextSkewX(), mPaint.getFlags(), mPaint.getTypeface(), mTextDir,
-                        mBreakStrategy, mHyphenationFrequency);
+                        mPaint.getTextSkewX(), mPaint.getFlags(), mPaint.getTextLocale(),
+                        mPaint.getTypeface(), mTextDir, mBreakStrategy, mHyphenationFrequency);
             }
         }
 
@@ -385,7 +366,7 @@ public class PrecomputedTextCompat implements Spannable {
             }
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 sb.append(", textLocale=" + mPaint.getTextLocales());
-            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            } else {
                 sb.append(", textLocale=" + mPaint.getTextLocale());
             }
             sb.append(", typeface=" + mPaint.getTypeface());

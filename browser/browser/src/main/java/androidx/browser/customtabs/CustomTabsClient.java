@@ -401,9 +401,58 @@ public class CustomTabsClient {
                     throws RemoteException {
                 if (callback == null) return;
                 mHandler.post(new Runnable() {
+                    @SuppressWarnings("NullAway") // b/316641009
                     @Override
                     public void run() {
                         callback.onActivityResized(height, width, extras);
+                    }
+                });
+            }
+
+            @Override
+            public void onWarmupCompleted(final @NonNull Bundle extras) throws RemoteException {
+                if (callback == null) return;
+                mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        callback.onWarmupCompleted(extras);
+                    }
+                });
+            }
+
+            @Override
+            public void onActivityLayout(final int left, final int top, final int right,
+                    final int bottom, @CustomTabsCallback.ActivityLayoutState int state,
+                    @NonNull Bundle extras)
+                    throws RemoteException {
+                if (callback == null) return;
+                mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        callback.onActivityLayout(left, top, right, bottom, state, extras);
+                    }
+                });
+            }
+
+            @Override
+            public void onMinimized(@NonNull Bundle extras) throws RemoteException {
+                if (callback == null) return;
+                mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        callback.onMinimized(extras);
+                    }
+                });
+            }
+
+            @Override
+            public void onUnminimized(@NonNull Bundle extras)
+                    throws RemoteException {
+                if (callback == null) return;
+                mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        callback.onUnminimized(extras);
                     }
                 });
             }

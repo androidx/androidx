@@ -28,8 +28,8 @@ import android.os.Handler
 import android.os.Looper
 import android.view.Surface
 import androidx.camera.camera2.Camera2Config
-import androidx.camera.camera2.impl.Camera2CameraCaptureResultConverter
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat
+import androidx.camera.camera2.internal.compat.params.DynamicRangesCompat
 import androidx.camera.camera2.internal.compat.quirk.CameraQuirks
 import androidx.camera.camera2.internal.compat.quirk.DeviceQuirks
 import androidx.camera.camera2.internal.util.RequestProcessorRequest
@@ -40,8 +40,8 @@ import androidx.camera.core.impl.RequestProcessor
 import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.SessionProcessorSurface
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
-import androidx.camera.testing.CameraUtil
-import androidx.camera.testing.CameraUtil.PreTestCameraIdList
+import androidx.camera.testing.impl.CameraUtil
+import androidx.camera.testing.impl.CameraUtil.PreTestCameraIdList
 import androidx.concurrent.futures.await
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -79,7 +79,8 @@ class Camera2RequestProcessorTest {
 
     private lateinit var cameraDeviceHolder: CameraUtil.CameraDeviceHolder
     private lateinit var captureSessionRepository: CaptureSessionRepository
-    private lateinit var captureSessionOpenerBuilder: SynchronizedCaptureSessionOpener.Builder
+    private lateinit var dynamicRangesCompat: DynamicRangesCompat
+    private lateinit var captureSessionOpenerBuilder: SynchronizedCaptureSession.OpenerBuilder
     private lateinit var mainThreadExecutor: Executor
     private lateinit var previewSurface: SessionProcessorSurface
     private lateinit var captureSurface: SessionProcessorSurface
@@ -103,12 +104,14 @@ class Camera2RequestProcessorTest {
         val handler = Handler(Looper.getMainLooper())
         mainThreadExecutor = CameraXExecutors.newHandlerExecutor(handler)
         captureSessionRepository = CaptureSessionRepository(mainThreadExecutor)
-        captureSessionOpenerBuilder = SynchronizedCaptureSessionOpener.Builder(
+        val cameraCharacteristics = getCameraCharacteristic(CAMERA_ID)
+        dynamicRangesCompat = DynamicRangesCompat.fromCameraCharacteristics(cameraCharacteristics)
+        captureSessionOpenerBuilder = SynchronizedCaptureSession.OpenerBuilder(
             mainThreadExecutor,
             mainThreadExecutor as ScheduledExecutorService,
             handler,
             captureSessionRepository,
-            CameraQuirks.get(CAMERA_ID, getCameraCharacteristic(CAMERA_ID)),
+            CameraQuirks.get(CAMERA_ID, cameraCharacteristics),
             DeviceQuirks.getAll()
         )
 
@@ -171,7 +174,7 @@ class Camera2RequestProcessorTest {
     @Test
     fun canSubmit(): Unit = runBlocking {
         // Arrange
-        val captureSession = CaptureSession()
+        val captureSession = CaptureSession(dynamicRangesCompat)
         val cameraDevice = cameraDeviceHolder.get()!!
         captureSession.open(
             getSessionConfig(),
@@ -203,9 +206,8 @@ class Camera2RequestProcessorTest {
 
         // Assert
         withTimeout(5000) {
-            val (captureResult, receivedRequest) = callbackToVerify.awaitCaptureResults()[0]
-            val camera2CaptureResult =
-                Camera2CameraCaptureResultConverter.getCaptureResult(captureResult)!!
+            val (cameraCaptureResult, receivedRequest) = callbackToVerify.awaitCaptureResults()[0]
+            val camera2CaptureResult = cameraCaptureResult.captureResult
             assertThat(camera2CaptureResult.request.get(CaptureRequest.CONTROL_CAPTURE_INTENT))
                 .isEqualTo(CaptureRequest.CONTROL_CAPTURE_INTENT_STILL_CAPTURE)
             assertThat(camera2CaptureResult.request.get(CaptureRequest.JPEG_ORIENTATION))
@@ -220,7 +222,7 @@ class Camera2RequestProcessorTest {
     @Test
     fun canSubmitMultipleThreads() {
         // Arrange
-        val captureSession = CaptureSession()
+        val captureSession = CaptureSession(dynamicRangesCompat)
         val cameraDevice = cameraDeviceHolder.get()!!
         captureSession.open(
             getSessionConfig(),
@@ -286,7 +288,7 @@ class Camera2RequestProcessorTest {
     @Test
     fun canSubmitList(): Unit = runBlocking {
         // Arrange
-        val captureSession = CaptureSession()
+        val captureSession = CaptureSession(dynamicRangesCompat)
         val cameraDevice = cameraDeviceHolder.get()!!
         captureSession.open(
             getSessionConfig(),
@@ -332,21 +334,19 @@ class Camera2RequestProcessorTest {
         // Assert
         withTimeout(5000) {
             val captureResults = callbackToVerify.awaitCaptureResults()
-            val (captureResult1, receivedRequest1) = captureResults[0]
-            val (captureResult2, receivedRequest2) = captureResults[1]
+            val (cameraCaptureResult1, receivedRequest1) = captureResults[0]
+            val (cameraCaptureResult2, receivedRequest2) = captureResults[1]
             captureImagesRetrieved[0].await()
             captureImagesRetrieved[1].await()
 
-            val camera2CaptureResult1 =
-                Camera2CameraCaptureResultConverter.getCaptureResult(captureResult1)!!
+            val camera2CaptureResult1 = cameraCaptureResult1.captureResult
             assertThat(camera2CaptureResult1.request.get(CaptureRequest.CONTROL_CAPTURE_INTENT))
                 .isEqualTo(CaptureRequest.CONTROL_CAPTURE_INTENT_STILL_CAPTURE)
             assertThat(camera2CaptureResult1.request.get(CaptureRequest.JPEG_ORIENTATION))
                 .isEqualTo(ORIENTATION_1)
             assertThat(receivedRequest1).isSameInstanceAs(request1)
 
-            val camera2CaptureResult2 =
-                Camera2CameraCaptureResultConverter.getCaptureResult(captureResult2)!!
+            val camera2CaptureResult2 = cameraCaptureResult2.captureResult
             assertThat(camera2CaptureResult2.request.get(CaptureRequest.CONTROL_CAPTURE_INTENT))
                 .isEqualTo(CaptureRequest.CONTROL_CAPTURE_INTENT_PREVIEW)
             assertThat(camera2CaptureResult2.request.get(CaptureRequest.JPEG_ORIENTATION))
@@ -364,7 +364,7 @@ class Camera2RequestProcessorTest {
     @Test
     fun canSetRepeating(): Unit = runBlocking {
         // Arrange
-        val captureSession = CaptureSession()
+        val captureSession = CaptureSession(dynamicRangesCompat)
         val cameraDevice = cameraDeviceHolder.get()!!
         captureSession.open(
             getSessionConfig(),
@@ -397,10 +397,9 @@ class Camera2RequestProcessorTest {
 
         // Assert
         withTimeout(5000) {
-            val (captureResult, receivedRequest) = callbackToVerify.awaitCaptureResults()[0]
+            val (cameraCaptureResult, receivedRequest) = callbackToVerify.awaitCaptureResults()[0]
             previewImageRetrieved.await()
-            val camera2CaptureResult =
-                Camera2CameraCaptureResultConverter.getCaptureResult(captureResult)!!
+            val camera2CaptureResult = cameraCaptureResult.captureResult
             assertThat(camera2CaptureResult.request.get(CaptureRequest.CONTROL_CAPTURE_INTENT))
                 .isEqualTo(CaptureResult.CONTROL_CAPTURE_INTENT_PREVIEW)
             assertThat(camera2CaptureResult.request.get(CaptureRequest.JPEG_ORIENTATION))
@@ -416,7 +415,7 @@ class Camera2RequestProcessorTest {
     @Test
     fun closeRequestProcessor(): Unit = runBlocking {
         // Arrange
-        val captureSession = CaptureSession()
+        val captureSession = CaptureSession(dynamicRangesCompat)
         val cameraDevice = cameraDeviceHolder.get()!!
         captureSession.open(
             getSessionConfig(),
@@ -459,7 +458,7 @@ class Camera2RequestProcessorTest {
     @Test
     fun invalidRequest(): Unit = runBlocking {
         // Arrange
-        val captureSession = CaptureSession()
+        val captureSession = CaptureSession(dynamicRangesCompat)
         val cameraDevice = cameraDeviceHolder.get()!!
         captureSession.open(
             getSessionConfig(),

@@ -16,6 +16,8 @@
 
 package androidx.room.compiler.processing.ksp
 
+import androidx.kruth.assertThat
+import androidx.kruth.assertWithMessage
 import androidx.room.compiler.processing.XExecutableElement
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.util.CompilationTestCapabilities
@@ -24,8 +26,6 @@ import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.compileFiles
 import androidx.room.compiler.processing.util.runKaptTest
 import androidx.room.compiler.processing.util.runKspTest
-import com.google.common.truth.Truth.assertThat
-import com.google.common.truth.Truth.assertWithMessage
 import com.squareup.javapoet.TypeName
 import org.junit.Test
 
@@ -156,6 +156,38 @@ class KspTypeNamesGoldenTest {
                 package $pkg
                 class MyType
                 class MyGeneric<T>
+                class MyGenericIn<in T>
+                class MyGenericOut<out T>
+                class MyGeneric2Parameters<in T1, out T2>
+                class MyGenericMultipleParameters<T1: MyGeneric<*>, T2: MyGeneric<T1>>
+                interface MyInterface
+                typealias MyInterfaceAlias = MyInterface
+                typealias MyGenericAlias = MyGenericIn<MyGenericOut<MyGenericOut<MyType>>>
+                typealias MyGenericOutAlias<T> = MyGenericOut<T>
+                typealias MyGenericOutAliasWithJSW<T> = MyGenericOut<@JSW T>
+                typealias MyGeneric2ParametersAlias<T1, T2> = MyGeneric2Parameters<MyGenericOut<T1>, MyGeneric<MyGenericOut<T2>>>
+                typealias MyGeneric1ParameterAlias<T> = MyGeneric2Parameters<MyGenericOut<T>, MyGeneric<MyGenericOut<T>>>
+                typealias MyLambdaAlias1 = (List<MyGenericIn<MyGenericOut<MyGenericOut<MyType>>>>) -> List<MyGenericIn<MyGenericOut<MyGenericOut<MyType>>>>
+                typealias MyLambdaAlias2 = @JSW (List<MyGenericIn<MyGenericOut<MyGenericOut<MyType>>>>) -> List<MyGenericIn<MyGenericOut<MyGenericOut<MyType>>>>
+                typealias MyLambdaAlias3 = (@JSW List<MyGenericIn<MyGenericOut<MyGenericOut<MyType>>>>) -> @JSW List<MyGenericIn<MyGenericOut<MyGenericOut<MyType>>>>
+                typealias MyLambdaAlias4 = (List<@JSW MyGenericIn<MyGenericOut<MyGenericOut<MyType>>>>) -> List<@JSW MyGenericIn<MyGenericOut<MyGenericOut<MyType>>>>
+                typealias MyLambdaAlias5 = (List<MyGenericIn<@JSW MyGenericOut<MyGenericOut<MyType>>>>) -> List<MyGenericIn<@JSW MyGenericOut<MyGenericOut<MyType>>>>
+                typealias MyLambdaAlias6 = (List<MyGenericIn<MyGenericOut<@JSW MyGenericOut<MyType>>>>) -> List<MyGenericIn<MyGenericOut<@JSW MyGenericOut<MyType>>>>
+                typealias MyLambdaAlias7 = (List<MyGenericIn<MyGenericOut<MyGenericOut<@JSW MyType>>>>) -> List<MyGenericIn<MyGenericOut<MyGenericOut<@JSW MyType>>>>
+                typealias MySuspendLambdaAlias1 = suspend (List<MyGenericIn<MyGenericOut<MyGenericOut<MyType>>>>) -> List<MyGenericIn<MyGenericOut<MyGenericOut<MyType>>>>
+                typealias MySuspendLambdaAlias2 = @JSW suspend (List<MyGenericIn<MyGenericOut<MyGenericOut<MyType>>>>) -> List<MyGenericIn<MyGenericOut<MyGenericOut<MyType>>>>
+                typealias MySuspendLambdaAlias3 = suspend (@JSW List<MyGenericIn<MyGenericOut<MyGenericOut<MyType>>>>) -> @JSW List<MyGenericIn<MyGenericOut<MyGenericOut<MyType>>>>
+                typealias MySuspendLambdaAlias4 = suspend (List<@JSW MyGenericIn<MyGenericOut<MyGenericOut<MyType>>>>) -> List<@JSW MyGenericIn<MyGenericOut<MyGenericOut<MyType>>>>
+                typealias MySuspendLambdaAlias5 = suspend (List<MyGenericIn<@JSW MyGenericOut<MyGenericOut<MyType>>>>) -> List<MyGenericIn<@JSW MyGenericOut<MyGenericOut<MyType>>>>
+                typealias MySuspendLambdaAlias6 = suspend (List<MyGenericIn<MyGenericOut<@JSW MyGenericOut<MyType>>>>) -> List<MyGenericIn<MyGenericOut<@JSW MyGenericOut<MyType>>>>
+                typealias MySuspendLambdaAlias7 = suspend (List<MyGenericIn<MyGenericOut<MyGenericOut<@JSW MyType>>>>) -> List<MyGenericIn<MyGenericOut<MyGenericOut<@JSW MyType>>>>
+                typealias MySuspendLambdaAlias8 = List<suspend (List<MyGenericIn<MyGenericOut<MyGenericOut<@JSW MyType>>>>) -> List<MyGenericIn<MyGenericOut<MyGenericOut<@JSW MyType>>>>>
+                typealias JSW = JvmSuppressWildcards
+                typealias JW = JvmWildcard
+                typealias MyLambdaTypeAlias = (@JvmWildcard MyType) -> @JvmWildcard MyType
+                typealias MyMapAlias<T> = Map<Int, @JvmSuppressWildcards MyGeneric<@JvmSuppressWildcards T>>
+                typealias MyMapAliasWithJSW<T> = Map<Int, @JSW MyGeneric<@JSW T>>
+                @JvmInline value class MyInlineType(val value: MyType)
                 enum class MyEnum {
                     VAL1,
                     VAL2;
@@ -221,6 +253,146 @@ class KspTypeNamesGoldenTest {
                         fun method11(iter: Iterable<String>): Iterable<String> = TODO()
                         fun method12(iter: Iterable<Number>): Iterable<Number> = TODO()
                         fun method13(iter: Iterable<MyType>): Iterable<MyType> = TODO()
+                        fun method14(list: List<MyLambdaTypeAlias>): MyLambdaTypeAlias = TODO()
+                        fun method15(
+                            list: List<MyGenericMultipleParameters<*, *>>
+                        ): List<MyGenericMultipleParameters<*, *>> = TODO()
+                        fun method16(
+                            param: MyGenericIn<MyGeneric<MyGenericIn<MyGeneric<MyType>>>>
+                        ): MyGenericIn<MyGeneric<MyGenericIn<MyGeneric<MyType>>>> = TODO()
+                        fun method17(
+                            param: MyGeneric<MyGeneric<MyGenericIn<MyGeneric<MyType>>>>
+                        ): MyGeneric<MyGeneric<MyGenericIn<MyGeneric<MyType>>>> = TODO()
+                        fun method18(
+                            param: MyGeneric<in MyGeneric<MyGenericIn<MyGeneric<MyType>>>>
+                        ): MyGeneric<in MyGeneric<MyGenericIn<MyGeneric<MyType>>>> = TODO()
+                        fun method19(
+                            param: MyGeneric<out MyGeneric<MyGenericIn<MyGeneric<MyType>>>>
+                        ): MyGeneric<out MyGeneric<MyGenericIn<MyGeneric<MyType>>>> = TODO()
+                        fun method20(
+                            param: MyGeneric<MyGeneric<out MyGenericIn<MyGeneric<MyType>>>>
+                        ): MyGeneric<MyGeneric<out MyGenericIn<MyGeneric<MyType>>>> = TODO()
+                        fun method21(
+                            param: MyGeneric<MyGeneric<in MyGenericIn<MyGeneric<MyType>>>>
+                        ): MyGeneric<MyGeneric<in MyGenericIn<MyGeneric<MyType>>>> = TODO()
+                        fun method22(
+                            param: MyGenericIn<in MyGeneric<MyGenericIn<MyGeneric<MyType>>>>
+                        ): MyGenericIn<in MyGeneric<MyGenericIn<MyGeneric<MyType>>>> = TODO()
+                        fun method23(
+                            param: MyGenericIn<MyGeneric<in MyGenericIn<MyGeneric<MyType>>>>
+                        ): MyGenericIn<MyGeneric<in MyGenericIn<MyGeneric<MyType>>>> = TODO()
+                        fun method24(
+                            param: MyGenericOut<MyGeneric<MyGenericOut<MyGeneric<MyType>>>>
+                        ): MyGenericOut<MyGeneric<MyGenericOut<MyGeneric<MyType>>>> = TODO()
+                        fun method25(
+                            param: MyGeneric<MyGeneric<MyGenericOut<MyGeneric<MyType>>>>
+                        ): MyGeneric<MyGeneric<MyGenericOut<MyGeneric<MyType>>>> = TODO()
+                        fun method26(
+                            param: MyGeneric<in MyGeneric<MyGenericOut<MyGeneric<MyType>>>>
+                        ): MyGeneric<in MyGeneric<MyGenericOut<MyGeneric<MyType>>>> = TODO()
+                        fun method27(
+                            param: MyGeneric<out MyGeneric<MyGenericOut<MyGeneric<MyType>>>>
+                        ): MyGeneric<out MyGeneric<MyGenericOut<MyGeneric<MyType>>>> = TODO()
+                        fun method28(
+                            param: MyGeneric<MyGeneric<out MyGenericOut<MyGeneric<MyType>>>>
+                        ): MyGeneric<MyGeneric<out MyGenericOut<MyGeneric<MyType>>>> = TODO()
+                        fun method29(
+                            param: MyGeneric<MyGeneric<in MyGenericOut<MyGeneric<MyType>>>>
+                        ): MyGeneric<MyGeneric<in MyGenericOut<MyGeneric<MyType>>>> = TODO()
+                        fun method30(
+                            param: MyGenericOut<out MyGeneric<MyGenericOut<MyGeneric<MyType>>>>
+                        ): MyGenericOut<out MyGeneric<MyGenericOut<MyGeneric<MyType>>>> = TODO()
+                        fun method31(
+                            param: MyGenericOut<MyGeneric<out MyGenericOut<MyGeneric<MyType>>>>
+                        ): MyGenericOut<MyGeneric<out MyGenericOut<MyGeneric<MyType>>>> = TODO()
+                        fun method32(
+                            param: MyGenericOutAlias<MyInterface>
+                        ): MyGenericOutAlias<MyInterface> = TODO()
+                        fun method33(
+                            param: MyGenericOut<MyGenericOutAlias<MyInterface>>
+                        ): MyGenericOut<MyGenericOutAlias<MyInterface>> = TODO()
+                        fun method34(
+                            param: MyGenericIn<MyGenericOutAlias<MyInterface>>
+                        ): MyGenericIn<MyGenericOutAlias<MyInterface>> = TODO()
+                        fun method35(
+                            param: MyGenericOutAlias<MyGenericOut<MyInterface>>
+                        ): MyGenericOutAlias<MyGenericOut<MyInterface>> = TODO()
+                        fun method36(
+                            param: MyGenericIn<MyGenericOutAlias<MyGenericOut<MyInterface>>>
+                        ): MyGenericIn<MyGenericOutAlias<MyGenericOut<MyInterface>>> = TODO()
+                        fun method37(
+                            param: MyGenericIn<MyGenericOutAlias<MyGenericIn<MyInterface>>>
+                        ): MyGenericIn<MyGenericOutAlias<MyGenericIn<MyInterface>>> = TODO()
+                        fun method38(
+                            param: MyGenericOutAliasWithJSW<MyInterface>
+                        ): MyGenericOutAliasWithJSW<MyInterface> = TODO()
+                        fun method39(
+                            param: MyGenericOut<MyGenericOutAliasWithJSW<MyInterface>>
+                        ): MyGenericOut<MyGenericOutAliasWithJSW<MyInterface>> = TODO()
+                        fun method40(
+                            param: MyGenericIn<MyGenericOutAliasWithJSW<MyInterface>>
+                        ): MyGenericIn<MyGenericOutAliasWithJSW<MyInterface>> = TODO()
+                        fun method41(
+                            param: MyGenericOutAliasWithJSW<MyGenericOut<MyInterface>>
+                        ): MyGenericOutAliasWithJSW<MyGenericOut<MyInterface>> = TODO()
+                        fun method42(
+                            param: MyGenericIn<MyGenericOutAliasWithJSW<MyGenericOut<MyInterface>>>
+                        ): MyGenericIn<MyGenericOutAliasWithJSW<MyGenericOut<MyInterface>>> = TODO()
+                        fun method43(
+                            param: MyGenericIn<MyGenericOutAliasWithJSW<MyGenericIn<MyInterface>>>
+                        ): MyGenericIn<MyGenericOutAliasWithJSW<MyGenericIn<MyInterface>>> = TODO()
+                        fun method44(
+                            param: MyGenericOutAliasWithJSW<MyType>
+                        ): MyGenericOutAliasWithJSW<MyType> = TODO()
+                        fun method45(
+                            param: MyGenericOut<MyGenericOutAliasWithJSW<MyType>>
+                        ): MyGenericOut<MyGenericOutAliasWithJSW<MyType>> = TODO()
+                        fun method46(
+                            param: MyGenericIn<MyGenericOutAliasWithJSW<MyType>>
+                        ): MyGenericIn<MyGenericOutAliasWithJSW<MyType>> = TODO()
+                        fun method47(
+                            param: MyGeneric2ParametersAlias<MyType, MyType>
+                        ): MyGeneric2ParametersAlias<MyType, MyType> = TODO()
+                        fun method48(
+                            param: MyGenericOut<MyGeneric2ParametersAlias<MyType, MyType>>
+                        ): MyGenericOut<MyGeneric2ParametersAlias<MyType, MyType>> = TODO()
+                        fun method49(
+                            param: MyGenericIn<MyGeneric2ParametersAlias<MyType, MyType>>
+                        ): MyGenericIn<MyGeneric2ParametersAlias<MyType, MyType>> = TODO()
+                        fun method50(
+                            param: MyGeneric2ParametersAlias<MyGenericOut<MyType>, MyGenericIn<MyType>>
+                        ): MyGeneric2ParametersAlias<MyGenericOut<MyType>, MyGenericIn<MyType>> = TODO()
+                        fun method51(
+                            param: MyGenericOut<MyGeneric2ParametersAlias<MyGenericOut<MyType>, MyGenericIn<MyType>>>
+                        ): MyGenericOut<MyGeneric2ParametersAlias<MyGenericOut<MyType>, MyGenericIn<MyType>>> = TODO()
+                        fun method52(
+                            param: MyGenericIn<MyGeneric2ParametersAlias<MyGenericOut<MyType>, MyGenericIn<MyType>>>
+                        ): MyGenericIn<MyGeneric2ParametersAlias<MyGenericOut<MyType>, MyGenericIn<MyType>>> = TODO()
+                        @JvmName("method53") // Needed to prevent obfuscation due to inline type.
+                        fun method53(param: MyInlineType): MyInlineType = TODO()
+                        fun method54(param: MyGenericOut<MyInlineType>): MyGenericOut<MyInlineType> = TODO()
+                        fun method55(param: MyGenericIn<MyInlineType>): MyGenericIn<MyInlineType> = TODO()
+                        fun method56(
+                            param: MyGeneric<out MyGeneric<out MyGenericOut<MyInterface>>>
+                        ): MyGeneric<out MyGeneric<out MyGenericOut<MyInterface>>> = TODO()
+                        fun method57(
+                            param: MyGeneric<out MyGeneric<MyGenericOut<MyInterface>>>
+                        ): MyGeneric<out MyGeneric<MyGenericOut<MyInterface>>> = TODO()
+                        fun method58(
+                            param: MyGeneric<out MyGenericOut<MyGenericOut<MyInterface>>>
+                        ): MyGeneric<out MyGenericOut<MyGenericOut<MyInterface>>> = TODO()
+                        fun method59(
+                            param: MyGeneric<suspend () -> Unit>
+                        ): MyGeneric<suspend () -> Unit> = TODO()
+                        fun method60(
+                            param: MyGenericIn<suspend () -> Unit>
+                        ): MyGenericIn<suspend () -> Unit> = TODO()
+                        fun method61(
+                            param: MyGenericOut<suspend () -> Unit>
+                        ): MyGenericOut<suspend () -> Unit> = TODO()
+                        fun method62(
+                            param: MyGenericOut<suspend (MyGenericOut<suspend () -> Unit>) -> MyGenericOut<suspend () -> Unit>>
+                        ): MyGenericOut<suspend (MyGenericOut<suspend () -> Unit>) -> MyGenericOut<suspend () -> Unit>> = TODO()
                     }
                 """.trimIndent()
             ), listOf("Subject")
@@ -284,7 +456,15 @@ class KspTypeNamesGoldenTest {
                     sealedListParent: List<GrandParentSealed.Parent1>,
                     sealedListChild: List<GrandParentSealed.Parent2.Child1>,
                     jvmWildcard: List<@JvmWildcard String>,
-                    suppressJvmWildcard: List<@JvmSuppressWildcards Number>
+                    suppressJvmWildcard: List<@JvmSuppressWildcards Number>,
+                    suppressJvmWildcardsGeneric1: @JvmSuppressWildcards List<MyGenericOut<MyGenericIn<MyGeneric<MyType>>>>,
+                    suppressJvmWildcardsGeneric2: List<@JvmSuppressWildcards MyGenericOut<MyGenericIn<MyGeneric<MyType>>>>,
+                    suppressJvmWildcardsGeneric3: List<MyGenericOut<@JvmSuppressWildcards MyGenericIn<MyGeneric<MyType>>>>,
+                    suppressJvmWildcardsGeneric4: List<MyGenericOut<MyGenericIn<@JvmSuppressWildcards MyGeneric<MyType>>>>,
+                    interfaceAlias: List<MyInterfaceAlias>,
+                    genericAlias: List<MyGenericAlias>,
+                    jvmWildcardTypeAlias: List<@JW String>,
+                    suppressJvmWildcardTypeAlias: List<@JSW Number>,
                 ) {
                     var propWithFinalType: String = ""
                     var propWithOpenType: Number = 3
@@ -297,6 +477,16 @@ class KspTypeNamesGoldenTest {
                     var propSealedListChild: List<GrandParentSealed.Parent2.Child1> = TODO()
                     @JvmSuppressWildcards
                     var propWithOpenTypeButSuppressAnnotation: Number = 3
+                    var genericVar: List<MyGenericIn<MyGenericOut<MyGenericOut<MyType>>>> = TODO()
+                    @JvmSuppressWildcards var suppressJvmWildcardsGenericVar1: List<MyGenericIn<MyGenericOut<MyGenericOut<MyType>>>> = TODO()
+                    var suppressJvmWildcardsGenericVar2: @JvmSuppressWildcards List<MyGenericIn<MyGenericOut<MyGenericOut<MyType>>>> = TODO()
+                    var suppressJvmWildcardsGenericVar3: List<@JvmSuppressWildcards MyGenericIn<MyGenericOut<MyGenericOut<MyType>>>> = TODO()
+                    var suppressJvmWildcardsGenericVar4: List<MyGenericIn<@JvmSuppressWildcards MyGenericOut<MyGenericOut<MyType>>>> = TODO()
+                    var suppressJvmWildcardsGenericVar5: List<MyGenericIn<MyGenericOut<@JvmSuppressWildcards MyGenericOut<MyType>>>> = TODO()
+                    var interfaceAlias: List<MyInterfaceAlias> = TODO()
+                    var genericAlias: List<MyGenericAlias> = TODO()
+                    var jvmWildcardTypeAlias: List<@JW String> = TODO()
+                    var suppressJvmWildcardTypeAlias: List<@JSW Number> = TODO()
                     fun list(list: List<*>): List<*> { TODO() }
                     fun listTypeArg(list: List<R>): List<R> { TODO() }
                     fun listTypeArgNumber(list: List<Number>): List<Number> { TODO() }
@@ -305,14 +495,18 @@ class KspTypeNamesGoldenTest {
                     fun listSealedListGrandParent(list: List<GrandParentSealed>): List<GrandParentSealed> { TODO() }
                     fun listSealedListParent(list: List<GrandParentSealed.Parent1>): List<GrandParentSealed.Parent1> { TODO() }
                     fun listSealedListChild(list: List<GrandParentSealed.Parent2.Child1>): List<GrandParentSealed.Parent2.Child1> { TODO() }
+                    fun explicitOutOnInvariant_onType1(
+                        list: MyGeneric<out MyGeneric<MyType>>
+                    ): MyGeneric<out MyGeneric<MyType>> { TODO() }
+                    fun explicitOutOnInvariant_onType2(
+                        list: MyGeneric<MyGeneric<out MyType>>
+                    ): MyGeneric<MyGeneric<out MyType>> { TODO() }
                     fun explicitJvmWildcard(
                         list: List<@JvmWildcard String>
                     ): List<@JvmWildcard String> { TODO() }
-
                     fun explicitJvmSuppressWildcard_OnType(
                         list: List<@JvmSuppressWildcards Number>
                     ): List<@JvmSuppressWildcards Number> { TODO() }
-
                     fun explicitJvmSuppressWildcard_OnType2(
                         list: @JvmSuppressWildcards List<Number>
                     ): @JvmSuppressWildcards List<Number> { TODO() }
@@ -327,14 +521,91 @@ class KspTypeNamesGoldenTest {
                     fun suspendExplicitJvmWildcard(
                         list: List<@JvmWildcard String>
                     ): List<@JvmWildcard String> { TODO() }
-
                     fun suspendExplicitJvmSuppressWildcard_OnType(
                         list: List<@JvmSuppressWildcards Number>
                     ): List<@JvmSuppressWildcards Number> { TODO() }
-
                     fun suspendExplicitJvmSuppressWildcard_OnType2(
                         list: @JvmSuppressWildcards List<Number>
                     ): @JvmSuppressWildcards List<Number> { TODO() }
+                    fun interfaceAlias(
+                        param: List<MyInterfaceAlias>
+                    ): List<MyInterfaceAlias> = TODO()
+                    fun explicitJvmSuppressWildcardsOnAlias(
+                        param: List<@JvmSuppressWildcards MyInterfaceAlias>,
+                    ): List<@JvmSuppressWildcards MyInterfaceAlias> = TODO()
+                    fun genericAlias(param: List<MyGenericAlias>): List<MyGenericAlias> = TODO()
+                    fun explicitJvmSuppressWildcardsOnGenericAlias(
+                        param: List<@JvmSuppressWildcards MyGenericAlias>,
+                    ): List<@JvmSuppressWildcards MyGenericAlias> = TODO()
+                    fun explicitOutOnInvariant_onType1_WithExplicitJvmSuppressWildcardAlias(
+                        list: @JSW MyGeneric<out MyGeneric<MyType>>
+                    ): @JSW MyGeneric<out MyGeneric<MyType>> { TODO() }
+                    fun explicitOutOnInvariant_onType2_WithExplicitJvmSuppressWildcardAlias(
+                        list: @JSW MyGeneric<MyGeneric<out MyType>>
+                    ): @JSW MyGeneric<MyGeneric<out MyType>> { TODO() }
+                    fun explicitOutOnVariant_onType1(
+                        list: List<out List<Number>>
+                    ): List<out List<Number>> { TODO() }
+                    fun explicitOutOnVariant_onType2(
+                        list: List<List<out Number>>
+                    ): List<List<out Number>> { TODO() }
+                    fun explicitOutOnVariant_onType1_WithExplicitJvmSuppressWildcardAlias(
+                        list: @JSW List<out List<Number>>
+                    ): @JSW List<out List<Number>> { TODO() }
+                    fun explicitOutOnVariant_onType2_WithExplicitJvmSuppressWildcardAlias(
+                        list: @JSW List<List<out Number>>
+                    ): @JSW List<List<out Number>> { TODO() }
+                    fun explicitJvmWildcardTypeAlias(
+                        list: List<@JW String>
+                    ): List<@JW String> { TODO() }
+                    fun explicitJvmSuppressWildcardTypeAlias_OnType(
+                        list: List<@JSW Number>
+                    ): List<@JSW Number> { TODO() }
+                    fun explicitJvmSuppressWildcardTypeAlias_OnType2(
+                        list: @JSW List<Number>
+                    ): @JSW List<Number> { TODO() }
+                    fun lambda1(param: MyLambdaAlias1): MyLambdaAlias1 = TODO()
+                    fun lambda2(param: MyLambdaAlias2): MyLambdaAlias2 = TODO()
+                    fun lambda3(param: MyLambdaAlias3): MyLambdaAlias3 = TODO()
+                    fun lambda4(param: MyLambdaAlias4): MyLambdaAlias4 = TODO()
+                    fun lambda5(param: MyLambdaAlias5): MyLambdaAlias5 = TODO()
+                    fun lambda6(param: MyLambdaAlias6): MyLambdaAlias6 = TODO()
+                    fun lambda7(param: MyLambdaAlias7): MyLambdaAlias7 = TODO()
+                    @JSW fun lambda1WithJSW(param: MyLambdaAlias1): MyLambdaAlias1 = TODO()
+                    @JSW fun lambda2WithJSW(param: MyLambdaAlias2): MyLambdaAlias2 = TODO()
+                    @JSW fun lambda3WithJSW(param: MyLambdaAlias3): MyLambdaAlias3 = TODO()
+                    @JSW fun lambda4WithJSW(param: MyLambdaAlias4): MyLambdaAlias4 = TODO()
+                    @JSW fun lambda5WithJSW(param: MyLambdaAlias5): MyLambdaAlias5 = TODO()
+                    @JSW fun lambda6WithJSW(param: MyLambdaAlias6): MyLambdaAlias6 = TODO()
+                    @JSW fun lambda7WithJSW(param: MyLambdaAlias7): MyLambdaAlias7 = TODO()
+                    fun suspendLambda1(param: MySuspendLambdaAlias1): MySuspendLambdaAlias1 = TODO()
+                    fun suspendLambda2(param: MySuspendLambdaAlias2): MySuspendLambdaAlias2 = TODO()
+                    fun suspendLambda3(param: MySuspendLambdaAlias3): MySuspendLambdaAlias3 = TODO()
+                    fun suspendLambda4(param: MySuspendLambdaAlias4): MySuspendLambdaAlias4 = TODO()
+                    fun suspendLambda5(param: MySuspendLambdaAlias5): MySuspendLambdaAlias5 = TODO()
+                    fun suspendLambda6(param: MySuspendLambdaAlias6): MySuspendLambdaAlias6 = TODO()
+                    fun suspendLambda7(param: MySuspendLambdaAlias7): MySuspendLambdaAlias7 = TODO()
+                    fun suspendLambda8(param: MySuspendLambdaAlias8): MySuspendLambdaAlias8 = TODO()
+                    @JSW fun suspendLambda1WithJSW(param: MySuspendLambdaAlias1): MySuspendLambdaAlias1 = TODO()
+                    @JSW fun suspendLambda2WithJSW(param: MySuspendLambdaAlias2): MySuspendLambdaAlias2 = TODO()
+                    @JSW fun suspendLambda3WithJSW(param: MySuspendLambdaAlias3): MySuspendLambdaAlias3 = TODO()
+                    @JSW fun suspendLambda4WithJSW(param: MySuspendLambdaAlias4): MySuspendLambdaAlias4 = TODO()
+                    @JSW fun suspendLambda5WithJSW(param: MySuspendLambdaAlias5): MySuspendLambdaAlias5 = TODO()
+                    @JSW fun suspendLambda6WithJSW(param: MySuspendLambdaAlias6): MySuspendLambdaAlias6 = TODO()
+                    @JSW fun suspendLambda7WithJSW(param: MySuspendLambdaAlias7): MySuspendLambdaAlias7 = TODO()
+                    @JSW fun suspendLambda8WithJSW(param: MySuspendLambdaAlias8): MySuspendLambdaAlias8 = TODO()
+                    fun mapTypeAlias1(param: MyMapAlias<R>): MyMapAlias<R> = TODO()
+                    fun mapTypeAlias2(param: MyMapAlias<MyInterface>): MyMapAlias<MyInterface> = TODO()
+                    fun mapTypeAlias3(param: MyGeneric<MyMapAlias<R>>): MyGeneric<MyMapAlias<R>> = TODO()
+                    fun mapTypeAlias4(param: MyGeneric<MyMapAlias<MyInterface>>): MyGeneric<MyMapAlias<MyInterface>> = TODO()
+                    fun mapTypeAlias5(param: MyGeneric<MyMapAlias<MyGeneric<R>>>): MyGeneric<MyMapAlias<MyGeneric<R>>> = TODO()
+                    fun mapTypeAlias6(param: MyGeneric<MyMapAlias<MyGeneric<MyInterface>>>): MyGeneric<MyMapAlias<MyGeneric<MyInterface>>> = TODO()
+                    fun mapTypeAlias7(param: MyMapAliasWithJSW<R>): MyMapAliasWithJSW<R> = TODO()
+                    fun mapTypeAlias8(param: MyMapAliasWithJSW<MyInterface>): MyMapAliasWithJSW<MyInterface> = TODO()
+                    fun mapTypeAlias9(param: MyGeneric<MyMapAliasWithJSW<R>>): MyGeneric<MyMapAliasWithJSW<R>> = TODO()
+                    fun mapTypeAlias10(param: MyGeneric<MyMapAliasWithJSW<MyInterface>>): MyGeneric<MyMapAliasWithJSW<MyInterface>> = TODO()
+                    fun mapTypeAlias11(param: MyGeneric<MyMapAliasWithJSW<MyGeneric<R>>>): MyGeneric<MyMapAliasWithJSW<MyGeneric<R>>> = TODO()
+                    fun mapTypeAlias12(param: MyGeneric<MyMapAliasWithJSW<MyGeneric<MyInterface>>>): MyGeneric<MyMapAliasWithJSW<MyGeneric<MyInterface>>> = TODO()
                 }
                 """.trimIndent()
             ), listOf(className)

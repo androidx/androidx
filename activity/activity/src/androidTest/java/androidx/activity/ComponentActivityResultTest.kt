@@ -31,10 +31,10 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertThat
-import leakcanary.DetectLeaksAfterTestSuccess
-import org.junit.Rule
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import leakcanary.DetectLeaksAfterTestSuccess
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -77,8 +77,8 @@ class ComponentActivityResultTest {
             scenario.withActivity { }
 
             scenario.withActivity {
-                assertThat(firstLaunchCount).isEqualTo(0)
-                assertThat(secondLaunchCount).isEqualTo(1)
+                assertThat(launchCountDownLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
+                assertThat(launchedList).containsExactly("second")
             }
         }
     }
@@ -149,7 +149,7 @@ class PassThroughActivity : ComponentActivity() {
     @Suppress("DEPRECATION")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        launcher.launch(intent.getParcelableExtra("destinationIntent"))
+        launcher.launch(intent.getParcelableExtra("destinationIntent")!!)
     }
 }
 
@@ -179,19 +179,21 @@ class ResultComponentActivity : ComponentActivity() {
 
 class RegisterBeforeOnCreateActivity : ComponentActivity() {
     lateinit var launcher: ActivityResultLauncher<Intent>
-    var firstLaunchCount = 0
-    var secondLaunchCount = 0
+    var launchCountDownLatch = CountDownLatch(1)
+    val launchedList = mutableListOf<String>()
     var recreated = false
 
     init {
         addOnContextAvailableListener {
             launcher = if (!recreated) {
                 registerForActivityResult(StartActivityForResult()) {
-                    firstLaunchCount++
+                    launchedList.add("first")
+                    launchCountDownLatch.countDown()
                 }
             } else {
                 registerForActivityResult(StartActivityForResult()) {
-                    secondLaunchCount++
+                    launchedList.add("second")
+                    launchCountDownLatch.countDown()
                 }
             }
         }

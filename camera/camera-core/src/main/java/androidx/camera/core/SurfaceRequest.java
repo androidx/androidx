@@ -38,6 +38,7 @@ import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.ImageFormatConstants;
 import androidx.camera.core.impl.ImageOutputConfig;
+import androidx.camera.core.impl.StreamSpec;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
@@ -86,6 +87,16 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class SurfaceRequest {
+
+    /**
+     * A frame rate range with no specified lower or upper bound.
+     *
+     * @see SurfaceRequest#getExpectedFrameRate()
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final Range<Integer> FRAME_RATE_RANGE_UNSPECIFIED =
+            StreamSpec.FRAME_RATE_RANGE_UNSPECIFIED;
+
     private final Object mLock = new Object();
 
     private final Size mResolution;
@@ -93,7 +104,6 @@ public final class SurfaceRequest {
     @NonNull
     private final DynamicRange mDynamicRange;
 
-    @Nullable
     private final Range<Integer> mExpectedFrameRate;
     private final CameraInternal mCamera;
 
@@ -129,27 +139,25 @@ public final class SurfaceRequest {
 
     /**
      * Creates a new surface request with the given resolution and {@link Camera}.
-     *
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public SurfaceRequest(
             @NonNull Size resolution,
             @NonNull CameraInternal camera,
             @NonNull Runnable onInvalidated) {
-        this(resolution, camera, DynamicRange.SDR, /*expectedFrameRate=*/null, onInvalidated);
+        this(resolution, camera, DynamicRange.SDR, FRAME_RATE_RANGE_UNSPECIFIED, onInvalidated);
     }
 
     /**
-     * Creates a new surface request with the given resolution, {@link Camera}, and an optional
+     * Creates a new surface request with the given resolution, {@link Camera}, dynamic range, and
      * expected frame rate.
-     *
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public SurfaceRequest(
             @NonNull Size resolution,
             @NonNull CameraInternal camera,
             @NonNull DynamicRange dynamicRange,
-            @Nullable Range<Integer> expectedFrameRate,
+            @NonNull Range<Integer> expectedFrameRate,
             @NonNull Runnable onInvalidated) {
         super();
         mResolution = resolution;
@@ -278,7 +286,6 @@ public final class SurfaceRequest {
     /**
      * Returns the {@link DeferrableSurface} instance used to track usage of the surface that
      * fulfills this request.
-     *
      */
     @NonNull
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -292,7 +299,6 @@ public final class SurfaceRequest {
      * <p>A surface request is considered serviced if
      * {@link #provideSurface(Surface, Executor, Consumer)} or {@link #willNotProvideSurface()}
      * has been called.
-     *
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public boolean isServiced() {
@@ -323,11 +329,11 @@ public final class SurfaceRequest {
      * care should be taken to ensure the provided surface can support the requested dynamic
      * range. For example, if the returned dynamic range has {@link DynamicRange#getBitDepth()}
      * equal to {@link DynamicRange#BIT_DEPTH_10_BIT}, then the surface provided to
-     * {@link #provideSurface(Surface, Executor, Consumer)} should use a format that can support
-     * ten bits of dynamic range, such as {@link android.graphics.ImageFormat#PRIVATE} or
+     * {@link #provideSurface(Surface, Executor, Consumer)} should use an
+     * {@link android.graphics.ImageFormat} that can support ten bits of dynamic range, such as
+     * {@link android.graphics.ImageFormat#PRIVATE} or
      * {@link android.graphics.ImageFormat#YCBCR_P010}.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull
     public DynamicRange getDynamicRange() {
         return mDynamicRange;
@@ -346,22 +352,21 @@ public final class SurfaceRequest {
      * conditions. The frame rate may also be fixed, in which case {@link Range#getUpper()} will
      * be equivalent to {@link Range#getLower()}.
      *
-     * <p>This method may also return {@code null} if no information about the frame rate can be
-     * determined. In this case, no assumptions should be made about what the actual frame rate
-     * will be.
+     * <p>This method may also return {@link #FRAME_RATE_RANGE_UNSPECIFIED} if no information about
+     * the frame rate can be determined. In this case, no assumptions should be made about what
+     * the actual frame rate will be.
      *
-     * @return The expected frame rate range or {@code null} if no frame rate information is
-     * available.
+     * @return The expected frame rate range or {@link #FRAME_RATE_RANGE_UNSPECIFIED} if no frame
+     * rate information is available.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @Nullable
+    @NonNull
     public Range<Integer> getExpectedFrameRate() {
         return mExpectedFrameRate;
     }
 
     /**
      * Returns the {@link Camera} which is requesting a {@link Surface}.
-     *
      */
     @NonNull
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -568,7 +573,6 @@ public final class SurfaceRequest {
 
     /**
      * Updates the {@link TransformationInfo} associated with this {@link SurfaceRequest}.
-     *
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public void updateTransformationInfo(@NonNull TransformationInfo transformationInfo) {
@@ -668,7 +672,6 @@ public final class SurfaceRequest {
 
         /**
          * Possible result codes.
-         *
          */
         @IntDef({RESULT_SURFACE_USED_SUCCESSFULLY, RESULT_REQUEST_CANCELLED, RESULT_INVALID_SURFACE,
                 RESULT_SURFACE_ALREADY_PROVIDED, RESULT_WILL_NOT_PROVIDE_SURFACE})
@@ -889,39 +892,95 @@ public final class SurfaceRequest {
         /**
          * Whether the {@link Surface} contains the camera transform.
          *
-         * <p>The {@link Surface} may contain a transformation, which will be used by Android
-         * components such as {@link TextureView} and {@link SurfaceView} to transform the output.
-         * The app may need to handle the transformation differently based on whether this value
-         * exists.
+         * <p>When the Surface is connected to the camera directly, camera writes the
+         * camera orientation value to the Surface. For example, the value can be retrieved via
+         * {@link SurfaceTexture#getTransformMatrix(float[])}. Android components such
+         * as {@link TextureView} and {@link SurfaceView} use the value to transform the output.
+         * When the Surface is not connect to the camera directly, for example, when it was
+         * copied with OpenGL, the Surface will not contain the camera orientation value.
          *
-         * <ul>
-         * <li>If the producer is the camera, then the {@link Surface} will contain a
-         * transformation that represents the camera orientation. In that case, this method will
-         * return {@code true}.
-         * <li>If the producer is not the camera, for example, if the stream has been edited by
-         * CameraX, then the {@link Surface} will not contain any transformation. In that case,
-         * this method will return {@code false}.
-         * </ul>
+         * <p>The app may need to transform the UI differently based on this flag. If this value
+         * is true, the app only needs to apply the Surface transformation; otherwise, the app
+         * needs to apply the value of {@link #getRotationDegrees()}. For example, if the preview
+         * is displayed in a {@link TextureView}:
          *
-         * @return true if the producer writes the camera transformation to the {@link Surface}.
+         * <pre><code>
+         * int rotationDegrees;
+         * if (surfaceRequest.hasCameraTransform()) {
+         *   switch (textureView.getDisplay().getRotation()) {
+         *     case Surface.ROTATION_0:
+         *       rotationDegrees = 0;
+         *       break;
+         *     case Surface.ROTATION_90:
+         *       rotationDegrees = 90;
+         *       break;
+         *     case Surface.ROTATION_180:
+         *       rotationDegrees = 180;
+         *       break;
+         *     case Surface.ROTATION_270:
+         *       rotationDegrees = 270;
+         *       break;
+         *     }
+         * } else {
+         *   rotationDegrees = transformationInfo.getRotationDegrees();
+         * }
+         * Matrix textureViewTransform = new Matrix();
+         * textureViewTransform.postRotate(rotationDegrees);
+         * textureView.setTransform(textureViewTransform);
+         * </code></pre>
+         *
+         * @return true if the {@link Surface} contains the camera transformation.
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public abstract boolean hasCameraTransform();
+
+        /**
+         * Returns the sensor to image buffer transform matrix.
+         *
+         * <p>The value is a mapping from sensor coordinates to buffer coordinates, which is,
+         * from the rect of {@link CameraCharacteristics#SENSOR_INFO_ACTIVE_ARRAY_SIZE} to the
+         * rect defined by {@code (0, 0, #getResolution#getWidth(), #getResolution#getHeight())}.
+         * The matrix can be used to map the coordinates from one {@link UseCase} to another. For
+         * example, detecting face with {@link ImageAnalysis}, and then highlighting the face in
+         * {@link Preview}.
+         *
+         * <p>Code sample
+         * <code><pre>
+         *  // Get the transformation from sensor to effect input.
+         *  Matrix sensorToEffect = surfaceRequest.getSensorToBufferTransform();
+         *  // Get the transformation from sensor to ImageAnalysis.
+         *  Matrix sensorToAnalysis = imageProxy.getSensorToBufferTransform();
+         *  // Concatenate the two matrices to get the transformation from ImageAnalysis to effect.
+         *  Matrix analysisToEffect = Matrix()
+         *  sensorToAnalysis.invert(analysisToEffect);
+         *  analysisToEffect.postConcat(sensorToEffect);
+         * </pre></code>
+         */
+        @NonNull
+        public abstract Matrix getSensorToBufferTransform();
+
+        /**
+         * Returns whether the buffer should be mirrored.
+         *
+         * <p>This flag indicates whether the buffer needs to be mirrored across the vertical
+         * axis. For example, for front camera preview, the buffer should usually be mirrored. The
+         * mirroring should be applied after the {@link #getRotationDegrees()} is applied.
+         */
+        public abstract boolean isMirroring();
 
         /**
          * Creates new {@link TransformationInfo}
          *
          * <p> Internally public to be used in view artifact tests.
-         *
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @NonNull
         public static TransformationInfo of(@NonNull Rect cropRect,
                 @ImageOutputConfig.RotationDegreesValue int rotationDegrees,
                 @ImageOutputConfig.OptionalRotationValue int targetRotation,
-                boolean hasCameraTransform) {
+                boolean hasCameraTransform, @NonNull Matrix sensorToBufferTransform,
+                boolean mirroring) {
             return new AutoValue_SurfaceRequest_TransformationInfo(cropRect, rotationDegrees,
-                    targetRotation, hasCameraTransform);
+                    targetRotation, hasCameraTransform, sensorToBufferTransform, mirroring);
         }
 
         // Hides public constructor.

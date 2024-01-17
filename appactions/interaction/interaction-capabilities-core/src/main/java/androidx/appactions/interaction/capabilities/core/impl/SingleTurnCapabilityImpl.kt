@@ -18,33 +18,30 @@ package androidx.appactions.interaction.capabilities.core.impl
 
 import androidx.annotation.RestrictTo
 import androidx.appactions.interaction.capabilities.core.Capability
-import androidx.appactions.interaction.capabilities.core.ActionExecutorAsync
+import androidx.appactions.interaction.capabilities.core.ExecutionCallback
 import androidx.appactions.interaction.capabilities.core.HostProperties
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpec
+import androidx.appactions.interaction.capabilities.core.impl.spec.BoundProperty
 import androidx.appactions.interaction.proto.AppActionsContext.AppAction
-import androidx.appactions.interaction.proto.TaskInfo
 import kotlinx.coroutines.sync.Mutex
 
-/** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 internal class SingleTurnCapabilityImpl<
-    PropertyT,
     ArgumentsT,
     OutputT,
     > constructor(
-    override val id: String,
-    val actionSpec: ActionSpec<PropertyT, ArgumentsT, OutputT>,
-    val property: PropertyT,
-    val actionExecutorAsync: ActionExecutorAsync<ArgumentsT, OutputT>,
-) : Capability {
+    id: String,
+    val actionSpec: ActionSpec<ArgumentsT, OutputT>,
+    val boundProperties: List<BoundProperty<*>>,
+    val executionCallback: ExecutionCallback<ArgumentsT, OutputT>,
+) : Capability(id) {
     private val mutex = Mutex()
 
-    override fun getAppAction(): AppAction {
-        return actionSpec.convertPropertyToProto(property).toBuilder()
-            .setTaskInfo(TaskInfo.newBuilder().setSupportsPartialFulfillment(false))
-            .setIdentifier(id)
-            .build()
-    }
+    override val appAction: AppAction get() = actionSpec.createAppAction(
+        id,
+        boundProperties,
+        supportsPartialFulfillment = false
+    )
 
     override fun createSession(
         sessionId: String,
@@ -53,7 +50,7 @@ internal class SingleTurnCapabilityImpl<
         return SingleTurnCapabilitySession(
             sessionId,
             actionSpec,
-            actionExecutorAsync,
+            executionCallback,
             mutex,
         )
     }

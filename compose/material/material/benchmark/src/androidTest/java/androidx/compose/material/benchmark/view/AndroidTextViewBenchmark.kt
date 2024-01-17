@@ -72,7 +72,7 @@ class AndroidTextViewBenchmark(private val textLength: Int) {
     fun first_setContentPlusMeasure() {
         with(benchmarkRule) {
             runBenchmarkFor(caseFactory) {
-                measureRepeated {
+                measureRepeatedOnUiThread {
                     setupContent()
                     runWithTimingDisabled {
                         requestLayout()

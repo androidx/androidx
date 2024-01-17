@@ -18,12 +18,12 @@ package androidx.profileinstaller;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.channels.FileLock;
 import java.nio.charset.StandardCharsets;
 import java.util.zip.DataFormatException;
 import java.util.zip.Deflater;
@@ -33,7 +33,6 @@ import java.util.zip.Inflater;
 /**
  * A set of utilities on top of InputStream / OutputStream that are used by [ProfileTranscoder].
  */
-@RequiresApi(19)
 class Encoding {
     private Encoding() {}
 
@@ -184,7 +183,14 @@ class Encoding {
         return out.toByteArray();
     }
 
-    static void writeAll(@NonNull InputStream is, @NonNull OutputStream os) throws IOException {
+    static void writeAll(@NonNull InputStream is,
+            @NonNull OutputStream os,
+            @Nullable FileLock lock) throws IOException {
+
+        boolean isValid = lock != null && lock.isValid();
+        if (!isValid) {
+            throw new IOException("Unable to acquire a lock on the underlying file channel.");
+        }
         byte[] buf = new byte[512];
         int length;
         while ((length = is.read(buf)) > 0) {

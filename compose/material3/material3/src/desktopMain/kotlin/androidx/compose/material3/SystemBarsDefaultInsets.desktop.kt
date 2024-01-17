@@ -17,8 +17,8 @@
 package androidx.compose.material3
 
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.unit.dp
 
 internal actual val WindowInsets.Companion.systemBarsForVisualComponents: WindowInsets
     @Composable

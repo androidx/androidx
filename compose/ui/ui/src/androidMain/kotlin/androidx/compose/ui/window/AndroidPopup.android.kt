@@ -22,6 +22,7 @@ import android.graphics.Outline
 import android.graphics.PixelFormat
 import android.graphics.Rect
 import android.os.Build
+import android.os.Looper
 import android.view.Gravity
 import android.view.KeyEvent
 import android.view.MotionEvent
@@ -30,6 +31,9 @@ import android.view.View.MeasureSpec.makeMeasureSpec
 import android.view.ViewGroup
 import android.view.ViewOutlineProvider
 import android.view.WindowManager
+import android.window.OnBackInvokedCallback
+import android.window.OnBackInvokedDispatcher
+import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
 import androidx.compose.runtime.Composable
@@ -48,6 +52,7 @@ import androidx.compose.runtime.rememberCompositionContext
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateObserver
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -74,14 +79,14 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastMap
+import androidx.compose.ui.util.fastRoundToInt
 import androidx.lifecycle.findViewTreeLifecycleOwner
-import androidx.lifecycle.setViewTreeLifecycleOwner
 import androidx.lifecycle.findViewTreeViewModelStoreOwner
+import androidx.lifecycle.setViewTreeLifecycleOwner
 import androidx.lifecycle.setViewTreeViewModelStoreOwner
 import androidx.savedstate.findViewTreeSavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import java.util.UUID
-import kotlin.math.roundToInt
 import kotlinx.coroutines.isActive
 import org.jetbrains.annotations.TestOnly
 
@@ -391,7 +396,7 @@ internal class PopupLayout(
     private val windowManager =
         composeView.context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
 
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    @VisibleForTesting
     internal val params = createLayoutParams()
 
     /** The logic of positioning the popup relative to its parent. */
@@ -416,6 +421,18 @@ internal class PopupLayout(
     private val previousWindowVisibleFrame = Rect()
 
     override val subCompositionView: AbstractComposeView get() = this
+
+    private val snapshotStateObserver = SnapshotStateObserver(onChangedExecutor = { command ->
+        // This is the same executor logic used by AndroidComposeView's OwnerSnapshotObserver, which
+        // drives most of the state observation in compose UI.
+        if (handler?.looper === Looper.myLooper()) {
+            command()
+        } else {
+            handler?.post(command)
+        }
+    })
+
+    private var backCallback: Any? = null
 
     init {
         id = android.R.id.content
@@ -465,6 +482,19 @@ internal class PopupLayout(
         content()
     }
 
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        snapshotStateObserver.start()
+        maybeRegisterBackCallback()
+    }
+
+    override fun onDetachedFromWindow() {
+        super.onDetachedFromWindow()
+        snapshotStateObserver.stop()
+        snapshotStateObserver.clear()
+        maybeUnregisterBackCallback()
+    }
+
     override fun internalOnMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         if (properties.usePlatformDefaultWidth) {
             super.internalOnMeasure(widthMeasureSpec, heightMeasureSpec)
@@ -483,22 +513,24 @@ internal class PopupLayout(
         super.internalOnLayout(changed, left, top, right, bottom)
         // Now set the content size as fixed layout params, such that ViewRootImpl knows
         // the exact window size.
-        val child = getChildAt(0) ?: return
-        params.width = child.measuredWidth
-        params.height = child.measuredHeight
-        popupLayoutHelper.updateViewLayout(windowManager, this, params)
+        if (!properties.usePlatformDefaultWidth) {
+            val child = getChildAt(0) ?: return
+            params.width = child.measuredWidth
+            params.height = child.measuredHeight
+            popupLayoutHelper.updateViewLayout(windowManager, this, params)
+        }
     }
 
     private val displayWidth: Int
         get() {
             val density = context.resources.displayMetrics.density
-            return (context.resources.configuration.screenWidthDp * density).roundToInt()
+            return (context.resources.configuration.screenWidthDp * density).fastRoundToInt()
         }
 
     private val displayHeight: Int
         get() {
             val density = context.resources.displayMetrics.density
-            return (context.resources.configuration.screenHeightDp * density).roundToInt()
+            return (context.resources.configuration.screenHeightDp * density).fastRoundToInt()
         }
 
     /**
@@ -522,6 +554,23 @@ internal class PopupLayout(
             }
         }
         return super.dispatchKeyEvent(event)
+    }
+
+    private fun maybeRegisterBackCallback() {
+        if (!properties.dismissOnBackPress || Build.VERSION.SDK_INT < 33) {
+            return
+        }
+        if (backCallback == null) {
+            backCallback = Api33Impl.createBackCallback(onDismissRequest)
+        }
+        Api33Impl.maybeRegisterBackCallback(this, backCallback)
+    }
+
+    private fun maybeUnregisterBackCallback() {
+        if (Build.VERSION.SDK_INT >= 33) {
+            Api33Impl.maybeUnregisterBackCallback(this, backCallback)
+        }
+        backCallback = null
     }
 
     /**
@@ -562,6 +611,13 @@ internal class PopupLayout(
         layoutDirection: LayoutDirection
     ) {
         this.onDismissRequest = onDismissRequest
+        if (properties.usePlatformDefaultWidth && !this.properties.usePlatformDefaultWidth) {
+            // Undo fixed size in internalOnLayout, which would suppress size changes when
+            // usePlatformDefaultWidth is true.
+            params.width = WindowManager.LayoutParams.WRAP_CONTENT
+            params.height = WindowManager.LayoutParams.WRAP_CONTENT
+            popupLayoutHelper.updateViewLayout(windowManager, this, params)
+        }
         this.properties = properties
         this.testTag = testTag
         setIsFocusable(properties.focusable)
@@ -616,13 +672,13 @@ internal class PopupLayout(
      * changed since the last call, calls [updatePosition] to actually calculate the popup's new
      * position and update the window.
      */
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    @VisibleForTesting
     internal fun updateParentBounds() {
         val coordinates = parentLayoutCoordinates ?: return
         val layoutSize = coordinates.size
 
         val position = coordinates.positionInWindow()
-        val layoutPosition = IntOffset(position.x.roundToInt(), position.y.roundToInt())
+        val layoutPosition = IntOffset(position.x.fastRoundToInt(), position.y.fastRoundToInt())
 
         val newParentBounds = IntRect(layoutPosition, layoutSize)
         if (newParentBounds != parentBounds) {
@@ -644,12 +700,15 @@ internal class PopupLayout(
             IntSize(width = bounds.width, height = bounds.height)
         }
 
-        val popupPosition = positionProvider.calculatePosition(
-            parentBounds,
-            windowSize,
-            parentLayoutDirection,
-            popupContentSize
-        )
+        var popupPosition = IntOffset.Zero
+        snapshotStateObserver.observeReads(this, onCommitAffectingPopupPosition) {
+            popupPosition = positionProvider.calculatePosition(
+                parentBounds,
+                windowSize,
+                parentLayoutDirection,
+                popupContentSize
+            )
+        }
 
         params.x = popupPosition.x
         params.y = popupPosition.y
@@ -746,13 +805,48 @@ internal class PopupLayout(
             title = composeView.context.resources.getString(R.string.default_popup_window_title)
         }
     }
+
+    private companion object {
+        private val onCommitAffectingPopupPosition = { popupLayout: PopupLayout ->
+            if (popupLayout.isAttachedToWindow) {
+                popupLayout.updatePosition()
+            }
+        }
+    }
+}
+
+@RequiresApi(33)
+private object Api33Impl {
+    @JvmStatic
+    @DoNotInline
+    fun createBackCallback(onDismissRequest: (() -> Unit)?) =
+        OnBackInvokedCallback { onDismissRequest?.invoke() }
+
+    @JvmStatic
+    @DoNotInline
+    fun maybeRegisterBackCallback(view: View, backCallback: Any?) {
+        if (backCallback is OnBackInvokedCallback) {
+            view.findOnBackInvokedDispatcher()?.registerOnBackInvokedCallback(
+                OnBackInvokedDispatcher.PRIORITY_OVERLAY,
+                backCallback
+            )
+        }
+    }
+
+    @JvmStatic
+    @DoNotInline
+    fun maybeUnregisterBackCallback(view: View, backCallback: Any?) {
+        if (backCallback is OnBackInvokedCallback) {
+            view.findOnBackInvokedDispatcher()?.unregisterOnBackInvokedCallback(backCallback)
+        }
+    }
 }
 
 /**
  * Collection of methods delegated to platform methods to support APIs only available on newer
  * platforms and testing.
  */
-@VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+@VisibleForTesting
 internal interface PopupLayoutHelper {
     fun getWindowVisibleDisplayFrame(composeView: View, outRect: Rect)
     fun setGestureExclusionRects(composeView: View, width: Int, height: Int)

@@ -20,13 +20,13 @@ import android.text.TextPaint
 import androidx.compose.ui.text.android.InternalPlatformTextApi
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import org.junit.Test
+import org.junit.runner.RunWith
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
-import org.junit.Test
-import org.junit.runner.RunWith
 
 @OptIn(InternalPlatformTextApi::class)
 @MediumTest

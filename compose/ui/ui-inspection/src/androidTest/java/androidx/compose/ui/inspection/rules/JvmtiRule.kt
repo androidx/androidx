@@ -17,8 +17,8 @@
 package androidx.compose.ui.inspection.rules
 
 import android.os.Debug
-import org.junit.rules.ExternalResource
 import java.io.IOException
+import org.junit.rules.ExternalResource
 
 class JvmtiRule : ExternalResource() {
     companion object {

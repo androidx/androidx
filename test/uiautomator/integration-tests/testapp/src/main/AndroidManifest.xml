@@ -15,9 +15,6 @@
 -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-
-    <uses-sdk android:minSdkVersion="18" />
-
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
 
     <queries>
@@ -85,7 +82,21 @@
                 <action android:name="android.intent.action.MAIN" />
             </intent-filter>
         </activity>
+        <activity android:name=".DrawingOrderTestActivity"
+            android:exported="true"
+            android:theme="@android:style/Theme.Holo.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+            </intent-filter>
+        </activity>
         <activity android:name=".FlingTestActivity"
+            android:exported="true"
+            android:theme="@android:style/Theme.Holo.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".HintTestActivity"
             android:exported="true"
             android:theme="@android:style/Theme.Holo.NoActionBar">
             <intent-filter>

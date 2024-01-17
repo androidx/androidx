@@ -17,10 +17,11 @@ package androidx.window.layout.adapter
 
 import android.app.Activity
 import android.content.Context
+import androidx.annotation.RestrictTo
+import androidx.annotation.UiContext
 import androidx.core.util.Consumer
 import androidx.window.layout.WindowLayoutInfo
 import java.util.concurrent.Executor
-import androidx.annotation.UiContext
 
 /**
  * Backing interface for [androidx.window.layout.WindowInfoTracker] instances that serve as the
@@ -44,4 +45,9 @@ internal interface WindowBackend {
      * Unregisters a callback for window layout changes.
      */
     fun unregisterLayoutChangeCallback(callback: Consumer<WindowLayoutInfo>)
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    fun hasRegisteredListeners(): Boolean {
+        return false
+    }
 }

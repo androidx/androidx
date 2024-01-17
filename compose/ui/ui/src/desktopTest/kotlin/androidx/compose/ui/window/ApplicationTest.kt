@@ -23,8 +23,8 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.ExperimentalComposeApi
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MonotonicFrameClock
-import androidx.compose.runtime.monotonicFrameClock
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.monotonicFrameClock
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi

@@ -21,9 +21,9 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.SnapshotMutationPolicy
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.autoSaver
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.SaverScope
+import androidx.compose.runtime.saveable.autoSaver
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotMutableState
 import androidx.core.os.bundleOf
@@ -184,7 +184,7 @@ private fun <T> mutableStateSaver(inner: Saver<T, out Any>) = with(inner as Save
             }
             mutableStateOf(save(state.value), state.policy as SnapshotMutationPolicy<Any?>)
         },
-        restore = @Suppress("UNCHECKED_CAST") {
+        restore = @Suppress("UNCHECKED_CAST", "ExceptionMessage") {
             require(it is SnapshotMutableState<Any?>)
             mutableStateOf(
                 if (it.value != null) restore(it.value!!) else null,

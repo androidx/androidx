@@ -23,11 +23,9 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
-import android.os.Build;
 
 import androidx.leanback.graphics.BoundsRule.ValueRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 
@@ -161,7 +159,6 @@ public class CompositeDrawableTest {
     }
 
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     @Test
     public void constantState() {
         Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();

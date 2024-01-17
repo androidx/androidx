@@ -24,6 +24,7 @@ import androidx.annotation.RequiresApi;
 import androidx.camera.core.AspectRatio;
 import androidx.camera.core.Preview;
 import androidx.camera.core.UseCase;
+import androidx.camera.core.impl.ImageOutputConfig;
 
 import java.util.List;
 
@@ -51,16 +52,18 @@ public interface ResolutionFilter {
      *                        according to the other resolution selector settings.
      * @param rotationDegrees the rotation degrees to rotate the image to the desired
      *                        orientation, matching the {@link UseCase}’s target rotation setting
-     *                        . For example, the target rotation set via
-     *                        {@link Preview.Builder#setTargetRotation(int)} or
+     *                        {@link View} size at the front of the returned list. The value is
+     *                        one of the following: 0, 90, 180, or 270. For example, the target
+     *                        rotation set via {@link Preview.Builder#setTargetRotation(int)} or
      *                        {@link Preview#setTargetRotation(int)}. After rotating the sizes by
      *                        the rotation degrees, applications can obtain the source image size
      *                        in the specified target orientation. Then, applications can put the
-     *                        size that best fits to the {@link Preview}'s Android
-     *                        {@link View} size at the front of the returned list.
+     *                        size that best fits to the {@link Preview}'s Android {@link View}
+     *                        size at the front of the returned list.
      * @return the desired ordered sizes list for resolution selection. The returned list should
      * only include sizes in the provided input supported sizes list.
      */
     @NonNull
-    List<Size> filter(@NonNull List<Size> supportedSizes, int rotationDegrees);
+    List<Size> filter(@NonNull List<Size> supportedSizes,
+            @ImageOutputConfig.RotationDegreesValue int rotationDegrees);
 }

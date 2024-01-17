@@ -50,7 +50,6 @@ def buildSrcJar(jarName) {
 }
 
 dependencies {
-
     implementation(findGradleKotlinDsl())
     implementation(gradleApi())
     implementation(libs.androidGradlePluginz)
@@ -76,8 +75,6 @@ dependencies {
     testImplementation(libs.toml)
 }
 
-SdkResourceGenerator.generateForHostTest(project)
-
 tasks.withType(Test).configureEach {
     // https://github.com/gradle/gradle/issues/22317
     it.jvmArgs = ["--add-opens=java.base/java.lang=ALL-UNNAMED"]
@@ -101,7 +98,11 @@ tasks["ktlintFormat"].configure({ t ->
     t.overrideSubdirectories = subdirs
 })
 
-// Broken in AGP 7.0-alpha15 due to b/180408027
-tasks["lint"].configure { t ->
-    t.enabled = false
-}
+tasks["ktCheck"].configure({ t ->
+    t.overrideDirectory = ktlintDir
+    t.overrideSubdirectories = subdirs
+})
+tasks["ktFormat"].configure({ t ->
+    t.overrideDirectory = ktlintDir
+    t.overrideSubdirectories = subdirs
+})

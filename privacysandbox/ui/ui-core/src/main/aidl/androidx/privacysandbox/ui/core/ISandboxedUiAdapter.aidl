@@ -19,7 +19,7 @@ package androidx.privacysandbox.ui.core;
 import androidx.privacysandbox.ui.core.IRemoteSessionClient;
 import android.content.Context;
 
-/** @hide */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 oneway interface ISandboxedUiAdapter {
     void openRemoteSession(
         IBinder hostToken, int displayId, int initialWidth, int initialHeight, boolean isZOrderOnTop,

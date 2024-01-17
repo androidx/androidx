@@ -42,7 +42,7 @@ class RememberSaveableDetectorTest : LintDetectorTest() {
     private val rememberSaveableStub: TestFile = bytecodeStub(
         filename = "RememberSaveable.kt",
         filepath = "androidx/compose/runtime/saveable",
-        checksum = 0x90b6d5a7,
+        checksum = 0x7556f44f,
         """
         package androidx.compose.runtime.saveable
 
@@ -81,53 +81,54 @@ class RememberSaveableDetectorTest : LintDetectorTest() {
         """,
 """
         META-INF/main.kotlin_module:
-        H4sIAAAAAAAAAGNgYGBmYGBgBGJWKM3ApcUlkZiXUpSfmVKhl5yfW5BfnKpX
-        VJpXkpmbKsTnW1qSmJSTGlySWJLqXcJlzqWIS61ecWJZKkitkFBQam5qblJq
-        UTBUBKiRl4ulJLW4RIjVLT/fu0SJQYsBAFB+NmSMAAAA
+        H4sIAAAAAAAA/2NgYGBmYGBgBGJOBijg0uaSSMxLKcrPTKnQS87PLcgvTtUr
+        Ks0rycxNFeIPzkssKM7ILwkuSSxJ9S7hMudSxKVYrzixLDUxKSdVSCgoNTc1
+        Nym1KBgqAtTIy8VSklpcIsTqlp/vXaLEoMUAALqJaBaNAAAA
         """,
         """
         androidx/compose/runtime/saveable/RememberSaveableKt.class:
-        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
+        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
+        Kg8AAA==
         """,
         """
         androidx/compose/runtime/saveable/Saver.class:
-        H4sIAAAAAAAAAI1PTUvDQBB9m/QjjVVT60f9BWIOphZBUBG8CJVKoQEvPW2b
-        tWzbbCS7LT3md3mQnP1R4sTai3pwYd6bffOGmXn/eH0DcIEWwwlXUZrIaBWM
-        k/gl0SJIF8rIWASaLwUfzUUQUpJWwRgebvqpnEjF51e9KV/yYM7VJOiPpmJs
-        rsNv/x+l298Sg/dTq6LE0OjNEjOXKngUhkfccHJa8dKmfVkBZQY2I2kli1+b
-        suicwc+zumu1LNdyKLw8c55beeaXnDzzmO84zLN8q213KIqODsNp75+H03xn
-        czWlmysZ7YPmQMQiHol0o57NDEMtlBPFzSIlkxsmi3Qs7mXRcTxYT3iSWpL5
-        TqnEcCMTpSu0FcpYPxsHhBbx4Rfv44j4kuZVyFMdwu7C6aJGCLeArS7q2B6C
-        aexgd4iShqfR0NjTaH4C2V0QQe0BAAA=
+        H4sIAAAAAAAA/41PTU/CQBB92yKUilrED/gFxh4sEhMTNSZeTGowJDTxwmmB
+        lSzQrekuhGN/lwfTsz/KOBW5qAc3mZm3b95k3rx/vL4BuECL4YSrcZrI8SoY
+        JfFLokWQLpSRsQg0Xwo+nIsgIpBWwBgebnqpnEjF51fdKV/yYM7VJOgNp2Jk
+        rqNv/R+t298Ug/eTq6DEUO/OEjOXKngUho+54aS04qVNflmRqkUCA5sRv5LF
+        r01ofM7g51nNtZqWazkUXp45z80880tOnnnMdxzmWb7VtjsUxUSH4bT7z+vJ
+        hLM5neDmVFY4afRFLOKhSDfs2cwwVCM5UdwsUhK5UbJIR+JeFhOt/nrDk9SS
+        xHdKJYYbmShdJlfYwvrZOKJsUT3+qodoUr2kfWXSVAawQzghqiFcbBNELcQO
+        dgdgGnvwBihp1DX2NRoaB5+QkX6G8gEAAA==
         """
     )
 
@@ -162,7 +163,8 @@ class RememberSaveableDetectorTest : LintDetectorTest() {
             ),
             rememberSaveableStub,
             Stubs.Composable,
-            Stubs.SnapshotState
+            Stubs.SnapshotState,
+            Stubs.StateFactoryMarker
         )
             .run()
             .expect(
@@ -276,7 +278,8 @@ Fix for src/test/Foo.kt line 22: Change to `stateSaver = fooSaver4`:
             ),
             rememberSaveableStub,
             Stubs.Composable,
-            Stubs.SnapshotState
+            Stubs.SnapshotState,
+            Stubs.StateFactoryMarker
         )
             .run()
             .expectClean()

@@ -17,27 +17,34 @@
 package androidx.javascriptengine;
 
 import androidx.annotation.NonNull;
+import androidx.core.util.Consumer;
+
+import java.util.concurrent.Executor;
 
 /**
- * Indicates that a JavaScriptIsolate's evaluation failed due to exceeding its heap size limit.
- *
- * This exception is thrown when exceeding the heap size limit configured for the isolate via
- * {@link IsolateStartupParameters}, or the default limit. It is not guaranteed to be thrown if the
- * Android system as a whole has run out of memory before the JavaScript environment has reached its
- * configured heap limit.
+ * Indicates that a JavaScriptIsolate's evaluation failed due to the isolate exceeding its heap
+ * size limit.
  * <p>
- * The isolate may not continue to be used after this exception has been thrown, and other pending
- * evalutions for the isolate will fail. The isolate may continue to hold onto resources (even if
- * explicitly closed) until the sandbox has been shutdown. Therefore, it is recommended that the
- * sandbox be restarted at the earliest opportunity in order to reclaim these resources.
+ * This exception may be thrown when exceeding the heap size limit configured for the isolate via
+ * {@link IsolateStartupParameters}, or the default limit. Beware that it will not be thrown if the
+ * Android system as a whole has run out of memory before the JavaScript environment has reached
+ * its configured heap limit.
  * <p>
- * Other isolates within the same sandbox may continue to be used, created, and closed as normal.
+ * If an evaluation fails with a MemoryLimitExceededException, it does not imply that that
+ * particular evaluation was in any way responsible for any excessive memory usage.
+ * MemoryLimitExceededException will be raised for all unresolved and future requested evaluations
+ * regardless of their culpability.
+ * <p>
+ * An isolate may run out of memory outside of an explicit evaluation (such as in a microtask), so
+ * you should generally not use this exception to detect out of memory issues - instead, use
+ * {@link JavaScriptIsolate#addOnTerminatedCallback(Executor, Consumer)} and check
+ * for an isolate termination status of {@link TerminationInfo#STATUS_MEMORY_LIMIT_EXCEEDED}.
  */
-public final class MemoryLimitExceededException extends JavaScriptException {
-    public MemoryLimitExceededException(@NonNull String error) {
-        super(error);
-    }
+public final class MemoryLimitExceededException extends IsolateTerminatedException {
     public MemoryLimitExceededException() {
         super();
+    }
+    public MemoryLimitExceededException(@NonNull String error) {
+        super(error);
     }
 }

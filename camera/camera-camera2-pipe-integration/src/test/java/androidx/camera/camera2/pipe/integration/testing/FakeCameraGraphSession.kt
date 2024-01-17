@@ -18,15 +18,18 @@ package androidx.camera.camera2.pipe.integration.testing
 
 import android.hardware.camera2.CaptureFailure
 import android.hardware.camera2.params.MeteringRectangle
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.AeMode
 import androidx.camera.camera2.pipe.AfMode
 import androidx.camera.camera2.pipe.AwbMode
 import androidx.camera.camera2.pipe.CameraGraph
+import androidx.camera.camera2.pipe.FrameMetadata
 import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.Lock3ABehavior
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.Result3A
 import androidx.camera.camera2.pipe.TorchState
+import androidx.camera.camera2.pipe.integration.impl.FakeCaptureFailure
 import androidx.camera.camera2.pipe.integration.testing.FakeCameraGraphSession.RequestStatus.ABORTED
 import androidx.camera.camera2.pipe.integration.testing.FakeCameraGraphSession.RequestStatus.FAILED
 import androidx.camera.camera2.pipe.integration.testing.FakeCameraGraphSession.RequestStatus.TOTAL_CAPTURE_DONE
@@ -37,18 +40,22 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.runBlocking
 
+@RequiresApi(21)
 open class FakeCameraGraphSession : CameraGraph.Session {
 
     val repeatingRequests = mutableListOf<Request>()
     var repeatingRequestSemaphore = Semaphore(0)
-    val stopRepeatingSemaphore = Semaphore(0)
+    var stopRepeatingSemaphore = Semaphore(0)
 
     enum class RequestStatus {
         TOTAL_CAPTURE_DONE,
         FAILED,
         ABORTED
     }
+
     var startRepeatingSignal = CompletableDeferred(TOTAL_CAPTURE_DONE) // already completed
+
+    val submittedRequests = mutableListOf<Request>()
 
     override fun abort() {
         // No-op
@@ -69,13 +76,19 @@ open class FakeCameraGraphSession : CameraGraph.Session {
         afLockBehavior: Lock3ABehavior?,
         awbLockBehavior: Lock3ABehavior?,
         afTriggerStartAeMode: AeMode?,
+        convergedCondition: ((FrameMetadata) -> Boolean)?,
+        lockedCondition: ((FrameMetadata) -> Boolean)?,
         frameLimit: Int,
         timeLimitNs: Long
     ): Deferred<Result3A> {
         throw NotImplementedError("Not used in testing")
     }
 
-    override suspend fun lock3AForCapture(frameLimit: Int, timeLimitNs: Long): Deferred<Result3A> {
+    override suspend fun lock3AForCapture(
+        lockedCondition: ((FrameMetadata) -> Boolean)?,
+        frameLimit: Int,
+        timeLimitNs: Long
+    ): Deferred<Result3A> {
         throw NotImplementedError("Not used in testing")
     }
 
@@ -101,11 +114,11 @@ open class FakeCameraGraphSession : CameraGraph.Session {
     }
 
     override fun submit(request: Request) {
-        throw NotImplementedError("Not used in testing")
+        submittedRequests.add(request)
     }
 
     override fun submit(requests: List<Request>) {
-        // No-op
+        submittedRequests.addAll(requests)
     }
 
     override suspend fun submit3A(
@@ -123,6 +136,7 @@ open class FakeCameraGraphSession : CameraGraph.Session {
         ae: Boolean?,
         af: Boolean?,
         awb: Boolean?,
+        unlockedCondition: ((FrameMetadata) -> Boolean)?,
         frameLimit: Int,
         timeLimitNs: Long
     ): Deferred<Result3A> {
@@ -156,17 +170,26 @@ open class FakeCameraGraphSession : CameraGraph.Session {
         request: Request,
         status: RequestStatus
     ) {
+        val requestMetadata = FakeRequestMetadata(request = request)
         last().listeners.forEach { listener ->
             when (status) {
                 TOTAL_CAPTURE_DONE -> listener.onTotalCaptureResult(
-                    FakeRequestMetadata(request = request), FrameNumber(0), FakeFrameInfo()
+                    requestMetadata, FrameNumber(0), FakeFrameInfo()
                 )
+
                 FAILED -> listener.onFailed(
-                    FakeRequestMetadata(request = request), FrameNumber(0), getFakeCaptureFailure()
+                    requestMetadata,
+                    FrameNumber(0),
+                    FakeCaptureFailure(
+                        requestMetadata,
+                        false,
+                        FrameNumber(0),
+                        CaptureFailure.REASON_ERROR,
+                        null
+                    )
                 )
-                ABORTED -> listener.onRequestSequenceAborted(
-                    FakeRequestMetadata(request = request)
-                )
+
+                ABORTED -> listener.onRequestSequenceAborted(requestMetadata)
             }
         }
     }

@@ -29,7 +29,6 @@ import java.util.Set;
 /**
  * Default implementation of {@link ExecutionTracker}.
  *
- * @hide
  */
 @SuppressWarnings("ExecutorTaskName")
 @RestrictTo(Scope.LIBRARY)

@@ -24,9 +24,9 @@ import androidx.biometric.BiometricManager.Authenticators
 import androidx.biometric.BiometricPrompt
 import androidx.biometric.auth.AuthPrompt
 import androidx.biometric.auth.AuthPromptCallback
+import androidx.biometric.auth.authenticateWithClass3Biometrics
 import androidx.biometric.auth.startClass2BiometricAuthentication
 import androidx.biometric.auth.startClass2BiometricOrCredentialAuthentication
-import androidx.biometric.auth.authenticateWithClass3Biometrics
 import androidx.biometric.auth.startClass3BiometricOrCredentialAuthentication
 import androidx.biometric.auth.startCredentialAuthentication
 import androidx.biometric.integration.testapp.R.string.biometric_prompt_description

@@ -105,6 +105,9 @@ class TorchControl @Inject constructor(
                 // Hold the internal AE mode to ON while the torch is turned ON.
                 state3AControl.preferredAeMode =
                     if (torch) CaptureRequest.CONTROL_AE_MODE_ON else null
+
+                // Always update3A again to reset the AE state in the Camera-pipe controller.
+                state3AControl.invalidate()
                 state3AControl.updateSignal?.propagateTo(signal) ?: run { signal.complete(Unit) }
             }
         } ?: run {

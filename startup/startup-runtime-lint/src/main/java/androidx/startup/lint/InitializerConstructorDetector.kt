@@ -27,8 +27,8 @@ import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
 import com.intellij.lang.java.JavaLanguage
-import org.jetbrains.uast.UClass
 import java.util.EnumSet
+import org.jetbrains.uast.UClass
 
 /**
  * A [Detector] which ensures that every `ComponentInitializer` has a no argument constructor.

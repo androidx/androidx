@@ -22,7 +22,6 @@ import android.app.PendingIntent;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.core.util.Pair;
@@ -53,8 +52,12 @@ import java.util.List;
  * rest of the content, this will take up space as a cell item in a row if added.
  *
  * @see ListBuilder#addGridRow(GridRowBuilder)
+ *
+ * @deprecated Slice framework has been deprecated, it will not receive any updates moving
+ * forward. If you are looking for a framework that handles communication across apps,
+ * consider using {@link android.app.appsearch.AppSearchManager}.
  */
-@RequiresApi(19)
+@Deprecated
 public class GridRowBuilder {
 
     private final List<CellBuilder> mCells = new ArrayList<>();
@@ -184,7 +187,6 @@ public class GridRowBuilder {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public SliceAction getPrimaryAction() {
@@ -192,7 +194,6 @@ public class GridRowBuilder {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public List<CellBuilder> getCells() {
@@ -200,7 +201,6 @@ public class GridRowBuilder {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public CellBuilder getSeeMoreCell() {
@@ -208,7 +208,6 @@ public class GridRowBuilder {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public PendingIntent getSeeMoreIntent() {
@@ -216,7 +215,6 @@ public class GridRowBuilder {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public CharSequence getDescription() {
@@ -224,7 +222,6 @@ public class GridRowBuilder {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public int getLayoutDirection() {
@@ -262,25 +259,26 @@ public class GridRowBuilder {
      * @see ListBuilder#ICON_IMAGE
      * @see ListBuilder#SMALL_IMAGE
      * @see ListBuilder#ICON_IMAGE
+     *
+     * @deprecated Slice framework has been deprecated, it will not receive any updates moving
+     * forward. If you are looking for a framework that handles communication across apps,
+     * consider using {@link android.app.appsearch.AppSearchManager}.
      */
+    @Deprecated
     public static class CellBuilder {
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public static final int TYPE_TEXT = 0;
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public static final int TYPE_TITLE = 1;
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public static final int TYPE_IMAGE = 2;
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public static final int TYPE_OVERLAY = 3;
@@ -465,7 +463,6 @@ public class GridRowBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public List<Object> getObjects() {
@@ -473,7 +470,6 @@ public class GridRowBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public List<Integer> getTypes() {
@@ -481,7 +477,6 @@ public class GridRowBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public List<Boolean> getLoadings() {
@@ -489,7 +484,6 @@ public class GridRowBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public CharSequence getCellDescription() {
@@ -497,7 +491,6 @@ public class GridRowBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public PendingIntent getContentIntent() {
@@ -505,7 +498,6 @@ public class GridRowBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         @Nullable
@@ -519,7 +511,6 @@ public class GridRowBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         @Nullable
@@ -533,7 +524,6 @@ public class GridRowBuilder {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         @Nullable

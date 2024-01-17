@@ -16,21 +16,16 @@
 
 package androidx.camera.camera2.internal.compat.workaround;
 
-import android.util.Rational;
 import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
-import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.camera2.internal.compat.quirk.DeviceQuirks;
 import androidx.camera.camera2.internal.compat.quirk.ExtraSupportedOutputSizeQuirk;
 import androidx.camera.core.Logger;
-import androidx.camera.core.impl.utils.AspectRatioUtil;
-import androidx.camera.core.impl.utils.CompareSizesByArea;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -38,28 +33,22 @@ import java.util.List;
  *
  * 1. ExtraSupportedOutputSizeQuirk
  * 2. ExcludedSupportedSizesContainer
- * 3. TargetAspectRatio
  */
 @RequiresApi(21)
 public class OutputSizesCorrector {
     private static final String TAG = "OutputSizesCorrector";
     private final String mCameraId;
-    private final CameraCharacteristicsCompat mCameraCharacteristicsCompat;
 
     private final ExtraSupportedOutputSizeQuirk mExtraSupportedOutputSizeQuirk =
             DeviceQuirks.get(ExtraSupportedOutputSizeQuirk.class);
 
     private final ExcludedSupportedSizesContainer mExcludedSupportedSizesContainer;
 
-    private final TargetAspectRatio mTargetAspectRatio = new TargetAspectRatio();
-
     /**
      * Constructor.
      */
-    public OutputSizesCorrector(@NonNull String cameraId,
-            @NonNull CameraCharacteristicsCompat cameraCharacteristicsCompat) {
+    public OutputSizesCorrector(@NonNull String cameraId) {
         mCameraId = cameraId;
-        mCameraCharacteristicsCompat = cameraCharacteristicsCompat;
         mExcludedSupportedSizesContainer = new ExcludedSupportedSizesContainer(mCameraId);
     }
 
@@ -74,12 +63,7 @@ public class OutputSizesCorrector {
         if (sizeList.isEmpty()) {
             Logger.w(TAG, "Sizes array becomes empty after excluding problematic output sizes.");
         }
-        Size[] resultSizeArray = excludeOutputSizesByTargetAspectRatioWorkaround(sizeList);
-        if (resultSizeArray.length == 0) {
-            Logger.w(TAG, "Sizes array becomes empty after excluding output sizes by target "
-                    + "aspect ratio workaround.");
-        }
-        return resultSizeArray;
+        return sizeList.toArray(new Size[0]);
     }
 
     /**
@@ -93,12 +77,7 @@ public class OutputSizesCorrector {
         if (sizeList.isEmpty()) {
             Logger.w(TAG, "Sizes array becomes empty after excluding problematic output sizes.");
         }
-        Size[] resultSizeArray = excludeOutputSizesByTargetAspectRatioWorkaround(sizeList);
-        if (resultSizeArray.length == 0) {
-            Logger.w(TAG, "Sizes array becomes empty after excluding output sizes by target "
-                    + "aspect ratio workaround.");
-        }
-        return resultSizeArray;
+        return sizeList.toArray(new Size[0]);
     }
 
     /**
@@ -171,45 +150,5 @@ public class OutputSizesCorrector {
         }
 
         sizeList.removeAll(excludedSizes);
-    }
-
-    /**
-     * Excludes output sizes by TargetAspectRatio.
-     *
-     * @param sizeList the original sizes list
-     */
-    @NonNull
-    private Size[] excludeOutputSizesByTargetAspectRatioWorkaround(@NonNull List<Size> sizeList) {
-        int targetAspectRatio = mTargetAspectRatio.get(mCameraId, mCameraCharacteristicsCompat);
-        Rational ratio = null;
-
-        switch (targetAspectRatio) {
-            case TargetAspectRatio.RATIO_4_3:
-                ratio = AspectRatioUtil.ASPECT_RATIO_4_3;
-                break;
-            case TargetAspectRatio.RATIO_16_9:
-                ratio = AspectRatioUtil.ASPECT_RATIO_16_9;
-                break;
-            case TargetAspectRatio.RATIO_MAX_JPEG:
-                Size maxJpegSize = Collections.max(sizeList, new CompareSizesByArea());
-                ratio = new Rational(maxJpegSize.getWidth(), maxJpegSize.getHeight());
-                break;
-            case TargetAspectRatio.RATIO_ORIGINAL:
-                ratio = null;
-        }
-
-        if (ratio == null) {
-            return sizeList.toArray(sizeList.toArray(new Size[0]));
-        }
-
-        List<Size> resultList = new ArrayList<>();
-
-        for (Size size : sizeList) {
-            if (AspectRatioUtil.hasMatchingAspectRatio(size, ratio)) {
-                resultList.add(size);
-            }
-        }
-
-        return resultList.toArray(new Size[0]);
     }
 }

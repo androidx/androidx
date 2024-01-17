@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+DefaultValueChange: androidx.compose.material.SnackbarHostState#showSnackbar(String, String, androidx.compose.material.SnackbarDuration, kotlin.coroutines.Continuation<? super androidx.compose.material.SnackbarResult>) parameter #3:
+    Attempted to remove default value from parameter arg4 in androidx.compose.material.SnackbarHostState.showSnackbar

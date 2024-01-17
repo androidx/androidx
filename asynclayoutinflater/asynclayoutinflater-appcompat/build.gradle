@@ -1,3 +1,10 @@
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.Publish
 
 plugins {
@@ -13,10 +20,12 @@ dependencies {
 }
 
 androidx {
-    name = "AsyncLayoutInflater integration for AppCompat"
+    name = "AsyncLayoutInflater AppCompat"
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2022"
-    description = "A thread-safe LayoutInflater Factory that provides compatibility between AsyncLayoutInflater and AppCompat."
+    description = "A thread-safe LayoutInflater Factory that provides compatibility between " +
+            "AsyncLayoutInflater and AppCompat."
+    metalavaK2UastEnabled = true
 }
 
 android {

@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("DEPRECATION")
+
 package androidx.compose.ui.platform
 
 import androidx.compose.ui.geometry.Rect
@@ -41,7 +43,20 @@ import kotlin.math.min
 
 internal actual interface PlatformInputComponent {
     fun enableInput(inputMethodRequests: InputMethodRequests)
-    fun disableInput()
+
+    /**
+     * @param inputMethodRequests Optional [InputMethodRequests]. If specified, the requests will
+     * only be cleared if still set to this value.
+     */
+    fun disableInput(inputMethodRequests: InputMethodRequests? = null)
+
+    /**
+     * @see SkiaBasedOwner.textInputSession
+     */
+    actual suspend fun textInputSession(
+        session: suspend PlatformTextInputSessionScope.() -> Nothing
+    ): Nothing
+
     // Input service needs to know this information to implement Input Method support
     val locationOnScreen: Point
     val density: Density

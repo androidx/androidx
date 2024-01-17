@@ -53,12 +53,12 @@ public interface ComplicationDataSourceUpdateRequester {
     public fun requestUpdate(vararg complicationInstanceIds: Int)
 
     public companion object {
-        /**
-         * The package of the service that accepts complication data source requests.
-         *
-         */
+        /** The package of the service that accepts complication data source requests. */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public const val UPDATE_REQUEST_RECEIVER_PACKAGE = "com.google.android.wearable.app"
+
+        /** An override to [UPDATE_REQUEST_RECEIVER_PACKAGE] for tests. */
+        internal var overrideUpdateRequestsReceiverPackage: String? = null
 
         /**
          * Creates a [ComplicationDataSourceUpdateRequester].
@@ -103,9 +103,13 @@ private class ComplicationDataSourceUpdateRequesterImpl(
     private val complicationDataSourceComponent: ComponentName
 ) : ComplicationDataSourceUpdateRequester {
 
+    private fun updateRequestReceiverPackage() =
+        ComplicationDataSourceUpdateRequester.overrideUpdateRequestsReceiverPackage
+            ?: ComplicationDataSourceUpdateRequester.UPDATE_REQUEST_RECEIVER_PACKAGE
+
     override fun requestUpdateAll() {
         val intent = Intent(ComplicationDataSourceUpdateRequester.ACTION_REQUEST_UPDATE_ALL)
-        intent.setPackage(ComplicationDataSourceUpdateRequester.UPDATE_REQUEST_RECEIVER_PACKAGE)
+        intent.setPackage(updateRequestReceiverPackage())
         intent.putExtra(
             ComplicationDataSourceUpdateRequester.EXTRA_PROVIDER_COMPONENT,
             complicationDataSourceComponent
@@ -120,7 +124,7 @@ private class ComplicationDataSourceUpdateRequesterImpl(
 
     override fun requestUpdate(vararg complicationInstanceIds: Int) {
         val intent = Intent(ComplicationDataSourceUpdateRequester.ACTION_REQUEST_UPDATE)
-        intent.setPackage(ComplicationDataSourceUpdateRequester.UPDATE_REQUEST_RECEIVER_PACKAGE)
+        intent.setPackage(updateRequestReceiverPackage())
         intent.putExtra(
             ComplicationDataSourceUpdateRequester.EXTRA_PROVIDER_COMPONENT,
             complicationDataSourceComponent

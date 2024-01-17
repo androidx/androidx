@@ -1,3 +1,10 @@
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.Publish
 
 plugins {
@@ -16,10 +23,11 @@ dependencies {
 }
 
 androidx {
-    name = "Android Support ExifInterface"
+    name = "ExifInterface"
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2016"
     description = "Android Support ExifInterface"
+    metalavaK2UastEnabled = true
 }
 
 android {

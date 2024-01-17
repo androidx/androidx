@@ -20,8 +20,8 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
-import androidx.metrics.performance.PerformanceMetricsState
 import androidx.metrics.performance.FrameData
+import androidx.metrics.performance.PerformanceMetricsState
 import androidx.metrics.performance.janktest.databinding.ActivityMainBinding
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration

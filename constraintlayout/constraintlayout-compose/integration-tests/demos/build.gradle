@@ -24,21 +24,17 @@ plugins {
 dependencies {
     implementation(project(":constraintlayout:constraintlayout-compose"))
 
+    implementation(project(":activity:activity-compose"))
     implementation(project(":compose:foundation:foundation-layout"))
     implementation(project(":compose:runtime:runtime"))
     implementation(project(":compose:ui:ui"))
     implementation(project(":compose:animation:animation"))
     implementation(project(":compose:material:material"))
-    implementation(project(":compose:material:material-icons-extended"))
     implementation(project(":compose:ui:ui-tooling-preview"))
     debugImplementation(project(":compose:ui:ui-tooling"))
 }
 
 android {
     namespace "androidx.constraintlayout.compose.demos"
-
-    lint {
-        // ConstraintLayoutDslDetector fails with NoClassDefFoundError in ChainsDemo.kt
-        disable "IncorrectReferencesDeclaration", "IncorrectMatchParentUsage", "IncorrectChainMarginsUsage"
-    }
 }
+

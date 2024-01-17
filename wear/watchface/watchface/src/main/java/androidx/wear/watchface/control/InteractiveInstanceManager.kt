@@ -16,7 +16,8 @@
 
 package androidx.wear.watchface.control
 
-import android.annotation.SuppressLint
+import android.os.Build
+import android.util.Log
 import androidx.annotation.UiThread
 import androidx.annotation.VisibleForTesting
 import androidx.wear.watchface.IndentingPrintWriter
@@ -49,6 +50,8 @@ internal class InteractiveInstanceManager {
     )
 
     companion object {
+        private const val TAG = "InteractiveInstanceManager"
+
         private val instances = HashMap<String, RefCountedInteractiveWatchFaceInstance>()
         private val pendingWallpaperInteractiveWatchFaceInstanceLock = Any()
         private var pendingWallpaperInteractiveWatchFaceInstance:
@@ -62,7 +65,6 @@ internal class InteractiveInstanceManager {
                 instances.map { it.key }
             }
 
-        @SuppressLint("SyntheticAccessor")
         fun addInstance(impl: InteractiveWatchFaceImpl) {
             synchronized(pendingWallpaperInteractiveWatchFaceInstanceLock) {
                 require(!instances.containsKey(impl.instanceId)) {
@@ -73,12 +75,11 @@ internal class InteractiveInstanceManager {
         }
 
         /**
-         * We either return the pendingWallpaperInteractiveWatchFaceInstance if there is one or
-         * set parameterlessEngine. A parameterless engine, is one that's been created without any
-         * start up params. Typically this can only happen if a WSL watchface is upgraded to an
-         * androidx one, so WallpaperManager knows about it but WearServices/WSL does not.
+         * We either return the pendingWallpaperInteractiveWatchFaceInstance if there is one or set
+         * parameterlessEngine. A parameterless engine, is one that's been created without any start
+         * up params. Typically this can only happen if a WSL watchface is upgraded to an androidx
+         * one, so WallpaperManager knows about it but WearServices/WSL does not.
          */
-        @SuppressLint("SyntheticAccessor")
         fun setParameterlessEngineOrTakePendingWallpaperInteractiveWatchFaceInstance(
             parameterlessEngine: WatchFaceService.EngineWrapper?
         ): PendingWallpaperInteractiveWatchFaceInstance? {
@@ -103,7 +104,6 @@ internal class InteractiveInstanceManager {
          * this can only happen if a WSL watchface is upgraded to an androidx one, so
          * WallpaperManager knows about it but WearServices/WSL does not.
          */
-        @SuppressLint("SyntheticAccessor")
         fun setParameterlessEngine(parameterlessEngine: WatchFaceService.EngineWrapper?) {
             synchronized(pendingWallpaperInteractiveWatchFaceInstanceLock) {
                 require(this.parameterlessEngine == null || parameterlessEngine == null) {
@@ -113,14 +113,12 @@ internal class InteractiveInstanceManager {
             }
         }
 
-        @SuppressLint("SyntheticAccessor")
         fun getParameterlessEngine(): WatchFaceService.EngineWrapper? {
             synchronized(pendingWallpaperInteractiveWatchFaceInstanceLock) {
                 return parameterlessEngine
             }
         }
 
-        @SuppressLint("SyntheticAccessor")
         fun getAndRetainInstance(instanceId: String): InteractiveWatchFaceImpl? {
             synchronized(pendingWallpaperInteractiveWatchFaceInstanceLock) {
                 val refCountedInstance = instances[instanceId] ?: return null
@@ -129,7 +127,6 @@ internal class InteractiveInstanceManager {
             }
         }
 
-        @SuppressLint("SyntheticAccessor")
         fun releaseInstance(instanceId: String) {
             synchronized(pendingWallpaperInteractiveWatchFaceInstanceLock) {
                 instances[instanceId]?.let {
@@ -141,7 +138,6 @@ internal class InteractiveInstanceManager {
             }
         }
 
-        @SuppressLint("SyntheticAccessor")
         fun deleteInstance(instanceId: String) {
             synchronized(pendingWallpaperInteractiveWatchFaceInstanceLock) {
                 instances[instanceId]?.impl?.onDestroy()
@@ -149,7 +145,6 @@ internal class InteractiveInstanceManager {
             }
         }
 
-        @SuppressLint("SyntheticAccessor")
         fun renameInstance(oldInstanceId: String, newInstanceId: String) {
             synchronized(pendingWallpaperInteractiveWatchFaceInstanceLock) {
                 val instance = instances.remove(oldInstanceId)
@@ -163,8 +158,16 @@ internal class InteractiveInstanceManager {
             }
         }
 
+        fun getCurrentInteractiveInstance(): InteractiveWatchFaceImpl? {
+            synchronized(pendingWallpaperInteractiveWatchFaceInstanceLock) {
+                if (instances.size == 1) {
+                    return instances.entries.first().value.impl
+                }
+            }
+            return null
+        }
+
         /** Can be called on any thread. */
-        @SuppressLint("SyntheticAccessor")
         fun getExistingInstanceOrSetPendingWallpaperInteractiveWatchFaceInstance(
             value: PendingWallpaperInteractiveWatchFaceInstance
         ): IInteractiveWatchFace? {
@@ -195,11 +198,25 @@ internal class InteractiveInstanceManager {
             // system thinks we should have. Note runBlocking is safe here because we never await.
             val engine = impl.engine!!
             engine.setUserStyle(value.params.userStyle)
+
+            // Note prior to android U, auxiliaryComponentPackageName may be non null for regular
+            // watch faces.
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE &&
+                engine.resourceOnlyWatchFacePackageName !=
+                    value.params.auxiliaryComponentPackageName
+            ) {
+                val message =
+                    "Existing instance has the resourceOnlyWatchFacePackageName of " +
+                        "${engine.resourceOnlyWatchFacePackageName}, which is different from the " +
+                        "argument watchFaceId of ${value.params.auxiliaryComponentPackageName}."
+                Log.e(TAG, message)
+                throw IllegalStateException(message)
+            }
+
             return impl
         }
 
         /** Can be called on any thread. */
-        @SuppressLint("SyntheticAccessor")
         fun takePendingWallpaperInteractiveWatchFaceInstance():
             PendingWallpaperInteractiveWatchFaceInstance? {
             synchronized(pendingWallpaperInteractiveWatchFaceInstanceLock) {

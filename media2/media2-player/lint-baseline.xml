@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.0.0-beta03" type="baseline" client="gradle" dependencies="false" name="AGP (8.0.0-beta03)" variant="all" version="8.0.0-beta03">
+<issues format="6" by="lint 8.3.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-beta01)" variant="all" version="8.3.0-beta01">
 
     <issue
         id="NewApi"
-        message="Call requires API level 27 (current min is 16): `android.app.Activity#setTurnScreenOn`"
+        message="Call requires API level 27 (current min is 19): `android.app.Activity#setTurnScreenOn`"
         errorLine1="                mActivity.setTurnScreenOn(true);"
         errorLine2="                          ~~~~~~~~~~~~~~~">
         <location
@@ -12,7 +12,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 27 (current min is 16): `android.app.Activity#setShowWhenLocked`"
+        message="Call requires API level 27 (current min is 19): `android.app.Activity#setShowWhenLocked`"
         errorLine1="                mActivity.setShowWhenLocked(true);"
         errorLine2="                          ~~~~~~~~~~~~~~~~~">
         <location
@@ -21,7 +21,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 26 (current min is 16): `android.app.KeyguardManager#requestDismissKeyguard`"
+        message="Call requires API level 26 (current min is 19): `android.app.KeyguardManager#requestDismissKeyguard`"
         errorLine1="                mKeyguardManager.requestDismissKeyguard(mActivity, null);"
         errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -30,16 +30,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 18 (current min is 16): `android.media.MediaDrm.KeyRequest#getData`"
-        errorLine1="        if (0 == getKeyIds(keyRequest.getData(), keyIds)) {"
-        errorLine2="                                      ~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/media2/player/MediaPlayer2DrmTestBase.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 27 (current min is 16): `android.app.Activity#setTurnScreenOn`"
+        message="Call requires API level 27 (current min is 19): `android.app.Activity#setTurnScreenOn`"
         errorLine1="                mActivity.setTurnScreenOn(true);"
         errorLine2="                          ~~~~~~~~~~~~~~~">
         <location
@@ -48,7 +39,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 27 (current min is 16): `android.app.Activity#setShowWhenLocked`"
+        message="Call requires API level 27 (current min is 19): `android.app.Activity#setShowWhenLocked`"
         errorLine1="                mActivity.setShowWhenLocked(true);"
         errorLine2="                          ~~~~~~~~~~~~~~~~~">
         <location
@@ -57,18 +48,9 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 26 (current min is 16): `android.app.KeyguardManager#requestDismissKeyguard`"
+        message="Call requires API level 26 (current min is 19): `android.app.KeyguardManager#requestDismissKeyguard`"
         errorLine1="                mKeyguardManager.requestDismissKeyguard(mActivity, null);"
         errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/media2/player/MediaPlayerDrmTest.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 18 (current min is 16): `android.media.MediaDrm.KeyRequest#getData`"
-        errorLine1="        if (0 == getKeyIds(keyRequest.getData(), keyIds)) {"
-        errorLine2="                                      ~~~~~~~">
         <location
             file="src/androidTest/java/androidx/media2/player/MediaPlayerDrmTest.java"/>
     </issue>
@@ -489,7 +471,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling `Method.invoke` without an SDK check"
+        message="Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
         errorLine1="            return (FileDescriptor) method.invoke(object, fileDescriptor);"
         errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -498,7 +480,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling `Method.invoke` without an SDK check"
+        message="Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
         errorLine1="            method.invoke(object, fileDescriptor, position, /* whence= */ SEEK_SET);"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -507,7 +489,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling `Method.invoke` without an SDK check"
+        message="Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
         errorLine1="            return (FileDescriptor) method.invoke(object, fileDescriptor);"
         errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -656,15 +638,6 @@
         errorLine2="                     ~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/ExoPlayerWrapper.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public PersistableBundle getMetrics() {"
-        errorLine2="           ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/MediaPlayer.java"/>
     </issue>
 
     <issue
@@ -886,46 +859,10 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public android.media.PlaybackParams getPlaybackParams() {"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/PlaybackParams.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public Builder(android.media.PlaybackParams playbackParams) {"
-        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/PlaybackParams.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="        void onCcData(byte[] data, long timeUs);"
         errorLine2="                      ~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/TextRenderer.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public TimedMetaData(long timestampUs, byte[] metaData) {"
-        errorLine2="                                           ~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/TimedMetaData.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public byte[] getMetaData() {"
-        errorLine2="           ~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/TimedMetaData.java"/>
     </issue>
 
 </issues>

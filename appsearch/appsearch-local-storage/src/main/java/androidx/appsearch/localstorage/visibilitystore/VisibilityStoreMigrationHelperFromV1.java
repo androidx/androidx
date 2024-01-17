@@ -37,7 +37,7 @@ import java.util.Set;
  * The helper class to store Visibility Document information of version 1 and handle the upgrade to
  * latest version
  *
- * @hide
+ * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class VisibilityStoreMigrationHelperFromV1 {

@@ -28,7 +28,7 @@ import androidx.compose.ui.unit.IntSize
 internal class TvLazyGridMeasureResult(
     // properties defining the scroll position:
     /** The new first visible line of items.*/
-    val firstVisibleLine: LazyMeasuredLine?,
+    val firstVisibleLine: LazyGridMeasuredLine?,
     /** The new value for [TvLazyGridState.firstVisibleItemScrollOffset].*/
     val firstVisibleLineScrollOffset: Int,
     /** True if there is some space available to continue scrolling in the forward direction.*/

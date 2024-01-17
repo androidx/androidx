@@ -2,9 +2,9 @@
 package androidx.emoji2.emojipicker {
 
   public final class EmojiPickerView extends android.widget.FrameLayout {
-    ctor public EmojiPickerView(android.content.Context context, optional android.util.AttributeSet? attrs, optional int defStyleAttr);
-    ctor public EmojiPickerView(android.content.Context context, optional android.util.AttributeSet? attrs);
     ctor public EmojiPickerView(android.content.Context context);
+    ctor public EmojiPickerView(android.content.Context context, optional android.util.AttributeSet? attrs);
+    ctor public EmojiPickerView(android.content.Context context, optional android.util.AttributeSet? attrs, optional int defStyleAttr);
     method public int getEmojiGridColumns();
     method public float getEmojiGridRows();
     method public void setEmojiGridColumns(int);
@@ -29,13 +29,13 @@ package androidx.emoji2.emojipicker {
   }
 
   public interface RecentEmojiProvider {
-    method public suspend Object? getRecentEmojiList(kotlin.coroutines.Continuation<? super java.util.List<? extends java.lang.String>>);
+    method public suspend Object? getRecentEmojiList(kotlin.coroutines.Continuation<? super java.util.List<java.lang.String>>);
     method public void recordSelection(String emoji);
   }
 
   public final class RecentEmojiProviderAdapter implements androidx.emoji2.emojipicker.RecentEmojiProvider {
     ctor public RecentEmojiProviderAdapter(androidx.emoji2.emojipicker.RecentEmojiAsyncProvider recentEmojiAsyncProvider);
-    method public suspend Object? getRecentEmojiList(kotlin.coroutines.Continuation<? super java.util.List<? extends java.lang.String>>);
+    method public suspend Object? getRecentEmojiList(kotlin.coroutines.Continuation<? super java.util.List<java.lang.String>>);
     method public void recordSelection(String emoji);
   }
 

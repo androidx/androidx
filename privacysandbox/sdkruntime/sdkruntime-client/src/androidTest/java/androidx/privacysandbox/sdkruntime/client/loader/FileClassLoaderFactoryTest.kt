@@ -17,9 +17,10 @@
 package androidx.privacysandbox.sdkruntime.client.loader
 
 import android.content.Context
+import androidx.privacysandbox.sdkruntime.client.TestSdkConfigs
 import androidx.privacysandbox.sdkruntime.client.config.LocalSdkConfig
-import androidx.privacysandbox.sdkruntime.client.loader.storage.LocalSdkStorage
 import androidx.privacysandbox.sdkruntime.client.loader.storage.LocalSdkDexFiles
+import androidx.privacysandbox.sdkruntime.client.loader.storage.LocalSdkStorage
 import androidx.privacysandbox.sdkruntime.client.loader.storage.TestLocalSdkStorage
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -38,13 +39,7 @@ class FileClassLoaderFactoryTest {
 
     @Before
     fun setUp() {
-        testSdkConfig = LocalSdkConfig(
-            packageName = "androidx.privacysandbox.sdkruntime.test.v1",
-            dexPaths = listOf(
-                "RuntimeEnabledSdks/V1/classes.dex",
-            ),
-            entryPoint = "androidx.privacysandbox.sdkruntime.test.v1.CompatProvider",
-        )
+        testSdkConfig = TestSdkConfigs.CURRENT
     }
 
     @Test

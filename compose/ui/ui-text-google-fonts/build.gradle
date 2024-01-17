@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.LibraryType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -42,10 +49,11 @@ dependencies {
 }
 
 androidx {
-    name = "AndroidX Compose Google Fonts integration"
+    name = "Compose Google Fonts integration"
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2022"
     description = "Compose Downloadable Fonts integration for Google Fonts"
+    metalavaK2UastEnabled = true
 }
 
 android {

@@ -33,15 +33,15 @@
     <string name="use_fingerprint_label" msgid="6961788485681412417">"የጣት አሻራን ተጠቀም"</string>
     <string name="use_face_label" msgid="6533512708069459542">"መልክን ተጠቀም"</string>
     <string name="use_biometric_label" msgid="6524145989441579428">"ባዮሜትሪኮችን ተጠቀም"</string>
-    <string name="use_screen_lock_label" msgid="5459869335976243512">"የማያ ገጽ መቆለፊያን ተጠቀም"</string>
-    <string name="use_fingerprint_or_screen_lock_label" msgid="7577690399303139443">"የጣት አሻራን ወይም የማያ ገጽ መቆለፊያን ይጠቀሙ"</string>
-    <string name="use_face_or_screen_lock_label" msgid="2116180187159450292">"የመልክ ወይም የማያ ገጽ መቆለፊያን ተጠቀም"</string>
-    <string name="use_biometric_or_screen_lock_label" msgid="5385448280139639016">"ባዮሜትሪኮችን ወይም ማያ ገጽ መቆለፊያን ይጠቀሙ"</string>
+    <string name="use_screen_lock_label" msgid="5459869335976243512">"የማያ ገፅ መቆለፊያን ተጠቀም"</string>
+    <string name="use_fingerprint_or_screen_lock_label" msgid="7577690399303139443">"የጣት አሻራን ወይም የማያ ገፅ መቆለፊያን ይጠቀሙ"</string>
+    <string name="use_face_or_screen_lock_label" msgid="2116180187159450292">"የመልክ ወይም የማያ ገፅ መቆለፊያን ተጠቀም"</string>
+    <string name="use_biometric_or_screen_lock_label" msgid="5385448280139639016">"ባዮሜትሪኮችን ወይም ማያ ገፅ መቆለፊያን ይጠቀሙ"</string>
     <string name="fingerprint_prompt_message" msgid="7449360011861769080">"ለመቀጠል የእርስዎን የጣት አሻራ ይጠቀሙ"</string>
     <string name="face_prompt_message" msgid="2282389249605674226">"ለመቀጠል የእርስዎን መልክ ይጠቀሙ"</string>
     <string name="biometric_prompt_message" msgid="1160635338192065472">"ለመቀጠል የእርስዎን ባዮሜትሪክ ይጠቀሙ"</string>
-    <string name="screen_lock_prompt_message" msgid="5659570757430909869">"ለመቀጠል የእርስዎን የማያ ገጽ ቁልፍ ያስገቡ"</string>
-    <string name="fingerprint_or_screen_lock_prompt_message" msgid="8382576858490514495">"ለመቀጠል የእርስዎን የጣት አሻራ ወይም የማያ ገጽ መቆለፊያ ይጠቀሙ"</string>
-    <string name="face_or_screen_lock_prompt_message" msgid="4562557128765735254">"ለመቀጠል የእርስዎን መልክ ወይም የማያ ገጽ መቆለፊያ ይጠቀሙ"</string>
-    <string name="biometric_or_screen_lock_prompt_message" msgid="2102429900219199821">"ለመቀጠል የእርስዎን የባዮሜትሪክ ወይም የማያ ገጽ መቆለፊያ ይጠቀሙ"</string>
+    <string name="screen_lock_prompt_message" msgid="5659570757430909869">"ለመቀጠል የእርስዎን የማያ ገፅ ቁልፍ ያስገቡ"</string>
+    <string name="fingerprint_or_screen_lock_prompt_message" msgid="8382576858490514495">"ለመቀጠል የእርስዎን የጣት አሻራ ወይም የማያ ገፅ መቆለፊያ ይጠቀሙ"</string>
+    <string name="face_or_screen_lock_prompt_message" msgid="4562557128765735254">"ለመቀጠል የእርስዎን መልክ ወይም የማያ ገፅ መቆለፊያ ይጠቀሙ"</string>
+    <string name="biometric_or_screen_lock_prompt_message" msgid="2102429900219199821">"ለመቀጠል የእርስዎን የባዮሜትሪክ ወይም የማያ ገፅ መቆለፊያ ይጠቀሙ"</string>
 </resources>

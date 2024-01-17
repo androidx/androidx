@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.lazy.staggeredgrid
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.unit.Density
@@ -27,7 +26,6 @@ import androidx.compose.ui.unit.dp
  * This class describes the count and the sizes of columns in vertical staggered grids,
  * or rows in horizontal staggered grids.
  */
-@ExperimentalFoundationApi
 @Stable
 interface StaggeredGridCells {
     /**
@@ -56,7 +54,7 @@ interface StaggeredGridCells {
      */
     class Fixed(private val count: Int) : StaggeredGridCells {
         init {
-            require(count > 0)
+            require(count > 0) { "grid with no rows/columns" }
         }
 
         override fun Density.calculateCrossAxisCellSizes(
@@ -86,7 +84,7 @@ interface StaggeredGridCells {
      */
     class Adaptive(private val minSize: Dp) : StaggeredGridCells {
         init {
-            require(minSize > 0.dp)
+            require(minSize > 0.dp) { "invalid minSize" }
         }
 
         override fun Density.calculateCrossAxisCellSizes(
