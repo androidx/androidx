@@ -90,7 +90,7 @@ public abstract class CameraEffect {
     @Retention(RetentionPolicy.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @IntDef(flag = true, value = {TRANSFORMATION_ARBITRARY,
-            TRANSFORMATION_CAMERA_AND_SURFACE_ROTATION})
+            TRANSFORMATION_CAMERA_AND_SURFACE_ROTATION, TRANSFORMATION_PASSTHROUGH})
     public @interface Transformations {
     }
 
@@ -162,6 +162,16 @@ public abstract class CameraEffect {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final int TRANSFORMATION_CAMERA_AND_SURFACE_ROTATION = 1;
+
+    /**
+     * Flag to indicate that the surface processor should be ignored, so no transformation is
+     * required.
+     *
+     * <p>Use this flag if the {@link CameraEffect} only intends to specify the targets of buffer
+     * sharing.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final int TRANSFORMATION_PASSTHROUGH = 2;
 
     @Targets
     private final int mTargets;
