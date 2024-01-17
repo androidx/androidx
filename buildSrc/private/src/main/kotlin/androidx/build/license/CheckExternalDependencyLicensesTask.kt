@@ -143,11 +143,6 @@ fun Project.configureExternalDependencyLicenseCheck() {
                                         .filterNot { it.group?.startsWith("com.android") == true }
                                         .filterNot { it.group?.startsWith("android.arch") == true }
                                         .filterNot { it.group?.startsWith("androidx") == true }
-                                        .filterNot {
-                                            // listablefuture conflicts with guava, skip it
-                                            it.group.equals("com.google.guava") &&
-                                                it.name.equals("listenablefuture")
-                                        }
                                 }
                                 .forEach { checkerConfig.dependencies.add(it) }
                         }

@@ -160,6 +160,9 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
         project.configureKtlint()
         project.configureKotlinVersion()
 
+        // Avoid conflicts between full Guava and LF-only Guava.
+        project.configureGuavaUpgradeHandler()
+
         // Configure all Jar-packing tasks for hermetic builds.
         project.tasks.withType(Zip::class.java).configureEach { it.configureForHermeticBuild() }
         project.tasks.withType(Copy::class.java).configureEach { it.configureForHermeticBuild() }
@@ -990,7 +993,6 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
         project.extensions.findByType<LibraryAndroidComponentsExtension>()!!.finalizeDsl {
             it.defaultConfig.aarMetadata.minCompileSdk = it.compileSdk
         }
-        project.fixGuavaDeps()
         project.disableStrictVersionConstraints()
         project.setPublishProperty(androidXExtension)
         project.afterEvaluate {
@@ -1004,7 +1006,6 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
     ) {
         // Propagate the compileSdk value into minCompileSdk.
         aarMetadata.minCompileSdk = compileSdk
-        project.fixGuavaDeps()
         project.disableStrictVersionConstraints()
         project.setPublishProperty(androidXExtension)
     }
@@ -1024,7 +1025,12 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
         }
     }
 
-    private fun Project.fixGuavaDeps() {
+    /**
+     * Adds a module handler replacement rule that treats full Guava (of any version) as an upgrade
+     * to ListenableFuture-only Guava. This prevents irreconcilable versioning conflicts and/or
+     * class duplication issues.
+     */
+    private fun Project.configureGuavaUpgradeHandler() {
         // The full Guava artifact is very large, so they split off a special artifact containing a
         // standalone version of the commonly-used ListenableFuture interface. However, they also
         // structured the artifacts in a way that causes dependency resolution conflicts:
