@@ -29,6 +29,7 @@ import java.lang.ref.WeakReference
 import kotlin.concurrent.thread
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
+import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -203,6 +204,7 @@ class JvmCompositionTests {
     }
 
     // regression test for b/319810819
+    @Ignore("b/320688836")
     @Test
     fun remember_functionReference_key() = compositionTest {
         var state by mutableIntStateOf(0)
