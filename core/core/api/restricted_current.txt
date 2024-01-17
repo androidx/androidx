@@ -98,6 +98,7 @@ package androidx.core.app {
   }
 
   public final class AlarmManagerCompat {
+    method public static boolean canScheduleExactAlarms(android.app.AlarmManager);
     method public static void setAlarmClock(android.app.AlarmManager, long, android.app.PendingIntent, android.app.PendingIntent);
     method public static void setAndAllowWhileIdle(android.app.AlarmManager, int, long, android.app.PendingIntent);
     method public static void setExact(android.app.AlarmManager, int, long, android.app.PendingIntent);
