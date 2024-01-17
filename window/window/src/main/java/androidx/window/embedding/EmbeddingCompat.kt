@@ -169,6 +169,8 @@ internal class EmbeddingCompat(
 
     @RequiresWindowSdkExtension(5)
     override fun finishActivityStacks(activityStacks: Set<ActivityStack>) {
+        // This API requires version 5 because the implementation needs ActivityStack#getToken,
+        // which is targeting vendor API level 5.
         windowSdkExtensions.requireExtensionVersion(5)
 
         val stackTokens = activityStacks.mapTo(mutableSetOf()) { it.token }
@@ -231,6 +233,8 @@ internal class EmbeddingCompat(
         options: ActivityOptions,
         token: IBinder
     ): ActivityOptions {
+        // This API requires version 5 because the implementation needs ActivityStack#getToken,
+        // which is targeting vendor API level 5.
         windowSdkExtensions.requireExtensionVersion(5)
 
         return embeddingExtension.setLaunchingActivityStack(options, token)
