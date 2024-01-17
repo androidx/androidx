@@ -303,7 +303,8 @@ value class RequestTemplate(val value: Int) {
 data class InputRequest(
     val inputStreamId: InputStreamId,
     val image: ImageWrapper,
-    val metadata: FrameMetadata
+    val frameMetadata: FrameMetadata,
+    val frameInfo: FrameInfo
 )
 
 /**
