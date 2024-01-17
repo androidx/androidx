@@ -85,6 +85,9 @@ val TextDemos = DemoCategory(
                             TextOverflowVisibleInPopupDemo()
                         },
                         ComposableDemo("Min/max lines") { BasicTextMinMaxLinesDemo() },
+                        ComposableDemo("Get last character after clip") {
+                            LastClippedCharacterDemo()
+                        }
                     )
                 ),
                 ComposableDemo("IncludeFontPadding & Clip") { TextFontPaddingDemo() },
