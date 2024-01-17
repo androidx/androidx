@@ -868,8 +868,8 @@ object TopAppBarDefaults {
     @Composable
     fun mediumTopAppBarColors(
         containerColor: Color = Color.Unspecified,
-        navigationIconContentColor: Color = Color.Unspecified,
         scrolledContainerColor: Color = Color.Unspecified,
+        navigationIconContentColor: Color = Color.Unspecified,
         titleContentColor: Color = Color.Unspecified,
         actionIconContentColor: Color = Color.Unspecified,
     ): TopAppBarColors = MaterialTheme.colorScheme.defaultMediumTopAppBarColors.copy(
