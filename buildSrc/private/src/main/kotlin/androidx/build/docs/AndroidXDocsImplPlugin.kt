@@ -30,6 +30,7 @@ import androidx.build.getLibraryByName
 import androidx.build.metalava.versionMetadataUsage
 import androidx.build.multiplatformUsage
 import androidx.build.versionCatalog
+import androidx.build.workaroundPrebuiltTakingPrecedenceOverProject
 import com.android.build.api.attributes.BuildTypeAttr
 import com.android.build.gradle.LibraryExtension
 import com.android.build.gradle.LibraryPlugin
@@ -171,6 +172,7 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
         )
 
         project.configureTaskTimeouts()
+        project.workaroundPrebuiltTakingPrecedenceOverProject()
     }
 
     /**
