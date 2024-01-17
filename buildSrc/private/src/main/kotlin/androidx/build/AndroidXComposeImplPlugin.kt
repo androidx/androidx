@@ -31,7 +31,6 @@ import org.gradle.api.attributes.Attribute
 import org.gradle.api.plugins.ExtraPropertiesExtension
 import org.gradle.api.tasks.ClasspathNormalizer
 import org.gradle.api.tasks.bundling.Zip
-import org.gradle.kotlin.dsl.apply
 import org.gradle.kotlin.dsl.create
 import org.jetbrains.kotlin.gradle.plugin.KotlinBasePluginWrapper
 import org.jetbrains.kotlin.gradle.plugin.KotlinMultiplatformPluginWrapper
@@ -202,17 +201,37 @@ private fun configureComposeCompilerPlugin(project: Project, extension: AndroidX
         }
         // Add Compose compiler plugin to kotlinPlugin configuration, making sure it works
         // for Playground builds as well
+        val pluginVersionToml = project.getVersionByName("composeCompilerPlugin")
+        val versionToUse = if (ProjectLayoutType.isPlayground(project)) {
+            pluginVersionToml
+        } else {
+            // use exact project path instead of subprojects.find, it is faster
+            val compilerProject = project.rootProject.resolveProject(
+                ":compose:compiler:compiler"
+            )
+            val compilerMavenDirectory = File(
+                compilerProject.projectDir,
+                "compose-compiler-snapshot-repository"
+            )
+            if (!compilerMavenDirectory.exists()) {
+                pluginVersionToml
+            } else {
+                project.repositories.maven {
+                    it.url = compilerMavenDirectory.toURI()
+                }
+                // Version chosen to be not a "-SNAPSHOT" since apparently gradle doesn't
+                // validate signatures for -SNAPSHOT builds.  Version is chosen to be higher
+                // than anything real to ensure it is seen as newer than any explicit dependency
+                // to prevent gradle from "upgrading" to a stable build instead of local build.
+                // This version is built by: snapshot-compose-compiler.sh (in compiler project)
+                "99.0.0"
+            }
+        }
         project.dependencies.add(
             COMPILER_PLUGIN_CONFIGURATION,
-            if (ProjectLayoutType.isPlayground(project)) {
-                AndroidXPlaygroundRootImplPlugin.projectOrArtifact(
-                    project.rootProject,
-                    ":compose:compiler:compiler"
-                )
-            } else {
-                project.rootProject.resolveProject(":compose:compiler:compiler")
-            }
+            "androidx.compose.compiler:compiler:$versionToUse"
         )
+
         val kotlinPlugin =
             configuration.incoming
                 .artifactView { view ->
