@@ -197,7 +197,7 @@ open class PlaygroundExtension @Inject constructor(
                         appendLine(it)
                     }
                     appendLine("dependency path to $it from implicitly added projects:")
-                    fullProjectDependencyGraph.findPathsBetween(implicitlyAddedProjects, it).forEach {
+                    projectDependencyGraph.findPathsBetween(implicitlyAddedProjects, it).forEach {
                         appendLine(it)
                     }
                     appendLine("----")
