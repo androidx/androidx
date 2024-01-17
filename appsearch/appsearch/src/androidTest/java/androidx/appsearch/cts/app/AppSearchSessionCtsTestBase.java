@@ -469,8 +469,6 @@ public abstract class AppSearchSessionCtsTestBase {
     }
 // @exportToFramework:endStrip()
 
-// @exportToFramework:startStrip()
-
     /** Test indexing maximum properties into a schema. */
     @Test
     public void testSetSchema_maxProperties() throws Exception {
@@ -487,9 +485,20 @@ public abstract class AppSearchSessionCtsTestBase {
         Set<AppSearchSchema> actual1 = mDb1.getSchemaAsync().get().getSchemas();
         assertThat(actual1).containsExactly(maxSchema);
 
-        // TODO(b/300135897): Expand test to assert adding more than allowed properties is
-        //  fixed once fixed.
+        schemaBuilder.addProperty(new StringPropertyConfig.Builder("toomuch")
+                .setIndexingType(StringPropertyConfig.INDEXING_TYPE_EXACT_TERMS)
+                .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                .build());
+        ExecutionException exception = assertThrows(ExecutionException.class, () ->
+                mDb1.setSchemaAsync(new SetSchemaRequest.Builder()
+                        .addSchemas(schemaBuilder.build()).setForceOverride(true).build()).get());
+        Throwable cause = exception.getCause();
+        assertThat(cause).isInstanceOf(AppSearchException.class);
+        assertThat(cause.getMessage()).isEqualTo("Too many properties to be indexed, max "
+                + "number of properties allowed: " + maxProperties);
     }
+
+// @exportToFramework:startStrip()
 
     @Test
     public void testGetSchema() throws Exception {
