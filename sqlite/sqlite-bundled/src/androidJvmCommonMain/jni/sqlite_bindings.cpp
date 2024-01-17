@@ -290,6 +290,18 @@ Java_androidx_sqlite_driver_bundled_BundledSQLiteStatementKt_nativeReset(
 }
 
 extern "C" JNIEXPORT void JNICALL
+Java_androidx_sqlite_driver_bundled_BundledSQLiteStatementKt_nativeClearBindings(
+        JNIEnv* env,
+        jclass clazz,
+        jlong stmtPointer) {
+    sqlite3_stmt* stmt = reinterpret_cast<sqlite3_stmt*>(stmtPointer);
+    int rc = sqlite3_clear_bindings(stmt);
+    if (rc != SQLITE_OK) {
+        throwSQLiteException(env, rc, sqlite3_errmsg(sqlite3_db_handle(stmt)));
+    }
+}
+
+extern "C" JNIEXPORT void JNICALL
 Java_androidx_sqlite_driver_bundled_BundledSQLiteStatementKt_nativeClose(
         JNIEnv* env,
         jclass clazz,

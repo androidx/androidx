@@ -100,6 +100,11 @@ actual class BundledSQLiteStatement(
         nativeReset(statementPointer)
     }
 
+    override fun clearBindings() {
+        throwIfClosed()
+        nativeClearBindings(statementPointer)
+    }
+
     override fun close() {
         nativeClose(statementPointer)
         isClosed = true
@@ -134,4 +139,5 @@ private external fun nativeGetColumnType(pointer: Long, index: Int): Int
 private external fun nativeGetColumnCount(pointer: Long): Int
 private external fun nativeGetColumnName(pointer: Long, index: Int): String
 private external fun nativeReset(pointer: Long)
+private external fun nativeClearBindings(pointer: Long)
 private external fun nativeClose(pointer: Long)

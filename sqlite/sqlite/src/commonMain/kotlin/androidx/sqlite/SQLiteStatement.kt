@@ -138,6 +138,11 @@ interface SQLiteStatement {
     fun reset()
 
     /**
+     * Clears all parameter bindings. Unset bindings are treated as NULL.
+     */
+    fun clearBindings()
+
+    /**
      * Closes the statement.
      *
      * Once a statement is closed it should no longer be used. Calling this function on an already
