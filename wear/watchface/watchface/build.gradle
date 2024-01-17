@@ -62,8 +62,6 @@ dependencies {
     testImplementation(libs.robolectric)
     testImplementation(libs.truth)
     testImplementation(libs.kotlinTest)
-
-    samples(project(":wear:watchface:watchface-samples"))
 }
 
 android {
@@ -85,4 +83,5 @@ androidx {
     inceptionYear = "2020"
     description = "Android Wear Watchface"
     metalavaK2UastEnabled = true
+    samples(project(":wear:watchface:watchface-samples"))
 }

@@ -41,8 +41,6 @@ dependencies {
     testImplementation(libs.junit)
     testImplementation(libs.kotlinTest)
     testImplementation(libs.kotlinCoroutinesTest)
-
-    samples(project(":paging:paging-samples"))
 }
 
 androidx {
@@ -52,6 +50,7 @@ androidx {
     description = "Android Paging Guava"
     legacyDisableKotlinStrictApiMode = true
     metalavaK2UastEnabled = true
+    samples(project(":paging:paging-samples"))
 }
 
 android {

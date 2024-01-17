@@ -131,8 +131,6 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
                 project
             )
 
-        project.configurations.create("samples")
-
         project.tasks.register(BUILD_ON_SERVER_TASK, DefaultTask::class.java)
         // Perform different actions based on which plugins have been applied to the project.
         // Many of the actions overlap, ex. API tracking.
@@ -500,7 +498,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
                 }
             }
             project.configureKmp()
-            project.configureSourceJarForMultiplatform()
+            project.configureSourceJarForMultiplatform(androidXExtension)
 
             // Disable any source JAR task(s) added by KotlinMultiplatformPlugin.
             // https://youtrack.jetbrains.com/issue/KT-55881
@@ -702,7 +700,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
         }
 
         project.configurePublicResourcesStub(libraryExtension)
-        project.configureSourceJarForAndroid(libraryExtension)
+        project.configureSourceJarForAndroid(libraryExtension, androidXExtension)
         project.configureVersionFileWriter(libraryAndroidComponentsExtension, androidXExtension)
         project.configureJavaCompilationWarnings(androidXExtension)
 
@@ -770,7 +768,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
                 }
             }
             if (!project.plugins.hasPlugin(KotlinBasePluginWrapper::class.java)) {
-                project.configureSourceJarForJava()
+                project.configureSourceJarForJava(androidXExtension)
             }
         }
 

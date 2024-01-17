@@ -231,7 +231,9 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
             task.into(destinationDirectory)
             task.from(
                 sources.elements.map { jars ->
-                    jars.map { jar ->
+                    // Now that we publish sample jars, they can get confused with normal source
+                    // jars. We want to handle sample jars separately, so filter by the name.
+                    jars.filter { "samples" !in it.toString() }.map { jar ->
                         localVar.zipTree(jar).matching { it.exclude("**/META-INF/MANIFEST.MF") }
                     }
                 }

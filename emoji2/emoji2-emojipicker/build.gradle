@@ -46,8 +46,6 @@ dependencies {
     androidTestImplementation(libs.testRules)
     androidTestImplementation(project(":test:screenshot:screenshot"))
     androidTestImplementation(project(":internal-testutils-runtime"))
-
-    samples(project(":emoji2:emoji2-emojipicker:emoji2-emojipicker-samples"))
 }
 
 

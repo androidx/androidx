@@ -60,8 +60,6 @@ dependencies {
     androidTestImplementation projectOrArtifact(":lifecycle:lifecycle-viewmodel-savedstate")
     androidTestImplementation projectOrArtifact(":activity:activity-compose")
     androidTestImplementation(projectOrArtifact(":lifecycle:lifecycle-runtime-testing"))
-
-    samples(projectOrArtifact(":lifecycle:lifecycle-viewmodel-compose:lifecycle-viewmodel-compose-samples"))
 }
 
 androidx {
@@ -71,6 +69,7 @@ androidx {
     description = "Compose integration with Lifecycle ViewModel"
     runApiTasks = new RunApiTasks.Yes()
     metalavaK2UastEnabled = true
+    samples(projectOrArtifact(":lifecycle:lifecycle-viewmodel-compose:lifecycle-viewmodel-compose-samples"))
 }
 
 android {

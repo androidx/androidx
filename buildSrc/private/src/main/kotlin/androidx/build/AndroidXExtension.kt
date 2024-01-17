@@ -27,6 +27,7 @@ import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.plugins.ExtensionContainer
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
+import org.gradle.api.tasks.TaskProvider
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 
 /** Extension for [AndroidXImplPlugin] that's responsible for holding configuration options. */
@@ -38,6 +39,8 @@ abstract class AndroidXExtension(val project: Project) : ExtensionAware, Android
 
     val libraryGroupsByGroupId: Map<String, LibraryGroup>
     val overrideLibraryGroupsByProjectPath: Map<String, LibraryGroup>
+
+    var copySampleSourceJarsTask: TaskProvider<LazyInputsCopyTask>? = null
 
     val mavenGroup: LibraryGroup?
 
@@ -449,6 +452,12 @@ abstract class AndroidXExtension(val project: Project) : ExtensionAware, Android
     companion object {
         const val DEFAULT_UNSPECIFIED_VERSION = "unspecified"
     }
+
+    /**
+     * Used to register a project that will be providing documentation samples for this project.
+     * Can only be called once so only one samples library can exist per library b/318840087.
+     */
+    fun samples(samplesProject: Project) = registerSamplesLibrary(samplesProject)
 }
 
 class License {
