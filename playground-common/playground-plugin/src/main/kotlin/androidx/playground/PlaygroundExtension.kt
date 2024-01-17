@@ -238,10 +238,10 @@ open class PlaygroundExtension @Inject constructor(
         private val PROJECT_OR_ARTIFACT_ALLOWED_GROUP_PREFIXES = setOf(
             ":benchmark",
             ":core",
+            ":inspection",
             ":room",
             ":sqlite",
             ":tracing",
-
         )
     }
 }
