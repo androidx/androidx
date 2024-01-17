@@ -1059,7 +1059,7 @@ class SeekTransitionTest : BaseTest() {
         var animatedFraction = -1f
         var animatedMillis = -1L
         val removeListener = object : Consumer<TransitionSeekController> {
-            override fun accept(t: TransitionSeekController?) {
+            override fun accept(value: TransitionSeekController) {
                 seekController.removeOnProgressChangedListener(this)
             }
         }
