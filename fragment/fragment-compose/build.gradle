@@ -21,37 +21,32 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
-import androidx.build.PlatformIdentifier
 import androidx.build.Publish
+import androidx.build.RunApiTasks
+import androidx.build.LibraryType
+
 
 plugins {
     id("AndroidXPlugin")
     id("AndroidXComposePlugin")
     id("com.android.library")
+    id("org.jetbrains.kotlin.android")
 }
 
-androidXMultiplatform {
-    android()
+dependencies {
 
-    defaultPlatform(PlatformIdentifier.ANDROID)
+    implementation(libs.kotlinStdlib)
+    api(project(":fragment:fragment-ktx"))
+    api("androidx.compose.runtime:runtime:1.5.4")
+    api("androidx.compose.ui:ui:1.5.4")
 
-    sourceSets {
-        androidMain {
-            dependencies {
-                api(project(":fragment:fragment-ktx"))
-            }
-        }
-
-        androidInstrumentedTest {
-            dependencies {
-                implementation(libs.testRules)
-                implementation(libs.testRunner)
-                implementation(libs.junit)
-                implementation(libs.truth)
-            }
-        }
-    }
+    androidTestImplementation project(":compose:ui:ui-test-junit4")
+    androidTestImplementation project(":compose:material:material")
+    androidTestImplementation project(":compose:test-utils")
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.junit)
+    androidTestImplementation(libs.truth)
 }
 
 android {
