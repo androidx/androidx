@@ -32,7 +32,7 @@ internal fun EditorInfo.update(
     text: CharSequence,
     selection: TextRange,
     imeOptions: ImeOptions,
-    acceptedMimeTypes: Set<String>? = null
+    contentMimeTypes: Array<String>? = null
 ) {
     this.imeOptions = when (imeOptions.imeAction) {
         ImeAction.Default -> {
@@ -139,8 +139,8 @@ internal fun EditorInfo.update(
 
     EditorInfoCompat.setInitialSurroundingText(this, text)
 
-    if (acceptedMimeTypes != null) {
-        EditorInfoCompat.setContentMimeTypes(this, acceptedMimeTypes.toTypedArray())
+    if (contentMimeTypes != null) {
+        EditorInfoCompat.setContentMimeTypes(this, contentMimeTypes)
     }
 
     this.imeOptions = this.imeOptions or EditorInfo.IME_FLAG_NO_FULLSCREEN

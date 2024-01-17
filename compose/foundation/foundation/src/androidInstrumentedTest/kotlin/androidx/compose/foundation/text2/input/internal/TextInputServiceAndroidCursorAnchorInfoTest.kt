@@ -156,9 +156,8 @@ internal class TextInputServiceAndroidCursorAnchorInfoTest {
                 state = transformedState,
                 layoutState = layoutState,
                 imeOptions = ImeOptions.Default,
-                acceptedMimeTypes = null,
+                receiveContentConfiguration = null,
                 onImeAction = null,
-                onCommitContent = null
             )
         }
 
@@ -295,9 +294,8 @@ internal class TextInputServiceAndroidCursorAnchorInfoTest {
                 state = transformedState,
                 layoutState = layoutState,
                 imeOptions = ImeOptions.Default,
-                acceptedMimeTypes = null,
+                receiveContentConfiguration = null,
                 onImeAction = null,
-                onCommitContent = null
             )
         }
 

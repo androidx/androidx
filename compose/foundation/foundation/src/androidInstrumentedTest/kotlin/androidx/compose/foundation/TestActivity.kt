@@ -22,7 +22,7 @@ import java.util.concurrent.CountDownLatch
 
 class TestActivity : ComponentActivity() {
     var hasFocusLatch = CountDownLatch(1)
-    var requestedDragAndDropPermission: DragEvent? = null
+    val requestedDragAndDropPermissions: MutableList<DragEvent> = mutableListOf()
 
     override fun onWindowFocusChanged(hasFocus: Boolean) {
         super.onWindowFocusChanged(hasFocus)
@@ -32,7 +32,7 @@ class TestActivity : ComponentActivity() {
     }
 
     override fun requestDragAndDropPermissions(event: DragEvent?): DragAndDropPermissions {
-        requestedDragAndDropPermission = event
+        event?.let { requestedDragAndDropPermissions += it }
         return super.requestDragAndDropPermissions(event)
     }
 }

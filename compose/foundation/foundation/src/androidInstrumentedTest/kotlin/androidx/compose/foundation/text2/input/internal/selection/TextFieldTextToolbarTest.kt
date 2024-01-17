@@ -582,7 +582,7 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
             toolbar = textToolbar,
             singleLine = true,
             clipboardManager = clipboardManager,
-            modifier = Modifier.receiveContent(MediaType.Image) { null }
+            modifier = Modifier.receiveContent(setOf(MediaType.Image)) { null }
         )
 
         rule.onNodeWithTag(TAG).performTouchInput { click() }

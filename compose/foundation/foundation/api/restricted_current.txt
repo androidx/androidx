@@ -322,7 +322,16 @@ package androidx.compose.foundation.content {
   }
 
   public final class ReceiveContentKt {
-    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.ui.Modifier receiveContent(androidx.compose.ui.Modifier, androidx.compose.foundation.content.MediaType[] acceptedMediaTypes, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.content.TransferableContent,androidx.compose.foundation.content.TransferableContent?> onReceive);
+    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.ui.Modifier receiveContent(androidx.compose.ui.Modifier, java.util.Set<androidx.compose.foundation.content.MediaType> hintMediaTypes, androidx.compose.foundation.content.ReceiveContentListener receiveContentListener);
+    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.ui.Modifier receiveContent(androidx.compose.ui.Modifier, java.util.Set<androidx.compose.foundation.content.MediaType> hintMediaTypes, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.content.TransferableContent,androidx.compose.foundation.content.TransferableContent?> onReceive);
+  }
+
+  @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public interface ReceiveContentListener {
+    method public default void onDragEnd();
+    method public default void onDragEnter();
+    method public default void onDragExit();
+    method public default void onDragStart();
+    method public androidx.compose.foundation.content.TransferableContent? onReceive(androidx.compose.foundation.content.TransferableContent transferableContent);
   }
 
   @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public final class TransferableContent {
