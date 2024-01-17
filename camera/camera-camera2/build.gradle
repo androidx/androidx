@@ -51,6 +51,7 @@ dependencies {
     testImplementation("androidx.lifecycle:lifecycle-runtime-testing:2.3.1")
     testImplementation(project(":camera:camera-video"))
     testImplementation(project(":camera:camera-testing"))
+    testImplementation(project(":internal-testutils-truth"))
     testImplementation("androidx.arch.core:core-testing:2.2.0")
     testImplementation(libs.junit) // Needed for Assert.assertThrows
     testImplementation("org.codehaus.plexus:plexus-utils:3.4.1")
