@@ -54,6 +54,7 @@ class CredentialEntryTest {
     }
 
     @Test
+    @Suppress("DEPRECATION")
     fun createFrom_passwordCredential() {
         val entry = PasswordCredentialEntry(
             mContext,
