@@ -67,7 +67,7 @@ dependencies {
     implementation("androidx.core:core:1.12.0")
     implementation("androidx.room:room-ktx:2.6.1")
     implementation("androidx.concurrent:concurrent-futures:1.1.0")
-    api(projectOrArtifact(":annotation:annotation-experimental"))
+    api("androidx.annotation:annotation-experimental:1.4.0")
     api(libs.guavaListenableFuture)
     api("androidx.lifecycle:lifecycle-livedata:2.6.2")
     api("androidx.startup:startup-runtime:1.1.1")

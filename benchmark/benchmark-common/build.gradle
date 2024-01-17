@@ -74,7 +74,7 @@ wire {
 dependencies {
     implementation(libs.kotlinStdlib)
     api("androidx.annotation:annotation:1.7.0")
-    api(project(":annotation:annotation-experimental"))
+    api("androidx.annotation:annotation-experimental:1.4.0")
     implementation("androidx.tracing:tracing-ktx:1.0.0")
     implementation(project(":tracing:tracing-perfetto-handshake"))
     implementation("androidx.test:monitor:1.6.1")
