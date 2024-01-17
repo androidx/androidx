@@ -20,7 +20,6 @@ import ProjectDependencyGraph
 import SkikoSetup
 import androidx.build.SettingsParser
 import androidx.build.gradle.isRoot
-import groovy.lang.Tuple2
 import java.io.File
 import java.util.Properties
 import javax.inject.Inject
@@ -161,15 +160,14 @@ open class PlaygroundExtension @Inject constructor(
         val allNeededProjects = projectDependencyGraph
             .getAllProjectsWithDependencies(selectedGradlePaths + REQUIRED_PROJECTS)
             .toMutableSet()
-
         // here, we are trying to disable projectOrArtifact unless it is necessary, as a first step of removing
         // most of them. To do so, we load the graph as if it is AOSP and include them as well even if the project
         // specified `projectOrArtifact`.
-        val projectOrArtifactAllowList = buildProjectOrArtifactAllowList(fullProjectDependencyGraph)
+        val projectOrArtifactDisallowList = buildProjectOrArtifactDisallowList(projectDependencyGraph)
         val implicitlyAddedProjects = mutableSetOf<String>()
         fullProjectDependencyGraph
             .getAllProjectsWithDependencies(selectedGradlePaths + REQUIRED_PROJECTS)
-            .filterNot { it.v1 in projectOrArtifactAllowList && it !in allNeededProjects }
+            .filterNot { it.v1 in projectOrArtifactDisallowList && it !in allNeededProjects }
             .onEach { implicitlyAddedProjects.add(it.v1) }
             .flatMap { projectDependencyGraph.getAllProjectsWithDependencies(setOf(it.v1)) }
             .distinct()
@@ -218,13 +216,10 @@ open class PlaygroundExtension @Inject constructor(
             }
     }
 
-    private fun buildProjectOrArtifactAllowList(projectDependencyGraph: ProjectDependencyGraph) : Set<String> {
-        val projectOrArtifactAllowList = mutableSetOf<String>()
-        projectOrArtifactAllowList.addAll(UNSUPPORTED_PROJECTS)
-        PROJECT_OR_ARTIFACT_ALLOWED_GROUP_PREFIXES.forEach {
-            projectOrArtifactAllowList.addAll(projectDependencyGraph.findProjectsWithPrefix(it))
-        }
-        return projectOrArtifactAllowList
+    private fun buildProjectOrArtifactDisallowList(projectDependencyGraph: ProjectDependencyGraph) : Set<String> {
+        return UNSUPPORTED_PROJECTS.flatMap {
+            projectDependencyGraph.findAllProjectsDependingOn(it)
+        }.toSet()
     }
 
     companion object {
@@ -233,14 +228,7 @@ open class PlaygroundExtension @Inject constructor(
             ":benchmark:benchmark-common", // requires prebuilts
             ":core:core", // stable aidl, b/270593834
             ":sqlite:sqlite-bundled", // clang compilation, b/306669673
-        )
-        private val PROJECT_OR_ARTIFACT_ALLOWED_GROUP_PREFIXES = setOf(
-            ":benchmark",
-            ":core",
-            ":inspection",
-            ":room",
-            ":sqlite",
-            ":tracing",
+            ":inspection:inspection", // native compilation
         )
     }
 }
