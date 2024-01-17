@@ -18,7 +18,6 @@
 
 package androidx.compose.ui.input
 
-import android.view.Choreographer
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import androidx.compose.ui.text.TextRange
@@ -27,12 +26,11 @@ import androidx.compose.ui.text.input.InputMethodManager
 import androidx.compose.ui.text.input.RecordingInputConnection
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.TextInputServiceAndroid
-import androidx.compose.ui.text.input.asExecutor
-import androidx.test.espresso.Espresso
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.Executor
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -56,13 +54,14 @@ class TextInputServiceAndroidOnStateUpdateTest {
     fun setup() {
         val view = View(InstrumentationRegistry.getInstrumentation().context)
         inputMethodManager = mock()
-        // Choreographer must be retrieved on main thread.
-        val choreographer = Espresso.onIdle { Choreographer.getInstance() }
+        // we never want the event queue to run during these test cases, as it will cause errant
+        // interactions based off an uncontrolled frame clock (causes flakes)
+        val neverExecutor = Executor { println("not running $it") }
         textInputService = TextInputServiceAndroid(
                 view,
                 mock(),
                 inputMethodManager,
-                inputCommandProcessorExecutor = choreographer.asExecutor()
+                inputCommandProcessorExecutor = neverExecutor
             )
         textInputService.startInput(
             value = TextFieldValue(""),
