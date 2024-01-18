@@ -161,8 +161,8 @@ internal abstract class AgpPlugin(
         }
 
         var applied = false
-        variants.all {
-            if (applied) return@all
+        variants.configureEach {
+            if (applied) return@configureEach
             applied = true
 
             // Execute all the scheduled variant blocks
