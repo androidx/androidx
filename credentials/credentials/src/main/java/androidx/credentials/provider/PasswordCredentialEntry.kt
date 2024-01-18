@@ -261,7 +261,7 @@ class PasswordCredentialEntry internal constructor(
                 )
                 .addText(
                     affiliatedDomain, /*subType=*/null,
-                    listOf(SLICE_HINT_AFFILIATION_NAME)
+                    listOf(SLICE_HINT_AFFILIATED_DOMAIN)
                 )
             try {
                 if (icon.resId == R.drawable.ic_password) {
@@ -347,7 +347,7 @@ class PasswordCredentialEntry internal constructor(
                     autoSelectAllowedFromOption = true
                 } else if (it.hasHint(SLICE_HINT_DEFAULT_ICON_RES_ID)) {
                     isDefaultIcon = true
-                } else if (it.hasHint(SLICE_HINT_AFFILIATION_NAME)) {
+                } else if (it.hasHint(SLICE_HINT_AFFILIATED_DOMAIN)) {
                     affiliatedDomain = it.text
                 }
             }
@@ -409,8 +409,8 @@ class PasswordCredentialEntry internal constructor(
         private const val SLICE_HINT_AUTO_SELECT_FROM_OPTION =
             "androidx.credentials.provider.credentialEntry.SLICE_HINT_AUTO_SELECT_FROM_OPTION"
 
-        private const val SLICE_HINT_AFFILIATION_NAME =
-            "androidx.credentials.provider.credentialEntry.SLICE_HINT_AFFILIATION_NAME"
+        private const val SLICE_HINT_AFFILIATED_DOMAIN =
+            "androidx.credentials.provider.credentialEntry.SLICE_HINT_AFFILIATED_DOMAIN"
 
         private const val AUTO_SELECT_TRUE_STRING = "true"
 

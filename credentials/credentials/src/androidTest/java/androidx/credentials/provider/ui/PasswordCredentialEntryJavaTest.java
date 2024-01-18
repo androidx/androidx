@@ -53,6 +53,8 @@ public class PasswordCredentialEntryJavaTest {
     private static final CharSequence USERNAME = "title";
     private static final CharSequence DISPLAYNAME = "subtitle";
     private static final CharSequence TYPE_DISPLAY_NAME = "Password";
+
+    private static final String AFFILIATED_DOMAIN = "affiliation-name";
     private static final Long LAST_USED_TIME = 10L;
 
     private static final boolean IS_AUTO_SELECT_ALLOWED = true;
@@ -159,6 +161,66 @@ public class PasswordCredentialEntryJavaTest {
     }
 
     @Test
+    public void constructor_defaultAffiliatedDomain() {
+        PasswordCredentialEntry entry = constructEntryWithRequiredParamsOnly();
+
+        assertThat(entry.getAffiliatedDomain()).isNull();
+    }
+
+    @Test
+    public void constructor_nonEmptyAffiliatedDomainSet_nonEmptyAffiliatedDomainRetrieved() {
+        String expectedAffiliatedDomain = "non-empty";
+
+        PasswordCredentialEntry entryWithAffiliatedDomain = new PasswordCredentialEntry(
+                mContext,
+                USERNAME,
+                mPendingIntent,
+                mBeginGetPasswordOption,
+                DISPLAYNAME,
+                Instant.ofEpochMilli(LAST_USED_TIME),
+                ICON,
+                false,
+                expectedAffiliatedDomain
+        );
+
+        assertThat(entryWithAffiliatedDomain.getAffiliatedDomain())
+                .isEqualTo(expectedAffiliatedDomain);
+    }
+
+    @Test
+    public void builder_constructDefault_containsOnlyDefaultValuesForSettableParameters() {
+        PasswordCredentialEntry entry = new PasswordCredentialEntry.Builder(mContext, USERNAME,
+                mPendingIntent, mBeginGetPasswordOption).build();
+
+        assertThat(entry.getAffiliatedDomain()).isNull();
+        assertThat(entry.getDisplayName()).isNull();
+        assertThat(entry.getLastUsedTime()).isNull();
+        assertThat(entry.isAutoSelectAllowed()).isFalse();
+    }
+
+    @Test
+    public void builder_setAffiliatedDomainNull_retrieveNullAffiliatedDomain() {
+        PasswordCredentialEntry entry = new PasswordCredentialEntry.Builder(mContext, USERNAME,
+                mPendingIntent, mBeginGetPasswordOption).setAffiliatedDomain(null).build();
+
+        assertThat(entry.getAffiliatedDomain()).isNull();
+    }
+
+    @Test
+    public void builder_setAffiliatedDomainNonNull_retrieveNonNullAffiliatedDomain() {
+        String expectedAffiliatedDomain = "affiliated-domain";
+
+        PasswordCredentialEntry entry = new PasswordCredentialEntry.Builder(
+                mContext,
+                USERNAME,
+                mPendingIntent,
+                mBeginGetPasswordOption
+        ).setAffiliatedDomain(expectedAffiliatedDomain).build();
+
+        assertThat(entry.getAffiliatedDomain()).isEqualTo(expectedAffiliatedDomain);
+    }
+
+    @Test
     @SdkSuppress(minSdkVersion = 28)
     public void fromSlice_requiredParams_success() {
         PasswordCredentialEntry originalEntry = constructEntryWithRequiredParamsOnly();
@@ -213,6 +275,7 @@ public class PasswordCredentialEntryJavaTest {
                 .setLastUsedTime(Instant.ofEpochMilli(LAST_USED_TIME))
                 .setIcon(ICON)
                 .setAutoSelectAllowed(IS_AUTO_SELECT_ALLOWED)
+                .setAffiliatedDomain(AFFILIATED_DOMAIN)
                 .build();
     }
 
@@ -221,6 +284,7 @@ public class PasswordCredentialEntryJavaTest {
         assertThat(USERNAME.equals(entry.getUsername()));
         assertThat(mPendingIntent).isEqualTo(entry.getPendingIntent());
         assertThat(mBeginGetPasswordOption.getType()).isEqualTo(entry.getType());
+        assertThat(entry.getAffiliatedDomain()).isNull();
     }
 
     private void assertEntryWithAllParams(PasswordCredentialEntry entry) {
@@ -232,5 +296,6 @@ public class PasswordCredentialEntryJavaTest {
         assertThat(Instant.ofEpochMilli(LAST_USED_TIME)).isEqualTo(entry.getLastUsedTime());
         assertThat(mPendingIntent).isEqualTo(entry.getPendingIntent());
         assertThat(mBeginGetPasswordOption.getType()).isEqualTo(entry.getType());
+        assertThat(entry.getAffiliatedDomain()).isEqualTo(AFFILIATED_DOMAIN);
     }
 }
