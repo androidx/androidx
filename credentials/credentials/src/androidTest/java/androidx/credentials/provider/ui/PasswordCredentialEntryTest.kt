@@ -118,14 +118,14 @@ class PasswordCredentialEntryTest {
     }
 
     @Test
-    fun constructor_defaultAffiliationType() {
+    fun constructor_defaultAffiliatedDomain() {
         val defaultEntry = constructEntryWithRequiredParamsOnly()
 
         assertThat(defaultEntry.affiliatedDomain).isNull()
     }
 
     @Test
-    fun constructor_nonEmptyAffiliationTypeSet_nonEmptyAffiliationTypeRetrieved() {
+    fun constructor_nonEmptyAffiliatedDomainSet_nonEmptyAffiliatedDomainRetrieved() {
         val expectedAffiliatedDomain = "non-empty"
 
         val entryWithAffiliationType = PasswordCredentialEntry(
@@ -158,7 +158,7 @@ class PasswordCredentialEntryTest {
     }
 
     @Test
-    fun builder_setAffiliationNameNull_retrieveNullAffiliationName() {
+    fun builder_setAffiliatedDomainNull_retrieveNullAffiliatedDomain() {
         val entry = PasswordCredentialEntry.Builder(
             mContext,
             USERNAME,
@@ -170,7 +170,7 @@ class PasswordCredentialEntryTest {
     }
 
     @Test
-    fun builder_setAffiliationNameNonNull_retrieveNonNullAffiliationName() {
+    fun builder_setAffiliatedDomainNonNull_retrieveNonNullAffiliatedDomain() {
         val expectedAffiliatedDomain = "name"
         val entry = PasswordCredentialEntry.Builder(
             mContext,
@@ -244,6 +244,7 @@ class PasswordCredentialEntryTest {
     private fun assertEntryWithRequiredParamsOnly(entry: PasswordCredentialEntry) {
         assertThat(USERNAME == entry.username)
         assertThat(mPendingIntent).isEqualTo(entry.pendingIntent)
+        assertThat(entry.affiliatedDomain).isNull()
     }
 
     private fun assertEntryWithAllParams(entry: PasswordCredentialEntry) {
