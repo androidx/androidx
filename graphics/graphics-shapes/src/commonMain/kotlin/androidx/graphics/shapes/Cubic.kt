@@ -93,7 +93,7 @@ open class Cubic internal constructor(internal val points: FloatArray = FloatArr
         )
     }
 
-    private fun zeroLength() = abs(anchor0X - anchor1X) < DistanceEpsilon &&
+    internal fun zeroLength() = abs(anchor0X - anchor1X) < DistanceEpsilon &&
             abs(anchor0Y - anchor1Y) < DistanceEpsilon
 
     private fun zeroIsh(value: Float) = abs(value) < DistanceEpsilon

@@ -319,6 +319,7 @@ class ShapeParameters(
 fun ShapeEditor(params: ShapeParameters, output: (String) -> Unit, onClose: () -> Unit) {
     val shapeParams = params.selectedShape().value
     var debug by remember { mutableStateOf(false) }
+    var stroked by remember { mutableStateOf(false) }
     var autoSize by remember { mutableStateOf(true) }
 
     Column(
@@ -368,7 +369,7 @@ fun ShapeEditor(params: ShapeParameters, output: (String) -> Unit, onClose: () -
                 } else {
                     poly
                 }
-            }, debug = debug)
+            }, debug = debug, stroked = stroked)
         }
         Row {
             MyTextButton(
@@ -380,6 +381,11 @@ fun ShapeEditor(params: ShapeParameters, output: (String) -> Unit, onClose: () -
             MyTextButton(
                 onClick = { debug = !debug },
                 text = if (debug) "Beziers" else "Shape"
+            )
+            Spacer(Modifier.weight(1f))
+            MyTextButton(
+                onClick = { stroked = !stroked },
+                text = if (stroked) "Fill" else "Stroke"
             )
             Spacer(Modifier.weight(1f))
             MyTextButton(
