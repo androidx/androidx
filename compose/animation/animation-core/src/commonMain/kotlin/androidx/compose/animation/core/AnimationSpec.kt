@@ -16,6 +16,7 @@
 
 package androidx.compose.animation.core
 
+import androidx.annotation.FloatRange
 import androidx.annotation.IntRange
 import androidx.collection.MutableIntList
 import androidx.collection.MutableIntObjectMap
@@ -476,14 +477,16 @@ sealed class KeyframesSpecBaseConfig<T, E : KeyframeBaseEntity<T>> {
      * Duration of the animation in milliseconds. The minimum is `0` and defaults to
      * [DefaultDurationMillis]
      */
-    @get:IntRange(from = 0)
+    @get:IntRange(from = 0L)
+    @setparam:IntRange(from = 0L)
     var durationMillis: Int = DefaultDurationMillis
 
     /**
      * The amount of time that the animation should be delayed. The minimum is `0` and defaults
      * to 0.
      */
-    @get:IntRange(from = 0)
+    @get:IntRange(from = 0L)
+    @setparam:IntRange(from = 0L)
     var delayMillis: Int = 0
 
     internal val keyframes = mutableIntObjectMapOf<E>()
@@ -520,7 +523,7 @@ sealed class KeyframesSpecBaseConfig<T, E : KeyframeBaseEntity<T>> {
      *  @return an instance of [E] so a custom [Easing] can be added by the [using] method
      */
     // needed as `open` to guarantee binary compatibility in KeyframesSpecConfig
-    open infix fun T.atFraction(fraction: Float): E {
+    open infix fun T.atFraction(@FloatRange(from = 0.0, to = 1.0) fraction: Float): E {
         return at((durationMillis * fraction).fastRoundToInt())
     }
 
@@ -608,7 +611,9 @@ class KeyframesSpec<T>(val config: KeyframesSpecConfig<T>) : DurationBasedAnimat
          *  @return an [KeyframeEntity] so a custom [Easing] can be added by [with] method
          */
         // overrides `atFraction` for binary compatibility. It should explicitly return KeyframeEntity.
-        override infix fun T.atFraction(fraction: Float): KeyframeEntity<T> {
+        override infix fun T.atFraction(
+            @FloatRange(from = 0.0, to = 1.0) fraction: Float
+        ): KeyframeEntity<T> {
             return at((durationMillis * fraction).fastRoundToInt())
         }
 
