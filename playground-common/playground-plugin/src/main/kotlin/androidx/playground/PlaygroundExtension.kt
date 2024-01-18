@@ -175,17 +175,10 @@ open class PlaygroundExtension @Inject constructor(
             .filterNot {
                 // if it is already included or cannot be included, skip
                 it.v1 in projectOrArtifactDisallowList && it !in allNeededProjects
-            }
-            .onEach {
+            }.onEach {
                 // track it for error reporting down below
                 implicitlyAddedProjects.add(it.v1)
-            }
-            .flatMap {
-                // get its dependencies in the context of playground, hence ignoring their projectOrArtifact
-                // dependencies
-                playgroundProjectDependencyGraph.getAllProjectsWithDependencies(setOf(it.v1))
-            }
-            .forEach {
+            }.forEach {
                 allNeededProjects.add(it)
             }
         val unsupportedProjects = allNeededProjects.map { it.v1 }.toSet().filter {

@@ -69,13 +69,17 @@ class ProjectDependencyGraph {
         allProjects[projectPath] = projectDir
         Set<String> parsedDependencies = extractReferencesFromBuildFile(projectPath, projectDir)
         projectReferences[projectPath] = parsedDependencies
-        parsedDependencies.forEach {dependency ->
+        parsedDependencies.forEach { dependency ->
             def reverseLookupSet = projectReferenceReverseLookup[dependency] ?: new HashSet<String>()
             reverseLookupSet.add(projectPath)
             projectReferenceReverseLookup[dependency] = reverseLookupSet
         }
     }
 
+    /**
+     * Returns a set of project path that includes the given `projectPath` as well as any other project
+     * that directly or indirectly depends on `projectPath`
+     */
     Set<String> findAllProjectsDependingOn(String projectPath) {
         Set<String> result = new HashSet<String>()
         ArrayDeque<String> toBeTraversed = new ArrayDeque<String>()
@@ -85,7 +89,6 @@ class ProjectDependencyGraph {
             if (result.add(path)) {
                 def dependants = projectReferenceReverseLookup[path]
                 if (dependants != null) {
-                    toBeTraversed.addAll(dependants)
                     toBeTraversed.addAll(dependants)
                 }
             }
@@ -111,15 +114,6 @@ class ProjectDependencyGraph {
                 throw new GradleException("cannot find project directory for $projectPath")
             }
             new Tuple2(projectPath, projectDir)
-        }
-    }
-
-    /**
-     * Returns the set of projects that start with the given pathPrefix
-     */
-    Set<String> findProjectsWithPrefix(String pathPrefix) {
-        return allProjects.keySet().findAll {
-            it.startsWith(pathPrefix)
         }
     }
 
