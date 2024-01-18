@@ -410,7 +410,7 @@ internal class PopupLayout(
 
     /** Track parent coordinates and content size; only show popup once we have both. */
     val canCalculatePosition by derivedStateOf {
-        parentLayoutCoordinates != null && popupContentSize != null
+        parentLayoutCoordinates?.takeIf { it.isAttached } != null && popupContentSize != null
     }
 
     // On systems older than Android S, there is a bug in the surface insets matrix math used by
@@ -674,7 +674,7 @@ internal class PopupLayout(
      */
     @VisibleForTesting
     internal fun updateParentBounds() {
-        val coordinates = parentLayoutCoordinates ?: return
+        val coordinates = parentLayoutCoordinates?.takeIf { it.isAttached } ?: return
         val layoutSize = coordinates.size
 
         val position = coordinates.positionInWindow()
