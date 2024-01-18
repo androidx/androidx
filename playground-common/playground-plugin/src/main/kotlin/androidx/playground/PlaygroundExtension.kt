@@ -138,39 +138,53 @@ open class PlaygroundExtension @Inject constructor(
             throw RuntimeException("Must call setupPlayground() first.")
         }
         val supportSettingsFile = File(supportRootDir, "settings.gradle")
-        val projectDependencyGraph = ProjectDependencyGraph(settings, true /*isPlayground*/)
-        // also get full graph to try disabling projectOrArtifact.
-        val fullProjectDependencyGraph = ProjectDependencyGraph(settings, false /*isPlayground*/)
+        val playgroundProjectDependencyGraph = ProjectDependencyGraph(settings, true /*isPlayground*/)
+        // also get full graph that treats projectOrArtifact equal to project
+        val aospProjectDependencyGraph = ProjectDependencyGraph(settings, false /*isPlayground*/)
 
         SettingsParser.findProjects(supportSettingsFile).forEach {
-            projectDependencyGraph.addToAllProjects(
+            playgroundProjectDependencyGraph.addToAllProjects(
                 it.gradlePath,
                 File(supportRootDir, it.filePath)
             )
-            fullProjectDependencyGraph.addToAllProjects(
+            aospProjectDependencyGraph.addToAllProjects(
                 it.gradlePath,
                 File(supportRootDir, it.filePath)
             )
         }
 
-        val selectedGradlePaths = projectDependencyGraph.allProjectPaths().filter {
+        val selectedGradlePaths = playgroundProjectDependencyGraph.allProjectPaths().filter {
             filter(it)
         }.toSet()
 
-        val allNeededProjects = projectDependencyGraph
+        val allNeededProjects = playgroundProjectDependencyGraph
             .getAllProjectsWithDependencies(selectedGradlePaths + REQUIRED_PROJECTS)
             .toMutableSet()
-        // here, we are trying to disable projectOrArtifact unless it is necessary, as a first step of removing
-        // most of them. To do so, we load the graph as if it is AOSP and include them as well even if the project
-        // specified `projectOrArtifact`.
-        val projectOrArtifactDisallowList = buildProjectOrArtifactDisallowList(projectDependencyGraph)
+        // there are unnecessary usages of projectOrArtifact in build.gradle files and minimizing them is a goal
+        // since we are able to build more of AndroidX in GitHub thanks to the build cache.
+        // To find these "unnecessary" projectOrArtifact usages, traverse the full graph and add each project unless
+        // it has a direct (project) dependency to a disallowed project.
+
+        // find the list of projects that we cannot build on GitHub. These are projects which are known to be
+        // incompatible or incompatible because they have a project dependency to an incompatible project.
+        val projectOrArtifactDisallowList = buildProjectOrArtifactDisallowList(playgroundProjectDependencyGraph)
+        // track implicitly added projects for reporting purposes
         val implicitlyAddedProjects = mutableSetOf<String>()
-        fullProjectDependencyGraph
+        aospProjectDependencyGraph
             .getAllProjectsWithDependencies(selectedGradlePaths + REQUIRED_PROJECTS)
-            .filterNot { it.v1 in projectOrArtifactDisallowList && it !in allNeededProjects }
-            .onEach { implicitlyAddedProjects.add(it.v1) }
-            .flatMap { projectDependencyGraph.getAllProjectsWithDependencies(setOf(it.v1)) }
-            .distinct()
+            .filterNot {
+                // if it is already included or cannot be included, skip
+                it.v1 in projectOrArtifactDisallowList && it !in allNeededProjects
+            }
+            .onEach {
+                // track it for error reporting down below
+                implicitlyAddedProjects.add(it.v1)
+            }
+            .flatMap {
+                // get its dependencies in the context of playground, hence ignoring their projectOrArtifact
+                // dependencies
+                playgroundProjectDependencyGraph.getAllProjectsWithDependencies(setOf(it.v1))
+            }
             .forEach {
                 allNeededProjects.add(it)
             }
@@ -189,11 +203,14 @@ open class PlaygroundExtension @Inject constructor(
                 unsupportedProjects.forEach {
                     appendLine("Unsupported Playground Project: $it")
                     appendLine("dependency path to $it from explicitly requested projects:")
-                    projectDependencyGraph.findPathsBetween(selectedGradlePaths, it).forEach {
+                    playgroundProjectDependencyGraph.findPathsBetween(selectedGradlePaths, it).forEach {
                         appendLine(it)
                     }
-                    appendLine("dependency path to $it from implicitly added projects:")
-                    projectDependencyGraph.findPathsBetween(implicitlyAddedProjects, it).forEach {
+                    appendLine("""
+                        dependency path to $it from implicitly added projects. If the following list is
+                        not empty, please file a bug on AndroidX/Github component.
+                    """.trimIndent())
+                    playgroundProjectDependencyGraph.findPathsBetween(implicitlyAddedProjects, it).forEach {
                         appendLine(it)
                     }
                     appendLine("----")
