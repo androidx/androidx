@@ -28,14 +28,14 @@ import androidx.camera.core.impl.Quirk
  * Quirk denoting the video profile list returns by [EncoderProfiles] is invalid.
  *
  * QuirkSummary
- * - Bug Id: 267727595, 278860860, 298951126, 298952500
+ * - Bug Id: 267727595, 278860860, 298951126, 298952500, 320747756
  * - Description: When using [EncoderProfiles] on some builds of Android API 33,
  *   [EncoderProfiles.getVideoProfiles] returns a list with size one, but the single value in the
  *   list is null. This is not the expected behavior, and makes [EncoderProfiles] lack of video
  *   information.
  * - Device(s): Pixel 4 and above pixel devices with TP1A or TD1A builds (API 33), Samsung devices
- *              with TP1A build (API 33), Xiaomi devices with TKQ1 build (API 33), OnePlus and Oppo
- *              devices with API 33 build.
+ *              with TP1A build (API 33), Xiaomi devices with TKQ1/TP1A build (API 33), OnePlus and
+ *              Oppo devices with API 33 build.
  *
  * TODO: enable CameraXQuirksClassDetector lint check when kotlin is supported.
  */
@@ -64,7 +64,8 @@ class InvalidVideoProfilesQuirk : Quirk {
 
         private val AFFECTED_OPPO_MODELS: List<String> = listOf(
             "cph2437",
-            "cph2525"
+            "cph2525",
+            "pht110",
         )
 
         fun isEnabled(): Boolean {
@@ -82,7 +83,7 @@ class InvalidVideoProfilesQuirk : Quirk {
 
         private fun isAffectedXiaomiDevices(): Boolean {
             return ("redmi".equals(Build.BRAND, true) || "xiaomi".equals(Build.BRAND, true)) &&
-                isTkq1Build()
+                (isTkq1Build() || isTp1aBuild())
         }
 
         private fun isAffectedOnePlusDevices(): Boolean {
