@@ -250,6 +250,14 @@ public abstract class FragmentManager implements FragmentResultOwner {
         default void onBackStackChangeStarted(@NonNull Fragment fragment, boolean pop) { }
 
         /**
+         * Called whenever a predictive back gesture is changing the back stack.
+         *
+         * @param backEventCompat event that holds the current back gesture data
+         */
+        @MainThread
+        default void onBackStackChangeProgressed(@NonNull BackEventCompat backEventCompat) { }
+
+        /**
          * Called whenever the contents of a back stack change is committed.
          *
          * @param fragment that is affected by the committed back stack change
@@ -257,6 +265,12 @@ public abstract class FragmentManager implements FragmentResultOwner {
          */
         @MainThread
         default void onBackStackChangeCommitted(@NonNull Fragment fragment, boolean pop) { }
+
+        /**
+         * Called whenever a predictive back gesture is cancelled.
+         */
+        @MainThread
+        default void onBackStackChangeCancelled() { }
     }
 
     /**
@@ -496,6 +510,9 @@ public abstract class FragmentManager implements FragmentResultOwner {
                                 );
                         for (SpecialEffectsController controller: changedControllers) {
                             controller.processProgress(backEvent);
+                        }
+                        for (OnBackStackChangedListener listener : mBackStackChangeListeners) {
+                            listener.onBackStackChangeProgressed(backEvent);
                         }
                     }
                 }
@@ -987,6 +1004,9 @@ public abstract class FragmentManager implements FragmentResultOwner {
             mTransitioningOp.mCommitted = false;
             mTransitioningOp.commit();
             executePendingTransactions();
+            for (OnBackStackChangedListener listener : mBackStackChangeListeners) {
+                listener.onBackStackChangeCancelled();
+            }
         }
     }
 
