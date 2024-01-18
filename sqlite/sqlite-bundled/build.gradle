@@ -26,7 +26,6 @@ import androidx.build.KmpPlatformsKt
 import androidx.build.PlatformIdentifier
 import androidx.build.ProjectLayoutType
 import androidx.build.Publish
-import androidx.build.PrepareSqliteSourcesTask
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.konan.target.Family
 import org.jetbrains.kotlin.konan.target.KonanTarget
