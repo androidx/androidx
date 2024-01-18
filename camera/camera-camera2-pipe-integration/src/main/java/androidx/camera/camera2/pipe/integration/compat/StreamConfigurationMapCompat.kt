@@ -16,6 +16,8 @@
 
 package androidx.camera.camera2.pipe.integration.compat
 
+import android.graphics.ImageFormat
+import android.graphics.PixelFormat
 import android.hardware.camera2.params.StreamConfigurationMap
 import android.os.Build
 import android.util.Size
@@ -50,6 +52,20 @@ class StreamConfigurationMapCompat @Inject constructor(
         } else {
             StreamConfigurationMapCompatBaseImpl(map)
         }
+    }
+
+    /**
+     * Get the image format output formats in this stream configuration.
+     *
+     * All image formats returned by this function will be defined in either ImageFormat or in
+     * PixelFormat.
+     *
+     * @return an array of integer format
+     * @see [ImageFormat]
+     * @see [PixelFormat]
+     */
+    fun getOutputFormats(): Array<Int>? {
+        return impl.getOutputFormats()
     }
 
     /**
@@ -148,6 +164,7 @@ class StreamConfigurationMapCompat @Inject constructor(
     }
 
     internal interface StreamConfigurationMapCompatImpl {
+        fun getOutputFormats(): Array<Int>?
         fun getOutputSizes(format: Int): Array<Size>?
         fun <T> getOutputSizes(klass: Class<T>): Array<Size>?
         fun getHighResolutionOutputSizes(format: Int): Array<Size>?

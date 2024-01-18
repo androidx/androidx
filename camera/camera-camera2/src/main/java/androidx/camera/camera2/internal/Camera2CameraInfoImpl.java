@@ -429,6 +429,23 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
 
     @NonNull
     @Override
+    public Set<Integer> getSupportedOutputFormats() {
+        StreamConfigurationMapCompat mapCompat =
+                mCameraCharacteristicsCompat.getStreamConfigurationMapCompat();
+        int[] formats = mapCompat.getOutputFormats();
+        if (formats == null) {
+            return new HashSet<>();
+        }
+
+        Set<Integer> result = new HashSet<>();
+        for (int format : formats) {
+            result.add(format);
+        }
+        return result;
+    }
+
+    @NonNull
+    @Override
     public List<Size> getSupportedResolutions(int format) {
         StreamConfigurationMapCompat mapCompat =
                 mCameraCharacteristicsCompat.getStreamConfigurationMapCompat();

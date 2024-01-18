@@ -184,6 +184,10 @@ class CameraInfoAdapter @Inject constructor(
         }
     }
 
+    override fun getSupportedOutputFormats(): Set<Int> {
+        return streamConfigurationMapCompat.getOutputFormats()?.toSet() ?: emptySet()
+    }
+
     @SuppressLint("ClassVerificationFailure")
     override fun getSupportedResolutions(format: Int): List<Size> {
         return streamConfigurationMapCompat.getOutputSizes(format)?.toList() ?: emptyList()
