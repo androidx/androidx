@@ -33,6 +33,7 @@ import org.gradle.process.ExecOperations
 import org.gradle.process.ExecSpec
 import org.jetbrains.kotlin.gradle.plugin.KotlinMultiplatformPluginWrapper
 import org.jetbrains.kotlin.gradle.utils.NativeCompilerDownloader
+import org.jetbrains.kotlin.konan.target.Family
 import org.jetbrains.kotlin.konan.target.LinkerOutputKind
 import org.jetbrains.kotlin.konan.target.Platform
 import org.jetbrains.kotlin.konan.target.PlatformManager
@@ -124,13 +125,19 @@ abstract class KonanBuildService @Inject constructor(
         outputFile.parentFile.mkdirs()
 
         val platform = getPlatform(parameters.konanTarget)
+
+        // Specify max-page-size to align ELF regions to 16kb
+        val linkerFlags = if (parameters.konanTarget.get().asKonanTarget.family == Family.ANDROID) {
+            listOf("-z", "max-page-size=16384")
+        } else emptyList()
+
         val objectFiles = parameters.objectFiles.regularFilePaths()
         val linkedObjectFiles = parameters.linkedObjects.regularFilePaths()
         val linkCommands = platform.linker.finalLinkCommands(
             objectFiles = objectFiles,
             executable = outputFile.canonicalPath,
             libraries = linkedObjectFiles,
-            linkerArgs = emptyList(),
+            linkerArgs = linkerFlags,
             optimize = true,
             debug = false,
             kind = LinkerOutputKind.DYNAMIC_LIBRARY,
