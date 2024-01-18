@@ -45,7 +45,7 @@ androidXMultiplatform {
                 api(project(":compose:ui:ui-unit"))
                 implementation(project(":compose:runtime:runtime"))
                 implementation(project(":compose:ui:ui-util"))
-                implementation(project(":collection:collection"))
+                implementation("androidx.collection:collection:1.4.0")
             }
         }
 
@@ -72,9 +72,7 @@ androidXMultiplatform {
         androidMain {
             dependsOn(jvmMain)
             dependencies {
-                //TODO: Switch to pinned version when beta1 is released as it fixes bugs
-                //implementation("androidx.graphics:graphics-path:1.0.0-beta01")
-                implementation(project(":graphics:graphics-path"))
+                implementation("androidx.graphics:graphics-path:1.0.0-beta02")
                 api(libs.androidx.annotation)
                 api("androidx.annotation:annotation-experimental:1.4.0")
             }
