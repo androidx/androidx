@@ -128,8 +128,8 @@ internal class ComposeWindowPanel(
     }
 
     override fun setBounds(x: Int, y: Int, width: Int, height: Int) {
-        composeContainer.setBounds(0, 0, width, height)
         super.setBounds(x, y, width, height)
+        composeContainer.setBounds(0, 0, width, height)
     }
 
     override fun add(component: Component): Component {

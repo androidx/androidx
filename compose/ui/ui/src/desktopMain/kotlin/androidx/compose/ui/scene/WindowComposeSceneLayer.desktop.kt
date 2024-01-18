@@ -49,7 +49,7 @@ internal class WindowComposeSceneLayer(
     compositionContext: CompositionContext
 ) : DesktopComposeSceneLayer() {
     private val window get() = requireNotNull(composeContainer.window)
-    private val windowContainer get() = requireNotNull(composeContainer.windowContainer)
+    private val windowContainer get() = composeContainer.windowContainer
     private val windowContext = PlatformWindowContext().also {
         it.isWindowTransparent = true
         it.setContainerSize(windowContainer.sizeInPx)

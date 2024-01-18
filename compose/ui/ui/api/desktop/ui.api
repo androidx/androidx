@@ -473,6 +473,7 @@ public final class androidx/compose/ui/awt/ComposePanel : javax/swing/JLayeredPa
 	public fun getFocusTraversalKeysEnabled ()Z
 	public fun getPreferredSize ()Ljava/awt/Dimension;
 	public final fun getRenderApi ()Lorg/jetbrains/skiko/GraphicsApi;
+	public final fun getWindowContainer ()Ljavax/swing/JLayeredPane;
 	public fun hasFocus ()Z
 	public final fun isDisposeOnRemove ()Z
 	public fun isFocusOwner ()Z
@@ -495,6 +496,7 @@ public final class androidx/compose/ui/awt/ComposePanel : javax/swing/JLayeredPa
 	public fun setFocusable (Z)V
 	public fun setLocale (Ljava/util/Locale;)V
 	public fun setRequestFocusEnabled (Z)V
+	public final fun setWindowContainer (Ljavax/swing/JLayeredPane;)V
 }
 
 public final class androidx/compose/ui/awt/ComposeWindow : javax/swing/JFrame {

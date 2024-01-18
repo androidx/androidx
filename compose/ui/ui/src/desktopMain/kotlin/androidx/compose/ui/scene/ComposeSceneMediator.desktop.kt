@@ -435,14 +435,7 @@ internal class ComposeSceneMediator(
     fun onChangeComponentSize() = catchExceptions {
         if (!container.isDisplayable) return
 
-        val scale = container.density.density
-        val window = SwingUtilities.getWindowAncestor(container)
-        val windowContainer = (window as? RootPaneContainer)?.contentPane ?: window
-        val pointInWindow = SwingUtilities.convertPoint(container, Point(0, 0), windowContainer)
-        val offsetInWindow = IntOffset(
-            x = (pointInWindow.x * scale).toInt(),
-            y = (pointInWindow.y * scale).toInt()
-        )
+        val offsetInWindow = windowContext.offsetInWindow(container)
         val size = sceneBoundsInPx?.size ?: container.sizeInPx
         val boundsInWindow = IntRect(
             offset = offsetInWindow,

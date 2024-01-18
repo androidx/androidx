@@ -121,8 +121,8 @@ class ComposePanel @ExperimentalComposeUiApi constructor(
     }
 
     override fun setBounds(x: Int, y: Int, width: Int, height: Int) {
-        _composeContainer?.setBounds(0, 0, width, height)
         super.setBounds(x, y, width, height)
+        _composeContainer?.setBounds(0, 0, width, height)
     }
 
     override fun getPreferredSize(): Dimension? = if (isPreferredSizeSet) {
@@ -158,15 +158,16 @@ class ComposePanel @ExperimentalComposeUiApi constructor(
         }
 
     /**
-     * A container used for additional layers. It's used with [LayerType.OnComponent]
+     * A container used for additional layers and as reference for window coordinate space.
+     * It might be customized only with [LayerType.OnComponent].
      *
      * See [ComposeFeatureFlags.layerType]
-     * TODO: Make it public with @ExperimentalComposeUiApi
      */
-    internal var layersContainer: JLayeredPane? = null
+    @ExperimentalComposeUiApi
+    var windowContainer: JLayeredPane = this
         set(value) {
             field = value
-            _composeContainer?.layersContainer = value
+            _composeContainer?.windowContainer = value
         }
 
     override fun add(component: Component): Component {
@@ -194,13 +195,16 @@ class ComposePanel @ExperimentalComposeUiApi constructor(
     }
 
     private fun createComposeContainer(): ComposeContainer {
-        return ComposeContainer(this, skiaLayerAnalytics).apply {
+        return ComposeContainer(
+            container = this,
+            skiaLayerAnalytics = skiaLayerAnalytics,
+            windowContainer = windowContainer
+        ).apply {
             focusManager.releaseFocus()
             setBounds(0, 0, width, height)
             contentComponent.isFocusable = _isFocusable
             contentComponent.isRequestFocusEnabled = _isRequestFocusEnabled
             exceptionHandler = this@ComposePanel.exceptionHandler
-            layersContainer = this@ComposePanel.layersContainer
 
             _focusListeners.forEach(contentComponent::addFocusListener)
             contentComponent.addFocusListener(object : FocusListener {
