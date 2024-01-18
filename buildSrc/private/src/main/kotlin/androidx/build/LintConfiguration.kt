@@ -336,6 +336,9 @@ private fun Project.configureLint(lint: Lint, isLibrary: Boolean) {
             disable.add("BanUncheckedReflection")
         }
 
+        // Only show ObsoleteCompatMethod in the IDE.
+        disable.add("ObsoleteCompatMethod")
+
         // Broken in 7.0.0-alpha15 due to b/187343720
         disable.add("UnusedResources")
 
