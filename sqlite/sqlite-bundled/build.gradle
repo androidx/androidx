@@ -59,7 +59,10 @@ def SQLITE_COMPILE_FLAGS = [
 ]
 
 // see PrepareSqliteSourcesTask.groovy for implementation details of the register method
-def prepareSqliteSourcesTask = registerPrepareSqliteSourcesTask(project, "prepareSqliteSourcesTask") {
+def prepareSqliteSourcesTask = registerPrepareSqliteSourcesTask(
+        project, // project
+        "prepareSqliteSourcesTask" // task name
+) {
     it.sqliteVersion.set("3.42.0")
     it.sqliteReleaseYear.set(2023)
     it.destinationDirectory.set(project.layout.buildDirectory.dir("sqlite3/src"))

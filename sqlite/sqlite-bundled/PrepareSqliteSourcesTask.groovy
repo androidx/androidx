@@ -24,15 +24,17 @@ import org.gradle.api.tasks.PathSensitivity
 import javax.inject.Inject
 
 /**
- * Finds the sqlite sources and puts them into [destinationDirectory].
+ * Finds the sqlite sources and puts them into the `destinationDirectory`.
  *
- * This task runs differently between AOSP and Github (Playground).
+ * This task is setup differently between AOSP and Github (Playground), hence use the helper
+ * `registerPrepareSqliteSourcesTask` method to create an instance of it.
  *
  * On AOSP, the sources are in an external prebuilts repository and simply get copied into the given
  * [destinationDirectory].
- * On Github, they are downloaded from SQLite servers.
+ * On Github, they are downloaded from SQLite servers and copied into the `destinationDirectory`
+ * from there.
  *
- * To ensure each version is consistent, we use the [sqliteVersion] parameter and check the SQLite
+ * To ensure each version is consistent, we use the `sqliteVersion` parameter and check the Sqlite
  * source code for them.
  */
 abstract class PrepareSqliteSourcesTask extends DefaultTask {
@@ -40,22 +42,28 @@ abstract class PrepareSqliteSourcesTask extends DefaultTask {
     private static String VERSION_PREFIX = "#define SQLITE_VERSION"
     private FileSystemOperations fileSystemOperations
 
-    @Inject
-    PrepareSqliteSourcesTask(FileSystemOperations fileSystemOperations) {
-        this.fileSystemOperations = fileSystemOperations
-    }
-
+    /**
+     * The Sqlite version to prepare
+     */
     @Input
     abstract Property<String> getSqliteVersion()
 
+    /**
+     * The target directory where the Sqlite source will be put
+     */
     @OutputDirectory
     abstract DirectoryProperty getDestinationDirectory()
 
+    /**
+     * The source directory which includes the original Sqlite amalgamation distribution
+     */
     @InputDirectory
     @PathSensitive(PathSensitivity.NONE)
     abstract DirectoryProperty getSources()
 
-    PrepareSqliteSourcesTask() {
+    @Inject
+    PrepareSqliteSourcesTask(FileSystemOperations fileSystemOperations) {
+        this.fileSystemOperations = fileSystemOperations
         description = "Create a directory containing Sqlite sources."
         group = "build"
     }
@@ -88,7 +96,8 @@ abstract class PrepareSqliteSourcesTask extends DefaultTask {
         if (versionLine == null) {
             throw new IllegalStateException("Cannot find the version line in sqlite.")
         }
-        String strippedVersion = versionLine.takeAfter(VERSION_PREFIX).trim().takeBetween("\"", "\"")
+        String strippedVersion = versionLine.takeAfter(VERSION_PREFIX).trim()
+                .takeBetween("\"", "\"")
         if (strippedVersion != sqliteVersion.get()) {
             throw new IllegalStateException("""
                 Expected ${sqliteVersion.get()}, found $strippedVersion. Please update the
@@ -105,14 +114,29 @@ abstract class PrepareSqliteSourcesTask extends DefaultTask {
  */
 @CacheableTask
 abstract class DownloadSQLiteAmalgamationTask extends DefaultTask {
+    /**
+     * The Sqlite version to download
+     */
     @Input
     abstract Property<String> getReleaseVersion()
 
+    /**
+     * The year which Sqlite version was released. It is necessary because the download
+     * URL includes the year.
+     */
     @Input
     abstract Property<Integer> getReleaseYear()
 
+    /**
+     * Target file where the downloaded amalgamation zip file will be written.
+     */
     @OutputFile
     abstract RegularFileProperty getDownloadTargetFile()
+
+    DownloadSQLiteAmalgamationTask() {
+        description = "Downloads the Sqlite amalgamation build from sqlite servers"
+        group = "build"
+    }
 
     @TaskAction
     void download() {
