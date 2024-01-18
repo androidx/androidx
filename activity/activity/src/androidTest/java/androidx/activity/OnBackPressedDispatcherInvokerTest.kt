@@ -448,4 +448,58 @@ class OnBackPressedDispatcherInvokerTest {
 
         assertThat(unregisterCount).isEqualTo(1)
     }
+
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @Test
+    fun testDoubleStartCallbackCausesCancel() {
+        var registerCount = 0
+        var unregisterCount = 0
+        val invoker = object : OnBackInvokedDispatcher {
+            override fun registerOnBackInvokedCallback(p0: Int, p1: OnBackInvokedCallback) {
+                registerCount++
+            }
+
+            override fun unregisterOnBackInvokedCallback(p0: OnBackInvokedCallback) {
+                unregisterCount++
+            }
+        }
+
+        val dispatcher = OnBackPressedDispatcher()
+
+        dispatcher.setOnBackInvokedDispatcher(invoker)
+
+        var cancelledCount = 0
+        val callback1 = object : OnBackPressedCallback(true) {
+            override fun handleOnBackStarted(backEvent: BackEventCompat) { }
+            override fun handleOnBackProgressed(backEvent: BackEventCompat) {}
+            override fun handleOnBackPressed() { }
+            override fun handleOnBackCancelled() {
+                cancelledCount++
+            }
+        }
+
+        dispatcher.addCallback(callback1)
+
+        assertThat(registerCount).isEqualTo(1)
+
+        dispatcher.dispatchOnBackStarted(BackEventCompat(0.1F, 0.1F, 0.1F, EDGE_LEFT))
+
+        val callback2 = object : OnBackPressedCallback(true) {
+            override fun handleOnBackStarted(backEvent: BackEventCompat) { }
+            override fun handleOnBackProgressed(backEvent: BackEventCompat) {}
+            override fun handleOnBackPressed() { }
+            override fun handleOnBackCancelled() { }
+        }
+
+        dispatcher.addCallback(callback2)
+
+        assertThat(registerCount).isEqualTo(2)
+
+        dispatcher.dispatchOnBackStarted(BackEventCompat(0.1F, 0.1F, 0.1F, EDGE_LEFT))
+
+        assertThat(cancelledCount).isEqualTo(1)
+
+        assertThat(unregisterCount).isEqualTo(1)
+    }
 }
