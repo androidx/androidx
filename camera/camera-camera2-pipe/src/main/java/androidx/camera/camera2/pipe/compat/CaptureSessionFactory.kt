@@ -411,6 +411,8 @@ internal fun buildOutputConfigurations(
             }
             if (postviewOutput == null && outputConfig.streams == postviewStream.outputs) {
                 postviewOutput = output
+            } else {
+                allOutputs.add(output)
             }
         } else {
             allOutputs.add(output)
