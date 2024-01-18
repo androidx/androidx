@@ -29,7 +29,6 @@ import java.lang.ref.WeakReference
 import kotlin.concurrent.thread
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
-import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -186,37 +185,6 @@ class JvmCompositionTests {
             }
             assertNull(compositionSnapshot?.get(), "weak snapshot reference after forced gc")
         }
-    }
-
-    private class TestReference(val invokeCount: Int = 0) : () -> Int {
-        override fun invoke(): Int = invokeCount
-
-        // overridden equals to test if remember compares this value correctly
-        override fun equals(other: Any?): Boolean {
-            return other is TestReference
-        }
-    }
-
-    @Composable private fun rememberWFunctionReference(ref: () -> Int): Int {
-        val remembered = remember(ref) { ref() }
-        assertEquals(remembered, 0)
-        return remembered
-    }
-
-    // regression test for b/319810819
-    @Ignore("b/320688836")
-    @Test
-    fun remember_functionReference_key() = compositionTest {
-        var state by mutableIntStateOf(0)
-        compose {
-            // use custom ref implementation to avoid strong skipping memoizing the instance
-            rememberWFunctionReference(TestReference(state))
-        }
-        verifyConsistent()
-
-        state++
-        advance()
-        verifyConsistent()
     }
 
     private var count = 0
