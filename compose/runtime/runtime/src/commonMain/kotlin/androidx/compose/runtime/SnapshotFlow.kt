@@ -18,16 +18,15 @@
 @file:JvmMultifileClass
 package androidx.compose.runtime
 
-import androidx.compose.runtime.collection.IdentityArraySet
+import androidx.collection.MutableScatterSet
+import androidx.compose.runtime.snapshots.ReaderKind
 import androidx.compose.runtime.snapshots.Snapshot
+import androidx.compose.runtime.snapshots.StateObjectImpl
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
-import kotlin.jvm.JvmMultifileClass
-import kotlin.jvm.JvmName
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withContext
 
@@ -111,8 +110,13 @@ fun <T> snapshotFlow(
     block: () -> T
 ): Flow<T> = flow {
     // Objects read the last time block was run
-    val readSet = IdentityArraySet<Any>()
-    val readObserver: (Any) -> Unit = { readSet.add(it) }
+    val readSet = MutableScatterSet<Any>()
+    val readObserver: (Any) -> Unit = {
+        if (it is StateObjectImpl) {
+            it.recordReadIn(ReaderKind.SnapshotFlow)
+        }
+        readSet.add(it)
+    }
 
     // This channel may not block or lose data on a trySend call.
     val appliedChanges = Channel<Set<Any>>(Channel.UNLIMITED)
@@ -120,7 +124,13 @@ fun <T> snapshotFlow(
     // Register the apply observer before running for the first time
     // so that we don't miss updates.
     val unregisterApplyObserver = Snapshot.registerApplyObserver { changed, _ ->
-        appliedChanges.trySend(changed)
+        val maybeObserved = changed.any {
+            it !is StateObjectImpl || it.isReadIn(ReaderKind.SnapshotFlow)
+        }
+
+        if (maybeObserved) {
+            appliedChanges.trySend(changed)
+        }
     }
 
     try {
@@ -140,7 +150,7 @@ fun <T> snapshotFlow(
             // Poll for any other changes before running block to minimize the number of
             // additional times it runs for the same data
             while (true) {
-                // Assumption: readSet will typically be smaller than changed
+                // Assumption: readSet will typically be smaller than changed set
                 found = found || readSet.intersects(changedObjects)
                 changedObjects = appliedChanges.tryReceive().getOrNull() ?: break
             }
@@ -166,12 +176,5 @@ fun <T> snapshotFlow(
     }
 }
 
-/**
- * Return `true` if there are any elements shared between `this` and [other]
- */
-private fun <T : Any> IdentityArraySet<T>.intersects(other: Set<T>): Boolean =
-    when {
-        size < other.size -> fastAny { it in other }
-        other is IdentityArraySet<T> -> other.fastAny { it in this }
-        else -> other.any { it in this }
-    }
+private fun MutableScatterSet<Any>.intersects(set: Set<Any>) =
+    any { it in set }
