@@ -30,10 +30,13 @@ import sqlite3.SQLITE_OPEN_READWRITE
 import sqlite3.sqlite3_open_v2
 
 /**
- * TODO:
- *  * (b/307917398) more open flags
- *  * (b/304295573) busy handler registering
+ * A [SQLiteDriver] that uses a version of SQLite included with the host operating system.
+ *
+ * Usage of this driver expects that `libsqlite` can be found in the shared library path.
  */
+// TODO:
+//    (b/307917398) more open flags
+//    (b/304295573) busy handler registering
 @OptIn(kotlinx.cinterop.ExperimentalForeignApi::class)
 class NativeSQLiteDriver(
     private val filename: String

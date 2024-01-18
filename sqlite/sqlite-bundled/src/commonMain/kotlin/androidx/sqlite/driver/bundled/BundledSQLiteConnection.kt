@@ -16,6 +16,9 @@
 
 package androidx.sqlite.driver.bundled
 
+import androidx.annotation.RestrictTo
 import androidx.sqlite.SQLiteConnection
 
+// Restricted instead of internal due to KT-37316
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 expect class BundledSQLiteConnection : SQLiteConnection

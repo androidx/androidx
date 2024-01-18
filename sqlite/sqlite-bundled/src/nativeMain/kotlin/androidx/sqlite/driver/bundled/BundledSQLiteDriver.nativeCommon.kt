@@ -16,5 +16,11 @@
 
 package androidx.sqlite.driver.bundled
 
+import androidx.sqlite.SQLiteDriver
+
+/**
+ * A [SQLiteDriver] that uses a bundled version of SQLite included as a native component of this
+ * library.
+ */
 actual typealias BundledSQLiteDriver =
     androidx.sqlite.driver.NativeSQLiteDriver
