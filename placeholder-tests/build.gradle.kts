@@ -27,10 +27,6 @@ dependencies {
     androidTestImplementation(libs.testRules)
 }
 
-androidx {
-    name = "Dummy Project for test runner"
-}
-
 android {
-    namespace "androidx.testinfra.placeholderintegrationtest"
+    namespace = "androidx.testinfra.placeholderintegrationtest"
 }
