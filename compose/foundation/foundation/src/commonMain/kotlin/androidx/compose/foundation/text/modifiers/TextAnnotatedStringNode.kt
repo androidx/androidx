@@ -55,7 +55,6 @@ import androidx.compose.ui.semantics.showTextSubstitution
 import androidx.compose.ui.semantics.text
 import androidx.compose.ui.semantics.textSubstitution
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.TextLayoutInput
 import androidx.compose.ui.text.TextLayoutResult
@@ -559,6 +558,4 @@ internal class TextAnnotatedStringNode(
     }
 }
 
-@OptIn(ExperimentalTextApi::class)
-// TODO(soboleva) replace with has*Annotations in upcoming CL with API change
-internal fun AnnotatedString.hasLinks() = getUrlAnnotations(0, text.length).isNotEmpty()
+internal fun AnnotatedString.hasLinks() = hasLinkAnnotations(0, length)
