@@ -50,6 +50,7 @@ androidXMultiplatform {
                 implementation kotlin("test-junit")
                 implementation(libs.kotlinCoroutinesTest)
                 implementation(libs.kotlinReflect)
+                implementation(project(":compose:runtime:runtime-test-utils"))
             }
         }
 

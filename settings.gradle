@@ -547,6 +547,7 @@ includeProject(":compose:runtime:runtime-saveable:runtime-saveable-samples", "co
 includeProject(":compose:runtime:runtime:benchmark", "compose/runtime/runtime/compose-runtime-benchmark", [BuildType.COMPOSE])
 includeProject(":compose:runtime:runtime:integration-tests", [BuildType.COMPOSE])
 includeProject(":compose:runtime:runtime:runtime-samples", "compose/runtime/runtime/samples", [BuildType.COMPOSE])
+includeProject(":compose:runtime:runtime-test-utils", [BuildType.COMPOSE])
 includeProject(":compose:test-utils", [BuildType.COMPOSE])
 includeProject(":compose:ui", [BuildType.COMPOSE])
 includeProject(":compose:ui:ui", [BuildType.COMPOSE])

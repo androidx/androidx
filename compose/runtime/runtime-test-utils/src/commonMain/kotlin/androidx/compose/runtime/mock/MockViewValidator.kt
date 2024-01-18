@@ -91,9 +91,7 @@ fun MockViewValidator.Edit(value: String) {
 
 fun MockViewValidator.SelectBox(selected: Boolean, block: MockViewValidator.() -> Unit) {
     if (selected) {
-        box {
-            block()
-        }
+        box(block)
     } else {
         block()
     }

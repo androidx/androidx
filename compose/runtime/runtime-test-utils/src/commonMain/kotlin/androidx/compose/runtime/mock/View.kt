@@ -17,7 +17,7 @@
 package androidx.compose.runtime.mock
 
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.snapshots.fastForEach
+import androidx.compose.ui.util.fastForEach
 
 fun indent(indent: Int, builder: StringBuilder) {
     repeat(indent) { builder.append(' ') }
