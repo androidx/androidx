@@ -17,6 +17,7 @@ package androidx.compose.ui.window
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -28,7 +29,11 @@ import androidx.compose.ui.LocalComposeScene
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.awt.LocalLayerContainer
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
@@ -44,6 +49,35 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
 import java.awt.MouseInfo
 import javax.swing.SwingUtilities.convertPointFromScreen
+
+@Immutable
+actual class PopupProperties @ExperimentalComposeUiApi actual constructor(
+    actual val focusable: Boolean,
+    actual val dismissOnBackPress: Boolean,
+    actual val dismissOnClickOutside: Boolean,
+    actual val clippingEnabled: Boolean,
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is PopupProperties) return false
+
+        if (focusable != other.focusable) return false
+        if (dismissOnBackPress != other.dismissOnBackPress) return false
+        if (dismissOnClickOutside != other.dismissOnClickOutside) return false
+        if (clippingEnabled != other.clippingEnabled) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = dismissOnBackPress.hashCode()
+        result = 31 * result + focusable.hashCode()
+        result = 31 * result + dismissOnBackPress.hashCode()
+        result = 31 * result + dismissOnClickOutside.hashCode()
+        result = 31 * result + clippingEnabled.hashCode()
+        return result
+    }
+}
 
 /**
  * Opens a popup with the given content.
@@ -128,14 +162,94 @@ fun Popup(
     PopupLayout(
         popupPositionProvider,
         focusable,
-        onDismissRequest,
+        if (focusable) onDismissRequest else null,
         onPreviewKeyEvent,
         onKeyEvent,
         content
     )
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
+/**
+ * Opens a popup with the given content.
+ *
+ * A popup is a floating container that appears on top of the current activity.
+ * It is especially useful for non-modal UI surfaces that remain hidden until they
+ * are needed, for example floating menus like Cut/Copy/Paste.
+ *
+ * The popup is positioned relative to its parent, using the [alignment] and [offset].
+ * The popup is visible as long as it is part of the composition hierarchy.
+ *
+ * @sample androidx.compose.ui.samples.PopupSample
+ *
+ * @param alignment The alignment relative to the parent.
+ * @param offset An offset from the original aligned position of the popup. Offset respects the
+ * Ltr/Rtl context, thus in Ltr it will be added to the original aligned position and in Rtl it
+ * will be subtracted from it.
+ * @param onDismissRequest Executes when the user clicks outside of the popup.
+ * @param properties [PopupProperties] for further customization of this popup's behavior.
+ * @param content The content to be displayed inside the popup.
+ */
+@Composable
+actual fun Popup(
+    alignment: Alignment,
+    offset: IntOffset,
+    onDismissRequest: (() -> Unit)?,
+    properties: PopupProperties,
+    content: @Composable () -> Unit
+) {
+    val popupPositioner = remember(alignment, offset) {
+        AlignmentOffsetPositionProvider(
+            alignment,
+            offset
+        )
+    }
+
+    Popup(
+        popupPositionProvider = popupPositioner,
+        onDismissRequest = onDismissRequest,
+        properties = properties,
+        content = content
+    )
+}
+
+/**
+ * Opens a popup with the given content.
+ *
+ * The popup is positioned using a custom [popupPositionProvider].
+ *
+ * @sample androidx.compose.ui.samples.PopupSample
+ *
+ * @param popupPositionProvider Provides the screen position of the popup.
+ * @param onDismissRequest Executes when the user clicks outside of the popup.
+ * @param properties [PopupProperties] for further customization of this popup's behavior.
+ * @param content The content to be displayed inside the popup.
+ */
+@Composable
+actual fun Popup(
+    popupPositionProvider: PopupPositionProvider,
+    onDismissRequest: (() -> Unit)?,
+    properties: PopupProperties,
+    content: @Composable () -> Unit
+) {
+    PopupLayout(
+        popupPositionProvider,
+        properties.focusable,
+        if (properties.dismissOnClickOutside) onDismissRequest else null,
+        onKeyEvent = {
+            if (properties.dismissOnBackPress &&
+                it.type == KeyEventType.KeyDown && it.key == Key.Escape &&
+                onDismissRequest != null
+            ) {
+                onDismissRequest()
+                true
+            } else {
+                false
+            }
+        },
+        content = content
+    )
+}
+
 @Composable
 private fun PopupLayout(
     popupPositionProvider: PopupPositionProvider,
