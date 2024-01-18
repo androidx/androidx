@@ -20,6 +20,7 @@ import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.autofill.Autofill
 import androidx.compose.ui.autofill.AutofillTree
@@ -342,7 +343,12 @@ internal class RootNodeOwner(
             drawBlock: (Canvas) -> Unit,
             invalidateParentLayer: () -> Unit
         ) = RenderNodeLayer(
-            density,
+            Snapshot.withoutReadObservation {
+                // density is a mutable state that is observed whenever layer is created. the layer
+                // is updated manually on draw, so not observing the density changes here helps with
+                // performance in layout.
+                density
+            },
             invalidateParentLayer = {
                 invalidateParentLayer()
                 snapshotInvalidationTracker.requestDraw()
