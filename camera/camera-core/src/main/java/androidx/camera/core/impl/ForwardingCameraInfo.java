@@ -166,6 +166,12 @@ public class ForwardingCameraInfo implements CameraInfoInternal {
 
     @NonNull
     @Override
+    public Set<Integer> getSupportedOutputFormats() {
+        return mCameraInfoInternal.getSupportedOutputFormats();
+    }
+
+    @NonNull
+    @Override
     public List<Size> getSupportedResolutions(int format) {
         return mCameraInfoInternal.getSupportedResolutions(format);
     }

@@ -269,6 +269,13 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
         return mTimebase;
     }
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @NonNull
+    @Override
+    public Set<Integer> getSupportedOutputFormats() {
+        return mSupportedResolutionMap.keySet();
+    }
+
     @NonNull
     @Override
     public List<Size> getSupportedResolutions(int format) {
