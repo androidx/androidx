@@ -36,7 +36,8 @@ object KonanPrebuiltsSetup {
      * Creates a Konan distribution with the given [prebuiltsDirectory] and [konanHome].
      *
      * @param prebuiltsDirectory The directory where AndroidX prebuilts are present. Can be `null`
-     *        for playground builds.
+     *        for playground builds which means we'll fetch Kotlin Native prebuilts from the internet
+     *        using the Kotlin Gradle Plugin.
      */
     fun createKonanDistribution(
         prebuiltsDirectory: File?,

@@ -36,6 +36,8 @@ plugins {
     id("com.android.library")
 }
 
+apply(from: "PrepareSqliteSourcesTask.groovy")
+
 // List of flags we use to compile SQLite.
 // See: https://www.sqlite.org/compile.html
 // TODO(b/310681164): Validate these flags and compare to other platforms.
@@ -57,10 +59,8 @@ def SQLITE_COMPILE_FLAGS = [
         "-DSQLITE_THREADSAFE=2",
 ]
 
-def prepareSqliteSourcesTask = PrepareSqliteSourcesTask.register(
-        project,
-        "prepareSqliteSourcesTask"
-) {
+// see PrepareSqliteSourcesTask.groovy for implementation details of the register method
+def prepareSqliteSourcesTask = registerPrepareSqliteSourcesTask(project, "prepareSqliteSourcesTask") {
     it.sqliteVersion.set("3.42.0")
     it.sqliteReleaseYear.set(2023)
     it.destinationDirectory.set(project.layout.buildDirectory.dir("sqlite3/src"))
@@ -69,7 +69,6 @@ def prepareSqliteSourcesTask = PrepareSqliteSourcesTask.register(
                 new File(AndroidXConfig.getExternalProjectPath(project), "sqlite/dist/orig")
         )
     }
-
 }
 
 configurations {
