@@ -228,10 +228,11 @@ object DeviceInfo {
      * Starting with the first Android U release, ART mainline drops optimizations after method
      * tracing occurs, so we disable tracing on those mainline versions.
      *
-     * TODO: update max value once a fix is released to mainline
+     * Fix cherry picked into 341513000, so we exclude that value
+     *
      * See b/303660864
      */
-    private val ART_MAINLINE_MIN_VERSIONS_AFFECTING_METHOD_TRACING = 340000000L..Long.MAX_VALUE
+    private val ART_MAINLINE_MIN_VERSIONS_AFFECTING_METHOD_TRACING = 340000000L.until(341513000)
 
     val methodTracingAffectsMeasurements =
         Build.VERSION.SDK_INT in 26..30 || // b/313868903
