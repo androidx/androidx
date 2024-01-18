@@ -180,18 +180,29 @@ internal class RowColumnMeasurementHelper(
                         0,
                         (weightUnitSpace * weight).fastRoundToInt() + remainderUnit
                     )
-                    val placeable = child.measure(
-                        OrientationIndependentConstraints(
-                            if (parentData.fill && childMainAxisSize != Constraints.Infinity) {
-                                childMainAxisSize
-                            } else {
-                                0
-                            },
-                            childMainAxisSize,
-                            crossAxisMin = crossAxisDesiredSize ?: 0,
-                            crossAxisMax = crossAxisDesiredSize ?: constraints.crossAxisMax
-                        ).toBoxConstraints(orientation)
+                    val restrictedConstraints = Constraints.restrictedConstraints(
+                        minWidth = if (parentData.fill &&
+                            childMainAxisSize != Constraints.Infinity
+                        ) {
+                            childMainAxisSize
+                        } else {
+                            0
+                        },
+                        maxWidth = childMainAxisSize,
+                        minHeight = crossAxisDesiredSize ?: 0,
+                        maxHeight = crossAxisDesiredSize ?: constraints.crossAxisMax
                     )
+                    val childConstraints = if (orientation == LayoutOrientation.Horizontal) {
+                        restrictedConstraints
+                    } else {
+                        Constraints(
+                            minHeight = restrictedConstraints.minWidth,
+                            maxHeight = restrictedConstraints.maxWidth,
+                            minWidth = restrictedConstraints.minHeight,
+                            maxWidth = restrictedConstraints.maxHeight,
+                        )
+                    }
+                    val placeable = child.measure(childConstraints)
                     weightedSpace += placeable.mainAxisSize()
                     crossAxisSpace = max(crossAxisSpace, placeable.crossAxisSize())
                     anyAlignBy = anyAlignBy || parentData.isRelative
