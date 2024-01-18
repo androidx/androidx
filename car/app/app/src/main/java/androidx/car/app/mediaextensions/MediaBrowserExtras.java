@@ -61,44 +61,6 @@ public final class MediaBrowserExtras {
      * {@link androidx.media.MediaBrowserServiceCompat#onLoadChildren(String,
      * MediaBrowserServiceCompat.Result, Bundle)} or to
      * {@link androidx.media.MediaBrowserServiceCompat#onSearch(String, Bundle,
-     * MediaBrowserServiceCompat.Result)} to indicate the package name reported by the caller.
-     *
-     * <p>TYPE: String - the <b>unverified</b> caller's package name
-     */
-    public static final String KEY_HINT_HOST_PACKAGE_NAME =
-            "androidx.car.app.mediaextensions.KEY_HINT_HOST_PACKAGE_NAME";
-
-    /**
-     * {@link Bundle} key used in the options bundle passed to
-     * {@link androidx.media.MediaBrowserServiceCompat#onLoadChildren(String,
-     * MediaBrowserServiceCompat.Result, Bundle)} or to
-     * {@link androidx.media.MediaBrowserServiceCompat#onSearch(String, Bundle,
-     * MediaBrowserServiceCompat.Result)} to indicate the width of the view that will show the
-     * returned media items.
-     *
-     * <p>TYPE: int - width of the view in pixels
-     */
-    public static final String KEY_HINT_VIEW_WIDTH_PIXELS =
-            "androidx.car.app.mediaextensions.KEY_HINT_VIEW_WIDTH_PIXELS";
-
-    /**
-     * {@link Bundle} key used in the options bundle passed to
-     * {@link androidx.media.MediaBrowserServiceCompat#onLoadChildren(String,
-     * MediaBrowserServiceCompat.Result, Bundle)} or to
-     * {@link androidx.media.MediaBrowserServiceCompat#onSearch(String, Bundle,
-     * MediaBrowserServiceCompat.Result)} to indicate the height of the view that will show the
-     * returned media items.
-     *
-     * <p>TYPE: int - height of the view in pixels
-     */
-    public static final String KEY_HINT_VIEW_HEIGHT_PIXELS =
-            "androidx.car.app.mediaextensions.KEY_HINT_VIEW_HEIGHT_PIXELS";
-
-    /**
-     * {@link Bundle} key used in the options bundle passed to
-     * {@link androidx.media.MediaBrowserServiceCompat#onLoadChildren(String,
-     * MediaBrowserServiceCompat.Result, Bundle)} or to
-     * {@link androidx.media.MediaBrowserServiceCompat#onSearch(String, Bundle,
      * MediaBrowserServiceCompat.Result)} to indicate the maximum number of returned items
      * reachable under driving restrictions.
      *
