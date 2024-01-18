@@ -145,18 +145,23 @@ class PolygonTest {
     fun featuresTest() {
         val squareFeatures = square.features
 
-        // Verify that cubics of polygon == cubics of features of that polygon
-        assertTrue(square.cubics == squareFeatures.flatMap { it.cubics })
+        // Verify that cubics of polygon == nonzero cubics of features of that polygon
+        // Note the Equalish test since some points may be adjusted in conversion from raw
+        // cubics in the feature to the cubics list for the shape
+        var nonzeroCubics = nonzeroCubics(squareFeatures.flatMap { it.cubics })
+        assertCubicListsEqualish(square.cubics, nonzeroCubics)
 
         // Same as above but with rounded corners
         val roundedSquare = RoundedPolygon(4, rounding = CornerRounding(.1f))
         val roundedFeatures = roundedSquare.features
-        assertTrue(roundedSquare.cubics == roundedFeatures.flatMap { it.cubics })
+        nonzeroCubics = nonzeroCubics(roundedFeatures.flatMap { it.cubics })
+        assertCubicListsEqualish(roundedSquare.cubics, nonzeroCubics)
 
         // Same as the first polygon test, but with a copy of that polygon
         val squareCopy = RoundedPolygon(square)
         val squareCopyFeatures = squareCopy.features
-        assertTrue(squareCopy.cubics == squareCopyFeatures.flatMap { it.cubics })
+        nonzeroCubics = nonzeroCubics(squareCopyFeatures.flatMap { it.cubics })
+        assertCubicListsEqualish(squareCopy.cubics, nonzeroCubics)
 
         // Test other elements of Features
         val translator = translateTransform(1f, 2f)
@@ -181,5 +186,13 @@ class PolygonTest {
         }
         assertNotEquals(preTransformVertices, postTransformVertices)
         assertNotEquals(preTransformCenters, postTransformCenters)
+    }
+
+    private fun nonzeroCubics(original: List<Cubic>): List<Cubic> {
+        val result = mutableListOf<Cubic>()
+        for (i in original.indices) {
+            if (!original[i].zeroLength()) result.add(original[i])
+        }
+        return result
     }
 }

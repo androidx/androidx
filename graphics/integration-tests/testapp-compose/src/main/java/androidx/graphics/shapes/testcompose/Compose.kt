@@ -21,9 +21,7 @@ package androidx.graphics.shapes.testcompose
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Matrix
-import androidx.compose.ui.graphics.Path
 import androidx.graphics.shapes.Cubic
-import androidx.graphics.shapes.Morph
 import androidx.graphics.shapes.MutableCubic
 import androidx.graphics.shapes.RoundedPolygon
 import androidx.graphics.shapes.TransformResult
@@ -68,47 +66,6 @@ fun RoundedPolygon.transformed(matrix: Matrix): RoundedPolygon =
  * Calculates and returns the bounds of this [RoundedPolygon] as a [Rect]
  */
 fun RoundedPolygon.getBounds() = calculateBounds().let { Rect(it[0], it[1], it[2], it[3]) }
-
-/**
- * Function used to create a Path from a list of Cubics.
- */
-fun List<Cubic>.toPath(path: Path = Path()): Path {
-    path.rewind()
-    firstOrNull()?.let { first ->
-        path.moveTo(first.anchor0X, first.anchor0Y)
-    }
-    for (bezier in this) {
-        path.cubicTo(
-            bezier.control0X, bezier.control0Y,
-            bezier.control1X, bezier.control1Y,
-            bezier.anchor1X, bezier.anchor1Y
-        )
-    }
-    path.close()
-    return path
-}
-
-/**
- * Transforms the morph at a given progress into a [Path].
- * It can optionally be scaled, using the origin (0,0) as pivot point.
- */
-fun Morph.toPath(progress: Float, scale: Float = 1f, path: Path = Path()): Path {
-    var first = true
-    path.rewind()
-    forEachCubic(progress) { bezier ->
-        if (first) {
-            path.moveTo(bezier.anchor0X * scale, bezier.anchor0Y * scale)
-            first = false
-        }
-        path.cubicTo(
-            bezier.control0X * scale, bezier.control0Y * scale,
-            bezier.control1X * scale, bezier.control1Y * scale,
-            bezier.anchor1X * scale, bezier.anchor1Y * scale
-        )
-    }
-    path.close()
-    return path
-}
 
 internal const val DEBUG = false
 
