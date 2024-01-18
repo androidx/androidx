@@ -138,7 +138,6 @@ package androidx.room {
     method public void close();
     method public androidx.sqlite.db.SupportSQLiteStatement compileStatement(String sql);
     method protected abstract androidx.room.InvalidationTracker createInvalidationTracker();
-    method protected androidx.room.RoomOpenDelegateMarker createOpenDelegate();
     method @Deprecated protected androidx.sqlite.db.SupportSQLiteOpenHelper createOpenHelper(androidx.room.DatabaseConfiguration config);
     method @Deprecated public void endTransaction();
     method public androidx.room.InvalidationTracker getInvalidationTracker();
@@ -150,8 +149,7 @@ package androidx.room {
     method @Deprecated public <T> T? getTypeConverter(Class<T> klass);
     method public boolean inTransaction();
     method @CallSuper public void init(androidx.room.DatabaseConfiguration configuration);
-    method protected void internalInitInvalidationTracker(androidx.sqlite.db.SupportSQLiteDatabase db);
-    method protected void internalInitInvalidationTracker(androidx.sqlite.SQLiteConnection connection);
+    method @Deprecated protected void internalInitInvalidationTracker(androidx.sqlite.db.SupportSQLiteDatabase db);
     method public boolean isOpen();
     method public android.database.Cursor query(androidx.sqlite.db.SupportSQLiteQuery query);
     method public android.database.Cursor query(androidx.sqlite.db.SupportSQLiteQuery query, optional android.os.CancellationSignal? signal);

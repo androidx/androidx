@@ -58,6 +58,7 @@ expect abstract class RoomDatabase {
      *
      * @return A new delegate to be used while opening the database
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     protected open fun createOpenDelegate(): RoomOpenDelegateMarker
 
     /**
