@@ -22,17 +22,8 @@ import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
 import androidx.compose.ui.platform.PlatformTextInputMethodRequest
 
-<<<<<<<< HEAD:compose/ui/ui-text/src/skikoMain/kotlin/androidx/compose/ui/text/input/PlatformTextInputAdapter.skiko.kt
-// TODO(b/267235947) Flesh this out, document it, and wire it up when ready to integrate new text
-//  field with desktop.
-// TODO: [1.4 Update] implement it properly
-@ExperimentalTextApi
-@Immutable
-actual interface PlatformTextInputPlugin<T : PlatformTextInputAdapter>
-========
 internal open class TestInputMethodRequest(view: View) : BaseInputConnection(view, false),
     PlatformTextInputMethodRequest {
->>>>>>>> sync-androidx/revert/revert-1.6.0-alpha01_merge-1.6.0-alpha02:compose/ui/ui/src/androidAndroidTest/kotlin/androidx/compose/ui/text/input/TestInputMethodRequest.kt
 
     override fun createInputConnection(outAttributes: EditorInfo): InputConnection {
         return this

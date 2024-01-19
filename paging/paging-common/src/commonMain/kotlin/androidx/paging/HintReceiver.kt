@@ -14,18 +14,6 @@
  * limitations under the License.
  */
 
-<<<<<<<< HEAD:collection/collection/src/jbMain/kotlin/androidx/collection/internal/Lock.skiko.kt
-package androidx.collection.internal
-
-import kotlinx.atomicfu.locks.SynchronizedObject
-import kotlinx.atomicfu.locks.synchronized
-
-internal actual class Lock {
-    private val synchronizedObject = SynchronizedObject()
-
-    actual inline fun <T> synchronizedImpl(block: () -> T): T =
-        synchronized(synchronizedObject, block)
-========
 package androidx.paging
 
 /**
@@ -33,5 +21,4 @@ package androidx.paging
  */
 internal interface HintReceiver {
     fun accessHint(viewportHint: ViewportHint)
->>>>>>>> sync-androidx/revert/revert-1.6.0-alpha01_merge-1.6.0-alpha02:paging/paging-common/src/commonMain/kotlin/androidx/paging/HintReceiver.kt
 }
