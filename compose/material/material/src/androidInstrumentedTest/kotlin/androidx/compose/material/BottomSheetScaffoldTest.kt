@@ -204,7 +204,7 @@ class BottomSheetScaffoldTest {
     }
 
     @Test
-    fun backdropScaffold_revealAndConceal_manually(): Unit = runBlocking(AutoTestFrameClock()) {
+    fun bottomSheetScaffold_revealAndConceal_manually(): Unit = runBlocking(AutoTestFrameClock()) {
         lateinit var bottomSheetState: BottomSheetState
         rule.setContent {
             bottomSheetState = rememberBottomSheetState(BottomSheetValue.Collapsed)
