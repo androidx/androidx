@@ -58,14 +58,6 @@ fun InfiniteAnimation(animation: Animation, modifier: Modifier) {
     )
     val invalidationController = remember { InvalidationController() }
 
-    /*
-     FIXME: https://github.com/JetBrains/compose-multiplatform/issues/3149
-      Animation type doesn't trigger re-drawing the canvas because of incorrect detection
-      "stability" of external types.
-      Adding _any_ mutable state into `drawIntoCanvas` scope resolves the issue.
-
-      Workaround for iOS/Web: move this line into `drawIntoCanvas` block.
-     */
     animation.seekFrameTime(time, invalidationController)
     Canvas(modifier) {
         drawIntoCanvas {

@@ -108,6 +108,7 @@ interface ExposedDropdownMenuBoxScope {
      * @param scrollState a [ScrollState] to used by the menu's content for items vertical scrolling
      * @param content The content of the [ExposedDropdownMenu]
      */
+    @Suppress("ABSTRACT_COMPOSABLE_DEFAULT_PARAMETER_VALUE")
     @Composable
     fun ExposedDropdownMenu(
         expanded: Boolean,
