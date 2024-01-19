@@ -29,7 +29,7 @@ import java.util.AbstractList
 internal class PagedStorage<T : Any> :
     AbstractList<T>,
     LegacyPageFetcher.KeyProvider<Any>,
-    NullPaddedList<T> {
+    PlaceholderPaddedList<T> {
     private val pages = mutableListOf<Page<*, T>>()
 
     internal val firstLoadedItem: T

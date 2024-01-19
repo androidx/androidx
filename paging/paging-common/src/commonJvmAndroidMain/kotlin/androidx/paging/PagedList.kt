@@ -932,7 +932,7 @@ public abstract class PagedList<T : Any> internal constructor(
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // protected otherwise
-    public fun getNullPaddedList(): NullPaddedList<T> = storage
+    public fun getPlaceholderPaddedList(): PlaceholderPaddedList<T> = storage
 
     internal var refreshRetryCallback: Runnable? = null
 
