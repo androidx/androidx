@@ -16,6 +16,8 @@
 
 package androidx.paging
 
+import android.os.Handler
+import android.os.Looper
 import androidx.annotation.IntRange
 import androidx.annotation.MainThread
 import androidx.lifecycle.Lifecycle
@@ -23,14 +25,24 @@ import androidx.lifecycle.coroutineScope
 import androidx.paging.LoadType.REFRESH
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListUpdateCallback
+import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.atomic.AtomicReference
 import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.Channel.Factory.CONFLATED
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.transform
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.yield
 
 /**
  * Helper class for mapping a [PagingData] into a
@@ -133,8 +145,7 @@ constructor(
     )
 
     /** True if we're currently executing [getItem] */
-    @Suppress("MemberVisibilityCanBePrivate") // synthetic access
-    internal var inGetItem: Boolean = false
+    internal val inGetItem = MutableStateFlow(false)
 
     internal val presenter = object : PagingDataPresenter<T>(mainDispatcher) {
         override suspend fun presentPagingDataEvent(event: PagingDataEvent<T>) {
@@ -307,16 +318,6 @@ constructor(
                 }
             }
         }
-
-        /**
-         * Return if [getItem] is running to post any data modifications.
-         *
-         * This must be done because RecyclerView can't be modified during an onBind, when
-         * [getItem] is generally called.
-         */
-        override fun postEvents(): Boolean {
-            return inGetItem
-        }
     }
 
     private val submitDataId = AtomicInteger(0)
@@ -411,10 +412,10 @@ constructor(
     @MainThread
     fun getItem(@IntRange(from = 0) index: Int): T? {
         try {
-            inGetItem = true
+            inGetItem.update { true }
             return presenter[index]
         } finally {
-            inGetItem = false
+            inGetItem.update { false }
         }
     }
 
@@ -450,11 +451,22 @@ constructor(
      * current [PagingData] changes.
      *
      * This flow is conflated, so it buffers the last update to [CombinedLoadStates] and
-     * immediately delivers the current load states on collection.
+     * delivers the current load states on collection when RecyclerView is not dispatching layout.
      *
      * @sample androidx.paging.samples.loadStateFlowSample
      */
-    val loadStateFlow: Flow<CombinedLoadStates> = presenter.loadStateFlow.filterNotNull()
+    val loadStateFlow: Flow<CombinedLoadStates> = presenter.loadStateFlow
+        .filterNotNull()
+        .buffer(CONFLATED)
+        .transform { it ->
+            if (inGetItem.value) {
+                yield()
+                inGetItem.firstOrNull { isGettingItem ->
+                    !isGettingItem
+                }
+            }
+            emit(it)
+        }.flowOn(Dispatchers.Main)
 
     /**
      * A hot [Flow] that emits after the pages presented to the UI are updated, even if the
@@ -507,6 +519,22 @@ constructor(
     }
 
     /**
+     * The loadStateListener registered internally with [PagingDataPresenter.addLoadStateListener]
+     * when there are [childLoadStateListeners].
+     *
+     * LoadStateUpdates are dispatched to this single internal listener, which will further
+     * dispatch the loadState to [childLoadStateListeners] when [inGetItem] is false.
+     */
+    private val parentLoadStateListener: AtomicReference<((CombinedLoadStates) -> Unit)?> =
+        AtomicReference(null)
+
+    /**
+     * Stores the list of listeners added through [addLoadStateListener]. Invoked
+     * when inGetItem is false.
+     */
+    private val childLoadStateListeners = CopyOnWriteArrayList<(CombinedLoadStates) -> Unit>()
+
+    /**
      * Add a [CombinedLoadStates] listener to observe the loading state of the current [PagingData].
      *
      * As new [PagingData] generations are submitted and displayed, the listener will be notified to
@@ -519,7 +547,10 @@ constructor(
      * @sample androidx.paging.samples.addLoadStateListenerSample
      */
     fun addLoadStateListener(listener: (CombinedLoadStates) -> Unit) {
-        presenter.addLoadStateListener(listener)
+        if (parentLoadStateListener.get() == null) {
+            addLoadStateListenerInternal(internalLoadStateListener)
+        }
+        childLoadStateListeners.add(listener)
     }
 
     /**
@@ -529,6 +560,42 @@ constructor(
      * @see addLoadStateListener
      */
     fun removeLoadStateListener(listener: (CombinedLoadStates) -> Unit) {
-        presenter.removeLoadStateListener(listener)
+        childLoadStateListeners.remove(listener)
+        if (childLoadStateListeners.isEmpty()) {
+            val parent = parentLoadStateListener.get()
+            parent?.let { presenter.removeLoadStateListener(it) }
+        }
+    }
+
+    internal fun addLoadStateListenerInternal(listener: (CombinedLoadStates) -> Unit) {
+        parentLoadStateListener.set(listener)
+        presenter.addLoadStateListener(listener)
+    }
+
+    internal val internalLoadStateListener: (CombinedLoadStates) -> Unit = { loadState ->
+        if (!inGetItem.value) {
+            childLoadStateListeners.forEach { it(loadState) }
+        } else {
+            LoadStateListenerHandler.apply {
+                // we only want to send the latest LoadState
+                removeCallbacks(LoadStateListenerRunnable)
+                // enqueue child listeners
+                LoadStateListenerRunnable.loadState.set(loadState)
+                post(LoadStateListenerRunnable)
+            }
+        }
+    }
+
+    private val LoadStateListenerHandler by lazy { Handler(Looper.getMainLooper()) }
+
+    private val LoadStateListenerRunnable = object : Runnable {
+        var loadState = AtomicReference<CombinedLoadStates>(null)
+
+        override fun run() {
+            loadState.get()
+                ?.let { state ->
+                    childLoadStateListeners.forEach { it(state) }
+                }
+        }
     }
 }
