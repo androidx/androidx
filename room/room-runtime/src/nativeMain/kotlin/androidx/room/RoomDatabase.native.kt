@@ -72,6 +72,7 @@ actual abstract class RoomDatabase {
      * @return A new delegate to be used while opening the database
      * @throws NotImplementedError by default
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     protected actual open fun createOpenDelegate(): RoomOpenDelegateMarker {
         throw NotImplementedError()
     }

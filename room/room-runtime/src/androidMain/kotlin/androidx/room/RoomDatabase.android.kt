@@ -356,6 +356,7 @@ actual abstract class RoomDatabase {
      * @return A new delegate to be used while opening the database
      * @throws NotImplementedError by default
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     protected actual open fun createOpenDelegate(): RoomOpenDelegateMarker {
         throw NotImplementedError()
     }
@@ -674,6 +675,7 @@ actual abstract class RoomDatabase {
      *
      * @param db The database instance.
      */
+    @Deprecated("No longer called by generated")
     protected open fun internalInitInvalidationTracker(db: SupportSQLiteDatabase) {
         invalidationTracker.internalInit(db)
     }
@@ -685,8 +687,10 @@ actual abstract class RoomDatabase {
      *
      * @param connection The database connection.
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     protected open fun internalInitInvalidationTracker(connection: SQLiteConnection) {
         if (connection is SupportSQLiteConnection) {
+            @Suppress("DEPRECATION")
             internalInitInvalidationTracker(connection.db)
         } else {
             TODO("Not yet migrated to use SQLiteDriver")
