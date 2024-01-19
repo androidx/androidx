@@ -31,8 +31,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.State
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
@@ -343,17 +341,10 @@ class ButtonTest {
             ) {
                 ButtonWithDefaults(
                     backgroundColor = { enabled ->
-                        rememberUpdatedState(
-                            if (enabled) enabledBackgroundColor else disabledBackgroundColor
-                        )
+                        if (enabled) enabledBackgroundColor else disabledBackgroundColor
                     },
                     border = { enabled ->
-                        return@ButtonWithDefaults rememberUpdatedState(
-                            BorderStroke(
-                                2.dp,
-                                if (enabled) enabledBorderColor else disabledBorderColor
-                            )
-                        )
+                        BorderStroke(2.dp, if (enabled) enabledBorderColor else disabledBorderColor)
                     },
                     enabled = status.enabled(),
                     modifier = Modifier.testTag(TEST_TAG)
@@ -401,12 +392,10 @@ class ButtonTest {
         modifier: Modifier = Modifier,
         onClick: () -> Unit = {},
         enabled: Boolean = true,
-        backgroundColor: @Composable (enabled: Boolean) -> State<Color> = {
-            rememberUpdatedState(DEFAULT_SHAPE_COLOR)
-        },
+        backgroundColor: @Composable (enabled: Boolean) -> Color = { DEFAULT_SHAPE_COLOR },
         interactionSource: MutableInteractionSource? = null,
         shape: Shape = CircleShape,
-        border: @Composable (enabled: Boolean) -> State<BorderStroke?>? = { null },
+        border: @Composable (enabled: Boolean) -> BorderStroke? = { null },
         content: @Composable BoxScope.() -> Unit
     ) = Button(
         onClick = onClick,

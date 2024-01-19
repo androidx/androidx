@@ -948,10 +948,10 @@ class ToggleButtonTest {
                     .background(testBackground)
             ) {
                 val actualBorderColor = borderColor(enabled, checked).value
-                val border = remember { mutableStateOf(BorderStroke(2.dp, actualBorderColor)) }
+                val border = BorderStroke(2.dp, actualBorderColor)
                 RoundToggleButtonWithDefaults(
                     backgroundColor = backgroundColor,
-                    border = { _, _ -> return@RoundToggleButtonWithDefaults border },
+                    border = { _, _ -> border },
                     enabled = enabled,
                     checked = checked,
                     modifier = Modifier.testTag(TEST_TAG)
@@ -1003,7 +1003,7 @@ private fun RoundToggleButtonWithDefaults(
     enabled: Boolean = true,
     backgroundColor: @Composable (enabled: Boolean, checked: Boolean) -> State<Color> =
         { _, _ -> rememberUpdatedState(DEFAULT_SHAPE_COLOR) },
-    border: @Composable (enabled: Boolean, checked: Boolean) -> State<BorderStroke?>? =
+    border: @Composable (enabled: Boolean, checked: Boolean) -> BorderStroke? =
         { _, _ -> null },
     toggleButtonSize: Dp = 52.dp,
     interactionSource: MutableInteractionSource? = null,

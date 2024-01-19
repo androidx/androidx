@@ -538,7 +538,7 @@ private fun ComposeContentTestRule.isShape(
     setContentWithTheme {
         background = MaterialTheme.colorScheme.surface
         Box(Modifier.background(background)) {
-            buttonColor = colors().containerColor(true).value
+            buttonColor = colors().containerColor(true)
             if (buttonColor == Color.Transparent) {
                 buttonColor = background
             }

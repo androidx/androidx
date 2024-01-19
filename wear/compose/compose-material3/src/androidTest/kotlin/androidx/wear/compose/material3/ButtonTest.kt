@@ -916,11 +916,11 @@ private fun ComposeContentTestRule.verifyThreeSlotButtonColors(
     setContentWithTheme {
         val buttonColors = expectedColor()
         containerColor = (
-            (buttonColors.containerPainter(status.enabled()).value as ColorPainter).color)
+            (buttonColors.containerPainter(status.enabled()) as ColorPainter).color)
             .compositeOver(testBackgroundColor)
-        labelColor = buttonColors.contentColor(status.enabled()).value
-        secondaryLabelColor = buttonColors.secondaryContentColor(status.enabled()).value
-        iconColor = buttonColors.iconColor(status.enabled()).value
+        labelColor = buttonColors.contentColor(status.enabled())
+        secondaryLabelColor = buttonColors.secondaryContentColor(status.enabled())
+        iconColor = buttonColors.iconColor(status.enabled())
 
         Box(
             Modifier
@@ -1051,7 +1051,7 @@ private fun ComposeContentTestRule.isShape(
     setContentWithTheme {
         background = MaterialTheme.colorScheme.surface
         Box(Modifier.background(background)) {
-            buttonColor = (colors().containerPainter(true).value as ColorPainter).color
+            buttonColor = (colors().containerPainter(true) as ColorPainter).color
             if (buttonColor == Color.Transparent) {
                 buttonColor = background
             }
@@ -1089,10 +1089,10 @@ private fun ComposeContentTestRule.verifyCompactButtonColors(
     var actualIconColor = Color.Transparent
 
     setContentWithTheme {
-        containerColor = ((colors().containerPainter(status.enabled()).value as ColorPainter).color)
+        containerColor = ((colors().containerPainter(status.enabled()) as ColorPainter).color)
             .compositeOver(testBackgroundColor)
-        labelColor = colors().contentColor(status.enabled()).value
-        iconColor = colors().iconColor(status.enabled()).value
+        labelColor = colors().contentColor(status.enabled())
+        iconColor = colors().iconColor(status.enabled())
 
         Box(
             Modifier

@@ -23,6 +23,19 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 
 internal fun <T> provideScopeContent(
+    contentColor: Color,
+    textStyle: TextStyle,
+    content: (@Composable T.() -> Unit)
+): (@Composable T.() -> Unit) = {
+    CompositionLocalProvider(
+        LocalContentColor provides contentColor,
+        LocalTextStyle provides textStyle,
+    ) {
+        content()
+    }
+}
+
+internal fun <T> provideScopeContent(
     contentColor: State<Color>,
     textStyle: TextStyle,
     content: (@Composable T.() -> Unit)
@@ -31,6 +44,17 @@ internal fun <T> provideScopeContent(
     CompositionLocalProvider(
         LocalContentColor provides color,
         LocalTextStyle provides textStyle,
+    ) {
+        content()
+    }
+}
+
+internal fun <T> provideScopeContent(
+    color: Color,
+    content: (@Composable T.() -> Unit)
+): (@Composable T.() -> Unit) = {
+    CompositionLocalProvider(
+        LocalContentColor provides color,
     ) {
         content()
     }

@@ -22,8 +22,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.State
-import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.Stable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
@@ -96,7 +95,7 @@ fun TextButton(
         backgroundColor = { colors.containerColor(enabled = it) },
         interactionSource = interactionSource,
         shape = shape,
-        border = { rememberUpdatedState(border) },
+        border = { border },
         buttonSize = TextButtonDefaults.DefaultButtonSize,
         ripple = rippleOrFallbackImplementation(),
         content = provideScopeContent(
@@ -164,7 +163,7 @@ fun TextToggleButton(
         backgroundColor = { isEnabled, isChecked ->
             colors.containerColor(enabled = isEnabled, checked = isChecked)
         },
-        border = { _, _ -> rememberUpdatedState(border) },
+        border = { _, _ -> border },
         toggleButtonSize = TextButtonDefaults.DefaultButtonSize,
         interactionSource = interactionSource,
         shape = shape,
@@ -312,7 +311,7 @@ object TextButtonDefaults {
      * Creates a [ToggleButtonColors] for a [TextToggleButton]
      * - by default, a colored background with a contrasting content color.
      * If the button is disabled, then the
-     * colors will have an alpha ([ContentAlpha.disabled]) value applied.
+     * colors will have an alpha ([DisabledContainerAlpha] or [DisabledContentAlpha]) value applied.
      *
      * @param checkedContainerColor the container color of this [TextToggleButton] when enabled
      * and checked
@@ -411,9 +410,9 @@ class TextButtonColors(
      *
      * @param enabled whether the text button is enabled
      */
-    @Composable
-    internal fun containerColor(enabled: Boolean): State<Color> {
-        return rememberUpdatedState(if (enabled) containerColor else disabledContainerColor)
+    @Stable
+    internal fun containerColor(enabled: Boolean): Color {
+        return if (enabled) containerColor else disabledContainerColor
     }
 
     /**
@@ -421,9 +420,9 @@ class TextButtonColors(
      *
      * @param enabled whether the text button is enabled
      */
-    @Composable
-    internal fun contentColor(enabled: Boolean): State<Color> {
-        return rememberUpdatedState(if (enabled) contentColor else disabledContentColor)
+    @Stable
+    internal fun contentColor(enabled: Boolean): Color {
+        return if (enabled) contentColor else disabledContentColor
     }
 
     override fun equals(other: Any?): Boolean {
