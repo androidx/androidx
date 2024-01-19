@@ -217,6 +217,7 @@ package androidx.glance.color {
     method public final androidx.glance.unit.ColorProvider getSurfaceVariant();
     method public final androidx.glance.unit.ColorProvider getTertiary();
     method public final androidx.glance.unit.ColorProvider getTertiaryContainer();
+    method public final androidx.glance.unit.ColorProvider getWidgetBackground();
     property public final androidx.glance.unit.ColorProvider background;
     property public final androidx.glance.unit.ColorProvider error;
     property public final androidx.glance.unit.ColorProvider errorContainer;
@@ -243,10 +244,12 @@ package androidx.glance.color {
     property public final androidx.glance.unit.ColorProvider surfaceVariant;
     property public final androidx.glance.unit.ColorProvider tertiary;
     property public final androidx.glance.unit.ColorProvider tertiaryContainer;
+    property public final androidx.glance.unit.ColorProvider widgetBackground;
   }
 
   public final class ColorProvidersKt {
     method public static androidx.glance.color.ColorProviders colorProviders(androidx.glance.unit.ColorProvider primary, androidx.glance.unit.ColorProvider onPrimary, androidx.glance.unit.ColorProvider primaryContainer, androidx.glance.unit.ColorProvider onPrimaryContainer, androidx.glance.unit.ColorProvider secondary, androidx.glance.unit.ColorProvider onSecondary, androidx.glance.unit.ColorProvider secondaryContainer, androidx.glance.unit.ColorProvider onSecondaryContainer, androidx.glance.unit.ColorProvider tertiary, androidx.glance.unit.ColorProvider onTertiary, androidx.glance.unit.ColorProvider tertiaryContainer, androidx.glance.unit.ColorProvider onTertiaryContainer, androidx.glance.unit.ColorProvider error, androidx.glance.unit.ColorProvider errorContainer, androidx.glance.unit.ColorProvider onError, androidx.glance.unit.ColorProvider onErrorContainer, androidx.glance.unit.ColorProvider background, androidx.glance.unit.ColorProvider onBackground, androidx.glance.unit.ColorProvider surface, androidx.glance.unit.ColorProvider onSurface, androidx.glance.unit.ColorProvider surfaceVariant, androidx.glance.unit.ColorProvider onSurfaceVariant, androidx.glance.unit.ColorProvider outline, androidx.glance.unit.ColorProvider inverseOnSurface, androidx.glance.unit.ColorProvider inverseSurface, androidx.glance.unit.ColorProvider inversePrimary);
+    method public static androidx.glance.color.ColorProviders colorProviders(androidx.glance.unit.ColorProvider primary, androidx.glance.unit.ColorProvider onPrimary, androidx.glance.unit.ColorProvider primaryContainer, androidx.glance.unit.ColorProvider onPrimaryContainer, androidx.glance.unit.ColorProvider secondary, androidx.glance.unit.ColorProvider onSecondary, androidx.glance.unit.ColorProvider secondaryContainer, androidx.glance.unit.ColorProvider onSecondaryContainer, androidx.glance.unit.ColorProvider tertiary, androidx.glance.unit.ColorProvider onTertiary, androidx.glance.unit.ColorProvider tertiaryContainer, androidx.glance.unit.ColorProvider onTertiaryContainer, androidx.glance.unit.ColorProvider error, androidx.glance.unit.ColorProvider errorContainer, androidx.glance.unit.ColorProvider onError, androidx.glance.unit.ColorProvider onErrorContainer, androidx.glance.unit.ColorProvider background, androidx.glance.unit.ColorProvider onBackground, androidx.glance.unit.ColorProvider surface, androidx.glance.unit.ColorProvider onSurface, androidx.glance.unit.ColorProvider surfaceVariant, androidx.glance.unit.ColorProvider onSurfaceVariant, androidx.glance.unit.ColorProvider outline, androidx.glance.unit.ColorProvider inverseOnSurface, androidx.glance.unit.ColorProvider inverseSurface, androidx.glance.unit.ColorProvider inversePrimary, androidx.glance.unit.ColorProvider widgetBackground);
   }
 
   public final class DayNightColorProvidersKt {
