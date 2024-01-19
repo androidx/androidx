@@ -166,7 +166,7 @@ private const val CompatibilityCheckError =
     ${TERMINAL_RED}Your change has API compatibility issues. Fix the code according to the messages above.$TERMINAL_RESET
 
     If you *intentionally* want to break compatibility, you can suppress it with
-    ./gradlew ignoreApiChange && ./gradlew updateApi
+    ./gradlew ignoreApiChanges && ./gradlew updateApi
 """
 
 private fun createFrozenCompatibilityCheckError(referenceVersion: String) =
@@ -174,5 +174,5 @@ private fun createFrozenCompatibilityCheckError(referenceVersion: String) =
     ${TERMINAL_RED}The API surface was finalized in $referenceVersion. Revert the changes noted in the errors above.$TERMINAL_RESET
 
     If you have obtained permission from Android API Council or Jetpack Working Group to bypass this policy, you can suppress this check with:
-    ./gradlew ignoreApiChange && ./gradlew updateApi
+    ./gradlew ignoreApiChanges && ./gradlew updateApi
 """
