@@ -72,7 +72,9 @@ import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.assertIsNotFocused
 import androidx.compose.ui.test.assertTouchHeightIsEqualTo
 import androidx.compose.ui.test.assertTouchWidthIsEqualTo
 import androidx.compose.ui.test.assertWidthIsEqualTo
@@ -85,6 +87,7 @@ import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.performMouseInput
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.pressKey
+import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -93,6 +96,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Correspondence
 import com.google.common.truth.Truth.assertThat
 import kotlin.reflect.KClass
+import kotlin.test.Ignore
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.junit.After
@@ -312,6 +316,117 @@ class ClickableTest {
         rule.runOnIdle {
             assertThat(counter).isEqualTo(2)
         }
+    }
+
+    @Test
+    fun requestFocus_touchMode() {
+        // Arrange.
+        val tag = "testClickable"
+        val focusRequester = FocusRequester()
+        lateinit var inputModeManager: InputModeManager
+        rule.setContent {
+            inputModeManager = LocalInputModeManager.current
+            Box(
+                Modifier
+                    .testTag(tag)
+                    .size(10.dp)
+                    .focusRequester(focusRequester)
+                    .clickable {}
+            )
+        }
+        rule.runOnIdle {
+            @OptIn(ExperimentalComposeUiApi::class)
+            inputModeManager.requestInputMode(Touch)
+        }
+
+        // Act.
+        rule.runOnIdle { focusRequester.requestFocus() }
+
+        // Assert.
+        rule.onNodeWithTag(tag).assertIsNotFocused()
+    }
+
+    @Test
+    fun requestFocus_keyboardMode() {
+        // Arrange.
+        val tag = "testClickable"
+        val focusRequester = FocusRequester()
+        lateinit var inputModeManager: InputModeManager
+        rule.setContent {
+            inputModeManager = LocalInputModeManager.current
+            Box(
+                Modifier
+                    .testTag(tag)
+                    .size(10.dp)
+                    .focusRequester(focusRequester)
+                    .clickable {}
+            )
+        }
+        rule.runOnIdle {
+            @OptIn(ExperimentalComposeUiApi::class)
+            inputModeManager.requestInputMode(Keyboard)
+        }
+
+        // Act.
+        rule.runOnIdle { focusRequester.requestFocus() }
+
+        // Assert.
+        rule.onNodeWithTag(tag).assertIsFocused()
+    }
+
+    @Test
+    fun requestFocus_withTestApi_touchMode() {
+        // Arrange.
+        val tag = "testClickable"
+        lateinit var inputModeManager: InputModeManager
+        rule.setContent {
+            inputModeManager = LocalInputModeManager.current
+            Box(
+                Modifier
+                    .testTag(tag)
+                    .size(10.dp)
+                    .clickable {}
+            )
+        }
+        rule.runOnIdle {
+            @OptIn(ExperimentalComposeUiApi::class)
+            inputModeManager.requestInputMode(Touch)
+        }
+
+        // Act.
+        rule.onNodeWithTag(tag).requestFocus()
+
+        // Assert.
+        rule.onNodeWithTag(tag).assertIsNotFocused()
+    }
+
+    @Ignore("b/320786728")
+    @Test
+    fun requestFocus_withTestApi_keyboardMode() {
+        // Arrange.
+        val tag = "testClickable"
+        lateinit var inputModeManager: InputModeManager
+        val focusRequester = FocusRequester()
+        rule.setFocusableContent {
+            inputModeManager = LocalInputModeManager.current
+            Box(
+                Modifier
+                    .focusRequester(focusRequester)
+                    .testTag(tag)
+                    .size(10.dp)
+                    .clickable {}
+            )
+        }
+        rule.runOnIdle {
+            @OptIn(ExperimentalComposeUiApi::class)
+            inputModeManager.requestInputMode(Keyboard)
+        }
+
+        // Act.
+        rule.onNodeWithTag(tag).requestFocus()
+
+        // Assert.
+        rule.onNodeWithTag(tag).assertIsFocused()
     }
 
     @Test
