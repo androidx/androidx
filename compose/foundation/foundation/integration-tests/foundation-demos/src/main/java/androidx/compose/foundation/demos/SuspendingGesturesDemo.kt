@@ -223,7 +223,7 @@ fun TouchSlopDragGestures() {
         ) {
             var offset by remember { mutableStateOf(0.dp) }
             Box(
-                Modifier.offset(offset, 0.dp)
+                Modifier.offset { IntOffset(x = offset.roundToPx(), y = 0) }
                     .requiredSize(50.dp)
                     .background(Color.Blue)
                     .pointerInput(Unit) {
@@ -250,7 +250,7 @@ fun TouchSlopDragGestures() {
             ) {
                 var offset by remember { mutableStateOf(0.dp) }
                 Box(
-                    Modifier.offset(0.dp, offset)
+                    Modifier.offset { IntOffset(x = 0, y = offset.roundToPx()) }
                         .requiredSize(50.dp)
                         .background(Color.Red)
                         .pointerInput(Unit) {
@@ -301,7 +301,7 @@ fun OrientationLockDragGestures() {
 
     ) {
         Box(
-            Modifier.offset(offsetX, 0.dp)
+            Modifier.offset { IntOffset(x = offsetX.roundToPx(), y = 0) }
                 .background(Color.Blue.copy(alpha = 0.5f))
                 .requiredWidth(50.dp)
                 .fillMaxHeight()
@@ -313,7 +313,7 @@ fun OrientationLockDragGestures() {
                 }
         )
         Box(
-            Modifier.offset(0.dp, offsetY)
+            Modifier.offset { IntOffset(x = 0, y = offsetY.roundToPx()) }
                 .background(Color.Red.copy(alpha = 0.5f))
                 .requiredHeight(50.dp)
                 .fillMaxWidth()
