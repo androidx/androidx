@@ -31,7 +31,7 @@ import kotlinx.atomicfu.atomic
 @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 class FakeSurfaces : AutoCloseable {
     private val fakeSurfaces = mutableListOf<Surface>()
-    fun createFakeSurface(size: Size): Surface {
+    fun createFakeSurface(size: Size = Size(640, 480)): Surface {
         val surface = create(size)
         synchronized(fakeSurfaces) {
             fakeSurfaces.add(surface)
@@ -51,7 +51,7 @@ class FakeSurfaces : AutoCloseable {
     companion object {
         private val fakeSurfaceTextureNames = atomic(0)
 
-        fun create(size: Size): Surface {
+        fun create(size: Size = Size(640, 480)): Surface {
             return Surface(
                 SurfaceTexture(fakeSurfaceTextureNames.getAndIncrement()).also {
                     it.setDefaultBufferSize(size.width, size.height)
