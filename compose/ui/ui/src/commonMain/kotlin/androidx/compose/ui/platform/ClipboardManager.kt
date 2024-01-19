@@ -67,14 +67,9 @@ interface ClipboardManager {
      * Puts the given [clipEntry] in platform's ClipboardManager.
      *
      * @param clipEntry Platform specific clip object that either holds data or links to it.
-     * @param clipMetadata Optional description of what is inside [clipEntry]. Some platforms like
-     * Android may have a [ClipEntry] contain its [ClipMetadata].
      */
     @Suppress("GetterSetterNames")
-    fun setClip(
-        clipEntry: ClipEntry,
-        clipMetadata: ClipMetadata? = null
-    ) = Unit
+    fun setClip(clipEntry: ClipEntry) = Unit
 
     /**
      * Returns true if there is currently a primary clip on the platform Clipboard. Even though

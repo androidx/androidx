@@ -86,10 +86,7 @@ internal class AndroidClipboardManager internal constructor(
         return clipboardManager.primaryClipDescription?.let(::ClipMetadata)
     }
 
-    override fun setClip(
-        clipEntry: ClipEntry,
-        clipMetadata: ClipMetadata?
-    ) {
+    override fun setClip(clipEntry: ClipEntry) {
         // We ignore the clipDescription parameter on Android because clipEntry comes with one.
         clipboardManager.setPrimaryClip(clipEntry.clipData)
     }

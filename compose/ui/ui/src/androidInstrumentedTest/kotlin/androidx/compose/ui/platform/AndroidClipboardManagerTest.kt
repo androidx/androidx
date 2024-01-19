@@ -288,7 +288,7 @@ class AndroidClipboardManagerTest {
         val clipData = mock<ClipData>()
         val subject = AndroidClipboardManager(clipboardManager)
 
-        subject.setClip(clipData.toClipEntry(), null)
+        subject.setClip(clipData.toClipEntry())
 
         verify(clipboardManager, times(1)).setPrimaryClip(clipData)
     }
