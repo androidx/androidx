@@ -47,6 +47,8 @@ dependencies {
     implementation(project(":compose:ui:ui"))
     implementation(project(":compose:ui:ui-tooling"))
     implementation(project(":profileinstaller:profileinstaller"))
+    implementation(project(":constraintlayout:constraintlayout-compose"))
+    implementation("io.coil-kt:coil-compose:2.5.0")
 }
 
 android.defaultConfig.minSdkVersion 21
