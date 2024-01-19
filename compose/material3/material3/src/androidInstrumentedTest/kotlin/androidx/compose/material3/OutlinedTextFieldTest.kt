@@ -14,11 +14,14 @@
  * limitations under the License.
  */
 
-@file:Suppress("DEPRECATION")
-
 package androidx.compose.material3
 
 import android.os.Build
+import android.text.InputType.TYPE_CLASS_TEXT
+import android.text.InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS
+import android.view.View
+import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.EditorInfo.IME_ACTION_GO
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
@@ -50,12 +53,15 @@ import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.node.Ref
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.platform.LocalTextInputService
+import androidx.compose.ui.platform.PlatformTextInputMethodRequest
+import androidx.compose.ui.platform.PlatformTextInputSession
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.error
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.PlatformTextInputMethodTestOverride
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsDisplayed
@@ -72,11 +78,8 @@ import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.ImeOptions
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.PlatformTextInputService
-import androidx.compose.ui.text.input.TextInputService
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
@@ -85,16 +88,13 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
+import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
 import com.google.common.truth.Truth.assertThat
 import kotlin.math.roundToInt
+import kotlinx.coroutines.awaitCancellation
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.kotlin.any
-import org.mockito.kotlin.atLeastOnce
-import org.mockito.kotlin.eq
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.verify
 
 @OptIn(ExperimentalMaterial3Api::class)
 @MediumTest
@@ -1312,15 +1312,26 @@ class OutlinedTextFieldTest {
         }
     }
 
+    @OptIn(ExperimentalTestApi::class)
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
     fun testOutlinedTextField_imeActionAndKeyboardTypePropagatedDownstream() {
-        val platformTextInputService = mock<PlatformTextInputService>()
-        val textInputService = TextInputService(platformTextInputService)
+        var editorInfo: EditorInfo? = null
+        val sessionHandler = object : PlatformTextInputSession {
+            override val view: View = View(getInstrumentation().targetContext)
+
+            override suspend fun startInputMethod(
+                request: PlatformTextInputMethodRequest
+            ): Nothing {
+                EditorInfo().also {
+                    request.createInputConnection(it)
+                    editorInfo = it
+                }
+                awaitCancellation()
+            }
+        }
         rule.setContent {
-            CompositionLocalProvider(
-                LocalTextInputService provides textInputService
-            ) {
+            PlatformTextInputMethodTestOverride(sessionHandler) {
                 val text = remember { mutableStateOf("") }
                 OutlinedTextField(
                     modifier = Modifier.testTag(TextFieldTag),
@@ -1337,17 +1348,12 @@ class OutlinedTextFieldTest {
         rule.onNodeWithTag(TextFieldTag).performClick()
 
         rule.runOnIdle {
-            verify(platformTextInputService, atLeastOnce()).startInput(
-                value = any(),
-                imeOptions = eq(
-                    ImeOptions(
-                        keyboardType = KeyboardType.Email,
-                        imeAction = ImeAction.Go
-                    )
-                ),
-                onEditCommand = any(),
-                onImeActionPerformed = any()
-            )
+            @Suppress("NAME_SHADOWING")
+            val editorInfo = editorInfo ?: throw AssertionError("Input session never started")
+            val expectedOptions = IME_ACTION_GO
+            val expectedInputType = TYPE_CLASS_TEXT or TYPE_TEXT_VARIATION_EMAIL_ADDRESS
+            assertThat(editorInfo.imeOptions and expectedOptions).isEqualTo(expectedOptions)
+            assertThat(editorInfo.inputType and expectedInputType).isEqualTo(expectedInputType)
         }
     }
 
