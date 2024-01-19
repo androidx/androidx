@@ -1,10 +1,7 @@
-import android.database.Cursor
 import androidx.room.EntityInsertionAdapter
 import androidx.room.RoomDatabase
-import androidx.room.RoomSQLiteQuery
-import androidx.room.RoomSQLiteQuery.Companion.acquire
 import androidx.room.util.getColumnIndexOrThrow
-import androidx.room.util.query
+import androidx.room.util.performReadBlocking
 import androidx.sqlite.db.SupportSQLiteStatement
 import javax.`annotation`.processing.Generated
 import kotlin.Int
@@ -55,34 +52,28 @@ public class MyDao_Impl(
 
   public override fun getEntity(): MyEntity {
     val _sql: String = "SELECT * FROM MyEntity"
-    val _statement: RoomSQLiteQuery = acquire(_sql, 0)
-    __db.assertNotSuspendingTransaction()
-    val _cursor: Cursor = query(__db, _statement, false, null)
-    try {
-      val _cursorIndexOfPk: Int = getColumnIndexOrThrow(_cursor, "pk")
-      val _cursorIndexOfVariablePrimitive: Int = getColumnIndexOrThrow(_cursor, "variablePrimitive")
-      val _cursorIndexOfVariableString: Int = getColumnIndexOrThrow(_cursor, "variableString")
-      val _cursorIndexOfVariableNullableString: Int = getColumnIndexOrThrow(_cursor,
+    return performReadBlocking(__db, _sql) { _stmt ->
+      val _cursorIndexOfPk: Int = getColumnIndexOrThrow(_stmt, "pk")
+      val _cursorIndexOfVariablePrimitive: Int = getColumnIndexOrThrow(_stmt, "variablePrimitive")
+      val _cursorIndexOfVariableString: Int = getColumnIndexOrThrow(_stmt, "variableString")
+      val _cursorIndexOfVariableNullableString: Int = getColumnIndexOrThrow(_stmt,
           "variableNullableString")
       val _result: MyEntity
-      if (_cursor.moveToFirst()) {
+      if (_stmt.step()) {
         val _tmpPk: Int
-        _tmpPk = _cursor.getInt(_cursorIndexOfPk)
+        _tmpPk = _stmt.getLong(_cursorIndexOfPk).toInt()
         _result = MyEntity(_tmpPk)
-        _result.variablePrimitive = _cursor.getLong(_cursorIndexOfVariablePrimitive)
-        _result.variableString = _cursor.getString(_cursorIndexOfVariableString)
-        if (_cursor.isNull(_cursorIndexOfVariableNullableString)) {
+        _result.variablePrimitive = _stmt.getLong(_cursorIndexOfVariablePrimitive)
+        _result.variableString = _stmt.getText(_cursorIndexOfVariableString)
+        if (_stmt.isNull(_cursorIndexOfVariableNullableString)) {
           _result.variableNullableString = null
         } else {
-          _result.variableNullableString = _cursor.getString(_cursorIndexOfVariableNullableString)
+          _result.variableNullableString = _stmt.getText(_cursorIndexOfVariableNullableString)
         }
       } else {
         error("The query result was empty, but expected a single row to return a NON-NULL object of type <MyEntity>.")
       }
-      return _result
-    } finally {
-      _cursor.close()
-      _statement.release()
+      _result
     }
   }
 

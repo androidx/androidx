@@ -38,6 +38,7 @@ import androidx.room.util.contains as containsExt
 import androidx.room.util.findMigrationPath as findMigrationPathExt
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.SQLiteDriver
+import androidx.sqlite.SQLiteStatement
 import androidx.sqlite.db.SimpleSQLiteQuery
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.db.SupportSQLiteOpenHelper
@@ -509,6 +510,46 @@ actual abstract class RoomDatabase {
         check(inTransaction() || suspendingTransactionId.get() == null) {
             "Cannot access database on a different coroutine" +
                 " context inherited from a suspending transaction."
+        }
+    }
+
+    /**
+     * Performs a database operation.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    actual suspend fun <R> perform(
+        isReadOnly: Boolean,
+        sql: String,
+        block: (SQLiteStatement) -> R
+    ): R {
+        return connectionManager.useConnection(isReadOnly) { connection ->
+            connection.usePrepared(sql, block)
+        }
+    }
+
+    /**
+     * Performs a transactional database operation.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    actual suspend fun <R> performTransaction(
+        isReadOnly: Boolean,
+        block: suspend (TransactionScope<R>) -> R
+    ): R {
+        return connectionManager.useConnection(isReadOnly) { transactor ->
+            val type = if (isReadOnly) {
+                Transactor.SQLiteTransactionType.DEFERRED
+            } else {
+                Transactor.SQLiteTransactionType.IMMEDIATE
+            }
+            // TODO(b/309990302): Commonize Invalidation Tracker
+            if (!isReadOnly) {
+                invalidationTracker.syncTriggers(openHelper.writableDatabase)
+            }
+            val result = transactor.withTransaction(type, block)
+            if (!isReadOnly && !transactor.inTransaction()) {
+                invalidationTracker.refreshVersionsAsync()
+            }
+            result
         }
     }
 

@@ -27,12 +27,42 @@ import android.os.CancellationSignal
 import androidx.annotation.RestrictTo
 import androidx.room.RoomDatabase
 import androidx.room.driver.SupportSQLiteConnection
+import androidx.sqlite.SQLiteStatement
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.db.SupportSQLiteQuery
 import java.io.File
 import java.io.FileInputStream
 import java.io.IOException
 import java.nio.ByteBuffer
+import kotlinx.coroutines.runBlocking
+
+/**
+ * Performs a single database read query operation.
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+fun <R> performReadBlocking(
+    db: RoomDatabase,
+    sql: String,
+    block: (SQLiteStatement) -> R
+): R {
+    db.assertNotMainThread()
+    db.assertNotSuspendingTransaction()
+    return runBlocking { db.perform(true, sql, block) }
+}
+
+/**
+ * Performs a single database read query transaction operation.
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+fun <R> performReadTransactionBlocking(
+    db: RoomDatabase,
+    sql: String,
+    block: (SQLiteStatement) -> R
+): R {
+    db.assertNotMainThread()
+    db.assertNotSuspendingTransaction()
+    return runBlocking { db.performTransaction(true) { it.usePrepared(sql, block) } }
+}
 
 /**
  * Performs the SQLiteQuery on the given database.

@@ -25,6 +25,7 @@ import androidx.room.migration.Migration
 import androidx.room.util.contains
 import androidx.room.util.isAssignableFrom
 import androidx.sqlite.SQLiteDriver
+import androidx.sqlite.SQLiteStatement
 import kotlin.jvm.JvmName
 import kotlin.reflect.KClass
 
@@ -131,6 +132,21 @@ expect abstract class RoomDatabase {
      * Once a [RoomDatabase] is closed it should no longer be used.
      */
     fun close()
+
+    /**
+     * Performs a database operation.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    suspend fun <R> perform(isReadOnly: Boolean, sql: String, block: (SQLiteStatement) -> R): R
+
+    /**
+     * Performs a database transaction operation.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    suspend fun <R> performTransaction(
+        isReadOnly: Boolean,
+        block: suspend (TransactionScope<R>) -> R
+    ): R
 
     /**
      * Journal modes for SQLite database.

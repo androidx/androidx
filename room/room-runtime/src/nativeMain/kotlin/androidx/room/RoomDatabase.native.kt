@@ -20,6 +20,7 @@ import androidx.annotation.RestrictTo
 import androidx.room.migration.AutoMigrationSpec
 import androidx.room.migration.Migration
 import androidx.sqlite.SQLiteDriver
+import androidx.sqlite.SQLiteStatement
 import kotlin.reflect.KClass
 
 /**
@@ -162,6 +163,39 @@ actual abstract class RoomDatabase {
      */
     actual fun close() {
         connectionManager.close()
+    }
+
+    /**
+     * Performs a database operation.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    actual suspend fun <R> perform(
+        isReadOnly: Boolean,
+        sql: String,
+        block: (SQLiteStatement) -> R
+    ): R {
+        return connectionManager.useConnection(isReadOnly) { connection ->
+            connection.usePrepared(sql, block)
+        }
+    }
+
+    /**
+     * Performs a database operation in a transaction.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    actual suspend fun <R> performTransaction(
+        isReadOnly: Boolean,
+        block: suspend (TransactionScope<R>) -> R
+    ): R {
+        return connectionManager.useConnection(isReadOnly) { transactor ->
+            val type = if (isReadOnly) {
+                Transactor.SQLiteTransactionType.DEFERRED
+            } else {
+                Transactor.SQLiteTransactionType.IMMEDIATE
+            }
+            // TODO: Notify Invalidation Tracker before and after transaction block.
+            transactor.withTransaction(type, block)
+        }
     }
 
     /**
