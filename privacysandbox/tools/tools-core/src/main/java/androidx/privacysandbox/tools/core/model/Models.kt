@@ -65,8 +65,10 @@ object Types {
     val any = Type("kotlin", simpleName = "Any")
     val sandboxedUiAdapter =
         Type(packageName = "androidx.privacysandbox.ui.core", simpleName = "SandboxedUiAdapter")
-    val sdkActivityLauncher =
-        Type(packageName = "androidx.privacysandbox.ui.core", simpleName = "SdkActivityLauncher")
+    val sdkActivityLauncher = Type(
+        packageName = "androidx.privacysandbox.activity.core",
+        simpleName = "SdkActivityLauncher"
+    )
 
     fun list(elementType: Type) = Type(
         packageName = "kotlin.collections",

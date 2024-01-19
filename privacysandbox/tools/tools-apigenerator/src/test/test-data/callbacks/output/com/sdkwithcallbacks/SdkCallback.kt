@@ -1,6 +1,6 @@
 package com.sdkwithcallbacks
 
-import androidx.privacysandbox.ui.core.SdkActivityLauncher
+import androidx.privacysandbox.activity.core.SdkActivityLauncher
 
 public interface SdkCallback {
     public fun onCompleteInterface(myInterface: MyInterface)
