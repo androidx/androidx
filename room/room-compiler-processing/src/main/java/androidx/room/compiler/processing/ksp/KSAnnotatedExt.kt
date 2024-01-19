@@ -37,12 +37,11 @@ internal fun KSAnnotated.hasJvmDefaultAnnotation() = hasAnnotationWithQName("kot
  * Return a reference to the containing file or class declaration via a wrapper that implements the
  * [javax.lang.model.element.Element] API so that we can report it to JavaPoet.
  */
-internal fun KSAnnotated.wrapAsOriginatingElement(): OriginatingElementWrapper? {
-    val ksDeclaration = this as? KSDeclaration ?: return null
-
+internal fun KSAnnotated.wrapAsOriginatingElement(): OriginatingElementWrapper {
+    val ksDeclaration = this as KSDeclaration
+    // Use the source file as originating element if the KSAnnotated is from a source file, and use
+    // the class declaration if it's from a compiled class file.
     return ksDeclaration.containingFile?.let {
         KSFileAsOriginatingElement(it)
-    } ?: (ksDeclaration as? KSClassDeclaration)?.let {
-        KSClassDeclarationAsOriginatingElement(it)
-    }
+    } ?: KSClassDeclarationAsOriginatingElement(ksDeclaration as KSClassDeclaration)
 }

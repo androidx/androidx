@@ -164,8 +164,8 @@ internal fun XElement.originatingElementForPoet(): Element {
             field.declaration.wrapAsOriginatingElement()
         }
         is KspMemberContainer -> {
-            declaration?.wrapAsOriginatingElement()
+            declaration!!.wrapAsOriginatingElement()
         }
-        else -> null
-    } ?: error("Originating element is not implemented for ${this.javaClass}")
+        else -> error("Originating element is not implemented for ${this.javaClass}")
+    }
 }
