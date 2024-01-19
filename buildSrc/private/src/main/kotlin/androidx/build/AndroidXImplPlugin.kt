@@ -20,7 +20,6 @@ import androidx.benchmark.gradle.BenchmarkPlugin
 import androidx.build.AndroidXImplPlugin.Companion.TASK_TIMEOUT_MINUTES
 import androidx.build.Release.DEFAULT_PUBLISH_CONFIG
 import androidx.build.buildInfo.addCreateLibraryBuildInfoFileTasks
-import androidx.build.checkapi.AndroidMultiplatformApiTaskConfig
 import androidx.build.checkapi.JavaApiTaskConfig
 import androidx.build.checkapi.KmpApiTaskConfig
 import androidx.build.checkapi.LibraryApiTaskConfig
@@ -55,7 +54,6 @@ import com.android.build.gradle.LibraryPlugin
 import com.android.build.gradle.TestExtension
 import com.android.build.gradle.TestPlugin
 import com.android.build.gradle.TestedExtension
-import com.android.build.gradle.api.KotlinMultiplatformAndroidPlugin
 import com.android.build.gradle.tasks.factory.AndroidUnitTest
 import java.io.File
 import java.time.Duration
@@ -141,17 +139,10 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
                 is LibraryPlugin -> configureWithLibraryPlugin(project, androidXExtension)
                 is AppPlugin -> configureWithAppPlugin(project, androidXExtension)
                 is TestPlugin -> configureWithTestPlugin(project, androidXExtension)
-                is KotlinMultiplatformAndroidPlugin ->
-                    configureWithKotlinMultiplatformAndroidPlugin(
-                        project,
-                        androidXKmpExtension.agpKmpExtension,
-                        androidXExtension
-                    )
                 is KotlinBasePluginWrapper -> configureWithKotlinPlugin(
                     project,
                     androidXExtension,
-                    plugin,
-                    androidXKmpExtension
+                    plugin
                 )
             }
         }
@@ -176,14 +167,16 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
 
         project.configureTaskTimeouts()
         project.configureMavenArtifactUpload(
-            androidXExtension, androidXKmpExtension, componentFactory) {
-            project.addCreateLibraryBuildInfoFileTasks(androidXExtension)
-        }
+            androidXExtension,
+            androidXKmpExtension,
+            componentFactory
+        )
         project.publishInspectionArtifacts()
         project.configureExternalDependencyLicenseCheck()
         project.configureProjectStructureValidation(androidXExtension)
         project.configureProjectVersionValidation(androidXExtension)
         project.registerProjectOrArtifact()
+        project.addCreateLibraryBuildInfoFileTasks(androidXExtension)
         project.validateMultiplatformPluginHasNotBeenApplied()
 
         project.tasks.register("printCoordinates", PrintProjectCoordinatesTask::class.java) {
@@ -429,8 +422,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
     private fun configureWithKotlinPlugin(
         project: Project,
         androidXExtension: AndroidXExtension,
-        plugin: KotlinBasePluginWrapper,
-        androidXMultiplatformExtension: AndroidXMultiplatformExtension
+        plugin: KotlinBasePluginWrapper
     ) {
         project.configureKtfmt()
 
@@ -490,17 +482,16 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
         if (plugin is KotlinMultiplatformPluginWrapper) {
             KonanPrebuiltsSetup.configureKonanDirectory(project)
             KmpLinkTaskWorkaround.serializeLinkTasks(project)
-            project.afterEvaluate {
-                val libraryExtension = project.extensions.findByType<LibraryExtension>()
-                if (libraryExtension != null) {
-                    libraryExtension.configureAndroidLibraryWithMultiplatformPluginOptions()
-                } else if (!androidXMultiplatformExtension.hasAndroidMultiplatform()) {
-                    // Kotlin MPP does not apply java plugin anymore, but we still want to configure
-                    // all java-related tasks.
-                    // We only need to do this when project does not have Android plugin, which already
-                    // configures Java tasks.
-                    configureWithJavaPlugin(project, androidXExtension)
-                }
+
+            val libraryExtension = project.extensions.findByType<LibraryExtension>()
+            if (libraryExtension != null) {
+                libraryExtension.configureAndroidLibraryWithMultiplatformPluginOptions()
+            } else {
+                // Kotlin MPP does not apply java plugin anymore, but we still want to configure
+                // all java-related tasks.
+                // We only need to do this when project does not have Android plugin, which already
+                // configures Java tasks.
+                configureWithJavaPlugin(project, androidXExtension)
             }
             project.configureKmp()
             project.configureSourceJarForMultiplatform(androidXExtension)
@@ -557,6 +548,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
         project.addToProjectMap(androidXExtension)
     }
 
+    @Suppress("UNUSED")
     private fun configureWithKotlinMultiplatformAndroidPlugin(
         project: Project,
         kotlinMultiplatformAndroidTarget: KotlinMultiplatformAndroidTarget,
@@ -571,11 +563,6 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
         )
         kotlinMultiplatformAndroidTarget.configureAndroidLibraryOptions(
             project,
-            androidXExtension
-        )
-
-        project.configureProjectForApiTasks(
-            AndroidMultiplatformApiTaskConfig,
             androidXExtension
         )
     }
