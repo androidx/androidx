@@ -986,7 +986,7 @@ internal fun FakeClipboardManager(
         }
     }
 
-    override fun setClip(clipEntry: ClipEntry, clipMetadata: ClipMetadata?) {
+    override fun setClip(clipEntry: ClipEntry) {
         if (supportsClipEntry) {
             currentClipEntry = clipEntry
         } else {
