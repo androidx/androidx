@@ -16,8 +16,6 @@
 
 package androidx.compose.foundation.gestures.snapping
 
-import androidx.compose.foundation.ExperimentalFoundationApi
-
 /**
  * Provides information about the layout that is using a SnapFlingBehavior.
  * The provider should give the following information:
@@ -31,7 +29,6 @@ import androidx.compose.foundation.ExperimentalFoundationApi
  * we'll naturally decay if possible. In the snapping phase, [SnapFlingBehavior] will use an
  * animation to consume all of the offset provided by [calculateSnappingOffset].
  */
-@ExperimentalFoundationApi
 interface SnapLayoutInfoProvider {
 
     /**
