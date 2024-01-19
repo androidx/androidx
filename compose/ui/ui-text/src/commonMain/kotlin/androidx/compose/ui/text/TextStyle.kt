@@ -1405,8 +1405,8 @@ class TextStyle internal constructor(
     val textAlign: TextAlign get() = this.paragraphStyle.textAlign
 
     @Deprecated("Kept for backwards compatibility.", level = DeprecationLevel.WARNING)
-    @get:JvmName("getTextAlign")
-    @Suppress("unused")
+    @get:JvmName("getTextAlign-buA522U") // b/320819734
+    @Suppress("unused", "RedundantNullableReturnType", "PropertyName")
     val deprecated_boxing_textAlign: TextAlign? get() = this.textAlign
 
     /**
@@ -1417,8 +1417,8 @@ class TextStyle internal constructor(
     val textDirection: TextDirection get() = this.paragraphStyle.textDirection
 
     @Deprecated("Kept for backwards compatibility.", level = DeprecationLevel.WARNING)
-    @get:JvmName("getTextDirection")
-    @Suppress("unused")
+    @get:JvmName("getTextDirection-mmuk1to") // b/320819734
+    @Suppress("unused", "RedundantNullableReturnType", "PropertyName")
     val deprecated_boxing_textDirection: TextDirection? get() = this.textDirection
 
     /**
@@ -1447,8 +1447,8 @@ class TextStyle internal constructor(
     val hyphens: Hyphens get() = this.paragraphStyle.hyphens
 
     @Deprecated("Kept for backwards compatibility.", level = DeprecationLevel.WARNING)
-    @get:JvmName("getHyphens")
-    @Suppress("unused")
+    @get:JvmName("getHyphens-EaSxIns") // b/320819734
+    @Suppress("unused", "RedundantNullableReturnType", "PropertyName")
     val deprecated_boxing_hyphens: Hyphens? get() = this.hyphens
 
     /**
@@ -1457,8 +1457,8 @@ class TextStyle internal constructor(
     val lineBreak: LineBreak get() = this.paragraphStyle.lineBreak
 
     @Deprecated("Kept for backwards compatibility.", level = DeprecationLevel.WARNING)
-    @get:JvmName("getLineBreak")
-    @Suppress("unused")
+    @get:JvmName("getLineBreak-LgCVezo") // b/320819734
+    @Suppress("unused", "RedundantNullableReturnType", "PropertyName")
     val deprecated_boxing_lineBreak: LineBreak? get() = this.lineBreak
 
     /**

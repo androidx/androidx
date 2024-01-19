@@ -3,5 +3,25 @@ ChangedClass: androidx.compose.ui.text.input.PlatformImeOptions:
     Class androidx.compose.ui.text.input.PlatformImeOptions changed class/interface declaration
 
 
+ChangedType: androidx.compose.ui.text.ParagraphStyle#getHyphens():
+    Method androidx.compose.ui.text.ParagraphStyle.getHyphens has changed return type from androidx.compose.ui.text.style.Hyphens to int
+ChangedType: androidx.compose.ui.text.ParagraphStyle#getLineBreak():
+    Method androidx.compose.ui.text.ParagraphStyle.getLineBreak has changed return type from androidx.compose.ui.text.style.LineBreak to int
+ChangedType: androidx.compose.ui.text.ParagraphStyle#getTextAlign():
+    Method androidx.compose.ui.text.ParagraphStyle.getTextAlign has changed return type from androidx.compose.ui.text.style.TextAlign to int
+ChangedType: androidx.compose.ui.text.ParagraphStyle#getTextDirection():
+    Method androidx.compose.ui.text.ParagraphStyle.getTextDirection has changed return type from androidx.compose.ui.text.style.TextDirection to int
+
+
+InvalidNullConversion: androidx.compose.ui.text.ParagraphStyle#getHyphens():
+    Attempted to remove @Nullable annotation from method androidx.compose.ui.text.ParagraphStyle.getHyphens()
+InvalidNullConversion: androidx.compose.ui.text.ParagraphStyle#getLineBreak():
+    Attempted to remove @Nullable annotation from method androidx.compose.ui.text.ParagraphStyle.getLineBreak()
+InvalidNullConversion: androidx.compose.ui.text.ParagraphStyle#getTextAlign():
+    Attempted to remove @Nullable annotation from method androidx.compose.ui.text.ParagraphStyle.getTextAlign()
+InvalidNullConversion: androidx.compose.ui.text.ParagraphStyle#getTextDirection():
+    Attempted to remove @Nullable annotation from method androidx.compose.ui.text.ParagraphStyle.getTextDirection()
+
+
 RemovedClass: androidx.compose.ui.text.input.AndroidImeOptions:
     Removed class androidx.compose.ui.text.input.AndroidImeOptions
