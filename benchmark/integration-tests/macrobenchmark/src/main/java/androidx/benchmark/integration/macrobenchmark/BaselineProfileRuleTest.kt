@@ -43,6 +43,9 @@ class BaselineProfileRuleTest {
 
     @Before
     fun setup() {
+        // Mokey devices seem to behave differently (b/319515652) and the generated profile
+        // doesn't output the class symbol line. This makes the test fail. While we investigate
+        // the scope of the failure, suppress the test on this device
         assumeFalse(isMokeyDevice())
     }
 
