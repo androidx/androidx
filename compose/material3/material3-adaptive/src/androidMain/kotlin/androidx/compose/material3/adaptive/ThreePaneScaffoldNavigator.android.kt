@@ -81,7 +81,9 @@ interface ThreePaneScaffoldNavigator {
     fun canNavigateBack(scaffoldValueMustChange: Boolean = true): Boolean
 
     /**
-     * Navigates to the previous destination.
+     * Navigates to the previous destination. Returns `true` if there is a previous destination to
+     * navigate back to. When implementing this function, please make sure the logic is consistent
+     * with [canNavigateBack].
      *
      * @param popUntilScaffoldValueChange `true` if we should skip all backstack entries without any
      *        scaffold value changes. This may happen in a multi-pane scenario that both the current
