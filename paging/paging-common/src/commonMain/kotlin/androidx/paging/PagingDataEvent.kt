@@ -22,7 +22,6 @@ import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
 /**
  * Events captured from a [PagingData] that was submitted to the [PagingDataPresenter]
  */
-@RestrictTo(LIBRARY_GROUP)
 public sealed class PagingDataEvent<T : Any> {
     /**
      * A prepend load event
