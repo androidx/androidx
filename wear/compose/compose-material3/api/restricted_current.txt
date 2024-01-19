@@ -517,7 +517,6 @@ package androidx.wear.compose.material3 {
     method public long getUncheckedContentColor();
     method public long getUncheckedSecondaryContentColor();
     method public long getUncheckedSplitContainerColor();
-    method @androidx.compose.runtime.Composable public androidx.compose.runtime.State<androidx.compose.ui.graphics.Color> splitContainerColor(boolean enabled, boolean checked);
     property public final long checkedContainerColor;
     property public final long checkedContentColor;
     property public final long checkedSecondaryContentColor;
@@ -640,8 +639,6 @@ package androidx.wear.compose.material3 {
   @androidx.compose.runtime.Immutable public final class ToggleButtonColors {
     ctor public ToggleButtonColors(long checkedContainerColor, long checkedContentColor, long uncheckedContainerColor, long uncheckedContentColor, long disabledCheckedContainerColor, long disabledCheckedContentColor, long disabledUncheckedContainerColor, long disabledUncheckedContentColor);
     ctor public ToggleButtonColors(long checkedContainerColor, long checkedContentColor, long checkedSecondaryContentColor, long checkedIconColor, long uncheckedContainerColor, long uncheckedContentColor, long uncheckedSecondaryContentColor, long uncheckedIconColor, long disabledCheckedContainerColor, long disabledCheckedContentColor, long disabledCheckedSecondaryContentColor, long disabledCheckedIconColor, long disabledUncheckedContainerColor, long disabledUncheckedContentColor, long disabledUncheckedSecondaryContentColor, long disabledUncheckedIconColor);
-    method @androidx.compose.runtime.Composable public androidx.compose.runtime.State<androidx.compose.ui.graphics.Color> containerColor(boolean enabled, boolean checked);
-    method @androidx.compose.runtime.Composable public androidx.compose.runtime.State<androidx.compose.ui.graphics.Color> contentColor(boolean enabled, boolean checked);
     method public long getCheckedContainerColor();
     method public long getCheckedContentColor();
     method public long getCheckedIconColor();
@@ -658,8 +655,6 @@ package androidx.wear.compose.material3 {
     method public long getUncheckedContentColor();
     method public long getUncheckedIconColor();
     method public long getUncheckedSecondaryContentColor();
-    method @androidx.compose.runtime.Composable public androidx.compose.runtime.State<androidx.compose.ui.graphics.Color> iconColor(boolean enabled, boolean checked);
-    method @androidx.compose.runtime.Composable public androidx.compose.runtime.State<androidx.compose.ui.graphics.Color> secondaryContentColor(boolean enabled, boolean checked);
     property public final long checkedContainerColor;
     property public final long checkedContentColor;
     property public final long checkedIconColor;

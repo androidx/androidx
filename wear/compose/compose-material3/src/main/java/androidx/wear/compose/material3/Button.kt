@@ -39,9 +39,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.State
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -379,8 +378,7 @@ fun ChildButton(
  * label and secondaryLabel contents should be consistently aligned.
  * @param icon A slot for providing the button's icon. The contents are expected to be a
  * horizontally and vertically aligned icon of size [ButtonDefaults.IconSize] or
- * [ButtonDefaults.LargeIconSize]. In order to correctly render when the Button is not enabled,
- * the icon must set its alpha value to [LocalContentAlpha].
+ * [ButtonDefaults.LargeIconSize].
  * @param enabled Controls the enabled state of the button. When `false`, this button will not
  * be clickable
  * @param shape Defines the button's shape. It is strongly recommended to use the default as this
@@ -473,8 +471,7 @@ fun Button(
  * label and secondaryLabel contents should be consistently aligned.
  * @param icon A slot for providing the button's icon. The contents are expected to be a
  * horizontally and vertically aligned icon of size [ButtonDefaults.IconSize] or
- * [ButtonDefaults.LargeIconSize]. In order to correctly render when the Button is not enabled,
- * the icon must set its alpha value to [LocalContentAlpha].
+ * [ButtonDefaults.LargeIconSize].
  * @param enabled Controls the enabled state of the button. When `false`, this button will not
  * be clickable
  * @param shape Defines the button's shape. It is strongly recommended to use the default as this
@@ -561,8 +558,7 @@ fun FilledTonalButton(
  * label and secondaryLabel contents should be consistently aligned.
  * @param icon A slot for providing the button's icon. The contents are expected to be a
  * horizontally and vertically aligned icon of size [ButtonDefaults.IconSize] or
- * [ButtonDefaults.LargeIconSize]. In order to correctly render when the Button is not enabled,
- * the icon must set its alpha value to [LocalContentAlpha].
+ * [ButtonDefaults.LargeIconSize].
  * @param enabled Controls the enabled state of the button. When `false`, this button will not
  * be clickable
  * @param shape Defines the button's shape. It is strongly recommended to use the default as this
@@ -648,8 +644,7 @@ fun OutlinedButton(
  * label and secondaryLabel contents should be consistently aligned.
  * @param icon A slot for providing the button's icon. The contents are expected to be a
  * horizontally and vertically aligned icon of size [ButtonDefaults.IconSize] or
- * [ButtonDefaults.LargeIconSize]. In order to correctly render when the Button is not enabled,
- * the icon must set its alpha value to [LocalContentAlpha].
+ * [ButtonDefaults.LargeIconSize].
  * @param enabled Controls the enabled state of the button. When `false`, this button will not
  * be clickable
  * @param shape Defines the button's shape. It is strongly recommended to use the default as this
@@ -754,9 +749,7 @@ fun ChildButton(
  * which is "start" aligned if there is an icon preset and "center" aligned if not.
  * @param icon A slot for providing the button's icon. The contents are expected to be a
  * horizontally and vertically aligned icon of size [ButtonDefaults.SmallIconSize] when used
- * with a label or [ButtonDefaults.IconSize] when used as the only content in the button. In order
- * to correctly render when the button is not enabled the icon must set its
- * alpha value to [LocalContentAlpha].
+ * with a label or [ButtonDefaults.IconSize] when used as the only content in the button.
  * @param colors [ButtonColors] that will be used to resolve the background and content color for
  * this button in different states. See [ButtonDefaults.filledButtonColors].
  * @param enabled Controls the enabled state of the button. When `false`, this button will not
@@ -838,9 +831,10 @@ object ButtonDefaults {
     /**
      * Creates a [ButtonColors] with colored background and contrasting content color,
      * the defaults for high emphasis buttons like [Button], for the primary, most important
-     * or most common action on a screen. If a button is disabled then the content will have
-     * an alpha([ContentAlpha.disabled]) value applied and container/border colors will be
-     * muted.
+     * or most common action on a screen.
+     *
+     * If a button is disabled then the content will have an alpha([DisabledContentAlpha]) value
+     * applied and container will have an alpha([DisabledContainerAlpha]) value applied.
      *
      * @param containerColor The background color of this [Button] when enabled
      * @param contentColor The content color of this [Button] when enabled
@@ -893,8 +887,8 @@ object ButtonDefaults {
      * other onscreen elements, such as final or unblocking actions in a flow with less emphasis
      * than [filledButtonColors].
      *
-     * If a button is disabled then the content will have an alpha([ContentAlpha.disabled])
-     * value applied and container/border colors will be muted.
+     * If a button is disabled then the content will have an alpha([DisabledContentAlpha])
+     * value applied and container will have alpha ([DisabledContainerAlpha]) value applied.
      *
      * @param containerColor The background color of this [Button] when enabled
      * @param contentColor The content color of this [Button] when enabled
@@ -947,8 +941,8 @@ object ButtonDefaults {
      * [ButtonDefaults.outlinedButtonBorder]), the defaults for medium emphasis buttons
      * like [OutlinedButton], for important, non-primary actions that need attention.
      *
-     * If a button is disabled then the content will have an alpha([ContentAlpha.disabled])
-     * value applied and container/border colors will be muted.
+     * If a button is disabled then the content will have an alpha([DisabledContentAlpha])
+     * value applied and container will have an alpha([DisabledContainerAlpha]) applied.
      *
      * @param contentColor The content color of this [Button] when enabled
      * @param secondaryContentColor The secondary content color of this [Button] when enabled, used
@@ -993,8 +987,8 @@ object ButtonDefaults {
      * buttons like [ChildButton]. Use [childButtonColors] for optional or supplementary
      * actions with the least amount of prominence.
      *
-     * If a button is disabled then the content will have an alpha([ContentAlpha.disabled])
-     * value applied and container/border colors will be muted.
+     * If a button is disabled then the content will have an alpha([DisabledContentAlpha])
+     * value applied and container will have an alpha([DisabledContainerAlpha]) value applied.
      *
      * @param contentColor The content color of this [Button] when enabled
      * @param secondaryContentColor The secondary content color of this [Button] when enabled, used
@@ -1314,11 +1308,9 @@ class ButtonColors constructor(
      *
      * @param enabled whether the button is enabled
      */
-    @Composable
-    internal fun containerPainter(enabled: Boolean): State<Painter> {
-        return rememberUpdatedState(
-            if (enabled) containerPainter else disabledContainerPainter
-        )
+    @Stable
+    internal fun containerPainter(enabled: Boolean): Painter {
+        return if (enabled) containerPainter else disabledContainerPainter
     }
 
     /**
@@ -1326,11 +1318,9 @@ class ButtonColors constructor(
      *
      * @param enabled whether the button is enabled
      */
-    @Composable
-    internal fun contentColor(enabled: Boolean): State<Color> {
-        return rememberUpdatedState(
-            if (enabled) contentColor else disabledContentColor
-        )
+    @Stable
+    internal fun contentColor(enabled: Boolean): Color {
+        return if (enabled) contentColor else disabledContentColor
     }
 
     /**
@@ -1338,11 +1328,9 @@ class ButtonColors constructor(
      *
      * @param enabled Whether the button is enabled
      */
-    @Composable
-    internal fun secondaryContentColor(enabled: Boolean): State<Color> {
-        return rememberUpdatedState(
-            if (enabled) secondaryContentColor else disabledSecondaryContentColor
-        )
+    @Stable
+    internal fun secondaryContentColor(enabled: Boolean): Color {
+        return if (enabled) secondaryContentColor else disabledSecondaryContentColor
     }
 
     /**
@@ -1350,9 +1338,9 @@ class ButtonColors constructor(
      *
      * @param enabled Whether the button is enabled
      */
-    @Composable
-    internal fun iconColor(enabled: Boolean): State<Color> {
-        return rememberUpdatedState(if (enabled) iconColor else disabledIconColor)
+    @Stable
+    internal fun iconColor(enabled: Boolean): Color {
+        return if (enabled) iconColor else disabledIconColor
     }
 
     override fun equals(other: Any?): Boolean {
@@ -1420,7 +1408,7 @@ private fun ButtonImpl(
             .clip(shape = shape)
             .width(intrinsicSize = IntrinsicSize.Max)
             .paint(
-                painter = colors.containerPainter(enabled = enabled).value,
+                painter = colors.containerPainter(enabled = enabled),
                 contentScale = ContentScale.Crop
             )
             .clickable(

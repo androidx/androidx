@@ -571,7 +571,7 @@ class ToggleButtonColors constructor(
      * @param checked Whether the toggle button is checked
      */
     @Composable
-    fun containerColor(enabled: Boolean, checked: Boolean): State<Color> =
+    internal fun containerColor(enabled: Boolean, checked: Boolean): State<Color> =
         animateSelectionColor(
             enabled = enabled,
             checked = checked,
@@ -590,7 +590,7 @@ class ToggleButtonColors constructor(
      * @param checked Whether the toggle button is checked
      */
     @Composable
-    fun contentColor(enabled: Boolean, checked: Boolean): State<Color> =
+    internal fun contentColor(enabled: Boolean, checked: Boolean): State<Color> =
         animateSelectionColor(
             enabled = enabled,
             checked = checked,
@@ -608,7 +608,7 @@ class ToggleButtonColors constructor(
      * @param checked Whether the ToggleButton is currently checked or unchecked.
      */
     @Composable
-    fun secondaryContentColor(enabled: Boolean, checked: Boolean): State<Color> =
+    internal fun secondaryContentColor(enabled: Boolean, checked: Boolean): State<Color> =
         animateSelectionColor(
             enabled = enabled,
             checked = checked,
@@ -627,7 +627,7 @@ class ToggleButtonColors constructor(
      * @param checked Whether the ToggleButton is currently checked or unchecked.
      */
     @Composable
-    fun iconColor(enabled: Boolean, checked: Boolean): State<Color> =
+    internal fun iconColor(enabled: Boolean, checked: Boolean): State<Color> =
         animateSelectionColor(
             enabled = enabled,
             checked = checked,
@@ -811,7 +811,7 @@ class SplitToggleButtonColors constructor(
      * @param checked Whether the [SplitToggleButton] is currently checked or unchecked.
      */
     @Composable
-    fun splitContainerColor(enabled: Boolean, checked: Boolean): State<Color> =
+    internal fun splitContainerColor(enabled: Boolean, checked: Boolean): State<Color> =
         animateSelectionColor(
             enabled = enabled,
             checked = checked,
