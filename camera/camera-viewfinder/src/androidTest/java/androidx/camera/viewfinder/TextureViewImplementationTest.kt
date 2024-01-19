@@ -78,7 +78,6 @@ class TextureViewImplementationTest {
         if (_surfaceRequest != null) {
             _surfaceRequest!!.willNotProvideSurface()
             // Ensure all successful requests have their returned future finish.
-            _surfaceRequest!!.getSurface().close()
             _surfaceRequest = null
         }
     }
@@ -91,7 +90,7 @@ class TextureViewImplementationTest {
     fun doNotProvideSurface_ifSurfaceTextureNotAvailableYet() {
         val request = surfaceRequest
         implementation!!.onSurfaceRequested(request)
-        request.getSurface().getSurfaceAsync()[2, TimeUnit.SECONDS]
+        request.getSurfaceAsync()[2, TimeUnit.SECONDS]
     }
 
     @Test
@@ -99,7 +98,7 @@ class TextureViewImplementationTest {
     fun provideSurface_ifSurfaceTextureAvailable() {
         val surfaceRequest = surfaceRequest
         implementation!!.onSurfaceRequested(surfaceRequest)
-        val surfaceListenableFuture = surfaceRequest.getSurface().getSurfaceAsync()
+        val surfaceListenableFuture = surfaceRequest.getSurfaceAsync()
         implementation!!.mTextureView
             ?.surfaceTextureListener!!
             .onSurfaceTextureAvailable(surfaceTexture!!, ANY_WIDTH, ANY_HEIGHT)
@@ -112,7 +111,7 @@ class TextureViewImplementationTest {
     fun doNotDestroySurface_whenSurfaceTextureBeingDestroyed_andCameraUsingSurface() {
         val surfaceRequest = surfaceRequest
         implementation!!.onSurfaceRequested(surfaceRequest)
-        val surfaceListenableFuture = surfaceRequest.getSurface().getSurfaceAsync()
+        val surfaceListenableFuture = surfaceRequest.getSurfaceAsync()
         val surfaceTextureListener = implementation!!.mTextureView?.surfaceTextureListener
         surfaceTextureListener!!.onSurfaceTextureAvailable(surfaceTexture!!, ANY_WIDTH, ANY_HEIGHT)
         surfaceListenableFuture.get()
@@ -130,12 +129,11 @@ class TextureViewImplementationTest {
     fun destroySurface_whenSurfaceTextureBeingDestroyed_andCameraNotUsingSurface() {
         val surfaceRequest = surfaceRequest
         implementation!!.onSurfaceRequested(surfaceRequest)
-        val deferrableSurface = surfaceRequest.getSurface()
-        val surfaceListenableFuture = deferrableSurface.getSurfaceAsync()
+        val surfaceListenableFuture = surfaceRequest.getSurfaceAsync()
         val surfaceTextureListener = implementation!!.mTextureView?.surfaceTextureListener
         surfaceTextureListener!!.onSurfaceTextureAvailable(surfaceTexture!!, ANY_WIDTH, ANY_HEIGHT)
         surfaceListenableFuture.get()
-        deferrableSurface.close()
+        surfaceRequest.markSurfaceSafeToRelease()
 
         // Wait enough time for surfaceReleaseFuture's listener to be called
         Thread.sleep(1000)
@@ -153,13 +151,12 @@ class TextureViewImplementationTest {
     fun releaseSurfaceTexture_afterSurfaceTextureDestroyed_andCameraNoLongerUsingSurface() {
         val surfaceRequest = surfaceRequest
         implementation!!.onSurfaceRequested(surfaceRequest)
-        val deferrableSurface = surfaceRequest.getSurface()
-        val surfaceListenableFuture = deferrableSurface.getSurfaceAsync()
+        val surfaceListenableFuture = surfaceRequest.getSurfaceAsync()
         val surfaceTextureListener = implementation!!.mTextureView?.surfaceTextureListener
         surfaceTextureListener!!.onSurfaceTextureAvailable(surfaceTexture!!, ANY_WIDTH, ANY_HEIGHT)
         surfaceListenableFuture.get()
         surfaceTextureListener.onSurfaceTextureDestroyed(surfaceTexture!!)
-        deferrableSurface.close()
+        surfaceRequest.markSurfaceSafeToRelease()
 
         // Wait enough time for surfaceReleaseFuture's listener to be called
         Thread.sleep(1000)
@@ -176,7 +173,7 @@ class TextureViewImplementationTest {
         val surfaceRequest = surfaceRequest
         implementation!!.onSurfaceRequested(surfaceRequest)
         // Cancel the request from the camera side
-        surfaceRequest.getSurface().getSurfaceAsync().cancel(true)
+        surfaceRequest.getSurfaceAsync().cancel(true)
 
         // Wait enough time for mCompleter's cancellation listener to be called
         Thread.sleep(1000)
@@ -213,8 +210,7 @@ class TextureViewImplementationTest {
     fun resetSurfaceTextureOnDetachAndAttachWindow() {
         val surfaceRequest = surfaceRequest
         implementation!!.onSurfaceRequested(surfaceRequest)
-        val deferrableSurface = surfaceRequest.getSurface()
-        val surfaceListenableFuture = deferrableSurface.getSurfaceAsync()
+        val surfaceListenableFuture = surfaceRequest.getSurfaceAsync()
         val surfaceTextureListener = implementation!!.mTextureView?.surfaceTextureListener
         surfaceTextureListener!!.onSurfaceTextureAvailable(surfaceTexture!!, ANY_WIDTH, ANY_HEIGHT)
         surfaceListenableFuture.get()
@@ -232,14 +228,13 @@ class TextureViewImplementationTest {
     fun releaseDetachedSurfaceTexture_whenDeferrableSurfaceClose() {
         val surfaceRequest = surfaceRequest
         implementation!!.onSurfaceRequested(surfaceRequest)
-        val deferrableSurface = surfaceRequest.getSurface()
-        val surfaceListenableFuture = deferrableSurface.getSurfaceAsync()
+        val surfaceListenableFuture = surfaceRequest.getSurfaceAsync()
         val surfaceTextureListener = implementation!!.mTextureView?.surfaceTextureListener
         surfaceTextureListener!!.onSurfaceTextureAvailable(surfaceTexture!!, ANY_WIDTH, ANY_HEIGHT)
         surfaceListenableFuture.get()
         surfaceTextureListener.onSurfaceTextureDestroyed(surfaceTexture!!)
         Truth.assertThat(implementation!!.mDetachedSurfaceTexture).isNotNull()
-        deferrableSurface.close()
+        surfaceRequest.markSurfaceSafeToRelease();
 
         // Wait enough time for surfaceReleaseFuture's listener to be called
         Thread.sleep(1000)

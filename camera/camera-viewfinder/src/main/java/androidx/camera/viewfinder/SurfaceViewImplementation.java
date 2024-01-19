@@ -255,7 +255,9 @@ final class SurfaceViewImplementation extends ViewfinderImplementation {
         private void invalidateSurface() {
             if (mSurfaceRequest != null) {
                 Logger.d(TAG, "Surface invalidated " + mSurfaceRequest);
-                mSurfaceRequest.getSurface().close();
+                // TODO(b/323226220): Differentiate between surface being released by consumer
+                //  vs producer
+                mSurfaceRequest.markSurfaceSafeToRelease();
             }
         }
     }

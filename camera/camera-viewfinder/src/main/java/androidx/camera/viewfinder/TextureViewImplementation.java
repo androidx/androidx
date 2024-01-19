@@ -97,7 +97,7 @@ final class TextureViewImplementation extends ViewfinderImplementation {
                 if (mSurfaceReleaseFuture != null && mSurfaceRequest != null) {
                     Preconditions.checkNotNull(mSurfaceRequest);
                     Logger.d(TAG, "Surface invalidated " + mSurfaceRequest);
-                    mSurfaceRequest.getSurface().close();
+                    mSurfaceRequest.markSurfaceSafeToRelease();
                 } else {
                     tryToProvideViewfinderSurface();
                 }
