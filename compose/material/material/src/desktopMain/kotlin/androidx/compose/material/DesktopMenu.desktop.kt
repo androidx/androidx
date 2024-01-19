@@ -156,7 +156,7 @@ fun DropdownMenu(
     ReplaceWith("DropdownMenu(expanded, onDismissRequest, modifier, offset, scrollState," +
         "androidx.compose.ui.window.PopupProperties(focusable = focusable), " +
         "content)"),
-    level = DeprecationLevel.WARNING // TODO: Change to DeprecationLevel.HIDDEN in 1.6
+    level = DeprecationLevel.HIDDEN
 )
 @Composable
 fun DropdownMenu(
@@ -179,7 +179,7 @@ fun DropdownMenu(
 
 
 // Workaround for `Overload resolution ambiguity` between old and new overload.
-// TODO: Deprecate with DeprecationLevel.HIDDEN in 1.6
+@Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
 @Composable
 fun DropdownMenu(
     expanded: Boolean,
