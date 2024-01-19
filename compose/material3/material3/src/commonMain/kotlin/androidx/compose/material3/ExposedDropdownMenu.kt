@@ -117,6 +117,7 @@ interface ExposedDropdownMenuBoxScope {
      * @param modifier the [Modifier] to be applied to this menu
      * @param content the content of the menu
      */
+    @Suppress("ABSTRACT_COMPOSABLE_DEFAULT_PARAMETER_VALUE")
     @Composable
     fun ExposedDropdownMenu(
         expanded: Boolean,
