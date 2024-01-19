@@ -17,13 +17,10 @@
 package androidx.work
 
 import android.content.Context
-import androidx.work.impl.utils.futures.SettableFuture
 import com.google.common.util.concurrent.ListenableFuture
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
 
 /**
  * A [ListenableWorker] implementation that provides interop with Kotlin Coroutines.  Override
@@ -40,20 +37,6 @@ public abstract class CoroutineWorker(
     params: WorkerParameters
 ) : ListenableWorker(appContext, params) {
 
-    internal val job = Job()
-    internal val future: SettableFuture<Result> = SettableFuture.create()
-
-    init {
-        future.addListener(
-            Runnable {
-                if (future.isCancelled) {
-                    job.cancel()
-                }
-            },
-            taskExecutor.serialTaskExecutor
-        )
-    }
-
     /**
      * The coroutine context on which [doWork] will run. By default, this is [Dispatchers.Default].
      */
@@ -62,16 +45,7 @@ public abstract class CoroutineWorker(
 
     @Suppress("DEPRECATION")
     public final override fun startWork(): ListenableFuture<Result> {
-        val coroutineScope = CoroutineScope(coroutineContext + job)
-        coroutineScope.launch {
-            try {
-                val result = doWork()
-                future.set(result)
-            } catch (t: Throwable) {
-                future.setException(t)
-            }
-        }
-        return future
+        return launchFuture(coroutineContext + Job()) { doWork() }
     }
 
     /**
@@ -127,17 +101,10 @@ public abstract class CoroutineWorker(
 
     @Suppress("DEPRECATION")
     public final override fun getForegroundInfoAsync(): ListenableFuture<ForegroundInfo> {
-        val job = Job()
-        val scope = CoroutineScope(coroutineContext + job)
-        val jobFuture = JobListenableFuture<ForegroundInfo>(job)
-        scope.launch {
-            jobFuture.complete(getForegroundInfo())
-        }
-        return jobFuture
+        return launchFuture(coroutineContext + Job()) { getForegroundInfo() }
     }
 
     public final override fun onStopped() {
         super.onStopped()
-        future.cancel(false)
     }
 }

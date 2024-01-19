@@ -19,16 +19,19 @@
 package androidx.work
 
 import androidx.annotation.RestrictTo
-import androidx.concurrent.futures.CallbackToFutureAdapter
-import androidx.work.impl.utils.futures.SettableFuture
+import androidx.concurrent.futures.CallbackToFutureAdapter.getFuture
 import com.google.common.util.concurrent.ListenableFuture
-import java.util.concurrent.CancellationException
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.Executor
 import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 
 /**
@@ -49,7 +52,7 @@ public suspend inline fun <R> ListenableFuture<R>.await(): R {
     }
     return suspendCancellableCoroutine { cancellableContinuation ->
         addListener(
-            Runnable {
+            {
                 try {
                     cancellableContinuation.resume(get())
                 } catch (throwable: Throwable) {
@@ -69,39 +72,34 @@ public suspend inline fun <R> ListenableFuture<R>.await(): R {
     }
 }
 
-/**
- * A special [Job] to [ListenableFuture] wrapper.
- */
-internal class JobListenableFuture<R>(
-    private val job: Job,
-    private val underlying: SettableFuture<R> = SettableFuture.create()
-) : ListenableFuture<R> by underlying {
-
-    public fun complete(result: R) {
-        underlying.set(result)
-    }
-
-    init {
-        job.invokeOnCompletion { throwable: Throwable? ->
-            when (throwable) {
-                null -> require(underlying.isDone)
-                is CancellationException -> underlying.cancel(true)
-                else -> underlying.setException(throwable.cause ?: throwable)
-            }
+internal fun <T> launchFuture(
+    context: CoroutineContext = EmptyCoroutineContext,
+    block: suspend CoroutineScope.() -> T,
+): ListenableFuture<T> = getFuture { completer ->
+    val job = context[Job]
+    completer.addCancellationListener({ job?.cancel() }, DirectExecutor.INSTANCE)
+    CoroutineScope(context).launch {
+        try {
+            val result = block()
+            completer.set(result)
+        } catch (_: CancellationException) {
+            completer.setCancelled()
+        } catch (throwable: Throwable) {
+            completer.setException(throwable)
         }
     }
 }
 
 internal fun <V> Executor.executeAsync(debugTag: String, block: () -> V): ListenableFuture<V> =
-    CallbackToFutureAdapter.getFuture { completer ->
+    getFuture { completer ->
         val cancelled = AtomicBoolean(false)
         completer.addCancellationListener({ cancelled.set(true) }, DirectExecutor.INSTANCE)
         execute {
             if (cancelled.get()) return@execute
             try {
                 completer.set(block())
-            } catch (t: Throwable) {
-                completer.setException(t)
+            } catch (throwable: Throwable) {
+                completer.setException(throwable)
             }
         }
         debugTag
