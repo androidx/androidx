@@ -25,17 +25,13 @@ import androidx.compose.runtime.staticCompositionLocalOf
  * Composition local for SafeArea of ComposeUIViewController
  */
 @InternalComposeApi
-val LocalSafeArea = staticCompositionLocalOf<PlatformInsets> {
-    error("CompositionLocal LocalSafeArea not present")
-}
+val LocalSafeArea = staticCompositionLocalOf { PlatformInsets.Zero }
 
 /**
  * Composition local for layoutMargins of ComposeUIViewController
  */
 @InternalComposeApi
-val LocalLayoutMargins = staticCompositionLocalOf<PlatformInsets> {
-    error("CompositionLocal LocalLayoutMargins not present")
-}
+val LocalLayoutMargins = staticCompositionLocalOf { PlatformInsets.Zero }
 
 @OptIn(InternalComposeApi::class)
 private object SafeAreaInsetsConfig : InsetsConfig {

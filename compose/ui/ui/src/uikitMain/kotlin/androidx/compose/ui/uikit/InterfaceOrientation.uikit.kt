@@ -18,7 +18,6 @@ package androidx.compose.ui.uikit
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.InternalComposeApi
-import androidx.compose.runtime.State
 import androidx.compose.runtime.staticCompositionLocalOf
 import platform.UIKit.*
 
@@ -35,7 +34,7 @@ enum class InterfaceOrientation(private val rawValue: UIInterfaceOrientation) {
 
     companion object {
         fun getByRawValue(orientation: UIInterfaceOrientation): InterfaceOrientation? {
-            return values().firstOrNull {
+            return entries.firstOrNull {
                 it.rawValue == orientation
             }
         }
@@ -46,6 +45,4 @@ enum class InterfaceOrientation(private val rawValue: UIInterfaceOrientation) {
  * Composition local for [InterfaceOrientation]
  */
 @InternalComposeApi
-val LocalInterfaceOrientation = staticCompositionLocalOf<InterfaceOrientation> {
-    error("CompositionLocal LocalInterfaceOrientation not present")
-}
+val LocalInterfaceOrientation = staticCompositionLocalOf { InterfaceOrientation.Portrait }

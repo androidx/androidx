@@ -40,7 +40,7 @@ internal interface UIKitInteropTransaction {
     companion object {
         val empty = object : UIKitInteropTransaction {
             override val actions: List<UIKitInteropAction>
-                get() = listOf()
+                get() = emptyList()
 
             override val state: UIKitInteropState
                 get() = UIKitInteropState.UNCHANGED
