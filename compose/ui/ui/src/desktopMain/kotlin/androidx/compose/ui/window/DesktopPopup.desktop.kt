@@ -160,12 +160,12 @@ fun Popup(
     content: @Composable () -> Unit
 ) {
     PopupLayout(
-        popupPositionProvider,
-        focusable,
-        if (focusable) onDismissRequest else null,
-        onPreviewKeyEvent,
-        onKeyEvent,
-        content
+        popupPositionProvider = popupPositionProvider,
+        focusable = focusable,
+        onDismissRequest = if (focusable) onDismissRequest else null,
+        onPreviewKeyEvent = onPreviewKeyEvent,
+        onKeyEvent = onKeyEvent,
+        content = content
     )
 }
 
@@ -251,10 +251,11 @@ actual fun Popup(
 }
 
 @Composable
-private fun PopupLayout(
+internal fun PopupLayout(
     popupPositionProvider: PopupPositionProvider,
     focusable: Boolean,
     onDismissRequest: (() -> Unit)?,
+    modifier: Modifier = Modifier,
     onPreviewKeyEvent: ((KeyEvent) -> Boolean) = { false },
     onKeyEvent: ((KeyEvent) -> Boolean) = { false },
     content: @Composable () -> Unit
@@ -297,6 +298,7 @@ private fun PopupLayout(
         val composition = owner.setContent(parent = parentComposition) {
             Layout(
                 content = content,
+                modifier = modifier,
                 measurePolicy = { measurables, constraints ->
                     val width = constraints.maxWidth
                     val height = constraints.maxHeight
