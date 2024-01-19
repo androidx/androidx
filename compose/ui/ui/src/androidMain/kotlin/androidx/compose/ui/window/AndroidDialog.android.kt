@@ -85,14 +85,26 @@ import java.util.UUID
  * set to `false` for Android [R][Build.VERSION_CODES.R] and earlier.
  */
 @Immutable
-class DialogProperties constructor(
-    val dismissOnBackPress: Boolean = true,
-    val dismissOnClickOutside: Boolean = true,
+actual class DialogProperties constructor(
+    actual val dismissOnBackPress: Boolean = true,
+    actual val dismissOnClickOutside: Boolean = true,
     val securePolicy: SecureFlagPolicy = SecureFlagPolicy.Inherit,
-    val usePlatformDefaultWidth: Boolean = true,
+    actual val usePlatformDefaultWidth: Boolean = true,
     val decorFitsSystemWindows: Boolean = true
 ) {
+    actual constructor(
+        dismissOnBackPress: Boolean,
+        dismissOnClickOutside: Boolean,
+        usePlatformDefaultWidth: Boolean,
+    ) : this(
+        dismissOnBackPress = dismissOnBackPress,
+        dismissOnClickOutside = dismissOnClickOutside,
+        securePolicy = SecureFlagPolicy.Inherit,
+        usePlatformDefaultWidth = usePlatformDefaultWidth,
+        decorFitsSystemWindows = true
+    )
 
+    @Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
     constructor(
         dismissOnBackPress: Boolean = true,
         dismissOnClickOutside: Boolean = true,
@@ -148,9 +160,9 @@ class DialogProperties constructor(
  * @param content The content to be displayed inside the dialog.
  */
 @Composable
-fun Dialog(
+actual fun Dialog(
     onDismissRequest: () -> Unit,
-    properties: DialogProperties = DialogProperties(),
+    properties: DialogProperties,
     content: @Composable () -> Unit
 ) {
     val view = LocalView.current
