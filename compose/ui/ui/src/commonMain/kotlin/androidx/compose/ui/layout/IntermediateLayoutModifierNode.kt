@@ -19,6 +19,7 @@ package androidx.compose.ui.layout
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.GraphicsLayerScope
+import androidx.compose.ui.internal.checkPreconditionNotNull
 import androidx.compose.ui.node.LayoutModifierNode
 import androidx.compose.ui.node.NodeMeasuringIntrinsics
 import androidx.compose.ui.node.Nodes
@@ -84,7 +85,7 @@ internal class IntermediateLayoutModifierNode(
 
     override fun onAttach() {
         val coordinates = coordinator?.lookaheadDelegate?.lookaheadLayoutCoordinates
-        checkNotNull(coordinates) { "could not fetch lookahead coordinates" }
+        checkPreconditionNotNull(coordinates) { "could not fetch lookahead coordinates" }
 
         val closestLookaheadRoot = requireLayoutNode().lookaheadRoot
         closestLookaheadScope = if (closestLookaheadRoot?.isVirtualLookaheadRoot == true) {

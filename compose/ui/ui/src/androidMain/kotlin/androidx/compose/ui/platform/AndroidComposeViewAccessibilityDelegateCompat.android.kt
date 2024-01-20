@@ -56,6 +56,7 @@ import androidx.compose.ui.contentcapture.ContentCaptureManager
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.toComposeRect
+import androidx.compose.ui.internal.checkPreconditionNotNull
 import androidx.compose.ui.layout.boundsInParent
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.node.HitTestResult
@@ -446,7 +447,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         if (virtualViewId == AccessibilityNodeProviderCompat.HOST_VIEW_ID) {
             info.setParent(view.getParentForAccessibility() as? View)
         } else {
-            var parentId = checkNotNull(semanticsNode.parent?.id) {
+            var parentId = checkPreconditionNotNull(semanticsNode.parent?.id) {
                 "semanticsNode $virtualViewId has null parent"
             }
             if (parentId == view.semanticsOwner.unmergedRootSemanticsNode.id) {
@@ -2374,7 +2375,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
             // We do doing this search because the new configuration is set as a whole, so we
             // can't indicate which property is changed when setting the new configuration.
             val oldNode = previousSemanticsNodes[id] ?: continue
-            val newNode = checkNotNull(newSemanticsNodes[id]?.semanticsNode) {
+            val newNode = checkPreconditionNotNull(newSemanticsNodes[id]?.semanticsNode) {
                 "no value for specified key"
             }
 

@@ -267,7 +267,7 @@ class SeekableTransitionState<S>(
         targetState: S = this.targetState,
         @FloatRange(from = 0.0, to = 1.0) fraction: Float = 0f
     ) {
-        require(fraction in 0f..1f) {
+        requirePrecondition(fraction in 0f..1f) {
             "Expecting fraction between 0 and 1. Got $fraction"
         }
         val transition = transition ?: return
@@ -425,7 +425,7 @@ class SeekableTransitionState<S>(
     }
 
     override fun transitionConfigured(transition: Transition<S>) {
-        check(this.transition == null || transition == this.transition) {
+        checkPrecondition(this.transition == null || transition == this.transition) {
             "An instance of SeekableTransitionState has been used in different Transitions. " +
                 "Previous instance: ${this.transition}, new instance: $transition"
         }
@@ -996,7 +996,7 @@ class Transition<S> @PublishedApi internal constructor(
             val playTime =
                 if (durationScale > 0f) {
                     val scaledTime = (playTimeNanos - offsetTimeNanos) / durationScale
-                    check(!scaledTime.isNaN()) {
+                    checkPrecondition(!scaledTime.isNaN()) {
                         "Duration scale adjusted time is NaN. Duration scale: $durationScale," +
                             "playTimeNanos: $playTimeNanos, offsetTimeNanos: $offsetTimeNanos"
                     }

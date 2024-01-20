@@ -141,6 +141,7 @@ import androidx.compose.ui.input.pointer.ProcessResult
 import androidx.compose.ui.input.pointer.SuspendingPointerInputModifierNode
 import androidx.compose.ui.input.rotary.RotaryScrollEvent
 import androidx.compose.ui.input.rotary.onRotaryScrollEvent
+import androidx.compose.ui.internal.checkPreconditionNotNull
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.layout.PlacementScope
 import androidx.compose.ui.layout.RootMeasurePolicy
@@ -1490,7 +1491,7 @@ internal class AndroidComposeView(
 
         _inputModeManager.inputMode = if (isInTouchMode) Touch else Keyboard
 
-        val lifecycle = checkNotNull(viewTreeOwners?.lifecycleOwner?.lifecycle) {
+        val lifecycle = checkPreconditionNotNull(viewTreeOwners?.lifecycleOwner?.lifecycle) {
             "No lifecycle owner exists"
         }
         lifecycle.addObserver(this)
@@ -1510,7 +1511,7 @@ internal class AndroidComposeView(
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
         snapshotObserver.stopObserving()
-        val lifecycle = checkNotNull(viewTreeOwners?.lifecycleOwner?.lifecycle) {
+        val lifecycle = checkPreconditionNotNull(viewTreeOwners?.lifecycleOwner?.lifecycle) {
             "No lifecycle owner exists"
         }
         lifecycle.removeObserver(contentCaptureManager)

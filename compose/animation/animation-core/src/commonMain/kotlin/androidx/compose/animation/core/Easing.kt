@@ -106,7 +106,7 @@ class CubicBezierEasing(
     private val d: Float
 ) : Easing {
     init {
-        require(!a.isNaN() && !b.isNaN() && !c.isNaN() && !d.isNaN()) {
+        requirePrecondition(!a.isNaN() && !b.isNaN() && !c.isNaN() && !d.isNaN()) {
             "Parameters to CubicBezierEasing cannot be NaN. Actual parameters are: $a, $b, $c, $d."
         }
     }

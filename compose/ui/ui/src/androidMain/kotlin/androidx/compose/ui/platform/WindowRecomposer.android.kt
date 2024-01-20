@@ -35,6 +35,7 @@ import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.MotionDurationScale
 import androidx.compose.ui.R
 import androidx.compose.ui.internal.checkPrecondition
+import androidx.compose.ui.internal.checkPreconditionNotNull
 import androidx.core.os.HandlerCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -350,7 +351,7 @@ fun View.createLifecycleAwareWindowRecomposer(
     }
     val runRecomposeScope = CoroutineScope(contextWithClockAndMotionScale)
     val viewTreeLifecycle =
-        checkNotNull(lifecycle ?: findViewTreeLifecycleOwner()?.lifecycle) {
+        checkPreconditionNotNull(lifecycle ?: findViewTreeLifecycleOwner()?.lifecycle) {
             "ViewTreeLifecycleOwner not found from $this"
         }
 

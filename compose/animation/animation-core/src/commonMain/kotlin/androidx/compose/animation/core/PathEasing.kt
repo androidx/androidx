@@ -68,7 +68,7 @@ class PathEasing(private val path: Path) : Easing {
             // the transform() function.
             val segmentIntervals = IntervalTree<PathSegment>().apply {
                 for (segment in path) {
-                    require(segment.type != PathSegment.Type.Close) {
+                    requirePrecondition(segment.type != PathSegment.Type.Close) {
                         "The path cannot contain a close() command."
                     }
                     if (segment.type != PathSegment.Type.Move &&
@@ -80,24 +80,20 @@ class PathEasing(private val path: Path) : Easing {
                 }
             }
 
-            require(0.0f in segmentIntervals) {
-                "The easing path must start at 0.0f."
-            }
-
-            require(1.0f in segmentIntervals) {
-                "The easing path must end at 1.0f."
+            requirePrecondition(0.0f in segmentIntervals && 1.0f in segmentIntervals) {
+                "The easing path must start at 0.0f and end at 1.0f."
             }
 
             intervals = segmentIntervals
         }
 
         val result = intervals.findFirstOverlap(fraction)
-        val segment = checkNotNull(result.data) {
+        val segment = checkPreconditionNotNull(result.data) {
             "The easing path is invalid. Make sure it is continuous on the x axis."
         }
 
         val t = findFirstRoot(segment, fraction)
-        check(!t.isNaN()) {
+        checkPrecondition(!t.isNaN()) {
             "The easing path is invalid. Make sure it does not contain NaN/Infinity values."
         }
 

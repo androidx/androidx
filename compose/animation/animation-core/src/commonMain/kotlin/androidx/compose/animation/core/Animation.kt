@@ -265,7 +265,7 @@ class TargetBasedAnimation<T, V : AnimationVector> internal constructor(
             ).let {
                 // TODO: Remove after b/232030217
                 for (i in 0 until it.size) {
-                    check(!it.get(i).isNaN()) {
+                    checkPrecondition(!it.get(i).isNaN()) {
                         "AnimationVector cannot contain a NaN. $it. Animation: $this," +
                             " playTimeNanos: $playTimeNanos"
                     }

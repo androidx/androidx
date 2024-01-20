@@ -19,6 +19,7 @@ package androidx.compose.ui.node
 import androidx.compose.runtime.collection.MutableVector
 import androidx.compose.ui.graphics.GraphicsLayerScope
 import androidx.compose.ui.internal.checkPrecondition
+import androidx.compose.ui.internal.checkPreconditionNotNull
 import androidx.compose.ui.internal.requirePrecondition
 import androidx.compose.ui.layout.AlignmentLine
 import androidx.compose.ui.layout.Measurable
@@ -975,8 +976,10 @@ internal class LayoutNodeLayoutDelegate(
          */
         fun measureBasedOnLookahead() {
             val lookaheadDelegate = lookaheadPassDelegate
-            val parent = checkNotNull(layoutNode.parent) { "layoutNode parent is not set" }
-            checkNotNull(lookaheadDelegate) { "invalid lookaheadDelegate" }
+            val parent = checkPreconditionNotNull(layoutNode.parent) {
+                "layoutNode parent is not set"
+            }
+            checkPreconditionNotNull(lookaheadDelegate) { "invalid lookaheadDelegate" }
             if (lookaheadDelegate.measuredByParent == LayoutNode.UsageByParent.InMeasureBlock &&
                 parent.layoutState == LayoutState.Measuring
             ) {
@@ -994,7 +997,7 @@ internal class LayoutNodeLayoutDelegate(
          * layerBlock as lookahead.
          */
         fun placeBasedOnLookahead() {
-            val lookaheadDelegate = checkNotNull(lookaheadPassDelegate) {
+            val lookaheadDelegate = checkPreconditionNotNull(lookaheadPassDelegate) {
                 "invalid lookaheadDelegate"
             }
             placeAt(

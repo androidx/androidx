@@ -25,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.areObjectsOfSameType
 import androidx.compose.ui.input.pointer.SuspendPointerInputElement
 import androidx.compose.ui.internal.checkPrecondition
+import androidx.compose.ui.internal.checkPreconditionNotNull
 import androidx.compose.ui.layout.ModifierInfo
 
 private val SentinelHead = object : Modifier.Node() {
@@ -124,7 +125,7 @@ internal class NodeChain(val layoutNode: LayoutNode) {
             // removed we will break into a structural update.
             var node: Modifier.Node? = paddedHead.child
             while (node != null && i < beforeSize) {
-                checkNotNull(before) { "expected prior modifier list to be non-empty" }
+                checkPreconditionNotNull(before) { "expected prior modifier list to be non-empty" }
                 val prev = before[i]
                 val next = after[i]
                 when (actionForModifiers(prev, next)) {
@@ -154,8 +155,8 @@ internal class NodeChain(val layoutNode: LayoutNode) {
             }
             if (i < beforeSize) {
                 coordinatorSyncNeeded = true
-                checkNotNull(before) { "expected prior modifier list to be non-empty" }
-                checkNotNull(node) { "structuralUpdate requires a non-null tail" }
+                checkPreconditionNotNull(before) { "expected prior modifier list to be non-empty" }
+                checkPreconditionNotNull(node) { "structuralUpdate requires a non-null tail" }
                 // there must have been a structural change
                 // we only need to diff what is left of the list, so we use `i` to determine how
                 // much of the list is left.
@@ -184,7 +185,7 @@ internal class NodeChain(val layoutNode: LayoutNode) {
             }
             syncAggregateChildKindSet()
         } else if (after.size == 0) {
-            checkNotNull(before) { "expected prior modifier list to be non-empty" }
+            checkPreconditionNotNull(before) { "expected prior modifier list to be non-empty" }
             // common case where we we are removing all the modifiers.
             var node = paddedHead.child
             while (node != null && i < before.size) {
