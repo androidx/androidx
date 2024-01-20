@@ -97,8 +97,16 @@ public class VisibilityToDocumentConverter {
 
     public static final int SCHEMA_VERSION_LATEST = SCHEMA_VERSION_NESTED_PERMISSION_SCHEMA;
 
+    // The initial schema version, the overlay schema contains public acl and visible to config
+    // properties.
+    public static final int OVERLAY_SCHEMA_VERSION_PUBLIC_ACL_VISIBLE_TO_CONFIG = 0;
+
+    // The overlay schema only contains a proto property contains all visibility setting.
+    public static final int OVERLAY_SCHEMA_VERSION_ALL_IN_PROTO = 1;
+
     // The version number of schema saved in Android V overlay database.
-    public static final int ANDROID_V_OVERLAY_SCHEMA_VERSION = 0;
+    public static final int ANDROID_V_OVERLAY_SCHEMA_VERSION_LATEST =
+            OVERLAY_SCHEMA_VERSION_ALL_IN_PROTO;
 
     /**
      * Schema for the VisibilityStore's documents.
@@ -130,6 +138,21 @@ public class VisibilityToDocumentConverter {
             new AppSearchSchema.Builder(ANDROID_V_OVERLAY_SCHEMA_TYPE)
                     .addProperty(new AppSearchSchema.BytesPropertyConfig.Builder(
                             VISIBILITY_PROTO_SERIALIZE_PROPERTY)
+                            .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+                            .build())
+                    .build();
+    /**
+     * The Deprecated schemas and properties that we need to remove from visibility database.
+     * TODO(b/321326441) remove this method when we no longer to migrate devices in this state.
+     */
+    static final AppSearchSchema DEPRECATED_PUBLIC_ACL_OVERLAY_SCHEMA =
+            new AppSearchSchema.Builder("PublicAclOverlayType")
+                    .addProperty(new AppSearchSchema.StringPropertyConfig.Builder(
+                            "publiclyVisibleTargetPackage")
+                            .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+                            .build())
+                    .addProperty(new AppSearchSchema.BytesPropertyConfig.Builder(
+                            "publiclyVisibleTargetPackageSha256Cert")
                             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
                             .build())
                     .build();

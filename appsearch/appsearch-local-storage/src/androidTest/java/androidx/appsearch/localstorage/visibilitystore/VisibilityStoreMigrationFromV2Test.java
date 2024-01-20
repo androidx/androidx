@@ -99,7 +99,7 @@ public class VisibilityStoreMigrationFromV2Test {
                 ImmutableList.of(),
                 /*prefixedVisibilityBundles=*/ Collections.emptyList(),
                 /*forceOverride=*/ true, // force push the old version into disk
-                VisibilityToDocumentConverter.ANDROID_V_OVERLAY_SCHEMA_VERSION,
+                VisibilityToDocumentConverter.ANDROID_V_OVERLAY_SCHEMA_VERSION_LATEST,
                 /*setSchemaStatsBuilder=*/ null);
         assertThat(internalSetAndroidVSchemaResponse.isSuccess()).isTrue();
 
