@@ -41,6 +41,7 @@ import androidx.camera.core.impl.CaptureConfig
 import androidx.camera.core.impl.CaptureConfig.TEMPLATE_TYPE_NONE
 import androidx.camera.core.impl.Config
 import androidx.camera.core.impl.MutableTagBundle
+import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.TagBundle
 import dagger.Binds
 import dagger.Module
@@ -125,7 +126,8 @@ interface UseCaseCameraRequestControl {
         tags: Map<String, Any> = emptyMap(),
         streams: Set<StreamId>? = null,
         template: RequestTemplate? = null,
-        listeners: Set<Request.Listener> = emptySet()
+        listeners: Set<Request.Listener> = emptySet(),
+        sessionConfig: SessionConfig? = null,
     ): Deferred<Unit>
 
     // 3A
@@ -200,7 +202,8 @@ class UseCaseCameraRequestControlImpl @Inject constructor(
         tags: Map<String, Any>,
         streams: Set<StreamId>?,
         template: RequestTemplate?,
-        listeners: Set<Request.Listener>
+        listeners: Set<Request.Listener>,
+        sessionConfig: SessionConfig?,
     ): Deferred<Unit> = runIfNotClosed {
         synchronized(lock) {
             debug { "[$type] Set config: ${config?.toParameters()}" }
@@ -217,6 +220,7 @@ class UseCaseCameraRequestControlImpl @Inject constructor(
             infoBundleMap.merge()
         }.updateCameraStateAsync(
             streams = streams,
+            sessionConfig = sessionConfig,
         )
     } ?: canceledResult
 
@@ -352,7 +356,10 @@ class UseCaseCameraRequestControlImpl @Inject constructor(
             }
         }
 
-    private fun InfoBundle.updateCameraStateAsync(streams: Set<StreamId>? = null): Deferred<Unit> =
+    private fun InfoBundle.updateCameraStateAsync(
+        streams: Set<StreamId>? = null,
+        sessionConfig: SessionConfig? = null,
+    ): Deferred<Unit> =
         runIfNotClosed {
             capturePipeline.template =
                 if (template != null && template!!.value != TEMPLATE_TYPE_NONE) {
@@ -369,6 +376,7 @@ class UseCaseCameraRequestControlImpl @Inject constructor(
                 streams = streams,
                 template = template,
                 listeners = listeners,
+                sessionConfig = sessionConfig,
             )
         } ?: canceledResult
 

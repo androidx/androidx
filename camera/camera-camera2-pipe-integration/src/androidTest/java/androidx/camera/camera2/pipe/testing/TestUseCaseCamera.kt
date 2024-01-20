@@ -149,6 +149,7 @@ class TestUseCaseCamera(
                 streams = useCaseCameraGraphConfig.getStreamIdsFromSurfaces(
                     sessionConfig.repeatingCaptureConfig.surfaces
                 ),
+                sessionConfig = sessionConfig,
             )
         }
     }

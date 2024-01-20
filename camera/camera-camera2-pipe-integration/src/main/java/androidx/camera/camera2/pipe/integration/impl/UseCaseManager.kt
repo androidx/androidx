@@ -123,14 +123,6 @@ class UseCaseManager @Inject constructor(
         }
         set(value) = synchronized(lock) {
             field = value
-            // Only create the SessionProcessorManager when we have a SessionProcessor set.
-            if (field != null) {
-                sessionProcessorManager = SessionProcessorManager(
-                    field!!,
-                    cameraInfoInternal.get(),
-                    useCaseThreads.get().scope
-                )
-            }
         }
 
     @GuardedBy("lock")
@@ -349,7 +341,13 @@ class UseCaseManager @Inject constructor(
 
         if (sessionProcessor != null) {
             Log.debug { "Setting up UseCaseManager with SessionProcessorManager" }
-            checkNotNull(sessionProcessorManager).initialize(this, useCases)
+            sessionProcessorManager = SessionProcessorManager(
+                sessionProcessor!!,
+                cameraInfoInternal.get(),
+                useCaseThreads.get().scope,
+            ).also {
+                it.initialize(this, useCases)
+            }
             return
         } else {
             val sessionConfigAdapter = SessionConfigAdapter(useCases)
@@ -388,13 +386,7 @@ class UseCaseManager @Inject constructor(
         val sessionProcessorEnabled =
             useCaseManagerConfig.sessionConfigAdapter.isSessionProcessorEnabled
         with(useCaseManagerConfig) {
-            var sessionProcessorManager: SessionProcessorManager? = null
             if (sessionProcessorEnabled) {
-                sessionProcessorManager = SessionProcessorManager(
-                    checkNotNull(sessionProcessor),
-                    cameraInfoInternal.get(),
-                    useCaseThreads.get().scope,
-                )
                 for ((streamConfig, deferrableSurface) in streamConfigMap) {
                     cameraGraph.streams[streamConfig]?.let {
                         cameraGraph.setSurface(it.id, deferrableSurface.surface.get())

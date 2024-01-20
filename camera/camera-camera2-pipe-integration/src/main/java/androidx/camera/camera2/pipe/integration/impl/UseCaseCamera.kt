@@ -104,13 +104,6 @@ class UseCaseCameraImpl @Inject constructor(
         set(value) {
             field = value
 
-            if (sessionProcessorManager != null) {
-                sessionConfigAdapter.getValidSessionConfigOrNull()?.let {
-                    requestControl.setSessionConfigAsync(it)
-                }
-                return
-            }
-
             // Note: This may be called with the same set of values that was previously set. This
             // is used as a signal to indicate the properties of the UseCase may have changed.
             SessionConfigAdapter(value).getValidSessionConfigOrNull()?.let {
@@ -158,7 +151,6 @@ class UseCaseCameraImpl @Inject constructor(
                             }
                         val requestProcessorAdapter = RequestProcessorAdapter(
                             useCaseGraphConfig,
-                            sessionConfigAdapter.getValidSessionConfigOrNull(),
                             sessionProcessorSurfaces,
                             threads.scope,
                         )
@@ -225,6 +217,7 @@ class UseCaseCameraImpl @Inject constructor(
             streams = useCaseGraphConfig.getStreamIdsFromSurfaces(
                 sessionConfig.repeatingCaptureConfig.surfaces
             ),
+            sessionConfig = sessionConfig,
         )
     } ?: canceledResult
 

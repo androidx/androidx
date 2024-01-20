@@ -132,10 +132,11 @@ class RequestProcessorAdapterTest {
 
         requestProcessorAdapter = RequestProcessorAdapter(
             useCaseGraphConfig,
-            fakeSessionConfig,
             sessionProcessorSurfaces,
             scope,
-        )
+        ).apply {
+            sessionConfig = fakeSessionConfig
+        }
         scope.advanceUntilIdle()
     }
 
