@@ -119,7 +119,9 @@ public class VisibilityStoreTest {
                 new CallerAccess(VisibilityStore.VISIBILITY_PACKAGE_NAME));
 
         assertThat(getAndroidVOverlaySchemaResponse.getSchemas()).containsExactly(
-                VisibilityToDocumentConverter.ANDROID_V_OVERLAY_SCHEMA);
+                VisibilityPermissionConfig.SCHEMA,
+                VisibilityToDocumentConverter.ANDROID_V_OVERLAY_SCHEMA,
+                VisibilityToDocumentConverter.VISIBLE_TO_CONFIG_SCHEMA);
     }
 
     @Test
@@ -273,6 +275,8 @@ public class VisibilityStoreTest {
                 new GenericDocument.Builder<GenericDocument.Builder<?>>("androidVOverlay",
                         "Email", "AndroidVOverlayType")
                         .setCreationTimestampMillis(0)
+                        .setPropertyString("publiclyVisibleTargetPackage", "com.example.test")
+                        .setPropertyBytes("publiclyVisibleTargetPackageSha256Cert", new byte[32])
                         .build();
         mAppSearchImpl.putDocument(
                 VisibilityStore.VISIBILITY_PACKAGE_NAME,

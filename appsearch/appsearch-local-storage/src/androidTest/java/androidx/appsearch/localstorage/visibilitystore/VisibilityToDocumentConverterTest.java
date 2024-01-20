@@ -28,11 +28,6 @@ import androidx.appsearch.app.PackageIdentifier;
 import androidx.appsearch.app.SetSchemaRequest;
 import androidx.appsearch.app.VisibilityConfig;
 
-import com.google.android.appsearch.proto.AndroidVOverlayProto;
-import com.google.android.appsearch.proto.PackageIdentifierProto;
-import com.google.android.appsearch.proto.VisibilityConfigProto;
-import com.google.android.appsearch.proto.VisibleToPermissionProto;
-import com.google.android.icing.protobuf.ByteString;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 
@@ -44,7 +39,7 @@ import java.util.List;
 public class VisibilityToDocumentConverterTest {
 
     @Test
-    public void testToGenericDocuments() throws Exception {
+    public void testToGenericDocuments() {
         // Create a SetSchemaRequest for testing
         byte[] cert1 = new byte[32];
         byte[] cert2 = new byte[32];
@@ -55,12 +50,11 @@ public class VisibilityToDocumentConverterTest {
         Arrays.fill(cert3, (byte) 3);
         Arrays.fill(cert4, (byte) 4);
 
-        VisibilityConfig visibleToConfig = new VisibilityConfig.Builder()
+        VisibilityConfig config = new VisibilityConfig.Builder()
                 .addVisibleToPackage(new PackageIdentifier("com.example.test1", cert1))
                 .setPubliclyVisibleTargetPackage(
                         new PackageIdentifier("com.example.test2", cert2))
                 .addVisibleToPermissions(ImmutableSet.of(1, 2))
-                .setNotDisplayedBySystem(true)
                 .build();
         SetSchemaRequest setSchemaRequest = new SetSchemaRequest.Builder()
                 .addSchemas(new AppSearchSchema.Builder("someSchema").build())
@@ -71,38 +65,34 @@ public class VisibilityToDocumentConverterTest {
                         "someSchema", ImmutableSet.of(3, 4))
                 .setPubliclyVisibleSchema("someSchema",
                         new PackageIdentifier("com.example.test4", cert4))
-                .addSchemaTypeVisibleToConfig("someSchema", visibleToConfig)
+                .addSchemaTypeVisibleToConfig("someSchema", config)
                 .build();
 
-        // Create android V overlay proto
-        VisibilityConfigProto visibleToConfigProto = VisibilityConfigProto.newBuilder()
-                .addVisibleToPackages(PackageIdentifierProto.newBuilder()
-                        .setPackageName("com.example.test1")
-                        .setPackageSha256Cert(ByteString.copyFrom(cert1)).build())
-                .setPubliclyVisibleTargetPackage(PackageIdentifierProto.newBuilder()
-                                .setPackageName("com.example.test2")
-                                .setPackageSha256Cert(ByteString.copyFrom(cert2)).build())
-                .addVisibleToPermissions(VisibleToPermissionProto.newBuilder()
-                        .addAllPermissions(ImmutableSet.of(1, 2)).build())
-                .setNotPlatformSurfaceable(true)
-                .build();
-        VisibilityConfigProto visibilityConfigProto = VisibilityConfigProto.newBuilder()
-                .setPubliclyVisibleTargetPackage(PackageIdentifierProto.newBuilder()
-                        .setPackageName("com.example.test4")
-                        .setPackageSha256Cert(ByteString.copyFrom(cert4)).build())
-                .build();
-        AndroidVOverlayProto overlayProto = AndroidVOverlayProto.newBuilder()
-                .setVisibilityConfig(visibilityConfigProto)
-                .addVisibleToConfigs(visibleToConfigProto)
-                .build();
-
+        // Create visibleToConfig property
+        GenericDocument permissionDoc12 =
+                new GenericDocument.Builder<GenericDocument.Builder<?>>("", "",
+                        "VisibilityPermissionType")
+                        .setCreationTimestampMillis(0)
+                        .setPropertyLong("allRequiredPermissions", 1, 2).build();
+        GenericDocument visibleToConfigProperty =
+                new GenericDocument.Builder<GenericDocument.Builder<?>>("",
+                        "", "VisibleToConfigType")
+                        .setCreationTimestampMillis(0)
+                        .setPropertyString("packageName", "com.example.test1")
+                        .setPropertyBytes("sha256Cert", cert1)
+                        .setPropertyBoolean("notPlatformSurfaceable", false)
+                        .setPropertyString("publiclyVisibleTargetPackage", "com.example.test2")
+                        .setPropertyBytes("publiclyVisibleTargetPackageSha256Cert", cert2)
+                        .setPropertyDocument("permission", permissionDoc12)
+                        .build();
         // Create the expected AndroidVOverlay document
         GenericDocument expectedAndroidVOverlay =
                 new GenericDocument.Builder<GenericDocument.Builder<?>>("androidVOverlay",
                         "someSchema", "AndroidVOverlayType")
                         .setCreationTimestampMillis(0)
-                        .setPropertyBytes("visibilityProtoSerializeProperty",
-                                overlayProto.toByteArray())
+                        .setPropertyString("publiclyVisibleTargetPackage", "com.example.test4")
+                        .setPropertyBytes("publiclyVisibleTargetPackageSha256Cert", cert4)
+                        .setPropertyDocument("visibleToConfigProperty", visibleToConfigProperty)
                         .build();
 
         // Create the expected visibility document
@@ -146,51 +136,48 @@ public class VisibilityToDocumentConverterTest {
         Arrays.fill(cert3, (byte) 3);
         Arrays.fill(cert4, (byte) 4);
 
-        // Create visibility proto property
-        VisibilityConfigProto visibleToConfigProto = VisibilityConfigProto.newBuilder()
-                .addVisibleToPackages(PackageIdentifierProto.newBuilder()
-                        .setPackageName("com.example.test1")
-                        .setPackageSha256Cert(ByteString.copyFrom(cert1)).build())
-                .setPubliclyVisibleTargetPackage(PackageIdentifierProto.newBuilder()
-                        .setPackageName("com.example.test2")
-                        .setPackageSha256Cert(ByteString.copyFrom(cert2)).build())
-                .addVisibleToPermissions(VisibleToPermissionProto.newBuilder()
-                        .addAllPermissions(ImmutableSet.of(1, 2)).build())
-                .setNotPlatformSurfaceable(true)
-                .build();
-        VisibilityConfigProto visibilityConfigProto = VisibilityConfigProto.newBuilder()
-                .setPubliclyVisibleTargetPackage(PackageIdentifierProto.newBuilder()
-                        .setPackageName("com.example.test4")
-                        .setPackageSha256Cert(ByteString.copyFrom(cert4)).build())
-                .build();
-        AndroidVOverlayProto overlayProto = AndroidVOverlayProto.newBuilder()
-                .setVisibilityConfig(visibilityConfigProto)
-                .addVisibleToConfigs(visibleToConfigProto)
-                .build();
-
-        // Create a visible config overlay for testing
-        GenericDocument androidVOverlay =
-                new GenericDocument.Builder<GenericDocument.Builder<?>>("androidVOverlay",
-                        "someSchema", "AndroidVOverlayType")
-                        .setCreationTimestampMillis(0)
-                        .setPropertyBytes("visibilityProtoSerializeProperty",
-                                overlayProto.toByteArray())
-                        .build();
-
         // Create a VisibilityDocument for testing
-        GenericDocument permissionDoc34 =
+        GenericDocument permissionDoc12 =
                 new GenericDocument.Builder<GenericDocument.Builder<?>>("", "",
                         "VisibilityPermissionType")
                         .setCreationTimestampMillis(0)
-                        .setPropertyLong("allRequiredPermissions", 3, 4).build();
+                        .setPropertyLong("allRequiredPermissions", 1, 2).build();
         GenericDocument visibilityDoc =
                 new GenericDocument.Builder<GenericDocument.Builder<?>>("", "someSchema",
                         "VisibilityType")
                         .setCreationTimestampMillis(0)
                         .setPropertyBoolean("notPlatformSurfaceable", false)
-                        .setPropertyString("packageName", "com.example.test3")
-                        .setPropertyBytes("sha256Cert", cert3)
+                        .setPropertyString("packageName", "com.example.test1")
+                        .setPropertyBytes("sha256Cert", cert1)
+                        .setPropertyDocument("permission", permissionDoc12)
+                        .build();
+
+        // Create a visible config overlay for testing
+        GenericDocument permissionDoc34 =
+                new GenericDocument.Builder<GenericDocument.Builder<?>>("", "",
+                        "VisibilityPermissionType")
+                        .setCreationTimestampMillis(0)
+                        .setPropertyLong("allRequiredPermissions", 3, 4)
+                        .build();
+        GenericDocument visibleToConfigProperty =
+                new GenericDocument.Builder<GenericDocument.Builder<?>>("",
+                        "", "VisibleToConfigType")
+                        .setCreationTimestampMillis(0)
+                        .setPropertyString("packageName", "com.example.test2")
+                        .setPropertyBytes("sha256Cert", cert2)
+                        .setPropertyBoolean("notPlatformSurfaceable", false)
+                        .setPropertyString("publiclyVisibleTargetPackage", "com.example.test3")
+                        .setPropertyBytes("publiclyVisibleTargetPackageSha256Cert", cert3)
                         .setPropertyDocument("permission", permissionDoc34)
+                        .build();
+        // Create the AndroidVOverlay document
+        GenericDocument androidVOverlay =
+                new GenericDocument.Builder<GenericDocument.Builder<?>>("androidVOverlay",
+                        "someSchema", "AndroidVOverlayType")
+                        .setCreationTimestampMillis(0)
+                        .setPropertyString("publiclyVisibleTargetPackage", "com.example.test4")
+                        .setPropertyBytes("publiclyVisibleTargetPackageSha256Cert", cert4)
+                        .setPropertyDocument("visibleToConfigProperty", visibleToConfigProperty)
                         .build();
 
         // Create a VisibilityConfig using the Builder
@@ -225,17 +212,17 @@ public class VisibilityToDocumentConverterTest {
         // Check that the rebuild stayed the same
         assertEquals(rebuild.getSchemaType(), "someSchema");
         assertFalse(rebuild.isNotDisplayedBySystem());
-        assertEquals(rebuild.getVisibleToPermissions(), ImmutableSet.of(ImmutableSet.of(3, 4)));
+        assertEquals(rebuild.getVisibleToPermissions(), ImmutableSet.of(ImmutableSet.of(1, 2)));
         assertEquals(rebuild.getVisibleToPackages(),
-                ImmutableList.of(new PackageIdentifier("com.example.test3", cert3)));
+                ImmutableList.of(new PackageIdentifier("com.example.test1", cert1)));
         assertEquals(rebuild.getPubliclyVisibleTargetPackage(),
                 new PackageIdentifier("com.example.test4", cert4));
 
         VisibilityConfig expectedVisibleToConfig = new VisibilityConfig.Builder()
-                .setNotDisplayedBySystem(true)
-                .addVisibleToPermissions(ImmutableSet.of(1, 2))
-                .addVisibleToPackage(new PackageIdentifier("com.example.test1", cert1))
-                .setPubliclyVisibleTargetPackage(new PackageIdentifier("com.example.test2", cert2))
+                .setNotDisplayedBySystem(false)
+                .addVisibleToPermissions(ImmutableSet.of(3, 4))
+                .addVisibleToPackage(new PackageIdentifier("com.example.test2", cert2))
+                .setPubliclyVisibleTargetPackage(new PackageIdentifier("com.example.test3", cert3))
                 .build();
         assertThat(rebuild.getVisibleToConfigs()).containsExactly(expectedVisibleToConfig);
     }
