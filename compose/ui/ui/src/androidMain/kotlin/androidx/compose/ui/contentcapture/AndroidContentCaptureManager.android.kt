@@ -32,6 +32,7 @@ import androidx.collection.ArraySet
 import androidx.collection.MutableIntObjectMap
 import androidx.collection.intObjectMapOf
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.internal.checkPreconditionNotNull
 import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.platform.AndroidComposeView
 import androidx.compose.ui.platform.ScrollObservationScope
@@ -251,7 +252,7 @@ internal class AndroidContentCaptureManager(
 
         newNode.replacedChildren.fastForEach { child ->
             if (currentSemanticsNodes.contains(child.id)) {
-                val prevNode = checkNotNull(previousSemanticsNodes[child.id]) {
+                val prevNode = checkPreconditionNotNull(previousSemanticsNodes[child.id]) {
                     "node not present in pruned tree before this change"
                 }
                 sendSemanticsStructureChangeEvents(child, prevNode)
@@ -280,7 +281,7 @@ internal class AndroidContentCaptureManager(
         newNode.replacedChildren.fastForEach { child ->
             if (currentSemanticsNodes.contains(child.id) &&
                 previousSemanticsNodes.contains(child.id)) {
-                val prevNodeCopy = checkNotNull(previousSemanticsNodes[child.id]) {
+                val prevNodeCopy = checkPreconditionNotNull(previousSemanticsNodes[child.id]) {
                     "node not present in pruned tree before this change"
                 }
                 sendContentCaptureStructureChangeEvents(child, prevNodeCopy)
@@ -301,7 +302,7 @@ internal class AndroidContentCaptureManager(
             // We do doing this search because the new configuration is set as a whole, so we
             // can't indicate which property is changed when setting the new configuration.
             val oldNode = previousSemanticsNodes[id]
-            val newNode = checkNotNull(newSemanticsNodes[id]?.semanticsNode) {
+            val newNode = checkPreconditionNotNull(newSemanticsNodes[id]?.semanticsNode) {
                 "no value for specified key"
             }
 
@@ -329,7 +330,7 @@ internal class AndroidContentCaptureManager(
                     }
                     SemanticsProperties.VerticalScrollAxisRange -> {
                         notifySubtreeStateChangeIfNeeded(newNode.layoutNode)
-                        val scope = checkNotNull(scrollObservationScopes.findById(id)) {
+                        val scope = checkPreconditionNotNull(scrollObservationScopes.findById(id)) {
                             "scroll observation scope does not exist"
                         }
                         scope.horizontalScrollAxisRange = newNode.unmergedConfig.getOrNull(
@@ -409,7 +410,7 @@ internal class AndroidContentCaptureManager(
         val session = contentCaptureSession ?: return
         // TODO: consider having a `newContentCaptureId` function to improve readability.
         val autofillId = session.newAutofillId(id.toLong())
-        checkNotNull(autofillId) { "Invalid content capture ID" }
+        checkPreconditionNotNull(autofillId) { "Invalid content capture ID" }
         session.notifyViewTextChanged(autofillId, newText)
     }
 

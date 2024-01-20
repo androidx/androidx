@@ -22,6 +22,7 @@ import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.internal.JvmDefaultWithCompatibility
+import androidx.compose.ui.internal.checkPreconditionNotNull
 import androidx.compose.ui.node.DrawModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.Nodes
@@ -208,7 +209,7 @@ private class CacheDrawModifierNodeImpl(
             cacheDrawScope.apply {
                 drawResult = null
                 observeReads { block() }
-                checkNotNull(drawResult) {
+                checkPreconditionNotNull(drawResult) {
                     "DrawResult not defined, did you forget to call onDraw?"
                 }
             }

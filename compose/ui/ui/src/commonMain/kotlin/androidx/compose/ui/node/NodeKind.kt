@@ -31,6 +31,7 @@ import androidx.compose.ui.input.key.SoftKeyboardInterceptionModifierNode
 import androidx.compose.ui.input.pointer.PointerInputModifier
 import androidx.compose.ui.input.rotary.RotaryInputModifierNode
 import androidx.compose.ui.internal.checkPrecondition
+import androidx.compose.ui.internal.checkPreconditionNotNull
 import androidx.compose.ui.layout.IntermediateLayoutModifierNode
 import androidx.compose.ui.layout.LayoutModifier
 import androidx.compose.ui.layout.OnGloballyPositionedModifier
@@ -323,7 +324,7 @@ private fun FocusPropertiesModifierNode.specifiesCanFocusProperty(): Boolean {
 private object CanFocusChecker : FocusProperties {
     private var canFocusValue: Boolean? = null
     override var canFocus: Boolean
-        get() = checkNotNull(canFocusValue) { "canFocus is read before it is written" }
+        get() = checkPreconditionNotNull(canFocusValue) { "canFocus is read before it is written" }
         set(value) { canFocusValue = value }
     fun isCanFocusSet(): Boolean = canFocusValue != null
     fun reset() { canFocusValue = null }

@@ -22,11 +22,11 @@ import kotlin.contracts.contract
 // This function exists so we do *not* inline the throw. It keeps
 // the call site much smaller and since it's the slow path anyway,
 // we don't mind the extra function call
-internal fun throwIllegalStateException(message: String) {
+internal fun throwIllegalStateException(message: String): Nothing {
     throw IllegalStateException(message)
 }
 
-internal fun throwIllegalArgumentException(message: String) {
+internal fun throwIllegalArgumentException(message: String): Nothing {
     throw IllegalArgumentException(message)
 }
 
@@ -67,8 +67,22 @@ internal inline fun <T : Any> checkPreconditionNotNull(value: T?, lazyMessage: (
         throwIllegalStateException(lazyMessage())
     }
 
-    // We can't be null, we would have thrown earlier
-    return value!!
+    return value
+}
+
+// Like Kotlin's checkNotNull() but with a non-inline throw
+@Suppress("NOTHING_TO_INLINE", "BanInlineOptIn")
+@OptIn(ExperimentalContracts::class)
+internal inline fun <T : Any> checkPreconditionNotNull(value: T?): T {
+    contract {
+        returns() implies (value != null)
+    }
+
+    if (value == null) {
+        throwIllegalStateException("Required value was null.")
+    }
+
+    return value
 }
 
 // Like Kotlin's require() but without the .toString() call
