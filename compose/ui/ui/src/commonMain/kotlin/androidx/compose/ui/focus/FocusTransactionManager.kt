@@ -17,6 +17,7 @@
 package androidx.compose.ui.focus
 
 import androidx.compose.runtime.collection.mutableVectorOf
+import androidx.compose.ui.internal.checkPreconditionNotNull
 
 /**
  * This manager provides a way to ensure that only one focus transaction is running at a time.
@@ -75,7 +76,7 @@ internal class FocusTransactionManager {
     var FocusTargetNode.uncommittedFocusState: FocusStateImpl?
         get() = states[this]
         set(value) {
-            states[this] = checkNotNull(value) { "requires a non-null focus state" }
+            states[this] = checkPreconditionNotNull(value) { "requires a non-null focus state" }
         }
 
     private fun beginTransaction() {

@@ -37,6 +37,7 @@ import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.UiComposable
 import androidx.compose.ui.input.nestedscroll.NestedScrollDispatcher
+import androidx.compose.ui.internal.checkPreconditionNotNull
 import androidx.compose.ui.materialize
 import androidx.compose.ui.node.ComposeUiNode.Companion.SetCompositeKeyHash
 import androidx.compose.ui.node.ComposeUiNode.Companion.SetResolvedCompositionLocals
@@ -311,7 +312,7 @@ private fun <T : View> Updater<LayoutNode>.updateViewHolderParams(
 @Suppress("UNCHECKED_CAST", "ExceptionMessage")
 private fun <T : View> LayoutNode.requireViewFactoryHolder(): ViewFactoryHolder<T> {
     @OptIn(InternalComposeUiApi::class)
-    return checkNotNull(interopViewFactoryHolder) as ViewFactoryHolder<T>
+    return checkPreconditionNotNull(interopViewFactoryHolder) as ViewFactoryHolder<T>
 }
 
 /**

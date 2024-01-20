@@ -46,7 +46,7 @@ import androidx.collection.IntList
  */
 @JvmOverloads
 internal fun IntList.binarySearch(element: Int, fromIndex: Int = 0, toIndex: Int = size): Int {
-    require(fromIndex <= toIndex) { "fromIndex($fromIndex) > toIndex($toIndex)" }
+    requirePrecondition(fromIndex <= toIndex) { "fromIndex($fromIndex) > toIndex($toIndex)" }
     if (fromIndex < 0) {
         throw IndexOutOfBoundsException("Index out of range: $fromIndex")
     }
