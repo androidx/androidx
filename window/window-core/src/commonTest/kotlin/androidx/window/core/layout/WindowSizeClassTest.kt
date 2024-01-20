@@ -19,6 +19,7 @@ package androidx.window.core.layout
 import androidx.window.core.ExperimentalWindowCoreApi
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 
 /**
  * Tests for [WindowSizeClass] that verify construction.
@@ -76,5 +77,42 @@ class WindowSizeClassTest {
 
         assertEquals(first, second)
         assertEquals(first.hashCode(), second.hashCode())
+    }
+
+    @Test
+    @Suppress("DEPRECATION")
+    fun truncated_float_does_not_throw() {
+        val sizeClass = WindowSizeClass.compute(0.5f, 0.5f)
+
+        val widthSizeClass = sizeClass.windowWidthSizeClass
+        val heightSizeClass = sizeClass.windowHeightSizeClass
+
+        assertEquals(WindowWidthSizeClass.COMPACT, widthSizeClass)
+        assertEquals(WindowHeightSizeClass.COMPACT, heightSizeClass)
+    }
+
+    @Test
+    fun zero_size_class_does_not_throw() {
+        val sizeClass = WindowSizeClass(0, 0)
+
+        val widthSizeClass = sizeClass.windowWidthSizeClass
+        val heightSizeClass = sizeClass.windowHeightSizeClass
+
+        assertEquals(WindowWidthSizeClass.COMPACT, widthSizeClass)
+        assertEquals(WindowHeightSizeClass.COMPACT, heightSizeClass)
+    }
+
+    @Test
+    fun negative_width_throws() {
+        assertFailsWith(IllegalArgumentException::class) {
+            WindowSizeClass(-1, 0)
+        }
+    }
+
+    @Test
+    fun negative_height_throws() {
+        assertFailsWith(IllegalArgumentException::class) {
+            WindowSizeClass(0, -1)
+        }
     }
 }
