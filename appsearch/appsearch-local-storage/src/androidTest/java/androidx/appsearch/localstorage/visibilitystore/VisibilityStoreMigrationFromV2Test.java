@@ -195,7 +195,9 @@ public class VisibilityStoreMigrationFromV2Test {
                 VisibilityStore.ANDROID_V_OVERLAY_DATABASE_NAME,
                 new CallerAccess(/*callingPackageName=*/VisibilityStore.VISIBILITY_PACKAGE_NAME));
         assertThat(getAndroidVOverlaySchemaResponse.getSchemas()).containsExactly(
-                VisibilityToDocumentConverter.ANDROID_V_OVERLAY_SCHEMA);
+                VisibilityToDocumentConverter.ANDROID_V_OVERLAY_SCHEMA,
+                VisibilityToDocumentConverter.VISIBLE_TO_CONFIG_SCHEMA,
+                VisibilityPermissionConfig.SCHEMA);
 
         // But no overlay document was created.
         AppSearchException e = assertThrows(AppSearchException.class,

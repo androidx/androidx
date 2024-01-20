@@ -319,8 +319,9 @@ public class VisibilityStore {
                 mAppSearchImpl.setSchema(
                         VISIBILITY_PACKAGE_NAME,
                         ANDROID_V_OVERLAY_DATABASE_NAME,
-                        Collections.singletonList(
-                                VisibilityToDocumentConverter.ANDROID_V_OVERLAY_SCHEMA),
+                        Arrays.asList(VisibilityToDocumentConverter.ANDROID_V_OVERLAY_SCHEMA,
+                                VisibilityToDocumentConverter.VISIBLE_TO_CONFIG_SCHEMA,
+                                VisibilityPermissionConfig.SCHEMA),
                         /*visibilityConfigs=*/ Collections.emptyList(),
                         /*forceOverride=*/ true,
                         /*version=*/ VisibilityToDocumentConverter.ANDROID_V_OVERLAY_SCHEMA_VERSION,
@@ -387,15 +388,18 @@ public class VisibilityStore {
                 new CallerAccess(/*callingPackageName=*/VISIBILITY_PACKAGE_NAME));
         Set<AppSearchSchema> existingAndroidVOverlaySchema =
                 getAndroidVOverlaySchemaResponse.getSchemas();
-        if (!existingAndroidVOverlaySchema.contains(
-                VisibilityToDocumentConverter.ANDROID_V_OVERLAY_SCHEMA)) {
+        if (!(existingAndroidVOverlaySchema.contains(
+                VisibilityToDocumentConverter.ANDROID_V_OVERLAY_SCHEMA)
+                && existingAndroidVOverlaySchema.contains(
+                VisibilityToDocumentConverter.VISIBLE_TO_CONFIG_SCHEMA))) {
             // We must have a broken schema. Reset it to the latest version.
             // Do NOT set forceOverride to be true here, see comment below.
             InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
                     VISIBILITY_PACKAGE_NAME,
                     ANDROID_V_OVERLAY_DATABASE_NAME,
-                    Collections.singletonList(
-                            VisibilityToDocumentConverter.ANDROID_V_OVERLAY_SCHEMA),
+                    Arrays.asList(VisibilityToDocumentConverter.ANDROID_V_OVERLAY_SCHEMA,
+                            VisibilityToDocumentConverter.VISIBLE_TO_CONFIG_SCHEMA,
+                            VisibilityPermissionConfig.SCHEMA),
                     /*visibilityConfigs=*/ Collections.emptyList(),
                     /*forceOverride=*/ false,
                     VisibilityToDocumentConverter.ANDROID_V_OVERLAY_SCHEMA_VERSION,

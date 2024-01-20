@@ -61,9 +61,6 @@ import androidx.collection.ArraySet;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.FlakyTest;
 
-import com.google.android.appsearch.proto.AndroidVOverlayProto;
-import com.google.android.appsearch.proto.PackageIdentifierProto;
-import com.google.android.appsearch.proto.VisibilityConfigProto;
 import com.google.android.icing.proto.DebugInfoProto;
 import com.google.android.icing.proto.DebugInfoVerbosity;
 import com.google.android.icing.proto.DocumentProto;
@@ -78,7 +75,6 @@ import com.google.android.icing.proto.StatusProto;
 import com.google.android.icing.proto.StorageInfoProto;
 import com.google.android.icing.proto.StringIndexingConfig;
 import com.google.android.icing.proto.TermMatchType;
-import com.google.android.icing.protobuf.ByteString;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -2439,7 +2435,9 @@ public class AppSearchImplTest {
                 "package2$database1/type3",
                 "VS#Pkg$VS#Db/VisibilityType",  // plus the stored Visibility schema
                 "VS#Pkg$VS#Db/VisibilityPermissionType",
-                "VS#Pkg$VS#AndroidVDb/AndroidVOverlayType");
+                "VS#Pkg$VS#AndroidVDb/AndroidVOverlayType",
+                "VS#Pkg$VS#AndroidVDb/VisibleToConfigType",
+                "VS#Pkg$VS#AndroidVDb/VisibilityPermissionType");
     }
 
     @FlakyTest(bugId = 204186664)
@@ -3087,7 +3085,7 @@ public class AppSearchImplTest {
                 .isEqualTo(2);
         assertThat(
                 storageInfo.getSchemaStoreStorageInfo().getNumSchemaTypes())
-                .isEqualTo(4); // +2 for VisibilitySchema, +1 for VisibilityOverlay
+                .isEqualTo(6); // +2 for VisibilitySchema, +3 for VisibilityOverlay
     }
 
     @Test
@@ -3132,7 +3130,7 @@ public class AppSearchImplTest {
                 debugInfo.getDocumentInfo().getDocumentStorageInfo().getNumAliveDocuments())
                 .isEqualTo(2);
         assertThat(debugInfo.getSchemaInfo().getSchema().getTypesList())
-                .hasSize(4); // +2 for VisibilitySchema, +1 for VisibilityOverlay
+                .hasSize(6); // +2 for VisibilitySchema, +3 for VisibilityOverlay
     }
 
     @Test
@@ -4917,34 +4915,12 @@ public class AppSearchImplTest {
                 "package$database/PublicTypeC",
                 Collections.emptyMap());
 
-        AndroidVOverlayProto overlayProtoA = AndroidVOverlayProto.newBuilder()
-                .setVisibilityConfig(VisibilityConfigProto.newBuilder()
-                        .setPubliclyVisibleTargetPackage(PackageIdentifierProto.newBuilder()
-                                .setPackageName("A")
-                                .setPackageSha256Cert(ByteString.copyFrom(new byte[32])).build())
-                        .build())
-                .build();
-        AndroidVOverlayProto overlayProtoB = AndroidVOverlayProto.newBuilder()
-                .setVisibilityConfig(VisibilityConfigProto.newBuilder()
-                        .setPubliclyVisibleTargetPackage(PackageIdentifierProto.newBuilder()
-                                .setPackageName("B")
-                                .setPackageSha256Cert(ByteString.copyFrom(new byte[32])).build())
-                        .build())
-                .build();
-        AndroidVOverlayProto overlayProtoC = AndroidVOverlayProto.newBuilder()
-                .setVisibilityConfig(VisibilityConfigProto.newBuilder()
-                        .setPubliclyVisibleTargetPackage(PackageIdentifierProto.newBuilder()
-                                .setPackageName("C")
-                                .setPackageSha256Cert(ByteString.copyFrom(new byte[32])).build())
-                        .build())
-                .build();
-
-        assertThat(visibilityOverlayA.getPropertyBytes("visibilityProtoSerializeProperty"))
-                .isEqualTo(overlayProtoA.toByteArray());
-        assertThat(visibilityOverlayB.getPropertyBytes("visibilityProtoSerializeProperty"))
-                .isEqualTo(overlayProtoB.toByteArray());
-        assertThat(visibilityOverlayC.getPropertyBytes("visibilityProtoSerializeProperty"))
-                .isEqualTo(overlayProtoC.toByteArray());
+        assertThat(visibilityOverlayA.getPropertyString("publiclyVisibleTargetPackage"))
+                .isEqualTo("A");
+        assertThat(visibilityOverlayB.getPropertyString("publiclyVisibleTargetPackage"))
+                .isEqualTo("B");
+        assertThat(visibilityOverlayC.getPropertyString("publiclyVisibleTargetPackage"))
+                .isEqualTo("C");
 
         // now undo the "public" setting
         visibilityConfigs = ImmutableList.of(new VisibilityConfig.Builder("PublicTypeA").build(),
