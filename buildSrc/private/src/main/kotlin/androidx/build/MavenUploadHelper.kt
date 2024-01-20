@@ -17,6 +17,7 @@
 package androidx.build
 
 import androidx.build.buildInfo.CreateLibraryBuildInfoFileTask
+import androidx.build.checkapi.shouldConfigureApiTasks
 import com.android.build.gradle.AppPlugin
 import com.android.build.gradle.LibraryPlugin
 import com.android.utils.childrenIterator
@@ -330,9 +331,17 @@ private fun Project.replaceBaseMultiplatformPublication(
     componentFactory: SoftwareComponentFactory
 ) {
     val kotlinComponent = components.findByName("kotlin") as SoftwareComponentInternal
+    val sourcesElements = buildSet {
+        add("androidxSourcesElements")
+        // Wait for libraryVersionMetadata if it should exist because the project runs API tasks.
+        // There are some libraries (generated icons) that release without running API tasks.
+        if (androidXExtension.shouldConfigureApiTasks()) {
+            add("libraryVersionMetadata")
+        }
+    }
     withSourcesComponents(
         componentFactory,
-        setOf("androidxSourcesElements", "libraryVersionMetadata")
+        sourcesElements
     ) { sourcesComponents ->
         configure<PublishingExtension> {
             publications { pubs ->
