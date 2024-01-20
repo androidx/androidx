@@ -52,7 +52,7 @@ dependencies {
     implementation project(":compose:runtime:runtime")
     implementation project(":compose:foundation:foundation-layout")
     implementation project(":compose:ui:ui")
-    implementation("androidx.compose.material:material:1.6.0-beta01")
+    implementation project(":compose:material:material")
     implementation project(":compose:material3:material3")
     implementation project(":compose:material:material:integration-tests:material-catalog")
     implementation project(":compose:material3:material3:integration-tests:material3-catalog")
