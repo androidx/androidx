@@ -1200,7 +1200,7 @@ class AndroidPointerInputTest {
         var box2LayoutCoordinates: LayoutCoordinates? = null
         var box3LayoutCoordinates: LayoutCoordinates? = null
 
-        val setUpFinishedLatch = CountDownLatch(1)
+        val setUpFinishedLatch = CountDownLatch(4)
         // One less than total because outside is not sent to Compose.
         val totalEventLatch = CountDownLatch(5)
 
@@ -1242,6 +1242,7 @@ class AndroidPointerInputTest {
                             .size(50.dp)
                             .onGloballyPositioned {
                                 box1LayoutCoordinates = it
+                                setUpFinishedLatch.countDown()
                             }
                             .pointerInput(Unit) {
                                 awaitPointerEventScope {
@@ -1270,6 +1271,7 @@ class AndroidPointerInputTest {
                             .size(50.dp)
                             .onGloballyPositioned {
                                 box2LayoutCoordinates = it
+                                setUpFinishedLatch.countDown()
                             }
                             .pointerInput(Unit) {
                                 awaitPointerEventScope {
@@ -1304,6 +1306,7 @@ class AndroidPointerInputTest {
                             .size(50.dp)
                             .onGloballyPositioned {
                                 box3LayoutCoordinates = it
+                                setUpFinishedLatch.countDown()
                             }
                             .pointerInput(Unit) {
                                 awaitPointerEventScope {
@@ -1318,7 +1321,7 @@ class AndroidPointerInputTest {
             }
         }
         // Ensure Arrange (setup) step is finished
-        assertTrue(setUpFinishedLatch.await(1, TimeUnit.SECONDS))
+        assertTrue(setUpFinishedLatch.await(2, TimeUnit.SECONDS))
 
         // --> Act + Assert (interwoven)
         // Hover Enter on Box 1
