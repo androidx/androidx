@@ -20,6 +20,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.ScrollScope
+import androidx.compose.foundation.gestures.TargetedFlingBehavior
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
@@ -491,7 +492,7 @@ class LazyListSnapFlingBehaviorTest(private val orientation: Orientation) :
 
 @OptIn(ExperimentalFoundationApi::class)
 internal class QuerySnapFlingBehavior(
-    val snapFlingBehavior: SnapFlingBehavior,
+    val snapFlingBehavior: TargetedFlingBehavior,
     val onAnimationStep: (Float) -> Unit
 ) : FlingBehavior {
     override suspend fun ScrollScope.performFling(initialVelocity: Float): Float {
