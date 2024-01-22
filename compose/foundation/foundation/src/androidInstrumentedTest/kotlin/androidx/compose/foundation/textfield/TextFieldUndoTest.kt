@@ -16,20 +16,16 @@
 
 package androidx.compose.foundation.textfield
 
-import android.view.KeyEvent
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.ExperimentalComposeUiApi
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.input.key.KeyEvent as ComposeKeyEvent
-import androidx.compose.ui.input.key.nativeKeyCode
+import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.performKeyPress
+import androidx.compose.ui.test.performKeyInput
+import androidx.compose.ui.test.pressKey
+import androidx.compose.ui.test.requestFocus
+import androidx.compose.ui.test.withKeyDown
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
@@ -39,66 +35,56 @@ import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalTestApi::class)
 class TextFieldUndoTest {
+
     @get:Rule
     val rule = createComposeRule()
 
-    @OptIn(ExperimentalComposeUiApi::class)
     @Test
-    fun undo_redo() {
+    fun undo_redo_withCtrlShiftZ() {
+        undoRedoTest(redoKeys = listOf(Key.CtrlLeft, Key.ShiftLeft, Key.Z))
+    }
+
+    @Test
+    fun undo_redo_withCtrlY() {
+        undoRedoTest(redoKeys = listOf(Key.CtrlLeft, Key.Y))
+    }
+
+    private fun undoRedoTest(redoKeys: List<Key>) {
         val state = mutableStateOf("hi")
-        val focusFequester = FocusRequester()
         rule.setContent {
             BasicTextField(
                 value = state.value,
-                modifier = Modifier.focusRequester(focusFequester),
-                onValueChange = {
-                    state.value = it
-                }
+                onValueChange = { state.value = it }
             )
         }
-
-        rule.runOnIdle { focusFequester.requestFocus() }
 
         state.value = "hello"
 
-        rule.waitForIdle()
-
-        fun verifyRedoShortcut(redoKeyEvent: ComposeKeyEvent) {
-            // undo command
-            rule.onNode(hasSetTextAction()).performKeyPress(downEvent(Key.Z, KeyEvent.META_CTRL_ON))
-
-            rule.runOnIdle {
-                assertThat(state.value).isEqualTo("hi")
-            }
-
-            // redo command
-            rule.onNode(hasSetTextAction()).performKeyPress(redoKeyEvent)
-
-            rule.runOnIdle {
-                assertThat(state.value).isEqualTo("hello")
+        // undo command
+        with(rule.onNode(hasSetTextAction())) {
+            requestFocus()
+            performKeyInput {
+                withKeyDown(Key.CtrlLeft) {
+                    pressKey(Key.Z)
+                }
             }
         }
 
-        verifyRedoShortcut(
-            downEvent(
-                Key.Z,
-                KeyEvent.META_CTRL_ON or KeyEvent.META_SHIFT_ON
-            )
-        )
+        rule.runOnIdle {
+            assertThat(state.value).isEqualTo("hi")
+        }
 
-        verifyRedoShortcut(
-            downEvent(
-                Key.Y,
-                KeyEvent.META_CTRL_ON
-            )
-        )
+        // redo command
+        rule.onNode(hasSetTextAction()).performKeyInput {
+            redoKeys.forEach { keyDown(it) }
+            advanceEventTime(100)
+            redoKeys.forEach { keyUp(it) }
+        }
+
+        rule.runOnIdle {
+            assertThat(state.value).isEqualTo("hello")
+        }
     }
-}
-
-private fun downEvent(key: Key, metaState: Int = 0): androidx.compose.ui.input.key.KeyEvent {
-    return androidx.compose.ui.input.key.KeyEvent(
-        KeyEvent(0L, 0L, KeyEvent.ACTION_DOWN, key.nativeKeyCode, 0, metaState)
-    )
 }
