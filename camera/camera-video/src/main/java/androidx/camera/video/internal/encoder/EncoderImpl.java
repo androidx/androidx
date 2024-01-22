@@ -16,6 +16,7 @@
 
 package androidx.camera.video.internal.encoder;
 
+import static androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor;
 import static androidx.camera.video.internal.utils.CodecUtil.createCodec;
 import static androidx.camera.video.internal.encoder.EncoderImpl.InternalState.CONFIGURED;
 import static androidx.camera.video.internal.encoder.EncoderImpl.InternalState.ERROR;
@@ -57,6 +58,7 @@ import androidx.camera.video.internal.compat.quirk.CameraUseInconsistentTimebase
 import androidx.camera.video.internal.compat.quirk.CodecStuckOnFlushQuirk;
 import androidx.camera.video.internal.compat.quirk.DeviceQuirks;
 import androidx.camera.video.internal.compat.quirk.EncoderNotUsePersistentInputSurfaceQuirk;
+import androidx.camera.video.internal.compat.quirk.SignalEosOutputBufferNotComeQuirk;
 import androidx.camera.video.internal.compat.quirk.StopCodecAfterSurfaceRemovalCrashMediaServerQuirk;
 import androidx.camera.video.internal.compat.quirk.VideoEncoderSuspendDoesNotIncludeSuspendTimeQuirk;
 import androidx.camera.video.internal.workaround.VideoTimebaseConverter;
@@ -150,6 +152,7 @@ public class EncoderImpl implements Encoder {
     private static final long NO_LIMIT_LONG = Long.MAX_VALUE;
     private static final Range<Long> NO_RANGE = Range.create(NO_LIMIT_LONG, NO_LIMIT_LONG);
     private static final long STOP_TIMEOUT_MS = 1000L;
+    private static final long SIGNAL_EOS_TIMEOUT_MS = 1000L;
 
     @SuppressWarnings("WeakerAccess") // synthetic accessor
     final String mTag;
@@ -209,6 +212,8 @@ public class EncoderImpl implements Encoder {
     private boolean mIsFlushedAfterEndOfStream = false;
     private boolean mSourceStoppedSignalled = false;
     boolean mMediaCodecEosSignalled = false;
+    @Nullable
+    private Future<?> mSignalEosTimeoutFuture;
 
     /**
      * Creates the encoder with a {@link EncoderConfig}
@@ -305,6 +310,10 @@ public class EncoderImpl implements Encoder {
         if (mStopTimeoutFuture != null) {
             mStopTimeoutFuture.cancel(true);
             mStopTimeoutFuture = null;
+        }
+        if (mSignalEosTimeoutFuture != null) {
+            mSignalEosTimeoutFuture.cancel(false);
+            mSignalEosTimeoutFuture = null;
         }
         if (mMediaCodecCallback != null) {
             mMediaCodecCallback.stop();
@@ -500,7 +509,7 @@ public class EncoderImpl implements Encoder {
                         // times out, stop the codec so that the Encoder can at least be stopped.
                         // Set mDataStopTimeStamp to be null in order to catch this issue in test.
                         mStopTimeoutFuture =
-                                CameraXExecutors.mainThreadExecutor().schedule(
+                                mainThreadExecutor().schedule(
                                         () -> mEncoderExecutor.execute(() -> {
                                             if (mPendingCodecStop) {
                                                 Logger.w(mTag,
@@ -530,6 +539,7 @@ public class EncoderImpl implements Encoder {
     @SuppressWarnings("WeakerAccess") // synthetic accessor
     @ExecutedBy("mEncoderExecutor")
     void signalCodecStop() {
+        Logger.d(mTag, "signalCodecStop");
         if (mEncoderInput instanceof ByteBufferInput) {
             ((ByteBufferInput) mEncoderInput).setActive(false);
             // Wait for all issued input buffer done to avoid input loss.
@@ -541,6 +551,7 @@ public class EncoderImpl implements Encoder {
                     mEncoderExecutor);
         } else if (mEncoderInput instanceof SurfaceInput) {
             try {
+                addSignalEosTimeoutIfNeeded();
                 mMediaCodec.signalEndOfInputStream();
                 mMediaCodecEosSignalled = true;
             } catch (MediaCodec.CodecException e) {
@@ -727,6 +738,20 @@ public class EncoderImpl implements Encoder {
     }
 
     @ExecutedBy("mEncoderExecutor")
+    private void addSignalEosTimeoutIfNeeded() {
+        if (DeviceQuirks.get(SignalEosOutputBufferNotComeQuirk.class) != null) {
+            MediaCodecCallback codecCallback = mMediaCodecCallback;
+            Executor executor = mEncoderExecutor;
+            if (mSignalEosTimeoutFuture != null) {
+                mSignalEosTimeoutFuture.cancel(false);
+            }
+            mSignalEosTimeoutFuture = mainThreadExecutor().schedule(
+                    () -> executor.execute(codecCallback::reachEndData),
+                    SIGNAL_EOS_TIMEOUT_MS, TimeUnit.MILLISECONDS);
+        }
+    }
+
+    @ExecutedBy("mEncoderExecutor")
     private void signalEndOfInputStream() {
         Futures.addCallback(acquireInputBuffer(),
                 new FutureCallback<InputBuffer>() {
@@ -822,6 +847,7 @@ public class EncoderImpl implements Encoder {
     @SuppressWarnings("WeakerAccess") // synthetic accessor
     @ExecutedBy("mEncoderExecutor")
     void stopMediaCodec(@Nullable Runnable afterStop) {
+        Logger.d(mTag, "stopMediaCodec");
         /*
          * MediaCodec#stop will free all its input/output ByteBuffers. Therefore, before calling
          * MediaCodec#stop, it must ensure all dispatched EncodedData(output ByteBuffers) and
@@ -1163,18 +1189,7 @@ public class EncoderImpl implements Encoder {
 
                         // Handle end of stream
                         if (!mHasEndData && isEndOfStream(bufferInfo)) {
-                            mHasEndData = true;
-                            stopMediaCodec(() -> {
-                                if (mState == ERROR) {
-                                    // Error occur during stopping.
-                                    return;
-                                }
-                                try {
-                                    executor.execute(encoderCallback::onEncodeStop);
-                                } catch (RejectedExecutionException e) {
-                                    Logger.e(mTag, "Unable to post to the supplied executor.", e);
-                                }
-                            });
+                            reachEndData();
                         }
                         break;
                     case CONFIGURED:
@@ -1184,6 +1199,35 @@ public class EncoderImpl implements Encoder {
                         break;
                     default:
                         throw new IllegalStateException("Unknown state: " + mState);
+                }
+            });
+        }
+
+        @ExecutedBy("mEncoderExecutor")
+        void reachEndData() {
+            if (mHasEndData) {
+                return;
+            }
+            mHasEndData = true;
+            if (mSignalEosTimeoutFuture != null) {
+                mSignalEosTimeoutFuture.cancel(false);
+                mSignalEosTimeoutFuture = null;
+            }
+            EncoderCallback encoderCallback;
+            Executor executor;
+            synchronized (mLock) {
+                encoderCallback = mEncoderCallback;
+                executor = mEncoderCallbackExecutor;
+            }
+            stopMediaCodec(() -> {
+                if (mState == ERROR) {
+                    // Error occur during stopping.
+                    return;
+                }
+                try {
+                    executor.execute(encoderCallback::onEncodeStop);
+                } catch (RejectedExecutionException e) {
+                    Logger.e(mTag, "Unable to post to the supplied executor.", e);
                 }
             });
         }
