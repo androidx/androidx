@@ -228,7 +228,7 @@ internal class BasicTextField2ImmIntegrationTest {
     @Test
     fun immUpdated_whenFilterChangesText_fromKeyEvent() {
         val state = TextFieldState()
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             BasicTextField2(
                 state = state,
                 modifier = Modifier.testTag(Tag),
@@ -276,7 +276,7 @@ internal class BasicTextField2ImmIntegrationTest {
     @Test
     fun immUpdated_whenEditChangesText() {
         val state = TextFieldState()
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             BasicTextField2(state, Modifier.testTag(Tag))
         }
         requestFocus(Tag)
@@ -298,7 +298,7 @@ internal class BasicTextField2ImmIntegrationTest {
     @Test
     fun immUpdated_whenEditChangesSelection() {
         val state = TextFieldState("hello", initialSelectionInChars = TextRange(0))
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             BasicTextField2(state, Modifier.testTag(Tag))
         }
         requestFocus(Tag)
@@ -319,7 +319,7 @@ internal class BasicTextField2ImmIntegrationTest {
     @Test
     fun immUpdated_whenEditChangesTextAndSelection() {
         val state = TextFieldState()
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             BasicTextField2(state, Modifier.testTag(Tag))
         }
         requestFocus(Tag)
@@ -342,7 +342,7 @@ internal class BasicTextField2ImmIntegrationTest {
     @Test
     fun immNotRestarted_whenKeyboardIsConfiguredAsPassword() {
         val state = TextFieldState()
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             BasicTextField2(
                 state = state,
                 modifier = Modifier.testTag(Tag),
@@ -365,7 +365,7 @@ internal class BasicTextField2ImmIntegrationTest {
     @Test
     fun immNotRestarted_whenKeyboardIsConfiguredAsPassword_fromTransformation() {
         val state = TextFieldState()
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             BasicTextField2(
                 state = state,
                 modifier = Modifier.testTag(Tag),
