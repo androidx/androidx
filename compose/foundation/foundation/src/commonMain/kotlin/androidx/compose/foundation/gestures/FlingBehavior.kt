@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.gestures
 
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 
 /**
@@ -44,6 +43,3 @@ interface FlingBehavior {
      */
     suspend fun ScrollScope.performFling(initialVelocity: Float): Float
 }
-
-@Composable
-internal expect fun rememberFlingBehavior(): FlingBehavior

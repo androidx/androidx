@@ -274,7 +274,7 @@ private class ScrollableNode(
     val nestedScrollDispatcher = NestedScrollDispatcher()
 
     // Place holder fling behavior, we'll initialize it when the density is available.
-    val defaultFlingBehavior = DefaultFlingBehavior(splineBasedDecay(UnityDensity))
+    val defaultFlingBehavior = platformDefaultFlingBehavior()
 
     val scrollingLogic = ScrollingLogic(
         scrollableState = state,
@@ -390,7 +390,8 @@ private class ScrollableNode(
 
     private fun updateDefaultFlingBehavior() {
         val density = currentValueOf(LocalDensity)
-        defaultFlingBehavior.flingDecay = splineBasedDecay(density)
+
+        defaultFlingBehavior.updateDensity(density)
     }
 
     override fun applyFocusProperties(focusProperties: FocusProperties) {
@@ -521,6 +522,9 @@ interface BringIntoViewSpec {
         }
     }
 }
+
+@Composable
+internal expect fun rememberFlingBehavior(): FlingBehavior
 
 /**
  * Contains the default values used by [scrollable]
@@ -899,10 +903,30 @@ private class ScrollableNestedScrollConnection(
     }
 }
 
+/**
+ * Compatibility interface for default fling behaviors that depends on [Density].
+ */
+internal interface ScrollableDefaultFlingBehavior : FlingBehavior {
+    /**
+     * Update the internal parameters of FlingBehavior in accordance with the new [androidx.compose.ui.unit.Density] value.
+     *
+     * @param density new density value.
+     */
+    fun updateDensity(density: Density) = Unit
+}
+
+/**
+ * This method returns [ScrollableDefaultFlingBehavior] whose density will be managed by the
+ * [ScrollableElement] because it's not created inside [Composable] context.
+ * This is different from [rememberFlingBehavior] which creates [FlingBehavior] whose density
+ * depends on [LocalDensity] and is automatically resolved.
+ */
+internal expect fun platformDefaultFlingBehavior(): ScrollableDefaultFlingBehavior
+
 internal class DefaultFlingBehavior(
     var flingDecay: DecayAnimationSpec<Float>,
     private val motionDurationScale: MotionDurationScale = DefaultScrollMotionDurationScale
-) : FlingBehavior {
+) : ScrollableDefaultFlingBehavior {
 
     // For Testing
     var lastAnimationCycleCount = 0
@@ -936,6 +960,10 @@ internal class DefaultFlingBehavior(
                 initialVelocity
             }
         }
+    }
+
+    override fun updateDensity(density: Density) {
+        flingDecay = splineBasedDecay(density)
     }
 }
 

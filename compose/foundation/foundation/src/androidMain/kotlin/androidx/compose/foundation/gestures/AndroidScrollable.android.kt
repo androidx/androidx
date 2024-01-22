@@ -23,9 +23,13 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastFold
+import androidx.compose.animation.splineBasedDecay
 
 internal actual fun CompositionLocalConsumerModifierNode.platformScrollConfig(): ScrollConfig =
     AndroidConfig
+
+internal expect fun platformDefaultFlingBehavior(): ScrollableDefaultFlingBehavior =
+    DefaultFlingBehavior(splineBasedDecay(UnityDensity))
 
 private object AndroidConfig : ScrollConfig {
     override fun Density.calculateMouseWheelScroll(event: PointerEvent, bounds: IntSize): Offset {

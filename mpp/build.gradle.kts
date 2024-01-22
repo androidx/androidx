@@ -131,6 +131,7 @@ tasks.register("testUIKit") {
     dependsOn(":compose:ui:ui-text:$subtaskName")
     dependsOn(":compose:ui:ui:$subtaskName")
     dependsOn(":compose:material3:material3:$subtaskName")
+    dependsOn(":compose:foundation:foundation:$subtaskName")
 }
 
 tasks.register("testRuntimeNative") {

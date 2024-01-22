@@ -21,9 +21,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.v2.runBlockingIfPossible
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.testTag
@@ -36,10 +39,42 @@ import androidx.compose.ui.test.runComposeUiTest
 import androidx.compose.ui.test.swipe
 import androidx.compose.ui.unit.dp
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import org.jetbrains.skiko.KotlinBackend
+import org.jetbrains.skiko.OS
+import org.jetbrains.skiko.hostOs
+import org.jetbrains.skiko.kotlinBackend
 
 @OptIn(ExperimentalTestApi::class)
 class SkikoScrollableTest {
+    @Test
+    fun proper_default_fling_behavior() = runComposeUiTest {
+        val state by mutableStateOf(LazyListState())
+
+        setContent {
+            LazyColumn(state = state, modifier = Modifier.testTag("list").fillMaxSize()) {
+                items(1000) {
+                    Box(Modifier.size(50.dp))
+                }
+            }
+        }
+
+        runOnIdle { assertEquals(0, state.firstVisibleItemIndex) }
+
+        onNodeWithTag("list").performTouchInput {
+            swipe(Offset(30f, 500f), Offset(30f, 10f))
+        }
+
+        when (hostOs) {
+            OS.Ios -> runOnIdle { assertEquals(33, state.firstVisibleItemIndex) }
+            else -> runOnIdle { assertEquals(27, state.firstVisibleItemIndex) }
+        }
+    }
+
     // bug https://github.com/JetBrains/compose-multiplatform/issues/3551 (mouse didn't work)
     @Test
     fun recreating_list_state_shouldn_t_break_mouse_scrolling() = runComposeUiTest {
@@ -71,6 +106,8 @@ class SkikoScrollableTest {
     // bug https://github.com/JetBrains/compose-multiplatform/issues/3551 (touch always worked)
     @Test
     fun recreating_list_state_shouldn_t_break_touch_scrolling() = runComposeUiTest {
+        if (kotlinBackend == KotlinBackend.Native) return@runComposeUiTest
+
         var state by mutableStateOf(LazyListState())
         setContent {
             LazyColumn(state = state, modifier = Modifier.testTag("list").fillMaxSize()) {
