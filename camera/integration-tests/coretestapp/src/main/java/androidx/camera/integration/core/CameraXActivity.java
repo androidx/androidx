@@ -47,7 +47,6 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
-import android.graphics.Rect;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.display.DisplayManager;
 import android.media.MediaScannerConnection;
@@ -150,10 +149,7 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -1144,17 +1140,7 @@ public class CameraXActivity extends AppCompatActivity {
         mPSToast.show();
     }
 
-    private void updateAppUIForE2ETest() {
-        Bundle bundle = getIntent().getExtras();
-        if (bundle == null) {
-            return;
-        }
-
-        String testCase = bundle.getString(INTENT_EXTRA_E2E_TEST_CASE);
-        if (testCase == null) {
-            return;
-        }
-
+    private void updateAppUIForE2ETest(@NonNull String testCase) {
         if (getSupportActionBar() != null) {
             getSupportActionBar().hide();
         }
@@ -1178,7 +1164,6 @@ public class CameraXActivity extends AppCompatActivity {
             mAnalysisToggle.setVisibility(View.GONE);
             mDynamicRangeUi.getButton().setVisibility(View.GONE);
             mRecordUi.hideUi();
-            mPreviewStabilizationToggle.setVisibility(View.GONE);
             if (!testCase.equals(SWITCH_TEST_CASE)) {
                 mCameraDirectionButton.setVisibility(View.GONE);
             }
@@ -1270,9 +1255,6 @@ public class CameraXActivity extends AppCompatActivity {
         mPlusEV.setEnabled(isExposureCompensationSupported());
         mDecEV.setEnabled(isExposureCompensationSupported());
         mZoomIn2XToggle.setEnabled(is2XZoomSupported());
-
-        // this function may make some view visible again, so need to update for E2E tests again
-        updateAppUIForE2ETest();
     }
 
     // Set or reset content description for e2e testing.
@@ -1411,31 +1393,11 @@ public class CameraXActivity extends AppCompatActivity {
         updatePreviewRatioAndScaleTypeByIntent(viewFinderStub);
         updateVideoMirrorModeByIntent(getIntent());
 
-        Bundle bundle = this.getIntent().getExtras();
-
         mViewFinder = OpenGLActivity.chooseViewFinder(getIntent().getExtras(), viewFinderStub,
                 previewRenderer);
         mViewFinder.addOnLayoutChangeListener(
                 (v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom)
-                        -> {
-                    tryBindUseCases();
-
-                    if (bundle == null) {
-                        return;
-                    }
-
-                    String testCase = bundle.getString(INTENT_EXTRA_E2E_TEST_CASE);
-                    if (!Objects.equals(testCase, PREVIEW_TEST_CASE)) {
-                        return;
-                    }
-
-                    Rect rect = new Rect();
-                    v.getGlobalVisibleRect(rect);
-                    String viewFinderPositionText =
-                            rect.left + "," + rect.top + "," + rect.right + "," + rect.bottom;
-                    writeTextToExternalCache(viewFinderPositionText,
-                            "camerax_view_finder_position.txt");
-                });
+                        -> tryBindUseCases());
 
         mVideoToggle = findViewById(R.id.VideoToggle);
         mPhotoToggle = findViewById(R.id.PhotoToggle);
@@ -1516,6 +1478,7 @@ public class CameraXActivity extends AppCompatActivity {
         StrictMode.setThreadPolicy(threadPolicy);
 
         // Get params from adb extra string
+        Bundle bundle = this.getIntent().getExtras();
         if (bundle != null) {
             String launchingCameraId = bundle.getString(INTENT_EXTRA_CAMERA_ID, null);
 
@@ -1553,7 +1516,10 @@ public class CameraXActivity extends AppCompatActivity {
             }
 
             // Update the app UI according to the e2e test case.
-            updateAppUIForE2ETest();
+            String testCase = bundle.getString(INTENT_EXTRA_E2E_TEST_CASE);
+            if (testCase != null) {
+                updateAppUIForE2ETest(testCase);
+            }
         }
 
         mInitializationIdlingResource.increment();
@@ -1584,20 +1550,6 @@ public class CameraXActivity extends AppCompatActivity {
         });
 
         setupPermissions();
-    }
-
-    /**
-     * Writes text data to a cache file in primary external directory for reading during tests.
-     */
-    private void writeTextToExternalCache(@NonNull String text, @NonNull String filename) {
-        File outputFile = new File(getExternalCacheDir(), filename);
-
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile))) {
-            writer.write(text);
-            Log.d(TAG, "Wrote [" + text + "] to " + outputFile);
-        } catch (IOException e) {
-            Log.e(TAG, "writeViewFinderPositionToFile: failed to write to " + outputFile, e);
-        }
     }
 
     /**
