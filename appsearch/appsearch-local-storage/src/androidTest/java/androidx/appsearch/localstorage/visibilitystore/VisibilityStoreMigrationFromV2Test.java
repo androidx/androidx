@@ -99,7 +99,7 @@ public class VisibilityStoreMigrationFromV2Test {
                 ImmutableList.of(),
                 /*prefixedVisibilityBundles=*/ Collections.emptyList(),
                 /*forceOverride=*/ true, // force push the old version into disk
-                VisibilityToDocumentConverter.ANDROID_V_OVERLAY_SCHEMA_VERSION,
+                VisibilityToDocumentConverter.ANDROID_V_OVERLAY_SCHEMA_VERSION_LATEST,
                 /*setSchemaStatsBuilder=*/ null);
         assertThat(internalSetAndroidVSchemaResponse.isSuccess()).isTrue();
 
@@ -195,9 +195,7 @@ public class VisibilityStoreMigrationFromV2Test {
                 VisibilityStore.ANDROID_V_OVERLAY_DATABASE_NAME,
                 new CallerAccess(/*callingPackageName=*/VisibilityStore.VISIBILITY_PACKAGE_NAME));
         assertThat(getAndroidVOverlaySchemaResponse.getSchemas()).containsExactly(
-                VisibilityToDocumentConverter.ANDROID_V_OVERLAY_SCHEMA,
-                VisibilityToDocumentConverter.VISIBLE_TO_CONFIG_SCHEMA,
-                VisibilityPermissionConfig.SCHEMA);
+                VisibilityToDocumentConverter.ANDROID_V_OVERLAY_SCHEMA);
 
         // But no overlay document was created.
         AppSearchException e = assertThrows(AppSearchException.class,

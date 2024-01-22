@@ -119,9 +119,7 @@ public class VisibilityStoreTest {
                 new CallerAccess(VisibilityStore.VISIBILITY_PACKAGE_NAME));
 
         assertThat(getAndroidVOverlaySchemaResponse.getSchemas()).containsExactly(
-                VisibilityPermissionConfig.SCHEMA,
-                VisibilityToDocumentConverter.ANDROID_V_OVERLAY_SCHEMA,
-                VisibilityToDocumentConverter.VISIBLE_TO_CONFIG_SCHEMA);
+                VisibilityToDocumentConverter.ANDROID_V_OVERLAY_SCHEMA);
     }
 
     @Test
@@ -275,8 +273,6 @@ public class VisibilityStoreTest {
                 new GenericDocument.Builder<GenericDocument.Builder<?>>("androidVOverlay",
                         "Email", "AndroidVOverlayType")
                         .setCreationTimestampMillis(0)
-                        .setPropertyString("publiclyVisibleTargetPackage", "com.example.test")
-                        .setPropertyBytes("publiclyVisibleTargetPackageSha256Cert", new byte[32])
                         .build();
         mAppSearchImpl.putDocument(
                 VisibilityStore.VISIBILITY_PACKAGE_NAME,
@@ -317,7 +313,7 @@ public class VisibilityStoreTest {
         mVisibilityStore.setVisibility(ImmutableList.of(visibilityConfig));
 
         // verify the overlay document is created.
-        GenericDocument androidVOverlay = mAppSearchImpl.getDocument(
+        mAppSearchImpl.getDocument(
                 VisibilityStore.VISIBILITY_PACKAGE_NAME,
                 VisibilityStore.ANDROID_V_OVERLAY_DATABASE_NAME,
                 VisibilityToDocumentConverter.ANDROID_V_OVERLAY_NAMESPACE,
@@ -352,7 +348,7 @@ public class VisibilityStoreTest {
         mVisibilityStore.setVisibility(ImmutableList.of(visibilityConfig));
 
         // verify the overlay document is created.
-        GenericDocument androidVOverlay = mAppSearchImpl.getDocument(
+        mAppSearchImpl.getDocument(
                 VisibilityStore.VISIBILITY_PACKAGE_NAME,
                 VisibilityStore.ANDROID_V_OVERLAY_DATABASE_NAME,
                 VisibilityToDocumentConverter.ANDROID_V_OVERLAY_NAMESPACE,
@@ -374,5 +370,104 @@ public class VisibilityStoreTest {
                         /*id=*/ "Email",
                         /*typePropertyPaths=*/ Collections.emptyMap()));
         assertThat(e).hasMessageThat().contains("not found.");
+    }
+
+    @Test
+    public void testMigrateFromDeprecatedSchema() throws Exception {
+        // Set deprecated public acl schema to main visibility database.
+        mAppSearchImpl.setSchema(
+                VisibilityStore.VISIBILITY_PACKAGE_NAME,
+                VisibilityStore.VISIBILITY_DATABASE_NAME,
+                ImmutableList.of(VisibilityToDocumentConverter.VISIBILITY_DOCUMENT_SCHEMA,
+                VisibilityPermissionConfig.SCHEMA,
+                VisibilityToDocumentConverter.DEPRECATED_PUBLIC_ACL_OVERLAY_SCHEMA),
+                /*visibilityConfigs=*/ Collections.emptyList(),
+                /*forceOverride=*/ true,
+                /*version=*/ VisibilityToDocumentConverter.SCHEMA_VERSION_LATEST,
+                /*setSchemaStatsBuilder=*/ null);
+
+        // Create VisibilityStore with success and force remove deprecated public acl schema from
+        // the main visibility database.
+        mVisibilityStore = new VisibilityStore(mAppSearchImpl);
+
+        GetSchemaResponse getSchemaResponse = mAppSearchImpl.getSchema(
+                VisibilityStore.VISIBILITY_PACKAGE_NAME,
+                VisibilityStore.VISIBILITY_DATABASE_NAME,
+                new CallerAccess(VisibilityStore.VISIBILITY_PACKAGE_NAME));
+
+        assertThat(getSchemaResponse.getSchemas()).containsExactly(
+                VisibilityToDocumentConverter.VISIBILITY_DOCUMENT_SCHEMA,
+                VisibilityPermissionConfig.SCHEMA);
+    }
+
+    @Test
+    public void testMigrateFromDeprecatedOverlaySchema() throws Exception {
+        // Set deprecated overlay schema to overlay database.
+        AppSearchSchema deprecatedOverlaySchema =
+                new AppSearchSchema.Builder("AndroidVOverlayType")
+                        .addProperty(new AppSearchSchema.StringPropertyConfig.Builder(
+                                "publiclyVisibleTargetPackage")
+                                .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+                                .build())
+                        .addProperty(new AppSearchSchema.BytesPropertyConfig.Builder(
+                                "publiclyVisibleTargetPackageSha256Cert")
+                                .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+                                .build())
+                        .addProperty(new AppSearchSchema.DocumentPropertyConfig.Builder(
+                                "visibleToConfigProperty",
+                                "VisibleToConfigType")
+                                .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
+                                .build())
+                        .build();
+        AppSearchSchema deprecatedVisibleToConfigSchema =
+                new AppSearchSchema.Builder("VisibleToConfigType")
+                        .addProperty(new AppSearchSchema.BooleanPropertyConfig.Builder(
+                                "notPlatformSurfaceable")
+                                .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+                                .build())
+                        .addProperty(new AppSearchSchema.StringPropertyConfig.Builder(
+                                "packageName")
+                                .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
+                                .build())
+                        .addProperty(new AppSearchSchema.BytesPropertyConfig.Builder(
+                                "sha256Cert")
+                                .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
+                                .build())
+                        .addProperty(new AppSearchSchema.DocumentPropertyConfig.Builder(
+                                "permission", VisibilityPermissionConfig.SCHEMA_TYPE)
+                                .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
+                                .build())
+                        .addProperty(new AppSearchSchema.StringPropertyConfig.Builder(
+                                "publiclyVisibleTargetPackage")
+                                .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+                                .build())
+                        .addProperty(new AppSearchSchema.BytesPropertyConfig.Builder(
+                                "publiclyVisibleTargetPackageSha256Cert")
+                                .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+                                .build())
+                        .build();
+        mAppSearchImpl.setSchema(
+                VisibilityStore.VISIBILITY_PACKAGE_NAME,
+                VisibilityStore.ANDROID_V_OVERLAY_DATABASE_NAME,
+                ImmutableList.of(deprecatedOverlaySchema, deprecatedVisibleToConfigSchema,
+                        VisibilityPermissionConfig.SCHEMA),
+                /*visibilityConfigs=*/ Collections.emptyList(),
+                /*forceOverride=*/ true,
+                /*version=*/ VisibilityToDocumentConverter
+                        .OVERLAY_SCHEMA_VERSION_PUBLIC_ACL_VISIBLE_TO_CONFIG,
+                /*setSchemaStatsBuilder=*/ null);
+
+        // Create VisibilityStore with success and force remove override overlay schema.
+        mVisibilityStore = new VisibilityStore(mAppSearchImpl);
+
+        GetSchemaResponse getSchemaResponse = mAppSearchImpl.getSchema(
+                VisibilityStore.VISIBILITY_PACKAGE_NAME,
+                VisibilityStore.ANDROID_V_OVERLAY_DATABASE_NAME,
+                new CallerAccess(VisibilityStore.VISIBILITY_PACKAGE_NAME));
+
+        assertThat(getSchemaResponse.getVersion()).isEqualTo(
+                VisibilityToDocumentConverter.ANDROID_V_OVERLAY_SCHEMA_VERSION_LATEST);
+        assertThat(getSchemaResponse.getSchemas()).containsExactly(
+                VisibilityToDocumentConverter.ANDROID_V_OVERLAY_SCHEMA);
     }
 }
