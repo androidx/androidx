@@ -29,11 +29,11 @@ import androidx.camera.camera2.pipe.Lock3ABehavior
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.Result3A
 import androidx.camera.camera2.pipe.TorchState
-import androidx.camera.camera2.pipe.integration.impl.FakeCaptureFailure
 import androidx.camera.camera2.pipe.integration.testing.FakeCameraGraphSession.RequestStatus.ABORTED
 import androidx.camera.camera2.pipe.integration.testing.FakeCameraGraphSession.RequestStatus.FAILED
 import androidx.camera.camera2.pipe.integration.testing.FakeCameraGraphSession.RequestStatus.TOTAL_CAPTURE_DONE
 import androidx.camera.camera2.pipe.testing.FakeFrameInfo
+import androidx.camera.camera2.pipe.testing.FakeRequestFailure
 import androidx.camera.camera2.pipe.testing.FakeRequestMetadata
 import java.util.concurrent.Semaphore
 import kotlinx.coroutines.CompletableDeferred
@@ -180,12 +180,9 @@ open class FakeCameraGraphSession : CameraGraph.Session {
                 FAILED -> listener.onFailed(
                     requestMetadata,
                     FrameNumber(0),
-                    FakeCaptureFailure(
+                    FakeRequestFailure(
                         requestMetadata,
-                        false,
-                        FrameNumber(0),
-                        CaptureFailure.REASON_ERROR,
-                        null
+                        FrameNumber(0)
                     )
                 )
 

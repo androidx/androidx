@@ -20,7 +20,6 @@ import android.graphics.SurfaceTexture
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CameraMetadata.CONTROL_AE_MODE_ON_ALWAYS_FLASH
-import android.hardware.camera2.CaptureFailure
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureRequest.CONTROL_AE_MODE
 import android.hardware.camera2.CaptureResult
@@ -60,6 +59,7 @@ import androidx.camera.camera2.pipe.integration.testing.FakeUseCaseCameraRequest
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.camera2.pipe.testing.FakeFrameInfo
 import androidx.camera.camera2.pipe.testing.FakeFrameMetadata
+import androidx.camera.camera2.pipe.testing.FakeRequestFailure
 import androidx.camera.camera2.pipe.testing.FakeRequestMetadata
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
@@ -92,7 +92,6 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.Mockito.mock
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 import org.robolectric.shadows.StreamConfigurationMapBuilder
@@ -658,12 +657,13 @@ class CapturePipelineTest {
                 // Callback capture fail immediately.
                 request.listeners.forEach {
                     val requestMetadata = FakeRequestMetadata()
+                    val frameNumber = FrameNumber(100L)
                     it.onFailed(
                         requestMetadata = requestMetadata,
-                        frameNumber = FrameNumber(100L),
-                        requestFailure = AndroidCaptureFailure(
+                        frameNumber = frameNumber,
+                        requestFailure = FakeRequestFailure(
                             requestMetadata,
-                            mock(CaptureFailure::class.java)
+                            frameNumber
                         )
                     )
                 }

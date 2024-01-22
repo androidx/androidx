@@ -30,14 +30,17 @@ import androidx.camera.camera2.pipe.internal.FrameState.State.COMPLETE
 import androidx.camera.camera2.pipe.internal.FrameState.State.FRAME_INFO_COMPLETE
 import androidx.camera.camera2.pipe.internal.FrameState.State.STARTED
 import androidx.camera.camera2.pipe.internal.FrameState.State.STREAM_RESULTS_COMPLETE
-import androidx.camera.camera2.pipe.media.OutputDistributor
+import androidx.camera.camera2.pipe.internal.OutputResult.Companion.completeWithFailure
+import androidx.camera.camera2.pipe.internal.OutputResult.Companion.completeWithOutput
+import androidx.camera.camera2.pipe.internal.OutputResult.Companion.outputOrNull
+import androidx.camera.camera2.pipe.internal.OutputResult.Companion.outputStatus
 import androidx.camera.camera2.pipe.media.OutputImage
 import androidx.camera.camera2.pipe.media.SharedOutputImage
 import java.util.concurrent.CopyOnWriteArrayList
 import kotlinx.atomicfu.atomic
 import kotlinx.atomicfu.updateAndGet
 import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Deferred
 
 /**
  * This class represents a successfully started frame from the camera, and placeholders for the
@@ -46,11 +49,11 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 @RequiresApi(21)
 internal class FrameState(
     val requestMetadata: RequestMetadata,
-    val frameId: FrameId,
     val frameNumber: FrameNumber,
     val frameTimestamp: CameraTimestamp,
     imageStreams: Set<StreamId>
 ) {
+    val frameId = nextFrameId()
     val frameInfoOutput: FrameInfoOutput = FrameInfoOutput()
     val imageOutputs: List<ImageOutput> = buildList {
         for (streamId in requestMetadata.streams.keys) {
@@ -152,7 +155,6 @@ internal class FrameState(
      * [FrameOutput] handles the logic and reference counting that is required to safely handle a
      * shared `CompletableDeferred` instance that may contain an expensive closable resource.
      */
-    @OptIn(ExperimentalCoroutinesApi::class)
     internal abstract class FrameOutput<T : Any> {
         private val count = atomic(1)
 
@@ -161,7 +163,8 @@ internal class FrameState(
          * object of type T OR the [OutputStatus] that was passed down when this output was
          * completed.
          */
-        val result = CompletableDeferred<Any>()
+        protected val internalResult = CompletableDeferred<OutputResult<T>>()
+        val result: Deferred<OutputResult<T>> get() = internalResult
 
         fun increment(): Boolean {
             val current =
@@ -177,17 +180,10 @@ internal class FrameState(
 
         fun decrement() {
             if (count.decrementAndGet() == 0) {
-                result.cancel()
-                try {
-                    if (!result.isCancelled) {
-                        // If we call cancel(), but the end state is not canceled, it means that
-                        // the result was previously completed successfully. In this case, we need
-                        // to release the underlying reference this Frame is holding on to.
-                        result.getCompleted().asOutput { release(it) }
-                    }
-                } catch (ignored: IllegalStateException) {
-                    // NoOp, this should never happen.
-                }
+                // UNAVAILABLE is used to indicate outputs that have been closed or released during
+                // normal operation.
+                internalResult.completeWithFailure(OutputStatus.UNAVAILABLE)
+                release()
             }
         }
 
@@ -195,53 +191,16 @@ internal class FrameState(
             get() {
                 // A result of `isCancelled` indicates the frame was closed before the Output
                 // arrived.
-                if (count.value == 0 || result.isCancelled) {
+                if (count.value == 0) {
                     return OutputStatus.UNAVAILABLE
                 }
-
-                // If the result is not canceled, and not completed, then we are waiting for the
-                // output to arrive.
-                if (!result.isCompleted) {
-                    return OutputStatus.PENDING
-                }
-
-                // This is guaranteed to be completed.
-                val result = result.getCompleted()
-                if (result is OutputStatus) {
-                    return result
-                }
-                return OutputStatus.AVAILABLE
+                return internalResult.outputStatus()
             }
 
-        fun getCompletedOrNull(): T? =
-            if (!result.isCompleted || result.isCancelled) {
-                null
-            } else {
-                result.getCompleted().asOutput { acquire(it) }
-            }
+        abstract fun outputOrNull(): T?
+        abstract suspend fun await(): T?
 
-        protected fun completeWith(output: T?, outputResult: OutputStatus): Boolean {
-            val result = if (output == null) {
-                result.complete(outputResult)
-            } else {
-                result.complete(output)
-            }
-            return result
-        }
-
-        private inline fun <R> Any.asOutput(block: (T) -> R): R? {
-            if (this is OutputStatus) return null
-            @Suppress("UNCHECKED_CAST")
-            return block(this as T)
-        }
-
-        suspend fun await(): T? = result.await().asOutput { acquire(it) }
-
-        /** Invoked to acquire the underlying resource. */
-        protected abstract fun acquire(value: T): T?
-
-        /** Invoked when the underlying resource is no longer referenced and should be released. */
-        protected abstract fun release(value: T)
+        protected abstract fun release()
     }
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
@@ -253,22 +212,23 @@ internal class FrameState(
             cameraTimestamp: CameraTimestamp,
             outputSequence: Long,
             outputNumber: Long,
-            outputStatus: OutputStatus,
-            output: FrameInfo?
+            outputResult: OutputResult<FrameInfo>
         ) {
+            val output = outputResult.output
             check(output == null || output.frameNumber.value == outputNumber) {
                 "Unexpected FrameInfo: $output " +
                     "Expected ${output?.frameNumber?.value} to match $outputNumber!"
             }
 
-            completeWith(output, outputStatus)
+            internalResult.complete(outputResult)
             onFrameInfoComplete()
         }
 
-        override fun acquire(value: FrameInfo): FrameInfo = value
+        override suspend fun await(): FrameInfo? = result.await().output
+        override fun outputOrNull() = result.outputOrNull()
 
-        override fun release(value: FrameInfo) {
-            // Ignored: FrameInfo is not closable.
+        override fun release() {
+            // NoOp
         }
     }
 
@@ -281,23 +241,36 @@ internal class FrameState(
             cameraTimestamp: CameraTimestamp,
             outputSequence: Long,
             outputNumber: Long,
-            outputStatus: OutputStatus,
-            output: OutputImage?
+            outputResult: OutputResult<OutputImage>
         ) {
-            check(output == null || output.timestamp == outputNumber) {
-                "Unexpected Image: $output, expected ${output?.timestamp} to match $outputNumber!"
+            val output = outputResult.output
+            if (output != null) {
+                check(output.timestamp == outputNumber) {
+                    "Unexpected image: $output! Expected ${output.timestamp} " +
+                        "to match $outputNumber!"
+                }
+                val sharedImage = SharedOutputImage.from(output)
+                if (!internalResult.completeWithOutput(sharedImage)) {
+                    sharedImage.close()
+                }
+            } else {
+                internalResult.completeWithFailure(outputResult.status)
             }
-            val sharedImage = output?.let { SharedOutputImage.from(it) }
-            if (!completeWith(sharedImage, outputStatus)) {
-                sharedImage?.close()
-            }
+
             onStreamResultComplete(streamId)
         }
 
-        override fun release(value: SharedOutputImage) {
-            value.close()
-        }
+        override fun outputOrNull(): SharedOutputImage? = result.outputOrNull()?.acquireOrNull()
 
-        override fun acquire(value: SharedOutputImage): SharedOutputImage? = value.acquireOrNull()
+        override suspend fun await(): SharedOutputImage? = result.await().output?.acquireOrNull()
+
+        override fun release() {
+            internalResult.outputOrNull()?.close()
+        }
+    }
+
+    companion object {
+        private val frameIds = atomic(0L)
+        private fun nextFrameId(): FrameId = FrameId(frameIds.incrementAndGet())
     }
 }
