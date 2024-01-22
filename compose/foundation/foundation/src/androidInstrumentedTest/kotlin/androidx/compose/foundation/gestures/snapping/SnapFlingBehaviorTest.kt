@@ -29,6 +29,7 @@ import androidx.compose.animation.core.spring
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.TestScrollMotionDurationScale
 import androidx.compose.foundation.gestures.FlingBehavior
+import androidx.compose.foundation.gestures.TargetedFlingBehavior
 import androidx.compose.foundation.gestures.rememberScrollableState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -78,7 +79,7 @@ class SnapFlingBehaviorTest {
     fun remainingScrollOffset_cannotApproach_shouldRepresentJustSnappingOffsets() {
         val approachOffset = 0.0f
         val testLayoutInfoProvider = TestLayoutInfoProvider(approachOffset = approachOffset)
-        lateinit var testFlingBehavior: SnapFlingBehavior
+        lateinit var testFlingBehavior: TargetedFlingBehavior
         val scrollOffset = mutableListOf<Float>()
         rule.setContent {
             testFlingBehavior = rememberSnapFlingBehavior(testLayoutInfoProvider)
@@ -103,7 +104,7 @@ class SnapFlingBehaviorTest {
         val approachOffset = 50f
         val testLayoutInfoProvider =
             TestLayoutInfoProvider(approachOffset = approachOffset)
-        lateinit var testFlingBehavior: SnapFlingBehavior
+        lateinit var testFlingBehavior: TargetedFlingBehavior
         val scrollOffset = mutableListOf<Float>()
         rule.setContent {
             testFlingBehavior = rememberSnapFlingBehavior(testLayoutInfoProvider)
@@ -128,7 +129,7 @@ class SnapFlingBehaviorTest {
         val initialOffset = 50f
         val testLayoutInfoProvider =
             TestLayoutInfoProvider(approachOffset = initialOffset)
-        lateinit var testFlingBehavior: SnapFlingBehavior
+        lateinit var testFlingBehavior: TargetedFlingBehavior
         val scrollOffset = mutableListOf<Float>()
         rule.mainClock.autoAdvance = false
         rule.setContent {
