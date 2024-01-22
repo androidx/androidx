@@ -25,7 +25,6 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.LocalSystemTheme
 import androidx.compose.ui.SystemTheme
-import androidx.compose.ui.interop.LocalLayerContainer
 import androidx.compose.ui.interop.LocalUIViewController
 import androidx.compose.ui.platform.PlatformContext
 import androidx.compose.ui.platform.WindowInfoImpl
@@ -419,7 +418,6 @@ internal fun ProvideContainerCompositionLocals(
 ) = with(composeContainer) {
     CompositionLocalProvider(
         LocalUIViewController provides this,
-        LocalLayerContainer provides view,
         LocalInterfaceOrientation provides interfaceOrientationState.value,
         LocalSystemTheme provides systemThemeState.value,
         content = content

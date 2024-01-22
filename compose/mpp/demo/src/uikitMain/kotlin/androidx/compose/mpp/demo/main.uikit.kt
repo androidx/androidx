@@ -3,6 +3,7 @@ package androidx.compose.mpp.demo
 
 import NativeModalWithNaviationExample
 import SwiftUIInteropExample
+import UIKitViewOrder
 import androidx.compose.runtime.*
 import androidx.compose.ui.main.defaultUIKitMain
 import androidx.compose.ui.window.ComposeUIViewController
@@ -25,6 +26,7 @@ fun IosDemo(arg: String, makeHostingController: ((Int) -> UIViewController)? = n
             extraScreens = listOf(
                 IosBugs,
                 NativeModalWithNaviationExample,
+                UIKitViewOrder,
             ) + listOf(makeHostingController).mapNotNull {
                 it?.let {
                     SwiftUIInteropExample(it)

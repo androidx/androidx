@@ -28,6 +28,7 @@ import androidx.compose.ui.input.pointer.HistoricalChange
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.PointerId
 import androidx.compose.ui.input.pointer.PointerType
+import androidx.compose.ui.interop.LocalInteropContainer
 import androidx.compose.ui.interop.LocalUIKitInteropContext
 import androidx.compose.ui.interop.UIKitInteropContext
 import androidx.compose.ui.interop.UIKitInteropTransaction
@@ -145,6 +146,11 @@ internal class ComposeSceneMediator(
     private val renderingView by lazy {
         renderingUIViewFactory(renderDelegate)
     }
+
+    /**
+     * Container for UIKitView and UIKitViewController
+     */
+    private val interopViewContainer = UIView()
 
     private val interactionView by lazy {
         InteractionUIView(
@@ -331,6 +337,7 @@ internal class ComposeSceneMediator(
             this.onAttachedToWindow?.invoke()
             focusStack?.pushAndFocus(interactionView)
         }
+        container.addSubview(interopViewContainer)
         container.addSubview(interactionView)
         interactionView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activateConstraints(
@@ -382,6 +389,7 @@ internal class ComposeSceneMediator(
             LocalKeyboardOverlapHeight provides keyboardOverlapHeightState.value,
             LocalSafeArea provides safeAreaState.value,
             LocalLayoutMargins provides layoutMarginsState.value,
+            LocalInteropContainer provides interopViewContainer,
             content = content
         )
 
