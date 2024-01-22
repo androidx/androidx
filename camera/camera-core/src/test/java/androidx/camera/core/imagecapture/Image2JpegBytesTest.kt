@@ -25,6 +25,7 @@ import androidx.camera.core.imagecapture.Utils.HEIGHT
 import androidx.camera.core.imagecapture.Utils.ROTATION_DEGREES
 import androidx.camera.core.imagecapture.Utils.SENSOR_TO_BUFFER
 import androidx.camera.core.imagecapture.Utils.WIDTH
+import androidx.camera.core.internal.compat.quirk.DeviceQuirks
 import androidx.camera.core.processing.Packet
 import androidx.camera.testing.impl.ExifUtil.createExif
 import androidx.camera.testing.impl.TestImageUtil.createJpegBytes
@@ -45,7 +46,7 @@ import org.robolectric.annotation.internal.DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 class Image2JpegBytesTest {
 
-    private val operation = Image2JpegBytes()
+    private val operation = Image2JpegBytes(DeviceQuirks.getAll())
 
     @Test
     fun processJpegImage_assertOutput() {

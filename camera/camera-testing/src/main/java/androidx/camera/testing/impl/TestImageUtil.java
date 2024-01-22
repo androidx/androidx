@@ -85,11 +85,21 @@ public class TestImageUtil {
     public static FakeImageProxy createJpegFakeImageProxy(@NonNull ImageInfo imageInfo,
             @NonNull byte[] jpegBytes) {
         Bitmap bitmap = decodeByteArray(jpegBytes, 0, jpegBytes.length);
+        return createJpegFakeImageProxy(imageInfo, jpegBytes, bitmap.getWidth(),
+                bitmap.getHeight());
+    }
+
+    /**
+     * Creates a {@link FakeImageProxy} from JPEG bytes.
+     */
+    @NonNull
+    public static FakeImageProxy createJpegFakeImageProxy(@NonNull ImageInfo imageInfo,
+            @NonNull byte[] jpegBytes, int width, int height) {
         FakeImageProxy image = new FakeImageProxy(imageInfo);
         image.setFormat(JPEG);
         image.setPlanes(new FakeJpegPlaneProxy[]{new FakeJpegPlaneProxy(jpegBytes)});
-        image.setWidth(bitmap.getWidth());
-        image.setHeight(bitmap.getHeight());
+        image.setWidth(width);
+        image.setHeight(height);
         return image;
     }
 
@@ -111,6 +121,22 @@ public class TestImageUtil {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
         return outputStream.toByteArray();
+    }
+
+    /**
+     * Generates a A24 problematic JPEG image.
+     */
+    @NonNull
+    public static byte[] createA24ProblematicJpegByteArray(int width, int height) {
+        byte[] incorrectHeaderByteData =
+                new byte[]{(byte) 0xff, (byte) 0xd8, (byte) 0xff, (byte) 0xe1, (byte) 0xff,
+                        (byte) 0x7c, (byte) 0x45, (byte) 0x78, (byte) 0x69, (byte) 0x66,
+                        (byte) 0x00, (byte) 0x00};
+        byte[] jpegBytes = createJpegBytes(width, height);
+        byte[] result = new byte[incorrectHeaderByteData.length + jpegBytes.length];
+        System.arraycopy(incorrectHeaderByteData, 0, result, 0, incorrectHeaderByteData.length);
+        System.arraycopy(jpegBytes, 0, result, incorrectHeaderByteData.length, jpegBytes.length);
+        return result;
     }
 
     /**
