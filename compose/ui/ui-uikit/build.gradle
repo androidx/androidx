@@ -23,13 +23,13 @@ plugins {
 
 kotlin {
     iosX64("uikitX64") {
-        configureCInterop(it, false)
+        configureCInterop(it, false, "x86_64")
     }
     iosArm64("uikitArm64") {
-        configureCInterop(it, true)
+        configureCInterop(it, true, "arm64")
     }
     iosSimulatorArm64("uikitSimArm64") {
-        configureCInterop(it, false)
+        configureCInterop(it, false, "arm64")
     }
 
     sourceSets {
@@ -46,22 +46,19 @@ kotlin {
     }
 }
 
-def configureCInterop(target, isDevice) {
+def configureCInterop(target, isDevice, architecture) {
     def frameworkName = "CMPUIKitUtils"
     def schemeName = frameworkName
     def objcDir = new File(project.projectDir, "src/uikitMain/objc")
     def frameworkSourcesDir = new File(objcDir, frameworkName)
     def sdkName
     def destination
-    def architectures
     if (isDevice) {
         sdkName = "iphoneos"
         destination = "generic/platform=iOS"
-        architectures = "arm64"
     } else {
         sdkName = "iphonesimulator"
         destination = "generic/platform=iOS Simulator"
-        architectures = "arm64 x86_64"
     }
     def buildDir = new File(project.buildDir, "objc/${sdkName}.xcarchive")
     def frameworkPath = new File(buildDir, "/Products/usr/local/lib/lib${frameworkName}.a")
@@ -98,7 +95,7 @@ def configureCInterop(target, isDevice) {
                     "-destination", destination,
                     "SKIP_INSTALL=NO",
                     "BUILD_LIBRARY_FOR_DISTRIBUTION=YES",
-                    "VALID_ARCHS=" + architectures,
+                    "VALID_ARCHS=" + architecture,
                     "MACH_O_TYPE=staticlib"
             )
         }
