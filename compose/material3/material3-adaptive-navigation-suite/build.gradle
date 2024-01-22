@@ -109,9 +109,6 @@ androidXMultiplatform {
 
 android {
     namespace "androidx.compose.material3.adaptive.navigationsuite"
-    lintOptions {
-        disable 'IllegalExperimentalApiUsage' // TODO (conradchen): Address before moving to beta
-    }
 }
 
 androidx {

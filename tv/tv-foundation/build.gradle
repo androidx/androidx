@@ -62,9 +62,6 @@ android {
     defaultConfig {
         minSdkVersion 21
     }
-    lintOptions {
-        disable 'IllegalExperimentalApiUsage' // TODO (b/233188423): Address before moving to beta
-    }
 }
 
 androidx {
