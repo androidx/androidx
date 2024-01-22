@@ -752,7 +752,7 @@ includeProject(":lifecycle:lifecycle-livedata-ktx", [BuildType.MAIN, BuildType.F
 includeProject(":lifecycle:lifecycle-process", [BuildType.MAIN, BuildType.FLAN])
 includeProject(":lifecycle:lifecycle-reactivestreams", [BuildType.MAIN, BuildType.FLAN])
 includeProject(":lifecycle:lifecycle-reactivestreams-ktx", [BuildType.MAIN, BuildType.FLAN])
-includeProject(":lifecycle:lifecycle-runtime", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE])
+includeProject(":lifecycle:lifecycle-runtime", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE, BuildType.INFRAROGUE, BuildType.KMP])
 includeProject(":lifecycle:lifecycle-runtime-compose", [BuildType.COMPOSE])
 includeProject(":lifecycle:lifecycle-runtime-compose:lifecycle-runtime-compose-samples", "lifecycle/lifecycle-runtime-compose/samples", [BuildType.COMPOSE])
 includeProject(":lifecycle:lifecycle-runtime-compose:integration-tests:lifecycle-runtime-compose-demos", [BuildType.COMPOSE])
