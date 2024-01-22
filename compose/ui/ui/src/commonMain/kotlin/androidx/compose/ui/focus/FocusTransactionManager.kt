@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.focus
 
+import androidx.collection.mutableScatterMapOf
 import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.ui.internal.checkPreconditionNotNull
 
@@ -26,8 +27,7 @@ import androidx.compose.ui.internal.checkPreconditionNotNull
  * transaction.
  */
 internal class FocusTransactionManager {
-
-    private val states = mutableMapOf<FocusTargetNode, FocusStateImpl>()
+    private val states = mutableScatterMapOf<FocusTargetNode, FocusStateImpl>()
     private val cancellationListener = mutableVectorOf<() -> Unit>()
     private var ongoingTransaction = false
 
@@ -84,7 +84,7 @@ internal class FocusTransactionManager {
     }
 
     private fun commitTransaction() {
-        for (focusTargetNode in states.keys) {
+        states.forEachKey { focusTargetNode ->
             focusTargetNode.commitFocusState()
         }
         states.clear()
