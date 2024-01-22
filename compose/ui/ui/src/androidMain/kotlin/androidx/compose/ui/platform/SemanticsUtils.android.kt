@@ -22,6 +22,7 @@ import androidx.collection.IntObjectMap
 import androidx.collection.MutableIntSet
 import androidx.collection.mutableIntObjectMapOf
 import androidx.collection.mutableIntSetOf
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.node.OwnerScope
 import androidx.compose.ui.semantics.Role
@@ -101,6 +102,20 @@ internal fun Role.toLegacyClassName(): String? =
         Role.DropdownList -> "android.widget.Spinner"
         else -> null
     }
+
+internal fun SemanticsNode.isImportantForAccessibility() =
+    unmergedConfig.isMergingSemanticsOfDescendants ||
+        unmergedConfig.containsImportantForAccessibility()
+
+internal val DefaultFakeNodeBounds = Rect(0f, 0f, 10f, 10f)
+
+/**
+ * Semantics node with adjusted bounds for the uncovered(by siblings) part.
+ */
+internal class SemanticsNodeWithAdjustedBounds(
+    val semanticsNode: SemanticsNode,
+    val adjustedBounds: android.graphics.Rect
+)
 
 /**
  * This function retrieves the View corresponding to a semanticsId, if it exists.
