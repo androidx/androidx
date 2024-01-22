@@ -60,7 +60,7 @@ internal actual class SnapshotThreadLocal<T> {
         return if (threadId == MainThreadId) {
             mainThreadValue
         } else {
-            map.get().get(Thread.currentThread().id) as T?
+            map.get().get(threadId) as T?
         }
     }
 
