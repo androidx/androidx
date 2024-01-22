@@ -735,7 +735,7 @@ private inline operator fun Matrix.set(row: Int, col: Int, value: Float) {
 @get:ExperimentalComposeUiApi
 @set:ExperimentalComposeUiApi
 @ExperimentalComposeUiApi
-var VelocityTrackerAddPointsFix: Boolean = false
+var VelocityTrackerAddPointsFix: Boolean = true
 
 /**
  * Selecting flag to enable impulse strategy for the velocity trackers.
