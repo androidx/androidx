@@ -44,6 +44,8 @@ dependencies {
 
     testImplementation(project(":privacysandbox:tools:tools-testing"))
     testImplementation(project(":room:room-compiler-processing-testing"))
+    testImplementationAarAsJar(project(":privacysandbox:activity:activity-core"))
+    testImplementationAarAsJar(project(":privacysandbox:activity:activity-provider"))
     testImplementationAarAsJar(project(":privacysandbox:ui:ui-core"))
     testImplementationAarAsJar(project(":privacysandbox:ui:ui-provider"))
     testImplementationAarAsJar(project(":privacysandbox:sdkruntime:sdkruntime-core"))

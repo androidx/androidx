@@ -2,10 +2,10 @@ package com.sdkwithvalues
 
 import android.os.Bundle
 import android.os.IBinder
-import androidx.privacysandbox.ui.client.toLauncherInfo
-import androidx.privacysandbox.ui.core.ISdkActivityLauncher
-import androidx.privacysandbox.ui.core.ISdkActivityLauncherCallback
-import androidx.privacysandbox.ui.core.SdkActivityLauncher
+import androidx.privacysandbox.activity.client.toLauncherInfo
+import androidx.privacysandbox.activity.core.ISdkActivityLauncher
+import androidx.privacysandbox.activity.core.ISdkActivityLauncherCallback
+import androidx.privacysandbox.activity.core.SdkActivityLauncher
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlinx.coroutines.suspendCancellableCoroutine
