@@ -237,6 +237,18 @@ public class LayoutElementBuildersTest {
     }
 
     @Test
+    public void text_defaultExcludeFontPadding() {
+        String staticValue = "Text";
+        // We don't set anything related to the font padding to test that default value is true.
+        LayoutElementBuilders.Text text =
+                new LayoutElementBuilders.Text.Builder()
+                        .setText(new TypeBuilders.StringProp.Builder(staticValue).build())
+                        .build();
+
+        assertThat(text.toProto().getAndroidTextStyle().getExcludeFontPadding()).isTrue();
+    }
+
+    @Test
     public void testTextSetText() {
         LayoutElementBuilders.Text text =
                 new LayoutElementBuilders.Text.Builder()
