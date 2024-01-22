@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,249 +17,147 @@
 package androidx.work
 
 import android.content.Context
-import android.util.Log
-import androidx.arch.core.executor.ArchTaskExecutor
-import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.LargeTest
-import androidx.test.filters.SmallTest
-import androidx.work.impl.WorkDatabase
+import androidx.test.filters.MediumTest
 import androidx.work.impl.WorkManagerImpl
-import androidx.work.impl.utils.SerialExecutorImpl
-import androidx.work.impl.utils.WorkProgressUpdater
-import androidx.work.impl.utils.futures.SettableFuture
-import androidx.work.impl.utils.taskexecutor.TaskExecutor
-import androidx.work.worker.ProgressUpdatingWorker
-import java.util.UUID
-import java.util.concurrent.Executor
-import kotlinx.coroutines.asCoroutineDispatcher
+import androidx.work.impl.constraints.trackers.Trackers
+import androidx.work.impl.testutils.TestConstraintTracker
+import androidx.work.impl.testutils.TrackingWorkerFactory
+import androidx.work.testutils.GreedyScheduler
+import androidx.work.testutils.TestEnv
+import androidx.work.testutils.WorkManager
+import androidx.work.testutils.awaitWorkerEnqueued
+import androidx.work.testutils.awaitWorkerFinished
+import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.Executors
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
-import org.hamcrest.CoreMatchers.instanceOf
-import org.hamcrest.CoreMatchers.`is`
-import org.hamcrest.CoreMatchers.nullValue
-import org.hamcrest.MatcherAssert.assertThat
-import org.junit.After
-import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.ArgumentCaptor
-import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.mock
-import org.mockito.Mockito.spy
-import org.mockito.Mockito.times
-import org.mockito.Mockito.verify
 
 @RunWith(AndroidJUnit4::class)
-@SmallTest
+@MediumTest
 class CoroutineWorkerTest {
-
-    private lateinit var context: Context
-    private lateinit var configuration: Configuration
-    private lateinit var database: WorkDatabase
-    private lateinit var workManagerImpl: WorkManagerImpl
-    private lateinit var progressUpdater: ProgressUpdater
-    private lateinit var mForegroundUpdater: ForegroundUpdater
-
-    @Before
-    fun setUp() {
-        ArchTaskExecutor.getInstance()
-            .setDelegate(object : androidx.arch.core.executor.TaskExecutor() {
-                override fun executeOnDiskIO(runnable: Runnable) {
-                    runnable.run()
-                }
-
-                override fun postToMainThread(runnable: Runnable) {
-                    runnable.run()
-                }
-
-                override fun isMainThread(): Boolean {
-                    return true
-                }
-            })
-
-        context = ApplicationProvider.getApplicationContext()
-        configuration = Configuration.Builder()
-            .setExecutor(SynchronousExecutor())
-            .setMinimumLoggingLevel(Log.DEBUG)
-            .build()
-        workManagerImpl = WorkManagerImpl(
-            context, configuration,
-            InstantWorkTaskExecutor()
-        )
-        WorkManagerImpl.setDelegate(workManagerImpl)
-        database = workManagerImpl.workDatabase
-        // No op
-        progressUpdater = ProgressUpdater { _, _, _ ->
-            val future = SettableFuture.create<Void>()
-            future.set(null)
-            future
-        }
-        mForegroundUpdater = mock(ForegroundUpdater::class.java)
-    }
-
-    @After
-    fun tearDown() {
-        WorkManagerImpl.setDelegate(null)
-        ArchTaskExecutor.getInstance().setDelegate(null)
-    }
-
-    @Test
-    fun testCoroutineWorker_basicUsage() {
-        val workerFactory = DefaultWorkerFactory
-        val worker = workerFactory.createWorkerWithDefaultFallback(
-            context,
-            SynchronousCoroutineWorker::class.java.name,
-            WorkerParameters(workerFactory)
-        ) as SynchronousCoroutineWorker
-
-        assertThat(worker.job.isCompleted, `is`(false))
-
-        val future = worker.startWork()
-        val result = future.get()
-
-        assertThat(future.isDone, `is`(true))
-        assertThat(future.isCancelled, `is`(false))
-        assertThat(result, `is`(instanceOf(ListenableWorker.Result.Success::class.java)))
-        assertThat(
-            (result as ListenableWorker.Result.Success).outputData.getLong(
-                "output", 0L
-            ),
-            `is`(999L)
-        )
-    }
-
-    @Test
-    fun testCoroutineWorker_cancellingFutureCancelsJob() {
-        val workerFactory = DefaultWorkerFactory
-        val worker = workerFactory.createWorkerWithDefaultFallback(
-            context,
-            SynchronousCoroutineWorker::class.java.name,
-            WorkerParameters(workerFactory)
-        ) as SynchronousCoroutineWorker
-
-        assertThat(worker.job.isCancelled, `is`(false))
-        worker.future.cancel(true)
-        assertThat(worker.job.isCancelled, `is`(true))
-    }
-
-    @Test
-    @LargeTest
-    fun testProgressUpdates() {
-        val workerFactory = DefaultWorkerFactory
-        val progressUpdater = spy(WorkProgressUpdater(database, workManagerImpl.workTaskExecutor))
-        val workRequest = OneTimeWorkRequestBuilder<ProgressUpdatingWorker>().build()
-        database.workSpecDao().insertWorkSpec(workRequest.workSpec)
-        val worker = workerFactory.createWorkerWithDefaultFallback(
-            context,
-            ProgressUpdatingWorker::class.java.name,
-            WorkerParameters(
-                workerFactory,
-                workRequest.id,
-                progressUpdater,
-            )
-        ) as ProgressUpdatingWorker
-
-        runBlocking {
-            val result = worker.doWork()
-            val captor = ArgumentCaptor.forClass(Data::class.java)
-            verify(progressUpdater, times(2))
-                .updateProgress(
-                    any(Context::class.java),
-                    any(UUID::class.java),
-                    captor.capture()
-                )
-            assertThat(result, `is`(instanceOf(ListenableWorker.Result.Success::class.java)))
-            val recent = captor.allValues.lastOrNull()
-            assertThat(recent?.getInt(ProgressUpdatingWorker.Progress, 0), `is`(100))
-            val progress = database.workProgressDao().getProgressForWorkSpecId(workRequest.stringId)
-            assertThat(progress, nullValue())
-        }
-    }
-
-    @Test
-    @LargeTest
-    fun testProgressUpdatesForRetry() {
-        val workerFactory = DefaultWorkerFactory
-        val progressUpdater = spy(WorkProgressUpdater(database, workManagerImpl.workTaskExecutor))
-        val input = workDataOf(ProgressUpdatingWorker.Expected to "Retry")
-        val workRequest = OneTimeWorkRequestBuilder<ProgressUpdatingWorker>()
-            .setInputData(input)
-            .build()
-        database.workSpecDao().insertWorkSpec(workRequest.workSpec)
-        val worker = workerFactory.createWorkerWithDefaultFallback(
-            context,
-            ProgressUpdatingWorker::class.java.name,
-            WorkerParameters(
-                workerFactory,
-                workRequest.id,
-                progressUpdater,
-            )
-        ) as ProgressUpdatingWorker
-
-        runBlocking {
-            val result = worker.doWork()
-            val captor = ArgumentCaptor.forClass(Data::class.java)
-            verify(progressUpdater, times(2))
-                .updateProgress(
-                    any(Context::class.java),
-                    any(UUID::class.java),
-                    captor.capture()
-                )
-            assertThat(result, `is`(instanceOf(ListenableWorker.Result.Success::class.java)))
-            val recent = captor.allValues.lastOrNull()
-            assertThat(recent?.getInt(ProgressUpdatingWorker.Progress, 0), `is`(100))
-            val progress = database.workProgressDao().getProgressForWorkSpecId(workRequest.stringId)
-            assertThat(progress, nullValue())
-        }
-    }
-
-    class SynchronousExecutor : Executor {
-
-        override fun execute(command: Runnable) {
-            command.run()
-        }
-    }
-
-    class InstantWorkTaskExecutor : TaskExecutor {
-
-        private val mSynchronousExecutor = SynchronousExecutor()
-        private val mSerialExecutor = SerialExecutorImpl(mSynchronousExecutor)
-
-        override fun getMainThreadExecutor(): Executor {
-            return mSynchronousExecutor
-        }
-
-        override fun getSerialTaskExecutor(): SerialExecutorImpl {
-            return mSerialExecutor
-        }
-    }
-
-    class SynchronousCoroutineWorker(context: Context, params: WorkerParameters) :
-        CoroutineWorker(context, params) {
-
-        override suspend fun doWork(): Result {
-            return Result.success(workDataOf("output" to 999L))
-        }
-
-        @Deprecated(message = "use withContext(...) inside doWork() instead.")
-        override val coroutineContext = SynchronousExecutor().asCoroutineDispatcher()
-    }
-
-    fun WorkerParameters(
-        workerFactory: WorkerFactory,
-        id: UUID = UUID.randomUUID(),
-        progressUpdater: ProgressUpdater = this.progressUpdater,
-    ) = WorkerParameters(
-        id,
-        Data.EMPTY,
-        emptyList(),
-        WorkerParameters.RuntimeExtras(),
-        1,
-        1,
-        configuration.executor,
-        workManagerImpl.workTaskExecutor,
-        workerFactory,
-        progressUpdater,
-        mForegroundUpdater
+    val workerFactory = TrackingWorkerFactory()
+    val configuration =
+        Configuration.Builder().setWorkerFactory(workerFactory)
+            .setTaskExecutor(Executors.newSingleThreadExecutor()).build()
+    val env = TestEnv(configuration)
+    val taskExecutor = env.taskExecutor
+    val fakeChargingTracker = TestConstraintTracker(true, env.context, env.taskExecutor)
+    val trackers = Trackers(
+        context = env.context,
+        taskExecutor = env.taskExecutor,
+        batteryChargingTracker = fakeChargingTracker
     )
+    val greedyScheduler = GreedyScheduler(env, trackers)
+    val workManager = WorkManager(env, listOf(greedyScheduler), trackers)
+
+    init {
+        WorkManagerImpl.setDelegate(workManager)
+    }
+
+    @Test
+    fun testCoroutineWorker_basicUsage() = runBlocking {
+        val request = OneTimeWorkRequest.from(SuccessCoroutineWorker::class.java)
+        workManager.enqueue(request)
+        val workInfo = workManager.awaitWorkerFinished(request.id)
+        assertThat(workInfo.state).isEqualTo(WorkInfo.State.SUCCEEDED)
+        assertThat(workInfo.outputData.getLong("output", 0L)).isEqualTo(999L)
+    }
+
+    @Test
+    fun testCoroutineWorker_failingWorker() = runBlocking {
+        val request = OneTimeWorkRequest.from(ThrowingCoroutineWorker::class.java)
+        workManager.enqueue(request)
+        val workInfo = workManager.awaitWorkerFinished(request.id)
+        assertThat(workInfo.state).isEqualTo(WorkInfo.State.FAILED)
+    }
+
+    @Test
+    fun testCoroutineWorker_interruptionCancelsJob() = runBlocking {
+        val request =
+            OneTimeWorkRequest.Builder(CancellationCheckingWorker::class.java)
+                .setConstraints(Constraints(requiresCharging = true))
+                .build()
+        workManager.enqueue(request)
+        val worker = workerFactory.await(request.id) as CancellationCheckingWorker
+        worker.doWorkCalled.await()
+        fakeChargingTracker.constraintState = false
+        workManager.awaitWorkerEnqueued(request.id)
+        assertThat(worker.cancelled).isTrue()
+    }
+
+    @Test
+    fun testProgressUpdates() = runBlocking {
+        val request = OneTimeWorkRequest.from(ProgressUpdatingWorker::class.java)
+        workManager.enqueue(request)
+        val worker = workerFactory.await(request.id) as ProgressUpdatingWorker
+
+        val progress1 = workManager.getWorkInfoByIdFlow(request.id)
+            .first { it.progress.getInt("progress", 0) != 0 }.progress
+        assertThat(progress1.getInt("progress", 0)).isEqualTo(1)
+        worker.firstCheckPoint.complete(Unit)
+
+        val progress2 = workManager.getWorkInfoByIdFlow(request.id)
+            .first { it.progress.getInt("progress", 0) != 1 }.progress
+        assertThat(progress2.getInt("progress", 0)).isEqualTo(100)
+        worker.secondCheckPoint.complete(Unit)
+        val workInfo = workManager.awaitWorkerFinished(request.id)
+        assertThat(workInfo.state).isEqualTo(WorkInfo.State.SUCCEEDED)
+        assertThat(workInfo.progress).isEqualTo(Data.EMPTY)
+    }
+}
+
+class SuccessCoroutineWorker(
+    appContext: Context,
+    params: WorkerParameters
+) : CoroutineWorker(appContext, params) {
+    override suspend fun doWork(): Result = Result.success(workDataOf("output" to 999L))
+}
+
+class ThrowingCoroutineWorker(
+    appContext: Context,
+    params: WorkerParameters
+) : CoroutineWorker(appContext, params) {
+    override suspend fun doWork(): Result {
+        throw IllegalStateException("Failing worker")
+    }
+}
+
+class CancellationCheckingWorker(
+    appContext: Context,
+    params: WorkerParameters
+) : CoroutineWorker(appContext, params) {
+    var cancelled = false
+    val doWorkCalled = CompletableDeferred<Unit>()
+    override suspend fun doWork(): Result {
+        doWorkCalled.complete(Unit)
+        try {
+            // suspends forever
+            CompletableDeferred<Unit>().await()
+        } catch (c: CancellationException) {
+            cancelled = true
+            throw c
+        }
+        return Result.success()
+    }
+}
+
+class ProgressUpdatingWorker(
+    appContext: Context,
+    params: WorkerParameters
+) : CoroutineWorker(appContext, params) {
+    val firstCheckPoint = CompletableDeferred<Unit>()
+    val secondCheckPoint = CompletableDeferred<Unit>()
+
+    override suspend fun doWork(): Result {
+        setProgress(workDataOf("progress" to 1))
+        firstCheckPoint.await()
+        setProgress(workDataOf("progress" to 100))
+        secondCheckPoint.await()
+        return Result.success()
+    }
 }
