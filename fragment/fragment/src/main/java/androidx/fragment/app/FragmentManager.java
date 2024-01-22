@@ -553,7 +553,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
     private final Map<String, LifecycleAwareResultListener> mResultListeners =
             Collections.synchronizedMap(new HashMap<String, LifecycleAwareResultListener>());
 
-    ArrayList<OnBackStackChangedListener> mBackStackChangeListeners;
+    ArrayList<OnBackStackChangedListener> mBackStackChangeListeners = new ArrayList<>();
     private final FragmentLifecycleCallbacksDispatcher mLifecycleCallbacksDispatcher =
             new FragmentLifecycleCallbacksDispatcher(this);
     private final CopyOnWriteArrayList<FragmentOnAttachListener> mOnAttachListeners =
@@ -819,7 +819,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
         // calling onBackPressed()
         execPendingActions(true);
         if (USE_PREDICTIVE_BACK && mTransitioningOp != null) {
-            if (mBackStackChangeListeners != null && !mBackStackChangeListeners.isEmpty()) {
+            if (!mBackStackChangeListeners.isEmpty()) {
                 // Build a list of fragments based on the records
                 Set<Fragment> fragments = new LinkedHashSet<>(
                         fragmentsFromRecord(mTransitioningOp));
@@ -1086,9 +1086,6 @@ public abstract class FragmentManager implements FragmentResultOwner {
      * Add a new listener for changes to the fragment back stack.
      */
     public void addOnBackStackChangedListener(@NonNull OnBackStackChangedListener listener) {
-        if (mBackStackChangeListeners == null) {
-            mBackStackChangeListeners = new ArrayList<>();
-        }
         mBackStackChangeListeners.add(listener);
     }
 
@@ -1097,9 +1094,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
      * {@link #addOnBackStackChangedListener(OnBackStackChangedListener)}.
      */
     public void removeOnBackStackChangedListener(@NonNull OnBackStackChangedListener listener) {
-        if (mBackStackChangeListeners != null) {
-            mBackStackChangeListeners.remove(listener);
-        }
+        mBackStackChangeListeners.remove(listener);
     }
 
     @Override
@@ -2061,8 +2056,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
         // such as push, push, pop, push are correctly considered a push
         boolean isPop = isRecordPop.get(endIndex - 1);
 
-        if (addToBackStack && mBackStackChangeListeners != null
-                && !mBackStackChangeListeners.isEmpty()) {
+        if (addToBackStack && !mBackStackChangeListeners.isEmpty()) {
             Set<Fragment> fragments = new LinkedHashSet<>();
             // Build a list of fragments based on the records
             for (BackStackRecord record : records) {
@@ -2293,10 +2287,8 @@ public abstract class FragmentManager implements FragmentResultOwner {
     }
 
     private void reportBackStackChanged() {
-        if (mBackStackChangeListeners != null) {
-            for (int i = 0; i < mBackStackChangeListeners.size(); i++) {
-                mBackStackChangeListeners.get(i).onBackStackChanged();
-            }
+        for (int i = 0; i < mBackStackChangeListeners.size(); i++) {
+            mBackStackChangeListeners.get(i).onBackStackChanged();
         }
     }
 
@@ -3746,7 +3738,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
             boolean result = prepareBackStackState(records, isRecordPop);
             mBackStarted = true;
             // Dispatch started signal to onBackStackChangedListeners.
-            if (mBackStackChangeListeners != null && !mBackStackChangeListeners.isEmpty()) {
+            if (!mBackStackChangeListeners.isEmpty()) {
                 if (records.size() > 0) {
                     boolean isPop = isRecordPop.get(records.size() - 1);
                     Set<Fragment> fragments = new LinkedHashSet<>();
