@@ -104,6 +104,9 @@ public class DeviceQuirksLoader {
         if (ExtraSupportedQualityQuirk.load()) {
             quirks.add(new ExtraSupportedQualityQuirk());
         }
+        if (SignalEosOutputBufferNotComeQuirk.load()) {
+            quirks.add(new SignalEosOutputBufferNotComeQuirk());
+        }
 
         return quirks;
     }
