@@ -66,8 +66,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 /**
- * Test for the [RippleTheme] provided by [MaterialTheme], to verify colors and opacity in
- * different configurations.
+ * Test for [ripple], to verify colors and opacity in different configurations.
  */
 @LargeTest
 @RunWith(AndroidJUnit4::class)
@@ -82,8 +81,7 @@ import org.junit.runner.RunWith
     // color.
     maxSdkVersion = Build.VERSION_CODES.R
 )
-@Suppress("DEPRECATION_ERROR")
-class MaterialRippleThemeTest {
+class RippleTest {
 
     @get:Rule
     val rule = createComposeRule()
@@ -256,261 +254,103 @@ class MaterialRippleThemeTest {
         )
     }
 
-    @Test
-    fun customRippleTheme_pressed() {
-        val interactionSource = MutableInteractionSource()
-
-        val contentColor = Color.Black
-
-        val rippleColor = Color.Red
-        val expectedAlpha = 0.5f
-        val rippleAlpha = RippleAlpha(expectedAlpha, expectedAlpha, expectedAlpha, expectedAlpha)
-
-        val rippleTheme = object : androidx.compose.material.ripple.RippleTheme {
-            @Deprecated("Super method deprecated")
-            @Composable
-            override fun defaultColor() = rippleColor
-
-            @Deprecated("Super method deprecated")
-            @Composable
-            override fun rippleAlpha() = rippleAlpha
-        }
-
-        var scope: CoroutineScope? = null
-
-        rule.setContent {
-            scope = rememberCoroutineScope()
-            MaterialTheme {
-                CompositionLocalProvider(
-                    androidx.compose.material.ripple.LocalRippleTheme provides rippleTheme
-                ) {
-                    Surface(contentColor = contentColor) {
-                        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                            RippleBoxWithBackground(
-                                interactionSource,
-                                androidx.compose.material.ripple.rememberRipple(),
-                                bounded = true
-                            )
-                        }
-                    }
-                }
-            }
-        }
-
-        val expectedColor = calculateResultingRippleColor(
-            rippleColor,
-            rippleOpacity = expectedAlpha
-        )
-
-        assertRippleMatches(
-            scope!!,
-            interactionSource,
-            PressInteraction.Press(Offset(10f, 10f)),
-            expectedColor
-        )
-    }
-
-    @Test
-    fun customRippleTheme_hovered() {
-        val interactionSource = MutableInteractionSource()
-
-        val contentColor = Color.Black
-
-        val rippleColor = Color.Red
-        val expectedAlpha = 0.5f
-        val rippleAlpha = RippleAlpha(expectedAlpha, expectedAlpha, expectedAlpha, expectedAlpha)
-
-        val rippleTheme = object : androidx.compose.material.ripple.RippleTheme {
-            @Deprecated("Super method deprecated")
-            @Composable
-            override fun defaultColor() = rippleColor
-
-            @Deprecated("Super method deprecated")
-            @Composable
-            override fun rippleAlpha() = rippleAlpha
-        }
-
-        var scope: CoroutineScope? = null
-
-        rule.setContent {
-            scope = rememberCoroutineScope()
-            MaterialTheme {
-                CompositionLocalProvider(
-                    androidx.compose.material.ripple.LocalRippleTheme provides rippleTheme
-                ) {
-                    Surface(contentColor = contentColor) {
-                        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                            RippleBoxWithBackground(
-                                interactionSource,
-                                androidx.compose.material.ripple.rememberRipple(),
-                                bounded = true
-                            )
-                        }
-                    }
-                }
-            }
-        }
-
-        val expectedColor = calculateResultingRippleColor(
-            rippleColor,
-            rippleOpacity = expectedAlpha
-        )
-
-        assertRippleMatches(
-            scope!!,
-            interactionSource,
-            HoverInteraction.Enter(),
-            expectedColor
-        )
-    }
-
-    @Test
-    fun customRippleTheme_focused() {
-        val interactionSource = MutableInteractionSource()
-
-        val contentColor = Color.Black
-
-        val rippleColor = Color.Red
-        val expectedAlpha = 0.5f
-        val rippleAlpha = RippleAlpha(expectedAlpha, expectedAlpha, expectedAlpha, expectedAlpha)
-
-        val rippleTheme = object : androidx.compose.material.ripple.RippleTheme {
-            @Deprecated("Super method deprecated")
-            @Composable
-            override fun defaultColor() = rippleColor
-
-            @Deprecated("Super method deprecated")
-            @Composable
-            override fun rippleAlpha() = rippleAlpha
-        }
-
-        var scope: CoroutineScope? = null
-
-        rule.setContent {
-            scope = rememberCoroutineScope()
-            MaterialTheme {
-                CompositionLocalProvider(
-                    androidx.compose.material.ripple.LocalRippleTheme provides rippleTheme
-                ) {
-                    Surface(contentColor = contentColor) {
-                        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                            RippleBoxWithBackground(
-                                interactionSource,
-                                androidx.compose.material.ripple.rememberRipple(),
-                                bounded = true
-                            )
-                        }
-                    }
-                }
-            }
-        }
-
-        val expectedColor = calculateResultingRippleColor(
-            rippleColor,
-            rippleOpacity = expectedAlpha
-        )
-
-        assertRippleMatches(
-            scope!!,
-            interactionSource,
-            FocusInteraction.Focus(),
-            expectedColor
-        )
-    }
-
-    @Test
-    fun customRippleTheme_dragged() {
-        val interactionSource = MutableInteractionSource()
-
-        val contentColor = Color.Black
-
-        val rippleColor = Color.Red
-        val expectedAlpha = 0.5f
-        val rippleAlpha = RippleAlpha(expectedAlpha, expectedAlpha, expectedAlpha, expectedAlpha)
-
-        val rippleTheme = object : androidx.compose.material.ripple.RippleTheme {
-            @Deprecated("Super method deprecated")
-            @Composable
-            override fun defaultColor() = rippleColor
-            @Deprecated("Super method deprecated")
-            @Composable
-            override fun rippleAlpha() = rippleAlpha
-        }
-
-        var scope: CoroutineScope? = null
-
-        rule.setContent {
-            scope = rememberCoroutineScope()
-            MaterialTheme {
-                CompositionLocalProvider(
-                    androidx.compose.material.ripple.LocalRippleTheme provides rippleTheme
-                ) {
-                    Surface(contentColor = contentColor) {
-                        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                            RippleBoxWithBackground(
-                                interactionSource,
-                                androidx.compose.material.ripple.rememberRipple(),
-                                bounded = true
-                            )
-                        }
-                    }
-                }
-            }
-        }
-
-        val expectedColor = calculateResultingRippleColor(
-            rippleColor,
-            rippleOpacity = expectedAlpha
-        )
-
-        assertRippleMatches(
-            scope!!,
-            interactionSource,
-            DragInteraction.Start(),
-            expectedColor
-        )
-    }
-
     /**
+     * Test case for changing content color during an existing ripple effect
+     *
      * Note: no corresponding test for pressed ripples since RippleForeground does not update the
      * color of currently active ripples unless they are being drawn on the UI thread
      * (which should only happen if the target radius also changes).
      */
     @Test
-    fun themeChangeDuringRipple_dragged() {
+    fun contentColorChangeDuringRipple_dragged() {
         val interactionSource = MutableInteractionSource()
 
-        fun createRippleTheme(color: Color, alpha: Float):
-            androidx.compose.material.ripple.RippleTheme =
-            object : androidx.compose.material.ripple.RippleTheme {
-                val rippleAlpha = RippleAlpha(alpha, alpha, alpha, alpha)
-                @Deprecated("Super method deprecated")
-                @Composable
-                override fun defaultColor() = color
-
-                @Deprecated("Super method deprecated")
-                @Composable
-                override fun rippleAlpha() = rippleAlpha
-            }
-
         val initialColor = Color.Red
-        val initialAlpha = 0.5f
-
-        var rippleTheme by mutableStateOf(createRippleTheme(initialColor, initialAlpha))
+        var contentColor by mutableStateOf(initialColor)
 
         var scope: CoroutineScope? = null
 
         rule.setContent {
             scope = rememberCoroutineScope()
             MaterialTheme {
-                CompositionLocalProvider(
-                    androidx.compose.material.ripple.LocalRippleTheme provides rippleTheme
-                ) {
-                    Surface(contentColor = Color.Black) {
+                Surface(contentColor = contentColor) {
+                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        RippleBoxWithBackground(
+                            interactionSource,
+                            ripple(),
+                            bounded = true
+                        )
+                    }
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            scope!!.launch {
+                interactionSource.emit(DragInteraction.Start())
+            }
+        }
+        rule.waitForIdle()
+
+        with(rule.onNodeWithTag(Tag)) {
+            val centerPixel = captureToImage().asAndroidBitmap()
+                .run {
+                    getPixel(width / 2, height / 2)
+                }
+
+            val expectedColor =
+                calculateResultingRippleColor(
+                    initialColor,
+                    rippleOpacity = 0.16f
+                )
+
+            Truth.assertThat(Color(centerPixel)).isEqualTo(expectedColor)
+        }
+
+        val newColor = Color.Green
+
+        rule.runOnUiThread {
+            contentColor = newColor
+        }
+
+        with(rule.onNodeWithTag(Tag)) {
+            val centerPixel = captureToImage().asAndroidBitmap()
+                .run {
+                    getPixel(width / 2, height / 2)
+                }
+
+            val expectedColor =
+                calculateResultingRippleColor(
+                    newColor,
+                    rippleOpacity = 0.16f
+                )
+
+            Truth.assertThat(Color(centerPixel)).isEqualTo(expectedColor)
+        }
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Test
+    fun rippleConfiguration_color_dragged() {
+        val interactionSource = MutableInteractionSource()
+
+        val rippleConfiguration = RippleConfiguration(
+            color = Color.Red
+        )
+
+        var scope: CoroutineScope? = null
+
+        rule.setContent {
+            scope = rememberCoroutineScope()
+            MaterialTheme {
+                Surface {
+                    CompositionLocalProvider(
+                        LocalRippleConfiguration provides rippleConfiguration
+                    ) {
                         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                             RippleBoxWithBackground(
                                 interactionSource,
-                                androidx.compose.material.ripple.rememberRipple(),
+                                ripple(),
                                 bounded = true
                             )
                         }
@@ -533,18 +373,55 @@ class MaterialRippleThemeTest {
                 }
 
             val expectedColor =
-                calculateResultingRippleColor(initialColor, rippleOpacity = initialAlpha)
+                calculateResultingRippleColor(
+                    // Color from the ripple configuration should be used
+                    rippleConfiguration.color,
+                    // Default alpha should be used
+                    rippleOpacity = 0.16f
+                )
 
             Truth.assertThat(Color(centerPixel)).isEqualTo(expectedColor)
         }
+    }
 
-        val newColor = Color.Green
-        // TODO: changing alpha for existing state layers is not currently supported
-        val newAlpha = 0.5f
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Test
+    fun rippleConfiguration_color_explicitColorSet_dragged() {
+        val interactionSource = MutableInteractionSource()
 
-        rule.runOnUiThread {
-            rippleTheme = createRippleTheme(newColor, newAlpha)
+        val rippleConfiguration = RippleConfiguration(
+            color = Color.Red
+        )
+
+        val explicitColor = Color.Green
+
+        var scope: CoroutineScope? = null
+
+        rule.setContent {
+            scope = rememberCoroutineScope()
+            MaterialTheme {
+                Surface {
+                    CompositionLocalProvider(
+                        LocalRippleConfiguration provides rippleConfiguration
+                    ) {
+                        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            RippleBoxWithBackground(
+                                interactionSource,
+                                ripple(color = explicitColor),
+                                bounded = true
+                            )
+                        }
+                    }
+                }
+            }
         }
+
+        rule.runOnIdle {
+            scope!!.launch {
+                interactionSource.emit(DragInteraction.Start())
+            }
+        }
+        rule.waitForIdle()
 
         with(rule.onNodeWithTag(Tag)) {
             val centerPixel = captureToImage().asAndroidBitmap()
@@ -553,26 +430,243 @@ class MaterialRippleThemeTest {
                 }
 
             val expectedColor =
-                calculateResultingRippleColor(newColor, rippleOpacity = newAlpha)
+                calculateResultingRippleColor(
+                    // Color explicitly set on the ripple should 'win' over the configuration color
+                    explicitColor,
+                    // Default alpha should be used
+                    rippleOpacity = 0.16f
+                )
 
             Truth.assertThat(Color(centerPixel)).isEqualTo(expectedColor)
         }
     }
 
+    @OptIn(ExperimentalMaterial3Api::class)
     @Test
-    fun contentColorProvidedAfterRememberRipple() {
+    fun rippleConfiguration_alpha_dragged() {
         val interactionSource = MutableInteractionSource()
 
-        val alpha = 0.5f
-        val rippleAlpha = RippleAlpha(alpha, alpha, alpha, alpha)
-        val expectedRippleColor = Color.Red
+        val contentColor = Color.Black
 
-        val theme = object : androidx.compose.material.ripple.RippleTheme {
-            @Deprecated("Super method deprecated")
+        val rippleConfiguration = RippleConfiguration(
+            rippleAlpha = RippleAlpha(0.5f, 0.5f, 0.5f, 0.5f)
+        )
+
+        var scope: CoroutineScope? = null
+
+        rule.setContent {
+            scope = rememberCoroutineScope()
+            MaterialTheme {
+                Surface(contentColor = contentColor) {
+                    CompositionLocalProvider(
+                        LocalRippleConfiguration provides rippleConfiguration
+                    ) {
+                        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            RippleBoxWithBackground(
+                                interactionSource,
+                                ripple(),
+                                bounded = true
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            scope!!.launch {
+                interactionSource.emit(DragInteraction.Start())
+            }
+        }
+        rule.waitForIdle()
+
+        with(rule.onNodeWithTag(Tag)) {
+            val centerPixel = captureToImage().asAndroidBitmap()
+                .run {
+                    getPixel(width / 2, height / 2)
+                }
+
+            val expectedColor =
+                calculateResultingRippleColor(
+                    // Default color should be used
+                    contentColor,
+                    // Alpha from the ripple configuration should be used
+                    rippleOpacity = rippleConfiguration.rippleAlpha!!.draggedAlpha
+                )
+
+            Truth.assertThat(Color(centerPixel)).isEqualTo(expectedColor)
+        }
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Test
+    fun rippleConfiguration_disabled_dragged() {
+        val interactionSource = MutableInteractionSource()
+
+        val rippleConfiguration = RippleConfiguration(
+            isEnabled = false
+        )
+
+        var scope: CoroutineScope? = null
+
+        rule.setContent {
+            scope = rememberCoroutineScope()
+            MaterialTheme {
+                Surface {
+                    CompositionLocalProvider(
+                        LocalRippleConfiguration provides rippleConfiguration
+                    ) {
+                        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            RippleBoxWithBackground(
+                                interactionSource,
+                                ripple(),
+                                bounded = true
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            scope!!.launch {
+                interactionSource.emit(DragInteraction.Start())
+            }
+        }
+        rule.waitForIdle()
+
+        with(rule.onNodeWithTag(Tag)) {
+            val centerPixel = captureToImage().asAndroidBitmap()
+                .run {
+                    getPixel(width / 2, height / 2)
+                }
+
+            // No ripple should be showing
+            Truth.assertThat(Color(centerPixel)).isEqualTo(RippleBoxBackgroundColor)
+        }
+    }
+
+    /**
+     * Test case for changing RippleConfiguration during an existing ripple effect
+     *
+     * Note: no corresponding test for pressed ripples since RippleForeground does not update the
+     * color of currently active ripples unless they are being drawn on the UI thread
+     * (which should only happen if the target radius also changes).
+     */
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Test
+    fun rippleConfigurationChangeDuringRipple_dragged() {
+        val interactionSource = MutableInteractionSource()
+
+        val contentColor = Color.Black
+
+        var rippleConfiguration by mutableStateOf(RippleConfiguration())
+
+        var scope: CoroutineScope? = null
+
+        rule.setContent {
+            scope = rememberCoroutineScope()
+            MaterialTheme {
+                Surface(contentColor = contentColor) {
+                    CompositionLocalProvider(
+                        LocalRippleConfiguration provides rippleConfiguration
+                    ) {
+                        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            RippleBoxWithBackground(
+                                interactionSource,
+                                ripple(),
+                                bounded = true
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            scope!!.launch {
+                interactionSource.emit(DragInteraction.Start())
+            }
+        }
+        rule.waitForIdle()
+
+        with(rule.onNodeWithTag(Tag)) {
+            val centerPixel = captureToImage().asAndroidBitmap()
+                .run {
+                    getPixel(width / 2, height / 2)
+                }
+
+            // Ripple should use default values
+            val expectedColor =
+                calculateResultingRippleColor(
+                    contentColor,
+                    rippleOpacity = 0.16f
+                )
+
+            Truth.assertThat(Color(centerPixel)).isEqualTo(expectedColor)
+        }
+
+        val newConfiguration = RippleConfiguration(
+            isEnabled = true,
+            color = Color.Red,
+            rippleAlpha = RippleAlpha(0.5f, 0.5f, 0.5f, 0.5f)
+        )
+
+        rule.runOnUiThread {
+            rippleConfiguration = newConfiguration
+        }
+
+        with(rule.onNodeWithTag(Tag)) {
+            val centerPixel = captureToImage().asAndroidBitmap()
+                .run {
+                    getPixel(width / 2, height / 2)
+                }
+
+            // The ripple should now use the new configuration value for color. Ripple alpha
+            // is not currently updated during an existing effect, so it should still use the old
+            // value.
+            val expectedColor =
+                calculateResultingRippleColor(
+                    newConfiguration.color,
+                    rippleOpacity = 0.16f
+                )
+
+            Truth.assertThat(Color(centerPixel)).isEqualTo(expectedColor)
+        }
+
+        rule.runOnUiThread {
+            rippleConfiguration = RippleConfiguration(isEnabled = false)
+        }
+
+        with(rule.onNodeWithTag(Tag)) {
+            val centerPixel = captureToImage().asAndroidBitmap()
+                .run {
+                    getPixel(width / 2, height / 2)
+                }
+
+            // The ripple should now be removed
+            Truth.assertThat(Color(centerPixel)).isEqualTo(RippleBoxBackgroundColor)
+        }
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Suppress("DEPRECATION_ERROR")
+    @Test
+    fun fallback_customRippleTheme() {
+        val interactionSource = MutableInteractionSource()
+
+        val contentColor = Color.Black
+
+        val rippleColor = Color.Red
+        val expectedAlpha = 0.5f
+        val rippleAlpha = RippleAlpha(expectedAlpha, expectedAlpha, expectedAlpha, expectedAlpha)
+
+        val rippleTheme = object : androidx.compose.material.ripple.RippleTheme {
+            @Deprecated("Super method is deprecated")
             @Composable
-            override fun defaultColor() = LocalContentColor.current
+            override fun defaultColor() = rippleColor
 
-            @Deprecated("Super method deprecated")
+            @Deprecated("Super method is deprecated")
             @Composable
             override fun rippleAlpha() = rippleAlpha
         }
@@ -583,45 +677,33 @@ class MaterialRippleThemeTest {
             scope = rememberCoroutineScope()
             MaterialTheme {
                 CompositionLocalProvider(
-                    androidx.compose.material.ripple.LocalRippleTheme provides theme
+                    androidx.compose.material.ripple.LocalRippleTheme provides rippleTheme,
+                    LocalUseFallbackRippleImplementation provides true
                 ) {
-                    Surface(contentColor = Color.Black) {
-                        // Create ripple where contentColor is black
-                        val ripple = androidx.compose.material.ripple.rememberRipple()
+                    Surface(contentColor = contentColor) {
                         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                            Surface(contentColor = expectedRippleColor) {
-                                // Ripple is used where contentColor is red, so the instance
-                                // should get the red color when it is created
-                                RippleBoxWithBackground(interactionSource, ripple, bounded = true)
-                            }
+                            RippleBoxWithBackground(
+                                interactionSource,
+                                rippleOrFallbackImplementation(),
+                                bounded = true
+                            )
                         }
                     }
                 }
             }
         }
 
-        rule.runOnIdle {
-            scope!!.launch {
-                interactionSource.emit(PressInteraction.Press(Offset(10f, 10f)))
-            }
-        }
+        val expectedColor = calculateResultingRippleColor(
+            rippleColor,
+            rippleOpacity = expectedAlpha
+        )
 
-        rule.waitForIdle()
-        // Ripples are drawn on the RenderThread, not the main (UI) thread, so we can't wait for
-        // synchronization. Instead just wait until after the ripples are finished animating.
-        Thread.sleep(300)
-
-        with(rule.onNodeWithTag(Tag)) {
-            val centerPixel = captureToImage().asAndroidBitmap()
-                .run {
-                    getPixel(width / 2, height / 2)
-                }
-
-            val expectedColor =
-                calculateResultingRippleColor(expectedRippleColor, rippleOpacity = alpha)
-
-            Truth.assertThat(Color(centerPixel)).isEqualTo(expectedColor)
-        }
+        assertRippleMatches(
+            scope!!,
+            interactionSource,
+            PressInteraction.Press(Offset(10f, 10f)),
+            expectedColor
+        )
     }
 
     /**
@@ -652,6 +734,7 @@ class MaterialRippleThemeTest {
 
         // Advance to the end of the ripple / state layer animation
         rule.waitForIdle()
+        @Suppress("BanThreadSleep")
         if (interaction is PressInteraction) {
             // Ripples are drawn on the RenderThread, not the main (UI) thread, so we can't wait for
             // synchronization. Instead just wait until after the ripples are finished animating.
@@ -719,7 +802,6 @@ private fun RippleBoxWithBackground(
  * @param lightTheme whether the theme is light or dark
  * @param contentColor the contentColor that will be used for the ripple color
  */
-@Suppress("DEPRECATION_ERROR")
 private fun ComposeContentTestRule.setRippleContent(
     interactionSource: MutableInteractionSource,
     bounded: Boolean,
@@ -735,11 +817,7 @@ private fun ComposeContentTestRule.setRippleContent(
         MaterialTheme(colors) {
             Surface(contentColor = contentColor) {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    RippleBoxWithBackground(
-                        interactionSource,
-                        androidx.compose.material.ripple.rememberRipple(bounded),
-                        bounded
-                    )
+                    RippleBoxWithBackground(interactionSource, ripple(bounded), bounded)
                 }
             }
         }

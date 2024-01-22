@@ -222,14 +222,13 @@ private fun BoxScope.SwitchImpl(
 
     Box(modifier) {
         val resolvedThumbColor = colors.thumbColor(enabled, checked)
-        @Suppress("DEPRECATION_ERROR")
         Box(
             modifier = Modifier
                 .align(Alignment.CenterStart)
                 .offset { IntOffset(thumbOffset.roundToInt(), 0) }
                 .indication(
                     interactionSource = interactionSource,
-                    indication = androidx.compose.material.ripple.rememberRipple(
+                    indication = rippleOrFallbackImplementation(
                         bounded = false,
                         SwitchTokens.StateLayerSize / 2
                     )

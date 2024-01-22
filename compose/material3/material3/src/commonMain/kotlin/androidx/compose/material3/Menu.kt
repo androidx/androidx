@@ -302,14 +302,13 @@ internal fun DropdownMenuItemContent(
     contentPadding: PaddingValues,
     interactionSource: MutableInteractionSource
 ) {
-    @Suppress("DEPRECATION_ERROR")
     Row(
         modifier = modifier
             .clickable(
                 enabled = enabled,
                 onClick = onClick,
                 interactionSource = interactionSource,
-                indication = androidx.compose.material.ripple.rememberRipple(true)
+                indication = rippleOrFallbackImplementation(true)
             )
             .fillMaxWidth()
             // Preferred min and max width used during the intrinsic measurement.

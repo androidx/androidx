@@ -1005,13 +1005,12 @@ object SliderDefaults {
         }
         val shape = SliderTokens.HandleShape.value
 
-        @Suppress("DEPRECATION_ERROR")
         Spacer(
             modifier
                 .size(thumbSize)
                 .indication(
                     interactionSource = interactionSource,
-                    indication = androidx.compose.material.ripple.rememberRipple(
+                    indication = rippleOrFallbackImplementation(
                         bounded = false,
                         radius = SliderTokens.StateLayerSize / 2
                     )

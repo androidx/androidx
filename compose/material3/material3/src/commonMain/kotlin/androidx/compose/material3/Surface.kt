@@ -219,7 +219,6 @@ fun Surface(
         LocalContentColor provides contentColor,
         LocalAbsoluteTonalElevation provides absoluteElevation
     ) {
-        @Suppress("DEPRECATION_ERROR")
         Box(
             modifier = modifier
                 .minimumInteractiveComponentSize()
@@ -234,7 +233,7 @@ fun Surface(
                 )
                 .clickable(
                     interactionSource = interactionSource,
-                    indication = androidx.compose.material.ripple.rememberRipple(),
+                    indication = rippleOrFallbackImplementation(),
                     enabled = enabled,
                     onClick = onClick
                 ),
@@ -329,7 +328,6 @@ fun Surface(
         LocalContentColor provides contentColor,
         LocalAbsoluteTonalElevation provides absoluteElevation
     ) {
-        @Suppress("DEPRECATION_ERROR")
         Box(
             modifier = modifier
                 .minimumInteractiveComponentSize()
@@ -345,7 +343,7 @@ fun Surface(
                 .selectable(
                     selected = selected,
                     interactionSource = interactionSource,
-                    indication = androidx.compose.material.ripple.rememberRipple(),
+                    indication = rippleOrFallbackImplementation(),
                     enabled = enabled,
                     onClick = onClick
                 ),
@@ -440,7 +438,6 @@ fun Surface(
         LocalContentColor provides contentColor,
         LocalAbsoluteTonalElevation provides absoluteElevation
     ) {
-        @Suppress("DEPRECATION_ERROR")
         Box(
             modifier = modifier
                 .minimumInteractiveComponentSize()
@@ -456,7 +453,7 @@ fun Surface(
                 .toggleable(
                     value = checked,
                     interactionSource = interactionSource,
-                    indication = androidx.compose.material.ripple.rememberRipple(),
+                    indication = rippleOrFallbackImplementation(),
                     enabled = enabled,
                     onValueChange = onCheckedChange
                 ),
