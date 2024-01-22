@@ -89,7 +89,7 @@ internal class BasicSecureTextFieldTest {
 
     @Test
     fun passwordSemanticsAreSet() {
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             BasicSecureTextField(
                 state = remember {
                     TextFieldState("Hello", initialSelectionInChars = TextRange(0, 1))
@@ -109,7 +109,7 @@ internal class BasicSecureTextFieldTest {
 
     @Test
     fun lastTypedCharacterIsRevealedTemporarily() {
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             BasicSecureTextField(
                 state = rememberTextFieldState(),
                 modifier = Modifier.testTag(Tag)
@@ -127,7 +127,7 @@ internal class BasicSecureTextFieldTest {
 
     @Test
     fun lastTypedCharacterIsRevealed_hidesAfterAnotherCharacterIsTyped() {
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             BasicSecureTextField(
                 state = rememberTextFieldState(),
                 modifier = Modifier.testTag(Tag)
@@ -147,7 +147,7 @@ internal class BasicSecureTextFieldTest {
     @OptIn(ExperimentalTestApi::class)
     @Test
     fun lastTypedCharacterIsRevealed_whenInsertedInMiddle() {
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             BasicSecureTextField(
                 state = rememberTextFieldState(),
                 modifier = Modifier.testTag(Tag)
@@ -169,7 +169,7 @@ internal class BasicSecureTextFieldTest {
 
     @Test
     fun lastTypedCharacterIsRevealed_hidesAfterFocusIsLost() {
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             Column {
                 BasicSecureTextField(
                     state = rememberTextFieldState(),
@@ -197,7 +197,7 @@ internal class BasicSecureTextFieldTest {
 
     @Test
     fun lastTypedCharacterIsRevealed_hidesAfterAnotherCharacterRemoved() {
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             BasicSecureTextField(
                 state = rememberTextFieldState(),
                 modifier = Modifier.testTag(Tag)
@@ -219,7 +219,7 @@ internal class BasicSecureTextFieldTest {
 
     @Test
     fun obfuscationMethodVisible_doesNotHideAnything() {
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             BasicSecureTextField(
                 state = rememberTextFieldState(),
                 textObfuscationMode = TextObfuscationMode.Visible,
@@ -241,7 +241,7 @@ internal class BasicSecureTextFieldTest {
     @Test
     fun obfuscationMethodVisible_revealsEverythingWhenSwitchedTo() {
         var obfuscationMode by mutableStateOf(TextObfuscationMode.Hidden)
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             BasicSecureTextField(
                 state = rememberTextFieldState(),
                 textObfuscationMode = obfuscationMode,
@@ -263,7 +263,7 @@ internal class BasicSecureTextFieldTest {
 
     @Test
     fun obfuscationMethodHidden_hidesEverything() {
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             BasicSecureTextField(
                 state = rememberTextFieldState(),
                 textObfuscationMode = TextObfuscationMode.Hidden,
@@ -286,7 +286,7 @@ internal class BasicSecureTextFieldTest {
     @Test
     fun obfuscationMethodHidden_hidesEverythingWhenSwitchedTo() {
         var obfuscationMode by mutableStateOf(TextObfuscationMode.Visible)
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             BasicSecureTextField(
                 state = rememberTextFieldState(),
                 textObfuscationMode = obfuscationMode,
@@ -311,7 +311,7 @@ internal class BasicSecureTextFieldTest {
     fun semantics_copy() {
         val state = TextFieldState("Hello World!")
         val clipboardManager = FakeClipboardManager("initial")
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             CompositionLocalProvider(LocalClipboardManager provides clipboardManager) {
                 BasicSecureTextField(
                     state = state,
@@ -333,7 +333,7 @@ internal class BasicSecureTextFieldTest {
     fun semantics_cut() {
         val state = TextFieldState("Hello World!")
         val clipboardManager = FakeClipboardManager("initial")
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             CompositionLocalProvider(LocalClipboardManager provides clipboardManager) {
                 BasicSecureTextField(
                     state = state,
@@ -365,7 +365,7 @@ internal class BasicSecureTextFieldTest {
             onHideMenu = {}
         )
         val state = TextFieldState("Hello")
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             CompositionLocalProvider(LocalTextToolbar provides textToolbar) {
                 BasicSecureTextField(
                     state = state,
@@ -390,7 +390,7 @@ internal class BasicSecureTextFieldTest {
     @Test
     fun stringValue_updatesFieldText_whenTextChangedFromCode_whileUnfocused() {
         var text by mutableStateOf("hello")
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             BasicSecureTextField(
                 value = text,
                 onValueChange = { text = it },
@@ -413,7 +413,7 @@ internal class BasicSecureTextFieldTest {
     @Test
     fun stringValue_doesNotUpdateField_whenTextChangedFromCode_whileFocused() {
         var text by mutableStateOf("hello")
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             BasicSecureTextField(
                 value = text,
                 onValueChange = { text = it },
@@ -433,7 +433,7 @@ internal class BasicSecureTextFieldTest {
     fun stringValue_doesNotInvokeCallback_onFocus() {
         var text by mutableStateOf("")
         var onValueChangedCount = 0
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             BasicSecureTextField(
                 value = text,
                 onValueChange = {
@@ -456,7 +456,7 @@ internal class BasicSecureTextFieldTest {
     fun stringValue_doesNotInvokeCallback_whenOnlySelectionChanged() {
         var text by mutableStateOf("")
         var onValueChangedCount = 0
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             BasicSecureTextField(
                 value = text,
                 onValueChange = {
@@ -508,7 +508,7 @@ internal class BasicSecureTextFieldTest {
     fun stringValue_doesNotInvokeCallback_whenTextChangedFromCode_whileUnfocused() {
         var text by mutableStateOf("")
         var onValueChangedCount = 0
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             BasicSecureTextField(
                 value = text,
                 onValueChange = {
@@ -533,7 +533,7 @@ internal class BasicSecureTextFieldTest {
     fun stringValue_doesNotInvokeCallback_whenTextChangedFromCode_whileFocused() {
         var text by mutableStateOf("")
         var onValueChangedCount = 0
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             BasicSecureTextField(
                 value = text,
                 onValueChange = {
@@ -558,7 +558,7 @@ internal class BasicSecureTextFieldTest {
     @Test
     fun inputMethod_doesNotRestart_inResponseToKeyEvents() {
         val state = TextFieldState("hello", initialSelectionInChars = TextRange(5))
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             BasicSecureTextField(
                 state = state,
                 modifier = Modifier.testTag(Tag)
