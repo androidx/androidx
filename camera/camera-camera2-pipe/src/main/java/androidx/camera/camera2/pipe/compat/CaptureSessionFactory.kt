@@ -409,7 +409,7 @@ internal fun buildOutputConfigurations(
             checkNotNull(postviewStream) {
                 "Postview Stream in StreamGraph cannot be null for reprocessing request"
             }
-            if (postviewOutput == null && outputConfig.streams == postviewStream.outputs) {
+            if (postviewOutput == null && outputConfig.streams.contains(postviewStream)) {
                 postviewOutput = output
             }
         } else {
