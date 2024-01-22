@@ -85,14 +85,13 @@ fun RadioButton(
     val radioColor = colors.radioColor(enabled, selected)
     val selectableModifier =
         if (onClick != null) {
-            @Suppress("DEPRECATION_ERROR")
             Modifier.selectable(
                 selected = selected,
                 onClick = onClick,
                 enabled = enabled,
                 role = Role.RadioButton,
                 interactionSource = interactionSource,
-                indication = androidx.compose.material.ripple.rememberRipple(
+                indication = rippleOrFallbackImplementation(
                     bounded = false,
                     radius = RadioButtonTokens.StateLayerSize / 2
                 )
