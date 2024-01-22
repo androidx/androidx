@@ -268,7 +268,7 @@ class ApiStubParserTest {
         val source = Source.kotlin(
             "com/mysdk/MySdk.kt", """
                     import androidx.privacysandbox.tools.PrivacySandboxService
-                    import androidx.privacysandbox.ui.core.SdkActivityLauncher
+                    import androidx.privacysandbox.activity.core.SdkActivityLauncher
                     @PrivacySandboxService
                     interface MySdk {
                         fun useLauncher(launcher: SdkActivityLauncher)
@@ -285,7 +285,7 @@ class ApiStubParserTest {
             "com/mysdk/MySdk.kt", """
                     import androidx.privacysandbox.tools.PrivacySandboxService
                     import androidx.privacysandbox.tools.PrivacySandboxInterface
-                    import androidx.privacysandbox.ui.core.SdkActivityLauncher
+                    import androidx.privacysandbox.activity.core.SdkActivityLauncher
                     @PrivacySandboxService
                     interface MySdk
 
@@ -305,7 +305,7 @@ class ApiStubParserTest {
             "com/mysdk/MySdk.kt", """
                     import androidx.privacysandbox.tools.PrivacySandboxService
                     import androidx.privacysandbox.tools.PrivacySandboxCallback
-                    import androidx.privacysandbox.ui.core.SdkActivityLauncher
+                    import androidx.privacysandbox.activity.core.SdkActivityLauncher
                     @PrivacySandboxService
                     interface MySdk
 
@@ -325,7 +325,7 @@ class ApiStubParserTest {
             "com/mysdk/MySdk.kt", """
                     import androidx.privacysandbox.tools.PrivacySandboxService
                     import androidx.privacysandbox.tools.PrivacySandboxValue
-                    import androidx.privacysandbox.ui.core.SdkActivityLauncher
+                    import androidx.privacysandbox.activity.core.SdkActivityLauncher
                     @PrivacySandboxService
                     interface MySdk
 
@@ -343,7 +343,7 @@ class ApiStubParserTest {
             "com/mysdk/MySdk.kt", """
                     import androidx.privacysandbox.tools.PrivacySandboxService
                     // Deliberate unused import
-                    import androidx.privacysandbox.ui.core.SdkActivityLauncher
+                    import androidx.privacysandbox.activity.core.SdkActivityLauncher
                     @PrivacySandboxService
                     interface MySdk {
                         fun doStuff(input: String)
