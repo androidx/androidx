@@ -836,7 +836,7 @@ package androidx.tv.material3 {
   @SuppressCompatibility @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class SelectableChipShape {
   }
 
-  @SuppressCompatibility @androidx.tv.material3.ExperimentalTvMaterial3Api public final class ShapeDefaults {
+  public final class ShapeDefaults {
     method public androidx.compose.foundation.shape.CornerBasedShape getExtraLarge();
     method public androidx.compose.foundation.shape.CornerBasedShape getExtraSmall();
     method public androidx.compose.foundation.shape.CornerBasedShape getLarge();
@@ -850,7 +850,7 @@ package androidx.tv.material3 {
     field public static final androidx.tv.material3.ShapeDefaults INSTANCE;
   }
 
-  @SuppressCompatibility @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class Shapes {
+  @androidx.compose.runtime.Immutable public final class Shapes {
     ctor public Shapes(optional androidx.compose.foundation.shape.CornerBasedShape extraSmall, optional androidx.compose.foundation.shape.CornerBasedShape small, optional androidx.compose.foundation.shape.CornerBasedShape medium, optional androidx.compose.foundation.shape.CornerBasedShape large, optional androidx.compose.foundation.shape.CornerBasedShape extraLarge);
     method public androidx.tv.material3.Shapes copy(optional androidx.compose.foundation.shape.CornerBasedShape extraSmall, optional androidx.compose.foundation.shape.CornerBasedShape small, optional androidx.compose.foundation.shape.CornerBasedShape medium, optional androidx.compose.foundation.shape.CornerBasedShape large, optional androidx.compose.foundation.shape.CornerBasedShape extraLarge);
     method public androidx.compose.foundation.shape.CornerBasedShape getExtraLarge();
