@@ -1,3 +1,0 @@
-// Baseline format: 1.0
-ChangedSuperclass: androidx.mediarouter.app.MediaRouteButton:
-    Class androidx.mediarouter.app.MediaRouteButton superclass changed from android.view.View to androidx.appcompat.widget.AppCompatImageView
