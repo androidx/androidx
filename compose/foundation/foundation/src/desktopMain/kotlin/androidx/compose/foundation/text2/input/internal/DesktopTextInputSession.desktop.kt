@@ -17,7 +17,7 @@
 package androidx.compose.foundation.text2.input.internal
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.content.TransferableContent
+import androidx.compose.foundation.content.internal.ReceiveContentConfiguration
 import androidx.compose.ui.platform.PlatformTextInputSession
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.ImeOptions
@@ -31,9 +31,8 @@ internal actual suspend fun PlatformTextInputSession.platformSpecificTextInputSe
     state: TransformedTextFieldState,
     layoutState: TextLayoutState,
     imeOptions: ImeOptions,
-    acceptedMimeTypes: Set<String>?,
-    onImeAction: ((ImeAction) -> Unit)?,
-    onCommitContent: ((TransferableContent) -> Boolean)?
+    receiveContentConfiguration: ReceiveContentConfiguration?,
+    onImeAction: ((ImeAction) -> Unit)?
 ): Nothing {
     // TODO(b/267235947) Wire up desktop.
     awaitCancellation()

@@ -16,18 +16,16 @@
 
 package androidx.compose.foundation.text2.input
 
-import android.content.ClipData
-import android.content.ClipDescription
 import android.net.Uri
-import android.view.DragEvent
 import android.view.View
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.content.DragAndDropScope
+import androidx.compose.foundation.content.testDragAndDrop
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.TEST_FONT_FAMILY
 import androidx.compose.foundation.text2.BasicTextField2
-import androidx.compose.foundation.text2.input.internal.DragAndDropTestUtils
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
@@ -64,7 +62,7 @@ class TextFieldDragAndDropTest {
 
     @Test
     fun nonTextContent_isNotAccepted() {
-        rule.testDragAndDrop {
+        rule.setContentAndTestDragAndDrop {
             val startSelection = state.text.selectionInChars
             drag(
                 Offset(fontSize.toPx() * 2, 10f),
@@ -76,33 +74,33 @@ class TextFieldDragAndDropTest {
 
     @Test
     fun textContent_isAccepted() {
-        rule.testDragAndDrop {
-            drag(Offset(fontSize.toPx() * 2, 10f))
+        rule.setContentAndTestDragAndDrop {
+            drag(Offset(fontSize.toPx() * 2, 10f), "hello")
             assertThat(state.text.selectionInChars).isEqualTo(TextRange(2))
         }
     }
 
     @Test
     fun draggingText_updatesSelection() {
-        rule.testDragAndDrop {
-            drag(Offset(fontSize.toPx() * 1, 10f))
+        rule.setContentAndTestDragAndDrop {
+            drag(Offset(fontSize.toPx() * 1, 10f), "hello")
             assertThat(state.text.selectionInChars).isEqualTo(TextRange(1))
-            drag(Offset(fontSize.toPx() * 2, 10f))
+            drag(Offset(fontSize.toPx() * 2, 10f), "hello")
             assertThat(state.text.selectionInChars).isEqualTo(TextRange(2))
-            drag(Offset(fontSize.toPx() * 3, 10f))
+            drag(Offset(fontSize.toPx() * 3, 10f), "hello")
             assertThat(state.text.selectionInChars).isEqualTo(TextRange(3))
         }
     }
 
     @Test
     fun draggingText_toEndPadding_updatesSelection() {
-        rule.testDragAndDrop(
+        rule.setContentAndTestDragAndDrop(
             style = TextStyle(textAlign = TextAlign.Center),
             modifier = Modifier.width(300.dp)
         ) {
-            drag(Offset.Zero)
+            drag(Offset.Zero, "hello")
             assertThat(state.text.selectionInChars).isEqualTo(TextRange(0))
-            drag(Offset(295.dp.toPx(), 10f))
+            drag(Offset(295.dp.toPx(), 10f), "hello")
             assertThat(state.text.selectionInChars).isEqualTo(TextRange(4))
         }
     }
@@ -110,12 +108,12 @@ class TextFieldDragAndDropTest {
     @Test
     fun interactionSource_receivesHoverEnter_whenDraggingTextEnters() {
         val interactionSource = MutableInteractionSource()
-        rule.testDragAndDrop(
+        rule.setContentAndTestDragAndDrop(
             style = TextStyle(textAlign = TextAlign.Center),
             interactionSource = interactionSource,
             modifier = Modifier.width(200.dp)
         ) {
-            drag(Offset(1f, 1f))
+            drag(Offset(1f, 1f), "hello")
             assertThat(isHovered).isTrue()
         }
     }
@@ -123,15 +121,15 @@ class TextFieldDragAndDropTest {
     @Test
     fun interactionSource_receivesHoverExit_whenDraggingTextExits() {
         val interactionSource = MutableInteractionSource()
-        rule.testDragAndDrop(
+        rule.setContentAndTestDragAndDrop(
             style = TextStyle(textAlign = TextAlign.Center),
             interactionSource = interactionSource,
             modifier = Modifier.width(200.dp)
         ) {
-            drag(Offset(1f, 1f))
+            drag(Offset(1f, 1f), "hello")
             assertThat(isHovered).isTrue()
 
-            drag(Offset(1000f, 1f))
+            drag(Offset(1000f, 1f), "hello")
             assertThat(isHovered).isFalse()
         }
     }
@@ -139,12 +137,12 @@ class TextFieldDragAndDropTest {
     @Test
     fun interactionSource_receivesHoverExit_whenDraggingTextEnds() {
         val interactionSource = MutableInteractionSource()
-        rule.testDragAndDrop(
+        rule.setContentAndTestDragAndDrop(
             style = TextStyle(textAlign = TextAlign.Center),
             interactionSource = interactionSource,
             modifier = Modifier.width(200.dp)
         ) {
-            drag(Offset(1f, 1f))
+            drag(Offset(1f, 1f), "hello")
             assertThat(isHovered).isTrue()
 
             cancelDrag()
@@ -155,12 +153,12 @@ class TextFieldDragAndDropTest {
     @Test
     fun interactionSource_receivesHoverExit_whenDraggingTextDrops() {
         val interactionSource = MutableInteractionSource()
-        rule.testDragAndDrop(
+        rule.setContentAndTestDragAndDrop(
             style = TextStyle(textAlign = TextAlign.Center),
             interactionSource = interactionSource,
             modifier = Modifier.width(200.dp)
         ) {
-            drag(Offset(1f, 1f))
+            drag(Offset(1f, 1f), "hello")
             assertThat(isHovered).isTrue()
 
             drop()
@@ -170,7 +168,7 @@ class TextFieldDragAndDropTest {
 
     @Test
     fun droppedText_insertsAtCursor() {
-        rule.testDragAndDrop("Hello World!") {
+        rule.setContentAndTestDragAndDrop("Hello World!") {
             drag(
                 Offset(fontSize.toPx() * 5, 10f),
                 " Awesome"
@@ -183,7 +181,7 @@ class TextFieldDragAndDropTest {
 
     @Test
     fun multipleClipDataItems_concatsByNewLine() {
-        rule.testDragAndDrop("aaaa") {
+        rule.setContentAndTestDragAndDrop("aaaa") {
             drag(
                 Offset(fontSize.toPx() * 2, 10f),
                 listOf("Hello", "World")
@@ -193,7 +191,7 @@ class TextFieldDragAndDropTest {
         }
     }
 
-    private inline fun ComposeContentTestRule.testDragAndDrop(
+    private fun ComposeContentTestRule.setContentAndTestDragAndDrop(
         textContent: String = "aaaa",
         isWindowFocused: Boolean = false,
         style: TextStyle = TextStyle.Default,
@@ -231,101 +229,18 @@ class TextFieldDragAndDropTest {
             }
         }
 
-        DragAndDropTestScope(state, mergedStyle.fontSize, density, isHovered, view!!).block()
+        testDragAndDrop(view!!, density) {
+            DragAndDropTestScope(state, mergedStyle.fontSize, isHovered, this).block()
+        }
     }
 
+    @OptIn(ExperimentalFoundationApi::class)
     private class DragAndDropTestScope(
         val state: TextFieldState,
         val fontSize: TextUnit,
-        density: Density,
         isHovered: State<Boolean>?,
-        private val view: View
-    ) : Density by density {
-        private var lastDraggingItem: Pair<Offset, Any>? = null
-
+        dragAndDropScopeImpl: DragAndDropScope,
+    ) : DragAndDropScope by dragAndDropScopeImpl {
         val isHovered: Boolean by (isHovered ?: mutableStateOf(false))
-
-        fun drag(
-            offset: Offset = Offset.Zero,
-            item: Any = "hello",
-        ) {
-            val _lastDraggingItem = lastDraggingItem
-            if (_lastDraggingItem == null || _lastDraggingItem.second != item) {
-                view.dispatchDragEvent(
-                    makeDragEvent(DragEvent.ACTION_DRAG_STARTED, item)
-                )
-            }
-            view.dispatchDragEvent(
-                makeDragEvent(
-                    DragEvent.ACTION_DRAG_LOCATION,
-                    item = item,
-                    offset = offset
-                )
-            )
-            lastDraggingItem = offset to item
-        }
-
-        fun drop() {
-            val _lastDraggingItem = lastDraggingItem
-            check(_lastDraggingItem != null) { "There are no ongoing dragging event to drop" }
-
-            view.dispatchDragEvent(
-                makeDragEvent(
-                    DragEvent.ACTION_DROP,
-                    item = _lastDraggingItem.second,
-                    offset = _lastDraggingItem.first
-                )
-            )
-        }
-
-        fun cancelDrag() {
-            view.dispatchDragEvent(
-                DragAndDropTestUtils.makeTextDragEvent(DragEvent.ACTION_DRAG_ENDED)
-            )
-        }
-
-        private fun makeDragEvent(
-            action: Int,
-            item: Any,
-            offset: Offset = Offset.Zero
-        ): DragEvent {
-            return when (item) {
-                is String -> {
-                    DragAndDropTestUtils.makeTextDragEvent(action, item, offset)
-                }
-
-                is Uri -> {
-                    DragAndDropTestUtils.makeImageDragEvent(action, item, offset)
-                }
-
-                is List<*> -> {
-                    val mimeTypes = mutableSetOf<String>()
-                    val clipDataItems = mutableListOf<ClipData.Item>()
-                    item.filterNotNull().forEach { actualItem ->
-                        when (actualItem) {
-                            is String -> {
-                                mimeTypes.add(ClipDescription.MIMETYPE_TEXT_PLAIN)
-                                clipDataItems.add(ClipData.Item(actualItem))
-                            }
-
-                            is Uri -> {
-                                mimeTypes.add("image/*")
-                                clipDataItems.add(ClipData.Item(actualItem))
-                            }
-                        }
-                    }
-                    DragAndDropTestUtils.makeDragEvent(
-                        action = action,
-                        items = clipDataItems,
-                        mimeTypes = mimeTypes.toList(),
-                        offset = offset
-                    )
-                }
-
-                else -> {
-                    DragAndDropTestUtils.makeImageDragEvent(action, offset = offset)
-                }
-            }
-        }
     }
 }

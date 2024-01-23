@@ -23,6 +23,7 @@ import android.view.KeyEvent
 import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.content.TransferableContent
+import androidx.compose.foundation.content.internal.ReceiveContentConfiguration
 import androidx.compose.foundation.text.input.internal.update
 import androidx.compose.foundation.text2.input.TextFieldCharSequence
 import androidx.compose.ui.platform.PlatformTextInputSession
@@ -42,17 +43,15 @@ internal actual suspend fun PlatformTextInputSession.platformSpecificTextInputSe
     state: TransformedTextFieldState,
     layoutState: TextLayoutState,
     imeOptions: ImeOptions,
-    acceptedMimeTypes: Set<String>?,
-    onImeAction: ((ImeAction) -> Unit)?,
-    onCommitContent: ((TransferableContent) -> Boolean)?,
+    receiveContentConfiguration: ReceiveContentConfiguration?,
+    onImeAction: ((ImeAction) -> Unit)?
 ): Nothing {
     platformSpecificTextInputSession(
         state = state,
         layoutState = layoutState,
         imeOptions = imeOptions,
-        acceptedMimeTypes = acceptedMimeTypes,
+        receiveContentConfiguration = receiveContentConfiguration,
         onImeAction = onImeAction,
-        onCommitContent = onCommitContent,
         composeImm = ComposeInputMethodManager(view)
     )
 }
@@ -62,9 +61,8 @@ internal suspend fun PlatformTextInputSession.platformSpecificTextInputSession(
     state: TransformedTextFieldState,
     layoutState: TextLayoutState,
     imeOptions: ImeOptions,
-    acceptedMimeTypes: Set<String>?,
+    receiveContentConfiguration: ReceiveContentConfiguration?,
     onImeAction: ((ImeAction) -> Unit)?,
-    onCommitContent: ((TransferableContent) -> Boolean)?,
     composeImm: ComposeInputMethodManager
 ): Nothing {
     coroutineScope {
@@ -120,18 +118,32 @@ internal suspend fun PlatformTextInputSession.platformSpecificTextInputSession(
                 }
 
                 override fun onCommitContent(transferableContent: TransferableContent): Boolean {
-                    return onCommitContent?.invoke(transferableContent) ?: false
+                    return receiveContentConfiguration?.onCommitContent(transferableContent)
+                        ?: false
                 }
 
                 override fun requestCursorUpdates(cursorUpdateMode: Int) {
                     cursorUpdatesController.requestUpdates(cursorUpdateMode)
                 }
             }
+
+            val hintMediaTypes = receiveContentConfiguration?.hintMediaTypes
+            val contentMimeTypes: Array<String>? =
+                if (!hintMediaTypes.isNullOrEmpty()) {
+                    val arr = Array(hintMediaTypes.size) { "" }
+                    hintMediaTypes.forEachIndexed { i, mediaType ->
+                        arr[i] = mediaType.representation
+                    }
+                    arr
+                } else {
+                    null
+                }
+
             outAttrs.update(
                 text = state.visualText,
                 selection = state.visualText.selectionInChars,
                 imeOptions = imeOptions,
-                acceptedMimeTypes = acceptedMimeTypes
+                contentMimeTypes = contentMimeTypes
             )
             StatelessInputConnection(textInputSession, outAttrs)
         }

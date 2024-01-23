@@ -60,7 +60,7 @@ class DragAndDropRequestPermissionTest {
         testNode.dragAndDropRequestPermission(event)
 
         // assert
-        Truth.assertThat(rule.activity.requestedDragAndDropPermission).isNotNull()
+        Truth.assertThat(rule.activity.requestedDragAndDropPermissions).isNotEmpty()
     }
 
     @SdkSuppress(minSdkVersion = 24)
@@ -79,7 +79,7 @@ class DragAndDropRequestPermissionTest {
         testNode.dragAndDropRequestPermission(event)
 
         // assert
-        Truth.assertThat(rule.activity.requestedDragAndDropPermission).isNull()
+        Truth.assertThat(rule.activity.requestedDragAndDropPermissions).isEmpty()
     }
 
     @SdkSuppress(minSdkVersion = 24)
@@ -103,7 +103,7 @@ class DragAndDropRequestPermissionTest {
         testNode.dragAndDropRequestPermission(event)
 
         // assert
-        Truth.assertThat(rule.activity.requestedDragAndDropPermission).isNull()
+        Truth.assertThat(rule.activity.requestedDragAndDropPermissions).isEmpty()
     }
 
     private data class TestElement(
