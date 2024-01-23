@@ -45,7 +45,7 @@ package androidx.compose.material3.adaptive.navigation.suite {
   }
 
   @SuppressCompatibility @androidx.compose.material3.adaptive.navigation.suite.ExperimentalMaterial3AdaptiveNavigationSuiteApi public interface NavigationSuiteScope {
-    method public void item(boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit> onClick, kotlin.jvm.functions.Function0<kotlin.Unit> icon, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional kotlin.jvm.functions.Function0<kotlin.Unit>? label, optional boolean alwaysShowLabel, optional kotlin.jvm.functions.Function0<kotlin.Unit>? badge, optional androidx.compose.material3.adaptive.navigation.suite.NavigationSuiteItemColors? colors, optional androidx.compose.foundation.interaction.MutableInteractionSource interactionSource);
+    method public void item(boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit> onClick, kotlin.jvm.functions.Function0<kotlin.Unit> icon, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional kotlin.jvm.functions.Function0<kotlin.Unit>? label, optional boolean alwaysShowLabel, optional kotlin.jvm.functions.Function0<kotlin.Unit>? badge, optional androidx.compose.material3.adaptive.navigation.suite.NavigationSuiteItemColors? colors, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource);
   }
 
   @SuppressCompatibility @androidx.compose.material3.adaptive.navigation.suite.ExperimentalMaterial3AdaptiveNavigationSuiteApi @kotlin.jvm.JvmInline public final value class NavigationSuiteType {

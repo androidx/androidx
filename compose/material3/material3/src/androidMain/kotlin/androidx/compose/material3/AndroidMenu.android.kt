@@ -237,9 +237,10 @@ fun DropdownMenu(
  * @param colors [MenuItemColors] that will be used to resolve the colors used for this menu item in
  * different states. See [MenuDefaults.itemColors].
  * @param contentPadding the padding applied to the content of this menu item
- * @param interactionSource the [MutableInteractionSource] representing the stream of [Interaction]s
- * for this menu item. You can create and pass in your own `remember`ed instance to observe
- * [Interaction]s and customize the appearance / behavior of this menu item in different states.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this menu item. You can use this to change the menu item's appearance
+ * or preview the menu item in different states. Note that if `null` is provided, interactions will
+ * still happen internally.
  */
 @Composable
 fun DropdownMenuItem(
@@ -251,7 +252,7 @@ fun DropdownMenuItem(
     enabled: Boolean = true,
     colors: MenuItemColors = MenuDefaults.itemColors(),
     contentPadding: PaddingValues = MenuDefaults.DropdownMenuItemContentPadding,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    interactionSource: MutableInteractionSource? = null,
 ) {
     DropdownMenuItemContent(
         text = text,

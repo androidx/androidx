@@ -66,9 +66,10 @@ import androidx.compose.ui.semantics.semantics
  * services.
  * @param colors [IconButtonColors] that will be used to resolve the colors used for this icon
  * button in different states. See [IconButtonDefaults.iconButtonColors].
- * @param interactionSource the [MutableInteractionSource] representing the stream of [Interaction]s
- * for this icon button. You can create and pass in your own `remember`ed instance to observe
- * [Interaction]s and customize the appearance / behavior of this icon button in different states.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this icon button. You can use this to change the icon button's
+ * appearance or preview the icon button in different states. Note that if `null` is provided,
+ * interactions will still happen internally.
  * @param content the content of this icon button, typically an [Icon]
  */
 @Composable
@@ -77,7 +78,7 @@ fun IconButton(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     colors: IconButtonColors = IconButtonDefaults.iconButtonColors(),
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    interactionSource: MutableInteractionSource? = null,
     content: @Composable () -> Unit
 ) {
     Box(
@@ -126,9 +127,10 @@ fun IconButton(
  * services.
  * @param colors [IconToggleButtonColors] that will be used to resolve the colors used for this icon
  * button in different states. See [IconButtonDefaults.iconToggleButtonColors].
- * @param interactionSource the [MutableInteractionSource] representing the stream of [Interaction]s
- * for this icon button. You can create and pass in your own `remember`ed instance to observe
- * [Interaction]s and customize the appearance / behavior of this icon button in different states.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this icon button. You can use this to change the icon button's
+ * appearance or preview the icon button in different states. Note that if `null` is provided,
+ * interactions will still happen internally.
  * @param content the content of this icon button, typically an [Icon]
  */
 @Composable
@@ -138,7 +140,7 @@ fun IconToggleButton(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     colors: IconToggleButtonColors = IconButtonDefaults.iconToggleButtonColors(),
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    interactionSource: MutableInteractionSource? = null,
     content: @Composable () -> Unit
 ) {
     Box(
@@ -189,9 +191,10 @@ fun IconToggleButton(
  * @param shape defines the shape of this icon button's container
  * @param colors [IconButtonColors] that will be used to resolve the colors used for this icon
  * button in different states. See [IconButtonDefaults.filledIconButtonColors].
- * @param interactionSource the [MutableInteractionSource] representing the stream of [Interaction]s
- * for this icon button. You can create and pass in your own `remember`ed instance to observe
- * [Interaction]s and customize the appearance / behavior of this icon button in different states.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this icon button. You can use this to change the icon button's
+ * appearance or preview the icon button in different states. Note that if `null` is provided,
+ * interactions will still happen internally.
  * @param content the content of this icon button, typically an [Icon]
  */
 @Composable
@@ -201,7 +204,7 @@ fun FilledIconButton(
     enabled: Boolean = true,
     shape: Shape = IconButtonDefaults.filledShape,
     colors: IconButtonColors = IconButtonDefaults.filledIconButtonColors(),
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    interactionSource: MutableInteractionSource? = null,
     content: @Composable () -> Unit
 ) = Surface(
     onClick = onClick,
@@ -249,9 +252,10 @@ fun FilledIconButton(
  * @param shape defines the shape of this icon button's container
  * @param colors [IconButtonColors] that will be used to resolve the colors used for this icon
  * button in different states. See [IconButtonDefaults.filledIconButtonColors].
- * @param interactionSource the [MutableInteractionSource] representing the stream of [Interaction]s
- * for this icon button. You can create and pass in your own `remember`ed instance to observe
- * [Interaction]s and customize the appearance / behavior of this icon button in different states.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this icon button. You can use this to change the icon button's
+ * appearance or preview the icon button in different states. Note that if `null` is provided,
+ * interactions will still happen internally.
  * @param content the content of this icon button, typically an [Icon]
  */
 @Composable
@@ -261,7 +265,7 @@ fun FilledTonalIconButton(
     enabled: Boolean = true,
     shape: Shape = IconButtonDefaults.filledShape,
     colors: IconButtonColors = IconButtonDefaults.filledTonalIconButtonColors(),
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    interactionSource: MutableInteractionSource? = null,
     content: @Composable () -> Unit
 ) = Surface(
     onClick = onClick,
@@ -305,9 +309,10 @@ fun FilledTonalIconButton(
  * @param shape defines the shape of this icon button's container
  * @param colors [IconToggleButtonColors] that will be used to resolve the colors used for this icon
  * button in different states. See [IconButtonDefaults.filledIconToggleButtonColors].
- * @param interactionSource the [MutableInteractionSource] representing the stream of [Interaction]s
- * for this icon button. You can create and pass in your own `remember`ed instance to observe
- * [Interaction]s and customize the appearance / behavior of this icon button in different states.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this icon button. You can use this to change the icon button's
+ * appearance or preview the icon button in different states. Note that if `null` is provided,
+ * interactions will still happen internally.
  * @param content the content of this icon button, typically an [Icon]
  */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -319,7 +324,7 @@ fun FilledIconToggleButton(
     enabled: Boolean = true,
     shape: Shape = IconButtonDefaults.filledShape,
     colors: IconToggleButtonColors = IconButtonDefaults.filledIconToggleButtonColors(),
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    interactionSource: MutableInteractionSource? = null,
     content: @Composable () -> Unit
 ) = Surface(
     checked = checked,
@@ -369,9 +374,10 @@ fun FilledIconToggleButton(
  * @param shape defines the shape of this icon button's container
  * @param colors [IconToggleButtonColors] that will be used to resolve the colors used for this icon
  * button in different states. See [IconButtonDefaults.filledIconToggleButtonColors].
- * @param interactionSource the [MutableInteractionSource] representing the stream of [Interaction]s
- * for this icon button. You can create and pass in your own `remember`ed instance to observe
- * [Interaction]s and customize the appearance / behavior of this icon button in different states.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this icon button. You can use this to change the icon button's
+ * appearance or preview the icon button in different states. Note that if `null` is provided,
+ * interactions will still happen internally.
  * @param content the content of this icon button, typically an [Icon]
  */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -383,7 +389,7 @@ fun FilledTonalIconToggleButton(
     enabled: Boolean = true,
     shape: Shape = IconButtonDefaults.filledShape,
     colors: IconToggleButtonColors = IconButtonDefaults.filledTonalIconToggleButtonColors(),
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    interactionSource: MutableInteractionSource? = null,
     content: @Composable () -> Unit
 ) = Surface(
     checked = checked,
@@ -435,9 +441,10 @@ fun FilledTonalIconToggleButton(
  * button in different states. See [IconButtonDefaults.outlinedIconButtonColors].
  * @param border the border to draw around the container of this icon button. Pass `null` for no
  * border. See [IconButtonDefaults.outlinedIconButtonBorder].
- * @param interactionSource the [MutableInteractionSource] representing the stream of [Interaction]s
- * for this icon button. You can create and pass in your own `remember`ed instance to observe
- * [Interaction]s and customize the appearance / behavior of this icon button in different states.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this icon button. You can use this to change the icon button's
+ * appearance or preview the icon button in different states. Note that if `null` is provided,
+ * interactions will still happen internally.
  * @param content the content of this icon button, typically an [Icon]
  */
 @Composable
@@ -448,7 +455,7 @@ fun OutlinedIconButton(
     shape: Shape = IconButtonDefaults.outlinedShape,
     colors: IconButtonColors = IconButtonDefaults.outlinedIconButtonColors(),
     border: BorderStroke? = IconButtonDefaults.outlinedIconButtonBorder(enabled),
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    interactionSource: MutableInteractionSource? = null,
     content: @Composable () -> Unit
 ) = Surface(
     onClick = onClick,
@@ -495,9 +502,10 @@ fun OutlinedIconButton(
  * button in different states. See [IconButtonDefaults.outlinedIconToggleButtonColors].
  * @param border the border to draw around the container of this icon button. Pass `null` for no
  * border. See [IconButtonDefaults.outlinedIconToggleButtonBorder].
- * @param interactionSource the [MutableInteractionSource] representing the stream of [Interaction]s
- * for this icon button. You can create and pass in your own `remember`ed instance to observe
- * [Interaction]s and customize the appearance / behavior of this icon button in different states.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this icon button. You can use this to change the icon button's
+ * appearance or preview the icon button in different states. Note that if `null` is provided,
+ * interactions will still happen internally.
  * @param content the content of this icon button, typically an [Icon]
  */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -510,7 +518,7 @@ fun OutlinedIconToggleButton(
     shape: Shape = IconButtonDefaults.outlinedShape,
     colors: IconToggleButtonColors = IconButtonDefaults.outlinedIconToggleButtonColors(),
     border: BorderStroke? = IconButtonDefaults.outlinedIconToggleButtonBorder(enabled, checked),
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    interactionSource: MutableInteractionSource? = null,
     content: @Composable () -> Unit
 ) = Surface(
     checked = checked,

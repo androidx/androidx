@@ -96,9 +96,10 @@ import androidx.compose.ui.unit.dp
  * @param border the border to draw around the container of this button
  * @param contentPadding the spacing values to apply internally between the container and the
  * content
- * @param interactionSource the [MutableInteractionSource] representing the stream of [Interaction]s
- * for this button. You can create and pass in your own `remember`ed instance to observe
- * [Interaction]s and customize the appearance / behavior of this button in different states.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this button. You can use this to change the button's appearance
+ * or preview the button in different states. Note that if `null` is provided, interactions will
+ * still happen internally.
  */
 @Composable
 fun Button(
@@ -110,9 +111,11 @@ fun Button(
     elevation: ButtonElevation? = ButtonDefaults.buttonElevation(),
     border: BorderStroke? = null,
     contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    interactionSource: MutableInteractionSource? = null,
     content: @Composable RowScope.() -> Unit
 ) {
+    @Suppress("NAME_SHADOWING")
+    val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
     val containerColor = colors.containerColor(enabled)
     val contentColor = colors.contentColor(enabled)
     val shadowElevation = elevation?.shadowElevation(enabled, interactionSource)?.value ?: 0.dp
@@ -187,9 +190,10 @@ fun Button(
  * @param border the border to draw around the container of this button
  * @param contentPadding the spacing values to apply internally between the container and the
  * content
- * @param interactionSource the [MutableInteractionSource] representing the stream of [Interaction]s
- * for this button. You can create and pass in your own `remember`ed instance to observe
- * [Interaction]s and customize the appearance / behavior of this button in different states.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this button. You can use this to change the button's appearance
+ * or preview the button in different states. Note that if `null` is provided, interactions will
+ * still happen internally.
  */
 @Composable
 fun ElevatedButton(
@@ -201,7 +205,7 @@ fun ElevatedButton(
     elevation: ButtonElevation? = ButtonDefaults.elevatedButtonElevation(),
     border: BorderStroke? = null,
     contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    interactionSource: MutableInteractionSource? = null,
     content: @Composable RowScope.() -> Unit
 ) =
     Button(
@@ -257,9 +261,10 @@ fun ElevatedButton(
  * @param border the border to draw around the container of this button
  * @param contentPadding the spacing values to apply internally between the container and the
  * content
- * @param interactionSource the [MutableInteractionSource] representing the stream of [Interaction]s
- * for this button. You can create and pass in your own `remember`ed instance to observe
- * [Interaction]s and customize the appearance / behavior of this button in different states.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this button. You can use this to change the button's appearance
+ * or preview the button in different states. Note that if `null` is provided, interactions will
+ * still happen internally.
  */
 @Composable
 fun FilledTonalButton(
@@ -271,7 +276,7 @@ fun FilledTonalButton(
     elevation: ButtonElevation? = ButtonDefaults.filledTonalButtonElevation(),
     border: BorderStroke? = null,
     contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    interactionSource: MutableInteractionSource? = null,
     content: @Composable RowScope.() -> Unit
 ) =
     Button(
@@ -326,9 +331,10 @@ fun FilledTonalButton(
  * @param border the border to draw around the container of this button. Pass `null` for no border.
  * @param contentPadding the spacing values to apply internally between the container and the
  * content
- * @param interactionSource the [MutableInteractionSource] representing the stream of [Interaction]s
- * for this button. You can create and pass in your own `remember`ed instance to observe
- * [Interaction]s and customize the appearance / behavior of this button in different states.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this button. You can use this to change the button's appearance
+ * or preview the button in different states. Note that if `null` is provided, interactions will
+ * still happen internally.
  */
 @Composable
 fun OutlinedButton(
@@ -340,7 +346,7 @@ fun OutlinedButton(
     elevation: ButtonElevation? = null,
     border: BorderStroke? = ButtonDefaults.outlinedButtonBorder,
     contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    interactionSource: MutableInteractionSource? = null,
     content: @Composable RowScope.() -> Unit
 ) =
     Button(
@@ -397,9 +403,10 @@ fun OutlinedButton(
  * @param border the border to draw around the container of this button
  * @param contentPadding the spacing values to apply internally between the container and the
  * content
- * @param interactionSource the [MutableInteractionSource] representing the stream of [Interaction]s
- * for this button. You can create and pass in your own `remember`ed instance to observe
- * [Interaction]s and customize the appearance / behavior of this button in different states.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this button. You can use this to change the button's appearance
+ * or preview the button in different states. Note that if `null` is provided, interactions will
+ * still happen internally.
  */
 @Composable
 fun TextButton(
@@ -411,7 +418,7 @@ fun TextButton(
     elevation: ButtonElevation? = null,
     border: BorderStroke? = null,
     contentPadding: PaddingValues = ButtonDefaults.TextButtonContentPadding,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    interactionSource: MutableInteractionSource? = null,
     content: @Composable RowScope.() -> Unit
 ) =
     Button(

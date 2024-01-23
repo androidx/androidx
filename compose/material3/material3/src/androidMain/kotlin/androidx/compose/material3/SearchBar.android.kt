@@ -150,9 +150,10 @@ import kotlinx.coroutines.delay
  * [Surface].
  * @param shadowElevation the elevation for the shadow below the search bar
  * @param windowInsets the window insets that the search bar will respect
- * @param interactionSource the [MutableInteractionSource] representing the stream of [Interaction]s
- * for this search bar. You can create and pass in your own `remember`ed instance to observe
- * [Interaction]s and customize the appearance / behavior of this search bar in different states.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this search bar. You can use this to change the search bar's
+ * appearance or preview the search bar in different states. Note that if `null` is provided,
+ * interactions will still happen internally.
  * @param content the content of this search bar that will be displayed below the input field
  */
 @ExperimentalMaterial3Api
@@ -173,9 +174,11 @@ fun SearchBar(
     tonalElevation: Dp = SearchBarDefaults.TonalElevation,
     shadowElevation: Dp = SearchBarDefaults.ShadowElevation,
     windowInsets: WindowInsets = SearchBarDefaults.windowInsets,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    interactionSource: MutableInteractionSource? = null,
     content: @Composable ColumnScope.() -> Unit,
 ) {
+    @Suppress("NAME_SHADOWING")
+    val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
     val animationProgress: State<Float> = animateFloatAsState(
         targetValue = if (active) 1f else 0f,
         animationSpec = if (active) AnimationEnterFloatSpec else AnimationExitFloatSpec
@@ -338,9 +341,10 @@ fun SearchBar(
  * value will result in a darker color in light theme and lighter color in dark theme. See also:
  * [Surface].
  * @param shadowElevation the elevation for the shadow below the search bar
- * @param interactionSource the [MutableInteractionSource] representing the stream of [Interaction]s
- * for this search bar. You can create and pass in your own `remember`ed instance to observe
- * [Interaction]s and customize the appearance / behavior of this search bar in different states.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this search bar. You can use this to change the search bar's
+ * appearance or preview the search bar in different states. Note that if `null` is provided,
+ * interactions will still happen internally.
  * @param content the content of this search bar that will be displayed below the input field
  */
 @ExperimentalMaterial3Api
@@ -360,9 +364,11 @@ fun DockedSearchBar(
     colors: SearchBarColors = SearchBarDefaults.colors(),
     tonalElevation: Dp = SearchBarDefaults.TonalElevation,
     shadowElevation: Dp = SearchBarDefaults.ShadowElevation,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    interactionSource: MutableInteractionSource? = null,
     content: @Composable ColumnScope.() -> Unit,
 ) {
+    @Suppress("NAME_SHADOWING")
+    val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
     val focusManager = LocalFocusManager.current
 
     Surface(
@@ -441,8 +447,10 @@ private fun SearchBarInputField(
     leadingIcon: @Composable (() -> Unit)? = null,
     trailingIcon: @Composable (() -> Unit)? = null,
     colors: TextFieldColors = SearchBarDefaults.inputFieldColors(),
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    interactionSource: MutableInteractionSource? = null,
 ) {
+    @Suppress("NAME_SHADOWING")
+    val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
     val focusRequester = remember { FocusRequester() }
     val searchSemantics = getString(Strings.SearchBarSearch)
     val suggestionsAvailableSemantics = getString(Strings.SuggestionsAvailable)
