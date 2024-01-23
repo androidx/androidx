@@ -467,6 +467,12 @@ class BenchmarkState internal constructor(
             )
         }
         check(
+            DeviceInfo.artMainlineVersion != DeviceInfo.ART_MAINLINE_VERSION_UNDETECTED_ERROR
+        ) {
+            "Unable to detect ART mainline module version to check for interference from method" +
+                " tracing, please see logcat for details, and/or file a bug with logcat."
+        }
+        check(
             !enableMethodTracingAffectsMeasurementError ||
             !DeviceInfo.methodTracingAffectsMeasurements ||
                 !MethodTracing.hasBeenUsed) {
