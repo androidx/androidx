@@ -38,7 +38,7 @@ jobs:
     env:
       GRADLE_BUILD_CACHE_PASSWORD: ${{ secrets.GRADLE_BUILD_CACHE_PASSWORD }}
       GRADLE_ENTERPRISE_ACCESS_KEY: ${{ secrets.GRADLE_ENTERPRISE_ACCESS_KEY }}
-      GRADLE_ENCRYPTION_KEY: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
+      GRADLE_ENCRYPTION_KEY: "${{ secrets.GRADLE_ENCRYPTION_KEY }}"
     steps:
       - name: Pull request format
         uses: 'androidx/check-pr-format-action@main'
