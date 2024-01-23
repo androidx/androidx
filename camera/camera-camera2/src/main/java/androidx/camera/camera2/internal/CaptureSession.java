@@ -626,7 +626,7 @@ final class CaptureSession implements CaptureSessionInterface {
                 Logger.d(TAG, "Issuing request for session.");
                 CaptureRequest captureRequest = Camera2CaptureRequestBuilder.build(
                         captureConfig, mSynchronizedCaptureSession.getDevice(),
-                        mConfiguredSurfaceMap);
+                        mConfiguredSurfaceMap, true);
                 if (captureRequest == null) {
                     Logger.d(TAG, "Skipping issuing empty request for session.");
                     return -1;
@@ -733,7 +733,7 @@ final class CaptureSession implements CaptureSessionInterface {
 
                     CaptureRequest captureRequest = Camera2CaptureRequestBuilder.build(
                             captureConfigBuilder.build(), mSynchronizedCaptureSession.getDevice(),
-                            mConfiguredSurfaceMap);
+                            mConfiguredSurfaceMap, false);
                     if (captureRequest == null) {
                         Logger.d(TAG, "Skipping issuing request without surface.");
                         return -1;
