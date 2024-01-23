@@ -290,9 +290,11 @@ abstract class ActivityResultRegistry {
         if (restoredLaunchedKeys != null) {
             launchedKeys.addAll(restoredLaunchedKeys)
         }
-        pendingResults.putAll(
-            savedInstanceState.getBundle(KEY_COMPONENT_ACTIVITY_PENDING_RESULTS)
-        )
+        val restoredPendingResults = savedInstanceState.getBundle(
+            KEY_COMPONENT_ACTIVITY_PENDING_RESULTS)
+        if (restoredPendingResults != null) {
+            pendingResults.putAll(restoredPendingResults)
+        }
         for (i in keys.indices) {
             val key = keys[i]
             // Developers may have already registered with this same key by the time we restore
