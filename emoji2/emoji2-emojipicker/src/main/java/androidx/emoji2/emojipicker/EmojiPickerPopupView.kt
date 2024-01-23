@@ -20,11 +20,13 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.util.AttributeSet
+import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import android.view.accessibility.AccessibilityEvent
 import android.widget.FrameLayout
-import android.widget.LinearLayout;
+import android.widget.LinearLayout
+import androidx.appcompat.widget.AppCompatImageView
 import androidx.core.content.ContextCompat
 
 /** Popup view for emoji picker to show emoji variants. */
@@ -38,13 +40,21 @@ internal class EmojiPickerPopupView @JvmOverloads constructor(
 ) :
     FrameLayout(context, attrs, defStyleAttr) {
     private val popupView: LinearLayout
-    private val layoutTemplate: LayoutTemplate
+    private var layoutTemplate: LayoutTemplate
+    private var emojiFacingLeft = true
 
     init {
         popupView = inflate(context, R.layout.variant_popup, /* root= */ null)
             .findViewById<LinearLayout>(R.id.variant_popup)
-
         layoutTemplate = getLayoutTemplate(variants)
+        if (layoutTemplate.layout == Layout.BIDIRECTIONAL) {
+            addBidirectionalLayoutHeader(popupView)
+        }
+        addRowsToPopupView()
+        addView(popupView)
+    }
+
+    private fun addRowsToPopupView() {
         for (row in layoutTemplate.template) {
             val rowLayout = LinearLayout(context).apply {
                 orientation = LinearLayout.HORIZONTAL
@@ -84,7 +94,6 @@ internal class EmojiPickerPopupView @JvmOverloads constructor(
             }
             popupView.addView(rowLayout)
         }
-        addView(popupView)
     }
 
     fun getPopupViewWidth(): Int {
@@ -93,7 +102,9 @@ internal class EmojiPickerPopupView @JvmOverloads constructor(
     }
 
     fun getPopupViewHeight(): Int {
-        return layoutTemplate.numberOfRows * targetEmojiView.height +
+        val numberOfRows = if (layoutTemplate.layout == Layout.BIDIRECTIONAL)
+            layoutTemplate.numberOfRows + 1 else layoutTemplate.numberOfRows
+        return numberOfRows * targetEmojiView.height +
             popupView.paddingTop + popupView.paddingBottom
     }
 
@@ -103,19 +114,28 @@ internal class EmojiPickerPopupView @JvmOverloads constructor(
                 if (SQUARE_LAYOUT_EMOJI_NO_SKIN_TONE.contains(variants[0]))
                     Layout.SQUARE
                 else Layout.SQUARE_WITH_SKIN_TONE_CIRCLE
-            else Layout.FLAT
+            else if (variants.size == BIDIRECTIONAL_VARIANTS_COUNT)
+                Layout.BIDIRECTIONAL
+            else
+                Layout.FLAT
         var template = when (layout) {
             Layout.SQUARE -> SQUARE_LAYOUT_TEMPLATE
             Layout.SQUARE_WITH_SKIN_TONE_CIRCLE -> SQUARE_LAYOUT_WITH_SKIN_TONES_TEMPLATE
             Layout.FLAT -> arrayOf(variants.indices.map { it + 1 }.toIntArray())
+            Layout.BIDIRECTIONAL ->
+                if (emojiFacingLeft)
+                    arrayOf((variants.indices.filter { it % 12 < 6 }.map { it + 1 }).toIntArray())
+                else
+                    arrayOf((variants.indices.filter { it % 12 >= 6 }.map { it + 1 }).toIntArray())
         }
         val column = when (layout) {
             Layout.SQUARE, Layout.SQUARE_WITH_SKIN_TONE_CIRCLE -> template[0].size
-            Layout.FLAT -> minOf(6, template[0].size)
+            Layout.FLAT, Layout.BIDIRECTIONAL -> minOf(6, template[0].size)
         }
         val row = when (layout) {
             Layout.SQUARE, Layout.SQUARE_WITH_SKIN_TONE_CIRCLE -> template.size
             Layout.FLAT -> variants.size / column + if (variants.size % column == 0) 0 else 1
+            Layout.BIDIRECTIONAL -> variants.size / 2 / column
         }
 
         // Rewrite template when the number of row mismatch
@@ -132,23 +152,56 @@ internal class EmojiPickerPopupView @JvmOverloads constructor(
             }
             template = overrideTemplate
         }
-        return LayoutTemplate(template, row, column)
+        return LayoutTemplate(layout, template, row, column)
     }
 
     private data class LayoutTemplate(
+        var layout: Layout,
         val template: Array<IntArray>,
         val numberOfRows: Int,
         val numberOfColumns: Int
     )
 
+    private fun addBidirectionalLayoutHeader(popupView: LinearLayout) {
+        val row = LinearLayout(context).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER
+            layoutParams = LinearLayout.LayoutParams(
+                LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+        }
+        inflate(context, R.layout.emoji_picker_popup_bidirectional, row)
+            .findViewById<AppCompatImageView>(R.id.emoji_picker_popup_bidirectional_icon)
+            .apply {
+                layoutParams = LinearLayout.LayoutParams(
+                    targetEmojiView.width, targetEmojiView.height)
+            }
+        popupView.addView(row)
+        val imageView =
+            row.findViewById<AppCompatImageView>(R.id.emoji_picker_popup_bidirectional_icon)
+        imageView.setOnClickListener {
+            emojiFacingLeft = !emojiFacingLeft
+            layoutTemplate = getLayoutTemplate(variants)
+            popupView.removeViews( /* start= */1, layoutTemplate.numberOfRows)
+            addRowsToPopupView()
+        }
+    }
+
     companion object {
-        private enum class Layout { FLAT, SQUARE, SQUARE_WITH_SKIN_TONE_CIRCLE }
+        private enum class Layout { FLAT, SQUARE, SQUARE_WITH_SKIN_TONE_CIRCLE, BIDIRECTIONAL }
 
         /**
          * The number of variants expected when using a square layout strategy. Square layouts are
          * comprised of a 5x5 grid + the base variant.
          */
         private const val SQUARE_LAYOUT_VARIANT_COUNT = 26
+
+        /**
+         * The number of variants expected when using a bidirectional layout strategy. Bidirectional
+         * layouts are comprised of bidirectional icon and a 3x6 grid with left direction emojis as
+         * default. After clicking the bidirectional icon, it switches to a bidirectional icon and a 3x6
+         * grid with right direction emojis.
+         */
+        private const val BIDIRECTIONAL_VARIANTS_COUNT = 36
 
         // Set of emojis that use the square layout without skin tone swatches.
         private val SQUARE_LAYOUT_EMOJI_NO_SKIN_TONE = setOf("👪")
