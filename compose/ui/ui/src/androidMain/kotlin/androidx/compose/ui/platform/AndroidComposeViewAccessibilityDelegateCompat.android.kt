@@ -3181,10 +3181,6 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
 // shorter and more readable.
 private fun SemanticsNode.enabled() = (!config.contains(SemanticsProperties.Disabled))
 
-internal fun SemanticsNode.isImportantForAccessibility() =
-    unmergedConfig.isMergingSemanticsOfDescendants ||
-        unmergedConfig.containsImportantForAccessibility()
-
 @OptIn(ExperimentalComposeUiApi::class)
 private val SemanticsNode.isVisible: Boolean
     get() = !isTransparent && !unmergedConfig.contains(SemanticsProperties.InvisibleToUser)
@@ -3226,16 +3222,6 @@ private fun AccessibilityAction<*>.accessibilityEquals(other: Any?): Boolean {
 
     return true
 }
-
-/**
- * Semantics node with adjusted bounds for the uncovered(by siblings) part.
- */
-internal class SemanticsNodeWithAdjustedBounds(
-    val semanticsNode: SemanticsNode,
-    val adjustedBounds: android.graphics.Rect
-)
-
-internal val DefaultFakeNodeBounds = Rect(0f, 0f, 10f, 10f)
 
 // TODO(b/272068594): Fix the collection usage after completing the semantics refactor.
 @Suppress("PrimitiveInCollection")
