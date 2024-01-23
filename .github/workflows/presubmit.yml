@@ -16,14 +16,12 @@ jobs:
     steps:
       - name: "Setup global constants"
         id: global-constants
-        # The configuration-cache cannot be used due to state excluded when caching Gradle User Home
         run: |
           set -x
           GRADLEW_FLAGS="-Dorg.gradle.internal.http.connectionTimeout=60000 \
             -Dorg.gradle.internal.http.socketTimeout=60000                  \
             -Dorg.gradle.internal.repository.max.retries=20                 \
             -Dorg.gradle.internal.repository.initial.backoff=500            \
-            --no-configuration-cache                                        \
             --stacktrace"
           echo "::set-output name=gradlew_flags::$GRADLEW_FLAGS"
       - name: Publish build scans link
