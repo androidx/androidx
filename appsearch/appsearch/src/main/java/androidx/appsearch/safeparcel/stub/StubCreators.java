@@ -19,6 +19,7 @@ import androidx.annotation.RestrictTo;
 import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.GetSchemaResponse;
 import androidx.appsearch.app.InternalSetSchemaResponse;
+import androidx.appsearch.app.InternalVisibilityConfig;
 import androidx.appsearch.app.JoinSpec;
 import androidx.appsearch.app.SearchResult;
 import androidx.appsearch.app.SearchResult.MatchInfo;
@@ -91,6 +92,11 @@ public class StubCreators {
 
     /** Stub creator for {@link VisibilityConfig}. */
     public static class VisibilityConfigCreator extends AbstractCreator<VisibilityConfig> {
+    }
+
+    /** Stub creator for {@link InternalVisibilityConfig}. */
+    public static class InternalVisibilityConfigCreator
+            extends AbstractCreator<InternalVisibilityConfig> {
     }
 
     /** Stub creator for {@link VisibilityPermissionConfig}. */

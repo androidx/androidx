@@ -62,7 +62,7 @@ public final class GetSchemaResponse extends AbstractSafeParcelable {
      */
     @Field(id = 3)
     @Nullable
-    final List<VisibilityConfig> mVisibilityConfigs;
+    final List<InternalVisibilityConfig> mVisibilityConfigs;
 
     /**
      * This set contains all schemas most recently successfully provided to
@@ -120,7 +120,7 @@ public final class GetSchemaResponse extends AbstractSafeParcelable {
     GetSchemaResponse(
             @Param(id = 1) int version,
             @Param(id = 2) @NonNull List<AppSearchSchema> schemas,
-            @Param(id = 3) @Nullable List<VisibilityConfig> visibilityConfigs) {
+            @Param(id = 3) @Nullable List<InternalVisibilityConfig> visibilityConfigs) {
         mVersion = version;
         mSchemas = Preconditions.checkNotNull(schemas);
         mVisibilityConfigs = visibilityConfigs;
@@ -161,11 +161,11 @@ public final class GetSchemaResponse extends AbstractSafeParcelable {
             name = Features.ADD_PERMISSIONS_AND_GET_VISIBILITY)
     @NonNull
     public Set<String> getSchemaTypesNotDisplayedBySystem() {
-        List<VisibilityConfig> visibilityConfigs = getVisibilityConfigsOrThrow();
+        List<InternalVisibilityConfig> visibilityConfigs = getVisibilityConfigsOrThrow();
         if (mSchemasNotDisplayedBySystemCached == null) {
             Set<String> copy = new ArraySet<>();
             for (int i = 0; i < visibilityConfigs.size(); i++) {
-                if (visibilityConfigs.get(i).isNotDisplayedBySystem()) {
+                if (visibilityConfigs.get(i).getVisibilityConfig().isNotDisplayedBySystem()) {
                     copy.add(visibilityConfigs.get(i).getSchemaType());
                 }
             }
@@ -187,12 +187,13 @@ public final class GetSchemaResponse extends AbstractSafeParcelable {
             name = Features.ADD_PERMISSIONS_AND_GET_VISIBILITY)
     @NonNull
     public Map<String, Set<PackageIdentifier>> getSchemaTypesVisibleToPackages() {
-        List<VisibilityConfig> visibilityConfigs = getVisibilityConfigsOrThrow();
+        List<InternalVisibilityConfig> visibilityConfigs = getVisibilityConfigsOrThrow();
         if (mSchemasVisibleToPackagesCached == null) {
             Map<String, Set<PackageIdentifier>> copy = new ArrayMap<>();
             for (int i = 0; i < visibilityConfigs.size(); i++) {
-                VisibilityConfig visibilityConfig = visibilityConfigs.get(i);
-                List<PackageIdentifier> visibleToPackages = visibilityConfig.getVisibleToPackages();
+                InternalVisibilityConfig visibilityConfig = visibilityConfigs.get(i);
+                List<PackageIdentifier> visibleToPackages =
+                        visibilityConfig.getVisibilityConfig().getVisibleToPackages();
                 if (!visibleToPackages.isEmpty()) {
                     copy.put(
                             visibilityConfig.getSchemaType(),
@@ -239,12 +240,13 @@ public final class GetSchemaResponse extends AbstractSafeParcelable {
             name = Features.ADD_PERMISSIONS_AND_GET_VISIBILITY)
     @NonNull
     public Map<String, Set<Set<Integer>>> getRequiredPermissionsForSchemaTypeVisibility() {
-        List<VisibilityConfig> visibilityConfigs = getVisibilityConfigsOrThrow();
+        List<InternalVisibilityConfig> visibilityConfigs = getVisibilityConfigsOrThrow();
         if (mSchemasVisibleToPermissionsCached == null) {
             Map<String, Set<Set<Integer>>> copy = new ArrayMap<>();
             for (int i = 0; i < visibilityConfigs.size(); i++) {
-                VisibilityConfig visibilityConfig = visibilityConfigs.get(i);
-                Set<Set<Integer>> visibleToPermissions = visibilityConfig.getVisibleToPermissions();
+                InternalVisibilityConfig visibilityConfig = visibilityConfigs.get(i);
+                Set<Set<Integer>> visibleToPermissions =
+                        visibilityConfig.getVisibilityConfig().getVisibleToPermissions();
                 if (!visibleToPermissions.isEmpty()) {
                     copy.put(
                             visibilityConfig.getSchemaType(),
@@ -272,13 +274,13 @@ public final class GetSchemaResponse extends AbstractSafeParcelable {
             name = Features.ADD_PERMISSIONS_AND_GET_VISIBILITY)
     @NonNull
     public Map<String, PackageIdentifier> getPubliclyVisibleSchemas() {
-        List<VisibilityConfig> visibilityConfigs = getVisibilityConfigsOrThrow();
+        List<InternalVisibilityConfig> visibilityConfigs = getVisibilityConfigsOrThrow();
         if (mPubliclyVisibleSchemasCached == null) {
             Map<String, PackageIdentifier> copy = new ArrayMap<>();
             for (int i = 0; i < visibilityConfigs.size(); i++) {
-                VisibilityConfig visibilityConfig = visibilityConfigs.get(i);
+                InternalVisibilityConfig visibilityConfig = visibilityConfigs.get(i);
                 PackageIdentifier publiclyVisibleTargetPackage =
-                        visibilityConfig.getPubliclyVisibleTargetPackage();
+                        visibilityConfig.getVisibilityConfig().getPubliclyVisibleTargetPackage();
                 if (publiclyVisibleTargetPackage != null) {
                     copy.put(visibilityConfig.getSchemaType(), publiclyVisibleTargetPackage);
                 }
@@ -300,11 +302,11 @@ public final class GetSchemaResponse extends AbstractSafeParcelable {
             name = Features.ADD_PERMISSIONS_AND_GET_VISIBILITY)
     @NonNull
     public Map<String, Set<VisibilityConfig>> getSchemaTypesVisibleToConfigs() {
-        List<VisibilityConfig> visibilityConfigs = getVisibilityConfigsOrThrow();
+        List<InternalVisibilityConfig> visibilityConfigs = getVisibilityConfigsOrThrow();
         if (mSchemasVisibleToConfigsCached == null) {
             Map<String, Set<VisibilityConfig>> copy = new ArrayMap<>();
             for (int i = 0; i < visibilityConfigs.size(); i++) {
-                VisibilityConfig visibilityConfig = visibilityConfigs.get(i);
+                InternalVisibilityConfig visibilityConfig = visibilityConfigs.get(i);
                 Set<VisibilityConfig> nestedVisibilityConfigs =
                         visibilityConfig.getVisibleToConfigs();
                 if (!nestedVisibilityConfigs.isEmpty()) {
@@ -318,8 +320,8 @@ public final class GetSchemaResponse extends AbstractSafeParcelable {
     }
 
     @NonNull
-    private List<VisibilityConfig> getVisibilityConfigsOrThrow() {
-        List<VisibilityConfig> visibilityConfigs = mVisibilityConfigs;
+    private List<InternalVisibilityConfig> getVisibilityConfigsOrThrow() {
+        List<InternalVisibilityConfig> visibilityConfigs = mVisibilityConfigs;
         if (visibilityConfigs == null) {
             throw new UnsupportedOperationException("Get visibility setting is not supported with "
                     + "this backend/Android API level combination.");
@@ -343,7 +345,7 @@ public final class GetSchemaResponse extends AbstractSafeParcelable {
          * should throw {@link UnsupportedOperationException} in the visibility getters.
          */
         @Nullable
-        private Map<String, VisibilityConfig.Builder> mVisibilityConfigBuilders;
+        private Map<String, InternalVisibilityConfig.Builder> mVisibilityConfigBuilders;
         private boolean mBuilt = false;
 
         /** Create a {@link Builder} object} */
@@ -388,7 +390,7 @@ public final class GetSchemaResponse extends AbstractSafeParcelable {
         public Builder addSchemaTypeNotDisplayedBySystem(@NonNull String schemaType) {
             Preconditions.checkNotNull(schemaType);
             resetIfBuilt();
-            VisibilityConfig.Builder visibilityConfigBuilder =
+            InternalVisibilityConfig.Builder visibilityConfigBuilder =
                     getOrCreateVisibilityConfigBuilder(schemaType);
             visibilityConfigBuilder.setNotDisplayedBySystem(true);
             return this;
@@ -422,7 +424,7 @@ public final class GetSchemaResponse extends AbstractSafeParcelable {
             Preconditions.checkNotNull(schemaType);
             Preconditions.checkNotNull(packageIdentifiers);
             resetIfBuilt();
-            VisibilityConfig.Builder visibilityConfigBuilder =
+            InternalVisibilityConfig.Builder visibilityConfigBuilder =
                     getOrCreateVisibilityConfigBuilder(schemaType);
             for (PackageIdentifier packageIdentifier : packageIdentifiers) {
                 visibilityConfigBuilder.addVisibleToPackage(packageIdentifier);
@@ -471,7 +473,7 @@ public final class GetSchemaResponse extends AbstractSafeParcelable {
             Preconditions.checkNotNull(schemaType);
             Preconditions.checkNotNull(visibleToPermissionSets);
             resetIfBuilt();
-            VisibilityConfig.Builder visibilityConfigBuilder =
+            InternalVisibilityConfig.Builder visibilityConfigBuilder =
                     getOrCreateVisibilityConfigBuilder(schemaType);
             for (Set<Integer> visibleToPermissions : visibleToPermissionSets) {
                 visibilityConfigBuilder.addVisibleToPermissions(visibleToPermissions);
@@ -496,7 +498,7 @@ public final class GetSchemaResponse extends AbstractSafeParcelable {
             Preconditions.checkNotNull(schemaType);
             Preconditions.checkNotNull(packageIdentifier);
             resetIfBuilt();
-            VisibilityConfig.Builder visibilityConfigBuilder =
+            InternalVisibilityConfig.Builder visibilityConfigBuilder =
                     getOrCreateVisibilityConfigBuilder(schemaType);
             visibilityConfigBuilder.setPubliclyVisibleTargetPackage(packageIdentifier);
             return this;
@@ -537,7 +539,7 @@ public final class GetSchemaResponse extends AbstractSafeParcelable {
             Preconditions.checkNotNull(schemaType);
             Preconditions.checkNotNull(visibleToConfigs);
             resetIfBuilt();
-            VisibilityConfig.Builder visibilityConfigBuilder =
+            InternalVisibilityConfig.Builder visibilityConfigBuilder =
                     getOrCreateVisibilityConfigBuilder(schemaType);
             for (VisibilityConfig visibleToConfig : visibleToConfigs) {
                 visibilityConfigBuilder.addVisibleToConfig(visibleToConfig);
@@ -574,12 +576,12 @@ public final class GetSchemaResponse extends AbstractSafeParcelable {
         /** Builds a {@link GetSchemaResponse} object. */
         @NonNull
         public GetSchemaResponse build() {
-            List<VisibilityConfig> visibilityConfigs = null;
+            List<InternalVisibilityConfig> visibilityConfigs = null;
             if (mVisibilityConfigBuilders != null) {
                 visibilityConfigs = new ArrayList<>();
-                for (VisibilityConfig.Builder visibilityConfigBuilder :
+                for (InternalVisibilityConfig.Builder builder :
                         mVisibilityConfigBuilders.values()) {
-                    visibilityConfigs.add(visibilityConfigBuilder.build());
+                    visibilityConfigs.add(builder.build());
                 }
             }
             mBuilt = true;
@@ -587,11 +589,11 @@ public final class GetSchemaResponse extends AbstractSafeParcelable {
         }
 
         @NonNull
-        private VisibilityConfig.Builder getOrCreateVisibilityConfigBuilder(
+        private InternalVisibilityConfig.Builder getOrCreateVisibilityConfigBuilder(
                 @NonNull String schemaType) {
-            VisibilityConfig.Builder builder = mVisibilityConfigBuilders.get(schemaType);
+            InternalVisibilityConfig.Builder builder = mVisibilityConfigBuilders.get(schemaType);
             if (builder == null) {
-                builder = new VisibilityConfig.Builder(schemaType);
+                builder = new InternalVisibilityConfig.Builder(schemaType);
                 mVisibilityConfigBuilders.put(schemaType, builder);
             }
             return builder;

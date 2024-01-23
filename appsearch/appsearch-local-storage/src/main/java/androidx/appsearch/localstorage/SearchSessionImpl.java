@@ -34,6 +34,7 @@ import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.GetByDocumentIdRequest;
 import androidx.appsearch.app.GetSchemaResponse;
 import androidx.appsearch.app.InternalSetSchemaResponse;
+import androidx.appsearch.app.InternalVisibilityConfig;
 import androidx.appsearch.app.Migrator;
 import androidx.appsearch.app.PutDocumentsRequest;
 import androidx.appsearch.app.RemoveByDocumentIdRequest;
@@ -45,7 +46,6 @@ import androidx.appsearch.app.SearchSuggestionSpec;
 import androidx.appsearch.app.SetSchemaRequest;
 import androidx.appsearch.app.SetSchemaResponse;
 import androidx.appsearch.app.StorageInfo;
-import androidx.appsearch.app.VisibilityConfig;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.localstorage.stats.OptimizeStats;
 import androidx.appsearch.localstorage.stats.RemoveStats;
@@ -80,7 +80,6 @@ class SearchSessionImpl implements AppSearchSession {
     private final AppSearchImpl mAppSearchImpl;
     private final Executor mExecutor;
     private final Features mFeatures;
-    private final Context mContext;
     private final String mDatabaseName;
     @Nullable private final AppSearchLogger mLogger;
 
@@ -100,11 +99,11 @@ class SearchSessionImpl implements AppSearchSession {
         mAppSearchImpl = Preconditions.checkNotNull(appSearchImpl);
         mExecutor = Preconditions.checkNotNull(executor);
         mFeatures = Preconditions.checkNotNull(features);
-        mContext = Preconditions.checkNotNull(context);
+        Preconditions.checkNotNull(context);
         mDatabaseName = Preconditions.checkNotNull(databaseName);
         mLogger = logger;
 
-        mPackageName = mContext.getPackageName();
+        mPackageName = context.getPackageName();
         mSelfCallerAccess = new CallerAccess(/*callingPackageName=*/mPackageName);
     }
 
@@ -126,12 +125,12 @@ class SearchSessionImpl implements AppSearchSession {
                         mPackageName, mDatabaseName);
             }
 
-            List<VisibilityConfig> visibilityConfigs =
-                    VisibilityConfig.toVisibilityConfigs(request);
+            List<InternalVisibilityConfig> visibilityConfigs =
+                    InternalVisibilityConfig.toInternalVisibilityConfigs(request);
 
             Map<String, Migrator> migrators = request.getMigrators();
             // No need to trigger migration if user never set migrator.
-            if (migrators.size() == 0) {
+            if (migrators.isEmpty()) {
                 SetSchemaResponse setSchemaResponse = setSchemaNoMigrations(request,
                         visibilityConfigs,
                         firstSetSchemaStatsBuilder);
@@ -172,7 +171,7 @@ class SearchSessionImpl implements AppSearchSession {
             Map<String, Migrator> activeMigrators = SchemaMigrationUtil.getActiveMigrators(
                     getSchemaResponse.getSchemas(), migrators, currentVersion, finalVersion);
             // No need to trigger migration if no migrator is active.
-            if (activeMigrators.size() == 0) {
+            if (activeMigrators.isEmpty()) {
                 SetSchemaResponse setSchemaResponse = setSchemaNoMigrations(request,
                         visibilityConfigs, firstSetSchemaStatsBuilder);
                 if (firstSetSchemaStatsBuilder != null) {
@@ -585,7 +584,7 @@ class SearchSessionImpl implements AppSearchSession {
      * forceoverride in the request.
      */
     private SetSchemaResponse setSchemaNoMigrations(@NonNull SetSchemaRequest request,
-            @NonNull List<VisibilityConfig> visibilityConfigs,
+            @NonNull List<InternalVisibilityConfig> visibilityConfigs,
             @Nullable SetSchemaStats.Builder setSchemaStatsBuilder)
             throws AppSearchException {
         if (setSchemaStatsBuilder != null) {

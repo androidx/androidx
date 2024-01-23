@@ -20,9 +20,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.appsearch.app.AppSearchResult;
+import androidx.appsearch.app.InternalVisibilityConfig;
 import androidx.appsearch.app.PackageIdentifier;
 import androidx.appsearch.app.SetSchemaRequest;
-import androidx.appsearch.app.VisibilityConfig;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.localstorage.AppSearchImpl;
 import androidx.appsearch.localstorage.util.PrefixUtil;
@@ -91,9 +91,9 @@ public class VisibilityStoreMigrationHelperFromV1 {
      * @param visibilityDocumentV1s          The deprecated Visibility Document we found.
      */
     @NonNull
-    static List<VisibilityConfig> toVisibilityDocumentsV2(
+    static List<InternalVisibilityConfig> toVisibilityDocumentsV2(
             @NonNull List<VisibilityDocumentV1> visibilityDocumentV1s) {
-        List<VisibilityConfig> latestVisibilityDocuments =
+        List<InternalVisibilityConfig> latestVisibilityDocuments =
                 new ArrayList<>(visibilityDocumentV1s.size());
         for (int i = 0; i < visibilityDocumentV1s.size(); i++) {
             VisibilityDocumentV1 visibilityDocumentV1 = visibilityDocumentV1s.get(i);
@@ -120,8 +120,8 @@ public class VisibilityStoreMigrationHelperFromV1 {
                 visibleToPermissionSets.add(deprecatedVisibleToPermissions);
             }
 
-            VisibilityConfig.Builder latestVisibilityDocumentBuilder =
-                    new VisibilityConfig.Builder(visibilityDocumentV1.getId())
+            InternalVisibilityConfig.Builder latestVisibilityDocumentBuilder =
+                    new InternalVisibilityConfig.Builder(visibilityDocumentV1.getId())
                             .setNotDisplayedBySystem(visibilityDocumentV1.isNotDisplayedBySystem());
             String[] packageNames = visibilityDocumentV1.getPackageNames();
             byte[][] sha256Certs = visibilityDocumentV1.getSha256Certs();

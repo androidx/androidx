@@ -18,6 +18,7 @@ package androidx.appsearch.cts.app;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import androidx.appsearch.app.PackageIdentifier;
@@ -71,8 +72,8 @@ public class VisibilityConfigCtsTest {
                 .build();
 
         // Test equals method
-        assertTrue(visibilityConfig1.equals(visibilityConfig2));
-        assertTrue(visibilityConfig2.equals(visibilityConfig1));
+        assertEquals(visibilityConfig1, visibilityConfig2);
+        assertEquals(visibilityConfig2, visibilityConfig1);
     }
 
     @Test
