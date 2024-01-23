@@ -46,6 +46,7 @@ import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.DpRect
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.height
 import androidx.compose.ui.unit.width
@@ -242,7 +243,7 @@ object TabRowDefaults {
             modifier
                 .fillMaxWidth()
                 .wrapContentSize(Alignment.BottomStart)
-                .offset(x = leftOffset, y = topOffset)
+                .offset { IntOffset(x = leftOffset.roundToPx(), y = topOffset.roundToPx()) }
                 .width(width)
                 .height(height)
                 .background(color = pillColor, shape = RoundedCornerShape(50))
@@ -300,7 +301,7 @@ object TabRowDefaults {
             modifier
                 .fillMaxWidth()
                 .wrapContentSize(Alignment.BottomStart)
-                .offset(x = leftOffset)
+                .offset { IntOffset(x = leftOffset.roundToPx(), y = 0) }
                 .width(width)
                 .height(indicatorHeight)
                 .background(color = underlineColor)
