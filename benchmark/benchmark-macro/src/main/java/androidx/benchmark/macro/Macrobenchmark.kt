@@ -18,6 +18,8 @@ package androidx.benchmark.macro
 
 import android.content.pm.ApplicationInfo
 import android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE
+import android.content.pm.ApplicationInfo.FLAG_SYSTEM
+import android.content.pm.ApplicationInfo.FLAG_UPDATED_SYSTEM_APP
 import android.content.pm.PackageManager
 import android.os.Build
 import android.util.Log
@@ -46,10 +48,11 @@ import androidx.tracing.trace
 import java.io.File
 
 /**
- * Get package ApplicationInfo, throw if not found
+ * Get package ApplicationInfo, throw if not found.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Suppress("DEPRECATION")
-internal fun getInstalledPackageInfo(packageName: String): ApplicationInfo {
+fun getInstalledPackageInfo(packageName: String): ApplicationInfo {
     val pm = InstrumentationRegistry.getInstrumentation().context.packageManager
     try {
         return pm.getApplicationInfo(packageName, 0)
@@ -59,6 +62,14 @@ internal fun getInstalledPackageInfo(packageName: String): ApplicationInfo {
             notFoundException
         )
     }
+}
+
+/**
+ * @return `true` if the [ApplicationInfo] instance is referring to a system app.
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+fun ApplicationInfo.isSystemApp(): Boolean {
+    return flags and (FLAG_SYSTEM or FLAG_UPDATED_SYSTEM_APP) > 0
 }
 
 internal fun checkErrors(packageName: String): ConfigurationError.SuppressionState? {
@@ -208,10 +219,13 @@ private fun macrobenchmark(
     val startTime = System.nanoTime()
     // Ensure method tracing is explicitly enabled and that we are not running in dry run mode.
     val launchWithMethodTracing = Arguments.macrobenchMethodTracingEnabled()
+    val applicationInfo = getInstalledPackageInfo(packageName)
     val scope = MacrobenchmarkScope(
         packageName,
         launchWithClearTask = launchWithClearTask
     )
+    // Capture if the app being benchmarked is a system app.
+    scope.isSystemApp = applicationInfo.isSystemApp()
     scope.launchWithMethodTracing = launchWithMethodTracing
     // Ensure the device is awake
     scope.device.wakeUp()
