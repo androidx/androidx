@@ -39,7 +39,7 @@ class ProjectDependencyGraph {
     /**
      * A map of project path to a set of project paths that directly depend on the key project.
      */
-    private Map<String, Set<String>> projectReferenceReverseLookup = new HashMap<String, Set<String>>()
+    private Map<String, Set<String>> projectConsumers = new HashMap<String, Set<String>>()
 
     /**
      * A map of all project paths to their project directory.
@@ -70,9 +70,9 @@ class ProjectDependencyGraph {
         Set<String> parsedDependencies = extractReferencesFromBuildFile(projectPath, projectDir)
         projectReferences[projectPath] = parsedDependencies
         parsedDependencies.forEach { dependency ->
-            def reverseLookupSet = projectReferenceReverseLookup[dependency] ?: new HashSet<String>()
+            def reverseLookupSet = projectConsumers[dependency] ?: new HashSet<String>()
             reverseLookupSet.add(projectPath)
-            projectReferenceReverseLookup[dependency] = reverseLookupSet
+            projectConsumers[dependency] = reverseLookupSet
         }
     }
 
@@ -84,10 +84,10 @@ class ProjectDependencyGraph {
         Set<String> result = new HashSet<String>()
         ArrayDeque<String> toBeTraversed = new ArrayDeque<String>()
         toBeTraversed.add(projectPath)
-        while(toBeTraversed.size() > 0) {
+        while (toBeTraversed.size() > 0) {
             def path = toBeTraversed.removeFirst()
             if (result.add(path)) {
-                def dependants = projectReferenceReverseLookup[path]
+                def dependants = projectConsumers[path]
                 if (dependants != null) {
                     toBeTraversed.addAll(dependants)
                 }
