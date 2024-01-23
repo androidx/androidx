@@ -74,6 +74,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 
@@ -674,7 +675,7 @@ fun FancyAnimatedIndicator(tabPositions: List<TabPosition>, selectedTabIndex: In
             .fillMaxSize()
             .wrapContentSize(align = Alignment.BottomStart)
             // Apply an offset from the start to correctly position the indicator around the tab
-            .offset(x = indicatorStart)
+            .offset { IntOffset(x = indicatorStart.roundToPx(), y = 0) }
             // Make the width of the indicator follow the animated width as we move between tabs
             .width(indicatorEnd - indicatorStart)
     )
