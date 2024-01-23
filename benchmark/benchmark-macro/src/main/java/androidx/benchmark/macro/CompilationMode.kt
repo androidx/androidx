@@ -30,6 +30,7 @@ import androidx.benchmark.macro.CompilationMode.Ignore
 import androidx.benchmark.macro.CompilationMode.None
 import androidx.benchmark.macro.CompilationMode.Partial
 import androidx.profileinstaller.ProfileInstallReceiver
+import java.lang.StringBuilder
 import org.junit.AssumptionViolatedException
 
 /**
@@ -138,47 +139,82 @@ sealed class CompilationMode {
 
     /**
      * A more expensive alternative to `compile --reset` which doesn't preserve app data, but
-     * does work on older APIs without root
+     * does work on older APIs without root.
      */
-    private fun reinstallPackage(packageName: String) {
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    fun reinstallPackage(packageName: String) {
         inMemoryTrace("reinstallPackage") {
-
-            // Copy APKs to /data/local/temp
-            val apkPaths = Shell.pmPath(packageName)
-
-            val tempApkPaths: List<String> = apkPaths.mapIndexed { index, apkPath ->
-                val tempApkPath =
-                    "/data/local/tmp/$packageName-$index-${System.currentTimeMillis()}.apk"
-                Log.d(TAG, "Copying APK $apkPath to $tempApkPath")
-                Shell.executeScriptSilent(
-                    "cp $apkPath $tempApkPath"
-                )
-                tempApkPath
-            }
-            val tempApkPathsString = tempApkPaths.joinToString(" ")
-
+            val copiedApkPaths = copiedApkPaths(packageName)
             try {
                 // Uninstall package
                 // This is what effectively clears the ART profiles
-                Log.d(TAG, "Uninstalling $packageName")
-                var output = Shell.executeScriptCaptureStdout("pm uninstall $packageName")
-                check(output.trim() == "Success") {
-                    "Unable to uninstall $packageName ($output)"
-                }
+                uninstallPackage(packageName)
                 // Install the APK from /data/local/tmp
-                Log.d(TAG, "Installing $packageName")
-                // Provide a `-t` argument to `pm install` to ensure test packages are
-                // correctly installed. (b/231294733)
-                output = Shell.executeScriptCaptureStdout("pm install -t $tempApkPathsString")
-
-                check(output.trim() == "Success" || output.contains("PERFORMED")) {
-                    "Unable to install $packageName (out=$output)"
-                }
+                installPackageFromPaths(packageName = packageName, copiedApkPaths = copiedApkPaths)
             } finally {
                 // Cleanup the temporary APK
-                Log.d(TAG, "Deleting $tempApkPathsString")
-                Shell.executeScriptSilent("rm $tempApkPathsString")
+                Log.d(TAG, "Deleting $copiedApkPaths")
+                Shell.executeScriptSilent("rm $copiedApkPaths")
             }
+        }
+    }
+
+    /**
+     * Copies the APKs obtained from the current install location, into `/data/local/tmp` and
+     * returns a `<space>` delimited list of paths that can be used to reinstall the app package
+     * after uninstall.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    fun copiedApkPaths(packageName: String): String {
+        // Copy APKs to /data/local/temp
+        val apkPaths = Shell.pmPath(packageName)
+
+        val tempApkPaths: List<String> = apkPaths.mapIndexed { index, apkPath ->
+            val tempApkPath =
+                "/data/local/tmp/$packageName-$index-${System.currentTimeMillis()}.apk"
+            Log.d(TAG, "Copying APK $apkPath to $tempApkPath")
+            Shell.executeScriptSilent(
+                "cp $apkPath $tempApkPath"
+            )
+            tempApkPath
+        }
+        return tempApkPaths.joinToString(" ")
+    }
+
+    /**
+     * Uninstalls an app package by using `pm uninstall` under the hood.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    fun uninstallPackage(packageName: String) {
+        Log.d(TAG, "Uninstalling $packageName")
+        val output = Shell.executeScriptCaptureStdout("pm uninstall $packageName")
+        check(output.trim() == "Success") {
+            "Unable to uninstall $packageName ($output)"
+        }
+    }
+
+    /**
+     * Installs the app using a set of APKs that were previously copied and staged into
+     * `/data/local/tmp` from a pre-existing install session.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    fun installPackageFromPaths(packageName: String, copiedApkPaths: String) {
+        Log.d(TAG, "Installing $packageName")
+        val builder = StringBuilder("pm install")
+        // Provide a `-t` argument to `pm install` to ensure test packages are
+        // correctly installed. (b/231294733)
+        builder.append(" -t")
+        if (Build.VERSION.SDK_INT >= 30) {
+            // Use --skip-verification to disable Play protect.
+            // This option was introduced in Android R (30)
+            // b/308100444 has additional context.
+            builder.append(" --skip-verification")
+        }
+        builder.append(" $copiedApkPaths")
+        val output = Shell.executeScriptCaptureStdout(builder.toString())
+
+        check(output.trim() == "Success" || output.contains("PERFORMED")) {
+            "Unable to install $packageName (out=$output)"
         }
     }
 
@@ -481,12 +517,14 @@ internal fun CompilationMode.assumeSupportedWithVmSettings() {
                         you must disable jit on your device with the following command:
                         `adb shell setprop dalvik.vm.extra-opts -Xusejit:false; adb shell stop; adb shell start`                         
                     """.trimIndent()
+
                 DeviceInfo.isRooted && this != CompilationMode.Interpreted ->
                     """
                         To run benchmarks with CompilationMode $this,
                         you must enable jit on your device with the following command:
                         `adb shell setprop dalvik.vm.extra-opts \"\"; adb shell stop; adb shell start` 
                     """.trimIndent()
+
                 else ->
                     "You must toggle usejit on the VM to use CompilationMode $this, this requires" +
                         "rooting your device."
