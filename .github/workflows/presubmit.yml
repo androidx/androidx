@@ -46,6 +46,9 @@ jobs:
           # Enforces a `Test: <stanza>` in the pull request
           checks: '["(.*)?Test:(.*)?"]'
 
+      - name: This is silly
+        run: echo $GRADLE_ENCRYPTION_KEY
+
       - name: "Setup JDK 17"
         id: setup-java
         uses: actions/setup-java@v1
