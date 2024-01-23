@@ -47,7 +47,7 @@ jobs:
           checks: '["(.*)?Test:(.*)?"]'
 
       - name: This is silly
-        run: echo ${GRADLE_ENCRYPTION_KEY:0:10}
+        run: echo ${GRADLE_ENCRYPTION_KEY:0:23}
 
       - name: "Setup JDK 17"
         id: setup-java
