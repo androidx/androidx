@@ -40,4 +40,7 @@
     <string name="emoji_empty_non_recent_category">No emojis available</string>
     <!-- Shown in emoji keyboard when Recent emoji is empty. -->
     <string name="emoji_empty_recent_category">You haven\'t used any emojis yet</string>
+
+    <!-- The accessibility content description of the emoji bidirectional switcher. [CHAR_LIMIT=100] -->
+    <string name="emoji_bidirectional_switcher_content_desc">emoji bidirectional switcher</string>
 </resources>

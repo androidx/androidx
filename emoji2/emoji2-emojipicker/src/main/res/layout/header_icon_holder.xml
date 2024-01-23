@@ -16,6 +16,7 @@
   -->
 
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="@dimen/emoji_picker_header_icon_holder_width"
     android:layout_height="match_parent"
     android:background="?android:attr/selectableItemBackground"
@@ -25,8 +26,8 @@
         android:layout_width="@dimen/emoji_picker_header_icon_width"
         android:layout_height="@dimen/emoji_picker_header_icon_height"
         android:gravity="center"
-        android:tint="@drawable/icon_tint_selector"
-        android:layout_gravity="center"/>
+        android:layout_gravity="center"
+        app:tint="@drawable/icon_tint_selector" />
     <View
         android:id="@+id/emoji_picker_header_underline"
         android:layout_width="@dimen/emoji_picker_header_icon_underline_width"
