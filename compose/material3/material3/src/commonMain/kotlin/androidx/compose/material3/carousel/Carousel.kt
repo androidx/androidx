@@ -16,9 +16,14 @@
 
 package androidx.compose.material3.carousel
 
-import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PageSize
+import androidx.compose.foundation.pager.VerticalPager
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ShapeDefaults
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Rect
@@ -43,6 +48,16 @@ internal enum class CarouselAlignment {
     Center,
     /** End aligned carousels place focal items at the end/bottom of the container */
     End
+}
+
+/**
+ * An enumeration of orientations that determine a carousel's main axis
+ */
+internal enum class Orientation {
+    /** Vertical orientation representing Y axis */
+    Vertical,
+    /** Horizontal orientation representing X axis */
+    Horizontal
 }
 
 /**
@@ -187,4 +202,102 @@ private fun getProgress(before: Keyline, after: Keyline, unadjustedOffset: Float
 
     val total = after.unadjustedOffset - before.unadjustedOffset
     return (unadjustedOffset - before.unadjustedOffset) / total
+}
+
+/**
+ * <a href=https://m3.material.io/components/carousel/overview" class="external" target="_blank">Material Design Carousel</a>
+ *
+ * A Carousel that scrolls horizontally. Carousels contain a collection of items that changes sizes
+ * according to their placement and the chosen strategy.
+ *
+ * @param state The state object to be used to control the carousel's state.
+ * @param modifier A modifier instance to be applied to this carousel outer layout
+ * @param content The carousel's content Composable.
+ * TODO: Add sample link
+ */
+@ExperimentalMaterial3Api
+@Composable
+internal fun HorizontalCarousel(
+    state: CarouselState,
+    modifier: Modifier = Modifier,
+    content: @Composable CarouselScope.(item: Int) -> Unit
+) = Carousel(
+        state = state,
+        modifier = modifier,
+        orientation = Orientation.Horizontal,
+        content = content
+)
+
+/**
+ * <a href=https://m3.material.io/components/carousel/overview" class="external" target="_blank">Material Design Carousel</a>
+ *
+ * A Carousel that scrolls vertically. Carousels contain a collection of items that changes sizes
+ * according to their placement and the chosen strategy.
+ *
+ * @param state The state object to be used to control the carousel's state.
+ * @param modifier A modifier instance to be applied to this carousel outer layout
+ * @param content The carousel's content Composable.
+ * TODO: Add sample link
+ */
+@ExperimentalMaterial3Api
+@Composable
+internal fun VerticalCarousel(
+    state: CarouselState,
+    modifier: Modifier = Modifier,
+    content: @Composable CarouselScope.(item: Int) -> Unit
+) = Carousel(
+        state = state,
+        modifier = modifier,
+        orientation = Orientation.Vertical,
+        content = content
+)
+
+/**
+ * <a href=https://m3.material.io/components/carousel/overview" class="external" target="_blank">Material Design Carousel</a>
+ *
+ * Carousels contain a collection of items that changes sizes according to their placement and the
+ * chosen strategy.
+ *
+ * @param state The state object to be used to control the carousel's state.
+ * @param modifier A modifier instance to be applied to this carousel outer layout
+ * @param orientation The layout orientation of the carousel
+ * @param content The carousel's content Composable.
+ * TODO: Add sample link
+ */
+// TODO: b/321997456 - Remove lint suppression once version checks are added in lint or library
+// moves to beta
+@Suppress("IllegalExperimentalApiUsage")
+@OptIn(ExperimentalFoundationApi::class)
+@ExperimentalMaterial3Api
+@Composable
+internal fun Carousel(
+    state: CarouselState,
+    modifier: Modifier = Modifier,
+    orientation: Orientation = Orientation.Horizontal,
+    content: @Composable CarouselScope.(item: Int) -> Unit
+) {
+    // TODO: Update page size according to strategy
+    val pageSize = PageSize.Fill
+    // TODO: Update out of bounds page count numbers
+    val outOfBoundsPageCount = 1
+    val carouselScope = CarouselScopeImpl
+    if (orientation == Orientation.Horizontal) {
+        HorizontalPager(
+            state = state.pagerState,
+            pageSize = pageSize,
+            outOfBoundsPageCount = outOfBoundsPageCount,
+            modifier = modifier
+        ) { page ->
+            carouselScope.content(page)
+        }
+    } else if (orientation == Orientation.Vertical) {
+        VerticalPager(
+            state = state.pagerState,
+            pageSize = pageSize,
+            outOfBoundsPageCount = outOfBoundsPageCount,
+            modifier = modifier
+        ) { page ->
+            carouselScope.content(page)
+        }
+    }
 }
