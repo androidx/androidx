@@ -83,6 +83,18 @@ class Configuration internal constructor(builder: Builder) {
     val schedulingExceptionHandler: Consumer<Throwable>?
 
     /**
+     * The exception handler that can be used to intercept exceptions
+     * caused when trying to initialize [ListenableWorker]s.
+     */
+    val workerInitializationExceptionHandler: Consumer<WorkerExceptionInfo>?
+
+    /**
+     * The exception handler that can be used to intercept exceptions
+     * caused when trying to execute [ListenableWorker]s.
+     */
+    val workerExecutionExceptionHandler: Consumer<WorkerExceptionInfo>?
+
+    /**
      * The [String] name of the process where work should be scheduled.
      */
     val defaultProcessName: String?
@@ -159,6 +171,8 @@ class Configuration internal constructor(builder: Builder) {
         }
         initializationExceptionHandler = builder.initializationExceptionHandler
         schedulingExceptionHandler = builder.schedulingExceptionHandler
+        workerInitializationExceptionHandler = builder.workerInitializationExceptionHandler
+        workerExecutionExceptionHandler = builder.workerExecutionExceptionHandler
         defaultProcessName = builder.defaultProcessName
         contentUriTriggerWorkersLimit = builder.contentUriTriggerWorkersLimit
     }
@@ -175,6 +189,8 @@ class Configuration internal constructor(builder: Builder) {
         internal var runnableScheduler: RunnableScheduler? = null
         internal var initializationExceptionHandler: Consumer<Throwable>? = null
         internal var schedulingExceptionHandler: Consumer<Throwable>? = null
+        internal var workerInitializationExceptionHandler: Consumer<WorkerExceptionInfo>? = null
+        internal var workerExecutionExceptionHandler: Consumer<WorkerExceptionInfo>? = null
         internal var defaultProcessName: String? = null
         internal var loggingLevel: Int = Log.INFO
         internal var minJobSchedulerId: Int = INITIAL_ID
@@ -209,6 +225,9 @@ class Configuration internal constructor(builder: Builder) {
             runnableScheduler = configuration.runnableScheduler
             initializationExceptionHandler = configuration.initializationExceptionHandler
             schedulingExceptionHandler = configuration.schedulingExceptionHandler
+            workerInitializationExceptionHandler =
+                    configuration.workerInitializationExceptionHandler
+            workerExecutionExceptionHandler = configuration.workerExecutionExceptionHandler
             defaultProcessName = configuration.defaultProcessName
         }
 
@@ -405,6 +424,40 @@ class Configuration internal constructor(builder: Builder) {
             schedulingExceptionHandler: Consumer<Throwable>
         ): Builder {
             this.schedulingExceptionHandler = schedulingExceptionHandler
+            return this
+        }
+
+        /**
+         * Specifies a `WorkerExceptionHandler` that can be used to intercept
+         * exceptions caused when trying to initialize [ListenableWorker]s.
+         *
+         * This exception handler will be invoked on a thread bound to
+         * [Configuration.taskExecutor].
+         *
+         * @param workerExceptionHandler an instance to handle exceptions
+         * @return This [Builder] instance
+         */
+        fun setWorkerInitializationExceptionHandler(
+            workerExceptionHandler: Consumer<WorkerExceptionInfo>
+        ): Builder {
+            this.workerInitializationExceptionHandler = workerExceptionHandler
+            return this
+        }
+
+        /**
+         * Specifies a `WorkerExceptionHandler` that can be used to intercept
+         * exceptions caused when trying to execute [ListenableWorker]s.
+         *
+         * This exception handler will be invoked on a thread bound to
+         * [Configuration.taskExecutor].
+         *
+         * @param workerExceptionHandler an instance to handle exceptions
+         * @return This [Builder] instance
+         */
+        fun setWorkerExecutionExceptionHandler(
+            workerExceptionHandler: Consumer<WorkerExceptionInfo>
+        ): Builder {
+            this.workerExecutionExceptionHandler = workerExceptionHandler
             return this
         }
 

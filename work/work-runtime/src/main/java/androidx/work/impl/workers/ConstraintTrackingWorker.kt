@@ -23,6 +23,7 @@ import androidx.work.ListenableWorker
 import androidx.work.Logger
 import androidx.work.WorkInfo.Companion.STOP_REASON_NOT_STOPPED
 import androidx.work.WorkInfo.Companion.STOP_REASON_UNKNOWN
+import androidx.work.WorkerExceptionInfo
 import androidx.work.WorkerParameters
 import androidx.work.await
 import androidx.work.impl.WorkManagerImpl
@@ -73,11 +74,21 @@ class ConstraintTrackingWorker(
             return Result.retry()
         }
         logd(TAG) { "Constraints met for delegate $className" }
-        val delegate = workerFactory.createWorkerWithDefaultFallback(
-            applicationContext, className, workerParameters
-        )
-        if (delegate == null) {
+        val delegate = try {
+            workerFactory.createWorkerWithDefaultFallback(
+                applicationContext, className, workerParameters
+            )
+        } catch (e: Throwable) {
             logd(TAG) { "No worker to delegate to." }
+            try {
+                workManagerImpl.configuration.workerInitializationExceptionHandler?.accept(
+                    WorkerExceptionInfo(className, workerParameters, e)
+                )
+            } catch (exception: Exception) {
+                loge(TAG, exception) {
+                    "Exception handler threw an exception"
+                }
+            }
             return Result.failure()
         }
         val mainThreadExecutor = workerParameters.taskExecutor.mainThreadExecutor

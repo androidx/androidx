@@ -29,7 +29,9 @@ package androidx.work {
     method public androidx.work.RunnableScheduler getRunnableScheduler();
     method public androidx.core.util.Consumer<java.lang.Throwable>? getSchedulingExceptionHandler();
     method public java.util.concurrent.Executor getTaskExecutor();
+    method public androidx.core.util.Consumer<androidx.work.WorkerExceptionInfo>? getWorkerExecutionExceptionHandler();
     method public androidx.work.WorkerFactory getWorkerFactory();
+    method public androidx.core.util.Consumer<androidx.work.WorkerExceptionInfo>? getWorkerInitializationExceptionHandler();
     property public final androidx.work.Clock clock;
     property public final int contentUriTriggerWorkersLimit;
     property public final String? defaultProcessName;
@@ -41,7 +43,9 @@ package androidx.work {
     property public final androidx.work.RunnableScheduler runnableScheduler;
     property public final androidx.core.util.Consumer<java.lang.Throwable>? schedulingExceptionHandler;
     property public final java.util.concurrent.Executor taskExecutor;
+    property public final androidx.core.util.Consumer<androidx.work.WorkerExceptionInfo>? workerExecutionExceptionHandler;
     property public final androidx.work.WorkerFactory workerFactory;
+    property public final androidx.core.util.Consumer<androidx.work.WorkerExceptionInfo>? workerInitializationExceptionHandler;
     field public static final androidx.work.Configuration.Companion Companion;
     field public static final int MIN_SCHEDULER_LIMIT = 20; // 0x14
   }
@@ -61,7 +65,9 @@ package androidx.work {
     method public androidx.work.Configuration.Builder setRunnableScheduler(androidx.work.RunnableScheduler runnableScheduler);
     method public androidx.work.Configuration.Builder setSchedulingExceptionHandler(androidx.core.util.Consumer<java.lang.Throwable> schedulingExceptionHandler);
     method public androidx.work.Configuration.Builder setTaskExecutor(java.util.concurrent.Executor taskExecutor);
+    method public androidx.work.Configuration.Builder setWorkerExecutionExceptionHandler(androidx.core.util.Consumer<androidx.work.WorkerExceptionInfo> workerExceptionHandler);
     method public androidx.work.Configuration.Builder setWorkerFactory(androidx.work.WorkerFactory workerFactory);
+    method public androidx.work.Configuration.Builder setWorkerInitializationExceptionHandler(androidx.core.util.Consumer<androidx.work.WorkerExceptionInfo> workerExceptionHandler);
   }
 
   public static final class Configuration.Companion {
@@ -588,6 +594,16 @@ package androidx.work {
     method @WorkerThread public abstract androidx.work.ListenableWorker.Result doWork();
     method @WorkerThread public androidx.work.ForegroundInfo getForegroundInfo();
     method public final com.google.common.util.concurrent.ListenableFuture<androidx.work.ListenableWorker.Result> startWork();
+  }
+
+  public final class WorkerExceptionInfo {
+    ctor public WorkerExceptionInfo(String workerClassName, androidx.work.WorkerParameters workerParameters, Throwable throwable);
+    method public Throwable getThrowable();
+    method public String getWorkerClassName();
+    method public androidx.work.WorkerParameters getWorkerParameters();
+    property public final Throwable throwable;
+    property public final String workerClassName;
+    property public final androidx.work.WorkerParameters workerParameters;
   }
 
   public abstract class WorkerFactory {
