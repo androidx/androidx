@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,22 +14,24 @@
  * limitations under the License.
  */
 
-package androidx.work.worker;
+package androidx.work
 
-import android.content.Context;
+/**
+ * Represents exceptions occurred from initializing or executing a [ListenableWorker].
+ */
+class WorkerExceptionInfo(
+    /**
+     * The class name of the worker
+     */
+    val workerClassName: String,
 
-import androidx.annotation.NonNull;
-import androidx.work.Worker;
-import androidx.work.WorkerParameters;
+    /**
+     * Parameters for worker initialization
+     */
+    val workerParameters: WorkerParameters,
 
-public class ExceptionWorker extends Worker {
-
-    public ExceptionWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
-        super(context, workerParams);
-    }
-
-    @Override
-    public @NonNull Result doWork() {
-        throw new IllegalStateException("Thrown in doWork Exception");
-    }
-}
+    /**
+     * The [Throwable] thrown while initializing or executing a [ListenableWorker]
+     */
+    val throwable: Throwable
+)

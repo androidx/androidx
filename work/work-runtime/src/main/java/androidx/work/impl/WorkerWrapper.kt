@@ -26,6 +26,7 @@ import androidx.work.Data
 import androidx.work.ListenableWorker
 import androidx.work.Logger
 import androidx.work.WorkInfo
+import androidx.work.WorkerExceptionInfo
 import androidx.work.WorkerParameters
 import androidx.work.impl.background.systemalarm.RescheduleReceiver
 import androidx.work.impl.foreground.ForegroundProcessor
@@ -175,28 +176,29 @@ class WorkerWrapper internal constructor(builder: Builder) : Runnable {
 
         // Not always creating a worker here, as the WorkerWrapper.Builder can set a worker override
         // in test mode.
-        if (worker == null) {
-            worker = configuration.workerFactory.createWorkerWithDefaultFallback(
-                appContext,
-                workSpec.workerClassName,
-                params
-            )
-        }
         val worker = worker
-        if (worker == null) {
-            loge(TAG) { "Could not create Worker ${workSpec.workerClassName}" }
-            setFailedAndResolve()
-            return
-        }
-        if (worker.isUsed) {
-            loge(TAG) {
-                "Received an already-used Worker ${workSpec.workerClassName}; " +
-                    "Worker Factory should return new instances"
+            ?: try {
+                configuration.workerFactory.createWorkerWithDefaultFallback(
+                    appContext,
+                    workSpec.workerClassName,
+                    params
+                )
+            } catch (e: Throwable) {
+                loge(TAG) { "Could not create Worker ${workSpec.workerClassName}" }
+                try {
+                    configuration.workerInitializationExceptionHandler?.accept(
+                        WorkerExceptionInfo(workSpec.workerClassName, params, e)
+                    )
+                } catch (exception: Exception) {
+                    loge(TAG, exception) {
+                        "Exception handler threw an exception"
+                    }
+                }
+                setFailedAndResolve()
+                return
             }
-            setFailedAndResolve()
-            return
-        }
         worker.setUsed()
+        this.worker = worker
 
         // Try to set the work to the running state.  Note that this may fail because another thread
         // may have modified the DB since we checked last at the top of this function.
@@ -251,17 +253,43 @@ class WorkerWrapper internal constructor(builder: Builder) : Runnable {
                         logd(TAG) { "${workSpec.workerClassName} returned a $result." }
                         this.result = result
                     }
-                } catch (exception: CancellationException) {
-                    // Cancellations need to be treated with care here because innerFuture
-                    // cancellations will bubble up, and we need to gracefully handle that.
-                    logi(TAG, exception) { "$workDescription was cancelled" }
                 } catch (exception: InterruptedException) {
                     loge(TAG, exception) {
                         "$workDescription failed because it threw an exception/error"
                     }
-                } catch (exception: ExecutionException) {
-                    loge(TAG, exception) {
-                        "$workDescription failed because it threw an exception/error"
+                    try {
+                        configuration.workerExecutionExceptionHandler?.accept(
+                            WorkerExceptionInfo(workSpec.workerClassName, params, exception))
+                    } catch (exception: Exception) {
+                        loge(TAG, exception) {
+                            "Exception handler threw an exception"
+                        }
+                    }
+                } catch (exception: Exception) {
+                    when (exception) {
+                        is CancellationException -> {
+                            // Cancellations need to be treated with care here because innerFuture
+                            // cancellations will bubble up, and we need to gracefully handle that.
+                            logi(TAG, exception) { "$workDescription was cancelled" }
+                        }
+                        is ExecutionException -> {
+                            loge(TAG, exception) {
+                                "$workDescription failed because it threw an exception/error"
+                            }
+                        }
+                    }
+                    try {
+                        configuration.workerExecutionExceptionHandler?.accept(
+                            WorkerExceptionInfo(
+                                workSpec.workerClassName,
+                                params,
+                                exception.cause ?: exception
+                            )
+                        )
+                    } catch (exception: Exception) {
+                        loge(TAG, exception) {
+                            "Exception handler threw an exception"
+                        }
                     }
                 } finally {
                     onWorkFinished()
