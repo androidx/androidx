@@ -233,7 +233,7 @@ internal class SnapshotIdSet private constructor(
                 this.belowBound
             )
         } else {
-            bits.fold(this) { previous, index -> previous.clear(index) }
+            bits.fastFold(this) { previous, index -> previous.clear(index) }
         }
     }
 
@@ -254,11 +254,11 @@ internal class SnapshotIdSet private constructor(
                 )
         } else {
             if (this.belowBound == null)
-                this.fold(EMPTY) { previous, index ->
+                this.fastFold(EMPTY) { previous, index ->
                     if (bits.get(index)) previous.set(index) else previous
                 }
             else
-                bits.fold(EMPTY) { previous, index ->
+                bits.fastFold(EMPTY) { previous, index ->
                     if (this.get(index)) previous.set(index) else previous
                 }
         }
@@ -280,10 +280,10 @@ internal class SnapshotIdSet private constructor(
         } else {
             if (this.belowBound == null) {
                 // We are probably smaller than bits, or at least, small enough
-                this.fold(bits) { previous, index -> previous.set(index) }
+                this.fastFold(bits) { previous, index -> previous.set(index) }
             } else {
                 // Otherwise assume bits is smaller than this.
-                bits.fold(this) { previous, index -> previous.set(index) }
+                bits.fastFold(this) { previous, index -> previous.set(index) }
             }
         }
     }
@@ -309,6 +309,17 @@ internal class SnapshotIdSet private constructor(
             }
         }
     }.iterator()
+
+    inline fun fastFold(
+        initial: SnapshotIdSet,
+        operation: (acc: SnapshotIdSet, Int) -> SnapshotIdSet
+    ): SnapshotIdSet {
+        var accumulator = initial
+        fastForEach { element ->
+            accumulator = operation(accumulator, element)
+        }
+        return accumulator
+    }
 
     inline fun fastForEach(block: (Int) -> Unit) {
         val belowBound = belowBound
