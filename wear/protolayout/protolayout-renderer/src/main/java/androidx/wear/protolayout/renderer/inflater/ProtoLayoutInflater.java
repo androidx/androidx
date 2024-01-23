@@ -92,7 +92,6 @@ import androidx.core.content.ContextCompat;
 import androidx.core.view.AccessibilityDelegateCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
-import androidx.wear.protolayout.renderer.common.SeekableAnimatedVectorDrawable;
 import androidx.wear.protolayout.expression.pipeline.AnimationsHelper;
 import androidx.wear.protolayout.expression.proto.AnimationParameterProto.AnimationSpec;
 import androidx.wear.protolayout.expression.proto.DynamicProto.DynamicFloat;
@@ -181,6 +180,7 @@ import androidx.wear.protolayout.renderer.common.LoggingUtils;
 import androidx.wear.protolayout.renderer.common.ProtoLayoutDiffer;
 import androidx.wear.protolayout.renderer.common.ProtoLayoutDiffer.LayoutDiff;
 import androidx.wear.protolayout.renderer.common.ProtoLayoutDiffer.TreeNodeWithChange;
+import androidx.wear.protolayout.renderer.common.SeekableAnimatedVectorDrawable;
 import androidx.wear.protolayout.renderer.dynamicdata.ProtoLayoutDynamicDataPipeline;
 import androidx.wear.protolayout.renderer.inflater.RenderedMetadata.LayoutInfo;
 import androidx.wear.protolayout.renderer.inflater.RenderedMetadata.LinearLayoutProperties;
@@ -2596,12 +2596,10 @@ public final class ProtoLayoutInflater {
                     isAutoSizeAllowed);
         }
 
-        boolean excludeFontPadding = false;
-
-        if (text.hasAndroidTextStyle()) {
-            excludeFontPadding = text.getAndroidTextStyle().getExcludeFontPadding();
-        }
-        applyExcludeFontPadding(textView, excludeFontPadding);
+        // AndroidTextStyle proto is existing only for newer builders and older renderer mix to also
+        // have excluded font padding. Here, it's being ignored, and default value (excluded font
+        // padding) is used.
+        applyExcludeFontPadding(textView);
 
         if (text.hasLineHeight()) {
             float lineHeightPx = toPx(text.getLineHeight());
@@ -2716,19 +2714,13 @@ public final class ProtoLayoutInflater {
     }
 
     /**
-     * Sets whether the padding is included or not. If font padding is not included, sets the
-     * correct padding to the TextView to avoid clipping taller languages.
+     * Sets font padding to be excluded and applies correct padding to the TextView to avoid
+     * clipping taller languages.
      */
-    private void applyExcludeFontPadding(TextView textView, boolean excludeFontPadding) {
-        // Reversed value, since TextView sets padding to be included, while our protos are for
-        // excluding it.
-        textView.setIncludeFontPadding(!excludeFontPadding);
+    private void applyExcludeFontPadding(TextView textView) {
+        textView.setIncludeFontPadding(false);
 
-        // We need to update padding in the TextView if font's padding is not used, to avoid
-        // clipping of taller languages.
-        if (!excludeFontPadding) {
-            return;
-        }
+        // We need to update padding in the TextView to avoid clipping of taller languages.
 
         float ascent = textView.getPaint().getFontMetrics().ascent;
         float descent = textView.getPaint().getFontMetrics().descent;
@@ -3526,8 +3518,6 @@ public final class ProtoLayoutInflater {
 
         boolean isAnySpanClickable = false;
 
-        boolean excludeFontPadding = false;
-
         for (Span element : spannable.getSpansList()) {
             switch (element.getInnerCase()) {
                 case IMAGE:
@@ -3547,10 +3537,6 @@ public final class ProtoLayoutInflater {
                         isAnySpanClickable = true;
                     }
 
-                    if (protoText.hasAndroidTextStyle()
-                            && protoText.getAndroidTextStyle().getExcludeFontPadding()) {
-                        excludeFontPadding = true;
-                    }
                     break;
                 case INNER_NOT_SET:
                     Log.w(TAG, "Unknown Span child type.");
@@ -3593,7 +3579,10 @@ public final class ProtoLayoutInflater {
 
         tv.setText(builder);
 
-        applyExcludeFontPadding(tv, excludeFontPadding);
+        // AndroidTextStyle proto is existing only for newer builders and older renderer mix to also
+        // have excluded font padding. Here, it's being ignored, and default value (excluded font
+        // padding) is used.
+        applyExcludeFontPadding(tv);
 
         if (isAnySpanClickable) {
             // For any ClickableSpans to work, the MovementMethod must be set to LinkMovementMethod.
