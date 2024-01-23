@@ -111,7 +111,7 @@ abstract class FtlRunner : DefaultTask() {
                 appApk.elements.single().outputFile
             } else {
                 "gs://androidx-ftl-test-results/github-ci-action/placeholderApp/" +
-                    "37728671722adb4f49b23ed2f0edb0b4def51c841b0735fdd1648942ff1e9090.apk"
+                    "d345c82828c355acc1432535153cf1dcf456e559c26f735346bf5f38859e0512.apk"
             }
         try {
             execOperations.exec { it.commandLine("gcloud", "--version") }
@@ -184,6 +184,7 @@ private const val Q2Q = "q2q,version=31"
 
 private val devicesToRunOn =
     listOf(
+        "ftlmediumphoneapi34" to listOf("MediumPhone.arm,version=34"),
         "ftlpixel2api33" to listOf("Pixel2.arm,version=33"),
         "ftlpixel2api30" to listOf("Pixel2.arm,version=30"),
         "ftlpixel2api28" to listOf("Pixel2.arm,version=28"),
