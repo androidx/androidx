@@ -20,10 +20,10 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.GenericDocument;
+import androidx.appsearch.app.InternalVisibilityConfig;
 import androidx.appsearch.app.PackageIdentifier;
 import androidx.appsearch.app.SetSchemaRequest;
 import androidx.appsearch.app.VisibilityConfig;
@@ -33,7 +33,6 @@ import com.google.android.appsearch.proto.PackageIdentifierProto;
 import com.google.android.appsearch.proto.VisibilityConfigProto;
 import com.google.android.appsearch.proto.VisibleToPermissionProto;
 import com.google.android.icing.protobuf.ByteString;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 
 import org.junit.Test;
@@ -122,21 +121,23 @@ public class VisibilityToDocumentConverterTest {
                         .build();
 
         // Convert the SetSchemaRequest to a list of VisibilityConfig
-        List<VisibilityConfig> visibilityConfigs =
-                VisibilityConfig.toVisibilityConfigs(setSchemaRequest);
+        List<InternalVisibilityConfig> visibilityConfigs =
+                InternalVisibilityConfig.toInternalVisibilityConfigs(setSchemaRequest);
 
         // Check if the conversion is correct
         assertEquals(1, visibilityConfigs.size());
-        VisibilityConfig visibilityConfig = visibilityConfigs.get(0);
+        InternalVisibilityConfig visibilityConfig = visibilityConfigs.get(0);
 
-        assertEquals(expectedVisibilityDocument,
-                VisibilityToDocumentConverter.createVisibilityDocument(visibilityConfig));
+        assertEquals(
+                expectedVisibilityDocument,
+                VisibilityToDocumentConverter.createVisibilityDocument(
+                        visibilityConfig.getSchemaType(), visibilityConfig.getVisibilityConfig()));
         assertEquals(expectedAndroidVOverlay,
                 VisibilityToDocumentConverter.createAndroidVOverlay(visibilityConfig));
     }
 
     @Test
-    public void testToVisibilityConfig() {
+    public void testToVisibilityConfig() throws Exception {
         byte[] cert1 = new byte[32];
         byte[] cert2 = new byte[32];
         byte[] cert3 = new byte[32];
@@ -194,21 +195,29 @@ public class VisibilityToDocumentConverterTest {
                         .build();
 
         // Create a VisibilityConfig using the Builder
-        VisibilityConfig visibilityConfig = VisibilityToDocumentConverter.createVisibilityConfig(
-                visibilityDoc, androidVOverlay);
+        InternalVisibilityConfig visibilityConfig =
+                VisibilityToDocumentConverter.createInternalVisibilityConfig(
+                        visibilityDoc, androidVOverlay);
 
         // Check if the properties are set correctly
-        assertEquals(visibilityDoc, VisibilityToDocumentConverter
-                .createVisibilityDocument(visibilityConfig));
-        assertEquals(androidVOverlay, VisibilityToDocumentConverter
-                .createAndroidVOverlay(visibilityConfig));
+        assertEquals(
+                visibilityDoc,
+                VisibilityToDocumentConverter.createVisibilityDocument(
+                        visibilityConfig.getSchemaType(), visibilityConfig.getVisibilityConfig()));
+        GenericDocument actualOverlayDoc =
+                VisibilityToDocumentConverter.createAndroidVOverlay(visibilityConfig);
+        AndroidVOverlayProto actualOverlayProto = AndroidVOverlayProto.parseFrom(
+                actualOverlayDoc.getPropertyBytes("visibilityProtoSerializeProperty"));
+        assertThat(actualOverlayProto).isEqualTo(overlayProto);
+        assertEquals(androidVOverlay, actualOverlayDoc);
 
-        VisibilityConfig.Builder builder = new VisibilityConfig.Builder(visibilityConfig);
+        InternalVisibilityConfig.Builder builder =
+                new InternalVisibilityConfig.Builder(visibilityConfig);
 
-        VisibilityConfig rebuild = builder.build();
-        assertTrue(visibilityConfig.equals(rebuild));
+        InternalVisibilityConfig rebuild = builder.build();
+        assertEquals(visibilityConfig, rebuild);
 
-        VisibilityConfig modifiedConfig = builder
+        InternalVisibilityConfig modifiedConfig = builder
                 .setSchemaType("prefixedSchema")
                 .setNotDisplayedBySystem(true)
                 .addVisibleToPermissions(ImmutableSet.of(SetSchemaRequest.READ_SMS,
@@ -224,11 +233,13 @@ public class VisibilityToDocumentConverterTest {
 
         // Check that the rebuild stayed the same
         assertEquals(rebuild.getSchemaType(), "someSchema");
-        assertFalse(rebuild.isNotDisplayedBySystem());
-        assertEquals(rebuild.getVisibleToPermissions(), ImmutableSet.of(ImmutableSet.of(3, 4)));
-        assertEquals(rebuild.getVisibleToPackages(),
-                ImmutableList.of(new PackageIdentifier("com.example.test3", cert3)));
-        assertEquals(rebuild.getPubliclyVisibleTargetPackage(),
+        assertFalse(rebuild.getVisibilityConfig().isNotDisplayedBySystem());
+        assertThat(rebuild.getVisibilityConfig().getVisibleToPermissions())
+                .containsExactly(ImmutableSet.of(3, 4));
+        assertThat(rebuild.getVisibilityConfig().getVisibleToPackages())
+                .containsExactly(new PackageIdentifier("com.example.test3", cert3));
+        assertEquals(
+                rebuild.getVisibilityConfig().getPubliclyVisibleTargetPackage(),
                 new PackageIdentifier("com.example.test4", cert4));
 
         VisibilityConfig expectedVisibleToConfig = new VisibilityConfig.Builder()
@@ -288,17 +299,19 @@ public class VisibilityToDocumentConverterTest {
                 .build();
 
         // Convert the SetSchemaRequest to a list of VisibilityConfig
-        List<VisibilityConfig> visibilityConfigs =
-                VisibilityConfig.toVisibilityConfigs(setSchemaRequest);
-        VisibilityConfig visibilityConfig = visibilityConfigs.get(0);
+        List<InternalVisibilityConfig> visibilityConfigs =
+                InternalVisibilityConfig.toInternalVisibilityConfigs(setSchemaRequest);
+        InternalVisibilityConfig visibilityConfig = visibilityConfigs.get(0);
 
         GenericDocument visibilityDoc =
-                VisibilityToDocumentConverter.createVisibilityDocument(visibilityConfig);
+                VisibilityToDocumentConverter.createVisibilityDocument(
+                        visibilityConfig.getSchemaType(), visibilityConfig.getVisibilityConfig());
         GenericDocument androidVOverlay =
                 VisibilityToDocumentConverter.createAndroidVOverlay(visibilityConfig);
 
-        VisibilityConfig rebuild = VisibilityToDocumentConverter.createVisibilityConfig(
-                visibilityDoc, androidVOverlay);
+        InternalVisibilityConfig rebuild =
+                VisibilityToDocumentConverter.createInternalVisibilityConfig(
+                        visibilityDoc, androidVOverlay);
 
         assertEquals(rebuild, visibilityConfig);
     }

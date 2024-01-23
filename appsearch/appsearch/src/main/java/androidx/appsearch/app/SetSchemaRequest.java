@@ -722,14 +722,6 @@ public final class SetSchemaRequest {
             Preconditions.checkNotNull(schemaType);
             Preconditions.checkNotNull(visibilityConfig);
             resetIfBuilt();
-            if (!visibilityConfig.getVisibleToConfigs().isEmpty()) {
-                throw new UnsupportedOperationException(
-                        "Cannot set a VisibilityConfig with nested VisibilityConfig.");
-            }
-            if (visibilityConfig.getSchemaType() != null) {
-                throw new UnsupportedOperationException(
-                        "Cannot set a VisibilityConfig with a schema type.");
-            }
             Set<VisibilityConfig> visibleToConfigs = mSchemaVisibleToConfigs.get(schemaType);
             if (visibleToConfigs == null) {
                 visibleToConfigs = new ArraySet<>();

@@ -24,6 +24,7 @@ import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.GetSchemaResponse;
 import androidx.appsearch.app.InternalSetSchemaResponse;
+import androidx.appsearch.app.InternalVisibilityConfig;
 import androidx.appsearch.app.PackageIdentifier;
 import androidx.appsearch.app.VisibilityConfig;
 import androidx.appsearch.app.VisibilityPermissionConfig;
@@ -55,15 +56,14 @@ public class VisibilityStoreTest {
     private static final OptimizeStrategy ALWAYS_OPTIMIZE = optimizeInfo -> true;
     @Rule
     public TemporaryFolder mTemporaryFolder = new TemporaryFolder();
-    private File mAppSearchDir;
     private AppSearchImpl mAppSearchImpl;
     private VisibilityStore mVisibilityStore;
 
     @Before
     public void setUp() throws Exception {
-        mAppSearchDir = mTemporaryFolder.newFolder();
+        File appSearchDir = mTemporaryFolder.newFolder();
         mAppSearchImpl = AppSearchImpl.create(
-                mAppSearchDir,
+                appSearchDir,
                 new AppSearchConfigImpl(
                         new UnlimitedLimitConfig(),
                         new LocalStorageIcingOptionsConfig()
@@ -125,10 +125,11 @@ public class VisibilityStoreTest {
     @Test
     public void testSetAndGetVisibility() throws Exception {
         String prefix = PrefixUtil.createPrefix("packageName", "databaseName");
-        VisibilityConfig visibilityConfig = new VisibilityConfig.Builder(prefix + "Email")
-                .setNotDisplayedBySystem(true)
-                .addVisibleToPackage(new PackageIdentifier("pkgBar", new byte[32]))
-                .build();
+        InternalVisibilityConfig visibilityConfig =
+                new InternalVisibilityConfig.Builder(prefix + "Email")
+                        .setNotDisplayedBySystem(true)
+                        .addVisibleToPackage(new PackageIdentifier("pkgBar", new byte[32]))
+                        .build();
         mVisibilityStore.setVisibility(ImmutableList.of(visibilityConfig));
 
         assertThat(mVisibilityStore.getVisibility(prefix + "Email"))
@@ -144,13 +145,14 @@ public class VisibilityStoreTest {
         actualDocument =
                 new GenericDocument.Builder<>(actualDocument).setCreationTimestampMillis(0).build();
 
-        assertThat(actualDocument).isEqualTo(VisibilityToDocumentConverter
-                .createVisibilityDocument(visibilityConfig));
+        assertThat(actualDocument).isEqualTo(
+                VisibilityToDocumentConverter.createVisibilityDocument(
+                        visibilityConfig.getSchemaType(), visibilityConfig.getVisibilityConfig()));
     }
 
     @Test
     public void testRemoveVisibility() throws Exception {
-        VisibilityConfig visibilityConfig = new VisibilityConfig.Builder("Email")
+        InternalVisibilityConfig visibilityConfig = new InternalVisibilityConfig.Builder("Email")
                 .setNotDisplayedBySystem(true)
                 .addVisibleToPackage(new PackageIdentifier("pkgBar", new byte[32]))
                 .build();
@@ -159,14 +161,15 @@ public class VisibilityStoreTest {
         assertThat(mVisibilityStore.getVisibility("Email"))
                 .isEqualTo(visibilityConfig);
         // Verify the VisibilityConfig is saved to AppSearchImpl.
-        VisibilityConfig actualConfig = VisibilityToDocumentConverter.createVisibilityConfig(
-                mAppSearchImpl.getDocument(
-                        VisibilityStore.VISIBILITY_PACKAGE_NAME,
-                        VisibilityStore.VISIBILITY_DATABASE_NAME,
-                        VisibilityToDocumentConverter.VISIBILITY_DOCUMENT_NAMESPACE,
-                        /*id=*/ "Email",
-                        /*typePropertyPaths=*/ Collections.emptyMap()),
-                /*androidVOverlayDocument=*/null);
+        InternalVisibilityConfig actualConfig =
+                VisibilityToDocumentConverter.createInternalVisibilityConfig(
+                        mAppSearchImpl.getDocument(
+                                VisibilityStore.VISIBILITY_PACKAGE_NAME,
+                                VisibilityStore.VISIBILITY_DATABASE_NAME,
+                                VisibilityToDocumentConverter.VISIBILITY_DOCUMENT_NAMESPACE,
+                                /*id=*/ "Email",
+                                /*typePropertyPaths=*/ Collections.emptyMap()),
+                        /*androidVOverlayDocument=*/null);
         assertThat(actualConfig).isEqualTo(visibilityConfig);
 
         mVisibilityStore.removeVisibility(ImmutableSet.of(visibilityConfig.getSchemaType()));
@@ -205,7 +208,8 @@ public class VisibilityStoreTest {
 
         // We should be able to set and get Visibility settings.
         String prefix = PrefixUtil.createPrefix("packageName", "databaseName");
-        VisibilityConfig visibilityConfig = new VisibilityConfig.Builder(prefix + "Email")
+        InternalVisibilityConfig visibilityConfig = new InternalVisibilityConfig.Builder(
+                prefix + "Email")
                 .setNotDisplayedBySystem(true)
                 .addVisibleToPackage(new PackageIdentifier("pkgBar", new byte[32]))
                 .build();
@@ -224,9 +228,10 @@ public class VisibilityStoreTest {
                 .addVisibleToPermissions(ImmutableSet.of(1, 2))
                 .build();
 
-        VisibilityConfig visibilityConfig = new VisibilityConfig.Builder(prefix + "Email")
-                .addVisibleToConfig(nestedvisibilityConfig)
-                .build();
+        InternalVisibilityConfig visibilityConfig =
+                new InternalVisibilityConfig.Builder(prefix + "Email")
+                        .addVisibleToConfig(nestedvisibilityConfig)
+                        .build();
 
         mVisibilityStore.setVisibility(ImmutableList.of(visibilityConfig));
 
@@ -260,7 +265,7 @@ public class VisibilityStoreTest {
     @Test
     public void testSetVisibility_avoidRemoveOverlay() throws Exception {
         // Set a visibility config w/o overlay
-        VisibilityConfig visibilityConfig = new VisibilityConfig.Builder("Email")
+        InternalVisibilityConfig visibilityConfig = new InternalVisibilityConfig.Builder("Email")
                 .setNotDisplayedBySystem(true)
                 .addVisibleToPackage(new PackageIdentifier("pkgBar", new byte[32]))
                 .build();
@@ -282,7 +287,7 @@ public class VisibilityStoreTest {
                 /*logger=*/null);
 
         // update the visibility config w/o overlay
-        VisibilityConfig updateConfig = new VisibilityConfig.Builder("Email")
+        InternalVisibilityConfig updateConfig = new InternalVisibilityConfig.Builder("Email")
                 .setNotDisplayedBySystem(true)
                 .addVisibleToPackage(new PackageIdentifier("pkgFoo", new byte[32]))
                 .build();
@@ -305,7 +310,7 @@ public class VisibilityStoreTest {
     @Test
     public void testSetVisibility_removeOverlay_publicAcl() throws Exception {
         // Set a visibility config with public overlay
-        VisibilityConfig visibilityConfig = new VisibilityConfig.Builder("Email")
+        InternalVisibilityConfig visibilityConfig = new InternalVisibilityConfig.Builder("Email")
                 .setNotDisplayedBySystem(true)
                 .setPubliclyVisibleTargetPackage(
                         new PackageIdentifier("pkgBar", new byte[32]))
@@ -321,7 +326,7 @@ public class VisibilityStoreTest {
                 /*typePropertyPaths=*/ Collections.emptyMap());
 
         // update the visibility config w/o overlay
-        VisibilityConfig updateConfig = new VisibilityConfig.Builder("Email")
+        InternalVisibilityConfig updateConfig = new InternalVisibilityConfig.Builder("Email")
                 .setNotDisplayedBySystem(true)
                 .build();
         mVisibilityStore.setVisibility(ImmutableList.of(updateConfig));
@@ -340,7 +345,7 @@ public class VisibilityStoreTest {
     @Test
     public void testSetVisibility_removeOverlay_visibleToConfig() throws Exception {
         // Set a visibility config with visible to config.
-        VisibilityConfig visibilityConfig = new VisibilityConfig.Builder("Email")
+        InternalVisibilityConfig visibilityConfig = new InternalVisibilityConfig.Builder("Email")
                 .setNotDisplayedBySystem(true)
                 .addVisibleToConfig(
                         new VisibilityConfig.Builder().setNotDisplayedBySystem(true).build())
@@ -356,7 +361,7 @@ public class VisibilityStoreTest {
                 /*typePropertyPaths=*/ Collections.emptyMap());
 
         // update the visibility config w/o overlay
-        VisibilityConfig updateConfig = new VisibilityConfig.Builder("Email")
+        InternalVisibilityConfig updateConfig = new InternalVisibilityConfig.Builder("Email")
                 .setNotDisplayedBySystem(true)
                 .build();
         mVisibilityStore.setVisibility(ImmutableList.of(updateConfig));

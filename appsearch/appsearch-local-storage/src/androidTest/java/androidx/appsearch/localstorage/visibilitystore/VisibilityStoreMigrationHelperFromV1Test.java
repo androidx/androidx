@@ -23,9 +23,9 @@ import static com.google.common.truth.Truth.assertThat;
 
 import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.InternalSetSchemaResponse;
+import androidx.appsearch.app.InternalVisibilityConfig;
 import androidx.appsearch.app.PackageIdentifier;
 import androidx.appsearch.app.SetSchemaRequest;
-import androidx.appsearch.app.VisibilityConfig;
 import androidx.appsearch.localstorage.AppSearchConfigImpl;
 import androidx.appsearch.localstorage.AppSearchImpl;
 import androidx.appsearch.localstorage.LocalStorageIcingOptionsConfig;
@@ -132,20 +132,21 @@ public class VisibilityStoreMigrationHelperFromV1Test {
                 ALWAYS_OPTIMIZE,
                 /*visibilityChecker=*/null);
 
-        VisibilityConfig actualConfig = VisibilityToDocumentConverter.createVisibilityConfig(
-                appSearchImpl.getDocument(
-                        VisibilityStore.VISIBILITY_PACKAGE_NAME,
-                        VisibilityStore.VISIBILITY_DATABASE_NAME,
-                        VisibilityToDocumentConverter.VISIBILITY_DOCUMENT_NAMESPACE,
-                        /*id=*/ prefix + "Schema",
-                        /*typePropertyPaths=*/ Collections.emptyMap()),
+        InternalVisibilityConfig actualConfig =
+                VisibilityToDocumentConverter.createInternalVisibilityConfig(
+                        appSearchImpl.getDocument(
+                                VisibilityStore.VISIBILITY_PACKAGE_NAME,
+                                VisibilityStore.VISIBILITY_DATABASE_NAME,
+                                VisibilityToDocumentConverter.VISIBILITY_DOCUMENT_NAMESPACE,
+                                /*id=*/ prefix + "Schema",
+                                /*typePropertyPaths=*/ Collections.emptyMap()),
                 /*androidVOverlayDocument=*/null);
 
-        assertThat(actualConfig.isNotDisplayedBySystem()).isTrue();
-        assertThat(actualConfig.getVisibleToPackages())
+        assertThat(actualConfig.getVisibilityConfig().isNotDisplayedBySystem()).isTrue();
+        assertThat(actualConfig.getVisibilityConfig().getVisibleToPackages())
                 .containsExactly(packageIdentifierFoo, packageIdentifierBar);
-        assertThat(actualConfig.getVisibleToPermissions()).containsExactlyElementsIn(
-                ImmutableSet.of(
+        assertThat(actualConfig.getVisibilityConfig().getVisibleToPermissions())
+                .containsExactlyElementsIn(ImmutableSet.of(
                         ImmutableSet.of(SetSchemaRequest.READ_SMS, SetSchemaRequest.READ_CALENDAR),
                         ImmutableSet.of(SetSchemaRequest.READ_HOME_APP_SEARCH_DATA),
                         ImmutableSet.of(SetSchemaRequest.READ_ASSISTANT_APP_SEARCH_DATA)));

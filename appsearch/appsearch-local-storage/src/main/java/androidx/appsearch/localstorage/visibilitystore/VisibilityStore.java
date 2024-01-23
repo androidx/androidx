@@ -27,6 +27,7 @@ import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.GetSchemaResponse;
 import androidx.appsearch.app.InternalSetSchemaResponse;
+import androidx.appsearch.app.InternalVisibilityConfig;
 import androidx.appsearch.app.VisibilityConfig;
 import androidx.appsearch.app.VisibilityPermissionConfig;
 import androidx.appsearch.exceptions.AppSearchException;
@@ -71,10 +72,10 @@ public class VisibilityStore {
     public static final String ANDROID_V_OVERLAY_DATABASE_NAME = "VS#AndroidVDb";
 
     /**
-     * Map of PrefixedSchemaType and VisibilityConfig stores visibility information for each
+     * Map of PrefixedSchemaType to InternalVisibilityConfig stores visibility information for each
      * schema type.
      */
-    private final Map<String, VisibilityConfig> mVisibilityConfigMap = new ArrayMap<>();
+    private final Map<String, InternalVisibilityConfig> mVisibilityConfigMap = new ArrayMap<>();
 
     private final AppSearchImpl mAppSearchImpl;
 
@@ -123,14 +124,14 @@ public class VisibilityStore {
     }
 
     /**
-     * Sets visibility settings for the given {@link VisibilityConfig}s. Any previous
-     * {@link VisibilityConfig}s with same prefixed schema type will be overwritten.
+     * Sets visibility settings for the given {@link InternalVisibilityConfig}s. Any previous
+     * {@link InternalVisibilityConfig}s with same prefixed schema type will be overwritten.
      *
-     * @param prefixedVisibilityConfigs List of prefixed {@link VisibilityConfig}s which
-     *                                    contains schema type's visibility information.
+     * @param prefixedVisibilityConfigs List of prefixed {@link InternalVisibilityConfig}s which
+     *                                  contains schema type's visibility information.
      * @throws AppSearchException on AppSearchImpl error.
      */
-    public void setVisibility(@NonNull List<VisibilityConfig> prefixedVisibilityConfigs)
+    public void setVisibility(@NonNull List<InternalVisibilityConfig> prefixedVisibilityConfigs)
             throws AppSearchException {
         Preconditions.checkNotNull(prefixedVisibilityConfigs);
         // Save new setting.
@@ -138,14 +139,15 @@ public class VisibilityStore {
             // put VisibilityConfig to AppSearchImpl and mVisibilityConfigMap. If there is a
             // VisibilityConfig with same prefixed schema exists, it will be replaced by new
             // VisibilityConfig in both AppSearch and memory look up map.
-            VisibilityConfig prefixedVisibilityConfig = prefixedVisibilityConfigs.get(i);
-            VisibilityConfig oldVisibilityConfig =
+            InternalVisibilityConfig prefixedVisibilityConfig = prefixedVisibilityConfigs.get(i);
+            InternalVisibilityConfig oldVisibilityConfig =
                     mVisibilityConfigMap.get(prefixedVisibilityConfig.getSchemaType());
             mAppSearchImpl.putDocument(
                     VISIBILITY_PACKAGE_NAME,
                     VISIBILITY_DATABASE_NAME,
                     VisibilityToDocumentConverter.createVisibilityDocument(
-                            prefixedVisibilityConfig),
+                            prefixedVisibilityConfig.getSchemaType(),
+                            prefixedVisibilityConfig.getVisibilityConfig()),
                     /*sendChangeNotifications=*/ false,
                     /*logger=*/ null);
 
@@ -207,9 +209,9 @@ public class VisibilityStore {
                         // to be fine if we cannot find it.
                         Log.e(TAG, "Cannot find visibility document for " + prefixedSchemaType
                                 + " to remove.");
-                        return;
+                    } else {
+                        throw e;
                     }
-                    throw e;
                 }
 
                 try {
@@ -225,9 +227,9 @@ public class VisibilityStore {
                             Log.d(TAG, "Cannot find Android V overlay document for "
                                     + prefixedSchemaType + " to remove.");
                         }
-                        return;
+                    } else {
+                        throw e;
                     }
-                    throw e;
                 }
             }
         }
@@ -235,7 +237,7 @@ public class VisibilityStore {
 
     /** Gets the {@link VisibilityConfig} for the given prefixed schema type.     */
     @Nullable
-    public VisibilityConfig getVisibility(@NonNull String prefixedSchemaType) {
+    public InternalVisibilityConfig getVisibility(@NonNull String prefixedSchemaType) {
         return mVisibilityConfigMap.get(prefixedSchemaType);
     }
 
@@ -289,17 +291,18 @@ public class VisibilityStore {
                 // map can be null
             }
 
-            mVisibilityConfigMap.put(prefixedSchemaType,
-                    VisibilityToDocumentConverter.createVisibilityConfig(visibilityDocument,
-                            visibilityAndroidVOverlay));
+            mVisibilityConfigMap.put(
+                    prefixedSchemaType,
+                    VisibilityToDocumentConverter.createInternalVisibilityConfig(
+                            visibilityDocument, visibilityAndroidVOverlay));
         }
     }
 
     /**
-     * Set the latest version of {@link VisibilityConfig} and its schema to AppSearch.
+     * Set the latest version of {@link InternalVisibilityConfig} and its schema to AppSearch.
      */
-    private void setLatestSchemaAndDocuments(@NonNull List<VisibilityConfig> migratedDocuments)
-            throws AppSearchException {
+    private void setLatestSchemaAndDocuments(
+            @NonNull List<InternalVisibilityConfig> migratedDocuments) throws AppSearchException {
         // The latest schema type doesn't exist yet. Add it. Set forceOverride true to
         // delete old schema.
         InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
@@ -335,12 +338,14 @@ public class VisibilityStore {
                     internalSetAndroidVOverlaySchemaResponse.getErrorMessage());
         }
         for (int i = 0; i < migratedDocuments.size(); i++) {
-            VisibilityConfig migratedDocument = migratedDocuments.get(i);
-            mVisibilityConfigMap.put(migratedDocument.getSchemaType(), migratedDocument);
+            InternalVisibilityConfig migratedConfig = migratedDocuments.get(i);
+            mVisibilityConfigMap.put(migratedConfig.getSchemaType(), migratedConfig);
             mAppSearchImpl.putDocument(
                     VISIBILITY_PACKAGE_NAME,
                     VISIBILITY_DATABASE_NAME,
-                    VisibilityToDocumentConverter.createVisibilityDocument(migratedDocument),
+                    VisibilityToDocumentConverter.createVisibilityDocument(
+                            migratedConfig.getSchemaType(),
+                            migratedConfig.getVisibilityConfig()),
                     /*sendChangeNotifications=*/ false,
                     /*logger=*/ null);
         }
@@ -486,9 +491,10 @@ public class VisibilityStore {
      * <p> Android V overlay {@link VisibilityToDocumentConverter#ANDROID_V_OVERLAY_SCHEMA}
      * contains public acl and visible to config.
      */
-    private static boolean isConfigContainsAndroidVOverlay(@Nullable VisibilityConfig config) {
+    private static boolean isConfigContainsAndroidVOverlay(
+            @Nullable InternalVisibilityConfig config) {
         return config != null
-                && (config.getPubliclyVisibleTargetPackage() != null
+                && (config.getVisibilityConfig().getPubliclyVisibleTargetPackage() != null
                 || !config.getVisibleToConfigs().isEmpty());
     }
 }

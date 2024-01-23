@@ -152,12 +152,14 @@ public class VisibilityStoreMigrationHelperFromV0Test {
                         /*typePropertyPaths=*/ Collections.emptyMap());
 
         GenericDocument expectedDocument1 = VisibilityToDocumentConverter.createVisibilityDocument(
-                new VisibilityConfig.Builder(/*id=*/ prefix + "Schema1")
+                /*id=*/ prefix + "Schema1",
+                new VisibilityConfig.Builder()
                         .setNotDisplayedBySystem(true)
                         .addVisibleToPackage(new PackageIdentifier(packageNameFoo, sha256CertFoo))
                         .build());
         GenericDocument expectedDocument2 = VisibilityToDocumentConverter.createVisibilityDocument(
-                new VisibilityConfig.Builder(/*id=*/ prefix + "Schema2")
+                /*id=*/ prefix + "Schema2",
+                new VisibilityConfig.Builder()
                         .setNotDisplayedBySystem(true)
                         .addVisibleToPackage(new PackageIdentifier(packageNameBar, sha256CertBar))
                         .build());

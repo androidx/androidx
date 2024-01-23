@@ -26,15 +26,13 @@ import androidx.appsearch.annotation.CanIgnoreReturnValue;
 import androidx.appsearch.annotation.FlaggedApi;
 import androidx.appsearch.flags.Flags;
 import androidx.appsearch.safeparcel.AbstractSafeParcelable;
+import androidx.appsearch.safeparcel.PackageIdentifierParcel;
 import androidx.appsearch.safeparcel.SafeParcelable;
 import androidx.appsearch.safeparcel.stub.StubCreators.VisibilityConfigCreator;
 import androidx.collection.ArraySet;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
@@ -53,135 +51,35 @@ public final class VisibilityConfig extends AbstractSafeParcelable {
     public static final Parcelable.Creator<VisibilityConfig> CREATOR =
             new VisibilityConfigCreator();
 
-    /**
-     * Build the List of {@link VisibilityConfig}s from visibility settings.
-     *
-     * @exportToFramework:hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @NonNull
-    public static List<VisibilityConfig> toVisibilityConfigs(
-            @NonNull SetSchemaRequest setSchemaRequest) {
-        Set<AppSearchSchema> searchSchemas = setSchemaRequest.getSchemas();
-        Map<String, PackageIdentifier> publiclyVisibleSchemas =
-                setSchemaRequest.getPubliclyVisibleSchemas();
-        Set<String> schemasNotDisplayedBySystem = setSchemaRequest.getSchemasNotDisplayedBySystem();
-        Map<String, Set<PackageIdentifier>> schemasVisibleToPackages =
-                setSchemaRequest.getSchemasVisibleToPackages();
-        Map<String, Set<Set<Integer>>> schemasVisibleToPermissions =
-                setSchemaRequest.getRequiredPermissionsForSchemaTypeVisibility();
-        Map<String, Set<VisibilityConfig>> schemasVisibleToConfigs =
-                setSchemaRequest.getSchemasVisibleToConfigs();
-        List<VisibilityConfig> visibilityConfigs = new ArrayList<>(searchSchemas.size());
-
-        for (AppSearchSchema searchSchema : searchSchemas) {
-            String schemaType = searchSchema.getSchemaType();
-            Builder visibilityConfigBuilder = new Builder(/*schemaType=*/ schemaType);
-
-            visibilityConfigBuilder.setNotDisplayedBySystem(
-                    schemasNotDisplayedBySystem.contains(schemaType));
-
-            Set<PackageIdentifier> visibleToPackages = schemasVisibleToPackages.get(schemaType);
-            if (visibleToPackages != null) {
-                for (PackageIdentifier packageIdentifier : visibleToPackages) {
-                    visibilityConfigBuilder.addVisibleToPackage(packageIdentifier);
-                }
-            }
-
-            Set<Set<Integer>> visibleToPermissionSets = schemasVisibleToPermissions.get(schemaType);
-            if (visibleToPermissionSets != null) {
-                for (Set<Integer> visibleToPermissions : visibleToPermissionSets) {
-                    visibilityConfigBuilder.addVisibleToPermissions(visibleToPermissions);
-                }
-            }
-
-            PackageIdentifier targetPackage = publiclyVisibleSchemas.get(schemaType);
-            if (targetPackage != null) {
-                visibilityConfigBuilder.setPubliclyVisibleTargetPackage(targetPackage);
-            }
-
-            Set<VisibilityConfig> visibleToConfigs = schemasVisibleToConfigs.get(schemaType);
-            if (visibleToConfigs != null) {
-                for (VisibilityConfig visibilityConfig : visibleToConfigs) {
-                    visibilityConfigBuilder.addVisibleToConfig(visibilityConfig);
-                }
-            }
-            visibilityConfigs.add(visibilityConfigBuilder.build());
-        }
-        return visibilityConfigs;
-    }
-
-    @Nullable
-    @Field(id = 1, getter = "getSchemaType")
-    private final String mSchemaType;
-
-    @Field(id = 2, getter = "isNotDisplayedBySystem")
+    @Field(id = 1, getter = "isNotDisplayedBySystem")
     private final boolean mIsNotDisplayedBySystem;
 
     @NonNull
+    @Field(id = 2)
+    final List<PackageIdentifierParcel> mVisibleToPackages;
+
+    @NonNull
     @Field(id = 3)
-    final List<String> mVisibleToPackageNames;
+    final List<VisibilityPermissionConfig> mVisibleToPermissions;
 
-    @NonNull
+    @Nullable
     @Field(id = 4)
-    final byte[][] mVisibleToPackageSha256Certs;
+    final PackageIdentifierParcel mPubliclyVisibleTargetPackage;
 
-    @NonNull
-    @Field(id = 5)
-    final List<VisibilityPermissionConfig> mVisibilityPermissionConfigs;
+    @Nullable private Integer mHashCode;
+    @Nullable private List<PackageIdentifier> mVisibleToPackagesCached;
+    @Nullable private Set<Set<Integer>> mVisibleToPermissionsCached;
 
-    @Nullable
-    @Field(id = 6)
-    final String mPubliclyVisibleTargetPackage;
-
-    @Nullable
-    @Field(id = 7)
-    final byte[] mPubliclyVisibleTargetPackageSha256Cert;
-
-    @NonNull
-    @Field(id = 8)
-    final List<VisibilityConfig> mVisibleToConfigs;
-
-    @Nullable
-    private Integer mHashCode;
-    private Set<Set<Integer>> mVisibleToPermissionsCached;
-    private List<PackageIdentifier> mVisibleToPackageIdentifiersCached;
-
-    /**
-     * @exportToFramework:hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @Constructor
-    public VisibilityConfig(
-            @Param(id = 1) @Nullable String schemaType,
-            @Param(id = 2) boolean isNotDisplayedBySystem,
-            @Param(id = 3) @NonNull List<String> visibleToPackageNames,
-            @Param(id = 4) @NonNull byte[][] visibleToPackageSha256Certs,
-            @Param(id = 5) @NonNull List<VisibilityPermissionConfig> visibilityPermissionConfigs,
-            @Param(id = 6) @Nullable String publiclyVisibleTargetPackage,
-            @Param(id = 7) @Nullable byte[] publiclyVisibleTargetPackageSha256Cert,
-            @Param(id = 8) @NonNull List<VisibilityConfig> visibleToConfigs) {
-        mSchemaType = schemaType;
+    VisibilityConfig(
+            @Param(id = 1) boolean isNotDisplayedBySystem,
+            @Param(id = 2) @NonNull List<PackageIdentifierParcel> visibleToPackages,
+            @Param(id = 3) @NonNull List<VisibilityPermissionConfig> visibleToPermissions,
+            @Param(id = 4) @Nullable PackageIdentifierParcel publiclyVisibleTargetPackage) {
         mIsNotDisplayedBySystem = isNotDisplayedBySystem;
-        mVisibleToPackageNames = Objects.requireNonNull(visibleToPackageNames);
-        mVisibleToPackageSha256Certs = Objects.requireNonNull(visibleToPackageSha256Certs);
-        mVisibilityPermissionConfigs = visibilityPermissionConfigs;
+        mVisibleToPackages = Objects.requireNonNull(visibleToPackages);
+        mVisibleToPermissions = Objects.requireNonNull(visibleToPermissions);
         mPubliclyVisibleTargetPackage = publiclyVisibleTargetPackage;
-        mPubliclyVisibleTargetPackageSha256Cert = publiclyVisibleTargetPackageSha256Cert;
-        mVisibleToConfigs = visibleToConfigs;
-    }
-
-    /**
-     * Gets the schemaType for this VisibilityConfig.
-     *
-     * <p>This is being used as the document id when we convert a {@link VisibilityConfig} to a
-     * {@link GenericDocument}.
-     * @exportToFramework:hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @Nullable
-    public String getSchemaType() {
-        return mSchemaType;
     }
 
     /** Returns whether this schema is visible to the system. */
@@ -192,15 +90,13 @@ public final class VisibilityConfig extends AbstractSafeParcelable {
      /** Returns a list of {@link PackageIdentifier}s of packages that can access this schema. */
     @NonNull
     public List<PackageIdentifier> getVisibleToPackages() {
-        if (mVisibleToPackageIdentifiersCached == null) {
-            mVisibleToPackageIdentifiersCached = new ArrayList<>(mVisibleToPackageNames.size());
-            for (int i = 0; i < mVisibleToPackageNames.size(); i++) {
-                mVisibleToPackageIdentifiersCached.add(
-                        new PackageIdentifier(mVisibleToPackageNames.get(i),
-                                mVisibleToPackageSha256Certs[i]));
+        if (mVisibleToPackagesCached == null) {
+            mVisibleToPackagesCached = new ArrayList<>(mVisibleToPackages.size());
+            for (int i = 0; i < mVisibleToPackages.size(); i++) {
+                mVisibleToPackagesCached.add(new PackageIdentifier(mVisibleToPackages.get(i)));
             }
         }
-        return mVisibleToPackageIdentifiersCached;
+        return mVisibleToPackagesCached;
     }
 
     /**
@@ -210,12 +106,10 @@ public final class VisibilityConfig extends AbstractSafeParcelable {
      */
     @NonNull
     public Set<Set<Integer>> getVisibleToPermissions() {
-        if (mVisibilityPermissionConfigs == null) {
-            return Collections.emptySet();
-        }
         if (mVisibleToPermissionsCached == null) {
-            mVisibleToPermissionsCached = new ArraySet<>(mVisibilityPermissionConfigs.size());
-            for (VisibilityPermissionConfig permissionConfig : mVisibilityPermissionConfigs) {
+            mVisibleToPermissionsCached = new ArraySet<>(mVisibleToPermissions.size());
+            for (int i = 0; i < mVisibleToPermissions.size(); i++) {
+                VisibilityPermissionConfig permissionConfig = mVisibleToPermissions.get(i);
                 Set<Integer> requiredPermissions = permissionConfig.getAllRequiredPermissions();
                 if (requiredPermissions != null) {
                     mVisibleToPermissionsCached.add(requiredPermissions);
@@ -233,24 +127,10 @@ public final class VisibilityConfig extends AbstractSafeParcelable {
      */
     @Nullable
     public PackageIdentifier getPubliclyVisibleTargetPackage() {
-        if (mPubliclyVisibleTargetPackage == null
-                || mPubliclyVisibleTargetPackageSha256Cert == null) {
+        if (mPubliclyVisibleTargetPackage == null) {
             return null;
         }
-        return new PackageIdentifier(mPubliclyVisibleTargetPackage,
-                mPubliclyVisibleTargetPackageSha256Cert);
-    }
-
-    /**
-     * Returns required {@link VisibilityConfig} sets for a caller need to match to access the
-     * schema this {@link VisibilityConfig} represents.
-     *
-     * @exportToFramework:hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @NonNull
-    public Set<VisibilityConfig> getVisibleToConfigs() {
-        return new ArraySet<>(mVisibleToConfigs);
+        return new PackageIdentifier(mPubliclyVisibleTargetPackage);
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -262,33 +142,23 @@ public final class VisibilityConfig extends AbstractSafeParcelable {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || !(o instanceof VisibilityConfig)) return false;
+        if (!(o instanceof VisibilityConfig)) return false;
         VisibilityConfig that = (VisibilityConfig) o;
-        return Objects.equals(mSchemaType, that.mSchemaType)
-                && mIsNotDisplayedBySystem == that.mIsNotDisplayedBySystem
-                && Objects.equals(mVisibleToPackageNames, that.mVisibleToPackageNames)
-                && Arrays.deepEquals(mVisibleToPackageSha256Certs,
-                that.mVisibleToPackageSha256Certs)
+        return mIsNotDisplayedBySystem == that.mIsNotDisplayedBySystem
+                && Objects.equals(mVisibleToPackages, that.mVisibleToPackages)
+                && Objects.equals(mVisibleToPermissions, that.mVisibleToPermissions)
                 && Objects.equals(
-                mVisibilityPermissionConfigs, that.mVisibilityPermissionConfigs)
-                && Objects.equals(mPubliclyVisibleTargetPackage, that.mPubliclyVisibleTargetPackage)
-                && Arrays.equals(mPubliclyVisibleTargetPackageSha256Cert,
-                that.mPubliclyVisibleTargetPackageSha256Cert)
-                && Objects.equals(mVisibleToConfigs, that.mVisibleToConfigs);
+                        mPubliclyVisibleTargetPackage, that.mPubliclyVisibleTargetPackage);
     }
 
     @Override
     public int hashCode() {
         if (mHashCode == null) {
             mHashCode = Objects.hash(
-                    mSchemaType,
                     mIsNotDisplayedBySystem,
-                    mVisibleToPackageNames,
-                    Arrays.deepHashCode(mVisibleToPackageSha256Certs),
-                    mVisibilityPermissionConfigs,
-                    mPubliclyVisibleTargetPackage,
-                    Arrays.hashCode(mPubliclyVisibleTargetPackageSha256Cert),
-                    mVisibleToConfigs);
+                    mVisibleToPackages,
+                    mVisibleToPermissions,
+                    mPubliclyVisibleTargetPackage);
         }
         return mHashCode;
     }
@@ -296,67 +166,27 @@ public final class VisibilityConfig extends AbstractSafeParcelable {
     /** The builder class of {@link VisibilityConfig}. */
     @FlaggedApi(Flags.FLAG_ENABLE_SET_SCHEMA_VISIBLE_TO_CONFIGS)
     public static final class Builder {
-        private String mSchemaType;
         private boolean mIsNotDisplayedBySystem;
-        private List<String> mVisibleToPackageNames = new ArrayList<>();
-        private List<byte[]> mVisibleToPackageSha256Certs = new ArrayList<>();
-        private List<VisibilityPermissionConfig> mVisibilityPermissionConfigs = new ArrayList<>();
-        private String mPubliclyVisibleTargetPackage;
-        private byte[] mPubliclyVisibleTargetPackageSha256Cert;
-        private List<VisibilityConfig> mVisibleToConfigs = new ArrayList<>();
+        private List<PackageIdentifierParcel> mVisibleToPackages = new ArrayList<>();
+        private List<VisibilityPermissionConfig> mVisibleToPermissions = new ArrayList<>();
+        private PackageIdentifierParcel mPubliclyVisibleTargetPackage;
         private boolean mBuilt;
 
         /** Creates a {@link Builder} for a {@link VisibilityConfig}. */
         public Builder() {}
 
         /**
-         * Creates a {@link Builder} for a {@link VisibilityConfig}.
-         *
-         * @param schemaType The SchemaType of the {@link AppSearchSchema} that this {@link
-         *     VisibilityConfig} represents. The package and database prefix will be added in
-         *     server side. We are using prefixed schema type to be the final id of this {@link
-         *     VisibilityConfig}. This will be used as as an AppSearch id.
-         * @see GenericDocument#getId
-         * @exportToFramework:hide
-         */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        public Builder(@NonNull String schemaType) {
-            mSchemaType = Objects.requireNonNull(schemaType);
-        }
-
-        /**
-         * Creates a {@link Builder} from an existing {@link VisibilityConfig}
+         * Creates a {@link Builder} copying the values from an existing {@link VisibilityConfig}.
          *
          * @exportToFramework:hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public Builder(@NonNull VisibilityConfig visibilityConfig) {
             Objects.requireNonNull(visibilityConfig);
-
-            mSchemaType = visibilityConfig.mSchemaType;
             mIsNotDisplayedBySystem = visibilityConfig.mIsNotDisplayedBySystem;
-            mVisibilityPermissionConfigs = visibilityConfig.mVisibilityPermissionConfigs;
-            mVisibleToPackageNames = visibilityConfig.mVisibleToPackageNames;
-            mVisibleToPackageSha256Certs =
-                    Arrays.asList(visibilityConfig.mVisibleToPackageSha256Certs);
+            mVisibleToPackages = new ArrayList<>(visibilityConfig.mVisibleToPackages);
+            mVisibleToPermissions = new ArrayList<>(visibilityConfig.mVisibleToPermissions);
             mPubliclyVisibleTargetPackage = visibilityConfig.mPubliclyVisibleTargetPackage;
-            mPubliclyVisibleTargetPackageSha256Cert =
-                    visibilityConfig.mPubliclyVisibleTargetPackageSha256Cert;
-            mVisibleToConfigs = visibilityConfig.mVisibleToConfigs;
-        }
-
-        /**
-         *  Sets schemaType, which will be as the id when converting to {@link GenericDocument}.
-         *
-         * @exportToFramework:hide
-         */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        @CanIgnoreReturnValue
-        @NonNull
-        public Builder setSchemaType(@NonNull String schemaType) {
-            resetIfBuilt();
-            mSchemaType = Objects.requireNonNull(schemaType);
-            return this;
         }
 
         /** Sets whether this schema has opted out of platform surfacing. */
@@ -374,8 +204,7 @@ public final class VisibilityConfig extends AbstractSafeParcelable {
         public Builder addVisibleToPackage(@NonNull PackageIdentifier packageIdentifier) {
             Objects.requireNonNull(packageIdentifier);
             resetIfBuilt();
-            mVisibleToPackageNames.add(packageIdentifier.getPackageName());
-            mVisibleToPackageSha256Certs.add(packageIdentifier.getSha256Certificate());
+            mVisibleToPackages.add(packageIdentifier.getPackageIdentifierParcel());
             return this;
         }
 
@@ -383,9 +212,8 @@ public final class VisibilityConfig extends AbstractSafeParcelable {
         @CanIgnoreReturnValue
         @NonNull
         public Builder clearVisibleToPackages() {
-            mVisibleToPackageNames = new ArrayList<>();
-            mVisibleToPackageSha256Certs = new ArrayList<>();
             resetIfBuilt();
+            mVisibleToPackages.clear();
             return this;
         }
 
@@ -410,17 +238,16 @@ public final class VisibilityConfig extends AbstractSafeParcelable {
         public Builder addVisibleToPermissions(@NonNull Set<Integer> visibleToPermissions) {
             Objects.requireNonNull(visibleToPermissions);
             resetIfBuilt();
-            mVisibilityPermissionConfigs.add(
-                    new VisibilityPermissionConfig.Builder(visibleToPermissions).build());
+            mVisibleToPermissions.add(new VisibilityPermissionConfig(visibleToPermissions));
             return this;
         }
 
-        /**  Clears all required permissions combinations set to this {@link VisibilityConfig}.  */
+        /** Clears all required permissions combinations set to this {@link VisibilityConfig}.  */
         @CanIgnoreReturnValue
         @NonNull
         public Builder clearVisibleToPermissions() {
             resetIfBuilt();
-            mVisibilityPermissionConfigs.clear();
+            mVisibleToPermissions.clear();
             return this;
         }
 
@@ -447,55 +274,18 @@ public final class VisibilityConfig extends AbstractSafeParcelable {
         public Builder setPubliclyVisibleTargetPackage(
                 @Nullable PackageIdentifier packageIdentifier) {
             resetIfBuilt();
-            if (packageIdentifier != null) {
-                mPubliclyVisibleTargetPackage = packageIdentifier.getPackageName();
-                mPubliclyVisibleTargetPackageSha256Cert = packageIdentifier.getSha256Certificate();
-            } else {
+            if (packageIdentifier == null) {
                 mPubliclyVisibleTargetPackage = null;
-                mPubliclyVisibleTargetPackageSha256Cert = null;
+            } else {
+                mPubliclyVisibleTargetPackage = packageIdentifier.getPackageIdentifierParcel();
             }
-            return this;
-        }
-
-        /**
-         * Add the {@link VisibilityConfig} for a caller need to match to access the schema this
-         * {@link VisibilityConfig} represents.
-         *
-         * <p> You can call this method repeatedly to add multiple {@link VisibilityConfig}, and the
-         * querier will have access if they match ANY of the {@link VisibilityConfig}.
-         *
-         * @param visibilityConfig      The {@link VisibilityConfig} hold all requirements that
-         *                              a call must to match to access the schema.
-         * @exportToFramework:hide
-         */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        @NonNull
-        public Builder addVisibleToConfig(@NonNull VisibilityConfig visibilityConfig) {
-            Objects.requireNonNull(visibilityConfig);
-            resetIfBuilt();
-            mVisibleToConfigs.add(visibilityConfig);
-            return this;
-        }
-
-        /**
-         *  Clears the set of {@link VisibilityConfig} which have access to this schema.
-         *
-         * @exportToFramework:hide
-         */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        @NonNull
-        public Builder clearVisibleToConfig() {
-            resetIfBuilt();
-            mVisibleToConfigs.clear();
             return this;
         }
 
         private void resetIfBuilt() {
             if (mBuilt) {
-                mVisibleToPackageNames = new ArrayList<>(mVisibleToPackageNames);
-                mVisibleToPackageSha256Certs = new ArrayList<>(mVisibleToPackageSha256Certs);
-                mVisibilityPermissionConfigs = new ArrayList<>(mVisibilityPermissionConfigs);
-                mVisibleToConfigs = new ArrayList<>(mVisibleToConfigs);
+                mVisibleToPackages = new ArrayList<>(mVisibleToPackages);
+                mVisibleToPermissions = new ArrayList<>(mVisibleToPermissions);
                 mBuilt = false;
             }
         }
@@ -505,14 +295,10 @@ public final class VisibilityConfig extends AbstractSafeParcelable {
         public VisibilityConfig build() {
             mBuilt = true;
             return new VisibilityConfig(
-                    mSchemaType,
                     mIsNotDisplayedBySystem,
-                    mVisibleToPackageNames,
-                    mVisibleToPackageSha256Certs.toArray(new byte[0][]),
-                    mVisibilityPermissionConfigs,
-                    mPubliclyVisibleTargetPackage,
-                    mPubliclyVisibleTargetPackageSha256Cert,
-                    mVisibleToConfigs);
+                    mVisibleToPackages,
+                    mVisibleToPermissions,
+                    mPubliclyVisibleTargetPackage);
         }
     }
 }

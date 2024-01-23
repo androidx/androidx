@@ -25,9 +25,9 @@ import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.GetSchemaResponse;
 import androidx.appsearch.app.InternalSetSchemaResponse;
+import androidx.appsearch.app.InternalVisibilityConfig;
 import androidx.appsearch.app.PackageIdentifier;
 import androidx.appsearch.app.SetSchemaRequest;
-import androidx.appsearch.app.VisibilityConfig;
 import androidx.appsearch.app.VisibilityPermissionConfig;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.localstorage.AppSearchConfigImpl;
@@ -118,7 +118,8 @@ public class VisibilityStoreMigrationFromV2Test {
 
         // Build deprecated visibility documents in version 2
         String prefix = PrefixUtil.createPrefix("package", "database");
-        VisibilityConfig visibilityConfigV2 = new VisibilityConfig.Builder(prefix + "Schema")
+        InternalVisibilityConfig visibilityConfigV2 = new InternalVisibilityConfig.Builder(
+                prefix + "Schema")
                 .setNotDisplayedBySystem(true)
                 .addVisibleToPackage(
                         new PackageIdentifier(packageNameFoo, sha256CertFoo))
@@ -132,8 +133,10 @@ public class VisibilityStoreMigrationFromV2Test {
                 .addVisibleToPermissions(
                         ImmutableSet.of(SetSchemaRequest.READ_HOME_APP_SEARCH_DATA))
                 .build();
-        GenericDocument visibilityDocumentV2 = VisibilityToDocumentConverter
-                .createVisibilityDocument(visibilityConfigV2);
+        GenericDocument visibilityDocumentV2 =
+                VisibilityToDocumentConverter.createVisibilityDocument(
+                        visibilityConfigV2.getSchemaType(),
+                        visibilityConfigV2.getVisibilityConfig());
 
         // Set client schema into AppSearchImpl with empty VisibilityDocument since we need to
         // directly put old version of VisibilityDocument.
@@ -164,20 +167,21 @@ public class VisibilityStoreMigrationFromV2Test {
                 ALWAYS_OPTIMIZE,
                 /*visibilityChecker=*/null);
 
-        VisibilityConfig actualConfig = VisibilityToDocumentConverter.createVisibilityConfig(
-                appSearchImpl.getDocument(
-                        VisibilityStore.VISIBILITY_PACKAGE_NAME,
-                        VisibilityStore.VISIBILITY_DATABASE_NAME,
-                        VisibilityToDocumentConverter.VISIBILITY_DOCUMENT_NAMESPACE,
-                        /*id=*/ prefix + "Schema",
-                        /*typePropertyPaths=*/ Collections.emptyMap()),
+        InternalVisibilityConfig actualConfig =
+                VisibilityToDocumentConverter.createInternalVisibilityConfig(
+                        appSearchImpl.getDocument(
+                                VisibilityStore.VISIBILITY_PACKAGE_NAME,
+                                VisibilityStore.VISIBILITY_DATABASE_NAME,
+                                VisibilityToDocumentConverter.VISIBILITY_DOCUMENT_NAMESPACE,
+                                /*id=*/ prefix + "Schema",
+                                /*typePropertyPaths=*/ Collections.emptyMap()),
                 /*androidVOverlayDocument=*/null);
 
-        assertThat(actualConfig.isNotDisplayedBySystem()).isTrue();
-        assertThat(actualConfig.getVisibleToPackages())
+        assertThat(actualConfig.getVisibilityConfig().isNotDisplayedBySystem()).isTrue();
+        assertThat(actualConfig.getVisibilityConfig().getVisibleToPackages())
                 .containsExactly(packageIdentifierFoo, packageIdentifierBar);
-        assertThat(actualConfig.getVisibleToPermissions()).containsExactlyElementsIn(
-                ImmutableSet.of(
+        assertThat(actualConfig.getVisibilityConfig().getVisibleToPermissions())
+                .containsExactlyElementsIn(ImmutableSet.of(
                         ImmutableSet.of(SetSchemaRequest.READ_SMS, SetSchemaRequest.READ_CALENDAR),
                         ImmutableSet.of(SetSchemaRequest.READ_HOME_APP_SEARCH_DATA),
                         ImmutableSet.of(SetSchemaRequest.READ_ASSISTANT_APP_SEARCH_DATA)));

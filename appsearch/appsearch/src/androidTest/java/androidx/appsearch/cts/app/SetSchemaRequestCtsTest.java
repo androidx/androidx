@@ -793,8 +793,6 @@ public class SetSchemaRequestCtsTest {
 
     @Test
     public void testSetDocumentClassVisibleForConfigs() throws Exception {
-        AppSearchSchema schema = new AppSearchSchema.Builder("Schema").build();
-
         PackageIdentifier packageIdentifier1 = new PackageIdentifier("com.package.foo",
                 new byte[]{100});
         PackageIdentifier packageIdentifier2 = new PackageIdentifier("com.package.bar",
@@ -824,8 +822,6 @@ public class SetSchemaRequestCtsTest {
 
     @Test
     public void testClearDocumentClassVisibleForConfigs() throws Exception {
-        AppSearchSchema schema = new AppSearchSchema.Builder("Schema").build();
-
         PackageIdentifier packageIdentifier1 = new PackageIdentifier("com.package.foo",
                 new byte[]{100});
         PackageIdentifier packageIdentifier2 = new PackageIdentifier("com.package.bar",

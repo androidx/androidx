@@ -18,17 +18,13 @@ package androidx.appsearch.app;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
 import com.google.common.collect.ImmutableSet;
 
 import org.junit.Test;
 
 import java.util.List;
 
-public class VisibilityConfigInternalTest {
-
+public class InternalVisibilityConfigTest {
     @Test
     public void testVisibilityConfig_setVisibilityConfig() {
         String visibleToPackage1 = "com.example.package";
@@ -47,7 +43,7 @@ public class VisibilityConfigInternalTest {
                 .addVisibleToPermissions(ImmutableSet.of(3, 4))
                 .build();
 
-        VisibilityConfig visibilityConfig = new VisibilityConfig.Builder()
+        InternalVisibilityConfig visibilityConfig = new InternalVisibilityConfig.Builder("schema")
                 .addVisibleToConfig(innerConfig1)
                 .addVisibleToConfig(innerConfig2)
                 .build();
@@ -72,16 +68,21 @@ public class VisibilityConfigInternalTest {
                 .build();
 
         // Convert the SetSchemaRequest to GenericDocument map
-        List<VisibilityConfig> visibilityConfigs =
-                VisibilityConfig.toVisibilityConfigs(setSchemaRequest);
+        List<InternalVisibilityConfig> visibilityConfigs =
+                InternalVisibilityConfig.toInternalVisibilityConfigs(setSchemaRequest);
 
         // Check if the conversion is correct
         assertThat(visibilityConfigs).hasSize(1);
-        VisibilityConfig visibilityConfig = visibilityConfigs.get(0);
-        assertNotNull(visibilityConfig.getPubliclyVisibleTargetPackage());
-        assertEquals("com.example.test",
-                visibilityConfig.getPubliclyVisibleTargetPackage().getPackageName());
-        assertEquals(packageSha256Cert,
-                visibilityConfig.getPubliclyVisibleTargetPackage().getSha256Certificate());
+        InternalVisibilityConfig visibilityConfig = visibilityConfigs.get(0);
+        assertThat(visibilityConfig.getVisibilityConfig().getPubliclyVisibleTargetPackage())
+                .isNotNull();
+        assertThat(
+                visibilityConfig.getVisibilityConfig().getPubliclyVisibleTargetPackage()
+                        .getPackageName())
+                .isEqualTo("com.example.test");
+        assertThat(
+                visibilityConfig.getVisibilityConfig().getPubliclyVisibleTargetPackage()
+                        .getSha256Certificate())
+                .isEqualTo(packageSha256Cert);
     }
 }

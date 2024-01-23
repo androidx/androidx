@@ -41,6 +41,7 @@ import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.GetByDocumentIdRequest;
 import androidx.appsearch.app.GetSchemaResponse;
 import androidx.appsearch.app.InternalSetSchemaResponse;
+import androidx.appsearch.app.InternalVisibilityConfig;
 import androidx.appsearch.app.JoinSpec;
 import androidx.appsearch.app.PackageIdentifier;
 import androidx.appsearch.app.SearchResultPage;
@@ -488,7 +489,7 @@ public final class AppSearchImpl implements Closeable {
             @NonNull String packageName,
             @NonNull String databaseName,
             @NonNull List<AppSearchSchema> schemas,
-            @NonNull List<VisibilityConfig> visibilityConfigs,
+            @NonNull List<InternalVisibilityConfig> visibilityConfigs,
             boolean forceOverride,
             int version,
             @Nullable SetSchemaStats.Builder setSchemaStatsBuilder) throws AppSearchException {
@@ -537,7 +538,7 @@ public final class AppSearchImpl implements Closeable {
             @NonNull String packageName,
             @NonNull String databaseName,
             @NonNull List<AppSearchSchema> schemas,
-            @NonNull List<VisibilityConfig> visibilityConfigs,
+            @NonNull List<InternalVisibilityConfig> visibilityConfigs,
             boolean forceOverride,
             int version,
             @Nullable SetSchemaStats.Builder setSchemaStatsBuilder) throws AppSearchException {
@@ -715,7 +716,7 @@ public final class AppSearchImpl implements Closeable {
             @NonNull String packageName,
             @NonNull String databaseName,
             @NonNull List<AppSearchSchema> schemas,
-            @NonNull List<VisibilityConfig> visibilityConfigs,
+            @NonNull List<InternalVisibilityConfig> visibilityConfigs,
             boolean forceOverride,
             int version,
             @Nullable SetSchemaStats.Builder setSchemaStatsBuilder) throws AppSearchException {
@@ -803,10 +804,10 @@ public final class AppSearchImpl implements Closeable {
             // We need to remove them from Visibility Store.
             Set<String> deprecatedVisibilityDocuments =
                     new ArraySet<>(rewrittenSchemaResults.mRewrittenPrefixedTypes.keySet());
-            List<VisibilityConfig> prefixedVisibilityConfigs =
+            List<InternalVisibilityConfig> prefixedVisibilityConfigs =
                     new ArrayList<>(visibilityConfigs.size());
             for (int i = 0; i < visibilityConfigs.size(); i++) {
-                VisibilityConfig visibilityConfig = visibilityConfigs.get(i);
+                InternalVisibilityConfig visibilityConfig = visibilityConfigs.get(i);
                 // The VisibilityConfig is controlled by the client and it's untrusted but we
                 // make it safe by appending a prefix.
                 // We must control the package-database prefix. Therefore even if the client
@@ -816,7 +817,7 @@ public final class AppSearchImpl implements Closeable {
                 //  and createVisibilityOverlay
                 String schemaType = visibilityConfig.getSchemaType();
                 String prefixedSchemaType = prefix + schemaType;
-                prefixedVisibilityConfigs.add(new VisibilityConfig.Builder(visibilityConfig)
+                prefixedVisibilityConfigs.add(new InternalVisibilityConfig.Builder(visibilityConfig)
                         .setSchemaType(prefixedSchemaType).build());
                 // This schema has visibility settings. We should keep it from the removal list.
                 deprecatedVisibilityDocuments.remove(visibilityConfig.getSchemaType());
@@ -904,20 +905,20 @@ public final class AppSearchImpl implements Closeable {
                 // schema. Avoid call visibility store before we have already created it.
                 if (mVisibilityStoreLocked != null) {
                     String typeName = typeConfig.getSchemaType().substring(typePrefix.length());
-                    VisibilityConfig visibilityConfig =
+                    InternalVisibilityConfig visibilityConfig =
                             mVisibilityStoreLocked.getVisibility(prefixedSchemaType);
                     if (visibilityConfig != null) {
-                        if (visibilityConfig.isNotDisplayedBySystem()) {
+                        if (visibilityConfig.getVisibilityConfig().isNotDisplayedBySystem()) {
                             responseBuilder.addSchemaTypeNotDisplayedBySystem(typeName);
                         }
                         List<PackageIdentifier> packageIdentifiers =
-                                visibilityConfig.getVisibleToPackages();
+                                visibilityConfig.getVisibilityConfig().getVisibleToPackages();
                         if (!packageIdentifiers.isEmpty()) {
                             responseBuilder.setSchemaTypeVisibleToPackages(typeName,
                                     new ArraySet<>(packageIdentifiers));
                         }
                         Set<Set<Integer>> visibleToPermissions =
-                                visibilityConfig.getVisibleToPermissions();
+                                visibilityConfig.getVisibilityConfig().getVisibleToPermissions();
                         if (!visibleToPermissions.isEmpty()) {
                             Set<Set<Integer>> visibleToPermissionsSet =
                                     new ArraySet<>(visibleToPermissions.size());
@@ -931,7 +932,8 @@ public final class AppSearchImpl implements Closeable {
 
                         // Check for Visibility properties from the overlay
                         PackageIdentifier publiclyVisibleFromPackage =
-                                visibilityConfig.getPubliclyVisibleTargetPackage();
+                                visibilityConfig.getVisibilityConfig()
+                                        .getPubliclyVisibleTargetPackage();
                         if (publiclyVisibleFromPackage != null) {
                             responseBuilder.setPubliclyVisibleSchema(
                                     typeName, publiclyVisibleFromPackage);
