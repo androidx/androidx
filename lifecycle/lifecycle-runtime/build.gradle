@@ -6,7 +6,6 @@
  * modifying its settings.
  */
 
-import androidx.build.KmpPlatformsKt
 import androidx.build.PlatformIdentifier
 import androidx.build.Publish
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
@@ -16,10 +15,6 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
 }
-
-def macEnabled = KmpPlatformsKt.enableMac(project)
-def linuxEnabled = KmpPlatformsKt.enableLinux(project)
-
 androidXMultiplatform {
     android()
     desktop()
@@ -86,33 +81,27 @@ androidXMultiplatform {
             }
         }
 
-        if (macEnabled || linuxEnabled) {
-            nativeMain {
-                dependsOn(commonMain)
+        nativeMain {
+            dependsOn(commonMain)
 
-                // Required for WeakReference usage
-                languageSettings.optIn("kotlin.experimental.ExperimentalNativeApi")
-            }
-
-            nativeTest {
-                dependsOn(commonTest)
-            }
+            // Required for WeakReference usage
+            languageSettings.optIn("kotlin.experimental.ExperimentalNativeApi")
         }
-        if (macEnabled) {
-            darwinMain {
-                dependsOn(nativeMain)
 
-                // Required for WeakReference usage
-                languageSettings.optIn("kotlin.experimental.ExperimentalNativeApi")
-            }
+        nativeTest {
+            dependsOn(commonTest)
         }
-        if (linuxEnabled) {
-            linuxMain {
-                dependsOn(nativeMain)
+        darwinMain {
+            dependsOn(nativeMain)
 
-                // Required for WeakReference usage
-                languageSettings.optIn("kotlin.experimental.ExperimentalNativeApi")
-            }
+            // Required for WeakReference usage
+            languageSettings.optIn("kotlin.experimental.ExperimentalNativeApi")
+        }
+        linuxMain {
+            dependsOn(nativeMain)
+
+            // Required for WeakReference usage
+            languageSettings.optIn("kotlin.experimental.ExperimentalNativeApi")
         }
 
         targets.all { target ->

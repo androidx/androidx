@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.KmpPlatformsKt
+
 import androidx.build.PlatformIdentifier
 import androidx.build.Publish
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
@@ -31,7 +31,6 @@ plugins {
     id("com.android.library")
 }
 
-def nativeEnabled = KmpPlatformsKt.enableNative(project)
 
 androidXMultiplatform {
     android()
@@ -69,10 +68,8 @@ androidXMultiplatform {
         jvmMain {
             dependsOn(commonMain)
         }
-        if (nativeEnabled) {
-            nativeMain {
-                dependsOn(commonMain)
-            }
+        nativeMain {
+            dependsOn(commonMain)
         }
         targets.all { target ->
             if (target.platformType == KotlinPlatformType.native) {

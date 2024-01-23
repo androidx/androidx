@@ -22,7 +22,6 @@
  * modifying its settings.
  */
 import androidx.build.AndroidXConfig
-import androidx.build.KmpPlatformsKt
 import androidx.build.PlatformIdentifier
 import androidx.build.ProjectLayoutType
 import androidx.build.Publish
@@ -96,8 +95,6 @@ configurations {
     }
 }
 
-def nativeEnabled = KmpPlatformsKt.enableNative(project)
-
 androidXMultiplatform {
     // List of targets for native compilation that are needed for JVM / ART tests.
     // Note that even if the native KMP targets are disabled, we still need to compile the C
@@ -137,12 +134,10 @@ androidXMultiplatform {
     }
 
     // add SQLite compilation output as an artifact of a producer configuration
-    if (nativeEnabled) {
-        artifacts.add(
-            "linuxSharedArchive",
-            sqliteCompilation.sharedArchiveOutputFor(KonanTarget.LINUX_X64.INSTANCE)
-        )
-    }
+    artifacts.add(
+        "linuxSharedArchive",
+        sqliteCompilation.sharedArchiveOutputFor(KonanTarget.LINUX_X64.INSTANCE)
+    )
     artifacts.add(
         "sqliteSources",
         prepareSqliteSourcesTask.map { it.destinationDirectory }
@@ -220,12 +215,10 @@ androidXMultiplatform {
         androidMain {
             dependsOn(androidJvmCommonMain)
         }
-        if (nativeEnabled) {
-            nativeMain {
-                dependsOn(commonMain)
-                dependencies {
-                    implementation(project(":sqlite:sqlite-framework"))
-                }
+        nativeMain {
+            dependsOn(commonMain)
+            dependencies {
+                implementation(project(":sqlite:sqlite-framework"))
             }
         }
         targets.all { target ->

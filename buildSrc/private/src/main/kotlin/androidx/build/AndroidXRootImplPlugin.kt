@@ -128,6 +128,7 @@ abstract class AndroidXRootImplPlugin : Plugin<Project> {
 
         registerOwnersServiceTasks()
 
+        project.configureRootProjectForKmpLink()
         // If useMaxDepVersions is set, iterate through all the project and substitute any androidx
         // artifact dependency with the local tip of tree version of the library.
         if (project.usingMaxDepVersions()) {
@@ -173,7 +174,6 @@ abstract class AndroidXRootImplPlugin : Plugin<Project> {
 
         project.zipComposeCompilerMetrics()
         project.zipComposeCompilerReports()
-        project.configureRootProjectForKmpLink()
     }
 
     private fun Project.setDependencyVersions() {
