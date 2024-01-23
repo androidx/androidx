@@ -58,14 +58,14 @@ class DeviceInfoTest {
 
         // Wembley available versions don't hit any of the method tracing issues, no art mainline
         assertFalse(DeviceInfo.methodTracingAffectsMeasurements)
-        assertEquals(-1, DeviceInfo.artMainlineVersion)
+        assertEquals(DeviceInfo.ART_MAINLINE_VERSION_UNDETECTED, DeviceInfo.artMainlineVersion)
     }
 
     @Test
     fun artMainlineVersion() {
         // bypass main test if appear to be on go device without art mainline module
         if (Build.VERSION.SDK_INT in 31..33 && DeviceInfo.isLowRamDevice) {
-            if (DeviceInfo.artMainlineVersion == -1L) {
+            if (DeviceInfo.artMainlineVersion == DeviceInfo.ART_MAINLINE_VERSION_UNDETECTED) {
                 return // bypass rest of test, appear to be on go device
             }
         }
@@ -83,15 +83,15 @@ class DeviceInfoTest {
                 "cmd package list packages --show-versioncode --apex-only art"
             ).trim()
 
-            // "google" may or may not be present in package
-            val expectedRegExStr = "package:com(\\.google)?\\.android\\.art" +
+            // "google" and "go" may or may not be present in package
+            val expectedRegExStr = "package:com(\\.google)?\\.android(\\.go)?\\.art" +
                 " versionCode:${DeviceInfo.artMainlineVersion}"
             assertTrue(
                 expectedRegExStr.toRegex().matches(shellVersion),
                 "Expected shell version ($shellVersion) to match $expectedRegExStr"
             )
         } else {
-            assertEquals(-1, DeviceInfo.artMainlineVersion)
+            assertEquals(DeviceInfo.ART_MAINLINE_VERSION_UNDETECTED, DeviceInfo.artMainlineVersion)
         }
     }
 }
