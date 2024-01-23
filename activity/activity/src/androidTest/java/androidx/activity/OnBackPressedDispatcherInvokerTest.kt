@@ -485,8 +485,12 @@ class OnBackPressedDispatcherInvokerTest {
 
         dispatcher.dispatchOnBackStarted(BackEventCompat(0.1F, 0.1F, 0.1F, EDGE_LEFT))
 
+        var startedCount2 = 0
+
         val callback2 = object : OnBackPressedCallback(true) {
-            override fun handleOnBackStarted(backEvent: BackEventCompat) { }
+            override fun handleOnBackStarted(backEvent: BackEventCompat) {
+                startedCount2++
+            }
             override fun handleOnBackProgressed(backEvent: BackEventCompat) {}
             override fun handleOnBackPressed() { }
             override fun handleOnBackCancelled() { }
@@ -494,12 +498,12 @@ class OnBackPressedDispatcherInvokerTest {
 
         dispatcher.addCallback(callback2)
 
-        assertThat(registerCount).isEqualTo(2)
-
         dispatcher.dispatchOnBackStarted(BackEventCompat(0.1F, 0.1F, 0.1F, EDGE_LEFT))
+
+        assertThat(registerCount).isEqualTo(1)
 
         assertThat(cancelledCount).isEqualTo(1)
 
-        assertThat(unregisterCount).isEqualTo(1)
+        assertThat(startedCount2).isEqualTo(1)
     }
 }
