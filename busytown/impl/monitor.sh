@@ -26,8 +26,7 @@ while true; do
   sleep 1
   count="$((count + 1))"
   if [ "$count" -gt "$waitSeconds" ]; then
-    echo timed out
-    echo monitor.sh running "$runOnTimeout"
+    echo "Parent process $PPID running longer than the expected $waitSeconds seconds. monitor.sh now running $runOnTimeout" >&2
     bash -c "$runOnTimeout"
     exit 1
   fi
