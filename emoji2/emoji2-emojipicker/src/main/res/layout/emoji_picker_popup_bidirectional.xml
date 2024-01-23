@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright 2022 The Android Open Source Project
+  Copyright 2024 The Android Open Source Project
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -14,13 +14,13 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-
-<resources>
-    <color name="light_skin_tone">#edbd82</color>
-    <color name="medium_light_skin_tone">#ba8f63</color>
-    <color name="medium_skin_tone">#91674d</color>
-    <color name="medium_dark_skin_tone">#875334</color>
-    <color name="dark_skin_tone">#4a2f27</color>
-
-    <color name="white">#ffffff</color>
-</resources>
+<androidx.appcompat.widget.AppCompatImageView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/emoji_picker_popup_bidirectional_icon"
+    android:layout_width="0dp"
+    android:layout_height="0dp"
+    android:src="@drawable/swap_horiz_vd_theme_24"
+    android:layout_gravity="center"
+    android:contentDescription="@string/emoji_bidirectional_switcher_content_desc"
+    android:background="@drawable/ripple_image_view"
+    android:importantForAccessibility="yes" />
