@@ -16,6 +16,7 @@
  */
 @file:OptIn(InternalAnimationApi::class)
 package androidx.compose.animation
+import androidx.collection.mutableScatterMapOf
 import androidx.compose.animation.AnimatedContentTransitionScope.SlideDirection.Companion.Down
 import androidx.compose.animation.AnimatedContentTransitionScope.SlideDirection.Companion.End
 import androidx.compose.animation.AnimatedContentTransitionScope.SlideDirection.Companion.Left
@@ -525,7 +526,7 @@ internal class AnimatedContentTransitionScopeImpl<S> internal constructor(
         }
     }
     internal var measuredSize: IntSize by mutableStateOf(IntSize.Zero)
-    internal val targetSizeMap = mutableMapOf<S, State<IntSize>>()
+    internal val targetSizeMap = mutableScatterMapOf<S, State<IntSize>>()
     internal var animatedSize: State<IntSize>? = null
     // Current size of the container. If there's any size animation, the current size will be
     // read from the animation value, otherwise we'll use the current
@@ -669,7 +670,7 @@ fun <S> Transition<S>.AnimatedContent(
     }
     // TODO: remove screen as soon as they are animated out
     val currentlyVisible = remember(this) { mutableStateListOf(currentState) }
-    val contentMap = remember(this) { mutableMapOf<S, @Composable() () -> Unit>() }
+    val contentMap = remember(this) { mutableScatterMapOf<S, @Composable() () -> Unit>() }
     // This is needed for tooling because it could change currentState directly,
     // as opposed to changing target only. When that happens we need to clear all the
     // visible content and only display the content for the new current state and target state.
