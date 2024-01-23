@@ -21,6 +21,7 @@ import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -47,25 +48,38 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.takeOrElse
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.dp
 import kotlin.math.max
 import kotlin.math.min
 
 /**
- * Contains default values used for [DropdownMenuItem].
+ * Contains default values used for [DropdownMenu] and [DropdownMenuItem].
  */
 object MenuDefaults {
+    /** The default tonal elevation for a menu. */
+    val TonalElevation = MenuTokens.ContainerElevation
 
-/**
- * Creates a [MenuItemColors] that represents the default text and icon colors used in a
- * [DropdownMenuItemContent].
- */
-@Composable
-fun itemColors() = MaterialTheme.colorScheme.defaultMenuItemColors
+    /** The default shadow elevation for a menu. */
+    val ShadowElevation = MenuTokens.ContainerElevation
+
+    /** The default shape for a menu. */
+    val shape @Composable get() = MenuTokens.ContainerShape.value
+
+    /** The default container color for a menu. */
+    val containerColor @Composable get() = MenuTokens.ContainerColor.value
+
+    /**
+     * Creates a [MenuItemColors] that represents the default text and icon colors used in a
+     * [DropdownMenuItemContent].
+     */
+    @Composable
+    fun itemColors() = MaterialTheme.colorScheme.defaultMenuItemColors
 
     /**
      * Creates a [MenuItemColors] that represents the default text and icon colors used in a
@@ -102,13 +116,13 @@ fun itemColors() = MaterialTheme.colorScheme.defaultMenuItemColors
         get() {
             return defaultMenuItemColorsCached ?: MenuItemColors(
                 textColor = fromToken(MenuTokens.ListItemLabelTextColor),
-            leadingIconColor = fromToken(MenuTokens.ListItemLeadingIconColor),
-            trailingIconColor = fromToken(MenuTokens.ListItemTrailingIconColor),
-            disabledTextColor = fromToken(MenuTokens.ListItemDisabledLabelTextColor),
-            disabledLeadingIconColor = fromToken(MenuTokens.ListItemDisabledLeadingIconColor)
-            .copy(alpha = MenuTokens.ListItemDisabledLeadingIconOpacity),
-            disabledTrailingIconColor = fromToken(MenuTokens.ListItemDisabledTrailingIconColor)
-            .copy(alpha = MenuTokens.ListItemDisabledTrailingIconOpacity),
+                leadingIconColor = fromToken(MenuTokens.ListItemLeadingIconColor),
+                trailingIconColor = fromToken(MenuTokens.ListItemTrailingIconColor),
+                disabledTextColor = fromToken(MenuTokens.ListItemDisabledLabelTextColor),
+                disabledLeadingIconColor = fromToken(MenuTokens.ListItemDisabledLeadingIconColor)
+                    .copy(alpha = MenuTokens.ListItemDisabledLeadingIconOpacity),
+                disabledTrailingIconColor = fromToken(MenuTokens.ListItemDisabledTrailingIconColor)
+                    .copy(alpha = MenuTokens.ListItemDisabledTrailingIconOpacity),
             ).also {
                 defaultMenuItemColorsCached = it
             }
@@ -224,10 +238,15 @@ class MenuItemColors(
 
 @Composable
 internal fun DropdownMenuContent(
+    modifier: Modifier,
     expandedState: MutableTransitionState<Boolean>,
     transformOriginState: MutableState<TransformOrigin>,
     scrollState: ScrollState,
-    modifier: Modifier = Modifier,
+    shape: Shape,
+    containerColor: Color,
+    tonalElevation: Dp,
+    shadowElevation: Dp,
+    border: BorderStroke?,
     content: @Composable ColumnScope.() -> Unit
 ) {
     // Menu open/close animation.
@@ -275,10 +294,11 @@ internal fun DropdownMenuContent(
             this.alpha = alpha
             transformOrigin = transformOriginState.value
         },
-        shape = MenuTokens.ContainerShape.value,
-        color = MaterialTheme.colorScheme.fromToken(MenuTokens.ContainerColor),
-        tonalElevation = MenuTokens.ContainerElevation,
-        shadowElevation = MenuTokens.ContainerElevation
+        shape = shape,
+        color = containerColor,
+        tonalElevation = tonalElevation,
+        shadowElevation = shadowElevation,
+        border = border,
     ) {
         Column(
             modifier = modifier
