@@ -40,6 +40,7 @@ jobs:
     env:
       GRADLE_BUILD_CACHE_PASSWORD: ${{ secrets.GRADLE_BUILD_CACHE_PASSWORD }}
       GRADLE_ENTERPRISE_ACCESS_KEY: ${{ secrets.GRADLE_ENTERPRISE_ACCESS_KEY }}
+      GRADLE_ENCRYPTION_KEY: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
     steps:
       - name: Pull request format
         uses: 'androidx/check-pr-format-action@main'
@@ -88,7 +89,7 @@ jobs:
           echo "::set-output name=files::$AFFECTED_FILES"
 
       - name: "Setup Gradle"
-        uses: gradle/gradle-build-action@v2
+        uses: gradle/gradle-build-action@v3
         with:
           # Only save Gradle User Home state for builds on the 'androidx-main' branch.
           # Builds on other branches will only read existing entries from the cache.
@@ -96,6 +97,8 @@ jobs:
 
           # Don't reuse cache entries from any other Job.
           gradle-home-cache-strict-match: true
+
+          cache-encryption-key: ${{ secrets.GRADLE_ENTERPRISE_ACCESS_KEY }}
 
           # Limit the size of the cache entry.
           # These directories contain instrumented/transformed dependency jars which can be reconstructed relatively quickly.
@@ -129,6 +132,7 @@ jobs:
       project-root: playground-projects/${{matrix.project-root || matrix.project}}-playground
       GRADLE_BUILD_CACHE_PASSWORD: ${{ secrets.GRADLE_BUILD_CACHE_PASSWORD }}
       GRADLE_ENTERPRISE_ACCESS_KEY: ${{ secrets.GRADLE_ENTERPRISE_ACCESS_KEY }}
+      GRADLE_ENCRYPTION_KEY: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
     steps:
       - name: "Checkout androidx repo"
         uses: actions/checkout@v2
@@ -148,6 +152,7 @@ jobs:
           project-root: ${{ env.project-root }}
           gradle-cache-password: ${{ secrets.GRADLE_BUILD_CACHE_PASSWORD }}
           gradle-enterprise-access-key: ${{ secrets.GRADLE_ENTERPRISE_ACCESS_KEY }}
+          gradle-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
           gradle-flags: ${{ needs.setup.outputs.gradlew_flags }}
       # Upload artifacts task should be in the build-single-project
       # action but they have a tendency to fail and continue-on-error
