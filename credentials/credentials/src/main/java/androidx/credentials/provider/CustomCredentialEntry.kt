@@ -86,19 +86,19 @@ class CustomCredentialEntry internal constructor(
     val icon: Icon,
     val lastUsedTime: Instant?,
     beginGetCredentialOption: BeginGetCredentialOption,
+    isDefaultIconPreferredAsSingleProvider: Boolean,
     entryGroupId: CharSequence? = title,
     affiliatedDomain: CharSequence? = null,
-    isDefaultIconPreferredAsSingleProvider: Boolean,
     autoSelectAllowedFromOption: Boolean = CredentialOption.extractAutoSelectValue(
         beginGetCredentialOption.candidateQueryData),
     private var isCreatedFromSlice: Boolean = false,
-    private var isDefaultIconFromSlice: Boolean = false
+    private var isDefaultIconFromSlice: Boolean = false,
 ) : CredentialEntry(
     type,
     beginGetCredentialOption,
     entryGroupId ?: title,
-    affiliatedDomain,
-    isDefaultIconPreferredAsSingleProvider = isDefaultIconPreferredAsSingleProvider
+    isDefaultIconPreferredAsSingleProvider = isDefaultIconPreferredAsSingleProvider,
+    affiliatedDomain = affiliatedDomain,
 ) {
     val isAutoSelectAllowedFromOption = autoSelectAllowedFromOption
 
@@ -224,8 +224,8 @@ class CustomCredentialEntry internal constructor(
         icon,
         lastUsedTime,
         beginGetCredentialOption,
-        entryGroupId.ifEmpty { title },
         isDefaultIconPreferredAsSingleProvider = isDefaultIconPreferredAsSingleProvider,
+        entryGroupId.ifEmpty { title },
     )
 
     @RequiresApi(34)
@@ -433,8 +433,8 @@ class CustomCredentialEntry internal constructor(
                         type,
                         Bundle()
                     ),
-                    entryGroupId = entryGroupId,
                     isDefaultIconPreferredAsSingleProvider = isDefaultIconPreferredAsSingleProvider,
+                    entryGroupId = entryGroupId,
                     affiliatedDomain = affiliatedDomain,
                     autoSelectAllowedFromOption = autoSelectAllowedFromOption,
                     isCreatedFromSlice = true,
@@ -655,8 +655,8 @@ class CustomCredentialEntry internal constructor(
                 icon!!,
                 lastUsedTime,
                 beginGetCredentialOption,
-                entryGroupId = entryGroupId,
                 isDefaultIconPreferredAsSingleProvider = isDefaultIconPreferredAsSingleProvider,
+                entryGroupId = entryGroupId,
             )
         }
     }

@@ -56,8 +56,8 @@ abstract class CredentialEntry internal constructor(
     open val type: String,
     val beginGetCredentialOption: BeginGetCredentialOption,
     val entryGroupId: CharSequence,
-    val affiliatedDomain: CharSequence? = null,
     val isDefaultIconPreferredAsSingleProvider: Boolean,
+    val affiliatedDomain: CharSequence? = null,
 ) {
 
     @RequiresApi(34)

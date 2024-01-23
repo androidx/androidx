@@ -83,20 +83,20 @@ class PublicKeyCredentialEntry internal constructor(
     val lastUsedTime: Instant?,
     val isAutoSelectAllowed: Boolean,
     beginGetPublicKeyCredentialOption: BeginGetPublicKeyCredentialOption,
+    isDefaultIconPreferredAsSingleProvider: Boolean,
     entryGroupId: CharSequence? = username,
     affiliatedDomain: CharSequence? = null,
-    isDefaultIconPreferredAsSingleProvider: Boolean,
     autoSelectAllowedFromOption: Boolean = CredentialOption.extractAutoSelectValue(
         beginGetPublicKeyCredentialOption.candidateQueryData
     ),
     private val isCreatedFromSlice: Boolean = false,
-    private val isDefaultIconFromSlice: Boolean = false
+    private val isDefaultIconFromSlice: Boolean = false,
 ) : CredentialEntry(
     PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL,
     beginGetPublicKeyCredentialOption,
     entryGroupId ?: username,
-    affiliatedDomain,
-    isDefaultIconPreferredAsSingleProvider = isDefaultIconPreferredAsSingleProvider
+    isDefaultIconPreferredAsSingleProvider = isDefaultIconPreferredAsSingleProvider,
+    affiliatedDomain = affiliatedDomain,
 ) {
     val isAutoSelectAllowedFromOption = autoSelectAllowedFromOption
 
