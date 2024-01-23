@@ -89,7 +89,7 @@ jobs:
           echo "::set-output name=files::$AFFECTED_FILES"
 
       - name: "Setup Gradle"
-        uses: gradle/gradle-build-action@v3
+        uses: gradle/gradle-build-action@v3-beta
         with:
           # Only save Gradle User Home state for builds on the 'androidx-main' branch.
           # Builds on other branches will only read existing entries from the cache.
