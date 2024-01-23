@@ -503,7 +503,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
                 }
             }
             project.configureKmp()
-            project.configureSourceJarForMultiplatform(androidXExtension)
+            project.configureSourceJarForMultiplatform()
 
             // Disable any source JAR task(s) added by KotlinMultiplatformPlugin.
             // https://youtrack.jetbrains.com/issue/KT-55881
@@ -729,7 +729,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
         }
 
         project.configurePublicResourcesStub(libraryExtension)
-        project.configureSourceJarForAndroid(libraryExtension, androidXExtension)
+        project.configureSourceJarForAndroid(libraryExtension)
         project.configureVersionFileWriter(libraryAndroidComponentsExtension, androidXExtension)
         project.configureJavaCompilationWarnings(androidXExtension)
 
@@ -797,7 +797,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
                 }
             }
             if (!project.plugins.hasPlugin(KotlinBasePluginWrapper::class.java)) {
-                project.configureSourceJarForJava(androidXExtension)
+                project.configureSourceJarForJava()
             }
         }
 

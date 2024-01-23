@@ -27,7 +27,6 @@ import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.plugins.ExtensionContainer
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
-import org.gradle.api.tasks.TaskProvider
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 
 /** Extension for [AndroidXImplPlugin] that's responsible for holding configuration options. */
@@ -39,8 +38,6 @@ abstract class AndroidXExtension(val project: Project) : ExtensionAware, Android
 
     val libraryGroupsByGroupId: Map<String, LibraryGroup>
     val overrideLibraryGroupsByProjectPath: Map<String, LibraryGroup>
-
-    var copySampleSourceJarsTask: TaskProvider<LazyInputsCopyTask>? = null
 
     val mavenGroup: LibraryGroup?
 
