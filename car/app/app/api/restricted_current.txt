@@ -1105,6 +1105,7 @@ package androidx.car.app.model {
     method public int getId();
     method public androidx.car.app.model.CarText? getSubtitle();
     method public androidx.car.app.model.CarText getTitle();
+    field public static final int SHOW_ALERT_INDEFINITELY_DURATION = 2147483647; // 0x7fffffff
   }
 
   public static final class Alert.Builder {

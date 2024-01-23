@@ -28,8 +28,6 @@ import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.constraints.CarIconConstraints;
 import androidx.car.app.utils.CollectionUtils;
 
-import com.google.errorprone.annotations.Keep;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -49,8 +47,7 @@ public final class Alert {
      * By setting the alert duration to this value, the progress bar (timer) on the
      * alert will not be shown.
      */
-    @Keep
-    private static final int SHOW_ALERT_INDEFINITELY_DURATION = Integer.MAX_VALUE;
+    public static final int SHOW_ALERT_INDEFINITELY_DURATION = Integer.MAX_VALUE;
 
     private final int mId;
     @Nullable
