@@ -80,7 +80,7 @@ fun ListDetailPaneScaffoldSample() {
 @Preview
 @Sampled
 @Composable
-fun ListDetailExtraPaneScaffoldSample() {
+fun ListDetailPaneScaffoldSampleWithExtraPane() {
     val scaffoldNavigator = rememberListDetailPaneScaffoldNavigator()
     ListDetailPaneScaffold(
         scaffoldState = scaffoldNavigator.scaffoldState,

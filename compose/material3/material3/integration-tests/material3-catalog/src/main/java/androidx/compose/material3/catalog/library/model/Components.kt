@@ -18,7 +18,9 @@ package androidx.compose.material3.catalog.library.model
 
 import androidx.annotation.DrawableRes
 import androidx.compose.material3.catalog.library.R
+import androidx.compose.material3.catalog.library.util.AdaptiveGuidelinesUrl
 import androidx.compose.material3.catalog.library.util.AdaptiveNavigationSuiteMaterial3SourceUrl
+import androidx.compose.material3.catalog.library.util.AdaptiveSourceUrl
 import androidx.compose.material3.catalog.library.util.ComponentGuidelinesUrl
 import androidx.compose.material3.catalog.library.util.DocsUrl
 import androidx.compose.material3.catalog.library.util.Material3SourceUrl
@@ -42,6 +44,20 @@ private var nextId: Int = 1
 private fun nextId(): Int = nextId.also { nextId += 1 }
 
 // Components are ordered alphabetically by name.
+
+private val Adaptive =
+    Component(
+        id = nextId(),
+        name = "Adaptive",
+        description =
+        "Adaptive scaffolds provides automatic layout adjustment on different window size " +
+            "classes and postures.",
+        // No adaptive icon
+        guidelinesUrl = "$AdaptiveGuidelinesUrl/understanding-layout/overview",
+        docsUrl = "$DocsUrl/adaptive",
+        sourceUrl = "$AdaptiveSourceUrl/ThreePaneScaffold.kt",
+        examples = AdaptiveExamples
+    )
 
 private val Badge =
     Component(
@@ -421,6 +437,7 @@ private val TopAppBar = Component(
 
 /** Components for the catalog, ordered alphabetically by name. */
 val Components = listOf(
+    Adaptive,
     Badge,
     BottomAppBars,
     BottomSheets,

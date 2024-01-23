@@ -23,7 +23,10 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material3.adaptive.navigation.suite.samples.NavigationSuiteScaffoldCustomConfigSample
 import androidx.compose.material3.adaptive.navigation.suite.samples.NavigationSuiteScaffoldSample
+import androidx.compose.material3.adaptive.samples.ListDetailPaneScaffoldSample
+import androidx.compose.material3.adaptive.samples.ListDetailPaneScaffoldSampleWithExtraPane
 import androidx.compose.material3.catalog.library.util.AdaptiveNavigationSuiteSampleSourceUrl
+import androidx.compose.material3.catalog.library.util.AdaptiveSampleSourceUrl
 import androidx.compose.material3.catalog.library.util.SampleSourceUrl
 import androidx.compose.material3.samples.AlertDialogSample
 import androidx.compose.material3.samples.AlertDialogWithIconSample
@@ -172,6 +175,22 @@ data class Example(
     val sourceUrl: String,
     val content: @Composable () -> Unit
 )
+
+private const val AdaptiveExampleDescription = "Adaptive examples"
+private const val AdaptiveExampleSourceUrl = "$AdaptiveSampleSourceUrl/ThreePaneScaffoldSamples.kt"
+val AdaptiveExamples =
+    listOf(
+        Example(
+            name = ::ListDetailPaneScaffoldSample.name,
+            description = AdaptiveExampleDescription,
+            sourceUrl = AdaptiveExampleSourceUrl
+        ) { ListDetailPaneScaffoldSample() },
+        Example(
+            name = ::ListDetailPaneScaffoldSampleWithExtraPane.name,
+            description = AdaptiveExampleDescription,
+            sourceUrl = AdaptiveExampleSourceUrl
+        ) { ListDetailPaneScaffoldSampleWithExtraPane() }
+    )
 
 private const val BadgeExampleDescription = "Badge examples"
 private const val BadgeExampleSourceUrl = "$SampleSourceUrl/BadgeSamples.kt"
