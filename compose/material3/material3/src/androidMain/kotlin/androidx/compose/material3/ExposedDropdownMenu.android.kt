@@ -299,8 +299,13 @@ abstract class ExposedDropdownMenuBoxScope {
                     expandedState = expandedState,
                     transformOriginState = transformOriginState,
                     scrollState = scrollState,
+                    shape = MenuDefaults.shape,
+                    containerColor = MenuDefaults.containerColor,
+                    tonalElevation = MenuDefaults.TonalElevation,
+                    shadowElevation = MenuDefaults.ShadowElevation,
+                    border = null,
                     modifier = modifier.exposedDropdownSize(),
-                    content = content
+                    content = content,
                 )
             }
         }
