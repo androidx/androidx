@@ -3,6 +3,14 @@ AddedAbstractMethod: androidx.compose.foundation.pager.PageInfo#getKey():
     Added method androidx.compose.foundation.pager.PageInfo.getKey()
 
 
+ChangedType: androidx.compose.foundation.gestures.snapping.SnapFlingBehaviorKt#rememberSnapFlingBehavior(androidx.compose.foundation.gestures.snapping.SnapLayoutInfoProvider):
+    Method androidx.compose.foundation.gestures.snapping.SnapFlingBehaviorKt.rememberSnapFlingBehavior has changed return type from androidx.compose.foundation.gestures.snapping.SnapFlingBehavior to androidx.compose.foundation.gestures.TargetedFlingBehavior
+
+
+ParameterNameChange: androidx.compose.foundation.gestures.snapping.SnapFlingBehavior#performFling(androidx.compose.foundation.gestures.ScrollScope, float, kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit>, kotlin.coroutines.Continuation<? super java.lang.Float>) parameter #2:
+    Attempted to change parameter name from onSettlingDistanceUpdated to onRemainingDistanceUpdated in method androidx.compose.foundation.gestures.snapping.SnapFlingBehavior.performFling
+
+
 RemovedClass: androidx.compose.foundation.lazy.layout.LazyLayoutItemProviderKt:
     Removed class androidx.compose.foundation.lazy.layout.LazyLayoutItemProviderKt
 RemovedClass: androidx.compose.foundation.text2.input.AllCapsTransformationKt:
