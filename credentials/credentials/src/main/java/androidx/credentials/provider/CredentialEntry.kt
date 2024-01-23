@@ -22,6 +22,7 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.credentials.PasswordCredential.Companion.TYPE_PASSWORD_CREDENTIAL
 import androidx.credentials.PublicKeyCredential.Companion.TYPE_PUBLIC_KEY_CREDENTIAL
+import androidx.credentials.R
 
 /**
  * Base class for a credential entry to be displayed on
@@ -37,12 +38,18 @@ import androidx.credentials.PublicKeyCredential.Companion.TYPE_PUBLIC_KEY_CREDEN
  * foo@gmail.com). These guidelines should be followed in cases where [CustomCredentialEntry] are
  * created.
  *
+ * @property type the type of the credential associated with this entry, e.g. a
+ * [BeginGetPasswordOption] will have type [TYPE_PASSWORD_CREDENTIAL]
  * @property beginGetCredentialOption the option from the original [BeginGetCredentialRequest],
  * for which this credential entry is being added
  * @property entryGroupId an ID used for deduplication or to group entries during display
  * @property affiliatedDomain the user visible affiliated domain, a CharSequence
  * representation of a web domain or an app package name that the given credential in this
  * entry is associated with when it is different from the requesting entity, default null
+ * @property isDefaultIconPreferredAsSingleProvider when set to true, the UI prefers to render the
+ * default credential type icon when you are the only available provider; see individual subclasses
+ * for these default icons (e.g. for [PublicKeyCredentialEntry], it is based on
+ * [R.drawable.ic_password])
  */
 abstract class CredentialEntry internal constructor(
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -50,6 +57,7 @@ abstract class CredentialEntry internal constructor(
     val beginGetCredentialOption: BeginGetCredentialOption,
     val entryGroupId: CharSequence,
     val affiliatedDomain: CharSequence? = null,
+    val isDefaultIconPreferredAsSingleProvider: Boolean,
 ) {
 
     @RequiresApi(34)

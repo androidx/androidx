@@ -82,15 +82,16 @@ class PasswordCredentialEntry internal constructor(
     val isAutoSelectAllowed: Boolean,
     beginGetPasswordOption: BeginGetPasswordOption,
     entryGroupId: CharSequence? = username,
+    isDefaultIconPreferredAsSingleProvider: Boolean,
     affiliatedDomain: CharSequence? = null,
     private val autoSelectAllowedFromOption: Boolean = false,
-    private val isDefaultIcon: Boolean = false,
-
+    private val isDefaultIcon: Boolean = false
 ) : CredentialEntry(
     PasswordCredential.TYPE_PASSWORD_CREDENTIAL,
     beginGetPasswordOption,
     entryGroupId ?: username,
     affiliatedDomain,
+    isDefaultIconPreferredAsSingleProvider
 ) {
     init {
         require(username.isNotEmpty()) { "username must not be empty" }
@@ -124,6 +125,9 @@ class PasswordCredentialEntry internal constructor(
      * @param affiliatedDomain the user visible affiliated domain, a CharSequence
      * representation of a web domain or an app package name that the given credential in this
      * entry is associated with when it is different from the requesting entity, default null
+     * @param isDefaultIconPreferredAsSingleProvider when set to true, the UI prefers to render the
+     * default credential type icon (see the default value of [icon]) when you are the
+     * only available provider; false by default
      *
      * @throws IllegalArgumentException If [username] is empty
      * @throws NullPointerException If [context], [username], [pendingIntent], or
@@ -139,6 +143,7 @@ class PasswordCredentialEntry internal constructor(
         icon: Icon = Icon.createWithResource(context, R.drawable.ic_password),
         isAutoSelectAllowed: Boolean = false,
         affiliatedDomain: CharSequence? = null,
+        isDefaultIconPreferredAsSingleProvider: Boolean = false,
     ) : this(
         username,
         displayName,
@@ -150,7 +155,8 @@ class PasswordCredentialEntry internal constructor(
         icon,
         isAutoSelectAllowed,
         beginGetPasswordOption,
-        affiliatedDomain = affiliatedDomain
+        affiliatedDomain = affiliatedDomain,
+        isDefaultIconPreferredAsSingleProvider = isDefaultIconPreferredAsSingleProvider,
     )
 
     /**
@@ -178,11 +184,13 @@ class PasswordCredentialEntry internal constructor(
      * @throws NullPointerException If [context], [username], [pendingIntent], or
      * [beginGetPasswordOption] is null
      */
-    @Deprecated("The constructor containing bits including affiliatedDomain and further " +
-        "should be used instead.",
-        replaceWith = ReplaceWith("PasswordCredentialEntry(context, username, " +
-            "pendingIntent, beginGetPasswordOption, displayName, lastUsedTime, icon, " +
-            "isAutoSelectAllowed, affiliatedDomain)"),
+    @Deprecated(
+        "Use the constructor that allows setting all parameters.",
+        replaceWith = ReplaceWith(
+            "PasswordCredentialEntry(context, username, " +
+                "pendingIntent, beginGetPasswordOption, displayName, lastUsedTime, icon, " +
+                "isAutoSelectAllowed, affiliatedDomain, isDefaultIconPreferredAsSingleProvider)"
+        ),
         level = DeprecationLevel.HIDDEN
     )
     constructor(
@@ -204,7 +212,8 @@ class PasswordCredentialEntry internal constructor(
         lastUsedTime,
         icon,
         isAutoSelectAllowed,
-        beginGetPasswordOption
+        beginGetPasswordOption,
+        isDefaultIconPreferredAsSingleProvider = false
     )
 
     @RequiresApi(34)
@@ -235,12 +244,16 @@ class PasswordCredentialEntry internal constructor(
             val beginGetPasswordCredentialOption = entry.beginGetCredentialOption
             val affiliatedDomain = entry.affiliatedDomain
             val entryGroupId = entry.entryGroupId
+            var isDefaultIconPreferredAsSingleProvider =
+                entry.isDefaultIconPreferredAsSingleProvider
 
             val autoSelectAllowed = if (isAutoSelectAllowed) {
-                AUTO_SELECT_TRUE_STRING
+                TRUE_STRING
             } else {
-                AUTO_SELECT_FALSE_STRING
+                FALSE_STRING
             }
+            val isUsingDefaultIcon =
+                if (isDefaultIconPreferredAsSingleProvider) TRUE_STRING else FALSE_STRING
             val sliceBuilder = Slice.Builder(
                 Uri.EMPTY, SliceSpec(
                     type, REVISION_ID
@@ -278,6 +291,10 @@ class PasswordCredentialEntry internal constructor(
                 .addText(
                     affiliatedDomain, /*subTypes=*/null,
                     listOf(SLICE_HINT_AFFILIATED_DOMAIN)
+                )
+                .addText(
+                    isUsingDefaultIcon, /*subType=*/null,
+                    listOf(SLICE_HINT_IS_DEFAULT_ICON_PREFERRED)
                 )
             try {
                 if (icon.resId == R.drawable.ic_password) {
@@ -336,9 +353,10 @@ class PasswordCredentialEntry internal constructor(
             var autoSelectAllowed = false
             var autoSelectAllowedFromOption = false
             var beginGetPasswordOptionId: CharSequence? = null
-            var isDefaultIcon = false
+            var isDefaultIconPreferredAsSingleProvider = false
             var affiliatedDomain: CharSequence? = null
             var entryGroupId: CharSequence? = null
+            var isDefaultIcon = false
 
             slice.items.forEach {
                 if (it.hasHint(SLICE_HINT_TYPE_DISPLAY_NAME)) {
@@ -357,17 +375,22 @@ class PasswordCredentialEntry internal constructor(
                     lastUsedTime = Instant.ofEpochMilli(it.long)
                 } else if (it.hasHint(SLICE_HINT_AUTO_ALLOWED)) {
                     val autoSelectValue = it.text
-                    if (autoSelectValue == AUTO_SELECT_TRUE_STRING) {
+                    if (autoSelectValue == TRUE_STRING) {
                         autoSelectAllowed = true
                     }
                 } else if (it.hasHint(SLICE_HINT_AUTO_SELECT_FROM_OPTION)) {
                     autoSelectAllowedFromOption = true
-                } else if (it.hasHint(SLICE_HINT_DEFAULT_ICON_RES_ID)) {
-                    isDefaultIcon = true
                 } else if (it.hasHint(SLICE_HINT_AFFILIATED_DOMAIN)) {
                     affiliatedDomain = it.text
                 } else if (it.hasHint(SLICE_HINT_DEDUPLICATION_ID)) {
                     entryGroupId = it.text
+                } else if (it.hasHint(SLICE_HINT_IS_DEFAULT_ICON_PREFERRED)) {
+                    val defaultIconValue = it.text
+                    if (defaultIconValue == TRUE_STRING) {
+                        isDefaultIconPreferredAsSingleProvider = true
+                    }
+                } else if (it.hasHint(SLICE_HINT_DEFAULT_ICON_RES_ID)) {
+                    isDefaultIcon = true
                 }
             }
 
@@ -385,6 +408,7 @@ class PasswordCredentialEntry internal constructor(
                         beginGetPasswordOptionId!!.toString()
                     ),
                     entryGroupId = entryGroupId,
+                    isDefaultIconPreferredAsSingleProvider = isDefaultIconPreferredAsSingleProvider,
                     affiliatedDomain = affiliatedDomain,
                     autoSelectAllowedFromOption = autoSelectAllowedFromOption,
                     isDefaultIcon = isDefaultIcon,
@@ -426,6 +450,9 @@ class PasswordCredentialEntry internal constructor(
         private const val SLICE_HINT_AUTO_ALLOWED =
             "androidx.credentials.provider.credentialEntry.SLICE_HINT_AUTO_ALLOWED"
 
+        private const val SLICE_HINT_IS_DEFAULT_ICON_PREFERRED =
+            "androidx.credentials.provider.credentialEntry.SLICE_HINT_IS_DEFAULT_ICON_PREFERRED"
+
         private const val SLICE_HINT_AUTO_SELECT_FROM_OPTION =
             "androidx.credentials.provider.credentialEntry.SLICE_HINT_AUTO_SELECT_FROM_OPTION"
 
@@ -435,9 +462,9 @@ class PasswordCredentialEntry internal constructor(
         private const val SLICE_HINT_AFFILIATED_DOMAIN =
             "androidx.credentials.provider.credentialEntry.SLICE_HINT_AFFILIATED_DOMAIN"
 
-        private const val AUTO_SELECT_TRUE_STRING = "true"
+        private const val TRUE_STRING = "true"
 
-        private const val AUTO_SELECT_FALSE_STRING = "false"
+        private const val FALSE_STRING = "false"
 
         private const val REVISION_ID = 1
 
@@ -520,6 +547,7 @@ class PasswordCredentialEntry internal constructor(
         private var icon: Icon? = null
         private var autoSelectAllowed = false
         private var affiliatedDomain: CharSequence? = null
+        private var isDefaultIconPreferredAsSingleProvider: Boolean = false
 
         /** Sets a displayName to be shown on the UI with this entry. */
         fun setDisplayName(displayName: CharSequence?): Builder {
@@ -563,6 +591,17 @@ class PasswordCredentialEntry internal constructor(
             return this
         }
 
+        /**
+         * When set to true, the UI prefers to render the default credential type icon when you are
+         * the single available provider; false by default.
+         */
+        fun setDefaultIconPreferredAsSingleProvider(
+            isDefaultIconPreferredAsSingleProvider: Boolean
+        ): Builder {
+            this.isDefaultIconPreferredAsSingleProvider = isDefaultIconPreferredAsSingleProvider
+            return this
+        }
+
         /** Builds an instance of [PasswordCredentialEntry] */
         fun build(): PasswordCredentialEntry {
             if (icon == null && Build.VERSION.SDK_INT >= 23) {
@@ -580,7 +619,8 @@ class PasswordCredentialEntry internal constructor(
                 icon!!,
                 autoSelectAllowed,
                 beginGetPasswordOption,
-                affiliatedDomain = affiliatedDomain
+                affiliatedDomain = affiliatedDomain,
+                isDefaultIconPreferredAsSingleProvider = isDefaultIconPreferredAsSingleProvider,
             )
         }
     }
