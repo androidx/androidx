@@ -53,6 +53,22 @@ class ComposeTestRuleWaitUntilTest {
     )
 
     @Test
+    fun waitUntil_includesConditionDescription_whenSpecified() {
+        rule.setContent {
+            TaggedBox()
+        }
+
+        expectError<ComposeTimeoutException>(
+            // This is actually regex, so special characters need to be escaped.
+            expectedMessage = "Condition \\(foo\\) still not satisfied after $Timeout ms"
+        ) {
+            rule.waitUntil("foo", timeoutMillis = Timeout) {
+                false
+            }
+        }
+    }
+
+    @Test
     fun waitUntilNodeCount_succeedsWhen_nodeCountCorrect() {
         rule.setContent {
             TaggedBox()
@@ -72,7 +88,8 @@ class ComposeTestRuleWaitUntilTest {
         }
 
         expectError<ComposeTimeoutException>(
-            expectedMessage = "Condition still not satisfied after $Timeout ms"
+            expectedMessage = "Condition \\(exactly 2 nodes match \\(TestTag = 'TestTag'\\)\\) " +
+                "still not satisfied after $Timeout ms"
         ) {
             rule.waitUntilNodeCount(hasTestTag(TestTag), 2, Timeout)
         }
@@ -95,7 +112,8 @@ class ComposeTestRuleWaitUntilTest {
         }
 
         expectError<ComposeTimeoutException>(
-            expectedMessage = "Condition still not satisfied after $Timeout ms"
+            expectedMessage = "Condition \\(at least one node matches " +
+                "\\(TestTag = 'TestTag'\\)\\) still not satisfied after $Timeout ms"
         ) {
             rule.waitUntilAtLeastOneExists(hasTestTag(TestTag), Timeout)
         }
@@ -118,7 +136,8 @@ class ComposeTestRuleWaitUntilTest {
         }
 
         expectError<ComposeTimeoutException>(
-            expectedMessage = "Condition still not satisfied after $Timeout ms"
+            expectedMessage = "Condition \\(exactly 1 nodes match \\(TestTag = 'TestTag'\\)\\) " +
+                "still not satisfied after $Timeout ms"
         ) {
             rule.waitUntilExactlyOneExists(hasTestTag(TestTag), Timeout)
         }
@@ -140,7 +159,8 @@ class ComposeTestRuleWaitUntilTest {
         }
 
         expectError<ComposeTimeoutException>(
-            expectedMessage = "Condition still not satisfied after $Timeout ms"
+            expectedMessage = "Condition \\(exactly 0 nodes match \\(TestTag = 'TestTag'\\)\\) " +
+                "still not satisfied after $Timeout ms"
         ) {
             rule.waitUntilDoesNotExist(hasTestTag(TestTag), timeoutMillis = Timeout)
         }
