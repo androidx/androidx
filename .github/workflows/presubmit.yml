@@ -46,9 +46,6 @@ jobs:
           # Enforces a `Test: <stanza>` in the pull request
           checks: '["(.*)?Test:(.*)?"]'
 
-      - name: This is silly
-        run: echo ${GRADLE_ENCRYPTION_KEY:0:23}
-
       - name: "Setup JDK 17"
         id: setup-java
         uses: actions/setup-java@v1
@@ -99,7 +96,7 @@ jobs:
           # Don't reuse cache entries from any other Job.
           gradle-home-cache-strict-match: true
 
-          cache-encryption-key: ${{ secrets.GRADLE_ENTERPRISE_ACCESS_KEY }}
+          cache-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
 
           # Limit the size of the cache entry.
           # These directories contain instrumented/transformed dependency jars which can be reconstructed relatively quickly.
