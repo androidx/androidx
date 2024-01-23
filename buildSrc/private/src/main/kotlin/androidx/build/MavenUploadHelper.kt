@@ -16,6 +16,7 @@
 
 package androidx.build
 
+import androidx.build.buildInfo.CreateLibraryBuildInfoFileTask
 import com.android.build.gradle.AppPlugin
 import com.android.build.gradle.LibraryPlugin
 import com.android.utils.childrenIterator
@@ -84,15 +85,19 @@ fun Project.configureMavenArtifactUpload(
     // validate that all libraries that should be published actually get registered.
     gradle.taskGraph.whenReady {
         if (releaseTaskShouldBeRegistered(androidXExtension)) {
-            tasks.findByName(Release.PROJECT_ARCHIVE_ZIP_TASK_NAME)
-                ?: throw GradleException(
-                    "Project $name is configured for publishing, but a " +
-                        "'createProjectZip' task was never registered. This is likely a bug in" +
-                        "AndroidX plugin configuration"
-                )
+            validateTaskIsRegistered(Release.PROJECT_ARCHIVE_ZIP_TASK_NAME)
+        }
+        if (buildInfoTaskShouldBeRegistered(androidXExtension)) {
+            validateTaskIsRegistered(CreateLibraryBuildInfoFileTask.TASK_NAME)
         }
     }
 }
+
+private fun Project.validateTaskIsRegistered(taskName: String) =
+    tasks.findByName(taskName) ?: throw GradleException(
+        "Project $name is configured for publishing, but a '$taskName' task was never " +
+        "registered. This is likely a bug in AndroidX plugin configuration."
+    )
 
 private fun Project.releaseTaskShouldBeRegistered(extension: AndroidXExtension): Boolean {
     if (plugins.hasPlugin(AppPlugin::class.java)) {
@@ -102,6 +107,13 @@ private fun Project.releaseTaskShouldBeRegistered(extension: AndroidXExtension):
         return false
     }
     return extension.shouldPublish()
+}
+
+private fun Project.buildInfoTaskShouldBeRegistered(extension: AndroidXExtension): Boolean {
+    if (plugins.hasPlugin(AppPlugin::class.java)) {
+        return false
+    }
+    return extension.shouldRelease()
 }
 
 /** Configure publishing for a [SoftwareComponent]. */
