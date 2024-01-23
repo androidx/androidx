@@ -51,19 +51,16 @@ public final class VisibilityConfig extends AbstractSafeParcelable {
     public static final Parcelable.Creator<VisibilityConfig> CREATOR =
             new VisibilityConfigCreator();
 
-    @Field(id = 1, getter = "isNotDisplayedBySystem")
-    private final boolean mIsNotDisplayedBySystem;
-
     @NonNull
-    @Field(id = 2)
+    @Field(id = 1)
     final List<PackageIdentifierParcel> mVisibleToPackages;
 
     @NonNull
-    @Field(id = 3)
+    @Field(id = 2)
     final List<VisibilityPermissionConfig> mVisibleToPermissions;
 
     @Nullable
-    @Field(id = 4)
+    @Field(id = 3)
     final PackageIdentifierParcel mPubliclyVisibleTargetPackage;
 
     @Nullable private Integer mHashCode;
@@ -72,19 +69,12 @@ public final class VisibilityConfig extends AbstractSafeParcelable {
 
     @Constructor
     VisibilityConfig(
-            @Param(id = 1) boolean isNotDisplayedBySystem,
-            @Param(id = 2) @NonNull List<PackageIdentifierParcel> visibleToPackages,
-            @Param(id = 3) @NonNull List<VisibilityPermissionConfig> visibleToPermissions,
-            @Param(id = 4) @Nullable PackageIdentifierParcel publiclyVisibleTargetPackage) {
-        mIsNotDisplayedBySystem = isNotDisplayedBySystem;
+            @Param(id = 1) @NonNull List<PackageIdentifierParcel> visibleToPackages,
+            @Param(id = 2) @NonNull List<VisibilityPermissionConfig> visibleToPermissions,
+            @Param(id = 3) @Nullable PackageIdentifierParcel publiclyVisibleTargetPackage) {
         mVisibleToPackages = Objects.requireNonNull(visibleToPackages);
         mVisibleToPermissions = Objects.requireNonNull(visibleToPermissions);
         mPubliclyVisibleTargetPackage = publiclyVisibleTargetPackage;
-    }
-
-    /** Returns whether this schema is visible to the system. */
-    public boolean isNotDisplayedBySystem() {
-        return mIsNotDisplayedBySystem;
     }
 
      /** Returns a list of {@link PackageIdentifier}s of packages that can access this schema. */
@@ -144,8 +134,7 @@ public final class VisibilityConfig extends AbstractSafeParcelable {
         if (this == o) return true;
         if (!(o instanceof VisibilityConfig)) return false;
         VisibilityConfig that = (VisibilityConfig) o;
-        return mIsNotDisplayedBySystem == that.mIsNotDisplayedBySystem
-                && Objects.equals(mVisibleToPackages, that.mVisibleToPackages)
+        return Objects.equals(mVisibleToPackages, that.mVisibleToPackages)
                 && Objects.equals(mVisibleToPermissions, that.mVisibleToPermissions)
                 && Objects.equals(
                         mPubliclyVisibleTargetPackage, that.mPubliclyVisibleTargetPackage);
@@ -155,7 +144,6 @@ public final class VisibilityConfig extends AbstractSafeParcelable {
     public int hashCode() {
         if (mHashCode == null) {
             mHashCode = Objects.hash(
-                    mIsNotDisplayedBySystem,
                     mVisibleToPackages,
                     mVisibleToPermissions,
                     mPubliclyVisibleTargetPackage);
@@ -166,7 +154,6 @@ public final class VisibilityConfig extends AbstractSafeParcelable {
     /** The builder class of {@link VisibilityConfig}. */
     @FlaggedApi(Flags.FLAG_ENABLE_SET_SCHEMA_VISIBLE_TO_CONFIGS)
     public static final class Builder {
-        private boolean mIsNotDisplayedBySystem;
         private List<PackageIdentifierParcel> mVisibleToPackages = new ArrayList<>();
         private List<VisibilityPermissionConfig> mVisibleToPermissions = new ArrayList<>();
         private PackageIdentifierParcel mPubliclyVisibleTargetPackage;
@@ -183,19 +170,9 @@ public final class VisibilityConfig extends AbstractSafeParcelable {
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public Builder(@NonNull VisibilityConfig visibilityConfig) {
             Objects.requireNonNull(visibilityConfig);
-            mIsNotDisplayedBySystem = visibilityConfig.mIsNotDisplayedBySystem;
             mVisibleToPackages = new ArrayList<>(visibilityConfig.mVisibleToPackages);
             mVisibleToPermissions = new ArrayList<>(visibilityConfig.mVisibleToPermissions);
             mPubliclyVisibleTargetPackage = visibilityConfig.mPubliclyVisibleTargetPackage;
-        }
-
-        /** Sets whether this schema has opted out of platform surfacing. */
-        @CanIgnoreReturnValue
-        @NonNull
-        public Builder setNotDisplayedBySystem(boolean notDisplayedBySystem) {
-            resetIfBuilt();
-            mIsNotDisplayedBySystem = notDisplayedBySystem;
-            return this;
         }
 
         /** Add {@link PackageIdentifier} of packages which has access to this schema. */
@@ -295,7 +272,6 @@ public final class VisibilityConfig extends AbstractSafeParcelable {
         public VisibilityConfig build() {
             mBuilt = true;
             return new VisibilityConfig(
-                    mIsNotDisplayedBySystem,
                     mVisibleToPackages,
                     mVisibleToPermissions,
                     mPubliclyVisibleTargetPackage);

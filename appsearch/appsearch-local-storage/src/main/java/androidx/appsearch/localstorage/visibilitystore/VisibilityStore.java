@@ -146,8 +146,7 @@ public class VisibilityStore {
                     VISIBILITY_PACKAGE_NAME,
                     VISIBILITY_DATABASE_NAME,
                     VisibilityToDocumentConverter.createVisibilityDocument(
-                            prefixedVisibilityConfig.getSchemaType(),
-                            prefixedVisibilityConfig.getVisibilityConfig()),
+                            prefixedVisibilityConfig),
                     /*sendChangeNotifications=*/ false,
                     /*logger=*/ null);
 
@@ -343,9 +342,7 @@ public class VisibilityStore {
             mAppSearchImpl.putDocument(
                     VISIBILITY_PACKAGE_NAME,
                     VISIBILITY_DATABASE_NAME,
-                    VisibilityToDocumentConverter.createVisibilityDocument(
-                            migratedConfig.getSchemaType(),
-                            migratedConfig.getVisibilityConfig()),
+                    VisibilityToDocumentConverter.createVisibilityDocument(migratedConfig),
                     /*sendChangeNotifications=*/ false,
                     /*logger=*/ null);
         }

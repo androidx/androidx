@@ -908,7 +908,7 @@ public final class AppSearchImpl implements Closeable {
                     InternalVisibilityConfig visibilityConfig =
                             mVisibilityStoreLocked.getVisibility(prefixedSchemaType);
                     if (visibilityConfig != null) {
-                        if (visibilityConfig.getVisibilityConfig().isNotDisplayedBySystem()) {
+                        if (visibilityConfig.isNotDisplayedBySystem()) {
                             responseBuilder.addSchemaTypeNotDisplayedBySystem(typeName);
                         }
                         List<PackageIdentifier> packageIdentifiers =

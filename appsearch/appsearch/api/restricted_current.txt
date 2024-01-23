@@ -797,7 +797,6 @@ package androidx.appsearch.app {
     method public androidx.appsearch.app.PackageIdentifier? getPubliclyVisibleTargetPackage();
     method public java.util.List<androidx.appsearch.app.PackageIdentifier!> getVisibleToPackages();
     method public java.util.Set<java.util.Set<java.lang.Integer!>!> getVisibleToPermissions();
-    method public boolean isNotDisplayedBySystem();
   }
 
   public static final class VisibilityConfig.Builder {
@@ -807,7 +806,6 @@ package androidx.appsearch.app {
     method public androidx.appsearch.app.VisibilityConfig build();
     method public androidx.appsearch.app.VisibilityConfig.Builder clearVisibleToPackages();
     method public androidx.appsearch.app.VisibilityConfig.Builder clearVisibleToPermissions();
-    method public androidx.appsearch.app.VisibilityConfig.Builder setNotDisplayedBySystem(boolean);
     method public androidx.appsearch.app.VisibilityConfig.Builder setPubliclyVisibleTargetPackage(androidx.appsearch.app.PackageIdentifier?);
   }
 

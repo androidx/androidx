@@ -134,9 +134,7 @@ public class VisibilityStoreMigrationFromV2Test {
                         ImmutableSet.of(SetSchemaRequest.READ_HOME_APP_SEARCH_DATA))
                 .build();
         GenericDocument visibilityDocumentV2 =
-                VisibilityToDocumentConverter.createVisibilityDocument(
-                        visibilityConfigV2.getSchemaType(),
-                        visibilityConfigV2.getVisibilityConfig());
+                VisibilityToDocumentConverter.createVisibilityDocument(visibilityConfigV2);
 
         // Set client schema into AppSearchImpl with empty VisibilityDocument since we need to
         // directly put old version of VisibilityDocument.
@@ -177,7 +175,7 @@ public class VisibilityStoreMigrationFromV2Test {
                                 /*typePropertyPaths=*/ Collections.emptyMap()),
                 /*androidVOverlayDocument=*/null);
 
-        assertThat(actualConfig.getVisibilityConfig().isNotDisplayedBySystem()).isTrue();
+        assertThat(actualConfig.isNotDisplayedBySystem()).isTrue();
         assertThat(actualConfig.getVisibilityConfig().getVisibleToPackages())
                 .containsExactly(packageIdentifierFoo, packageIdentifierBar);
         assertThat(actualConfig.getVisibilityConfig().getVisibleToPermissions())

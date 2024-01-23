@@ -193,6 +193,8 @@ public class VisibilityToDocumentConverter {
         // Handle visibleToConfigs
         String schemaType = visibilityDocument.getId();
         InternalVisibilityConfig.Builder builder = new InternalVisibilityConfig.Builder(schemaType)
+                .setNotDisplayedBySystem(visibilityDocument
+                        .getPropertyBoolean(NOT_DISPLAYED_BY_SYSTEM_PROPERTY))
                 .setVisibilityConfig(visibilityConfig);
         if (androidVOverlayProto != null) {
             List<VisibilityConfigProto> visibleToConfigProtoList =
@@ -226,9 +228,7 @@ public class VisibilityToDocumentConverter {
         Objects.requireNonNull(visibilityDocument);
 
         // Pre-V visibility settings come from visibilityDocument
-        VisibilityConfig.Builder builder = new VisibilityConfig.Builder()
-                .setNotDisplayedBySystem(
-                        visibilityDocument.getPropertyBoolean(NOT_DISPLAYED_BY_SYSTEM_PROPERTY));
+        VisibilityConfig.Builder builder = new VisibilityConfig.Builder();
 
         String[] visibleToPackageNames =
                 visibilityDocument.getPropertyStringArray(VISIBLE_TO_PACKAGE_IDENTIFIER_PROPERTY);
@@ -274,8 +274,7 @@ public class VisibilityToDocumentConverter {
     @NonNull
     private static VisibilityConfig convertVisibilityConfigFromProto(
             @NonNull VisibilityConfigProto proto) {
-        VisibilityConfig.Builder builder = new VisibilityConfig.Builder()
-                .setNotDisplayedBySystem(proto.getNotPlatformSurfaceable());
+        VisibilityConfig.Builder builder = new VisibilityConfig.Builder();
 
         List<PackageIdentifierProto> visibleToPackageProtoList = proto.getVisibleToPackagesList();
         for (int i = 0; i < visibleToPackageProtoList.size(); i++) {
@@ -304,8 +303,7 @@ public class VisibilityToDocumentConverter {
 
     private static VisibilityConfigProto convertVisibilityConfigToProto(
             @NonNull VisibilityConfig visibilityConfig) {
-        VisibilityConfigProto.Builder builder = VisibilityConfigProto.newBuilder()
-                .setNotPlatformSurfaceable(visibilityConfig.isNotDisplayedBySystem());
+        VisibilityConfigProto.Builder builder = VisibilityConfigProto.newBuilder();
 
         List<PackageIdentifier> visibleToPackages = visibilityConfig.getVisibleToPackages();
         for (int i = 0; i < visibleToPackages.size(); i++) {
@@ -334,20 +332,19 @@ public class VisibilityToDocumentConverter {
     /**
      * Returns the {@link GenericDocument} for the visibility schema.
      *
-     * @param documentId the id to use for the resulting document
      * @param config the configuration to populate into the document
      */
     @NonNull
     public static GenericDocument createVisibilityDocument(
-            @NonNull String documentId, @NonNull VisibilityConfig config) {
+            @NonNull InternalVisibilityConfig config) {
         GenericDocument.Builder<?> builder = new GenericDocument.Builder<>(
                 VISIBILITY_DOCUMENT_NAMESPACE,
-                documentId,
+                config.getSchemaType(), // We are using the prefixedSchemaType to be the id
                 VISIBILITY_DOCUMENT_SCHEMA_TYPE);
         builder.setPropertyBoolean(NOT_DISPLAYED_BY_SYSTEM_PROPERTY,
                 config.isNotDisplayedBySystem());
-
-        List<PackageIdentifier> visibleToPackages = config.getVisibleToPackages();
+        VisibilityConfig visibilityConfig = config.getVisibilityConfig();
+        List<PackageIdentifier> visibleToPackages = visibilityConfig.getVisibleToPackages();
         String[] visibleToPackageNames = new String[visibleToPackages.size()];
         byte[][] visibleToPackageSha256Certs = new byte[visibleToPackages.size()][32];
         for (int i = 0; i < visibleToPackages.size(); i++) {
@@ -359,7 +356,7 @@ public class VisibilityToDocumentConverter {
                 visibleToPackageSha256Certs);
 
         // Generate an array of GenericDocument for VisibilityPermissionConfig.
-        Set<Set<Integer>> visibleToPermissions = config.getVisibleToPermissions();
+        Set<Set<Integer>> visibleToPermissions = visibilityConfig.getVisibleToPermissions();
         if (!visibleToPermissions.isEmpty()) {
             GenericDocument[] permissionGenericDocs =
                     new GenericDocument[visibleToPermissions.size()];

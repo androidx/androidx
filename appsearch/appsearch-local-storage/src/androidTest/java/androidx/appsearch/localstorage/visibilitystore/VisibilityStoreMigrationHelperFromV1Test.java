@@ -142,7 +142,7 @@ public class VisibilityStoreMigrationHelperFromV1Test {
                                 /*typePropertyPaths=*/ Collections.emptyMap()),
                 /*androidVOverlayDocument=*/null);
 
-        assertThat(actualConfig.getVisibilityConfig().isNotDisplayedBySystem()).isTrue();
+        assertThat(actualConfig.isNotDisplayedBySystem()).isTrue();
         assertThat(actualConfig.getVisibilityConfig().getVisibleToPackages())
                 .containsExactly(packageIdentifierFoo, packageIdentifierBar);
         assertThat(actualConfig.getVisibilityConfig().getVisibleToPermissions())

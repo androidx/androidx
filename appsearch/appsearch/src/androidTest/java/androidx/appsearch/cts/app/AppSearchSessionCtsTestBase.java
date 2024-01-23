@@ -864,11 +864,9 @@ public abstract class AppSearchSessionCtsTestBase {
         PackageIdentifier pkg1 = new PackageIdentifier("package1", cert1);
         PackageIdentifier pkg2 = new PackageIdentifier("package2", cert2);
         VisibilityConfig config1 = new VisibilityConfig.Builder()
-                .setNotDisplayedBySystem(true)
                 .setPubliclyVisibleTargetPackage(pkg1)
                 .addVisibleToPermissions(ImmutableSet.of(1, 2)).build();
         VisibilityConfig config2 = new VisibilityConfig.Builder()
-                .setNotDisplayedBySystem(false)
                 .setPubliclyVisibleTargetPackage(pkg2)
                 .addVisibleToPermissions(ImmutableSet.of(3, 4)).build();
         SetSchemaRequest request = new SetSchemaRequest.Builder().addSchemas(AppSearchEmail.SCHEMA)
@@ -889,7 +887,6 @@ public abstract class AppSearchSessionCtsTestBase {
                 .isFeatureSupported(Features.SET_SCHEMA_REQUEST_ADD_SCHEMA_TYPE_VISIBLE_TO_CONFIG));
 
         VisibilityConfig config = new VisibilityConfig.Builder()
-                .setNotDisplayedBySystem(true)
                 .addVisibleToPermissions(ImmutableSet.of(1, 2)).build();
         SetSchemaRequest request = new SetSchemaRequest.Builder()
                 .addSchemas(new AppSearchSchema.Builder("Email").build())
