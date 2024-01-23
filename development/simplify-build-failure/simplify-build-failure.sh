@@ -135,6 +135,8 @@ while [ "$1" != "" ]; do
   fi
   if [ "$arg" == "--check-lines-in" ]; then
     subfilePath="$1"
+    # normalize path
+    subfilePath="$(realpath $subfilePath --relative-to=.)"
     shift
     continue
   fi
