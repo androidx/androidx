@@ -156,9 +156,10 @@ fun NavigationBar(
  * only be shown when this item is selected.
  * @param colors [NavigationBarItemColors] that will be used to resolve the colors used for this
  * item in different states. See [NavigationBarItemDefaults.colors].
- * @param interactionSource the [MutableInteractionSource] representing the stream of [Interaction]s
- * for this item. You can create and pass in your own `remember`ed instance to observe
- * [Interaction]s and customize the appearance / behavior of this item in different states.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this item. You can use this to change the item's appearance
+ * or preview the item in different states. Note that if `null` is provided, interactions will
+ * still happen internally.
  */
 @Composable
 fun RowScope.NavigationBarItem(
@@ -170,8 +171,10 @@ fun RowScope.NavigationBarItem(
     label: @Composable (() -> Unit)? = null,
     alwaysShowLabel: Boolean = true,
     colors: NavigationBarItemColors = NavigationBarItemDefaults.colors(),
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() }
+    interactionSource: MutableInteractionSource? = null
 ) {
+    @Suppress("NAME_SHADOWING")
+    val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
     val styledIcon = @Composable {
         val iconColor by colors.iconColor(selected = selected, enabled = enabled)
         // If there's a label, don't have a11y services repeat the icon description.

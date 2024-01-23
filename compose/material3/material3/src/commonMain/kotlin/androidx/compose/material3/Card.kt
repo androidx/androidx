@@ -123,10 +123,10 @@ fun Card(
  * [ColorScheme.surface], this controls the amount of primary color applied as an overlay. See also:
  * [Surface].
  * @param border the border to draw around the container of this card
- * @param interactionSource the [MutableInteractionSource] representing the stream of [Interaction]s
- * for this card. You can create and pass in your own `remember`ed instance to observe
- * [Interaction]s and customize the appearance / behavior of this card in different states.
- *
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this card. You can use this to change the card's appearance
+ * or preview the card in different states. Note that if `null` is provided, interactions will
+ * still happen internally.
  */
 @Composable
 fun Card(
@@ -137,9 +137,11 @@ fun Card(
     colors: CardColors = CardDefaults.cardColors(),
     elevation: CardElevation = CardDefaults.cardElevation(),
     border: BorderStroke? = null,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    interactionSource: MutableInteractionSource? = null,
     content: @Composable ColumnScope.() -> Unit
 ) {
+    @Suppress("NAME_SHADOWING")
+    val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
     Surface(
         onClick = onClick,
         modifier = modifier,
@@ -222,9 +224,10 @@ fun ElevatedCard(
  * This controls the size of the shadow below the card. Additionally, when the container color is
  * [ColorScheme.surface], this controls the amount of primary color applied as an overlay. See also:
  * [Surface].
- * @param interactionSource the [MutableInteractionSource] representing the stream of [Interaction]s
- * for this card. You can create and pass in your own `remember`ed instance to observe
- * [Interaction]s and customize the appearance / behavior of this card in different states.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this card. You can use this to change the card's appearance
+ * or preview the card in different states. Note that if `null` is provided, interactions will
+ * still happen internally.
  */
 @Composable
 fun ElevatedCard(
@@ -234,7 +237,7 @@ fun ElevatedCard(
     shape: Shape = CardDefaults.elevatedShape,
     colors: CardColors = CardDefaults.elevatedCardColors(),
     elevation: CardElevation = CardDefaults.elevatedCardElevation(),
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    interactionSource: MutableInteractionSource? = null,
     content: @Composable ColumnScope.() -> Unit
 ) = Card(
     onClick = onClick,
@@ -317,9 +320,10 @@ fun OutlinedCard(
  * [ColorScheme.surface], this controls the amount of primary color applied as an overlay. See also:
  * [Surface].
  * @param border the border to draw around the container of this card
- * @param interactionSource the [MutableInteractionSource] representing the stream of [Interaction]s
- * for this card. You can create and pass in your own `remember`ed instance to observe
- * [Interaction]s and customize the appearance / behavior of this card in different states.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this card. You can use this to change the card's appearance
+ * or preview the card in different states. Note that if `null` is provided, interactions will
+ * still happen internally.
  */
 @Composable
 fun OutlinedCard(
@@ -330,7 +334,7 @@ fun OutlinedCard(
     colors: CardColors = CardDefaults.outlinedCardColors(),
     elevation: CardElevation = CardDefaults.outlinedCardElevation(),
     border: BorderStroke = CardDefaults.outlinedCardBorder(enabled),
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    interactionSource: MutableInteractionSource? = null,
     content: @Composable ColumnScope.() -> Unit
 ) = Card(
     onClick = onClick,

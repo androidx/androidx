@@ -37,7 +37,6 @@ import androidx.compose.material3.tokens.PrimaryNavigationTabTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -82,9 +81,10 @@ import kotlin.math.max
  * @param selectedContentColor the color for the content of this tab when selected, and the color
  * of the ripple.
  * @param unselectedContentColor the color for the content of this tab when not selected
- * @param interactionSource the [MutableInteractionSource] representing the stream of [Interaction]s
- * for this tab. You can create and pass in your own `remember`ed instance to observe [Interaction]s
- * and customize the appearance / behavior of this tab in different states.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this tab. You can use this to change the tab's
+ * appearance or preview the tab in different states. Note that if `null` is provided,
+ * interactions will still happen internally.
  *
  * @see LeadingIconTab
  */
@@ -98,7 +98,7 @@ fun Tab(
     icon: @Composable (() -> Unit)? = null,
     selectedContentColor: Color = LocalContentColor.current,
     unselectedContentColor: Color = selectedContentColor,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() }
+    interactionSource: MutableInteractionSource? = null
 ) {
     val styledText: @Composable (() -> Unit)? = text?.let {
         @Composable {
@@ -144,9 +144,10 @@ fun Tab(
  * @param selectedContentColor the color for the content of this tab when selected, and the color
  * of the ripple.
  * @param unselectedContentColor the color for the content of this tab when not selected
- * @param interactionSource the [MutableInteractionSource] representing the stream of [Interaction]s
- * for this tab. You can create and pass in your own `remember`ed instance to observe [Interaction]s
- * and customize the appearance / behavior of this tab in different states.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this tab. You can use this to change the tab's
+ * appearance or preview the tab in different states. Note that if `null` is provided,
+ * interactions will still happen internally.
  *
  * @see Tab
  */
@@ -160,7 +161,7 @@ fun LeadingIconTab(
     enabled: Boolean = true,
     selectedContentColor: Color = LocalContentColor.current,
     unselectedContentColor: Color = selectedContentColor,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() }
+    interactionSource: MutableInteractionSource? = null
 ) {
     // The color of the Ripple should always the be selected color, as we want to show the color
     // before the item is considered selected, and hence before the new contentColor is
@@ -217,9 +218,10 @@ fun LeadingIconTab(
  * @param selectedContentColor the color for the content of this tab when selected, and the color
  * of the ripple.
  * @param unselectedContentColor the color for the content of this tab when not selected
- * @param interactionSource the [MutableInteractionSource] representing the stream of [Interaction]s
- * for this tab. You can create and pass in your own `remember`ed instance to observe [Interaction]s
- * and customize the appearance / behavior of this tab in different states.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this tab. You can use this to change the tab's
+ * appearance or preview the tab in different states. Note that if `null` is provided,
+ * interactions will still happen internally.
  * @param content the content of this tab
  */
 @Composable
@@ -230,7 +232,7 @@ fun Tab(
     enabled: Boolean = true,
     selectedContentColor: Color = LocalContentColor.current,
     unselectedContentColor: Color = selectedContentColor,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    interactionSource: MutableInteractionSource? = null,
     content: @Composable ColumnScope.() -> Unit
 ) {
     // The color of the Ripple should always the selected color, as we want to show the color
