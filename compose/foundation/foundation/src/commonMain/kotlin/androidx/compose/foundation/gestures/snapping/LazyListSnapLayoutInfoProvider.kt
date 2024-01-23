@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.gestures.snapping
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.lazy.LazyListLayoutInfo
@@ -37,7 +36,6 @@ import kotlin.math.absoluteValue
  *
  * @return A [SnapLayoutInfoProvider] that can be used with [SnapFlingBehavior]
  */
-@ExperimentalFoundationApi
 fun SnapLayoutInfoProvider(
     lazyListState: LazyListState,
     snapPosition: SnapPosition = SnapPosition.Center
@@ -89,7 +87,6 @@ fun SnapLayoutInfoProvider(
  * @param lazyListState The [LazyListState] from the LazyList where this [FlingBehavior] will
  * be used.
  */
-@ExperimentalFoundationApi
 @Composable
 fun rememberSnapFlingBehavior(lazyListState: LazyListState): FlingBehavior {
     val snappingLayout = remember(lazyListState) { SnapLayoutInfoProvider(lazyListState) }

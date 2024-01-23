@@ -619,25 +619,24 @@ package androidx.compose.foundation.gestures {
 package androidx.compose.foundation.gestures.snapping {
 
   public final class LazyGridSnapLayoutInfoProviderKt {
-    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.foundation.gestures.snapping.SnapLayoutInfoProvider SnapLayoutInfoProvider(androidx.compose.foundation.lazy.grid.LazyGridState lazyGridState, optional androidx.compose.foundation.gestures.snapping.SnapPosition snapPosition);
+    method public static androidx.compose.foundation.gestures.snapping.SnapLayoutInfoProvider SnapLayoutInfoProvider(androidx.compose.foundation.lazy.grid.LazyGridState lazyGridState, optional androidx.compose.foundation.gestures.snapping.SnapPosition snapPosition);
   }
 
   public final class LazyListSnapLayoutInfoProviderKt {
-    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.foundation.gestures.snapping.SnapLayoutInfoProvider SnapLayoutInfoProvider(androidx.compose.foundation.lazy.LazyListState lazyListState, optional androidx.compose.foundation.gestures.snapping.SnapPosition snapPosition);
-    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Composable public static androidx.compose.foundation.gestures.FlingBehavior rememberSnapFlingBehavior(androidx.compose.foundation.lazy.LazyListState lazyListState);
+    method public static androidx.compose.foundation.gestures.snapping.SnapLayoutInfoProvider SnapLayoutInfoProvider(androidx.compose.foundation.lazy.LazyListState lazyListState, optional androidx.compose.foundation.gestures.snapping.SnapPosition snapPosition);
+    method @androidx.compose.runtime.Composable public static androidx.compose.foundation.gestures.FlingBehavior rememberSnapFlingBehavior(androidx.compose.foundation.lazy.LazyListState lazyListState);
   }
 
-  @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public final class SnapFlingBehavior implements androidx.compose.foundation.gestures.TargetedFlingBehavior {
-    ctor @Deprecated public SnapFlingBehavior(androidx.compose.foundation.gestures.snapping.SnapLayoutInfoProvider snapLayoutInfoProvider, androidx.compose.animation.core.AnimationSpec<java.lang.Float> lowVelocityAnimationSpec, androidx.compose.animation.core.DecayAnimationSpec<java.lang.Float> highVelocityAnimationSpec, androidx.compose.animation.core.AnimationSpec<java.lang.Float> snapAnimationSpec);
+  public final class SnapFlingBehavior implements androidx.compose.foundation.gestures.TargetedFlingBehavior {
     ctor public SnapFlingBehavior(androidx.compose.foundation.gestures.snapping.SnapLayoutInfoProvider snapLayoutInfoProvider, androidx.compose.animation.core.DecayAnimationSpec<java.lang.Float> decayAnimationSpec, androidx.compose.animation.core.AnimationSpec<java.lang.Float> snapAnimationSpec);
     method public suspend Object? performFling(androidx.compose.foundation.gestures.ScrollScope, float initialVelocity, kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> onRemainingDistanceUpdated, kotlin.coroutines.Continuation<? super java.lang.Float>);
   }
 
   public final class SnapFlingBehaviorKt {
-    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Composable public static androidx.compose.foundation.gestures.TargetedFlingBehavior rememberSnapFlingBehavior(androidx.compose.foundation.gestures.snapping.SnapLayoutInfoProvider snapLayoutInfoProvider);
+    method @androidx.compose.runtime.Composable public static androidx.compose.foundation.gestures.TargetedFlingBehavior rememberSnapFlingBehavior(androidx.compose.foundation.gestures.snapping.SnapLayoutInfoProvider snapLayoutInfoProvider);
   }
 
-  @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public interface SnapLayoutInfoProvider {
+  public interface SnapLayoutInfoProvider {
     method public default float calculateApproachOffset(float initialVelocity);
     method public float calculateSnappingOffset(float currentVelocity);
   }
