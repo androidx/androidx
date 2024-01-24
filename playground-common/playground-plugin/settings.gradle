@@ -39,6 +39,10 @@ dependencyResolutionManagement {
     }
 }
 
+System.setProperty(
+        "CHECKOUT_ROOT",
+        buildscript.sourceFile.getParentFile().getParentFile().getParentFile().absolutePath
+)
 System.setProperty("ALLOW_PUBLIC_REPOS", "true")
 rootProject.name = "playground-plugin"
 includeBuild("../../buildSrc") {
