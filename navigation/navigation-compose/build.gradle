@@ -14,13 +14,6 @@
  * limitations under the License.
  */
 
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
 import androidx.build.Publish
 import androidx.build.RunApiTasks
 
@@ -35,7 +28,7 @@ dependencies {
 
     implementation(libs.kotlinStdlib)
     implementation(project(":compose:foundation:foundation-layout"))
-    api("androidx.activity:activity-compose:1.7.0")
+    api("androidx.activity:activity-compose:1.8.0")
     api(project(":compose:animation:animation"))
     api(project(":compose:runtime:runtime"))
     api(project(":compose:runtime:runtime-saveable"))

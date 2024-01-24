@@ -69,6 +69,16 @@ public class ComposeNavigator : Navigator<Destination>() {
     }
 
     /**
+     * Function to prepare the entry for transition.
+     *
+     * This should be called when the entry needs to move the [Lifecycle.State] in preparation for
+     * a transition such as when using predictive back.
+     */
+    public fun prepareForTransition(entry: NavBackStackEntry) {
+        state.prepareForTransition(entry)
+    }
+
+    /**
      * Callback to mark a navigation in transition as complete.
      *
      * This should be called in conjunction with [navigate] and [popBackStack] as those
