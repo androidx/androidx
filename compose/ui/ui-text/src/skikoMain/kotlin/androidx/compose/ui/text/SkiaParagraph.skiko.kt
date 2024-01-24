@@ -187,17 +187,10 @@ internal class SkiaParagraph(
 
     private fun lineMetricsForOffset(offset: Int): LineMetrics? {
         checkOffsetIsValid(offset)
-        val metrics = lineMetrics
-        if (metrics.isEmpty()) {
-            return null
-        }
 
-        val index = metrics.asList().binarySearch {
-            if (offset >= it.endIncludingNewline) -1 else 1
+        return lineMetrics.binarySearchFirstMatchingOrLast {
+            offset < it.endIncludingNewline
         }
-
-        // The search will always return a negative value because the comparison never returns 0
-        return metrics[(-index - 1).coerceAtMost(metrics.lastIndex)]
     }
 
     override fun getLineHeight(lineIndex: Int) =
@@ -239,7 +232,7 @@ internal class SkiaParagraph(
     }
 
     private fun getLineMetricsForVerticalPosition(vertical: Float): LineMetrics? {
-        return lineMetrics.firstOrNull { vertical < it.baseline + it.descent }
+        return lineMetrics.binarySearchFirstMatchingOrLast { vertical < it.baseline + it.descent }
     }
 
     override fun getHorizontalPosition(offset: Int, usePrimaryDirection: Boolean): Float {
@@ -613,3 +606,23 @@ private fun LineMetrics.copy(
 )
 
 private fun IRange.toTextRange() = TextRange(start, end)
+
+/**
+ * Returns the first item satisfying [predicate], or the last item in the array if none satisfy it.
+ *
+ * Returns `null` if the array is empty.
+ */
+private inline fun <T> Array<out T>.binarySearchFirstMatchingOrLast(
+    crossinline predicate: (T) -> Boolean): T?
+{
+    if (this.isEmpty()) {
+        return null
+    }
+
+    val index = this.asList().binarySearch {
+        if (predicate(it)) 1 else -1
+    }
+
+    // The search will always return a negative value because the comparison never returns 0
+    return this[(-index - 1).coerceAtMost(this.lastIndex)]
+}
