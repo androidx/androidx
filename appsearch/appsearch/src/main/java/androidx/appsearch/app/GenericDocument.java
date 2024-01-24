@@ -1466,6 +1466,12 @@ public class GenericDocument {
          *
          * <p>Note that this method does not support property paths.
          *
+         * <p>You should check for the existence of the property in {@link #getPropertyNames} if
+         * you need to make sure the property being cleared actually exists.
+         *
+         * <p>If the string passed is an invalid or nonexistent property, no error message or
+         * behavior will be observed.
+         *
          * @param name The name of the property to clear.
          */
         @FlaggedApi(Flags.FLAG_ENABLE_GENERIC_DOCUMENT_BUILDER_HIDDEN_METHODS)
