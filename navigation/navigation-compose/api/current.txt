@@ -6,6 +6,7 @@ package androidx.navigation.compose {
     method public androidx.navigation.compose.ComposeNavigator.Destination createDestination();
     method public kotlinx.coroutines.flow.StateFlow<java.util.List<androidx.navigation.NavBackStackEntry>> getBackStack();
     method public void onTransitionComplete(androidx.navigation.NavBackStackEntry entry);
+    method public void prepareForTransition(androidx.navigation.NavBackStackEntry entry);
     property public final kotlinx.coroutines.flow.StateFlow<java.util.List<androidx.navigation.NavBackStackEntry>> backStack;
   }
 
