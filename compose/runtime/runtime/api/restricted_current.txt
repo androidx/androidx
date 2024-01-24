@@ -904,6 +904,7 @@ package androidx.compose.runtime.snapshots {
     method public androidx.compose.runtime.snapshots.Snapshot getCurrent();
     method public inline <T> T global(kotlin.jvm.functions.Function0<? extends T> block);
     method public boolean isApplyObserverNotificationPending();
+    method @kotlin.PublishedApi internal androidx.compose.runtime.snapshots.Snapshot makeCurrentNonObservable(androidx.compose.runtime.snapshots.Snapshot? previous);
     method public void notifyObjectsInitialized();
     method public <T> T observe(optional kotlin.jvm.functions.Function1<java.lang.Object,kotlin.Unit>? readObserver, optional kotlin.jvm.functions.Function1<java.lang.Object,kotlin.Unit>? writeObserver, kotlin.jvm.functions.Function0<? extends T> block);
     method @SuppressCompatibility @androidx.compose.runtime.InternalComposeApi public int openSnapshotCount();
@@ -911,12 +912,14 @@ package androidx.compose.runtime.snapshots {
     method public androidx.compose.runtime.snapshots.ObserverHandle registerGlobalWriteObserver(kotlin.jvm.functions.Function1<java.lang.Object,kotlin.Unit> observer);
     method @kotlin.PublishedApi internal androidx.compose.runtime.snapshots.Snapshot? removeCurrent();
     method @kotlin.PublishedApi internal void restoreCurrent(androidx.compose.runtime.snapshots.Snapshot? previous);
+    method @kotlin.PublishedApi internal void restoreNonObservable(androidx.compose.runtime.snapshots.Snapshot? previous, androidx.compose.runtime.snapshots.Snapshot nonObservable, kotlin.jvm.functions.Function1<java.lang.Object,kotlin.Unit>? observer);
     method public void sendApplyNotifications();
     method public androidx.compose.runtime.snapshots.MutableSnapshot takeMutableSnapshot(optional kotlin.jvm.functions.Function1<java.lang.Object,kotlin.Unit>? readObserver, optional kotlin.jvm.functions.Function1<java.lang.Object,kotlin.Unit>? writeObserver);
     method public androidx.compose.runtime.snapshots.Snapshot takeSnapshot(optional kotlin.jvm.functions.Function1<java.lang.Object,kotlin.Unit>? readObserver);
     method public inline <R> R withMutableSnapshot(kotlin.jvm.functions.Function0<? extends R> block);
     method public inline <T> T withoutReadObservation(kotlin.jvm.functions.Function0<? extends T> block);
     property public final androidx.compose.runtime.snapshots.Snapshot current;
+    property @kotlin.PublishedApi internal final androidx.compose.runtime.snapshots.Snapshot? currentThreadSnapshot;
     property public final boolean isApplyObserverNotificationPending;
   }
 
