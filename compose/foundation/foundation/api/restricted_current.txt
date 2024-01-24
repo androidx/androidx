@@ -1134,6 +1134,7 @@ package androidx.compose.foundation.lazy.layout {
 
   public static sealed interface LazyLayoutPrefetchState.PrefetchHandle {
     method public void cancel();
+    method public void markAsUrgent();
   }
 
   public final class Lazy_androidKt {
@@ -1158,8 +1159,7 @@ package androidx.compose.foundation.lazy.layout {
   }
 
   @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public interface PrefetchRequestScope {
-    method public long getAvailableTimeNanos();
-    property public abstract long availableTimeNanos;
+    method public long availableTimeNanos();
   }
 
   @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public interface PrefetchScheduler {

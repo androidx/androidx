@@ -30,9 +30,11 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.lazy.layout.PrefetchScheduler
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -131,13 +133,21 @@ open class BasePagerTest(private val config: ParamConfig) :
         key: ((index: Int) -> Any)? = null,
         snapPosition: SnapPosition = config.snapPosition.first,
         flingBehavior: TargetedFlingBehavior? = null,
+        prefetchScheduler: PrefetchScheduler? = null,
         pageContent: @Composable PagerScope.(page: Int) -> Unit = { Page(index = it) }
     ) {
 
         rule.setContent {
-            val state = rememberPagerState(initialPage, initialPageOffsetFraction, pageCount).also {
-                pagerState = it
+            val state = if (prefetchScheduler == null) {
+                rememberPagerState(initialPage, initialPageOffsetFraction, pageCount)
+            } else {
+                remember {
+                    object : PagerState(initialPage, initialPageOffsetFraction, prefetchScheduler) {
+                        override val pageCount: Int get() = pageCount()
+                    }
+                }
             }
+            pagerState = state
             composeView = LocalView.current
             focusManager = LocalFocusManager.current
             CompositionLocalProvider(
