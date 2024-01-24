@@ -127,7 +127,7 @@ private class TooltipTestCase(
     }
 
     @Composable
-    private fun RichTooltipTest() {
+    private fun CaretScope.RichTooltipTest() {
         RichTooltip(
             title = { Text("Subhead") },
             action = {

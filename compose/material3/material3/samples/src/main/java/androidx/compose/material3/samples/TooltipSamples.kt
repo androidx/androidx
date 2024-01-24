@@ -24,6 +24,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material3.CaretProperties
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -130,6 +131,32 @@ fun PlainTooltipWithCaret() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Sampled
 @Composable
+fun PlainTooltipWithCustomCaret() {
+    TooltipBox(
+        positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+        tooltip = {
+            PlainTooltip(
+                caretProperties = CaretProperties(12.dp, 24.dp)
+            ) {
+                Text("Add to favorites")
+            }
+        },
+        state = rememberTooltipState()
+    ) {
+        IconButton(
+            onClick = { /* Icon button's click event */ }
+        ) {
+            Icon(
+                imageVector = Icons.Filled.Favorite,
+                contentDescription = "Localized Description"
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Sampled
+@Composable
 fun RichTooltipSample() {
     val tooltipState = rememberTooltipState(isPersistent = true)
     val scope = rememberCoroutineScope()
@@ -197,6 +224,74 @@ fun RichTooltipWithManualInvocationSample() {
             onClick = { scope.launch { tooltipState.show() } }
         ) {
             Text("Display tooltip")
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Sampled
+@Composable
+fun RichTooltipWithCaretSample() {
+    val tooltipState = rememberTooltipState(isPersistent = true)
+    val scope = rememberCoroutineScope()
+    TooltipBox(
+        positionProvider = TooltipDefaults.rememberRichTooltipPositionProvider(),
+        tooltip = {
+            RichTooltip(
+                title = { Text(richTooltipSubheadText) },
+                action = {
+                    TextButton(
+                        onClick = { scope.launch { tooltipState.dismiss() } }
+                    ) { Text(richTooltipActionText) }
+                },
+                caretProperties = TooltipDefaults.caretProperties
+            ) {
+                Text(richTooltipText)
+            }
+        },
+        state = tooltipState
+    ) {
+        IconButton(
+            onClick = { /* Icon button's click event */ }
+        ) {
+            Icon(
+                imageVector = Icons.Filled.Info,
+                contentDescription = "Localized Description"
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Sampled
+@Composable
+fun RichTooltipWithCustomCaretSample() {
+    val tooltipState = rememberTooltipState(isPersistent = true)
+    val scope = rememberCoroutineScope()
+    TooltipBox(
+        positionProvider = TooltipDefaults.rememberRichTooltipPositionProvider(),
+        tooltip = {
+            RichTooltip(
+                title = { Text(richTooltipSubheadText) },
+                action = {
+                    TextButton(
+                        onClick = { scope.launch { tooltipState.dismiss() } }
+                    ) { Text(richTooltipActionText) }
+                },
+                caretProperties = CaretProperties(16.dp, 32.dp)
+            ) {
+                Text(richTooltipText)
+            }
+        },
+        state = tooltipState
+    ) {
+        IconButton(
+            onClick = { /* Icon button's click event */ }
+        ) {
+            Icon(
+                imageVector = Icons.Filled.Info,
+                contentDescription = "Localized Description"
+            )
         }
     }
 }
