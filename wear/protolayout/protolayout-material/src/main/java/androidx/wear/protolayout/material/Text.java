@@ -93,7 +93,9 @@ public class Text implements LayoutElement {
 
         @NonNull
         @OptIn(markerClass = ProtoLayoutExperimental.class)
-        @SuppressWarnings("deprecation")
+        @SuppressWarnings(
+                "deprecation") // Default value from initial release is TEXT_OVERFLOW_ELLIPSIZE_END
+        // so we can't change it as it would be a breaking change for developers.
         private final LayoutElementBuilders.Text.Builder mElementBuilder =
                 new LayoutElementBuilders.Text.Builder()
                         .setMaxLines(1)
