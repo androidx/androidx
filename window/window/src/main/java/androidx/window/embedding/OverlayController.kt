@@ -101,7 +101,7 @@ class OverlayController @VisibleForTesting internal constructor(
      * calculator function applies to the overlay [ActivityStack] specified by [overlayTag].
      *
      * In most cases it is suggested to use
-     * [ActivityEmbeddingController.invalidateTopVisibleActivityStacks] if a calculator has been set
+     * [ActivityEmbeddingController.invalidateVisibleActivityStacks] if a calculator has been set
      * through [OverlayController.setOverlayAttributesCalculator].
      *
      * @param overlayTag The overlay [ActivityStack]'s tag
