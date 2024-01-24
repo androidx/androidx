@@ -165,7 +165,7 @@ public final class GetSchemaResponse extends AbstractSafeParcelable {
         if (mSchemasNotDisplayedBySystemCached == null) {
             Set<String> copy = new ArraySet<>();
             for (int i = 0; i < visibilityConfigs.size(); i++) {
-                if (visibilityConfigs.get(i).getVisibilityConfig().isNotDisplayedBySystem()) {
+                if (visibilityConfigs.get(i).isNotDisplayedBySystem()) {
                     copy.add(visibilityConfigs.get(i).getSchemaType());
                 }
             }

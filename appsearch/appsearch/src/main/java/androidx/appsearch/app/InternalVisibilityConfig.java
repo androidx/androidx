@@ -110,21 +110,26 @@ public final class InternalVisibilityConfig extends AbstractSafeParcelable {
     @Field(id = 1, getter = "getSchemaType")
     private final String mSchemaType;
 
+    @Field(id = 2, getter = "isNotDisplayedBySystem")
+    private final boolean mIsNotDisplayedBySystem;
+
     /** The public visibility settings available in VisibilityConfig. */
     @NonNull
-    @Field(id = 2, getter = "getVisibilityConfig")
+    @Field(id = 3, getter = "getVisibilityConfig")
     private final VisibilityConfig mVisibilityConfig;
 
     /** Extended visibility settings from {@link SetSchemaRequest#getSchemasVisibleToConfigs()} */
     @NonNull
-    @Field(id = 3)
+    @Field(id = 4)
     final List<VisibilityConfig> mVisibleToConfigs;
 
     @Constructor
     InternalVisibilityConfig(
             @Param(id = 1) @NonNull String schemaType,
-            @Param(id = 2) @NonNull VisibilityConfig visibilityConfig,
-            @Param(id = 3) @NonNull List<VisibilityConfig> visibleToConfigs) {
+            @Param(id = 2) boolean isNotDisplayedBySystem,
+            @Param(id = 3) @NonNull VisibilityConfig visibilityConfig,
+            @Param(id = 4) @NonNull List<VisibilityConfig> visibleToConfigs) {
+        mIsNotDisplayedBySystem = isNotDisplayedBySystem;
         mSchemaType = Objects.requireNonNull(schemaType);
         mVisibilityConfig = Objects.requireNonNull(visibilityConfig);
         mVisibleToConfigs = Objects.requireNonNull(visibleToConfigs);
@@ -139,6 +144,11 @@ public final class InternalVisibilityConfig extends AbstractSafeParcelable {
     @NonNull
     public String getSchemaType() {
         return mSchemaType;
+    }
+
+    /** Returns whether this schema is visible to the system. */
+    public boolean isNotDisplayedBySystem() {
+        return mIsNotDisplayedBySystem;
     }
 
     /** Returns the visibility settings stored in the public {@link VisibilityConfig} object. */
@@ -166,20 +176,23 @@ public final class InternalVisibilityConfig extends AbstractSafeParcelable {
         if (this == o) return true;
         if (!(o instanceof InternalVisibilityConfig)) return false;
         InternalVisibilityConfig that = (InternalVisibilityConfig) o;
-        return Objects.equals(mSchemaType, that.mSchemaType)
+        return mIsNotDisplayedBySystem == that.mIsNotDisplayedBySystem
+                && Objects.equals(mSchemaType, that.mSchemaType)
                 && Objects.equals(mVisibilityConfig, that.mVisibilityConfig)
                 && Objects.equals(mVisibleToConfigs, that.mVisibleToConfigs);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(mSchemaType, mVisibilityConfig, mVisibleToConfigs);
+        return Objects.hash(mIsNotDisplayedBySystem, mSchemaType, mVisibilityConfig,
+                mVisibleToConfigs);
     }
 
     /** The builder class of {@link InternalVisibilityConfig}. */
     @FlaggedApi(Flags.FLAG_ENABLE_SET_SCHEMA_VISIBLE_TO_CONFIGS)
     public static final class Builder {
         private String mSchemaType;
+        private boolean mIsNotDisplayedBySystem;
         private VisibilityConfig.Builder mVisibilityConfigBuilder;
         private List<VisibilityConfig> mVisibleToConfigs = new ArrayList<>();
         private boolean mBuilt;
@@ -203,6 +216,7 @@ public final class InternalVisibilityConfig extends AbstractSafeParcelable {
         public Builder(@NonNull InternalVisibilityConfig internalVisibilityConfig) {
             Objects.requireNonNull(internalVisibilityConfig);
             mSchemaType = internalVisibilityConfig.mSchemaType;
+            mIsNotDisplayedBySystem = internalVisibilityConfig.mIsNotDisplayedBySystem;
             mVisibilityConfigBuilder = new VisibilityConfig.Builder(
                     internalVisibilityConfig.getVisibilityConfig());
             mVisibleToConfigs = internalVisibilityConfig.mVisibleToConfigs;
@@ -231,14 +245,12 @@ public final class InternalVisibilityConfig extends AbstractSafeParcelable {
 
         /**
          * Sets whether this schema has opted out of platform surfacing.
-         *
-         * @see VisibilityConfig.Builder#setNotDisplayedBySystem
          */
         @CanIgnoreReturnValue
         @NonNull
         public Builder setNotDisplayedBySystem(boolean notDisplayedBySystem) {
             resetIfBuilt();
-            mVisibilityConfigBuilder.setNotDisplayedBySystem(notDisplayedBySystem);
+            mIsNotDisplayedBySystem = notDisplayedBySystem;
             return this;
         }
 
@@ -350,7 +362,10 @@ public final class InternalVisibilityConfig extends AbstractSafeParcelable {
         public InternalVisibilityConfig build() {
             mBuilt = true;
             return new InternalVisibilityConfig(
-                    mSchemaType, mVisibilityConfigBuilder.build(), mVisibleToConfigs);
+                    mSchemaType,
+                    mIsNotDisplayedBySystem,
+                    mVisibilityConfigBuilder.build(),
+                    mVisibleToConfigs);
         }
     }
 }

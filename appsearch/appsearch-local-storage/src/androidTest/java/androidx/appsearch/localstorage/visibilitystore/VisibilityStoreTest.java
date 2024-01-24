@@ -146,8 +146,7 @@ public class VisibilityStoreTest {
                 new GenericDocument.Builder<>(actualDocument).setCreationTimestampMillis(0).build();
 
         assertThat(actualDocument).isEqualTo(
-                VisibilityToDocumentConverter.createVisibilityDocument(
-                        visibilityConfig.getSchemaType(), visibilityConfig.getVisibilityConfig()));
+                VisibilityToDocumentConverter.createVisibilityDocument(visibilityConfig));
     }
 
     @Test
@@ -223,7 +222,6 @@ public class VisibilityStoreTest {
     public void testSetGetAndRemoveOverlayVisibility() throws Exception {
         String prefix = PrefixUtil.createPrefix("packageName", "databaseName");
         VisibilityConfig nestedvisibilityConfig = new VisibilityConfig.Builder()
-                .setNotDisplayedBySystem(true)
                 .addVisibleToPackage(new PackageIdentifier("pkgBar", new byte[32]))
                 .addVisibleToPermissions(ImmutableSet.of(1, 2))
                 .build();
@@ -347,8 +345,8 @@ public class VisibilityStoreTest {
         // Set a visibility config with visible to config.
         InternalVisibilityConfig visibilityConfig = new InternalVisibilityConfig.Builder("Email")
                 .setNotDisplayedBySystem(true)
-                .addVisibleToConfig(
-                        new VisibilityConfig.Builder().setNotDisplayedBySystem(true).build())
+                .addVisibleToConfig(new VisibilityConfig.Builder()
+                        .addVisibleToPermissions(ImmutableSet.of(1)).build())
                 .build();
         mVisibilityStore.setVisibility(ImmutableList.of(visibilityConfig));
 
