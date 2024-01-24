@@ -46,6 +46,8 @@ import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.SemanticsNodeInteractionsProvider
 import androidx.compose.ui.test.assertIsFocused
@@ -218,6 +220,96 @@ class BasicTextLinkTest {
 
         rule.runOnIdle {
             assertThat(openedUri).isEqualTo(Url2)
+        }
+    }
+
+    @Test
+    fun rtlText_onClick_insideFirstLink_opensFirstUrl() {
+        setupContent { RtlTextWithLinks() }
+
+        rule.runOnIdle { assertThat(layoutResult).isNotNull() }
+        rule.onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.Text)).performTouchInput {
+            val boundingBox = layoutResult!!.getBoundingBox(3)
+            click(boundingBox.center)
+        }
+
+        rule.runOnIdle {
+            assertThat(openedUri).isEqualTo(Url1)
+        }
+    }
+
+    @Test
+    fun rtlText_onClick_insideSecondLink_opensSecondUrl() {
+        setupContent { RtlTextWithLinks() }
+
+        rule.runOnIdle { assertThat(layoutResult).isNotNull() }
+        rule.onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.Text)).performTouchInput {
+            val boundingBox = layoutResult!!.getBoundingBox(30)
+            click(boundingBox.center)
+        }
+
+        rule.runOnIdle {
+            assertThat(openedUri).isEqualTo(Url2)
+        }
+    }
+
+    @Test
+    fun rtlText_onClick_outsideLink_doNothing() {
+        setupContent { RtlTextWithLinks() }
+
+        rule.runOnIdle { assertThat(layoutResult).isNotNull() }
+        rule.onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.Text)).performTouchInput {
+            val boundingBox = layoutResult!!.getBoundingBox(35)
+            click(boundingBox.center)
+        }
+
+        rule.runOnIdle {
+            assertThat(openedUri).isEqualTo(null)
+        }
+    }
+
+    @Test
+    fun rtlText_onClick_inBetweenLinks_doNothing() {
+        setupContent { RtlTextWithLinks() }
+
+        rule.runOnIdle { assertThat(layoutResult).isNotNull() }
+        rule.onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.Text)).performTouchInput {
+            val boundingBox = layoutResult!!.getBoundingBox(20)
+            click(boundingBox.center)
+        }
+
+        rule.runOnIdle {
+            assertThat(openedUri).isEqualTo(null)
+        }
+    }
+
+    @Test
+    fun bidiText_onClick_insideLink_opensUrl() {
+        setupContent { BidiTextWithLinks() }
+
+        rule.runOnIdle { assertThat(layoutResult).isNotNull() }
+        rule.onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.Text)).performTouchInput {
+            val boundingBox = layoutResult!!.getBoundingBox(8)
+            click(boundingBox.center)
+        }
+
+        rule.runOnIdle {
+            assertThat(openedUri).isEqualTo(Url1)
+        }
+    }
+
+    @Test
+    fun bidiText_onClick_outsideLink_doNothing() {
+        setupContent { BidiTextWithLinks() }
+
+        rule.runOnIdle { assertThat(layoutResult).isNotNull() }
+        rule.onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.Text)).performTouchInput {
+            val boundingBox = layoutResult!!.getBoundingBox(2)
+            click(boundingBox.center)
+        }
+
+        rule.runOnIdle {
+            assertThat(openedUri).isEqualTo(null)
         }
     }
 
@@ -438,6 +530,29 @@ class BasicTextLinkTest {
                     .focusTarget()
             )
         }
+    }
+
+    @Composable
+    private fun BidiTextWithLinks() {
+        val text = buildAnnotatedString {
+            append("\u05D0\u05D1 \u05D2\u05D3")
+            withAnnotation(Url(Url1)) { append(" text ") }
+            append("\u05D0\u05D1 \u05D2\u05D3 \u05D0\u05D1 \u05D2\u05D3")
+        }
+        BasicText(text, onTextLayout = { layoutResult = it })
+    }
+
+    @Composable
+    private fun RtlTextWithLinks() {
+        val text = buildAnnotatedString {
+            withAnnotation(Url(Url1)) { append("\u05D0\u05D1 \u05D2\u05D3 \u05D0\u05D1") }
+            append(" \u05D0\u05D1 \u05D2\u05D3 \u05D0\u05D1 \u05D0\u05D1 \u05D2\u05D3")
+            withAnnotation(Url(Url2)) {
+                append(" \u05D0\u05D1 \u05D2\u05D3 \u05D0\u05D1")
+            }
+            append("\u05D0\u05D1 \u05D2\u05D3")
+        }
+        BasicText(text, onTextLayout = { layoutResult = it })
     }
 
     @OptIn(ExperimentalComposeUiApi::class)
