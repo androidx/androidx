@@ -19,16 +19,13 @@ import android.content.Context
 import android.os.HandlerThread
 import android.os.Looper
 import android.os.Process
-import androidx.annotation.RestrictTo
 import androidx.health.platform.client.impl.ipc.internal.ConnectionManager
 import javax.annotation.concurrent.GuardedBy
 
 /** Utility to return an instance of connection manager. */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-object ProviderConnectionManager {
+internal object ProviderConnectionManager {
     @GuardedBy("this") private var instance: ConnectionManager? = null
 
-    @SuppressWarnings("RestrictedApi")
     fun getInstance(context: Context): ConnectionManager {
         synchronized(this) {
             if (instance == null) {
