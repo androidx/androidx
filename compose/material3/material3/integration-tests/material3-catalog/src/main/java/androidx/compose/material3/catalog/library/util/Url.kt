@@ -26,6 +26,7 @@ fun Context.openUrl(url: String) {
 }
 
 const val GuidelinesUrl = "https://m3.material.io"
+const val AdaptiveGuidelinesUrl = "https://m3.material.io/foundations/layout"
 const val ComponentGuidelinesUrl = "https://m3.material.io/components"
 const val StyleGuidelinesUrl = "https://m3.material.io/styles"
 const val ReleasesUrl = "https://developer.android.com/jetpack/androidx/releases/compose-material3"
@@ -40,6 +41,12 @@ const val Material3SourceUrl = "https://cs.android.com/androidx/platform/framewo
 const val SampleSourceUrl = "https://cs.android.com/androidx/platform/frameworks/support/+/" +
     "androidx-main:compose/material3/" +
     "material3/samples/src/main/java/androidx/compose/material3/samples"
+const val AdaptiveSourceUrl = "https://cs.android.com/androidx/platform/" +
+    "frameworks/support/+/androidx-main:compose/material3/material3-adaptive/" +
+    "src/commonMain/kotlin/androidx/compose/material3/adaptive"
+const val AdaptiveSampleSourceUrl = "https://cs.android.com/androidx/platform/frameworks/" +
+    "support/+/androidx-main:compose/material3/material3-adaptive/" +
+    "samples/src/main/java/androidx/compose/material3/samples"
 const val AdaptiveNavigationSuiteMaterial3SourceUrl = "https://cs.android.com/androidx/platform/" +
     "frameworks/support/+/androidx-main:compose/material3/material3-adaptive-navigation-suite/" +
     "src/commonMain/kotlin/androidx/compose/material3/adaptive/navigation-suite"
