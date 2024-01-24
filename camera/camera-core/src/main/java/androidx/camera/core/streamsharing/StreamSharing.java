@@ -25,6 +25,7 @@ import static androidx.camera.core.impl.ImageOutputConfig.OPTION_MIRROR_MODE;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_CAPTURE_TYPE;
 import static androidx.camera.core.impl.utils.Threads.checkMainThread;
 import static androidx.camera.core.impl.utils.TransformUtils.getRotatedSize;
+import static androidx.camera.core.impl.utils.TransformUtils.sizeToRect;
 import static androidx.core.util.Preconditions.checkNotNull;
 
 import static java.util.Collections.singletonList;
@@ -321,15 +322,16 @@ public class StreamSharing extends UseCase {
         // Transform the camera edge to get the input edge.
         mEffectNode = new SurfaceProcessorNode(camera,
                 getEffect().createSurfaceProcessorInternal());
-        // Effect does not apply rotation.
         int rotationAppliedByEffect = getRotationAppliedByEffect();
+        Rect cropRectAppliedByEffect = getCropRectAppliedByEffect(cameraEdge);
         SurfaceProcessorNode.OutConfig outConfig = SurfaceProcessorNode.OutConfig.of(
                 cameraEdge.getTargets(),
                 cameraEdge.getFormat(),
-                cameraEdge.getCropRect(),
-                getRotatedSize(cameraEdge.getCropRect(), rotationAppliedByEffect),
+                cropRectAppliedByEffect,
+                getRotatedSize(cropRectAppliedByEffect, rotationAppliedByEffect),
                 rotationAppliedByEffect,
-                /*mirroring=*/false); // Effects does not mirror.
+                getMirroringAppliedByEffect(),
+                /*shouldRespectInputCropRect=*/true);
         SurfaceProcessorNode.In in = SurfaceProcessorNode.In.of(cameraEdge,
                 singletonList(outConfig));
         SurfaceProcessorNode.Out out = mEffectNode.transform(in);
@@ -345,6 +347,34 @@ public class StreamSharing extends UseCase {
         } else {
             // By default, the effect node does not apply any rotation.
             return 0;
+        }
+    }
+
+    private boolean getMirroringAppliedByEffect() {
+        CameraEffect effect = checkNotNull(getEffect());
+        if (effect.getTransformation() == CameraEffect.TRANSFORMATION_CAMERA_AND_SURFACE_ROTATION) {
+            // TODO: handle this option in VideoCapture.
+            // For a Surface that connects to the front camera directly, the texture
+            // transformation contains mirroring bit which will be applied by libraries using the
+            // TRANSFORMATION_CAMERA_AND_SURFACE_ROTATION option.
+            CameraInternal camera = checkNotNull(getCamera());
+            return camera.isFrontFacing() && camera.getHasTransform();
+        } else {
+            // By default, the effect node does not apply any mirroring.
+            return false;
+        }
+    }
+
+    private Rect getCropRectAppliedByEffect(SurfaceEdge cameraEdge) {
+        CameraEffect effect = checkNotNull(getEffect());
+        if (effect.getTransformation() == CameraEffect.TRANSFORMATION_CAMERA_AND_SURFACE_ROTATION) {
+            // TODO: handle this option in VideoCapture.
+            // Do not apply the crop rect if the effect is configured to do so.
+            Size parentSize = cameraEdge.getStreamSpec().getResolution();
+            return sizeToRect(parentSize);
+        } else {
+            // By default, the effect node does not apply any crop rect.
+            return cameraEdge.getCropRect();
         }
     }
 
