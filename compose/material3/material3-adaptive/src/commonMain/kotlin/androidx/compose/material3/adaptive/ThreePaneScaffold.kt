@@ -699,7 +699,7 @@ private fun Modifier.clipToBounds(adaptedValue: PaneAdaptedValue): Modifier =
  *
  * See usage samples at:
  * @sample androidx.compose.material3.adaptive.samples.ListDetailPaneScaffoldSample
- * @sample androidx.compose.material3.adaptive.samples.ListDetailExtraPaneScaffoldSample
+ * @sample androidx.compose.material3.adaptive.samples.ListDetailPaneScaffoldSampleWithExtraPane
  */
 @ExperimentalMaterial3AdaptiveApi
 @Composable
