@@ -27,7 +27,7 @@ import androidx.compose.animation.rememberSplineBasedDecay
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.ScrollScope
+import androidx.compose.foundation.gestures.TargetedFlingBehavior
 import androidx.compose.foundation.gestures.snapping.SnapFlingBehavior
 import androidx.compose.foundation.gestures.snapping.SnapLayoutInfoProvider
 import androidx.compose.foundation.gestures.snapping.SnapPosition
@@ -86,7 +86,7 @@ import kotlinx.coroutines.launch
  * the direction of the scroll during scroll events.
  * @param pageSpacing The amount of space to be used to separate the pages in this Pager
  * @param verticalAlignment How pages are aligned vertically in this Pager.
- * @param flingBehavior The [FlingBehavior] to be used for post scroll gestures.
+ * @param flingBehavior The [TargetedFlingBehavior] to be used for post scroll gestures.
  * @param userScrollEnabled whether the scrolling via the user gestures or accessibility actions
  * is allowed. You can still scroll programmatically using [PagerState.scroll] even when it is
  * disabled.
@@ -114,7 +114,7 @@ fun HorizontalPager(
     outOfBoundsPageCount: Int = PagerDefaults.OutOfBoundsPageCount,
     pageSpacing: Dp = 0.dp,
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
-    flingBehavior: SnapFlingBehavior = PagerDefaults.flingBehavior(state = state),
+    flingBehavior: TargetedFlingBehavior = PagerDefaults.flingBehavior(state = state),
     userScrollEnabled: Boolean = true,
     reverseLayout: Boolean = false,
     key: ((index: Int) -> Any)? = null,
@@ -173,7 +173,7 @@ fun HorizontalPager(
  *  * the direction of the scroll during scroll events.
  * @param pageSpacing The amount of space to be used to separate the pages in this Pager
  * @param horizontalAlignment How pages are aligned horizontally in this Pager.
- * @param flingBehavior The [FlingBehavior] to be used for post scroll gestures.
+ * @param flingBehavior The [TargetedFlingBehavior] to be used for post scroll gestures.
  * @param userScrollEnabled whether the scrolling via the user gestures or accessibility actions
  * is allowed. You can still scroll programmatically using [PagerState.scroll] even when it is
  * disabled.
@@ -201,7 +201,7 @@ fun VerticalPager(
     outOfBoundsPageCount: Int = PagerDefaults.OutOfBoundsPageCount,
     pageSpacing: Dp = 0.dp,
     horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
-    flingBehavior: SnapFlingBehavior = PagerDefaults.flingBehavior(state = state),
+    flingBehavior: TargetedFlingBehavior = PagerDefaults.flingBehavior(state = state),
     userScrollEnabled: Boolean = true,
     reverseLayout: Boolean = false,
     key: ((index: Int) -> Any)? = null,
@@ -298,7 +298,7 @@ object PagerDefaults {
         decayAnimationSpec: DecayAnimationSpec<Float> = rememberSplineBasedDecay(),
         snapAnimationSpec: AnimationSpec<Float> = spring(stiffness = Spring.StiffnessMediumLow),
         @FloatRange(from = 0.0, to = 1.0) snapPositionalThreshold: Float = 0.5f
-    ): SnapFlingBehavior {
+    ): TargetedFlingBehavior {
         require(snapPositionalThreshold in 0f..1f) {
             "snapPositionalThreshold should be a number between 0 and 1. " +
                 "You've specified $snapPositionalThreshold"
@@ -459,20 +459,6 @@ internal fun SnapPosition.currentPageOffset(
     )
 
     return (snapOffset - currentPageOffsetFraction * (pageSize + spaceBetweenPages)).roundToInt()
-}
-
-@OptIn(ExperimentalFoundationApi::class)
-internal class PagerWrapperFlingBehavior(
-    val originalFlingBehavior: SnapFlingBehavior,
-    val pagerState: PagerState
-) : FlingBehavior {
-    override suspend fun ScrollScope.performFling(initialVelocity: Float): Float {
-        return with(originalFlingBehavior) {
-            performFling(initialVelocity) { remainingScrollOffset ->
-                pagerState.snapRemainingScrollOffset = remainingScrollOffset
-            }
-        }
-    }
 }
 
 @OptIn(ExperimentalFoundationApi::class)

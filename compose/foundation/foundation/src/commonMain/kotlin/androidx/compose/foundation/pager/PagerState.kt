@@ -37,7 +37,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.neverEqualPolicy
@@ -173,8 +172,6 @@ abstract class PagerState(
      * Difference between the last up and last down events of a scroll event.
      */
     internal var upDownDifference: Offset by mutableStateOf(Offset.Zero)
-    internal var snapRemainingScrollOffset by mutableFloatStateOf(0f)
-
     private val animatedScrollScope = PagerLazyAnimateScrollScope(this)
 
     private var isScrollingForward: Boolean by mutableStateOf(false)
@@ -401,7 +398,7 @@ abstract class PagerState(
             this.currentPage
         } else if (programmaticScrollTargetPage != -1) {
             programmaticScrollTargetPage
-        } else if (snapRemainingScrollOffset == 0.0f) {
+        } else {
             // act on scroll only
             if (abs(this.currentPageOffsetFraction) >= abs(positionThresholdFraction)) {
                 if (isScrollingForward) {
@@ -412,10 +409,6 @@ abstract class PagerState(
             } else {
                 this.currentPage
             }
-        } else {
-            // act on flinging
-            val pageDisplacement = snapRemainingScrollOffset / pageSizeWithSpacing
-            (this.currentPage + pageDisplacement.roundToInt())
         }
         finalPage.coerceInPageRange()
     }
