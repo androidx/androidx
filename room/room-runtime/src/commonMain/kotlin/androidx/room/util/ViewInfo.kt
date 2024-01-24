@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,9 @@
 package androidx.room.util
 
 import androidx.annotation.RestrictTo
-import androidx.room.driver.SupportSQLiteConnection
 import androidx.sqlite.SQLiteConnection
-import androidx.sqlite.db.SupportSQLiteDatabase
+import kotlin.jvm.JvmField
+import kotlin.jvm.JvmStatic
 
 /**
  * A data class that holds the information about a view.
@@ -28,38 +28,28 @@ import androidx.sqlite.db.SupportSQLiteDatabase
  * Even though SQLite column names are case insensitive, this class uses case sensitive matching.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-actual class ViewInfo actual constructor(
+expect class ViewInfo(
+    name: String,
+    sql: String?
+) {
     /**
      * The view name
      */
     @JvmField
-    actual val name: String,
+    val name: String
     /**
      * The SQL of CREATE VIEW.
      */
     @JvmField
-    actual val sql: String?
-) {
-    actual override fun equals(other: Any?) = equalsCommon(other)
+    val sql: String?
 
-    actual override fun hashCode() = hashCodeCommon()
+    override fun equals(other: Any?): Boolean
 
-    actual override fun toString() = toStringCommon()
+    override fun hashCode(): Int
 
-    actual companion object {
-        /**
-         * Reads the view information from the given database.
-         *
-         * @param database The database to read the information from.
-         * @param viewName The view name.
-         * @return A ViewInfo containing the schema information for the provided view name.
-         */
-        @Deprecated("No longer used by generated code.")
-        @JvmStatic
-        fun read(database: SupportSQLiteDatabase, viewName: String): ViewInfo {
-            return read(SupportSQLiteConnection(database), viewName)
-        }
+    override fun toString(): String
 
+    companion object {
         /**
          * Reads the view information from the given database.
          *
@@ -68,8 +58,22 @@ actual class ViewInfo actual constructor(
          * @return A ViewInfo containing the schema information for the provided view name.
          */
         @JvmStatic
-        actual fun read(connection: SQLiteConnection, viewName: String): ViewInfo {
-            return readViewInfo(connection, viewName)
-        }
+        fun read(connection: SQLiteConnection, viewName: String): ViewInfo
     }
+}
+
+internal fun ViewInfo.equalsCommon(other: Any?): Boolean {
+    if (this === other) return true
+    if (other !is ViewInfo) return false
+    return ((name == other.name) && if (sql != null) sql == other.sql else other.sql == null)
+}
+
+internal fun ViewInfo.hashCodeCommon(): Int {
+    var result = name.hashCode()
+    result = 31 * result + (sql?.hashCode() ?: 0)
+    return result
+}
+
+internal fun ViewInfo.toStringCommon(): String {
+    return "ViewInfo{name='$name', sql='$sql'}"
 }

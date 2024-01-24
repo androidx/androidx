@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 The Android Open Source Project
+ * Copyright (C) 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,13 +15,10 @@
  */
 package androidx.room.util
 
-import android.os.Build
 import androidx.annotation.IntDef
 import androidx.annotation.RestrictTo
 import androidx.room.ColumnInfo.SQLiteTypeAffinity
-import androidx.room.driver.SupportSQLiteConnection
 import androidx.sqlite.SQLiteConnection
-import androidx.sqlite.db.SupportSQLiteDatabase
 
 /**
  * A data class that holds the information about a table.
@@ -37,13 +34,9 @@ actual class TableInfo actual constructor(
     /**
      * The table name.
      */
-    @JvmField
     actual val name: String,
-    @JvmField
     actual val columns: Map<String, Column>,
-    @JvmField
     actual val foreignKeys: Set<ForeignKey>,
-    @JvmField
     actual val indices: Set<Index>?
 ) {
     /**
@@ -52,16 +45,6 @@ actual class TableInfo actual constructor(
     @Retention(AnnotationRetention.SOURCE)
     @IntDef(value = [CREATED_FROM_UNKNOWN, CREATED_FROM_ENTITY, CREATED_FROM_DATABASE])
     internal annotation class CreatedFrom()
-
-    /**
-     * For backward compatibility with dbs created with older versions.
-     */
-    @Deprecated("No longer used by generated code.")
-    constructor(
-        name: String,
-        columns: Map<String, Column>,
-        foreignKeys: Set<ForeignKey>
-    ) : this(name, columns, foreignKeys, emptySet<Index>())
 
     actual override fun equals(other: Any?) = equalsCommon(other)
 
@@ -90,24 +73,10 @@ actual class TableInfo actual constructor(
         /**
          * Reads the table information from the given database.
          *
-         * @param database  The database to read the information from.
-         * @param tableName The table name.
-         * @return A TableInfo containing the schema information for the provided table name.
-         */
-        @Deprecated("No longer used by generated code.")
-        @JvmStatic
-        fun read(database: SupportSQLiteDatabase, tableName: String): TableInfo {
-            return read(SupportSQLiteConnection(database), tableName)
-        }
-
-        /**
-         * Reads the table information from the given database.
-         *
          * @param connection The database connection to read the information from.
          * @param tableName The table name.
          * @return A TableInfo containing the schema information for the provided table name.
          */
-        @JvmStatic
         actual fun read(connection: SQLiteConnection, tableName: String): TableInfo {
             return readTableInfo(connection, tableName)
         }
@@ -121,24 +90,18 @@ actual class TableInfo actual constructor(
         /**
          * The column name.
          */
-        @JvmField
         actual val name: String,
         /**
          * The column type affinity.
          */
-        @JvmField
         actual val type: String,
         /**
          * Whether or not the column can be NULL.
          */
-        @JvmField
         actual val notNull: Boolean,
-        @JvmField
         actual val primaryKeyPosition: Int,
-        @JvmField
         actual val defaultValue: String?,
         @CreatedFrom
-        @JvmField
         actual val createdFrom: Int
     ) {
         /**
@@ -148,7 +111,6 @@ actual class TableInfo actual constructor(
          * This is the value Room uses for equality check.
          */
         @SQLiteTypeAffinity
-        @JvmField
         actual val affinity: Int = findAffinity(type)
 
         /**
@@ -158,22 +120,6 @@ actual class TableInfo actual constructor(
          */
         actual val isPrimaryKey: Boolean
             get() = primaryKeyPosition > 0
-
-        @Deprecated("No longer used by generated code.")
-        constructor(name: String, type: String, notNull: Boolean, primaryKeyPosition: Int) : this(
-            name,
-            type,
-            notNull,
-            primaryKeyPosition,
-            null,
-            CREATED_FROM_UNKNOWN
-        )
-
-        companion object {
-            @JvmStatic
-            fun defaultValueEquals(current: String, other: String?) =
-                defaultValueEqualsCommon(current, other)
-        }
 
         actual override fun equals(other: Any?) = equalsCommon(other)
 
@@ -187,15 +133,10 @@ actual class TableInfo actual constructor(
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     actual class ForeignKey actual constructor(
-        @JvmField
         actual val referenceTable: String,
-        @JvmField
         actual val onDelete: String,
-        @JvmField
         actual val onUpdate: String,
-        @JvmField
         actual val columnNames: List<String>,
-        @JvmField
         actual val referenceColumnNames: List<String>
     ) {
         actual override fun equals(other: Any?) = equalsCommon(other)
@@ -210,13 +151,9 @@ actual class TableInfo actual constructor(
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     actual class Index actual constructor(
-        @JvmField
         actual val name: String,
-        @JvmField
         actual val unique: Boolean,
-        @JvmField
         actual val columns: List<String>,
-        @JvmField
         actual var orders: List<String>
     ) {
         init {
@@ -230,14 +167,6 @@ actual class TableInfo actual constructor(
             actual const val DEFAULT_PREFIX = "index_"
         }
 
-        @Deprecated("No longer used by generated code.")
-        constructor(name: String, unique: Boolean, columns: List<String>) : this(
-            name,
-            unique,
-            columns,
-            List<String>(columns.size) { androidx.room.Index.Order.ASC.name }
-        )
-
         actual override fun equals(other: Any?) = equalsCommon(other)
 
         actual override fun hashCode() = hashCodeCommon()
@@ -250,10 +179,5 @@ actual class TableInfo actual constructor(
  * Checks if the primary key match.
  */
 internal actual fun TableInfo.Column.equalsInPrimaryKey(other: TableInfo.Column): Boolean {
-    if (Build.VERSION.SDK_INT >= 20) {
-        if (primaryKeyPosition != other.primaryKeyPosition) return false
-    } else {
-        if (isPrimaryKey != other.isPrimaryKey) return false
-    }
-    return true
+    return isPrimaryKey == other.isPrimaryKey
 }

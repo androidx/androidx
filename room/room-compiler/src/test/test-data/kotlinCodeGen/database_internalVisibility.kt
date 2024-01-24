@@ -9,7 +9,6 @@ import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.execSQL
 import java.util.HashMap
-import java.util.HashSet
 import javax.`annotation`.processing.Generated
 import kotlin.Any
 import kotlin.Lazy
@@ -63,12 +62,11 @@ internal class MyDatabase_Impl : MyDatabase() {
 
       public override fun onValidateSchema(connection: SQLiteConnection):
           RoomOpenDelegate.ValidationResult {
-        val _columnsMyEntity: HashMap<String, TableInfo.Column> =
-            HashMap<String, TableInfo.Column>(1)
+        val _columnsMyEntity: MutableMap<String, TableInfo.Column> = mutableMapOf()
         _columnsMyEntity.put("pk", TableInfo.Column("pk", "INTEGER", true, 1, null,
             TableInfo.CREATED_FROM_ENTITY))
-        val _foreignKeysMyEntity: HashSet<TableInfo.ForeignKey> = HashSet<TableInfo.ForeignKey>(0)
-        val _indicesMyEntity: HashSet<TableInfo.Index> = HashSet<TableInfo.Index>(0)
+        val _foreignKeysMyEntity: MutableSet<TableInfo.ForeignKey> = mutableSetOf()
+        val _indicesMyEntity: MutableSet<TableInfo.Index> = mutableSetOf()
         val _infoMyEntity: TableInfo = TableInfo("MyEntity", _columnsMyEntity, _foreignKeysMyEntity,
             _indicesMyEntity)
         val _existingMyEntity: TableInfo = read(connection, "MyEntity")

@@ -76,13 +76,11 @@ public class MyDatabase_Impl : MyDatabase() {
 
       public override fun onValidateSchema(connection: SQLiteConnection):
           RoomOpenDelegate.ValidationResult {
-        val _columnsMyParentEntity: HashMap<String, TableInfo.Column> =
-            HashMap<String, TableInfo.Column>(1)
+        val _columnsMyParentEntity: MutableMap<String, TableInfo.Column> = mutableMapOf()
         _columnsMyParentEntity.put("parentKey", TableInfo.Column("parentKey", "INTEGER", true, 1,
             null, TableInfo.CREATED_FROM_ENTITY))
-        val _foreignKeysMyParentEntity: HashSet<TableInfo.ForeignKey> =
-            HashSet<TableInfo.ForeignKey>(0)
-        val _indicesMyParentEntity: HashSet<TableInfo.Index> = HashSet<TableInfo.Index>(0)
+        val _foreignKeysMyParentEntity: MutableSet<TableInfo.ForeignKey> = mutableSetOf()
+        val _indicesMyParentEntity: MutableSet<TableInfo.Index> = mutableSetOf()
         val _infoMyParentEntity: TableInfo = TableInfo("MyParentEntity", _columnsMyParentEntity,
             _foreignKeysMyParentEntity, _indicesMyParentEntity)
         val _existingMyParentEntity: TableInfo = tableInfoRead(connection, "MyParentEntity")
@@ -95,16 +93,15 @@ public class MyDatabase_Impl : MyDatabase() {
               | Found:
               |""".trimMargin() + _existingMyParentEntity)
         }
-        val _columnsMyEntity: HashMap<String, TableInfo.Column> =
-            HashMap<String, TableInfo.Column>(2)
+        val _columnsMyEntity: MutableMap<String, TableInfo.Column> = mutableMapOf()
         _columnsMyEntity.put("pk", TableInfo.Column("pk", "INTEGER", true, 1, null,
             TableInfo.CREATED_FROM_ENTITY))
         _columnsMyEntity.put("indexedCol", TableInfo.Column("indexedCol", "TEXT", true, 0, null,
             TableInfo.CREATED_FROM_ENTITY))
-        val _foreignKeysMyEntity: HashSet<TableInfo.ForeignKey> = HashSet<TableInfo.ForeignKey>(1)
+        val _foreignKeysMyEntity: MutableSet<TableInfo.ForeignKey> = mutableSetOf()
         _foreignKeysMyEntity.add(TableInfo.ForeignKey("MyParentEntity", "CASCADE", "NO ACTION",
             listOf("indexedCol"), listOf("parentKey")))
-        val _indicesMyEntity: HashSet<TableInfo.Index> = HashSet<TableInfo.Index>(1)
+        val _indicesMyEntity: MutableSet<TableInfo.Index> = mutableSetOf()
         _indicesMyEntity.add(TableInfo.Index("index_MyEntity_indexedCol", false,
             listOf("indexedCol"), listOf("ASC")))
         val _infoMyEntity: TableInfo = TableInfo("MyEntity", _columnsMyEntity, _foreignKeysMyEntity,
@@ -119,7 +116,7 @@ public class MyDatabase_Impl : MyDatabase() {
               | Found:
               |""".trimMargin() + _existingMyEntity)
         }
-        val _columnsMyFtsEntity: HashSet<String> = HashSet<String>(2)
+        val _columnsMyFtsEntity: MutableSet<String> = mutableSetOf()
         _columnsMyFtsEntity.add("text")
         val _infoMyFtsEntity: FtsTableInfo = FtsTableInfo("MyFtsEntity", _columnsMyFtsEntity,
             "CREATE VIRTUAL TABLE IF NOT EXISTS `MyFtsEntity` USING FTS4(`text` TEXT NOT NULL)")
