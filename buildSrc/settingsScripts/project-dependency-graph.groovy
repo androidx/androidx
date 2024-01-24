@@ -35,6 +35,12 @@ class ProjectDependencyGraph {
      * A map of project path to a set of project paths referenced directly by this project.
      */
     private Map<String, Set<String>> projectReferences = new HashMap<String, Set<String>>()
+
+    /**
+     * A map of project path to a set of project paths that directly depend on the key project.
+     */
+    private Map<String, Set<String>> projectConsumers = new HashMap<String, Set<String>>()
+
     /**
      * A map of all project paths to their project directory.
      */
@@ -63,6 +69,31 @@ class ProjectDependencyGraph {
         allProjects[projectPath] = projectDir
         Set<String> parsedDependencies = extractReferencesFromBuildFile(projectPath, projectDir)
         projectReferences[projectPath] = parsedDependencies
+        parsedDependencies.forEach { dependency ->
+            def reverseLookupSet = projectConsumers[dependency] ?: new HashSet<String>()
+            reverseLookupSet.add(projectPath)
+            projectConsumers[dependency] = reverseLookupSet
+        }
+    }
+
+    /**
+     * Returns a set of project path that includes the given `projectPath` as well as any other project
+     * that directly or indirectly depends on `projectPath`
+     */
+    Set<String> findAllProjectsDependingOn(String projectPath) {
+        Set<String> result = new HashSet<String>()
+        ArrayDeque<String> toBeTraversed = new ArrayDeque<String>()
+        toBeTraversed.add(projectPath)
+        while (toBeTraversed.size() > 0) {
+            def path = toBeTraversed.removeFirst()
+            if (result.add(path)) {
+                def dependants = projectConsumers[path]
+                if (dependants != null) {
+                    toBeTraversed.addAll(dependants)
+                }
+            }
+        }
+        return result
     }
 
     /**
