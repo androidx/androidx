@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,7 +40,7 @@ import org.junit.runners.Parameterized
 @LargeTest
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
-class TimeInputScreenshotTest(private val scheme: ColorSchemeWrapper) {
+class TimePickerScreenshotTest(private val scheme: ColorSchemeWrapper) {
 
     @get:Rule
     val rule = createComposeRule()
@@ -49,10 +49,10 @@ class TimeInputScreenshotTest(private val scheme: ColorSchemeWrapper) {
     val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_MATERIAL3)
 
     @Test
-    fun timeInput_12h_hourFocused() {
+    fun timePicker_12h() {
         rule.setMaterialContent(scheme.colorScheme) {
             Box(Modifier.testTag(TestTag)) {
-                TimeInput(
+                TimePicker(
                     state = rememberTimePickerState(
                         initialHour = 10,
                         initialMinute = 23,
@@ -62,15 +62,15 @@ class TimeInputScreenshotTest(private val scheme: ColorSchemeWrapper) {
             }
         }
 
-        rule.assertAgainstGolden("timeInput_12h_hourFocused_${scheme.name}")
+        rule.assertAgainstGolden("timePicker_12h_${scheme.name}")
     }
 
     @Test
-    fun timeInput_12h_hourFocused_rtl() {
+    fun timePicker_12h_rtl() {
         rule.setMaterialContent(scheme.colorScheme) {
             Box(Modifier.testTag(TestTag)) {
                 CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
-                    TimeInput(
+                    TimePicker(
                         state = rememberTimePickerState(
                             initialHour = 10,
                             initialMinute = 23,
@@ -81,14 +81,14 @@ class TimeInputScreenshotTest(private val scheme: ColorSchemeWrapper) {
             }
         }
 
-        rule.assertAgainstGolden("timeInput_12h_hourFocused_rtl_${scheme.name}")
+        rule.assertAgainstGolden("timePicker_12h_rtl_${scheme.name}")
     }
 
     @Test
-    fun timeInput_24h_hourFocused() {
+    fun timePicker_24h() {
         rule.setMaterialContent(scheme.colorScheme) {
             Box(Modifier.testTag(TestTag)) {
-                TimeInput(
+                TimePicker(
                     state = rememberTimePickerState(
                         initialHour = 22,
                         initialMinute = 23,
@@ -98,15 +98,15 @@ class TimeInputScreenshotTest(private val scheme: ColorSchemeWrapper) {
             }
         }
 
-        rule.assertAgainstGolden("timeInput_24h_hourFocused_${scheme.name}")
+        rule.assertAgainstGolden("timePicker_24h_${scheme.name}")
     }
 
     @Test
-    fun timeInput_24h_hourFocused_rtl() {
+    fun timePicker_24h_rtl() {
         rule.setMaterialContent(scheme.colorScheme) {
             Box(Modifier.testTag(TestTag)) {
                 CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
-                    TimeInput(
+                    TimePicker(
                         state = rememberTimePickerState(
                             initialHour = 22,
                             initialMinute = 23,
@@ -117,7 +117,7 @@ class TimeInputScreenshotTest(private val scheme: ColorSchemeWrapper) {
             }
         }
 
-        rule.assertAgainstGolden("timeInput_24h_hourFocused_rtl_${scheme.name}")
+        rule.assertAgainstGolden("timePicker_24h_rtl_${scheme.name}")
     }
 
     private fun ComposeContentTestRule.assertAgainstGolden(goldenName: String) {

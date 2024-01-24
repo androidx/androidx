@@ -135,6 +135,7 @@ import androidx.compose.ui.node.requireDensity
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.InspectorValueInfo
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
@@ -157,6 +158,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.center
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastFilter
@@ -822,7 +824,6 @@ private fun TimeInputImpl(
     var minuteValue by rememberSaveable(stateSaver = TextFieldValue.Saver) {
         mutableStateOf(TextFieldValue(text = state.minute.toLocalString(minDigits = 2)))
     }
-
     Row(
         modifier = modifier.padding(bottom = TimeInputBottomPadding),
         verticalAlignment = Alignment.Top
@@ -833,74 +834,88 @@ private fun TimeInputImpl(
                 color = colors.timeSelectorContentColor(true)
             )
 
-        CompositionLocalProvider(LocalTextStyle provides textStyle) {
+        CompositionLocalProvider(
+            LocalTextStyle provides textStyle,
+            // Always display the time input text field from left to right.
+            LocalLayoutDirection provides LayoutDirection.Ltr
+        ) {
+            Row {
+                TimePickerTextField(
+                    modifier = Modifier
+                        .onKeyEvent { event ->
+                            // Zero == 48, Nine == 57
+                            val switchFocus = event.utf16CodePoint in 48..57 &&
+                                hourValue.selection.start == 2 && hourValue.text.length == 2
 
-            TimePickerTextField(
-                modifier = Modifier
-                    .onKeyEvent { event ->
-                        // Zero == 48, Nine == 57
-                        val switchFocus = event.utf16CodePoint in 48..57 &&
-                            hourValue.selection.start == 2 && hourValue.text.length == 2
+                            if (switchFocus) {
+                                state.selection = Selection.Minute
+                            }
 
-                        if (switchFocus) {
-                            state.selection = Selection.Minute
-                        }
-
-                        false
+                            false
+                        },
+                    value = hourValue,
+                    onValueChange = { newValue ->
+                        timeInputOnChange(
+                            selection = Selection.Hour,
+                            state = state,
+                            value = newValue,
+                            prevValue = hourValue,
+                            max = if (state.is24hour) 23 else 12,
+                        ) { hourValue = it }
                     },
-                value = hourValue,
-                onValueChange = { newValue ->
-                    timeInputOnChange(
-                        selection = Selection.Hour,
-                        state = state,
-                        value = newValue,
-                        prevValue = hourValue,
-                        max = if (state.is24hour) 23 else 12,
-                    ) { hourValue = it }
-                },
-                state = state,
-                selection = Selection.Hour,
-                keyboardOptions = KeyboardOptions(
-                    imeAction = ImeAction.Next,
-                    keyboardType = KeyboardType.Number
-                ),
-                keyboardActions = KeyboardActions(onNext = { state.selection = Selection.Minute }),
-                colors = colors,
-            )
-            DisplaySeparator(Modifier.size(DisplaySeparatorWidth, PeriodSelectorContainerHeight))
-            TimePickerTextField(
-                modifier = Modifier
-                    .onPreviewKeyEvent { event ->
-                        // 0 == KEYCODE_DEL
-                        val switchFocus = event.utf16CodePoint == 0 &&
-                            minuteValue.selection.start == 0
+                    state = state,
+                    selection = Selection.Hour,
+                    keyboardOptions = KeyboardOptions(
+                        imeAction = ImeAction.Next,
+                        keyboardType = KeyboardType.Number
+                    ),
+                    keyboardActions = KeyboardActions(onNext = {
+                        state.selection = Selection.Minute
+                    }),
+                    colors = colors,
+                )
+                DisplaySeparator(
+                    Modifier.size(
+                        DisplaySeparatorWidth,
+                        PeriodSelectorContainerHeight
+                    )
+                )
+                TimePickerTextField(
+                    modifier = Modifier
+                        .onPreviewKeyEvent { event ->
+                            // 0 == KEYCODE_DEL
+                            val switchFocus = event.utf16CodePoint == 0 &&
+                                minuteValue.selection.start == 0
 
-                        if (switchFocus) {
-                            state.selection = Selection.Hour
-                        }
+                            if (switchFocus) {
+                                state.selection = Selection.Hour
+                            }
 
-                        switchFocus
+                            switchFocus
+                        },
+
+                    value = minuteValue,
+                    onValueChange = { newValue ->
+                        timeInputOnChange(
+                            selection = Selection.Minute,
+                            state = state,
+                            value = newValue,
+                            prevValue = minuteValue,
+                            max = 59,
+                        ) { minuteValue = it }
                     },
-
-                value = minuteValue,
-                onValueChange = { newValue ->
-                    timeInputOnChange(
-                        selection = Selection.Minute,
-                        state = state,
-                        value = newValue,
-                        prevValue = minuteValue,
-                        max = 59,
-                    ) { minuteValue = it }
-                },
-                state = state,
-                selection = Selection.Minute,
-                keyboardOptions = KeyboardOptions(
-                    imeAction = ImeAction.Done,
-                    keyboardType = KeyboardType.Number
-                ),
-                keyboardActions = KeyboardActions(onNext = { state.selection = Selection.Minute }),
-                colors = colors,
-            )
+                    state = state,
+                    selection = Selection.Minute,
+                    keyboardOptions = KeyboardOptions(
+                        imeAction = ImeAction.Done,
+                        keyboardType = KeyboardType.Number
+                    ),
+                    keyboardActions = KeyboardActions(onNext = {
+                        state.selection = Selection.Minute
+                    }),
+                    colors = colors,
+                )
+            }
         }
 
         if (!state.is24hour) {
@@ -962,7 +977,9 @@ private fun ClockDisplayNumbers(
     colors: TimePickerColors
 ) {
     CompositionLocalProvider(
-        LocalTextStyle provides MaterialTheme.typography.fromToken(TimeSelectorLabelTextFont)
+        LocalTextStyle provides MaterialTheme.typography.fromToken(TimeSelectorLabelTextFont),
+        // Always display the TimeSelectors from left to right.
+        LocalLayoutDirection provides LayoutDirection.Ltr
     ) {
         Row {
             TimeSelector(
