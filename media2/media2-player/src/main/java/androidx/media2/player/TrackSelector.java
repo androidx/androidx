@@ -30,7 +30,6 @@ import static androidx.media2.player.TextRenderer.TRACK_TYPE_CEA708;
 import static androidx.media2.player.TextRenderer.TRACK_TYPE_WEBVTT;
 import static androidx.media2.player.TrackSelector.InternalTextTrackInfo.UNSET;
 
-import android.annotation.SuppressLint;
 import android.media.MediaFormat;
 import android.util.SparseArray;
 
@@ -55,7 +54,6 @@ import java.util.List;
 /**
  * Manages track selection for {@link ExoPlayerWrapper}.
  */
-@SuppressLint("RestrictedApi") // TODO(b/68398926): Remove once RestrictedApi checks are fixed.
 /* package */ final class TrackSelector {
 
     private static final int TRACK_INDEX_UNSET = -1;

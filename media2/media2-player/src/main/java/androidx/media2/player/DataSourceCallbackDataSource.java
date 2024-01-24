@@ -16,7 +16,6 @@
 
 package androidx.media2.player;
 
-import android.annotation.SuppressLint;
 import android.net.Uri;
 
 import androidx.annotation.Nullable;
@@ -34,7 +33,6 @@ import java.io.IOException;
  * An ExoPayer {@link DataSource} for reading from a {@link DataSourceCallback}.
  */
 @SuppressWarnings("unchecked")
-@SuppressLint("RestrictedApi") // TODO(b/68398926): Remove once RestrictedApi checks are fixed.
 /* package */ final class DataSourceCallbackDataSource extends BaseDataSource {
 
     /**

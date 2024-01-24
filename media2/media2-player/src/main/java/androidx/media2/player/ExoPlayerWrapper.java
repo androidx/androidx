@@ -18,7 +18,6 @@ package androidx.media2.player;
 
 import static androidx.media2.player.MediaPlayer2.MEDIA_ERROR_UNKNOWN;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Build;
 import android.os.Handler;
@@ -80,7 +79,6 @@ import java.util.Map;
  * {@link MediaPlayer2} API. {@link #getLooper()} returns the looper on which all other method calls
  * must be made.
  */
-@SuppressLint("RestrictedApi") // TODO(b/68398926): Remove once RestrictedApi checks are fixed.
 /* package */ final class ExoPlayerWrapper {
 
     private static final String TAG = "ExoPlayerWrapper";

@@ -15,7 +15,6 @@
  */
 package androidx.room
 
-import android.annotation.SuppressLint
 import androidx.arch.core.executor.ArchTaskExecutor
 import androidx.lifecycle.LiveData
 import java.lang.Exception
@@ -38,7 +37,6 @@ import java.util.concurrent.atomic.AtomicBoolean
  * This [LiveData] keeps a weak observer to the [InvalidationTracker] but it is hold
  * strongly by the [InvalidationTracker] as long as it is active.
  */
-@SuppressLint("RestrictedApi")
 internal class RoomTrackingLiveData<T> (
     val database: RoomDatabase,
     private val container: InvalidationLiveDataContainer,
