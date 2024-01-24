@@ -764,9 +764,6 @@ public class WebSettingsCompat {
         }
     }
 
-    /**
-     * @hide
-     */
     @IntDef({ATTRIBUTION_BEHAVIOR_DISABLED,
             ATTRIBUTION_BEHAVIOR_APP_SOURCE_AND_WEB_TRIGGER,
             ATTRIBUTION_BEHAVIOR_WEB_SOURCE_AND_WEB_TRIGGER,
