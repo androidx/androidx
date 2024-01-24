@@ -182,7 +182,12 @@ internal fun PolygonComposableImpl(
                     )
 
                     // Center of shape
-                    drawCircle(Color.White, radius = 2f, center = center, style = Stroke(2f))
+                    drawCircle(
+                        Color.White,
+                        radius = 2f,
+                        center = Offset(polygon.centerX * scale, polygon.centerY * scale),
+                        style = Stroke(2f)
+                    )
 
                     shape.forEach { cubic -> debugDraw(cubic) }
                 } else {
@@ -303,20 +308,23 @@ fun MainScreen(activity: MainActivity) {
                 shapeId = ShapeParameters.ShapeId.Polygon
             ),
 
-            // 5-Sided Star
+            // Pill
             ShapeParameters(
-                sides = 5,
-                rotation = -360f / 20,
-                innerRadius = .3f,
-                shapeId = ShapeParameters.ShapeId.Star
+                width = 6f,
+                height = 1f,
+                rotation = -360f / 8,
+                shapeId = ShapeParameters.ShapeId.Pill
             ),
 
-            // Round Rect
+            // Pill Star
             ShapeParameters(
-                sides = 4,
+                width = 4f,
+                height = 1f,
+                sides = 20,
                 roundness = .5f,
                 smooth = 1f,
-                shapeId = ShapeParameters.ShapeId.Rectangle
+                innerRadius = .6f,
+                shapeId = ShapeParameters.ShapeId.PillStar
             ),
         )
     }
@@ -359,7 +367,7 @@ fun MorphScreen(
 
     val scope = rememberCoroutineScope()
     val clickFn: (Int) -> Unit = remember {
-            { shapeIx ->
+        { shapeIx ->
             scope.launch {
                 currShape = selectedShape.intValue
                 selectedShape.intValue = shapeIx
@@ -376,8 +384,8 @@ fun MorphScreen(
             shapes.forEachIndexed { shapeIx, shape ->
                 val borderAlpha = (
                     (if (shapeIx == selectedShape.intValue) progress.value else 0f) +
-                    (if (shapeIx == currShape) 1 - progress.value else 0f)
-                ).coerceIn(0f, 1f)
+                        (if (shapeIx == currShape) 1 - progress.value else 0f)
+                    ).coerceIn(0f, 1f)
                 Box(
                     Modifier
                         .weight(1f)
@@ -389,7 +397,8 @@ fun MorphScreen(
                         )
                 ) {
                     // draw shape
-                    PolygonComposable(shape,
+                    PolygonComposable(
+                        shape,
                         Modifier.clickable { clickFn(shapeIx) },
                         stroked = stroked
                     )
@@ -418,17 +427,14 @@ fun MorphScreen(
                     interactionSource = remember { MutableInteractionSource() }
                 ) {
                     scope.launch { doAnimation(progress) }
-                }, debug, stroked)
+                }, debug, stroked
+        )
     }
 }
 
 private suspend fun doAnimation(progress: Animatable<Float, AnimationVector1D>) {
     progress.snapTo(0f)
-    progress.animateTo(
-        1f,
-        animationSpec =
-             spring(0.6f, 50f)
-    )
+    progress.animateTo(1f, animationSpec = spring(0.6f, 50f))
 }
 
 class MainActivity : FragmentActivity() {
