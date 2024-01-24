@@ -25,13 +25,15 @@ internal class AwtCursor(val cursor: Cursor) : PointerIcon {
 
         other as AwtCursor
 
-        if (cursor != other.cursor) return false
+        // AwtCursor doesn't implement equals
+        if (cursor.type != other.cursor.type) return false
 
         return true
     }
 
     override fun hashCode(): Int {
-        return cursor.hashCode()
+        // AwtCursor doesn't implement hashCode
+        return cursor.type
     }
 
     override fun toString(): String {

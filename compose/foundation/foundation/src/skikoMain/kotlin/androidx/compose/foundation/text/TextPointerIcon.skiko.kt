@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.text
 
-import androidx.compose.ui.input.pointer.DummyPointerIcon
 import androidx.compose.ui.input.pointer.PointerIcon
 
-internal actual val textPointerIcon: PointerIcon = DummyPointerIcon
+internal actual val textPointerIcon: PointerIcon = PointerIcon.Text
