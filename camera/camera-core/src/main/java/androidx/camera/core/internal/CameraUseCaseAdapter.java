@@ -22,12 +22,15 @@ import static androidx.camera.core.CameraEffect.VIDEO_CAPTURE;
 import static androidx.camera.core.DynamicRange.BIT_DEPTH_10_BIT;
 import static androidx.camera.core.DynamicRange.ENCODING_SDR;
 import static androidx.camera.core.DynamicRange.ENCODING_UNSPECIFIED;
+import static androidx.camera.core.ImageCapture.OUTPUT_FORMAT_ULTRA_HDR;
+import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_OUTPUT_FORMAT;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_CAPTURE_TYPE;
 import static androidx.camera.core.impl.utils.TransformUtils.rectToSize;
 import static androidx.camera.core.processing.TargetUtils.getNumberOfTargets;
 import static androidx.camera.core.streamsharing.StreamSharing.getCaptureTypes;
 import static androidx.camera.core.streamsharing.StreamSharing.isStreamSharing;
 import static androidx.core.util.Preconditions.checkArgument;
+import static androidx.core.util.Preconditions.checkNotNull;
 import static androidx.core.util.Preconditions.checkState;
 
 import static java.util.Collections.emptyList;
@@ -921,6 +924,15 @@ public final class CameraUseCaseAdapter implements Camera {
             throw new IllegalArgumentException("Extensions are only supported for use with "
                     + "standard dynamic range.");
         }
+
+        // TODO(b/322311893): throw exception to block feature combination of effect with Ultra
+        //  HDR, until ImageProcessor and SurfaceProcessor can support JPEG/R format.
+        synchronized (mLock) {
+            if (!mEffects.isEmpty() && hasUltraHdrImageCapture(useCases)) {
+                throw new IllegalArgumentException("Ultra HDR image capture does not support for "
+                        + "use with CameraEffect.");
+            }
+        }
     }
 
     private static boolean hasNonSdrConfig(@NonNull Collection<UseCase> useCases) {
@@ -939,6 +951,22 @@ public final class CameraUseCaseAdapter implements Camera {
                 && dynamicRange.getEncoding() != ENCODING_UNSPECIFIED;
 
         return is10Bit || isHdr;
+    }
+
+    private static boolean hasUltraHdrImageCapture(@NonNull Collection<UseCase> useCases) {
+        for (UseCase useCase : useCases) {
+            if (!isImageCapture(useCase)) {
+                continue;
+            }
+
+            UseCaseConfig<?> config = useCase.getCurrentConfig();
+            if (config.containsOption(OPTION_OUTPUT_FORMAT) && checkNotNull(
+                    config.retrieveOption(OPTION_OUTPUT_FORMAT)) == OUTPUT_FORMAT_ULTRA_HDR) {
+                return true;
+            }
+
+        }
+        return false;
     }
 
     /**

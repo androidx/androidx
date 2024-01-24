@@ -31,11 +31,14 @@ import androidx.annotation.RequiresApi
 import androidx.camera.core.CameraEffect.IMAGE_CAPTURE
 import androidx.camera.core.CameraEffect.PREVIEW
 import androidx.camera.core.CameraEffect.VIDEO_CAPTURE
+import androidx.camera.core.ImageCapture.OUTPUT_FORMAT_JPEG
+import androidx.camera.core.ImageCapture.OUTPUT_FORMAT_ULTRA_HDR
 import androidx.camera.core.MirrorMode.MIRROR_MODE_OFF
 import androidx.camera.core.MirrorMode.MIRROR_MODE_ON_FRONT_ONLY
 import androidx.camera.core.impl.CameraFactory
 import androidx.camera.core.impl.CaptureConfig
 import androidx.camera.core.impl.ImageCaptureConfig
+import androidx.camera.core.impl.ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE
 import androidx.camera.core.impl.MutableOptionsBundle
 import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.SessionProcessor
@@ -56,9 +59,12 @@ import androidx.camera.testing.fakes.FakeCameraInfoInternal
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CameraXUtil
 import androidx.camera.testing.impl.fakes.FakeCameraConfig
+import androidx.camera.testing.impl.fakes.FakeCameraCoordinator
+import androidx.camera.testing.impl.fakes.FakeCameraDeviceSurfaceManager
 import androidx.camera.testing.impl.fakes.FakeCameraFactory
 import androidx.camera.testing.impl.fakes.FakeImageReaderProxy
 import androidx.camera.testing.impl.fakes.FakeSessionProcessor
+import androidx.camera.testing.impl.fakes.FakeUseCaseConfigFactory
 import androidx.camera.testing.impl.mocks.MockScreenFlash
 import androidx.camera.testing.impl.mocks.MockScreenFlashListener
 import androidx.test.core.app.ApplicationProvider
@@ -382,6 +388,88 @@ class ImageCaptureTest {
         // Verify.
         assertThat(imageCapture.sessionConfig.surfaces[0].prescribedStreamFormat)
             .isEqualTo(ImageFormat.YUV_420_888)
+    }
+
+    @Test
+    fun canGetSupportedOutputFormats_whenCameraDoNotSupportUltraHdr() {
+        val cameraInfo = FakeCameraInfoInternal()
+        cameraInfo.setSupportedResolutions(ImageFormat.JPEG, listOf())
+
+        // Verify.
+        val capabilities = ImageCapture.getImageCaptureCapabilities(cameraInfo)
+        assertThat(capabilities.supportedOutputFormats).containsExactlyElementsIn(
+            listOf(OUTPUT_FORMAT_JPEG)
+        )
+    }
+
+    @Config(minSdk = 34)
+    @Test
+    fun canGetSupportedOutputFormats_whenCameraSupportsUltraHdr() {
+        val cameraInfo = FakeCameraInfoInternal()
+        cameraInfo.setSupportedResolutions(ImageFormat.JPEG, listOf())
+        cameraInfo.setSupportedResolutions(ImageFormat.JPEG_R, listOf())
+
+        // Verify.
+        val capabilities = ImageCapture.getImageCaptureCapabilities(cameraInfo)
+        assertThat(capabilities.supportedOutputFormats).containsExactlyElementsIn(
+            listOf(OUTPUT_FORMAT_JPEG, OUTPUT_FORMAT_ULTRA_HDR)
+        )
+    }
+
+    @Test
+    fun outputFormat_isDefaultAsJpeg_whenNotSet() {
+        val imageCapture = ImageCapture.Builder().build()
+
+        // Verify.
+        assertThat(imageCapture.outputFormat).isEqualTo(OUTPUT_FORMAT_JPEG)
+    }
+
+    @Test
+    fun canSetOutputFormatAsJpeg() {
+        val imageCapture = ImageCapture.Builder()
+            .setOutputFormat(OUTPUT_FORMAT_JPEG)
+            .build()
+
+        // Verify.
+        assertThat(imageCapture.outputFormat).isEqualTo(OUTPUT_FORMAT_JPEG)
+    }
+
+    @Config(minSdk = 34)
+    @Test
+    fun canSetOutputFormatAsUltraHdr() {
+        val imageCapture = ImageCapture.Builder()
+            .setOutputFormat(OUTPUT_FORMAT_ULTRA_HDR)
+            .build()
+
+        // Verify.
+        assertThat(imageCapture.outputFormat).isEqualTo(OUTPUT_FORMAT_ULTRA_HDR)
+    }
+
+    @Config(minSdk = 34)
+    @Test
+    fun sessionConfigSurfaceFormat_isJpegR_whenOutputFormatIsSetAsUltraHdr() {
+        // Arrange.
+        val imageCapture = ImageCapture.Builder()
+            .setOutputFormat(OUTPUT_FORMAT_ULTRA_HDR)
+            .build()
+
+        // Act.
+        val cameraId = "fakeCameraId"
+        val fakeManager = FakeCameraDeviceSurfaceManager()
+        fakeManager.setValidSurfaceCombos(
+            setOf(listOf(INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE, ImageFormat.JPEG_R))
+        )
+        val adapter = CameraUseCaseAdapter(
+            FakeCamera(cameraId),
+            FakeCameraCoordinator(),
+            fakeManager,
+            FakeUseCaseConfigFactory()
+        )
+        adapter.addUseCases(listOf(imageCapture))
+
+        // Verify.
+        assertThat(imageCapture.sessionConfig.surfaces[0].prescribedStreamFormat)
+            .isEqualTo(ImageFormat.JPEG_R)
     }
 
     @Config(maxSdk = 22)
