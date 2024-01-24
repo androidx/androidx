@@ -21,17 +21,16 @@ import androidx.room.compiler.codegen.VisibilityModifier
 import androidx.room.compiler.codegen.XCodeBlock
 import androidx.room.compiler.codegen.XCodeBlock.Builder.Companion.addLocalVal
 import androidx.room.compiler.codegen.XFunSpec
+import androidx.room.compiler.codegen.XFunSpec.Builder.Companion.addStatement
 import androidx.room.compiler.codegen.XPropertySpec
 import androidx.room.compiler.codegen.XPropertySpec.Companion.apply
 import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.codegen.XTypeSpec
 import androidx.room.compiler.codegen.XTypeSpec.Builder.Companion.addOriginatingElement
-import androidx.room.ext.AndroidTypeNames
 import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.KotlinCollectionMemberNames
 import androidx.room.ext.KotlinTypeNames
 import androidx.room.ext.RoomTypeNames
-import androidx.room.ext.SupportDbTypeNames
 import androidx.room.ext.decapitalize
 import androidx.room.ext.stripNonJava
 import androidx.room.solver.CodeGenScope
@@ -60,7 +59,9 @@ class DatabaseWriter(
             )
             addFunction(createOpenDelegate())
             addFunction(createCreateInvalidationTracker())
-            addFunction(createClearAllTables())
+            if (database.overrideClearAllTables) {
+                addFunction(createClearAllTables())
+            }
             addFunction(createCreateTypeConvertersMap())
             addFunction(createCreateAutoMigrationSpecsSet())
             addFunction(createGetAutoMigrations())
@@ -196,70 +197,19 @@ class DatabaseWriter(
     }
 
     private fun createClearAllTables(): XFunSpec {
-        val scope = CodeGenScope(this)
-        val body = XCodeBlock.builder(codeLanguage).apply {
-            addStatement("super.assertNotMainThread()")
-            val dbVar = scope.getTmpVar("_db")
-            addLocalVal(
-                dbVar,
-                SupportDbTypeNames.DB,
-                when (language) {
-                    CodeLanguage.JAVA -> "super.getOpenHelper().getWritableDatabase()"
-                    CodeLanguage.KOTLIN -> "super.openHelper.writableDatabase"
-                }
-            )
-            val deferVar = scope.getTmpVar("_supportsDeferForeignKeys")
-            if (database.enableForeignKeys) {
-                addLocalVal(
-                    deferVar,
-                    XTypeName.PRIMITIVE_BOOLEAN,
-                    "%L.VERSION.SDK_INT >= %L.VERSION_CODES.LOLLIPOP",
-                    AndroidTypeNames.BUILD,
-                    AndroidTypeNames.BUILD
-                )
-            }
-            beginControlFlow("try").apply {
-                if (database.enableForeignKeys) {
-                    beginControlFlow("if (!%L)", deferVar).apply {
-                        addStatement("%L.execSQL(%S)", dbVar, "PRAGMA foreign_keys = FALSE")
-                    }
-                    endControlFlow()
-                }
-                addStatement("super.beginTransaction()")
-                if (database.enableForeignKeys) {
-                    beginControlFlow("if (%L)", deferVar).apply {
-                        addStatement("%L.execSQL(%S)", dbVar, "PRAGMA defer_foreign_keys = TRUE")
-                    }
-                    endControlFlow()
-                }
-                database.entities.sortedWith(EntityDeleteComparator()).forEach {
-                    addStatement("%L.execSQL(%S)", dbVar, "DELETE FROM `${it.tableName}`")
-                }
-                addStatement("super.setTransactionSuccessful()")
-            }
-            nextControlFlow("finally").apply {
-                addStatement("super.endTransaction()")
-                if (database.enableForeignKeys) {
-                    beginControlFlow("if (!%L)", deferVar).apply {
-                        addStatement("%L.execSQL(%S)", dbVar, "PRAGMA foreign_keys = TRUE")
-                    }
-                    endControlFlow()
-                }
-                addStatement("%L.query(%S).close()", dbVar, "PRAGMA wal_checkpoint(FULL)")
-                beginControlFlow("if (!%L.inTransaction())", dbVar).apply {
-                    addStatement("%L.execSQL(%S)", dbVar, "VACUUM")
-                }
-                endControlFlow()
-            }
-            endControlFlow()
-        }.build()
         return XFunSpec.builder(
             language = codeLanguage,
             name = "clearAllTables",
             visibility = VisibilityModifier.PUBLIC,
             isOverride = true
         ).apply {
-            addCode(body)
+            val tableNames = database.entities.sortedWith(EntityDeleteComparator())
+                .joinToString(", ") { "\"${it.tableName}\"" }
+            addStatement(
+                "super.performClear(%L, %L)",
+                database.enableForeignKeys,
+                tableNames
+            )
         }.build()
     }
 

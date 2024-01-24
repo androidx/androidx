@@ -7,13 +7,11 @@ import androidx.room.util.TableInfo
 import androidx.room.util.ViewInfo
 import androidx.room.util.dropFtsSyncTriggers
 import androidx.sqlite.SQLiteConnection
-import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.execSQL
 import java.util.HashMap
 import java.util.HashSet
 import javax.`annotation`.processing.Generated
 import kotlin.Any
-import kotlin.Boolean
 import kotlin.Lazy
 import kotlin.String
 import kotlin.Suppress
@@ -159,34 +157,9 @@ public class MyDatabase_Impl : MyDatabase() {
         "MyParentEntity","MyEntity","MyFtsEntity")
   }
 
-  public override fun clearAllTables() {
-    super.assertNotMainThread()
-    val _db: SupportSQLiteDatabase = super.openHelper.writableDatabase
-    val _supportsDeferForeignKeys: Boolean = android.os.Build.VERSION.SDK_INT >=
-        android.os.Build.VERSION_CODES.LOLLIPOP
-    try {
-      if (!_supportsDeferForeignKeys) {
-        _db.execSQL("PRAGMA foreign_keys = FALSE")
-      }
-      super.beginTransaction()
-      if (_supportsDeferForeignKeys) {
-        _db.execSQL("PRAGMA defer_foreign_keys = TRUE")
-      }
-      _db.execSQL("DELETE FROM `MyParentEntity`")
-      _db.execSQL("DELETE FROM `MyEntity`")
-      _db.execSQL("DELETE FROM `MyFtsEntity`")
-      super.setTransactionSuccessful()
-    } finally {
-      super.endTransaction()
-      if (!_supportsDeferForeignKeys) {
-        _db.execSQL("PRAGMA foreign_keys = TRUE")
-      }
-      _db.query("PRAGMA wal_checkpoint(FULL)").close()
-      if (!_db.inTransaction()) {
-        _db.execSQL("VACUUM")
-      }
+    public override fun clearAllTables() {
+      super.performClear(true, "MyParentEntity", "MyEntity", "MyFtsEntity")
     }
-  }
 
   protected override fun getRequiredTypeConverterClasses():
       Map<KClass<out Any>, List<KClass<out Any>>> {

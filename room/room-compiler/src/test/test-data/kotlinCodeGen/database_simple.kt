@@ -6,7 +6,6 @@ import androidx.room.util.TableInfo
 import androidx.room.util.TableInfo.Companion.read
 import androidx.room.util.dropFtsSyncTriggers
 import androidx.sqlite.SQLiteConnection
-import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.execSQL
 import java.util.HashMap
 import javax.`annotation`.processing.Generated
@@ -92,19 +91,7 @@ public class MyDatabase_Impl : MyDatabase() {
   }
 
   public override fun clearAllTables() {
-    super.assertNotMainThread()
-    val _db: SupportSQLiteDatabase = super.openHelper.writableDatabase
-    try {
-      super.beginTransaction()
-      _db.execSQL("DELETE FROM `MyEntity`")
-      super.setTransactionSuccessful()
-    } finally {
-      super.endTransaction()
-      _db.query("PRAGMA wal_checkpoint(FULL)").close()
-      if (!_db.inTransaction()) {
-        _db.execSQL("VACUUM")
-      }
-    }
+    super.performClear(false, "MyEntity")
   }
 
   protected override fun getRequiredTypeConverterClasses():

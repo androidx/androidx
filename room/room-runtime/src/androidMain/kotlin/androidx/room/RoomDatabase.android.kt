@@ -22,6 +22,7 @@ import android.app.ActivityManager
 import android.content.Context
 import android.content.Intent
 import android.database.Cursor
+import android.os.Build
 import android.os.CancellationSignal
 import android.os.Looper
 import android.util.Log
@@ -445,6 +446,46 @@ actual abstract class RoomDatabase {
      */
     @WorkerThread
     abstract fun clearAllTables()
+
+    /**
+     * Performs a 'clear all tables' operation.
+     *
+     * This should only be invoked from generated code.
+     *
+     * @see [RoomDatabase.clearAllTables]
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    protected fun performClear(hasForeignKeys: Boolean, vararg tableNames: String) {
+        assertNotMainThread()
+        assertNotSuspendingTransaction()
+        runBlocking {
+            connectionManager.useConnection(isReadOnly = false) { connection ->
+                val supportsDeferForeignKeys =
+                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP
+                if (hasForeignKeys && !supportsDeferForeignKeys) {
+                    connection.execSQL("PRAGMA foreign_keys = FALSE")
+                }
+                // TODO(b/309990302): Commonize Invalidation Tracker
+                invalidationTracker.syncTriggers(openHelper.writableDatabase)
+                connection.withTransaction(Transactor.SQLiteTransactionType.IMMEDIATE) {
+                    if (hasForeignKeys && supportsDeferForeignKeys) {
+                        execSQL("PRAGMA defer_foreign_keys = TRUE")
+                    }
+                    tableNames.forEach { tableName ->
+                        execSQL("DELETE FROM `$tableName`")
+                    }
+                }
+                if (hasForeignKeys && !supportsDeferForeignKeys) {
+                    connection.execSQL("PRAGMA foreign_keys = TRUE")
+                }
+                if (!connection.inTransaction()) {
+                    connection.execSQL("PRAGMA wal_checkpoint(FULL)")
+                    connection.execSQL("VACUUM")
+                    invalidationTracker.refreshVersionsAsync()
+                }
+            }
+        }
+    }
 
     /**
      * True if database connection is open and initialized.

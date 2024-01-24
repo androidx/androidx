@@ -47,7 +47,7 @@ fun <R> performReadBlocking(
 ): R {
     db.assertNotMainThread()
     db.assertNotSuspendingTransaction()
-    return runBlocking { db.perform(true, sql, block) }
+    return runBlocking { db.perform(isReadOnly = true, sql, block) }
 }
 
 /**
@@ -61,7 +61,7 @@ fun <R> performReadTransactionBlocking(
 ): R {
     db.assertNotMainThread()
     db.assertNotSuspendingTransaction()
-    return runBlocking { db.performTransaction(true) { it.usePrepared(sql, block) } }
+    return runBlocking { db.performTransaction(isReadOnly = true) { it.usePrepared(sql, block) } }
 }
 
 /**

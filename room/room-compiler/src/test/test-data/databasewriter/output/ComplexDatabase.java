@@ -10,7 +10,6 @@ import androidx.room.util.TableInfo;
 import androidx.room.util.ViewInfo;
 import androidx.sqlite.SQLiteConnection;
 import androidx.sqlite.SQLiteKt;
-import androidx.sqlite.db.SupportSQLiteDatabase;
 import java.lang.Class;
 import java.lang.Override;
 import java.lang.String;
@@ -140,21 +139,7 @@ public final class ComplexDatabase_Impl extends ComplexDatabase {
 
     @Override
     public void clearAllTables() {
-        super.assertNotMainThread();
-        final SupportSQLiteDatabase _db = super.getOpenHelper().getWritableDatabase();
-        try {
-            super.beginTransaction();
-            _db.execSQL("DELETE FROM `User`");
-            _db.execSQL("DELETE FROM `Child1`");
-            _db.execSQL("DELETE FROM `Child2`");
-            super.setTransactionSuccessful();
-        } finally {
-            super.endTransaction();
-            _db.query("PRAGMA wal_checkpoint(FULL)").close();
-            if (!_db.inTransaction()) {
-                _db.execSQL("VACUUM");
-            }
-        }
+        super.performClear(false, "User", "Child1", "Child2");
     }
 
     @Override

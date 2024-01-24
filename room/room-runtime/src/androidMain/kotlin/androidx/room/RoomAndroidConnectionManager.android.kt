@@ -269,7 +269,9 @@ internal class RoomAndroidConnectionManager : RoomConnectionManager {
                 Transactor.SQLiteTransactionType.EXCLUSIVE -> db.beginTransaction()
             }
             try {
-                return SupportTransactor<R>().block()
+                val result = SupportTransactor<R>().block()
+                db.setTransactionSuccessful()
+                return result
             } catch (rollback: RollbackException) {
                 @Suppress("UNCHECKED_CAST")
                 return rollback.result as R

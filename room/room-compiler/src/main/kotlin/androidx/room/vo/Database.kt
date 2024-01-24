@@ -39,7 +39,8 @@ data class Database(
     val daoMethods: List<DaoMethod>,
     val version: Int,
     val exportSchema: Boolean,
-    val enableForeignKeys: Boolean
+    val enableForeignKeys: Boolean,
+    val overrideClearAllTables: Boolean
 ) {
     // This variable will be set once auto-migrations are processed given the DatabaseBundle from
     // this object. This is necessary for tracking the versions involved in the auto-migration.
