@@ -17,6 +17,8 @@
 package androidx.window.extensions.embedding;
 
 import android.app.Activity;
+import android.os.Binder;
+import android.os.Bundle;
 import android.os.IBinder;
 
 import androidx.annotation.NonNull;
@@ -39,7 +41,7 @@ public class ActivityStack {
     private final boolean mIsEmpty;
 
     @NonNull
-    private final IBinder mToken;
+    private final Token mToken;
 
     @Nullable
     private final String mTag;
@@ -55,7 +57,7 @@ public class ActivityStack {
      * @param tag A unique identifier of {@link ActivityStack}. Only specifies for the overlay
      *            standalone {@link ActivityStack} currently.
      */
-    ActivityStack(@NonNull List<Activity> activities, boolean isEmpty, @NonNull IBinder token,
+    ActivityStack(@NonNull List<Activity> activities, boolean isEmpty, @NonNull Token token,
             @Nullable String tag) {
         Objects.requireNonNull(activities);
         Objects.requireNonNull(token);
@@ -98,7 +100,7 @@ public class ActivityStack {
      */
     @RequiresVendorApiLevel(level = 5)
     @NonNull
-    public IBinder getToken() {
+    public Token getToken() {
         return mToken;
     }
 
@@ -140,5 +142,91 @@ public class ActivityStack {
                 + ", mToken=" + mToken
                 + ", mTag=" + mTag
                 + '}';
+    }
+
+    /**
+     * A unique identifier to represent an {@link ActivityStack}.
+     */
+    public static final class Token {
+
+        /**
+         * An invalid token to provide compatibility value before vendor API level 5.
+         */
+        @NonNull
+        public static final Token INVALID_ACTIVITY_STACK_TOKEN = new Token(new Binder());
+
+        private static final String KEY_ACTIVITY_STACK_RAW_TOKEN = "androidx.window.extensions"
+                + ".embedding.ActivityStack.Token";
+
+        private final IBinder mToken;
+
+        Token(@NonNull IBinder token) {
+            mToken = token;
+        }
+
+        /**
+         * Creates an {@link ActivityStack} token from binder.
+         *
+         * @param token the raw binder used by OEM Extensions implementation.
+         */
+        @RequiresVendorApiLevel(level = 5)
+        @NonNull
+        public static Token createFromBinder(@NonNull IBinder token) {
+            return new Token(token);
+        }
+
+        /**
+         * Retrieves an {@link ActivityStack} token from {@link Bundle} if it's valid.
+         *
+         * @param bundle the {@link Bundle} to retrieve the {@link ActivityStack} token from.
+         * @throws IllegalArgumentException if the {@code bundle} isn't valid.
+         */
+        @RequiresVendorApiLevel(level = 5)
+        @NonNull
+        public static Token readFromBundle(@NonNull Bundle bundle) {
+            final IBinder token = bundle.getBinder(KEY_ACTIVITY_STACK_RAW_TOKEN);
+
+            if (token == null) {
+                throw new IllegalArgumentException("Invalid bundle to create ActivityStack Token");
+            }
+            return new Token(token);
+        }
+
+        /**
+         * Converts the token to {@link Bundle}.
+         */
+        @RequiresVendorApiLevel(level = 5)
+        @NonNull
+        public Bundle toBundle() {
+            final Bundle bundle = new Bundle();
+            bundle.putBinder(KEY_ACTIVITY_STACK_RAW_TOKEN, mToken);
+            return bundle;
+        }
+
+        @NonNull
+        IBinder getRawToken() {
+            return mToken;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof Token)) return false;
+            Token token = (Token) o;
+            return Objects.equals(mToken, token.mToken);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(mToken);
+        }
+
+        @NonNull
+        @Override
+        public String toString() {
+            return "Token{"
+                    + "mToken=" + mToken
+                    + '}';
+        }
     }
 }

@@ -20,19 +20,22 @@ import android.app.Activity
 import android.graphics.Color
 import android.os.Binder
 import android.os.IBinder
+import androidx.window.WindowSdkExtensions
 import androidx.window.WindowTestUtils
 import androidx.window.core.ExtensionsUtil
 import androidx.window.core.PredicateAdapter
-import androidx.window.embedding.EmbeddingAdapter.Companion.INVALID_ACTIVITY_STACK_TOKEN
 import androidx.window.embedding.EmbeddingAdapter.Companion.INVALID_SPLIT_INFO_TOKEN
 import androidx.window.embedding.SplitAttributes.SplitType
 import androidx.window.embedding.SplitAttributes.SplitType.Companion.SPLIT_TYPE_HINGE
 import androidx.window.extensions.embedding.ActivityStack as OEMActivityStack
+import androidx.window.extensions.embedding.ActivityStack.Token as OEMActivityStackToken
 import androidx.window.extensions.embedding.AnimationBackground as OEMEmbeddingAnimationBackground
 import androidx.window.extensions.embedding.SplitAttributes as OEMSplitAttributes
 import androidx.window.extensions.embedding.SplitAttributes.LayoutDirection.TOP_TO_BOTTOM
 import androidx.window.extensions.embedding.SplitAttributes.SplitType.RatioSplitType
 import androidx.window.extensions.embedding.SplitInfo as OEMSplitInfo
+import androidx.window.extensions.embedding.SplitInfo.Token as OEMSplitInfoToken
+import kotlin.test.Ignore
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
@@ -42,6 +45,8 @@ import org.mockito.kotlin.whenever
 /** Tests for [EmbeddingAdapter] */
 class EmbeddingAdapterTest {
     private lateinit var adapter: EmbeddingAdapter
+
+    private val extensionVersion = WindowSdkExtensions.getInstance().extensionVersion
 
     @Before
     fun setUp() {
@@ -53,6 +58,7 @@ class EmbeddingAdapterTest {
     @Test
     fun testTranslateSplitInfoWithDefaultAttrs() {
         WindowTestUtils.assumeAtLeastVendorApiLevel(2)
+        WindowTestUtils.assumeBeforeVendorApiLevel(3)
 
         val oemSplitInfo = createTestOEMSplitInfo(
             createTestOEMActivityStack(ArrayList(), true),
@@ -60,13 +66,20 @@ class EmbeddingAdapterTest {
             OEMSplitAttributes.Builder().build(),
         )
         val expectedSplitInfo = SplitInfo(
-            ActivityStack(ArrayList(), isEmpty = true, INVALID_ACTIVITY_STACK_TOKEN),
-            ActivityStack(ArrayList(), isEmpty = true, INVALID_ACTIVITY_STACK_TOKEN),
+            ActivityStack(
+                ArrayList(),
+                isEmpty = true,
+                OEMActivityStackToken.INVALID_ACTIVITY_STACK_TOKEN
+            ),
+            ActivityStack(
+                ArrayList(),
+                isEmpty = true,
+                OEMActivityStackToken.INVALID_ACTIVITY_STACK_TOKEN
+            ),
             SplitAttributes.Builder()
                 .setSplitType(SplitType.SPLIT_TYPE_EQUAL)
                 .setLayoutDirection(SplitAttributes.LayoutDirection.LOCALE)
                 .build(),
-            INVALID_SPLIT_INFO_TOKEN,
         )
         assertEquals(listOf(expectedSplitInfo), adapter.translate(listOf(oemSplitInfo)))
     }
@@ -74,6 +87,7 @@ class EmbeddingAdapterTest {
     @Test
     fun testTranslateSplitInfoWithExpandingContainers() {
         WindowTestUtils.assumeAtLeastVendorApiLevel(2)
+        WindowTestUtils.assumeBeforeVendorApiLevel(3)
 
         val oemSplitInfo = createTestOEMSplitInfo(
             createTestOEMActivityStack(ArrayList(), true),
@@ -83,13 +97,20 @@ class EmbeddingAdapterTest {
                 .build(),
         )
         val expectedSplitInfo = SplitInfo(
-            ActivityStack(ArrayList(), isEmpty = true, INVALID_ACTIVITY_STACK_TOKEN),
-            ActivityStack(ArrayList(), isEmpty = true, INVALID_ACTIVITY_STACK_TOKEN),
+            ActivityStack(
+                ArrayList(),
+                isEmpty = true,
+                OEMActivityStackToken.INVALID_ACTIVITY_STACK_TOKEN
+            ),
+            ActivityStack(
+                ArrayList(),
+                isEmpty = true,
+                OEMActivityStackToken.INVALID_ACTIVITY_STACK_TOKEN
+            ),
             SplitAttributes.Builder()
                 .setSplitType(SplitType.SPLIT_TYPE_EXPAND)
                 .setLayoutDirection(SplitAttributes.LayoutDirection.LOCALE)
                 .build(),
-            INVALID_SPLIT_INFO_TOKEN,
         )
         assertEquals(listOf(expectedSplitInfo), adapter.translate(listOf(oemSplitInfo)))
     }
@@ -108,14 +129,21 @@ class EmbeddingAdapterTest {
         }
 
         val expectedSplitInfo = SplitInfo(
-            ActivityStack(ArrayList(), isEmpty = true, INVALID_ACTIVITY_STACK_TOKEN),
-            ActivityStack(ArrayList(), isEmpty = true, INVALID_ACTIVITY_STACK_TOKEN),
+            ActivityStack(
+                ArrayList(),
+                isEmpty = true,
+                OEMActivityStackToken.INVALID_ACTIVITY_STACK_TOKEN
+            ),
+            ActivityStack(
+                ArrayList(),
+                isEmpty = true,
+                OEMActivityStackToken.INVALID_ACTIVITY_STACK_TOKEN
+            ),
             SplitAttributes.Builder()
                 .setSplitType(SplitType.ratio(expectedSplitRatio))
                 // OEMSplitInfo with Vendor API level 1 doesn't provide layoutDirection.
                 .setLayoutDirection(SplitAttributes.LayoutDirection.LOCALE)
                 .build(),
-            INVALID_SPLIT_INFO_TOKEN,
         )
         assertEquals(listOf(expectedSplitInfo), adapter.translate(listOf(oemSplitInfo)))
     }
@@ -134,13 +162,20 @@ class EmbeddingAdapterTest {
                 .build(),
         )
         val expectedSplitInfo = SplitInfo(
-            ActivityStack(ArrayList(), isEmpty = true, INVALID_ACTIVITY_STACK_TOKEN),
-            ActivityStack(ArrayList(), isEmpty = true, INVALID_ACTIVITY_STACK_TOKEN),
+            ActivityStack(
+                ArrayList(),
+                isEmpty = true,
+                OEMActivityStackToken.INVALID_ACTIVITY_STACK_TOKEN
+            ),
+            ActivityStack(
+                ArrayList(),
+                isEmpty = true,
+                OEMActivityStackToken.INVALID_ACTIVITY_STACK_TOKEN
+            ),
             SplitAttributes.Builder()
                 .setSplitType(SPLIT_TYPE_HINGE)
                 .setLayoutDirection(SplitAttributes.LayoutDirection.TOP_TO_BOTTOM)
                 .build(),
-            INVALID_SPLIT_INFO_TOKEN,
         )
         assertEquals(listOf(expectedSplitInfo), adapter.translate(listOf(oemSplitInfo)))
     }
@@ -161,13 +196,55 @@ class EmbeddingAdapterTest {
             testSplitInfoToken,
         )
         val expectedSplitInfo = SplitInfo(
-            ActivityStack(ArrayList(), isEmpty = true, INVALID_ACTIVITY_STACK_TOKEN),
-            ActivityStack(ArrayList(), isEmpty = true, INVALID_ACTIVITY_STACK_TOKEN),
+            ActivityStack(ArrayList(), isEmpty = true),
+            ActivityStack(ArrayList(), isEmpty = true),
             SplitAttributes.Builder()
                 .setSplitType(SPLIT_TYPE_HINGE)
                 .setLayoutDirection(SplitAttributes.LayoutDirection.TOP_TO_BOTTOM)
                 .build(),
             testSplitInfoToken,
+        )
+        assertEquals(listOf(expectedSplitInfo), adapter.translate(listOf(oemSplitInfo)))
+    }
+
+    @Ignore // TODO(b/322056156): enable after the change is applied to platform prebuilt library.
+    @Test
+    fun testTranslateSplitInfoWithApiLevel5() {
+        WindowTestUtils.assumeAtLeastVendorApiLevel(5)
+
+        val oemSplitInfo = createTestOEMSplitInfo(
+            createTestOEMActivityStack(
+                emptyList(),
+                true,
+                OEMActivityStackToken.INVALID_ACTIVITY_STACK_TOKEN,
+            ),
+            createTestOEMActivityStack(
+                emptyList(),
+                true,
+                OEMActivityStackToken.INVALID_ACTIVITY_STACK_TOKEN,
+            ),
+            OEMSplitAttributes.Builder()
+                .setSplitType(OEMSplitAttributes.SplitType.HingeSplitType(RatioSplitType(0.5f)))
+                .setLayoutDirection(TOP_TO_BOTTOM)
+                .build(),
+            testToken = OEMSplitInfoToken.createFromBinder(INVALID_SPLIT_INFO_TOKEN),
+        )
+        val expectedSplitInfo = SplitInfo(
+            ActivityStack(
+                emptyList(),
+                isEmpty = true,
+                OEMActivityStackToken.INVALID_ACTIVITY_STACK_TOKEN
+            ),
+            ActivityStack(
+                emptyList(),
+                isEmpty = true,
+                OEMActivityStackToken.INVALID_ACTIVITY_STACK_TOKEN
+            ),
+            SplitAttributes.Builder()
+                .setSplitType(SPLIT_TYPE_HINGE)
+                .setLayoutDirection(SplitAttributes.LayoutDirection.TOP_TO_BOTTOM)
+                .build(),
+            token = OEMSplitInfoToken.createFromBinder(INVALID_SPLIT_INFO_TOKEN),
         )
         assertEquals(listOf(expectedSplitInfo), adapter.translate(listOf(oemSplitInfo)))
     }
@@ -236,20 +313,21 @@ class EmbeddingAdapterTest {
         assertEquals(dimArea.value, oemSplitAttributes.windowAttributes.dimArea)
     }
 
+    @Suppress("Deprecation") // Verify the behavior of version 3 and 4.
     private fun createTestOEMSplitInfo(
         testPrimaryActivityStack: OEMActivityStack,
         testSecondaryActivityStack: OEMActivityStack,
         testSplitAttributes: OEMSplitAttributes,
-        testToken: IBinder = INVALID_SPLIT_INFO_TOKEN,
+        testBinder: IBinder? = null,
+        testToken: OEMSplitInfoToken? = null,
     ): OEMSplitInfo {
         return mock<OEMSplitInfo>().apply {
             whenever(primaryActivityStack).thenReturn(testPrimaryActivityStack)
             whenever(secondaryActivityStack).thenReturn(testSecondaryActivityStack)
-            if (ExtensionsUtil.safeVendorApiLevel >= 2) {
-                whenever(splitAttributes).thenReturn(testSplitAttributes)
-            }
-            if (ExtensionsUtil.safeVendorApiLevel >= 3) {
-                whenever(token).thenReturn(testToken)
+            when (extensionVersion) {
+                2 -> whenever(splitAttributes).thenReturn(testSplitAttributes)
+                in 3..4 -> whenever(token).thenReturn(testBinder)
+                in 5..Int.MAX_VALUE -> whenever(splitInfoToken).thenReturn(testToken)
             }
         }
     }
@@ -257,12 +335,12 @@ class EmbeddingAdapterTest {
     private fun createTestOEMActivityStack(
         testActivities: List<Activity>,
         testIsEmpty: Boolean,
-        testToken: IBinder = INVALID_ACTIVITY_STACK_TOKEN,
+        testToken: OEMActivityStackToken = OEMActivityStackToken.INVALID_ACTIVITY_STACK_TOKEN,
     ): OEMActivityStack {
         return mock<OEMActivityStack>().apply {
             whenever(activities).thenReturn(testActivities)
             whenever(isEmpty).thenReturn(testIsEmpty)
-            if (ExtensionsUtil.safeVendorApiLevel >= 3) {
+            if (ExtensionsUtil.safeVendorApiLevel >= 5) {
                 whenever(token).thenReturn(testToken)
             }
         }

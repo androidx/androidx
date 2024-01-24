@@ -27,6 +27,7 @@ import androidx.window.extensions.RequiresVendorApiLevel;
 import androidx.window.extensions.WindowExtensions;
 import androidx.window.extensions.core.util.function.Consumer;
 import androidx.window.extensions.core.util.function.Function;
+import androidx.window.extensions.util.SetCompat;
 
 import java.util.List;
 import java.util.Set;
@@ -173,15 +174,39 @@ public interface ActivityEmbeddingComponent {
     void clearSplitAttributesCalculator();
 
     /**
+     * @deprecated Use {@link #setLaunchingActivityStack(ActivityOptions, ActivityStack.Token)}
+     * instead.
+     */
+    @Deprecated
+    @RequiresVendorApiLevel(level = 3, deprecatedSince = 5)
+    @NonNull
+    default ActivityOptions setLaunchingActivityStack(@NonNull ActivityOptions options,
+            @NonNull IBinder token) {
+        throw new UnsupportedOperationException("This method must not be called unless there is a"
+                + " corresponding override implementation on the device.");
+    }
+
+    /**
      * Sets the launching {@link ActivityStack} to the given {@link ActivityOptions}.
      *
      * @param options The {@link ActivityOptions} to be updated.
      * @param token The {@link ActivityStack#getToken()} to represent the {@link ActivityStack}
      */
-    @RequiresVendorApiLevel(level = 3)
+    @SuppressWarnings("deprecation") // Use setLaunchingActivityStack(ActivityOptions, IBinder) as
+    // its core implementation.
+    @RequiresVendorApiLevel(level = 5)
     @NonNull
     default ActivityOptions setLaunchingActivityStack(@NonNull ActivityOptions options,
-            @NonNull IBinder token) {
+            @NonNull ActivityStack.Token token) {
+        return setLaunchingActivityStack(options, token.getRawToken());
+    }
+
+    /**
+     * @deprecated Use {@link #finishActivityStacksWithTokens(Set)} with instead.
+     */
+    @Deprecated
+    @RequiresVendorApiLevel(level = 3, deprecatedSince = 5)
+    default void finishActivityStacks(@NonNull Set<IBinder> activityStackTokens) {
         throw new UnsupportedOperationException("This method must not be called unless there is a"
                 + " corresponding override implementation on the device.");
     }
@@ -194,10 +219,16 @@ public interface ActivityEmbeddingComponent {
      * @param activityStackTokens The set of tokens of {@link ActivityStack}-s that is going to be
      *                            finished.
      */
-    @RequiresVendorApiLevel(level = 3)
-    default void finishActivityStacks(@NonNull Set<IBinder> activityStackTokens) {
-        throw new UnsupportedOperationException("This method must not be called unless there is a"
-                + " corresponding override implementation on the device.");
+    @SuppressWarnings("deprecation") // Use finishActivityStacks(Set) as its core implementation.
+    @RequiresVendorApiLevel(level = 5)
+    default void finishActivityStacksWithTokens(
+            @NonNull Set<ActivityStack.Token> activityStackTokens) {
+        final Set<IBinder> binderSet = SetCompat.create();
+
+        for (ActivityStack.Token token : activityStackTokens) {
+            binderSet.add(token.getRawToken());
+        }
+        finishActivityStacks(binderSet);
     }
 
     /**
@@ -215,17 +246,28 @@ public interface ActivityEmbeddingComponent {
     }
 
     /**
+     * @deprecated Use {@link #updateSplitAttributes(SplitInfo.Token, SplitAttributes)} instead.
+     */
+    @Deprecated
+    @RequiresVendorApiLevel(level = 3, deprecatedSince = 5)
+    default void updateSplitAttributes(@NonNull IBinder splitInfoToken,
+            @NonNull SplitAttributes splitAttributes) {
+        throw new UnsupportedOperationException("This method must not be called unless there is a"
+                + " corresponding override implementation on the device.");
+    }
+
+    /**
      * Updates the {@link SplitAttributes} of a split pair. This is an alternative to using
      * a split attributes calculator callback, applicable when apps only need to update the
      * splits in a few cases but rely on the default split attributes otherwise.
      * @param splitInfoToken The identifier of the split pair to update.
      * @param splitAttributes The {@link SplitAttributes} to apply to the split pair.
      */
-    @RequiresVendorApiLevel(level = 3)
-    default void updateSplitAttributes(@NonNull IBinder splitInfoToken,
+    @SuppressWarnings("deprecation") // Use finishActivityStacks(Set).
+    @RequiresVendorApiLevel(level = 5)
+    default void updateSplitAttributes(@NonNull SplitInfo.Token splitInfoToken,
             @NonNull SplitAttributes splitAttributes) {
-        throw new UnsupportedOperationException("This method must not be called unless there is a"
-                + " corresponding override implementation on the device.");
+        updateSplitAttributes(splitInfoToken.getRawToken(), splitAttributes);
     }
 
     /**
@@ -236,7 +278,8 @@ public interface ActivityEmbeddingComponent {
      */
     @RequiresVendorApiLevel(level = 5)
     @Nullable
-    default ParentContainerInfo getParentContainerInfo(@NonNull IBinder activityStackToken) {
+    default ParentContainerInfo getParentContainerInfo(
+            @NonNull ActivityStack.Token activityStackToken) {
         throw new UnsupportedOperationException("This method must not be called unless there is a"
                 + " corresponding override implementation on the device.");
     }
@@ -282,7 +325,7 @@ public interface ActivityEmbeddingComponent {
      * @param activityStackAttributes The attributes to be applied
      */
     @RequiresVendorApiLevel(level = 5)
-    default void updateActivityStackAttributes(@NonNull IBinder token,
+    default void updateActivityStackAttributes(@NonNull ActivityStack.Token token,
             @NonNull ActivityStackAttributes activityStackAttributes) {
         throw new UnsupportedOperationException("This method must not be called unless there is a"
                 + " corresponding override implementation on the device.");
@@ -309,7 +352,7 @@ public interface ActivityEmbeddingComponent {
      */
     @RequiresVendorApiLevel(level = 5)
     @Nullable
-    default IBinder getActivityStackToken(@NonNull String tag) {
+    default ActivityStack.Token getActivityStackToken(@NonNull String tag) {
         throw new UnsupportedOperationException("This method must not be called unless there is a"
                 + " corresponding override implementation on the device.");
     }

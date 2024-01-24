@@ -16,14 +16,12 @@
 
 package androidx.window.testing.embedding
 
-import androidx.window.core.ExperimentalWindowApi
 import androidx.window.embedding.SplitAttributes
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.mockito.kotlin.mock
 
 /** Test class to verify [TestSplitInfo] */
-@OptIn(ExperimentalWindowApi::class)
 class SplitInfoTestingTest {
 
     /** Verifies the default value of [TestSplitInfo]. */
