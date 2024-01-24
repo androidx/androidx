@@ -17,7 +17,7 @@
 package androidx.compose.foundation.pager
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.gestures.snapping.SnapFlingBehavior
+import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.snapping.SnapPosition
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -317,8 +317,8 @@ class PagerTest(val config: ParamConfig) : BasePagerTest(config) {
 
     @Test
     fun pagerStateChange_flingBehaviorShouldRecreate() {
-        var previousFlingBehavior: SnapFlingBehavior? = null
-        var latestFlingBehavior: SnapFlingBehavior? = null
+        var previousFlingBehavior: FlingBehavior? = null
+        var latestFlingBehavior: FlingBehavior? = null
         val stateHolder = mutableStateOf(PagerState(0, 0.0f) { 10 })
         rule.setContent {
             HorizontalOrVerticalPager(
