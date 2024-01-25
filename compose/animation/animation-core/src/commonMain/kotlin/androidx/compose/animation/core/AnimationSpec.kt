@@ -429,7 +429,8 @@ sealed class KeyframesSpecBaseConfig<T, E : KeyframeBaseEntity<T>> {
      * a minimum value of `0`.
      * @return an instance of [E] so a custom [Easing] can be added by the [using] method.
      */
-    infix fun T.at(@IntRange(from = 0) timeStamp: Int): E {
+    // needed as `open` to guarantee binary compatibility in KeyframesSpecConfig
+    open infix fun T.at(@IntRange(from = 0) timeStamp: Int): E {
         val entity = createEntityFor(this)
         keyframes[timeStamp] = entity
         return entity
@@ -445,7 +446,8 @@ sealed class KeyframesSpecBaseConfig<T, E : KeyframeBaseEntity<T>> {
      *  @param fraction The fraction when the animation should reach specified value.
      *  @return an instance of [E] so a custom [Easing] can be added by the [using] method
      */
-    infix fun T.atFraction(fraction: Float): E {
+    // needed as `open` to guarantee binary compatibility in KeyframesSpecConfig
+    open infix fun T.atFraction(fraction: Float): E {
         return at((durationMillis * fraction).roundToInt())
     }
 
@@ -502,6 +504,34 @@ class KeyframesSpec<T>(val config: KeyframesSpecConfig<T>) : DurationBasedAnimat
      */
     class KeyframesSpecConfig<T> : KeyframesSpecBaseConfig<T, KeyframeEntity<T>>() {
         override fun createEntityFor(value: T): KeyframeEntity<T> = KeyframeEntity(value)
+
+        /**
+         * Adds a keyframe so that animation value will be [this] at time: [timeStamp]. For example:
+         *     0.8f at 150 // ms
+         *
+         * @param timeStamp The time in the during when animation should reach value: [this], with
+         * a minimum value of `0`.
+         * @return an [KeyframeEntity] so a custom [Easing] can be added by [with] method.
+         */
+        // TODO: Need a IntRange equivalent annotation
+        // overrides `at` for binary compatibility. It should explicitly return KeyframeEntity.
+        override infix fun T.at(@IntRange(from = 0) timeStamp: Int): KeyframeEntity<T> {
+            return KeyframeEntity(this).also {
+                keyframes[timeStamp] = it
+            }
+        }
+
+        /**
+         * Adds a keyframe so that the animation value will be the value specified at a fraction of the total
+         * [durationMillis] set. For example:
+         *      0.8f atFraction 0.50f // half of the overall duration set
+         *  @param fraction The fraction when the animation should reach specified value.
+         *  @return an [KeyframeEntity] so a custom [Easing] can be added by [with] method
+         */
+        // overrides `atFraction` for binary compatibility. It should explicitly return KeyframeEntity.
+        override infix fun T.atFraction(fraction: Float): KeyframeEntity<T> {
+            return at((durationMillis * fraction).roundToInt())
+        }
 
         /**
          * Adds an [Easing] for the interval started with the just provided timestamp. For example:
