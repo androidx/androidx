@@ -39,7 +39,6 @@ import androidx.compose.ui.layout.PinnableContainer
 import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
 import androidx.compose.ui.node.DelegatingNode
 import androidx.compose.ui.node.GlobalPositionAwareModifierNode
-import androidx.compose.ui.node.LayoutAwareModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.ObserverModifierNode
 import androidx.compose.ui.node.SemanticsModifierNode
@@ -195,7 +194,7 @@ private class FocusableElement(
 @OptIn(ExperimentalFoundationApi::class)
 internal class FocusableNode(
     interactionSource: MutableInteractionSource?
-) : DelegatingNode(), FocusEventModifierNode, LayoutAwareModifierNode, SemanticsModifierNode,
+) : DelegatingNode(), FocusEventModifierNode, SemanticsModifierNode,
     GlobalPositionAwareModifierNode, FocusRequesterModifierNode {
     override val shouldAutoInvalidate: Boolean = false
 
@@ -218,13 +217,11 @@ internal class FocusableNode(
     //    See aosp/1964580.
     private val bringIntoViewRequester = BringIntoViewRequester()
 
+    /** This is just needed for the delegate, it's not referenced anywhere directly. */
+    @Suppress("unused")
     private val bringIntoViewRequesterNode = delegate(
         BringIntoViewRequesterNode(bringIntoViewRequester)
     )
-
-    // TODO(levima) Remove this once delegation can propagate this events on its own
-    override fun onPlaced(coordinates: LayoutCoordinates) =
-        bringIntoViewRequesterNode.onPlaced(coordinates)
 
     fun update(interactionSource: MutableInteractionSource?) =
         focusableInteractionNode.update(interactionSource)

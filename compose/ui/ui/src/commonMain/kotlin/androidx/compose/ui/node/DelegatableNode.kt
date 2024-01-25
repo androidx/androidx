@@ -21,6 +21,7 @@ import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.internal.checkPrecondition
 import androidx.compose.ui.internal.checkPreconditionNotNull
+import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 
@@ -329,6 +330,20 @@ fun DelegatableNode.requireDensity(): Density = requireLayoutNode().density
  * to. If the node is not attached, this function will throw an [IllegalStateException].
  */
 fun DelegatableNode.requireLayoutDirection(): LayoutDirection = requireLayoutNode().layoutDirection
+
+/**
+ * Returns the [LayoutCoordinates] of this node if it's currently attached. Returns null when either
+ * this node is not attached, or the [LayoutCoordinates] object is not attached.
+ *
+ * To get a signal when the [LayoutCoordinates] become available, or when its parent places it,
+ * implement [LayoutAwareModifierNode].
+ */
+val DelegatableNode.currentLayoutCoordinates: LayoutCoordinates?
+    get() = if (node.isAttached) {
+        requireCoordinator(Nodes.Layout).coordinates.takeIf { it.isAttached }
+    } else {
+        null
+    }
 
 /**
  * Invalidates the subtree of this layout, including layout, drawing, parent data, etc.

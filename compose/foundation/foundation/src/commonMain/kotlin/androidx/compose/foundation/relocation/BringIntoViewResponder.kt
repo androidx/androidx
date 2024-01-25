@@ -23,6 +23,7 @@ import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.modifier.ModifierLocalMap
 import androidx.compose.ui.modifier.modifierLocalMapOf
 import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.node.currentLayoutCoordinates
 import androidx.compose.ui.platform.InspectorInfo
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
@@ -156,9 +157,12 @@ internal class BringIntoViewResponderNode(
     ) {
         @Suppress("NAME_SHADOWING")
         fun localRect(): Rect? {
+            // Can't do any calculations before the node is initially placed.
+            if (!hasBeenPlaced) return null
+
             // Either coordinates can become detached at any time, so we have to check before every
             // calculation.
-            val layoutCoordinates = layoutCoordinates ?: return null
+            val layoutCoordinates = currentLayoutCoordinates ?: return null
             val childCoordinates = childCoordinates.takeIf { it.isAttached } ?: return null
             val rect = boundsProvider() ?: return null
             return layoutCoordinates.localRectOf(childCoordinates, rect)
@@ -183,7 +187,10 @@ internal class BringIntoViewResponderNode(
             // CancellationException, it will cancel this coroutineScope, which will also cancel the
             // responder's coroutine.
             launch {
-                parent.bringChildIntoView(layoutCoordinates ?: return@launch, parentRect)
+                parent.bringChildIntoView(
+                    childCoordinates = currentLayoutCoordinates ?: return@launch,
+                    boundsProvider = parentRect
+                )
             }
         }
     }
