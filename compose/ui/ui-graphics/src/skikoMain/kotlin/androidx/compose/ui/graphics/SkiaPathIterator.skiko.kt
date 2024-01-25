@@ -79,8 +79,8 @@ class SkikoPathIterator(
 
     override fun hasNext(): Boolean = iterator.hasNext()
 
-    override fun next(points: FloatArray, offset: Int): PathSegment.Type {
-        check(points.size - offset >= 8) { "The points array must contain at least 8 floats" }
+    override fun next(outPoints: FloatArray, offset: Int): PathSegment.Type {
+        check(outPoints.size - offset >= 8) { "The points array must contain at least 8 floats" }
 
         if (!hasNext()) return PathSegment.Type.Done
 
@@ -89,47 +89,47 @@ class SkikoPathIterator(
 
         return when (segment.verb) {
             PathVerb.MOVE -> {
-                points[offset] = segment.p0!!.x
-                points[offset + 1] = segment.p0!!.y
+                outPoints[offset] = segment.p0!!.x
+                outPoints[offset + 1] = segment.p0!!.y
                 PathSegment.Type.Move
             }
             PathVerb.LINE -> {
-                points[offset] = segment.p0!!.x
-                points[offset + 1] = segment.p0!!.y
-                points[offset + 2] = segment.p1!!.x
-                points[offset + 3] = segment.p1!!.y
+                outPoints[offset] = segment.p0!!.x
+                outPoints[offset + 1] = segment.p0!!.y
+                outPoints[offset + 2] = segment.p1!!.x
+                outPoints[offset + 3] = segment.p1!!.y
                 PathSegment.Type.Line
             }
             PathVerb.QUAD -> {
-                points[offset] = segment.p0!!.x
-                points[offset + 1] = segment.p0!!.y
-                points[offset + 2] = segment.p1!!.x
-                points[offset + 3] = segment.p1!!.y
-                points[offset + 4] = segment.p2!!.x
-                points[offset + 5] = segment.p2!!.y
+                outPoints[offset] = segment.p0!!.x
+                outPoints[offset + 1] = segment.p0!!.y
+                outPoints[offset + 2] = segment.p1!!.x
+                outPoints[offset + 3] = segment.p1!!.y
+                outPoints[offset + 4] = segment.p2!!.x
+                outPoints[offset + 5] = segment.p2!!.y
                 PathSegment.Type.Quadratic
             }
             // TODO: convert conics to quadratics when conicEvaluation is set to AsQuadratics
             PathVerb.CONIC -> {
-                points[offset] = segment.p0!!.x
-                points[offset + 1] = segment.p0!!.y
-                points[offset + 2] = segment.p1!!.x
-                points[offset + 3] = segment.p1!!.y
-                points[offset + 4] = segment.p2!!.x
-                points[offset + 5] = segment.p2!!.y
-                points[offset + 6] = segment.conicWeight
-                points[offset + 7] = segment.conicWeight
+                outPoints[offset] = segment.p0!!.x
+                outPoints[offset + 1] = segment.p0!!.y
+                outPoints[offset + 2] = segment.p1!!.x
+                outPoints[offset + 3] = segment.p1!!.y
+                outPoints[offset + 4] = segment.p2!!.x
+                outPoints[offset + 5] = segment.p2!!.y
+                outPoints[offset + 6] = segment.conicWeight
+                outPoints[offset + 7] = segment.conicWeight
                 PathSegment.Type.Conic
             }
             PathVerb.CUBIC -> {
-                points[offset] = segment.p0!!.x
-                points[offset + 1] = segment.p0!!.y
-                points[offset + 2] = segment.p1!!.x
-                points[offset + 3] = segment.p1!!.y
-                points[offset + 4] = segment.p2!!.x
-                points[offset + 5] = segment.p2!!.y
-                points[offset + 6] = segment.p3!!.x
-                points[offset + 7] = segment.p3!!.y
+                outPoints[offset] = segment.p0!!.x
+                outPoints[offset + 1] = segment.p0!!.y
+                outPoints[offset + 2] = segment.p1!!.x
+                outPoints[offset + 3] = segment.p1!!.y
+                outPoints[offset + 4] = segment.p2!!.x
+                outPoints[offset + 5] = segment.p2!!.y
+                outPoints[offset + 6] = segment.p3!!.x
+                outPoints[offset + 7] = segment.p3!!.y
                 PathSegment.Type.Cubic
             }
             PathVerb.CLOSE -> PathSegment.Type.Close

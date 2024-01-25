@@ -26,7 +26,7 @@ actual fun PathIterator(
     tolerance: Float
 ): PathIterator = AndroidPathIterator(path, conicEvaluation, tolerance)
 
-class AndroidPathIterator(
+private class AndroidPathIterator(
     override val path: Path,
     override val conicEvaluation: PathIterator.ConicEvaluation,
     override val tolerance: Float
@@ -47,8 +47,8 @@ class AndroidPathIterator(
 
     override fun hasNext(): Boolean = implementation.hasNext()
 
-    override fun next(points: FloatArray, offset: Int): PathSegment.Type =
-        implementation.next(points, offset).toPathSegmentType()
+    override fun next(outPoints: FloatArray, offset: Int): PathSegment.Type =
+        implementation.next(outPoints, offset).toPathSegmentType()
 
     override fun next(): PathSegment {
         val p = segmentPoints
