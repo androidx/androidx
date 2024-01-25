@@ -248,15 +248,10 @@ fun Project.addCreateLibraryBuildInfoFileTasks(extension: AndroidXExtension) {
             // Unfortunately, dependency information is only available through internal API
             // (See https://github.com/gradle/gradle/issues/21345).
             publications.withType(MavenPublicationInternal::class.java).configureEach { mavenPub ->
-                // Ideally we would be able to inspect each publication after initial configuration
-                // without using afterEvaluate, but there is not a clean gradle API for doing
-                // that (see https://github.com/gradle/gradle/issues/21424)
-                afterEvaluate {
-                    // java-gradle-plugin creates marker publications that are aliases of the
-                    // main publication.  We do not track these aliases.
-                    if (!mavenPub.isAlias) {
-                        createTaskForComponent(mavenPub, extension.mavenGroup, mavenPub.artifactId)
-                    }
+                // java-gradle-plugin creates marker publications that are aliases of the
+                // main publication.  We do not track these aliases.
+                if (!mavenPub.isAlias) {
+                    createTaskForComponent(mavenPub, extension.mavenGroup, mavenPub.artifactId)
                 }
             }
         }
