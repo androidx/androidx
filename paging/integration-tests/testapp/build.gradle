@@ -47,7 +47,6 @@ dependencies {
 
     // Align dependencies in debugRuntimeClasspath and debugAndroidTestRuntimeClasspath.
     androidTestImplementation(project(":annotation:annotation-experimental"))
-
     androidTestImplementation(libs.kotlinTest)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testExtJunit)

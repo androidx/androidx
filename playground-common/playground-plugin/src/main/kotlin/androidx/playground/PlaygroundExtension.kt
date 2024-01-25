@@ -138,21 +138,49 @@ open class PlaygroundExtension @Inject constructor(
             throw RuntimeException("Must call setupPlayground() first.")
         }
         val supportSettingsFile = File(supportRootDir, "settings.gradle")
-        val projectDependencyGraph = ProjectDependencyGraph(settings, true /*isPlayground*/)
+        val playgroundProjectDependencyGraph = ProjectDependencyGraph(settings, true /*isPlayground*/)
+        // also get full graph that treats projectOrArtifact equal to project
+        val aospProjectDependencyGraph = ProjectDependencyGraph(settings, false /*isPlayground*/)
+
         SettingsParser.findProjects(supportSettingsFile).forEach {
-            projectDependencyGraph.addToAllProjects(
+            playgroundProjectDependencyGraph.addToAllProjects(
+                it.gradlePath,
+                File(supportRootDir, it.filePath)
+            )
+            aospProjectDependencyGraph.addToAllProjects(
                 it.gradlePath,
                 File(supportRootDir, it.filePath)
             )
         }
-        val selectedGradlePaths = projectDependencyGraph.allProjectPaths().filter {
+
+        val selectedGradlePaths = playgroundProjectDependencyGraph.allProjectPaths().filter {
             filter(it)
         }.toSet()
 
-        val allNeededProjects = projectDependencyGraph
+        val allNeededProjects = playgroundProjectDependencyGraph
             .getAllProjectsWithDependencies(selectedGradlePaths + REQUIRED_PROJECTS)
-            .sortedBy { it.v1 } // sort by project path so the parent shows up before children :)
+            .toMutableSet()
+        // there are unnecessary usages of projectOrArtifact in build.gradle files and minimizing them is a goal
+        // since we are able to build more of AndroidX in GitHub thanks to the build cache.
+        // To find these "unnecessary" projectOrArtifact usages, traverse the full graph and add each project unless
+        // it has a direct (project) dependency to a disallowed project.
 
+        // find the list of projects that we cannot build on GitHub. These are projects which are known to be
+        // incompatible or incompatible because they have a project dependency to an incompatible project.
+        val projectOrArtifactDisallowList = buildProjectOrArtifactDisallowList(playgroundProjectDependencyGraph)
+        // track implicitly added projects for reporting purposes
+        val implicitlyAddedProjects = mutableSetOf<String>()
+        aospProjectDependencyGraph
+            .getAllProjectsWithDependencies(selectedGradlePaths + REQUIRED_PROJECTS)
+            .filterNot {
+                // if it is already included or cannot be included, skip
+                it.v1 in projectOrArtifactDisallowList && it !in allNeededProjects
+            }.onEach {
+                // track it for error reporting down below
+                implicitlyAddedProjects.add(it.v1)
+            }.forEach {
+                allNeededProjects.add(it)
+            }
         val unsupportedProjects = allNeededProjects.map { it.v1 }.toSet().filter {
             it in UNSUPPORTED_PROJECTS
         }
@@ -168,7 +196,14 @@ open class PlaygroundExtension @Inject constructor(
                 unsupportedProjects.forEach {
                     appendLine("Unsupported Playground Project: $it")
                     appendLine("dependency path to $it from explicitly requested projects:")
-                    projectDependencyGraph.findPathsBetween(selectedGradlePaths, it).forEach {
+                    playgroundProjectDependencyGraph.findPathsBetween(selectedGradlePaths, it).forEach {
+                        appendLine(it)
+                    }
+                    appendLine("""
+                        dependency path to $it from implicitly added projects. If the following list is
+                        not empty, please file a bug on AndroidX/Github component.
+                    """.trimIndent())
+                    playgroundProjectDependencyGraph.findPathsBetween(implicitlyAddedProjects, it).forEach {
                         appendLine(it)
                     }
                     appendLine("----")
@@ -184,9 +219,17 @@ open class PlaygroundExtension @Inject constructor(
                     selectedGradlePaths.joinToString(",")
             }
         }
-        allNeededProjects.forEach {
-            includeProjectAt(name = it.v1, projectDir = it.v2)
-        }
+        allNeededProjects
+            .sortedBy { it.v1 } // sort by project path so the parent shows up before children :)
+            .forEach {
+                includeProjectAt(name = it.v1, projectDir = it.v2)
+            }
+    }
+
+    private fun buildProjectOrArtifactDisallowList(projectDependencyGraph: ProjectDependencyGraph) : Set<String> {
+        return UNSUPPORTED_PROJECTS.flatMap {
+            projectDependencyGraph.findAllProjectsDependingOn(it)
+        }.toSet()
     }
 
     companion object {
@@ -195,6 +238,7 @@ open class PlaygroundExtension @Inject constructor(
             ":benchmark:benchmark-common", // requires prebuilts
             ":core:core", // stable aidl, b/270593834
             ":sqlite:sqlite-bundled", // clang compilation, b/306669673
+            ":inspection:inspection", // native compilation
         )
     }
 }
