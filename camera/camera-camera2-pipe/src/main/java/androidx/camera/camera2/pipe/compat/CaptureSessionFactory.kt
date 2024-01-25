@@ -255,9 +255,11 @@ constructor(
             when (graphConfig.sessionMode) {
                 CameraGraph.OperatingMode.NORMAL -> Camera2SessionTypes.SESSION_TYPE_REGULAR
                 CameraGraph.OperatingMode.HIGH_SPEED -> Camera2SessionTypes.SESSION_TYPE_HIGH_SPEED
-                else -> throw IllegalArgumentException(
+                CameraGraph.OperatingMode.EXTENSION -> throw IllegalArgumentException(
                     "Unsupported session mode: ${graphConfig.sessionMode}"
                 )
+
+                else -> graphConfig.sessionMode.mode
             }
 
         val outputs = buildOutputConfigurations(
