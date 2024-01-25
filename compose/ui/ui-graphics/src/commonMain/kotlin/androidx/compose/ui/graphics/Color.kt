@@ -345,7 +345,9 @@ value class Color(val value: ULong) {
             alpha: Float = 1f,
             colorSpace: Rgb = ColorSpaces.Srgb
         ): Color {
-            require(hue in 0f..360f && saturation in 0f..1f && value in 0f..1f) {
+            requirePrecondition(
+                hue in 0f..360f && saturation in 0f..1f && value in 0f..1f
+            ) {
                 "HSV ($hue, $saturation, $value) must be in range (0..360, 0..1, 0..1)"
             }
             val red = hsvToRgbComponent(5, hue, saturation, value)
@@ -377,7 +379,9 @@ value class Color(val value: ULong) {
             alpha: Float = 1f,
             colorSpace: Rgb = ColorSpaces.Srgb
         ): Color {
-            require(hue in 0f..360f && saturation in 0f..1f && lightness in 0f..1f) {
+            requirePrecondition(
+                hue in 0f..360f && saturation in 0f..1f && lightness in 0f..1f
+            ) {
                 "HSL ($hue, $saturation, $lightness) must be in range (0..360, 0..1, 0..1)"
             }
             val red = hslToRgbComponent(0, hue, saturation, lightness)

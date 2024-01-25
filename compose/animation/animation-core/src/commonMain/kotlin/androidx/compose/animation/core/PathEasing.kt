@@ -18,6 +18,7 @@ package androidx.compose.animation.core
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.PathIterator
 import androidx.compose.ui.graphics.PathSegment
 
 /**
@@ -67,7 +68,15 @@ class PathEasing(private val path: Path) : Easing {
             // The interval tree allows us to quickly query for the correct segment inside
             // the transform() function.
             val segmentIntervals = IntervalTree<PathSegment>().apply {
-                for (segment in path) {
+                // A path easing curve is defined in the domain 0..1, use an error
+                // appropriate for this domain (the default is 0.25). Conic segments
+                // should be unlikely in path easing curves, but just in case...
+                val iterator = path.iterator(
+                    PathIterator.ConicEvaluation.AsQuadratics,
+                    2e-4f
+                )
+                while (iterator.hasNext()) {
+                    val segment = iterator.next()
                     requirePrecondition(segment.type != PathSegment.Type.Close) {
                         "The path cannot contain a close() command."
                     }
