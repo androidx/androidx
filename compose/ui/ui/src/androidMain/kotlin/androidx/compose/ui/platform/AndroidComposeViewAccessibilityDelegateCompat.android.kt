@@ -887,11 +887,13 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         }
         info.isClickable = false
         semanticsNode.unmergedConfig.getOrNull(SemanticsActions.OnClick)?.let {
-            // Selectable items that are already selected should not announce it again
+            // Selectable tabs and radio buttons that are already selected cannot be selected again
+            // so they should not be exposed as clickable.
             val isSelected =
                 semanticsNode.unmergedConfig.getOrNull(SemanticsProperties.Selected) == true
-            info.isClickable = !isSelected
-            if (semanticsNode.enabled() && !isSelected) {
+            val isRadioButtonOrTab = role == Role.Tab || role == Role.RadioButton
+            info.isClickable = !isRadioButtonOrTab || (isRadioButtonOrTab && !isSelected)
+            if (semanticsNode.enabled() && info.isClickable) {
                 info.addAction(
                     AccessibilityActionCompat(
                         AccessibilityNodeInfoCompat.ACTION_CLICK,
