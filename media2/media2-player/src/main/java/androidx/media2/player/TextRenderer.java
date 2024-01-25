@@ -16,7 +16,6 @@
 
 package androidx.media2.player;
 
-import android.annotation.SuppressLint;
 import android.os.Handler;
 import android.os.Looper;
 
@@ -42,7 +41,6 @@ import java.util.TreeMap;
  *
  * <p>The decoding process implemented here should match NuPlayer2CCDecoder.cpp in the framework.
  */
-@SuppressLint("RestrictedApi") // TODO(b/68398926): Remove once RestrictedApi checks are fixed.
 /* package */ class TextRenderer extends BaseRenderer {
 
     /** Interface for text renderer outputs. */

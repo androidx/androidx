@@ -16,7 +16,6 @@
 
 package androidx.media2.player;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Handler;
 
@@ -37,7 +36,6 @@ import androidx.media2.exoplayer.external.video.VideoRendererEventListener;
 /**
  * Factory for renderers for {@link ExoPlayerWrapper}.
  */
-@SuppressLint("RestrictedApi") // TODO(b/68398926): Remove once RestrictedApi checks are fixed.
 /* package */ final class RenderersFactory
         implements androidx.media2.exoplayer.external.RenderersFactory {
 

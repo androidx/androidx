@@ -67,7 +67,6 @@ import java.net.SocketTimeoutException;
 /**
  * Utility methods for translating between the MediaPlayer2 and ExoPlayer APIs.
  */
-@SuppressLint("RestrictedApi") // TODO(b/68398926): Remove once RestrictedApi checks are fixed.
 /* package */ class ExoPlayerUtils {
 
     private static final ExtractorsFactory sExtractorsFactory = new DefaultExtractorsFactory()

@@ -136,8 +136,6 @@ internal fun XmlPullParser.seekToStartTag(): XmlPullParser {
     }
     return this
 }
-
-@SuppressWarnings("RestrictedApi")
 internal fun AndroidVectorParser.createVectorImageBuilder(
     res: Resources,
     theme: Resources.Theme?,
@@ -253,7 +251,6 @@ internal fun AndroidVectorParser.createVectorImageBuilder(
 }
 
 @Throws(IllegalArgumentException::class)
-@SuppressWarnings("RestrictedApi")
 internal fun AndroidVectorParser.parsePath(
     res: Resources,
     theme: Resources.Theme?,
@@ -380,8 +377,6 @@ internal fun AndroidVectorParser.parsePath(
         trimPathOffset
     )
 }
-
-@SuppressWarnings("RestrictedApi")
 private fun obtainBrushFromComplexColor(complexColor: ComplexColorCompat): Brush? =
     if (complexColor.willDraw()) {
         val shader = complexColor.shader
@@ -426,8 +421,6 @@ internal fun AndroidVectorParser.parseClipPath(
         clipPathData = pathData
     )
 }
-
-@SuppressWarnings("RestrictedApi")
 internal fun AndroidVectorParser.parseGroup(
     res: Resources,
     theme: Resources.Theme?,

@@ -16,7 +16,6 @@
 
 package androidx.paging.integration.testapp.room;
 
-import android.annotation.SuppressLint;
 import android.app.Application;
 
 import androidx.annotation.WorkerThread;
@@ -33,7 +32,6 @@ import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
 
 import java.util.UUID;
-
 
 /**
  * Sample database-backed view model of Customers
@@ -80,7 +78,6 @@ public class CustomerViewModel extends AndroidViewModel {
                 () -> mDatabase.getCustomerDao().insert(createCustomer()));
     }
 
-    @SuppressLint("RestrictedApi")
     void clearAllCustomers() {
         ArchTaskExecutor.getInstance().executeOnDiskIO(
                 () -> mDatabase.getCustomerDao().removeAll());

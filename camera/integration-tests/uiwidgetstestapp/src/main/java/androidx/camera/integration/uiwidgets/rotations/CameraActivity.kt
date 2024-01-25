@@ -323,7 +323,6 @@ open class CameraActivity : AppCompatActivity() {
         return mCamera.cameraInfo.getSensorRotationDegrees(targetRotation)
     }
 
-    @Suppress("RestrictedApi")
     @VisibleForTesting
     fun getCaptureResolution(): Size {
         val resolution = mImageCapture.attachedSurfaceResolution
