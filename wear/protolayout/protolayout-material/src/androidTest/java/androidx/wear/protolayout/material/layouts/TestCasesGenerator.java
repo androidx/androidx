@@ -17,6 +17,7 @@
 package androidx.wear.protolayout.material.layouts;
 
 import static androidx.wear.protolayout.ColorBuilders.argb;
+import static androidx.wear.protolayout.DimensionBuilders.degrees;
 import static androidx.wear.protolayout.DimensionBuilders.dp;
 import static androidx.wear.protolayout.DimensionBuilders.expand;
 import static androidx.wear.protolayout.DimensionBuilders.wrap;
@@ -30,6 +31,9 @@ import androidx.annotation.Dimension;
 import androidx.annotation.NonNull;
 import androidx.wear.protolayout.ActionBuilders.LaunchAction;
 import androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters;
+import androidx.wear.protolayout.LayoutElementBuilders;
+import androidx.wear.protolayout.LayoutElementBuilders.Arc;
+import androidx.wear.protolayout.LayoutElementBuilders.ArcLine;
 import androidx.wear.protolayout.LayoutElementBuilders.Box;
 import androidx.wear.protolayout.LayoutElementBuilders.Column;
 import androidx.wear.protolayout.LayoutElementBuilders.Layout;
@@ -65,6 +69,7 @@ public class TestCasesGenerator {
      * different for different user font sizes. Note that some of the golden will have the same name
      * as it should point on the same size independent image.
      */
+    @SuppressWarnings("deprecation")
     @NonNull
     static Map<String, Layout> generateTestCases(
             @NonNull Context context,
@@ -508,6 +513,179 @@ public class TestCasesGenerator {
                                                                         .setColor(
                                                                                 argb(Color.YELLOW))
                                                                         .build())
+                                                        .build())
+                                        .build())
+                        .build());
+
+        Text mainContentText =
+                new Text.Builder(context, "1234")
+                        .setColor(argb(Color.WHITE))
+                        .setTypography(Typography.TYPOGRAPHY_DISPLAY2)
+                        .build();
+        testCases.put(
+                "edgecontentlayout2_all_present_golden" + goldenSuffix,
+                new EdgeContentLayout2.Builder(deviceParameters)
+                        .setEdgeContent(progressIndicatorBuilder.build())
+                        .setPrimaryLabelContent(
+                                new Text.Builder(context, "Primary label")
+                                        .setTypography(Typography.TYPOGRAPHY_CAPTION1)
+                                        .setColor(argb(Colors.PRIMARY))
+                                        .build())
+                        .setContent(mainContentText)
+                        .setSecondaryLabelContent(
+                                new Text.Builder(context, "Secondary label")
+                                        .setTypography(Typography.TYPOGRAPHY_CAPTION1)
+                                        .setColor(argb(Colors.ON_SURFACE))
+                                        .build())
+                        .build());
+        testCases.put(
+                "edgecontentlayout2_all_present_other_edgecontent_golden" + goldenSuffix,
+                new EdgeContentLayout2.Builder(deviceParameters)
+                        .setEdgeContent(
+                                new Arc.Builder()
+                                        .addContent(
+                                                new ArcLine.Builder()
+                                                        .setColor(argb(Color.YELLOW))
+                                                        .setLength(degrees(135))
+                                                        .setThickness(dp(12))
+                                                        .setArcDirection(
+                                                                LayoutElementBuilders
+                                                                        .ARC_DIRECTION_NORMAL)
+                                                        .build())
+                                        .build())
+                        .setEdgeContentThickness(12)
+                        .setPrimaryLabelContent(
+                                new Text.Builder(context, "Primary label")
+                                        .setTypography(Typography.TYPOGRAPHY_CAPTION1)
+                                        .setColor(argb(Colors.PRIMARY))
+                                        .build())
+                        .setContent(mainContentText)
+                        .setSecondaryLabelContent(
+                                new Text.Builder(context, "Secondary label")
+                                        .setTypography(Typography.TYPOGRAPHY_CAPTION1)
+                                        .setColor(argb(Colors.ON_SURFACE))
+                                        .build())
+                        .build());
+        testCases.put(
+                "edgecontentlayout2_only_edgecontent_golden" + NORMAL_SCALE_SUFFIX,
+                new EdgeContentLayout2.Builder(deviceParameters)
+                        .setEdgeContent(progressIndicatorBuilder.build())
+                        .build());
+        testCases.put(
+                "edgecontentlayout2_all_present_bigger_thickness_golden" + goldenSuffix,
+                new EdgeContentLayout2.Builder(deviceParameters)
+                        .setEdgeContent(
+                                new CircularProgressIndicator.Builder()
+                                        .setProgress(0.3f)
+                                        .setStrokeWidth(16)
+                                        .build())
+                        .setEdgeContentThickness(16
+                                + ProgressIndicatorDefaults.DEFAULT_PADDING.getValue())
+                        .setPrimaryLabelContent(
+                                new Text.Builder(context, "Primary label that overflows")
+                                        .setTypography(Typography.TYPOGRAPHY_CAPTION1)
+                                        .setColor(argb(Colors.PRIMARY))
+                                        .setOverflow(LayoutElementBuilders.TEXT_OVERFLOW_ELLIPSIZE)
+                                        .build())
+                        .setContent(mainContentText)
+                        .setSecondaryLabelContent(
+                                new Text.Builder(context, "Secondary label")
+                                        .setTypography(Typography.TYPOGRAPHY_CAPTION1)
+                                        .setColor(argb(Colors.ON_SURFACE))
+                                        .build())
+                        .build());
+        testCases.put(
+                "edgecontentlayout2_all_present_smaller_thickness_custom_spacer_golden"
+                        + goldenSuffix,
+                new EdgeContentLayout2.Builder(deviceParameters)
+                        .setEdgeContent(
+                                new CircularProgressIndicator.Builder()
+                                        .setProgress(0.3f)
+                                        .setStrokeWidth(2).build())
+                        .setEdgeContentThickness(2
+                                + ProgressIndicatorDefaults.DEFAULT_PADDING.getValue())
+                        .setPrimaryLabelContent(
+                                new Text.Builder(context, "Primary label that overflows")
+                                        .setTypography(Typography.TYPOGRAPHY_CAPTION1)
+                                        .setColor(argb(Colors.PRIMARY))
+                                        .setOverflow(LayoutElementBuilders.TEXT_OVERFLOW_ELLIPSIZE)
+                                        .build())
+                        .setContent(mainContentText)
+                        .setContentAndSecondaryLabelSpacing(dp(11))
+                        .setSecondaryLabelContent(
+                                new Text.Builder(context, "Secondary label")
+                                        .setTypography(Typography.TYPOGRAPHY_CAPTION1)
+                                        .setColor(argb(Colors.ON_SURFACE))
+                                        .build())
+                        .build());
+        testCases.put(
+                "edgecontentlayout2_all_present_overflows_golden" + goldenSuffix,
+                new EdgeContentLayout2.Builder(deviceParameters)
+                        .setEdgeContent(progressIndicatorBuilder.build())
+                        .setPrimaryLabelContent(
+                                new Text.Builder(context, "Primary label that overflows")
+                                        .setTypography(Typography.TYPOGRAPHY_CAPTION1)
+                                        .setColor(argb(Colors.PRIMARY))
+                                        .setOverflow(LayoutElementBuilders.TEXT_OVERFLOW_ELLIPSIZE)
+                                        .build())
+                        .setContent(
+                                new Text.Builder(context, "1234 num steps")
+                                        .setColor(argb(Color.WHITE))
+                                        .setTypography(Typography.TYPOGRAPHY_DISPLAY2)
+                                        .setOverflow(LayoutElementBuilders.TEXT_OVERFLOW_ELLIPSIZE)
+                                        .build())
+                        .setSecondaryLabelContent(
+                                new Text.Builder(context, "Secondary label that overflows")
+                                        .setTypography(Typography.TYPOGRAPHY_CAPTION1)
+                                        .setColor(argb(Colors.ON_SURFACE))
+                                        .setOverflow(LayoutElementBuilders.TEXT_OVERFLOW_ELLIPSIZE)
+                                        .build())
+                        .build());
+        testCases.put(
+                "edgecontentlayout2_no_primarylabel_golden" + goldenSuffix,
+                new EdgeContentLayout2.Builder(deviceParameters)
+                        .setEdgeContent(progressIndicatorBuilder.build())
+                        .setContent(mainContentText)
+                        .setSecondaryLabelContent(
+                                new Text.Builder(context, "Secondary label")
+                                        .setTypography(Typography.TYPOGRAPHY_CAPTION1)
+                                        .setColor(argb(Colors.ON_SURFACE))
+                                        .build())
+                        .build());
+        testCases.put(
+                "edgecontentlayout2_no_secondarylabel_present_golden" + goldenSuffix,
+                new EdgeContentLayout2.Builder(deviceParameters)
+                        .setEdgeContent(progressIndicatorBuilder.build())
+                        .setPrimaryLabelContent(
+                                new Text.Builder(context, "Primary label")
+                                        .setTypography(Typography.TYPOGRAPHY_CAPTION1)
+                                        .setColor(argb(Colors.PRIMARY))
+                                        .build())
+                        .setContent(mainContentText)
+                        .build());
+        testCases.put(
+                "edgecontentlayout2_all_double_secondarylabel_present_golden" + goldenSuffix,
+                new EdgeContentLayout2.Builder(deviceParameters)
+                        .setEdgeContent(progressIndicatorBuilder.build())
+                        .setPrimaryLabelContent(
+                                new Text.Builder(context, "Primary label")
+                                        .setTypography(Typography.TYPOGRAPHY_CAPTION1)
+                                        .setColor(argb(Colors.PRIMARY))
+                                        .build())
+                        .setContent(mainContentText)
+                        .setSecondaryLabelContent(
+                                new Column.Builder()
+                                        .addContent(
+                                                new Text.Builder(context, "Data point 1")
+                                                        .setTypography(
+                                                                Typography.TYPOGRAPHY_CAPTION1)
+                                                        .setColor(argb(Colors.ON_SURFACE))
+                                                        .build())
+                                        .addContent(
+                                                new Text.Builder(context, "Data point 2")
+                                                        .setTypography(
+                                                                Typography.TYPOGRAPHY_CAPTION1)
+                                                        .setColor(argb(Colors.ON_SURFACE))
                                                         .build())
                                         .build())
                         .build());

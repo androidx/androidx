@@ -233,27 +233,51 @@ package androidx.wear.protolayout.material {
 
 package androidx.wear.protolayout.material.layouts {
 
-  public class EdgeContentLayout implements androidx.wear.protolayout.LayoutElementBuilders.LayoutElement {
-    method public static androidx.wear.protolayout.material.layouts.EdgeContentLayout? fromLayoutElement(androidx.wear.protolayout.LayoutElementBuilders.LayoutElement);
-    method public androidx.wear.protolayout.LayoutElementBuilders.LayoutElement? getContent();
-    method public androidx.wear.protolayout.LayoutElementBuilders.LayoutElement? getEdgeContent();
-    method public androidx.wear.protolayout.LayoutElementBuilders.LayoutElement? getPrimaryLabelTextContent();
-    method public androidx.wear.protolayout.LayoutElementBuilders.LayoutElement? getSecondaryLabelTextContent();
-    method public boolean isEdgeContentBehindAllOtherContent();
+  @Deprecated public class EdgeContentLayout implements androidx.wear.protolayout.LayoutElementBuilders.LayoutElement {
+    method @Deprecated public static androidx.wear.protolayout.material.layouts.EdgeContentLayout? fromLayoutElement(androidx.wear.protolayout.LayoutElementBuilders.LayoutElement);
+    method @Deprecated public androidx.wear.protolayout.LayoutElementBuilders.LayoutElement? getContent();
+    method @Deprecated public androidx.wear.protolayout.LayoutElementBuilders.LayoutElement? getEdgeContent();
+    method @Deprecated public androidx.wear.protolayout.LayoutElementBuilders.LayoutElement? getPrimaryLabelTextContent();
+    method @Deprecated public androidx.wear.protolayout.LayoutElementBuilders.LayoutElement? getSecondaryLabelTextContent();
+    method @Deprecated public boolean isEdgeContentBehindAllOtherContent();
   }
 
-  public static final class EdgeContentLayout.Builder {
-    ctor public EdgeContentLayout.Builder(androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters);
-    method public androidx.wear.protolayout.material.layouts.EdgeContentLayout build();
-    method public androidx.wear.protolayout.material.layouts.EdgeContentLayout.Builder setContent(androidx.wear.protolayout.LayoutElementBuilders.LayoutElement);
-    method public androidx.wear.protolayout.material.layouts.EdgeContentLayout.Builder setEdgeContent(androidx.wear.protolayout.LayoutElementBuilders.LayoutElement);
-    method public androidx.wear.protolayout.material.layouts.EdgeContentLayout.Builder setEdgeContentBehindAllOtherContent(boolean);
-    method public androidx.wear.protolayout.material.layouts.EdgeContentLayout.Builder setPrimaryLabelTextContent(androidx.wear.protolayout.LayoutElementBuilders.LayoutElement);
-    method public androidx.wear.protolayout.material.layouts.EdgeContentLayout.Builder setSecondaryLabelTextContent(androidx.wear.protolayout.LayoutElementBuilders.LayoutElement);
+  @Deprecated public static final class EdgeContentLayout.Builder {
+    ctor @Deprecated public EdgeContentLayout.Builder(androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters);
+    method @Deprecated public androidx.wear.protolayout.material.layouts.EdgeContentLayout build();
+    method @Deprecated public androidx.wear.protolayout.material.layouts.EdgeContentLayout.Builder setContent(androidx.wear.protolayout.LayoutElementBuilders.LayoutElement);
+    method @Deprecated public androidx.wear.protolayout.material.layouts.EdgeContentLayout.Builder setEdgeContent(androidx.wear.protolayout.LayoutElementBuilders.LayoutElement);
+    method @Deprecated public androidx.wear.protolayout.material.layouts.EdgeContentLayout.Builder setEdgeContentBehindAllOtherContent(boolean);
+    method @Deprecated public androidx.wear.protolayout.material.layouts.EdgeContentLayout.Builder setPrimaryLabelTextContent(androidx.wear.protolayout.LayoutElementBuilders.LayoutElement);
+    method @Deprecated public androidx.wear.protolayout.material.layouts.EdgeContentLayout.Builder setSecondaryLabelTextContent(androidx.wear.protolayout.LayoutElementBuilders.LayoutElement);
+  }
+
+  public final class EdgeContentLayout2 implements androidx.wear.protolayout.LayoutElementBuilders.LayoutElement {
+    method public static androidx.wear.protolayout.material.layouts.EdgeContentLayout2? fromLayoutElement(androidx.wear.protolayout.LayoutElementBuilders.LayoutElement);
+    method public androidx.wear.protolayout.LayoutElementBuilders.LayoutElement? getContent();
+    method @Dimension(unit=androidx.annotation.Dimension.DP) public float getContentAndSecondaryLabelSpacing();
+    method public androidx.wear.protolayout.LayoutElementBuilders.LayoutElement? getEdgeContent();
+    method public float getEdgeContentThickness();
+    method public androidx.wear.protolayout.expression.Fingerprint? getFingerprint();
+    method public androidx.wear.protolayout.LayoutElementBuilders.LayoutElement? getPrimaryLabelContent();
+    method public androidx.wear.protolayout.LayoutElementBuilders.LayoutElement? getSecondaryLabelContent();
+  }
+
+  public static final class EdgeContentLayout2.Builder {
+    ctor public EdgeContentLayout2.Builder(androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters);
+    method public androidx.wear.protolayout.material.layouts.EdgeContentLayout2 build();
+    method public androidx.wear.protolayout.material.layouts.EdgeContentLayout2.Builder setContent(androidx.wear.protolayout.LayoutElementBuilders.LayoutElement);
+    method public androidx.wear.protolayout.material.layouts.EdgeContentLayout2.Builder setContentAndSecondaryLabelSpacing(androidx.wear.protolayout.DimensionBuilders.DpProp);
+    method public androidx.wear.protolayout.material.layouts.EdgeContentLayout2.Builder setEdgeContent(androidx.wear.protolayout.LayoutElementBuilders.LayoutElement);
+    method public androidx.wear.protolayout.material.layouts.EdgeContentLayout2.Builder setEdgeContentThickness(@Dimension(unit=androidx.annotation.Dimension.DP) float);
+    method public androidx.wear.protolayout.material.layouts.EdgeContentLayout2.Builder setPrimaryLabelContent(androidx.wear.protolayout.LayoutElementBuilders.LayoutElement);
+    method public androidx.wear.protolayout.material.layouts.EdgeContentLayout2.Builder setSecondaryLabelContent(androidx.wear.protolayout.LayoutElementBuilders.LayoutElement);
   }
 
   public class LayoutDefaults {
     field public static final androidx.wear.protolayout.DimensionBuilders.DpProp DEFAULT_VERTICAL_SPACER_HEIGHT;
+    field public static final androidx.wear.protolayout.DimensionBuilders.DpProp EDGE_CONTENT_LAYOUT2_CONTENT_AND_SECONDARY_LABEL_SPACING_DP;
+    field public static final androidx.wear.protolayout.DimensionBuilders.DpProp EDGE_CONTENT_LAYOUT2_LARGE_CONTENT_AND_SECONDARY_LABEL_SPACING_DP;
     field public static final float EDGE_CONTENT_LAYOUT_PADDING_ABOVE_MAIN_CONTENT_DP = 6.0f;
     field public static final float EDGE_CONTENT_LAYOUT_PADDING_BELOW_MAIN_CONTENT_DP = 8.0f;
     field @Deprecated public static final int MULTI_BUTTON_MAX_NUMBER = 7; // 0x7
