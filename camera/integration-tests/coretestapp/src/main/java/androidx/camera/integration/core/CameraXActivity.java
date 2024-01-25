@@ -315,6 +315,7 @@ public class CameraXActivity extends AppCompatActivity {
     // there is smaller impact on the preview.
     View mViewFinder;
     private List<UseCase> mUseCases;
+    ExecutorService mFileWriterExecutorService;
     ExecutorService mImageCaptureExecutorService;
     private VideoCapture<Recorder> mVideoCapture;
     private Recorder mRecorder;
@@ -1398,6 +1399,7 @@ public class CameraXActivity extends AppCompatActivity {
         closeAppIfCameraProviderMismatch(this.getIntent());
 
         setContentView(R.layout.activity_camera_xmain);
+        mFileWriterExecutorService = Executors.newSingleThreadExecutor();
         mImageCaptureExecutorService = Executors.newSingleThreadExecutor();
         mDisplaySupportedHighDynamicRanges = Collections.emptySet();
         if (Build.VERSION.SDK_INT >= 30) {
@@ -1590,14 +1592,16 @@ public class CameraXActivity extends AppCompatActivity {
      * Writes text data to a cache file in primary external directory for reading during tests.
      */
     private void writeTextToExternalCache(@NonNull String text, @NonNull String filename) {
-        File outputFile = new File(getExternalCacheDir(), filename);
+        mFileWriterExecutorService.execute(() -> {
+            File outputFile = new File(getExternalCacheDir(), filename);
 
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile))) {
-            writer.write(text);
-            Log.d(TAG, "Wrote [" + text + "] to " + outputFile);
-        } catch (IOException e) {
-            Log.e(TAG, "writeViewFinderPositionToFile: failed to write to " + outputFile, e);
-        }
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile))) {
+                writer.write(text);
+                Log.d(TAG, "Wrote [" + text + "] to " + outputFile);
+            } catch (IOException e) {
+                Log.e(TAG, "writeViewFinderPositionToFile: failed to write to " + outputFile, e);
+            }
+        });
     }
 
     /**
@@ -1635,6 +1639,7 @@ public class CameraXActivity extends AppCompatActivity {
                 requireNonNull(ContextCompat.getSystemService(this, DisplayManager.class));
         dpyMgr.unregisterDisplayListener(mDisplayListener);
         mPreviewRenderer.shutdown();
+        mFileWriterExecutorService.shutdown();
         mImageCaptureExecutorService.shutdown();
     }
 
