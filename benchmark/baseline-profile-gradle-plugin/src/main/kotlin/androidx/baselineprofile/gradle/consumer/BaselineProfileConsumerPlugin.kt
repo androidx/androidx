@@ -353,13 +353,20 @@ private class BaselineProfileConsumerAgpPlugin(private val project: Project) : A
             // trigger a circular task dependency since the library would require
             // the profile in order to build the aar for the sample app and generate
             // the profile.
+
+            val automaticGeneration = perVariantBaselineProfileExtensionManager
+                .variant(variant)
+                .automaticGenerationDuringBuild
+
+            if (automaticGeneration && isLibraryModule() && !isGradleSyncRunning()) {
+                throw IllegalStateException(
+                    "The flag `automaticGenerationDuringBuild` is not compatible with library " +
+                        "modules. Please remove the flag `automaticGenerationDuringBuild` in " +
+                        "your com.android.library module ${project.name}."
+                )
+            }
+
             if (isApplicationModule()) {
-
-                // Sets the task dependency according to the configuration flag.
-                val automaticGeneration = perVariantBaselineProfileExtensionManager
-                    .variant(variant)
-                    .automaticGenerationDuringBuild
-
                 // Defines a function to apply the baseline profile source sets to a variant.
                 fun applySourceSets(variantName: String, variantBuildType: String?) {
                     val taskName = camelCase("merge", variantName, "artProfile")
