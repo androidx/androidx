@@ -20,8 +20,12 @@ import android.os.Build
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.requiredHeight
+import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
@@ -40,17 +44,23 @@ import androidx.compose.testutils.assertPixels
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.platform.isDebugInspectorInfoEnabled
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsNotFocused
+import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performKeyInput
+import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.pressKey
 import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.test.swipe
 import androidx.compose.ui.test.swipeDown
@@ -533,6 +543,216 @@ class TextFieldScrollTest : FocusedWindowTest {
         assertThat(textFieldScrollState.value).isGreaterThan(0)
         assertThat(textFieldScrollState.value).isEqualTo(textFieldScrollState.maxValue)
         assertThat(columnScrollState.value).isGreaterThan(0)
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun cursorScrolledIntoViewWhenTyping_inHorizontallyScrollableField_whenAtStart() {
+        val state = TextFieldState("baaaaaaaaaa")
+        val scrollState = ScrollState(Int.MAX_VALUE)
+        lateinit var coroutineScope: CoroutineScope
+        rule.setContent {
+            coroutineScope = rememberCoroutineScope()
+            BasicTextField2(
+                state,
+                scrollState = scrollState,
+                lineLimits = SingleLine,
+                modifier = Modifier
+                    // Force the field to be scrollable.
+                    // Must be at least as wide as the cursor rectangle for the assertions to work.
+                    .requiredWidth(10.dp)
+                    .testTag("field")
+            )
+        }
+        rule.onNodeWithTag("field").requestFocus()
+        rule.runOnIdle {
+            // Start the cursor at index 1 then backspace to move it to zero. This makes the
+            // assertion easier to write since we don't have to know the width of the glyph to
+            // calculate the expected scroll offset. We have to do this after requesting focus since
+            // the cursor will move change when focus is gained.
+            state.edit {
+                placeCursorBeforeCharAt(1)
+            }
+        }
+        rule.runOnIdle {
+            coroutineScope.launch {
+                scrollState.scrollTo(scrollState.maxValue)
+            }
+        }
+        rule.runOnIdle {
+            assertThat(scrollState.value).isEqualTo(scrollState.maxValue)
+        }
+        rule.onNodeWithTag("field").assertTextEquals("baaaaaaaaaa")
+
+        rule.onNodeWithTag("field").performKeyInput {
+            pressKey(Key.Backspace)
+        }
+
+        rule.onNodeWithTag("field").assertTextEquals("aaaaaaaaaa")
+        rule.waitUntil(
+            "scrollState.value (${scrollState.value}) == 0 && " +
+                "state.text.selectionInChars (${state.text.selectionInChars}) == TextRange(0)"
+        ) {
+            scrollState.value == 0 && state.text.selectionInChars == TextRange(0)
+        }
+    }
+
+    @Test
+    fun cursorScrolledIntoViewWhenTyping_inHorizontallyScrollableField_whenAtEnd() {
+        val state = TextFieldState("aaaaaaaaaa")
+        val scrollState = ScrollState(0)
+        rule.setContent {
+            BasicTextField2(
+                state,
+                scrollState = scrollState,
+                lineLimits = SingleLine,
+                modifier = Modifier
+                    // Force the field to be scrollable.
+                    // Must be at least as wide as the cursor rectangle for the assertions to work.
+                    .requiredWidth(10.dp)
+                    .testTag("field")
+            )
+        }
+        rule.runOnIdle {
+            assertThat(scrollState.value).isEqualTo(0)
+        }
+
+        rule.onNodeWithTag("field").performTextInput("b")
+
+        rule.waitUntil(
+            "scrollState.value (${scrollState.value}) == " +
+                "scrollState.maxValue (${scrollState.maxValue})"
+        ) {
+            scrollState.value == scrollState.maxValue
+        }
+    }
+
+    @Test
+    fun cursorScrolledIntoViewWhenTyping_inVerticallyScrollableField_whenAtTop() {
+        val state = TextFieldState("a\na\na\na\n", initialSelectionInChars = TextRange(0))
+        val scrollState = ScrollState(Int.MAX_VALUE)
+        rule.setContent {
+            BasicTextField2(
+                state,
+                scrollState = scrollState,
+                lineLimits = MultiLine(maxHeightInLines = 1),
+                modifier = Modifier.testTag("field")
+            )
+        }
+        rule.runOnIdle {
+            assertThat(scrollState.value).isEqualTo(scrollState.maxValue)
+        }
+
+        rule.onNodeWithTag("field").performTextInput("b")
+
+        rule.waitUntil("scrollState.value (${scrollState.value}) == 0") {
+            scrollState.value == 0
+        }
+    }
+
+    @Test
+    fun cursorScrolledIntoViewWhenTyping_inVerticallyScrollableField_whenAtBottom() {
+        val state = TextFieldState("a\na\na\na\n")
+        val scrollState = ScrollState(0)
+        rule.setContent {
+            BasicTextField2(
+                state,
+                scrollState = scrollState,
+                lineLimits = MultiLine(maxHeightInLines = 1),
+                modifier = Modifier.testTag("field")
+            )
+        }
+        rule.runOnIdle {
+            assertThat(scrollState.value).isEqualTo(0)
+        }
+
+        rule.onNodeWithTag("field").performTextInput("b")
+
+        rule.waitUntil(
+            "scrollState.value (${scrollState.value}) == " +
+                "scrollState.maxValue (${scrollState.maxValue})"
+        ) {
+            scrollState.value == scrollState.maxValue
+        }
+    }
+
+    @Test
+    fun cursorScrolledIntoViewWhenTyping_inVerticallyScrollableField_whenMovesBelowViewport() {
+        val state = TextFieldState("a\na\na\na\n")
+        val scrollState = ScrollState(Int.MAX_VALUE)
+        rule.setContent {
+            BasicTextField2(
+                state,
+                scrollState = scrollState,
+                lineLimits = MultiLine(maxHeightInLines = 1),
+                modifier = Modifier.testTag("field")
+            )
+        }
+        rule.onNodeWithTag("field").requestFocus()
+        rule.runOnIdle {
+            assertThat(scrollState.value).isEqualTo(scrollState.maxValue)
+        }
+
+        // At this point the field is scrolled all the way to the bottom, but then we enter a
+        // newline, which will push the cursor below the bottom of the field. It should scroll up
+        // to stay in view.
+        rule.onNodeWithTag("field").performTextInput("\n")
+
+        rule.waitUntil(
+            "scrollState.value (${scrollState.value}) == " +
+                "scrollState.maxValue (${scrollState.maxValue})"
+        ) {
+            scrollState.value == scrollState.maxValue
+        }
+    }
+
+    @Test
+    fun cursorScrolledIntoViewWhenTyping_inVerticallyScrollableContainer_whenFieldExpands() {
+        // Start as a single line, then enter '\n' to grow to 2 lines.
+        val state = TextFieldState("a")
+        val scrollState = ScrollState(0)
+        var containerHeight by mutableStateOf(0.dp)
+        rule.setContent {
+            Box(
+                Modifier
+                    .requiredHeight(containerHeight)
+                    .fillMaxWidth()
+                    .border(1.dp, Color.Red)
+                    .verticalScroll(scrollState)
+            ) {
+                BasicTextField2(
+                    state,
+                    // The field should never scroll internally.
+                    lineLimits = MultiLine(maxHeightInLines = Int.MAX_VALUE),
+                    modifier = Modifier
+                        .testTag("field")
+                        .border(1.dp, Color.Blue)
+                )
+            }
+        }
+        rule.onNodeWithTag("field").requestFocus()
+        rule.runOnIdle {
+            assertThat(scrollState.value).isEqualTo(0)
+        }
+
+        // Make the container height equal to the size of the single-line text field.
+        with(rule.density) {
+            containerHeight = rule.onNodeWithTag("field").fetchSemanticsNode().size.height.toDp()
+        }
+
+        // Enter a newline, which will move the cursor to line 2 and grow the field to be 2 lines
+        // tall. The second line will initially be hidden by the container, but should be scrolled
+        // back into view.
+        rule.onNodeWithTag("field").performTextInput("\n")
+
+        rule.waitUntil(
+            "maxValue (${scrollState.maxValue} > 0 && " +
+                "scrollState.value (${scrollState.value}) == maxValue",
+            timeoutMillis = 10_000
+        ) {
+            val maxValue = scrollState.maxValue
+            maxValue > 0 && scrollState.value == maxValue
+        }
     }
 
     private fun ComposeContentTestRule.setupHorizontallyScrollableContent(

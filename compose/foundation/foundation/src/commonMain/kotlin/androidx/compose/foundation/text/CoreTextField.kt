@@ -1037,7 +1037,7 @@ private fun endInputSession(state: LegacyTextFieldState) {
 
 /**
  * Calculates the location of the end of the current selection and requests that it be brought into
- * view using [bringIntoView][BringIntoViewRequester.bringIntoView].
+ * view using [bringCursorIntoView][BringIntoViewRequester.bringIntoView].
  *
  * Text fields have a lot of different edge cases where they need to make sure they stay visible:
  *

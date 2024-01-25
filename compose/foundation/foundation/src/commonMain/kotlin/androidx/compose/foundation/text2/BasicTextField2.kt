@@ -28,6 +28,7 @@ import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.CursorHandle
 import androidx.compose.foundation.text.Handle
@@ -472,6 +473,7 @@ fun BasicTextField2(
                     )
                     .textFieldMinSize(textStyle)
                     .clipToBounds()
+                    .bringIntoViewRequester(textLayoutState.bringIntoViewRequester)
                     .then(
                         TextFieldCoreModifier(
                             isFocused = isFocused && isWindowFocused,

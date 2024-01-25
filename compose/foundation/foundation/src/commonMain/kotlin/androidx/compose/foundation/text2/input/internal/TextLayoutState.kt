@@ -17,6 +17,7 @@
 package androidx.compose.foundation.text2.input.internal
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.neverEqualPolicy
@@ -77,6 +78,15 @@ internal class TextLayoutState {
      * Set to a non-zero value for single line TextFields in order to prevent text cuts.
      */
     var minHeightForSingleLineField by mutableStateOf(0.dp)
+
+    /**
+     * A [BringIntoViewRequester] that can be used to request a specific region of text be brought
+     * into view (via [TextLayoutState.bringCursorIntoView]).
+     *
+     * This requester should only be applied to the core text field node, _inside_ the internal
+     * scroll container.
+     */
+    val bringIntoViewRequester = BringIntoViewRequester()
 
     /**
      * Updates the [TextFieldLayoutStateCache] with inputs that don't come from the measure phase.
@@ -239,4 +249,15 @@ internal fun TextLayoutState.fromWindowToDecoration(offset: Offset): Offset {
             offset
         }
     } ?: offset
+}
+
+/**
+ * Asks [TextLayoutState.bringIntoViewRequester] to bring the bounds of the cursor at [cursorIndex]
+ * into view.
+ */
+@OptIn(ExperimentalFoundationApi::class)
+internal suspend fun TextLayoutState.bringCursorIntoView(cursorIndex: Int) {
+    val layoutResult = layoutResult ?: return
+    val rect = layoutResult.getCursorRect(cursorIndex)
+    bringIntoViewRequester.bringIntoView(rect)
 }
