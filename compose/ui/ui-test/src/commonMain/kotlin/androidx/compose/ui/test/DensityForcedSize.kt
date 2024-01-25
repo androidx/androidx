@@ -56,7 +56,7 @@ internal fun DensityForcedSize(
                 maxWidth
             }
             val requiredHeight = if (size.isSpecified) {
-                max(maxWidth, size.height)
+                max(maxHeight, size.height)
             } else {
                 maxHeight
             }
