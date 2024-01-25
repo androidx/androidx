@@ -18,7 +18,12 @@ package androidx.wear.protolayout.material.layouts;
 
 import static androidx.wear.protolayout.DimensionBuilders.dp;
 
+import androidx.annotation.NonNull;
 import androidx.wear.protolayout.DimensionBuilders.DpProp;
+import androidx.wear.protolayout.LayoutElementBuilders.Box;
+import androidx.wear.protolayout.LayoutElementBuilders.LayoutElement;
+import androidx.wear.protolayout.ModifiersBuilders.Modifiers;
+import androidx.wear.protolayout.ModifiersBuilders.Padding;
 import androidx.wear.protolayout.material.ButtonDefaults;
 
 /** Contains the default values used by layout templates for ProtoLayout. */
@@ -54,6 +59,12 @@ public class LayoutDefaults {
     static final DpProp PRIMARY_LAYOUT_PRIMARY_LABEL_SPACER_HEIGHT_ROUND_DP = dp(0);
 
     /**
+     * The default percentage for the horizontal padding for primary or secondary label in the
+     * {@link PrimaryLayout}.
+     */
+    static final float LAYOUTS_LABEL_PADDING_PERCENT = 6.3f / 100;
+
+    /**
      * The default spacer above primary label in {@link PrimaryLayout} to make space for Tile icon
      * on square devices.
      */
@@ -76,6 +87,12 @@ public class LayoutDefaults {
      * text is too big.
      */
     static final float PRIMARY_LAYOUT_CHIP_HORIZONTAL_PADDING_ROUND_DP = 30;
+
+    /**
+     * The updated padding percentage for the primary chip in {@link PrimaryLayout} so it doesn't
+     * bleed off screen if text is too big and scales correctly among different screen sizes.
+     */
+    static final float PRIMARY_LAYOUT_CHIP_HORIZONTAL_PADDING_PERCENT = 16.64f / 100;
 
     /**
      * The padding for the primary chip in {@link PrimaryLayout} so it doesn't bleed off screen if
@@ -150,5 +167,22 @@ public class LayoutDefaults {
          * MultiButtonLayout}.
          */
         static final DpProp SPACER_HEIGHT = dp(4);
+    }
+
+    /** Wraps the given element into a {@link Box} and applies given horizontal padding. */
+    @NonNull
+    static Box insetElementWithPadding(@NonNull LayoutElement label, float horizontalLabelPadding) {
+        return new Box.Builder()
+                .addContent(label)
+                .setModifiers(
+                        new Modifiers.Builder()
+                                .setPadding(
+                                        new Padding.Builder()
+                                                .setRtlAware(true)
+                                                .setStart(dp(horizontalLabelPadding))
+                                                .setEnd(dp(horizontalLabelPadding))
+                                                .build())
+                                .build())
+                .build();
     }
 }

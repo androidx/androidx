@@ -99,6 +99,25 @@ public class TestCasesGenerator {
                                         .build())
                         .build());
         testCases.put(
+                "default_empty_primarychiplayout_primarychip2_golden" + goldenSuffix,
+                new PrimaryLayout.Builder(deviceParameters)
+                        .setResponsiveContentInsetEnabled(true)
+                        .setPrimaryChipContent(primaryChipBuilder.build())
+                        .build());
+        testCases.put(
+                "default_longtext_primarychiplayout_primarychip2_golden" + goldenSuffix,
+                new PrimaryLayout.Builder(deviceParameters)
+                        .setResponsiveContentInsetEnabled(true)
+                        .setPrimaryChipContent(
+                                new CompactChip.Builder(
+                                        context,
+                                        "Too_long_textToo_long_textToo_long_text"
+                                                + "Too_long_textToo_long_text",
+                                        clickable,
+                                        deviceParameters)
+                                        .build())
+                        .build());
+        testCases.put(
                 "coloredbox_primarylabel_primarychiplayout_golden" + goldenSuffix,
                 new PrimaryLayout.Builder(deviceParameters)
                         .setPrimaryChipContent(primaryChipBuilder.build())
@@ -275,6 +294,46 @@ public class TestCasesGenerator {
                         .setSecondaryLabelTextContent(buildTextLabel(context, "Secondary label"))
                         .build());
         testCases.put(
+                "coloredbox_3_chip_primary_secondary_columnslayout_primarychip2_golden"
+                        + goldenSuffix,
+                new PrimaryLayout.Builder(deviceParameters)
+                        .setResponsiveContentInsetEnabled(true)
+                        .setPrimaryChipContent(primaryChipBuilder.build())
+                        .setContent(
+                                new MultiSlotLayout.Builder()
+                                        .addSlotContent(buildColoredBoxMSL(Color.YELLOW))
+                                        .addSlotContent(buildColoredBoxMSL(Color.BLUE))
+                                        .addSlotContent(buildColoredBoxMSL(Color.MAGENTA))
+                                        .build())
+                        .setPrimaryLabelTextContent(buildTextLabel(context, "Primary label"))
+                        .setSecondaryLabelTextContent(buildTextLabel(context, "Secondary label"))
+                        .build());
+        testCases.put(
+                "coloredbox_3_chip_primary_secondary_columnslayout_primarychip2_long_golden"
+                        + goldenSuffix,
+                new PrimaryLayout.Builder(deviceParameters)
+                        .setResponsiveContentInsetEnabled(true)
+                        .setPrimaryChipContent(
+                                new CompactChip.Builder(
+                                        context,
+                                        "Too_long_textToo_long_textToo_long_text",
+                                        clickable,
+                                        deviceParameters)
+                                        .build())
+                        .setContent(
+                                new MultiSlotLayout.Builder()
+                                        .addSlotContent(buildColoredBoxMSL(Color.YELLOW))
+                                        .addSlotContent(buildColoredBoxMSL(Color.BLUE))
+                                        .addSlotContent(buildColoredBoxMSL(Color.MAGENTA))
+                                        .build())
+                        .setPrimaryLabelTextContent(
+                                buildTextLabel(
+                                        context, "Primary label extra text here to overflow"))
+                        .setSecondaryLabelTextContent(
+                                buildTextLabel(
+                                        context, "Secondary label extra text here to overflow"))
+                        .build());
+        testCases.put(
                 "coloredbox_3_columnslayout_golden" + NORMAL_SCALE_SUFFIX,
                 new PrimaryLayout.Builder(deviceParameters)
                         .setContent(
@@ -306,6 +365,35 @@ public class TestCasesGenerator {
                                         .build())
                         .setPrimaryLabelTextContent(buildTextLabel(context, "Primary label"))
                         .setSecondaryLabelTextContent(buildTextLabel(context, "Secondary label"))
+                        .build());
+        testCases.put(
+                "coloredbox_3_primary_secondary_columnslayout_inset_golden" + goldenSuffix,
+                new PrimaryLayout.Builder(deviceParameters)
+                        .setResponsiveContentInsetEnabled(true)
+                        .setContent(
+                                new MultiSlotLayout.Builder()
+                                        .addSlotContent(buildColoredBoxMSL(Color.YELLOW))
+                                        .addSlotContent(buildColoredBoxMSL(Color.BLUE))
+                                        .addSlotContent(buildColoredBoxMSL(Color.MAGENTA))
+                                        .build())
+                        .setPrimaryLabelTextContent(buildTextLabel(context, "Primary label"))
+                        .setSecondaryLabelTextContent(buildTextLabel(context, "Secondary label"))
+                        .build());
+        testCases.put(
+                "coloredbox_3_primary_secondary_long_columnslayout_inset_golden" + goldenSuffix,
+                new PrimaryLayout.Builder(deviceParameters)
+                        .setResponsiveContentInsetEnabled(true)
+                        .setContent(
+                                new MultiSlotLayout.Builder()
+                                        .addSlotContent(buildColoredBoxMSL(Color.YELLOW))
+                                        .addSlotContent(buildColoredBoxMSL(Color.BLUE))
+                                        .addSlotContent(buildColoredBoxMSL(Color.MAGENTA))
+                                        .build())
+                        .setPrimaryLabelTextContent(
+                                buildTextLabel(context, "Primary label extra text that overflows"))
+                        .setSecondaryLabelTextContent(
+                                buildTextLabel(
+                                        context, "Secondary label extra text that overflows"))
                         .build());
         testCases.put(
                 "custom_spacer_coloredbox_3_chip_primary_secondary_columnslayout_golden"

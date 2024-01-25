@@ -66,7 +66,14 @@ public class PrimaryLayoutTest {
         PrimaryLayout layout =
                 new PrimaryLayout.Builder(DEVICE_PARAMETERS).setContent(CONTENT).build();
 
-        assertLayout(DEFAULT_VERTICAL_SPACER_HEIGHT.getValue(), layout, CONTENT, null, null, null);
+        assertLayout(
+                DEFAULT_VERTICAL_SPACER_HEIGHT.getValue(),
+                layout,
+                CONTENT,
+                /* expectedPrimaryChip= */ null,
+                /* expectedPrimaryLabel= */ null,
+                /* expectedSecondaryLabel= */ null,
+                /* isResponsive= */ false);
     }
 
     @Test
@@ -82,8 +89,9 @@ public class PrimaryLayoutTest {
                 layout,
                 CONTENT,
                 PRIMARY_CHIP,
-                null,
-                null);
+                /* expectedPrimaryLabel= */ null,
+                /* expectedSecondaryLabel= */ null,
+                /* isResponsive= */ false);
     }
 
     @Test
@@ -98,9 +106,10 @@ public class PrimaryLayoutTest {
                 DEFAULT_VERTICAL_SPACER_HEIGHT.getValue(),
                 layout,
                 CONTENT,
-                null,
+                /* expectedPrimaryChip= */ null,
                 PRIMARY_LABEL,
-                null);
+                /* expectedSecondaryLabel= */ null,
+                /* isResponsive= */ false);
     }
 
     @Test
@@ -115,9 +124,29 @@ public class PrimaryLayoutTest {
                 DEFAULT_VERTICAL_SPACER_HEIGHT.getValue(),
                 layout,
                 CONTENT,
-                null,
-                null,
-                SECONDARY_LABEL);
+                /* expectedPrimaryChip= */ null,
+                /* expectedPrimaryLabel= */ null,
+                SECONDARY_LABEL,
+                /* isResponsive= */ false);
+    }
+
+    @Test
+    public void testContentSecondaryLabel_responsiveSecondaryLabel() {
+        PrimaryLayout layout =
+                new PrimaryLayout.Builder(DEVICE_PARAMETERS)
+                        .setContent(CONTENT)
+                        .setSecondaryLabelTextContent(SECONDARY_LABEL)
+                        .setResponsiveContentInsetEnabled(true)
+                        .build();
+
+        assertLayout(
+                DEFAULT_VERTICAL_SPACER_HEIGHT.getValue(),
+                layout,
+                CONTENT,
+                /* expectedPrimaryChip= */ null,
+                /* expectedPrimaryLabel= */ null,
+                SECONDARY_LABEL,
+                /* isResponsive= */ true);
     }
 
     @Test
@@ -130,9 +159,43 @@ public class PrimaryLayoutTest {
                         .setPrimaryLabelTextContent(PRIMARY_LABEL)
                         .setSecondaryLabelTextContent(SECONDARY_LABEL)
                         .setVerticalSpacerHeight(height)
+                        .setResponsiveContentInsetEnabled(true)
+                        // Test that the bit was flipped correctly.
+                        .setResponsiveContentInsetEnabled(false)
                         .build();
 
-        assertLayout(height, layout, CONTENT, PRIMARY_CHIP, PRIMARY_LABEL, SECONDARY_LABEL);
+        assertLayout(
+                height,
+                layout,
+                CONTENT,
+                PRIMARY_CHIP,
+                PRIMARY_LABEL,
+                SECONDARY_LABEL,
+                /* isResponsive= */ false);
+    }
+
+    @Test
+    public void testAll_responsive() {
+        float height = 12;
+        PrimaryLayout layout =
+                new PrimaryLayout.Builder(DEVICE_PARAMETERS)
+                        .setContent(CONTENT)
+                        .setPrimaryChipContent(PRIMARY_CHIP)
+                        .setPrimaryLabelTextContent(PRIMARY_LABEL)
+                        .setSecondaryLabelTextContent(SECONDARY_LABEL)
+                        .setVerticalSpacerHeight(height)
+                        .setResponsiveContentInsetEnabled(true)
+                        .build();
+
+        // Secondary label doesn't have extra padding.
+        assertLayout(
+                height,
+                layout,
+                CONTENT,
+                PRIMARY_CHIP,
+                PRIMARY_LABEL,
+                SECONDARY_LABEL,
+                /* isResponsive= */ true);
     }
 
     @Test
@@ -189,14 +252,16 @@ public class PrimaryLayoutTest {
             @Nullable LayoutElement expectedContent,
             @Nullable LayoutElement expectedPrimaryChip,
             @Nullable LayoutElement expectedPrimaryLabel,
-            @Nullable LayoutElement expectedSecondaryLabel) {
+            @Nullable LayoutElement expectedSecondaryLabel,
+            boolean isResponsive) {
         assertLayoutIsEqual(
                 height,
                 actualLayout,
                 expectedContent,
                 expectedPrimaryChip,
                 expectedPrimaryLabel,
-                expectedSecondaryLabel);
+                expectedSecondaryLabel,
+                isResponsive);
 
         Box box = new Box.Builder().addContent(actualLayout).build();
 
@@ -209,7 +274,8 @@ public class PrimaryLayoutTest {
                 expectedContent,
                 expectedPrimaryChip,
                 expectedPrimaryLabel,
-                expectedSecondaryLabel);
+                expectedSecondaryLabel,
+                isResponsive);
 
         assertThat(PrimaryLayout.fromLayoutElement(actualLayout)).isEqualTo(actualLayout);
     }
@@ -220,7 +286,8 @@ public class PrimaryLayoutTest {
             @Nullable LayoutElement expectedContent,
             @Nullable LayoutElement expectedPrimaryChip,
             @Nullable LayoutElement expectedPrimaryLabel,
-            @Nullable LayoutElement expectedSecondaryLabel) {
+            @Nullable LayoutElement expectedSecondaryLabel,
+            boolean isResponsive) {
         byte[] expectedMetadata = PrimaryLayout.METADATA_TAG_BASE.clone();
 
         if (expectedContent == null) {
@@ -269,6 +336,13 @@ public class PrimaryLayoutTest {
                                     | PrimaryLayout.SECONDARY_LABEL_PRESENT);
         }
 
+        if (isResponsive) {
+            expectedMetadata[PrimaryLayout.FLAG_INDEX] =
+                    (byte) (expectedMetadata[PrimaryLayout.FLAG_INDEX]
+                            | PrimaryLayout.CONTENT_INSET_USED);
+        }
+
         assertThat(actualLayout.getMetadataTag()).isEqualTo(expectedMetadata);
+        assertThat(actualLayout.isResponsiveContentInsetEnabled()).isEqualTo(isResponsive);
     }
 }

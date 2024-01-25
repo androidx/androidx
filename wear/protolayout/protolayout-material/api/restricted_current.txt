@@ -302,6 +302,7 @@ package androidx.wear.protolayout.material.layouts {
     method public androidx.wear.protolayout.LayoutElementBuilders.LayoutElement? getPrimaryLabelTextContent();
     method public androidx.wear.protolayout.LayoutElementBuilders.LayoutElement? getSecondaryLabelTextContent();
     method @Dimension(unit=androidx.annotation.Dimension.DP) public float getVerticalSpacerHeight();
+    method public boolean isResponsiveContentInsetEnabled();
   }
 
   public static final class PrimaryLayout.Builder {
@@ -310,6 +311,7 @@ package androidx.wear.protolayout.material.layouts {
     method public androidx.wear.protolayout.material.layouts.PrimaryLayout.Builder setContent(androidx.wear.protolayout.LayoutElementBuilders.LayoutElement);
     method public androidx.wear.protolayout.material.layouts.PrimaryLayout.Builder setPrimaryChipContent(androidx.wear.protolayout.LayoutElementBuilders.LayoutElement);
     method public androidx.wear.protolayout.material.layouts.PrimaryLayout.Builder setPrimaryLabelTextContent(androidx.wear.protolayout.LayoutElementBuilders.LayoutElement);
+    method public androidx.wear.protolayout.material.layouts.PrimaryLayout.Builder setResponsiveContentInsetEnabled(boolean);
     method public androidx.wear.protolayout.material.layouts.PrimaryLayout.Builder setSecondaryLabelTextContent(androidx.wear.protolayout.LayoutElementBuilders.LayoutElement);
     method public androidx.wear.protolayout.material.layouts.PrimaryLayout.Builder setVerticalSpacerHeight(@Dimension(unit=androidx.annotation.Dimension.DP) float);
   }
