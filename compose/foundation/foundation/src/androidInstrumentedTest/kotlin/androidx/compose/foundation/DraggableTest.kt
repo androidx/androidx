@@ -1007,7 +1007,6 @@ class DraggableTest {
             assertThat(modifier.inspectableElements.map { it.name }.asIterable()).containsExactly(
                 "orientation",
                 "enabled",
-                "canDrag",
                 "reverseDirection",
                 "interactionSource",
                 "startDragImmediately",
@@ -1016,6 +1015,18 @@ class DraggableTest {
                 "state",
             )
         }
+    }
+
+    @Test
+    fun equalInputs_shouldResolveToEquals() {
+        val state = DraggableState { }
+
+        val firstModifier = Modifier.draggable(state, Orientation.Horizontal)
+        val secondModifier = Modifier.draggable(state, Orientation.Vertical)
+        val thirdModifier = Modifier.draggable(state, Orientation.Horizontal)
+
+        assertThat(firstModifier).isEqualTo(thirdModifier)
+        assertThat(firstModifier).isNotEqualTo(secondModifier)
     }
 
     private fun setDraggableContent(draggableFactory: @Composable () -> Modifier) {

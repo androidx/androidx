@@ -607,7 +607,7 @@ private class ScrollableGesturesNode(
 
     val draggableState = ScrollDraggableState(scrollLogic)
     private val startDragImmediately = { scrollLogic.shouldScrollImmediately() }
-    private val onDragStopped: suspend CoroutineScope.(velocity: Velocity) -> Unit = { velocity ->
+    private val onDragStopped: suspend CoroutineScope.(velocity: Float) -> Unit = { velocity ->
         nestedScrollDispatcher.coroutineScope.launch {
             scrollLogic.onDragStopped(velocity)
         }
@@ -742,6 +742,11 @@ private class ScrollingLogic(
 
     fun Offset.reverseIfNeeded(): Offset = if (reverseDirection) this * -1f else this
 
+    fun Float.toVelocity() = Velocity(
+        x = if (orientation == Horizontal) this else 0f,
+        y = if (orientation == Orientation.Vertical) this else 0f,
+    )
+
     /**
      * @return the amount of scroll that was consumed
      */
@@ -793,11 +798,11 @@ private class ScrollingLogic(
         }
     }
 
-    suspend fun onDragStopped(initialVelocity: Velocity) {
+    suspend fun onDragStopped(initialVelocity: Float) {
         // Self started flinging, set
         registerNestedFling(true)
 
-        val availableVelocity = initialVelocity.singleAxisVelocity()
+        val availableVelocity = initialVelocity.toVelocity()
 
         val performFling: suspend (Velocity) -> Velocity = { velocity ->
             val preConsumedByParent = nestedScrollDispatcher

@@ -26,6 +26,7 @@ import androidx.compose.foundation.interaction.DragInteraction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.internal.JvmDefaultWithCompatibility
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
@@ -184,45 +185,44 @@ fun rememberDraggableState(onDelta: (Float) -> Unit): DraggableState {
  * @param reverseDirection reverse the direction of the scroll, so top to bottom scroll will
  * behave like bottom to top and left to right will behave like right to left.
  */
+@Stable
 fun Modifier.draggable(
     state: DraggableState,
     orientation: Orientation,
     enabled: Boolean = true,
     interactionSource: MutableInteractionSource? = null,
     startDragImmediately: Boolean = false,
-    onDragStarted: suspend CoroutineScope.(startedPosition: Offset) -> Unit = {},
-    onDragStopped: suspend CoroutineScope.(velocity: Float) -> Unit = {},
+    onDragStarted: suspend CoroutineScope.(startedPosition: Offset) -> Unit = NoOpOnDragStarted,
+    onDragStopped: suspend CoroutineScope.(velocity: Float) -> Unit = NoOpOnDragStopped,
     reverseDirection: Boolean = false
 ): Modifier = this then DraggableElement(
     state = state,
     orientation = orientation,
     enabled = enabled,
     interactionSource = interactionSource,
-    startDragImmediately = { startDragImmediately },
+    startDragImmediately = startDragImmediately,
     onDragStarted = onDragStarted,
-    onDragStopped = { velocity -> onDragStopped(velocity.toFloat(orientation)) },
-    reverseDirection = reverseDirection,
-    canDrag = { true }
+    onDragStopped = onDragStopped,
+    reverseDirection = reverseDirection
 )
 
 internal class DraggableElement(
     private val state: DraggableState,
-    private val canDrag: (PointerInputChange) -> Boolean,
     private val orientation: Orientation,
     private val enabled: Boolean,
     private val interactionSource: MutableInteractionSource?,
-    private val startDragImmediately: () -> Boolean,
+    private val startDragImmediately: Boolean,
     private val onDragStarted: suspend CoroutineScope.(startedPosition: Offset) -> Unit,
-    private val onDragStopped: suspend CoroutineScope.(velocity: Velocity) -> Unit,
+    private val onDragStopped: suspend CoroutineScope.(velocity: Float) -> Unit,
     private val reverseDirection: Boolean
 ) : ModifierNodeElement<DraggableNode>() {
     override fun create(): DraggableNode = DraggableNode(
         state,
-        canDrag,
+        CanDrag,
         orientation,
         enabled,
         interactionSource,
-        startDragImmediately,
+        if (startDragImmediately) StartDragImmediately else DoNotStartDragImmediately,
         onDragStarted,
         onDragStopped,
         reverseDirection
@@ -231,11 +231,11 @@ internal class DraggableElement(
     override fun update(node: DraggableNode) {
         node.update(
             state,
-            canDrag,
+            CanDrag,
             orientation,
             enabled,
             interactionSource,
-            startDragImmediately,
+            if (startDragImmediately) StartDragImmediately else DoNotStartDragImmediately,
             onDragStarted,
             onDragStopped,
             reverseDirection
@@ -250,7 +250,6 @@ internal class DraggableElement(
         other as DraggableElement
 
         if (state != other.state) return false
-        if (canDrag != other.canDrag) return false
         if (orientation != other.orientation) return false
         if (enabled != other.enabled) return false
         if (interactionSource != other.interactionSource) return false
@@ -264,7 +263,6 @@ internal class DraggableElement(
 
     override fun hashCode(): Int {
         var result = state.hashCode()
-        result = 31 * result + canDrag.hashCode()
         result = 31 * result + orientation.hashCode()
         result = 31 * result + enabled.hashCode()
         result = 31 * result + (interactionSource?.hashCode() ?: 0)
@@ -277,7 +275,6 @@ internal class DraggableElement(
 
     override fun InspectorInfo.inspectableProperties() {
         name = "draggable"
-        properties["canDrag"] = canDrag
         properties["orientation"] = orientation
         properties["enabled"] = enabled
         properties["reverseDirection"] = reverseDirection
@@ -286,6 +283,12 @@ internal class DraggableElement(
         properties["onDragStarted"] = onDragStarted
         properties["onDragStopped"] = onDragStopped
         properties["state"] = state
+    }
+
+    companion object {
+        val StartDragImmediately = { true }
+        val DoNotStartDragImmediately = { false }
+        val CanDrag: (PointerInputChange) -> Boolean = { true }
     }
 }
 
@@ -297,7 +300,7 @@ internal class DraggableNode(
     interactionSource: MutableInteractionSource?,
     startDragImmediately: () -> Boolean,
     private var onDragStarted: suspend CoroutineScope.(startedPosition: Offset) -> Unit,
-    private var onDragStopped: suspend CoroutineScope.(velocity: Velocity) -> Unit,
+    private var onDragStopped: suspend CoroutineScope.(velocity: Float) -> Unit,
     reverseDirection: Boolean
 ) : AbstractDraggableNode(
     canDrag,
@@ -321,7 +324,7 @@ internal class DraggableNode(
         this@DraggableNode.onDragStarted(this, startedPosition)
 
     override suspend fun CoroutineScope.onDragStopped(velocity: Velocity) =
-        this@DraggableNode.onDragStopped(this, velocity)
+        this@DraggableNode.onDragStopped(this, velocity.toFloat(orientation))
 
     fun update(
         state: DraggableState,
@@ -331,7 +334,7 @@ internal class DraggableNode(
         interactionSource: MutableInteractionSource?,
         startDragImmediately: () -> Boolean,
         onDragStarted: suspend CoroutineScope.(startedPosition: Offset) -> Unit,
-        onDragStopped: suspend CoroutineScope.(velocity: Velocity) -> Unit,
+        onDragStopped: suspend CoroutineScope.(velocity: Float) -> Unit,
         reverseDirection: Boolean
     ) {
         var resetPointerInputHandling = false
@@ -691,3 +694,6 @@ private fun Offset.toFloat(orientation: Orientation) =
 
 private fun Velocity.toFloat(orientation: Orientation) =
     if (orientation == Orientation.Vertical) this.y else this.x
+
+private val NoOpOnDragStarted: suspend CoroutineScope.(startedPosition: Offset) -> Unit = {}
+private val NoOpOnDragStopped: suspend CoroutineScope.(velocity: Float) -> Unit = {}
