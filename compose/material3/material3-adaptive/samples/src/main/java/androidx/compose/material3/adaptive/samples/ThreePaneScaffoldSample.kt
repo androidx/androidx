@@ -45,7 +45,7 @@ import androidx.compose.ui.unit.dp
 @Sampled
 @Composable
 fun ListDetailPaneScaffoldSample() {
-    val scaffoldNavigator = rememberListDetailPaneScaffoldNavigator()
+    val scaffoldNavigator = rememberListDetailPaneScaffoldNavigator<Nothing>()
     ListDetailPaneScaffold(
         scaffoldState = scaffoldNavigator.scaffoldState,
         listPane = {
@@ -81,7 +81,7 @@ fun ListDetailPaneScaffoldSample() {
 @Sampled
 @Composable
 fun ListDetailPaneScaffoldSampleWithExtraPane() {
-    val scaffoldNavigator = rememberListDetailPaneScaffoldNavigator()
+    val scaffoldNavigator = rememberListDetailPaneScaffoldNavigator<Nothing>()
     ListDetailPaneScaffold(
         scaffoldState = scaffoldNavigator.scaffoldState,
         listPane = {

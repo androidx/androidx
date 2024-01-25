@@ -23,7 +23,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.adaptive.AnimatedPane
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.PaneScaffoldDirective
-import androidx.compose.material3.adaptive.ThreePaneScaffoldRole
+import androidx.compose.material3.adaptive.ThreePaneScaffoldDestinationItem
 import androidx.compose.material3.adaptive.ThreePaneScaffoldScope
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -60,7 +60,7 @@ internal abstract class ThreePaneScaffoldTestCase(
     private val animated: Boolean
 ) : LayeredComposeTestCase(), ToggleableTestCase {
     var currentScaffoldDirective by mutableStateOf(singlePaneDirective)
-    abstract var currentDestination: ThreePaneScaffoldRole
+    abstract var currentDestination: ThreePaneScaffoldDestinationItem<Int>
 
     override fun toggleState() {}
 

@@ -72,7 +72,8 @@ class ListDetailPaneScaffoldStateTest {
         composeRule.setContent {
             scaffoldState = calculateListDetailPaneScaffoldState(
                 scaffoldDirective = MockSinglePaneScaffoldDirective,
-                currentPaneDestination = ListDetailPaneScaffoldRole.Detail
+                currentDestination =
+                    ThreePaneScaffoldDestinationItem(ListDetailPaneScaffoldRole.Detail, null)
             )
         }
 
@@ -89,7 +90,8 @@ class ListDetailPaneScaffoldStateTest {
         composeRule.setContent {
             scaffoldState = calculateListDetailPaneScaffoldState(
                 scaffoldDirective = MockDualPaneScaffoldDirective,
-                currentPaneDestination = ListDetailPaneScaffoldRole.Extra
+                currentDestination =
+                    ThreePaneScaffoldDestinationItem(ListDetailPaneScaffoldRole.Extra, null)
             )
         }
 

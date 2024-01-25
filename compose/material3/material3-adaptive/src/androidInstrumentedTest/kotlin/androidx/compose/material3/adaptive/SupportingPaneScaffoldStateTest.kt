@@ -72,7 +72,8 @@ class SupportingPaneScaffoldStateTest {
         composeRule.setContent {
             scaffoldState = calculateSupportingPaneScaffoldState(
                 scaffoldDirective = MockSinglePaneScaffoldDirective,
-                currentPaneDestination = SupportingPaneScaffoldRole.Supporting
+                currentDestination =
+                    ThreePaneScaffoldDestinationItem(SupportingPaneScaffoldRole.Supporting, null)
             )
         }
 
@@ -89,7 +90,8 @@ class SupportingPaneScaffoldStateTest {
         composeRule.setContent {
             scaffoldState = calculateSupportingPaneScaffoldState(
                 scaffoldDirective = MockDualPaneScaffoldDirective,
-                currentPaneDestination = SupportingPaneScaffoldRole.Extra
+                currentDestination =
+                    ThreePaneScaffoldDestinationItem(SupportingPaneScaffoldRole.Extra, null)
             )
         }
 
