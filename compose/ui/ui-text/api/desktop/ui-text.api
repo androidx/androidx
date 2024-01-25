@@ -257,16 +257,16 @@ public final class androidx/compose/ui/text/ParagraphStyle {
 	public final fun copy-ykzQM6k (IIJLandroidx/compose/ui/text/style/TextIndent;Landroidx/compose/ui/text/PlatformParagraphStyle;Landroidx/compose/ui/text/style/LineHeightStyle;IILandroidx/compose/ui/text/style/TextMotion;)Landroidx/compose/ui/text/ParagraphStyle;
 	public static synthetic fun copy-ykzQM6k$default (Landroidx/compose/ui/text/ParagraphStyle;IIJLandroidx/compose/ui/text/style/TextIndent;Landroidx/compose/ui/text/PlatformParagraphStyle;Landroidx/compose/ui/text/style/LineHeightStyle;IILandroidx/compose/ui/text/style/TextMotion;ILjava/lang/Object;)Landroidx/compose/ui/text/ParagraphStyle;
 	public fun equals (Ljava/lang/Object;)Z
-	public final fun getHyphens ()Landroidx/compose/ui/text/style/Hyphens;
+	public final fun getHyphens-EaSxIns ()Landroidx/compose/ui/text/style/Hyphens;
 	public final fun getHyphens-vmbZdU8 ()I
-	public final fun getLineBreak ()Landroidx/compose/ui/text/style/LineBreak;
+	public final fun getLineBreak-LgCVezo ()Landroidx/compose/ui/text/style/LineBreak;
 	public final fun getLineBreak-rAG3T2k ()I
 	public final fun getLineHeight-XSAIIZE ()J
 	public final fun getLineHeightStyle ()Landroidx/compose/ui/text/style/LineHeightStyle;
 	public final fun getPlatformStyle ()Landroidx/compose/ui/text/PlatformParagraphStyle;
-	public final fun getTextAlign ()Landroidx/compose/ui/text/style/TextAlign;
+	public final fun getTextAlign-buA522U ()Landroidx/compose/ui/text/style/TextAlign;
 	public final fun getTextAlign-e0LSkKk ()I
-	public final fun getTextDirection ()Landroidx/compose/ui/text/style/TextDirection;
+	public final fun getTextDirection-mmuk1to ()Landroidx/compose/ui/text/style/TextDirection;
 	public final fun getTextDirection-s_7X-co ()I
 	public final fun getTextIndent ()Landroidx/compose/ui/text/style/TextIndent;
 	public final fun getTextMotion ()Landroidx/compose/ui/text/style/TextMotion;
@@ -581,20 +581,20 @@ public final class androidx/compose/ui/text/TextStyle {
 	public final fun getFontStyle-4Lr2A7w ()Landroidx/compose/ui/text/font/FontStyle;
 	public final fun getFontSynthesis-ZQGJjVo ()Landroidx/compose/ui/text/font/FontSynthesis;
 	public final fun getFontWeight ()Landroidx/compose/ui/text/font/FontWeight;
-	public final fun getHyphens ()Landroidx/compose/ui/text/style/Hyphens;
+	public final fun getHyphens-EaSxIns ()Landroidx/compose/ui/text/style/Hyphens;
 	public final fun getHyphens-vmbZdU8 ()I
 	public final fun getLetterSpacing-XSAIIZE ()J
-	public final fun getLineBreak ()Landroidx/compose/ui/text/style/LineBreak;
+	public final fun getLineBreak-LgCVezo ()Landroidx/compose/ui/text/style/LineBreak;
 	public final fun getLineBreak-rAG3T2k ()I
 	public final fun getLineHeight-XSAIIZE ()J
 	public final fun getLineHeightStyle ()Landroidx/compose/ui/text/style/LineHeightStyle;
 	public final fun getLocaleList ()Landroidx/compose/ui/text/intl/LocaleList;
 	public final fun getPlatformStyle ()Landroidx/compose/ui/text/PlatformTextStyle;
 	public final fun getShadow ()Landroidx/compose/ui/graphics/Shadow;
-	public final fun getTextAlign ()Landroidx/compose/ui/text/style/TextAlign;
+	public final fun getTextAlign-buA522U ()Landroidx/compose/ui/text/style/TextAlign;
 	public final fun getTextAlign-e0LSkKk ()I
 	public final fun getTextDecoration ()Landroidx/compose/ui/text/style/TextDecoration;
-	public final fun getTextDirection ()Landroidx/compose/ui/text/style/TextDirection;
+	public final fun getTextDirection-mmuk1to ()Landroidx/compose/ui/text/style/TextDirection;
 	public final fun getTextDirection-s_7X-co ()I
 	public final fun getTextGeometricTransform ()Landroidx/compose/ui/text/style/TextGeometricTransform;
 	public final fun getTextIndent ()Landroidx/compose/ui/text/style/TextIndent;
