@@ -29,4 +29,6 @@
     <string name="emoji_category_flags" msgid="6185639503532784871">"깃발"</string>
     <string name="emoji_empty_non_recent_category" msgid="288822832574892625">"사용 가능한 그림 이모티콘 없음"</string>
     <string name="emoji_empty_recent_category" msgid="7863877827879290200">"아직 사용한 이모티콘이 없습니다."</string>
+    <!-- no translation found for emoji_bidirectional_switcher_content_desc (5084600168354220605) -->
+    <skip />
 </resources>
