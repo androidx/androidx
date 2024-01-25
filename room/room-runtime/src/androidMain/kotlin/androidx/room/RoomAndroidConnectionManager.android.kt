@@ -85,14 +85,17 @@ internal class RoomAndroidConnectionManager : RoomConnectionManager {
 
     constructor(
         config: DatabaseConfiguration,
-        supportOpenHelper: SupportSQLiteOpenHelper
+        supportOpenHelperFactory: (DatabaseConfiguration) -> SupportSQLiteOpenHelper
     ) {
         this.configuration = config
         this.openDelegate = NoOpOpenDelegate()
         // Compatibility mode due to no driver provided, the SupportSQLiteDriver and
-        // SupportConnectionPool are created.
+        // SupportConnectionPool are created. A Room onOpen callback is installed so that the
+        // SupportSQLiteDatabase is extracted out of the RoomOpenHelper installed.
+        val configWithCompatibilityCallback =
+            config.installOnOpenCallback { db -> supportDatabase = db }
         this.connectionPool = SupportConnectionPool(
-            SupportSQLiteDriver(supportOpenHelper)
+            SupportSQLiteDriver(supportOpenHelperFactory.invoke(configWithCompatibilityCallback))
         )
         this.callbacks = config.callbacks ?: emptyList()
         init()
@@ -299,5 +302,16 @@ internal class RoomAndroidConnectionManager : RoomConnectionManager {
                 throw RollbackException(result)
             }
         }
+    }
+
+    private fun DatabaseConfiguration.installOnOpenCallback(
+        onOpen: (SupportSQLiteDatabase) -> Unit
+    ): DatabaseConfiguration {
+        val newCallbacks = (this.callbacks ?: emptyList()) + object : RoomDatabase.Callback() {
+            override fun onOpen(db: SupportSQLiteDatabase) {
+                onOpen.invoke(db)
+            }
+        }
+        return this.copy(callbacks = newCallbacks)
     }
 }
