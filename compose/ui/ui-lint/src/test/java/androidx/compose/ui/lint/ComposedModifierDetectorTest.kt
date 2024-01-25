@@ -122,7 +122,7 @@ class ComposedModifierDetectorTest : LintDetectorTest() {
                     this@test
                 }
 
-                fun Modifier.test(): Modifier {
+                fun Modifier.test2(): Modifier {
                     return composed {
                         this@test
                     }
