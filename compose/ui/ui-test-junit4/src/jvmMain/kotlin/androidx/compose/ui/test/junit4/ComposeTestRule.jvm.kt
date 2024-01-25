@@ -133,6 +133,38 @@ interface ComposeTestRule : TestRule, SemanticsNodeInteractionsProvider {
     fun waitUntil(timeoutMillis: Long = 1_000, condition: () -> Boolean)
 
     /**
+     * Blocks until the given condition is satisfied.
+     *
+     * In case the main clock auto advancement is enabled (by default is), this will also keep
+     * advancing the clock on a frame by frame basis and yield for other async work at the end of
+     * each frame. If the advancement of the main clock is not enabled this will work as a
+     * countdown latch without any other advancements.
+     *
+     * There is also [MainTestClock.advanceTimeUntil] which is faster as it does not yield back
+     * the UI thread.
+     *
+     * This method should be used in cases where [MainTestClock.advanceTimeUntil]
+     * is not enough.
+     *
+     * @param timeoutMillis The time after which this method throws an exception if the given
+     * condition is not satisfied. This is the wall clock time not the main clock one.
+     * @param conditionDescription A human-readable description of [condition] that will be included
+     * in the timeout exception if thrown.
+     * @param condition Condition that must be satisfied in order for this method to successfully
+     * finish.
+     *
+     * @throws androidx.compose.ui.test.ComposeTimeoutException If the condition is not satisfied
+     * after [timeoutMillis].
+     */
+    fun waitUntil(
+        conditionDescription: String,
+        timeoutMillis: Long = 1_000,
+        condition: () -> Boolean
+    ) {
+        waitUntil(timeoutMillis, condition)
+    }
+
+    /**
      * Blocks until the number of nodes matching the given [matcher] is equal to the given [count].
      *
      * @see ComposeTestRule.waitUntil

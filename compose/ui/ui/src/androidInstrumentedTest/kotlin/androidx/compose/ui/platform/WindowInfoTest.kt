@@ -34,7 +34,7 @@ class WindowInfoTest {
     fun launchFragment_windowInfo_isWindowFocused_true() {
         runComposeUiTest {
             launchFragmentInContainer<TestFragment>().onFragment {
-                waitUntil(5_000) { it.isWindowFocused == true }
+                waitUntil("isWindowFocused", timeoutMillis = 5_000) { it.isWindowFocused == true }
             }
         }
     }
