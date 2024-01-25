@@ -32,6 +32,7 @@ import android.database.Cursor;
 
 import androidx.annotation.NonNull;
 import androidx.room.Room;
+import androidx.room.RoomDatabase;
 import androidx.room.migration.Migration;
 import androidx.room.migration.bundle.SchemaBundle;
 import androidx.room.testing.MigrationTestHelper;
@@ -629,9 +630,17 @@ public class MigrationTest {
         SupportSQLiteDatabase database = helper.createDatabase(TEST_DB, MigrationDb.MAX_VERSION);
         database.close();
 
+        final boolean[] onDestructiveMigrationInvoked = { false };
         Context targetContext = ApplicationProvider.getApplicationContext();
         MigrationDb db = Room.databaseBuilder(targetContext, MigrationDb.class, TEST_DB)
                 .fallbackToDestructiveMigration(true)
+                .addCallback(new RoomDatabase.Callback() {
+                    @Override
+                    public void onDestructiveMigration(@NonNull SupportSQLiteDatabase db) {
+                        super.onDestructiveMigration(db);
+                        onDestructiveMigrationInvoked[0] = true;
+                    }
+                })
                 .build();
         Set<String> tableNames = new HashSet<>();
         Cursor c = db.query("SELECT name FROM sqlite_master WHERE type = 'table'", new Object[0]);
@@ -644,6 +653,8 @@ public class MigrationTest {
         assertThat(tableNames.contains("Extra"), is(false));
         // Android special table is present
         assertThat(tableNames.contains("android_metadata"), is(true));
+
+        assertThat(onDestructiveMigrationInvoked[0], is(true));
     }
 
     private void testFailure(int startVersion, int endVersion) throws IOException {

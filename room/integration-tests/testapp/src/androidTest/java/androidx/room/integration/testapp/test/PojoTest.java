@@ -23,13 +23,11 @@ import android.content.Context;
 
 import androidx.room.Room;
 import androidx.room.integration.testapp.TestDatabase;
-import androidx.room.integration.testapp.dao.RecordEntityDao;
 import androidx.room.integration.testapp.dao.UserDao;
 import androidx.room.integration.testapp.database.ProductDao;
 import androidx.room.integration.testapp.database.Review;
 import androidx.room.integration.testapp.database.SampleDatabase;
 import androidx.room.integration.testapp.vo.AvgWeightByAge;
-import androidx.room.integration.testapp.vo.RecordEntity;
 import androidx.room.integration.testapp.vo.User;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -83,16 +81,5 @@ public class PojoTest {
         List<Review> result = dao.getProductReviews(0);
         assertThat(result.size(), is(1));
         db.close();
-    }
-
-    @Test
-    public void recordEntity() {
-        Context context = ApplicationProvider.getApplicationContext();
-        TestDatabase db = Room.inMemoryDatabaseBuilder(context, TestDatabase.class).build();
-        RecordEntityDao recordDao = db.getRecordEntityDao();
-        recordDao.insert(new RecordEntity(1, "I am a RECORD"));
-        List<RecordEntity> result = recordDao.getAll();
-        assertThat(result.size(), is(1));
-        assertThat(result.get(0).data(), is("I am a RECORD"));
     }
 }

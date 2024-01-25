@@ -271,13 +271,13 @@ actual abstract class RoomDatabase {
         }
         // If createOpenDelegate() is not implemented then the database implementation was
         // generated with an older compiler, we are force to create a connection manager
-        // using the SupportSQLiteOpenHelper return from createOpenHelper() with the
+        // using the SupportSQLiteOpenHelper returned from createOpenHelper() with the
         // deprecated RoomOpenHelper installed.
         return if (openDelegate == null) {
             @Suppress("DEPRECATION")
             RoomAndroidConnectionManager(
                 config = configuration,
-                supportOpenHelper = createOpenHelper(configuration)
+                supportOpenHelperFactory = { config -> createOpenHelper(config) }
             )
         } else {
             RoomAndroidConnectionManager(

@@ -769,4 +769,52 @@ constructor(
     open fun isMigrationRequired(fromVersion: Int, toVersion: Int): Boolean {
         return isMigrationRequiredExt(fromVersion, toVersion)
     }
+
+    internal fun copy(
+        context: Context = this.context,
+        name: String? = this.name,
+        sqliteOpenHelperFactory: SupportSQLiteOpenHelper.Factory? = this.sqliteOpenHelperFactory,
+        migrationContainer: RoomDatabase.MigrationContainer = this.migrationContainer,
+        callbacks: List<RoomDatabase.Callback>? = this.callbacks,
+        allowMainThreadQueries: Boolean = this.allowMainThreadQueries,
+        journalMode: RoomDatabase.JournalMode = this.journalMode,
+        queryExecutor: Executor = this.queryExecutor,
+        transactionExecutor: Executor = this.transactionExecutor,
+        multiInstanceInvalidationServiceIntent: Intent? =
+            this.multiInstanceInvalidationServiceIntent,
+        requireMigration: Boolean = this.requireMigration,
+        allowDestructiveMigrationOnDowngrade: Boolean = this.allowDestructiveMigrationOnDowngrade,
+        migrationNotRequiredFrom: Set<Int>? = this.migrationNotRequiredFrom,
+        copyFromAssetPath: String? = this.copyFromAssetPath,
+        copyFromFile: File? = this.copyFromFile,
+        copyFromInputStream: Callable<InputStream>? = this.copyFromInputStream,
+        prepackagedDatabaseCallback: RoomDatabase.PrepackagedDatabaseCallback? =
+            this.prepackagedDatabaseCallback,
+        typeConverters: List<Any> = this.typeConverters,
+        autoMigrationSpecs: List<AutoMigrationSpec> = this.autoMigrationSpecs,
+        allowDestructiveMigrationForAllTables: Boolean = this.allowDestructiveMigrationForAllTables,
+        sqliteDriver: SQLiteDriver? = this.sqliteDriver
+    ) = DatabaseConfiguration(
+        context,
+        name,
+        sqliteOpenHelperFactory,
+        migrationContainer,
+        callbacks,
+        allowMainThreadQueries,
+        journalMode,
+        queryExecutor,
+        transactionExecutor,
+        multiInstanceInvalidationServiceIntent,
+        requireMigration,
+        allowDestructiveMigrationOnDowngrade,
+        migrationNotRequiredFrom,
+        copyFromAssetPath,
+        copyFromFile,
+        copyFromInputStream,
+        prepackagedDatabaseCallback,
+        typeConverters,
+        autoMigrationSpecs,
+        allowDestructiveMigrationForAllTables,
+        sqliteDriver,
+    )
 }

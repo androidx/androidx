@@ -46,14 +46,6 @@ android {
     }
     flavorDimensions "processorConfiguration"
     productFlavors {
-        withExpandProjection {
-            dimension "processorConfiguration"
-            javaCompileOptions {
-                annotationProcessorOptions {
-                    arguments = ["room.expandProjection"  : "true"]
-                }
-            }
-        }
         withoutExpandProjection {
             dimension "processorConfiguration"
             javaCompileOptions {
@@ -72,6 +64,9 @@ android {
                     ]
                 }
             }
+        }
+        withPreKmpCompiler {
+            dimension "processorConfiguration"
         }
     }
     compileOptions {
@@ -99,12 +94,24 @@ dependencies {
     implementation(libs.findbugs)
     implementation("androidx.recyclerview:recyclerview:1.0.0")
     implementation("androidx.appcompat:appcompat:1.3.1")
-    // use the shadowed dependency in tests so that if the shadowing does not work properly,
-    // our tests fail.
-    annotationProcessor project(path: ":room:room-compiler",
-            configuration: "shadowAndImplementation")
-    androidTestAnnotationProcessor project(path: ":room:room-compiler",
-            configuration: "shadowAndImplementation")
+
+    // Annotation processor / compiler dependencies:
+    // For ToT use the shadowed dependency in tests so that if the shadowing does not work properly,
+    // our tests fail. For pre-KMP use the last released pre-KMP version.
+    withoutExpandProjectionAnnotationProcessor(
+            project(path: ":room:room-compiler", configuration: "shadowAndImplementation")
+    )
+    withNullAwareTypeConverterAnnotationProcessor(
+            project(path: ":room:room-compiler", configuration: "shadowAndImplementation")
+    )
+    withPreKmpCompilerAnnotationProcessor("androidx.room:room-compiler:2.6.1")
+    androidTestWithoutExpandProjectionAnnotationProcessor(
+            project(path: ":room:room-compiler", configuration: "shadowAndImplementation")
+    )
+    androidTestWithNullAwareTypeConverterAnnotationProcessor(
+            project(path: ":room:room-compiler", configuration: "shadowAndImplementation")
+    )
+    androidTestWithPreKmpCompilerAnnotationProcessor("androidx.room:room-compiler:2.6.1")
 
     androidTestImplementation(project(":annotation:annotation-experimental"))
     androidTestImplementation("androidx.arch.core:core-runtime:2.2.0")
