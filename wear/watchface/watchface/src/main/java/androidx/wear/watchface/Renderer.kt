@@ -601,6 +601,10 @@ constructor(
             }
         }
 
+        internal companion object {
+            internal const val TAG = "CanvasRenderer"
+        }
+
         internal override fun takeScreenshot(
             zonedDateTime: ZonedDateTime,
             renderParameters: RenderParameters
@@ -748,6 +752,11 @@ constructor(
         public abstract fun render(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime)
 
         internal override fun renderBlackFrame() {
+            // Check the surface is still valid before trying to use it.
+            if (!surfaceHolder.surface.isValid) {
+                Log.w(TAG, "renderBlackFrame ")
+                return
+            }
             val canvas =
                 if (canvasType == CanvasType.SOFTWARE) {
                     surfaceHolder.lockCanvas()
