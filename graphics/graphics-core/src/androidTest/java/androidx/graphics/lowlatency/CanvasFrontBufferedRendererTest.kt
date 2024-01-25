@@ -27,6 +27,7 @@ import android.os.Build
 import android.util.Log
 import android.view.SurfaceHolder
 import android.view.SurfaceView
+import android.widget.FrameLayout
 import androidx.annotation.RequiresApi
 import androidx.graphics.drawSquares
 import androidx.graphics.opengl.SurfaceViewTestActivity
@@ -116,6 +117,72 @@ class CanvasFrontBufferedRendererTest {
                 Color.RED ==
                     bitmap.getPixel(coords[0] + width / 2, coords[1] + height / 2)
             }
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
+    @Test
+    fun testInvalidWidth() {
+        testRenderWithDimensions(0, 100)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
+    @Test
+    fun testInvalidHeight() {
+        testRenderWithDimensions(100, 0)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
+    @Test
+    fun testNegativeWidth() {
+        testRenderWithDimensions(-18, 100)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
+    @Test
+    fun testNegativeHeight() {
+        testRenderWithDimensions(100, -19)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.Q)
+    private fun testRenderWithDimensions(width: Int, height: Int) {
+        verifyCanvasFrontBufferedRenderer(object : CanvasFrontBufferedRenderer.Callback<Any> {
+            override fun onDrawFrontBufferedLayer(
+                canvas: Canvas,
+                bufferWidth: Int,
+                bufferHeight: Int,
+                param: Any
+            ) {
+                canvas.drawColor(Color.RED)
+            }
+
+            override fun onDrawMultiBufferedLayer(
+                canvas: Canvas,
+                bufferWidth: Int,
+                bufferHeight: Int,
+                params: Collection<Any>
+            ) {
+                canvas.drawColor(Color.BLUE)
+            }
+
+            override fun onFrontBufferedLayerRenderComplete(
+                frontBufferedLayerSurfaceControl: SurfaceControlCompat,
+                transaction: SurfaceControlCompat.Transaction
+            ) {
+                // NO-OP
+            }
+        }) { scenario, _, surfaceView ->
+            val paramLatch = CountDownLatch(1)
+            surfaceView.post {
+                surfaceView.layoutParams = FrameLayout.LayoutParams(
+                    width,
+                    height
+                )
+                paramLatch.countDown()
+            }
+            paramLatch.await()
+
+            scenario.moveToState(Lifecycle.State.RESUMED)
         }
     }
 
@@ -1283,8 +1350,6 @@ class CanvasFrontBufferedRendererTest {
                 destroyLatch.countDown()
             }
             Assert.assertTrue(destroyLatch.await(timeoutMillis, TimeUnit.MILLISECONDS))
-        } else {
-            Assert.fail("CanvasFrontBufferedRenderer is not initialized")
         }
     }
 
