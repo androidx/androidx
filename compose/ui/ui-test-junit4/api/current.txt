@@ -59,6 +59,7 @@ package androidx.compose.ui.test.junit4 {
     method public <T> T runOnUiThread(kotlin.jvm.functions.Function0<? extends T> action);
     method public void unregisterIdlingResource(androidx.compose.ui.test.IdlingResource idlingResource);
     method public void waitForIdle();
+    method public default void waitUntil(String conditionDescription, optional long timeoutMillis, kotlin.jvm.functions.Function0<java.lang.Boolean> condition);
     method public void waitUntil(optional long timeoutMillis, kotlin.jvm.functions.Function0<java.lang.Boolean> condition);
     method @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public void waitUntilAtLeastOneExists(androidx.compose.ui.test.SemanticsMatcher matcher, optional long timeoutMillis);
     method @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public void waitUntilDoesNotExist(androidx.compose.ui.test.SemanticsMatcher matcher, optional long timeoutMillis);

@@ -72,7 +72,8 @@ class WaitUntilNodeCountTest {
         }
 
         expectError<ComposeTimeoutException>(
-            expectedMessage = "Condition still not satisfied after $Timeout ms"
+            expectedMessage = "Condition \\(exactly 2 nodes match \\(TestTag = 'TestTag'\\)\\) " +
+                "still not satisfied after $Timeout ms"
         ) {
             waitUntilNodeCount(hasTestTag(TestTag), 2, Timeout)
         }
@@ -95,7 +96,8 @@ class WaitUntilNodeCountTest {
         }
 
         expectError<ComposeTimeoutException>(
-            expectedMessage = "Condition still not satisfied after $Timeout ms"
+            expectedMessage = "Condition \\(at least one node matches " +
+                "\\(TestTag = 'TestTag'\\)\\) still not satisfied after $Timeout ms"
         ) {
             waitUntilAtLeastOneExists(hasTestTag(TestTag), Timeout)
         }
@@ -118,7 +120,8 @@ class WaitUntilNodeCountTest {
         }
 
         expectError<ComposeTimeoutException>(
-            expectedMessage = "Condition still not satisfied after $Timeout ms"
+            expectedMessage = "Condition \\(exactly 1 nodes match \\(TestTag = 'TestTag'\\)\\) " +
+                "still not satisfied after $Timeout ms"
         ) {
             waitUntilExactlyOneExists(hasTestTag(TestTag), Timeout)
         }
@@ -140,7 +143,8 @@ class WaitUntilNodeCountTest {
         }
 
         expectError<ComposeTimeoutException>(
-            expectedMessage = "Condition still not satisfied after $Timeout ms"
+            expectedMessage = "Condition \\(exactly 0 nodes match \\(TestTag = 'TestTag'\\)\\) " +
+                "still not satisfied after $Timeout ms"
         ) {
             waitUntilDoesNotExist(hasTestTag(TestTag), timeoutMillis = Timeout)
         }
