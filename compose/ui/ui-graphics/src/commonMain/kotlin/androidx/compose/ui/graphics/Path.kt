@@ -38,11 +38,11 @@ fun Path.copy(): Path = Path().apply { addPath(this@copy) }
         /**
          * The shape is wound in counter-clockwise order.
          */
-        CounterClockWise,
+        CounterClockwise,
         /**
          * The shape is wound in clockwise order.
          */
-        ClockWise
+        Clockwise
     }
 
     /**
@@ -220,7 +220,7 @@ fun Path.copy(): Path = Path().apply { addPath(this@copy) }
      * given rectangle. The direction to wind the rectangle's contour
      * is specified by [direction].
      */
-    fun addRect(rect: Rect, direction: Direction = Direction.CounterClockWise)
+    fun addRect(rect: Rect, direction: Direction = Direction.CounterClockwise)
 
     /**
      * Adds a new subpath that consists of a curve that forms the
@@ -247,7 +247,7 @@ fun Path.copy(): Path = Path().apply { addPath(this@copy) }
      *
      * The direction to wind the rectangle's contour is specified by [direction].
      */
-    fun addOval(oval: Rect, direction: Direction = Direction.CounterClockWise)
+    fun addOval(oval: Rect, direction: Direction = Direction.CounterClockwise)
 
     /**
      * Add a round rectangle shape to the path from the given [RoundRect].
@@ -264,7 +264,7 @@ fun Path.copy(): Path = Path().apply { addPath(this@copy) }
      * Add a round rectangle shape to the path from the given [RoundRect].
      * The direction to wind the rectangle's contour is specified by [direction].
      */
-    fun addRoundRect(roundRect: RoundRect, direction: Direction = Direction.CounterClockWise)
+    fun addRoundRect(roundRect: RoundRect, direction: Direction = Direction.CounterClockwise)
 
     /**
      * Adds a new subpath with one arc segment that consists of the arc
@@ -348,6 +348,11 @@ fun Path.copy(): Path = Path().apply { addPath(this@copy) }
     /**
      * Creates a new [PathIterator] for this [Path]. To preserve conics as conics (not
      * convert them to quadratics), set [conicEvaluation] to [PathIterator.ConicEvaluation.AsConic].
+     *
+     * @param conicEvaluation Indicates how to evaluate conic segments
+     * @param tolerance When [conicEvaluation] is set to [PathIterator.ConicEvaluation.AsQuadratics]
+     *        defines the maximum distance between the original conic curve and its quadratic
+     *        approximations
      */
     fun iterator(
         conicEvaluation: PathIterator.ConicEvaluation,

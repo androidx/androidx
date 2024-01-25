@@ -145,7 +145,7 @@ inline fun Path.asAndroidPath(): PlatformPath =
     }
 
     override fun addRect(rect: Rect) {
-        addRect(rect, Path.Direction.CounterClockWise)
+        addRect(rect, Path.Direction.CounterClockwise)
     }
 
     override fun addRect(rect: Rect, direction: Path.Direction) {
@@ -156,7 +156,7 @@ inline fun Path.asAndroidPath(): PlatformPath =
     }
 
     override fun addOval(oval: Rect) {
-        addOval(oval, Path.Direction.CounterClockWise)
+        addOval(oval, Path.Direction.CounterClockwise)
     }
 
     override fun addOval(oval: Rect, direction: Path.Direction) {
@@ -166,7 +166,7 @@ inline fun Path.asAndroidPath(): PlatformPath =
     }
 
     override fun addRoundRect(roundRect: RoundRect) {
-        addRoundRect(roundRect, Path.Direction.CounterClockWise)
+        addRoundRect(roundRect, Path.Direction.CounterClockwise)
     }
 
     override fun addRoundRect(roundRect: RoundRect, direction: Path.Direction) {
@@ -281,6 +281,6 @@ inline fun Path.asAndroidPath(): PlatformPath =
 }
 
 private fun Path.Direction.toPlatformPathDirection() = when (this) {
-    Path.Direction.CounterClockWise -> PlatformPath.Direction.CCW
-    Path.Direction.ClockWise -> PlatformPath.Direction.CW
+    Path.Direction.CounterClockwise -> PlatformPath.Direction.CCW
+    Path.Direction.Clockwise -> PlatformPath.Direction.CW
 }
