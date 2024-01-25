@@ -35,6 +35,7 @@ import androidx.camera.camera2.pipe.CameraGraph.OperatingMode.Companion.NORMAL
 import androidx.camera.camera2.pipe.GraphState.GraphStateStarting
 import androidx.camera.camera2.pipe.GraphState.GraphStateStopped
 import androidx.camera.camera2.pipe.GraphState.GraphStateStopping
+import androidx.camera.camera2.pipe.core.Log
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.flow.StateFlow
 
@@ -267,11 +268,19 @@ interface CameraGraph : AutoCloseable {
      * @property EXTENSION represents device-specific modes that may operate differently or have
      *   significant limitations in order to produce specific kinds of camera results.
      */
-    class OperatingMode private constructor() {
+    @JvmInline
+    value class OperatingMode private constructor(internal val mode: Int) {
         companion object {
-            val NORMAL = OperatingMode()
-            val HIGH_SPEED = OperatingMode()
-            val EXTENSION = OperatingMode()
+            val NORMAL = OperatingMode(0)
+            val HIGH_SPEED = OperatingMode(1)
+            val EXTENSION = OperatingMode(2)
+
+            fun custom(mode: Int): OperatingMode {
+                require(mode != NORMAL.mode && mode != HIGH_SPEED.mode) {
+                    Log.error { "Custom operating mode $mode conflicts with standard modes" }
+                }
+                return OperatingMode(mode)
+            }
         }
     }
 
