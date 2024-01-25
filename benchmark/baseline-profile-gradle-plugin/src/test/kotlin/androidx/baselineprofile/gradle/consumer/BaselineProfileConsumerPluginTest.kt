@@ -1646,6 +1646,31 @@ class BaselineProfileConsumerPluginTestWithAgp81(private val agpVersion: TestAgp
     }
 
     @Test
+    fun automaticGenerationDuringBuildNotCompatibleWithLibraryModule() {
+        projectSetup.consumer.setup(
+            androidPlugin = ANDROID_LIBRARY_PLUGIN,
+            baselineProfileBlock = """
+                saveInSrc = true
+                automaticGenerationDuringBuild = true
+            """.trimIndent()
+        )
+        projectSetup.producer.setupWithoutFlavors(
+            releaseProfileLines = listOf(Fixtures.CLASS_1_METHOD_1, Fixtures.CLASS_1),
+        )
+
+        // Asserts that running connected checks on a benchmark variants also triggers
+        // baseline profile generation (due to `automaticGenerationDuringBuild` true`).
+        projectSetup
+            .consumer
+            .gradleRunner
+            .buildAndFailAndAssertThatOutput("generateBaselineProfile", "--dry-run") {
+                contains("The flag `automaticGenerationDuringBuild` is not compatible with " +
+                    "library modules. Please remove the flag `automaticGenerationDuringBuild` " +
+                    "in your com.android.library module")
+            }
+    }
+
+    @Test
     fun testExperimentalPropertiesSet() {
         projectSetup.producer.setupWithFreeAndPaidFlavors(
             freeReleaseProfileLines = listOf(Fixtures.CLASS_1_METHOD_1, Fixtures.CLASS_1),
