@@ -41,7 +41,7 @@ androidXMultiplatform {
         commonMain {
             dependencies {
                 implementation(libs.kotlinStdlibCommon)
-                api(project(":compose:ui:ui"))
+                api("androidx.compose.ui:ui:1.6.0")
             }
         }
 
@@ -60,7 +60,6 @@ androidXMultiplatform {
         skikoMain {
             dependsOn(commonMain)
             dependencies {
-                api(project(":compose:ui:ui"))
             }
         }
 
