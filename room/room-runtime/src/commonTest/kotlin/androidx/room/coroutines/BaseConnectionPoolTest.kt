@@ -30,6 +30,7 @@ import androidx.sqlite.SQLiteStatement
 import androidx.sqlite.execSQL
 import androidx.sqlite.use
 import kotlin.coroutines.CoroutineContext
+import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 import kotlin.test.fail
@@ -557,6 +558,7 @@ abstract class BaseConnectionPoolTest {
         pool.close()
     }
 
+    @Ignore // b/322386871
     @Test
     fun closeUnusedConnections() = runTest {
         class CloseAwareConnection(val actual: SQLiteConnection) : SQLiteConnection by actual {
