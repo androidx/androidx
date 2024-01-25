@@ -195,6 +195,15 @@ class CanvasBufferedRenderer internal constructor(
         private var mUsageFlags = DefaultFlags
         private var mImpl = DEFAULT_IMPL
 
+        init {
+            if (width <= 0 || height <= 0) {
+                throw IllegalArgumentException(
+                    "Invalid dimensions provided, width and height must be > 0. " +
+                    "width: $width height: $height"
+                )
+            }
+        }
+
         /**
          * Specify the buffer format of the underlying buffers being rendered into by the created
          * [CanvasBufferedRenderer]. The set of valid formats is implementation-specific.

@@ -781,7 +781,15 @@ class GLFrameBufferRenderer internal constructor(
                         width: Int,
                         height: Int
                     ) {
-                        createSurfaceControl(target, callback)
+                        if (width > 0 && height > 0) {
+                            createSurfaceControl(target, callback)
+                        } else {
+                            Log.w(
+                                TAG,
+                                "Invalid dimensions provided, width and height must be > 0. " +
+                                "width: $width height: $height"
+                            )
+                       }
                     }
 
                     override fun surfaceDestroyed(p0: SurfaceHolder) {
@@ -804,7 +812,9 @@ class GLFrameBufferRenderer internal constructor(
                 val holder = target.holder
                 holder.addCallback(surfaceHolderCallback)
                 if (holder.surface != null && holder.surface.isValid) {
-                    createSurfaceControl(target, callback)
+                    if (target.width > 0 && target.height > 0) {
+                        createSurfaceControl(target, callback)
+                    }
                 }
                 mSurfaceHolderCallback = surfaceHolderCallback
             }

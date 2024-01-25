@@ -193,6 +193,11 @@ class CanvasFrontBufferedRenderer<T> @JvmOverloads constructor(
     }
 
     internal fun update(surfaceView: SurfaceView, width: Int, height: Int) {
+        if (width <= 0 || height <= 0) {
+            Log.w(TAG, "Invalid dimensions provided, width and height must be > 0. " +
+                "width: $width height: $height")
+            return
+        }
         val transformHint = mTransformResolver.getBufferTransformHint(surfaceView)
         if ((mTransform != transformHint || mWidth != width || mHeight != height) && isValid()) {
             releaseInternal(true)
@@ -250,33 +255,35 @@ class CanvasFrontBufferedRenderer<T> @JvmOverloads constructor(
                         hardwareBuffer: HardwareBuffer,
                         syncFenceCompat: SyncFenceCompat?
                     ) {
-                        val transaction = SurfaceControlCompat.Transaction()
-                            .setLayer(frontBufferSurfaceControl, Integer.MAX_VALUE)
-                            .setBuffer(
-                                frontBufferSurfaceControl,
-                                hardwareBuffer,
-                                if (singleBufferedCanvasRenderer?.isVisible == true) {
-                                    null
-                                } else {
-                                    syncFenceCompat
+                        if (frontBufferSurfaceControl.isValid()) {
+                            val transaction = SurfaceControlCompat.Transaction()
+                                .setLayer(frontBufferSurfaceControl, Integer.MAX_VALUE)
+                                .setBuffer(
+                                    frontBufferSurfaceControl,
+                                    hardwareBuffer,
+                                    if (singleBufferedCanvasRenderer?.isVisible == true) {
+                                        null
+                                    } else {
+                                        syncFenceCompat
+                                    }
+                                ) { releaseFence ->
+                                    mFrontBufferReleaseFence?.close()
+                                    mFrontBufferReleaseFence = releaseFence
                                 }
-                            ) { releaseFence ->
-                                mFrontBufferReleaseFence?.close()
-                                mFrontBufferReleaseFence = releaseFence
+                                .setVisibility(frontBufferSurfaceControl, true)
+                                .reparent(frontBufferSurfaceControl, parentSurfaceControl)
+                            if (transformHint != BufferTransformHintResolver.UNKNOWN_TRANSFORM) {
+                                transaction.setBufferTransform(
+                                    frontBufferSurfaceControl,
+                                    transformHint
+                                )
                             }
-                            .setVisibility(frontBufferSurfaceControl, true)
-                            .reparent(frontBufferSurfaceControl, parentSurfaceControl)
-                        if (transformHint != BufferTransformHintResolver.UNKNOWN_TRANSFORM) {
-                            transaction.setBufferTransform(
-                                frontBufferSurfaceControl,
-                                transformHint
-                            )
+                            callback.onFrontBufferedLayerRenderComplete(
+                                frontBufferSurfaceControl, transaction)
+                            transaction.commit()
+                            singleBufferedCanvasRenderer?.isVisible = true
                         }
-                        callback.onFrontBufferedLayerRenderComplete(
-                            frontBufferSurfaceControl, transaction)
-                        transaction.commit()
                         syncFenceCompat?.close()
-                        singleBufferedCanvasRenderer?.isVisible = true
                     }
                 }).apply {
                     colorSpace = mColorSpace
