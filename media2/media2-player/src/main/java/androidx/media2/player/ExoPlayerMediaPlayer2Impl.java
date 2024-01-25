@@ -16,7 +16,6 @@
 
 package androidx.media2.player;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.media.MediaDrm;
 import android.os.Handler;
@@ -52,7 +51,6 @@ import java.util.concurrent.RejectedExecutionException;
 /**
  * An implementation of {@link MediaPlayer2} based on a repackaged version of ExoPlayer.
  */
-@SuppressLint("RestrictedApi") // TODO(b/68398926): Remove once RestrictedApi checks are fixed.
 /* package */ final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2
         implements ExoPlayerWrapper.Listener {
 

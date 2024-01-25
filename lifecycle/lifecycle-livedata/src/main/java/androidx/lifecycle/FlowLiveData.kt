@@ -18,7 +18,6 @@
 
 package androidx.lifecycle
 
-import android.annotation.SuppressLint
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.arch.core.executor.ArchTaskExecutor
@@ -84,7 +83,6 @@ public fun <T> Flow<T>.asLiveData(
 }.also { liveData ->
     val flow = this
     if (flow is StateFlow<T>) {
-        @SuppressLint("RestrictedApi")
         if (ArchTaskExecutor.getInstance().isMainThread) {
             liveData.value = flow.value
         } else {

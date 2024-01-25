@@ -17,8 +17,6 @@
 package androidx.media2.player;
 
 
-import android.annotation.SuppressLint;
-
 import androidx.media2.exoplayer.external.Format;
 import androidx.media2.exoplayer.external.metadata.Metadata;
 import androidx.media2.exoplayer.external.metadata.MetadataDecoder;
@@ -31,7 +29,6 @@ import java.util.Arrays;
 /**
  * Factory for metadata decoders that provide raw ID3 data in {@link ByteArrayFrame}s.
  */
-@SuppressLint("RestrictedApi") // TODO(b/68398926): Remove once RestrictedApi checks are fixed.
 /* package */ final class Id3MetadataDecoderFactory implements MetadataDecoderFactory {
 
     @Override

@@ -15,7 +15,6 @@
  */
 package androidx.room
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.database.sqlite.SQLiteException
@@ -240,7 +239,6 @@ open class InvalidationTracker @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX
      *
      * @param observer The observer which listens the database for changes.
      */
-    @SuppressLint("RestrictedApi")
     @WorkerThread
     open fun addObserver(observer: Observer) {
         val tableNames = resolveViews(observer.tables)
@@ -312,7 +310,6 @@ open class InvalidationTracker @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX
      *
      * @param observer The observer to remove.
      */
-    @SuppressLint("RestrictedApi")
     @WorkerThread
     open fun removeObserver(observer: Observer) {
         val wrapper = synchronized(observerMap) {

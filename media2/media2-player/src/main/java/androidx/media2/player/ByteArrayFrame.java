@@ -16,7 +16,6 @@
 
 package androidx.media2.player;
 
-import android.annotation.SuppressLint;
 import android.os.Parcel;
 
 import androidx.annotation.Nullable;
@@ -29,7 +28,6 @@ import java.util.Arrays;
 /**
  * Metadata entry consisting of an ID3 frame as a byte array.
  */
-@SuppressLint("RestrictedApi") // TODO(b/68398926): Remove once RestrictedApi checks are fixed.
 /* package */ final class ByteArrayFrame implements Metadata.Entry {
 
     public final long mTimestamp;
