@@ -22,6 +22,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
+import android.content.res.Configuration
 import android.graphics.Canvas
 import android.graphics.Rect
 import android.os.Build
@@ -2961,6 +2962,13 @@ public abstract class WatchFaceService : WallpaperService() {
         fun notifyColorsChanged(engine: Engine) {
             engine.notifyColorsChanged()
         }
+    }
+
+    override fun onConfigurationChanged(
+        @Suppress("InvalidNullabilityOverride") newConfig: Configuration
+    ) {
+        Log.i(TAG, "Configuration changed, scheduling redraw")
+        InteractiveInstanceManager.getCurrentInteractiveInstance()?.engine?.invalidate()
     }
 }
 
