@@ -57,7 +57,8 @@ import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinAndroidTarget
 fun Project.configureMavenArtifactUpload(
     androidXExtension: AndroidXExtension,
     androidXKmpExtension: AndroidXMultiplatformExtension,
-    componentFactory: SoftwareComponentFactory
+    componentFactory: SoftwareComponentFactory,
+    afterConfigure: () -> Unit
 ) {
     apply(mapOf("plugin" to "maven-publish"))
     var registered = false
@@ -67,7 +68,8 @@ fun Project.configureMavenArtifactUpload(
                 androidXExtension,
                 androidXKmpExtension,
                 component,
-                componentFactory
+                componentFactory,
+                afterConfigure
             )
             Release.register(this, androidXExtension)
             registered = true
@@ -122,7 +124,8 @@ private fun Project.configureComponentPublishing(
     extension: AndroidXExtension,
     androidxKmpExtension: AndroidXMultiplatformExtension,
     component: SoftwareComponent,
-    componentFactory: SoftwareComponentFactory
+    componentFactory: SoftwareComponentFactory,
+    afterConfigure: () -> Unit
 ) {
     val androidxGroup = validateCoordinatesAndGetGroup(extension)
     val projectArchiveDir =
@@ -161,14 +164,16 @@ private fun Project.configureComponentPublishing(
                 tasks.getByName("publishPluginMavenPublicationToMavenRepository").doFirst {
                     removePreviouslyUploadedArchives(projectArchiveDir)
                 }
+                afterConfigure()
             } else {
                 if (project.isMultiplatformPublicationEnabled()) {
-                    configureMultiplatformPublication(componentFactory)
+                    configureMultiplatformPublication(componentFactory, afterConfigure)
                 } else {
                     it.create<MavenPublication>("maven") { from(component) }
                     tasks.getByName("publishMavenPublicationToMavenRepository").doFirst {
                         removePreviouslyUploadedArchives(projectArchiveDir)
                     }
+                    afterConfigure()
                 }
             }
         }
@@ -310,7 +315,10 @@ private fun Project.isMultiplatformPublicationEnabled(): Boolean {
     return extensions.findByType<KotlinMultiplatformExtension>() != null
 }
 
-private fun Project.configureMultiplatformPublication(componentFactory: SoftwareComponentFactory) {
+private fun Project.configureMultiplatformPublication(
+    componentFactory: SoftwareComponentFactory,
+    afterConfigure: () -> Unit
+) {
     val multiplatformExtension = extensions.findByType<KotlinMultiplatformExtension>()!!
 
     multiplatformExtension.targets.all { target ->
@@ -319,16 +327,17 @@ private fun Project.configureMultiplatformPublication(componentFactory: Software
         }
     }
 
-    replaceBaseMultiplatformPublication(componentFactory)
+    replaceBaseMultiplatformPublication(componentFactory, afterConfigure)
 }
 
 /**
- * KMP does not include a sources configuration (b/235486368), so we replace it with our own
- * publication that includes it. This uses internal API as a workaround while waiting for a fix on
- * the original bug.
+ * This was added because KMP did not include a sources configuration (b/235486368), so we replaced
+ * it with our own publication that includes it. This can be cleaned up now that the bug is fixed
+ * which is tracked here b/309641019
  */
 private fun Project.replaceBaseMultiplatformPublication(
-    componentFactory: SoftwareComponentFactory
+    componentFactory: SoftwareComponentFactory,
+    afterConfigure: () -> Unit
 ) {
     val kotlinComponent = components.findByName("kotlin") as SoftwareComponentInternal
     val sourcesElements = buildSet {
@@ -382,6 +391,7 @@ private fun Project.replaceBaseMultiplatformPublication(
             }
 
             disableBaseKmpPublications()
+            afterConfigure()
         }
     }
 }
