@@ -24,7 +24,6 @@ import androidx.glance.appwidget.appWidgetBackground
 import androidx.glance.background
 import androidx.glance.layout.Box
 import androidx.glance.layout.Column
-import androidx.glance.layout.ColumnScope
 import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.padding
 import androidx.glance.unit.ColorProvider
@@ -44,7 +43,7 @@ fun Scaffold(
     titleBar: @Composable () -> Unit,
     modifier: GlanceModifier = GlanceModifier,
     backgroundColor: ColorProvider = GlanceTheme.colors.surface,
-    content: @Composable ColumnScope.() -> Unit,
+    content: @Composable () -> Unit,
     ) {
     Box(modifier
         .fillMaxSize()
@@ -53,9 +52,8 @@ fun Scaffold(
     ) {
         Column(GlanceModifier.fillMaxSize()) {
             titleBar()
-            Box(GlanceModifier.padding(horizontal = 16.dp)) {
-                content()
-            }
+            Box(modifier = GlanceModifier.padding(horizontal = 16.dp).defaultWeight(),
+                content = content)
         }
     }
 }
