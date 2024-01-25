@@ -145,6 +145,17 @@ class Camera2CapturePipeline {
             @NonNull List<CaptureConfig> captureConfigs, @CaptureMode int captureMode,
             @FlashMode int flashMode, @FlashType int flashType) {
 
+        Pipeline pipeline = createPipeline(captureMode, flashMode, flashType);
+        return Futures.nonCancellationPropagating(
+                pipeline.executeCapture(captureConfigs, flashMode));
+    }
+
+    /**
+     * Creates a {@link Pipeline} for the current capture request based on the parameters.
+     */
+    @VisibleForTesting
+    Pipeline createPipeline(@CaptureMode int captureMode, @FlashMode int flashMode,
+            @FlashType int flashType) {
         OverrideAeModeForStillCapture aeQuirk = new OverrideAeModeForStillCapture(mCameraQuirk);
         Pipeline pipeline = new Pipeline(mTemplate, mExecutor, mScheduler, mCameraControl,
                 mIsLegacyDevice, aeQuirk);
@@ -169,8 +180,7 @@ class Camera2CapturePipeline {
             // pipeline.
         }
 
-        return Futures.nonCancellationPropagating(
-                pipeline.executeCapture(captureConfigs, flashMode));
+        return pipeline;
     }
 
     /**
