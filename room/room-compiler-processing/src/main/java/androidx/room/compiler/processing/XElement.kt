@@ -19,6 +19,7 @@ package androidx.room.compiler.processing
 import androidx.room.compiler.processing.javac.JavacElement
 import androidx.room.compiler.processing.ksp.KSFileAsOriginatingElement
 import androidx.room.compiler.processing.ksp.KspElement
+import androidx.room.compiler.processing.ksp.KspFileMemberContainer
 import androidx.room.compiler.processing.ksp.KspMemberContainer
 import androidx.room.compiler.processing.ksp.synthetic.KspSyntheticPropertyMethodElement
 import androidx.room.compiler.processing.ksp.wrapAsOriginatingElement
@@ -162,6 +163,9 @@ internal fun XElement.originatingElementForPoet(): Element {
         }
         is KspSyntheticPropertyMethodElement -> {
             field.declaration.wrapAsOriginatingElement()
+        }
+        is KspFileMemberContainer -> {
+            KSFileAsOriginatingElement(ksFile)
         }
         is KspMemberContainer -> {
             declaration!!.wrapAsOriginatingElement()
