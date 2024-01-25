@@ -28,8 +28,8 @@ import org.junit.runners.JUnit4
 class MathHelpersTest {
     // `f = 16777216f` is the first value where `f + 1 == f` due to float imprecision, so that's
     // where testing floating point errors becomes interesting
-    val testStart = 16777216L
-    val testEnd = testStart + 1000
+    private val testStart = 16777216L
+    private val testEnd = testStart + 1000
 
     @Test
     fun testLerpLargeFloats() {
@@ -118,14 +118,14 @@ class MathHelpersTest {
 
     @Test
     fun testZeroFastCbrt() {
-        val zeroError = 8.35E-7f
+        val zeroError = 5.97E-7f
         assertTrue(fastCbrt(0.0f) <= zeroError)
         assertTrue(fastCbrt(-0.0f) >= -zeroError)
     }
 
     @Test
     fun testFastCbrtError() {
-        val maxError = 1.76E-6f
+        val maxError = 1.193E-6f
         for (i in 0..65_536) {
             val v = i / 8_192.0f // v is in the range 0f..8f
             val error = abs(fastCbrt(v) - cbrt(v))
