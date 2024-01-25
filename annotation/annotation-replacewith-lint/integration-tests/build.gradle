@@ -33,7 +33,7 @@ android {
 
 dependencies {
     implementation(libs.kotlinStdlib)
-    implementation(project(":annotation:annotation-replacewith"))
+    implementation(project(":annotation:annotation"))
 }
 
 androidx {

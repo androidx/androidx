@@ -41,7 +41,6 @@ dependencies {
 androidx {
     name = "ReplaceWith annotation lint checks"
     type = LibraryType.LINT
-    mavenVersion = LibraryVersions.ANNOTATION_REPLACEWITH
     inceptionYear = "2024"
     description = "Lint checks for the ReplaceWith annotation library. Also enforces the " +
             "semantics of Kotlin @Deprecated API replacements from within Java source code."
