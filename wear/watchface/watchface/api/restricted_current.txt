@@ -338,6 +338,8 @@ package androidx.wear.watchface {
     method @WorkerThread protected androidx.wear.watchface.style.UserStyleSchema createUserStyleSchema(Extra extra);
     method @WorkerThread protected abstract suspend Object? createWatchFace(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.WatchState watchState, androidx.wear.watchface.ComplicationSlotsManager complicationSlotsManager, androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, Extra extra, kotlin.coroutines.Continuation<? super androidx.wear.watchface.WatchFace>);
     method protected final suspend Object? createWatchFace(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.WatchState watchState, androidx.wear.watchface.ComplicationSlotsManager complicationSlotsManager, androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, kotlin.coroutines.Continuation<? super androidx.wear.watchface.WatchFace>);
+    method protected final androidx.wear.watchface.ComplicationSlotInflationFactory getComplicationSlotInflationFactory(androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository);
+    method @WorkerThread protected androidx.wear.watchface.ComplicationSlotInflationFactory getComplicationSlotInflationFactory(androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, Extra extra);
   }
 
   public final class TapEvent {
