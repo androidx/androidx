@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.build.lint
+package androidx.lint.gradle
 
 import com.android.tools.lint.client.api.UElementHandler
 import com.android.tools.lint.detector.api.Category
@@ -28,7 +28,10 @@ import com.android.tools.lint.detector.api.Severity
 import org.jetbrains.uast.UCallExpression
 import org.jetbrains.uast.UElement
 
-class EagerGradleTaskDetector : Detector(), Detector.UastScanner {
+/**
+ * Checks for usages of [eager APIs](https://docs.gradle.org/current/userguide/task_configuration_avoidance.html).
+ */
+class EagerTaskConfigurationDetector : Detector(), Detector.UastScanner {
 
     override fun getApplicableUastTypes(): List<Class<out UElement>> = listOf(
         UCallExpression::class.java
@@ -92,7 +95,7 @@ class EagerGradleTaskDetector : Detector(), Detector.UastScanner {
             """,
             Category.CORRECTNESS, 5, Severity.ERROR,
             Implementation(
-                EagerGradleTaskDetector::class.java,
+                EagerTaskConfigurationDetector::class.java,
                 Scope.JAVA_FILE_SCOPE
             )
         )

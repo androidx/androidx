@@ -14,17 +14,16 @@
  * limitations under the License.
  */
 
-package androidx.build.lint
+package androidx.lint.gradle
 
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-class EagerGradleTaskDetectorTest : AbstractLintDetectorTest(
-    useDetector = EagerGradleTaskDetector(),
-    useIssues = listOf(EagerGradleTaskDetector.ISSUE),
-    stubs = GRADLE_STUBS
+class EagerTaskConfigurationDetectorTest : GradleLintDetectorTest(
+    detector = EagerTaskConfigurationDetector(),
+    issues = listOf(EagerTaskConfigurationDetector.ISSUE)
 ) {
     @Test
     fun `Test usage of TaskContainer#create`() {
@@ -198,51 +197,5 @@ class EagerGradleTaskDetectorTest : AbstractLintDetectorTest(
         """.trimIndent()
 
         check(input).expect(expected).expectFixDiffs(expectedFixDiffs)
-    }
-
-    companion object {
-        private val GRADLE_STUBS = arrayOf(
-            kotlin(
-                """
-                    package org.gradle.api.tasks
-
-                    import org.gradle.api.DomainObjectCollection
-                    import org.gradle.api.Task
-
-                    class TaskContainer : DomainObjectCollection<Task>, TaskCollection<Task> {
-                        fun create(name: String) = Unit
-                        fun register(name: String) = Unit
-                        fun getByName(name: String) = Unit
-                        fun named(name: String) = Unit
-                        fun whenTaskAdded(action: Action<in T>)
-                    }
-
-                    interface TaskCollection<T : Task> {
-                        fun getAt(name: String) = Unit
-                    }
-                """.trimIndent()
-            ),
-            kotlin(
-                """
-                    package org.gradle.api
-
-                    import org.gradle.api.tasks.TaskContainer
-
-                    class Project {
-                        val tasks: TaskContainer
-                    }
-
-                    interface DomainObjectCollection<T> {
-                        fun all(action: Action<in T>)
-                        fun configureEach(action: Action<in T>)
-                        fun whenObjectAdded(action: Action<in T>)
-                    }
-
-                    interface Action<T>
-
-                    interface Task
-                """.trimIndent()
-            )
-        )
     }
 }

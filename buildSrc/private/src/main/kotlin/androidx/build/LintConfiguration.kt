@@ -228,18 +228,26 @@ private fun Project.addSourceSetsForAndroidMultiplatformAfterEvaluate() {
     project.tasks.withType<LintModelWriterTask>().configureEach { it.variantInputs.addSourceSets() }
 }
 
+private fun Project.findLintProject(path: String): Project? {
+    return project.rootProject.findProject(path)
+        ?: if (allowMissingLintProject()) {
+            null
+        } else {
+            throw GradleException("Project $path does not exist")
+        }
+}
+
 private fun Project.configureLint(lint: Lint, isLibrary: Boolean) {
     val extension = project.androidXExtension
     val isMultiplatform = project.multiplatformExtension != null
-    val lintChecksProject =
-        project.rootProject.findProject(":lint-checks")
-            ?: if (allowMissingLintProject()) {
-                return
-            } else {
-                throw GradleException("Project :lint-checks does not exist")
-            }
-
+    val lintChecksProject = findLintProject(":lint-checks") ?: return
     project.dependencies.add("lintChecks", lintChecksProject)
+
+    if (extension.type == LibraryType.GRADLE_PLUGIN) {
+        project.rootProject.findProject(":lint:lint-gradle")?.let {
+            project.dependencies.add("lintChecks", it)
+        }
+    }
 
     afterEvaluate { addSourceSetsForAndroidMultiplatformAfterEvaluate() }
 
