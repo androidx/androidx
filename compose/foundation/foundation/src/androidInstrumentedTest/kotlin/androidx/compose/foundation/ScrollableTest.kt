@@ -54,6 +54,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.testutils.assertModifierIsPure
 import androidx.compose.testutils.first
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -2927,6 +2928,19 @@ class ScrollableTest {
 
         rule.onNodeWithTag(scrollableBoxTag).performTouchInput {
             swipeLeft()
+        }
+    }
+
+    @Test
+    fun equalInputs_shouldResolveToEquals() {
+        val state = ScrollableState { 0f }
+
+        assertModifierIsPure { toggleInput ->
+            if (toggleInput) {
+                Modifier.scrollable(state, Orientation.Horizontal)
+            } else {
+                Modifier.scrollable(state, Orientation.Vertical)
+            }
         }
     }
 
