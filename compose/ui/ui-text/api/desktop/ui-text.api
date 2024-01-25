@@ -334,7 +334,9 @@ public final class androidx/compose/ui/text/PlatformSpanStyle {
 	public static final field $stable I
 	public static final field Companion Landroidx/compose/ui/text/PlatformSpanStyle$Companion;
 	public fun <init> ()V
+	public synthetic fun <init> (Landroidx/compose/ui/text/TextDecorationLineStyle;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun equals (Ljava/lang/Object;)Z
+	public final fun getTextDecorationLineStyle-Gch4ia8 ()Landroidx/compose/ui/text/TextDecorationLineStyle;
 	public fun hashCode ()I
 	public final fun merge (Landroidx/compose/ui/text/PlatformSpanStyle;)Landroidx/compose/ui/text/PlatformSpanStyle;
 }
@@ -346,6 +348,7 @@ public final class androidx/compose/ui/text/PlatformSpanStyle$Companion {
 public final class androidx/compose/ui/text/PlatformTextStyle {
 	public static final field $stable I
 	public fun <init> (Landroidx/compose/ui/text/PlatformSpanStyle;Landroidx/compose/ui/text/PlatformParagraphStyle;)V
+	public synthetic fun <init> (Landroidx/compose/ui/text/TextDecorationLineStyle;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getParagraphStyle ()Landroidx/compose/ui/text/PlatformParagraphStyle;
 	public final fun getSpanStyle ()Landroidx/compose/ui/text/PlatformSpanStyle;
@@ -414,6 +417,28 @@ public final class androidx/compose/ui/text/StringKt {
 
 public final class androidx/compose/ui/text/SynchronizationKt {
 	public static final fun synchronized (Landroidx/compose/ui/text/SynchronizedObject;Lkotlin/jvm/functions/Function0;)Ljava/lang/Object;
+}
+
+public final class androidx/compose/ui/text/TextDecorationLineStyle {
+	public static final field Companion Landroidx/compose/ui/text/TextDecorationLineStyle$Companion;
+	public static final synthetic fun box-impl (I)Landroidx/compose/ui/text/TextDecorationLineStyle;
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (ILjava/lang/Object;)Z
+	public static final fun equals-impl0 (II)Z
+	public final fun getValue ()I
+	public fun hashCode ()I
+	public static fun hashCode-impl (I)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (I)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()I
+}
+
+public final class androidx/compose/ui/text/TextDecorationLineStyle$Companion {
+	public final fun getDashed-671RMmY ()I
+	public final fun getDotted-671RMmY ()I
+	public final fun getDouble-671RMmY ()I
+	public final fun getSolid-671RMmY ()I
+	public final fun getWavy-671RMmY ()I
 }
 
 public final class androidx/compose/ui/text/TextLayoutInput {
@@ -1400,7 +1425,7 @@ public final class androidx/compose/ui/text/platform/ResourceFont : androidx/com
 }
 
 public final class androidx/compose/ui/text/platform/SkiaParagraph_skikoKt {
-	public static final fun toSkDecorationStyle-4WTKRHQ (Landroidx/compose/ui/text/style/TextDecoration;J)Lorg/jetbrains/skia/paragraph/DecorationStyle;
+	public static final synthetic fun toSkDecorationStyle-4WTKRHQ (Landroidx/compose/ui/text/style/TextDecoration;J)Lorg/jetbrains/skia/paragraph/DecorationStyle;
 	public static final fun toSkFontStyle-nzbMABs (I)Lorg/jetbrains/skia/FontStyle;
 	public static final fun toSkPlaceholderAlignment-do9X-Gg (I)Lorg/jetbrains/skia/paragraph/PlaceholderAlignment;
 }

@@ -14,7 +14,11 @@
  * limitations under the License.
  */
 
+@file:JvmName("DesktopTextStyle_skikoKt")
+
 package androidx.compose.ui.text
+
+import kotlin.jvm.JvmName
 
 /**
  * Provides configuration options for behavior compatibility for TextStyle.
@@ -30,6 +34,20 @@ actual class PlatformTextStyle {
         this.spanStyle = spanStyle
         this.paragraphStyle = paragraphStyle
     }
+
+    /**
+     * Allows specifying the style of the decoration line for the text.
+     *
+     * This parameter is relevant only if `textDecoration` is specified, for example in
+     * `TextStyle(textDecoration = )` or in `SpanStyle(textDecoration = )`
+     */
+    @ExperimentalTextApi
+    constructor(
+        textDecorationLineStyle: TextDecorationLineStyle?
+    ) : this (
+        spanStyle = PlatformSpanStyle(textDecorationLineStyle),
+        paragraphStyle = null
+    )
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -78,8 +96,18 @@ actual class PlatformParagraphStyle {
 
 /**
  * Provides configuration options for behavior compatibility for SpanStyle.
+ *
+ * @param textDecorationLineStyle The style of the text decoration line. Note that this parameter is
+ * relevant only if `textDecoration` is specified, for example in `TextStyle(textDecoration = )` or
+ * in `SpanStyle(textDecoration = )`.
  */
-actual class PlatformSpanStyle {
+actual class PlatformSpanStyle @ExperimentalTextApi constructor(
+    val textDecorationLineStyle: TextDecorationLineStyle?
+) {
+
+    constructor() : this(textDecorationLineStyle = null)
+
+
     actual companion object {
         actual val Default: PlatformSpanStyle = PlatformSpanStyle()
     }
@@ -91,12 +119,12 @@ actual class PlatformSpanStyle {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is PlatformSpanStyle) return false
+        if (textDecorationLineStyle != other.textDecorationLineStyle) return false
         return true
     }
 
-    @Suppress("RedundantOverride")
     override fun hashCode(): Int {
-        return super.hashCode()
+        return textDecorationLineStyle.hashCode()
     }
 }
 
@@ -139,5 +167,13 @@ actual fun lerp(
     stop: PlatformSpanStyle,
     fraction: Float
 ): PlatformSpanStyle {
-    return start
+    if (start.textDecorationLineStyle == stop.textDecorationLineStyle) return start
+
+    return PlatformSpanStyle(
+        textDecorationLineStyle = lerpDiscrete(
+            start.textDecorationLineStyle,
+            stop.textDecorationLineStyle,
+            fraction
+        )
+    )
 }
