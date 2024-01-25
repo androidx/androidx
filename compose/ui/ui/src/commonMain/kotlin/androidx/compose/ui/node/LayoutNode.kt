@@ -977,16 +977,17 @@ internal class LayoutNode(
                 // this node was scheduled for remeasure or relayout while it was not
                 // placed. such requests are ignored for non-placed nodes so we have to
                 // re-schedule remeasure or relayout.
-                if (it.measurePending) {
-                    it.requestRemeasure(forceRequest = true)
-                } else if (it.layoutPending) {
-                    it.requestRelayout(forceRequest = true)
-                } else if (it.lookaheadMeasurePending) {
+                if (it.lookaheadMeasurePending) {
                     it.requestLookaheadRemeasure(forceRequest = true)
-                } else if (it.lookaheadLayoutPending) {
-                    it.requestLookaheadRelayout(forceRequest = true)
                 } else {
-                    // no extra work required and node is ready to be displayed
+                    if (it.lookaheadLayoutPending) {
+                        it.requestLookaheadRelayout(forceRequest = true)
+                    }
+                    if (it.measurePending) {
+                        it.requestRemeasure(forceRequest = true)
+                    } else if (it.layoutPending) {
+                        it.requestRelayout(forceRequest = true)
+                    }
                 }
             }
 
