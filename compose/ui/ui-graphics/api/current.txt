@@ -121,20 +121,6 @@ package androidx.compose.ui.graphics {
     method public static androidx.compose.ui.graphics.PathEffect toComposePathEffect(android.graphics.PathEffect);
   }
 
-  public final class AndroidPathIterator implements androidx.compose.ui.graphics.PathIterator {
-    ctor public AndroidPathIterator(androidx.compose.ui.graphics.Path path, androidx.compose.ui.graphics.PathIterator.ConicEvaluation conicEvaluation, float tolerance);
-    method public int calculateSize(boolean includeConvertedConics);
-    method public androidx.compose.ui.graphics.PathIterator.ConicEvaluation getConicEvaluation();
-    method public androidx.compose.ui.graphics.Path getPath();
-    method public float getTolerance();
-    method public boolean hasNext();
-    method public androidx.compose.ui.graphics.PathSegment next();
-    method public androidx.compose.ui.graphics.PathSegment.Type next(float[] points, int offset);
-    property public androidx.compose.ui.graphics.PathIterator.ConicEvaluation conicEvaluation;
-    property public androidx.compose.ui.graphics.Path path;
-    property public float tolerance;
-  }
-
   public final class AndroidPathIterator_androidKt {
     method public static androidx.compose.ui.graphics.PathIterator PathIterator(androidx.compose.ui.graphics.Path path, optional androidx.compose.ui.graphics.PathIterator.ConicEvaluation conicEvaluation, optional float tolerance);
   }
@@ -705,8 +691,8 @@ package androidx.compose.ui.graphics {
   public enum Path.Direction {
     method public static androidx.compose.ui.graphics.Path.Direction valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
     method public static androidx.compose.ui.graphics.Path.Direction[] values();
-    enum_constant public static final androidx.compose.ui.graphics.Path.Direction ClockWise;
-    enum_constant public static final androidx.compose.ui.graphics.Path.Direction CounterClockWise;
+    enum_constant public static final androidx.compose.ui.graphics.Path.Direction Clockwise;
+    enum_constant public static final androidx.compose.ui.graphics.Path.Direction CounterClockwise;
   }
 
   public interface PathEffect {
@@ -737,7 +723,7 @@ package androidx.compose.ui.graphics {
     method public androidx.compose.ui.graphics.Path getPath();
     method public float getTolerance();
     method public androidx.compose.ui.graphics.PathSegment next();
-    method public androidx.compose.ui.graphics.PathSegment.Type next(float[] points, optional int offset);
+    method public androidx.compose.ui.graphics.PathSegment.Type next(float[] outPoints, optional int offset);
     property public abstract androidx.compose.ui.graphics.PathIterator.ConicEvaluation conicEvaluation;
     property public abstract androidx.compose.ui.graphics.Path path;
     property public abstract float tolerance;

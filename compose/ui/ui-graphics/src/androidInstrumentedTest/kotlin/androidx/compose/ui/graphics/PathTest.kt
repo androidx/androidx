@@ -133,13 +133,13 @@ class PathTest {
         val r1 = Path().apply {
             addRect(
                 Rect(0.0f, 0.0f, 10.0f, 10.0f),
-                Path.Direction.ClockWise
+                Path.Direction.Clockwise
             )
         }
         val r2 = r1.copy().apply {
             addRect(
                 Rect(5.0f, 5.0f, 15.0f, 15.0f),
-                Path.Direction.ClockWise
+                Path.Direction.Clockwise
             )
         }
 

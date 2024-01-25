@@ -296,6 +296,6 @@ internal class SkiaBackedPath(
 }
 
 private fun Path.Direction.toSkiaPathDirection() = when (this) {
-    Path.Direction.CounterClockWise -> PathDirection.COUNTER_CLOCKWISE
-    Path.Direction.ClockWise -> PathDirection.CLOCKWISE
+    Path.Direction.CounterClockwise -> PathDirection.COUNTER_CLOCKWISE
+    Path.Direction.Clockwise -> PathDirection.CLOCKWISE
 }

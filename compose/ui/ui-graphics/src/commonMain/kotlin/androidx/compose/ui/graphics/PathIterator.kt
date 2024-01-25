@@ -27,6 +27,12 @@ import androidx.compose.ui.graphics.PathIterator.ConicEvaluation
  *
  * A [PathIterator] can be created implicitly through a given [Path] object: using one of the
  * two [Path.iterator] functions.
+ *
+ * @param path The [Path] to iterate over
+ * @param conicEvaluation Indicates how to evaluate conic segments
+ * @param tolerance When [conicEvaluation] is set to [PathIterator.ConicEvaluation.AsQuadratics]
+ *        defines the maximum distance between the original conic curve and its quadratic
+ *        approximations
  */
 expect fun PathIterator(
     path: Path,
@@ -74,7 +80,8 @@ interface PathIterator : Iterator<PathSegment> {
 
     /**
      * Error of the approximation used to evaluate conic segments if they are converted
-     * to quadratics. See [conicEvaluation].
+     * to quadratics. The error is defined as the maximum distance between the original
+     * conic segment and its quadratic approximation. See [conicEvaluation].
      */
     val tolerance: Float
 
@@ -102,8 +109,8 @@ interface PathIterator : Iterator<PathSegment> {
 
     /**
      * Returns the [type][PathSegment.Type] of the next [path segment][PathSegment] in the iteration
-     * and fills [points] with the points specific to the segment type. Each pair of floats in
-     * the [points] array represents a point for the given segment. The number of pairs of floats
+     * and fills [outPoints] with the points specific to the segment type. Each pair of floats in
+     * the [outPoints] array represents a point for the given segment. The number of pairs of floats
      * depends on the [PathSegment.Type]:
      * - [Move][PathSegment.Type.Move]: 1 pair (indices 0 to 1)
      * - [Line][PathSegment.Type.Line]: 2 pairs (indices 0 to 3)
@@ -116,11 +123,11 @@ interface PathIterator : Iterator<PathSegment> {
      * - [Done][PathSegment.Type.Done]: 0 pair
      * This method does not allocate any memory.
      *
-     * @param points A [FloatArray] large enough to hold 8 floats starting at [offset],
+     * @param outPoints A [FloatArray] large enough to hold 8 floats starting at [offset],
      *               throws an [IllegalStateException] otherwise.
-     * @param offset Offset in [points] where to store the result
+     * @param offset Offset in [outPoints] where to store the result
      */
-    fun next(points: FloatArray, offset: Int = 0): PathSegment.Type
+    fun next(outPoints: FloatArray, offset: Int = 0): PathSegment.Type
 
     /**
      * Returns the next [path segment][PathSegment] in the iteration, or [DoneSegment] if
