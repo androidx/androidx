@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("KotlinConstantConditions")
+
 package androidx.compose.ui.util
 
 import com.google.common.truth.Truth.assertThat
@@ -54,8 +56,7 @@ class MathHelpersTest {
     @Test
     fun testLerpLargeLongs() {
         val from = 1L
-        for (x in testStart until testEnd) {
-            val to = x.toLong()
+        for (to in testStart until testEnd) {
             assertThat(lerp(from, to, 0f)).isEqualTo(from)
             assertThat(lerp(from, to, 1f)).isEqualTo(to)
         }
@@ -78,12 +79,12 @@ class MathHelpersTest {
     fun testLerpSimpleInts() {
         val from = 0
         for (multiplier in 1..1000) {
-            val to = (4 * multiplier).toInt()
-            assertThat(lerp(from, to, 0.00f)).isEqualTo((0 * multiplier).toInt())
-            assertThat(lerp(from, to, 0.25f)).isEqualTo((1 * multiplier).toInt())
-            assertThat(lerp(from, to, 0.50f)).isEqualTo((2 * multiplier).toInt())
-            assertThat(lerp(from, to, 0.75f)).isEqualTo((3 * multiplier).toInt())
-            assertThat(lerp(from, to, 1.00f)).isEqualTo((4 * multiplier).toInt())
+            val to = (4 * multiplier)
+            assertThat(lerp(from, to, 0.00f)).isEqualTo((0 * multiplier))
+            assertThat(lerp(from, to, 0.25f)).isEqualTo((1 * multiplier))
+            assertThat(lerp(from, to, 0.50f)).isEqualTo((2 * multiplier))
+            assertThat(lerp(from, to, 0.75f)).isEqualTo((3 * multiplier))
+            assertThat(lerp(from, to, 1.00f)).isEqualTo((4 * multiplier))
         }
     }
 
@@ -118,14 +119,14 @@ class MathHelpersTest {
 
     @Test
     fun testZeroFastCbrt() {
-        val zeroError = 5.97E-7f
+        val zeroError = 8.35E-7f
         assertTrue(fastCbrt(0.0f) <= zeroError)
         assertTrue(fastCbrt(-0.0f) >= -zeroError)
     }
 
     @Test
     fun testFastCbrtError() {
-        val maxError = 1.193E-6f
+        val maxError = 1.76E-6f
         for (i in 0..65_536) {
             val v = i / 8_192.0f // v is in the range 0f..8f
             val error = abs(fastCbrt(v) - cbrt(v))

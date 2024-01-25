@@ -230,7 +230,7 @@ fun fastCbrt(x: Float): Float {
     // - 4.0054320E-4 -> 3.8146973E-5 in the range -65_536f..65_536f
     // - 1.6021729E-3 -> 1.5258789E-4 in the range -16_777_216..16_777_216f
     val v = x.toRawBits().toLong() and 0x1ffffffffL
-    var estimate = floatFromBits((0x2a510554L + v / 3).toInt())
+    var estimate = floatFromBits(0x2a510554 + (v / 3).toInt())
 
     // 2 rounds of the Newton-Rhapson method to improve accuracy
     estimate -= (estimate - x / (estimate * estimate)) * (1.0f / 3.0f)
