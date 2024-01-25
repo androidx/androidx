@@ -16,25 +16,29 @@
 
 package androidx.compose.foundation.demos.text
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.InlineTextContent
+import androidx.compose.foundation.text.LocalTextLinkStyle
 import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -60,6 +64,7 @@ private const val LongWebLink =
     "https://developer.android.com/design/ui/mobile/guides/foundations/system-bars"
 private const val PhoneUri = "tel:+123456789"
 
+@SuppressLint("NullAnnotationGroup")
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun Hyperlinks() {
@@ -89,6 +94,26 @@ fun Hyperlinks() {
                 append(" with a custom style.")
             }
             Text(text = stringWithLink)
+        }
+        Sample("Link styling via composition local") {
+            CompositionLocalProvider(
+                LocalTextLinkStyle provides LocalTextLinkStyle.current.copy(
+                    color = Color(139, 195, 74, 255)
+                )
+            ) {
+                Text(buildAnnotatedString {
+                    append("Text with ")
+                    withAnnotation(LinkAnnotation.Url(WebLink)) { append("developer.android.com") }
+                    append(" link wrapped in green theming.")
+                })
+            }
+        }
+        Sample("BasicText styling") {
+            BasicText(buildAnnotatedString {
+                append("BasicText with ")
+                withAnnotation(LinkAnnotation.Url(WebLink)) { append("developer.android.com") }
+                append(" link.")
+            })
         }
 
         Sample("Long links") {
@@ -120,13 +145,6 @@ fun Hyperlinks() {
                 append(" link.")
             }, Modifier.clickable { })
         }
-        Sample("BasicText styling") {
-            BasicText(buildAnnotatedString {
-                append("BasicText with ")
-                withAnnotation(LinkAnnotation.Url(WebLink)) { append("developer.android.com") }
-                append(" link.")
-            })
-        }
         Sample("Link inside selectable text") {
             SelectionContainer {
                 Text(buildAnnotatedString {
@@ -143,7 +161,7 @@ fun Hyperlinks() {
             ) {
                 Box(modifier = Modifier.fillMaxSize().background(Color.Green))
             }
-            BasicText(buildAnnotatedString {
+            Text(buildAnnotatedString {
                 append("A ")
                 appendInlineContent("box")
                 append(" inline content and a ")
@@ -152,7 +170,7 @@ fun Hyperlinks() {
             }, inlineContent = mapOf("box" to inlineTextContent))
         }
         Sample("Invalid link not opened") {
-            BasicText(
+            Text(
                 buildAnnotatedString {
                     append("Attached ")
                     withAnnotation(LinkAnnotation.Url("asdf")) {
@@ -202,7 +220,13 @@ fun Hyperlinks() {
 }
 
 @Composable
-private fun ColumnScope.Sample(title: String, content: @Composable () -> Unit) {
-    Text(title, Modifier.align(Alignment.CenterHorizontally), fontWeight = FontWeight.Bold)
-    content()
+private fun Sample(title: String, content: @Composable () -> Unit) {
+    Column(
+        Modifier
+            .fillMaxWidth()
+            .border(2.dp, Color.Black)
+            .padding(8.dp)) {
+        Text(title, Modifier.align(Alignment.CenterHorizontally), fontWeight = FontWeight.Bold)
+        content()
+    }
 }
