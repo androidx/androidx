@@ -108,7 +108,7 @@ androidXMultiplatform {
 }
 
 android {
-    namespace "androidx.compose.material3.adaptive.navigation.suite"
+    namespace "androidx.compose.material3.adaptive.navigationsuite"
 }
 
 androidx {

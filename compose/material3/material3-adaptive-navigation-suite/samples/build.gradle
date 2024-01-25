@@ -57,5 +57,5 @@ androidx {
 }
 
 android {
-    namespace "androidx.compose.material3.adaptive.navigation.suite.samples"
+    namespace "androidx.compose.material3.adaptive.navigationsuite.samples"
 }
