@@ -26,4 +26,7 @@
 # To support CurrentUserStyleRepository's dynamic proxy.
 -keep public class kotlinx.coroutines.flow.MutableStateFlow { *; }
 
+# To support inflating ComplicationDrawable.
+-keep class androidx.wear.watchface.complications.rendering.**
+
 
