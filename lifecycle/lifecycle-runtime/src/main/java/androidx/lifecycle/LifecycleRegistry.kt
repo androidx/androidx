@@ -131,7 +131,8 @@ open class LifecycleRegistry private constructor(
             return
         }
         check(!(state == State.INITIALIZED && next == State.DESTROYED)) {
-            "no event down from $state in component ${lifecycleOwner.get()}"
+            "State must be at least CREATED to move to $next, but was $state in component " +
+                "${lifecycleOwner.get()}"
         }
         state = next
         if (handlingEvent || addingObserverCounter != 0) {
