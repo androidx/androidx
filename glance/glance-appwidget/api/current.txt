@@ -224,7 +224,7 @@ package androidx.glance.appwidget.components {
   }
 
   public final class ScaffoldKt {
-    method @androidx.compose.runtime.Composable public static void Scaffold(kotlin.jvm.functions.Function0<kotlin.Unit> titleBar, optional androidx.glance.GlanceModifier modifier, optional androidx.glance.unit.ColorProvider backgroundColor, kotlin.jvm.functions.Function1<? super androidx.glance.layout.ColumnScope,kotlin.Unit> content);
+    method @androidx.compose.runtime.Composable public static void Scaffold(kotlin.jvm.functions.Function0<kotlin.Unit> titleBar, optional androidx.glance.GlanceModifier modifier, optional androidx.glance.unit.ColorProvider backgroundColor, kotlin.jvm.functions.Function0<kotlin.Unit> content);
   }
 
   public final class TitleBarKt {
