@@ -28,7 +28,6 @@ import androidx.room.integration.testapp.dao.PetCoupleDao;
 import androidx.room.integration.testapp.dao.PetDao;
 import androidx.room.integration.testapp.dao.ProductDao;
 import androidx.room.integration.testapp.dao.RawDao;
-import androidx.room.integration.testapp.dao.RecordEntityDao;
 import androidx.room.integration.testapp.dao.RobotsDao;
 import androidx.room.integration.testapp.dao.SchoolDao;
 import androidx.room.integration.testapp.dao.SpecificDogDao;
@@ -47,7 +46,6 @@ import androidx.room.integration.testapp.vo.Pet;
 import androidx.room.integration.testapp.vo.PetCouple;
 import androidx.room.integration.testapp.vo.PetWithUser;
 import androidx.room.integration.testapp.vo.Product;
-import androidx.room.integration.testapp.vo.RecordEntity;
 import androidx.room.integration.testapp.vo.Robot;
 import androidx.room.integration.testapp.vo.RoomLibraryPojo;
 import androidx.room.integration.testapp.vo.School;
@@ -62,8 +60,7 @@ import java.util.UUID;
 
 @Database(entities = {User.class, Pet.class, School.class, PetCouple.class, Toy.class,
         BlobEntity.class, Product.class, FunnyNamedEntity.class, House.class,
-        FriendsJunction.class, Hivemind.class, Robot.class, RoomLibraryPojo.class,
-        RecordEntity.class},
+        FriendsJunction.class, Hivemind.class, Robot.class, RoomLibraryPojo.class},
         views = {PetWithUser.class},
         version = 1, exportSchema = false)
 @TypeConverters(TestDatabase.Converters.class)
@@ -84,7 +81,7 @@ public abstract class TestDatabase extends RoomDatabase {
     public abstract UserHouseDao getUserHouseDao();
     public abstract RobotsDao getRobotsDao();
     public abstract LibraryItemDao getLibraryItemDao();
-    public abstract RecordEntityDao getRecordEntityDao();
+//    public abstract RecordEntityDao getRecordEntityDao();
 
     @SuppressWarnings("unused")
     public static class Converters {

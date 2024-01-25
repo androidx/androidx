@@ -34,6 +34,7 @@ open class RoomOpenHelper(
     legacyHash: String
 ) : SupportSQLiteOpenHelper.Callback(delegate.version) {
     private var configuration: DatabaseConfiguration?
+    private val callbacks: List<RoomDatabase.Callback>? = configuration.callbacks
     private val delegate: Delegate
     private val identityHash: String
 
@@ -78,6 +79,7 @@ open class RoomOpenHelper(
         }
         updateIdentity(db)
         delegate.onCreate(db)
+        callbacks?.forEach { it.onCreate(db) }
     }
 
     override fun onUpgrade(db: SupportSQLiteDatabase, oldVersion: Int, newVersion: Int) {
@@ -111,6 +113,7 @@ open class RoomOpenHelper(
                     // Drops known tables (Room entity tables)
                     delegate.dropAllTables(db)
                 }
+                callbacks?.forEach { it.onDestructiveMigration(db) }
                 delegate.createAllTables(db)
             } else {
                 throw IllegalStateException(
@@ -133,6 +136,7 @@ open class RoomOpenHelper(
         super.onOpen(db)
         checkIdentity(db)
         delegate.onOpen(db)
+        callbacks?.forEach { it.onOpen(db) }
         // there might be too many configurations etc, just clear it.
         configuration = null
     }
