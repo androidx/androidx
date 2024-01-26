@@ -35,7 +35,6 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.withContext
-import kotlinx.coroutines.yield
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public abstract class PagingDataPresenter<T : Any>(
@@ -79,8 +78,6 @@ public abstract class PagingDataPresenter<T : Any>(
     public abstract suspend fun presentPagingDataEvent(
         event: PagingDataEvent<T>,
     )
-
-    public open fun postEvents(): Boolean = false
 
     public suspend fun collectFrom(pagingData: PagingData<T>) {
         collectFromRunner.runInIsolation {
@@ -133,10 +130,6 @@ public abstract class PagingDataPresenter<T : Any>(
                             )
                         }
                         event is Insert -> {
-                            if (postEvents()) {
-                                yield()
-                            }
-
                             // Process APPEND/PREPEND and send to presenter
                             presentPagingDataEvent(pageStore.processEvent(event))
 
@@ -189,10 +182,6 @@ public abstract class PagingDataPresenter<T : Any>(
                             }
                         }
                         event is Drop -> {
-                            if (postEvents()) {
-                                yield()
-                            }
-
                             // Process DROP and send to presenter
                             presentPagingDataEvent(pageStore.processEvent(event))
 
@@ -208,9 +197,6 @@ public abstract class PagingDataPresenter<T : Any>(
                             lastAccessedIndexUnfulfilled = false
                         }
                         event is PageEvent.LoadStateUpdate -> {
-                            if (postEvents()) {
-                                yield()
-                            }
                             combinedLoadStatesCollection.set(
                                 sourceLoadStates = event.source,
                                 remoteLoadStates = event.mediator,
