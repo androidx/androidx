@@ -296,14 +296,12 @@ value class RequestTemplate(val value: Int) {
 
 /**
  * The intended use for this class is to submit the input needed for a reprocessing request, the
- * [InputStream], [ImageWrapper] and [FrameMetadata]. Both values are non-nullable because
+ * [ImageWrapper] and [FrameInfo]. Both values are non-nullable because
  * both values are needed for reprocessing.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 data class InputRequest(
-    val inputStreamId: InputStreamId,
     val image: ImageWrapper,
-    val frameMetadata: FrameMetadata,
     val frameInfo: FrameInfo
 )
 
