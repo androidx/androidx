@@ -16,6 +16,7 @@
 package androidx.lifecycle
 
 import androidx.arch.core.executor.ArchTaskExecutor.getInstance
+import androidx.arch.core.executor.TaskExecutor
 import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.lifecycle.util.InstantTaskExecutor
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -81,6 +82,17 @@ class TransformationsTest {
         assertThat(mapped.isInitialized, `is`(true))
         assertThat(source.value, nullValue())
         assertThat(mapped.value, `is`(output))
+    }
+
+    @Test
+    fun testMap_createsCorrectlyOnBackgroundThread() {
+        getInstance().setDelegate(InstantTaskExecutorOnBackgroundThread())
+        val initialValue = "value"
+        val source: LiveData<String> = MutableLiveData(initialValue)
+        val mapped = source.map { "mapped $it" }
+        assertThat(mapped.isInitialized, `is`(true))
+        assertThat(source.value, `is`(initialValue))
+        assertThat(mapped.value, `is`("mapped $initialValue"))
     }
 
     @Test
@@ -226,6 +238,20 @@ class TransformationsTest {
     }
 
     @Test
+    fun testSwitchMap_createsCorrectlyOnBackgroundThread() {
+        getInstance().setDelegate(InstantTaskExecutorOnBackgroundThread())
+
+        val initialValue1 = "value1"
+        val original = MutableLiveData(true)
+        val source1 = MutableLiveData(initialValue1)
+
+        val switched = original.switchMap { source1 }
+        assertThat(switched.isInitialized, `is`(true))
+        assertThat(source1.value, `is`(initialValue1))
+        assertThat(switched.value, `is`(initialValue1))
+    }
+
+    @Test
     fun noObsoleteValueTest() {
         val numbers = MutableLiveData<Int>()
         val squared = numbers.map { input: Int -> input * input }
@@ -285,10 +311,40 @@ class TransformationsTest {
         newLiveData.removeObservers(owner)
     }
 
+    @Test
+    fun testDistinctUntilChanged_createsCorrectlyOnBackgroundThread() {
+        // Check creation newLiveData on background thread.
+        getInstance().setDelegate(InstantTaskExecutorOnBackgroundThread())
+        val originalLiveData = MutableLiveData("value")
+        val newLiveData = originalLiveData.distinctUntilChanged()
+        assertThat(newLiveData.value, `is`("value"))
+
+        // Adding observer works correctly only on main thread, so set main thread executor back.
+        getInstance().setDelegate(InstantTaskExecutor())
+        val observer = CountingObserver<String>()
+        newLiveData.observe(owner, observer)
+        assertThat(observer.timesUpdated, `is`(1))
+        assertThat(newLiveData.value, `is`("value"))
+    }
+
     private class CountingObserver<T> : Observer<T> {
         var timesUpdated = 0
         override fun onChanged(value: T) {
             ++timesUpdated
+        }
+    }
+
+    private class InstantTaskExecutorOnBackgroundThread : TaskExecutor() {
+        override fun executeOnDiskIO(runnable: Runnable) {
+            runnable.run()
+        }
+
+        override fun postToMainThread(runnable: Runnable) {
+            runnable.run()
+        }
+
+        override fun isMainThread(): Boolean {
+            return false
         }
     }
 }

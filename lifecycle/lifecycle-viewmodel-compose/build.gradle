@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.Publish
 import androidx.build.RunApiTasks
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
@@ -32,7 +39,7 @@ dependencies {
     api projectOrArtifact(":lifecycle:lifecycle-viewmodel-savedstate")
     api("androidx.compose.runtime:runtime:1.0.1")
     api "androidx.compose.ui:ui:1.0.1"
-    api("androidx.annotation:annotation-experimental:1.1.0")
+    api("androidx.annotation:annotation-experimental:1.4.0")
 
     implementation(libs.kotlinStdlib)
 
@@ -53,8 +60,6 @@ dependencies {
     androidTestImplementation projectOrArtifact(":lifecycle:lifecycle-viewmodel-savedstate")
     androidTestImplementation projectOrArtifact(":activity:activity-compose")
     androidTestImplementation(projectOrArtifact(":lifecycle:lifecycle-runtime-testing"))
-
-    samples(projectOrArtifact(":lifecycle:lifecycle-viewmodel-compose:lifecycle-viewmodel-compose-samples"))
 }
 
 androidx {
@@ -64,6 +69,7 @@ androidx {
     description = "Compose integration with Lifecycle ViewModel"
     runApiTasks = new RunApiTasks.Yes()
     metalavaK2UastEnabled = true
+    samples(projectOrArtifact(":lifecycle:lifecycle-viewmodel-compose:lifecycle-viewmodel-compose-samples"))
 }
 
 android {

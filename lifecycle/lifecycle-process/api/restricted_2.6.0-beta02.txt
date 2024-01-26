@@ -1,0 +1,22 @@
+// Signature format: 4.0
+package androidx.lifecycle {
+
+  public final class ProcessLifecycleInitializer implements androidx.startup.Initializer<androidx.lifecycle.LifecycleOwner> {
+    ctor public ProcessLifecycleInitializer();
+    method public androidx.lifecycle.LifecycleOwner create(android.content.Context context);
+    method public java.util.List<java.lang.Class<? extends androidx.startup.Initializer<?>>> dependencies();
+  }
+
+  public final class ProcessLifecycleOwner implements androidx.lifecycle.LifecycleOwner {
+    method public static androidx.lifecycle.LifecycleOwner get();
+    method public androidx.lifecycle.Lifecycle getLifecycle();
+    property public androidx.lifecycle.Lifecycle lifecycle;
+    field public static final androidx.lifecycle.ProcessLifecycleOwner.Companion Companion;
+  }
+
+  public static final class ProcessLifecycleOwner.Companion {
+    method public androidx.lifecycle.LifecycleOwner get();
+  }
+
+}
+

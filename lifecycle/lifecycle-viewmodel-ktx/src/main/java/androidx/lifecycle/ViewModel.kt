@@ -34,14 +34,11 @@ private const val JOB_KEY = "androidx.lifecycle.ViewModelCoroutineScope.JOB_KEY"
  */
 public val ViewModel.viewModelScope: CoroutineScope
     get() {
-        val scope: CoroutineScope? = this.getTag(JOB_KEY)
-        if (scope != null) {
-            return scope
+        return getCloseable<CloseableCoroutineScope>(JOB_KEY) ?: CloseableCoroutineScope(
+            SupervisorJob() + Dispatchers.Main.immediate
+        ).also { newClosableScope ->
+            addCloseable(JOB_KEY, newClosableScope)
         }
-        return setTagIfAbsent(
-            JOB_KEY,
-            CloseableCoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
-        )
     }
 
 internal class CloseableCoroutineScope(context: CoroutineContext) : Closeable, CoroutineScope {

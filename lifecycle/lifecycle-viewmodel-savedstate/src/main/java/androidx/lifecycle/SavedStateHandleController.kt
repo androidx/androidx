@@ -16,11 +16,12 @@
 package androidx.lifecycle
 
 import androidx.savedstate.SavedStateRegistry
+import java.io.Closeable
 
 internal class SavedStateHandleController(
     private val key: String,
     val handle: SavedStateHandle
-) : LifecycleEventObserver {
+) : LifecycleEventObserver, Closeable {
 
     var isAttached = false
         private set
@@ -37,5 +38,10 @@ internal class SavedStateHandleController(
             isAttached = false
             source.lifecycle.removeObserver(this)
         }
+    }
+
+    override fun close() {
+        // This class has nothing to actually close, but all objects added via
+        // ViewModel's addCloseable(key, Closeable) must be Closeable.
     }
 }
