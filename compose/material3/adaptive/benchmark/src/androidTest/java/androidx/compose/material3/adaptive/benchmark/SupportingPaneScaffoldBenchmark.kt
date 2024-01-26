@@ -92,7 +92,9 @@ class SupportingPaneScaffoldBenchmark {
                 }.apply {
                     currentScaffoldDirective = singlePaneDirective
                 }
-            }
+            },
+            // For skipping state transitions
+            assertOneRecomposition = false
         )
     }
 
@@ -113,7 +115,9 @@ class SupportingPaneScaffoldBenchmark {
                 }.apply {
                     currentScaffoldDirective = dualPaneDirective
                 }
-            }
+            },
+            // For skipping state transitions
+            assertOneRecomposition = false
         )
     }
 

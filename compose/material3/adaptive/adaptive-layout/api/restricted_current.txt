@@ -127,17 +127,21 @@ package androidx.compose.material3.adaptive.layout {
     enum_constant public static final androidx.compose.material3.adaptive.layout.ThreePaneScaffoldRole Tertiary;
   }
 
-  public interface ThreePaneScaffoldScope extends androidx.compose.material3.adaptive.layout.PaneScaffoldScope {
-    method public String getAnimationToolingLabel();
+  public interface ThreePaneScaffoldScope extends androidx.compose.material3.adaptive.layout.PaneScaffoldScope androidx.compose.ui.layout.LookaheadScope {
     method public androidx.compose.animation.EnterTransition getEnterTransition();
     method public androidx.compose.animation.ExitTransition getExitTransition();
-    method public String getPaneAdaptedValue();
-    method public androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.unit.IntOffset>? getPositionAnimationSpec();
-    property public abstract String animationToolingLabel;
+    method public androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.unit.IntOffset> getPositionAnimationSpec();
+    method public androidx.compose.material3.adaptive.layout.ThreePaneScaffoldRole getRole();
+    method public androidx.compose.animation.core.Transition<androidx.compose.material3.adaptive.layout.ThreePaneScaffoldValue> getScaffoldStateTransition();
+    method public float getScaffoldStateTransitionFraction();
+    method public androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.unit.IntSize> getSizeAnimationSpec();
     property public abstract androidx.compose.animation.EnterTransition enterTransition;
     property public abstract androidx.compose.animation.ExitTransition exitTransition;
-    property public abstract String paneAdaptedValue;
-    property public abstract androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.unit.IntOffset>? positionAnimationSpec;
+    property public abstract androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.unit.IntOffset> positionAnimationSpec;
+    property public abstract androidx.compose.material3.adaptive.layout.ThreePaneScaffoldRole role;
+    property public abstract androidx.compose.animation.core.Transition<androidx.compose.material3.adaptive.layout.ThreePaneScaffoldValue> scaffoldStateTransition;
+    property public abstract float scaffoldStateTransitionFraction;
+    property public abstract androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.unit.IntSize> sizeAnimationSpec;
   }
 
   @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Immutable public final class ThreePaneScaffoldValue {
