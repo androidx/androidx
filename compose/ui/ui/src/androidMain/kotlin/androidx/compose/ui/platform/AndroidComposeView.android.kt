@@ -21,7 +21,12 @@ package androidx.compose.ui.platform
 import android.content.Context
 import android.content.res.Configuration
 import android.graphics.Rect
-import android.os.Build
+import android.os.Build.VERSION.SDK_INT
+import android.os.Build.VERSION_CODES.M
+import android.os.Build.VERSION_CODES.N
+import android.os.Build.VERSION_CODES.O
+import android.os.Build.VERSION_CODES.Q
+import android.os.Build.VERSION_CODES.S
 import android.os.Looper
 import android.os.SystemClock
 import android.util.LongSparseArray
@@ -506,7 +511,7 @@ internal class AndroidComposeView(
         context.resources.configuration.fontWeightAdjustmentCompat
 
     private val Configuration.fontWeightAdjustmentCompat: Int
-        get() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) fontWeightAdjustment else 0
+        get() = if (SDK_INT >= S) fontWeightAdjustment else 0
 
     // Backed by mutableStateOf so that the ambient provider recomposes when it changes
     override var layoutDirection by mutableStateOf(
@@ -643,11 +648,8 @@ internal class AndroidComposeView(
         }
     }
 
-    private val matrixToWindow = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-        CalculateMatrixToWindowApi29()
-    } else {
-        CalculateMatrixToWindowApi21(tmpMatrix)
-    }
+    private val matrixToWindow =
+        if (SDK_INT < Q) CalculateMatrixToWindowApi21(tmpMatrix) else CalculateMatrixToWindowApi29()
 
     /**
      * Keyboard modifiers state might be changed when window is not focused, so window doesn't
@@ -664,7 +666,7 @@ internal class AndroidComposeView(
         addOnAttachStateChangeListener(contentCaptureManager)
         setWillNotDraw(false)
         isFocusable = true
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        if (SDK_INT >= O) {
             AndroidComposeViewVerificationHelperMethodsO.focusable(
                 this,
                 focusable = View.FOCUSABLE,
@@ -677,10 +679,9 @@ internal class AndroidComposeView(
         ViewRootForTest.onViewCreatedCallback?.invoke(this)
         setOnDragListener(this.dragAndDropModifierOnDragListener)
         root.attach(this)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            // Support for this feature in Compose is tracked here: b/207654434
-            AndroidComposeViewForceDarkModeQ.disallowForceDark(this)
-        }
+
+        // Support for this feature in Compose is tracked here: b/207654434
+        if (SDK_INT >= Q) AndroidComposeViewForceDarkModeQ.disallowForceDark(this)
     }
 
     /**
@@ -892,18 +893,20 @@ internal class AndroidComposeView(
             drawDragDecoration = drawDragDecoration,
         )
         @Suppress("DEPRECATION")
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
+        return if (SDK_INT >= N) {
             AndroidComposeViewStartDragAndDropN.startDragAndDrop(
                 view = this,
                 transferData = transferData,
                 dragShadowBuilder = shadowBuilder,
             )
-        else startDrag(
-            transferData.clipData,
-            shadowBuilder,
-            transferData.localState,
-            transferData.flags,
-        )
+        } else {
+            startDrag(
+                transferData.clipData,
+                shadowBuilder,
+                transferData.localState,
+                transferData.flags,
+            )
+        }
     }
 
     private fun clearChildInvalidObservations(viewGroup: ViewGroup) {
@@ -1255,10 +1258,7 @@ internal class AndroidComposeView(
         // We can't be confident that RenderNode is supported, so we try and fail over to
         // the ViewLayer implementation. We'll try even on on P devices, but it will fail
         // until ART allows things on the unsupported list on P.
-        if (isHardwareAccelerated &&
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
-            isRenderNodeCompatible
-        ) {
+        if (isHardwareAccelerated && SDK_INT >= M && isRenderNodeCompatible) {
             try {
                 return RenderNodeLayer(
                     this,
@@ -1294,8 +1294,9 @@ internal class AndroidComposeView(
         // wasn't easy to decode, so this work-around keeps up to 10 Views active
         // only for L. On other versions, it uses the WeakHashMap to retain as many
         // as are convenient.
-        val cacheValue = viewLayersContainer == null || ViewLayer.shouldUseDispatchDraw ||
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ||
+        val cacheValue = viewLayersContainer == null ||
+            ViewLayer.shouldUseDispatchDraw ||
+            SDK_INT >= M ||
             layerCache.size < MaximumLayerCacheSize
         if (cacheValue) {
             layerCache.push(layer)
@@ -1500,7 +1501,7 @@ internal class AndroidComposeView(
         viewTreeObserver.addOnScrollChangedListener(scrollChangedListener)
         viewTreeObserver.addOnTouchModeChangeListener(touchModeChangeListener)
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        if (SDK_INT >= S) {
             AndroidComposeViewTranslationCallbackS.setViewTranslationCallback(
                 this,
                 AndroidComposeViewTranslationCallback()
@@ -1525,9 +1526,7 @@ internal class AndroidComposeView(
         viewTreeObserver.removeOnScrollChangedListener(scrollChangedListener)
         viewTreeObserver.removeOnTouchModeChangeListener(touchModeChangeListener)
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            AndroidComposeViewTranslationCallbackS.clearViewTranslationCallback(this)
-        }
+        if (SDK_INT >= S) AndroidComposeViewTranslationCallbackS.clearViewTranslationCallback(this)
     }
 
     override fun onProvideAutofillVirtualStructure(structure: ViewStructure?, flags: Int) {
@@ -1538,7 +1537,7 @@ internal class AndroidComposeView(
         if (autofillSupported()) _autofill?.performAutofill(values)
     }
 
-    @RequiresApi(Build.VERSION_CODES.S)
+    @RequiresApi(S)
     override fun onCreateVirtualViewTranslationRequests(
         virtualIds: LongArray,
         supportedFormats: IntArray,
@@ -1549,7 +1548,7 @@ internal class AndroidComposeView(
         )
     }
 
-    @RequiresApi(Build.VERSION_CODES.S)
+    @RequiresApi(S)
     override fun onVirtualViewTranslationResponses(
         response: LongSparseArray<ViewTranslationResponse?>
     ) {
@@ -1930,7 +1929,7 @@ internal class AndroidComposeView(
         }
     }
 
-    private fun autofillSupported() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
+    private fun autofillSupported() = SDK_INT >= O
 
     public override fun dispatchHoverEvent(event: MotionEvent): Boolean {
         if (hoverExitReceived) {
@@ -1984,12 +1983,9 @@ internal class AndroidComposeView(
         if (!eventInvalid) {
             // First event x,y is checked above if block, so we can skip index 0.
             for (index in 1 until event.pointerCount) {
-                eventInvalid = !event.getX(index).isFinite() || !event.getY(index).isFinite() ||
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                        !isValidMotionEvent(event, index)
-                    } else {
-                        false
-                    }
+                eventInvalid = !event.getX(index).isFinite() ||
+                    !event.getY(index).isFinite() ||
+                    (SDK_INT >= Q && !isValidMotionEvent(event, index))
 
                 if (eventInvalid) break
             }
@@ -2011,7 +2007,7 @@ internal class AndroidComposeView(
         accessibilityId: Int,
         currentView: View
     ): View? {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+        if (SDK_INT < Q) {
             val getAccessibilityViewIdMethod = Class.forName("android.view.View")
                 .getDeclaredMethod("getAccessibilityViewId")
             getAccessibilityViewIdMethod.isAccessible = true
@@ -2043,7 +2039,7 @@ internal class AndroidComposeView(
 
             override fun setIcon(value: PointerIcon?) {
                 currentIcon = value ?: PointerIcon.Default
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                if (SDK_INT >= N) {
                     AndroidComposeViewVerificationHelperMethodsN.setPointerIcon(
                         this@AndroidComposeView,
                         currentIcon
@@ -2070,7 +2066,7 @@ internal class AndroidComposeView(
             // invoke the hidden parent method after Android P. If in new android, the hidden method
             // ViewGroup#findViewByAccessibilityIdTraversal signature is changed or removed, we can
             // simply return null here because there will be no call to this method.
-            return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            return if (SDK_INT >= Q) {
                 val findViewByAccessibilityIdTraversalMethod = Class.forName("android.view.View")
                     .getDeclaredMethod("findViewByAccessibilityIdTraversal", Int::class.java)
                 findViewByAccessibilityIdTraversalMethod.isAccessible = true
@@ -2125,7 +2121,7 @@ internal class AndroidComposeView(
         val savedStateRegistryOwner: SavedStateRegistryOwner
     )
 
-    @RequiresApi(Build.VERSION_CODES.S)
+    @RequiresApi(S)
     private class AndroidComposeViewTranslationCallback : ViewTranslationCallback {
         override fun onShowTranslation(view: View): Boolean {
             val androidComposeView = view as AndroidComposeView
@@ -2152,9 +2148,9 @@ internal class AndroidComposeView(
  * AOT compiled. It is expected that this class will soft-fail verification, but the classes
  * which use this method will pass.
  */
-@RequiresApi(Build.VERSION_CODES.O)
+@RequiresApi(O)
 private object AndroidComposeViewVerificationHelperMethodsO {
-    @RequiresApi(Build.VERSION_CODES.O)
+    @RequiresApi(O)
     @DoNotInline
     fun focusable(view: View, focusable: Int, defaultFocusHighlightEnabled: Boolean) {
         view.focusable = focusable
@@ -2163,10 +2159,10 @@ private object AndroidComposeViewVerificationHelperMethodsO {
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.N)
+@RequiresApi(N)
 private object AndroidComposeViewVerificationHelperMethodsN {
     @DoNotInline
-    @RequiresApi(Build.VERSION_CODES.N)
+    @RequiresApi(N)
     fun setPointerIcon(view: View, icon: PointerIcon?) {
         val iconToSet = when (icon) {
             is AndroidPointerIcon ->
@@ -2188,25 +2184,25 @@ private object AndroidComposeViewVerificationHelperMethodsN {
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.Q)
+@RequiresApi(Q)
 private object AndroidComposeViewForceDarkModeQ {
     @DoNotInline
-    @RequiresApi(Build.VERSION_CODES.Q)
+    @RequiresApi(Q)
     fun disallowForceDark(view: View) {
         view.isForceDarkAllowed = false
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.S)
+@RequiresApi(S)
 internal object AndroidComposeViewTranslationCallbackS {
     @DoNotInline
-    @RequiresApi(Build.VERSION_CODES.S)
+    @RequiresApi(S)
     fun setViewTranslationCallback(view: View, translationCallback: ViewTranslationCallback) {
         view.setViewTranslationCallback(translationCallback)
     }
 
     @DoNotInline
-    @RequiresApi(Build.VERSION_CODES.S)
+    @RequiresApi(S)
     fun clearViewTranslationCallback(view: View) {
         view.clearViewTranslationCallback()
     }
@@ -2274,7 +2270,7 @@ private interface CalculateMatrixToWindow {
     fun calculateMatrixToWindow(view: View, matrix: Matrix)
 }
 
-@RequiresApi(Build.VERSION_CODES.Q)
+@RequiresApi(Q)
 private class CalculateMatrixToWindowApi29 : CalculateMatrixToWindow {
     private val tmpMatrix = android.graphics.Matrix()
     private val tmpPosition = IntArray(2)
@@ -2351,10 +2347,10 @@ private object MotionEventVerifierApi29 {
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.N)
+@RequiresApi(N)
 private object AndroidComposeViewStartDragAndDropN {
     @DoNotInline
-    @RequiresApi(Build.VERSION_CODES.N)
+    @RequiresApi(N)
     fun startDragAndDrop(
         view: View,
         transferData: DragAndDropTransferData,
