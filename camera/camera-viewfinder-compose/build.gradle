@@ -32,6 +32,11 @@ plugins {
 
 dependencies {
     api(libs.kotlinStdlib)
+    implementation project(':compose:runtime:runtime')
+    implementation project(':compose:foundation:foundation-layout')
+    implementation project(':compose:foundation:foundation')
+    api project(':camera:camera-viewfinder-core')
+    implementation project(':core:core-ktx')
     // Add dependencies here
 }
 
