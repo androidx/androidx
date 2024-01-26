@@ -36,6 +36,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.TextInputService
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.lifecycle.LifecycleOwner
 
 /**
  * The CompositionLocal to provide communication with platform accessibility service.
@@ -170,6 +171,13 @@ val LocalViewConfiguration = staticCompositionLocalOf<ViewConfiguration> {
  */
 val LocalWindowInfo = staticCompositionLocalOf<WindowInfo> {
     noLocalProvidedFor("LocalWindowInfo")
+}
+
+/**
+ * The CompositionLocal containing the current [LifecycleOwner].
+ */
+val LocalLifecycleOwner = staticCompositionLocalOf<LifecycleOwner> {
+    noLocalProvidedFor("LocalLifecycleOwner")
 }
 
 internal val LocalPointerIconService = staticCompositionLocalOf<PointerIconService?> {

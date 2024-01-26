@@ -167,6 +167,7 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                 api project(":compose:ui:ui-unit")
                 api project(":compose:ui:ui-util")
                 implementation(project(":annotation:annotation"))
+                implementation("androidx.lifecycle:lifecycle-runtime:2.8.0-alpha01")
             }
 
             androidMain.dependencies {
@@ -183,7 +184,6 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                 implementation('androidx.collection:collection:1.0.0')
                 implementation("androidx.customview:customview-poolingcontainer:1.0.0")
                 implementation("androidx.savedstate:savedstate-ktx:1.2.0")
-                implementation("androidx.lifecycle:lifecycle-runtime:2.6.0")
                 implementation("androidx.lifecycle:lifecycle-viewmodel:2.6.0")
                 implementation("androidx.emoji2:emoji2:1.2.0")
             }
