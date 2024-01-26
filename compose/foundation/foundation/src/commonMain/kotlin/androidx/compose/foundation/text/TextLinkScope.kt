@@ -45,7 +45,6 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.roundToIntRect
 import androidx.compose.ui.util.fastForEach
-import kotlin.math.min
 
 internal typealias LinkRange = AnnotatedString.Range<LinkAnnotation>
 
@@ -100,19 +99,25 @@ internal class TextLinkScope(
                 val path = it.getPathForRange(range.start, range.end)
 
                 val firstCharBoundingBox = it.getBoundingBox(range.start)
-                val minTop = firstCharBoundingBox.top
-                var minLeft = firstCharBoundingBox.left
-                val firstLine = it.getLineForOffset(range.start)
-                val lastLine = it.getLineForOffset(range.end)
-                // might be enough to just check if the second line exist
-                // if yes - take it's left bound or even just 0
-                // TODO(soboleva) check in RTL
-                for (line in firstLine + 1..lastLine) {
-                    val lineLeft = it.getLineLeft(line)
-                    minLeft = min(minLeft, lineLeft)
+                val lastCharBoundingBox = it.getBoundingBox(range.end - 1)
+
+                val rangeStartLine = it.getLineForOffset(range.start)
+                val rangeEndLine = it.getLineForOffset(range.end)
+
+                val xOffset = if (rangeStartLine == rangeEndLine) {
+                    // if the link occupies a single line, we take the left most position of the
+                    // link's range
+                    minOf(lastCharBoundingBox.left, firstCharBoundingBox.left)
+                } else {
+                    // if the link occupies more than one line, the left sides of the link node and
+                    // text node match so we don't need to do anything
+                    0f
                 }
 
-                path.translate(-Offset(minLeft, minTop))
+                // the top of the top-most (first) character
+                val yOffset = firstCharBoundingBox.top
+
+                path.translate(-Offset(xOffset, yOffset))
                 return path
             }
         }
