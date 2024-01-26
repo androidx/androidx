@@ -79,7 +79,6 @@ class AndroidXIssueRegistry : IssueRegistry() {
                 DeprecationMismatchDetector.ISSUE,
                 RestrictToDetector.RESTRICTED,
                 ObsoleteCompatDetector.ISSUE,
-                EagerGradleTaskDetector.ISSUE,
             )
         }
     }
