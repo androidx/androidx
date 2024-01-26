@@ -159,7 +159,9 @@ fun Hyperlinks() {
             val inlineTextContent = InlineTextContent(
                 placeholder = Placeholder(fontSize, fontSize, PlaceholderVerticalAlign.Center)
             ) {
-                Box(modifier = Modifier.fillMaxSize().background(Color.Green))
+                Box(modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Green))
             }
             Text(buildAnnotatedString {
                 append("A ")
@@ -216,6 +218,29 @@ fun Hyperlinks() {
                 }
             )
         }
+        Sample("RTL text") {
+            val text = buildAnnotatedString {
+                withAnnotation(LinkAnnotation.Url(LongWebLink)) {
+                    append(loremIpsum(Language.Arabic, 2))
+                }
+                append(loremIpsum(Language.Arabic, 5))
+                withAnnotation(LinkAnnotation.Url(LongWebLink)) {
+                    append(loremIpsum(Language.Arabic, 3))
+                }
+                append(loremIpsum(Language.Arabic, 5))
+            }
+            Text(text)
+        }
+        Sample("Bidi text") {
+            val text = buildAnnotatedString {
+                append(loremIpsum(Language.Arabic, 2))
+                withAnnotation(LinkAnnotation.Url(LongWebLink)) {
+                    append(" developer.android.com ")
+                }
+                append(loremIpsum(Language.Arabic, 5))
+            }
+            Text(text)
+        }
     }
 }
 
@@ -225,7 +250,8 @@ private fun Sample(title: String, content: @Composable () -> Unit) {
         Modifier
             .fillMaxWidth()
             .border(2.dp, Color.Black)
-            .padding(8.dp)) {
+            .padding(8.dp)
+    ) {
         Text(title, Modifier.align(Alignment.CenterHorizontally), fontWeight = FontWeight.Bold)
         content()
     }
