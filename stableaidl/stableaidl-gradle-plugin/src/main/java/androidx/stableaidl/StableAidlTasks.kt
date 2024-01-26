@@ -133,7 +133,7 @@ fun registerCompileAidlApi(
 private fun DomainObjectCollection<ConfigurationVariant>.allNamed(
     name: String,
     action: Action<ConfigurationVariant>
-) = all { variant ->
+) = configureEach { variant ->
     if (variant.name == name) {
         action.execute(variant)
     }
