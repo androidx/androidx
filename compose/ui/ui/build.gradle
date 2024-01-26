@@ -167,7 +167,7 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                 api project(":compose:ui:ui-unit")
                 api project(":compose:ui:ui-util")
                 implementation(project(":annotation:annotation"))
-                implementation("androidx.lifecycle:lifecycle-runtime:2.8.0-alpha01")
+                implementation(project(":lifecycle:lifecycle-runtime"))
             }
 
             androidMain.dependencies {
