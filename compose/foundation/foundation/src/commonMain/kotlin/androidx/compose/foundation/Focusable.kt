@@ -195,11 +195,10 @@ private class FocusableElement(
 internal class FocusableNode(
     interactionSource: MutableInteractionSource?
 ) : DelegatingNode(), FocusEventModifierNode, LayoutAwareModifierNode, SemanticsModifierNode,
-    GlobalPositionAwareModifierNode {
+    GlobalPositionAwareModifierNode, FocusRequesterModifierNode {
 
     private var focusState: FocusState? = null
 
-    private val focusableSemanticsNode = delegate(FocusableSemanticsNode())
     // (lpf) could we remove this if interactionsource is null?
     private val focusableInteractionNode = delegate(FocusableInteractionNode(interactionSource))
     private val focusablePinnableContainer = delegate(FocusablePinnableContainerNode())
@@ -241,14 +240,15 @@ internal class FocusableNode(
             focusableInteractionNode.setFocus(isFocused)
             focusedBoundsNode.setFocus(isFocused)
             focusablePinnableContainer.setFocus(isFocused)
-            focusableSemanticsNode.setFocus(isFocused)
             this.focusState = focusState
         }
     }
 
-    // TODO(levima) Remove this once delegation can propagate this events on its own
     override fun SemanticsPropertyReceiver.applySemantics() {
-        with(focusableSemanticsNode) { applySemantics() }
+        focused = focusState?.isFocused == true
+        requestFocus {
+            this@FocusableNode.requestFocus()
+        }
     }
     // TODO(levima) Remove this once delegation can propagate this events on its own
     override fun onGloballyPositioned(coordinates: LayoutCoordinates) {
@@ -349,22 +349,6 @@ private class FocusablePinnableContainerNode : Modifier.Node(),
         if (isFocused) {
             pinnedHandle?.release()
             pinnedHandle = pinnableContainer?.pin()
-        }
-    }
-}
-
-private class FocusableSemanticsNode : Modifier.Node(), SemanticsModifierNode,
-    FocusRequesterModifierNode {
-    private var isFocused = false
-
-    fun setFocus(focused: Boolean) {
-        this.isFocused = focused
-    }
-
-    override fun SemanticsPropertyReceiver.applySemantics() {
-        focused = isFocused
-        requestFocus {
-            this@FocusableSemanticsNode.requestFocus()
         }
     }
 }
