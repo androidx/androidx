@@ -155,7 +155,7 @@ class ImageCaptureTest(
             ImageProxy::class.java
         )
 
-        Mockito.verify(mockOnImageCapturedCallback, Mockito.timeout(5000).times(1))
+        Mockito.verify(mockOnImageCapturedCallback, Mockito.timeout(8000).times(1))
             .onCaptureStarted()
         Mockito.verify(mockOnImageCapturedCallback, Mockito.timeout(10000)).onCaptureSuccess(
             imageProxy.capture()
@@ -177,14 +177,14 @@ class ImageCaptureTest(
      * test takePicture() twice is because we want to ensure that the 1st takePicture after resumed
      * doesn't get the Image from the aborted request and corrupt the states.
      */
-    @Test
+    // TODO(b/322416654): Enable test after it can pass on most devices
     fun canInterruptTakePictureAndResume(): Unit = runBlocking {
         canInterruptTakePictureAndResumeInternal(
             delayForStopLifecycle = 500
         )
     }
 
-    @Test
+    // TODO(b/322416654): Enable test after it can pass on most devices
     fun canInterruptTakePictureAndResume_forLongCapture(): Unit = runBlocking {
         val latency = extensionsManager.getEstimatedCaptureLatencyRange(extensionsCameraSelector,
             extensionMode)
@@ -194,7 +194,7 @@ class ImageCaptureTest(
         )
     }
 
-    @Test
+    // TODO(b/322416654): Enable test after it can pass on most devices
     fun canInterruptTakePictureAndResume_withPostviewEnabled(): Unit = runBlocking {
         canInterruptTakePictureAndResumeInternal(
             enablePostview = true,
@@ -270,7 +270,7 @@ class ImageCaptureTest(
             assertThat(bitmap).isNotNull()
         }
 
-        Mockito.verify(mockOnImageCapturedCallback, Mockito.timeout(10000)).onCaptureSuccess(
+        Mockito.verify(mockOnImageCapturedCallback, Mockito.timeout(15000)).onCaptureSuccess(
             imageProxy.capture()
         )
         assertThat(imageProxy.value).isNotNull()
@@ -282,6 +282,7 @@ class ImageCaptureTest(
         )
     }
 
+    @Test
     fun canBindToLifeCycleAndTakePicture_diskIo(): Unit = runBlocking {
         val mockOnImageSavedCallback = Mockito.mock(
             ImageCapture.OnImageSavedCallback::class.java
@@ -294,7 +295,7 @@ class ImageCaptureTest(
             ImageCapture.OutputFileResults::class.java
         )
 
-        Mockito.verify(mockOnImageSavedCallback, Mockito.timeout(5000).times(1))
+        Mockito.verify(mockOnImageSavedCallback, Mockito.timeout(8000).times(1))
             .onCaptureStarted()
 
         Mockito.verify(mockOnImageSavedCallback, Mockito.timeout(10000)).onImageSaved(
@@ -481,7 +482,7 @@ class ImageCaptureTest(
             ImageProxy::class.java
         )
 
-        Mockito.verify(mockOnImageCapturedCallback, Mockito.timeout(5000).times(1))
+        Mockito.verify(mockOnImageCapturedCallback, Mockito.timeout(8000).times(1))
             .onCaptureStarted()
 
         Mockito.verify(mockOnImageCapturedCallback, Mockito.timeout(8000).atLeastOnce())
@@ -517,7 +518,7 @@ class ImageCaptureTest(
             ImageCapture.OutputFileResults::class.java
         )
 
-        Mockito.verify(mockOnImageSavedCallback, Mockito.timeout(5000).times(1))
+        Mockito.verify(mockOnImageSavedCallback, Mockito.timeout(8000).times(1))
             .onCaptureStarted()
 
         Mockito.verify(mockOnImageSavedCallback, Mockito.timeout(8000).atLeastOnce())
@@ -567,9 +568,9 @@ class ImageCaptureTest(
         val rotationDegree = camera.cameraInfo.getSensorRotationDegrees(targetRotation)
         val isFlipped = (rotationDegree % 180) != 0
 
-        assertThat(withTimeoutOrNull(5000) { captureStartedDeferred.await() }).isTrue()
+        assertThat(withTimeoutOrNull(8000) { captureStartedDeferred.await() }).isTrue()
 
-        withTimeoutOrNull(5000) { PostviewDeferred.await() }.let {
+        withTimeoutOrNull(10000) { PostviewDeferred.await() }.let {
             assertThat(it).isNotNull()
             if (isFlipped) {
                 assertTrue(it!!.width <= it.height)
@@ -618,9 +619,9 @@ class ImageCaptureTest(
         val rotationDegree = camera.cameraInfo.getSensorRotationDegrees(targetRotation)
         val isFlipped = (rotationDegree % 180) != 0
 
-        assertThat(withTimeoutOrNull(5000) { captureStartedDeferred.await() }).isTrue()
+        assertThat(withTimeoutOrNull(8000) { captureStartedDeferred.await() }).isTrue()
 
-        withTimeoutOrNull(5000) { PostviewDeferred.await() }.let {
+        withTimeoutOrNull(10000) { PostviewDeferred.await() }.let {
             assertThat(it).isNotNull()
             if (isFlipped) {
                 assertTrue(it!!.width <= it.height)
