@@ -58,7 +58,7 @@ internal val LocalImageVectorCache = staticCompositionLocalOf<ImageVectorCache> 
 /**
  * The CompositionLocal containing the current [LifecycleOwner].
  */
-val LocalLifecycleOwner = staticCompositionLocalOf<LifecycleOwner> {
+actual val LocalLifecycleOwner = staticCompositionLocalOf<LifecycleOwner> {
     noLocalProvidedFor("LocalLifecycleOwner")
 }
 
