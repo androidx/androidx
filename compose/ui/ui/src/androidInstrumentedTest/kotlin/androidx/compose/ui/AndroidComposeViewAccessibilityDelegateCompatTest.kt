@@ -1042,6 +1042,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
         rule.runOnIdle { assertThat(info.childCount).isEqualTo(1) }
     }
 
+    @SdkSuppress(maxSdkVersion = 33) // b/321824038
     @Test
     fun testUncoveredNodes_zeroBoundsRoot_included() {
         // Arrange.
