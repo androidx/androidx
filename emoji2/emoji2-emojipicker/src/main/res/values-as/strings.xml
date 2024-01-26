@@ -29,4 +29,6 @@
     <string name="emoji_category_flags" msgid="6185639503532784871">"পতাকা"</string>
     <string name="emoji_empty_non_recent_category" msgid="288822832574892625">"কোনো ইম’জি উপলব্ধ নহয়"</string>
     <string name="emoji_empty_recent_category" msgid="7863877827879290200">"আপুনি এতিয়ালৈকে কোনো ইম’জি ব্যৱহাৰ কৰা নাই"</string>
+    <!-- no translation found for emoji_bidirectional_switcher_content_desc (5084600168354220605) -->
+    <skip />
 </resources>
