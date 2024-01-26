@@ -227,8 +227,14 @@ includeProject(":compose:ui:ui:integration-tests:ui-demos")
 includeProject(":compose:ui:ui:ui-samples", "compose/ui/ui/samples")
 includeProject(":compose:ui:ui-uikit")
 
+includeProject(":kruth:kruth")
+
 includeProject(":lint-checks")
 includeProject(":lint-checks:integration-tests")
+
+includeProject(":lifecycle:lifecycle-common")
+includeProject(":lifecycle:lifecycle-runtime")
+includeProject(":lifecycle:lifecycle-runtime-lint")
 
 includeProject(":internal-testutils-common", "testutils/testutils-common",)
 includeProject(":internal-testutils-runtime", "testutils/testutils-runtime")

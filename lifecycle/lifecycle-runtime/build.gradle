@@ -7,7 +7,6 @@
  */
 
 import androidx.build.KmpPlatformsKt
-import androidx.build.KotlinTarget
 import androidx.build.PlatformIdentifier
 import androidx.build.Publish
 import org.jetbrains.kotlin.gradle.dsl.ExplicitApiMode
@@ -30,11 +29,16 @@ androidXMultiplatform {
     js()
     wasm()
 
-    kotlin {
-        explicitApi = ExplicitApiMode.Strict
-    }
-
     defaultPlatform(PlatformIdentifier.ANDROID)
+}
+
+kotlin {
+    js {
+        browser()
+    }
+    wasmJs()
+
+    explicitApi = ExplicitApiMode.Strict
 
     sourceSets {
         commonMain {
@@ -153,7 +157,6 @@ android {
 androidx {
     name = "Lifecycle Runtime"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    kotlinTarget = KotlinTarget.KOTLIN_1_9
     inceptionYear "2017"
     description "Android Lifecycle Runtime"
     metalavaK2UastEnabled = true
