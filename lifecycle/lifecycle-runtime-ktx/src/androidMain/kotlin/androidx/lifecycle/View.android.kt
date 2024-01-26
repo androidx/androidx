@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:JvmName("ViewKt")
+
 package androidx.lifecycle
 
 import android.view.View
