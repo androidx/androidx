@@ -420,7 +420,7 @@ public abstract class PagingDataPresenter<T : Any>(
             placeholdersAfter = placeholdersAfter,
         )
         // must capture previousList states here before we update pageStore
-        val previousList = pageStore as NullPaddedList<T>
+        val previousList = pageStore as PlaceholderPaddedList<T>
 
         // update the store here before event is sent to ensure that snapshot() returned in
         // UI update callbacks (onChanged, onInsert etc) reflects the new list
@@ -430,7 +430,7 @@ public abstract class PagingDataPresenter<T : Any>(
         // send event to UI
         presentPagingDataEvent(
             PagingDataEvent.Refresh(
-                newList = newPageStore as NullPaddedList<T>,
+                newList = newPageStore as PlaceholderPaddedList<T>,
                 previousList = previousList,
             )
         )

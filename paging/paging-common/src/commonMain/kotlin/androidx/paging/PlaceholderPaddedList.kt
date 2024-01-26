@@ -24,7 +24,7 @@ import androidx.annotation.RestrictTo
  * Used for diffing in paging-runtime.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public interface NullPaddedList<T> {
+public interface PlaceholderPaddedList<T> {
     public val placeholdersBefore: Int
     public val placeholdersAfter: Int
     public val size: Int

@@ -33,12 +33,12 @@ import org.junit.runner.RunWith
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
-class NullPaddedListDiffHelperTest {
+class PlaceholderPaddedListDiffHelperTest {
     class Storage(
         override val placeholdersBefore: Int,
         private val data: List<String>,
         override val placeholdersAfter: Int
-    ) : NullPaddedList<String> {
+    ) : PlaceholderPaddedList<String> {
         override fun getItem(index: Int): String = data[index]
         override val size: Int
             get() = placeholdersBefore + data.size + placeholdersAfter

@@ -35,10 +35,10 @@ import androidx.recyclerview.widget.RecyclerView
  * To only inform DiffUtil about single loaded page in this case, by pruning all other nulls from
  * consideration.
  */
-internal fun <T : Any> NullPaddedList<T>.computeDiff(
-    newList: NullPaddedList<T>,
+internal fun <T : Any> PlaceholderPaddedList<T>.computeDiff(
+    newList: PlaceholderPaddedList<T>,
     diffCallback: DiffUtil.ItemCallback<T>
-): NullPaddedDiffResult {
+): PlaceholderPaddedDiffResult {
     val oldSize = dataCount
     val newSize = newList.dataCount
 
@@ -84,23 +84,23 @@ internal fun <T : Any> NullPaddedList<T>.computeDiff(
     val hasOverlap = (0 until dataCount).any {
         diffResult.convertOldPositionToNew(it) != RecyclerView.NO_POSITION
     }
-    return NullPaddedDiffResult(
+    return PlaceholderPaddedDiffResult(
         diff = diffResult,
         hasOverlap = hasOverlap
     )
 }
 
 /**
- * See NullPaddedDiffing.md for how this works and why it works that way :).
+ * See PlaceholderPaddedDiffing.md for how this works and why it works that way :).
  *
  * Note: if lists mutate between diffing the snapshot and dispatching the diff here, then we
  * handle this by passing the snapshot to the callback, and dispatching those changes
  * immediately after dispatching this diff.
  */
-internal fun <T : Any> NullPaddedList<T>.dispatchDiff(
+internal fun <T : Any> PlaceholderPaddedList<T>.dispatchDiff(
     callback: ListUpdateCallback,
-    newList: NullPaddedList<T>,
-    diffResult: NullPaddedDiffResult
+    newList: PlaceholderPaddedList<T>,
+    diffResult: PlaceholderPaddedDiffResult
 ) {
     if (diffResult.hasOverlap) {
         OverlappingListsDiffDispatcher.dispatchDiff(
@@ -125,9 +125,9 @@ internal fun <T : Any> NullPaddedList<T>.dispatchDiff(
  * Given an oldPosition representing an anchor in the old data set, computes its new position
  * after the diff, or a guess if it no longer exists.
  */
-internal fun NullPaddedList<*>.transformAnchorIndex(
-    diffResult: NullPaddedDiffResult,
-    newList: NullPaddedList<*>,
+internal fun PlaceholderPaddedList<*>.transformAnchorIndex(
+    diffResult: PlaceholderPaddedDiffResult,
+    newList: PlaceholderPaddedList<*>,
     oldPosition: Int
 ): Int {
     if (!diffResult.hasOverlap) {
@@ -163,21 +163,21 @@ internal fun NullPaddedList<*>.transformAnchorIndex(
     return oldPosition.coerceIn(0 until newList.size)
 }
 
-internal class NullPaddedDiffResult(
+internal class PlaceholderPaddedDiffResult(
     val diff: DiffUtil.DiffResult,
     // true if two lists have at least 1 item the same
     val hasOverlap: Boolean
 )
 
 /**
- * Helper class to implement the heuristic documented in NullPaddedDiffing.md.
+ * Helper class to implement the heuristic documented in PlaceholderPaddedDiffing.md.
  */
 internal object OverlappingListsDiffDispatcher {
     fun <T> dispatchDiff(
-        oldList: NullPaddedList<T>,
-        newList: NullPaddedList<T>,
+        oldList: PlaceholderPaddedList<T>,
+        newList: PlaceholderPaddedList<T>,
         callback: ListUpdateCallback,
-        diffResult: NullPaddedDiffResult
+        diffResult: PlaceholderPaddedDiffResult
     ) {
         val callbackWrapper = PlaceholderUsingUpdateCallback(
             oldList = oldList,
@@ -190,8 +190,8 @@ internal object OverlappingListsDiffDispatcher {
 
     @Suppress("NOTHING_TO_INLINE")
     private class PlaceholderUsingUpdateCallback<T>(
-        private val oldList: NullPaddedList<T>,
-        private val newList: NullPaddedList<T>,
+        private val oldList: PlaceholderPaddedList<T>,
+        private val newList: PlaceholderPaddedList<T>,
         private val callback: ListUpdateCallback
     ) : ListUpdateCallback {
         // These variables hold the "current" value for placeholders and storage count and are
@@ -464,8 +464,8 @@ internal object OverlappingListsDiffDispatcher {
 internal object DistinctListsDiffDispatcher {
     fun <T : Any> dispatchDiff(
         callback: ListUpdateCallback,
-        oldList: NullPaddedList<T>,
-        newList: NullPaddedList<T>,
+        oldList: PlaceholderPaddedList<T>,
+        newList: PlaceholderPaddedList<T>,
     ) {
         val storageOverlapStart = maxOf(
             oldList.placeholdersBefore, newList.placeholdersBefore

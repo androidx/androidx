@@ -1444,12 +1444,12 @@ class PagingDataPresenterTest {
                 ),
                 placeholdersBefore = 0,
                 placeholdersAfter = 0,
-            ) as NullPaddedList<Int>
+            ) as PlaceholderPaddedList<Int>
 
             assertThat(presenter.snapshot()).containsExactlyElementsIn(50 until 59)
             assertThat(presenter.newEvents()).containsExactly(
                 PagingDataEvent.Refresh(
-                    previousList = PageStore.initial<Int>(null) as NullPaddedList<Int>,
+                    previousList = PageStore.initial<Int>(null) as PlaceholderPaddedList<Int>,
                     newList = event
                 )
             )
@@ -1475,7 +1475,7 @@ class PagingDataPresenterTest {
                         ),
                         placeholdersBefore = 0,
                         placeholdersAfter = 0,
-                    ) as NullPaddedList<Int>
+                    ) as PlaceholderPaddedList<Int>
                 )
             )
         }
