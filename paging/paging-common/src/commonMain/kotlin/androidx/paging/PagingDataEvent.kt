@@ -108,14 +108,14 @@ public sealed class PagingDataEvent<T : Any> {
     /**
      * A refresh load event
      *
-     * @param [newList] A [NullPaddedList] that contains the metadata of the new list
+     * @param [newList] A [PlaceholderPaddedList] that contains the metadata of the new list
      * that is presented upon this refresh event
-     * @param [previousList] A [NullPaddedList] that contains the metadata of the list
+     * @param [previousList] A [PlaceholderPaddedList] that contains the metadata of the list
      * presented prior to this refresh load event
      */
     public class Refresh<T : Any> @RestrictTo(LIBRARY_GROUP) constructor(
-        val newList: NullPaddedList<T>,
-        val previousList: NullPaddedList<T>,
+        val newList: PlaceholderPaddedList<T>,
+        val previousList: PlaceholderPaddedList<T>,
     ) : PagingDataEvent<T>() {
         override fun equals(other: Any?): Boolean {
             return other is Refresh<*> &&

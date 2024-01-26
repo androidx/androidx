@@ -41,10 +41,10 @@ import org.junit.runner.RunWith
  */
 @RunWith(AndroidJUnit4::class)
 @LargeTest
-class NullPaddedListDiffWithRecyclerViewTest {
+class PlaceholderPaddedListDiffWithRecyclerViewTest {
     private lateinit var context: Context
     private lateinit var recyclerView: RecyclerView
-    private lateinit var adapter: NullPaddedListAdapter
+    private lateinit var adapter: PlaceholderPaddedListAdapter
 
     @Before
     fun init() {
@@ -55,7 +55,7 @@ class NullPaddedListDiffWithRecyclerViewTest {
             it.layoutManager = LinearLayoutManager(context)
             it.itemAnimator = null
         }
-        adapter = NullPaddedListAdapter()
+        adapter = PlaceholderPaddedListAdapter()
         recyclerView.adapter = adapter
     }
 
@@ -71,7 +71,7 @@ class NullPaddedListDiffWithRecyclerViewTest {
 
     @Test
     fun basic() {
-        val storage = NullPaddedStorage(
+        val storage = PlaceholderPaddedStorage(
             placeholdersBefore = 0,
             data = createItems(0, 10),
             placeholdersAfter = 0
@@ -90,12 +90,12 @@ class NullPaddedListDiffWithRecyclerViewTest {
 
     @Test
     fun distinctLists_fullyOverlappingRange() {
-        val pre = NullPaddedStorage(
+        val pre = PlaceholderPaddedStorage(
             placeholdersBefore = 10,
             data = createItems(startId = 10, count = 8),
             placeholdersAfter = 30
         )
-        val post = NullPaddedStorage(
+        val post = PlaceholderPaddedStorage(
             placeholdersBefore = 10,
             data = createItems(startId = 100, count = 8),
             placeholdersAfter = 30
@@ -108,12 +108,12 @@ class NullPaddedListDiffWithRecyclerViewTest {
 
     @Test
     fun distinctLists_loadedBefore_or_After() {
-        val pre = NullPaddedStorage(
+        val pre = PlaceholderPaddedStorage(
             placeholdersBefore = 10,
             data = createItems(startId = 10, count = 10),
             placeholdersAfter = 10
         )
-        val post = NullPaddedStorage(
+        val post = PlaceholderPaddedStorage(
             placeholdersBefore = 5,
             data = createItems(startId = 5, count = 5),
             placeholdersAfter = 20
@@ -126,12 +126,12 @@ class NullPaddedListDiffWithRecyclerViewTest {
 
     @Test
     fun distinctLists_partiallyOverlapping() {
-        val pre = NullPaddedStorage(
+        val pre = PlaceholderPaddedStorage(
             placeholdersBefore = 10,
             data = createItems(startId = 0, count = 8),
             placeholdersAfter = 30
         )
-        val post = NullPaddedStorage(
+        val post = PlaceholderPaddedStorage(
             placeholdersBefore = 15,
             data = createItems(startId = 100, count = 8),
             placeholdersAfter = 30
@@ -144,12 +144,12 @@ class NullPaddedListDiffWithRecyclerViewTest {
 
     @Test
     fun distinctLists_fewerItemsLoaded_withMorePlaceholdersBefore() {
-        val pre = NullPaddedStorage(
+        val pre = PlaceholderPaddedStorage(
             placeholdersBefore = 10,
             data = createItems(startId = 10, count = 8),
             placeholdersAfter = 30
         )
-        val post = NullPaddedStorage(
+        val post = PlaceholderPaddedStorage(
             placeholdersBefore = 15,
             data = createItems(startId = 100, count = 3),
             placeholdersAfter = 30
@@ -162,12 +162,12 @@ class NullPaddedListDiffWithRecyclerViewTest {
 
     @Test
     fun distinctLists_noPlaceholdersLeft() {
-        val pre = NullPaddedStorage(
+        val pre = PlaceholderPaddedStorage(
             placeholdersBefore = 10,
             data = createItems(startId = 10, count = 8),
             placeholdersAfter = 30
         )
-        val post = NullPaddedStorage(
+        val post = PlaceholderPaddedStorage(
             placeholdersBefore = 0,
             data = createItems(startId = 100, count = 3),
             placeholdersAfter = 0
@@ -180,12 +180,12 @@ class NullPaddedListDiffWithRecyclerViewTest {
 
     @Test
     fun distinctLists_moreItemsLoaded() {
-        val pre = NullPaddedStorage(
+        val pre = PlaceholderPaddedStorage(
             placeholdersBefore = 10,
             data = createItems(startId = 10, count = 3),
             placeholdersAfter = 30
         )
-        val post = NullPaddedStorage(
+        val post = PlaceholderPaddedStorage(
             placeholdersBefore = 10,
             data = createItems(startId = 100, count = 8),
             placeholdersAfter = 30
@@ -198,12 +198,12 @@ class NullPaddedListDiffWithRecyclerViewTest {
 
     @Test
     fun distinctLists_moreItemsLoaded_andAlsoMoreOffset() {
-        val pre = NullPaddedStorage(
+        val pre = PlaceholderPaddedStorage(
             placeholdersBefore = 10,
             data = createItems(startId = 10, count = 3),
             placeholdersAfter = 30
         )
-        val post = NullPaddedStorage(
+        val post = PlaceholderPaddedStorage(
             placeholdersBefore = 15,
             data = createItems(startId = 100, count = 8),
             placeholdersAfter = 30
@@ -216,12 +216,12 @@ class NullPaddedListDiffWithRecyclerViewTest {
 
     @Test
     fun distinctLists_expandShrink() {
-        val pre = NullPaddedStorage(
+        val pre = PlaceholderPaddedStorage(
             placeholdersBefore = 10,
             data = createItems(10, 10),
             placeholdersAfter = 20
         )
-        val post = NullPaddedStorage(
+        val post = PlaceholderPaddedStorage(
             placeholdersBefore = 0,
             data = createItems(100, 1),
             placeholdersAfter = 0
@@ -236,8 +236,8 @@ class NullPaddedListDiffWithRecyclerViewTest {
      * Runs a state restoration test with various "current scroll positions".
      */
     private fun distinctListTest_withVariousInitialPositions(
-        pre: NullPaddedStorage,
-        post: NullPaddedStorage
+        pre: PlaceholderPaddedStorage,
+        post: PlaceholderPaddedStorage
     ) {
         // try restoring positions in different list states
         val minSize = minOf(pre.size, post.size)
@@ -260,12 +260,12 @@ class NullPaddedListDiffWithRecyclerViewTest {
 
     @Test
     fun distinctLists_visibleRangeRemoved() {
-        val pre = NullPaddedStorage(
+        val pre = PlaceholderPaddedStorage(
             placeholdersBefore = 10,
             data = createItems(10, 10),
             placeholdersAfter = 30
         )
-        val post = NullPaddedStorage(
+        val post = PlaceholderPaddedStorage(
             placeholdersBefore = 0,
             data = createItems(100, 4),
             placeholdersAfter = 20
@@ -289,12 +289,12 @@ class NullPaddedListDiffWithRecyclerViewTest {
 
     @Test
     fun distinctLists_validateDiff() {
-        val pre = NullPaddedStorage(
+        val pre = PlaceholderPaddedStorage(
             placeholdersBefore = 10,
             data = createItems(10, 10), // their positions won't be in the new list
             placeholdersAfter = 20
         )
-        val post = NullPaddedStorage(
+        val post = PlaceholderPaddedStorage(
             placeholdersBefore = 0,
             data = createItems(100, 1),
             placeholdersAfter = 0
@@ -308,7 +308,7 @@ class NullPaddedListDiffWithRecyclerViewTest {
         // this is a random test but if it fails, the exception will have enough information to
         // create an isolated test
         val rand = Random(System.nanoTime())
-        fun randomNullPaddedStorage(startId: Int) = NullPaddedStorage(
+        fun randomPlaceholderPaddedStorage(startId: Int) = PlaceholderPaddedStorage(
             placeholdersBefore = rand.nextInt(0, 20),
             data = createItems(
                 startId = startId,
@@ -318,20 +318,20 @@ class NullPaddedListDiffWithRecyclerViewTest {
         )
         repeat(RANDOM_TEST_REPEAT_SIZE) {
             updateDiffTest(
-                pre = randomNullPaddedStorage(0),
-                post = randomNullPaddedStorage(1_000)
+                pre = randomPlaceholderPaddedStorage(0),
+                post = randomPlaceholderPaddedStorage(1_000)
             )
         }
     }
 
     @Test
     fun continuousMatch_1() {
-        val pre = NullPaddedStorage(
+        val pre = PlaceholderPaddedStorage(
             placeholdersBefore = 4,
             data = createItems(startId = 0, count = 16),
             placeholdersAfter = 1
         )
-        val post = NullPaddedStorage(
+        val post = PlaceholderPaddedStorage(
             placeholdersBefore = 1,
             data = createItems(startId = 13, count = 4),
             placeholdersAfter = 19
@@ -341,12 +341,12 @@ class NullPaddedListDiffWithRecyclerViewTest {
 
     @Test
     fun continuousMatch_2() {
-        val pre = NullPaddedStorage(
+        val pre = PlaceholderPaddedStorage(
             placeholdersBefore = 6,
             data = createItems(startId = 0, count = 9),
             placeholdersAfter = 19
         )
-        val post = NullPaddedStorage(
+        val post = PlaceholderPaddedStorage(
             placeholdersBefore = 14,
             data = createItems(startId = 4, count = 3),
             placeholdersAfter = 11
@@ -356,12 +356,12 @@ class NullPaddedListDiffWithRecyclerViewTest {
 
     @Test
     fun continuousMatch_3() {
-        val pre = NullPaddedStorage(
+        val pre = PlaceholderPaddedStorage(
             placeholdersBefore = 11,
             data = createItems(startId = 0, count = 4),
             placeholdersAfter = 6
         )
-        val post = NullPaddedStorage(
+        val post = PlaceholderPaddedStorage(
             placeholdersBefore = 7,
             data = createItems(startId = 0, count = 1),
             placeholdersAfter = 11
@@ -371,12 +371,12 @@ class NullPaddedListDiffWithRecyclerViewTest {
 
     @Test
     fun continuousMatch_4() {
-        val pre = NullPaddedStorage(
+        val pre = PlaceholderPaddedStorage(
             placeholdersBefore = 4,
             data = createItems(startId = 0, count = 15),
             placeholdersAfter = 18
         )
-        val post = NullPaddedStorage(
+        val post = PlaceholderPaddedStorage(
             placeholdersBefore = 11,
             data = createItems(startId = 5, count = 17),
             placeholdersAfter = 9
@@ -404,7 +404,7 @@ class NullPaddedListDiffWithRecyclerViewTest {
         // this is a random test but if it fails, the exception will have enough information to
         // create an isolated test
         val rand = Random(System.nanoTime())
-        fun randomNullPaddedStorage(startId: Int) = NullPaddedStorage(
+        fun randomPlaceholderPaddedStorage(startId: Int) = PlaceholderPaddedStorage(
             placeholdersBefore = rand.nextInt(0, 20),
             data = createItems(
                 startId = startId,
@@ -416,8 +416,8 @@ class NullPaddedListDiffWithRecyclerViewTest {
             placeholdersAfter = rand.nextInt(0, 20)
         )
         repeat(RANDOM_TEST_REPEAT_SIZE) {
-            val pre = randomNullPaddedStorage(0)
-            val post = randomNullPaddedStorage(
+            val pre = randomPlaceholderPaddedStorage(0)
+            val post = randomPlaceholderPaddedStorage(
                 startId = if (pre.dataCount > 0) {
                     pre.getItem(rand.nextInt(pre.dataCount)).id
                 } else {
@@ -435,18 +435,18 @@ class NullPaddedListDiffWithRecyclerViewTest {
      * Validates that the update events between [pre] and [post] are correct.
      */
     private fun updateDiffTest(
-        pre: NullPaddedStorage,
-        post: NullPaddedStorage
+        pre: PlaceholderPaddedStorage,
+        post: PlaceholderPaddedStorage
     ) {
         val callback = ValidatingListUpdateCallback(pre, post)
-        val diffResult = pre.computeDiff(post, NullPaddedListItem.CALLBACK)
+        val diffResult = pre.computeDiff(post, PlaceholderPaddedListItem.CALLBACK)
         pre.dispatchDiff(callback, post, diffResult)
         callback.validateRunningListAgainst()
     }
 
     private fun distinctListTest(
-        pre: NullPaddedStorage,
-        post: NullPaddedStorage,
+        pre: PlaceholderPaddedStorage,
+        post: PlaceholderPaddedStorage,
         initialListPos: Int,
         finalListPos: Int = initialListPos
     ) {
@@ -485,8 +485,8 @@ class NullPaddedListDiffWithRecyclerViewTest {
      * with UI snapshots.
      */
     private fun swapListTest(
-        pre: NullPaddedStorage,
-        post: NullPaddedStorage,
+        pre: PlaceholderPaddedStorage,
+        post: PlaceholderPaddedStorage,
         preSwapAction: () -> Unit = {},
         postSwapAction: () -> Unit = {},
         validate: (preCapture: List<UIItemSnapshot>, postCapture: List<UIItemSnapshot>) -> Unit
@@ -509,7 +509,8 @@ class NullPaddedListDiffWithRecyclerViewTest {
         return (0 until recyclerView.childCount).mapNotNull { childPos ->
             val view = recyclerView.getChildAt(childPos)!!
             if (view.top < RV_HEIGHT && view.bottom > 0) {
-                val viewHolder = recyclerView.getChildViewHolder(view) as NullPaddedListViewHolder
+                val viewHolder =
+                    recyclerView.getChildViewHolder(view) as PlaceholderPaddedListViewHolder
                 UIItemSnapshot(
                     top = view.top,
                     boundItem = viewHolder.boundItem,
@@ -524,16 +525,17 @@ class NullPaddedListDiffWithRecyclerViewTest {
     /**
      * Custom adapter class that also validates its update events to ensure they are correct.
      */
-    private class NullPaddedListAdapter : RecyclerView.Adapter<NullPaddedListViewHolder>() {
-        private var items: NullPaddedList<NullPaddedListItem>? = null
+    private class PlaceholderPaddedListAdapter :
+        RecyclerView.Adapter<PlaceholderPaddedListViewHolder>() {
+        private var items: PlaceholderPaddedList<PlaceholderPaddedListItem>? = null
 
-        fun setItems(items: NullPaddedList<NullPaddedListItem>) {
+        fun setItems(items: PlaceholderPaddedList<PlaceholderPaddedListItem>) {
             val previousItems = this.items
             val myItems = this.items
             if (myItems == null) {
                 notifyItemRangeInserted(0, items.size)
             } else {
-                val diff = myItems.computeDiff(items, NullPaddedListItem.CALLBACK)
+                val diff = myItems.computeDiff(items, PlaceholderPaddedListItem.CALLBACK)
                 val diffObserver = TrackingAdapterObserver(previousItems, items)
                 registerAdapterDataObserver(diffObserver)
                 val callback = AdapterListUpdateCallback(this)
@@ -547,8 +549,8 @@ class NullPaddedListDiffWithRecyclerViewTest {
         override fun onCreateViewHolder(
             parent: ViewGroup,
             viewType: Int
-        ): NullPaddedListViewHolder {
-            return NullPaddedListViewHolder(parent.context).also {
+        ): PlaceholderPaddedListViewHolder {
+            return PlaceholderPaddedListViewHolder(parent.context).also {
                 it.itemView.layoutParams = RecyclerView.LayoutParams(
                     RecyclerView.LayoutParams.MATCH_PARENT,
                     ITEM_HEIGHT
@@ -556,7 +558,7 @@ class NullPaddedListDiffWithRecyclerViewTest {
             }
         }
 
-        override fun onBindViewHolder(holder: NullPaddedListViewHolder, position: Int) {
+        override fun onBindViewHolder(holder: PlaceholderPaddedListViewHolder, position: Int) {
             val item = items?.get(position)
             holder.boundItem = item
             holder.boundPos = position
@@ -567,22 +569,22 @@ class NullPaddedListDiffWithRecyclerViewTest {
         }
     }
 
-    private data class NullPaddedListItem(
+    private data class PlaceholderPaddedListItem(
         val id: Int,
         val value: String
     ) {
         companion object {
-            val CALLBACK = object : DiffUtil.ItemCallback<NullPaddedListItem>() {
+            val CALLBACK = object : DiffUtil.ItemCallback<PlaceholderPaddedListItem>() {
                 override fun areItemsTheSame(
-                    oldItem: NullPaddedListItem,
-                    newItem: NullPaddedListItem
+                    oldItem: PlaceholderPaddedListItem,
+                    newItem: PlaceholderPaddedListItem
                 ): Boolean {
                     return oldItem.id == newItem.id
                 }
 
                 override fun areContentsTheSame(
-                    oldItem: NullPaddedListItem,
-                    newItem: NullPaddedListItem
+                    oldItem: PlaceholderPaddedListItem,
+                    newItem: PlaceholderPaddedListItem
                 ): Boolean {
                     return oldItem == newItem
                 }
@@ -590,10 +592,10 @@ class NullPaddedListDiffWithRecyclerViewTest {
         }
     }
 
-    private class NullPaddedListViewHolder(
+    private class PlaceholderPaddedListViewHolder(
         context: Context
     ) : RecyclerView.ViewHolder(View(context)) {
-        var boundItem: NullPaddedListItem? = null
+        var boundItem: PlaceholderPaddedListItem? = null
         var boundPos: Int = -1
         override fun toString(): String {
             return "VH[$boundPos , $boundItem]"
@@ -604,16 +606,16 @@ class NullPaddedListDiffWithRecyclerViewTest {
         // top coordinate of the item
         val top: Int,
         // the item it is bound to, unless it was a placeholder
-        val boundItem: NullPaddedListItem?,
+        val boundItem: PlaceholderPaddedListItem?,
         // the position it was bound to
         val boundPos: Int
     )
 
-    private class NullPaddedStorage(
+    private class PlaceholderPaddedStorage(
         override val placeholdersBefore: Int,
-        private val data: List<NullPaddedListItem>,
+        private val data: List<PlaceholderPaddedListItem>,
         override val placeholdersAfter: Int
-    ) : NullPaddedList<NullPaddedListItem> {
+    ) : PlaceholderPaddedList<PlaceholderPaddedListItem> {
         private val stringRepresentation by lazy {
             """
             $placeholdersBefore:${data.size}:$placeholdersAfter
@@ -621,7 +623,7 @@ class NullPaddedListDiffWithRecyclerViewTest {
             """.trimIndent()
         }
 
-        override fun getItem(index: Int): NullPaddedListItem = data[index]
+        override fun getItem(index: Int): PlaceholderPaddedListItem = data[index]
 
         override val size: Int
             get() = placeholdersBefore + data.size + placeholdersAfter
@@ -635,9 +637,9 @@ class NullPaddedListDiffWithRecyclerViewTest {
     private fun createItems(
         startId: Int,
         count: Int
-    ): List<NullPaddedListItem> {
+    ): List<PlaceholderPaddedListItem> {
         return (startId until startId + count).map {
-            NullPaddedListItem(
+            PlaceholderPaddedListItem(
                 id = it,
                 value = "$it"
             )
@@ -650,7 +652,7 @@ class NullPaddedListDiffWithRecyclerViewTest {
     private fun createExpectedSnapshot(
         firstItemTopOffset: Int = 0,
         startItemIndex: Int,
-        backingList: NullPaddedList<NullPaddedListItem>
+        backingList: PlaceholderPaddedList<PlaceholderPaddedListItem>
     ): List<UIItemSnapshot> {
         check(firstItemTopOffset <= 0) {
             "first item offset should not be negative"
@@ -682,8 +684,8 @@ class NullPaddedListDiffWithRecyclerViewTest {
      * it)
      */
     private class ValidatingListUpdateCallback<T>(
-        previousList: NullPaddedList<T>?,
-        private val newList: NullPaddedList<T>
+        previousList: PlaceholderPaddedList<T>?,
+        private val newList: PlaceholderPaddedList<T>
     ) : ListUpdateCallback {
         // used in assertion messages
         val msg = """
@@ -785,8 +787,8 @@ class NullPaddedListDiffWithRecyclerViewTest {
     }
 
     private class TrackingAdapterObserver<T>(
-        previousList: NullPaddedList<T>?,
-        postList: NullPaddedList<T>
+        previousList: PlaceholderPaddedList<T>?,
+        postList: PlaceholderPaddedList<T>
     ) : RecyclerView.AdapterDataObserver() {
         private val callback = ValidatingListUpdateCallback(previousList, postList)
 
@@ -818,7 +820,7 @@ class NullPaddedListDiffWithRecyclerViewTest {
     }
 }
 
-private fun <T> NullPaddedList<T>.get(index: Int): T? {
+private fun <T> PlaceholderPaddedList<T>.get(index: Int): T? {
     if (index < placeholdersBefore) return null
     val storageIndex = index - placeholdersBefore
     if (storageIndex >= dataCount) return null
@@ -828,7 +830,8 @@ private fun <T> NullPaddedList<T>.get(index: Int): T? {
 /**
  * Create a snapshot of this current that can be used to verify diffs.
  */
-private fun <T> NullPaddedList<T>.createSnapshot(): MutableList<ListSnapshotItem> = (0 until size)
+private fun <T> PlaceholderPaddedList<T>.createSnapshot():
+    MutableList<ListSnapshotItem> = (0 until size)
     .mapTo(mutableListOf()) { pos ->
         get(pos)?.let {
             ListSnapshotItem.Item(it)
