@@ -274,6 +274,7 @@ internal class ComposerChangeListWriter(
     ) {
         pushPendingUpsAndDowns()
         pushSlotEditingOperationPreamble()
+        realizeNodeMovementOperations()
         changeList.pushInsertSlots(anchor, from)
     }
 
@@ -284,6 +285,7 @@ internal class ComposerChangeListWriter(
     ) {
         pushPendingUpsAndDowns()
         pushSlotEditingOperationPreamble()
+        realizeNodeMovementOperations()
         changeList.pushInsertSlots(anchor, from, fixups)
     }
 
