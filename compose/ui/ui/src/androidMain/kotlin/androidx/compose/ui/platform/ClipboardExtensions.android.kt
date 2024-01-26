@@ -21,12 +21,17 @@ import android.net.Uri
 import androidx.compose.ui.ExperimentalComposeUiApi
 
 /**
- * Returns the uri of the first item in this [ClipEntry].
+ * Returns the first non-null [Uri] from the list of [ClipData.Item]s in this [ClipEntry].
  *
- * Do not forget that each [ClipEntry] can contain multiple items in its [ClipData], therefore it
- * can have multiple Uris. Always check whether you are processing all the items in a given
- * [ClipEntry].
+ * Do not forget that each [ClipEntry] can contain multiple [ClipData.Item]s in its [ClipData],
+ * therefore it can have multiple [Uri]s. Always check whether you are processing all the items in
+ * a given [ClipEntry].
  */
 @ExperimentalComposeUiApi
-fun ClipEntry.firstUriOrNull(): Uri? =
-    clipData.takeIf { it.itemCount > 0 }?.getItemAt(0)?.uri
+fun ClipEntry.firstUriOrNull(): Uri? {
+    for (i in 0 until clipData.itemCount) {
+        val uri = clipData.getItemAt(i).uri
+        if (uri != null) return uri
+    }
+    return null
+}
