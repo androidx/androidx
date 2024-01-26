@@ -96,7 +96,6 @@ import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Correspondence
 import com.google.common.truth.Truth.assertThat
 import kotlin.reflect.KClass
-import kotlin.test.Ignore
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.junit.After
@@ -400,7 +399,6 @@ class ClickableTest {
         rule.onNodeWithTag(tag).assertIsNotFocused()
     }
 
-    @Ignore("b/320786728")
     @Test
     fun requestFocus_withTestApi_keyboardMode() {
         // Arrange.
