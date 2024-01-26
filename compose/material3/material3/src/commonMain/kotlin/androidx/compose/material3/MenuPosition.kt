@@ -16,6 +16,8 @@
 
 package androidx.compose.material3
 
+import androidx.compose.material3.MenuPosition.Horizontal
+import androidx.compose.material3.MenuPosition.Vertical
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.AbsoluteAlignment
@@ -26,8 +28,6 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
-import androidx.compose.ui.util.fastFirstOrNull
-import androidx.compose.ui.util.fastMap
 import androidx.compose.ui.window.PopupPositionProvider
 
 /**
@@ -368,17 +368,21 @@ internal data class DropdownMenuPositionProvider(
             } else {
                 rightToWindowRight
             }
-        ).fastMap {
-            it.position(
+        )
+        var x = 0
+        for (index in xCandidates.indices) {
+            val xCandidate = xCandidates[index].position(
                 anchorBounds = anchorBounds,
                 windowSize = windowSize,
                 menuWidth = popupContentSize.width,
                 layoutDirection = layoutDirection
             )
+            if (index == xCandidates.lastIndex ||
+                (xCandidate >= 0 && xCandidate + popupContentSize.width <= windowSize.width)) {
+                x = xCandidate
+                break
+            }
         }
-        val x = xCandidates.fastFirstOrNull {
-            it >= 0 && it + popupContentSize.width <= windowSize.width
-        } ?: xCandidates.last()
 
         val yCandidates = listOf(
             topToAnchorBottom,
@@ -389,17 +393,21 @@ internal data class DropdownMenuPositionProvider(
             } else {
                 bottomToWindowBottom
             }
-        ).fastMap {
-            it.position(
+        )
+        var y = 0
+        for (index in yCandidates.indices) {
+            val yCandidate = yCandidates[index].position(
                 anchorBounds = anchorBounds,
                 windowSize = windowSize,
                 menuHeight = popupContentSize.height
             )
+            if (index == yCandidates.lastIndex ||
+                (yCandidate >= verticalMargin &&
+                    yCandidate + popupContentSize.height <= windowSize.height - verticalMargin)) {
+                y = yCandidate
+                break
+            }
         }
-        val y = yCandidates.fastFirstOrNull {
-            it >= verticalMargin &&
-                it + popupContentSize.height <= windowSize.height - verticalMargin
-        } ?: yCandidates.last()
 
         val menuOffset = IntOffset(x, y)
         onPositionCalculated(
