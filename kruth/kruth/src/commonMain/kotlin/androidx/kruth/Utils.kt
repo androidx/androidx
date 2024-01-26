@@ -19,6 +19,8 @@ package androidx.kruth
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 
+internal const val HUMAN_UNDERSTANDABLE_EMPTY_STRING = "\"\" (empty String)"
+
 /**
  * Same as [requireNotNull] but throws [NullPointerException] instead of [IllegalArgumentException].
  *
