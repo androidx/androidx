@@ -30,6 +30,7 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -74,11 +75,12 @@ public suspend inline fun <R> ListenableFuture<R>.await(): R {
 
 internal fun <T> launchFuture(
     context: CoroutineContext = EmptyCoroutineContext,
+    start: CoroutineStart = CoroutineStart.DEFAULT,
     block: suspend CoroutineScope.() -> T,
 ): ListenableFuture<T> = getFuture { completer ->
     val job = context[Job]
     completer.addCancellationListener({ job?.cancel() }, DirectExecutor.INSTANCE)
-    CoroutineScope(context).launch {
+    CoroutineScope(context).launch(start = start) {
         try {
             val result = block()
             completer.set(result)

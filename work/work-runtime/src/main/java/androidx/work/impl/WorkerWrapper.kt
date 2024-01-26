@@ -38,11 +38,12 @@ import androidx.work.impl.model.WorkSpecDao
 import androidx.work.impl.model.generationalId
 import androidx.work.impl.utils.PackageManagerHelper
 import androidx.work.impl.utils.SynchronousExecutor
-import androidx.work.impl.utils.WorkForegroundRunnable
 import androidx.work.impl.utils.WorkForegroundUpdater
 import androidx.work.impl.utils.WorkProgressUpdater
 import androidx.work.impl.utils.futures.SettableFuture
 import androidx.work.impl.utils.taskexecutor.TaskExecutor
+import androidx.work.impl.utils.workForeground
+import androidx.work.launchFuture
 import androidx.work.logd
 import androidx.work.loge
 import androidx.work.logi
@@ -51,6 +52,9 @@ import java.util.UUID
 import java.util.concurrent.Callable
 import java.util.concurrent.CancellationException
 import java.util.concurrent.ExecutionException
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.asCoroutineDispatcher
 
 /**
  * A runnable that looks up the [WorkSpec] from the database for a given id, instantiates
@@ -206,15 +210,11 @@ class WorkerWrapper internal constructor(builder: Builder) : Runnable {
             if (tryCheckForInterruptionAndResolve()) {
                 return
             }
-            val foregroundRunnable = WorkForegroundRunnable(
-                appContext,
-                workSpec,
-                worker,
-                params.foregroundUpdater,
-                workTaskExecutor
-            )
-            workTaskExecutor.getMainThreadExecutor().execute(foregroundRunnable)
-            val runExpedited = foregroundRunnable.future
+            val foregroundUpdater = params.foregroundUpdater
+            val dispatcher = workTaskExecutor.getMainThreadExecutor().asCoroutineDispatcher()
+            val runExpedited = launchFuture(dispatcher + Job(), CoroutineStart.UNDISPATCHED) {
+                workForeground(appContext, workSpec, worker, foregroundUpdater, workTaskExecutor)
+            }
             // propagate cancellation to runExpedited
             workerResultFuture.addListener({
                 if (workerResultFuture.isCancelled()) {
