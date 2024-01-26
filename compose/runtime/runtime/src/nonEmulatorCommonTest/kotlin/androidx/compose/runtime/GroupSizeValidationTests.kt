@@ -65,7 +65,7 @@ class GroupSizeValidationTests {
         slotExpect(
             name = "TextLike",
             noMoreGroupsThan = 9,
-            noMoreSlotsThan = 14
+            noMoreSlotsThan = 13
         ) {
             BasicTextLike("")
         }
