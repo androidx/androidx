@@ -12,11 +12,19 @@ package androidx.paging {
     method public androidx.paging.LoadState getPrepend();
     method public androidx.paging.LoadState getRefresh();
     method public androidx.paging.LoadStates getSource();
+    method public boolean hasError();
+    method public boolean isIdle();
     property public final androidx.paging.LoadState append;
+    property public final boolean hasError;
+    property public final boolean isIdle;
     property public final androidx.paging.LoadStates? mediator;
     property public final androidx.paging.LoadState prepend;
     property public final androidx.paging.LoadState refresh;
     property public final androidx.paging.LoadStates source;
+  }
+
+  public final class CombinedLoadStatesKt {
+    method public static suspend Object? awaitNotLoading(kotlinx.coroutines.flow.Flow<androidx.paging.CombinedLoadStates>, kotlin.coroutines.Continuation<androidx.paging.CombinedLoadStates>);
   }
 
   public abstract class DataSource<Key, Value> {
@@ -131,7 +139,11 @@ package androidx.paging {
     method public androidx.paging.LoadState getAppend();
     method public androidx.paging.LoadState getPrepend();
     method public androidx.paging.LoadState getRefresh();
+    method public boolean hasError();
+    method public boolean isIdle();
     property public final androidx.paging.LoadState append;
+    property public final boolean hasError;
+    property public final boolean isIdle;
     property public final androidx.paging.LoadState prepend;
     property public final androidx.paging.LoadState refresh;
   }
