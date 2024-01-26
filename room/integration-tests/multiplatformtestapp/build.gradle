@@ -18,22 +18,44 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 
 plugins {
     id("AndroidXPlugin")
+    id("com.android.library")
     id("com.google.devtools.ksp")
 }
+
+// Disabled due to https://youtrack.jetbrains.com/issue/KT-65761
+ext["kotlin.native.disableCompilerDaemon"] = 'true'
 
 def nativeEnabled = KmpPlatformsKt.enableNative(project)
 
 androidXMultiplatform {
-    mac()
-    linux()
+    android()
     ios()
+    jvm()
+    linux()
+    mac()
     sourceSets {
         commonTest {
             dependencies {
                 implementation(libs.kotlinStdlib)
                 implementation(project(":room:room-runtime"))
+                implementation(project(":sqlite:sqlite-bundled"))
                 implementation(project(":kruth:kruth"))
                 implementation(libs.kotlinTest)
+                implementation(libs.kotlinCoroutinesTest)
+            }
+        }
+        androidInstrumentedTest {
+            dependsOn(commonTest)
+            dependencies {
+                implementation(libs.kotlinTestJunit)
+                implementation(libs.testRunner)
+                implementation(libs.testCore)
+            }
+        }
+        jvmTest {
+            dependsOn(commonTest)
+            dependencies {
+                implementation(libs.kotlinTestJunit)
             }
         }
         if (nativeEnabled) {
@@ -51,6 +73,24 @@ androidXMultiplatform {
     }
 }
 
+// TODO(b/325111583): Create a helper function to configure KSP with KMP targets
+dependencies {
+    def roomCompilerDependency = project(path: ":room:room-compiler", configuration: "shadowAndImplementation")
+    add("kspAndroidAndroidTest", roomCompilerDependency)
+    add("kspJvmTest", roomCompilerDependency)
+    if (nativeEnabled) {
+        add("kspIosSimulatorArm64Test", roomCompilerDependency)
+        add("kspIosX64Test", roomCompilerDependency)
+        add("kspLinuxX64Test", roomCompilerDependency)
+        add("kspMacosX64Test", roomCompilerDependency)
+        add("kspMacosArm64Test", roomCompilerDependency)
+    }
+}
+
 ksp {
     arg("room.generateKotlin", "true")
+}
+
+android {
+    namespace "androidx.room.integration.multiplatformtestapp"
 }
