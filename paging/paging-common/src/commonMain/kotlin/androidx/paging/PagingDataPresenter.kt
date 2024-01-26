@@ -207,11 +207,15 @@ public abstract class PagingDataPresenter<T : Any>(
                             // infinite loops when maxSize is insufficiently large.
                             lastAccessedIndexUnfulfilled = false
                         }
-                        event is PageEvent.LoadStateUpdate ->
+                        event is PageEvent.LoadStateUpdate -> {
+                            if (postEvents()) {
+                                yield()
+                            }
                             combinedLoadStatesCollection.set(
                                 sourceLoadStates = event.source,
                                 remoteLoadStates = event.mediator,
                             )
+                        }
                     }
                     // Notify page updates after pageStore processes them.
                     //
