@@ -770,6 +770,7 @@ includeProject(":lifecycle:lifecycle-viewmodel-compose:lifecycle-viewmodel-compo
 includeProject(":lifecycle:lifecycle-viewmodel-compose:integration-tests:lifecycle-viewmodel-demos", [BuildType.COMPOSE])
 includeProject(":lifecycle:lifecycle-viewmodel-ktx", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE])
 includeProject(":lifecycle:lifecycle-viewmodel-savedstate", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE])
+includeProject(":lint:lint-gradle", [BuildType.MAIN])
 includeProject(":lint-checks")
 includeProject(":lint-checks:integration-tests")
 includeProject(":loader:loader", [BuildType.MAIN])
