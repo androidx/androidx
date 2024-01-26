@@ -43,8 +43,22 @@ class RoundedPolygon internal constructor(
         // by those points being slightly off, even by much less than a pixel
         var firstCubic: Cubic? = null
         var lastCubic: Cubic? = null
-        for (i in features.indices) {
-            val featureCubics = features[i].cubics
+        var firstFeatureSplitStart: List<Cubic>? = null
+        var firstFeatureSplitEnd: List<Cubic>? = null
+        if (features.size > 0 && features[0].cubics.size == 3) {
+            val centerCubic = features[0].cubics[1]
+            val (start, end) = centerCubic.split(.5f)
+            firstFeatureSplitStart = mutableListOf(features[0].cubics[0], start)
+            firstFeatureSplitEnd = mutableListOf(end, features[0].cubics[2])
+        }
+        // iterating one past the features list size allows us to insert the initial split
+        // cubic if it exists
+        for (i in 0..features.size) {
+            val featureCubics = if (i == 0 && firstFeatureSplitEnd != null) firstFeatureSplitEnd
+            else if (i == features.size) {
+                if (firstFeatureSplitStart != null) firstFeatureSplitStart
+                else break
+            } else features[i].cubics
             for (j in featureCubics.indices) {
                 // Skip zero-length curves; they add nothing and can trigger rendering artifacts
                 val cubic = featureCubics[j]
