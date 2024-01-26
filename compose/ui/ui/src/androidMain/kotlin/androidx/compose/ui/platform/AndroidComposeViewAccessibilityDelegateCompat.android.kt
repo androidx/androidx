@@ -3513,6 +3513,20 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                 return
             }
 
+            // This callback can be invoked from non UI thread.
+            if (Looper.getMainLooper().thread == Thread.currentThread()) {
+                doTranslation(accessibilityDelegateCompat, response)
+            } else {
+                accessibilityDelegateCompat.view.post {
+                    doTranslation(accessibilityDelegateCompat, response)
+                }
+            }
+        }
+
+        private fun doTranslation(
+            accessibilityDelegateCompat: AndroidComposeViewAccessibilityDelegateCompat,
+            response: LongSparseArray<ViewTranslationResponse?>
+        ) {
             for (key in response.keyIterator()) {
                 response.get(key)?.getValue(ViewTranslationRequest.ID_TEXT)?.text?.let {
                     accessibilityDelegateCompat.currentSemanticsNodes[key.toInt()]
