@@ -27,6 +27,7 @@ import androidx.paging.PageEvent.StaticList
 import androidx.paging.internal.CopyOnWriteArrayList
 import androidx.paging.internal.appendMediatorStatesIfNotNull
 import kotlin.coroutines.CoroutineContext
+import kotlin.jvm.JvmSuppressWildcards
 import kotlin.jvm.Volatile
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.BufferOverflow.DROP_OLDEST
@@ -36,8 +37,30 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.withContext
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public abstract class PagingDataPresenter<T : Any>(
+/**
+ * The class that connects the UI layer to the underlying Paging operations. Takes input from
+ * UI presenters and outputs Paging events (Loads, LoadStateUpdate) in response.
+ *
+ * Paging front ends that implement this class will be able to access loaded data, LoadStates,
+ * and callbacks from LoadState or Page updates. This class also exposes the
+ * [PagingDataEvent] from a [PagingData] for custom logic on how to present Loads, Drops, and
+ * other Paging events.
+ *
+ * For implementation examples, refer to [AsyncPagingDataDiffer] for RecyclerView,
+ * or [LazyPagingItems] for Compose.
+ *
+ * @param [mainContext] The coroutine context that core Paging operations will run on.
+ * Defaults to [Dispatchers.Main]. Main operations executed within this context include
+ * but are not limited to:
+ * 1. flow collection on a [PagingData] for Loads, LoadStateUpdate etc.
+ * 2. emitting [CombinedLoadStates] to the [loadStateFlow]
+ * 3. invoking LoadState and PageUpdate listeners
+ * 4. invoking [presentPagingDataEvent]
+ *
+ * @param [cachedPagingData] a [PagingData] that will initialize this PagingDataPresenter with
+ * any LoadStates or loaded data contained within it.
+ */
+public abstract class PagingDataPresenter<T : Any> (
     private val mainContext: CoroutineContext = Dispatchers.Main,
     cachedPagingData: PagingData<T>? = null,
 ) {
@@ -72,14 +95,23 @@ public abstract class PagingDataPresenter<T : Any>(
     private var lastAccessedIndex: Int = 0
 
     /**
-     * Handler for [PagingDataEvent] emitted by a [PagingData] that was submitted to
-     * this [PagingDataPresenter]
+     * Handler for [PagingDataEvent] emitted by [PagingData].
+     *
+     * When a [PagingData] is submitted to this PagingDataPresenter through [collectFrom],
+     * page loads, drops, or LoadStateUpdates will be emitted to presenters as [PagingDataEvent]
+     * through this method.
+     *
+     * Presenter layers that communicate directly with [PagingDataPresenter] should override
+     * this method to handle the [PagingDataEvent] accordingly. For example by diffing two
+     * [PagingDataEvent.Refresh] lists, or appending the inserted list of data from
+     * [PagingDataEvent.Prepend] or [PagingDataEvent.Append].
+     *
      */
     public abstract suspend fun presentPagingDataEvent(
         event: PagingDataEvent<T>,
-    )
+    ): @JvmSuppressWildcards Unit
 
-    public suspend fun collectFrom(pagingData: PagingData<T>) {
+    public suspend fun collectFrom(pagingData: PagingData<T>): @JvmSuppressWildcards Unit {
         collectFromRunner.runInIsolation {
             uiReceiver = pagingData.uiReceiver
             pagingData.flow.collect { event ->
@@ -385,7 +417,7 @@ public abstract class PagingDataPresenter<T : Any>(
      *
      * @sample androidx.paging.samples.addLoadStateListenerSample
      */
-    public fun addLoadStateListener(listener: (CombinedLoadStates) -> Unit) {
+    public fun addLoadStateListener(listener: (@JvmSuppressWildcards CombinedLoadStates) -> Unit) {
         combinedLoadStatesCollection.addListener(listener)
     }
 
@@ -395,7 +427,9 @@ public abstract class PagingDataPresenter<T : Any>(
      * @param listener Previously registered listener.
      * @see addLoadStateListener
      */
-    public fun removeLoadStateListener(listener: (CombinedLoadStates) -> Unit) {
+    public fun removeLoadStateListener(
+        listener: (@JvmSuppressWildcards CombinedLoadStates) -> Unit
+    ) {
         combinedLoadStatesCollection.removeListener(listener)
     }
 

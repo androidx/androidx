@@ -16,14 +16,14 @@
 
 package androidx.paging
 
-import androidx.annotation.RestrictTo
-
 /**
- * Interface to partially-loaded, paged data (generally an immutable snapshot).
+ * Interface to paged list that could contain placeholders.
  *
- * Used for diffing in paging-runtime.
+ * Contains a paged list's snapshot state. For example, in the context of
+ * [PagingDataEvent.Refresh] exposed by [PagingDataPresenter], each [PlaceholderPaddedList]
+ * represents a generation of paged data whereby a new generation is distinguished with
+ * a refresh load.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface PlaceholderPaddedList<T> {
     public val placeholdersBefore: Int
     public val placeholdersAfter: Int
