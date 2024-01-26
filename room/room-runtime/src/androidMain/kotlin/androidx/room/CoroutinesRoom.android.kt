@@ -45,6 +45,7 @@ public class CoroutinesRoom private constructor() {
     public companion object {
 
         @JvmStatic
+        @Deprecated("No longer called by generated implementation")
         public suspend fun <R> execute(
             db: RoomDatabase,
             inTransaction: Boolean,

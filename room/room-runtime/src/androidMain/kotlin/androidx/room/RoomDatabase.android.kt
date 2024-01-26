@@ -596,6 +596,17 @@ actual abstract class RoomDatabase {
         }
     }
 
+    /**
+     * Return true if this database is operating in compatibility mode, otherwise false.
+     *
+     * Room is considered in compatibility mode in Android when no [SQLiteDriver] was provided
+     * and [androidx.sqlite.db] APIs are used instead (SupportSQLite*).
+     *
+     * @see RoomAndroidConnectionManager
+     */
+    internal fun inCompatibilityMode(): Boolean =
+        connectionManager.supportOpenHelper != null
+
     // Below, there are wrapper methods for SupportSQLiteDatabase. This helps us track which
     // methods we are using and also helps unit tests to mock this class without mocking
     // all SQLite database methods.

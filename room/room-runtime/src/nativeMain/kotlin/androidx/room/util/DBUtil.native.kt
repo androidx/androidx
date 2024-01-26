@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,10 +21,7 @@ package androidx.room.util
 
 import androidx.annotation.RestrictTo
 import androidx.room.RoomDatabase
-import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.SQLiteStatement
-import androidx.sqlite.execSQL
-import androidx.sqlite.use
 import kotlin.jvm.JvmMultifileClass
 import kotlin.jvm.JvmName
 
@@ -32,43 +29,18 @@ import kotlin.jvm.JvmName
  * Performs a single database read operation.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-expect suspend fun <R> performReadSuspending(
+actual suspend fun <R> performReadSuspending(
     db: RoomDatabase,
     sql: String,
     block: (SQLiteStatement) -> R
-): R
+): R = db.perform(true, sql, block)
 
 /**
  * Performs a single database read transaction operation.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-expect suspend fun <R> performReadTransactionSuspending(
+actual suspend fun <R> performReadTransactionSuspending(
     db: RoomDatabase,
     sql: String,
     block: (SQLiteStatement) -> R
-): R
-
-/**
- * Drops all FTS content sync triggers created by Room.
- *
- * FTS content sync triggers created by Room are those that are found in the sqlite_master table
- * who's names start with 'room_fts_content_sync_'.
- *
- * @param connection The database connection.
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-fun dropFtsSyncTriggers(connection: SQLiteConnection) {
-    val existingTriggers = buildList {
-        connection.prepare("SELECT name FROM sqlite_master WHERE type = 'trigger'").use {
-            while (it.step()) {
-                add(it.getText(0))
-            }
-        }
-    }
-
-    existingTriggers.forEach { triggerName ->
-        if (triggerName.startsWith("room_fts_content_sync_")) {
-            connection.execSQL("DROP TRIGGER IF EXISTS $triggerName")
-        }
-    }
-}
+): R = db.performTransaction(true) { it.usePrepared(sql, block) }
