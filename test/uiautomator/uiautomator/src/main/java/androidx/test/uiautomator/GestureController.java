@@ -25,7 +25,9 @@ import android.view.MotionEvent;
 import android.view.MotionEvent.PointerCoords;
 import android.view.MotionEvent.PointerProperties;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -129,12 +131,20 @@ class GestureController {
         // Record the start time
         final long startTime = SystemClock.uptimeMillis();
 
-        // Update motion event delay to twice of the display refresh rate
+        // Update motion event delay to twice of the maximum display refresh rate
         long injectionDelay = MOTION_EVENT_INJECTION_DELAY_MILLIS;
         try {
             int displayId = pending.peek().displayId();
             Display display = mDevice.getDisplayById(displayId);
-            float displayRefreshRate = display.getRefreshRate();
+            float displayRefreshRate;
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+                float[] refreshRates = Api21Impl.getSupportedRefreshRates(display);
+                Arrays.sort(refreshRates);
+                displayRefreshRate = refreshRates[refreshRates.length - 1];
+            } else {
+                // Set to current refresh rate if API version is lower than 21.
+                displayRefreshRate = display.getRefreshRate();
+            }
             injectionDelay = (long) (500 / displayRefreshRate);
         } catch (Exception e) {
             Log.e(TAG, "Fail to update motion event delay", e);
@@ -294,5 +304,16 @@ class GestureController {
 
     UiDevice getDevice() {
         return mDevice;
+    }
+
+    @RequiresApi(21)
+    private static class Api21Impl {
+        private Api21Impl() {
+        }
+
+        @DoNotInline
+        static float[] getSupportedRefreshRates(Display display) {
+            return display.getSupportedRefreshRates();
+        }
     }
 }
