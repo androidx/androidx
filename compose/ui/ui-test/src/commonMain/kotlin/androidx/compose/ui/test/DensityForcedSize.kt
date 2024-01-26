@@ -46,13 +46,6 @@ internal fun DensityForcedSize(
 ) {
     SubcomposeLayout(
         modifier = modifier
-            .then(
-                if (size.isSpecified) {
-                    Modifier.size(size)
-                } else {
-                    Modifier
-                }
-            )
     ) { constraints ->
         val measurables = subcompose(Unit) {
             val maxWidth = constraints.maxWidth.toDp()

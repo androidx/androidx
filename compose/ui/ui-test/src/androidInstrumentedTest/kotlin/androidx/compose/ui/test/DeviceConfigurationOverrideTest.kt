@@ -123,7 +123,85 @@ class DeviceConfigurationOverrideTest {
     }
 
     @Test
-    fun sizeOverride_allowsForCorrectSpace() {
+    fun sizeOverride_allowsForCorrectSpace_smallPortraitAspectRatio() {
+        lateinit var actualDensity: Density
+        var actualConstraints: Constraints? = null
+
+        rule.setContent {
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.ForcedSize(DpSize(30.dp, 40.dp))
+            ) {
+                Spacer(
+                    modifier = Modifier.layout { measurable, constraints ->
+                        actualConstraints = constraints
+                        actualDensity = this
+
+                        val placeable = measurable.measure(constraints)
+
+                        layout(placeable.width, placeable.height) {
+                            placeable.placeRelative(0, 0)
+                        }
+                    }
+                )
+            }
+        }
+
+        // The constraint should be within 0.5 pixels of the specified size
+        // Due to rounding, we can't expect to have the Spacer take exactly the requested size which
+        // this is true in normal Compose code as well
+        assertEquals(
+            with(actualDensity) { 30.dp.toPx() },
+            actualConstraints!!.maxWidth.toFloat(),
+            0.5f
+        )
+        assertEquals(
+            with(actualDensity) { 40.dp.toPx() },
+            actualConstraints!!.maxHeight.toFloat(),
+            0.5f
+        )
+    }
+
+    @Test
+    fun sizeOverride_allowsForCorrectSpace_smallLandscapeAspectRatio() {
+        lateinit var actualDensity: Density
+        var actualConstraints: Constraints? = null
+
+        rule.setContent {
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.ForcedSize(DpSize(40.dp, 30.dp))
+            ) {
+                Spacer(
+                    modifier = Modifier.layout { measurable, constraints ->
+                        actualConstraints = constraints
+                        actualDensity = this
+
+                        val placeable = measurable.measure(constraints)
+
+                        layout(placeable.width, placeable.height) {
+                            placeable.placeRelative(0, 0)
+                        }
+                    }
+                )
+            }
+        }
+
+        // The constraint should be within 0.5 pixels of the specified size
+        // Due to rounding, we can't expect to have the Spacer take exactly the requested size which
+        // this is true in normal Compose code as well
+        assertEquals(
+            with(actualDensity) { 40.dp.toPx() },
+            actualConstraints!!.maxWidth.toFloat(),
+            0.5f
+        )
+        assertEquals(
+            with(actualDensity) { 30.dp.toPx() },
+            actualConstraints!!.maxHeight.toFloat(),
+            0.5f
+        )
+    }
+
+    @Test
+    fun sizeOverride_allowsForCorrectSpace_largePortraitAspectRatio() {
         lateinit var actualDensity: Density
         var actualConstraints: Constraints? = null
 
@@ -146,8 +224,58 @@ class DeviceConfigurationOverrideTest {
             }
         }
 
-        assertTrue(with(actualDensity) { actualConstraints!!.maxWidth.toDp() >= 3000.dp })
-        assertTrue(with(actualDensity) { actualConstraints!!.maxHeight.toDp() >= 4000.dp })
+        // The constraint should be within 0.5 pixels of the specified size
+        // Due to rounding, we can't expect to have the Spacer take exactly the requested size which
+        // this is true in normal Compose code as well
+        assertEquals(
+            with(actualDensity) { 3000.dp.toPx() },
+            actualConstraints!!.maxWidth.toFloat(),
+            0.5f
+        )
+        assertEquals(
+            with(actualDensity) { 4000.dp.toPx() },
+            actualConstraints!!.maxHeight.toFloat(),
+            0.5f
+        )
+    }
+
+    @Test
+    fun sizeOverride_allowsForCorrectSpace_largeLandscapeAspectRatio() {
+        lateinit var actualDensity: Density
+        var actualConstraints: Constraints? = null
+
+        rule.setContent {
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.ForcedSize(DpSize(4000.dp, 3000.dp))
+            ) {
+                Spacer(
+                    modifier = Modifier.layout { measurable, constraints ->
+                        actualConstraints = constraints
+                        actualDensity = this
+
+                        val placeable = measurable.measure(constraints)
+
+                        layout(placeable.width, placeable.height) {
+                            placeable.placeRelative(0, 0)
+                        }
+                    }
+                )
+            }
+        }
+
+        // The constraint should be within 0.5 pixels of the specified size
+        // Due to rounding, we can't expect to have the Spacer take exactly the requested size which
+        // this is true in normal Compose code as well
+        assertEquals(
+            with(actualDensity) { 4000.dp.toPx() },
+            actualConstraints!!.maxWidth.toFloat(),
+            0.5f
+        )
+        assertEquals(
+            with(actualDensity) { 3000.dp.toPx() },
+            actualConstraints!!.maxHeight.toFloat(),
+            0.5f
+        )
     }
 
     @Test
