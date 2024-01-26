@@ -22,6 +22,10 @@ package androidx.lifecycle {
     method protected void onCleared();
   }
 
+  public final class ViewModelKt {
+    method public static kotlinx.coroutines.CoroutineScope getViewModelScope(androidx.lifecycle.ViewModel);
+  }
+
   public final class ViewModelLazy<VM extends androidx.lifecycle.ViewModel> implements kotlin.Lazy<VM> {
     ctor public ViewModelLazy(kotlin.reflect.KClass<VM> viewModelClass, kotlin.jvm.functions.Function0<? extends androidx.lifecycle.ViewModelStore> storeProducer, kotlin.jvm.functions.Function0<? extends androidx.lifecycle.ViewModelProvider.Factory> factoryProducer);
     ctor public ViewModelLazy(kotlin.reflect.KClass<VM> viewModelClass, kotlin.jvm.functions.Function0<? extends androidx.lifecycle.ViewModelStore> storeProducer, kotlin.jvm.functions.Function0<? extends androidx.lifecycle.ViewModelProvider.Factory> factoryProducer, optional kotlin.jvm.functions.Function0<? extends androidx.lifecycle.viewmodel.CreationExtras> extrasProducer);

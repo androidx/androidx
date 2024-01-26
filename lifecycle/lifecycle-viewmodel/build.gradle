@@ -40,6 +40,7 @@ android {
 dependencies {
     api("androidx.annotation:annotation:1.1.0")
     api(libs.kotlinStdlib)
+    api(libs.kotlinCoroutinesAndroid)
     testImplementation(libs.junit)
     testImplementation(libs.mockitoCore4)
     testImplementation(libs.truth)
