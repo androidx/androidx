@@ -75,8 +75,9 @@ public class SystemDataSources private constructor() {
          * RECEIVE_COMPLICATION_DATA permission has been granted.
          *
          * This complication data source is only guaranteed to support [ComplicationType.SHORT_TEXT]
-         * although it's a good idea for the slot to support [ComplicationType.SMALL_IMAGE] too
-         * since OEMs may choose to serve a shortcut to their health app instead of the live value.
+         * and [ComplicationType.GOAL_PROGRESS], although it's a good idea for the slot to support
+         * [ComplicationType.SMALL_IMAGE] too since OEMs may choose to serve a shortcut to their
+         * health app instead of the live value.
          */
         public const val DATA_SOURCE_STEP_COUNT: Int = 4
 
@@ -183,8 +184,7 @@ public class SystemDataSources private constructor() {
         public const val DATA_SOURCE_DAY_AND_DATE: Int = 16
 
         /**
-         * Id for the 'heart rate' complication data source. Note implementations are free to return
-         * a
+         * Id for the 'heart rate' complication data source.
          *
          * This complication data source is only guaranteed to support [ComplicationType.SHORT_TEXT]
          * although it's a good idea for the slot to support [ComplicationType.SMALL_IMAGE] too
