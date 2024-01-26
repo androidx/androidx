@@ -31,6 +31,7 @@ import androidx.compose.runtime.snapshots.fastAny
 import androidx.compose.runtime.snapshots.fastForEach
 import androidx.compose.runtime.tooling.CompositionObserver
 import androidx.compose.runtime.tooling.CompositionObserverHandle
+import checkPrecondition
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 
@@ -639,7 +640,7 @@ internal class CompositionImpl(
     }
 
     private fun composeInitial(content: @Composable () -> Unit) {
-        check(!disposed) { "The composition is disposed" }
+        checkPrecondition(!disposed) { "The composition is disposed" }
         this.composable = content
         parent.composeInitial(this, composable)
     }
@@ -742,7 +743,7 @@ internal class CompositionImpl(
 
     override fun dispose() {
         synchronized(lock) {
-            check(!composer.isComposing) {
+            checkPrecondition(!composer.isComposing) {
                 "Composition is disposed while composing. If dispose is triggered by a call in " +
                     "@Composable function, consider wrapping it with SideEffect block."
             }
@@ -1206,7 +1207,7 @@ internal class CompositionImpl(
         val scopes = slotTable.slots.mapNotNull { it as? RecomposeScopeImpl }
         scopes.fastForEach { scope ->
             scope.anchor?.let { anchor ->
-                check(scope in slotTable.slotsOf(anchor.toIndexFor(slotTable))) {
+                checkPrecondition(scope in slotTable.slotsOf(anchor.toIndexFor(slotTable))) {
                     val dataIndex = slotTable.slots.indexOf(scope)
                     "Misaligned anchor $anchor in scope $scope encountered, scope found at " +
                         "$dataIndex"

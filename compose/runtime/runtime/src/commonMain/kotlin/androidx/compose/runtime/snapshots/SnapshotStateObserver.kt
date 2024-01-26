@@ -31,6 +31,7 @@ import androidx.compose.runtime.currentThreadId
 import androidx.compose.runtime.currentThreadName
 import androidx.compose.runtime.observeDerivedStateRecalculations
 import androidx.compose.runtime.structuralEqualityPolicy
+import requirePrecondition
 
 /**
  * Helper class to efficiently observe snapshot state reads. See [observeReads] for more details.
@@ -238,7 +239,7 @@ class SnapshotStateObserver(private val onChangedExecutor: (callback: () -> Unit
         val oldThreadId = currentMapThreadId
 
         if (oldThreadId != -1L) {
-            require(oldThreadId == currentThreadId()) {
+            requirePrecondition(oldThreadId == currentThreadId()) {
                 "Detected multithreaded access to SnapshotStateObserver: " +
                     "previousThreadId=$oldThreadId), " +
                     "currentThread={id=${currentThreadId()}, name=${currentThreadName()}}. " +

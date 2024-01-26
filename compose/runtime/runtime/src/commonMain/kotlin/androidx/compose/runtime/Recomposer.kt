@@ -31,6 +31,7 @@ import androidx.compose.runtime.snapshots.fastGroupBy
 import androidx.compose.runtime.snapshots.fastMap
 import androidx.compose.runtime.snapshots.fastMapNotNull
 import androidx.compose.runtime.tooling.CompositionData
+import checkPrecondition
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
@@ -53,6 +54,7 @@ import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
+import requirePrecondition
 
 // TODO: Can we use rootKey for this since all compositions will have an eventual Recomposer parent?
 private const val RecomposerCompoundHashKey = 1000
@@ -852,7 +854,7 @@ class Recomposer(
     suspend fun runRecomposeConcurrentlyAndApplyChanges(
         recomposeCoroutineContext: CoroutineContext
     ) = recompositionRunner { parentFrameClock ->
-        require(recomposeCoroutineContext[Job] == null) {
+        requirePrecondition(recomposeCoroutineContext[Job] == null) {
             "recomposeCoroutineContext may not contain a Job; found " +
                 recomposeCoroutineContext[Job]
         }
@@ -1559,7 +1561,7 @@ private class ProduceFrameSignal {
      * available up until this point. (Synchronizing access to that data is up to the caller.)
      */
     fun takeFrameRequestLocked() {
-        check(pendingFrameContinuation === FramePending) { "frame not pending" }
+        checkPrecondition(pendingFrameContinuation === FramePending) { "frame not pending" }
         pendingFrameContinuation = null
     }
 
