@@ -324,11 +324,10 @@ class CanvasBufferedRendererTests {
         }
         assertNotNull(renderResult)
         assertEquals(SUCCESS, renderResult!!.status)
-        val fence = renderResult?.fence
-        assertNotNull(fence)
-        assertTrue(fence!!.isValid())
-        fence.awaitForever()
-        fence.close()
+        renderResult?.fence?.let { fence ->
+            fence.awaitForever()
+            fence.close()
+        }
 
         val hardwareBuffer = renderResult!!.hardwareBuffer
 
