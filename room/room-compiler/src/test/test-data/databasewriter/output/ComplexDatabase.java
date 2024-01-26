@@ -129,12 +129,12 @@ public final class ComplexDatabase_Impl extends ComplexDatabase {
     @Override
     @NonNull
     protected InvalidationTracker createInvalidationTracker() {
-        final HashMap<String, String> _shadowTablesMap = new HashMap<String, String>(0);
-        final HashMap<String, Set<String>> _viewTables = new HashMap<String, Set<String>>(1);
-        final HashSet<String> _tables = new HashSet<String>(1);
+        final Map<String, String> _shadowTablesMap = new HashMap<String, String>(0);
+        final Map<String, Set<String>> _viewTables = new HashMap<String, Set<String>>(1);
+        final Set<String> _tables = new HashSet<String>(1);
         _tables.add("User");
         _viewTables.put("usersummary", _tables);
-        return new InvalidationTracker(this, _shadowTablesMap, _viewTables, "User","Child1","Child2");
+        return new InvalidationTracker(this, _shadowTablesMap, _viewTables, "User", "Child1", "Child2");
     }
 
     @Override

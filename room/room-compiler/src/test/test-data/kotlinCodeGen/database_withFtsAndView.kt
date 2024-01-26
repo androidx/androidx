@@ -8,8 +8,6 @@ import androidx.room.util.ViewInfo
 import androidx.room.util.dropFtsSyncTriggers
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.execSQL
-import java.util.HashMap
-import java.util.HashSet
 import javax.`annotation`.processing.Generated
 import kotlin.Any
 import kotlin.Lazy
@@ -147,19 +145,19 @@ public class MyDatabase_Impl : MyDatabase() {
   }
 
   protected override fun createInvalidationTracker(): InvalidationTracker {
-    val _shadowTablesMap: HashMap<String, String> = HashMap<String, String>(1)
+    val _shadowTablesMap: MutableMap<String, String> = mutableMapOf()
     _shadowTablesMap.put("MyFtsEntity", "MyFtsEntity_content")
-    val _viewTables: HashMap<String, Set<String>> = HashMap<String, Set<String>>(1)
-    val _tables: HashSet<String> = HashSet<String>(1)
+    val _viewTables: MutableMap<String, Set<String>> = mutableMapOf()
+    val _tables: MutableSet<String> = mutableSetOf()
     _tables.add("MyFtsEntity")
     _viewTables.put("myview", _tables)
-    return InvalidationTracker(this, _shadowTablesMap, _viewTables,
-        "MyParentEntity","MyEntity","MyFtsEntity")
+    return InvalidationTracker(this, _shadowTablesMap, _viewTables, "MyParentEntity", "MyEntity",
+        "MyFtsEntity")
   }
 
-    public override fun clearAllTables() {
-      super.performClear(true, "MyParentEntity", "MyEntity", "MyFtsEntity")
-    }
+  public override fun clearAllTables() {
+    super.performClear(true, "MyParentEntity", "MyEntity", "MyFtsEntity")
+  }
 
   protected override fun getRequiredTypeConverterClasses():
       Map<KClass<out Any>, List<KClass<out Any>>> {

@@ -217,12 +217,11 @@ class DatabaseWriter(
         val scope = CodeGenScope(this)
         val body = XCodeBlock.builder(codeLanguage).apply {
             val shadowTablesVar = "_shadowTablesMap"
-            val shadowTablesTypeName = CommonTypeNames.HASH_MAP.parametrizedBy(
+            val shadowTablesTypeParam = arrayOf(
                 CommonTypeNames.STRING, CommonTypeNames.STRING
             )
-            val tableNames = database.entities.joinToString(",") {
-                "\"${it.tableName}\""
-            }
+            val shadowTablesTypeName =
+                CommonTypeNames.MUTABLE_MAP.parametrizedBy(*shadowTablesTypeParam)
             val shadowTableNames = database.entities.filter {
                 it.shadowTableName != null
             }.map {
@@ -231,41 +230,68 @@ class DatabaseWriter(
             addLocalVariable(
                 name = shadowTablesVar,
                 typeName = shadowTablesTypeName,
-                assignExpr = XCodeBlock.ofNewInstance(
-                    codeLanguage,
-                    shadowTablesTypeName,
-                    "%L",
-                    shadowTableNames.size
-                )
+                assignExpr = when (language) {
+                    CodeLanguage.JAVA -> XCodeBlock.ofNewInstance(
+                        codeLanguage,
+                        CommonTypeNames.HASH_MAP.parametrizedBy(*shadowTablesTypeParam),
+                        "%L",
+                        shadowTableNames.size
+                    )
+
+                    CodeLanguage.KOTLIN -> XCodeBlock.of(
+                        language,
+                        "%M()",
+                        KotlinCollectionMemberNames.MUTABLE_MAP_OF
+                    )
+                }
             )
             shadowTableNames.forEach { (tableName, shadowTableName) ->
                 addStatement("%L.put(%S, %S)", shadowTablesVar, tableName, shadowTableName)
             }
             val viewTablesVar = scope.getTmpVar("_viewTables")
-            val tablesType = CommonTypeNames.HASH_SET.parametrizedBy(CommonTypeNames.STRING)
-            val viewTablesType = CommonTypeNames.HASH_MAP.parametrizedBy(
+            val viewTableTypeParam = arrayOf(
                 CommonTypeNames.STRING,
                 CommonTypeNames.SET.parametrizedBy(CommonTypeNames.STRING)
             )
+            val viewTablesTypeName = CommonTypeNames.MUTABLE_MAP.parametrizedBy(*viewTableTypeParam)
             addLocalVariable(
                 name = viewTablesVar,
-                typeName = viewTablesType,
-                assignExpr = XCodeBlock.ofNewInstance(
-                    codeLanguage,
-                    viewTablesType,
-                    "%L", database.views.size
-                )
+                typeName = viewTablesTypeName,
+                assignExpr = when (language) {
+                    CodeLanguage.JAVA -> XCodeBlock.ofNewInstance(
+                        codeLanguage,
+                        CommonTypeNames.HASH_MAP.parametrizedBy(*viewTableTypeParam),
+                        "%L",
+                        database.views.size
+                    )
+
+                    CodeLanguage.KOTLIN -> XCodeBlock.of(
+                        language,
+                        "%M()",
+                        KotlinCollectionMemberNames.MUTABLE_MAP_OF
+                    )
+                }
             )
+            val tablesType = CommonTypeNames.MUTABLE_SET.parametrizedBy(CommonTypeNames.STRING)
             for (view in database.views) {
                 val tablesVar = scope.getTmpVar("_tables")
                 addLocalVariable(
                     name = tablesVar,
                     typeName = tablesType,
-                    assignExpr = XCodeBlock.ofNewInstance(
-                        codeLanguage,
-                        tablesType,
-                        "%L", view.tables.size
-                    )
+                    assignExpr = when (language) {
+                        CodeLanguage.JAVA -> XCodeBlock.ofNewInstance(
+                            codeLanguage,
+                            CommonTypeNames.HASH_SET.parametrizedBy(CommonTypeNames.STRING),
+                            "%L",
+                            view.tables.size
+                        )
+
+                        CodeLanguage.KOTLIN -> XCodeBlock.of(
+                            language,
+                            "%M()",
+                            KotlinCollectionMemberNames.MUTABLE_SET_OF
+                        )
+                    }
                 )
                 for (table in view.tables) {
                     addStatement("%L.add(%S)", tablesVar, table)
@@ -275,6 +301,8 @@ class DatabaseWriter(
                     viewTablesVar, view.viewName.lowercase(Locale.US), tablesVar
                 )
             }
+            val tableNames =
+                database.entities.joinToString(", ") { "\"${it.tableName}\"" }
             addStatement(
                 "return %L",
                 XCodeBlock.ofNewInstance(

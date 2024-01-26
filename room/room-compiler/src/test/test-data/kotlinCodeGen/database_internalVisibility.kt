@@ -7,7 +7,6 @@ import androidx.room.util.TableInfo.Companion.read
 import androidx.room.util.dropFtsSyncTriggers
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.execSQL
-import java.util.HashMap
 import javax.`annotation`.processing.Generated
 import kotlin.Any
 import kotlin.Lazy
@@ -85,8 +84,8 @@ internal class MyDatabase_Impl : MyDatabase() {
   }
 
   protected override fun createInvalidationTracker(): InvalidationTracker {
-    val _shadowTablesMap: HashMap<String, String> = HashMap<String, String>(0)
-    val _viewTables: HashMap<String, Set<String>> = HashMap<String, Set<String>>(0)
+    val _shadowTablesMap: MutableMap<String, String> = mutableMapOf()
+    val _viewTables: MutableMap<String, Set<String>> = mutableMapOf()
     return InvalidationTracker(this, _shadowTablesMap, _viewTables, "MyEntity")
   }
 
