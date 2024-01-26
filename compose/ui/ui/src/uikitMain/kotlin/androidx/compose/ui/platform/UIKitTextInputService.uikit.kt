@@ -269,23 +269,25 @@ internal class UIKitTextInputService(
         onCutRequested: (() -> Unit)?,
         onSelectAllRequested: (() -> Unit)?
     ) {
-        val skiaRect = with(densityProvider()) {
-            org.jetbrains.skia.Rect.makeLTRB(
-                l = rect.left / density,
-                t = rect.top / density,
-                r = rect.right / density,
-                b = rect.bottom / density,
+        textUIView?.let {
+            val skiaRect = with(densityProvider()) {
+                org.jetbrains.skia.Rect.makeLTRB(
+                    l = rect.left / density,
+                    t = rect.top / density,
+                    r = rect.right / density,
+                    b = rect.bottom / density,
+                )
+            }
+            it.showTextMenu(
+                targetRect = skiaRect,
+                textActions = object : TextActions {
+                    override val copy: (() -> Unit)? = onCopyRequested
+                    override val cut: (() -> Unit)? = onCutRequested
+                    override val paste: (() -> Unit)? = onPasteRequested
+                    override val selectAll: (() -> Unit)? = onSelectAllRequested
+                }
             )
         }
-        textUIView?.showTextMenu(
-            targetRect = skiaRect,
-            textActions = object : TextActions {
-                override val copy: (() -> Unit)? = onCopyRequested
-                override val cut: (() -> Unit)? = onCutRequested
-                override val paste: (() -> Unit)? = onPasteRequested
-                override val selectAll: (() -> Unit)? = onSelectAllRequested
-            }
-        )
     }
 
     /**
