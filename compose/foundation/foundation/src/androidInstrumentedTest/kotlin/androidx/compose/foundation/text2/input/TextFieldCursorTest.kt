@@ -873,8 +873,8 @@ class TextFieldCursorTest : FocusedWindowTest {
             val startEvent = makeTextDragEvent(DragEvent.ACTION_DRAG_STARTED)
             val enterEvent = makeTextDragEvent(DragEvent.ACTION_DRAG_ENTERED)
             val moveEvent = makeTextDragEvent(
-                DragEvent.ACTION_DRAG_LOCATION,
-                Offset(with(rule.density) { fontSize.toPx() * 3 }, 5f)
+                action = DragEvent.ACTION_DRAG_LOCATION,
+                offset = Offset(with(rule.density) { fontSize.toPx() * 3 }, 5f)
             )
 
             view?.dispatchDragEvent(startEvent)
@@ -912,8 +912,8 @@ class TextFieldCursorTest : FocusedWindowTest {
             val startEvent = makeTextDragEvent(DragEvent.ACTION_DRAG_STARTED)
             val enterEvent = makeTextDragEvent(DragEvent.ACTION_DRAG_ENTERED)
             val moveEvent = makeTextDragEvent(
-                DragEvent.ACTION_DRAG_LOCATION,
-                Offset(with(rule.density) { fontSize.toPx() * 3 }, 5f)
+                action = DragEvent.ACTION_DRAG_LOCATION,
+                offset = Offset(with(rule.density) { fontSize.toPx() * 3 }, 5f)
             )
 
             view?.dispatchDragEvent(startEvent)
@@ -957,8 +957,8 @@ class TextFieldCursorTest : FocusedWindowTest {
             val startEvent = makeTextDragEvent(DragEvent.ACTION_DRAG_STARTED)
             val enterEvent = makeTextDragEvent(DragEvent.ACTION_DRAG_ENTERED)
             val moveEvent = makeTextDragEvent(
-                DragEvent.ACTION_DRAG_LOCATION,
-                Offset(with(rule.density) { fontSize.toPx() * 3 }, 5f)
+                action = DragEvent.ACTION_DRAG_LOCATION,
+                offset = Offset(with(rule.density) { fontSize.toPx() * 3 }, 5f)
             )
 
             view?.dispatchDragEvent(startEvent)
@@ -973,8 +973,8 @@ class TextFieldCursorTest : FocusedWindowTest {
             .assertCursor(cursorTopCenterInLtr)
 
         val moveEvent2 = makeTextDragEvent(
-            DragEvent.ACTION_DRAG_LOCATION,
-            Offset(with(rule.density) { fontSize.toPx() * 4 }, 5f)
+            action = DragEvent.ACTION_DRAG_LOCATION,
+            offset = Offset(with(rule.density) { fontSize.toPx() * 4 }, 5f)
         )
         view?.dispatchDragEvent(moveEvent2)
         rule.mainClock.advanceTimeBy(400)
@@ -1009,8 +1009,8 @@ class TextFieldCursorTest : FocusedWindowTest {
             val startEvent = makeTextDragEvent(DragEvent.ACTION_DRAG_STARTED)
             val enterEvent = makeTextDragEvent(DragEvent.ACTION_DRAG_ENTERED)
             val moveEvent = makeTextDragEvent(
-                DragEvent.ACTION_DRAG_LOCATION,
-                Offset(with(rule.density) { fontSize.toPx() * 3 }, 5f)
+                action = DragEvent.ACTION_DRAG_LOCATION,
+                offset = Offset(with(rule.density) { fontSize.toPx() * 3 }, 5f)
             )
 
             view?.dispatchDragEvent(startEvent)
