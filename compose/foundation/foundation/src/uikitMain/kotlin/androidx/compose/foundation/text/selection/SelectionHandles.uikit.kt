@@ -71,7 +71,7 @@ internal actual fun SelectionHandle(
 
     val handleColor = LocalTextSelectionColors.current.handleColor
     Popup(
-        popupPositionProvider = remember {
+        popupPositionProvider = remember(isLeft) {
             object : PopupPositionProvider {
                 override fun calculatePosition(
                     anchorBounds: IntRect,
