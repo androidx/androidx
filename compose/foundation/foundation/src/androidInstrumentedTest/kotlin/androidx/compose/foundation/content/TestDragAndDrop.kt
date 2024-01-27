@@ -17,7 +17,6 @@
 package androidx.compose.foundation.content
 
 import android.content.ClipData
-import android.content.ClipDescription
 import android.net.Uri
 import android.view.DragEvent
 import android.view.View
@@ -26,10 +25,38 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.Density
 
 /**
- * A helper scope creator to test multi-window Drag And Drop interactions.
+ * A helper to test multi-window Drag And Drop interactions.
  */
 internal fun testDragAndDrop(view: View, density: Density, block: DragAndDropScope.() -> Unit) {
     DragAndDropScopeImpl(view, density).block()
+}
+
+internal interface DragAndDropScope : Density {
+
+    /**
+     * Drags an item with ClipData that only holds the given [text] to the [offset] location.
+     */
+    fun drag(offset: Offset, text: String): Boolean
+
+    /**
+     * Drags an item with ClipData that only holds the given [uri] to the [offset] location.
+     */
+    fun drag(offset: Offset, uri: Uri): Boolean
+
+    /**
+     * Drags an item with [clipData] payload to the [offset] location.
+     */
+    fun drag(offset: Offset, clipData: ClipData): Boolean
+
+    /**
+     * Drops the previously declared dragging item.
+     */
+    fun drop(): Boolean
+
+    /**
+     * Cancels the ongoing drag without dropping it.
+     */
+    fun cancelDrag()
 }
 
 @Suppress("DELEGATED_MEMBER_HIDES_SUPERTYPE_OVERRIDE")
@@ -37,37 +64,46 @@ private class DragAndDropScopeImpl(
     val view: View,
     density: Density
 ) : DragAndDropScope, Density by density {
-    private var lastDraggingItem: Pair<Offset, Any>? = null
+    private var lastDraggingOffsetAndItem: Pair<Offset, Any>? = null
 
-    override fun drag(
-        offset: Offset,
-        item: Any,
-    ) {
-        val _lastDraggingItem = lastDraggingItem
+    override fun drag(offset: Offset, text: String): Boolean = dragAny(offset, text)
+
+    override fun drag(offset: Offset, uri: Uri): Boolean = dragAny(offset, uri)
+
+    override fun drag(offset: Offset, clipData: ClipData): Boolean = dragAny(offset, clipData)
+
+    /**
+     * @param item Can be only [String], [Uri], or [ClipData].
+     */
+    private fun dragAny(offset: Offset, item: Any): Boolean {
+        val _lastDraggingItem = lastDraggingOffsetAndItem
+        var result = false
         if (_lastDraggingItem == null || _lastDraggingItem.second != item) {
-            view.dispatchDragEvent(
-                makeDragEvent(DragEvent.ACTION_DRAG_STARTED, item)
-            )
+            result = view.dispatchDragEvent(
+                makeDragEvent(action = DragEvent.ACTION_DRAG_STARTED, item = item)
+            ) || result
         }
-        view.dispatchDragEvent(
+        result = view.dispatchDragEvent(
             makeDragEvent(
-                DragEvent.ACTION_DRAG_LOCATION,
+                action = DragEvent.ACTION_DRAG_LOCATION,
                 item = item,
                 offset = offset
             )
-        )
-        lastDraggingItem = offset to item
+        ) || result
+        lastDraggingOffsetAndItem = offset to item
+        return result
     }
 
-    override fun drop() {
-        val _lastDraggingItem = lastDraggingItem
-        check(_lastDraggingItem != null) { "There are no ongoing dragging event to drop" }
+    override fun drop(): Boolean {
+        val lastDraggingOffsetAndItem = lastDraggingOffsetAndItem
+        check(lastDraggingOffsetAndItem != null) { "There are no ongoing dragging event to drop" }
+        val (lastDraggingOffset, lastDraggingItem) = lastDraggingOffsetAndItem
 
-        view.dispatchDragEvent(
+        return view.dispatchDragEvent(
             makeDragEvent(
                 DragEvent.ACTION_DROP,
-                item = _lastDraggingItem.second,
-                offset = _lastDraggingItem.first
+                item = lastDraggingItem,
+                offset = lastDraggingOffset
             )
         )
     }
@@ -92,54 +128,15 @@ private class DragAndDropScopeImpl(
                 DragAndDropTestUtils.makeImageDragEvent(action, item, offset)
             }
 
-            is List<*> -> {
-                val mimeTypes = mutableSetOf<String>()
-                val clipDataItems = mutableListOf<ClipData.Item>()
-                item.filterNotNull().forEach { actualItem ->
-                    when (actualItem) {
-                        is String -> {
-                            mimeTypes.add(ClipDescription.MIMETYPE_TEXT_PLAIN)
-                            clipDataItems.add(ClipData.Item(actualItem))
-                        }
-
-                        is Uri -> {
-                            mimeTypes.add("image/*")
-                            clipDataItems.add(ClipData.Item(actualItem))
-                        }
-                    }
-                }
-                DragAndDropTestUtils.makeDragEvent(
-                    action = action,
-                    items = clipDataItems,
-                    mimeTypes = mimeTypes.toList(),
-                    offset = offset
-                )
+            is ClipData -> {
+                DragAndDropTestUtils.makeDragEvent(action, item, offset)
             }
 
             else -> {
-                DragAndDropTestUtils.makeImageDragEvent(action, offset = offset)
+                throw IllegalArgumentException(
+                    "{item=$item} can only be one of [String], [Uri], or [ClipData]"
+                )
             }
         }
     }
-}
-
-internal interface DragAndDropScope : Density {
-
-    /**
-     * Drags an item which represent the payload to the [offset] location.
-     *
-     * @param item Should either be a [String] or a [Uri]. It can also be a [List] of [String]s or
-     * [Uri]s.
-     */
-    fun drag(offset: Offset, item: Any)
-
-    /**
-     * Drops the previously declared dragging item.
-     */
-    fun drop()
-
-    /**
-     * Cancels the ongoing drag without dropping it.
-     */
-    fun cancelDrag()
 }
