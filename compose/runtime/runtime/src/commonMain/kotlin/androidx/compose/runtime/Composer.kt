@@ -35,7 +35,10 @@ import androidx.compose.runtime.snapshots.fastMap
 import androidx.compose.runtime.snapshots.fastToSet
 import androidx.compose.runtime.tooling.CompositionData
 import androidx.compose.runtime.tooling.LocalInspectionTables
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.contract
 import kotlin.coroutines.CoroutineContext
+import requirePrecondition
 
 private class GroupInfo(
     /**
@@ -100,7 +103,7 @@ private class Pending(
     var groupIndex: Int = 0
 
     init {
-        require(startIndex >= 0) { "Invalid start index" }
+        requirePrecondition(startIndex >= 0) { "Invalid start index" }
     }
 
     private val usedKeys = mutableListOf<KeyInfo>()
@@ -1703,7 +1706,7 @@ internal class ComposerImpl(
     }
 
     fun endReuseFromRoot() {
-        require(!isComposing && reusingGroup == rootKey) {
+        requirePrecondition(!isComposing && reusingGroup == rootKey) {
             "Cannot disable reuse from root if it was caused by other groups"
         }
         reusingGroup = -1
@@ -4313,16 +4316,30 @@ private const val invalidGroupLocation = -2
 
 internal class ComposeRuntimeError(override val message: String) : IllegalStateException()
 
-internal inline fun runtimeCheck(value: Boolean, lazyMessage: () -> Any) {
+@Suppress("BanInlineOptIn")
+@OptIn(ExperimentalContracts::class)
+internal inline fun runtimeCheck(value: Boolean, lazyMessage: () -> String) {
+    contract {
+        returns() implies value
+    }
     if (!value) {
-        val message = lazyMessage()
-        composeRuntimeError(message.toString())
+        composeImmediateRuntimeError(lazyMessage())
     }
 }
 
 internal fun runtimeCheck(value: Boolean) = runtimeCheck(value) { "Check failed" }
 
 internal fun composeRuntimeError(message: String): Nothing {
+    throw ComposeRuntimeError(
+        "Compose Runtime internal error. Unexpected or incorrect use of the Compose " +
+            "internal runtime API ($message). Please report to Google or use " +
+            "https://goo.gle/compose-feedback"
+    )
+}
+
+// Unit variant of composeRuntimeError() so the call site doesn't add 3 extra
+// instructions to throw a KotlinNothingValueException
+internal fun composeImmediateRuntimeError(message: String) {
     throw ComposeRuntimeError(
         "Compose Runtime internal error. Unexpected or incorrect use of the Compose " +
             "internal runtime API ($message). Please report to Google or use " +
