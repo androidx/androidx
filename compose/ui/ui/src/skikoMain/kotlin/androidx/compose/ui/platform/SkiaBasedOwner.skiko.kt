@@ -206,10 +206,8 @@ internal class SkiaBasedOwner(
     init {
         snapshotObserver.startObserving()
         root.attach(this)
-        focusOwner.focusTransactionManager.withNewTransaction {
-            // TODO instead of taking focus here, call this when the owner gets focused.
-            focusOwner.takeFocus(Enter, previouslyFocusedRect = null)
-        }
+        // TODO instead of taking focus here, call this when the owner gets focused.
+        focusOwner.takeFocus(Enter, previouslyFocusedRect = null)
     }
 
     fun dispose() {
