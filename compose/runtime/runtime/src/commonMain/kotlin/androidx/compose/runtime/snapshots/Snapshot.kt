@@ -31,9 +31,11 @@ import androidx.compose.runtime.snapshots.Snapshot.Companion.takeSnapshot
 import androidx.compose.runtime.snapshots.SnapshotApplyResult.Failure
 import androidx.compose.runtime.snapshots.SnapshotApplyResult.Success
 import androidx.compose.runtime.synchronized
+import checkPrecondition
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
+import requirePrecondition
 
 /**
  * A snapshot of the values return by mutable states and other state objects. All state object
@@ -179,7 +181,7 @@ sealed class Snapshot(
      */
     @ExperimentalComposeApi
     fun unsafeLeave(oldSnapshot: Snapshot?) {
-        check(threadSnapshot.get() === this) {
+        checkPrecondition(threadSnapshot.get() === this) {
             "Cannot leave snapshot; $this is not the current snapshot"
         }
         restoreCurrent(oldSnapshot)
@@ -273,7 +275,7 @@ sealed class Snapshot(
     }
 
     internal fun validateNotDisposed() {
-        require(!disposed) { "Cannot use a disposed snapshot" }
+        requirePrecondition(!disposed) { "Cannot use a disposed snapshot" }
     }
 
     internal fun releasePinnedSnapshotLocked() {
@@ -912,7 +914,7 @@ open class MutableSnapshot internal constructor(
     override fun nestedActivated(snapshot: Snapshot) { snapshots++ }
 
     override fun nestedDeactivated(snapshot: Snapshot) {
-        require(snapshots > 0) { "no pending nested snapshots" }
+        requirePrecondition(snapshots > 0) { "no pending nested snapshots" }
         if (--snapshots == 0) {
             if (!applied) {
                 abandon()
@@ -936,13 +938,13 @@ open class MutableSnapshot internal constructor(
     }
 
     private fun validateNotApplied() {
-        check(!applied) {
+        checkPrecondition(!applied) {
             "Unsupported operation on a snapshot that has been applied"
         }
     }
 
     private fun validateNotAppliedOrPinned() {
-        check(!applied || isPinned) {
+        checkPrecondition(!applied || isPinned) {
             "Unsupported operation on a disposed or applied snapshot"
         }
     }

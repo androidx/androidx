@@ -17,6 +17,7 @@
 package androidx.compose.runtime
 
 import androidx.compose.runtime.internal.JvmDefaultWithCompatibility
+import checkPrecondition
 
 /**
  * An Applier is responsible for applying the tree-based operations that get emitted during a
@@ -203,7 +204,7 @@ abstract class AbstractApplier<T>(val root: T) : Applier<T> {
     }
 
     override fun up() {
-        check(stack.isNotEmpty()) { "empty stack" }
+        checkPrecondition(stack.isNotEmpty()) { "empty stack" }
         current = stack.removeAt(stack.size - 1)
     }
 

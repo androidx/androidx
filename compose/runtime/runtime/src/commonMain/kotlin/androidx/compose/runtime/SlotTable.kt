@@ -24,8 +24,10 @@ import androidx.compose.runtime.snapshots.fastForEach
 import androidx.compose.runtime.snapshots.fastMap
 import androidx.compose.runtime.tooling.CompositionData
 import androidx.compose.runtime.tooling.CompositionGroup
+import checkPrecondition
 import kotlin.math.max
 import kotlin.math.min
+import requirePrecondition
 
 // Nomenclature -
 // Address      - an absolute offset into the array ignoring its gap. See Index below.
@@ -218,7 +220,9 @@ internal class SlotTable : CompositionData, Iterable<CompositionGroup> {
      */
     fun anchor(index: Int): Anchor {
         runtimeCheck(!writer) { "use active SlotWriter to create an anchor location instead" }
-        require(index in 0 until groupsSize) { "Parameter index is out of range" }
+        requirePrecondition(index in 0 until groupsSize) {
+            "Parameter index is out of range"
+        }
         return anchors.getOrAdd(index, groupsSize) {
             Anchor(index)
         }
@@ -240,7 +244,7 @@ internal class SlotTable : CompositionData, Iterable<CompositionGroup> {
      */
     fun anchorIndex(anchor: Anchor): Int {
         runtimeCheck(!writer) { "Use active SlotWriter to determine anchor location instead" }
-        require(anchor.valid) { "Anchor refers to a group that was removed" }
+        requirePrecondition(anchor.valid) { "Anchor refers to a group that was removed" }
         return anchor.location
     }
 
@@ -301,7 +305,7 @@ internal class SlotTable : CompositionData, Iterable<CompositionGroup> {
         sourceInformationMap: HashMap<Anchor, GroupSourceInformation>?,
         calledByMap: MutableIntObjectMap<MutableIntSet>?
     ) {
-        require(writer.table === this && this.writer) { "Unexpected writer close()" }
+        requirePrecondition(writer.table === this && this.writer) { "Unexpected writer close()" }
         this.writer = false
         setTo(groups, groupsSize, slots, slotsSize, anchors, sourceInformationMap, calledByMap)
     }
@@ -438,38 +442,38 @@ internal class SlotTable : CompositionData, Iterable<CompositionGroup> {
         fun validateGroup(parent: Int, parentEnd: Int): Int {
             val group = current++
             val parentIndex = groups.parentAnchor(group)
-            check(parentIndex == parent) {
+            checkPrecondition(parentIndex == parent) {
                 "Invalid parent index detected at $group, expected parent index to be $parent " +
                     "found $parentIndex"
             }
             val end = group + groups.groupSize(group)
-            check(end <= groupsSize) {
+            checkPrecondition(end <= groupsSize) {
                 "A group extends past the end of the table at $group"
             }
-            check(end <= parentEnd) {
+            checkPrecondition(end <= parentEnd) {
                 "A group extends past its parent group at $group"
             }
 
             val dataStart = groups.dataAnchor(group)
             val dataEnd = if (group >= groupsSize - 1) slotsSize else groups.dataAnchor(group + 1)
-            check(dataEnd <= slots.size) {
+            checkPrecondition(dataEnd <= slots.size) {
                 "Slots for $group extend past the end of the slot table"
             }
-            check(dataStart <= dataEnd) {
+            checkPrecondition(dataStart <= dataEnd) {
                 "Invalid data anchor at $group"
             }
             val slotStart = groups.slotAnchor(group)
-            check(slotStart <= dataEnd) {
+            checkPrecondition(slotStart <= dataEnd) {
                 "Slots start out of range at $group"
             }
             val minSlotsNeeded = (if (groups.isNode(group)) 1 else 0) +
                 (if (groups.hasObjectKey(group)) 1 else 0) +
                 (if (groups.hasAux(group)) 1 else 0)
-            check(dataEnd - dataStart >= minSlotsNeeded) {
+            checkPrecondition(dataEnd - dataStart >= minSlotsNeeded) {
                 "Not enough slots added for group $group"
             }
             val isNode = groups.isNode(group)
-            check(!isNode || slots[groups.nodeIndex(group)] != null) {
+            checkPrecondition(!isNode || slots[groups.nodeIndex(group)] != null) {
                 "No node recorded for a node group at $group"
             }
             var nodeCount = 0
@@ -478,17 +482,17 @@ internal class SlotTable : CompositionData, Iterable<CompositionGroup> {
             }
             val expectedNodeCount = groups.nodeCount(group)
             val expectedSlotCount = groups.groupSize(group)
-            check(expectedNodeCount == nodeCount) {
+            checkPrecondition(expectedNodeCount == nodeCount) {
                 "Incorrect node count detected at $group, " +
                     "expected $expectedNodeCount, received $nodeCount"
             }
             val actualSlotCount = current - group
-            check(expectedSlotCount == actualSlotCount) {
+            checkPrecondition(expectedSlotCount == actualSlotCount) {
                 "Incorrect slot count detected at $group, expected $expectedSlotCount, received " +
                     "$actualSlotCount"
             }
             if (groups.containsAnyMark(group)) {
-                check(group <= 0 || groups.containsMark(parent)) {
+                checkPrecondition(group <= 0 || groups.containsMark(parent)) {
                     "Expected group $parent to record it contains a mark because $group does"
                 }
             }
@@ -500,14 +504,14 @@ internal class SlotTable : CompositionData, Iterable<CompositionGroup> {
             while (current < groupsSize) {
                 validateGroup(-1, current + groups.groupSize(current))
             }
-            check(current == groupsSize) {
+            checkPrecondition(current == groupsSize) {
                 "Incomplete group at root $current expected to be $groupsSize"
             }
         }
 
         // Verify that slot gap contains all nulls
         for (index in slotsSize until slots.size) {
-            check(slots[index] == null) {
+            checkPrecondition(slots[index] == null) {
                 "Non null value in the slot gap at index $index"
             }
         }
@@ -516,8 +520,10 @@ internal class SlotTable : CompositionData, Iterable<CompositionGroup> {
         var lastLocation = -1
         anchors.fastForEach { anchor ->
             val location = anchor.toIndexFor(this)
-            require(location in 0..groupsSize) { "Invalid anchor, location out of bound" }
-            require(lastLocation < location) { "Anchor is out of order" }
+            requirePrecondition(location in 0..groupsSize) {
+                "Invalid anchor, location out of bound"
+            }
+            requirePrecondition(lastLocation < location) { "Anchor is out of order" }
             lastLocation = location
         }
 
@@ -526,10 +532,10 @@ internal class SlotTable : CompositionData, Iterable<CompositionGroup> {
             group.groups?.fastForEach { item ->
                 when (item) {
                     is Anchor -> {
-                        require(item.valid) {
+                        requirePrecondition(item.valid) {
                             "Source map contains invalid anchor"
                         }
-                        require(ownsAnchor(item)) {
+                        requirePrecondition(ownsAnchor(item)) {
                             "Source map anchor is not owned by the slot table"
                         }
                     }
@@ -540,10 +546,10 @@ internal class SlotTable : CompositionData, Iterable<CompositionGroup> {
 
         sourceInformationMap?.let { sourceInformationMap ->
             for ((anchor, sourceGroup) in sourceInformationMap) {
-                require(anchor.valid) {
+                requirePrecondition(anchor.valid) {
                     "Source map contains invalid anchor"
                 }
-                require(ownsAnchor(anchor)) {
+                requirePrecondition(ownsAnchor(anchor)) {
                     "Source map anchor is not owned by the slot table"
                 }
                 verifySourceGroup(sourceGroup)
@@ -1061,7 +1067,7 @@ internal class SlotReader(
      */
     fun parentOf(index: Int): Int {
         @Suppress("ConvertTwoComparisonsToRangeCheck")
-        require(index >= 0 && index < groupsSize) { "Invalid group index $index" }
+        requirePrecondition(index >= 0 && index < groupsSize) { "Invalid group index $index" }
         return groups.parentAnchor(index)
     }
 
@@ -1132,7 +1138,7 @@ internal class SlotReader(
      * End reporting [Composer.Empty] for calls to [next] and [get],
      */
     fun endEmpty() {
-        require(emptyCount > 0) { "Unbalanced begin/end empty" }
+        requirePrecondition(emptyCount > 0) { "Unbalanced begin/end empty" }
         emptyCount--
     }
 
@@ -1152,7 +1158,9 @@ internal class SlotReader(
         if (emptyCount <= 0) {
             val parent = parent
             val currentGroup = currentGroup
-            require(groups.parentAnchor(currentGroup) == parent) { "Invalid slot table detected" }
+            requirePrecondition(groups.parentAnchor(currentGroup) == parent) {
+                "Invalid slot table detected"
+            }
             sourceInformationMap?.get(anchor(parent))?.reportGroup(table, currentGroup)
             val currentSlotStack = currentSlotStack
             val currentSlot = currentSlot
@@ -1177,7 +1185,7 @@ internal class SlotReader(
      */
     fun startNode() {
         if (emptyCount <= 0) {
-            require(groups.isNode(currentGroup)) { "Expected a node group" }
+            requirePrecondition(groups.isNode(currentGroup)) { "Expected a node group" }
             startGroup()
         }
     }
@@ -1696,7 +1704,7 @@ internal class SlotWriter(
             // scope inserted by a restart group and the lambda value in a composableLambda
             // instance) so this is the only case currently supported.
             val slotsToMove = currentSlot - auxIndex
-            check(slotsToMove < 3) { "Moving more than two slot not supported" }
+            checkPrecondition(slotsToMove < 3) { "Moving more than two slot not supported" }
             if (slotsToMove > 1) {
                 slots[auxAddress + 2] = slots[auxAddress + 1]
             }
@@ -1875,7 +1883,7 @@ internal class SlotWriter(
      */
     fun advanceBy(amount: Int) {
         runtimeCheck(amount >= 0) { "Cannot seek backwards" }
-        check(insertCount <= 0) { "Cannot call seek() while inserting" }
+        checkPrecondition(insertCount <= 0) { "Cannot call seek() while inserting" }
         if (amount == 0) return
         val index = currentGroup + amount
         @Suppress("ConvertTwoComparisonsToRangeCheck")
@@ -1917,7 +1925,7 @@ internal class SlotWriter(
      * Ends inserting.
      */
     fun endInsert() {
-        check(insertCount > 0) { "Unbalanced begin/end insert" }
+        checkPrecondition(insertCount > 0) { "Unbalanced begin/end insert" }
         if (--insertCount == 0) {
             runtimeCheck(nodeCountStack.size == startStack.size) {
                 "startGroup/endGroup mismatch while inserting"
@@ -3347,15 +3355,15 @@ internal class SlotWriter(
             val address = groupIndexToAddress(index)
             val dataAnchor = groups.dataAnchor(address)
             val dataIndex = groups.dataIndex(address)
-            check(dataIndex >= previousDataIndex) {
+            checkPrecondition(dataIndex >= previousDataIndex) {
                 "Data index out of order at $index, previous = $previousDataIndex, current = " +
                     "$dataIndex"
             }
-            check(dataIndex <= slotsSize) {
+            checkPrecondition(dataIndex <= slotsSize) {
                 "Data index, $dataIndex, out of bound at $index"
             }
             if (dataAnchor < 0 && !ownerFound) {
-                check(owner == index) {
+                checkPrecondition(owner == index) {
                     "Expected the slot gap owner to be $owner found gap at $index"
                 }
                 ownerFound = true
@@ -3371,7 +3379,7 @@ internal class SlotWriter(
         val capacity = capacity
         for (groupAddress in 0 until gapStart) {
             val parentAnchor = groups.parentAnchor(groupAddress)
-            check(parentAnchor > parentAnchorPivot) {
+            checkPrecondition(parentAnchor > parentAnchorPivot) {
                 "Expected a start relative anchor at $groupAddress"
             }
         }
@@ -3379,11 +3387,11 @@ internal class SlotWriter(
             val parentAnchor = groups.parentAnchor(groupAddress)
             val parentIndex = parentAnchorToIndex(parentAnchor)
             if (parentIndex < gapStart) {
-                check(parentAnchor > parentAnchorPivot) {
+                checkPrecondition(parentAnchor > parentAnchorPivot) {
                     "Expected a start relative anchor at $groupAddress"
                 }
             } else {
-                check(parentAnchor <= parentAnchorPivot) {
+                checkPrecondition(parentAnchor <= parentAnchorPivot) {
                     "Expected an end relative anchor at $groupAddress"
                 }
             }
@@ -4111,8 +4119,8 @@ internal class PrioritySet(private val list: MutableList<Int> = mutableListOf())
         for (index in 0 until size / 2) {
             val left = (index + 1) * 2 - 1
             val right = (index + 1) * 2
-            check(list[index] >= list[left])
-            check(right >= size || list[index] >= list[right])
+            checkPrecondition(list[index] >= list[left])
+            checkPrecondition(right >= size || list[index] >= list[right])
         }
     }
 }
