@@ -17,11 +17,11 @@
 package androidx.compose.foundation.text2.input.internal
 
 import android.content.ClipData
-import android.content.ClipDescription
 import android.net.Uri
 import android.os.Build
 import android.os.Parcel
 import android.view.DragEvent
+import androidx.compose.foundation.content.createClipData
 import androidx.compose.ui.geometry.Offset
 
 /**
@@ -31,35 +31,22 @@ import androidx.compose.ui.geometry.Offset
  * Also it does not mock but uses Parcel to create a DragEvent.
  */
 object DragAndDropTestUtils {
-    private const val LABEL = "Label"
-    const val SAMPLE_TEXT = "Drag Text"
-    val SAMPLE_URI = Uri.parse("http://www.google.com")
+    private const val SAMPLE_TEXT = "Drag Text"
+    private val SAMPLE_URI = Uri.parse("http://www.google.com")
 
     /**
      * Makes a stub drag event containing fake text data.
      *
      * @param action One of the [DragEvent] actions.
      */
-    fun makeTextDragEvent(action: Int, offset: Offset = Offset.Zero): DragEvent {
+    fun makeTextDragEvent(
+        action: Int,
+        text: String = SAMPLE_TEXT,
+        offset: Offset = Offset.Zero,
+    ): DragEvent {
         return makeDragEvent(
             action = action,
-            items = listOf(ClipData.Item(SAMPLE_TEXT)),
-            mimeTypes = listOf(ClipDescription.MIMETYPE_TEXT_PLAIN),
-            offset = offset
-        )
-    }
-
-    /**
-     * Makes a stub drag event containing text data.
-     *
-     * @param action One of the [DragEvent] actions.
-     * @param text The text being dragged.
-     */
-    fun makeTextDragEvent(action: Int, text: String?, offset: Offset = Offset.Zero): DragEvent {
-        return makeDragEvent(
-            action = action,
-            items = listOf(ClipData.Item(text)),
-            mimeTypes = listOf(ClipDescription.MIMETYPE_TEXT_PLAIN),
+            clipData = createClipData { addText(text) },
             offset = offset
         )
     }
@@ -72,29 +59,23 @@ object DragAndDropTestUtils {
     fun makeImageDragEvent(
         action: Int,
         item: Uri = SAMPLE_URI,
-        offset: Offset = Offset.Zero
+        offset: Offset = Offset.Zero,
     ): DragEvent {
-        // We're not actually resolving Uris in these tests, so this can be anything:
-        val mimeType = "image/*"
         return makeDragEvent(
             action = action,
-            items = listOf(ClipData.Item(item)),
-            mimeTypes = listOf(mimeType),
+            clipData = createClipData {
+                // We're not actually resolving Uris in these tests, so this can be anything:
+                addUri(item, mimeType = "image/png")
+            },
             offset = offset
         )
     }
 
     fun makeDragEvent(
         action: Int,
-        items: List<ClipData.Item>,
-        mimeTypes: List<String>,
+        clipData: ClipData,
         offset: Offset = Offset.Zero
     ): DragEvent {
-        val clipDescription = ClipDescription(LABEL, mimeTypes.toTypedArray())
-        val clipData = ClipData(clipDescription, items.first()).apply {
-            items.drop(1).forEach { addItem(it) }
-        }
-
         val parcel = Parcel.obtain()
 
         parcel.writeInt(action)
@@ -109,7 +90,7 @@ object DragAndDropTestUtils {
         parcel.writeInt(1)
         clipData.writeToParcel(parcel, 0)
         parcel.writeInt(1)
-        clipDescription.writeToParcel(parcel, 0)
+        clipData.description.writeToParcel(parcel, 0)
 
         parcel.setDataPosition(0)
         return DragEvent.CREATOR.createFromParcel(parcel)

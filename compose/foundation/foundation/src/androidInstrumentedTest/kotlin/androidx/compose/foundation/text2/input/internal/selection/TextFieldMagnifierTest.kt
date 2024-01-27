@@ -166,8 +166,8 @@ internal class TextFieldMagnifierTest : AbstractSelectionMagnifierTests() {
             val startEvent = makeTextDragEvent(DragEvent.ACTION_DRAG_STARTED)
             val enterEvent = makeTextDragEvent(DragEvent.ACTION_DRAG_ENTERED)
             val moveEvent = makeTextDragEvent(
-                DragEvent.ACTION_DRAG_LOCATION,
-                Offset(40f, 10f)
+                action = DragEvent.ACTION_DRAG_LOCATION,
+                offset = Offset(40f, 10f)
             )
 
             view.dispatchDragEvent(startEvent)
@@ -206,8 +206,8 @@ internal class TextFieldMagnifierTest : AbstractSelectionMagnifierTests() {
             val startEvent = makeTextDragEvent(DragEvent.ACTION_DRAG_STARTED)
             val enterEvent = makeTextDragEvent(DragEvent.ACTION_DRAG_ENTERED)
             val moveEvent = makeTextDragEvent(
-                DragEvent.ACTION_DRAG_LOCATION,
-                Offset(40f, 10f)
+                action = DragEvent.ACTION_DRAG_LOCATION,
+                offset = Offset(40f, 10f)
             )
 
             view.dispatchDragEvent(startEvent)
@@ -219,8 +219,8 @@ internal class TextFieldMagnifierTest : AbstractSelectionMagnifierTests() {
 
         rule.runOnIdle {
             val moveEvent2 = makeTextDragEvent(
-                DragEvent.ACTION_DRAG_LOCATION,
-                Offset(40f, 40f) // force it out of BTF2's hit box
+                action = DragEvent.ACTION_DRAG_LOCATION,
+                offset = Offset(40f, 40f) // force it out of BTF2's hit box
             )
             view.dispatchDragEvent(moveEvent2)
         }

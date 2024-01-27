@@ -20,6 +20,7 @@ import android.net.Uri
 import android.view.View
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.content.DragAndDropScope
+import androidx.compose.foundation.content.createClipData
 import androidx.compose.foundation.content.testDragAndDrop
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
@@ -184,7 +185,10 @@ class TextFieldDragAndDropTest {
         rule.setContentAndTestDragAndDrop("aaaa") {
             drag(
                 Offset(fontSize.toPx() * 2, 10f),
-                listOf("Hello", "World")
+                createClipData {
+                    addText("Hello")
+                    addText("World")
+                }
             )
             drop()
             assertThat(state.text.toString()).isEqualTo("aaHello\nWorldaa")
