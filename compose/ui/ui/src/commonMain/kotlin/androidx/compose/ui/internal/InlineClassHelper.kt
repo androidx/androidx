@@ -22,11 +22,15 @@ import kotlin.contracts.contract
 // This function exists so we do *not* inline the throw. It keeps
 // the call site much smaller and since it's the slow path anyway,
 // we don't mind the extra function call
-internal fun throwIllegalStateException(message: String): Nothing {
+internal fun throwIllegalStateException(message: String) {
     throw IllegalStateException(message)
 }
 
-internal fun throwIllegalArgumentException(message: String): Nothing {
+internal fun throwIllegalStateExceptionForNullCheck(message: String): Nothing {
+    throw IllegalStateException(message)
+}
+
+internal fun throwIllegalArgumentException(message: String) {
     throw IllegalArgumentException(message)
 }
 
@@ -64,7 +68,7 @@ internal inline fun <T : Any> checkPreconditionNotNull(value: T?, lazyMessage: (
     }
 
     if (value == null) {
-        throwIllegalStateException(lazyMessage())
+        throwIllegalStateExceptionForNullCheck(lazyMessage())
     }
 
     return value
@@ -79,7 +83,7 @@ internal inline fun <T : Any> checkPreconditionNotNull(value: T?): T {
     }
 
     if (value == null) {
-        throwIllegalStateException("Required value was null.")
+        throwIllegalStateExceptionForNullCheck("Required value was null.")
     }
 
     return value
