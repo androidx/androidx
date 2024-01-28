@@ -193,8 +193,6 @@ package androidx.compose.foundation {
   }
 
   public enum MutatePriority {
-    method public static androidx.compose.foundation.MutatePriority valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
-    method public static androidx.compose.foundation.MutatePriority[] values();
     enum_constant public static final androidx.compose.foundation.MutatePriority Default;
     enum_constant public static final androidx.compose.foundation.MutatePriority PreventUserInput;
     enum_constant public static final androidx.compose.foundation.MutatePriority UserInput;
@@ -414,10 +412,12 @@ package androidx.compose.foundation.gestures {
     method public androidx.compose.animation.core.DecayAnimationSpec<java.lang.Float> getDecayAnimationSpec();
     method public float getLastVelocity();
     method public float getOffset();
-    method @FloatRange(from=0.0, to=1.0) public float getProgress();
+    method @Deprecated @FloatRange(from=0.0, to=1.0) public float getProgress();
+    method public T getSettledValue();
     method public androidx.compose.animation.core.AnimationSpec<java.lang.Float> getSnapAnimationSpec();
     method public T getTargetValue();
     method public boolean isAnimationRunning();
+    method @FloatRange(from=0.0, to=1.0) public float progress(T from, T to);
     method public float requireOffset();
     method public suspend Object? settle(float velocity, kotlin.coroutines.Continuation<? super java.lang.Float>);
     method public void updateAnchors(androidx.compose.foundation.gestures.DraggableAnchors<T> newAnchors, optional T newTarget);
@@ -427,7 +427,8 @@ package androidx.compose.foundation.gestures {
     property public final boolean isAnimationRunning;
     property public final float lastVelocity;
     property public final float offset;
-    property @FloatRange(from=0.0, to=1.0) public final float progress;
+    property @Deprecated @FloatRange(from=0.0, to=1.0) public final float progress;
+    property public final T settledValue;
     property public final androidx.compose.animation.core.AnimationSpec<java.lang.Float> snapAnimationSpec;
     property public final T targetValue;
     field public static final androidx.compose.foundation.gestures.AnchoredDraggableState.Companion Companion;
@@ -527,8 +528,6 @@ package androidx.compose.foundation.gestures {
   }
 
   public enum Orientation {
-    method public static androidx.compose.foundation.gestures.Orientation valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
-    method public static androidx.compose.foundation.gestures.Orientation[] values();
     enum_constant public static final androidx.compose.foundation.gestures.Orientation Horizontal;
     enum_constant public static final androidx.compose.foundation.gestures.Orientation Vertical;
   }
