@@ -28,12 +28,13 @@ import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
 import com.intellij.psi.impl.source.PsiClassReferenceType
+import org.jetbrains.kotlin.psi.KtCallElement
+import org.jetbrains.uast.UBlockExpression
+import org.jetbrains.uast.UCallExpression
 import org.jetbrains.uast.ULambdaExpression
+import org.jetbrains.uast.UReturnExpression
+import org.jetbrains.uast.UUnknownExpression
 import org.jetbrains.uast.UVariable
-import org.jetbrains.uast.kotlin.KotlinUBlockExpression
-import org.jetbrains.uast.kotlin.KotlinUFunctionCallExpression
-import org.jetbrains.uast.kotlin.KotlinUImplicitReturnExpression
-import org.jetbrains.uast.kotlin.UnknownKotlinExpression
 import org.jetbrains.uast.skipParenthesizedExprDown
 import org.jetbrains.uast.toUElement
 import org.jetbrains.uast.tryResolve
@@ -81,14 +82,17 @@ class UnnecessaryLambdaCreationDetector : Detector(), SourceCodeScanner {
     class UnnecessaryLambdaCreationHandler(private val context: JavaContext) : UElementHandler() {
 
         override fun visitLambdaExpression(node: ULambdaExpression) {
-            val expressions = (node.body as? KotlinUBlockExpression)?.expressions ?: return
+            val expressions = (node.body as? UBlockExpression)?.expressions ?: return
 
             if (expressions.size != 1) return
 
             val expression = when (val expr = expressions.first().skipParenthesizedExprDown()) {
-                is KotlinUFunctionCallExpression -> expr
-                is KotlinUImplicitReturnExpression ->
-                    expr.returnExpression as? KotlinUFunctionCallExpression
+                is UCallExpression -> expr
+                is UReturnExpression -> {
+                    if (expr.sourcePsi == null) { // implicit return
+                        expr.returnExpression as? UCallExpression
+                    } else null
+                }
                 else -> null
             } ?: return
 
@@ -97,7 +101,7 @@ class UnnecessaryLambdaCreationDetector : Detector(), SourceCodeScanner {
             // We want to make sure this lambda is being invoked in the context of a function call,
             // and not as a property assignment - so we cast to KotlinUFunctionCallExpression to
             // filter out such cases.
-            val parentExpression = (node.uastParent as? KotlinUFunctionCallExpression) ?: return
+            val parentExpression = (node.uastParent as? UCallExpression) ?: return
 
             // If we can't resolve the parent call, then the parent function is defined in a
             // separate module, so we don't have the right metadata - and hence the argumentType
@@ -120,7 +124,8 @@ class UnnecessaryLambdaCreationDetector : Detector(), SourceCodeScanner {
             val expectedComposable = node.isComposable
 
             // Try and get the UElement for the source of the lambda
-            val resolvedLambdaSource = expression.sourcePsi.calleeExpression?.toUElement()
+            val sourcePsi = expression.sourcePsi as? KtCallElement ?: return
+            val resolvedLambdaSource = sourcePsi.calleeExpression?.toUElement()
                 ?.tryResolve()?.toUElement()
                 // Sometimes the above will give us a method (representing the getter for a
                 // property), when the actual backing element is a property. Going to the source
@@ -132,7 +137,7 @@ class UnnecessaryLambdaCreationDetector : Detector(), SourceCodeScanner {
                 // TODO: if the resolved source is a parameter in a local function, it
                 //  incorrectly returns an UnknownKotlinExpression instead of a UParameter
                 //  https://youtrack.jetbrains.com/issue/KTIJ-19125
-                is UnknownKotlinExpression -> return
+                is UUnknownExpression -> return
                 else -> error(parentExpression.asSourceString())
             }
 
