@@ -143,34 +143,34 @@ internal class AndroidPrefetchExecutor(
             if (!request.isValid) {
                 prefetchRequests.removeAt(0)
             } else if (!request.isComposed) {
-                trace("compose:lazylist:prefetch:compose") {
-                    val beforeTimeNs = System.nanoTime()
-                    // check if there is enough time left in this frame. otherwise, we schedule
-                    // a next frame callback in which we will post the message in the handler again.
-                    if (enoughTimeLeft(
-                            beforeTimeNs,
-                            nextFrameNs,
-                            averagePrecomposeTimeNs
-                        ) || oneOverTimeTaskAllowed
-                    ) {
+                val beforeTimeNs = System.nanoTime()
+                // check if there is enough time left in this frame. otherwise, we schedule
+                // a next frame callback in which we will post the message in the handler again.
+                if (enoughTimeLeft(
+                        beforeTimeNs,
+                        nextFrameNs,
+                        averagePrecomposeTimeNs
+                    ) || oneOverTimeTaskAllowed
+                ) {
+                    trace("compose:lazylist:prefetch:compose") {
                         oneOverTimeTaskAllowed = false
                         request.performComposition()
                         averagePrecomposeTimeNs = calculateAverageTime(
                             System.nanoTime() - beforeTimeNs, averagePrecomposeTimeNs
                         )
-                    } else {
-                        scheduleForNextFrame = true
                     }
+                } else {
+                    scheduleForNextFrame = true
                 }
             } else {
-                trace("compose:lazylist:prefetch:measure") {
-                    val beforeTimeNs = System.nanoTime()
-                    if (enoughTimeLeft(
-                            beforeTimeNs,
-                            nextFrameNs,
-                            averagePremeasureTimeNs
-                        ) || oneOverTimeTaskAllowed
-                    ) {
+                val beforeTimeNs = System.nanoTime()
+                if (enoughTimeLeft(
+                        beforeTimeNs,
+                        nextFrameNs,
+                        averagePremeasureTimeNs
+                    ) || oneOverTimeTaskAllowed
+                ) {
+                    trace("compose:lazylist:prefetch:measure") {
                         oneOverTimeTaskAllowed = false
                         request.performMeasure()
                         averagePremeasureTimeNs = calculateAverageTime(
@@ -178,9 +178,9 @@ internal class AndroidPrefetchExecutor(
                         )
                         // we finished this request
                         prefetchRequests.removeAt(0)
-                    } else {
-                        scheduleForNextFrame = true
                     }
+                } else {
+                    scheduleForNextFrame = true
                 }
             }
         }
