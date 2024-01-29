@@ -53,6 +53,14 @@ abstract class KonanBuildService @Inject constructor(
     private val execOperations: ExecOperations
 ) : BuildService<KonanBuildService.Parameters> {
     private val dist by lazy {
+        // double check that we don't initialize konan distribution without prebuilts in AOSP
+        check(parameters.projectLayoutType.get() == ProjectLayoutType.PLAYGROUND ||
+            parameters.prebuilts.isPresent) {
+            """
+                Prebuilts directory for Konan must be provided when yout project is not a playground
+                project.
+            """.trimIndent()
+        }
         KonanPrebuiltsSetup.createKonanDistribution(
             prebuiltsDirectory = parameters.prebuilts.orNull?.asFile,
             konanHome = parameters.konanHome.get().asFile
@@ -208,9 +216,22 @@ abstract class KonanBuildService @Inject constructor(
     }
 
     interface Parameters : BuildServiceParameters {
+        /**
+         * KONAN_HOME parameter for initializing konan
+         */
         val konanHome: DirectoryProperty
+
+        /**
+         * Location if konan prebuilts. Can be null if this is a playground project
+         */
         @get:Optional
         val prebuilts: DirectoryProperty
+
+        /**
+         * The type of the project (Playground vs AOSP main). This value is used to ensure
+         * we initialize Konan distribution properly.
+         */
+        val projectLayoutType: Property<ProjectLayoutType>
     }
 
     companion object {
@@ -235,6 +256,9 @@ abstract class KonanBuildService @Inject constructor(
 
                 it.parameters.konanHome.set(
                     nativeCompilerDownloader.compilerDirectory
+                )
+                it.parameters.projectLayoutType.set(
+                    ProjectLayoutType.from(project)
                 )
                 if (!ProjectLayoutType.isPlayground(project)) {
                     it.parameters.prebuilts.set(
