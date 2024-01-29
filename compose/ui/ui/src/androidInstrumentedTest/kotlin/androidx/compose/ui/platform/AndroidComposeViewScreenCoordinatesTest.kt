@@ -45,6 +45,7 @@ import androidx.lifecycle.setViewTreeLifecycleOwner
 import androidx.savedstate.findViewTreeSavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertNotNull
@@ -92,6 +93,7 @@ class AndroidComposeViewScreenCoordinatesTest {
         }
     }
 
+    @SdkSuppress(maxSdkVersion = 33) // b/321823937
     @Test
     fun positionOnScreen_withNoComposableOffset() {
         rule.runOnIdle {
@@ -107,6 +109,7 @@ class AndroidComposeViewScreenCoordinatesTest {
         }
     }
 
+    @SdkSuppress(maxSdkVersion = 33) // b/321823937
     @Test
     fun positionOnScreen_withComposableOffset() {
         rule.runOnIdle {
@@ -123,6 +126,7 @@ class AndroidComposeViewScreenCoordinatesTest {
         }
     }
 
+    @SdkSuppress(maxSdkVersion = 33) // b/321823937
     @Test
     fun positionOnScreen_changesAfterUpdate() {
         rule.runOnIdle {
@@ -150,6 +154,7 @@ class AndroidComposeViewScreenCoordinatesTest {
         }
     }
 
+    @SdkSuppress(maxSdkVersion = 33) // b/321823937
     @Test
     fun screenToLocal_withNoComposableOffset() {
         rule.runOnIdle {
@@ -165,6 +170,7 @@ class AndroidComposeViewScreenCoordinatesTest {
         }
     }
 
+    @SdkSuppress(maxSdkVersion = 33) // b/321823937
     @Test
     fun screenToLocal_withComposableOffset() {
         rule.runOnIdle {
@@ -181,6 +187,7 @@ class AndroidComposeViewScreenCoordinatesTest {
         }
     }
 
+    @SdkSuppress(maxSdkVersion = 33) // b/321823937
     @Test
     fun transformToScreen_fromIdentity_withNoComposableOffset() {
         val matrix = Matrix()
@@ -198,6 +205,7 @@ class AndroidComposeViewScreenCoordinatesTest {
         }
     }
 
+    @SdkSuppress(maxSdkVersion = 33) // b/321823937
     @Test
     fun transformToScreen_fromIdentity_withComposableOffset() {
         val matrix = Matrix()
@@ -216,6 +224,7 @@ class AndroidComposeViewScreenCoordinatesTest {
         }
     }
 
+    @SdkSuppress(maxSdkVersion = 33) // b/321823937
     @Test
     fun transformToScreen_changesAfterUpdate() {
         val matrix = Matrix()
@@ -245,6 +254,7 @@ class AndroidComposeViewScreenCoordinatesTest {
         }
     }
 
+    @SdkSuppress(maxSdkVersion = 33) // b/321823937
     @Test
     fun transformToScreen_fromTransformedMatrix_includesExistingTransformation() {
         val matrix = Matrix()

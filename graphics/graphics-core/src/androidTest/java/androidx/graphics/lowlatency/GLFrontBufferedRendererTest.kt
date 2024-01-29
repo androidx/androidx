@@ -1014,7 +1014,7 @@ class GLFrontBufferedRendererTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q, maxSdkVersion = 33) // maxSdk 33 b/315994268
     fun testRenderFrontBufferSeveralTimes() {
         val callbacks = object : GLFrontBufferedRenderer.Callback<Any> {
 
