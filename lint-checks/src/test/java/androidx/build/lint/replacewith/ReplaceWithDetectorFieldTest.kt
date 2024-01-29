@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.annotation.replacewith.lint
+package androidx.build.lint.replacewith
 
 import com.android.tools.lint.checks.infrastructure.TestLintTask.lint
 import org.junit.Test
@@ -27,20 +27,20 @@ class ReplaceWithDetectorFieldTest {
     @Test
     fun staticFieldExplicitClass() {
         val input = arrayOf(
-            javaSample("sample.ReplaceWithUsageJava"),
-            javaSample("sample.StaticFieldExplicitClass")
+            javaSample("replacewith.ReplaceWithUsageJava"),
+            javaSample("replacewith.StaticFieldExplicitClass")
         )
 
         /* ktlint-disable max-line-length */
         val expected = """
-src/sample/StaticFieldExplicitClass.java:25: Information: Replacement available [ReplaceWith]
+src/replacewith/StaticFieldExplicitClass.java:25: Information: Replacement available [ReplaceWith]
         System.out.println(ReplaceWithUsageJava.AUTOFILL_HINT_NAME);
                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 0 errors, 0 warnings
         """.trimIndent()
 
         val expectedFixDiffs = """
-Fix for src/sample/StaticFieldExplicitClass.java line 25: Replace with `View.AUTOFILL_HINT_NAME`:
+Fix for src/replacewith/StaticFieldExplicitClass.java line 25: Replace with `View.AUTOFILL_HINT_NAME`:
 @@ -25 +25
 -         System.out.println(ReplaceWithUsageJava.AUTOFILL_HINT_NAME);
 +         System.out.println(View.AUTOFILL_HINT_NAME);
@@ -53,20 +53,20 @@ Fix for src/sample/StaticFieldExplicitClass.java line 25: Replace with `View.AUT
     @Test
     fun staticFieldImplicitClass() {
         val input = arrayOf(
-            javaSample("sample.ReplaceWithUsageJava"),
-            javaSample("sample.StaticFieldImplicitClass")
+            javaSample("replacewith.ReplaceWithUsageJava"),
+            javaSample("replacewith.StaticFieldImplicitClass")
         )
 
         /* ktlint-disable max-line-length */
         val expected = """
-src/sample/StaticFieldImplicitClass.java:27: Information: Replacement available [ReplaceWith]
+src/replacewith/StaticFieldImplicitClass.java:27: Information: Replacement available [ReplaceWith]
         System.out.println(AUTOFILL_HINT_NAME);
                            ~~~~~~~~~~~~~~~~~~
 0 errors, 0 warnings
         """.trimIndent()
 
         val expectedFixDiffs = """
-Fix for src/sample/StaticFieldImplicitClass.java line 27: Replace with `View.AUTOFILL_HINT_NAME`:
+Fix for src/replacewith/StaticFieldImplicitClass.java line 27: Replace with `View.AUTOFILL_HINT_NAME`:
 @@ -27 +27
 -         System.out.println(AUTOFILL_HINT_NAME);
 +         System.out.println(View.AUTOFILL_HINT_NAME);

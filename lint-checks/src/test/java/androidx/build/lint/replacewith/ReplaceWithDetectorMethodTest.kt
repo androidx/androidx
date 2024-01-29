@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.annotation.replacewith.lint
+package androidx.build.lint.replacewith
 
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -26,20 +26,20 @@ class ReplaceWithDetectorMethodTest {
     @Test
     fun staticMethodExplicitClass() {
         val input = arrayOf(
-            javaSample("sample.ReplaceWithUsageJava"),
-            javaSample("sample.StaticMethodExplicitClass")
+            javaSample("replacewith.ReplaceWithUsageJava"),
+            javaSample("replacewith.StaticMethodExplicitClass")
         )
 
         /* ktlint-disable max-line-length */
         val expected = """
-src/sample/StaticMethodExplicitClass.java:25: Information: Replacement available [ReplaceWith]
+src/replacewith/StaticMethodExplicitClass.java:25: Information: Replacement available [ReplaceWith]
         ReplaceWithUsageJava.toString(this);
         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 0 errors, 0 warnings
         """.trimIndent()
 
         val expectedFixDiffs = """
-Fix for src/sample/StaticMethodExplicitClass.java line 25: Replace with `this.toString()`:
+Fix for src/replacewith/StaticMethodExplicitClass.java line 25: Replace with `this.toString()`:
 @@ -25 +25
 -         ReplaceWithUsageJava.toString(this);
 +         this.toString();
@@ -52,19 +52,19 @@ Fix for src/sample/StaticMethodExplicitClass.java line 25: Replace with `this.to
     @Test
     fun methodImplicitThis() {
         val input = arrayOf(
-            javaSample("sample.MethodImplicitThis")
+            javaSample("replacewith.MethodImplicitThis")
         )
 
         /* ktlint-disable max-line-length */
         val expected = """
-src/sample/MethodImplicitThis.java:33: Information: Replacement available [ReplaceWith]
+src/replacewith/MethodImplicitThis.java:33: Information: Replacement available [ReplaceWith]
         oldMethod(null);
         ~~~~~~~~~~~~~~~
 0 errors, 0 warnings
         """.trimIndent()
 
         val expectedFixDiffs = """
-Fix for src/sample/MethodImplicitThis.java line 33: Replace with `newMethod(null)`:
+Fix for src/replacewith/MethodImplicitThis.java line 33: Replace with `newMethod(null)`:
 @@ -33 +33
 -         oldMethod(null);
 +         newMethod(null);
@@ -77,19 +77,19 @@ Fix for src/sample/MethodImplicitThis.java line 33: Replace with `newMethod(null
     @Test
     fun methodExplicitThis() {
         val input = arrayOf(
-            javaSample("sample.MethodExplicitThis")
+            javaSample("replacewith.MethodExplicitThis")
         )
 
         /* ktlint-disable max-line-length */
         val expected = """
-src/sample/MethodExplicitThis.java:33: Information: Replacement available [ReplaceWith]
+src/replacewith/MethodExplicitThis.java:33: Information: Replacement available [ReplaceWith]
         this.oldMethod(null);
              ~~~~~~~~~~~~~~~
 0 errors, 0 warnings
         """.trimIndent()
 
         val expectedFixDiffs = """
-Fix for src/sample/MethodExplicitThis.java line 33: Replace with `newMethod(null)`:
+Fix for src/replacewith/MethodExplicitThis.java line 33: Replace with `newMethod(null)`:
 @@ -33 +33
 -         this.oldMethod(null);
 +         this.newMethod(null);

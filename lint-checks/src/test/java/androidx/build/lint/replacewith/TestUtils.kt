@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package androidx.annotation.replacewith.lint
+package androidx.build.lint.replacewith
 
+import androidx.build.lint.ReplaceWithDetector
 import com.android.tools.lint.checks.infrastructure.TestFile
 import com.android.tools.lint.checks.infrastructure.TestFiles
 import com.android.tools.lint.checks.infrastructure.TestLintResult

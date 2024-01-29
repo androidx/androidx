@@ -22,7 +22,6 @@ dependencies {
     // ads-identifier is deprecated
     kmpDocs(project(":annotation:annotation"))
     docs(project(":annotation:annotation-experimental"))
-    docs(project(":annotation:annotation-replacewith"))
     docs(project(":appactions:builtintypes:builtintypes"))
     samples(project(":appactions:builtintypes:builtintypes:builtintypes-samples"))
     docs(project(":appactions:interaction:interaction-capabilities-communication"))

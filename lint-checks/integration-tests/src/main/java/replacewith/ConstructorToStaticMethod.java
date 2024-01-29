@@ -14,22 +14,14 @@
  * limitations under the License.
  */
 
-package sample;
-
-import androidx.annotation.ReplaceWith;
+package replacewith;
 
 /**
- * Usage with explicit "this" receiver.
+ * Usage of a static class constructor.
  */
-@SuppressWarnings({"deprecation", "unused"})
-class MethodExplicitThis {
-    @Deprecated
-    @ReplaceWith(expression = "newMethod(obj)")
-    void oldMethod(Object obj) {}
-
-    void newMethod(Object obj) {}
-
+@SuppressWarnings({"unused", "deprecation", "InstantiationOfUtilityClass"})
+class ConstructorToStaticMethod {
     void usage() {
-        this.oldMethod(null);
+        new ReplaceWithUsageJava(10000);
     }
 }

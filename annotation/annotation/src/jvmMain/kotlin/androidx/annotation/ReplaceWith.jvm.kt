@@ -13,22 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package androidx.annotation;
-
-import static java.lang.annotation.ElementType.CONSTRUCTOR;
-import static java.lang.annotation.ElementType.FIELD;
-import static java.lang.annotation.ElementType.METHOD;
-
-import java.lang.annotation.Target;
+package androidx.annotation
 
 /**
- * Specifies a code fragment that can be used to suggest a replacement for a method in
- * conjunction with the `ReplaceWith` lint check.
- * <p>
- * The {@code expression} parameter specified the replacement expression, which is interpreted in
- * the context of the symbol being used and can reference members of the enclosing classes, etc.
- * <p>
+ * Specifies a code fragment that can be used to suggest a replacement for a method in conjunction
+ * with the `ReplaceWith` lint check.
+ *
+ * The `expression` parameter specified the replacement expression, which is interpreted in the
+ * context of the symbol being used and can reference members of the enclosing classes, etc.
+ *
  * For method calls, the replacement expression may contain parameter names of the method being
  * replaced, which will be substituted with actual arguments used in the call being replaced:
  * <pre>
@@ -36,7 +29,9 @@ import java.lang.annotation.Target;
  * static int getActionType(AccessibilityEvent event, int slot) { ... }
  * </pre>
  */
-@Target({METHOD, FIELD, CONSTRUCTOR})
-public @interface ReplaceWith {
-    String expression();
-}
+@Target(
+    AnnotationTarget.FUNCTION,
+    AnnotationTarget.FIELD,
+    AnnotationTarget.CONSTRUCTOR
+)
+public annotation class ReplaceWith(val expression: String, vararg val imports: String = [])

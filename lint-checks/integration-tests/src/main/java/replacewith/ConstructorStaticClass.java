@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package sample;
+package replacewith;
 
 /**
  * Usage of a static class constructor.
  */
 @SuppressWarnings({"unused", "deprecation", "InstantiationOfUtilityClass"})
-class ConstructorNonStaticClass {
+class ConstructorStaticClass {
     void usage() {
-        new ReplaceWithUsageJava().new InnerClass("param");
+        new ReplaceWithUsageJava("parameter");
     }
 }

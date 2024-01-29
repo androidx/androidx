@@ -16,8 +16,10 @@
 
 @file:Suppress("UnstableApiUsage")
 
-package androidx.annotation.replacewith.lint
+package androidx.build.lint
 
+import com.android.tools.lint.detector.api.AnnotationInfo
+import com.android.tools.lint.detector.api.AnnotationUsageInfo
 import com.android.tools.lint.detector.api.AnnotationUsageType
 import com.android.tools.lint.detector.api.Category
 import com.android.tools.lint.detector.api.ConstantEvaluator
@@ -30,14 +32,12 @@ import com.android.tools.lint.detector.api.Location
 import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
-import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiField
 import com.intellij.psi.PsiMethod
 import com.intellij.psi.impl.source.tree.TreeElement
 import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.psi.KtLiteralStringTemplateEntry
 import org.jetbrains.kotlin.psi.psiUtil.endOffset
-import org.jetbrains.uast.UAnnotation
 import org.jetbrains.uast.UCallExpression
 import org.jetbrains.uast.UElement
 import org.jetbrains.uast.UQualifiedReferenceExpression
@@ -53,17 +53,16 @@ class ReplaceWithDetector : Detector(), SourceCodeScanner {
 
     override fun visitAnnotationUsage(
         context: JavaContext,
-        usage: UElement,
-        type: AnnotationUsageType,
-        annotation: UAnnotation,
-        qualifiedName: String,
-        method: PsiMethod?,
-        referenced: PsiElement?,
-        annotations: List<UAnnotation>,
-        allMemberAnnotations: List<UAnnotation>,
-        allClassAnnotations: List<UAnnotation>,
-        allPackageAnnotations: List<UAnnotation>
+        element: UElement,
+        annotationInfo: AnnotationInfo,
+        usageInfo: AnnotationUsageInfo
     ) {
+        val qualifiedName = annotationInfo.qualifiedName
+        val annotation = annotationInfo.annotation
+        val referenced = usageInfo.referenced
+        val usage = usageInfo.usage
+        val type = usageInfo.type
+
         // Ignore callbacks for assignment on the original declaration of an annotated field.
         if (type == AnnotationUsageType.ASSIGNMENT_RHS && usage.uastParent == referenced) return
 
@@ -77,11 +76,11 @@ class ReplaceWithDetector : Detector(), SourceCodeScanner {
                 val includeReceiver = Regex("^\\w+\\.\\w+.*\$").matches(expression)
                 val includeArguments = Regex("^.*\\w+\\(.*\\)$").matches(expression)
 
-                if (method != null && usage is UCallExpression) {
+                if (referenced is PsiMethod && usage is UCallExpression) {
                     // Per Kotlin documentation for ReplaceWith: For function calls, the replacement
                     // expression may contain argument names of the deprecated function, which will
                     // be substituted with actual parameters used in the call being updated.
-                    val argumentNamesToActualParams = method.parameters.mapIndexed { index, param ->
+                    val argsToParams = referenced.parameters.mapIndexed { index, param ->
                         param.name to usage.getArgumentForParameter(index)?.sourcePsi?.text
                     }.associate { it }
 
@@ -91,7 +90,7 @@ class ReplaceWithDetector : Detector(), SourceCodeScanner {
                     var index = 0
                     do {
                         val matchResult = search.find(expression, index) ?: break
-                        val replacement = argumentNamesToActualParams[matchResult.value]
+                        val replacement = argsToParams[matchResult.value]
                         if (replacement != null) {
                             expression = expression.replaceRange(matchResult.range, replacement)
                             index += replacement.length
