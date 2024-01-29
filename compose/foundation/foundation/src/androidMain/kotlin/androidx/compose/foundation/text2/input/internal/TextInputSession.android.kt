@@ -40,8 +40,14 @@ internal interface TextInputSession {
 
     /**
      * Callback to execute for InputConnection to communicate the changes requested by the IME.
+     *
+     * @param notifyImeOfChanges Normally any request coming from IME should not be
+     * back-communicated but [InputConnection.performContextMenuAction] does not behave like a
+     * regular IME command. Its changes must be resent to IME to keep it in sync with
+     * [TextFieldState].
+     * @param block Lambda scoped to an EditingBuffer to apply changes direct onto a buffer.
      */
-    fun requestEdit(block: EditingBuffer.() -> Unit)
+    fun requestEdit(notifyImeOfChanges: Boolean = false, block: EditingBuffer.() -> Unit)
 
     /**
      * Delegates IME requested KeyEvents.

@@ -62,8 +62,11 @@ class StatelessInputConnectionTest {
             this@StatelessInputConnectionTest.onImeAction?.invoke(imeAction)
         }
 
-        override fun requestEdit(block: EditingBuffer.() -> Unit) {
-            onRequestEdit?.invoke(block)
+        override fun requestEdit(
+            notifyImeOfChanges: Boolean,
+            block: EditingBuffer.() -> Unit
+        ) {
+            onRequestEdit?.invoke(notifyImeOfChanges, block)
         }
 
         override fun sendKeyEvent(keyEvent: KeyEvent) {
@@ -85,7 +88,7 @@ class StatelessInputConnectionTest {
             field = value
             state = TextFieldState(value.toString(), value.selectionInChars)
         }
-    private var onRequestEdit: ((EditingBuffer.() -> Unit) -> Unit)? = null
+    private var onRequestEdit: ((Boolean, EditingBuffer.() -> Unit) -> Unit)? = null
     private var onSendKeyEvent: ((KeyEvent) -> Unit)? = null
     private var onImeAction: ((ImeAction) -> Unit)? = null
     private var onCommitContent: ((TransferableContent) -> Boolean)? = null
@@ -188,9 +191,9 @@ class StatelessInputConnectionTest {
     @Test
     fun commitTextTest_batchSession() {
         var requestEditsCalled = 0
-        onRequestEdit = {
+        onRequestEdit = { _, block ->
             requestEditsCalled++
-            state.mainBuffer.it()
+            state.mainBuffer.block()
         }
         value = TextFieldCharSequence(text = "", selection = TextRange.Zero)
 
@@ -320,9 +323,9 @@ class StatelessInputConnectionTest {
     @Test
     fun mixedAPICalls_batchSession() {
         var requestEditsCalled = 0
-        onRequestEdit = {
+        onRequestEdit = { _, block ->
             requestEditsCalled++
-            state.mainBuffer.it()
+            state.mainBuffer.block()
         }
         value = TextFieldCharSequence(text = "", selection = TextRange.Zero)
 
@@ -361,7 +364,7 @@ class StatelessInputConnectionTest {
     @Test
     fun do_not_callback_if_only_readonly_ops() {
         var requestEditsCalled = 0
-        onRequestEdit = { requestEditsCalled++ }
+        onRequestEdit = { _, _ -> requestEditsCalled++ }
         ic.beginBatchEdit()
         ic.getSelectedText(1)
         ic.endBatchEdit()
@@ -411,6 +414,66 @@ class StatelessInputConnectionTest {
             ImeAction.Default, // Unspecified is evaluated back to Default.
             ImeAction.Default // Unrecognized is evaluated back to Default.
         ))
+    }
+
+    @Test
+    fun selectAll_contextMenuAction_triggersSelectionAndImeNotification() {
+        value = TextFieldCharSequence("Hello")
+        var callCount = 0
+        var isNotifyIme = false
+        onRequestEdit = { notify, block ->
+            isNotifyIme = notify
+            callCount++
+            state.mainBuffer.block()
+        }
+
+        ic.performContextMenuAction(android.R.id.selectAll)
+
+        assertThat(callCount).isEqualTo(1)
+        assertThat(isNotifyIme).isTrue()
+        assertThat(state.mainBuffer.selection).isEqualTo(TextRange(0, 5))
+    }
+
+    @Test
+    fun cut_contextMenuAction_triggersSyntheticKeyEvents() {
+        val keyEvents = mutableListOf<KeyEvent>()
+        onSendKeyEvent = { keyEvents += it }
+
+        ic.performContextMenuAction(android.R.id.cut)
+
+        assertThat(keyEvents.size).isEqualTo(2)
+        assertThat(keyEvents[0].action).isEqualTo(KeyEvent.ACTION_DOWN)
+        assertThat(keyEvents[0].keyCode).isEqualTo(KeyEvent.KEYCODE_CUT)
+        assertThat(keyEvents[1].action).isEqualTo(KeyEvent.ACTION_UP)
+        assertThat(keyEvents[1].keyCode).isEqualTo(KeyEvent.KEYCODE_CUT)
+    }
+
+    @Test
+    fun copy_contextMenuAction_triggersSyntheticKeyEvents() {
+        val keyEvents = mutableListOf<KeyEvent>()
+        onSendKeyEvent = { keyEvents += it }
+
+        ic.performContextMenuAction(android.R.id.copy)
+
+        assertThat(keyEvents.size).isEqualTo(2)
+        assertThat(keyEvents[0].action).isEqualTo(KeyEvent.ACTION_DOWN)
+        assertThat(keyEvents[0].keyCode).isEqualTo(KeyEvent.KEYCODE_COPY)
+        assertThat(keyEvents[1].action).isEqualTo(KeyEvent.ACTION_UP)
+        assertThat(keyEvents[1].keyCode).isEqualTo(KeyEvent.KEYCODE_COPY)
+    }
+
+    @Test
+    fun paste_contextMenuAction_triggersSyntheticKeyEvents() {
+        val keyEvents = mutableListOf<KeyEvent>()
+        onSendKeyEvent = { keyEvents += it }
+
+        ic.performContextMenuAction(android.R.id.paste)
+
+        assertThat(keyEvents.size).isEqualTo(2)
+        assertThat(keyEvents[0].action).isEqualTo(KeyEvent.ACTION_DOWN)
+        assertThat(keyEvents[0].keyCode).isEqualTo(KeyEvent.KEYCODE_PASTE)
+        assertThat(keyEvents[1].action).isEqualTo(KeyEvent.ACTION_UP)
+        assertThat(keyEvents[1].keyCode).isEqualTo(KeyEvent.KEYCODE_PASTE)
     }
 
     @Test
