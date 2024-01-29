@@ -30,6 +30,7 @@ import androidx.work.impl.WorkManagerImpl
 import androidx.work.impl.constraints.ConstraintsState.ConstraintsNotMet
 import androidx.work.impl.constraints.WorkConstraintsTracker
 import androidx.work.impl.model.WorkSpec
+import androidx.work.impl.utils.safeAccept
 import androidx.work.logd
 import androidx.work.loge
 import java.util.concurrent.atomic.AtomicInteger
@@ -80,15 +81,11 @@ class ConstraintTrackingWorker(
             )
         } catch (e: Throwable) {
             logd(TAG) { "No worker to delegate to." }
-            try {
-                workManagerImpl.configuration.workerInitializationExceptionHandler?.accept(
-                    WorkerExceptionInfo(className, workerParameters, e)
-                )
-            } catch (exception: Exception) {
-                loge(TAG, exception) {
-                    "Exception handler threw an exception"
-                }
-            }
+
+            workManagerImpl.configuration.workerInitializationExceptionHandler?.safeAccept(
+                WorkerExceptionInfo(className, workerParameters, e),
+                TAG
+            )
             return Result.failure()
         }
         val mainThreadExecutor = workerParameters.taskExecutor.mainThreadExecutor

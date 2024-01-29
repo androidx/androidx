@@ -29,6 +29,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
@@ -88,6 +89,7 @@ import androidx.work.worker.ExceptionWorker;
 import androidx.work.worker.FailureWorker;
 import androidx.work.worker.InterruptionAwareWorker;
 import androidx.work.worker.LatchWorker;
+import androidx.work.worker.NeverResolvedWorker;
 import androidx.work.worker.RetryWorker;
 import androidx.work.worker.ReturnNullResultWorker;
 import androidx.work.worker.TestWorker;
@@ -1230,6 +1232,23 @@ public class WorkerWrapperTest extends DatabaseTest {
                 .getTargetException();
         assertThat(e, instanceOf(IllegalStateException.class));
         assertThat(e.getMessage(), is("Thrown in constructor Exception"));
+    }
+
+    @Test
+    @SmallTest
+    public void testCancellationDoesNotTriggerExceptionHandler() {
+        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(NeverResolvedWorker.class)
+                .build();
+        insertWork(work);
+        WorkerWrapper workerWrapper = createBuilder(work.getStringId()).build();
+        FutureListener listener = createAndAddFutureListener(workerWrapper);
+        assertThat(mWorkSpecDao.getState(work.getStringId()), is(ENQUEUED));
+        workerWrapper.run();
+        assertThat(mWorkSpecDao.getState(work.getStringId()), is(RUNNING));
+        workerWrapper.interrupt(0);
+        assertThat(listener.mResult, is(true));
+        assertThat(mWorkSpecDao.getState(work.getStringId()), is(ENQUEUED));
+        assertThat(mWorkerExceptionHandler.mThrowable, nullValue());
     }
 
     @Test
