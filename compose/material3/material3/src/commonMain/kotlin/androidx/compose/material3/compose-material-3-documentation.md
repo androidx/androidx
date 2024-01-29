@@ -57,7 +57,8 @@ For more information, check out <a href="https://developer.android.com/jetpack/c
 |                         | [DatePickerDialog]             | M3 date picker embeeded in dialog         |
 |                         | [DateRangePicker]              | M3 date range picker                      |
 | **Dialogs**             | [AlertDialog]                  | M3 basic dialog                           |
-| **Dividers**            | [Divider]                      | M3 divider                                |
+| **Dividers**            | [HorizontalDivider]            | M3 horizontal divider                     |
+|                         | [VerticalDivider]              | M3 vertical divider                       |
 | **Extended FAB**        | [ExtendedFloatingActionButton] | M3 extended FAB                           |
 | **FAB**                 | [FloatingActionButton]         | M3 FAB                                    |
 |                         | [SmallFloatingActionButton]    | M3 small FAB                              |
@@ -87,6 +88,7 @@ For more information, check out <a href="https://developer.android.com/jetpack/c
 |                         | [NavigationRailItem]           | M3 navigation rail item                   |
 | **Progress indicators** | [LinearProgressIndicator]      | M3 linear progress indicator              |
 |                         | [CircularProgressIndicator]    | M3 circular progress indicator            |
+| **Pull refresh **       | [PullToRefreshContainer]       | M3 pull to refresh indicator              |
 | **Radio button**        | [RadioButton]                  | M3 radio button                           |
 | **Search Bar**          | [SearchBar]                    | M3 search bar                             |
 |                         | [DockedSearchBar]              | M3 docked search bar                      |
