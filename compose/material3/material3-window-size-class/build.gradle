@@ -40,10 +40,10 @@ androidXMultiplatform {
         commonMain {
             dependencies {
                 implementation(libs.kotlinStdlibCommon)
-                implementation("androidx.compose.ui:ui-util:1.6.0-rc01")
-                api("androidx.compose.runtime:runtime:1.6.0-rc01")
-                api("androidx.compose.ui:ui:1.6.0-rc01")
-                api("androidx.compose.ui:ui-unit:1.6.0-rc01")
+                implementation("androidx.compose.ui:ui-util:1.6.0")
+                api("androidx.compose.runtime:runtime:1.6.0")
+                api("androidx.compose.ui:ui:1.6.0")
+                api("androidx.compose.ui:ui-unit:1.6.0")
             }
         }
 
@@ -64,10 +64,10 @@ androidXMultiplatform {
             dependsOn(commonMain)
             dependencies {
                 // Because dependencies are pinned in the android/common code.
-                implementation("androidx.compose.ui:ui-util:1.6.0-rc01")
-                api("androidx.compose.runtime:runtime:1.6.0-rc01")
-                api("androidx.compose.ui:ui:1.6.0-rc01")
-                api("androidx.compose.ui:ui-unit:1.6.0-rc01")
+                implementation("androidx.compose.ui:ui-util:1.6.0")
+                api("androidx.compose.runtime:runtime:1.6.0")
+                api("androidx.compose.ui:ui:1.6.0")
+                api("androidx.compose.ui:ui-unit:1.6.0")
             }
         }
 
@@ -97,7 +97,7 @@ androidXMultiplatform {
             dependsOn(jvmTest)
             dependencies {
                 implementation(project(":compose:test-utils"))
-                implementation("androidx.compose.foundation:foundation:1.6.0-rc01")
+                implementation("androidx.compose.foundation:foundation:1.6.0")
                 implementation(libs.testRules)
                 implementation(libs.testRunner)
                 implementation(libs.junit)
