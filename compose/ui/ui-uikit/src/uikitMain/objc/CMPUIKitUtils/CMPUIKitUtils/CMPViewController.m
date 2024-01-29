@@ -25,13 +25,41 @@
 
 @implementation UIViewController(CMPUIKitUtilsPrivate)
 
+- (BOOL)cmp_isRootViewController {
+    // Check that it's not rootViewController of one of windows of one of the connected scenes.
+    // In most apps it will be a single scene with a single connected window.
+    if (@available(iOS 13.0, *)) {
+        for (UIScene *scene in [UIApplication.sharedApplication connectedScenes]) {
+            if ([scene isKindOfClass:[UIWindowScene class]]) {
+                UIWindowScene *windowScene = (UIWindowScene *)scene;
+                
+                for (UIWindow *window in windowScene.windows) {
+                    if (window.rootViewController == self) {
+                        return YES;
+                    }
+                }
+            }
+        }
+    } else {
+        for (UIWindow* window in UIApplication.sharedApplication.windows) {
+            if (window.rootViewController == self) {
+                return YES;
+            }
+        }
+    }
+    
+    return NO;
+}
+
 - (BOOL)cmp_isInWindowHierarchy {
     if (self.view.window != nil) {
         return YES;
     } else if (self.parentViewController != nil) {
         return [self.parentViewController cmp_isInWindowHierarchy];
+    } else if (self.presentingViewController != nil) {
+        return [self.presentingViewController cmp_isInWindowHierarchy];
     } else {
-        return NO;
+        return [self cmp_isRootViewController];
     }
 }
 
