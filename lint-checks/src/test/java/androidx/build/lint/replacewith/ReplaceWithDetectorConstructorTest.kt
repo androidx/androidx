@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.annotation.replacewith.lint;
+package androidx.build.lint.replacewith;
 
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -26,20 +26,20 @@ class ReplaceWithDetectorConstructorTest {
     @Test
     fun constructorStaticClass() {
         val input = arrayOf(
-                javaSample("sample.ReplaceWithUsageJava"),
-                javaSample("sample.ConstructorStaticClass")
+                javaSample("replacewith.ReplaceWithUsageJava"),
+                javaSample("replacewith.ConstructorStaticClass")
         )
 
         /* ktlint-disable max-line-length */
         val expected = """
-src/sample/ConstructorStaticClass.java:25: Information: Replacement available [ReplaceWith]
+src/replacewith/ConstructorStaticClass.java:25: Information: Replacement available [ReplaceWith]
         new ReplaceWithUsageJava("parameter");
             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 0 errors, 0 warnings
         """.trimIndent()
 
         val expectedFixDiffs = """
-Fix for src/sample/ConstructorStaticClass.java line 25: Replace with `StringBuffer("parameter")`:
+Fix for src/replacewith/ConstructorStaticClass.java line 25: Replace with `StringBuffer("parameter")`:
 @@ -25 +25
 -         new ReplaceWithUsageJava("parameter");
 +         new StringBuffer("parameter");
@@ -52,20 +52,20 @@ Fix for src/sample/ConstructorStaticClass.java line 25: Replace with `StringBuff
     @Test
     fun constructorNonStaticClass() {
         val input = arrayOf(
-            javaSample("sample.ReplaceWithUsageJava"),
-            javaSample("sample.ConstructorNonStaticClass")
+            javaSample("replacewith.ReplaceWithUsageJava"),
+            javaSample("replacewith.ConstructorNonStaticClass")
         )
 
         /* ktlint-disable max-line-length */
         val expected = """
-src/sample/ConstructorNonStaticClass.java:25: Information: Replacement available [ReplaceWith]
+src/replacewith/ConstructorNonStaticClass.java:25: Information: Replacement available [ReplaceWith]
         new ReplaceWithUsageJava().new InnerClass("param");
                                        ~~~~~~~~~~~~~~~~~~~
 0 errors, 0 warnings
         """.trimIndent()
 
         val expectedFixDiffs = """
-Fix for src/sample/ConstructorNonStaticClass.java line 25: Replace with `InnerClass()`:
+Fix for src/replacewith/ConstructorNonStaticClass.java line 25: Replace with `InnerClass()`:
 @@ -25 +25
 -         new ReplaceWithUsageJava().new InnerClass("param");
 +         new ReplaceWithUsageJava().new InnerClass();
@@ -78,20 +78,20 @@ Fix for src/sample/ConstructorNonStaticClass.java line 25: Replace with `InnerCl
     @Test
     fun constructorToStaticMethod() {
         val input = arrayOf(
-            javaSample("sample.ReplaceWithUsageJava"),
-            javaSample("sample.ConstructorToStaticMethod")
+            javaSample("replacewith.ReplaceWithUsageJava"),
+            javaSample("replacewith.ConstructorToStaticMethod")
         )
 
         /* ktlint-disable max-line-length */
         val expected = """
-src/sample/ConstructorToStaticMethod.java:25: Information: Replacement available [ReplaceWith]
+src/replacewith/ConstructorToStaticMethod.java:25: Information: Replacement available [ReplaceWith]
         new ReplaceWithUsageJava(10000);
         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 0 errors, 0 warnings
         """.trimIndent()
 
         val expectedFixDiffs = """
-Fix for src/sample/ConstructorToStaticMethod.java line 25: Replace with `ReplaceWithUsageJava.newInstance(10000)`:
+Fix for src/replacewith/ConstructorToStaticMethod.java line 25: Replace with `ReplaceWithUsageJava.newInstance(10000)`:
 @@ -25 +25
 -         new ReplaceWithUsageJava(10000);
 +         ReplaceWithUsageJava.newInstance(10000);

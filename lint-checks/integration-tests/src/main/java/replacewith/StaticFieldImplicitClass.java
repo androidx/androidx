@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package sample;
+package replacewith;
 
-import static sample.ReplaceWithUsageJava.AUTOFILL_HINT_NAME;
+import static replacewith.ReplaceWithUsageJava.AUTOFILL_HINT_NAME;
 
 /**
  * Usage of a static method with an explicit class.

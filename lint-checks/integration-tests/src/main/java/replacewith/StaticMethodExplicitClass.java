@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package sample;
+package replacewith;
 
 /**
  * Usage of a static method with an explicit class.
