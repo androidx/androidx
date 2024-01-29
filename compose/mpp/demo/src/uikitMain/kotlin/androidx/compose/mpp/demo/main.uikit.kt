@@ -8,7 +8,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.main.defaultUIKitMain
 import androidx.compose.ui.window.ComposeUIViewController
 import bugs.IosBugs
-import bugs.ProperContainmentDisposal
 import bugs.StartRecompositionCheck
 import platform.UIKit.UIViewController
 
@@ -28,7 +27,6 @@ fun IosDemo(arg: String, makeHostingController: ((Int) -> UIViewController)? = n
                 IosBugs,
                 NativeModalWithNaviationExample,
                 UIKitViewOrder,
-                ProperContainmentDisposal,
             ) + listOf(makeHostingController).mapNotNull {
                 it?.let {
                     SwiftUIInteropExample(it)
