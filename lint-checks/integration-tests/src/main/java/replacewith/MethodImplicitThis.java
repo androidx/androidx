@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package sample;
+package replacewith;
 
 import androidx.annotation.ReplaceWith;
 

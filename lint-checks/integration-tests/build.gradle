@@ -32,7 +32,6 @@ plugins {
 dependencies {
     implementation(project(":annotation:annotation"))
     implementation("androidx.annotation:annotation-experimental:1.4.0")
-    implementation(project(":annotation:annotation-replacewith"))
     implementation(libs.kotlinStdlib)
 }
 

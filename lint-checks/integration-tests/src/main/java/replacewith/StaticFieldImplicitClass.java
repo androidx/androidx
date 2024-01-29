@@ -14,14 +14,16 @@
  * limitations under the License.
  */
 
-package sample;
+package replacewith;
+
+import static replacewith.ReplaceWithUsageJava.AUTOFILL_HINT_NAME;
 
 /**
  * Usage of a static method with an explicit class.
  */
 @SuppressWarnings({"deprecation", "unused"})
-class StaticMethodExplicitClass {
+class StaticFieldImplicitClass {
     void main() {
-        ReplaceWithUsageJava.toString(this);
+        System.out.println(AUTOFILL_HINT_NAME);
     }
 }

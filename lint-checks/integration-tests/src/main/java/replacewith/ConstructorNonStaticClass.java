@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package sample;
+package replacewith;
 
 /**
- * Usage of a static method with an explicit class.
+ * Usage of a static class constructor.
  */
-@SuppressWarnings({"deprecation", "unused"})
-class StaticFieldExplicitClass {
-    void main() {
-        System.out.println(ReplaceWithUsageJava.AUTOFILL_HINT_NAME);
+@SuppressWarnings({"unused", "deprecation", "InstantiationOfUtilityClass"})
+class ConstructorNonStaticClass {
+    void usage() {
+        new ReplaceWithUsageJava().new InnerClass("param");
     }
 }

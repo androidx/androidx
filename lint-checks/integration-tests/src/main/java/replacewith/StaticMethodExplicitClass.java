@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package sample;
+package replacewith;
 
 /**
- * Usage of a static class constructor.
+ * Usage of a static method with an explicit class.
  */
-@SuppressWarnings({"unused", "deprecation", "InstantiationOfUtilityClass"})
-class ConstructorToStaticMethod {
-    void usage() {
-        new ReplaceWithUsageJava(10000);
+@SuppressWarnings({"deprecation", "unused"})
+class StaticMethodExplicitClass {
+    void main() {
+        ReplaceWithUsageJava.toString(this);
     }
 }
