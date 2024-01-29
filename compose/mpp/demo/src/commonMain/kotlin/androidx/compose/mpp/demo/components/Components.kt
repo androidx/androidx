@@ -55,4 +55,5 @@ val Components = Screen.Selection(
     LazyLayouts,
     MaterialComponents,
     Material3Components,
+    Screen.Example("Selection") { SelectionExample() }
 )

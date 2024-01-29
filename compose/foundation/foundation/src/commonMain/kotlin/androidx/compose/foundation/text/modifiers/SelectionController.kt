@@ -159,7 +159,13 @@ internal class SelectionController(
 
 // this is not chained, but is a standalone factory
 @Suppress("ModifierFactoryExtensionFunction")
-private fun SelectionRegistrar.makeSelectionModifier(
+internal expect fun SelectionRegistrar.makeSelectionModifier(
+    selectableId: Long,
+    layoutCoordinates: () -> LayoutCoordinates?,
+): Modifier
+
+@Suppress("ModifierFactoryExtensionFunction")
+internal fun SelectionRegistrar.makeDefaultSelectionModifier(
     selectableId: Long,
     layoutCoordinates: () -> LayoutCoordinates?,
 ): Modifier {
