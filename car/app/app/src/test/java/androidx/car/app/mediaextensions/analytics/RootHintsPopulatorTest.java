@@ -16,15 +16,12 @@
 
 package androidx.car.app.mediaextensions.analytics;
 
-import static androidx.car.app.mediaextensions.analytics.Constants.ANALYTICS_ROOT_KEY_BROADCAST_COMPONENT_NAME;
-import static androidx.car.app.mediaextensions.analytics.Constants.ANALYTICS_ROOT_KEY_SESSION_ID;
+import static androidx.car.app.mediaextensions.analytics.Constants.ANALYTICS_ROOT_KEY_OPT_IN;
 import static androidx.car.app.mediaextensions.analytics.Constants.ANALYTICS_SHARE_OEM_DIAGNOSTICS;
 import static androidx.car.app.mediaextensions.analytics.Constants.ANALYTICS_SHARE_PLATFORM_DIAGNOSTICS;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import android.content.ComponentName;
 import android.os.Bundle;
 
 import androidx.car.app.mediaextensions.analytics.client.RootHintsPopulator;
@@ -36,28 +33,22 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
-public class RootHintsPopulatorTests {
+public class RootHintsPopulatorTest {
 
     @Test
     public void testRootHintPopulator() {
         Bundle bundle = new Bundle();
-        ComponentName componentName = new ComponentName(this.getClass().getPackage().getName(),
-                this.getClass().getName());
-        int sessionId = 123;
         new RootHintsPopulator(bundle)
-                .setAnalyticsOptIn(true, componentName)
-                .setOemShare(true)
-                .setPlatformShare(true)
-                .setSessionId(sessionId);
+                .setAnalyticsOptIn(true)
+                .setShareOem(true)
+                .setSharePlatform(true);
 
-        String stringComponent = bundle.getString(ANALYTICS_ROOT_KEY_BROADCAST_COMPONENT_NAME);
+        boolean optIn = bundle.getBoolean(ANALYTICS_ROOT_KEY_OPT_IN, false);
         boolean oemShare = bundle.getBoolean(ANALYTICS_SHARE_OEM_DIAGNOSTICS, false);
         boolean platformShare = bundle.getBoolean(ANALYTICS_SHARE_PLATFORM_DIAGNOSTICS, false);
-        int sessionIdFromBundle = bundle.getInt(ANALYTICS_ROOT_KEY_SESSION_ID, -1);
 
-        assertEquals(stringComponent, componentName.flattenToString());
+        assertTrue(optIn);
         assertTrue(oemShare);
         assertTrue(platformShare);
-        assertEquals(sessionIdFromBundle, sessionId);
     }
 }
