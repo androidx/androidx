@@ -13,28 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:Suppress("DEPRECATION")
 @file:JvmName("ViewfinderSurfaceRequestUtil")
 
-package androidx.camera.viewfinder
+package androidx.camera.viewfinder.surface
 
 import android.annotation.SuppressLint
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraMetadata
 import androidx.annotation.RequiresApi
-import androidx.camera.viewfinder.CameraViewfinder.ImplementationMode
 
 /**
  * Populates [ViewfinderSurfaceRequest.Builder] from [CameraCharacteristics].
  *
  * The [CameraCharacteristics] will be used to populate information including lens facing,
- * sensor orientation and [ImplementationMode]. If the hardware level is legacy,
- * the [ImplementationMode] will be set to [ImplementationMode.COMPATIBLE].
+ * sensor orientation and [ImplementationMode].
+ * If the hardware level is legacy, the [ImplementationMode] will be set to
+ * [ImplementationMode.COMPATIBLE].
  */
-@Deprecated(message = "Use androidx.camera.viewfinder.surface.ViewfinderSurfaceRequest as argument",
-    replaceWith = ReplaceWith(
-    "populateFromCharacteristics returning " +
-        "androidx.camera.viewfinder.surface.ViewfinderSurfaceRequest.Builder"))
 @SuppressLint("ClassVerificationFailure")
 @RequiresApi(21)
 fun ViewfinderSurfaceRequest.Builder.populateFromCharacteristics(
@@ -45,7 +40,7 @@ fun ViewfinderSurfaceRequest.Builder.populateFromCharacteristics(
         cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION)!!)
     if (cameraCharacteristics.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL)
         == CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY) {
-        setImplementationMode(ImplementationMode.COMPATIBLE)
+        setImplementationMode(androidx.camera.viewfinder.surface.ImplementationMode.COMPATIBLE)
     }
     return this
 }
