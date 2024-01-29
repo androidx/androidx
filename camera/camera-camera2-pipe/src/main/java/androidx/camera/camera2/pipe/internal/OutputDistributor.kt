@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.camera.camera2.pipe.media
+package androidx.camera.camera2.pipe.internal
 
 import android.os.Build
 import androidx.annotation.GuardedBy
@@ -22,6 +22,7 @@ import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraTimestamp
 import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.OutputStatus
+import androidx.camera.camera2.pipe.media.Finalizer
 import kotlinx.atomicfu.atomic
 
 /**
@@ -29,18 +30,18 @@ import kotlinx.atomicfu.atomic
  *
  * In addition this class must:
  * 1. Track and cancel events due to skipped [onOutputStarted] events.
- * 2. Track and finalize resources due to skipped [onOutputAvailable] events.
+ * 2. Track and finalize resources due to skipped [onOutputResult] events.
  * 3. Track and cancel events that match [onOutputFailure] events.
  * 4. Track and handle out-of-order [onOutputStarted] events.
  * 5. Finalize all resources and cancel all events during [close]
  *
  * This class makes several assumptions:
  * 1. [onOutputStarted] events *usually* arrive in order, relative to each other.
- * 2. [onOutputAvailable] events *usually* arrive in order, relative to each other.
- * 3. [onOutputStarted] events *usually* happen before a corresponding [onOutputAvailable] event
- * 4. [onOutputStarted] events may have a large number of events (1-50) before [onOutputAvailable]
+ * 2. [onOutputResult] events *usually* arrive in order, relative to each other.
+ * 3. [onOutputStarted] events *usually* happen before a corresponding [onOutputResult] event
+ * 4. [onOutputStarted] events may have a large number of events (1-50) before [onOutputResult]
  *      events start coming in.
- * 5. [onOutputStarted] and [onOutputAvailable] are 1:1 under normal circumstances.
+ * 5. [onOutputStarted] and [onOutputResult] are 1:1 under normal circumstances.
  *
  * @param maximumCachedOutputs indicates how many available outputs this distributor will accept
  *   without matching [onOutputStarted] event before closing them with the [outputFinalizer].
@@ -58,16 +59,14 @@ internal class OutputDistributor<T>(
          * once per [OutputDistributor.onOutputStarted] event.
          *
          * On failures (The output being unavailable, the [OutputDistributor] being closed before
-         * an output has arrived, or an explicit output failure event), this method will still be
-         * invoked with a null [output].
+         * an output has arrived, or an explicit output failure event).
          */
         fun onOutputComplete(
             cameraFrameNumber: FrameNumber,
             cameraTimestamp: CameraTimestamp,
             outputSequence: Long,
             outputNumber: Long,
-            outputStatus: OutputStatus,
-            output: T?,
+            outputResult: OutputResult<T>
         )
     }
 
@@ -92,7 +91,7 @@ internal class OutputDistributor<T>(
     private var lastFailedOutputNumber = Long.MIN_VALUE
 
     private val startedOutputs = mutableListOf<StartedOutput<T>>()
-    private val availableOutputs = mutableMapOf<Long, T?>()
+    private val availableOutputs = mutableMapOf<Long, OutputResult<T>>()
 
     /**
      * Indicates a camera2 output has started at a particular frameNumber and timestamp as well as
@@ -102,7 +101,7 @@ internal class OutputDistributor<T>(
      * @param cameraFrameNumber The Camera2 FrameNumber for this output
      * @param cameraTimestamp The Camera2 CameraTimestamp for this output
      * @param outputNumber untyped number that corresponds to the number provided by
-     *   [onOutputAvailable]. For Images, this will likely be the timestamp of the image (Which may
+     *   [onOutputResult]. For Images, this will likely be the timestamp of the image (Which may
      *   be the same as the CameraTimestamp, but may also be different if the timebase of the
      *   the images is different), or the value of the frameNumber if this OutputDistributor is
      *   handling metadata.
@@ -116,10 +115,10 @@ internal class OutputDistributor<T>(
         outputNumber: Long,
         outputListener: OutputListener<T>
     ) {
-        var outputsToCancel: List<StartedOutput<T>>? = null
-        var outputToComplete: T? = null
-        var invokeOutputCompleteListener = false
-        var outputToFinalize: T? = null
+        var missingOutputs: List<StartedOutput<T>>? = null
+        var matchingOutput: OutputResult<T>? = null
+        var invokeOutputListener = false
+        var outputToFinalize: OutputResult<T>? = null
         val isClosed: Boolean
 
         val outputSequence: Long
@@ -131,7 +130,7 @@ internal class OutputDistributor<T>(
                 lastFailedOutputNumber == outputNumber
             ) {
                 outputToFinalize = availableOutputs.remove(outputNumber)
-                invokeOutputCompleteListener = true
+                invokeOutputListener = true
                 return@synchronized
             }
 
@@ -166,9 +165,9 @@ internal class OutputDistributor<T>(
             if (availableOutputs.containsKey(outputNumber)) {
                 // If we found a matching output, get and remove it from the list of
                 // availableOutputs.
-                outputToComplete = availableOutputs.remove(outputNumber)
-                invokeOutputCompleteListener = true
-                outputsToCancel = removeOutputsOlderThan(
+                matchingOutput = availableOutputs.remove(outputNumber)
+                invokeOutputListener = true
+                missingOutputs = removeOutputsOlderThan(
                     isOutOfOrder,
                     outputSequence,
                     outputNumber
@@ -190,49 +189,42 @@ internal class OutputDistributor<T>(
             )
         }
 
-        // Invoke finalizers and listeners outside of the synchronized block to avoid holding locks.
-        outputsToCancel?.let {
-            val reason = if (isClosed) {
-                OutputStatus.ERROR_OUTPUT_ABORTED
-            } else {
-                OutputStatus.ERROR_OUTPUT_MISSING
-            }
-            for (output in it) {
-                output.completeWith(null, reason)
-            }
+        // Handle missing outputs, finalizers, and listeners outside of the synchronized block.
+        missingOutputs?.forEach {
+            it.completeWith(OutputResult.failure(OutputStatus.ERROR_OUTPUT_MISSING))
         }
-        outputToFinalize?.let { outputFinalizer.finalize(it) }
-        if (invokeOutputCompleteListener) {
+        outputToFinalize?.output?.let { outputFinalizer.finalize(it) }
+
+        if (invokeOutputListener) {
             val outputResult = if (isClosed) {
-                OutputStatus.ERROR_OUTPUT_ABORTED
-            } else if (outputToComplete == null) {
-                OutputStatus.ERROR_OUTPUT_DROPPED
+                OutputResult.failure(OutputStatus.ERROR_OUTPUT_ABORTED)
             } else {
-                OutputStatus.AVAILABLE
+                matchingOutput ?: OutputResult.failure(OutputStatus.ERROR_OUTPUT_FAILED)
             }
             outputListener.onOutputComplete(
                 cameraFrameNumber = cameraFrameNumber,
                 cameraTimestamp = cameraTimestamp,
                 outputSequence = outputSequence,
                 outputNumber = outputNumber,
-                outputResult,
-                outputToComplete,
+                outputResult
             )
         }
     }
 
     /**
-     * Indicates a camera2 output has arrived for a specific [outputNumber]. outputNumber will
-     * often refer to a FrameNumber for TotalCaptureResult distribution, and will often refer to a
-     * nanosecond timestamp for ImageReader Image distribution.
+     * Indicates a camera2 output has arrived for a specific [outputNumber].
+     *
+     * This value is the primary keu used to match `onOutputStart` events with `onOutputResult`
+     * events. For images, these values will often refer to the nanosecond timestamp of the Image,
+     * and for TotalCaptureResults, this value will often reference the associated FrameNumber.
      */
-    fun onOutputAvailable(outputNumber: Long, output: T?) {
-        var outputToFinalize: T? = null
+    fun onOutputResult(outputNumber: Long, outputResult: OutputResult<T>) {
+        var outputToFinalize: OutputResult<T>? = null
         var outputsToCancel: List<StartedOutput<T>>? = null
 
         synchronized(lock) {
             if (closed || lastFailedOutputNumber == outputNumber) {
-                outputToFinalize = output
+                outputToFinalize = outputResult
                 return@synchronized
             }
 
@@ -243,18 +235,14 @@ internal class OutputDistributor<T>(
             if (matchingOutput != null) {
                 outputsToCancel = removeOutputsOlderThan(matchingOutput)
 
-                // If the output is null, then we know that the output was intentionally dropped.
-                if (output == null) {
-                    matchingOutput.completeWith(null, OutputStatus.ERROR_OUTPUT_DROPPED)
-                } else {
-                    matchingOutput.completeWith(output, OutputStatus.AVAILABLE)
-                }
+                matchingOutput.completeWith(outputResult)
+
                 startedOutputs.remove(matchingOutput)
                 return@synchronized
             }
 
             // If there is no started output, put this output into the queue of pending outputs.
-            availableOutputs[outputNumber] = output
+            availableOutputs[outputNumber] = outputResult
 
             // If there are too many pending outputs, remove the oldest one.
             if (availableOutputs.size > maximumCachedOutputs) {
@@ -265,8 +253,10 @@ internal class OutputDistributor<T>(
         }
 
         // Invoke finalizers and listeners outside of the synchronized block to avoid holding locks.
-        outputToFinalize?.let { outputFinalizer.finalize(it) }
-        outputsToCancel?.forEach { it.completeWith(null, OutputStatus.ERROR_OUTPUT_MISSING) }
+        outputToFinalize?.output?.let { outputFinalizer.finalize(it) }
+        outputsToCancel?.forEach {
+            it.completeWith(OutputResult.failure(OutputStatus.ERROR_OUTPUT_MISSING))
+        }
     }
 
     /**
@@ -290,7 +280,7 @@ internal class OutputDistributor<T>(
         }
 
         // Invoke listeners outside of the synchronized block to avoid holding locks.
-        outputWithFailure?.completeWith(null, OutputStatus.ERROR_OUTPUT_FAILED)
+        outputWithFailure?.completeWithFailure(OutputStatus.ERROR_OUTPUT_FAILED)
     }
 
     @GuardedBy("lock")
@@ -316,7 +306,7 @@ internal class OutputDistributor<T>(
     }
 
     override fun close() {
-        var outputsToFinalize: List<T?>
+        var outputsToFinalize: List<OutputResult<T>>
         var outputsToCancel: List<StartedOutput<T>>
 
         synchronized(lock) {
@@ -332,10 +322,10 @@ internal class OutputDistributor<T>(
         }
 
         for (pendingOutput in outputsToFinalize) {
-            outputFinalizer.finalize(pendingOutput)
+            outputFinalizer.finalize(pendingOutput.output)
         }
         for (startedOutput in outputsToCancel) {
-            startedOutput.completeWith(null, OutputStatus.ERROR_OUTPUT_ABORTED)
+            startedOutput.completeWithFailure(OutputStatus.ERROR_OUTPUT_ABORTED)
         }
     }
 
@@ -353,7 +343,10 @@ internal class OutputDistributor<T>(
     ) {
         private val complete = atomic(false)
 
-        fun completeWith(output: T?, outputResult: OutputStatus) {
+        fun completeWithFailure(failureReason: OutputStatus) =
+            completeWith(OutputResult.failure(failureReason))
+
+        fun completeWith(outputResult: OutputResult<T>) {
             check(complete.compareAndSet(expect = false, update = true)) {
                 "Output $outputSequence at $cameraFrameNumber for $outputNumber was completed " +
                     "multiple times!"
@@ -363,8 +356,7 @@ internal class OutputDistributor<T>(
                 cameraTimestamp,
                 outputSequence,
                 outputNumber,
-                outputResult,
-                output
+                outputResult
             )
         }
     }

@@ -17,6 +17,7 @@
 package androidx.camera.camera2.pipe.integration.impl
 
 import android.hardware.camera2.CameraCaptureSession
+import android.hardware.camera2.CaptureFailure
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
 import android.hardware.camera2.TotalCaptureResult
@@ -138,7 +139,7 @@ class CameraCallbackMap @Inject constructor() : Request.Listener {
                 val session: CameraCaptureSession? =
                     requestMetadata.unwrapAs(CameraCaptureSession::class)
                 val request: CaptureRequest? = requestMetadata.unwrapAs(CaptureRequest::class)
-                val captureFailure = requestFailure.captureFailure
+                val captureFailure = requestFailure.unwrapAs(CaptureFailure::class)
                 if (session != null && request != null && captureFailure != null) {
                     executor.execute {
                         callback.captureCallback.onCaptureFailed(

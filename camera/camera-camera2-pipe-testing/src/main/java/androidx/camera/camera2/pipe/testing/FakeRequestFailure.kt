@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,26 +14,24 @@
  * limitations under the License.
  */
 
-@file:RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
+package androidx.camera.camera2.pipe.testing
 
-package androidx.camera.camera2.pipe.compat
-
-import android.hardware.camera2.CaptureFailure
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.RequestFailure
 import androidx.camera.camera2.pipe.RequestMetadata
+import kotlin.reflect.KClass
 
 /**
- * This class implements the [RequestFailure] interface by extracting the fields of
- * the package-private [CaptureFailure] object.
+ * Utility class for testing code that depends on [RequestFailure] with reasonable defaults.
  */
-@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
-internal data class SimpleCaptureFailure(
+class FakeRequestFailure(
     override val requestMetadata: RequestMetadata,
-    override val wasImageCaptured: Boolean,
     override val frameNumber: FrameNumber,
-    override val reason: Int,
-    override val captureFailure: CaptureFailure?
-) : RequestFailure
+    override val reason: Int = 0,
+    override val wasImageCaptured: Boolean = false,
+) : RequestFailure {
+    override fun <T : Any> unwrapAs(type: KClass<T>): T? {
+        // Fake objects cannot be unwrapped.
+        return null
+    }
+}

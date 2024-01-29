@@ -21,7 +21,6 @@ import android.util.Size
 import androidx.camera.camera2.pipe.CameraTimestamp
 import androidx.camera.camera2.pipe.Frame.Companion.isFrameInfoAvailable
 import androidx.camera.camera2.pipe.Frame.Companion.isImageAvailable
-import androidx.camera.camera2.pipe.FrameId
 import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.OutputId
 import androidx.camera.camera2.pipe.OutputStatus
@@ -57,7 +56,6 @@ class FrameImplTest {
     private val stream2Surface = fakeSurfaces.createFakeSurface(Size(640, 480))
     private val streamToSurfaceMap = mapOf(stream1Id to stream1Surface, stream2Id to stream2Surface)
 
-    private val frameId = FrameId(240)
     private val frameNumber = FrameNumber(420)
     private val frameTimestampNs = 1234L
     private val frameTimestamp = CameraTimestamp(frameTimestampNs)
@@ -72,7 +70,6 @@ class FrameImplTest {
 
     private val frameState = FrameState(
         requestMetadata = fakeRequestMetadata,
-        frameId = frameId,
         frameNumber = frameNumber,
         frameTimestamp = frameTimestamp,
         imageStreams
@@ -311,8 +308,7 @@ class FrameImplTest {
             frameTimestamp,
             42,
             frameTimestamp.value,
-            OutputStatus.ERROR_OUTPUT_DROPPED,
-            null
+            OutputResult.failure(OutputStatus.ERROR_OUTPUT_DROPPED)
         )
 
         assertThat(sharedOutputFrame.imageStatus(stream1Id))
@@ -338,8 +334,7 @@ class FrameImplTest {
             frameTimestamp,
             42,
             frameTimestamp.value,
-            OutputStatus.AVAILABLE,
-            stream1OutputImage
+            OutputResult.from(stream1OutputImage)
         )
 
         // Complete streamResult2 with stream2Output3Image
@@ -348,8 +343,7 @@ class FrameImplTest {
             frameTimestamp,
             42,
             frameTimestamp.value,
-            OutputStatus.AVAILABLE,
-            stream2OutputImage
+            OutputResult.from(stream2OutputImage)
         )
 
         // Complete frameInfoResult
@@ -358,8 +352,7 @@ class FrameImplTest {
             frameTimestamp,
             42,
             frameNumber.value,
-            OutputStatus.AVAILABLE,
-            fakeFrameInfo
+            OutputResult.from(fakeFrameInfo)
         )
     }
 }
