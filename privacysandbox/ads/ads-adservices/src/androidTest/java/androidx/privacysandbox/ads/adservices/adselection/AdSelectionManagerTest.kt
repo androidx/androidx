@@ -156,6 +156,7 @@ class AdSelectionManagerTest {
         Assume.assumeTrue("maxSdkVersion = API 31-34 ext 9",
             AdServicesInfo.adServicesVersion() < 10 && AdServicesInfo.extServicesVersion() < 10)
 
+        mockAdSelectionManager(mContext, mValidAdExtServicesSdkExtVersion)
         val managerCompat = obtain(mContext)
         val getAdSelectionDataRequest = GetAdSelectionDataRequest(seller)
         // Verify that it throws an exception
@@ -177,6 +178,7 @@ class AdSelectionManagerTest {
         Assume.assumeTrue("maxSdkVersion = API 31-34 ext 9",
             AdServicesInfo.adServicesVersion() < 10 && AdServicesInfo.extServicesVersion() < 10)
 
+        mockAdSelectionManager(mContext, mValidAdExtServicesSdkExtVersion)
         val managerCompat = obtain(mContext)
         val persistAdSelectionResultRequest = PersistAdSelectionResultRequest(
             adSelectionId,
@@ -202,6 +204,7 @@ class AdSelectionManagerTest {
         Assume.assumeTrue("maxSdkVersion = API 31-34 ext 9",
             AdServicesInfo.adServicesVersion() < 10 && AdServicesInfo.extServicesVersion() < 10)
 
+        mockAdSelectionManager(mContext, mValidAdExtServicesSdkExtVersion)
         val managerCompat = obtain(mContext)
         val reportImpressionRequest = ReportImpressionRequest(adSelectionId)
 
@@ -225,6 +228,7 @@ class AdSelectionManagerTest {
         Assume.assumeTrue("maxSdkVersion = API 31-34 ext 9",
             AdServicesInfo.adServicesVersion() < 10 && AdServicesInfo.extServicesVersion() < 10)
 
+        mockAdSelectionManager(mContext, mValidAdExtServicesSdkExtVersion)
         val managerCompat = obtain(mContext)
         // Verify that it throws an exception
         assertThrows(UnsupportedOperationException::class.java) {

@@ -110,6 +110,7 @@ class CustomAudienceManagerFuturesTest {
                 /* minAdServicesVersion=*/ 10,
                 /* minExtServicesVersion=*/ 10))
 
+        mockCustomAudienceManager(mContext, mValidAdExtServicesSdkExtVersion)
         val managerCompat = from(mContext)
 
         // Actually invoke the compat code.
