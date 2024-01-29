@@ -369,7 +369,7 @@ interface Modifier {
             requireOwner().registerOnEndApplyChangesListener(effect)
         }
 
-        internal fun setAsDelegateTo(owner: Node) {
+        internal open fun setAsDelegateTo(owner: Node) {
             node = owner
         }
     }
