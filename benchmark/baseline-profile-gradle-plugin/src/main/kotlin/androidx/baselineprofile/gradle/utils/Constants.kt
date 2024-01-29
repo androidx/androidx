@@ -20,7 +20,7 @@ import com.android.build.api.AndroidPluginVersion
 
 // Minimum AGP version required
 internal val MIN_AGP_VERSION_REQUIRED = AndroidPluginVersion(8, 0, 0)
-internal val MAX_AGP_VERSION_REQUIRED = AndroidPluginVersion(8, 3, 0)
+internal val MAX_AGP_VERSION_REQUIRED = AndroidPluginVersion(8, 4, 0)
 
 // Prefix for the build type baseline profile
 internal const val BUILD_TYPE_BASELINE_PROFILE_PREFIX = "nonMinified"
