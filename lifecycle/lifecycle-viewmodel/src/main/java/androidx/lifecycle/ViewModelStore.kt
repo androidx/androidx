@@ -41,7 +41,7 @@ open class ViewModelStore {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     fun put(key: String, viewModel: ViewModel) {
         val oldViewModel = map.put(key, viewModel)
-        oldViewModel?.onCleared()
+        oldViewModel?.clear()
     }
 
     /**
