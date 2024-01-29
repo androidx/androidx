@@ -245,6 +245,8 @@ TaskProvider<PrepareSqliteSourcesTask> registerPrepareSqliteSourcesTask(
                         unzipTaskProvider.map { it.destinationDir }
                 )
         )
+    } else {
+        distDirectory.set(configuration.sqlitePrebuiltsDirectory)
     }
 
     def prepareSourcesTaskProvider = project.tasks.register(

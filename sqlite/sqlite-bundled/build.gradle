@@ -59,6 +59,9 @@ def SQLITE_COMPILE_FLAGS = [
 ]
 
 // see PrepareSqliteSourcesTask.groovy for implementation details of the register method
+// This task prepares a directory to build sqlite and bundle it with the artifact.
+// SQLite is in public domain: https://www.sqlite.org/copyright.html.
+// Including it inside the library implies relicencing it to Apache 2.0.
 def prepareSqliteSourcesTask = registerPrepareSqliteSourcesTask(
         project, // project
         "prepareSqliteSourcesTask" // task name
