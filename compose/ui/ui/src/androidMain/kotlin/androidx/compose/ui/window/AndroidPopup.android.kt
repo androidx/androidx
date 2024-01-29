@@ -54,7 +54,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateObserver
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.R
 import androidx.compose.ui.UiComposable
@@ -113,7 +112,7 @@ import org.jetbrains.annotations.TestOnly
  * the platform default, which is smaller than the screen width.
  */
 @Immutable
-actual class PopupProperties @ExperimentalComposeUiApi constructor(
+actual class PopupProperties constructor(
     actual val focusable: Boolean = false,
     actual val dismissOnBackPress: Boolean = true,
     actual val dismissOnClickOutside: Boolean = true,
@@ -136,7 +135,6 @@ actual class PopupProperties @ExperimentalComposeUiApi constructor(
         clippingEnabled = clippingEnabled,
     )
 
-    @OptIn(ExperimentalComposeUiApi::class)
     constructor(
         focusable: Boolean = false,
         dismissOnBackPress: Boolean = true,
