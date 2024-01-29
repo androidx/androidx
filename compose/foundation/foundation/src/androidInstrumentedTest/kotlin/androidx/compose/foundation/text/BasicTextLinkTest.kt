@@ -117,7 +117,7 @@ class BasicTextLinkTest {
             focusManager.moveFocus(FocusDirection.Previous)
         }
 
-        rule.onAllNodes(hasClickAction())[2].assertIsFocused()
+        rule.onAllNodes(hasClickAction(), useUnmergedTree = true)[2].assertIsFocused()
     }
 
     @Test
@@ -130,8 +130,8 @@ class BasicTextLinkTest {
             focusManager.moveFocus(FocusDirection.Previous)
         }
 
-        rule.onAllNodes(hasClickAction())[2].assertIsNotFocused()
-        rule.onAllNodes(hasClickAction())[1].assertIsFocused()
+        rule.onAllNodes(hasClickAction(), useUnmergedTree = true)[2].assertIsNotFocused()
+        rule.onAllNodes(hasClickAction(), useUnmergedTree = true)[1].assertIsFocused()
     }
 
     @Test
@@ -145,9 +145,9 @@ class BasicTextLinkTest {
             focusManager.moveFocus(FocusDirection.Previous)
         }
 
-        rule.onAllNodes(hasClickAction())[2].assertIsNotFocused()
-        rule.onAllNodes(hasClickAction())[1].assertIsNotFocused()
-        rule.onAllNodes(hasClickAction())[0].assertIsFocused()
+        rule.onAllNodes(hasClickAction(), useUnmergedTree = true)[2].assertIsNotFocused()
+        rule.onAllNodes(hasClickAction(), useUnmergedTree = true)[1].assertIsNotFocused()
+        rule.onAllNodes(hasClickAction(), useUnmergedTree = true)[0].assertIsFocused()
     }
 
     @Test
@@ -346,9 +346,9 @@ class BasicTextLinkTest {
             )
         }
 
-        rule.onAllNodes(hasClickAction())[0].performClick()
+        rule.onAllNodes(hasClickAction(), useUnmergedTree = true)[0].performClick()
 
-        rule.onNodeWithTag("box").assertExists()
+        rule.onNodeWithTag("box", useUnmergedTree = true).assertExists()
         rule.runOnIdle {
             assertThat(openedUri).isEqualTo(Url1)
         }
@@ -419,7 +419,7 @@ class BasicTextLinkTest {
         }
 
         rule.onNodeWithTag("box").assertIsNotFocused()
-        rule.onNode(hasClickAction()).assertIsFocused()
+        rule.onNode(hasClickAction(), useUnmergedTree = true).assertIsFocused()
     }
 
     @Test

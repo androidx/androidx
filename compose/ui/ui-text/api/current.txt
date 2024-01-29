@@ -1320,15 +1320,6 @@ package androidx.compose.ui.text.intl {
 
 }
 
-package androidx.compose.ui.text.platform {
-
-  @SuppressCompatibility @androidx.compose.ui.text.InternalTextApi public final class URLSpanCache {
-    ctor public URLSpanCache();
-    method public android.text.style.URLSpan toURLSpan(androidx.compose.ui.text.UrlAnnotation urlAnnotation);
-  }
-
-}
-
 package androidx.compose.ui.text.platform.extensions {
 
   public final class TtsAnnotationExtensions_androidKt {

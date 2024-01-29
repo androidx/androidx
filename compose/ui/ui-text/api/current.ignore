@@ -25,3 +25,7 @@ InvalidNullConversion: androidx.compose.ui.text.ParagraphStyle#getTextDirection(
 
 RemovedClass: androidx.compose.ui.text.input.AndroidImeOptions:
     Removed class androidx.compose.ui.text.input.AndroidImeOptions
+
+
+RemovedPackage: androidx.compose.ui.text.platform:
+    Removed package androidx.compose.ui.text.platform
