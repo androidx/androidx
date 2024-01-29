@@ -31,6 +31,7 @@ import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.lazy.LazyListState.Companion.Saver
 import androidx.compose.foundation.lazy.layout.AwaitFirstLayoutModifier
 import androidx.compose.foundation.lazy.layout.LazyLayoutBeyondBoundsInfo
 import androidx.compose.foundation.lazy.layout.LazyLayoutPinnedItemList
@@ -58,7 +59,6 @@ import androidx.compose.ui.util.fastRoundToInt
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.math.abs
 import kotlin.ranges.IntRange
-import kotlin.ranges.until
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -86,6 +86,34 @@ fun rememberLazyListState(
 }
 
 /**
+ * Creates a [LazyListState] that is remembered across compositions.
+ *
+ * Changes to the provided initial values will **not** result in the state being recreated or
+ * changed in any way if it has already been created.
+ *
+ * @param initialFirstVisibleItemIndex the initial value for [LazyListState.firstVisibleItemIndex]
+ * @param initialFirstVisibleItemScrollOffset the initial value for
+ * [LazyListState.firstVisibleItemScrollOffset]
+ * @param prefetchStrategy the [LazyListPrefetchStrategy] to use for prefetching content in this
+ * list
+ */
+@ExperimentalFoundationApi
+@Composable
+fun rememberLazyListState(
+    initialFirstVisibleItemIndex: Int = 0,
+    initialFirstVisibleItemScrollOffset: Int = 0,
+    prefetchStrategy: LazyListPrefetchStrategy = DefaultLazyListPrefetchStrategy(),
+): LazyListState {
+    return rememberSaveable(saver = LazyListState.saver(prefetchStrategy)) {
+        LazyListState(
+            initialFirstVisibleItemIndex,
+            initialFirstVisibleItemScrollOffset,
+            prefetchStrategy
+        )
+    }
+}
+
+/**
  * A state object that can be hoisted to control and observe scrolling.
  *
  * In most cases, this will be created via [rememberLazyListState].
@@ -93,13 +121,26 @@ fun rememberLazyListState(
  * @param firstVisibleItemIndex the initial value for [LazyListState.firstVisibleItemIndex]
  * @param firstVisibleItemScrollOffset the initial value for
  * [LazyListState.firstVisibleItemScrollOffset]
+ * @param prefetchStrategy the [LazyListPrefetchStrategy] to use for prefetching content in this
+ * list
  */
 @OptIn(ExperimentalFoundationApi::class)
 @Stable
-class LazyListState constructor(
+class LazyListState @ExperimentalFoundationApi constructor(
     firstVisibleItemIndex: Int = 0,
-    firstVisibleItemScrollOffset: Int = 0
+    firstVisibleItemScrollOffset: Int = 0,
+    private val prefetchStrategy: LazyListPrefetchStrategy = DefaultLazyListPrefetchStrategy(),
 ) : ScrollableState {
+
+    /**
+     * @param firstVisibleItemIndex the initial value for [LazyListState.firstVisibleItemIndex]
+     * @param firstVisibleItemScrollOffset the initial value for
+     * [LazyListState.firstVisibleItemScrollOffset]
+     */
+    constructor(
+        firstVisibleItemIndex: Int = 0,
+        firstVisibleItemScrollOffset: Int = 0
+    ) : this(firstVisibleItemIndex, firstVisibleItemScrollOffset, DefaultLazyListPrefetchStrategy())
 
     internal var hasLookaheadPassOccurred: Boolean = false
         private set
@@ -145,6 +186,7 @@ class LazyListState constructor(
         EmptyLazyListMeasureResult,
         neverEqualPolicy()
     )
+
     /**
      * The object of [LazyListLayoutInfo] calculated during the last layout pass. For example,
      * you can use it to calculate what items are currently visible.
@@ -198,22 +240,6 @@ class LazyListState constructor(
     internal var prefetchingEnabled: Boolean = true
 
     /**
-     * The index scheduled to be prefetched (or the last prefetched index if the prefetch is done).
-     */
-    private var indexToPrefetch = -1
-
-    /**
-     * The handle associated with the current index from [indexToPrefetch].
-     */
-    private var currentPrefetchHandle: LazyLayoutPrefetchState.PrefetchHandle? = null
-
-    /**
-     * Keeps the scrolling direction during the previous calculation in order to be able to
-     * detect the scrolling direction change.
-     */
-    private var wasScrollingForward = false
-
-    /**
      * The [Remeasurement] object associated with our layout. It allows us to remeasure
      * synchronously during scroll.
      */
@@ -238,6 +264,19 @@ class LazyListState constructor(
     internal val itemAnimator = LazyListItemAnimator()
 
     internal val beyondBoundsInfo = LazyLayoutBeyondBoundsInfo()
+
+    internal val prefetchState = LazyLayoutPrefetchState(prefetchStrategy.prefetchExecutor)
+
+    private val prefetchScope = object : LazyListPrefetchScope {
+        override fun schedulePrefetch(index: Int): LazyLayoutPrefetchState.PrefetchHandle {
+            // Without read observation since this can be triggered from scroll - this will then
+            // cause us to recompose when the measure result changes. We don't care since the
+            // prefetch is best effort.
+            val constraints =
+                Snapshot.withoutReadObservation { layoutInfoState.value.childConstraints }
+            return prefetchState.schedulePrefetch(index, constraints)
+        }
+    }
 
     /**
      * Stores currently pinned items which are always composed.
@@ -340,11 +379,16 @@ class LazyListState constructor(
                 // we don't need to remeasure, so we only trigger re-placement:
                 placementScopeInvalidator.invalidateScope()
 
-                notifyPrefetch(preScrollToBeConsumed - scrollToBeConsumed, layoutInfo)
+                notifyPrefetchOnScroll(
+                    preScrollToBeConsumed - scrollToBeConsumed,
+                    layoutInfo
+                )
             } else {
                 remeasurement?.forceRemeasure()
-
-                notifyPrefetch(preScrollToBeConsumed - scrollToBeConsumed)
+                notifyPrefetchOnScroll(
+                    preScrollToBeConsumed - scrollToBeConsumed,
+                    this.layoutInfo
+                )
             }
         }
 
@@ -362,56 +406,16 @@ class LazyListState constructor(
         }
     }
 
-    private fun notifyPrefetch(
-        delta: Float,
-        layoutInfo: LazyListMeasureResult = layoutInfoState.value
-    ) {
-        if (!prefetchingEnabled) {
-            return
-        }
-        val info = layoutInfo
-        if (info.visibleItemsInfo.isNotEmpty()) {
-            val scrollingForward = delta < 0
-            val indexToPrefetch = if (scrollingForward) {
-                info.visibleItemsInfo.last().index + 1
-            } else {
-                info.visibleItemsInfo.first().index - 1
-            }
-            if (indexToPrefetch != this.indexToPrefetch &&
-                indexToPrefetch in 0 until info.totalItemsCount
-            ) {
-                if (wasScrollingForward != scrollingForward) {
-                    // the scrolling direction has been changed which means the last prefetched
-                    // is not going to be reached anytime soon so it is safer to dispose it.
-                    // if this item is already visible it is safe to call the method anyway
-                    // as it will be no-op
-                    currentPrefetchHandle?.cancel()
-                }
-                this.wasScrollingForward = scrollingForward
-                this.indexToPrefetch = indexToPrefetch
-                currentPrefetchHandle = prefetchState.schedulePrefetch(
-                    indexToPrefetch, layoutInfo.childConstraints
+    fun notifyPrefetchOnScroll(delta: Float, layoutInfo: LazyListLayoutInfo) {
+        if (prefetchingEnabled) {
+            with(prefetchStrategy) {
+                prefetchScope.onScroll(
+                    delta,
+                    layoutInfo
                 )
             }
         }
     }
-
-    private fun cancelPrefetchIfVisibleItemsChanged(info: LazyListLayoutInfo) {
-        if (indexToPrefetch != -1 && info.visibleItemsInfo.isNotEmpty()) {
-            val expectedPrefetchIndex = if (wasScrollingForward) {
-                info.visibleItemsInfo.last().index + 1
-            } else {
-                info.visibleItemsInfo.first().index - 1
-            }
-            if (indexToPrefetch != expectedPrefetchIndex) {
-                indexToPrefetch = -1
-                currentPrefetchHandle?.cancel()
-                currentPrefetchHandle = null
-            }
-        }
-    }
-
-    internal val prefetchState = LazyLayoutPrefetchState()
 
     /**
      * Animate (smooth scroll) to the given item.
@@ -449,16 +453,22 @@ class LazyListState constructor(
             if (isLookingAhead) {
                 hasLookaheadPassOccurred = true
             }
-            if (visibleItemsStayedTheSame) {
-                scrollPosition.updateScrollOffset(result.firstVisibleItemScrollOffset)
-            } else {
-                scrollPosition.updateFromMeasureResult(result)
-                cancelPrefetchIfVisibleItemsChanged(result)
-            }
+
             canScrollBackward = result.canScrollBackward
             canScrollForward = result.canScrollForward
             scrollToBeConsumed -= result.consumedScroll
             layoutInfoState.value = result
+
+            if (visibleItemsStayedTheSame) {
+                scrollPosition.updateScrollOffset(result.firstVisibleItemScrollOffset)
+            } else {
+                scrollPosition.updateFromMeasureResult(result)
+                if (prefetchingEnabled) {
+                    with(prefetchStrategy) {
+                        prefetchScope.onVisibleItemsUpdated(result)
+                    }
+                }
+            }
 
             if (isLookingAhead) {
                 updateScrollDeltaForPostLookahead(
@@ -538,6 +548,23 @@ class LazyListState constructor(
                 )
             }
         )
+
+        /**
+         * A [Saver] implementation for [LazyListState] that handles setting a custom
+         * [LazyListPrefetchStrategy].
+         */
+        @ExperimentalFoundationApi
+        internal fun saver(prefetchStrategy: LazyListPrefetchStrategy): Saver<LazyListState, *> =
+            listSaver(
+                save = { listOf(it.firstVisibleItemIndex, it.firstVisibleItemScrollOffset) },
+                restore = {
+                    LazyListState(
+                        firstVisibleItemIndex = it[0],
+                        firstVisibleItemScrollOffset = it[1],
+                        prefetchStrategy
+                    )
+                }
+            )
     }
 }
 
@@ -551,6 +578,7 @@ private val EmptyLazyListMeasureResult = LazyListMeasureResult(
     measureResult = object : MeasureResult {
         override val width: Int = 0
         override val height: Int = 0
+
         @Suppress("PrimitiveInCollection")
         override val alignmentLines: Map<AlignmentLine, Int> = emptyMap()
         override fun placeChildren() {}

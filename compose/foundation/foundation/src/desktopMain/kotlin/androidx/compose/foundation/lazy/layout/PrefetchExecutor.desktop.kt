@@ -18,14 +18,15 @@ package androidx.compose.foundation.lazy.layout
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.layout.SubcomposeLayoutState
 
 @ExperimentalFoundationApi
 @Composable
-internal actual fun LazyLayoutPrefetcher(
-    prefetchState: LazyLayoutPrefetchState,
-    itemContentFactory: LazyLayoutItemContentFactory,
-    subcomposeLayoutState: SubcomposeLayoutState
-) {
-    // there is no prefetch implementation on desktop yet
+actual fun rememberDefaultPrefetchExecutor(): PrefetchExecutor {
+    return NoOpPrefetchExecutor
+}
+
+@ExperimentalFoundationApi
+private object NoOpPrefetchExecutor : PrefetchExecutor {
+    override fun requestPrefetch(request: PrefetchExecutor.Request) {
+    }
 }
