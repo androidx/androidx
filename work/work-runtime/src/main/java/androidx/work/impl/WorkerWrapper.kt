@@ -24,6 +24,7 @@ import androidx.work.Clock
 import androidx.work.Configuration
 import androidx.work.Data
 import androidx.work.ListenableWorker
+import androidx.work.ListenableWorker.Result.Failure
 import androidx.work.Logger
 import androidx.work.WorkInfo
 import androidx.work.WorkerExceptionInfo
@@ -65,7 +66,6 @@ class WorkerWrapper internal constructor(builder: Builder) : Runnable {
     private var worker: ListenableWorker? = builder.worker
     private val workTaskExecutor: TaskExecutor = builder.workTaskExecutor
 
-    private var result = ListenableWorker.Result.failure()
     private val configuration: Configuration = builder.configuration
     private val clock: Clock = configuration.clock
     private val foregroundProcessor: ForegroundProcessor = builder.foregroundProcessor
@@ -154,7 +154,7 @@ class WorkerWrapper internal constructor(builder: Builder) : Runnable {
                 inputMergerFactory.createInputMergerWithDefaultFallback(inputMergerClassName)
             if (inputMerger == null) {
                 loge(TAG) { "Could not create Input Merger ${workSpec.inputMergerClassName}" }
-                setFailedAndResolve()
+                setFailedAndResolve(Failure())
                 return
             }
             val inputs = listOf(workSpec.input) + workSpecDao.getInputsFromPrerequisites(workSpecId)
@@ -194,7 +194,7 @@ class WorkerWrapper internal constructor(builder: Builder) : Runnable {
                         "Exception handler threw an exception"
                     }
                 }
-                setFailedAndResolve()
+                setFailedAndResolve(Failure())
                 return
             }
         worker.setUsed()
@@ -241,17 +241,19 @@ class WorkerWrapper internal constructor(builder: Builder) : Runnable {
             // Avoid synthetic accessors.
             val workDescription = workDescription
             workerResultFuture.addListener({
+                var result: ListenableWorker.Result = Failure()
                 try {
                     // If the ListenableWorker returns a null result treat it as a failure.
-                    val result = workerResultFuture.get()
-                    if (result == null) {
+                    val futureResult = workerResultFuture.get()
+                    result = if (futureResult == null) {
                         loge(TAG) {
                             workSpec.workerClassName +
                                 " returned a null result. Treating it as a failure."
                         }
+                        Failure()
                     } else {
-                        logd(TAG) { "${workSpec.workerClassName} returned a $result." }
-                        this.result = result
+                        logd(TAG) { "${workSpec.workerClassName} returned a $futureResult." }
+                        futureResult
                     }
                 } catch (exception: InterruptedException) {
                     loge(TAG, exception) {
@@ -259,7 +261,8 @@ class WorkerWrapper internal constructor(builder: Builder) : Runnable {
                     }
                     try {
                         configuration.workerExecutionExceptionHandler?.accept(
-                            WorkerExceptionInfo(workSpec.workerClassName, params, exception))
+                            WorkerExceptionInfo(workSpec.workerClassName, params, exception)
+                        )
                     } catch (exception: Exception) {
                         loge(TAG, exception) {
                             "Exception handler threw an exception"
@@ -292,7 +295,7 @@ class WorkerWrapper internal constructor(builder: Builder) : Runnable {
                         }
                     }
                 } finally {
-                    onWorkFinished()
+                    onWorkFinished(result)
                 }
             }, workTaskExecutor.getSerialTaskExecutor())
         } else {
@@ -300,7 +303,7 @@ class WorkerWrapper internal constructor(builder: Builder) : Runnable {
         }
     }
 
-    private fun onWorkFinished() {
+    private fun onWorkFinished(result: ListenableWorker.Result) {
         if (!tryCheckForInterruptionAndResolve()) {
             workDatabase.runInTransaction {
                 val state = workSpecDao.getState(workSpecId)
@@ -403,13 +406,13 @@ class WorkerWrapper internal constructor(builder: Builder) : Runnable {
         _future.set(needsReschedule)
     }
 
-    private fun handleResult(result: ListenableWorker.Result) {
+    private fun handleResult(result: ListenableWorker.Result?) {
         if (result is ListenableWorker.Result.Success) {
             logi(TAG) { "Worker result SUCCESS for $workDescription" }
             if (workSpec.isPeriodic) {
                 resetPeriodicAndResolve()
             } else {
-                setSucceededAndResolve()
+                setSucceededAndResolve(result)
             }
         } else if (result is ListenableWorker.Result.Retry) {
             logi(TAG) { "Worker result RETRY for $workDescription" }
@@ -419,7 +422,8 @@ class WorkerWrapper internal constructor(builder: Builder) : Runnable {
             if (workSpec.isPeriodic) {
                 resetPeriodicAndResolve()
             } else {
-                setFailedAndResolve()
+                // we have here either failure or null
+                setFailedAndResolve(result ?: Failure())
             }
         }
     }
@@ -437,10 +441,10 @@ class WorkerWrapper internal constructor(builder: Builder) : Runnable {
     )
 
     @VisibleForTesting
-    fun setFailedAndResolve() {
+    fun setFailedAndResolve(result: ListenableWorker.Result) {
         resolve(false) {
             iterativelyFailWorkAndDependents(workSpecId)
-            val failure = result as ListenableWorker.Result.Failure
+            val failure = result as Failure
             // Update Data as necessary.
             val output = failure.outputData
             workSpecDao.resetWorkSpecNextScheduleTimeOverride(
@@ -493,7 +497,7 @@ class WorkerWrapper internal constructor(builder: Builder) : Runnable {
         }
     }
 
-    private fun setSucceededAndResolve() {
+    private fun setSucceededAndResolve(result: ListenableWorker.Result) {
         resolve(false) {
             workSpecDao.setState(WorkInfo.State.SUCCEEDED, workSpecId)
             val success = result as ListenableWorker.Result.Success

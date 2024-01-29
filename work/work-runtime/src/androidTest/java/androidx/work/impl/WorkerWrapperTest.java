@@ -319,7 +319,7 @@ public class WorkerWrapperTest extends DatabaseTest {
             previousId = work.getStringId();
         }
         WorkerWrapper workerWrapper = createBuilder(firstWorkId).build();
-        workerWrapper.setFailedAndResolve();
+        workerWrapper.setFailedAndResolve(new ListenableWorker.Result.Failure());
         assertThat(mWorkSpecDao.getState(firstWorkId), is(FAILED));
         assertThat(mWorkSpecDao.getState(previousId), is(FAILED));
     }
