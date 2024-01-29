@@ -16,13 +16,13 @@
 
 package androidx.benchmark.macro
 
-import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.benchmark.Shell
 import androidx.benchmark.macro.BatteryCharge.hasMinimumCharge
 import androidx.benchmark.macro.PowerMetric.Type
 import androidx.benchmark.macro.PowerRail.hasMetrics
+import androidx.benchmark.macro.TraceSectionMetric.Mode
 import androidx.benchmark.macro.perfetto.BatteryDischargeQuery
 import androidx.benchmark.macro.perfetto.FrameTimingQuery
 import androidx.benchmark.macro.perfetto.FrameTimingQuery.SubMetric
@@ -151,10 +151,10 @@ class FrameTimingMetric : Metric() {
     ): List<Measurement> {
         return FrameTimingQuery.getFrameData(
             session = traceSession,
-            captureApiLevel = Build.VERSION.SDK_INT,
+            captureApiLevel = captureInfo.apiLevel,
             packageName = captureInfo.targetPackageName
         )
-            .getFrameSubMetrics(Build.VERSION.SDK_INT)
+            .getFrameSubMetrics(captureInfo.apiLevel)
             .filterKeys { it == SubMetric.FrameDurationCpuNs || it == SubMetric.FrameOverrunNs }
             .map {
                 Measurement(
@@ -166,6 +166,116 @@ class FrameTimingMetric : Metric() {
                     dataSamples = it.value.map { timeNs -> timeNs.nsToDoubleMs() }
                 )
             }
+    }
+}
+
+/**
+ * Version of FrameTimingMetric based on 'dumpsys gfxinfo' instead of trace data.
+ *
+ * Added for experimentation in contrast to FrameTimingMetric, as the platform accounting of frame
+ * drops currently behaves differently from that of FrameTimingMetric.
+ *
+ * Likely to be removed when differences in jank behavior are reconciled between this class, and
+ * [FrameTimingMetric].
+ *
+ * Note that output metrics do not match perfectly to FrameTimingMetric, as individual frame times
+ * are not available, only high level, millisecond-precision statistics.
+ */
+@ExperimentalMetricApi
+class FrameTimingGfxInfoMetric : Metric() {
+    private lateinit var packageName: String
+    private val helper = JankCollectionHelper()
+    private var metrics = mutableMapOf<String, Double>()
+
+    override fun configure(packageName: String) {
+        this.packageName = packageName
+        helper.addTrackedPackages(packageName)
+    }
+
+    override fun start() {
+        try {
+            helper.startCollecting()
+        } catch (exception: RuntimeException) {
+            // Ignore the exception that might result from trying to clear GfxInfo
+            // The current implementation of JankCollectionHelper throws a RuntimeException
+            // when that happens. This is safe to ignore because the app being benchmarked
+            // is not showing any UI when this happens typically.
+
+            // Once the MacroBenchmarkRule has the ability to setup the app in the right state via
+            // a designated setup block, we can get rid of this.
+            if (!Shell.isPackageAlive(packageName)) {
+                error(exception.message ?: "Assertion error, $packageName not running")
+            }
+        }
+    }
+
+    override fun stop() {
+        helper.stopCollecting()
+
+        // save metrics on stop to attempt to more closely match perfetto based metrics
+        metrics.clear()
+        metrics.putAll(helper.metrics)
+    }
+
+    /**
+     * Used to convert keys from platform to JSON format.
+     *
+     * This both converts `snake_case_format` to `camelCaseFormat`, and renames for clarity.
+     *
+     * Note that these will still output to inst results in snake_case, with `MetricNameUtils`
+     * via [androidx.benchmark.MetricResult.putInBundle].
+     */
+    private val keyRenameMap = mapOf(
+        "frame_render_time_percentile_50" to "gfxFrameTime50thPercentileMs",
+        "frame_render_time_percentile_90" to "gfxFrameTime90thPercentileMs",
+        "frame_render_time_percentile_95" to "gfxFrameTime95thPercentileMs",
+        "frame_render_time_percentile_99" to "gfxFrameTime99thPercentileMs",
+        "gpu_frame_render_time_percentile_50" to "gpuFrameTime50thPercentileMs",
+        "gpu_frame_render_time_percentile_90" to "gpuFrameTime90thPercentileMs",
+        "gpu_frame_render_time_percentile_95" to "gpuFrameTime95thPercentileMs",
+        "gpu_frame_render_time_percentile_99" to "gpuFrameTime99thPercentileMs",
+        "missed_vsync" to "vsyncMissedFrameCount",
+        "deadline_missed" to "deadlineMissedFrameCount",
+        "deadline_missed_legacy" to "deadlineMissedFrameCountLegacy",
+        "janky_frames_count" to "jankyFrameCount",
+        "janky_frames_legacy_count" to "jankyFrameCountLegacy",
+        "high_input_latency" to "highInputLatencyFrameCount",
+        "slow_ui_thread" to "slowUiThreadFrameCount",
+        "slow_bmp_upload" to "slowBitmapUploadFrameCount",
+        "slow_issue_draw_cmds" to "slowIssueDrawCommandsFrameCount",
+        "total_frames" to "gfxFrameTotalCount",
+        "janky_frames_percent" to "gfxFrameJankPercent",
+        "janky_frames_legacy_percent" to "jankyFramePercentLegacy"
+    )
+
+    /**
+     * Filters output to only frameTimeXXthPercentileMs and totalFrameCount
+     */
+    private val keyAllowList = setOf(
+        "gfxFrameTime50thPercentileMs",
+        "gfxFrameTime90thPercentileMs",
+        "gfxFrameTime95thPercentileMs",
+        "gfxFrameTime99thPercentileMs",
+        "gfxFrameTotalCount",
+        "gfxFrameJankPercent",
+    )
+
+    override fun getResult(
+        captureInfo: CaptureInfo,
+        traceSession: PerfettoTraceProcessor.Session
+    ): List<Measurement> {
+        return metrics
+            .map {
+                val prefix = "gfxinfo_${packageName}_"
+                val keyWithoutPrefix = it.key.removePrefix(prefix)
+
+                if (keyWithoutPrefix != it.key && keyRenameMap.containsKey(keyWithoutPrefix)) {
+                    Measurement(keyRenameMap[keyWithoutPrefix]!!, it.value)
+                } else {
+                    throw IllegalStateException("Unexpected key ${it.key}")
+                }
+            }
+            .filter { keyAllowList.contains(it.name) }
     }
 }
 
