@@ -444,6 +444,7 @@ private fun LazyStaggeredGridMeasureContext.measure(
             -firstItemOffsets[it]
         }
 
+        val minVisibleOffset = minOffset + mainAxisSpacing
         val maxOffset = (mainAxisAvailableSize + afterContentPadding).coerceAtLeast(0)
 
         debugLog {
@@ -473,14 +474,20 @@ private fun LazyStaggeredGridMeasureContext.measure(
             )
 
             laneInfo.setLane(itemIndex, spanRange.laneInfo)
-            val offset = currentItemOffsets.maxInRange(spanRange) + measuredItem.sizeWithSpacings
+            val offset = currentItemOffsets.maxInRange(spanRange)
             spanRange.forEach { lane ->
-                currentItemOffsets[lane] = offset
+                currentItemOffsets[lane] = offset + measuredItem.sizeWithSpacings
                 currentItemIndices[lane] = itemIndex
                 measuredItems[lane].addLast(measuredItem)
             }
 
-            if (currentItemOffsets[spanRange.start] <= minOffset + mainAxisSpacing) {
+            // item is not visible if both start and end bounds are outside of the visible range.
+            if (
+                offset < minVisibleOffset && currentItemOffsets[spanRange.start] <= minVisibleOffset
+            ) {
+                // We scrolled past measuredItem, and it is not visible anymore. We measured it
+                // for correct positioning of other items, but there's no need to place it.
+                // Mark it as not visible and filter below.
                 measuredItem.isVisible = false
                 remeasureNeeded = true
             }
@@ -538,7 +545,10 @@ private fun LazyStaggeredGridMeasureContext.measure(
             }
             laneInfo.setGaps(itemIndex, gaps)
 
-            if (currentItemOffsets[spanRange.start] <= minOffset + mainAxisSpacing) {
+            // item is not visible if both start and end bounds are outside of the visible range.
+            if (
+                offset < minVisibleOffset && currentItemOffsets[spanRange.start] <= minVisibleOffset
+            ) {
                 // We scrolled past measuredItem, and it is not visible anymore. We measured it
                 // for correct positioning of other items, but there's no need to place it.
                 // Mark it as not visible and filter below.
