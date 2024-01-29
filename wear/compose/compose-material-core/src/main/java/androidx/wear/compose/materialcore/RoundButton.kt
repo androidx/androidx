@@ -38,9 +38,10 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 
 /**
- * Wear Material [Button] that offers a single slot to take any content (text, icon or image).
+ * Wear Material [RoundButton] that offers a single slot to take any content (text, icon or image)
+ * and is round/circular in shape.
  *
- * [Button] can be enabled or disabled. A disabled button will not respond to click events.
+ * [RoundButton] can be enabled or disabled. A disabled button will not respond to click events.
  *
  * For more information, see the
  * [Buttons](https://developer.android.com/training/wearables/components/buttons)
@@ -59,11 +60,11 @@ import androidx.compose.ui.unit.Dp
  * @param border Resolves the border for this button in different states.
  * @param buttonSize The default size of the button unless overridden by Modifier.size.
  * @param ripple Ripple used for this button.
- * @param content The content displayed on the [Button] such as text, icon or image.
+ * @param content The content displayed on the [RoundButton] such as text, icon or image.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Composable
-fun Button(
+fun RoundButton(
     onClick: () -> Unit,
     modifier: Modifier,
     enabled: Boolean,

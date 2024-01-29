@@ -60,14 +60,14 @@ import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 
-class ButtonTest {
+class RoundButtonTest {
     @get:Rule
     val rule = createComposeRule()
 
     @Test
     fun supports_testtag_on_button() {
         rule.setContent {
-            ButtonWithDefaults(
+            RoundButtonWithDefaults(
                 modifier = Modifier.testTag(TEST_TAG),
             ) {
             }
@@ -79,7 +79,7 @@ class ButtonTest {
     @Test
     fun has_clickaction_when_enabled() {
         rule.setContent {
-            ButtonWithDefaults(
+            RoundButtonWithDefaults(
                 enabled = true,
                 modifier = Modifier.testTag(TEST_TAG)
             ) {
@@ -92,7 +92,7 @@ class ButtonTest {
     @Test
     fun has_clickaction_when_disabled() {
         rule.setContent {
-            ButtonWithDefaults(
+            RoundButtonWithDefaults(
                 enabled = false,
                 modifier = Modifier.testTag(TEST_TAG)
             ) {
@@ -105,7 +105,7 @@ class ButtonTest {
     @Test
     fun is_correctly_enabled() {
         rule.setContent {
-            ButtonWithDefaults(
+            RoundButtonWithDefaults(
                 enabled = true,
                 modifier = Modifier.testTag(TEST_TAG)
             ) {
@@ -118,7 +118,7 @@ class ButtonTest {
     @Test
     fun is_correctly_disabled() {
         rule.setContent {
-            ButtonWithDefaults(
+            RoundButtonWithDefaults(
                 enabled = false,
                 modifier = Modifier.testTag(TEST_TAG)
             ) {
@@ -133,7 +133,7 @@ class ButtonTest {
         var clicked = false
 
         rule.setContent {
-            ButtonWithDefaults(
+            RoundButtonWithDefaults(
                 onClick = { clicked = true },
                 enabled = true,
                 modifier = Modifier.testTag(TEST_TAG)
@@ -153,7 +153,7 @@ class ButtonTest {
         var clicked = false
 
         rule.setContent {
-            ButtonWithDefaults(
+            RoundButtonWithDefaults(
                 onClick = { clicked = true },
                 enabled = false,
                 modifier = Modifier.testTag(TEST_TAG)
@@ -171,7 +171,7 @@ class ButtonTest {
     @Test
     fun has_role_button_for_button() {
         rule.setContent {
-            ButtonWithDefaults(
+            RoundButtonWithDefaults(
                 modifier = Modifier.testTag(TEST_TAG)
             ) {
             }
@@ -189,7 +189,7 @@ class ButtonTest {
     @Test
     fun supports_circleshape_under_ltr_for_button() =
         rule.isShape(CircleShape, LayoutDirection.Ltr) {
-            ButtonWithDefaults(
+            RoundButtonWithDefaults(
                 modifier = Modifier.testTag(TEST_TAG),
             ) {
             }
@@ -198,7 +198,7 @@ class ButtonTest {
     @Test
     fun supports_circleshape_under_rtl_for_button() =
         rule.isShape(CircleShape, LayoutDirection.Rtl) {
-            ButtonWithDefaults(
+            RoundButtonWithDefaults(
                 modifier = Modifier.testTag(TEST_TAG),
             ) {
             }
@@ -207,7 +207,7 @@ class ButtonTest {
     @Test
     fun extra_small_button_meets_accessibility_tapsize() {
         verifyTapSize(48.dp) {
-            ButtonWithDefaults(
+            RoundButtonWithDefaults(
                 modifier = Modifier
                     .testTag(TEST_TAG)
                     .size(32.dp)
@@ -219,7 +219,7 @@ class ButtonTest {
     @Test
     fun extra_small_button_has_correct_visible_size() {
         verifyVisibleSize(32.dp) {
-            ButtonWithDefaults(
+            RoundButtonWithDefaults(
                 modifier = Modifier
                     .testTag(TEST_TAG)
                     .requiredSize(32.dp)
@@ -232,7 +232,7 @@ class ButtonTest {
     fun default_button_has_correct_tapsize() {
         // Tap size for Button should be the min button size.
         verifyTapSize(52.dp) {
-            ButtonWithDefaults(
+            RoundButtonWithDefaults(
                 modifier = Modifier
                     .testTag(TEST_TAG)
             ) {
@@ -244,7 +244,7 @@ class ButtonTest {
     fun default_button_has_correct_visible_size() {
         // Tap size for Button should be the min button size.
         verifyVisibleSize(52.dp) {
-            ButtonWithDefaults(
+            RoundButtonWithDefaults(
                 modifier = Modifier
                     .testTag(TEST_TAG)
                     .size(52.dp)
@@ -258,7 +258,7 @@ class ButtonTest {
         val shape = CutCornerShape(4.dp)
 
         rule.isShape(shape, LayoutDirection.Ltr) {
-            ButtonWithDefaults(
+            RoundButtonWithDefaults(
                 shape = shape,
                 modifier = Modifier.testTag(TEST_TAG)
             ) {
@@ -298,7 +298,7 @@ class ButtonTest {
 
         rule.setContent {
             Box(modifier = Modifier.fillMaxSize()) {
-                ButtonWithDefaults(
+                RoundButtonWithDefaults(
                     content = {
                         CompositionLocalProvider(
                             LocalContentTestData provides EXPECTED_LOCAL_TEST_DATA
@@ -339,7 +339,7 @@ class ButtonTest {
                     .fillMaxSize()
                     .background(testBackground)
             ) {
-                ButtonWithDefaults(
+                RoundButtonWithDefaults(
                     backgroundColor = { enabled ->
                         if (enabled) enabledBackgroundColor else disabledBackgroundColor
                     },
@@ -388,7 +388,7 @@ class ButtonTest {
     }
 
     @Composable
-    internal fun ButtonWithDefaults(
+    internal fun RoundButtonWithDefaults(
         modifier: Modifier = Modifier,
         onClick: () -> Unit = {},
         enabled: Boolean = true,
@@ -397,7 +397,7 @@ class ButtonTest {
         shape: Shape = CircleShape,
         border: @Composable (enabled: Boolean) -> BorderStroke? = { null },
         content: @Composable BoxScope.() -> Unit
-    ) = Button(
+    ) = RoundButton(
         onClick = onClick,
         modifier = modifier,
         enabled = enabled,

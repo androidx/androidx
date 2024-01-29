@@ -154,7 +154,7 @@ public fun Button(
     border: ButtonBorder = ButtonDefaults.buttonBorder(),
     content: @Composable BoxScope.() -> Unit,
 ) {
-    androidx.wear.compose.materialcore.Button(
+    androidx.wear.compose.materialcore.RoundButton(
         onClick = onClick,
         modifier = modifier,
         enabled = enabled,
@@ -335,7 +335,7 @@ public fun CompactButton(
     border: ButtonBorder = ButtonDefaults.buttonBorder(),
     content: @Composable BoxScope.() -> Unit,
 ) {
-    androidx.wear.compose.materialcore.Button(
+    androidx.wear.compose.materialcore.RoundButton(
         onClick = onClick,
         modifier = modifier
             .padding(backgroundPadding)
