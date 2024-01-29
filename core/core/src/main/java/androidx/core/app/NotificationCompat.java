@@ -859,6 +859,11 @@ public class NotificationCompat {
      */
     public static final String CATEGORY_MISSED_CALL = "missed_call";
 
+    /**
+     * Notification category: voicemail.
+     */
+    public static final String CATEGORY_VOICEMAIL = "voicemail";
+
     @Retention(RetentionPolicy.SOURCE)
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @IntDef({BADGE_ICON_NONE, BADGE_ICON_SMALL, BADGE_ICON_LARGE})
