@@ -89,7 +89,7 @@ fun TextButton(
     interactionSource: MutableInteractionSource? = null,
     content: @Composable BoxScope.() -> Unit,
 ) {
-    androidx.wear.compose.materialcore.Button(
+    androidx.wear.compose.materialcore.RoundButton(
         onClick = onClick,
         modifier.minimumInteractiveComponentSize(),
         enabled = enabled,
