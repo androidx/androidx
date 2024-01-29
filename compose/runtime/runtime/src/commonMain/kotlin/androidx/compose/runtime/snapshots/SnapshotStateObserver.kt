@@ -30,8 +30,8 @@ import androidx.compose.runtime.composeRuntimeError
 import androidx.compose.runtime.currentThreadId
 import androidx.compose.runtime.currentThreadName
 import androidx.compose.runtime.observeDerivedStateRecalculations
+import androidx.compose.runtime.requirePrecondition
 import androidx.compose.runtime.structuralEqualityPolicy
-import requirePrecondition
 
 /**
  * Helper class to efficiently observe snapshot state reads. See [observeReads] for more details.

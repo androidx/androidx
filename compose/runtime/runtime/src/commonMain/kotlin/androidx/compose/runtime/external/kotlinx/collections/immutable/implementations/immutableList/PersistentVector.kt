@@ -9,8 +9,7 @@ import androidx.compose.runtime.external.kotlinx.collections.immutable.Persisten
 import androidx.compose.runtime.external.kotlinx.collections.immutable.internal.ListImplementation.checkElementIndex
 import androidx.compose.runtime.external.kotlinx.collections.immutable.internal.ListImplementation.checkPositionIndex
 import androidx.compose.runtime.external.kotlinx.collections.immutable.internal.assert
-import androidx.compose.runtime.external.kotlinx.collections.immutable.mutate
-import requirePrecondition
+import androidx.compose.runtime.requirePrecondition
 
 /**
  * Persistent vector made of a trie of leaf buffers entirely filled with [MAX_BUFFER_SIZE] elements and a tail having

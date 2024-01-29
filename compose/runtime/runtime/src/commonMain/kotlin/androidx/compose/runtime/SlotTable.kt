@@ -24,10 +24,8 @@ import androidx.compose.runtime.snapshots.fastForEach
 import androidx.compose.runtime.snapshots.fastMap
 import androidx.compose.runtime.tooling.CompositionData
 import androidx.compose.runtime.tooling.CompositionGroup
-import checkPrecondition
 import kotlin.math.max
 import kotlin.math.min
-import requirePrecondition
 
 // Nomenclature -
 // Address      - an absolute offset into the array ignoring its gap. See Index below.

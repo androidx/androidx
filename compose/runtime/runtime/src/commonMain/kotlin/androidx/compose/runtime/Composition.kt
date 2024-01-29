@@ -31,7 +31,6 @@ import androidx.compose.runtime.snapshots.fastAny
 import androidx.compose.runtime.snapshots.fastForEach
 import androidx.compose.runtime.tooling.CompositionObserver
 import androidx.compose.runtime.tooling.CompositionObserverHandle
-import checkPrecondition
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 
