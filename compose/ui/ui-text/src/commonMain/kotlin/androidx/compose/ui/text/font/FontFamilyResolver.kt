@@ -258,6 +258,6 @@ internal class FontLoadFailedException(
     fontFamily: FontFamily?,
     cause: Throwable? = null,
 ) : IllegalStateException(
-    message = "Failed to load font $fontFamily. Is it installed on the system?",
-    cause = cause,
+    /* message = */ "Failed to load font $fontFamily. Is it installed on the system?",
+    /* cause = */ cause,
 )
