@@ -34,6 +34,7 @@ import androidx.compose.foundation.text.TEST_FONT_FAMILY
 import androidx.compose.foundation.text.selection.fetchTextLayoutResult
 import androidx.compose.foundation.text2.BasicTextField2
 import androidx.compose.foundation.text2.input.TextFieldBuffer.ChangeList
+import androidx.compose.foundation.text2.input.internal.selection.FakeClipboardManager
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -106,9 +107,15 @@ import org.junit.runner.RunWith
 internal class BasicTextField2Test {
     @get:Rule
     val rule = createComposeRule()
+
+    @get:Rule
+    val immRule = ComposeInputMethodManagerTestRule()
+
     private val inputMethodInterceptor = InputMethodInterceptor(rule)
 
     private val Tag = "BasicTextField2"
+
+    private val imm = FakeInputMethodManager()
 
     @Test
     fun textField_rendersEmptyContent() {
@@ -453,7 +460,10 @@ internal class BasicTextField2Test {
             focusManager = LocalFocusManager.current
             Row {
                 // Extra focusable that takes initial focus when focus is cleared.
-                Box(Modifier.size(10.dp).focusable())
+                Box(
+                    Modifier
+                        .size(10.dp)
+                        .focusable())
                 BasicTextField2(
                     state = state,
                     modifier = Modifier.testTag("TextField")
@@ -1299,6 +1309,103 @@ internal class BasicTextField2Test {
 
         assertThat(tfs.text.toString()).isEqualTo(longText)
         assertThat(tfs.text.selectionInChars).isEqualTo(TextRange(longText.length))
+    }
+
+    @Test
+    fun selectAll_contextMenuAction_informsImeOfSelectionChange() {
+        immRule.setFactory { imm }
+        val state = TextFieldState("Hello")
+        inputMethodInterceptor.setTextFieldTestContent {
+            BasicTextField2(
+                state = state,
+                modifier = Modifier.testTag(Tag)
+            )
+        }
+
+        requestFocus(Tag)
+
+        inputMethodInterceptor.withInputConnection {
+            performContextMenuAction(android.R.id.selectAll)
+        }
+
+        rule.runOnIdle {
+            assertThat(state.text.selectionInChars).isEqualTo(TextRange(0, 5))
+            assertThat(imm.expectCall("updateSelection(0, 5, -1, -1)"))
+        }
+    }
+
+    @Test
+    fun cut_contextMenuAction_cutsIntoClipboard() {
+        val clipboardManager = FakeClipboardManager("World")
+        val state = TextFieldState("Hello", initialSelectionInChars = TextRange(0, 2))
+        inputMethodInterceptor.setTextFieldTestContent {
+            CompositionLocalProvider(LocalClipboardManager provides clipboardManager) {
+                BasicTextField2(
+                    state = state,
+                    modifier = Modifier.testTag(Tag)
+                )
+            }
+        }
+
+        requestFocus(Tag)
+
+        inputMethodInterceptor.withInputConnection {
+            performContextMenuAction(android.R.id.cut)
+        }
+
+        rule.runOnIdle {
+            assertThat(clipboardManager.getText()?.text).isEqualTo("He")
+            assertThat(state.text.toString()).isEqualTo("llo")
+        }
+    }
+
+    @Test
+    fun copy_contextMenuAction_copiesIntoClipboard() {
+        val clipboardManager = FakeClipboardManager("World")
+        val state = TextFieldState("Hello", initialSelectionInChars = TextRange(0, 2))
+        inputMethodInterceptor.setTextFieldTestContent {
+            CompositionLocalProvider(LocalClipboardManager provides clipboardManager) {
+                BasicTextField2(
+                    state = state,
+                    modifier = Modifier.testTag(Tag)
+                )
+            }
+        }
+
+        requestFocus(Tag)
+
+        inputMethodInterceptor.withInputConnection {
+            performContextMenuAction(android.R.id.copy)
+        }
+
+        rule.runOnIdle {
+            assertThat(clipboardManager.getText()?.text).isEqualTo("He")
+        }
+    }
+
+    @Test
+    fun paste_contextMenuAction_pastesFromClipboard() {
+        val clipboardManager = FakeClipboardManager("World")
+        val state = TextFieldState("Hello", initialSelectionInChars = TextRange(0, 4))
+        inputMethodInterceptor.setTextFieldTestContent {
+            CompositionLocalProvider(LocalClipboardManager provides clipboardManager) {
+                BasicTextField2(
+                    state = state,
+                    modifier = Modifier.testTag(Tag)
+                )
+            }
+        }
+
+        requestFocus(Tag)
+
+        inputMethodInterceptor.withInputConnection {
+            performContextMenuAction(android.R.id.paste)
+        }
+
+        rule.runOnIdle {
+            assertThat(state.text.toString()).isEqualTo("Worldo")
+            assertThat(state.text.selectionInChars).isEqualTo(TextRange(5))
+        }
     }
 
     private fun requestFocus(tag: String) =
