@@ -35,8 +35,8 @@ import androidx.compose.ui.unit.LayoutDirection
 interface DelegatableNode {
     /**
      * A reference of the [Modifier.Node] that holds this node's position in the node hierarchy. If
-     * the node is a delegate of another node, this will point to that node. Otherwise, this will
-     * point to itself.
+     * the node is a delegate of another node, this will point to the root delegating node that is
+     * actually part of the node tree. Otherwise, this will point to itself.
      */
     val node: Modifier.Node
 }
