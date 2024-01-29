@@ -31,7 +31,7 @@ import org.jetbrains.uast.UElement
 /**
  * Checks for usages of [eager APIs](https://docs.gradle.org/current/userguide/task_configuration_avoidance.html).
  */
-class EagerTaskConfigurationDetector : Detector(), Detector.UastScanner {
+class EagerConfigurationDetector : Detector(), Detector.UastScanner {
 
     override fun getApplicableUastTypes(): List<Class<out UElement>> = listOf(
         UCallExpression::class.java
@@ -47,21 +47,26 @@ class EagerTaskConfigurationDetector : Detector(), Detector.UastScanner {
             // unrelated method with the same name).
             if (
                 containingClass.qualifiedName != containingClassName &&
-                    containingClass.supers.none { it.qualifiedName == containingClassName }
+                containingClass.supers.none { it.qualifiedName == containingClassName }
             ) return
 
-            val fix = fix()
-                .replace()
-                .with(replacementMethod)
-                .reformat(true)
-                // Don't auto-fix from the command line because the replacement methods don't have
-                // the same return types, so the fixed code likely won't compile.
-                .autoFix(robot = false, independent = false)
-                .build()
+            val fix = replacementMethod?.let {
+                fix()
+                    .replace()
+                    .with(it)
+                    .reformat(true)
+                    // Don't auto-fix from the command line because the replacement methods don't
+                    // have the same return types, so the fixed code likely won't compile.
+                    .autoFix(robot = false, independent = false)
+                    .build()
+            }
+            val message = replacementMethod?.let { "Use $it instead of ${method.name}" }
+                ?: "Avoid using eager method ${method.name}"
+
             val incident = Incident(context)
                 .issue(ISSUE)
                 .location(context.getNameLocation(node))
-                .message("Use $replacementMethod instead of ${method.name}")
+                .message(message)
                 .fix(fix)
                 .scope(node)
             context.report(incident)
@@ -72,9 +77,11 @@ class EagerTaskConfigurationDetector : Detector(), Detector.UastScanner {
         private const val TASK_CONTAINER = "org.gradle.api.tasks.TaskContainer"
         private const val DOMAIN_OBJECT_COLLECTION = "org.gradle.api.DomainObjectCollection"
         private const val TASK_COLLECTION = "org.gradle.api.tasks.TaskCollection"
+        private const val NAMED_DOMAIN_OBJECT_COLLECTION =
+            "org.gradle.api.NamedDomainObjectCollection"
 
         // A map from eager method name to the containing class of the method and the name of the
-        // replacement method.
+        // replacement method, if there is a direct equivalent.
         private val REPLACEMENTS = mapOf(
             "create" to Pair(TASK_CONTAINER, "register"),
             "getByName" to Pair(TASK_CONTAINER, "named"),
@@ -82,20 +89,28 @@ class EagerTaskConfigurationDetector : Detector(), Detector.UastScanner {
             "whenTaskAdded" to Pair(TASK_CONTAINER, "configureEach"),
             "whenObjectAdded" to Pair(DOMAIN_OBJECT_COLLECTION, "configureEach"),
             "getAt" to Pair(TASK_COLLECTION, "named"),
+            "getByPath" to Pair(TASK_CONTAINER, null),
+            "findByName" to Pair(NAMED_DOMAIN_OBJECT_COLLECTION, null),
+            "findByPath" to Pair(TASK_CONTAINER, null),
+            "replace" to Pair(TASK_CONTAINER, null),
+            "remove" to Pair(TASK_CONTAINER, null),
+            "iterator" to Pair(TASK_CONTAINER, null),
+            "findAll" to Pair(NAMED_DOMAIN_OBJECT_COLLECTION, null),
+            "matching" to Pair(TASK_COLLECTION, null),
         )
 
         val ISSUE = Issue.create(
-            "EagerGradleTaskConfiguration",
+            "EagerGradleConfiguration",
             "Avoid using eager task APIs",
             """
-                Lazy APIs defer task configuration until the task is needed instead of doing
-                unnecessary work in the configuration phase.
+                Lazy APIs defer creating and configuring objects until they are needed instead of
+                doing unnecessary work in the configuration phase.
                 See https://docs.gradle.org/current/userguide/task_configuration_avoidance.html for
                 more details.
             """,
             Category.CORRECTNESS, 5, Severity.ERROR,
             Implementation(
-                EagerTaskConfigurationDetector::class.java,
+                EagerConfigurationDetector::class.java,
                 Scope.JAVA_FILE_SCOPE
             )
         )

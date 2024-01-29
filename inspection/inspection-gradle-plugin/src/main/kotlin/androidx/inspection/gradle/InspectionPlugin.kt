@@ -96,9 +96,11 @@ class InspectionPlugin : Plugin<Project> {
                     }
                 }
             }
-            libExtension.sourceSets.findByName("main")!!.resources.srcDirs(
-                File(project.rootDir, "src/main/proto")
-            )
+            libExtension.sourceSets.named("main").configure {
+                it.resources.srcDirs(
+                    File(project.rootDir, "src/main/proto")
+                )
+            }
         }
 
         project.apply(plugin = "com.google.protobuf")
