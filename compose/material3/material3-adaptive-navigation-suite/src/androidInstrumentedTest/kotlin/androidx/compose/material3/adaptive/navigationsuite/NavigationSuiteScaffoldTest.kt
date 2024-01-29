@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.material3.adaptive.navigation.suite
+package androidx.compose.material3.adaptive.navigationsuite
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface

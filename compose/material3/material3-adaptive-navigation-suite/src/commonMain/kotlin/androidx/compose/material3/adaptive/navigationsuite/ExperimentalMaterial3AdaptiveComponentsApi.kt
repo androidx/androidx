@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.material3.adaptive.navigation.suite
+package androidx.compose.material3.adaptive.navigationsuite
 
 @RequiresOptIn(
     "This material3-adaptive-navigation-suite API is experimental and is likely to" +
