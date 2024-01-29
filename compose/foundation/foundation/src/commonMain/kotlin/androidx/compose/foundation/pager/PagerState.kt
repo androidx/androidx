@@ -72,7 +72,6 @@ import kotlin.math.sign
  * snapped position.
  * @param pageCount The amount of pages this Pager will have.
  */
-@ExperimentalFoundationApi
 @Composable
 fun rememberPagerState(
     initialPage: Int = 0,
@@ -102,14 +101,12 @@ fun rememberPagerState(
  * snapped position.
  * @param pageCount The amount of pages this Pager will have.
  */
-@ExperimentalFoundationApi
 fun PagerState(
     currentPage: Int = 0,
     @FloatRange(from = -0.5, to = 0.5) currentPageOffsetFraction: Float = 0f,
     pageCount: () -> Int
 ): PagerState = DefaultPagerState(currentPage, currentPageOffsetFraction, pageCount)
 
-@ExperimentalFoundationApi
 private class DefaultPagerState(
     currentPage: Int,
     currentPageOffsetFraction: Float,
@@ -148,7 +145,7 @@ private class DefaultPagerState(
  * @param currentPageOffsetFraction The offset of the initial page with respect to the start of
  * the layout.
  */
-@ExperimentalFoundationApi
+@OptIn(ExperimentalFoundationApi::class)
 @Stable
 abstract class PagerState(
     currentPage: Int = 0,
@@ -505,6 +502,7 @@ abstract class PagerState(
      * @param pageOffsetFraction A fraction of the page size that indicates the offset the
      * destination page will be offset from its snapped position.
      */
+    @ExperimentalFoundationApi
     fun ScrollScope.updateCurrentPage(
         page: Int,
         @FloatRange(from = -0.5, to = 0.5) pageOffsetFraction: Float = 0.0f
@@ -525,6 +523,7 @@ abstract class PagerState(
      * Please refer to the sample to learn how to use this API.
      * @sample androidx.compose.foundation.samples.PagerCustomAnimateScrollToPage
      */
+    @ExperimentalFoundationApi
     fun ScrollScope.updateTargetPage(targetPage: Int) {
         programmaticScrollTargetPage = targetPage.coerceInPageRange()
     }

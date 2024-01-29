@@ -16,14 +16,12 @@
 
 package androidx.compose.foundation.pager
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.snapping.SnapPosition
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.util.fastForEach
 
-@OptIn(ExperimentalFoundationApi::class)
 internal class PagerMeasureResult(
     override val visiblePagesInfo: List<MeasuredPage>,
     override val pageSize: Int,
