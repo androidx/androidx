@@ -102,9 +102,12 @@ internal suspend fun PlatformTextInputSession.platformSpecificTextInputSession(
                 override val text: TextFieldCharSequence
                     get() = state.visualText
 
-                override fun requestEdit(block: EditingBuffer.() -> Unit) {
+                override fun requestEdit(
+                    notifyImeOfChanges: Boolean,
+                    block: EditingBuffer.() -> Unit
+                ) {
                     state.editUntransformedTextAsUser(
-                        notifyImeOfChanges = false,
+                        notifyImeOfChanges = notifyImeOfChanges,
                         block = block
                     )
                 }
