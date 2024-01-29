@@ -112,9 +112,12 @@ constructor(private val workerExecutor: WorkerExecutor, private val objects: Obj
     @get:[InputFile PathSensitive(PathSensitivity.NONE)]
     abstract val libraryMetadataFile: RegularFileProperty
 
-    // The base URL to create source links for classes, as a format string with placeholders for the
-    // file path and qualified class name.
+    // The base URLs to create source links for classes, functions, and properties, respectively, as
+    // format strings with placeholders for the file path and qualified class name, function name,
+    // or property name.
     @get:Input abstract val baseSourceLink: Property<String>
+    @get:Input abstract val baseFunctionSourceLink: Property<String>
+    @get:Input abstract val basePropertySourceLink: Property<String>
 
     private fun sourceSets(): List<DokkaInputModels.SourceSet> {
         val externalDocs =
@@ -216,6 +219,8 @@ constructor(private val workerExecutor: WorkerExecutor, private val objects: Obj
                                         "libraryMetadataFilename" to
                                             libraryMetadataFile.get().toString(),
                                         "baseSourceLink" to baseSourceLink.get(),
+                                        "baseFunctionSourceLink" to baseFunctionSourceLink.get(),
+                                        "basePropertySourceLink" to basePropertySourceLink.get(),
                                         "annotationsNotToDisplay" to annotationsNotToDisplay.get(),
                                         "annotationsNotToDisplayJava" to
                                             annotationsNotToDisplayJava.get(),

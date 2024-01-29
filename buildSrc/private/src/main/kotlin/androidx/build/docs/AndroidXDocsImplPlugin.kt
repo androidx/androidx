@@ -533,8 +533,12 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
                     excludedPackagesForKotlin.set(emptySet())
                     libraryMetadataFile.set(getMetadataRegularFile(project))
                     projectStructureMetadataFile.set(mergedProjectMetadata)
-                    // See go/dackka-source-link for details on this link.
-                    baseSourceLink.set("https://cs.android.com/search?" + "q=file:%s+class:%s")
+                    // See go/dackka-source-link for details on these links.
+                    baseSourceLink.set("https://cs.android.com/search?q=file:%s+class:%s")
+                    baseFunctionSourceLink.set(
+                        "https://cs.android.com/search?q=file:%s+function:%s"
+                    )
+                    basePropertySourceLink.set("https://cs.android.com/search?q=file:%s+symbol:%s")
                     annotationsNotToDisplay.set(hiddenAnnotations)
                     annotationsNotToDisplayJava.set(hiddenAnnotationsJava)
                     annotationsNotToDisplayKotlin.set(hiddenAnnotationsKotlin)
