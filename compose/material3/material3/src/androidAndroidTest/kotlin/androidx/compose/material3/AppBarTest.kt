@@ -183,23 +183,23 @@ class AppBarTest {
                     FakeIcon(Modifier.testTag(NavigationIconTestTag))
                     navigationIconColor = LocalContentColor.current
                     expectedNavigationIconColor =
-                        TopAppBarDefaults.topAppBarColors().navigationIconContentColor
+                        TopAppBarDefaults.smallTopAppBarColors().navigationIconContentColor
                     // fraction = 0f to indicate no scroll.
                     expectedContainerColor = TopAppBarDefaults
-                        .topAppBarColors()
+                        .smallTopAppBarColors()
                         .containerColor(colorTransitionFraction = 0f)
                 },
                 title = {
                     Text("Title", Modifier.testTag(TitleTestTag))
                     titleColor = LocalContentColor.current
                     expectedTitleColor = TopAppBarDefaults
-                        .topAppBarColors().titleContentColor
+                        .smallTopAppBarColors().titleContentColor
                 },
                 actions = {
                     FakeIcon(Modifier.testTag(ActionsTestTag))
                     actionsColor = LocalContentColor.current
                     expectedActionsColor = TopAppBarDefaults
-                        .topAppBarColors().actionIconContentColor
+                        .smallTopAppBarColors().actionIconContentColor
                 }
             )
         }
@@ -227,7 +227,7 @@ class AppBarTest {
                     Text("Title", Modifier.testTag(TitleTestTag))
                     // fraction = 1f to indicate a scroll.
                     expectedScrolledContainerColor =
-                        TopAppBarDefaults.topAppBarColors()
+                        TopAppBarDefaults.smallTopAppBarColors()
                             .containerColor(colorTransitionFraction = 1f)
                 },
                 modifier = Modifier.testTag(TopAppBarTestTag),
@@ -289,7 +289,7 @@ class AppBarTest {
                         Text("Title", Modifier.testTag(TitleTestTag))
                     },
                     colors =
-                    TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
+                    TopAppBarDefaults.smallTopAppBarColors(containerColor = Color.Transparent),
                     scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(),
                 )
             }
@@ -588,33 +588,9 @@ class AppBarTest {
         }
 
         assertMediumOrLargeScrolledColors(
-            appBarMaxHeight = TopAppBarMediumTokens.ContainerHeight,
-            appBarMinHeight = TopAppBarSmallTokens.ContainerHeight,
-            titleContentColor = Color.Unspecified,
-            content = content
-        )
-    }
-
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-    @Test
-    fun mediumTopAppBar_scrolledColorsWithCustomTitleTextColor() {
-        val content = @Composable { scrollBehavior: TopAppBarScrollBehavior? ->
-            MediumTopAppBar(
-                modifier = Modifier.testTag(TopAppBarTestTag),
-                title = {
-                    Text(
-                        text = "Title", Modifier.testTag(TitleTestTag),
-                        color = Color.Green
-                    )
-                },
-                scrollBehavior = scrollBehavior
-            )
-        }
-        assertMediumOrLargeScrolledColors(
-            appBarMaxHeight = TopAppBarMediumTokens.ContainerHeight,
-            appBarMinHeight = TopAppBarSmallTokens.ContainerHeight,
-            titleContentColor = Color.Green,
-            content = content
+            TopAppBarMediumTokens.ContainerHeight,
+            TopAppBarSmallTokens.ContainerHeight,
+            content
         )
     }
 
@@ -732,33 +708,9 @@ class AppBarTest {
             )
         }
         assertMediumOrLargeScrolledColors(
-            appBarMaxHeight = TopAppBarLargeTokens.ContainerHeight,
-            appBarMinHeight = TopAppBarSmallTokens.ContainerHeight,
-            titleContentColor = Color.Unspecified,
-            content = content
-        )
-    }
-
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-    @Test
-    fun largeTopAppBar_scrolledColorsWithCustomTitleTextColor() {
-        val content = @Composable { scrollBehavior: TopAppBarScrollBehavior? ->
-            LargeTopAppBar(
-                modifier = Modifier.testTag(TopAppBarTestTag),
-                title = {
-                    Text(
-                        text = "Title", Modifier.testTag(TitleTestTag),
-                        color = Color.Red
-                    )
-                },
-                scrollBehavior = scrollBehavior,
-            )
-        }
-        assertMediumOrLargeScrolledColors(
-            appBarMaxHeight = TopAppBarLargeTokens.ContainerHeight,
-            appBarMinHeight = TopAppBarSmallTokens.ContainerHeight,
-            titleContentColor = Color.Red,
-            content = content
+            TopAppBarLargeTokens.ContainerHeight,
+            TopAppBarSmallTokens.ContainerHeight,
+            content
         )
     }
 
@@ -935,10 +887,8 @@ class AppBarTest {
 
         // Check that the app bar stayed at its position (i.e. its bounds are with a smaller height)
         val boundsBefore = rule.onNodeWithTag(TopAppBarTestTag).getBoundsInRoot()
-        TopAppBarLargeTokens.ContainerHeight.assertIsEqualTo(
-            expected = boundsBefore.height,
-            subject = "container height"
-        )
+        assertThat(TopAppBarLargeTokens.ContainerHeight).isEqualTo(boundsBefore.height)
+
         // Slightly drag up the app bar.
         rule.onNodeWithTag(TopAppBarTestTag).performTouchInput {
             down(Offset(x = 100f, y = height - 20f))
@@ -1334,7 +1284,6 @@ class AppBarTest {
      *
      * @param appBarMaxHeight the max height of the app bar [content]
      * @param appBarMinHeight the min height of the app bar [content]
-     * @param titleContentColor text content color expected for the app bar's title.
      * @param content a Composable that adds a MediumTopAppBar or a LargeTopAppBar
      */
     @OptIn(ExperimentalMaterial3Api::class)
@@ -1342,7 +1291,6 @@ class AppBarTest {
     private fun assertMediumOrLargeScrolledColors(
         appBarMaxHeight: Dp,
         appBarMinHeight: Dp,
-        titleContentColor: Color,
         content: @Composable (TopAppBarScrollBehavior?) -> Unit
     ) {
         // Note: This value is specifically picked to avoid precision issues when asserting the
@@ -1351,7 +1299,7 @@ class AppBarTest {
         var fullyCollapsedHeightOffsetPx = 0f
         var fullyCollapsedContainerColor: Color = Color.Unspecified
         var expandedAppBarBackgroundColor: Color = Color.Unspecified
-        var titleColor = titleContentColor
+        var titleContentColor: Color = Color.Unspecified
         lateinit var scrollBehavior: TopAppBarScrollBehavior
         rule.setMaterialContent(lightColorScheme()) {
             scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
@@ -1364,10 +1312,8 @@ class AppBarTest {
 
             // Resolve the title's content color. The default implementation returns the same color
             // regardless of the fraction, and the color is applied later with alpha.
-            if (titleColor == Color.Unspecified) {
-                titleColor =
-                    TopAppBarDefaults.mediumTopAppBarColors().titleContentColor
-            }
+            titleContentColor =
+                TopAppBarDefaults.mediumTopAppBarColors().titleContentColor
 
             with(LocalDensity.current) {
                 fullyCollapsedHeightOffsetPx = fullyCollapsedOffsetDp.toPx()
@@ -1389,12 +1335,12 @@ class AppBarTest {
         // Assert the content color at the top and bottom parts of the expanded app bar.
         topTitleNode.captureToImage()
             .assertContainsColor(
-                titleColor.copy(alpha = TopTitleAlphaEasing.transform(0f))
+                titleContentColor.copy(alpha = TopTitleAlphaEasing.transform(0f))
                     .compositeOver(expandedAppBarBackgroundColor)
             )
         bottomTitleNode.captureToImage()
             .assertContainsColor(
-                titleColor.compositeOver(expandedAppBarBackgroundColor)
+                titleContentColor.compositeOver(expandedAppBarBackgroundColor)
             )
 
         // Simulate fully collapsed content.
@@ -1407,7 +1353,7 @@ class AppBarTest {
             .assertContainsColor(fullyCollapsedContainerColor)
         topTitleNode.captureToImage()
             .assertContainsColor(
-                titleColor.copy(alpha = TopTitleAlphaEasing.transform(1f))
+                titleContentColor.copy(alpha = TopTitleAlphaEasing.transform(1f))
                     .compositeOver(fullyCollapsedContainerColor)
             )
         // Only the top title should be visible in the collapsed form.

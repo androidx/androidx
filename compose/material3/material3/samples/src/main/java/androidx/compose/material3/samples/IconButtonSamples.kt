@@ -35,9 +35,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.tooling.preview.Preview
 
-@Preview
 @Sampled
 @Composable
 fun IconButtonSample() {
@@ -46,7 +44,6 @@ fun IconButtonSample() {
     }
 }
 
-@Preview
 @Sampled
 @Composable
 fun IconToggleButtonSample() {
@@ -61,7 +58,6 @@ fun IconToggleButtonSample() {
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Preview
 @Sampled
 @Composable
 fun FilledIconButtonSample() {
@@ -71,7 +67,6 @@ fun FilledIconButtonSample() {
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Preview
 @Sampled
 @Composable
 fun FilledIconToggleButtonSample() {
@@ -86,7 +81,6 @@ fun FilledIconToggleButtonSample() {
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Preview
 @Sampled
 @Composable
 fun FilledTonalIconButtonSample() {
@@ -96,7 +90,6 @@ fun FilledTonalIconButtonSample() {
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Preview
 @Sampled
 @Composable
 fun FilledTonalIconToggleButtonSample() {
@@ -111,7 +104,6 @@ fun FilledTonalIconToggleButtonSample() {
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Preview
 @Sampled
 @Composable
 fun OutlinedIconButtonSample() {
@@ -121,7 +113,6 @@ fun OutlinedIconButtonSample() {
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Preview
 @Sampled
 @Composable
 fun OutlinedIconToggleButtonSample() {

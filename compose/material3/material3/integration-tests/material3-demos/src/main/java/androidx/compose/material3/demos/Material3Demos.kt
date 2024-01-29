@@ -24,6 +24,5 @@ val Material3Demos = DemoCategory(
     listOf(
         ComposableDemo("Color Scheme") { ColorSchemeDemo() },
         ComposableDemo("Shape") { ShapeDemo() },
-        ComposableDemo("Swipe To Dismiss") { SwipeToDismissDemo() }
     ),
 )

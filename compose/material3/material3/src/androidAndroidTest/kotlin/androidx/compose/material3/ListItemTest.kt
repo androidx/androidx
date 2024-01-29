@@ -45,6 +45,7 @@ import com.google.common.truth.Truth.assertThat
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
+@OptIn(ExperimentalMaterial3Api::class)
 class ListItemTest {
 
     @get:Rule
@@ -55,10 +56,10 @@ class ListItemTest {
 
     @Test
     fun listItem_oneLine_size() {
-        val expectedHeightNoIcon = ListTokens.ListItemOneLineContainerHeight
+        val expectedHeightNoIcon = ListTokens.ListItemContainerHeight
         rule
             .setMaterialContentForSizeAssertions {
-                ListItem(headlineContent = { Text("Primary text") })
+                ListItem(headlineText = { Text("Primary text") })
             }
             .assertHeightIsEqualTo(expectedHeightNoIcon)
             .assertWidthIsEqualTo(rule.rootWidth())
@@ -66,11 +67,11 @@ class ListItemTest {
 
     @Test
     fun listItem_oneLine_withIcon_size() {
-        val expectedHeightSmallIcon = ListTokens.ListItemOneLineContainerHeight
+        val expectedHeightSmallIcon = ListTokens.ListItemContainerHeight
         rule
             .setMaterialContentForSizeAssertions {
                 ListItem(
-                    headlineContent = { Text("Primary text") },
+                    headlineText = { Text("Primary text") },
                     leadingContent = { Icon(icon24x24, null) }
                 )
             }
@@ -80,12 +81,12 @@ class ListItemTest {
 
     @Test
     fun listItem_twoLine_size() {
-        val expectedHeightNoIcon = ListTokens.ListItemTwoLineContainerHeight
+        val expectedHeightNoIcon = 72.dp
         rule
             .setMaterialContentForSizeAssertions {
                 ListItem(
-                    headlineContent = { Text("Primary text") },
-                    supportingContent = { Text("Secondary text") }
+                    headlineText = { Text("Primary text") },
+                    supportingText = { Text("Secondary text") }
                 )
             }
             .assertHeightIsEqualTo(expectedHeightNoIcon)
@@ -94,13 +95,13 @@ class ListItemTest {
 
     @Test
     fun listItem_twoLine_withIcon_size() {
-        val expectedHeightWithIcon = ListTokens.ListItemTwoLineContainerHeight
+        val expectedHeightWithIcon = 72.dp
 
         rule
             .setMaterialContentForSizeAssertions {
                 ListItem(
-                    headlineContent = { Text("Primary text") },
-                    supportingContent = { Text("Secondary text") },
+                    headlineText = { Text("Primary text") },
+                    supportingText = { Text("Secondary text") },
                     leadingContent = { Icon(icon24x24, null) }
                 )
             }
@@ -110,13 +111,13 @@ class ListItemTest {
 
     @Test
     fun listItem_threeLine_size() {
-        val expectedHeight = ListTokens.ListItemThreeLineContainerHeight
+        val expectedHeight = 88.dp
         rule
             .setMaterialContentForSizeAssertions {
                 ListItem(
-                    overlineContent = { Text("OVERLINE") },
-                    headlineContent = { Text("Primary text") },
-                    supportingContent = { Text("Secondary text") }
+                    overlineText = { Text("OVERLINE") },
+                    headlineText = { Text("Primary text") },
+                    supportingText = { Text("Secondary text") }
                 )
             }
             .assertHeightIsEqualTo(expectedHeight)
@@ -125,7 +126,7 @@ class ListItemTest {
 
     @Test
     fun listItem_oneLine_positioning_noIcon() {
-        val listItemHeight = ListTokens.ListItemOneLineContainerHeight
+        val listItemHeight = ListTokens.ListItemContainerHeight
         val expectedStartPadding = 16.dp
         val expectedEndPadding = 24.dp
 
@@ -137,7 +138,7 @@ class ListItemTest {
         rule.setMaterialContent(lightColorScheme()) {
             Box {
                 ListItem(
-                    headlineContent = {
+                    headlineText = {
                         Text("Primary text", Modifier.saveLayout(textPosition, textSize))
                     },
                     trailingContent = {
@@ -172,7 +173,7 @@ class ListItemTest {
 
     @Test
     fun listItem_oneLine_positioning_withIcon() {
-        val listItemHeight = ListTokens.ListItemOneLineContainerHeight
+        val listItemHeight = ListTokens.ListItemContainerHeight
         val expectedStartPadding = 16.dp
         val expectedTextStartPadding = 16.dp
 
@@ -183,7 +184,7 @@ class ListItemTest {
         rule.setMaterialContent(lightColorScheme()) {
             Box {
                 ListItem(
-                    headlineContent = {
+                    headlineText = {
                         Text("Primary text", Modifier.saveLayout(textPosition, textSize))
                     },
                     leadingContent = {
@@ -230,13 +231,13 @@ class ListItemTest {
         rule.setMaterialContent(lightColorScheme()) {
             Box {
                 ListItem(
-                    headlineContent = {
+                    headlineText = {
                         Text(
                             "Primary text",
                             Modifier.saveLayout(textPosition, textSize, textBaseline)
                         )
                     },
-                    supportingContent = {
+                    supportingText = {
                         Text(
                             "Secondary text",
                             Modifier.saveLayout(
@@ -286,13 +287,13 @@ class ListItemTest {
         rule.setMaterialContent(lightColorScheme()) {
             Box {
                 ListItem(
-                    headlineContent = {
+                    headlineText = {
                         Text(
                             "Primary text",
                             Modifier.saveLayout(textPosition, textSize, textBaseline)
                         )
                     },
-                    supportingContent = {
+                    supportingText = {
                         Text(
                             "Secondary text",
                             Modifier.saveLayout(
@@ -343,13 +344,13 @@ class ListItemTest {
         rule.setMaterialContent(lightColorScheme()) {
             Box {
                 ListItem(
-                    headlineContent = {
+                    headlineText = {
                         Text(
                             "Primary text",
                             Modifier.saveLayout(textPosition, textSize, textBaseline)
                         )
                     },
-                    supportingContent = {
+                    supportingText = {
                         Text(
                             "Very long supporting text which will span two lines",
                             Modifier.saveLayout(
@@ -410,7 +411,7 @@ class ListItemTest {
         rule.setMaterialContent(lightColorScheme()) {
             Box {
                 ListItem(
-                    overlineContent = {
+                    overlineText = {
                         Text(
                             "OVERLINE",
                             Modifier.saveLayout(
@@ -420,13 +421,13 @@ class ListItemTest {
                             )
                         )
                     },
-                    headlineContent = {
+                    headlineText = {
                         Text(
                             "Primary text",
                             Modifier.saveLayout(textPosition, textSize, textBaseline)
                         )
                     },
-                    supportingContent = {
+                    supportingText = {
                         Text(
                             "Secondary text",
                             Modifier.saveLayout(

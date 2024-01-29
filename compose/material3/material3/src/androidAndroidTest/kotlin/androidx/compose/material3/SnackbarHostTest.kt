@@ -16,7 +16,6 @@
 
 package androidx.compose.material3
 
-import android.os.Build
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
@@ -34,7 +33,6 @@ import androidx.compose.ui.test.performSemanticsAction
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.MediumTest
-import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.doReturn
@@ -109,7 +107,7 @@ class SnackbarHostTest {
             }
         }
 
-        rule.waitUntil(timeoutMillis = 5_000) { parent.children.all { it.isCompleted } }
+        rule.waitUntil { parent.children.all { it.isCompleted } }
         Truth.assertThat(resultedInvocation).isEqualTo("0123456789")
     }
 
@@ -141,8 +139,7 @@ class SnackbarHostTest {
             Truth.assertThat(result).isEqualTo(SnackbarResult.Dismissed)
         }
 
-        rule.mainClock.advanceTimeBy(5_000)
-        rule.waitUntil { job2.isCompleted }
+        rule.waitUntil(timeoutMillis = 5_000) { job2.isCompleted }
     }
 
     @Test
@@ -195,7 +192,6 @@ class SnackbarHostTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
     fun snackbarDuration_toMillis_nonNullAccessibilityManager() {
         val mockDurationControl = 10000L
         val mockDurationNonControl = 5000L

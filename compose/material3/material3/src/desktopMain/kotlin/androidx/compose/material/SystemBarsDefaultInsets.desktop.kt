@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package androidx.compose.material3.tokens
+package androidx.compose.material3
 
-internal object PlainTooltipTokens {
-    val ContainerColor = ColorSchemeKeyTokens.InverseSurface
-    val ContainerShape = ShapeKeyTokens.CornerExtraSmall
-    val SupportingTextColor = ColorSchemeKeyTokens.InverseOnSurface
-    val SupportingTextFont = TypographyKeyTokens.BodySmall
-}
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.ui.unit.dp
+import androidx.compose.runtime.Composable
+
+internal actual val WindowInsets.Companion.systemBarsForVisualComponents: WindowInsets
+    @Composable
+    get() = WindowInsets(0.dp, 0.dp, 0.dp, 0.dp)

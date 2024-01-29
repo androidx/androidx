@@ -46,7 +46,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
 /**
@@ -55,7 +54,6 @@ import androidx.compose.ui.unit.dp
  * The top app bar here does not react to any scroll events in the content under it.
  */
 @OptIn(ExperimentalMaterial3Api::class)
-@Preview
 @Sampled
 @Composable
 fun SimpleTopAppBar() {
@@ -113,7 +111,6 @@ fun SimpleTopAppBar() {
  * The top app bar here does not react to any scroll events in the content under it.
  */
 @OptIn(ExperimentalMaterial3Api::class)
-@Preview
 @Sampled
 @Composable
 fun SimpleCenterAlignedTopAppBar() {
@@ -172,7 +169,6 @@ fun SimpleCenterAlignedTopAppBar() {
  * under it is scrolled.
  */
 @OptIn(ExperimentalMaterial3Api::class)
-@Preview
 @Sampled
 @Composable
 fun PinnedTopAppBar() {
@@ -239,7 +235,6 @@ fun PinnedTopAppBar() {
  * appears when the content scrolled down.
  */
 @OptIn(ExperimentalMaterial3Api::class)
-@Preview
 @Sampled
 @Composable
 fun EnterAlwaysTopAppBar() {
@@ -299,7 +294,6 @@ fun EnterAlwaysTopAppBar() {
  * appears when the content is completely scrolled back down.
  */
 @OptIn(ExperimentalMaterial3Api::class)
-@Preview
 @Sampled
 @Composable
 fun ExitUntilCollapsedMediumTopAppBar() {
@@ -359,7 +353,6 @@ fun ExitUntilCollapsedMediumTopAppBar() {
  * appears when the content is completely scrolled back down.
  */
 @OptIn(ExperimentalMaterial3Api::class)
-@Preview
 @Sampled
 @Composable
 fun ExitUntilCollapsedLargeTopAppBar() {
@@ -414,7 +407,6 @@ fun ExitUntilCollapsedLargeTopAppBar() {
     )
 }
 
-@Preview
 @Sampled
 @Composable
 fun SimpleBottomAppBar() {
@@ -425,7 +417,6 @@ fun SimpleBottomAppBar() {
     }
 }
 
-@Preview
 @Sampled
 @Composable
 fun BottomAppBarWithFAB() {

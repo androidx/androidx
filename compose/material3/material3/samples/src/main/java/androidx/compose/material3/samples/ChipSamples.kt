@@ -48,10 +48,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
-@Preview
+@OptIn(ExperimentalMaterial3Api::class)
 @Sampled
 @Composable
 fun AssistChipSample() {
@@ -68,7 +67,7 @@ fun AssistChipSample() {
     )
 }
 
-@Preview
+@OptIn(ExperimentalMaterial3Api::class)
 @Sampled
 @Composable
 fun ElevatedAssistChipSample() {
@@ -86,7 +85,6 @@ fun ElevatedAssistChipSample() {
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Preview
 @Sampled
 @Composable
 fun FilterChipSample() {
@@ -110,7 +108,6 @@ fun FilterChipSample() {
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Preview
 @Sampled
 @Composable
 fun ElevatedFilterChipSample() {
@@ -134,7 +131,6 @@ fun ElevatedFilterChipSample() {
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Preview
 @Sampled
 @Composable
 fun FilterChipWithLeadingIconSample() {
@@ -164,7 +160,6 @@ fun FilterChipWithLeadingIconSample() {
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Preview
 @Sampled
 @Composable
 fun InputChipSample() {
@@ -177,7 +172,6 @@ fun InputChipSample() {
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Preview
 @Sampled
 @Composable
 fun InputChipWithAvatarSample() {
@@ -196,7 +190,7 @@ fun InputChipWithAvatarSample() {
     )
 }
 
-@Preview
+@OptIn(ExperimentalMaterial3Api::class)
 @Sampled
 @Composable
 fun SuggestionChipSample() {
@@ -206,7 +200,7 @@ fun SuggestionChipSample() {
     )
 }
 
-@Preview
+@OptIn(ExperimentalMaterial3Api::class)
 @Sampled
 @Composable
 fun ElevatedSuggestionChipSample() {
@@ -216,8 +210,8 @@ fun ElevatedSuggestionChipSample() {
     )
 }
 
-@Preview
 @Sampled
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChipGroupSingleLineSample() {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {

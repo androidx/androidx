@@ -285,7 +285,7 @@ class RadioButtonTest {
         rule
             .setMaterialContentForSizeAssertions {
                 CompositionLocalProvider(
-                    LocalMinimumInteractiveComponentEnforcement provides minimumTouchTarget
+                    LocalMinimumTouchTargetEnforcement provides minimumTouchTarget
                 ) {
                     RadioButton(
                         selected = selected, onClick = if (clickable) {

@@ -380,11 +380,11 @@ class SwitchTest {
     ) = with(rule.density) {
         rule.setMaterialContentForSizeAssertions {
             CompositionLocalProvider(
-                LocalMinimumInteractiveComponentEnforcement provides minimumTouchTarget
+                LocalMinimumTouchTargetEnforcement provides minimumTouchTarget
             ) {
                 Switch(
                     checked = checked,
-                    onCheckedChange = if (clickable) { {} } else { null },
+                    onCheckedChange = if (clickable) { {} } else null,
                     enabled = false
                 )
             }

@@ -17,6 +17,7 @@
 package androidx.compose.material3.samples
 
 import androidx.annotation.Sampled
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -26,9 +27,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 
-@Preview
 @Sampled
 @Composable
 fun SurfaceSample() {
@@ -37,7 +36,7 @@ fun SurfaceSample() {
     }
 }
 
-@Preview
+@OptIn(ExperimentalMaterial3Api::class)
 @Sampled
 @Composable
 fun ClickableSurfaceSample() {
@@ -49,7 +48,7 @@ fun ClickableSurfaceSample() {
     }
 }
 
-@Preview
+@OptIn(ExperimentalMaterial3Api::class)
 @Sampled
 @Composable
 fun SelectableSurfaceSample() {
@@ -65,7 +64,7 @@ fun SelectableSurfaceSample() {
     }
 }
 
-@Preview
+@OptIn(ExperimentalMaterial3Api::class)
 @Sampled
 @Composable
 fun ToggleableSurfaceSample() {
