@@ -29,23 +29,16 @@ import org.gradle.api.Project
 import org.gradle.api.artifacts.type.ArtifactTypeDefinition
 import org.gradle.api.attributes.Attribute
 import org.gradle.api.plugins.ExtraPropertiesExtension
-import org.gradle.api.tasks.ClasspathNormalizer
 import org.gradle.api.tasks.bundling.Zip
 import org.gradle.kotlin.dsl.create
+import org.jetbrains.kotlin.gradle.plugin.CompilerPluginConfig
 import org.jetbrains.kotlin.gradle.plugin.KotlinBasePluginWrapper
 import org.jetbrains.kotlin.gradle.plugin.KotlinMultiplatformPluginWrapper
+import org.jetbrains.kotlin.gradle.plugin.SubpluginOption
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-const val composeSourceOption =
-    "plugin:androidx.compose.compiler.plugins.kotlin:sourceInformation=true"
-const val composeMetricsOption =
-    "plugin:androidx.compose.compiler.plugins.kotlin:metricsDestination"
-const val composeReportsOption =
-    "plugin:androidx.compose.compiler.plugins.kotlin:reportsDestination"
 const val zipComposeReportsTaskName = "zipComposeCompilerReports"
 const val zipComposeMetricsTaskName = "zipComposeCompilerMetrics"
-const val composeStrongSkippingOption =
-    "plugin:androidx.compose.compiler.plugins.kotlin:experimentalStrongSkipping"
 
 /** Plugin to apply common configuration for Compose projects. */
 class AndroidXComposeImplPlugin : Plugin<Project> {
@@ -232,7 +225,7 @@ private fun configureComposeCompilerPlugin(project: Project, extension: AndroidX
             "androidx.compose.compiler:compiler:$versionToUse"
         )
 
-        val kotlinPlugin =
+        val kotlinPluginProvider = project.provider {
             configuration.incoming
                 .artifactView { view ->
                     view.attributes { attributes ->
@@ -243,6 +236,7 @@ private fun configureComposeCompilerPlugin(project: Project, extension: AndroidX
                     }
                 }
                 .files
+        }
 
         val enableMetrics = project.enableComposeCompilerMetrics()
         val enableReports = project.enableComposeCompilerReports()
@@ -250,63 +244,54 @@ private fun configureComposeCompilerPlugin(project: Project, extension: AndroidX
         val compileTasks = project.tasks.withType(KotlinCompile::class.java)
 
         compileTasks.configureEach { compile ->
-            // Append inputs to KotlinCompile so tasks get invalidated if any of these values change
-            compile.inputs
-                .files({ kotlinPlugin })
-                .withPropertyName("composeCompilerExtension")
-                .withNormalizer(ClasspathNormalizer::class.java)
             compile.inputs.property("composeMetricsEnabled", enableMetrics)
             compile.inputs.property("composeReportsEnabled", enableReports)
 
-            // Gradle hack ahead, we use of absolute paths, but is OK here because we do it in
-            // doFirst which happens after Gradle task input snapshotting. AGP does the same.
-            compile.doFirst {
-                compile.kotlinOptions.freeCompilerArgs += "-Xplugin=${kotlinPlugin.first()}"
+            compile.pluginClasspath.from(kotlinPluginProvider.get())
+            compile.addPluginOption(ComposeCompileOptions.StrongSkippingOption, "true")
 
-                // Enable Compose strong skipping mode
-                compile.kotlinOptions.freeCompilerArgs +=
-                    listOf("-P", "$composeStrongSkippingOption=true")
-
-                if (shouldPublish) {
-                    compile.kotlinOptions.freeCompilerArgs += listOf("-P", composeSourceOption)
-                }
+            if (shouldPublish) {
+                compile.addPluginOption(ComposeCompileOptions.SourceOption, "true")
             }
         }
 
         if (enableMetrics) {
-            project.rootProject.tasks.named(zipComposeMetricsTaskName).configure({ zipTask ->
+            project.rootProject.tasks.named(zipComposeMetricsTaskName).configure { zipTask ->
                 zipTask.dependsOn(compileTasks)
-            })
+            }
 
             val metricsIntermediateDir = project.compilerMetricsIntermediatesDir()
             compileTasks.configureEach { compile ->
-                compile.doFirst {
-                    compile.kotlinOptions.freeCompilerArgs +=
-                        listOf(
-                            "-P",
-                            "$composeMetricsOption=$metricsIntermediateDir"
-                        )
-                }
+                compile.addPluginOption(
+                    ComposeCompileOptions.MetricsOption, metricsIntermediateDir.path)
             }
         }
         if (enableReports) {
-            project.rootProject.tasks.named(zipComposeReportsTaskName).configure({ zipTask ->
+            project.rootProject.tasks.named(zipComposeReportsTaskName).configure { zipTask ->
                 zipTask.dependsOn(compileTasks)
-            })
+            }
 
             val reportsIntermediateDir = project.compilerReportsIntermediatesDir()
             compileTasks.configureEach { compile ->
-                compile.doFirst {
-                    compile.kotlinOptions.freeCompilerArgs +=
-                        listOf(
-                            "-P",
-                            "$composeReportsOption=$reportsIntermediateDir"
-                        )
-                }
+                compile.addPluginOption(
+                    ComposeCompileOptions.ReportsOption,
+                    reportsIntermediateDir.path
+                )
             }
         }
     }
 }
+
+private fun KotlinCompile.addPluginOption(
+    composeCompileOptions: ComposeCompileOptions,
+    value: String
+) =
+    pluginOptions.add(CompilerPluginConfig().apply {
+                addPluginArgument(
+                    composeCompileOptions.pluginId,
+                    SubpluginOption(composeCompileOptions.key, value))
+    }
+)
 
 public fun Project.zipComposeCompilerMetrics() {
     if (project.enableComposeCompilerMetrics()) {
@@ -346,4 +331,11 @@ fun Project.compilerReportsIntermediatesDir(): File {
 
 fun Project.composeCompilerDataDir(): File {
     return File(getDistributionDirectory(), "compose-compiler-data")
+}
+
+private enum class ComposeCompileOptions(val pluginId: String, val key: String) {
+    SourceOption("androidx.compose.compiler.plugins.kotlin", "sourceInformation"),
+    MetricsOption("androidx.compose.compiler.plugins.kotlin", "metricsDestination"),
+    ReportsOption("androidx.compose.compiler.plugins.kotlin", "reportsDestination"),
+    StrongSkippingOption("androidx.compose.compiler.plugins.kotlin", "experimentalStrongSkipping");
 }
