@@ -167,12 +167,13 @@ class ReplaceWithDetector : Detector(), SourceCodeScanner {
         expression: String,
         imports: List<String>
     ): LintFix {
-        val lintFixBuilder = fix().composite()
+        val name = "Replace with `$expression`"
+        val lintFixBuilder = fix().composite().name(name)
         lintFixBuilder.add(
             fix()
                 .replace()
                 .range(location)
-                .name("Replace with `$expression`")
+                .name(name)
                 .with(expression)
                 .build()
         )

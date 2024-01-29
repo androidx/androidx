@@ -20,6 +20,7 @@ import androidx.compose.lint.test.Stubs
 import androidx.compose.lint.test.bytecodeStub
 import com.android.tools.lint.checks.infrastructure.LintDetectorTest
 import com.android.tools.lint.checks.infrastructure.TestFile
+import com.android.tools.lint.checks.infrastructure.TestMode
 import com.android.tools.lint.detector.api.Detector
 import com.android.tools.lint.detector.api.Issue
 import org.junit.Test
@@ -292,6 +293,7 @@ src/test/test.kt:18: $WarningMessage
             ),
             *stubs,
         )
+            .skipTestModes(TestMode.BODY_REMOVAL)
             .run()
             .expect(
                 """
