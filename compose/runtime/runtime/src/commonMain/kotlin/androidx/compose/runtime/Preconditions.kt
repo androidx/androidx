@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+package androidx.compose.runtime
+
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 

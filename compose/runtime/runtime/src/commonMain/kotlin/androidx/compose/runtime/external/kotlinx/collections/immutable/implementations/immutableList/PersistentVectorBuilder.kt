@@ -10,7 +10,7 @@ import androidx.compose.runtime.external.kotlinx.collections.immutable.internal.
 import androidx.compose.runtime.external.kotlinx.collections.immutable.internal.ListImplementation.checkPositionIndex
 import androidx.compose.runtime.external.kotlinx.collections.immutable.internal.MutabilityOwnership
 import androidx.compose.runtime.external.kotlinx.collections.immutable.internal.assert
-import requirePrecondition
+import androidx.compose.runtime.requirePrecondition
 
 internal class PersistentVectorBuilder<E>(private var vector: PersistentList<E>,
                                           private var vectorRoot: Array<Any?>?,
