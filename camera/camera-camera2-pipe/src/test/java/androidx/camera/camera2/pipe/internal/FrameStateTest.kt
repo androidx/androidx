@@ -18,7 +18,6 @@ package androidx.camera.camera2.pipe.internal
 
 import android.os.Build
 import androidx.camera.camera2.pipe.CameraTimestamp
-import androidx.camera.camera2.pipe.FrameId
 import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.OutputId
 import androidx.camera.camera2.pipe.OutputStatus
@@ -46,7 +45,6 @@ class FrameStateTest {
 
     private val output1Id = OutputId(1)
 
-    private val frameId = FrameId(240)
     private val frameNumber = FrameNumber(420)
     private val frameTimestampNs = 1234L
     private val frameTimestamp = CameraTimestamp(frameTimestampNs)
@@ -75,7 +73,6 @@ class FrameStateTest {
 
     private val frameState = FrameState(
         requestMetadata = fakeRequestMetadata,
-        frameId = frameId,
         frameNumber = frameNumber,
         frameTimestamp = frameTimestamp,
         imageStreams
@@ -117,8 +114,7 @@ class FrameStateTest {
             frameTimestamp,
             64L,
             frameTimestampNs,
-            OutputStatus.AVAILABLE,
-            outputImage
+            OutputResult.from(outputImage)
         )
 
         assertThat(fakeImage.isClosed).isFalse()
@@ -129,7 +125,7 @@ class FrameStateTest {
         assertThat(fakeImage.isClosed).isTrue()
         assertThat(imageResult1.status).isEqualTo(OutputStatus.UNAVAILABLE)
 
-        val result = imageResult1.getCompletedOrNull()
+        val result = imageResult1.outputOrNull()
         assertThat(result).isNull()
     }
 
@@ -142,12 +138,11 @@ class FrameStateTest {
             frameTimestamp,
             64L,
             frameTimestampNs,
-            OutputStatus.AVAILABLE,
-            outputImage
+            OutputResult.from(outputImage)
         )
 
         assertThat(fakeImage.isClosed).isTrue()
-        assertThat(imageResult1.getCompletedOrNull()).isNull()
+        assertThat(imageResult1.outputOrNull()).isNull()
     }
 
     @Test
@@ -157,11 +152,10 @@ class FrameStateTest {
             frameTimestamp,
             64L,
             frameTimestampNs,
-            OutputStatus.AVAILABLE,
-            outputImage
+            OutputResult.from(outputImage)
         )
-        val imageCopy1 = imageResult1.getCompletedOrNull()
-        val imageCopy2 = imageResult1.getCompletedOrNull()
+        val imageCopy1 = imageResult1.outputOrNull()
+        val imageCopy2 = imageResult1.outputOrNull()
 
         assertThat(imageCopy1).isNotNull()
         assertThat(imageCopy2).isNotNull()
@@ -185,12 +179,11 @@ class FrameStateTest {
             frameTimestamp,
             10,
             frameNumber.value,
-            OutputStatus.AVAILABLE,
-            fakeFrameInfo
+            OutputResult.from(fakeFrameInfo)
         )
 
         assertThat(frameState.frameInfoOutput.status).isEqualTo(OutputStatus.AVAILABLE)
-        assertThat(frameState.frameInfoOutput.getCompletedOrNull()).isSameInstanceAs(fakeFrameInfo)
+        assertThat(frameState.frameInfoOutput.outputOrNull()).isSameInstanceAs(fakeFrameInfo)
     }
 
     @Test
@@ -201,11 +194,10 @@ class FrameStateTest {
             frameTimestamp,
             10,
             frameNumber.value,
-            OutputStatus.AVAILABLE,
-            fakeFrameInfo
+            OutputResult.from(fakeFrameInfo)
         )
 
         assertThat(frameState.frameInfoOutput.status).isEqualTo(OutputStatus.UNAVAILABLE)
-        assertThat(frameState.frameInfoOutput.getCompletedOrNull()).isNull()
+        assertThat(frameState.frameInfoOutput.outputOrNull()).isNull()
     }
 }

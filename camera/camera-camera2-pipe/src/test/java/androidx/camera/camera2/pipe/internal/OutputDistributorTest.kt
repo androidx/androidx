@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-package androidx.camera.camera2.pipe.media
+package androidx.camera.camera2.pipe.internal
 
 import android.os.Build
 import androidx.camera.camera2.pipe.CameraTimestamp
 import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.OutputStatus
-import androidx.camera.camera2.pipe.media.OutputDistributor.OutputListener
+import androidx.camera.camera2.pipe.internal.OutputDistributor.OutputListener
+import androidx.camera.camera2.pipe.media.Finalizer
 import com.google.common.truth.Truth.assertThat
 import kotlinx.atomicfu.atomic
 import org.junit.Test
@@ -61,7 +62,7 @@ class OutputDistributorTest {
 
     @Test
     fun onOutputAvailableDoesNotFinalizeOutputs() {
-        outputDistributor.onOutputAvailable(fakeOutput1.outputNumber, fakeOutput1)
+        outputDistributor.onOutputResult(fakeOutput1.outputNumber, OutputResult.from(fakeOutput1))
 
         // When an output becomes available, ensure it is not immediately finalized.
         assertThat(fakeOutput1.finalized).isFalse()
@@ -69,10 +70,10 @@ class OutputDistributorTest {
 
     @Test
     fun onOutputAvailableEvictsAndFinalizesPreviousOutputs() {
-        outputDistributor.onOutputAvailable(fakeOutput1.outputNumber, fakeOutput1)
-        outputDistributor.onOutputAvailable(fakeOutput2.outputNumber, fakeOutput2)
-        outputDistributor.onOutputAvailable(fakeOutput3.outputNumber, fakeOutput3)
-        outputDistributor.onOutputAvailable(fakeOutput4.outputNumber, fakeOutput4)
+        outputDistributor.onOutputResult(fakeOutput1.outputNumber, OutputResult.from(fakeOutput1))
+        outputDistributor.onOutputResult(fakeOutput2.outputNumber, OutputResult.from(fakeOutput2))
+        outputDistributor.onOutputResult(fakeOutput3.outputNumber, OutputResult.from(fakeOutput3))
+        outputDistributor.onOutputResult(fakeOutput4.outputNumber, OutputResult.from(fakeOutput4))
 
         // outputDistributor will only cache up to three outputs without matching start events.
 
@@ -87,10 +88,13 @@ class OutputDistributorTest {
 
     @Test
     fun onOutputAvailableEvictsAndFinalizesOutputsInSequence() {
-        outputDistributor.onOutputAvailable(fakeOutput2.outputNumber, fakeOutput2)
-        outputDistributor.onOutputAvailable(fakeOutput3.outputNumber, fakeOutput3)
-        outputDistributor.onOutputAvailable(fakeOutput4.outputNumber, fakeOutput4)
-        outputDistributor.onOutputAvailable(fakeOutput1.outputNumber, fakeOutput1) // Out of order
+        outputDistributor.onOutputResult(fakeOutput2.outputNumber, OutputResult.from(fakeOutput2))
+        outputDistributor.onOutputResult(fakeOutput3.outputNumber, OutputResult.from(fakeOutput3))
+        outputDistributor.onOutputResult(fakeOutput4.outputNumber, OutputResult.from(fakeOutput4))
+        outputDistributor.onOutputResult(
+            fakeOutput1.outputNumber,
+            OutputResult.from(fakeOutput1)
+        ) // Out of order
 
         // FIFO Order for outputs, regardless of the output number.
         // Note: Outputs are provided as [2, 3, 4, *1*]
@@ -102,13 +106,22 @@ class OutputDistributorTest {
 
     @Test
     fun onOutputAvailableWithNullEvictsAndFinalizesOutputs() {
-        outputDistributor.onOutputAvailable(fakeOutput1.outputNumber, fakeOutput1)
-        outputDistributor.onOutputAvailable(fakeOutput2.outputNumber, fakeOutput2)
-        outputDistributor.onOutputAvailable(fakeOutput3.outputNumber, fakeOutput3)
+        outputDistributor.onOutputResult(fakeOutput1.outputNumber, OutputResult.from(fakeOutput1))
+        outputDistributor.onOutputResult(fakeOutput2.outputNumber, OutputResult.from(fakeOutput2))
+        outputDistributor.onOutputResult(fakeOutput3.outputNumber, OutputResult.from(fakeOutput3))
 
-        outputDistributor.onOutputAvailable(fakeOutput4.outputNumber, null)
-        outputDistributor.onOutputAvailable(fakeOutput5.outputNumber, null)
-        outputDistributor.onOutputAvailable(fakeOutput6.outputNumber, null)
+        outputDistributor.onOutputResult(
+            fakeOutput4.outputNumber,
+            OutputResult.failure(OutputStatus.ERROR_OUTPUT_DROPPED)
+        )
+        outputDistributor.onOutputResult(
+            fakeOutput5.outputNumber,
+            OutputResult.failure(OutputStatus.ERROR_OUTPUT_DROPPED)
+        )
+        outputDistributor.onOutputResult(
+            fakeOutput6.outputNumber,
+            OutputResult.failure(OutputStatus.ERROR_OUTPUT_DROPPED)
+        )
 
         // Dropped outputs (null) still evict old outputs.
         assertThat(fakeOutput1.finalized).isTrue()
@@ -118,8 +131,8 @@ class OutputDistributorTest {
 
     @Test
     fun closingOutputDistributorFinalizesCachedOutputs() {
-        outputDistributor.onOutputAvailable(fakeOutput1.outputNumber, fakeOutput1)
-        outputDistributor.onOutputAvailable(fakeOutput2.outputNumber, fakeOutput2)
+        outputDistributor.onOutputResult(fakeOutput1.outputNumber, OutputResult.from(fakeOutput1))
+        outputDistributor.onOutputResult(fakeOutput2.outputNumber, OutputResult.from(fakeOutput2))
 
         // Outputs that have not been matched with started events must be closed when the
         // outputDistributor is closed.
@@ -134,8 +147,8 @@ class OutputDistributorTest {
         outputDistributor.close()
 
         // Outputs that occur after close must always be finalized immediately.
-        outputDistributor.onOutputAvailable(fakeOutput1.outputNumber, fakeOutput1)
-        outputDistributor.onOutputAvailable(fakeOutput2.outputNumber, fakeOutput2)
+        outputDistributor.onOutputResult(fakeOutput1.outputNumber, OutputResult.from(fakeOutput1))
+        outputDistributor.onOutputResult(fakeOutput2.outputNumber, OutputResult.from(fakeOutput2))
 
         assertThat(fakeOutput1.finalized).isTrue()
         assertThat(fakeOutput2.finalized).isTrue()
@@ -146,7 +159,7 @@ class OutputDistributorTest {
         // When a a start event occurs and an output is also available, ensure the callback
         // is correctly invoked.
         outputDistributor.startWith(pendingOutput1)
-        outputDistributor.onOutputAvailable(fakeOutput1.outputNumber, fakeOutput1)
+        outputDistributor.onOutputResult(fakeOutput1.outputNumber, OutputResult.from(fakeOutput1))
 
         assertThat(pendingOutput1.isComplete).isTrue()
         assertThat(pendingOutput1.output).isEqualTo(fakeOutput1)
@@ -165,7 +178,10 @@ class OutputDistributorTest {
     @Test
     fun pendingResultsAreMatchedWithNullOutputs() {
         outputDistributor.startWith(pendingOutput1)
-        outputDistributor.onOutputAvailable(fakeOutput1.outputNumber, null)
+        outputDistributor.onOutputResult(
+            fakeOutput1.outputNumber,
+            OutputResult.failure(OutputStatus.ERROR_OUTPUT_DROPPED)
+        )
 
         assertThat(pendingOutput1.isComplete).isTrue()
         assertThat(pendingOutput1.output).isNull()
@@ -179,7 +195,10 @@ class OutputDistributorTest {
         outputDistributor.startWith(pendingOutput3)
         outputDistributor.startWith(pendingOutput4)
 
-        outputDistributor.onOutputAvailable(fakeOutput3.outputNumber, fakeOutput3) // Match 3
+        outputDistributor.onOutputResult(
+            fakeOutput3.outputNumber,
+            OutputResult.from(fakeOutput3)
+        ) // Match 3
 
         assertThat(pendingOutput1.isComplete).isTrue() // #1 is Canceled
         assertThat(pendingOutput2.isComplete).isTrue() // #2 is Canceled
@@ -231,8 +250,8 @@ class OutputDistributorTest {
 
     @Test
     fun availableOutputsAreNotDistributedToStartedOutputsAfterClose() {
-        outputDistributor.onOutputAvailable(fakeOutput1.outputNumber, fakeOutput1)
-        outputDistributor.onOutputAvailable(fakeOutput2.outputNumber, fakeOutput2)
+        outputDistributor.onOutputResult(fakeOutput1.outputNumber, OutputResult.from(fakeOutput1))
+        outputDistributor.onOutputResult(fakeOutput2.outputNumber, OutputResult.from(fakeOutput2))
         outputDistributor.close()
         outputDistributor.startWith(pendingOutput1) // Note: Would normally match fakeOutput1
         outputDistributor.startWith(pendingOutput2) // Note: Would normally match fakeOutput2
@@ -258,8 +277,8 @@ class OutputDistributorTest {
         outputDistributor.startWith(pendingOutput1) // Note: Would normally match fakeOutput1
         outputDistributor.startWith(pendingOutput2) // Note: Would normally match fakeOutput2
         outputDistributor.close()
-        outputDistributor.onOutputAvailable(fakeOutput1.outputNumber, fakeOutput1)
-        outputDistributor.onOutputAvailable(fakeOutput2.outputNumber, fakeOutput2)
+        outputDistributor.onOutputResult(fakeOutput1.outputNumber, OutputResult.from(fakeOutput1))
+        outputDistributor.onOutputResult(fakeOutput2.outputNumber, OutputResult.from(fakeOutput2))
 
         // If we have valid start events, but then receive close, and then receive matching outputs,
         // ensure all outputs are still considered dropped.
@@ -285,7 +304,7 @@ class OutputDistributorTest {
         outputDistributor.startWith(pendingOutput1) // Note! Out of order start event
 
         // Complete Output 1
-        outputDistributor.onOutputAvailable(fakeOutput1.outputNumber, fakeOutput1)
+        outputDistributor.onOutputResult(fakeOutput1.outputNumber, OutputResult.from(fakeOutput1))
 
         assertThat(pendingOutput1.isComplete).isTrue()
         assertThat(pendingOutput2.isComplete).isFalse() // Since 1 was out of order, do not cancel
@@ -307,7 +326,7 @@ class OutputDistributorTest {
         outputDistributor.startWith(pendingOutput3) // Out of order (relative to 4)
 
         // Complete output 3!
-        outputDistributor.onOutputAvailable(fakeOutput3.outputNumber, fakeOutput3)
+        outputDistributor.onOutputResult(fakeOutput3.outputNumber, OutputResult.from(fakeOutput3))
 
         assertThat(pendingOutput1.isComplete).isTrue() // Cancelled. 1 < 3
         assertThat(pendingOutput2.isComplete).isTrue() // Cancelled. 2 < 3
@@ -331,12 +350,12 @@ class OutputDistributorTest {
         outputDistributor.startWith(pendingOutput4) // Normal (> 3)
 
         // Normal outputs complete
-        outputDistributor.onOutputAvailable(fakeOutput2.outputNumber, fakeOutput2)
-        outputDistributor.onOutputAvailable(fakeOutput3.outputNumber, fakeOutput3)
-        outputDistributor.onOutputAvailable(fakeOutput4.outputNumber, fakeOutput4)
+        outputDistributor.onOutputResult(fakeOutput2.outputNumber, OutputResult.from(fakeOutput2))
+        outputDistributor.onOutputResult(fakeOutput3.outputNumber, OutputResult.from(fakeOutput3))
+        outputDistributor.onOutputResult(fakeOutput4.outputNumber, OutputResult.from(fakeOutput4))
 
         // Then the out of order event completes
-        outputDistributor.onOutputAvailable(fakeOutput1.outputNumber, fakeOutput1)
+        outputDistributor.onOutputResult(fakeOutput1.outputNumber, OutputResult.from(fakeOutput1))
 
         // All of the outputs are correctly distributed:
         assertThat(pendingOutput1.isComplete).isTrue()
@@ -408,12 +427,12 @@ class OutputDistributorTest {
         assertThat(pendingOutput3.isComplete).isFalse()
 
         assertThat(pendingOutput2.output).isNull()
-        assertThat(pendingOutput2.outputStatus).isEqualTo(OutputStatus.ERROR_OUTPUT_DROPPED)
+        assertThat(pendingOutput2.outputStatus).isEqualTo(OutputStatus.ERROR_OUTPUT_FAILED)
     }
 
     @Test
     fun previouslyAddedOutputIsClosedAfterFailure() {
-        outputDistributor.onOutputAvailable(fakeOutput1.outputNumber, fakeOutput1)
+        outputDistributor.onOutputResult(fakeOutput1.outputNumber, OutputResult.from(fakeOutput1))
         outputDistributor.onOutputFailure(pendingOutput1.cameraFrameNumber)
 
         // Output cannot be matched with frameNumber
@@ -425,7 +444,7 @@ class OutputDistributorTest {
         assertThat(fakeOutput1.finalized).isTrue()
         assertThat(pendingOutput1.isComplete).isTrue()
         assertThat(pendingOutput1.output).isNull()
-        assertThat(pendingOutput1.outputStatus).isEqualTo(OutputStatus.ERROR_OUTPUT_DROPPED)
+        assertThat(pendingOutput1.outputStatus).isEqualTo(OutputStatus.ERROR_OUTPUT_FAILED)
     }
 
     /**
@@ -450,8 +469,7 @@ class OutputDistributorTest {
             cameraTimestamp: CameraTimestamp,
             outputSequence: Long,
             outputNumber: Long,
-            outputStatus: OutputStatus,
-            output: FakeOutput?
+            outputResult: OutputResult<FakeOutput>
         ) {
             // Assert that this callback has only been invoked once.
             assertThat(_complete.compareAndSet(expect = false, update = true)).isTrue()
@@ -463,8 +481,8 @@ class OutputDistributorTest {
 
             // Record the actual output and outputSequence for future checks.
             this.outputSequence = outputSequence
-            this.outputStatus = outputStatus
-            this.output = output
+            this.outputStatus = outputResult.status
+            this.output = outputResult.output
         }
     }
 
