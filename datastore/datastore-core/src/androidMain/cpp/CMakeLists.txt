@@ -25,3 +25,8 @@ add_library(shared_counter STATIC shared_counter.cc)
 add_library(datastore_shared_counter SHARED jni/androidx_datastore_core_SharedCounter.cc)
 
 target_link_libraries(datastore_shared_counter shared_counter)
+target_link_options(
+    datastore_shared_counter
+    PRIVATE
+    "-Wl,-z,max-page-size=16384"
+)

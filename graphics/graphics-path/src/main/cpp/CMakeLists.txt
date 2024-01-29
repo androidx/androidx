@@ -14,5 +14,5 @@ add_library(
 target_link_options(
     androidx.graphics.path
     PRIVATE
-    "-Wl,--version-script=${VERSION_SCRIPT}"
+    "-Wl,--version-script=${VERSION_SCRIPT},-z,max-page-size=16384"
 )
