@@ -32,6 +32,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.UiThread;
 import androidx.camera.viewfinder.internal.utils.Logger;
+import androidx.camera.viewfinder.surface.ViewfinderSurfaceRequest;
 import androidx.core.content.ContextCompat;
 import androidx.core.util.Preconditions;
 
@@ -254,7 +255,7 @@ final class SurfaceViewImplementation extends ViewfinderImplementation {
         private void invalidateSurface() {
             if (mSurfaceRequest != null) {
                 Logger.d(TAG, "Surface invalidated " + mSurfaceRequest);
-                mSurfaceRequest.getViewfinderSurface().close();
+                mSurfaceRequest.getSurface().close();
             }
         }
     }
