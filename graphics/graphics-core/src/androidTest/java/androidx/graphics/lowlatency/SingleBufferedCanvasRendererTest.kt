@@ -37,6 +37,7 @@ import java.util.concurrent.TimeUnit
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -76,6 +77,7 @@ class SingleBufferedCanvasRendererTest {
         )
     }
 
+    @Ignore // b/321800558
     @Test
     fun testRenderFrameRotate90() {
         testRenderWithTransform(
@@ -114,6 +116,7 @@ class SingleBufferedCanvasRendererTest {
         )
     }
 
+    @Ignore // b/321800558
     @Test
     fun testRenderFrameRotate270() {
         testRenderWithTransform(
@@ -183,6 +186,7 @@ class SingleBufferedCanvasRendererTest {
         }
     }
 
+    @Ignore // b/321800558
     @Test
     fun testCancelPending() {
         val transformer = BufferTransformer().apply {

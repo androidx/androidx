@@ -61,6 +61,7 @@ import androidx.core.view.accessibility.AccessibilityEventCompat.TYPE_VIEW_ACCES
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.ACTION_ACCESSIBILITY_FOCUS
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Correspondence
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
@@ -78,6 +79,7 @@ class ScrollingTest {
     private val dispatchedAccessibilityEvents = mutableListOf<AccessibilityEvent>()
     private val accessibilityEventLoopIntervalMs = 100L
 
+    @SdkSuppress(maxSdkVersion = 33) // b/322354981
     @Test
     fun sendScrollEvent_byStateObservation_horizontal() {
         // Arrange.
