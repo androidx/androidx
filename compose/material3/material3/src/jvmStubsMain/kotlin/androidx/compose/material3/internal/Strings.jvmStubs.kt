@@ -39,6 +39,7 @@ internal actual value class Strings constructor(val value: Int) {
         actual val MenuExpanded: Strings = implementedInJetBrainsFork()
         actual val MenuCollapsed: Strings = implementedInJetBrainsFork()
         actual val SnackbarDismiss: Strings = implementedInJetBrainsFork()
+        actual val SnackbarPaneTitle: Strings = implementedInJetBrainsFork()
         actual val SearchBarSearch: Strings = implementedInJetBrainsFork()
         actual val SuggestionsAvailable: Strings = implementedInJetBrainsFork()
         actual val DatePickerTitle: Strings = implementedInJetBrainsFork()

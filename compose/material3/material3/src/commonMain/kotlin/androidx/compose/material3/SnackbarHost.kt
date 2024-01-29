@@ -22,6 +22,8 @@ import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
+import androidx.compose.material3.internal.Strings
+import androidx.compose.material3.internal.getString
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.RecomposeScope
@@ -40,6 +42,7 @@ import androidx.compose.ui.platform.LocalAccessibilityManager
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.dismiss
 import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.paneTitle
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.util.fastFilterNotNull
 import androidx.compose.ui.util.fastForEach
@@ -324,6 +327,7 @@ private fun FadeInFadeOutWithScale(
     modifier: Modifier = Modifier,
     content: @Composable (SnackbarData) -> Unit
 ) {
+    val a11yPaneTitle = getString(Strings.SnackbarPaneTitle)
     val state = remember { FadeInFadeOutState<SnackbarData?>() }
     if (current != state.current) {
         state.current = current
@@ -382,6 +386,7 @@ private fun FadeInFadeOutWithScale(
                                 key.dismiss()
                                 true
                             }
+                            paneTitle = a11yPaneTitle
                         }
                 ) {
                     children()

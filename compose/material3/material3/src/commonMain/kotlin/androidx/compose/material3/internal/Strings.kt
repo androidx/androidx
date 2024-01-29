@@ -36,6 +36,7 @@ internal expect value class Strings constructor(val value: Int) {
         val MenuCollapsed: Strings
         val ToggleDropdownMenu: Strings
         val SnackbarDismiss: Strings
+        val SnackbarPaneTitle: Strings
         val SearchBarSearch: Strings
         val SuggestionsAvailable: Strings
         val DatePickerTitle: Strings
