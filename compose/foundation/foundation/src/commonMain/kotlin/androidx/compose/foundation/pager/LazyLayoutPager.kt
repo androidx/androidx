@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:OptIn(ExperimentalFoundationApi::class)
+
 package androidx.compose.foundation.pager
 
 import androidx.compose.animation.core.AnimationSpec
@@ -63,7 +65,7 @@ import kotlin.math.absoluteValue
 import kotlin.math.roundToInt
 import kotlinx.coroutines.coroutineScope
 
-@ExperimentalFoundationApi
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal fun Pager(
     /** Modifier to be applied for the inner layout */
@@ -267,7 +269,6 @@ private fun rememberPagerItemProviderLambda(
 /**
  * A modifier to detect up and down events in a Pager.
  */
-@OptIn(ExperimentalFoundationApi::class)
 private fun Modifier.dragDirectionDetector(state: PagerState) =
     this then Modifier.pointerInput(state) {
         coroutineScope {
@@ -328,7 +329,6 @@ private class PagerBringIntoViewSpec(val pagerState: PagerState) : BringIntoView
 /**
  * Wraps [SnapFlingBehavior] to give out information about target page coming from flings.
  */
-@OptIn(ExperimentalFoundationApi::class)
 private class PagerWrapperFlingBehavior(
     val originalFlingBehavior: TargetedFlingBehavior,
     val pagerState: PagerState
