@@ -368,6 +368,7 @@ private fun Project.configureLint(lint: Lint, isLibrary: Boolean) {
         }
 
         fatal.add("UastImplementation") // go/hide-uast-impl
+        fatal.add("KotlincFE10") // b/239982263
 
         // If the project has not overridden the lint config, set the default one.
         if (lintConfig == null) {
