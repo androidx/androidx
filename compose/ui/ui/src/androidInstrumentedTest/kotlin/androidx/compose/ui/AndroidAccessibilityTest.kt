@@ -80,7 +80,9 @@ import androidx.compose.material.Button
 import androidx.compose.material.DrawerValue
 import androidx.compose.material.DropdownMenu
 import androidx.compose.material.DropdownMenuItem
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.FabPosition
+import androidx.compose.material.FilterChip
 import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
@@ -236,6 +238,7 @@ import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 
 @LargeTest
+@OptIn(ExperimentalMaterialApi::class)
 @RunWith(AndroidJUnit4::class)
 class AndroidAccessibilityTest {
     @get:Rule
@@ -459,13 +462,14 @@ class AndroidAccessibilityTest {
             with(AccessibilityNodeInfoCompat.wrap(info)) {
                 assertThat(className).isEqualTo("android.view.View")
                 assertThat(stateDescription).isEqualTo("Selected")
-                assertThat(isClickable).isFalse()
+                assertThat(isClickable).isTrue()
                 assertThat(isCheckable).isTrue()
                 assertThat(isVisibleToUser).isTrue()
                 assertThat(actionList)
                     .containsExactly(
                         AccessibilityActionCompat(ACTION_ACCESSIBILITY_FOCUS, null),
                         AccessibilityActionCompat(ACTION_FOCUS, null),
+                        AccessibilityActionCompat(ACTION_CLICK, null),
                     )
             }
         }
@@ -504,6 +508,67 @@ class AndroidAccessibilityTest {
         }
     }
 
+    @Test
+    fun testCreateAccessibilityNodeInfo_forRadioButton() {
+        // Arrange.
+        setContent {
+            Box(
+                Modifier
+                    .selectable(selected = true, onClick = {}, role = Role.RadioButton)
+                    .testTag(tag)) {
+                BasicText("Text")
+            }
+        }
+        val virtualId = rule.onNodeWithTag(tag).semanticsId
+
+        // Act.
+        val info = rule.runOnIdle { createAccessibilityNodeInfo(virtualId) }
+
+        // Assert.
+        rule.runOnIdle {
+            with(AccessibilityNodeInfoCompat.wrap(info)) {
+                assertThat(className).isEqualTo("android.view.View")
+                assertThat(isClickable).isFalse()
+                assertThat(isVisibleToUser).isTrue()
+                assertThat(isChecked).isTrue()
+                assertThat(actionList)
+                    .containsExactly(
+                        AccessibilityActionCompat(ACTION_ACCESSIBILITY_FOCUS, null),
+                        AccessibilityActionCompat(ACTION_FOCUS, null),
+                    )
+            }
+        }
+    }
+
+    @Test
+    fun testCreateAccessibilityNodeInfo_forFilterButton() {
+        // Arrange.
+        setContent {
+            FilterChip(selected = true, onClick = {}, modifier = Modifier.testTag(tag)) {
+                Text("Filter chip")
+            }
+        }
+        val virtualId = rule.onNodeWithTag(tag).semanticsId
+
+        // Act.
+        val info = rule.runOnIdle { createAccessibilityNodeInfo(virtualId) }
+
+        // Assert.
+        rule.runOnIdle {
+            with(AccessibilityNodeInfoCompat.wrap(info)) {
+                // We don't check for a CheckBox role since the role is found in a fake descendant.
+                assertThat(stateDescription).isEqualTo("Selected")
+                assertThat(isClickable).isTrue()
+                assertThat(isCheckable).isTrue()
+                assertThat(isChecked).isTrue()
+                assertThat(isVisibleToUser).isTrue()
+                assertThat(actionList)
+                    .contains(
+                        AccessibilityActionCompat(ACTION_CLICK, null),
+                    )
+            }
+        }
+    }
     @Test
     fun testCreateAccessibilityNodeInfo_progressIndicator_determinate() {
         // Arrange.
