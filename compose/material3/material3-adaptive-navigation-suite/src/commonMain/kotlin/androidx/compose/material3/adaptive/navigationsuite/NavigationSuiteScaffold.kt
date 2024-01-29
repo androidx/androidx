@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.material3.adaptive.navigation.suite
+package androidx.compose.material3.adaptive.navigationsuite
 
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -65,9 +65,9 @@ import androidx.compose.ui.util.fastFirst
  * navigation component on the screen according to the current [NavigationSuiteType].
  *
  * Example default usage:
- * @sample androidx.compose.material3.adaptive.navigation.suite.samples.NavigationSuiteScaffoldSample
+ * @sample androidx.compose.material3.adaptive.navigationsuite.samples.NavigationSuiteScaffoldSample
  * Example custom configuration usage:
- * @sample androidx.compose.material3.adaptive.navigation.suite.samples.NavigationSuiteScaffoldCustomConfigSample
+ * @sample androidx.compose.material3.adaptive.navigationsuite.samples.NavigationSuiteScaffoldCustomConfigSample
  *
  * @param navigationSuiteItems the navigation items to be displayed
  * @param modifier the [Modifier] to be applied to the navigation suite scaffold
