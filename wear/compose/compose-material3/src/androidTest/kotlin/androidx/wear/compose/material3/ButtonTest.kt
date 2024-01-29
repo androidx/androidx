@@ -474,7 +474,7 @@ class ButtonTest {
     fun gives_enabled_three_slot_button_correct_colors() {
         rule.verifyThreeSlotButtonColors(
             status = Status.Enabled,
-            expectedColor = { ButtonDefaults.filledButtonColors() },
+            expectedColor = { ButtonDefaults.buttonColors() },
             content = { ThreeSlotFilledButton(Status.Enabled) }
         )
     }
@@ -484,7 +484,7 @@ class ButtonTest {
     fun gives_disabled_three_slot_button_correct_colors() {
         rule.verifyThreeSlotButtonColors(
             status = Status.Disabled,
-            expectedColor = { ButtonDefaults.filledButtonColors() },
+            expectedColor = { ButtonDefaults.buttonColors() },
             content = { ThreeSlotFilledButton(Status.Disabled) }
         )
     }
@@ -756,7 +756,7 @@ class ButtonTest {
     fun gives_enabled_compact_button_correct_colors() {
         rule.verifyCompactButtonColors(
             status = Status.Enabled,
-            colors = { ButtonDefaults.filledButtonColors() }
+            colors = { ButtonDefaults.buttonColors() }
         )
     }
 
@@ -765,7 +765,7 @@ class ButtonTest {
     fun gives_disabled_compact_button_correct_colors() {
         rule.verifyCompactButtonColors(
             status = Status.Disabled,
-            colors = { ButtonDefaults.filledButtonColors() }
+            colors = { ButtonDefaults.buttonColors() }
         )
     }
 

@@ -73,7 +73,7 @@ import androidx.wear.compose.material3.tokens.OutlinedButtonTokens
  * extend to a maximum of 3 lines in which case, the [Button] height adjusts to accommodate the
  * contents.
  *
- * [Button] takes the [ButtonDefaults.filledButtonColors] color scheme by default,
+ * [Button] takes the [ButtonDefaults.buttonColors] color scheme by default,
  * with colored background, contrasting content color and no border. This is a high-emphasis button
  * for the primary, most important or most common action on a screen.
  *
@@ -97,7 +97,7 @@ import androidx.wear.compose.material3.tokens.OutlinedButtonTokens
  * @param shape Defines the button's shape. It is strongly recommended to use the default as this
  * shape is a key characteristic of the Wear Material3 Theme
  * @param colors [ButtonColors] that will be used to resolve the background and content color for
- * this button in different states. See [ButtonDefaults.filledButtonColors].
+ * this button in different states. See [ButtonDefaults.buttonColors].
  * @param border Optional [BorderStroke] that will be used to resolve the border for this
  * button in different states.
  * @param contentPadding The spacing values to apply internally between the container and the
@@ -113,7 +113,7 @@ fun Button(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     shape: Shape = FilledButtonTokens.ContainerShape.value,
-    colors: ButtonColors = ButtonDefaults.filledButtonColors(),
+    colors: ButtonColors = ButtonDefaults.buttonColors(),
     border: BorderStroke? = null,
     contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
     interactionSource: MutableInteractionSource? = null,
@@ -148,7 +148,7 @@ fun Button(
  * unblocking actions in a flow with less emphasis than [Button].
  *
  * Other recommended buttons with [ButtonColors] for different levels of emphasis are:
- * [Button] which defaults to [ButtonDefaults.filledButtonColors],
+ * [Button] which defaults to [ButtonDefaults.buttonColors],
  * [OutlinedButton] which defaults to [ButtonDefaults.outlinedButtonColors] and
  * [ChildButton] which defaults to [ButtonDefaults.childButtonColors].
  * Buttons can also take an image background using [ButtonDefaults.imageBackgroundButtonColors].
@@ -217,7 +217,7 @@ fun FilledTonalButton(
  * for important, non-primary actions that need attention.
  *
  * Other recommended buttons with [ButtonColors] for different levels of emphasis are:
- * [Button] which defaults to [ButtonDefaults.filledButtonColors],
+ * [Button] which defaults to [ButtonDefaults.buttonColors],
  * [FilledTonalButton] which defaults to [ButtonDefaults.filledTonalButtonColors],
  * [ChildButton] which defaults to [ButtonDefaults.childButtonColors].
  * Buttons can also take an image background using [ButtonDefaults.imageBackgroundButtonColors].
@@ -286,7 +286,7 @@ fun OutlinedButton(
  * or supplementary actions with the least amount of prominence.
  *
  * Other recommended buttons with [ButtonColors] for different levels of emphasis are:
- * [Button] which defaults to [ButtonDefaults.filledButtonColors],
+ * [Button] which defaults to [ButtonDefaults.buttonColors],
  * [FilledTonalButton] which defaults to [ButtonDefaults.filledTonalButtonColors],
  * [OutlinedButton] which defaults to [ButtonDefaults.outlinedButtonColors] and
  * Buttons can also take an image background using [ButtonDefaults.imageBackgroundButtonColors].
@@ -354,7 +354,7 @@ fun ChildButton(
  * If a icon is provided then the labels should be "start" aligned, e.g. left aligned in ltr so that
  * the text starts next to the icon.
  *
- * [Button] takes the [ButtonDefaults.filledButtonColors] color scheme by default,
+ * [Button] takes the [ButtonDefaults.buttonColors] color scheme by default,
  * with colored background, contrasting content color and no border. This is a high-emphasis button
  * for the primary, most important or most common action on a screen.
  *
@@ -386,7 +386,7 @@ fun ChildButton(
  * shape is a key characteristic of the Wear Material3 Theme
  * @param colors [ButtonColors] that will be used to resolve the background and content color for
  * this button in different states. See [ButtonDefaults.buttonColors]. Defaults to
- * [ButtonDefaults.filledButtonColors]
+ * [ButtonDefaults.buttonColors]
  * @param border Optional [BorderStroke] that will be used to resolve the button border in
  * different states.
  * @param contentPadding The spacing values to apply internally between the container and the
@@ -406,7 +406,7 @@ fun Button(
     icon: (@Composable BoxScope.() -> Unit)? = null,
     enabled: Boolean = true,
     shape: Shape = FilledButtonTokens.ContainerShape.value,
-    colors: ButtonColors = ButtonDefaults.filledButtonColors(),
+    colors: ButtonColors = ButtonDefaults.buttonColors(),
     border: BorderStroke? = null,
     contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
     interactionSource: MutableInteractionSource? = null,
@@ -451,7 +451,7 @@ fun Button(
  * unblocking actions in a flow with less emphasis than [Button].
  *
  * Other recommended buttons with [ButtonColors] for different levels of emphasis are:
- * [Button] which defaults to [ButtonDefaults.filledButtonColors],
+ * [Button] which defaults to [ButtonDefaults.buttonColors],
  * [OutlinedButton] which defaults to [ButtonDefaults.outlinedButtonColors] and
  * [ChildButton] which defaults to [ButtonDefaults.childButtonColors].
  * Buttons can also take an image background using [ButtonDefaults.imageBackgroundButtonColors].
@@ -539,7 +539,7 @@ fun FilledTonalButton(
  * for important, non-primary actions that need attention.
  *
  * Other recommended buttons with [ButtonColors] for different levels of emphasis are:
- * [Button] which defaults to [ButtonDefaults.filledButtonColors],
+ * [Button] which defaults to [ButtonDefaults.buttonColors],
  * [FilledTonalButton] which defaults to [ButtonDefaults.filledTonalButtonColors],
  * [ChildButton] which defaults to [ButtonDefaults.childButtonColors].
  * Buttons can also take an image background using [ButtonDefaults.imageBackgroundButtonColors].
@@ -625,7 +625,7 @@ fun OutlinedButton(
  * or supplementary actions with the least amount of prominence.
  *
  * Other recommended buttons with [ButtonColors] for different levels of emphasis are:
- * [Button] which defaults to [ButtonDefaults.filledButtonColors],
+ * [Button] which defaults to [ButtonDefaults.buttonColors],
  * [FilledTonalButton] which defaults to [ButtonDefaults.filledTonalButtonColors],
  * [OutlinedButton] which defaults to [ButtonDefaults.outlinedButtonColors].
  * Buttons can also take an image background using [ButtonDefaults.imageBackgroundButtonColors].
@@ -719,7 +719,7 @@ fun ChildButton(
  * If neither icon nor label is provided then the button will displayed like an icon only button but
  * with no contents or background color.
  *
- * [CompactButton] takes the [ButtonDefaults.filledButtonColors] color scheme by default,
+ * [CompactButton] takes the [ButtonDefaults.buttonColors] color scheme by default,
  * with colored background, contrasting content color and no border. This is a high-emphasis button
  * for the primary, most important or most common action on a screen.
  *
@@ -752,7 +752,7 @@ fun ChildButton(
  * horizontally and vertically aligned icon of size [ButtonDefaults.SmallIconSize] when used
  * with a label or [ButtonDefaults.IconSize] when used as the only content in the button.
  * @param colors [ButtonColors] that will be used to resolve the background and content color for
- * this button in different states. See [ButtonDefaults.filledButtonColors].
+ * this button in different states. See [ButtonDefaults.buttonColors].
  * @param enabled Controls the enabled state of the button. When `false`, this button will not
  * be clickable
  * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
@@ -773,7 +773,7 @@ fun CompactButton(
     icon: (@Composable BoxScope.() -> Unit)? = null,
     enabled: Boolean = true,
     shape: Shape = CompactButtonTokens.ContainerShape.value,
-    colors: ButtonColors = ButtonDefaults.filledButtonColors(),
+    colors: ButtonColors = ButtonDefaults.buttonColors(),
     border: BorderStroke? = null,
     contentPadding: PaddingValues = ButtonDefaults.CompactButtonContentPadding,
     interactionSource: MutableInteractionSource? = null,
@@ -829,63 +829,13 @@ fun CompactButton(
  * Contains the default values used by [Button]
  */
 object ButtonDefaults {
-   /**
-    * Creates a [ButtonColors] with colored background and contrasting content color,
-    * the defaults for high emphasis buttons like [Button], for the primary, most important
-    * or most common action on a screen.
-    *
-    * If a button is disabled then the content will have an alpha([DisabledContentAlpha]) value
-    * applied and container will have an alpha([DisabledContainerAlpha]) value applied.
-    */
-    @Composable
-    fun filledButtonColors() = MaterialTheme.colorScheme.defaultFilledButtonColors
-
-    /**
-     * Creates a [ButtonColors] with colored background and contrasting content color,
-     * the defaults for high emphasis buttons like [Button], for the primary, most important
-     * or most common action on a screen.
-     *
-     * If a button is disabled then the content will have an alpha([DisabledContentAlpha]) value
-     * applied and container will have an alpha([DisabledContainerAlpha]) value applied.
-     *
-     * @param containerColor The background color of this [Button] when enabled
-     * @param contentColor The content color of this [Button] when enabled
-     * @param secondaryContentColor The secondary content color of this [Button] when enabled, used
-     * for secondaryLabel content
-     * @param iconColor The icon color of this [Button] when enabled, used for icon content
-     * @param disabledContainerColor The background color of this [Button] when not enabled
-     * @param disabledContentColor The content color of this [Button] when not enabled
-     * @param disabledSecondaryContentColor The secondary content color of this [Button] when not
-     * enabled
-     * @param disabledIconColor The content color of this [Button] when not enabled
-     */
-    @Composable
-    fun filledButtonColors(
-        containerColor: Color = Color.Unspecified,
-        contentColor: Color = Color.Unspecified,
-        secondaryContentColor: Color = Color.Unspecified,
-        iconColor: Color = Color.Unspecified,
-        disabledContainerColor: Color = Color.Unspecified,
-        disabledContentColor: Color = Color.Unspecified,
-        disabledSecondaryContentColor: Color = Color.Unspecified,
-        disabledIconColor: Color = Color.Unspecified
-    ): ButtonColors = MaterialTheme.colorScheme.defaultFilledButtonColors.copy(
-        containerColor = containerColor,
-        contentColor = contentColor,
-        secondaryContentColor = secondaryContentColor,
-        iconColor = iconColor,
-        disabledContainerColor = disabledContainerColor,
-        disabledContentColor = disabledContentColor,
-        disabledSecondaryContentColor = disabledSecondaryContentColor,
-        disabledIconColor = disabledIconColor
-    )
 
     /**
      * Creates a [ButtonColors] with a muted background and contrasting content color,
      * the defaults for medium emphasis buttons like [FilledTonalButton].
      * Use [filledTonalButtonColors] for important actions that don't distract from
      * other onscreen elements, such as final or unblocking actions in a flow with less emphasis
-     * than [filledButtonColors].
+     * than [buttonColors].
      *
      * If a button is disabled then the content will have an alpha([DisabledContentAlpha])
      * value applied and container will have alpha ([DisabledContainerAlpha]) value applied.
@@ -898,7 +848,7 @@ object ButtonDefaults {
      * the defaults for medium emphasis buttons like [FilledTonalButton].
      * Use [filledTonalButtonColors] for important actions that don't distract from
      * other onscreen elements, such as final or unblocking actions in a flow with less emphasis
-     * than [filledButtonColors].
+     * than [buttonColors].
      *
      * If a button is disabled then the content will have an alpha([DisabledContentAlpha])
      * value applied and container will have alpha ([DisabledContainerAlpha]) value applied.
