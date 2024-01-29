@@ -927,6 +927,11 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
         @Suppress("DEPRECATION")
         externalNativeBuild.cmake.buildStagingDirectory =
             File(project.buildDir, "../nativeBuildStaging")
+
+        // Align the ELF region of native shared libs 16kb boundary
+        defaultConfig.externalNativeBuild.cmake.arguments.add(
+            "-DCMAKE_SHARED_LINKER_FLAGS=-Wl,-z,max-page-size=16384"
+        )
     }
 
     private fun KotlinMultiplatformAndroidTarget.configureAndroidBaseOptions(

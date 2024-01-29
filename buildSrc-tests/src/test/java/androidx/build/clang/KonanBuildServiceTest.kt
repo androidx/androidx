@@ -22,6 +22,7 @@ import java.io.ByteArrayOutputStream
 import java.io.File
 import org.gradle.api.GradleException
 import org.gradle.api.file.DirectoryProperty
+import org.jetbrains.kotlin.konan.target.Family
 import org.jetbrains.kotlin.konan.target.KonanTarget
 import org.junit.Before
 import org.junit.Test
@@ -114,6 +115,26 @@ class KonanBuildServiceTest : BaseClangTest() {
         assertThat(strings).contains("Hello, World!")
         // should link with libc
         assertThat(strings).contains("libc")
+
+        // verify shared lib files are aligned to 16Kb boundary for Android targets
+        if (sharedLibraryParameters.konanTarget.get().asKonanTarget.family == Family.ANDROID) {
+            val alignment = ProcessBuilder("objdump", "-p", outputFile.path)
+                .start()
+                .inputStream
+                .bufferedReader()
+                .useLines { lines ->
+                    lines.filter {
+                        it.contains("LOAD")
+                    }.map {
+                        it.split(" ").last()
+                    }.firstOrNull()
+                }
+            assertThat(
+                alignment
+            ).isEqualTo(
+                "2**14"
+            )
+        }
     }
 
     @Test

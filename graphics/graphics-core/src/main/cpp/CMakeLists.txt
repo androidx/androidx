@@ -60,3 +60,7 @@ target_link_libraries( # Specifies the target library.
                        GLESv2
                        android)
 
+target_link_options(graphics-core
+                    PRIVATE
+                    "-Wl,-z,max-page-size=16384")
+
