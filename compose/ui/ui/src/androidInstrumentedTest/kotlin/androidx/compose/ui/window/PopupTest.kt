@@ -31,7 +31,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -363,7 +362,6 @@ class PopupTest {
         rule.onNodeWithTag(testTag).assertIsDisplayed()
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun canFillScreenWidth_dependingOnProperty() {
         var box1Width = 0
@@ -385,7 +383,6 @@ class PopupTest {
         }
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun canChangeSize() {
         var width by mutableStateOf(10.dp)
