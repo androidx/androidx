@@ -17,7 +17,6 @@
 package androidx.compose.runtime
 
 import androidx.compose.runtime.internal.JvmDefaultWithCompatibility
-import checkPrecondition
 
 /**
  * An Applier is responsible for applying the tree-based operations that get emitted during a

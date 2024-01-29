@@ -9,7 +9,7 @@ import androidx.compose.runtime.external.kotlinx.collections.immutable.internal.
 import androidx.compose.runtime.external.kotlinx.collections.immutable.internal.MutabilityOwnership
 import androidx.compose.runtime.external.kotlinx.collections.immutable.internal.assert
 import androidx.compose.runtime.external.kotlinx.collections.immutable.internal.forEachOneBit
-import checkPrecondition
+import androidx.compose.runtime.checkPrecondition
 
 
 internal const val MAX_BRANCHING_FACTOR = 32

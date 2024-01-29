@@ -22,11 +22,11 @@ import androidx.compose.runtime.RememberManager
 import androidx.compose.runtime.SlotWriter
 import androidx.compose.runtime.changelist.Operation.IntParameter
 import androidx.compose.runtime.changelist.Operation.ObjectParameter
-import checkPrecondition
+import androidx.compose.runtime.checkPrecondition
+import androidx.compose.runtime.requirePrecondition
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind.EXACTLY_ONCE
 import kotlin.contracts.contract
-import requirePrecondition
 
 /**
  * `Operations` is a data structure used to store a sequence of [Operations][Operation] and their
