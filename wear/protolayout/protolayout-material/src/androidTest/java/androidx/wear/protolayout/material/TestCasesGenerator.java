@@ -312,6 +312,26 @@ public class TestCasesGenerator {
                                 new ProgressIndicatorColors(Color.BLUE, Color.YELLOW))
                         .build());
         testCases.put(
+                "circularprogressindicator_in_smaller_box_with_margins_full_90",
+                new Box.Builder()
+                        .setWidth(dp(50))
+                        .setHeight(dp(50))
+                        .addContent(
+                                new CircularProgressIndicator.Builder().setProgress(0.25f).build())
+                        .build());
+        testCases.put(
+                "circularprogressindicator_in_smaller_box_without_margins_full_90",
+                new Box.Builder()
+                        .setWidth(dp(50))
+                        .setHeight(dp(50))
+                        .addContent(
+                                new CircularProgressIndicator.Builder()
+                                        .setProgress(0.25f)
+                                        .setOuterMarginApplied(false)
+                                        .build())
+                        .build());
+
+        testCases.put(
                 "default_text_golden" + goldenSuffix, new Text.Builder(context, "Testing").build());
         testCases.put(
                 "not_scaled_text_golden" + NORMAL_SCALE_SUFFIX,
