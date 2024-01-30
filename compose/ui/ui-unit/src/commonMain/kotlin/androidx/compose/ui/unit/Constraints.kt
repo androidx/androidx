@@ -16,9 +16,9 @@
 
 package androidx.compose.ui.unit
 
-import androidx.collection.IntIntPair
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
+import androidx.compose.ui.unit.Constraints.Companion.Infinity
 import kotlin.math.min
 
 /**
@@ -223,84 +223,6 @@ value class Constraints(
         const val Infinity = Int.MAX_VALUE
 
         /**
-         * The bit distribution when the focus of the bits should be on the width, but only
-         * a minimal difference in focus.
-         *
-         * 16 bits assigned to width, 15 bits assigned to height.
-         */
-        private const val MinFocusWidth = 0x02L
-
-        /**
-         * The bit distribution when the focus of the bits should be on the width, and a
-         * maximal number of bits assigned to the width.
-         *
-         * 18 bits assigned to width, 13 bits assigned to height.
-         */
-        private const val MaxFocusWidth = 0x03L
-
-        /**
-         * The bit distribution when the focus of the bits should be on the height, but only
-         * a minimal difference in focus.
-         *
-         * 15 bits assigned to width, 16 bits assigned to height.
-         */
-        private const val MinFocusHeight = 0x01L
-
-        /**
-         * The bit distribution when the focus of the bits should be on the height, and a
-         * a maximal number of bits assigned to the height.
-         *
-         * 13 bits assigned to width, 18 bits assigned to height.
-         */
-        private const val MaxFocusHeight = 0x00L
-
-        /**
-         * The mask to retrieve the focus ([MinFocusWidth], [MaxFocusWidth],
-         * [MinFocusHeight], [MaxFocusHeight]).
-         */
-        private const val FocusMask = 0x03L
-
-        /**
-         * The number of bits used for the focused dimension when there is minimal focus.
-         */
-        private const val MinFocusBits = 16
-
-        /**
-         * The mask to use for the focused dimension when there is minimal focus.
-         */
-        private const val MinFocusMask = 0xFFFF // 64K (16 bits)
-
-        /**
-         * The number of bits used for the non-focused dimension when there is minimal focus.
-         */
-        private const val MinNonFocusBits = 15
-
-        /**
-         * The mask to use for the non-focused dimension when there is minimal focus.
-         */
-        private const val MinNonFocusMask = 0x7FFF // 32K (15 bits)
-
-        /**
-         * The number of bits to use for the focused dimension when there is maximal focus.
-         */
-        private const val MaxFocusBits = 18
-
-        /**
-         * The mask to use for the focused dimension when there is maximal focus.
-         */
-        private const val MaxFocusMask = 0x3FFFF // 256K (18 bits)
-
-        /**
-         * The number of bits to use for the non-focused dimension when there is maximal focus.
-         */
-        private const val MaxNonFocusBits = 13
-
-        /**
-         * The mask to use for the non-focused dimension when there is maximal focus.
-         */
-        private const val MaxNonFocusMask = 0x1FFF // 8K (13 bits)
-
-        /**
          * Creates constraints for fixed size in both dimensions.
          */
         @Stable
@@ -374,95 +296,197 @@ value class Constraints(
             prioritizeWidth: Boolean = true
         ): Constraints {
             if (prioritizeWidth) {
-                val (minW, maxW) = calculatePriorityDimension(minWidth, maxWidth)
+                val minW = min(minWidth, MaxFocusMask - 1)
+                val maxW = if (maxWidth == Infinity) {
+                    Infinity
+                } else {
+                    min(maxWidth, MaxFocusMask - 1)
+                }
                 val consumed = if (maxW == Infinity) minW else maxW
-                val bitsUsed = bitsNeedForSize(consumed)
-                val (minH, maxH) = calculateOtherDimension(minHeight, maxHeight, bitsUsed)
+                val maxAllowed = maxAllowedForSize(consumed)
+                val maxH =
+                    if (maxHeight == Infinity) Infinity else min(maxAllowed, maxHeight)
+                val minH = min(maxAllowed, minHeight)
                 return Constraints(minW, maxW, minH, maxH)
             }
-            val (minH, maxH) = calculatePriorityDimension(minHeight, maxHeight)
-            val consumed = if (maxH == Infinity) minH else maxH
-            val bitsUsed = bitsNeedForSize(consumed)
-            val (minW, maxW) = calculateOtherDimension(minWidth, maxWidth, bitsUsed)
-            return Constraints(minW, maxW, minH, maxH)
-        }
 
-        private fun calculatePriorityDimension(minValue: Int, maxValue: Int): IntIntPair {
-            val newMinValue = min(minValue, MaxFocusMask - 1)
-            val newMaxValue = if (maxValue == Infinity) {
+            val minH = min(minHeight, MaxFocusMask - 1)
+            val maxH = if (maxHeight == Infinity) {
                 Infinity
             } else {
-                min(maxValue, MaxFocusMask - 1)
+                min(maxHeight, MaxFocusMask - 1)
             }
-            return IntIntPair(newMinValue, newMaxValue)
+            val consumed = if (maxH == Infinity) minH else maxH
+            val maxAllowed = maxAllowedForSize(consumed)
+            val maxW = if (maxWidth == Infinity) Infinity else min(maxAllowed, maxWidth)
+            val minW = min(maxAllowed, minWidth)
+            return Constraints(minW, maxW, minH, maxH)
         }
+    }
+}
 
-        private fun calculateOtherDimension(
-            minValue: Int,
-            maxValue: Int,
-            bitsUsed: Int
-        ): IntIntPair {
-            val allowedBits = 31 - bitsUsed
-            val maxAllowed = (1 shl allowedBits) - 2
-            val newMaxValue = if (maxValue == Infinity) Infinity else min(maxAllowed, maxValue)
-            val newMinValue = min(maxAllowed, minValue)
-            return IntIntPair(newMinValue, newMaxValue)
-        }
+// Redefinition of Constraints.Infinity to bypass the companion object
+private const val Infinity = Int.MAX_VALUE
 
-        /**
-         * Creates a [Constraints], only checking that the values fit in the packed Long.
-         */
-        internal fun createConstraints(
-            minWidth: Int,
-            maxWidth: Int,
-            minHeight: Int,
-            maxHeight: Int
-        ): Constraints {
-            val heightVal = if (maxHeight == Infinity) minHeight else maxHeight
-            val heightBits = bitsNeedForSize(heightVal)
+/**
+ * The bit distribution when the focus of the bits should be on the width, but only
+ * a minimal difference in focus.
+ *
+ * 16 bits assigned to width, 15 bits assigned to height.
+ */
+private const val MinFocusWidth = 0x02
 
-            val widthVal = if (maxWidth == Infinity) minWidth else maxWidth
-            val widthBits = bitsNeedForSize(widthVal)
+/**
+ * The bit distribution when the focus of the bits should be on the width, and a
+ * maximal number of bits assigned to the width.
+ *
+ * 18 bits assigned to width, 13 bits assigned to height.
+ */
+private const val MaxFocusWidth = 0x03
 
-            if (widthBits + heightBits > 31) {
-                throwIllegalArgumentException(
-                    "Can't represent a width of $widthVal and height of $heightVal in Constraints"
-                )
-            }
+/**
+ * The bit distribution when the focus of the bits should be on the height, but only
+ * a minimal difference in focus.
+ *
+ * 15 bits assigned to width, 16 bits assigned to height.
+ */
+private const val MinFocusHeight = 0x01
 
-            val focus = when (widthBits) {
-                MinNonFocusBits -> MinFocusHeight
-                MinFocusBits -> MinFocusWidth
-                MaxNonFocusBits -> MaxFocusHeight
-                MaxFocusBits -> MaxFocusWidth
-                else -> throw IllegalStateException("Should only have the provided constants.")
-            }
+/**
+ * The bit distribution when the focus of the bits should be on the height, and a
+ * a maximal number of bits assigned to the height.
+ *
+ * 13 bits assigned to width, 18 bits assigned to height.
+ */
+private const val MaxFocusHeight = 0x00
 
-            val maxWidthValue = if (maxWidth == Infinity) 0 else maxWidth + 1
-            val maxHeightValue = if (maxHeight == Infinity) 0 else maxHeight + 1
+/**
+ * The mask to retrieve the focus ([MinFocusWidth], [MaxFocusWidth],
+ * [MinFocusHeight], [MaxFocusHeight]).
+ */
+private const val FocusMask = 0x03L
 
-            val minHeightOffset = minHeightOffsets(indexToBitOffset(focus.toInt()))
-            val maxHeightOffset = minHeightOffset + 31
+/**
+ * The number of bits used for the focused dimension when there is minimal focus.
+ */
+private const val MinFocusBits = 16
+private const val MaxAllowedForMinFocusBits = (1 shl (31 - MinFocusBits)) - 2
 
-            val value = focus or
-                (minWidth.toLong() shl 2) or
-                (maxWidthValue.toLong() shl 33) or
-                (minHeight.toLong() shl minHeightOffset) or
-                (maxHeightValue.toLong() shl maxHeightOffset)
-            return Constraints(value)
-        }
+/**
+ * The mask to use for the focused dimension when there is minimal focus.
+ */
+private const val MinFocusMask = 0xFFFF // 64K (16 bits)
 
-        private fun bitsNeedForSize(size: Int): Int {
-            return when {
-                size < MaxNonFocusMask -> MaxNonFocusBits
-                size < MinNonFocusMask -> MinNonFocusBits
-                size < MinFocusMask -> MinFocusBits
-                size < MaxFocusMask -> MaxFocusBits
-                else -> throw IllegalArgumentException(
-                    "Can't represent a size of $size in Constraints"
-                )
-            }
-        }
+/**
+ * The number of bits used for the non-focused dimension when there is minimal focus.
+ */
+private const val MinNonFocusBits = 15
+private const val MaxAllowedForMinNonFocusBits = (1 shl (31 - MinNonFocusBits)) - 2
+
+/**
+ * The mask to use for the non-focused dimension when there is minimal focus.
+ */
+private const val MinNonFocusMask = 0x7FFF // 32K (15 bits)
+
+/**
+ * The number of bits to use for the focused dimension when there is maximal focus.
+ */
+private const val MaxFocusBits = 18
+private const val MaxAllowedForMaxFocusBits = (1 shl (31 - MaxFocusBits)) - 2
+
+/**
+ * The mask to use for the focused dimension when there is maximal focus.
+ */
+private const val MaxFocusMask = 0x3FFFF // 256K (18 bits)
+
+/**
+ * The number of bits to use for the non-focused dimension when there is maximal focus.
+ */
+private const val MaxNonFocusBits = 13
+private const val MaxAllowedForMaxNonFocusBits = (1 shl (31 - MaxNonFocusBits)) - 2
+
+/**
+ * The mask to use for the non-focused dimension when there is maximal focus.
+ */
+private const val MaxNonFocusMask = 0x1FFF // 8K (13 bits)
+
+// Wrap those throws in functions to avoid inlining the string building at the call sites
+private fun invalidConstraint(widthVal: Int, heightVal: Int) {
+    throw IllegalArgumentException(
+        "Can't represent a width of $widthVal and height of $heightVal in Constraints"
+    )
+}
+
+private fun invalidSize(size: Int): Nothing {
+    throw IllegalArgumentException(
+        "Can't represent a size of $size in Constraints"
+    )
+}
+
+/**
+ * Creates a [Constraints], only checking that the values fit in the packed Long.
+ */
+internal fun createConstraints(
+    minWidth: Int,
+    maxWidth: Int,
+    minHeight: Int,
+    maxHeight: Int
+): Constraints {
+    val heightVal = if (maxHeight == Infinity) minHeight else maxHeight
+    val heightBits = bitsNeedForSizeUnchecked(heightVal)
+
+    val widthVal = if (maxWidth == Infinity) minWidth else maxWidth
+    val widthBits = bitsNeedForSizeUnchecked(widthVal)
+
+    if (widthBits + heightBits > 31) {
+        invalidConstraint(widthVal, heightVal)
+    }
+
+    // Same as if (maxWidth == Infinity) 0 else maxWidth + 1 but branchless
+    // in DEX and saves 2 instructions on aarch64. Relies on integer overflow
+    // since Infinity == Int.MAX_VALUE
+    var maxWidthValue = maxWidth + 1
+    maxWidthValue = maxWidthValue and (maxWidthValue shr 31).inv()
+
+    var maxHeightValue = maxHeight + 1
+    maxHeightValue = maxHeightValue and (maxHeightValue shr 31).inv()
+
+    val focus = when (widthBits) {
+        MinNonFocusBits -> MinFocusHeight
+        MinFocusBits -> MinFocusWidth
+        MaxNonFocusBits -> MaxFocusHeight
+        MaxFocusBits -> MaxFocusWidth
+        else -> 0x00 // can't happen, widthBits is computed from bitsNeedForSizeUnchecked()
+    }
+
+    val minHeightOffset = minHeightOffsets(indexToBitOffset(focus))
+    val maxHeightOffset = minHeightOffset + 31
+
+    val value = focus.toLong() or
+        (minWidth.toLong() shl 2) or
+        (maxWidthValue.toLong() shl 33) or
+        (minHeight.toLong() shl minHeightOffset) or
+        (maxHeightValue.toLong() shl maxHeightOffset)
+    return Constraints(value)
+}
+
+private fun bitsNeedForSizeUnchecked(size: Int): Int {
+    return when {
+        size < MaxNonFocusMask -> MaxNonFocusBits
+        size < MinNonFocusMask -> MinNonFocusBits
+        size < MinFocusMask -> MinFocusBits
+        size < MaxFocusMask -> MaxFocusBits
+        else -> 255
+    }
+}
+
+private fun maxAllowedForSize(size: Int): Int {
+    return when {
+        size < MaxNonFocusMask -> MaxAllowedForMaxNonFocusBits
+        size < MinNonFocusMask -> MaxAllowedForMinNonFocusBits
+        size < MinFocusMask -> MaxAllowedForMinFocusBits
+        size < MaxFocusMask -> MaxAllowedForMaxFocusBits
+        else -> invalidSize(size)
     }
 }
 
@@ -487,7 +511,7 @@ fun Constraints(
     requirePrecondition(minWidth >= 0 && minHeight >= 0) {
         "minWidth($minWidth) and minHeight($minHeight) must be >= 0"
     }
-    return Constraints.createConstraints(minWidth, maxWidth, minHeight, maxHeight)
+    return createConstraints(minWidth, maxWidth, minHeight, maxHeight)
 }
 
 /**
