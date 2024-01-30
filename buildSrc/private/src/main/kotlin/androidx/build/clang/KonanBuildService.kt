@@ -54,10 +54,12 @@ abstract class KonanBuildService @Inject constructor(
 ) : BuildService<KonanBuildService.Parameters> {
     private val dist by lazy {
         // double check that we don't initialize konan distribution without prebuilts in AOSP
-        check(parameters.projectLayoutType.get() == ProjectLayoutType.PLAYGROUND ||
-            parameters.prebuilts.isPresent) {
+        check(
+            parameters.projectLayoutType.get() == ProjectLayoutType.PLAYGROUND ||
+                parameters.prebuilts.isPresent
+        ) {
             """
-                Prebuilts directory for Konan must be provided when yout project is not a playground
+                Prebuilts directory for Konan must be provided when the project is not a playground
                 project.
             """.trimIndent()
         }
