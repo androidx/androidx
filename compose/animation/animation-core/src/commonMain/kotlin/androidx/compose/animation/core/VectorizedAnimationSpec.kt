@@ -417,21 +417,21 @@ class VectorizedKeyframesSpec<V : AnimationVector> internal constructor(
         val timestampStart = timestamps[index]
         val startValue: V = if (keyframes.contains(timestampStart)) {
             keyframes[timestampStart]!!.vectorValue
-        } else if (index == 0) {
-            // Use initial value if it wasn't overwritten by the user
-            initialValue
         } else {
-            throw IllegalStateException("No value to animate from at $clampedPlayTime millis")
+            // Use initial value if it wasn't overwritten by the user
+            // This is always the correct fallback assuming timestamps and keyframes were populated
+            // as expected
+            initialValue
         }
 
         val timestampEnd = timestamps[index + 1]
         val endValue = if (keyframes.contains(timestampEnd)) {
             keyframes[timestampEnd]!!.vectorValue
-        } else if (index + 1 == timestamps.size - 1) {
-            // Use target value if it wasn't overwritten by the user
-            targetValue
         } else {
-            throw IllegalStateException("No value to animate to at $clampedPlayTime millis")
+            // Use target value if it wasn't overwritten by the user
+            // This is always the correct fallback assuming timestamps and keyframes were populated
+            // as expected
+            targetValue
         }
 
         for (i in 0 until valueVector.size) {
