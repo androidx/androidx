@@ -89,15 +89,15 @@ public class ServiceBackedMeasureClient(
             executor)
     }
 
+    @Suppress("UNCHECKED_CAST")
     override fun unregisterMeasureCallbackAsync(
         dataType: DeltaDataType<*, *>,
         callback: MeasureCallback
     ): ListenableFuture<Void> {
+        // Cast is unfortunately required as there is no non-null Void in Kotlin.
         val callbackStub =
             MeasureCallbackCache.INSTANCE.remove(dataType, callback)
-                ?: return Futures.immediateFailedFuture(
-                    IllegalArgumentException("Given callback was not registered.")
-                )
+                ?: return Futures.immediateFuture(null) as ListenableFuture<Void>
         val request = MeasureUnregistrationRequest(context.packageName, dataType)
         return unregisterListener(callbackStub.listenerKey) { service, resultFuture ->
             service.unregisterCallback(request, callbackStub, StatusCallback(resultFuture))
