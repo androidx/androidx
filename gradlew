@@ -303,14 +303,26 @@ for compact in "--ci" "--strict" "--clean" "--no-ci"; do
   fi
 done
 
+raiseMemory=false
 if [[ " ${@} " =~ " -Pandroidx.highMemory " ]]; then
-    #Set the initial heap size to match the max heap size,
-    #by replacing a string like "-Xmx1g" with one like "-Xms1g -Xmx1g"
-    MAX_MEM=32g
-    ORG_GRADLE_JVMARGS="$(echo $ORG_GRADLE_JVMARGS | sed "s/-Xmx\([^ ]*\)/-Xms$MAX_MEM -Xmx$MAX_MEM/")"
+    raiseMemory=true
+fi
+if [[ " ${@} " =~ " -Pandroidx.lowMemory " ]]; then
+  if [ "$raiseMemory" == "true" ]; then
+    echo "androidx.lowMemory overriding androidx.highMemory"
+    echo
+  fi
+  raiseMemory=false
+fi
 
-    # Increase the compiler cache size: b/260643754 . Remove when updating to JDK 20 ( https://bugs.openjdk.org/browse/JDK-8295724 )
-    ORG_GRADLE_JVMARGS="$(echo $ORG_GRADLE_JVMARGS | sed "s|$| -XX:ReservedCodeCacheSize=576M|")"
+if [ "$raiseMemory" == "true" ]; then
+  # Set the initial heap size to match the max heap size,
+  # by replacing a string like "-Xmx1g" with one like "-Xms1g -Xmx1g"
+  MAX_MEM=32g
+  ORG_GRADLE_JVMARGS="$(echo $ORG_GRADLE_JVMARGS | sed "s/-Xmx\([^ ]*\)/-Xms$MAX_MEM -Xmx$MAX_MEM/")"
+
+  # Increase the compiler cache size: b/260643754 . Remove when updating to JDK 20 ( https://bugs.openjdk.org/browse/JDK-8295724 )
+  ORG_GRADLE_JVMARGS="$(echo $ORG_GRADLE_JVMARGS | sed "s|$| -XX:ReservedCodeCacheSize=576M|")"
 fi
 
 # check whether the user has requested profiling via yourkit

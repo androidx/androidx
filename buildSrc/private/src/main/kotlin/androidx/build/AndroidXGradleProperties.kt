@@ -123,6 +123,11 @@ const val KMP_GITHUB_BUILD = "androidx.github.build"
 const val HIGH_MEMORY = "androidx.highMemory"
 
 /**
+ * Negates the HIGH_MEMORY flag
+ */
+const val LOW_MEMORY = "androidx.lowMemory"
+
+/**
  * If true, don't require lint-checks project to exist. This should only be set in integration
  * tests, to allow them to save time by not configuring extra projects.
  */
@@ -163,6 +168,7 @@ val ALL_ANDROIDX_PROPERTIES =
         DISPLAY_TEST_OUTPUT,
         ENABLE_DOCUMENTATION,
         HIGH_MEMORY,
+        LOW_MEMORY,
         STUDIO_TYPE,
         SUMMARIZE_STANDARD_ERROR,
         USE_MAX_DEP_VERSIONS,
