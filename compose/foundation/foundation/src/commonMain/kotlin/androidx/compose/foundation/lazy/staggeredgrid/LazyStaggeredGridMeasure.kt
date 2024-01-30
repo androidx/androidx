@@ -574,6 +574,7 @@ private fun LazyStaggeredGridMeasureContext.measure(
             firstItemIndices[laneIndex] = laneItems.firstOrNull()?.index ?: Unset
         }
 
+        // ensure no spacing for the last item
         if (currentItemIndices.any { it == itemCount - 1 }) {
             currentItemOffsets.offsetBy(-mainAxisSpacing)
         }
@@ -602,13 +603,21 @@ private fun LazyStaggeredGridMeasureContext.measure(
                 // Note that it is different from initial pass up where we selected largest index
                 // instead. The reason is that we already distributed items on downward pass and
                 // gap would be incorrect if those are moved.
-                val laneIndex = firstItemOffsets.indexOfMinValue()
+                var laneIndex = firstItemOffsets.indexOfMinValue()
+                val nextLaneIndex = firstItemIndices.indexOfMaxValue()
 
-                if (laneIndex != firstItemIndices.indexOfMaxValue()) {
-                    // If min offset lane doesn't have largest value, it means items are misaligned.
-                    // The correct thing here is to restart measure. We will measure up to the end
-                    // and restart measure from there after this pass.
-                    gapDetected = true
+                if (laneIndex != nextLaneIndex) {
+                    if (firstItemOffsets[laneIndex] == firstItemOffsets[nextLaneIndex]) {
+                        // If the offsets are the same, it means that there's no gap here.
+                        // In this case, we should choose the lane where item would go normally.
+                        laneIndex = nextLaneIndex
+                    } else {
+                        // If min offset lane doesn't have largest value, it means items are
+                        // misaligned.
+                        // The correct thing here is to restart measure. We will measure up to the
+                        // end and restart measure from there after this pass.
+                        gapDetected = true
+                    }
                 }
 
                 val currentIndex =
