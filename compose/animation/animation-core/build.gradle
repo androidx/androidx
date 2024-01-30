@@ -126,13 +126,9 @@ if (AndroidXComposePlugin.isMultiplatformEnabled(project)) {
             desktopMain.dependsOn(jbMain)
             jsNativeMain.dependsOn(jbMain)
 
-            if (project.kotlinWasmEnabled.toBoolean()) {
-                wasmJsMain {
-                    dependsOn(jsWasmMain)
-                }
+            wasmJsMain {
+                dependsOn(jsWasmMain)
             }
-
-
 
             // TODO(b/214407011): These dependencies leak into instrumented tests as well. If you
             //  need to add Robolectric (which must be kept out of androidAndroidTest), use a top

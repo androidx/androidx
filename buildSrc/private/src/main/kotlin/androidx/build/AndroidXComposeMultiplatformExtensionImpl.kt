@@ -69,9 +69,6 @@ open class AndroidXComposeMultiplatformExtensionImpl @Inject constructor(
         println("Skiko version = $skikoVersion")
     }
 
-    override val isKotlinWasmTargetEnabled: Boolean
-        get() = project.properties["kotlinWasmEnabled"] == "true"
-
     override fun android(): Unit = multiplatformExtension.run {
         androidTarget()
 
@@ -108,7 +105,6 @@ open class AndroidXComposeMultiplatformExtensionImpl @Inject constructor(
 
     @OptIn(ExperimentalWasmDsl::class)
     override fun wasm(): Unit = multiplatformExtension.run {
-        if (!isKotlinWasmTargetEnabled) return@run
         wasmJs {
             browser {
                 testTask(Action<KotlinJsTest> {

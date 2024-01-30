@@ -135,10 +135,8 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                 dependsOn(jsWasmMain)
             }
 
-            if (project.kotlinWasmEnabled.toBoolean()) {
-                wasmJsMain {
-                    dependsOn(jsWasmMain)
-                }
+            wasmJsMain {
+                dependsOn(jsWasmMain)
             }
 
             // TODO(b/214407011): These dependencies leak into instrumented tests as well. If you

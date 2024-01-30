@@ -77,14 +77,11 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
             }
             desktopTest.kotlin.srcDirs("src/test/kotlin")
 
-            if (project.kotlinWasmEnabled.toBoolean()) {
-                wasmJsMain {
-                    dependencies {
-                        implementation(libs.kotlinStdlib)
-                    }
+            wasmJsMain {
+                dependencies {
+                    implementation(libs.kotlinStdlib)
                 }
             }
-
         }
     }
 }

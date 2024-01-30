@@ -139,10 +139,8 @@ if (AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                 dependsOn(jsWasmMain)
             }
 
-            if (project.kotlinWasmEnabled.toBoolean()) {
-                wasmJsMain {
-                    dependsOn(jsWasmMain)
-                }
+            wasmJsMain {
+                dependsOn(jsWasmMain)
             }
 
             commonTest {

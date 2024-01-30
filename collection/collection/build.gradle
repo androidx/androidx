@@ -87,9 +87,7 @@ kotlin {
         jsMain.dependsOn(jsWasmMain)
         desktopMain.dependsOn(jbMain)
 
-        if (project.kotlinWasmEnabled.toBoolean()) {
-            wasmJsMain.dependsOn(jsWasmMain)
-        }
+        wasmJsMain.dependsOn(jsWasmMain)
 
         nativeMain.dependsOn(jsNativeMain)
         linuxArm64Main.dependsOn(nativeMain)
