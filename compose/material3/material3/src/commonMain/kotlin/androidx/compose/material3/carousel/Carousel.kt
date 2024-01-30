@@ -102,7 +102,7 @@ internal fun Modifier.carouselItem(
     val interpolatedKeyline = lerp(keylineBefore, keylineAfter, progress)
     val isOutOfKeylineBounds = keylineBefore == keylineAfter
 
-    return this then layout { measurable, constraints ->
+    return layout { measurable, constraints ->
         // Force the item to use the strategy's itemMainAxisSize along its main axis
         val mainAxisSize = strategy.itemMainAxisSize
         val itemConstraints = if (isVertical) {
@@ -125,7 +125,7 @@ internal fun Modifier.carouselItem(
         layout(placeable.width, placeable.height) {
             placeable.place(0, 0)
         }
-    } then graphicsLayer {
+    }.graphicsLayer {
         // Clip the item
         clip = true
         shape = object : Shape {
