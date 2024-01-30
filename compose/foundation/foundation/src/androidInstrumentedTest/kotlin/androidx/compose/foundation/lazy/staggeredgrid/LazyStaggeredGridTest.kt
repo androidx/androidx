@@ -2221,4 +2221,53 @@ class LazyStaggeredGridTest(
             .assertMainAxisStartPositionInRootIsEqualTo(0.dp)
             .assertMainAxisSizeIsEqualTo(0.dp)
     }
+
+    @Test
+    fun itemsAreDistributedCorrectlyOnOverscrollPassWithSameOffset() {
+        val gridHeight = itemSizeDp * 11 // two big items + two small items
+        state = LazyStaggeredGridState()
+        rule.setContent {
+            LazyStaggeredGrid(
+                modifier = Modifier
+                    .mainAxisSize(gridHeight)
+                    .crossAxisSize(itemSizeDp * 2),
+                state = state,
+                lanes = 2,
+            ) {
+                items(20) {
+                    Spacer(
+                        Modifier
+                            .mainAxisSize(if (it % 2 == 0) itemSizeDp * 5 else itemSizeDp * 0.5f)
+                            .border(1.dp, Color.Red)
+                            .testTag("$it")
+                    )
+                }
+            }
+        }
+
+        // scroll to bottom
+        state.scrollBy(gridHeight * 2)
+
+        rule.onNodeWithTag("12")
+            .assertCrossAxisStartPositionInRootIsEqualTo(0.dp)
+            .assertMainAxisStartPositionInRootIsEqualTo(0.dp)
+
+        rule.onNodeWithTag("13")
+            .assertCrossAxisStartPositionInRootIsEqualTo(itemSizeDp)
+            .assertMainAxisStartPositionInRootIsEqualTo(0.dp)
+
+        // scroll a back a bit
+        state.scrollBy(-itemSizeDp * 5)
+
+        // scroll by a grid height
+        state.scrollBy(gridHeight)
+
+        rule.onNodeWithTag("12")
+            .assertCrossAxisStartPositionInRootIsEqualTo(0.dp)
+            .assertMainAxisStartPositionInRootIsEqualTo(0.dp)
+
+        rule.onNodeWithTag("13")
+            .assertCrossAxisStartPositionInRootIsEqualTo(itemSizeDp)
+            .assertMainAxisStartPositionInRootIsEqualTo(0.dp)
+    }
 }
