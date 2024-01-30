@@ -23,6 +23,8 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.leanback.app.GuidedStepFragment;
 import androidx.leanback.widget.GuidanceStylist.Guidance;
@@ -60,7 +62,8 @@ public class GuidedStepHalfScreenActivity extends Activity {
         }
 
         @Override
-        public void onCreateActions(List<GuidedAction> actions, Bundle savedInstanceState) {
+        public void onCreateActions(@NonNull List<GuidedAction> actions,
+                @Nullable Bundle savedInstanceState) {
             Context context = getActivity();
             actions.add(new GuidedAction.Builder(context)
                     .clickAction(GuidedAction.ACTION_ID_CONTINUE)
@@ -88,7 +91,7 @@ public class GuidedStepHalfScreenActivity extends Activity {
         }
 
         @Override
-        public void onGuidedActionClicked(GuidedAction action) {
+        public void onGuidedActionClicked(@NonNull GuidedAction action) {
             FragmentManager fm = getFragmentManager();
             if (action.getId() == GuidedAction.ACTION_ID_CONTINUE) {
                 GuidedStepFragment.add(fm, new SecondStepFragment(), R.id.lb_guidedstep_host);
@@ -117,7 +120,8 @@ public class GuidedStepHalfScreenActivity extends Activity {
         }
 
         @Override
-        public void onCreateActions(List<GuidedAction> actions, Bundle savedInstanceState) {
+        public void onCreateActions(@NonNull List<GuidedAction> actions,
+                @Nullable Bundle savedInstanceState) {
             Context context = getActivity();
             actions.add(new GuidedAction.Builder(context)
                     .clickAction(GuidedAction.ACTION_ID_FINISH)
@@ -130,7 +134,8 @@ public class GuidedStepHalfScreenActivity extends Activity {
         }
 
         @Override
-        public void onCreateButtonActions(List<GuidedAction> actions, Bundle savedInstanceState) {
+        public void onCreateButtonActions(@NonNull List<GuidedAction> actions,
+                @Nullable Bundle savedInstanceState) {
             actions.add(new GuidedAction.Builder(getActivity())
                     .clickAction(GuidedAction.ACTION_ID_CANCEL)
                     .description("Cancel")
@@ -138,7 +143,7 @@ public class GuidedStepHalfScreenActivity extends Activity {
         }
 
         @Override
-        public void onGuidedActionClicked(GuidedAction action) {
+        public void onGuidedActionClicked(@NonNull GuidedAction action) {
             FragmentManager fm = getFragmentManager();
             fm.popBackStack();
         }

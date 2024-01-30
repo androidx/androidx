@@ -62,7 +62,6 @@ import java.util.ArrayList;
  * to use this inflater with an XmlPullParser over a plain XML file at runtime;
  * it only works with an XmlPullParser returned from a compiled resource (R.
  * <em>something</em> file.)
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public class AnimatorInflaterCompat {

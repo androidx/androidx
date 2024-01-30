@@ -17,23 +17,22 @@
 package androidx.compose.ui.text.platform
 
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shadow
-import androidx.compose.ui.graphics.asComposePaint
+import androidx.compose.ui.geometry.isUnspecified
+import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.drawscope.DrawStyle
-import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.text.style.ResolvedTextDirection
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.Density
 import kotlin.math.abs
 import org.jetbrains.skia.Paint
+import org.jetbrains.skia.paragraph.LineMetrics
 import org.jetbrains.skia.paragraph.Paragraph
 
 /**
@@ -68,7 +67,6 @@ internal class ParagraphLayouter(
         fontFamilyResolver = fontFamilyResolver,
         text = text,
         textStyle = style,
-        brushSize = null,
         spanStyles = spanStyles,
         placeholders = placeholders,
         density = density,
@@ -78,7 +76,10 @@ internal class ParagraphLayouter(
     private var width: Float = Float.NaN
 
     val defaultFont get() = builder.defaultFont
-    val paragraphStyle get() = builder.paragraphStyle
+    val textStyle get() = builder.textStyle
+
+    internal fun emptyLineMetrics(paragraph: Paragraph): Array<LineMetrics> =
+        builder.emptyLineMetrics(paragraph)
 
     fun setParagraphStyle(
         maxLines: Int,
@@ -122,7 +123,7 @@ internal class ParagraphLayouter(
     ) {
         val actualSize = builder.brushSize
         if (builder.textStyle.brush != brush ||
-            actualSize == null ||
+            actualSize.isUnspecified ||
             !actualSize.width.sameValueAs(brushSize.width) ||
             !actualSize.height.sameValueAs(brushSize.height) ||
             !builder.textStyle.alpha.sameValueAs(alpha) ||
@@ -141,7 +142,17 @@ internal class ParagraphLayouter(
     }
 
     fun setDrawStyle(drawStyle: DrawStyle?) {
-        // TODO Implement applying DrawStyle
+        if (builder.drawStyle != drawStyle) {
+            builder.drawStyle = drawStyle
+            paragraphCache = null
+        }
+    }
+
+    fun setBlendMode(blendMode: BlendMode) {
+        if (builder.blendMode != blendMode) {
+            builder.blendMode = blendMode
+            paragraphCache = null
+        }
     }
 
     fun layoutParagraph(width: Float): Paragraph {

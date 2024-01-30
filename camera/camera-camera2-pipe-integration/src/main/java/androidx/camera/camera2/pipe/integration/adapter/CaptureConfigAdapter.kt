@@ -59,9 +59,6 @@ class CaptureConfigAdapter @Inject constructor(
             "Attempted to issue a capture without surfaces using $captureConfig"
         }
 
-        // TODO(b/212202121): Checks and attaches repeating surface to the request if there's
-        //  no surface has been already attached.
-
         val streamIdList = surfaces.map {
             checkNotNull(useCaseGraphConfig.surfaceToStreamMap[it]) {
                 "Attempted to issue a capture with an unrecognized surface."
@@ -96,8 +93,6 @@ class CaptureConfigAdapter @Inject constructor(
                 configOptions.retrieveOption(CaptureConfig.OPTION_JPEG_QUALITY)!!.toByte()
             )
         }
-
-        // TODO(b/212213092): Apply AeModeQuirk.
 
         return Request(
             streams = streamIdList,

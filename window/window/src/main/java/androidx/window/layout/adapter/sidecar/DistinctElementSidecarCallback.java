@@ -43,7 +43,6 @@ import java.util.WeakHashMap;
  * picking up the Sidecar deprecations.
  *
  * NOTE: If you change the name of this class, you must update the proguard file.
- * @hide
  */
 @SuppressWarnings("deprecation") // Sidecar is deprecated but we still support it.
 @RestrictTo(LIBRARY_GROUP)

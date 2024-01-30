@@ -32,7 +32,6 @@ import java.util.WeakHashMap;
 /**
  * Creates a {@link FlingWatcher} based on the type of {@link View}.
  *
- * @hide
  */
 @RestrictTo(Scope.LIBRARY)
 class FlingWatcherFactory {

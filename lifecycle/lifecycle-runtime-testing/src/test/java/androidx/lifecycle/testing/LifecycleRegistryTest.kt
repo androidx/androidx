@@ -18,19 +18,34 @@ package androidx.lifecycle.testing
 
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleRegistry
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.setMain
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
+@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 @RunWith(JUnit4::class)
 class LifecycleRegistryTest {
-    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+
+    private val dispatcher = UnconfinedTestDispatcher()
     private val lifecycleOwner = TestLifecycleOwner(
         Lifecycle.State.INITIALIZED,
-        UnconfinedTestDispatcher()
+        dispatcher
     )
+    private val testScope = TestScope(dispatcher)
+
+    @Before
+    fun setMainDispatcher() {
+        Dispatchers.setMain(dispatcher)
+    }
 
     @Test
     fun getCurrentState() {
@@ -39,6 +54,79 @@ class LifecycleRegistryTest {
 
         lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
         assertThat(lifecycleOwner.currentState).isEqualTo(Lifecycle.State.DESTROYED)
+    }
+
+    @Test
+    fun getCurrentStateFlow() {
+        val lifecycle = lifecycleOwner.lifecycle
+        assertThat(lifecycle.currentStateFlow.value).isEqualTo(Lifecycle.State.INITIALIZED)
+
+        lifecycleOwner.currentState = Lifecycle.State.CREATED
+        assertThat(lifecycle.currentStateFlow.value).isEqualTo(Lifecycle.State.CREATED)
+
+        lifecycleOwner.currentState = Lifecycle.State.DESTROYED
+        assertThat(lifecycle.currentStateFlow.value).isEqualTo(Lifecycle.State.DESTROYED)
+    }
+
+    @Test
+    fun getCurrentStateFlowWithReentranceNoObservers() = testScope.runTest {
+        val stateFlow = lifecycleOwner.lifecycle.currentStateFlow
+        assertThat(lifecycleOwner.currentState).isEqualTo(Lifecycle.State.INITIALIZED)
+        assertThat(stateFlow.value).isEqualTo(Lifecycle.State.INITIALIZED)
+
+        backgroundScope.launch {
+            stateFlow.collect {
+                lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
+            }
+        }
+
+        assertThat(lifecycleOwner.currentState).isEqualTo(Lifecycle.State.CREATED)
+        assertThat(stateFlow.value).isEqualTo(Lifecycle.State.CREATED)
+    }
+
+    @Test
+    fun getCurrentStateFlowWithObserverReentrance() = testScope.runTest {
+        val stateFlow = lifecycleOwner.lifecycle.currentStateFlow
+        assertThat(lifecycleOwner.currentState).isEqualTo(Lifecycle.State.INITIALIZED)
+        assertThat(stateFlow.value).isEqualTo(Lifecycle.State.INITIALIZED)
+
+        lifecycleOwner.lifecycle.addObserver(
+            LifecycleEventObserver { owner, _ ->
+                (owner.lifecycle as LifecycleRegistry)
+                    .handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
+            }
+        )
+
+        backgroundScope.launch {
+            stateFlow.collect {}
+        }
+
+        lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
+        assertThat(lifecycleOwner.currentState).isEqualTo(Lifecycle.State.RESUMED)
+        assertThat(stateFlow.value).isEqualTo(Lifecycle.State.RESUMED)
+    }
+
+    @Test
+    fun getCurrentStateFlowWithObserverWithFlowReentrance() = testScope.runTest {
+        val stateFlow = lifecycleOwner.lifecycle.currentStateFlow
+        assertThat(lifecycleOwner.currentState).isEqualTo(Lifecycle.State.INITIALIZED)
+        assertThat(stateFlow.value).isEqualTo(Lifecycle.State.INITIALIZED)
+
+        lateinit var event: Lifecycle.Event
+        lifecycleOwner.lifecycle.addObserver(
+            LifecycleEventObserver { _, e ->
+                event = e
+            }
+        )
+
+        backgroundScope.launch {
+            stateFlow.collect {
+                lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
+            }
+        }
+
+        assertThat(lifecycleOwner.currentState).isEqualTo(Lifecycle.State.CREATED)
+        assertThat(event).isEqualTo(Lifecycle.Event.ON_CREATE)
     }
 
     @Test

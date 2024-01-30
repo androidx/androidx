@@ -20,12 +20,13 @@ import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.layout.LayoutInfo
-import androidx.compose.ui.platform.SkiaRootForTest
+import androidx.compose.ui.platform.PlatformRootForTest
 import androidx.compose.ui.semantics.SemanticsNode
-import androidx.compose.ui.unit.toSize
 
-@OptIn(InternalComposeUiApi::class)
-internal actual fun SemanticsNodeInteraction.checkIsDisplayed(): Boolean {
+// TODO https://youtrack.jetbrains.com/issue/COMPOSE-742/Merge-1.6.-implement-checkIsDisplayedassertIsFullyVisible
+internal actual fun SemanticsNodeInteraction.checkIsDisplayed(
+    assertIsFullyVisible: Boolean
+): Boolean {
     // hierarchy check - check layout nodes are visible
     val errorMessageOnFail = "Failed to perform isDisplayed check."
     val node = fetchSemanticsNode(errorMessageOnFail)
@@ -41,21 +42,22 @@ internal actual fun SemanticsNodeInteraction.checkIsDisplayed(): Boolean {
 
     // check node doesn't clip unintentionally (e.g. row too small for content)
     val globalRect = node.boundsInWindow
-    if (!node.isInScreenBounds()) {
+    if (!node.isInScreenBounds(assertIsFullyVisible)) {
         return false
     }
 
     return (globalRect.width > 0f && globalRect.height > 0f)
 }
 
-@OptIn(InternalComposeUiApi::class)
 internal actual fun SemanticsNode.clippedNodeBoundsInWindow(): Rect {
     return boundsInRoot.translate(Offset(0f, 0f))
 }
 
 @OptIn(InternalComposeUiApi::class)
-internal actual fun SemanticsNode.isInScreenBounds(): Boolean {
-    val composeView = (root as SkiaRootForTest).scene
+// TODO https://youtrack.jetbrains.com/issue/COMPOSE-742/Merge-1.6.-implement-checkIsDisplayedassertIsFullyVisible
+internal actual fun SemanticsNode.isInScreenBounds(assertIsFullyVisible: Boolean): Boolean {
+    val platformRootForTest = root as PlatformRootForTest
+    val visibleBounds = platformRootForTest.visibleBounds
 
     // Window relative bounds of our node
     val nodeBoundsInWindow = clippedNodeBoundsInWindow()
@@ -64,11 +66,23 @@ internal actual fun SemanticsNode.isInScreenBounds(): Boolean {
     }
 
     // Window relative bounds of our compose root view that are visible on the screen
-
-    return nodeBoundsInWindow.top >= 0 &&
-        nodeBoundsInWindow.left >= 0 &&
-        nodeBoundsInWindow.right <= composeView.contentSize.width &&
-        nodeBoundsInWindow.bottom <= composeView.contentSize.height
+    return if (assertIsFullyVisible) {
+        // assertIsNotDisplayed only throws if the element is fully onscreen
+        return nodeBoundsInWindow.top >= visibleBounds.top &&
+            nodeBoundsInWindow.left >= visibleBounds.left &&
+            nodeBoundsInWindow.right <= visibleBounds.right &&
+            nodeBoundsInWindow.bottom <= visibleBounds.bottom
+    } else {
+        // assertIsDisplayed only throws if the element is fully offscreen
+        !nodeBoundsInWindow.intersect(
+            Rect(
+                visibleBounds.left.toFloat(),
+                visibleBounds.top.toFloat(),
+                visibleBounds.right.toFloat(),
+                visibleBounds.bottom.toFloat()
+            )
+        ).isEmpty
+    }
 }
 
 /**

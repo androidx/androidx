@@ -19,9 +19,9 @@ package androidx.testutils
 import android.os.Bundle
 import androidx.annotation.LayoutRes
 import androidx.appcompat.app.AppCompatActivity
-import org.junit.Assert.assertTrue
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import org.junit.Assert.assertTrue
 
 /**
  * Extension of [AppCompatActivity] that keeps track of when it is recreated.

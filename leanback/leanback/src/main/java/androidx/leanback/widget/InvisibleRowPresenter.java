@@ -21,7 +21,6 @@ import android.widget.RelativeLayout;
 import androidx.annotation.RestrictTo;
 
 /**
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public class InvisibleRowPresenter extends RowPresenter {

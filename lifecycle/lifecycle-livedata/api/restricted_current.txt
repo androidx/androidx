@@ -4,7 +4,7 @@ package androidx.lifecycle {
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public abstract class ComputableLiveData<T> {
     ctor public ComputableLiveData(optional java.util.concurrent.Executor executor);
     ctor public ComputableLiveData();
-    method @WorkerThread protected abstract T! compute();
+    method @WorkerThread protected abstract T compute();
     method public androidx.lifecycle.LiveData<T> getLiveData();
     method public void invalidate();
     property public androidx.lifecycle.LiveData<T> liveData;

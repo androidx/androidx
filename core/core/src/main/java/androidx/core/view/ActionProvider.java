@@ -273,7 +273,6 @@ public abstract class ActionProvider {
      * Notify the system that the visibility of an action view's sub-UI such as an anchored popup
      * has changed. This will affect how other system visibility notifications occur.
      *
-     * @hide Pending future API approval
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public void subUiVisibilityChanged(boolean isVisible) {
@@ -283,7 +282,6 @@ public abstract class ActionProvider {
     }
 
     /**
-     * @hide Internal use only
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public void setSubUiVisibilityListener(@Nullable SubUiVisibilityListener listener) {
@@ -306,7 +304,6 @@ public abstract class ActionProvider {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public void reset() {
@@ -315,7 +312,6 @@ public abstract class ActionProvider {
     }
 
     /**
-     * @hide Internal use only
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public interface SubUiVisibilityListener {

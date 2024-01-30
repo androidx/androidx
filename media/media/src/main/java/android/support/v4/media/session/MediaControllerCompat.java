@@ -19,7 +19,6 @@ package android.support.v4.media.session;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -53,7 +52,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
-import androidx.core.app.BundleCompat;
 import androidx.media.AudioAttributesCompat;
 import androidx.media.R;
 import androidx.media.VolumeProviderCompat;
@@ -105,44 +103,37 @@ public final class MediaControllerCompat {
     static final String TAG = "MediaControllerCompat";
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public static final String COMMAND_GET_EXTRA_BINDER =
             "android.support.v4.media.session.command.GET_EXTRA_BINDER";
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public static final String COMMAND_ADD_QUEUE_ITEM =
             "android.support.v4.media.session.command.ADD_QUEUE_ITEM";
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public static final String COMMAND_ADD_QUEUE_ITEM_AT =
             "android.support.v4.media.session.command.ADD_QUEUE_ITEM_AT";
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public static final String COMMAND_REMOVE_QUEUE_ITEM =
             "android.support.v4.media.session.command.REMOVE_QUEUE_ITEM";
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public static final String COMMAND_REMOVE_QUEUE_ITEM_AT =
             "android.support.v4.media.session.command.REMOVE_QUEUE_ITEM_AT";
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public static final String COMMAND_ARGUMENT_MEDIA_DESCRIPTION =
             "android.support.v4.media.session.command.ARGUMENT_MEDIA_DESCRIPTION";
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public static final String COMMAND_ARGUMENT_INDEX =
@@ -497,7 +488,6 @@ public final class MediaControllerCompat {
      * is connected to.
      *
      * @return The session's token as VersionedParcelable.
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @Nullable
@@ -799,7 +789,6 @@ public final class MediaControllerCompat {
         }
 
         /**
-         * @hide
          */
         @SuppressWarnings({"HiddenTypeParameter", "UnavailableSymbol"})
         @RestrictTo(LIBRARY_GROUP_PREFIX) // accessed by media2-session
@@ -2337,8 +2326,8 @@ public final class MediaControllerCompat {
                 synchronized (mediaControllerImpl.mLock) {
                     mediaControllerImpl.mSessionToken.setExtraBinder(
                             IMediaSession.Stub.asInterface(
-                                    BundleCompat.getBinder(
-                                            resultData, MediaSessionCompat.KEY_EXTRA_BINDER)));
+                                    resultData.getBinder(
+                                            MediaSessionCompat.KEY_EXTRA_BINDER)));
                     mediaControllerImpl.mSessionToken.setSession2Token(
                             ParcelUtils.getVersionedParcelable(resultData,
                                     MediaSessionCompat.KEY_SESSION2_TOKEN));

@@ -17,15 +17,15 @@
 package androidx.benchmark.macro.perfetto
 
 import androidx.benchmark.perfetto.PerfettoCapture
-import androidx.benchmark.perfetto.PerfettoHelper.Companion.LOWEST_BUNDLED_VERSION_SUPPORTED
+import androidx.benchmark.perfetto.PerfettoHelper.Companion.MIN_BUNDLED_SDK_VERSION
 import androidx.benchmark.perfetto.PerfettoHelper.Companion.isAbiSupported
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
+import kotlin.test.assertFailsWith
 import org.junit.Assume.assumeTrue
 import org.junit.Test
 import org.junit.runner.RunWith
-import kotlin.test.assertFailsWith
 
 /**
  * Tests for PerfettoCapture
@@ -34,8 +34,8 @@ import kotlin.test.assertFailsWith
 @RunWith(AndroidJUnit4::class)
 class PerfettoCaptureTest {
     @SdkSuppress(
-        minSdkVersion = 21,
-        maxSdkVersion = LOWEST_BUNDLED_VERSION_SUPPORTED - 1
+        minSdkVersion = 23,
+        maxSdkVersion = MIN_BUNDLED_SDK_VERSION - 1
     )
     @SmallTest
     @Test

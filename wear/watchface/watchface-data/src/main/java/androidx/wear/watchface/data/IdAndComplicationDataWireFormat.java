@@ -33,7 +33,6 @@ import java.util.Objects;
 /**
  * Wire format to encode a pair of id to {@link ComplicationData}.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @VersionedParcelize

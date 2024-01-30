@@ -28,12 +28,12 @@ public final class UpsertDao_Impl implements UpsertDao {
         this.__upsertionAdapterOfUser = new EntityUpsertionAdapter<User>(new EntityInsertionAdapter<User>(__db) {
             @Override
             @NonNull
-            public String createQuery() {
+            protected String createQuery() {
                 return "INSERT INTO `User` (`uid`,`name`,`lastName`,`ageColumn`) VALUES (?,?,?,?)";
             }
 
             @Override
-            public void bind(@NonNull final SupportSQLiteStatement statement,
+            protected void bind(@NonNull final SupportSQLiteStatement statement,
                     @NonNull final User entity) {
                 statement.bindLong(1, entity.uid);
                 statement.bindString(2, entity.name);
@@ -43,12 +43,12 @@ public final class UpsertDao_Impl implements UpsertDao {
         }, new EntityDeletionOrUpdateAdapter<User>(__db) {
             @Override
             @NonNull
-            public String createQuery() {
+            protected String createQuery() {
                 return "UPDATE `User` SET `uid` = ?,`name` = ?,`lastName` = ?,`ageColumn` = ? WHERE `uid` = ?";
             }
 
             @Override
-            public void bind(@NonNull final SupportSQLiteStatement statement,
+            protected void bind(@NonNull final SupportSQLiteStatement statement,
                     @NonNull final User entity) {
                 statement.bindLong(1, entity.uid);
                 statement.bindString(2, entity.name);
@@ -60,12 +60,12 @@ public final class UpsertDao_Impl implements UpsertDao {
         this.__upsertionAdapterOfBook = new EntityUpsertionAdapter<Book>(new EntityInsertionAdapter<Book>(__db) {
             @Override
             @NonNull
-            public String createQuery() {
+            protected String createQuery() {
                 return "INSERT INTO `Book` (`bookId`,`uid`) VALUES (?,?)";
             }
 
             @Override
-            public void bind(@NonNull final SupportSQLiteStatement statement,
+            protected void bind(@NonNull final SupportSQLiteStatement statement,
                     @NonNull final Book entity) {
                 statement.bindLong(1, entity.bookId);
                 statement.bindLong(2, entity.uid);
@@ -73,12 +73,12 @@ public final class UpsertDao_Impl implements UpsertDao {
         }, new EntityDeletionOrUpdateAdapter<Book>(__db) {
             @Override
             @NonNull
-            public String createQuery() {
+            protected String createQuery() {
                 return "UPDATE `Book` SET `bookId` = ?,`uid` = ? WHERE `bookId` = ?";
             }
 
             @Override
-            public void bind(@NonNull final SupportSQLiteStatement statement,
+            protected void bind(@NonNull final SupportSQLiteStatement statement,
                     @NonNull final Book entity) {
                 statement.bindLong(1, entity.bookId);
                 statement.bindLong(2, entity.uid);

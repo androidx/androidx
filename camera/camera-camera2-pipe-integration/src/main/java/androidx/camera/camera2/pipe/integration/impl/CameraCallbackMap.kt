@@ -17,7 +17,6 @@
 package androidx.camera.camera2.pipe.integration.impl
 
 import android.hardware.camera2.CameraCaptureSession
-import android.hardware.camera2.CaptureFailure
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
 import android.hardware.camera2.TotalCaptureResult
@@ -30,9 +29,9 @@ import androidx.camera.camera2.pipe.FrameInfo
 import androidx.camera.camera2.pipe.FrameMetadata
 import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.Request
+import androidx.camera.camera2.pipe.RequestFailure
 import androidx.camera.camera2.pipe.RequestMetadata
 import androidx.camera.camera2.pipe.StreamId
-import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.integration.adapter.CameraUseCaseAdapter
 import androidx.camera.camera2.pipe.integration.adapter.CaptureResultAdapter
 import androidx.camera.camera2.pipe.integration.config.CameraScope
@@ -88,8 +87,6 @@ class CameraCallbackMap @Inject constructor() : Request.Listener {
                         )
                     }
                 }
-            } else {
-                Log.error { "Unhandled callback for onBufferLost()" }
             }
         }
     }
@@ -124,14 +121,15 @@ class CameraCallbackMap @Inject constructor() : Request.Listener {
     override fun onFailed(
         requestMetadata: RequestMetadata,
         frameNumber: FrameNumber,
-        captureFailure: CaptureFailure
+        requestFailure: RequestFailure
     ) {
         for ((callback, executor) in callbacks) {
             if (callback is CameraUseCaseAdapter.CaptureCallbackContainer) {
                 val session: CameraCaptureSession? =
                     requestMetadata.unwrapAs(CameraCaptureSession::class)
                 val request: CaptureRequest? = requestMetadata.unwrapAs(CaptureRequest::class)
-                if (session != null && request != null) {
+                val captureFailure = requestFailure.captureFailure
+                if (session != null && request != null && captureFailure != null) {
                     executor.execute {
                         callback.captureCallback.onCaptureFailed(
                             session, request,
@@ -209,8 +207,6 @@ class CameraCallbackMap @Inject constructor() : Request.Listener {
                         )
                     }
                 }
-            } else {
-                Log.error { "Unhandled callback for onRequestSequenceCompleted()" }
             }
         }
     }
@@ -232,8 +228,6 @@ class CameraCallbackMap @Inject constructor() : Request.Listener {
                         )
                     }
                 }
-            } else {
-                Log.error { "Unhandled callback for onStarted()" }
             }
         }
     }

@@ -6,6 +6,6 @@
     <string name="expand_button_title" msgid="2427401033573778270">"उन्नत"</string>
     <string name="summary_collapsed_preference_list" msgid="9167775378838880170">"<xliff:g id="CURRENT_ITEMS">%1$s</xliff:g>, <xliff:g id="ADDED_ITEMS">%2$s</xliff:g>"</string>
     <string name="copy" msgid="6083905920877235314">"प्रतिलिपि गर्नुहोस्"</string>
-    <string name="preference_copied" msgid="6685851473431805375">"\"<xliff:g id="SUMMARY">%1$s</xliff:g>\" लाई क्लिपबोर्डमा प्रतिलिपि गरियो।"</string>
+    <string name="preference_copied" msgid="6685851473431805375">"\"<xliff:g id="SUMMARY">%1$s</xliff:g>\" लाई क्लिपबोर्डमा कपी गरियो।"</string>
     <string name="not_set" msgid="6573031135582639649">"सेट गरिएको छैन"</string>
 </resources>

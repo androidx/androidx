@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.3.0-alpha02" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha02)" variant="all" version="8.3.0-alpha02">
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ColorProviderKt.ColorProvider can only be called from within the same library group (referenced groupId=`androidx.glance` from groupId=`androidx.glance.glance-appwidget.integration-tests`)"
+        errorLine1="                color = ColorProvider(androidx.glance.R.color.glance_colorSecondary)"
+        errorLine2="                        ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/demos/ProgressIndicatorAppWidget.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ColorProviderKt.ColorProvider can only be called from within the same library group (referenced groupId=`androidx.glance` from groupId=`androidx.glance.glance-appwidget.integration-tests`)"
+        errorLine1="                color = ColorProvider(androidx.glance.R.color.glance_colorError),"
+        errorLine2="                        ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/demos/ProgressIndicatorAppWidget.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ColorProviderKt.ColorProvider can only be called from within the same library group (referenced groupId=`androidx.glance` from groupId=`androidx.glance.glance-appwidget.integration-tests`)"
+        errorLine1="                backgroundColor = ColorProvider("
+        errorLine2="                                  ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/demos/ProgressIndicatorAppWidget.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="constructor AppWidgetDesc has parameter sizes with type List&lt;DpSize>: replace with LongList"
+        errorLine1="    val sizes: List&lt;DpSize>,"
+        errorLine2="               ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/demos/GlanceAppWidgetDemoActivity.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field sizes with type List&lt;DpSize>: replace with LongList"
+        errorLine1="    val sizes: List&lt;DpSize>,"
+        errorLine2="               ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/demos/GlanceAppWidgetDemoActivity.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="return type List&lt;DpSize> of getSizes: replace with LongList"
+        errorLine1="    val sizes: List&lt;DpSize>,"
+        errorLine2="               ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/demos/GlanceAppWidgetDemoActivity.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field columnColors with type List&lt;Color>: replace with LongList"
+        errorLine1="private val columnColors = listOf(Color(0xff70D689), Color(0xffB2E5BF))"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/demos/ResponsiveAppWidget.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field rowColors with type List&lt;Color>: replace with LongList"
+        errorLine1="private val rowColors = listOf(Color(0xff5087EF), Color(0xffA2BDF2))"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/demos/ResponsiveAppWidget.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field boxColors with type List&lt;Color>: replace with LongList"
+        errorLine1="private val boxColors = listOf(Color(0xffF7A998), Color(0xffFA5F3D))"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/demos/ResponsiveAppWidget.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field columnBgColorsA with type List&lt;Color>: replace with LongList"
+        errorLine1="    private val columnBgColorsA = listOf(Color(0xffA2BDF2), Color(0xff5087EF))"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/demos/RippleAppWidget.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field columnBgColorsB with type List&lt;Color>: replace with LongList"
+        errorLine1="    private val columnBgColorsB = listOf(Color(0xFFBD789C), Color(0xFF880E4F))"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/demos/RippleAppWidget.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field boxColors with type List&lt;Color>: replace with LongList"
+        errorLine1="    private val boxColors = listOf(Color(0xffF7A998), Color(0xffFA5F3D))"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/demos/RippleAppWidget.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable columnBgColors with type List&lt;? extends Color>: replace with LongList"
+        errorLine1="        var columnBgColors by remember { mutableStateOf(columnBgColorsA) }"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/demos/RippleAppWidget.kt"/>
+    </issue>
+
+</issues>

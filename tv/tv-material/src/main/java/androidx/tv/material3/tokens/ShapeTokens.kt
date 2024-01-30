@@ -18,11 +18,17 @@
 package androidx.tv.material3.tokens
 
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.GenericShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.unit.dp
 
 internal object ShapeTokens {
+    /**
+     * BorderDefaultShape indicates that the default shape of the element will be used for the
+     * border
+     */
+    val BorderDefaultShape = GenericShape { _, _ -> close() }
     val CornerExtraLarge = RoundedCornerShape(28.0.dp)
     val CornerExtraLargeTop =
         RoundedCornerShape(

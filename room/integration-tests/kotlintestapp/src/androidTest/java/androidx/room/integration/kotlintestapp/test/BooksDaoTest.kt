@@ -18,6 +18,7 @@ package androidx.room.integration.kotlintestapp.test
 
 import android.database.sqlite.SQLiteConstraintException
 import androidx.arch.core.executor.ArchTaskExecutor
+import androidx.kruth.assertThat
 import androidx.room.integration.kotlintestapp.vo.Author
 import androidx.room.integration.kotlintestapp.vo.Book
 import androidx.room.integration.kotlintestapp.vo.BookWithPublisher
@@ -26,7 +27,6 @@ import androidx.room.integration.kotlintestapp.vo.Publisher
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.base.Optional
-import com.google.common.truth.Truth
 import io.reactivex.Flowable
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subscribers.TestSubscriber
@@ -448,7 +448,7 @@ class BooksDaoTest : TestDatabaseTest() {
         booksDao.addBooks(TestUtil.BOOK_1)
 
         booksDao.getBooksByPublisher().let { result ->
-            Truth.assertThat(result[TestUtil.PUBLISHER]).containsExactly(TestUtil.BOOK_1)
+            assertThat(result[TestUtil.PUBLISHER]).containsExactly(TestUtil.BOOK_1)
         }
     }
 }

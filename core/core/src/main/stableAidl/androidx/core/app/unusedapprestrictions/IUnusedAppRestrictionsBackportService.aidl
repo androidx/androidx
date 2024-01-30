@@ -18,7 +18,7 @@ package androidx.core.app.unusedapprestrictions;
 
 import androidx.core.app.unusedapprestrictions.IUnusedAppRestrictionsBackportCallback;
 
-/** @hide */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 interface IUnusedAppRestrictionsBackportService {
 
   /**

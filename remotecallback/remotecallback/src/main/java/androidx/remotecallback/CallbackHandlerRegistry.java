@@ -42,7 +42,6 @@ import java.lang.reflect.InvocationTargetException;
  */
 public class CallbackHandlerRegistry {
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public static final CallbackHandlerRegistry sInstance = new CallbackHandlerRegistry();
@@ -51,7 +50,6 @@ public class CallbackHandlerRegistry {
     private final SimpleArrayMap<Class<?>, ClsHandler> mClsLookup = new SimpleArrayMap<>();
 
     /**
-     * @hide
      */
     @NonNull
     @SuppressWarnings({"TypeParameterUnusedInFormals", "unchecked"})

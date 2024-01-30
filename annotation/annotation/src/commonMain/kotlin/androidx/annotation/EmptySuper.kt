@@ -18,8 +18,8 @@ package androidx.annotation
 import kotlin.annotation.AnnotationTarget.FUNCTION
 
 /**
- * Denotes that any overriding methods should **not** invoke this method, since it is defined
- * to be empty (or perhaps contain other code not intended to be run when overridden).
+ * Denotes that any overriding methods should **not** invoke this method, since it is defined to be
+ * empty (or perhaps contain other code not intended to be run when overridden).
  *
  * Example:
  * ```

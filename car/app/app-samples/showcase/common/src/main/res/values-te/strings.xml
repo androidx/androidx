@@ -264,6 +264,7 @@
     <string name="tab_title_list" msgid="5104962518489668123">"లిస్ట్ ట్యాబ్"</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"పొడవైన ట్యాబ్ టైటిల్ గల గ్రిడ్ ట్యాబ్"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"సెర్చ్ ట్యాబ్"</string>
+    <string name="tab_title_loading" msgid="5385807479734490989">"ట్యాబ్ లోడ్ అవుతోంది"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"ట్యాబ్ టెంప్లేట్‌ను లోడ్ చేస్తున్న డెమో"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"ట్యాబ్‌లు లేని ట్యాబ్ టెంప్లేట్ డెమో"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"తెలియని హోస్ట్ కోసం ఇమేజ్‌లను ప్రదర్శించడం సాధ్యం కాదు"</string>
@@ -298,7 +299,7 @@
     <string name="some_additional_text" msgid="4009872495806318260">"కొంత అదనపు టెక్స్ట్"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"ఎంచుకోదగిన నమూనాల లిస్ట్"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"టాస్క్ పరిమితి డెమో"</string>
-    <string name="task_limit_reached_msg" msgid="6038763366777119364">"టాస్క్‌ల పరిమితిని చేరుకున్నారు\nఇంకా టాస్క్‌లను ఎంచుకుంటే యాప్ ఫోర్స్ స్టాప్ అవుతుంది"</string>
+    <string name="task_limit_reached_msg" msgid="7162842196382260992">"ఇది దశల కౌంట్‌ను పెంచుతుంది, ఇంకా మిమ్మల్ని కొత్త స్క్రీన్‌కు తీసుకెళుతుంది."</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"%2$dలో %1$d టాస్క్ దశ"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"ముందుకు వెళ్లడానికి క్లిక్ చేయండి"</string>
     <string name="task_content_allowed" msgid="545061986612431190">"దయచేసి వివిధ టెంప్లేట్‌లను సందర్శించండి, కారు డ్రైవింగ్ మోడ్‌లో ఉందని నిర్ధారించుకోండి"</string>
@@ -323,6 +324,12 @@
     <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"అడ్డు వరుసను కూడా ఎంచుకోవచ్చు"</string>
     <string name="secondary_action_toast" msgid="5076434693504006565">"రెండవ చర్య ఎంచుకోబడింది"</string>
     <string name="row_primary_action_toast" msgid="756516694751965204">"అడ్డు వరుస ప్రాథమిక చర్య ఎంచుకోబడింది"</string>
+    <string name="sectioned_item_list_demo_title" msgid="1236735461225007729">"విభజించిన ఐటెమ్ లిస్ట్ డెమో"</string>
+    <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"లిస్ట్ 1"</string>
+    <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"లిస్ట్ 2"</string>
+    <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"ప్రతి లిస్ట్ కింద సబ్‌టెక్స్ట్"</string>
+    <string name="empty_list_demo_title" msgid="5989013634820902455">"ఖాళీ లిస్ట్ డెమో"</string>
+    <string name="empty_list_message" msgid="5331395517560728138">"మీ లిస్ట్ ఖాళీగా ఉంది"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"ఇతర టెంప్లేట్‌ల డెమోలు"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"డెమోలను ప్రదర్శించండి"</string>
     <string name="template_layouts_demo_title" msgid="788249269446087847">"టెంప్లేట్ లేఅవుట్ డెమోలు"</string>

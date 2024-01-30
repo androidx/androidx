@@ -26,6 +26,7 @@ import com.android.tools.lint.detector.api.JavaContext
 import com.android.tools.lint.detector.api.LintFix
 import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
+import com.intellij.psi.PsiElement
 import org.jetbrains.kotlin.descriptors.annotations.AnnotationUseSiteTarget
 import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.psi.KtAnnotationEntry
@@ -109,7 +110,7 @@ class ExperimentalPropertyAnnotationDetector : Detector(), Detector.UastScanner 
             val target = source.useSiteTarget?.getAnnotationUseSiteTarget()
             if (existingTargets.size > 1 && existingTargets.indexOf(target) != 0) return
 
-            val fix = createFix(type, missingTargets)
+            val fix = createFix(type, parent, missingTargets)
             val message = "This property does not have all required annotations to correctly mark" +
                 " it as experimental."
             val location = context.getLocation(node)
@@ -119,6 +120,7 @@ class ExperimentalPropertyAnnotationDetector : Detector(), Detector.UastScanner 
 
         private fun createFix(
             annotation: String,
+            annotated: PsiElement,
             missingTargets: Set<AnnotationUseSiteTarget>
         ): LintFix {
             val fix = fix()
@@ -131,7 +133,11 @@ class ExperimentalPropertyAnnotationDetector : Detector(), Detector.UastScanner 
                 // Add it anyway because metalava needs it and suppress the error
                 if (target == AnnotationUseSiteTarget.PROPERTY_GETTER) {
                     val addSuppression = fix()
-                        .annotate("kotlin.Suppress(\"OPT_IN_MARKER_ON_WRONG_TARGET\")")
+                        .annotate(
+                            "kotlin.Suppress(\"OPT_IN_MARKER_ON_WRONG_TARGET\")",
+                            context,
+                            annotated
+                        )
                         .build()
                     fix.add(addSuppression)
                 }
@@ -139,7 +145,12 @@ class ExperimentalPropertyAnnotationDetector : Detector(), Detector.UastScanner 
                 val addAnnotation = fix()
                     // With replace = true, the existing annotation with a different target would
                     // be replaced. There shouldn't be an existing annotation with this target.
-                    .annotate(target.renderName + ":" + annotation, replace = false)
+                    .annotate(
+                        target.renderName + ":" + annotation,
+                        context,
+                        annotated,
+                        replace = false
+                    )
                     .build()
                 fix.add(addAnnotation)
             }

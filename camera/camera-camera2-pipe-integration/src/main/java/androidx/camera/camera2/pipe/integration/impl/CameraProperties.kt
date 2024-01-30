@@ -21,7 +21,6 @@ package androidx.camera.camera2.pipe.integration.impl
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
-import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.integration.config.CameraConfig
 import androidx.camera.camera2.pipe.integration.config.CameraScope
 import javax.inject.Inject
@@ -36,12 +35,14 @@ interface CameraProperties {
 
 @CameraScope
 class CameraPipeCameraProperties @Inject constructor(
-    private val cameraPipe: CameraPipe,
-    private val cameraConfig: CameraConfig
+    private val cameraConfig: CameraConfig,
+    private val cameraMetadata: CameraMetadata?,
 ) : CameraProperties {
     override val cameraId: CameraId
         get() = cameraConfig.cameraId
-    override val metadata: CameraMetadata by lazy {
-        checkNotNull(cameraPipe.cameras().awaitCameraMetadata(cameraId))
-    }
+
+    // TODO(b/270615090): Here it's safe to use the !! operator because all consumers of the
+    //  metadata don't read it during CameraX initialization. Long term however, CameraProperties
+    //  can probably be removed entirely.
+    override val metadata: CameraMetadata = cameraMetadata!!
 }

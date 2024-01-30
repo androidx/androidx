@@ -27,7 +27,6 @@ import androidx.annotation.RestrictTo;
 /**
  * Layout helper for {@link ComplicationData#TYPE_SMALL_IMAGE}.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class SmallImageLayoutHelper extends LayoutHelper {

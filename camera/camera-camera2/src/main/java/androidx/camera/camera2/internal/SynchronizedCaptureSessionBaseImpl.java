@@ -54,17 +54,19 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 
 /**
- * The basic implementation of {@link SynchronizedCaptureSession} to forward the feature calls
- * into the {@link CameraCaptureSession}. It will not synchronize methods with the other
- * SynchronizedCaptureSessions.
+ * The implementation of {@link SynchronizedCaptureSession} to forward the feature calls
+ * into the {@link CameraCaptureSession}.
  *
- * The {@link StateCallback} to receives the state callbacks from the
- * {@link CameraCaptureSession.StateCallback} and convert the {@link CameraCaptureSession} to the
- * SynchronizedCaptureSession object.
+ * The implementation of {@link SynchronizedCaptureSession.StateCallback} and
+ * {@link SynchronizedCaptureSession.Opener} will be able to track the creation and close of the
+ * SynchronizedCaptureSession in {@link CaptureSessionRepository}.
+ * Some Quirks may be required to take some action before opening/closing other sessions, with the
+ * SynchronizedCaptureSessionBaseImpl, it would be useful when implementing the workaround of
+ * Quirks.
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class SynchronizedCaptureSessionBaseImpl extends SynchronizedCaptureSession.StateCallback implements
-        SynchronizedCaptureSession, SynchronizedCaptureSessionOpener.OpenerImpl {
+        SynchronizedCaptureSession, SynchronizedCaptureSession.Opener {
 
     private static final String TAG = "SyncCaptureSessionBase";
 
@@ -144,22 +146,21 @@ class SynchronizedCaptureSessionBaseImpl extends SynchronizedCaptureSession.Stat
             mCaptureSessionRepository.onCreateCaptureSession(this);
             CameraDeviceCompat cameraDeviceCompat =
                     CameraDeviceCompat.toCameraDeviceCompat(cameraDevice, mCompatHandler);
-            mOpenCaptureSessionFuture = CallbackToFutureAdapter.getFuture(
-                    completer -> {
-                        synchronized (mLock) {
-                            // Attempt to set all the configured deferrable surfaces is in used
-                            // before adding them to the session.
-                            holdDeferrableSurfaces(deferrableSurfaces);
+            mOpenCaptureSessionFuture = CallbackToFutureAdapter.getFuture(completer -> {
+                synchronized (mLock) {
+                    // Attempt to set all the configured deferrable surfaces is in used
+                    // before adding them to the session.
+                    holdDeferrableSurfaces(deferrableSurfaces);
 
-                            Preconditions.checkState(mOpenCaptureSessionCompleter == null,
-                                    "The openCaptureSessionCompleter can only set once!");
+                    Preconditions.checkState(mOpenCaptureSessionCompleter == null,
+                            "The openCaptureSessionCompleter can only set once!");
 
-                            mOpenCaptureSessionCompleter = completer;
-                            cameraDeviceCompat.createCaptureSession(sessionConfigurationCompat);
-                            return "openCaptureSession[session="
-                                    + SynchronizedCaptureSessionBaseImpl.this + "]";
-                        }
-                    });
+                    mOpenCaptureSessionCompleter = completer;
+                    cameraDeviceCompat.createCaptureSession(sessionConfigurationCompat);
+                    return "openCaptureSession[session="
+                            + SynchronizedCaptureSessionBaseImpl.this + "]";
+                }
+            });
 
             Futures.addCallback(mOpenCaptureSessionFuture, new FutureCallback<Void>() {
                 @Override
@@ -169,7 +170,7 @@ class SynchronizedCaptureSessionBaseImpl extends SynchronizedCaptureSession.Stat
 
                 @Override
                 public void onFailure(@NonNull Throwable t) {
-                    SynchronizedCaptureSessionBaseImpl.this.finishClose();
+                    finishClose();
                     mCaptureSessionRepository.onCaptureSessionConfigureFail(
                             SynchronizedCaptureSessionBaseImpl.this);
                 }
@@ -299,34 +300,31 @@ class SynchronizedCaptureSessionBaseImpl extends SynchronizedCaptureSession.Stat
                         new CancellationException("Opener is disabled"));
             }
 
-            mStartingSurface = FutureChain.from(
-                    DeferrableSurfaces.surfaceListWithTimeout(deferrableSurfaces, false, timeout,
-                            getExecutor(), mScheduledExecutorService)).transformAsync(surfaces -> {
-                                Logger.d(TAG,
-                                        "[" + SynchronizedCaptureSessionBaseImpl.this
-                                                + "] getSurface...done");
-                                // If a Surface in configuredSurfaces is null it means the
-                                // Surface was not retrieved from the ListenableFuture. Only
-                                // handle the first failed Surface since subsequent calls to
-                                // CaptureSession.open() will handle the other failed Surfaces if
-                                // there are any.
-                                if (surfaces.contains(null)) {
-                                    DeferrableSurface deferrableSurface = deferrableSurfaces.get(
-                                            surfaces.indexOf(null));
-                                    return Futures.immediateFailedFuture(
-                                            new DeferrableSurface.SurfaceClosedException(
-                                                    "Surface closed", deferrableSurface));
-                                }
+            ListenableFuture<List<Surface>> future = DeferrableSurfaces.surfaceListWithTimeout(
+                    deferrableSurfaces, false, timeout, getExecutor(), mScheduledExecutorService);
 
-                                if (surfaces.isEmpty()) {
-                                    return Futures.immediateFailedFuture(
-                                            new IllegalArgumentException(
-                                                    "Unable to open capture session without "
-                                                            + "surfaces"));
-                                }
-
-                                return Futures.immediateFuture(surfaces);
-                            }, getExecutor());
+            mStartingSurface = FutureChain.from(future).transformAsync(surfaces -> {
+                Logger.d(TAG, "[" + SynchronizedCaptureSessionBaseImpl.this + "] getSurface done "
+                        + "with results: " + surfaces);
+                // If a Surface in configuredSurfaces is null it means the
+                // Surface was not retrieved from the ListenableFuture. Only
+                // handle the first failed Surface since subsequent calls to
+                // CaptureSession.open() will handle the other failed Surfaces if
+                // there are any.
+                if (surfaces.isEmpty()) {
+                    return Futures.immediateFailedFuture(new IllegalArgumentException(
+                            "Unable to open capture session without surfaces")
+                    );
+                }
+                if (surfaces.contains(null)) {
+                    return Futures.immediateFailedFuture(
+                            new DeferrableSurface.SurfaceClosedException(
+                                    "Surface closed", deferrableSurfaces.get(surfaces.indexOf(null))
+                            )
+                    );
+                }
+                return Futures.immediateFuture(surfaces);
+            }, getExecutor());
 
             return Futures.nonCancellationPropagating(mStartingSurface);
         }
@@ -554,8 +552,15 @@ class SynchronizedCaptureSessionBaseImpl extends SynchronizedCaptureSession.Stat
                 // the onClosed callback, we can treat this session is already in closed state.
                 onSessionFinished(session);
 
-                Objects.requireNonNull(mCaptureSessionStateCallback);
-                mCaptureSessionStateCallback.onClosed(session);
+                if (mCameraCaptureSessionCompat != null) {
+                    // Only call onClosed() if we have the instance of CameraCaptureSession.
+                    Objects.requireNonNull(mCaptureSessionStateCallback);
+                    mCaptureSessionStateCallback.onClosed(session);
+                } else {
+                    Logger.w(TAG, "[" + SynchronizedCaptureSessionBaseImpl.this + "] Cannot call "
+                            + "onClosed() when the CameraCaptureSession is not correctly "
+                            + "configured.");
+                }
             }, CameraXExecutors.directExecutor());
         }
     }
@@ -618,6 +623,11 @@ class SynchronizedCaptureSessionBaseImpl extends SynchronizedCaptureSession.Stat
     @Override
     public void finishClose() {
         releaseDeferrableSurfaces();
+    }
+
+    @Override
+    public void onCameraDeviceError(int error) {
+        // Nothing to do for the default implementation.
     }
 
     /**

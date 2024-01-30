@@ -25,11 +25,15 @@ plugins {
 dependencies {
     api(libs.kotlinStdlib)
 
+    implementation(libs.kotlinCoroutinesCore)
+
     testImplementation(libs.testCore)
+    testImplementation(libs.kotlinCoroutinesTest)
     testImplementation(libs.kotlinStdlib)
     testImplementation(libs.junit)
     testImplementation(libs.truth)
     testImplementation(libs.robolectric)
+    testImplementation(project(":core:core-performance-testing"))
 
     samples(project(":core:core-performance:core-performance-samples"))
 }
@@ -40,6 +44,7 @@ androidx {
     mavenVersion = LibraryVersions.CORE_PERFORMANCE
     inceptionYear = "2021"
     description = "This library makes it easy for developers to make UI and feature choices based on Android Performance Class level for GMS devices."
+    metalavaK2UastEnabled = true
 }
 
 android {

@@ -16,10 +16,9 @@
 package androidx.annotation
 
 /**
- * Denotes that an integer parameter, field or method return value is expected
- * to be a resource reference of any type. If the specific type is known, use
- * one of the more specific annotations instead, such as [StringRes] or
- * [DrawableRes].
+ * Denotes that an integer parameter, field or method return value is expected to be a resource
+ * reference of any type. If the specific type is known, use one of the more specific annotations
+ * instead, such as [StringRes] or [DrawableRes].
  */
 @MustBeDocumented
 @kotlin.annotation.Retention(AnnotationRetention.BINARY)

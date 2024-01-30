@@ -66,6 +66,7 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
         android()
         desktop()
         js()
+        wasm()
         darwin()
 
         configureDarwinFlags()
@@ -84,6 +85,9 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                 api(project(":compose:ui:ui-unit"))
                 implementation(project(":compose:runtime:runtime"))
                 implementation(project(":compose:ui:ui-util"))
+                implementation(project(":compose:ui:ui-geometry"))
+                implementation(project(":collection:collection"))
+                implementation(project(":annotation:annotation"))
             }
 
             androidMain.dependencies {
@@ -97,12 +101,31 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                 }
             }
 
+            skikoExcludingWebMain {
+                dependsOn(skikoMain)
+            }
+
             jsNativeMain.dependsOn(skikoMain)
 
-            jsMain.dependsOn(jsNativeMain)
+            jsWasmMain.dependsOn(jsNativeMain)
+
+            jsMain {
+                dependsOn(jsWasmMain)
+            }
+
+            if (project.kotlinWasmEnabled.toBoolean()) {
+                wasmJsMain {
+                    dependsOn(jsWasmMain)
+                    dependencies {
+                        implementation(libs.kotlinStdlib)
+                        implementation(libs.create("skikoWasm"))
+                        implementation(libs.create("skikoWasmWasm"))
+                    }
+                }
+            }
 
             desktopMain {
-                dependsOn skikoMain
+                dependsOn skikoExcludingWebMain
                 dependencies {
                     implementation(libs.kotlinStdlib)
                     implementation(libs.kotlinStdlibJdk8)
@@ -116,6 +139,7 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
             }
 
             nativeMain.dependsOn(jsNativeMain)
+            nativeMain.dependsOn(skikoExcludingWebMain)
 
             // TODO(b/214407011): These dependencies leak into instrumented tests as well. If you
             //  need to add Robolectric (which must be kept out of androidAndroidTest), use a top
@@ -173,5 +197,11 @@ android {
 if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
     tasks.findByName("desktopTest").configure {
         systemProperties["GOLDEN_PATH"] = project.rootDir.absolutePath + "/golden"
+    }
+}
+
+project.tasks.configureEach {
+    if (name == "compileJsWasmMainKotlinMetadata") {
+        enabled = false
     }
 }

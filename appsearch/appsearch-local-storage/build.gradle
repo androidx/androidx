@@ -62,11 +62,14 @@ android {
 BundleInsideHelper.forInsideAar(
     project,
     /* from = */ "com.google.protobuf",
-    /* to =   */ "com.google.android.icing.protobuf"
+    /* to =   */ "com.google.android.icing.protobuf",
+    // proto-lite dependency includes .proto files, which are not used and would clash if
+    // users also use proto library directly
+    /* dropResourcesWithSuffix = */ ".proto"
 )
 
 dependencies {
-    bundleInside(project(path: ":icing", configuration: "exportRelease"))
+    bundleInside(project(":icing"))
 
     api("androidx.annotation:annotation:1.1.0")
 
@@ -92,4 +95,5 @@ androidx {
     description =
         "An implementation of AppSearchSession which uses local app storage and a local copy of " +
                 "the search library"
+    metalavaK2UastEnabled = true
 }

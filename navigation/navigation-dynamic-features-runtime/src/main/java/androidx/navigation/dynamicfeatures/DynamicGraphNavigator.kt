@@ -180,14 +180,8 @@ public class DynamicGraphNavigator(
      * The [NavGraph] for dynamic features.
      */
     public class DynamicNavGraph(
-        /**
-         * @hide
-         */
         @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         internal val navGraphNavigator: DynamicGraphNavigator,
-        /**
-         * @hide
-         */
         @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         internal val navigatorProvider: NavigatorProvider
     ) : NavGraph(navGraphNavigator) {
@@ -236,6 +230,7 @@ public class DynamicGraphNavigator(
         }
 
         override fun equals(other: Any?): Boolean {
+            if (this === other) return true
             if (other == null || other !is DynamicNavGraph) return false
             return super.equals(other) &&
                 moduleName == other.moduleName &&

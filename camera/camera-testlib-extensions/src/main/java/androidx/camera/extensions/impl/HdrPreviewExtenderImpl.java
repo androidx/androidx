@@ -19,6 +19,7 @@ package androidx.camera.extensions.impl;
 import android.content.Context;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.TotalCaptureResult;
+import android.hardware.camera2.params.SessionConfiguration;
 import android.media.Image;
 import android.os.Build;
 import android.os.Handler;
@@ -47,6 +48,8 @@ import java.util.concurrent.RunnableFuture;
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class HdrPreviewExtenderImpl implements PreviewExtenderImpl {
+    private static final String TAG = "HdrPreviewExtenderImpl";
+
     private static final int DEFAULT_STAGE_ID = 0;
 
     @Nullable
@@ -174,7 +177,7 @@ public final class HdrPreviewExtenderImpl implements PreviewExtenderImpl {
         @Override
         public void process(Image image, TotalCaptureResult result,
                 ProcessResultImpl resultCallback, Executor executor) {
-
+            process(image, result);
         }
 
         @Override
@@ -224,5 +227,10 @@ public final class HdrPreviewExtenderImpl implements PreviewExtenderImpl {
                 // handle exception
             }
         }
+    }
+
+    @Override
+    public int onSessionType() {
+        return SessionConfiguration.SESSION_REGULAR;
     }
 }

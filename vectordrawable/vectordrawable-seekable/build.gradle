@@ -36,9 +36,10 @@ android {
 }
 
 androidx {
-    name = "Android SeekableAnimatedVectorDrawable"
+    name = "SeekableAnimatedVectorDrawable"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.VECTORDRAWABLE_SEEKABLE
     inceptionYear = "2020"
     description = "Android SeekableAnimatedVectorDrawable"
+    metalavaK2UastEnabled = true
 }

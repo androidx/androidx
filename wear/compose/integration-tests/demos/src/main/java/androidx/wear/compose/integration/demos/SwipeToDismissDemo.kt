@@ -32,19 +32,23 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.wear.compose.foundation.SwipeToDismissBox
+import androidx.wear.compose.foundation.SwipeToDismissBoxState
+import androidx.wear.compose.foundation.SwipeToDismissKeys
+import androidx.wear.compose.foundation.SwipeToDismissValue
+import androidx.wear.compose.foundation.edgeSwipeToDismiss
+import androidx.wear.compose.foundation.lazy.ScalingLazyListState
+import androidx.wear.compose.foundation.rememberSwipeToDismissBoxState
 import androidx.wear.compose.material.Chip
 import androidx.wear.compose.material.ChipDefaults
-import androidx.wear.compose.material.SwipeToDismissBox
-import androidx.wear.compose.material.SwipeToDismissBoxState
-import androidx.wear.compose.material.SwipeToDismissValue
 import androidx.wear.compose.material.Text
-import androidx.wear.compose.material.edgeSwipeToDismiss
-import androidx.wear.compose.material.rememberSwipeToDismissBoxState
 
 /**
  * SwipeToDismiss demo - manages its own navigation between a List screen and a Detail screen,
@@ -81,7 +85,12 @@ fun SwipeToDismissDemo(
             // What to show behind the content whilst swiping.
             when (demoState.value) {
                 SwipeDismissDemoState.List -> {
-                    DisplayDemoList(SwipeToDismissDemos, {})
+                    DisplayDemoList(
+                        SwipeToDismissDemos,
+                        {},
+                        0,
+                        remember { mutableListOf(ScalingLazyListState()) }
+                    )
                 }
                 SwipeDismissDemoState.Detail -> {
                     SwipeToDismissOptionsList()
@@ -125,6 +134,39 @@ fun EdgeSwipeDemo(swipeToDismissBoxState: SwipeToDismissBoxState) {
                 .width(30.dp)
                 .background(Color.White.copy(alpha = 0.5f))
         )
+    }
+}
+
+@Composable
+fun NestedSwipeToDismissDemo() {
+    val items = remember { mutableStateListOf(1, 2) }
+
+    val current = items.last()
+    val previous = items.dropLast(1).lastOrNull()
+
+    val state = SwipeToDismissBoxState()
+    SwipeToDismissBox(
+        state = state,
+        backgroundKey = previous ?: SwipeToDismissKeys.Background,
+        contentKey = current,
+        userSwipeEnabled = previous != null,
+        onDismissed = { items.removeLastOrNull() }
+    ) { isBackground ->
+        val item = if (isBackground) {
+            previous
+        } else {
+            current
+        }
+
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            if (item != null) {
+                Chip(
+                    onClick = { items.add(items.size + 1) },
+                    label = { Text("Screen number $item") })
+            } else {
+                Text("Empty Screen")
+            }
+        }
     }
 }
 

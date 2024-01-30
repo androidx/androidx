@@ -19,13 +19,24 @@ package androidx.compose.foundation.gestures
 import androidx.compose.foundation.awtWheelEvent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.input.pointer.PointerEventType
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.assertTopPositionInRootIsEqualTo
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performMouseInput
 import androidx.compose.ui.test.runSkikoComposeUiTest
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
@@ -33,10 +44,13 @@ import androidx.compose.ui.unit.dp
 import com.google.common.truth.Truth.assertThat
 import kotlin.math.sqrt
 import kotlin.test.assertTrue
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
+@OptIn(InternalComposeUiApi::class)
 @ExperimentalTestApi
 @RunWith(JUnit4::class)
 class DesktopScrollableTest {
@@ -234,6 +248,52 @@ class DesktopScrollableTest {
     }
 
     @Test
+    fun multipleScrollingModifiers() = runSkikoComposeUiTest(
+        size = size,
+        density = density
+    ) {
+        val verticalContext = TestColumn()
+        val horizontalContext = TestColumn()
+        lateinit var scope: CoroutineScope
+        setContent {
+            scope = rememberCoroutineScope()
+            CompositionLocalProvider(
+                LocalScrollConfig provides LinuxGnomeConfig
+            ) {
+                Box(
+                    Modifier
+                        .scrollable(
+                            orientation = Orientation.Vertical,
+                            state = verticalContext.controller()
+                        )
+                        .scrollable(
+                            orientation = Orientation.Horizontal,
+                            state = horizontalContext.controller()
+                        )
+                        .size(10.dp, 20.dp)
+                )
+            }
+        }
+        scope.launch {
+            scene.sendPointerEvent(
+                eventType = PointerEventType.Scroll,
+                position = Offset.Zero,
+                scrollDelta = Offset(0f, -5f),
+                nativeEvent = awtWheelEvent(),
+            )
+            scene.sendPointerEvent(
+                eventType = PointerEventType.Scroll,
+                position = Offset.Zero,
+                scrollDelta = Offset(-5f, 0f),
+                nativeEvent = awtWheelEvent(),
+            )
+        }
+        waitForIdle()
+        assertThat(verticalContext.offset).isWithin(0.1f).of(5f * scrollLineLinux(20.dp))
+        assertThat(horizontalContext.offset).isWithin(0.1f).of(5f * scrollLineLinux(10.dp))
+    }
+
+    @Test
     fun smoothScrollingDisabled() = runSkikoComposeUiTest(
         size = size,
         density = density
@@ -273,6 +333,50 @@ class DesktopScrollableTest {
             // Restore state
             LinuxGnomeConfig.isSmoothScrollingEnabled = true
         }
+    }
+
+    @Test
+    fun scrollableDisabled() = runSkikoComposeUiTest(
+        size = size,
+        density = density
+    ) {
+        var isEnabled by mutableStateOf(false)
+        setContent {
+            CompositionLocalProvider(
+                LocalScrollConfig provides WindowsWinUIConfig
+            ) {
+                Box(
+                    Modifier
+                        .size(10.dp, 20.dp)
+                        .verticalScroll(
+                            state = rememberScrollState(),
+                            enabled = isEnabled,
+                        )
+                ) {
+                    Box(Modifier.size(10.dp, 10000.dp).testTag("box"))
+                }
+            }
+        }
+
+        onNodeWithTag("box")
+            .performMouseInput {
+                scroll(10f)
+            }
+            .assertTopPositionInRootIsEqualTo(0.dp)
+
+        isEnabled = true
+        onNodeWithTag("box")
+            .performMouseInput {
+                scroll(10f)
+            }
+            .assertTopPositionInRootIsEqualTo(-10.dp)
+
+        isEnabled = false
+        onNodeWithTag("box")
+            .performMouseInput {
+                scroll(10f)
+            }
+            .assertTopPositionInRootIsEqualTo(-10.dp)
     }
 
     private class TestColumn {

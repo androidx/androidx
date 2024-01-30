@@ -26,11 +26,11 @@ plugins {
 dependencies {
     implementation(libs.kotlinStdlib)
 
-    implementation(projectOrArtifact(":compose:integration-tests:demos:common"))
-    implementation(projectOrArtifact(":compose:foundation:foundation"))
-    implementation(projectOrArtifact(":compose:material:material"))
-    implementation(projectOrArtifact(":navigation:navigation-compose"))
-    implementation(projectOrArtifact(":navigation:navigation-compose:navigation-compose-samples"))
+    implementation(project(":compose:integration-tests:demos:common"))
+    implementation(project(":compose:foundation:foundation"))
+    implementation(project(":compose:material:material"))
+    implementation(project(":navigation:navigation-compose"))
+    implementation(project(":navigation:navigation-compose:navigation-compose-samples"))
 }
 
 androidx {

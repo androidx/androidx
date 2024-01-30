@@ -23,6 +23,9 @@ plugins {
 }
 
 android {
+    defaultConfig {
+        multiDexEnabled = true
+    }
     buildTypes.all {
         consumerProguardFiles "proguard-rules.pro"
     }
@@ -30,28 +33,27 @@ android {
 }
 
 dependencies {
-    api project(":work:work-runtime-ktx")
+    api project(":work:work-runtime")
     api(libs.kotlinStdlib)
     api(libs.kotlinCoroutinesAndroid)
     api(libs.guavaListenableFuture)
     implementation("androidx.core:core:1.9.0")
     implementation("androidx.room:room-runtime:2.5.0")
-    androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.espressoCore)
     androidTestImplementation(libs.mockitoCore, excludes.bytebuddy) // DexMaker has its own MockMaker
     androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy) // DexMaker has its own MockMaker
-    androidTestImplementation(project(":internal-testutils-runtime"))
-    testImplementation(libs.kotlinStdlib)
-    testImplementation(libs.junit)
+    androidTestImplementation(libs.truth)
+    androidTestImplementation(libs.multidex)
 }
 
 androidx {
-    name = "Android WorkManager Multiprocess Implementation"
+    name = "WorkManager Multiprocess"
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2020"
     description = "Android WorkManager runtime library"
     failOnDeprecationWarnings = false
+    metalavaK2UastEnabled = true
 }

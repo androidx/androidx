@@ -23,7 +23,7 @@ import android.widget.TextView
 import androidx.compose.runtime.Recomposer
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-import androidx.glance.Emittable
+import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
 import androidx.glance.action.ActionModifier
 import androidx.glance.action.LambdaAction
@@ -82,7 +82,12 @@ class AppWidgetSessionTest {
 
     @Test
     fun provideGlanceEmitsIgnoreResultForNullContent() = runTest {
-        // The session starts out with null content, so we can check that here.
+        // Create a widget that never calls provideContent, which means the session never produces
+        // a valid result.
+        val widget = object : GlanceAppWidget() {
+            override suspend fun provideGlance(context: Context, id: GlanceId) {}
+        }
+        val session = AppWidgetSession(widget, id, defaultOptions, testState)
         val root = runCompositionUntil(
             { state, _ -> state == Recomposer.State.Idle },
             session.provideGlance(context)
@@ -99,7 +104,7 @@ class AppWidgetSessionTest {
         }
 
         session.processEmittableTree(context, root)
-        context.applyRemoteViews(session.lastRemoteViews!!).let {
+        context.applyRemoteViews(session.lastRemoteViews.value!!).let {
             val text = assertIs<TextView>(it)
             assertThat(text.text).isEqualTo("hello")
         }
@@ -112,20 +117,7 @@ class AppWidgetSessionTest {
         }
 
         session.processEmittableTree(context, root)
-        assertThat(session.lastRemoteViews).isNull()
-    }
-
-    @Test
-    fun processEmittableTree_catchesException() = runTest {
-        val root = RemoteViewsRoot(maxDepth = 1).apply {
-            children += object : Emittable {
-                override var modifier: GlanceModifier = GlanceModifier
-                override fun copy() = this
-            }
-        }
-
-        session.processEmittableTree(context, root)
-        assertThat(session.lastRemoteViews!!.layoutId).isEqualTo(widget.errorUiLayout)
+        assertThat(session.lastRemoteViews.value).isNull()
     }
 
     @Test
@@ -201,9 +193,36 @@ class AppWidgetSessionTest {
         assertTrue(didRunSecond)
     }
 
+    @Test
+    fun onCompositionError_throws_whenErrorUiLayoutNotSet() = runTest {
+        // GlanceAppWidget.onCompositionError rethrows error when widget.errorUiLayout == 0
+        val throwable = Exception("error")
+        var caught: Throwable? = null
+        try {
+            session.onCompositionError(context, throwable)
+        } catch (t: Throwable) {
+            caught = t
+        }
+        assertThat(caught).isEqualTo(throwable)
+    }
+
+    @Test
+    fun onCompositionError_noThrow_whenErrorUiLayoutIsSet() = runTest {
+        val throwable = Exception("error")
+        var caught: Throwable? = null
+        widget.errorUiLayout = R.layout.glance_error_layout
+        try {
+            session.onCompositionError(context, throwable)
+        } catch (t: Throwable) {
+            caught = t
+        }
+        assertThat(caught).isEqualTo(null)
+    }
+
     private class TestGlanceState : ConfigManager {
 
         val getValueCalls = mutableListOf<String>()
+
         @Suppress("UNCHECKED_CAST")
         override suspend fun <T> getValue(
             context: Context,

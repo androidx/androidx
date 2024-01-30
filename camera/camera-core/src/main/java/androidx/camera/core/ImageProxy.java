@@ -142,9 +142,9 @@ public interface ImageProxy extends AutoCloseable {
     /**
      * Converts {@link ImageProxy} to {@link Bitmap}.
      *
-     * <p>The supported {@link ImageProxy} format is {@link ImageFormat#YUV_420_888} or
-     * {@link PixelFormat#RGBA_8888}. If format is invalid, an {@link IllegalArgumentException}
-     * will be thrown. If the conversion to bimap failed, an
+     * <p>The supported {@link ImageProxy} format is {@link ImageFormat#YUV_420_888},
+     * {@link ImageFormat#JPEG} or {@link PixelFormat#RGBA_8888}. If format is invalid, an
+     * {@link IllegalArgumentException} will be thrown. If the conversion to bimap failed, an
      * {@link UnsupportedOperationException} will be thrown.
      *
      * @return {@link Bitmap} instance.

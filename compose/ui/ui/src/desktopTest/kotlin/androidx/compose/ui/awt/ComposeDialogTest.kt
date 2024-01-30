@@ -28,6 +28,8 @@ import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.sendMouseEvent
+import androidx.compose.ui.sendMousePress
+import androidx.compose.ui.sendMouseRelease
 import androidx.compose.ui.window.WindowExceptionHandler
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
@@ -36,12 +38,9 @@ import androidx.compose.ui.window.runApplicationTest
 import com.google.common.truth.Truth.assertThat
 import java.awt.Dimension
 import java.awt.GraphicsEnvironment
-import java.awt.event.MouseEvent
-import java.awt.event.MouseEvent.BUTTON1_DOWN_MASK
+import java.awt.event.MouseEvent.BUTTON1
 import java.awt.event.MouseEvent.MOUSE_ENTERED
 import java.awt.event.MouseEvent.MOUSE_MOVED
-import java.awt.event.MouseEvent.MOUSE_PRESSED
-import java.awt.event.MouseEvent.MOUSE_RELEASED
 import java.awt.event.WindowEvent
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.skiko.ExperimentalSkikoApi
@@ -133,7 +132,7 @@ class ComposeDialogTest {
 
             window.isVisible = true
             awaitIdle()
-            window.sendMouseEvent(MouseEvent.MOUSE_PRESSED, x = 100, y = 50)
+            window.sendMousePress(BUTTON1, x = 100, y = 50)
             awaitIdle()
             assertThat(caughtExceptions.size).isEqualTo(1)
             assertThat(caughtExceptions.last()).isInstanceOf(TestException::class.java)
@@ -237,9 +236,9 @@ class ComposeDialogTest {
             awaitIdle()
             window.sendMouseEvent(MOUSE_MOVED, 100, 50)
             awaitIdle()
-            window.sendMouseEvent(MOUSE_PRESSED, 100, 50, modifiers = BUTTON1_DOWN_MASK)
+            window.sendMousePress(BUTTON1, 100, 50)
             awaitIdle()
-            window.sendMouseEvent(MOUSE_RELEASED, 100, 50)
+            window.sendMouseRelease(BUTTON1, 100, 50)
             awaitIdle()
             assertThat(isClickHappened).isTrue()
         } finally {

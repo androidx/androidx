@@ -23,10 +23,13 @@ import android.view.ViewConfiguration;
 /** Factory methods for constructing {@link PointerGesture}s. */
 class Gestures {
 
+    // Duration of a long press (with multiplier to ensure detection).
+    private static final long LONG_PRESS_DURATION_MS =
+            (long) (ViewConfiguration.getLongPressTimeout() * 1.5f);
+
     // Constants used by pinch gestures
     private static final int INNER = 0;
     private static final int OUTER = 1;
-    private static final int INNER_MARGIN = 5;
 
     private Gestures() {
     }
@@ -68,7 +71,7 @@ class Gestures {
      */
     public static PointerGesture longClick(Point point, int displayId) {
         // A long click is a click with a duration that exceeds a certain threshold.
-        return click(point, ViewConfiguration.getLongPressTimeout(), displayId);
+        return click(point, LONG_PRESS_DURATION_MS, displayId);
     }
 
     /**
@@ -185,12 +188,12 @@ class Gestures {
     private static void calcPinchCoordinates(Rect area, float percent,
             Point[] bottomLeft, Point[] topRight) {
 
-        int offsetX = (int)((area.width() - 2 * INNER_MARGIN) / 2 * percent);
-        int offsetY = (int)((area.height() - 2 * INNER_MARGIN) / 2 * percent);
+        int offsetX = (int) (area.width() / 2 * percent);
+        int offsetY = (int) (area.height() / 2 * percent);
 
         // Outer set of pinch coordinates
-        bottomLeft[OUTER] = new Point(area.left + INNER_MARGIN, area.bottom - INNER_MARGIN);
-        topRight[OUTER]   = new Point(area.right - INNER_MARGIN, area.top + INNER_MARGIN);
+        bottomLeft[OUTER] = new Point(area.left, area.bottom);
+        topRight[OUTER]   = new Point(area.right, area.top);
 
         // Inner set of pinch coordinates
         bottomLeft[INNER] = new Point(bottomLeft[OUTER]);

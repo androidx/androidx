@@ -16,19 +16,15 @@
 
 package androidx.compose.ui.platform
 
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
-import kotlinx.coroutines.yield
 import kotlin.random.Random
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
-import kotlinx.coroutines.withContext
+import kotlin.test.assertTrue
+import kotlinx.coroutines.*
 
-@OptIn(ExperimentalCoroutinesApi::class, DelicateCoroutinesApi::class)
+@OptIn(ExperimentalCoroutinesApi::class)
 class FlushCoroutineDispatcherTest {
 
     @Test
@@ -79,34 +75,17 @@ class FlushCoroutineDispatcherTest {
     }
 
     @Test
-    fun flushing_in_another_thread() {
-        val actualNumbers = mutableListOf<Int>()
-        lateinit var dispatcher: FlushCoroutineDispatcher
-        val random = Random(123)
-
-        runTest {
-            withContext(Dispatchers.Default) {
-                dispatcher = FlushCoroutineDispatcher(this)
-
-                val addJob = launch(dispatcher) {
-                    repeat(10000) {
-                        actualNumbers.add(it)
-                        repeat(random.nextInt(5)) {
-                            yield()
-                        }
-                    }
-                }
-
-                launch {
-                    while (addJob.isActive) {
-                        dispatcher.flush()
-                        yield()
-                    }
-                }
-            }
+    fun delayed_tasks_are_cancelled() = runTest {
+        val coroutineScope = CoroutineScope(Dispatchers.Unconfined)
+        val dispatcher = FlushCoroutineDispatcher(coroutineScope)
+        val job = launch(dispatcher){
+            delay(Long.MAX_VALUE/2)
         }
-
-        assertEquals((0 until 10000).toList(), actualNumbers)
-        assertFalse(dispatcher.hasTasks())
+        assertTrue(dispatcher.hasTasks())
+        job.cancel()
+        assertTrue(
+            !dispatcher.hasTasks(),
+            "FlushCoroutineDispatcher has a delayed task that has been cancelled"
+        )
     }
 }

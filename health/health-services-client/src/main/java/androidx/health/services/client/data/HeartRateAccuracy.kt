@@ -44,7 +44,6 @@ public class HeartRateAccuracy(public val sensorStatus: SensorStatus) : DataPoin
 
         override fun toString(): String = name
 
-        /** @hide */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         internal fun toProto(): SensorStatusProto =
             SensorStatusProto.forNumber(id) ?: SensorStatusProto.HR_ACCURACY_SENSOR_STATUS_UNKNOWN
@@ -91,7 +90,6 @@ public class HeartRateAccuracy(public val sensorStatus: SensorStatus) : DataPoin
                     ACCURACY_HIGH,
                 )
 
-            /** @hide */
             @RestrictTo(RestrictTo.Scope.LIBRARY)
             public fun fromProto(proto: SensorStatusProto): SensorStatus =
                 VALUES.firstOrNull { it.id == proto.number } ?: UNKNOWN

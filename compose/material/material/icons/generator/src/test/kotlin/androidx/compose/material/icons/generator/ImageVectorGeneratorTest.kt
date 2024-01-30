@@ -35,30 +35,75 @@ class ImageVectorGeneratorTest {
 
     @Test
     fun generateFileSpec() {
-        val iconName = "TestVector"
         val theme = IconTheme.Filled
-
-        val generator = ImageVectorGenerator(
-            iconName = iconName,
-            iconTheme = theme,
-            vector = TestVector
+        assertFileSpec(
+            iconName = "TestVector",
+            theme = theme,
+            testVector = TestVector,
+            expectedPackageName = "${MaterialIconsPackage.packageName}.${theme.themePackageName}",
+            expectedFileContent = ExpectedFile,
+            isAutoMirrored = false
         )
-
-        val fileSpec = generator.createFileSpec()
-
-        Truth.assertThat(fileSpec.name).isEqualTo(iconName)
-
-        val expectedPackageName = MaterialIconsPackage.packageName + "." + theme.themePackageName
-
-        Truth.assertThat(fileSpec.packageName).isEqualTo(expectedPackageName)
-
-        val fileContent = StringBuilder().run {
-            fileSpec.writeTo(this)
-            toString()
-        }
-
-        Truth.assertThat(fileContent).isEqualTo(ExpectedFile)
     }
+
+    @Test
+    fun generateDeprecatedFileSpec() {
+        val theme = IconTheme.Filled
+        assertFileSpec(
+            iconName = "TestVector",
+            theme = theme,
+            testVector = TestAutoMirroredVector,
+            expectedPackageName = "${MaterialIconsPackage.packageName}.${theme.themePackageName}",
+            expectedFileContent = ExpectedDeprecatedFile,
+            isAutoMirrored = false
+        )
+    }
+
+    @Test
+    fun generateAutoMirroredFileSpec() {
+        val theme = IconTheme.Filled
+        assertFileSpec(
+            iconName = "TestVector",
+            theme = theme,
+            testVector = TestAutoMirroredVector,
+            expectedPackageName = "${MaterialIconsPackage.packageName}.$AutoMirroredPackageName" +
+                ".${theme.themePackageName}",
+            expectedFileContent = ExpectedAutoMirroredFile,
+            isAutoMirrored = true
+        )
+    }
+}
+
+private fun assertFileSpec(
+    iconName: String,
+    theme: IconTheme,
+    testVector: Vector,
+    expectedPackageName: String,
+    expectedFileContent: String,
+    isAutoMirrored: Boolean
+) {
+    val generator = ImageVectorGenerator(
+        iconName = iconName,
+        iconTheme = theme,
+        vector = testVector
+    )
+
+    val fileSpec = if (isAutoMirrored) {
+        generator.createAutoMirroredFileSpec()
+    } else {
+        generator.createFileSpec()
+    }
+
+    Truth.assertThat(fileSpec.name).isEqualTo(iconName)
+
+    Truth.assertThat(fileSpec.packageName).isEqualTo(expectedPackageName)
+
+    val fileContent = StringBuilder().run {
+        fileSpec.writeTo(this)
+        toString()
+    }
+
+    Truth.assertThat(fileContent).isEqualTo(expectedFileContent)
 }
 
 @Language("kotlin")
@@ -78,6 +123,88 @@ private val ExpectedFile = """
                 return _testVector!!
             }
             _testVector = materialIcon(name = "Filled.TestVector") {
+                materialPath(fillAlpha = 0.8f) {
+                    moveTo(20.0f, 10.0f)
+                    lineToRelative(0.0f, 10.0f)
+                    lineToRelative(-10.0f, 0.0f)
+                    close()
+                }
+                group {
+                    materialPath(pathFillType = EvenOdd) {
+                        moveTo(0.0f, 10.0f)
+                        lineToRelative(-10.0f, 0.0f)
+                        close()
+                    }
+                }
+            }
+            return _testVector!!
+        }
+
+    private var _testVector: ImageVector? = null
+
+""".trimIndent()
+
+@Language("kotlin")
+private val ExpectedDeprecatedFile = """
+    package androidx.compose.material.icons.filled
+
+    import androidx.compose.material.icons.Icons
+    import androidx.compose.material.icons.materialIcon
+    import androidx.compose.material.icons.materialPath
+    import androidx.compose.ui.graphics.PathFillType.Companion.EvenOdd
+    import androidx.compose.ui.graphics.vector.ImageVector
+    import androidx.compose.ui.graphics.vector.group
+    import kotlin.Deprecated
+
+    @Deprecated(
+        "Use the AutoMirrored version at Icons.AutoMirrored.Filled.TestVector",
+        ReplaceWith( "Icons.AutoMirrored.Filled.TestVector",
+                "androidx.compose.material.icons.automirrored.filled.TestVector"),
+    )
+    public val Icons.Filled.TestVector: ImageVector
+        get() {
+            if (_testVector != null) {
+                return _testVector!!
+            }
+            _testVector = materialIcon(name = "Filled.TestVector") {
+                materialPath(fillAlpha = 0.8f) {
+                    moveTo(20.0f, 10.0f)
+                    lineToRelative(0.0f, 10.0f)
+                    lineToRelative(-10.0f, 0.0f)
+                    close()
+                }
+                group {
+                    materialPath(pathFillType = EvenOdd) {
+                        moveTo(0.0f, 10.0f)
+                        lineToRelative(-10.0f, 0.0f)
+                        close()
+                    }
+                }
+            }
+            return _testVector!!
+        }
+
+    private var _testVector: ImageVector? = null
+
+""".trimIndent()
+
+@Language("kotlin")
+private val ExpectedAutoMirroredFile = """
+    package androidx.compose.material.icons.automirrored.filled
+
+    import androidx.compose.material.icons.Icons
+    import androidx.compose.material.icons.materialIcon
+    import androidx.compose.material.icons.materialPath
+    import androidx.compose.ui.graphics.PathFillType.Companion.EvenOdd
+    import androidx.compose.ui.graphics.vector.ImageVector
+    import androidx.compose.ui.graphics.vector.group
+
+    public val Icons.AutoMirrored.Filled.TestVector: ImageVector
+        get() {
+            if (_testVector != null) {
+                return _testVector!!
+            }
+            _testVector = materialIcon(name = "AutoMirrored.Filled.TestVector", autoMirror = true) {
                 materialPath(fillAlpha = 0.8f) {
                     moveTo(20.0f, 10.0f)
                     lineToRelative(0.0f, 10.0f)
@@ -124,4 +251,5 @@ private val path2 = VectorNode.Path(
 
 private val group = VectorNode.Group(mutableListOf(path2))
 
-private val TestVector = Vector(listOf(path1, group))
+private val TestVector = Vector(autoMirrored = false, nodes = listOf(path1, group))
+private val TestAutoMirroredVector = Vector(autoMirrored = true, nodes = listOf(path1, group))

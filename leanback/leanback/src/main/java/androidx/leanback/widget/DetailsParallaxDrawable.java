@@ -57,7 +57,6 @@ import androidx.leanback.graphics.FitWidthBitmapDrawable;
  * In case the solid color is not set, it will use defaultBrandColorDark from LeanbackTheme.
  * </li>
  * </ul>
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class DetailsParallaxDrawable extends CompositeDrawable {

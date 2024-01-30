@@ -38,7 +38,6 @@ import java.util.Objects;
  * Class used to maintain and draw a rounded rectangular image. The given drawable will be drawn in
  * a rounded rectangle within the specified bounds. The image will be cropped.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class RoundedDrawable extends Drawable {

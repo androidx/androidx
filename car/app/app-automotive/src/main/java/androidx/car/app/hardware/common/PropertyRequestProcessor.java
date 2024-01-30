@@ -54,7 +54,6 @@ import javax.annotation.Nullable;
 /**
  * A class for interacting with the {@link CarPropertyManager} for getting any vehicle property.
  *
- * @hide
  */
 @RestrictTo(LIBRARY)
 final class PropertyRequestProcessor {

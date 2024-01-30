@@ -362,7 +362,7 @@ public class CarAppBinderTest {
         verify(mLifecycleObserver).onDestroy(any());
 
         assertThat(currentSession.getCarContext().getCarService(
-                ScreenManager.class).getScreenStack()).isEmpty();
+                ScreenManager.class).getScreenStackInternal()).isEmpty();
         assertThat(mCarAppBinder.getCurrentSession()).isNull();
 
         String hostPackageName = "com.google.projection.gearhead";
@@ -373,7 +373,7 @@ public class CarAppBinderTest {
 
         currentSession = mCarAppBinder.getCurrentSession();
         assertThat(currentSession.getCarContext().getCarService(
-                ScreenManager.class).getScreenStack()).hasSize(1);
+                ScreenManager.class).getScreenStackInternal()).hasSize(1);
     }
 
     @Test
@@ -381,7 +381,7 @@ public class CarAppBinderTest {
         mCarAppBinder.onAppCreate(mMockCarHost, null, new Configuration(), mMockOnDoneCallback);
 
         Deque<Screen> screenStack = mCarAppBinder.getCurrentSession().getCarContext().getCarService(
-                ScreenManager.class).getScreenStack();
+                ScreenManager.class).getScreenStackInternal();
         assertThat(screenStack).hasSize(1);
 
         Screen screen = screenStack.getFirst();

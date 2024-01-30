@@ -34,6 +34,21 @@ internal expect val MappedKeys.D: Key
 internal expect val MappedKeys.K: Key
 internal expect val MappedKeys.O: Key
 
+internal object defaultSkikoKeyMapping : KeyMapping {
+    override fun map(event: KeyEvent): KeyCommand? {
+        return when {
+            event.isCtrlPressed && event.isShiftPressed -> {
+                when (event.key) {
+                    MappedKeys.MoveHome -> KeyCommand.SELECT_HOME
+                    MappedKeys.MoveEnd -> KeyCommand.SELECT_END
+                    else -> null
+                }
+            }
+            else -> null
+        } ?: defaultKeyMapping.map(event)
+    }
+}
+
 internal fun createMacosDefaultKeyMapping(): KeyMapping {
     val common = commonKeyMapping(KeyEvent::isMetaPressed)
     return object : KeyMapping {

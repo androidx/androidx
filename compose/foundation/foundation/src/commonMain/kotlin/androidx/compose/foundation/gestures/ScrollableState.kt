@@ -18,12 +18,12 @@ package androidx.compose.foundation.gestures
 
 import androidx.compose.foundation.MutatePriority
 import androidx.compose.foundation.MutatorMutex
+import androidx.compose.foundation.internal.JvmDefaultWithCompatibility
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import kotlinx.coroutines.coroutineScope
-import androidx.compose.foundation.internal.JvmDefaultWithCompatibility
 
 /**
  * An object representing something that can be scrolled. This interface is implemented by states
@@ -161,7 +161,10 @@ interface ScrollScope {
 private class DefaultScrollableState(val onDelta: (Float) -> Float) : ScrollableState {
 
     private val scrollScope: ScrollScope = object : ScrollScope {
-        override fun scrollBy(pixels: Float): Float = onDelta(pixels)
+        override fun scrollBy(pixels: Float): Float {
+            if (pixels.isNaN()) return 0f
+            return onDelta(pixels)
+        }
     }
 
     private val scrollMutex = MutatorMutex()

@@ -28,7 +28,7 @@ dependencies {
 }
 
 androidx {
-    name = "AndroidX Collection Integration Tests"
+    name = "Collection Integration Tests"
     publish = Publish.NONE
     inceptionYear = "2021"
     description = "AndroidX Collection Integration Tests"

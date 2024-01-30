@@ -17,97 +17,153 @@
 package androidx.compose.foundation.lazy
 
 import androidx.compose.animation.core.FiniteAnimationSpec
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.VisibilityThreshold
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.runtime.MutableState
+import androidx.compose.foundation.lazy.layout.LazyLayoutAnimationSpecsNode
 import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.LayoutModifier
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
-import androidx.compose.ui.layout.ParentDataModifier
+import androidx.compose.ui.node.LayoutModifierNode
+import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.platform.InspectorInfo
-import androidx.compose.ui.platform.InspectorValueInfo
-import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.unit.Constraints
-import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import kotlin.math.roundToInt
 
 internal class LazyItemScopeImpl : LazyItemScope {
 
-    private var maxWidthState: MutableState<Int> = mutableStateOf(Int.MAX_VALUE)
-    private var maxHeightState: MutableState<Int> = mutableStateOf(Int.MAX_VALUE)
+    private var maxWidthState = mutableIntStateOf(Int.MAX_VALUE)
+    private var maxHeightState = mutableIntStateOf(Int.MAX_VALUE)
 
     fun setMaxSize(width: Int, height: Int) {
-        maxWidthState.value = width
-        maxHeightState.value = height
+        maxWidthState.intValue = width
+        maxHeightState.intValue = height
     }
 
     override fun Modifier.fillParentMaxSize(fraction: Float) = then(
-        ParentSizeModifier(
+        ParentSizeElement(
             widthState = maxWidthState,
             heightState = maxHeightState,
             fraction = fraction,
-            inspectorInfo = debugInspectorInfo {
-                name = "fillParentMaxSize"
-                value = fraction
-            }
+            inspectorName = "fillParentMaxSize"
         )
     )
 
     override fun Modifier.fillParentMaxWidth(fraction: Float) = then(
-        ParentSizeModifier(
+        ParentSizeElement(
             widthState = maxWidthState,
             fraction = fraction,
-            inspectorInfo = debugInspectorInfo {
-                name = "fillParentMaxWidth"
-                value = fraction
-            }
+            inspectorName = "fillParentMaxWidth"
         )
     )
 
     override fun Modifier.fillParentMaxHeight(fraction: Float) = then(
-        ParentSizeModifier(
+        ParentSizeElement(
             heightState = maxHeightState,
             fraction = fraction,
-            inspectorInfo = debugInspectorInfo {
-                name = "fillParentMaxHeight"
-                value = fraction
-            }
+            inspectorName = "fillParentMaxHeight"
         )
     )
 
     @ExperimentalFoundationApi
-    override fun Modifier.animateItemPlacement(animationSpec: FiniteAnimationSpec<IntOffset>) =
-        this.then(AnimateItemPlacementModifier(animationSpec, debugInspectorInfo {
-            name = "animateItemPlacement"
-            value = animationSpec
-        }))
+    override fun Modifier.animateItemPlacement(
+        animationSpec: FiniteAnimationSpec<IntOffset>
+    ): Modifier = animateItem(
+        appearanceSpec = null,
+        placementSpec = animationSpec
+    )
 }
 
-private class ParentSizeModifier(
+@ExperimentalFoundationApi
+internal fun Modifier.animateItem(
+    appearanceSpec: FiniteAnimationSpec<Float>? = tween(220),
+    placementSpec: FiniteAnimationSpec<IntOffset>? = spring(
+        stiffness = Spring.StiffnessMediumLow,
+        visibilityThreshold = IntOffset.VisibilityThreshold
+    )
+): Modifier {
+    return if (appearanceSpec == null && placementSpec == null) {
+        this
+    } else {
+        this then AnimateItemElement(
+            appearanceSpec,
+            placementSpec
+        )
+    }
+}
+
+private class ParentSizeElement(
     val fraction: Float,
-    inspectorInfo: InspectorInfo.() -> Unit,
     val widthState: State<Int>? = null,
     val heightState: State<Int>? = null,
-) : LayoutModifier, InspectorValueInfo(inspectorInfo) {
+    val inspectorName: String
+) : ModifierNodeElement<ParentSizeNode>() {
+    override fun create(): ParentSizeNode {
+        return ParentSizeNode(
+            fraction = fraction,
+            widthState = widthState,
+            heightState = heightState
+        )
+    }
+
+    override fun update(node: ParentSizeNode) {
+        node.fraction = fraction
+        node.widthState = widthState
+        node.heightState = heightState
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is ParentSizeElement) return false
+        return fraction == other.fraction &&
+            widthState == other.widthState &&
+            heightState == other.heightState
+    }
+
+    override fun hashCode(): Int {
+        var result = widthState?.hashCode() ?: 0
+        result = 31 * result + (heightState?.hashCode() ?: 0)
+        result = 31 * result + fraction.hashCode()
+        return result
+    }
+
+    override fun InspectorInfo.inspectableProperties() {
+        name = inspectorName
+        value = fraction
+    }
+}
+
+private class ParentSizeNode(
+    var fraction: Float,
+    var widthState: State<Int>? = null,
+    var heightState: State<Int>? = null,
+) : LayoutModifierNode, Modifier.Node() {
 
     override fun MeasureScope.measure(
         measurable: Measurable,
         constraints: Constraints
     ): MeasureResult {
-        val width = if (widthState != null && widthState.value != Constraints.Infinity) {
-            (widthState.value * fraction).roundToInt()
-        } else {
-            Constraints.Infinity
-        }
-        val height = if (heightState != null && heightState.value != Constraints.Infinity) {
-            (heightState.value * fraction).roundToInt()
-        } else {
-            Constraints.Infinity
-        }
+        val width = widthState?.let {
+            if (it.value != Constraints.Infinity) {
+                (it.value * fraction).roundToInt()
+            } else {
+                Constraints.Infinity
+            }
+        } ?: Constraints.Infinity
+
+        val height = heightState?.let {
+            if (it.value != Constraints.Infinity) {
+                (it.value * fraction).roundToInt()
+            } else {
+                Constraints.Infinity
+            }
+        } ?: Constraints.Infinity
         val childConstraints = Constraints(
             minWidth = if (width != Constraints.Infinity) width else constraints.minWidth,
             minHeight = if (height != Constraints.Infinity) height else constraints.minHeight,
@@ -119,36 +175,24 @@ private class ParentSizeModifier(
             placeable.place(0, 0)
         }
     }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is ParentSizeModifier) return false
-        return widthState == other.widthState &&
-            heightState == other.heightState &&
-            fraction == other.fraction
-    }
-
-    override fun hashCode(): Int {
-        var result = widthState?.hashCode() ?: 0
-        result = 31 * result + (heightState?.hashCode() ?: 0)
-        result = 31 * result + fraction.hashCode()
-        return result
-    }
 }
 
-private class AnimateItemPlacementModifier(
-    val animationSpec: FiniteAnimationSpec<IntOffset>,
-    inspectorInfo: InspectorInfo.() -> Unit,
-) : ParentDataModifier, InspectorValueInfo(inspectorInfo) {
-    override fun Density.modifyParentData(parentData: Any?): Any = animationSpec
+private data class AnimateItemElement(
+    val appearanceSpec: FiniteAnimationSpec<Float>?,
+    val placementSpec: FiniteAnimationSpec<IntOffset>?
+) : ModifierNodeElement<LazyLayoutAnimationSpecsNode>() {
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is AnimateItemPlacementModifier) return false
-        return animationSpec != other.animationSpec
+    override fun create(): LazyLayoutAnimationSpecsNode =
+        LazyLayoutAnimationSpecsNode(appearanceSpec, placementSpec)
+
+    override fun update(node: LazyLayoutAnimationSpecsNode) {
+        node.appearanceSpec = appearanceSpec
+        node.placementSpec = placementSpec
     }
 
-    override fun hashCode(): Int {
-        return animationSpec.hashCode()
+    override fun InspectorInfo.inspectableProperties() {
+        // TODO update the name here once we expose a new public api
+        name = "animateItemPlacement"
+        value = placementSpec
     }
 }

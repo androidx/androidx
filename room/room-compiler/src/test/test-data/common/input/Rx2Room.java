@@ -33,7 +33,7 @@ public class RxRoom {
         return null;
     }
 
-    public static <T> Single<T> createSingle(final Callable<T> callable) {
+    public static <T> Single<T> createSingle(final Callable<? extends T> callable) {
         return null;
     }
 }

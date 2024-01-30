@@ -29,5 +29,8 @@ dependencies {
 }
 
 android {
+    defaultConfig {
+        minSdkVersion 21
+    }
     namespace "androidx.graphics.shapes.test"
 }

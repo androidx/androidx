@@ -14,8 +14,10 @@ package androidx.lifecycle {
     ctor public Lifecycle();
     method @MainThread public abstract void addObserver(androidx.lifecycle.LifecycleObserver observer);
     method @MainThread public abstract androidx.lifecycle.Lifecycle.State getCurrentState();
+    method public kotlinx.coroutines.flow.StateFlow<androidx.lifecycle.Lifecycle.State> getCurrentStateFlow();
     method @MainThread public abstract void removeObserver(androidx.lifecycle.LifecycleObserver observer);
     property @MainThread public abstract androidx.lifecycle.Lifecycle.State currentState;
+    property public kotlinx.coroutines.flow.StateFlow<androidx.lifecycle.Lifecycle.State> currentStateFlow;
   }
 
   public enum Lifecycle.Event {
@@ -24,7 +26,7 @@ package androidx.lifecycle {
     method public final androidx.lifecycle.Lifecycle.State getTargetState();
     method public static final androidx.lifecycle.Lifecycle.Event? upFrom(androidx.lifecycle.Lifecycle.State state);
     method public static final androidx.lifecycle.Lifecycle.Event? upTo(androidx.lifecycle.Lifecycle.State state);
-    method public static androidx.lifecycle.Lifecycle.Event valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.lifecycle.Lifecycle.Event valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
     method public static androidx.lifecycle.Lifecycle.Event[] values();
     property public final androidx.lifecycle.Lifecycle.State targetState;
     enum_constant public static final androidx.lifecycle.Lifecycle.Event ON_ANY;
@@ -46,7 +48,7 @@ package androidx.lifecycle {
 
   public enum Lifecycle.State {
     method public final boolean isAtLeast(androidx.lifecycle.Lifecycle.State state);
-    method public static androidx.lifecycle.Lifecycle.State valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.lifecycle.Lifecycle.State valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
     method public static androidx.lifecycle.Lifecycle.State[] values();
     enum_constant public static final androidx.lifecycle.Lifecycle.State CREATED;
     enum_constant public static final androidx.lifecycle.Lifecycle.State DESTROYED;
@@ -67,6 +69,7 @@ package androidx.lifecycle {
 
   public final class LifecycleKt {
     method public static androidx.lifecycle.LifecycleCoroutineScope getCoroutineScope(androidx.lifecycle.Lifecycle);
+    method public static kotlinx.coroutines.flow.Flow<androidx.lifecycle.Lifecycle.Event> getEventFlow(androidx.lifecycle.Lifecycle);
   }
 
   public interface LifecycleObserver {

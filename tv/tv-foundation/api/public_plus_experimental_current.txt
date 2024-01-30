@@ -5,7 +5,7 @@ package androidx.tv.foundation {
   }
 
   @androidx.compose.runtime.Immutable public final class PivotOffsets {
-    ctor public PivotOffsets(optional float parentFraction, optional float childFraction);
+    ctor public PivotOffsets(optional @FloatRange(from=0.0, to=1.0, fromInclusive=true, toInclusive=true) float parentFraction, optional @FloatRange(from=0.0, to=1.0, fromInclusive=true, toInclusive=true) float childFraction);
     method public float getChildFraction();
     method public float getParentFraction();
     property public final float childFraction;

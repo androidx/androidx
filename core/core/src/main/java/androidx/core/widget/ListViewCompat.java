@@ -59,6 +59,7 @@ public final class ListViewCompat {
     /**
      * Check if the items in the list can be scrolled in a certain direction.
      *
+     * @param listView ListView for which to check the state.
      * @param direction Negative to check scrolling up, positive to check
      *            scrolling down.
      * @return true if the list can be scrolled in the specified direction,

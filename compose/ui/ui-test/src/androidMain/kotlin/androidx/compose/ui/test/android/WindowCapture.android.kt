@@ -125,7 +125,7 @@ private fun Window.generateBitmapFromPixelCopy(boundsInWindow: Rect, destBitmap:
         throw AssertionError("Failed waiting for PixelCopy!")
     }
     if (copyResult != PixelCopy.SUCCESS) {
-        throw AssertionError("PixelCopy failed!")
+        throw AssertionError("PixelCopy failed with result $copyResult!")
     }
 }
 

@@ -89,6 +89,10 @@
     <string name="cookie_manager_new_api_text">New cookie API: </string>
     <string name="cookie_manager_get_cookie_info_not_supported">CookieManagerCompat#getCookieInfo not supported.</string>
     <string name="image_drag_drop_activity_title">Image Drag And Drop</string>
+    <string name="multi_profile_activity_title">Multi Profile Demo</string>
+    <string name="default_profile_text">Default Profile - Tap to print cookie.</string>
+    <string name="first_profile_text">Created Profile - Tap to print cookie.</string>
+    <string name="multi_profile_not_supported">Multi-Profile feature is not supported.</string>
 
     <!-- Proxy Override -->
     <string name="proxy_override_activity_title">Proxy Override</string>
@@ -108,5 +112,11 @@
     <string name="requested_with_header_mode">Allow-list</string>
     <string name="requested_with_no_allow_list">Empty</string>
     <string name="requested_with_use_allow_list">Containing the web server</string>
+
+    <!-- User Agent Metadata -->
+    <string name="user_agent_metadata_activity_title">Override User-Agent Metadata</string>
+    <string name="user_agent_metadata_override_mode">User-Agent Metadata</string>
+    <string name="user_agent_metadata_without_override">Without Overrides</string>
+    <string name="user_agent_metadata_with_override">With Overrides</string>
 
 </resources>

@@ -20,10 +20,10 @@ package androidx.paging
 
 import androidx.annotation.CheckResult
 import com.google.common.util.concurrent.AsyncFunction
+import java.util.concurrent.Executor
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.guava.await
 import kotlinx.coroutines.withContext
-import java.util.concurrent.Executor
 
 /**
  * Returns a [PagingData] containing the result of applying the given [transform] to each

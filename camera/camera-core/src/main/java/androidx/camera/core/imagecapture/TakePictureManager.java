@@ -37,6 +37,7 @@ import androidx.camera.core.ForwardingImageProxy.OnImageCloseListener;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.ImageProxy;
+import androidx.camera.core.Logger;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.core.util.Pair;
@@ -120,8 +121,11 @@ public class TakePictureManager implements OnImageCloseListener, TakePictureRequ
     @Override
     public void retryRequest(@NonNull TakePictureRequest request) {
         checkMainThread();
+        Logger.d(TAG, "Add a new request for retrying.");
         // Insert the request to the front of the queue.
         mNewRequests.addFirst(request);
+        // Try to issue the newly added request in case condition allows.
+        issueNextRequest();
     }
 
     /**

@@ -17,6 +17,7 @@
 package androidx.compose.foundation
 
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.runtime.Stable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Rect
@@ -33,6 +34,7 @@ import androidx.compose.ui.unit.dp
  *
  * @param orientation orientation of the scrolling
  */
+@Stable
 fun Modifier.clipScrollableContainer(orientation: Orientation) =
     then(
         if (orientation == Orientation.Vertical) {

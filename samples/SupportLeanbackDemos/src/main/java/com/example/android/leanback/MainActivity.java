@@ -115,6 +115,8 @@ public class MainActivity extends Activity {
                     R.string.guidedstep_description);
             addAction(actions, GuidedStepSupportActivity.class, R.string.guidedstepsupport,
                     R.string.guidedstepsupport_description);
+            addAction(actions, GuidedStepAppCompatActivity.class, R.string.guidedstepappcompat,
+                    R.string.guidedstepappcompat_description);
             addAction(actions, GuidedStepHalfScreenActivity.class, R.string.guidedstephalfscreen,
                     R.string.guidedstep_description);
             addAction(actions, GuidedStepSupportHalfScreenActivity.class,

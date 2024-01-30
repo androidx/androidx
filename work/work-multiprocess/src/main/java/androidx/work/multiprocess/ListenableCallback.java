@@ -31,7 +31,6 @@ import java.util.concurrent.Executor;
  * {@link androidx.work.multiprocess.IWorkManagerImplCallback}s.
  *
  * @param <I> represents the result returned by the {@link ListenableFuture}
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public abstract class ListenableCallback<I> {
@@ -66,7 +65,6 @@ public abstract class ListenableCallback<I> {
 
     /**
      * @param <I> represents the result returned by the {@link ListenableFuture}
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static class ListenableCallbackRunnable<I> implements Runnable {
@@ -102,7 +100,7 @@ public abstract class ListenableCallback<I> {
 
         /**
          * Dispatches failures callbacks safely.
-         **/
+         */
         public static void reportFailure(
                 @NonNull IWorkManagerImplCallback callback,
                 @NonNull Throwable throwable) {

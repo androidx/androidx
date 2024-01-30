@@ -18,6 +18,7 @@ package androidx.compose.ui
 
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.platform.InspectorInfo
+import kotlinx.coroutines.CancellationException
 
 internal expect fun areObjectsOfSameType(a: Any, b: Any): Boolean
 
@@ -33,7 +34,16 @@ internal expect fun areObjectsOfSameType(a: Any, b: Any): Boolean
  */
 // TODO: For non-JVM platforms, you can revive the kotlin-reflect implementation from
 //  https://android-review.googlesource.com/c/platform/frameworks/support/+/2441379
-@OptIn(ExperimentalComposeUiApi::class)
 internal expect fun InspectorInfo.tryPopulateReflectively(
     element: ModifierNodeElement<*>
 )
+
+/**
+ * Represents a platform-optimized cancellation exception.
+ * This allows us to configure exceptions separately on JVM and other platforms.
+ */
+internal expect abstract class PlatformOptimizedCancellationException(
+    message: String? = null
+) : CancellationException
+
+internal expect fun getCurrentThreadId(): Long

@@ -46,9 +46,9 @@ internal class JavacCompilationTestRunner(
             // synthesize a source to trigger compilation
             listOf(
                 Source.java(
-                    qName = "foo.bar.SyntheticSource",
+                    qName = "xprocessing.generated.SyntheticSource",
                     code = """
-                    package foo.bar;
+                    package xprocessing.generated;
                     public class SyntheticSource {}
                     """.trimIndent()
                 )

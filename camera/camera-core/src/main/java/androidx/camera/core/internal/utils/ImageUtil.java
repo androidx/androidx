@@ -65,9 +65,10 @@ public final class ImageUtil {
     /**
      * Creates {@link Bitmap} from {@link ImageProxy}.
      *
-     * <p> Currently only {@link ImageFormat#YUV_420_888} and {@link PixelFormat#RGBA_8888} are
-     * supported. If the format is invalid, an {@link IllegalArgumentException} will be thrown.
-     * If the conversion to bimap failed, an {@link UnsupportedOperationException} will be thrown.
+     * <p> Currently only {@link ImageFormat#YUV_420_888}, {@link ImageFormat#JPEG} and
+     * {@link PixelFormat#RGBA_8888} are supported. If the format is invalid, an
+     * {@link IllegalArgumentException} will be thrown. If the conversion to bimap failed, an
+     * {@link UnsupportedOperationException} will be thrown.
      *
      * @param imageProxy The input {@link ImageProxy} instance.
      * @return {@link Bitmap} instance.
@@ -77,6 +78,8 @@ public final class ImageUtil {
         switch (imageProxy.getFormat()) {
             case ImageFormat.YUV_420_888:
                 return ImageProcessingUtil.convertYUVToBitmap(imageProxy);
+            case ImageFormat.JPEG:
+                return createBitmapFromJpegImage(imageProxy);
             case PixelFormat.RGBA_8888:
                 return createBitmapFromRgbaImage(imageProxy);
             default:
@@ -439,6 +442,16 @@ public final class ImageUtil {
         imageProxy.getPlanes()[0].getBuffer().rewind();
         ImageProcessingUtil.copyByteBufferToBitmap(bitmap, imageProxy.getPlanes()[0].getBuffer(),
                 imageProxy.getPlanes()[0].getRowStride());
+        return bitmap;
+    }
+
+    @NonNull
+    private static Bitmap createBitmapFromJpegImage(@NonNull ImageProxy imageProxy) {
+        byte[] bytes = jpegImageToJpegByteArray(imageProxy);
+        Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length, null);
+        if (bitmap == null) {
+            throw new UnsupportedOperationException("Decode jpeg byte array failed");
+        }
         return bitmap;
     }
 

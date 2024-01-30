@@ -16,6 +16,7 @@
 
 package androidx.room.solver
 
+import androidx.kruth.assertThat
 import androidx.room.RoomKspProcessor
 import androidx.room.compiler.codegen.CodeLanguage
 import androidx.room.compiler.processing.XType
@@ -33,7 +34,6 @@ import androidx.room.solver.types.TypeConverter
 import androidx.room.testing.context
 import androidx.room.vo.BuiltInConverterFlags
 import androidx.room.writer.DaoWriter
-import com.google.common.truth.Truth.assertThat
 import javax.tools.Diagnostic
 import org.junit.Rule
 import org.junit.Test
@@ -800,7 +800,7 @@ class NullabilityAwareTypeConverterStoreTest {
             )
         ) { invocation ->
             val store = invocation.createStore(*selectedConverters)
-            assertThat(store).isInstanceOf(NullAwareTypeConverterStore::class.java)
+            assertThat(store).isInstanceOf<NullAwareTypeConverterStore>()
             val myClassTypeElement = invocation.processingEnv.requireTypeElement(
                 "MyClass"
             )
@@ -860,7 +860,7 @@ class NullabilityAwareTypeConverterStoreTest {
             )
         ) { invocation ->
             val store = invocation.createStore(*selectedConverters)
-            assertThat(store).isInstanceOf(NullAwareTypeConverterStore::class.java)
+            assertThat(store).isInstanceOf<NullAwareTypeConverterStore>()
             val myClassTypeElement = invocation.processingEnv.requireTypeElement(
                 "MyClass"
             )

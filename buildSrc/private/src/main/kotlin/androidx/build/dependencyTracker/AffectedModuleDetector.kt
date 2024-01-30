@@ -556,7 +556,6 @@ class AffectedModuleDetectorImpl constructor(
             // placeholder test project to ensure no failure due to no instrumentation.
             // We can eventually remove if we resolve b/127819369
             ":placeholder-tests",
-            ":buildSrc-tests:project-subsets"
         )
 
         // Some tests are codependent even if their modules are not. Enable manual bundling of tests
@@ -639,6 +638,12 @@ class AffectedModuleDetectorImpl constructor(
                 ":constraintlayout:constraintlayout-compose:integration-tests",
                 ":constraintlayout:constraintlayout-compose:integration-tests:macrobenchmark",
                 ":constraintlayout:constraintlayout-compose:integration-tests:macrobenchmark-target"
+            ),
+            setOf(
+                ":profileinstaller:integration-tests:profile-verification",
+                ":profileinstaller:integration-tests:profile-verification-sample",
+                ":profileinstaller:integration-tests:profile-verification-sample-no-initializer",
+                ":benchmark:integration-tests:baselineprofile-consumer",
             )
         )
 

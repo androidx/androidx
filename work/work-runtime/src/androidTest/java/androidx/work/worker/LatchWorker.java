@@ -27,6 +27,8 @@ import java.util.concurrent.CountDownLatch;
 public class LatchWorker extends Worker {
 
     public CountDownLatch mLatch = new CountDownLatch(1);
+    public CountDownLatch mEntrySignal = new CountDownLatch(1);
+    public Result returnResult = Result.success();
 
     public LatchWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
@@ -36,10 +38,11 @@ public class LatchWorker extends Worker {
     @Override
     public Result doWork() {
         try {
+            mEntrySignal.countDown();
             mLatch.await();
         } catch (InterruptedException e) {
             return Result.failure();
         }
-        return Result.success();
+        return returnResult;
     }
 }

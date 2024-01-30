@@ -26,7 +26,6 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.versionedparcelable.VersionedParcelize;
 
-/** @hide */
 @VersionedParcelize(jetifyAs = "android.support.v4.media.AudioAttributesImplApi26")
 @RestrictTo(LIBRARY)
 @RequiresApi(26)
@@ -34,7 +33,6 @@ public class AudioAttributesImplApi26 extends AudioAttributesImplApi21 {
 
     // WARNING: Adding a new ParcelField may break old library users (b/152830728)
 
-    /** @hide */
     // It should be public to allow Parcelizers which never be de/jetified can access the
     // constructor.
     @RestrictTo(LIBRARY)

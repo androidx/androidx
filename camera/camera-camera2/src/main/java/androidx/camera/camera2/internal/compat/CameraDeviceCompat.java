@@ -38,7 +38,6 @@ public final class CameraDeviceCompat {
     /**
      * Standard camera operation mode.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY)
     public static final int SESSION_OPERATION_MODE_NORMAL =
@@ -46,7 +45,6 @@ public final class CameraDeviceCompat {
     /**
      * Constrained high-speed operation mode.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY)
     public static final int SESSION_OPERATION_MODE_CONSTRAINED_HIGH_SPEED =

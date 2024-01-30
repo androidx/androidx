@@ -51,7 +51,6 @@ import java.util.Objects;
  * lifecycle of an activity. This is done by making sure the unbind happens when the view model
  * clears instead of when the activity calls onDestroy.
  *
- * @hide
  */
 @RestrictTo(LIBRARY)
 public class CarAppViewModel extends AndroidViewModel implements

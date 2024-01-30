@@ -25,9 +25,10 @@ plugins {
 
 dependencies {
     api(project(":fragment:fragment-ktx"))
-    api(libs.testCore)
+    api("androidx.test:core:1.5.0")
     api(libs.kotlinStdlib)
     api(project(":fragment:fragment-testing-manifest"))
+    implementation(projectOrArtifact(":core:core-ktx"))
     androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.espressoCore)
     androidTestImplementation(libs.testExtJunit)
@@ -43,10 +44,11 @@ dependencies {
 }
 
 androidx {
-    name = "Fragment Test Extensions"
+    name = "Fragment Testing Extensions"
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2018"
     description = "Extensions for testing 'fragment' artifact"
+    metalavaK2UastEnabled = true
 }
 
 android {

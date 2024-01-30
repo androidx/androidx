@@ -16,6 +16,7 @@
 
 package androidx.privacysandbox.tools.core.generator
 
+import androidx.privacysandbox.tools.core.generator.SpecNames.bundleClass
 import androidx.privacysandbox.tools.core.generator.SpecNames.contextPropertyName
 import androidx.privacysandbox.tools.core.model.AnnotatedInterface
 import androidx.privacysandbox.tools.core.model.AnnotatedValue
@@ -80,6 +81,9 @@ abstract class BinderCodeConverter(private val api: ParsedApi) {
                     CodeBlock.of(".map { %L }", convertToModelCodeBlock)
             )
         }
+        if (type.qualifiedName == Types.sdkActivityLauncher.qualifiedName) {
+            return convertToActivityLauncherModelCode(expression)
+        }
         if (type == Types.short) {
             return CodeBlock.of("%L.toShort()", expression)
         }
@@ -140,6 +144,9 @@ abstract class BinderCodeConverter(private val api: ParsedApi) {
                 toBinderList(type.typeParameters[0])
             )
         }
+        if (type.qualifiedName == Types.sdkActivityLauncher.qualifiedName) {
+            return convertToActivityLauncherBinderCode(expression)
+        }
         if (type == Types.short) {
             return CodeBlock.of("%L.toInt()", expression)
         }
@@ -165,6 +172,10 @@ abstract class BinderCodeConverter(private val api: ParsedApi) {
         value: AnnotatedValue,
         expression: String
     ): CodeBlock
+
+    protected abstract fun convertToActivityLauncherBinderCode(expression: String): CodeBlock
+
+    protected abstract fun convertToActivityLauncherModelCode(expression: String): CodeBlock
 
     protected abstract fun convertToInterfaceBinderType(
         annotatedInterface: AnnotatedInterface
@@ -215,6 +226,8 @@ abstract class BinderCodeConverter(private val api: ParsedApi) {
         }
         if (type.qualifiedName == List::class.qualifiedName)
             return convertToBinderListType(type.typeParameters[0])
+        if (type.qualifiedName == Types.sdkActivityLauncher.qualifiedName)
+            return bundleClass
         return type.poetTypeName()
     }
 

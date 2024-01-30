@@ -24,7 +24,6 @@ import androidx.health.services.client.proto.DataProto.ExerciseTrackedStatus.EXE
 /**
  * Status representing if an exercise is being tracked and which app owns the exercise.
  *
- * @hide
  */
 @Retention(AnnotationRetention.SOURCE)
 @IntDef(
@@ -32,6 +31,7 @@ import androidx.health.services.client.proto.DataProto.ExerciseTrackedStatus.EXE
     ExerciseTrackedStatus.OWNED_EXERCISE_IN_PROGRESS,
     ExerciseTrackedStatus.NO_EXERCISE_IN_PROGRESS
 )
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public annotation class ExerciseTrackedStatus {
 
     public companion object {
@@ -44,13 +44,11 @@ public annotation class ExerciseTrackedStatus {
         /** There is not currently any exercise in progress owned by any app. */
         public const val NO_EXERCISE_IN_PROGRESS: Int = 3
 
-        /** @hide */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         internal fun @receiver:ExerciseTrackedStatus
         Int.toProto(): DataProto.ExerciseTrackedStatus =
             DataProto.ExerciseTrackedStatus.forNumber(this) ?: EXERCISE_TRACKED_STATUS_UNKNOWN
 
-        /** @hide */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @ExerciseTrackedStatus
         @Suppress("WrongConstant")

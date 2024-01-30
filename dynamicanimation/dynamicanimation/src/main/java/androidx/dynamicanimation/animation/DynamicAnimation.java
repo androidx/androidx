@@ -664,7 +664,6 @@ public abstract class DynamicAnimation<T extends DynamicAnimation<T>>
      * the animation reaches equilibrium, the animation will come to its end, and end listeners
      * will be notified, if any.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
@@ -753,7 +752,7 @@ public abstract class DynamicAnimation<T extends DynamicAnimation<T>>
      * @return the {@link AnimationHandler} for this animator.
      */
     @NonNull
-    @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
+    @VisibleForTesting
     public AnimationHandler getAnimationHandler() {
         return mAnimationHandler != null ? mAnimationHandler : AnimationHandler.getInstance();
     }
@@ -797,7 +796,7 @@ public abstract class DynamicAnimation<T extends DynamicAnimation<T>>
     /****************Sub class animations**************/
     /**
      * Returns the acceleration at the given value with the given velocity.
-     **/
+     */
     abstract float getAcceleration(float value, float velocity);
 
     /**

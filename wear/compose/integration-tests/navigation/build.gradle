@@ -25,9 +25,6 @@ android {
     defaultConfig {
         applicationId "androidx.wear.compose.integration.navigation"
         minSdk 25
-        // Change the APK name to match the *testapp regex we use to pick up APKs for testing as
-        // part of CI.
-        archivesBaseName = "wear-compose-demos-testapp"
     }
 
     buildTypes {
@@ -61,4 +58,6 @@ dependencies {
     // but it doesn't work in androidx.
     // See aosp/1804059
     androidTestImplementation "androidx.lifecycle:lifecycle-common-java8:2.4.0"
+    // Uses project dependency to match collections/compose-runtime
+    androidTestImplementation api("androidx.annotation:annotation:1.7.0")
 }

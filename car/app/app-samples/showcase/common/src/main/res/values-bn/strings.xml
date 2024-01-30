@@ -38,7 +38,7 @@
     <string name="settings_action_title" msgid="8616900063253887861">"সেটিংস"</string>
     <string name="accept_action_title" msgid="4899660585470647578">"সম্মতি দিন"</string>
     <string name="reject_action_title" msgid="6730366705938402668">"বাতিল করুন"</string>
-    <string name="ok_action_title" msgid="7128494973966098611">"ওকে"</string>
+    <string name="ok_action_title" msgid="7128494973966098611">"ঠিক আছে"</string>
     <string name="throw_action_title" msgid="7163710562670220163">"থ্রো"</string>
     <string name="commute_action_title" msgid="2585755255290185096">"যাতায়াত করুন"</string>
     <string name="sign_out_action_title" msgid="1653943000866713010">"সাইন-আউট করুন"</string>
@@ -264,6 +264,7 @@
     <string name="tab_title_list" msgid="5104962518489668123">"তালিকা ট্যাব"</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"ট্যাবের দীর্ঘ শিরোনাম সহ গ্রিড ট্যাব"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"সার্চ ট্যাব"</string>
+    <string name="tab_title_loading" msgid="5385807479734490989">"\'ট্যাব\' লোড করা হচ্ছে"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"টেম্পলেট লোড করার সম্পর্কিত ডেমো ট্যাব"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"ট্যাব ছাড়াই ট্যাব টেমপ্লেটের ডেমো"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"অজানা হোস্টের জন্য ছবি দেখানো যায় না"</string>
@@ -298,7 +299,7 @@
     <string name="some_additional_text" msgid="4009872495806318260">"অতিরিক্ত টেক্সট"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"বেছে নেওয়া যায় এমন তালিকার নমুনা"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"টাস্কের উপর আরোপ করা বিধিনিষেধ সম্পর্কিত ডেমো"</string>
-    <string name="task_limit_reached_msg" msgid="6038763366777119364">"টাস্কের সীমা পেরিয়ে গেছে\nআরও এগোলে, অ্যাপকে জোর করে বন্ধ করা হবে"</string>
+    <string name="task_limit_reached_msg" msgid="7162842196382260992">"এর ফলে টাস্কের সর্বাধিক সীমা ছাড়িয়ে যাবে এবং আপনাকে নতুন স্ক্রিনে নিয়ে যাবে।"</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"টাস্কের %2$d ধাপের %1$d নম্বর ধাপ"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"এগিয়ে যাওয়ার জন্য ক্লিক করুন"</string>
     <string name="task_content_allowed" msgid="545061986612431190">"বিভিন্ন টেমপ্লেট দেখুন ও নিশ্চিত করুন যে গাড়িটি \'ড্রাইভিং\' মোডে আছে"</string>
@@ -323,6 +324,12 @@
     <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"সারিও বেছে নেওয়া যেতে পারে"</string>
     <string name="secondary_action_toast" msgid="5076434693504006565">"সেকেন্ডারি অ্যাকশন বেছে নেওয়া হয়েছে"</string>
     <string name="row_primary_action_toast" msgid="756516694751965204">"সারির প্রাইমারি অ্যাকশন বেছে নেওয়া হয়েছে"</string>
+    <string name="sectioned_item_list_demo_title" msgid="1236735461225007729">"বিভাগ অনুযায়ী করা আইটেম তালিকার ডেমো"</string>
+    <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"তালিকা ১"</string>
+    <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"তালিকা ২"</string>
+    <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"প্রতিটি তালিকায় থাকা সাবটেক্সট"</string>
+    <string name="empty_list_demo_title" msgid="5989013634820902455">"ডেমোর খালি তালিকা"</string>
+    <string name="empty_list_message" msgid="5331395517560728138">"তালিকায় কিছু নেই"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"অন্যান্য টেমপ্লেটের ডেমো"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"ডেমো শোকেস করুন"</string>
     <string name="template_layouts_demo_title" msgid="788249269446087847">"টেমপ্লেট লেআউট সংক্রান্ত ডেমো"</string>

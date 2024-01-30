@@ -37,7 +37,6 @@ import java.lang.ref.WeakReference;
  * events. If we reach the top or bottom of the view or if there are no events within {@link
  * #MAX_WAIT_TIME_MS}, we assume the fling has finished.
  *
- * @hide
  */
 @RestrictTo(Scope.LIBRARY)
 class ScrollViewFlingWatcher implements FlingWatcher, OnScrollChangeListener {

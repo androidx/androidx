@@ -24,6 +24,7 @@ import static androidx.car.app.navigation.model.LaneDirection.SHAPE_STRAIGHT;
 import android.text.SpannableString;
 import android.text.Spanned;
 
+import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.car.app.AppManager;
 import androidx.car.app.CarContext;
@@ -189,10 +190,14 @@ public abstract class RoutingDemoModels {
             @NonNull CarContext carContext, @NonNull OnClickListener onStopNavigation) {
         ActionStrip.Builder builder = new ActionStrip.Builder();
         if (carContext.getCarAppApiLevel() >= CarAppApiLevels.LEVEL_5) {
+            @ColorInt int actionButtonRed = 0xffb40404;
             builder.addAction(
                     new Action.Builder()
+                            .setFlags(FLAG_PRIMARY)
+                            .setBackgroundColor(
+                                    CarColor.createCustom(actionButtonRed, actionButtonRed))
                             .setOnClickListener(
-                                    () ->  carContext.getCarService(AppManager.class)
+                                    () -> carContext.getCarService(AppManager.class)
                                             .showAlert(createAlert(carContext)))
                             .setIcon(new CarIcon.Builder(
                                     IconCompat.createWithResource(

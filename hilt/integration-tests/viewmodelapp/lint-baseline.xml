@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.3.0-alpha02" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha02)" variant="all" version="8.3.0-alpha02">
+
+    <issue
+        id="MissingClass"
+        message="Class referenced in the manifest, `androidx.hilt.integration.viewmodelapp.ActivityInjectionTest$TestActivity`, was not found in the project or the libraries"
+        errorLine1="        &lt;activity android:name=&quot;.ActivityInjectionTest$TestActivity&quot;/>"
+        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/debug/AndroidManifest.xml"/>
+    </issue>
+
+    <issue
+        id="MissingClass"
+        message="Class referenced in the manifest, `androidx.hilt.integration.viewmodelapp.BaseActivityInjectionTest$TestActivity`, was not found in the project or the libraries"
+        errorLine1="        &lt;activity android:name=&quot;.BaseActivityInjectionTest$TestActivity&quot;/>"
+        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/debug/AndroidManifest.xml"/>
+    </issue>
+
+    <issue
+        id="MissingClass"
+        message="Class referenced in the manifest, `androidx.hilt.integration.viewmodelapp.FragmentInjectionTest$TestActivity`, was not found in the project or the libraries"
+        errorLine1="        &lt;activity android:name=&quot;.FragmentInjectionTest$TestActivity&quot;/>"
+        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/debug/AndroidManifest.xml"/>
+    </issue>
+
+    <issue
+        id="MissingClass"
+        message="Class referenced in the manifest, `androidx.hilt.integration.viewmodelapp.BaseFragmentInjectionTest$TestActivity`, was not found in the project or the libraries"
+        errorLine1="        &lt;activity android:name=&quot;.BaseFragmentInjectionTest$TestActivity&quot;/>"
+        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/debug/AndroidManifest.xml"/>
+    </issue>
+
+</issues>

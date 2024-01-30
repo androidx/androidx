@@ -1,0 +1,5 @@
+HSPLandroidx/wear/compose/navigation/NavGraphBuilderKt**->**(**)**
+HSPLandroidx/wear/compose/navigation/SwipeDismissableNavHostControllerKt**->**(**)**
+HSPLandroidx/wear/compose/navigation/SwipeDismissableNavHostKt**->**(**)**
+HSPLandroidx/wear/compose/navigation/SwipeDismissableNavHostState;->**(**)**
+HSPLandroidx/wear/compose/navigation/WearNavigator;->**(**)**

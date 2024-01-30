@@ -15,20 +15,24 @@
  */
 package androidx.build
 
+import androidx.build.uptodatedness.cacheEvenIfNoOutputs
 import com.android.build.gradle.LibraryExtension
+import java.io.File
+import java.io.FileNotFoundException
+import java.util.Locale
 import org.gradle.api.Action
+import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.Project
-import org.gradle.api.Task
 import org.gradle.api.file.DuplicatesStrategy
+import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
+import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.api.tasks.bundling.Zip
 import org.gradle.plugin.devel.GradlePluginDevelopmentExtension
 import org.gradle.work.DisableCachingByDefault
-import java.io.File
-import java.util.Locale
 
 /**
  * Simple description for an artifact that is released from this project.
@@ -54,21 +58,6 @@ open class GMavenZipTask : Zip() {
     init {
         // multiple artifacts in the same group might have the same maven-metadata.xml
         duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-        if (!project.shouldAddGroupConstraints()) {
-            doFirst {
-                throw GradleException(
-                    """
-                    Cannot publish artifacts without setting -P$ADD_GROUP_CONSTRAINTS=true
-
-                    This property is required when building artifacts to publish
-
-                    (but this property can reduce remote cache usage so it is disabled by default)
-
-                    See AndroidXGradleProperties.kt for more information about this property
-                    """.trimIndent()
-                )
-            }
-        }
     }
 
     /**
@@ -95,7 +84,8 @@ open class GMavenZipTask : Zip() {
         )
         // We specifically pass the subdirectory into 'from' so that changes in other artifacts
         // won't cause this task to become out of date
-        from("$androidxRepoOut/$projectSubdir") { spec ->
+        val fromDir = project.file("$androidxRepoOut/$projectSubdir")
+        from(fromDir) { spec ->
             spec.into("m2repository/$projectSubdir")
             for (inclusion in includes) {
                 include(inclusion)
@@ -204,8 +194,9 @@ object Release {
         }
         val version = project.version
 
+        val projectZipTask = getProjectZipTask(project)
         val zipTasks = listOf(
-            getProjectZipTask(project),
+            projectZipTask,
             getGroupReleaseZipTask(project, mavenGroup),
             getGlobalFullZipTask(project)
         )
@@ -233,6 +224,27 @@ object Release {
 
                 zipTask.dependsOn(publishTask)
             }
+        }
+
+        val verifyInputs = getVerifyProjectZipInputsTask(project)
+        verifyInputs.configure { verifyTask ->
+            verifyTask.dependsOn(publishTask)
+            artifacts.forEach { artifact ->
+                verifyTask.addCandidate(artifact)
+            }
+        }
+        val verifyOutputs = getVerifyProjectZipOutputsTask(project)
+        verifyOutputs.configure { verifyTask ->
+            verifyTask.dependsOn(projectZipTask)
+            artifacts.forEach { artifact ->
+                verifyTask.addCandidate(artifact)
+            }
+        }
+        projectZipTask.configure { zipTask ->
+            zipTask.dependsOn(verifyInputs)
+            zipTask.finalizedBy(verifyOutputs)
+            val verifyOutputsTask = verifyOutputs.get()
+            verifyOutputsTask.addFile(zipTask.archiveFile.get().getAsFile())
         }
     }
 
@@ -271,11 +283,13 @@ object Release {
      * Registers an archive task as a dependency of the anchor task
      */
     private fun Project.addToAnchorTask(task: TaskProvider<GMavenZipTask>) {
-        val archiveAnchorTask = project.rootProject.maybeRegister(
+        val archiveAnchorTask: TaskProvider<VerifyVersionFilesTask> =
+        project.rootProject.maybeRegister(
             name = ALL_ARCHIVES_TASK_NAME,
-            onConfigure = { archiveTask: Task ->
+            onConfigure = { archiveTask: VerifyVersionFilesTask ->
                 archiveTask.group = "Distribution"
                 archiveTask.description = "Builds all archives for publishing"
+                archiveTask.repositoryDirectory = project.rootProject.getRepositoryDirectory()
             },
             onRegister = {
             }
@@ -353,6 +367,107 @@ object Release {
         project.addToAnchorTask(taskProvider)
         return taskProvider
     }
+
+    private fun getVerifyProjectZipInputsTask(
+        project: Project
+    ): TaskProvider<VerifyGMavenZipTask> {
+        val taskProvider = project.tasks.register(
+            "verifyInputs" + PROJECT_ARCHIVE_ZIP_TASK_NAME,
+            VerifyGMavenZipTask::class.java
+        )
+        return taskProvider
+    }
+
+    private fun getVerifyProjectZipOutputsTask(
+        project: Project
+    ): TaskProvider<VerifyGMavenZipTask> {
+        val taskProvider = project.tasks.register(
+            "verifyOutputs" + PROJECT_ARCHIVE_ZIP_TASK_NAME,
+            VerifyGMavenZipTask::class.java
+        )
+        return taskProvider
+    }
+}
+
+// b/273294710
+@DisableCachingByDefault(
+    because = "This task only checks the existence of files and isn't worth caching"
+)
+open class VerifyGMavenZipTask : DefaultTask() {
+    @Input
+    val filesToVerify = mutableListOf<File>()
+
+    /**
+     * Whether this build adds automatic constraints between projects in the same group
+     */
+    @get:Input
+    val shouldAddGroupConstraints: Provider<Boolean>
+
+    init {
+        cacheEvenIfNoOutputs()
+        shouldAddGroupConstraints = project.shouldAddGroupConstraints()
+    }
+
+    fun addFile(file: File) {
+        filesToVerify.add(file)
+    }
+
+    fun addCandidate(artifact: Artifact) {
+        val groupSubdir = artifact.mavenGroup.replace('.', '/')
+        val projectSubdir = File("$groupSubdir/${artifact.projectName}")
+        val androidxRepoOut = project.getRepositoryDirectory()
+        val fromDir = project.file("$androidxRepoOut/$projectSubdir")
+        addFile(File(fromDir, "${artifact.version}"))
+    }
+
+    @TaskAction
+    fun execute() {
+        verifySettings()
+        verifyFiles()
+    }
+
+    fun verifySettings() {
+        if (!shouldAddGroupConstraints.get() && !isSnapshotBuild()) {
+            throw GradleException(
+                """
+                Cannot publish artifacts without setting -P$ADD_GROUP_CONSTRAINTS=true
+
+                This property is required when building artifacts to publish
+
+                (but this property can reduce remote cache usage so it is disabled by default)
+
+                See AndroidXGradleProperties.kt for more information about this property
+                """.trimIndent()
+            )
+        }
+    }
+
+    fun verifyFiles() {
+        val missingFiles = mutableListOf<String>()
+        val emptyDirs = mutableListOf<String>()
+        filesToVerify.forEach { file ->
+            if (!file.exists()) {
+                missingFiles.add(file.path)
+            } else {
+                if (file.isDirectory) {
+                    if (file.listFiles().isEmpty()) {
+                        emptyDirs.add(file.path)
+                    }
+                }
+            }
+        }
+
+        if (missingFiles.isNotEmpty() || emptyDirs.isNotEmpty()) {
+            val checkedFilesString = filesToVerify.toString()
+            val missingFileString = missingFiles.toString()
+            val emptyDirsString = emptyDirs.toString()
+            throw FileNotFoundException(
+                "GMavenZip ${missingFiles.size} missing files: $missingFileString, " +
+                    "${emptyDirs.size} empty dirs: $emptyDirsString. " +
+                    "Checked files: $checkedFilesString"
+            )
+        }
+    }
 }
 
 /**
@@ -395,9 +510,10 @@ val AndroidXExtension.publishedArtifacts: List<Artifact>
 
 private val AndroidXExtension.publishPlatforms: List<String>
     get() {
-        val declaredTargets = project.multiplatformExtension?.targets?.asMap?.keys?.map {
+        val potentialTargets = project.multiplatformExtension?.targets?.asMap?.keys?.map {
             it.lowercase()
         } ?: emptySet()
+        val declaredTargets = potentialTargets.filter { it != "metadata" }
         return declaredTargets.toList()
     }
 

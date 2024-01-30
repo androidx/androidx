@@ -16,105 +16,67 @@
 
 package androidx.appactions.interaction.capabilities.safety
 
-import androidx.appactions.interaction.capabilities.core.CapabilityBuilderBase
-import androidx.appactions.interaction.capabilities.core.ActionCapability
-import androidx.appactions.interaction.capabilities.core.BaseSession
-import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
+import androidx.appactions.builtintypes.experimental.types.ActionNotInProgress
+import androidx.appactions.builtintypes.experimental.types.GenericErrorStatus
+import androidx.appactions.builtintypes.experimental.types.NoInternetConnection
+import androidx.appactions.builtintypes.experimental.types.SuccessStatus
+import androidx.appactions.interaction.capabilities.core.BaseExecutionSession
+import androidx.appactions.interaction.capabilities.core.Capability
+import androidx.appactions.interaction.capabilities.core.CapabilityFactory
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
-import androidx.appactions.interaction.capabilities.core.task.impl.AbstractTaskUpdater
-import androidx.appactions.interaction.capabilities.core.values.GenericErrorStatus
-import androidx.appactions.interaction.capabilities.core.values.SuccessStatus
-import androidx.appactions.interaction.capabilities.core.values.executionstatus.ActionNotInProgress
-import androidx.appactions.interaction.capabilities.core.values.executionstatus.NoInternetConnection
+import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecRegistry
 import androidx.appactions.interaction.capabilities.safety.executionstatus.SafetyAccountNotLoggedIn
 import androidx.appactions.interaction.capabilities.safety.executionstatus.SafetyFeatureNotOnboarded
 import androidx.appactions.interaction.proto.ParamValue
-import com.google.protobuf.Struct
-import com.google.protobuf.Value
-import java.util.Optional
+import androidx.appactions.interaction.protobuf.Struct
+import androidx.appactions.interaction.protobuf.Value
 
-/** StopSafetyCheck.kt in interaction-capabilities-safety */
-private const val CAPABILITY_NAME = "actions.intent.STOP_SAFETY_CHECK"
-
-private val ACTION_SPEC =
-    ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
-        .setDescriptor(StopSafetyCheck.Property::class.java)
-        .setArgument(StopSafetyCheck.Argument::class.java, StopSafetyCheck.Argument::Builder)
-        .setOutput(StopSafetyCheck.Output::class.java)
-        .bindOptionalOutput(
-            "executionStatus",
-            StopSafetyCheck.Output::executionStatus.getter,
-            StopSafetyCheck.ExecutionStatus::toParamValue,
-        )
-        .build()
-
-// TODO(b/267806701): Add capability factory annotation once the testing library is fully migrated.
+/** A capability corresponding to actions.intent.STOP_SAFETY_CHECK */
+@CapabilityFactory(name = StopSafetyCheck.CAPABILITY_NAME)
 class StopSafetyCheck private constructor() {
-    // TODO(b/267805819): Update to include the SessionBuilder once Session API is ready.
     class CapabilityBuilder :
-        CapabilityBuilderBase<
-            CapabilityBuilder, Property, Argument, Output, Confirmation, TaskUpdater, Session,
-            >(ACTION_SPEC) {
-        override fun build(): ActionCapability {
-            super.setProperty(Property())
-            return super.build()
+        Capability.Builder<
+            CapabilityBuilder, Arguments, Output, Confirmation, ExecutionSession
+            >(ACTION_SPEC)
+
+    class Arguments internal constructor() {
+        class Builder {
+            fun build(): Arguments = Arguments()
         }
     }
 
-    // TODO(b/268369632): Remove Property from public capability APIs.
-    class Property internal constructor()
-
-    class Argument internal constructor() {
-        class Builder : BuilderOf<Argument> {
-            override fun build(): Argument = Argument()
+    class Output internal constructor(val executionStatus: ExecutionStatus?) {
+        override fun toString(): String {
+            return "Output(executionStatus=$executionStatus)"
         }
-    }
 
-    // TODO(b/267533126): Remove the use of optional once ActionSpecBuilder supports nullability.
-    class Output internal constructor(val executionStatus: Optional<ExecutionStatus>) {
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (javaClass != other?.javaClass) return false
+
+            other as Output
+
+            if (executionStatus != other.executionStatus) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            return executionStatus.hashCode()
+        }
+
         class Builder {
             private var executionStatus: ExecutionStatus? = null
 
             fun setExecutionStatus(executionStatus: ExecutionStatus): Builder =
                 apply { this.executionStatus = executionStatus }
 
-            fun setExecutionStatus(successStatus: SuccessStatus): Builder = apply {
-                this.executionStatus = ExecutionStatus(successStatus)
-            }
-
-            fun setExecutionStatus(genericErrorStatus: GenericErrorStatus): Builder = apply {
-                this.executionStatus = ExecutionStatus(genericErrorStatus)
-            }
-
-            fun setExecutionStatus(actionNotInProgress: ActionNotInProgress): Builder = apply {
-                this.executionStatus = ExecutionStatus(actionNotInProgress)
-            }
-
-            fun setExecutionStatus(safetyAccountNotLoggedIn: SafetyAccountNotLoggedIn): Builder =
-                apply {
-                    this.executionStatus =
-                        ExecutionStatus(safetyAccountNotLoggedIn)
-                }
-
-            fun setExecutionStatus(safetyFeatureNotOnboarded: SafetyFeatureNotOnboarded): Builder =
-                apply {
-                    this.executionStatus =
-                        ExecutionStatus(safetyFeatureNotOnboarded)
-                }
-
-            fun setExecutionStatus(noInternetConnection: NoInternetConnection): Builder =
-                apply {
-                    this.executionStatus =
-                        ExecutionStatus(noInternetConnection)
-                }
-
-            fun build(): Output = Output(Optional.ofNullable(executionStatus))
+            fun build(): Output = Output(executionStatus)
         }
     }
 
     class ExecutionStatus {
-
         private var successStatus: SuccessStatus? = null
         private var genericErrorStatus: GenericErrorStatus? = null
         private var actionNotInProgress: ActionNotInProgress? = null
@@ -179,7 +141,23 @@ class StopSafetyCheck private constructor() {
 
     class Confirmation internal constructor()
 
-    class TaskUpdater internal constructor() : AbstractTaskUpdater()
+    sealed interface ExecutionSession : BaseExecutionSession<Arguments, Output>
 
-    sealed interface Session : BaseSession<Argument, Output>
+    companion object {
+        /** Canonical name for [StopSafetyCheck] capability */
+        const val CAPABILITY_NAME = "actions.intent.STOP_SAFETY_CHECK"
+        private val ACTION_SPEC =
+            ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
+                .setArguments(Arguments::class.java, Arguments::Builder, Arguments.Builder::build)
+                .setOutput(Output::class.java)
+                .bindOutput(
+                    "executionStatus",
+                    Output::executionStatus,
+                    ExecutionStatus::toParamValue
+                )
+                .build()
+        init {
+            ActionSpecRegistry.registerActionSpec(Arguments::class, Output::class, ACTION_SPEC)
+        }
+    }
 }

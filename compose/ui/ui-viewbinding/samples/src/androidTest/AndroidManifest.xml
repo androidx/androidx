@@ -19,5 +19,6 @@
         <activity android:name="androidx.compose.ui.samples.InflatedFragmentActivity"/>
         <activity android:name="androidx.compose.ui.samples.ChildInflatedFragmentActivity"/>
         <activity android:name="androidx.compose.ui.samples.EmptyFragmentActivity"/>
+        <activity android:name="androidx.compose.ui.samples.ComposeInflatedFragmentActivity"/>
     </application>
 </manifest>

@@ -33,10 +33,10 @@ import java.util.Collection;
 
 
 /**
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @RequiresApi(19)
+@Deprecated
 class SliceViewManagerCompat extends SliceViewManagerBase {
 
     SliceViewManagerCompat(Context context) {

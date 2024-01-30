@@ -76,19 +76,22 @@ import java.util.concurrent.Executors;
 /**
  * A media player which plays {@link MediaItem}s. The details on playback control and player states
  * can be found in the documentation of the base class, {@link SessionPlayer}.
- * <p>
- * Topic covered here:
+ *
+ * <p>Topic covered here:
+ *
  * <ol>
- * <li><a href="#AudioFocusAndNoisyIntent">Audio focus and noisy intent</a>
+ *   <li><a href="#AudioFocusAndNoisyIntent">Audio focus and noisy intent</a>
  * </ol>
+ *
  * <h3 id="AudioFocusAndNoisyIntent">Audio focus and noisy intent</h3>
- * <p>
- * By default, {@link MediaPlayer} handles audio focus and noisy intent with
- * {@link AudioAttributesCompat} set to this player. You need to call
- * {@link #setAudioAttributes(AudioAttributesCompat)} set the audio attribute while in the
- * {@link #PLAYER_STATE_IDLE}.
- * <p>
- * Here's the table of automatic audio focus behavior with audio attributes.
+ *
+ * <p>By default, {@link MediaPlayer} handles audio focus and noisy intent with {@link
+ * AudioAttributesCompat} set to this player. You need to call {@link
+ * #setAudioAttributes(AudioAttributesCompat)} set the audio attribute while in the {@link
+ * #PLAYER_STATE_IDLE}.
+ *
+ * <p>Here's the table of automatic audio focus behavior with audio attributes.
+ *
  * <table summary="Audio focus handling overview">
  * <tr><th>Audio Attributes</th><th>Audio Focus Gain Type</th><th>Misc</th></tr>
  * <tr><td>{@link AudioAttributesCompat#USAGE_VOICE_COMMUNICATION_SIGNALLING}</td>
@@ -129,15 +132,20 @@ import java.util.concurrent.Executors;
  *     <td>No audio focus handling, and sets the player volume to {@code 0}</td>
  *     <td>This is to handle error</td></tr>
  * </table>
+ *
+ * <p>If an {@link AudioAttributesCompat} is not specified by {@link #setAudioAttributes}, {@link
+ * #getAudioAttributes} will return {@code null} and the default audio focus behavior will follow
+ * the {@code null} case on the table above.
+ *
+ * <p>For more information about the audio focus, take a look at <a
+ * href="{@docRoot}guide/topics/media-apps/audio-focus.html">Managing audio focus</a>
+ *
  * <p>
- * If an {@link AudioAttributesCompat} is not specified by {@link #setAudioAttributes},
- * {@link #getAudioAttributes} will return {@code null} and the default audio focus behavior will
- * follow the {@code null} case on the table above.
- * <p>
- * For more information about the audio focus, take a look at
- * <a href="{@docRoot}guide/topics/media-apps/audio-focus.html">Managing audio focus</a>
- * <p>
+ *
+ * @deprecated androidx.media2 is deprecated. Please migrate to <a
+ *     href="https://developer.android.com/guide/topics/media/media3">androidx.media3</a>.
  */
+@Deprecated
 public final class MediaPlayer extends SessionPlayer {
     private static final String TAG = "MediaPlayer";
 
@@ -169,7 +177,6 @@ public final class MediaPlayer extends SessionPlayer {
     public static final int PLAYER_ERROR_TIMED_OUT = -110;
 
     /**
-     * @hide
      */
     @IntDef(flag = false, /*prefix = "PLAYER_ERROR",*/ value = {
             PLAYER_ERROR_UNKNOWN,
@@ -185,7 +192,6 @@ public final class MediaPlayer extends SessionPlayer {
     /**
      * The player just started the playback of this media item.
      * @see PlayerCallback#onInfo
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public static final int MEDIA_INFO_MEDIA_ITEM_START = 2;
@@ -199,7 +205,6 @@ public final class MediaPlayer extends SessionPlayer {
     /**
      * The player just completed the playback of this media item.
      * @see PlayerCallback#onInfo
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public static final int MEDIA_INFO_MEDIA_ITEM_END = 5;
@@ -208,7 +213,6 @@ public final class MediaPlayer extends SessionPlayer {
      * The player just completed the playback of all the media items set by {@link #setPlaylist}
      * and {@link #setMediaItem}.
      * @see PlayerCallback#onInfo
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public static final int MEDIA_INFO_MEDIA_ITEM_LIST_END = 6;
@@ -217,7 +221,6 @@ public final class MediaPlayer extends SessionPlayer {
      * The player just completed an iteration of playback loop. This event is sent only when
      * looping is enabled by {@link #setRepeatMode(int)}.
      * @see PlayerCallback#onInfo
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public static final int MEDIA_INFO_MEDIA_ITEM_REPEAT = 7;
@@ -226,7 +229,6 @@ public final class MediaPlayer extends SessionPlayer {
      * The player just finished preparing a media item for playback.
      * @see #prepare()
      * @see PlayerCallback#onInfo
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public static final int MEDIA_INFO_PREPARED = 100;
@@ -242,7 +244,6 @@ public final class MediaPlayer extends SessionPlayer {
      * The player is temporarily pausing playback internally in order to
      * buffer more data.
      * @see PlayerCallback#onInfo
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public static final int MEDIA_INFO_BUFFERING_START = 701;
@@ -250,7 +251,6 @@ public final class MediaPlayer extends SessionPlayer {
     /**
      * The player is resuming playback after filling buffers.
      * @see PlayerCallback#onInfo
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public static final int MEDIA_INFO_BUFFERING_END = 702;
@@ -260,7 +260,6 @@ public final class MediaPlayer extends SessionPlayer {
      * simultaneously as {@link #MEDIA_INFO_BUFFERING_START} and {@link #MEDIA_INFO_BUFFERING_END}
      * when playing network files.
      * @see PlayerCallback#onInfo
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public static final int MEDIA_INFO_NETWORK_BANDWIDTH = 703;
@@ -301,7 +300,6 @@ public final class MediaPlayer extends SessionPlayer {
     /**
      * A new set of external-only metadata is available.  Used by
      * JAVA framework to avoid triggering track scanning.
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public static final int MEDIA_INFO_EXTERNAL_METADATA_UPDATE = 803;
@@ -323,7 +321,6 @@ public final class MediaPlayer extends SessionPlayer {
     /**
      * Subtitle track was not supported by the media framework.
      * @see PlayerCallback#onInfo
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public static final int MEDIA_INFO_UNSUPPORTED_SUBTITLE = 901;
@@ -331,13 +328,11 @@ public final class MediaPlayer extends SessionPlayer {
     /**
      * Reading the subtitle track takes too long.
      * @see PlayerCallback#onInfo
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public static final int MEDIA_INFO_SUBTITLE_TIMED_OUT = 902;
 
     /**
-     * @hide
      */
     @IntDef(flag = false, /*prefix = "MEDIA_INFO",*/ value = {
             MEDIA_INFO_MEDIA_ITEM_START,
@@ -397,7 +392,6 @@ public final class MediaPlayer extends SessionPlayer {
      */
     public static final int SEEK_CLOSEST          = 0x03;
 
-    /** @hide */
     @IntDef(flag = false, /*prefix = "SEEK",*/ value = {
             SEEK_PREVIOUS_SYNC,
             SEEK_NEXT_SYNC,
@@ -2160,7 +2154,6 @@ public final class MediaPlayer extends SessionPlayer {
      * The attributes are described in {@link MetricsConstants}.
      *
      * Additional vendor-specific fields may also be present in the return value.
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @RequiresApi(21)
@@ -2658,7 +2651,6 @@ public final class MediaPlayer extends SessionPlayer {
      * Retrieves the DRM Info associated with the current media item.
      *
      * @throws IllegalStateException if called before being prepared
-     * @hide
      */
     @Nullable
     @RestrictTo(LIBRARY)
@@ -2689,7 +2681,6 @@ public final class MediaPlayer extends SessionPlayer {
      * {@link PlayerCallback#onDrmInfo}.
      * @return a {@link ListenableFuture} which represents the pending completion of the command.
      * {@link DrmResult} will be delivered when the command completed.
-     * @hide
      */
     @RestrictTo(LIBRARY)
     // This is an asynchronous call.
@@ -2724,7 +2715,6 @@ public final class MediaPlayer extends SessionPlayer {
      * A {@code reset()} call will release the DRM session implicitly.
      *
      * @throws NoDrmSchemeException if there is no active DRM session to release
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public void releaseDrm() throws NoDrmSchemeException {
@@ -2771,7 +2761,6 @@ public final class MediaPlayer extends SessionPlayer {
      * This may be {@code null} if no additional parameters are to be sent.
      *
      * @throws NoDrmSchemeException if there is no active DRM session
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @NonNull
@@ -2807,7 +2796,6 @@ public final class MediaPlayer extends SessionPlayer {
      * @throws NoDrmSchemeException if there is no active DRM session
      * @throws DeniedByServerException if the response indicates that the
      * server rejected the request
-     * @hide
      */
     @Nullable
     @RestrictTo(LIBRARY)
@@ -2826,7 +2814,6 @@ public final class MediaPlayer extends SessionPlayer {
      * keys to load, obtained from a prior call to {@link #provideDrmKeyResponse}.
      *
      * @param keySetId identifies the saved key set to restore
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public void restoreDrmKeys(@NonNull byte[] keySetId) throws NoDrmSchemeException {
@@ -2848,7 +2835,6 @@ public final class MediaPlayer extends SessionPlayer {
      * Standard fields names are:
      * {@link MediaDrm#PROPERTY_VENDOR}, {@link MediaDrm#PROPERTY_VERSION},
      * {@link MediaDrm#PROPERTY_DESCRIPTION}, {@link MediaDrm#PROPERTY_ALGORITHMS}
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @NonNull
@@ -2872,7 +2858,6 @@ public final class MediaPlayer extends SessionPlayer {
      * Standard fields names are:
      * {@link MediaDrm#PROPERTY_VENDOR}, {@link MediaDrm#PROPERTY_VERSION},
      * {@link MediaDrm#PROPERTY_DESCRIPTION}, {@link MediaDrm#PROPERTY_ALGORITHMS}
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public void setDrmPropertyString(@NonNull String propertyName, @NonNull String value)
@@ -2898,7 +2883,6 @@ public final class MediaPlayer extends SessionPlayer {
      * of {@link #prepareDrm(UUID uuid)}.
      *
      * @param listener the callback that will be run
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public void setOnDrmConfigHelper(@Nullable final OnDrmConfigHelper listener) {
@@ -3503,7 +3487,11 @@ public final class MediaPlayer extends SessionPlayer {
     /**
      * Interface definition for callbacks to be invoked when the player has the corresponding
      * events.
+     *
+     * @deprecated androidx.media2 is deprecated. Please migrate to <a
+     *     href="https://developer.android.com/guide/topics/media/media3">androidx.media3</a>.
      */
+    @Deprecated
     public abstract static class PlayerCallback extends SessionPlayer.PlayerCallback {
         /**
          * @deprecated Use
@@ -3604,7 +3592,6 @@ public final class MediaPlayer extends SessionPlayer {
          * @param item the MediaItem of this media item
          * @param drmInfo DRM info of the source including PSSH, and subset
          *                of crypto schemes supported by this device
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public void onDrmInfo(@NonNull MediaPlayer mp,
@@ -3615,7 +3602,10 @@ public final class MediaPlayer extends SessionPlayer {
      * Class for the player to return each audio/video/subtitle track's metadata.
      *
      * @see #getTracks
+     * @deprecated androidx.media2 is deprecated. Please migrate to <a
+     *     href="https://developer.android.com/guide/topics/media/media3">androidx.media3</a>.
      */
+    @Deprecated
     public static final class TrackInfo extends SessionPlayer.TrackInfo {
         TrackInfo(SessionPlayer.TrackInfo infoInternal) {
             super(infoInternal.getId(), infoInternal.getTrackType(), infoInternal.getFormat(),
@@ -3634,7 +3624,6 @@ public final class MediaPlayer extends SessionPlayer {
 
     /**
      * Encapsulates the DRM properties of the source.
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public static final class DrmInfo {
@@ -3672,7 +3661,6 @@ public final class MediaPlayer extends SessionPlayer {
      * <p>
      * The only allowed DRM calls in this listener are {@link #getDrmPropertyString}
      * and {@link #setDrmPropertyString}.
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public interface OnDrmConfigHelper {
@@ -3688,7 +3676,6 @@ public final class MediaPlayer extends SessionPlayer {
     /**
      * Thrown when a DRM method is called before preparing a DRM scheme through prepareDrm().
      * Extends MediaDrm.MediaDrmException
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public static class NoDrmSchemeException extends Exception {
@@ -3699,7 +3686,6 @@ public final class MediaPlayer extends SessionPlayer {
 
     /**
      * Definitions for the metrics that are reported via the {@link #getMetrics} call.
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public static final class MetricsConstants {
@@ -3796,7 +3782,6 @@ public final class MediaPlayer extends SessionPlayer {
 
     /**
      * Result class of the asynchronous DRM APIs.
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public static class DrmResult extends PlayerResult {
@@ -3825,7 +3810,6 @@ public final class MediaPlayer extends SessionPlayer {
          */
         public static final int RESULT_ERROR_RESOURCE_BUSY = -1005;
 
-        /** @hide */
         @IntDef(flag = false, /*prefix = "PREPARE_DRM_STATUS",*/ value = {
                 RESULT_SUCCESS,
                 RESULT_ERROR_PROVISIONING_NETWORK_ERROR,

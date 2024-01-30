@@ -264,6 +264,7 @@
     <string name="tab_title_list" msgid="5104962518489668123">"Guia em lista"</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"Guia em grade com título longo"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"Guia de pesquisa"</string>
+    <string name="tab_title_loading" msgid="5385807479734490989">"Carregando a guia"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"Demonstração de carregamento do modelo de guia"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"Demonstração do modelo de guia sem guias"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"Não é possível exibir imagens para um host desconhecido"</string>
@@ -298,7 +299,7 @@
     <string name="some_additional_text" msgid="4009872495806318260">"Mais texto"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"Lista selecionável de exemplos"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"Demonstração de restrição de tarefa"</string>
-    <string name="task_limit_reached_msg" msgid="6038763366777119364">"Limite da tarefa atingido\nContinuar vai forçar a parada do app"</string>
+    <string name="task_limit_reached_msg" msgid="7162842196382260992">"Essa ação vai sobrecarregar a contagem de etapas e uma nova tela será aberta."</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"Etapa da tarefa: %1$d de %2$d"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"Clique para continuar"</string>
     <string name="task_content_allowed" msgid="545061986612431190">"Visite os diferentes modelos e confira se o veículo está no modo carro"</string>
@@ -323,6 +324,12 @@
     <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"A linha também pode ser selecionada"</string>
     <string name="secondary_action_toast" msgid="5076434693504006565">"A ação secundária está selecionada"</string>
     <string name="row_primary_action_toast" msgid="756516694751965204">"A ação principal da linha está selecionada"</string>
+    <string name="sectioned_item_list_demo_title" msgid="1236735461225007729">"Demonstração de lista de itens com seções"</string>
+    <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"Lista 1"</string>
+    <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"Lista 2"</string>
+    <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"Subtexto abaixo de cada lista"</string>
+    <string name="empty_list_demo_title" msgid="5989013634820902455">"Demonstração de lista vazia"</string>
+    <string name="empty_list_message" msgid="5331395517560728138">"A lista está vazia"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"Demonstração de modelos diversos"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"Demonstrações em destaque"</string>
     <string name="template_layouts_demo_title" msgid="788249269446087847">"Demonstrações de modelos de layout"</string>
@@ -336,7 +343,7 @@
     <string name="perm_group" msgid="3834918337351876270">"Grupo de permissões"</string>
     <string name="perm_group_description" msgid="7348847631139139024">"Grupo de permissões do app Showcase"</string>
     <string name="perm_fine_location" msgid="5438874642600304118">"Acesso à localização precisa"</string>
-    <string name="perm_fine_location_desc" msgid="3549183883787912516">"Permissão para acessar a localização precisa"</string>
+    <string name="perm_fine_location_desc" msgid="3549183883787912516">"Permissão para acessar o local exato"</string>
     <string name="perm_coarse_location" msgid="6140337431619481015">"Acesso à localização aproximada"</string>
     <string name="perm_coarse_location_desc" msgid="6074759942301565943">"Permissão para acessar a localização aproximada"</string>
     <string name="perm_record_audio" msgid="2758340693260523493">"Acesso à gravação de áudio"</string>
@@ -352,7 +359,7 @@
     <string name="loading_toggle_enabled" msgid="8828072732804454994">"Carregamento ativado"</string>
     <string name="loading_toggle_disabled" msgid="7689738885077382673">"Carregamento desativado"</string>
     <string name="loading_screen" msgid="4771507490730308794">"Tela de carregamento"</string>
-    <string name="vector_toggle_details" msgid="1301305340033556819">"Alternar para adicionar/remover cor"</string>
+    <string name="vector_toggle_details" msgid="1301305340033556819">"Mudar para adicionar/remover cor"</string>
     <string name="map_template_toggle_demo_title" msgid="6510798293640092611">"Modelo de mapa com botões"</string>
     <string name="avoid_tolls_row_title" msgid="5194057244144831024">"Evitar pedágios"</string>
     <string name="route_options_demo_title" msgid="4599699012716426514">"Opções de trajeto"</string>

@@ -17,10 +17,10 @@
 package androidx.datastore.preferences.core
 
 import kotlin.test.Test
-import kotlin.test.assertNull
-import kotlin.test.assertTrue
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
+import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 class PreferencesTest {
 

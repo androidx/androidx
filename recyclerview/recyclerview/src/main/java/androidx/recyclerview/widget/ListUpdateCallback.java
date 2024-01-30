@@ -52,6 +52,7 @@ public interface ListUpdateCallback {
      *
      * @param position The position of the item which has been updated.
      * @param count    The number of items which has changed.
+     * @param payload  The payload for the changed items.
      */
     void onChanged(int position, int count, @Nullable Object payload);
 }

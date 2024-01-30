@@ -40,10 +40,10 @@ import java.util.function.Function;
 class DynamicDataBiTransformNode<LhsT, RhsT, O> implements DynamicDataNode<O> {
     private static final String TAG = "DynamicDataBiTransform";
 
-    private final DynamicTypeValueReceiver<LhsT> mLhsIncomingCallback;
-    private final DynamicTypeValueReceiver<RhsT> mRhsIncomingCallback;
+    private final DynamicTypeValueReceiverWithPreUpdate<LhsT> mLhsIncomingCallback;
+    private final DynamicTypeValueReceiverWithPreUpdate<RhsT> mRhsIncomingCallback;
 
-    final DynamicTypeValueReceiver<O> mDownstream;
+    final DynamicTypeValueReceiverWithPreUpdate<O> mDownstream;
     private final BiFunction<LhsT, RhsT, O> mTransformer;
 
     @Nullable LhsT mCachedLhsData;
@@ -53,7 +53,8 @@ class DynamicDataBiTransformNode<LhsT, RhsT, O> implements DynamicDataNode<O> {
     int mPendingRhsStateUpdates = 0;
 
     DynamicDataBiTransformNode(
-            DynamicTypeValueReceiver<O> downstream, BiFunction<LhsT, RhsT, O> transformer) {
+            DynamicTypeValueReceiverWithPreUpdate<O> downstream,
+            BiFunction<LhsT, RhsT, O> transformer) {
         this.mDownstream = downstream;
         this.mTransformer = transformer;
 
@@ -68,7 +69,7 @@ class DynamicDataBiTransformNode<LhsT, RhsT, O> implements DynamicDataNode<O> {
         // that will again complain that it's calling something which is @UnderInitialization).
         // Given that, suppressing the warning in onStateUpdate should be safe.
         this.mLhsIncomingCallback =
-                new DynamicTypeValueReceiver<LhsT>() {
+                new DynamicTypeValueReceiverWithPreUpdate<LhsT>() {
                     @Override
                     public void onPreUpdate() {
                         mPendingLhsStateUpdates++;
@@ -106,7 +107,7 @@ class DynamicDataBiTransformNode<LhsT, RhsT, O> implements DynamicDataNode<O> {
                 };
 
         this.mRhsIncomingCallback =
-                new DynamicTypeValueReceiver<RhsT>() {
+                new DynamicTypeValueReceiverWithPreUpdate<RhsT>() {
                     @Override
                     public void onPreUpdate() {
                         mPendingRhsStateUpdates++;
@@ -157,11 +158,11 @@ class DynamicDataBiTransformNode<LhsT, RhsT, O> implements DynamicDataNode<O> {
         }
     }
 
-    public DynamicTypeValueReceiver<LhsT> getLhsIncomingCallback() {
+    public DynamicTypeValueReceiverWithPreUpdate<LhsT> getLhsIncomingCallback() {
         return mLhsIncomingCallback;
     }
 
-    public DynamicTypeValueReceiver<RhsT> getRhsIncomingCallback() {
+    public DynamicTypeValueReceiverWithPreUpdate<RhsT> getRhsIncomingCallback() {
         return mRhsIncomingCallback;
     }
 }

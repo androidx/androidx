@@ -82,10 +82,10 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * @hide
  */
 @RestrictTo(LIBRARY)
 @RequiresApi(19)
+@Deprecated
 public class ListBuilderImpl extends TemplateBuilderImpl implements ListBuilder {
     private List<Slice> mSliceActions;
     private Set<String> mKeywords;

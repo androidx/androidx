@@ -17,8 +17,6 @@
 package androidx.core.uwb.impl
 
 import androidx.core.uwb.RangingCapabilities
-import androidx.core.uwb.RangingParameters
-import androidx.core.uwb.RangingResult
 import androidx.core.uwb.UwbAddress
 import androidx.core.uwb.UwbComplexChannel
 import androidx.core.uwb.UwbControllerSessionScope
@@ -26,7 +24,6 @@ import androidx.core.uwb.exceptions.UwbSystemCallbackException
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.nearby.uwb.UwbClient
 import com.google.android.gms.nearby.uwb.UwbStatusCodes
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.tasks.await
 
 internal class UwbControllerSessionScopeImpl(
@@ -34,10 +31,8 @@ internal class UwbControllerSessionScopeImpl(
     override val rangingCapabilities: RangingCapabilities,
     override val localAddress: UwbAddress,
     override val uwbComplexChannel: UwbComplexChannel
-) : UwbControllerSessionScope {
-    private val uwbClientSessionScope =
-        UwbClientSessionScopeImpl(uwbClient, rangingCapabilities, localAddress)
-
+) : UwbClientSessionScopeImpl(uwbClient, rangingCapabilities, localAddress),
+    UwbControllerSessionScope {
     override suspend fun addControlee(address: UwbAddress) {
         val uwbAddress = com.google.android.gms.nearby.uwb.UwbAddress(address.address)
         try {
@@ -66,7 +61,13 @@ internal class UwbControllerSessionScopeImpl(
         }
     }
 
-    override fun prepareSession(parameters: RangingParameters): Flow<RangingResult> {
-        return uwbClientSessionScope.prepareSession(parameters)
+    override suspend fun reconfigureRangingInterval(intervalSkipCount: Int) {
+        try {
+            uwbClient.reconfigureRangingInterval(intervalSkipCount).await()
+        } catch (e: ApiException) {
+            if (e.statusCode == UwbStatusCodes.INVALID_API_CALL) {
+                throw IllegalStateException("Please check that the ranging is active.")
+            }
+        }
     }
 }

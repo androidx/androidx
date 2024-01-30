@@ -54,7 +54,7 @@ class TransportCancellationGenerator(private val basePackageName: String) {
                 ).initializer("%T(false)", atomicBooleanClass).build()
             )
             addFunction(FunSpec.builder("cancel").build {
-                addModifiers(KModifier.OVERRIDE)
+                addModifiers(KModifier.PUBLIC, KModifier.OVERRIDE)
                 addCode {
                     addControlFlow("if (hasCancelled.compareAndSet(false, true))") {
                         addStatement("onCancel()")

@@ -23,9 +23,3 @@ RemovedInterface: androidx.leanback.widget.OnChildSelectedListener:
     Removed deprecated class androidx.leanback.widget.OnChildSelectedListener
 RemovedInterface: androidx.leanback.widget.ViewHolderTask:
     Removed class androidx.leanback.widget.ViewHolderTask
-
-
-RemovedMethod: androidx.leanback.widget.FacetProvider#getFacet(Class<?>):
-    Removed method androidx.leanback.widget.FacetProvider.getFacet(Class<?>)
-RemovedMethod: androidx.leanback.widget.FacetProviderAdapter#getFacetProvider(int):
-    Removed method androidx.leanback.widget.FacetProviderAdapter.getFacetProvider(int)

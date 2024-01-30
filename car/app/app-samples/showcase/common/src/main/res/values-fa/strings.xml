@@ -264,6 +264,7 @@
     <string name="tab_title_list" msgid="5104962518489668123">"برگه فهرست"</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"برگه جدول با عنوان برگه طولانی"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"برگه جستجو"</string>
+    <string name="tab_title_loading" msgid="5385807479734490989">"درحال بار کردن «برگه»"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"نمونه بارگیری الگوی برگه"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"نمونه عدم وجود برگه الگوی برگه"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"به‌دلیل نامشخص بودن میزبان، تصویر نمایش داده نمی‌شود"</string>
@@ -298,7 +299,7 @@
     <string name="some_additional_text" msgid="4009872495806318260">"چند نوشتار دیگر"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"فهرست نمونه قابل‌انتخاب"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"محدودیت تکلیف نمونه"</string>
-    <string name="task_limit_reached_msg" msgid="6038763366777119364">"به حد مجاز تکلیف رسیدید\nاگر ادامه دهید، برنامه به‌اجبار متوقف خواهد شد"</string>
+    <string name="task_limit_reached_msg" msgid="7162842196382260992">"با این کار، تعداد مراحل سرریز خواهد شد و به صفحه جدید هدایت خواهید شد."</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"‏مرحله %1$d از %2$d تکلیف"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"برای ادامه دادن، کلیک کنید"</string>
     <string name="task_content_allowed" msgid="545061986612431190">"لطفاً از الگوهای مختلف بازدید کنید و مطمئن شوید خودرو در حالت رانندگی باشد"</string>
@@ -323,6 +324,12 @@
     <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"ردیف را هم می‌توان انتخاب کرد"</string>
     <string name="secondary_action_toast" msgid="5076434693504006565">"کنش فرعی انتخاب شده است"</string>
     <string name="row_primary_action_toast" msgid="756516694751965204">"کنش اصلی ردیف انتخاب شده است"</string>
+    <string name="sectioned_item_list_demo_title" msgid="1236735461225007729">"نمونه فهرست موارد بخش‌بندی‌شده"</string>
+    <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"فهرست ۱"</string>
+    <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"فهرست ۲"</string>
+    <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"نوشتار فرعی زیر هر فهرست"</string>
+    <string name="empty_list_demo_title" msgid="5989013634820902455">"نمونه فهرست خالی"</string>
+    <string name="empty_list_message" msgid="5331395517560728138">"فهرست خالی است"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"الگوهای متفرقه نمونه"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"نمایش نمونه‌ها"</string>
     <string name="template_layouts_demo_title" msgid="788249269446087847">"نسخه‌های نمونه طرح‌بندی الگو"</string>

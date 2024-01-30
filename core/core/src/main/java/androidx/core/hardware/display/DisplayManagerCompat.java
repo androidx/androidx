@@ -27,15 +27,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
-import java.util.WeakHashMap;
-
 /**
  * Helper for accessing features in {@link android.hardware.display.DisplayManager}.
  */
 @SuppressWarnings("unused")
 public final class DisplayManagerCompat {
-    private static final WeakHashMap<Context, DisplayManagerCompat> sInstances =
-            new WeakHashMap<>();
 
     /**
      * Display category: Presentation displays.
@@ -62,14 +58,7 @@ public final class DisplayManagerCompat {
      */
     @NonNull
     public static DisplayManagerCompat getInstance(@NonNull Context context) {
-        synchronized (sInstances) {
-            DisplayManagerCompat instance = sInstances.get(context);
-            if (instance == null) {
-                instance = new DisplayManagerCompat(context);
-                sInstances.put(context, instance);
-            }
-            return instance;
-        }
+        return new DisplayManagerCompat(context);
     }
 
     /**

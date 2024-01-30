@@ -38,7 +38,7 @@ dependencies {
 }
 
 androidx {
-    name = "AndroidX Compose Testing Samples"
+    name = "Compose Testing Samples"
     type = LibraryType.SAMPLES
     inceptionYear = "2022"
     description = "Contains samples for AndroidX Compose Testing."
@@ -49,15 +49,16 @@ android {
 }
 
 // Workaround for https://github.com/gradle/gradle/issues/19882
-configurations.all {
-    resolutionStrategy.dependencySubstitution {
-        substitute(module("androidx.lifecycle:lifecycle-common:")).
-                using project(":lifecycle:lifecycle-common")
-        substitute(module("androidx.lifecycle:lifecycle-runtime:")).
-                using project(":lifecycle:lifecycle-runtime")
-        substitute(module("androidx.lifecycle:lifecycle-runtime-ktx:")).
-                using project(":lifecycle:lifecycle-runtime-ktx")
-        substitute(module("androidx.lifecycle:lifecycle-viewmodel:")).
-                using project(":lifecycle:lifecycle-viewmodel")
-    }
-}
+// TODO: can we use artifacts here?
+//configurations.all {
+//    resolutionStrategy.dependencySubstitution {
+//        substitute(module("androidx.lifecycle:lifecycle-common:")).
+//                using project(":lifecycle:lifecycle-common")
+//        substitute(module("androidx.lifecycle:lifecycle-runtime:")).
+//                using project(":lifecycle:lifecycle-runtime")
+//        substitute(module("androidx.lifecycle:lifecycle-runtime-ktx:")).
+//                using project(":lifecycle:lifecycle-runtime-ktx")
+//        substitute(module("androidx.lifecycle:lifecycle-viewmodel:")).
+//                using project(":lifecycle:lifecycle-viewmodel")
+//    }
+//}

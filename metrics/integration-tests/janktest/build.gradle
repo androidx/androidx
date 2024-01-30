@@ -25,6 +25,9 @@ android {
         viewBinding true
     }
     namespace "androidx.metrics.performance.janktest"
+    defaultConfig {
+        multiDexEnabled true
+    }
 }
 
 dependencies {

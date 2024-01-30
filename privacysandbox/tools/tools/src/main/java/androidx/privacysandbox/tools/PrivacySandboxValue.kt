@@ -20,9 +20,26 @@ package androidx.privacysandbox.tools
  * Annotated values that can be sent to/from SDKs in the Privacy Sandbox.
  *
  * The values should be public Kotlin data classes that only contain immutable properties with types
- * supported by the sandbox (primitives, another [PrivacySandboxValue], etc.)
+ * supported by the sandbox (primitives, [PrivacySandboxInterface], [PrivacySandboxValue], or lists
+ * of primitives or [PrivacySandboxValue]). [PrivacySandboxCallback] interfaces are not allowed.
+ *
  * Values cannot have functions, type parameters or properties with default values.
+ *
+ * Usage example:
+ * ```
+ * @PrivacySandboxValue
+ * data class ComplicatedStructure(
+ *   val id: Int,
+ *   val separator: Char,
+ *   val message: String,
+ *   val hugeNumber: Double,
+ *   val myInterface: MyInterface,
+ *   val numbers: List<Int>,
+ *   val maybeNumber: Int?,
+ *   val maybeInterface: MyInterface?,
+ * )
+ * ```
  */
 @Retention(AnnotationRetention.RUNTIME)
 @Target(AnnotationTarget.CLASS)
-annotation class PrivacySandboxValue
+public annotation class PrivacySandboxValue

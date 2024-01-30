@@ -31,6 +31,8 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.material.internal.keyEvent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.ProgressBarRangeInfo
+import androidx.compose.ui.test.assertRangeInfoEquals
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTouchInput
 import kotlin.math.roundToInt
@@ -298,6 +300,27 @@ class SliderTest {
         rule.runOnIdle {
             Assert.assertEquals(true, hasFocus)
         }
+    }
+
+    @Test
+    fun sliderPosition_valueCoercion() {
+        val state = mutableStateOf(0f)
+        rule.setContent {
+            Slider(
+                modifier = Modifier.testTag("slider"),
+                value = state.value,
+                onValueChange = { state.value = it },
+                valueRange = 0f..1f
+            )
+        }
+        rule.runOnIdle {
+            state.value = 2f
+        }
+        rule.onNodeWithTag("slider").assertRangeInfoEquals(ProgressBarRangeInfo(1f, 0f..1f, 0))
+        rule.runOnIdle {
+            state.value = -123145f
+        }
+        rule.onNodeWithTag("slider").assertRangeInfoEquals(ProgressBarRangeInfo(0f, 0f..1f, 0))
     }
 }
 

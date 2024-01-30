@@ -1,0 +1,66 @@
+/*
+ * Copyright 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package androidx.build
+
+import com.google.common.truth.Truth.assertThat
+import org.gradle.testfixtures.ProjectBuilder
+import org.jetbrains.kotlin.gradle.plugin.KotlinMultiplatformPluginWrapper
+import org.junit.Test
+
+class SourceJarTaskHelperTest {
+    @Test
+    fun generateMetadata() {
+        val project = ProjectBuilder.builder().build()
+        project.plugins.apply(KotlinMultiplatformPluginWrapper::class.java)
+        val extension = project.multiplatformExtension!!
+        extension.jvm()
+        val commonMain = extension.sourceSets.getByName("commonMain")
+        val jvmMain = extension.sourceSets.getByName("jvmMain")
+        val extraMain = extension.sourceSets.create("extraMain")
+        extraMain.dependsOn(commonMain)
+        jvmMain.dependsOn(commonMain)
+        jvmMain.dependsOn(extraMain)
+
+        val result = createSourceSetMetadata(extension)
+        assertThat(result).isEqualTo("""
+        {
+          "sourceSets": [
+            {
+              "name": "commonMain",
+              "dependencies": [],
+              "analysisPlatform": "common"
+            },
+            {
+              "name": "extraMain",
+              "dependencies": [
+                "commonMain"
+              ],
+              "analysisPlatform": "jvm"
+            },
+            {
+              "name": "jvmMain",
+              "dependencies": [
+                "commonMain",
+                "extraMain"
+              ],
+              "analysisPlatform": "jvm"
+            }
+          ]
+        }
+        """.trimIndent())
+    }
+}

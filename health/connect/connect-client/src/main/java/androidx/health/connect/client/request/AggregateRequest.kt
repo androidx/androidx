@@ -15,10 +15,10 @@
  */
 package androidx.health.connect.client.request
 
+import androidx.health.connect.client.HealthConnectClient
 import androidx.health.connect.client.aggregate.AggregateMetric
 import androidx.health.connect.client.records.metadata.DataOrigin
 import androidx.health.connect.client.time.TimeRangeFilter
-import androidx.health.connect.client.HealthConnectClient
 
 /**
  * Request object to read aggregations for given [AggregateMetric]s in Android Health Platform.

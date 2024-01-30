@@ -44,7 +44,6 @@ import androidx.credentials.exceptions.publickeycredential.CreatePublicKeyCreden
  * This utilization may vary by use case.
  */
 abstract class DomError(
-    /** @hide */
     @get:VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     open val type: String

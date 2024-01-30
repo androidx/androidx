@@ -27,6 +27,7 @@ import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.os.Build;
+import android.os.Parcelable;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.view.KeyEvent;
 
@@ -104,8 +105,7 @@ import java.util.List;
 
         if (Build.VERSION.SDK_INT >= 21) {
             // Call Notification.MediaStyle#setMediaSession() indirectly.
-            android.media.session.MediaSession.Token fwkToken =
-                    (android.media.session.MediaSession.Token)
+            Parcelable fwkToken = (Parcelable)
                             session.getSessionCompat().getSessionToken().getToken();
             notification.extras.putParcelable(Notification.EXTRA_MEDIA_SESSION, fwkToken);
         }
@@ -140,9 +140,8 @@ import java.util.List;
 
         if (Build.VERSION.SDK_INT >= 21) {
             // Call Notification.MediaStyle#setMediaSession() indirectly.
-            android.media.session.MediaSession.Token fwkToken =
-                    (android.media.session.MediaSession.Token)
-                            session.getSessionCompat().getSessionToken().getToken();
+            Parcelable fwkToken =
+                    (Parcelable) session.getSessionCompat().getSessionToken().getToken();
             notification.extras.putParcelable(Notification.EXTRA_MEDIA_SESSION, fwkToken);
         }
 

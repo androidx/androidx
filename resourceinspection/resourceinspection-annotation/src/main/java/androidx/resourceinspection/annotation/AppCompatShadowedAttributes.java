@@ -59,7 +59,6 @@ import java.lang.annotation.Target;
  * {@link androidx.core.widget.TintableImageSourceView}.
  * Please see the mapping in {@link androidx.resourceinspection.processor} for full details.
  *
- * @hide
  */
 @Target(TYPE)
 @Retention(SOURCE)

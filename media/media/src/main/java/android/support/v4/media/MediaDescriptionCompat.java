@@ -142,7 +142,6 @@ public final class MediaDescriptionCompat implements Parcelable {
      * Custom key to store a media URI on API 21-22 devices (before it became part of the
      * framework class) when parceling/converting to and from framework objects.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public static final String DESCRIPTION_KEY_MEDIA_URI =
@@ -150,7 +149,6 @@ public final class MediaDescriptionCompat implements Parcelable {
     /**
      * Custom key to store whether the original Bundle provided by the developer was null
      *
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public static final String DESCRIPTION_KEY_NULL_BUNDLE_FLAG =

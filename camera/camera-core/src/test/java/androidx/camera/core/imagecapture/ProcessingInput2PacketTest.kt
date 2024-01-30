@@ -34,11 +34,11 @@ import androidx.camera.core.imagecapture.Utils.injectRotationOptionQuirk
 import androidx.camera.core.impl.utils.futures.Futures
 import androidx.camera.core.internal.CameraCaptureResultImageInfo
 import androidx.camera.core.internal.utils.ImageUtil.jpegImageToJpegByteArray
-import androidx.camera.testing.ExifUtil.updateExif
-import androidx.camera.testing.TestImageUtil.createJpegBytes
-import androidx.camera.testing.TestImageUtil.createJpegFakeImageProxy
-import androidx.camera.testing.TestImageUtil.createYuvFakeImageProxy
-import androidx.camera.testing.TestImageUtil.getAverageDiff
+import androidx.camera.testing.impl.ExifUtil.updateExif
+import androidx.camera.testing.impl.TestImageUtil.createJpegBytes
+import androidx.camera.testing.impl.TestImageUtil.createJpegFakeImageProxy
+import androidx.camera.testing.impl.TestImageUtil.createYuvFakeImageProxy
+import androidx.camera.testing.impl.TestImageUtil.getAverageDiff
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith

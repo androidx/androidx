@@ -264,6 +264,7 @@
     <string name="tab_title_list" msgid="5104962518489668123">"Pestana de lista"</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"Pestana de grade con título de pestana longo"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"Pestana de busca"</string>
+    <string name="tab_title_loading" msgid="5385807479734490989">"Cargando pestana"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"Demostración de carga do modelo de pestanas"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"Demostración do modelo de pestanas sen pestanas"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"As imaxes non se poden mostrar nun host descoñecido"</string>
@@ -298,7 +299,7 @@
     <string name="some_additional_text" msgid="4009872495806318260">"Texto adicional"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"Exemplo de lista seleccionable"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"Demostración de restrición de tarefas"</string>
-    <string name="task_limit_reached_msg" msgid="6038763366777119364">"Alcanzouse o límite de tarefas\nSe continúas, forzarase a detención da aplicación"</string>
+    <string name="task_limit_reached_msg" msgid="7162842196382260992">"Con esta acción superarase o límite de pasos e irás a unha nova pantalla."</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"Paso %1$d de %2$d da tarefa"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"Fai clic para continuar"</string>
     <string name="task_content_allowed" msgid="545061986612431190">"Consulta os diferentes modelos e comproba que o coche estea no modo de condución"</string>
@@ -323,6 +324,12 @@
     <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"Tamén se pode seleccionar a fila"</string>
     <string name="secondary_action_toast" msgid="5076434693504006565">"Seleccionouse a acción secundaria"</string>
     <string name="row_primary_action_toast" msgid="756516694751965204">"Seleccionouse a acción principal da fila"</string>
+    <string name="sectioned_item_list_demo_title" msgid="1236735461225007729">"Demostración de lista de elementos por seccións"</string>
+    <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"Lista 1"</string>
+    <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"Lista 2"</string>
+    <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"Texto secundario debaixo de cada lista"</string>
+    <string name="empty_list_demo_title" msgid="5989013634820902455">"Versión de demostración de lista baleira"</string>
+    <string name="empty_list_message" msgid="5331395517560728138">"A lista está baleira"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"Outras demostracións de modelos"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"Demostracións de Showcase"</string>
     <string name="template_layouts_demo_title" msgid="788249269446087847">"Demostracións de deseños de modelo"</string>

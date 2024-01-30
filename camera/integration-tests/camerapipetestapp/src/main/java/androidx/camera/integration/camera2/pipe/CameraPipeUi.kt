@@ -36,7 +36,9 @@ class CameraPipeUi private constructor(activity: Activity) {
     }
 
     val viewfinder: Viewfinder = activity.findViewById(R.id.viewfinder)
+    val viewfinder2: Viewfinder = activity.findViewById(R.id.viewfinder_secondary)
     val viewfinderText: TextView = activity.findViewById(R.id.viewfinder_text)
+    val viewfinderText2: TextView = activity.findViewById(R.id.viewfinder_secondary_text)
     val switchButton: ImageButton = activity.findViewById(R.id.switch_button)
     val captureButton: ImageButton = activity.findViewById(R.id.capture_button)
     val infoButton: ImageButton = activity.findViewById(R.id.info_button)

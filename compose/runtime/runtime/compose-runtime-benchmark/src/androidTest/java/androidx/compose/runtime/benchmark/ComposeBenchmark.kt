@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -177,6 +178,76 @@ class ComposeBenchmark : ComposeBenchmarkBase() {
             reset {
                 pad = 0
             }
+        }
+    }
+
+    @UiThreadTest
+    @Test
+    fun benchmark_10_derivedState_reads_compose() = runBlockingTestWithFrameClock {
+        val state1 by mutableStateOf(1)
+        val state2 by mutableStateOf(3)
+        val state3 by mutableStateOf(6)
+        val list by derivedStateOf {
+            List(state1 + state2 + state3) { "$it" }
+        }
+
+        measureCompose {
+            Column {
+                for (i in list.indices) {
+                    Text(list[i])
+                }
+            }
+        }
+    }
+
+    @UiThreadTest
+    @Test
+    fun benchmark_10_derivedState_reads_recompose() = runBlockingTestWithFrameClock {
+        var state1 by mutableStateOf(1)
+        var state2 by mutableStateOf(3)
+        val state3 by mutableStateOf(6)
+        val list by derivedStateOf {
+            List(state1 + state2 + state3) { "$it" }
+        }
+
+        measureRecomposeSuspending {
+            compose {
+                Column {
+                    for (i in list.indices) {
+                        Text(list[i])
+                    }
+                }
+            }
+            update {
+                state1 += 1
+            }
+            reset {
+                state1 = 1
+            }
+        }
+    }
+
+    @UiThreadTest
+    @Test
+    fun benchmark_f_compose_Rect_1() = runBlockingTestWithFrameClock {
+        measureComposeFocused {
+            Rect()
+        }
+    }
+
+    @UiThreadTest
+    @Test
+    fun benchmark_f_compose_Rect_10() = runBlockingTestWithFrameClock {
+        measureComposeFocused {
+            repeat(10) { Rect() }
+        }
+    }
+
+    @UiThreadTest
+    @Test
+    fun benchmark_f_compose_Rect_100() = runBlockingTestWithFrameClock {
+        measureComposeFocused {
+            repeat(100) { Rect() }
         }
     }
 }

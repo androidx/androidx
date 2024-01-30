@@ -16,13 +16,13 @@
 
 package androidx.navigation.dynamicfeatures.fragment.ui
 
-import androidx.navigation.dynamicfeatures.fragment.R as mainR
-import androidx.navigation.dynamicfeatures.fragment.test.R as testR
 import android.widget.TextView
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.dynamicfeatures.fragment.DynamicNavHostFragment
 import androidx.navigation.dynamicfeatures.fragment.NavigationActivity
+import androidx.navigation.dynamicfeatures.fragment.R as mainR
+import androidx.navigation.dynamicfeatures.fragment.test.R as testR
 import androidx.navigation.fragment.findNavController
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4

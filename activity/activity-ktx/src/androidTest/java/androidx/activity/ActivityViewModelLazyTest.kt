@@ -28,9 +28,9 @@ import androidx.lifecycle.viewmodel.MutableCreationExtras
 import androidx.test.annotation.UiThreadTest
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
+import java.lang.IllegalArgumentException
 import org.junit.Rule
 import org.junit.Test
-import java.lang.IllegalArgumentException
 
 @MediumTest
 class ActivityViewModelLazyTest {

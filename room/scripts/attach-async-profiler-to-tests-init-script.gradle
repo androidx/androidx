@@ -5,7 +5,9 @@ def jvmArgs = startParameter.systemPropertiesArgs.get("androidx.room.testJvmArgs
 taskGraph.addTaskExecutionGraphListener { graph ->
     graph.beforeTask { task ->
         if (task instanceof Test) {
-            task.jvmArgs(jvmArgs)
+            if (jvmArgs != null) {
+                task.jvmArgs(jvmArgs)
+            }
             // this environment variable is used to avoid running profiling tests
             // unless we are in a profiling execution
             task.environment("ANDROIDX_ROOM_ENABLE_PROFILE_TESTS", "true")

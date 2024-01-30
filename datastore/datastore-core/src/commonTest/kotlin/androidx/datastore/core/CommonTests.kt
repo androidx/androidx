@@ -18,17 +18,11 @@ package androidx.datastore.core
 
 import androidx.datastore.OkioPath
 import androidx.datastore.OkioTestIO
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.InternalCoroutinesApi
-import kotlinx.coroutines.ObsoleteCoroutinesApi
 import okio.IOException
 
-@OptIn(ExperimentalCoroutinesApi::class, ObsoleteCoroutinesApi::class, FlowPreview::class)
-@InternalCoroutinesApi
 class DataMigrationInitializerTestOkioTest :
     DataMigrationInitializerTest<OkioPath, IOException>(OkioTestIO())
 
-@OptIn(ExperimentalCoroutinesApi::class, ObsoleteCoroutinesApi::class, FlowPreview::class)
-@InternalCoroutinesApi
 class SingleProcessDataStoreOkioTest : SingleProcessDataStoreTest<OkioPath>(OkioTestIO())
+
+class CloseDownstreamOnCloseOkioTest : CloseDownstreamOnCloseTest<OkioPath>(OkioTestIO())

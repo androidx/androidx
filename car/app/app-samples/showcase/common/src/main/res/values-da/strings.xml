@@ -67,7 +67,7 @@
     <string name="parked_toast_msg" msgid="2532422265890824446">"Handlingen Parkeret"</string>
     <string name="more_toast_msg" msgid="5938288138225509885">"Der blev klikket på Mere"</string>
     <string name="commute_toast_msg" msgid="4112684360647638688">"Der blev trykket på knappen Pendling"</string>
-    <string name="grant_location_permission_toast_msg" msgid="268046297444808010">"Giv adgangstilladelse til lokation for at se den aktuelle lokation"</string>
+    <string name="grant_location_permission_toast_msg" msgid="268046297444808010">"Giv lokationstilladelse for at se den aktuelle lokation"</string>
     <string name="sign_in_with_google_toast_msg" msgid="5720947549233124775">"Log ind med Google starter her"</string>
     <string name="changes_selection_to_index_toast_msg_prefix" msgid="957766225794389167">"Markeringen blev ændret til indeks"</string>
     <string name="yes_action_toast_msg" msgid="6216215197177241247">"Der blev trykket på knappen Ja."</string>
@@ -126,7 +126,7 @@
     <string name="permissions_granted_msg" msgid="2348556088141992714">"Alle tilladelser er tildelt. Tilbagekald tilladelser via Indstillinger."</string>
     <string name="needs_access_msg_prefix" msgid="2204136858798832382">"Appen skal have adgang til følgende tilladelser:\n"</string>
     <string name="phone_screen_permission_msg" msgid="3599815596923367256">"Giv tilladelse på telefonskærmen"</string>
-    <string name="enable_location_permission_on_device_msg" msgid="472752487966156897">"Aktivér adgangstilladelse til lokation på enheden"</string>
+    <string name="enable_location_permission_on_device_msg" msgid="472752487966156897">"Aktivér lokationstilladelse på enheden"</string>
     <string name="enable_location_permission_on_phone_msg" msgid="5082615523959139121">"Aktivér lokation på telefonens skærm"</string>
     <string name="required_permissions_title" msgid="5351791879153568211">"Påkrævede tilladelser"</string>
     <string name="request_permissions_title" msgid="7456426341142412300">"Demonstration af Anmod om tilladelse"</string>
@@ -264,6 +264,7 @@
     <string name="tab_title_list" msgid="5104962518489668123">"Listefane"</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"Gitterfane med lang fanetitel"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"Søgefane"</string>
+    <string name="tab_title_loading" msgid="5385807479734490989">"Indlæser fanen"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"Demonstration af indlæsning af faneskabelon"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"Demonstration af faneskabelon uden faner"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"Billeder kan ikke vises for en ukendt host"</string>
@@ -298,7 +299,7 @@
     <string name="some_additional_text" msgid="4009872495806318260">"Noget yderligere tekst"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"Eksempel på en liste, der kan vælges"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"Demonstration af grænsen for opgaver"</string>
-    <string name="task_limit_reached_msg" msgid="6038763366777119364">"Grænsen for opgaver blev nået\nHvis du fortsætter, tvinges appen til at standse"</string>
+    <string name="task_limit_reached_msg" msgid="7162842196382260992">"Dette vil overskride antallet af trin og føre dig til en ny skærm."</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"Opgavetrin %1$d af %2$d"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"Klik for at gå videre"</string>
     <string name="task_content_allowed" msgid="545061986612431190">"Gå til de forskellige skabeloner, og tjek, at bilen er i køretilstand"</string>
@@ -323,6 +324,12 @@
     <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"Rækken kan også vælges"</string>
     <string name="secondary_action_toast" msgid="5076434693504006565">"Sekundær handling er valgt"</string>
     <string name="row_primary_action_toast" msgid="756516694751965204">"Primær handling for rækken er valgt"</string>
+    <string name="sectioned_item_list_demo_title" msgid="1236735461225007729">"Demo af sektionsinddelt elementliste"</string>
+    <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"Liste 1"</string>
+    <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"Liste 2"</string>
+    <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"Tekst under hver liste"</string>
+    <string name="empty_list_demo_title" msgid="5989013634820902455">"Demo på tom liste"</string>
+    <string name="empty_list_message" msgid="5331395517560728138">"Listen er tom"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"Demonstrationer af diverse skabeloner"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"Vis demonstrationer"</string>
     <string name="template_layouts_demo_title" msgid="788249269446087847">"Demoer for skabelonlayout"</string>

@@ -16,7 +16,9 @@
 
 package androidx.credentials
 
+import android.content.ComponentName
 import android.os.Bundle
+import androidx.credentials.CredentialOption.Companion.createFrom
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
@@ -56,15 +58,20 @@ class GetCustomCredentialOptionTest {
         expectedBundle.putString("Test", "Test")
         val expectedCandidateQueryDataBundle = Bundle()
         expectedCandidateQueryDataBundle.putBoolean("key", true)
-        val expectedAutoSelectAllowed = false
+        val expectedAutoSelectAllowed = true
         val expectedSystemProvider = true
+        val expectedAllowedProviders: Set<ComponentName> = setOf(
+            ComponentName("pkg", "cls"),
+            ComponentName("pkg2", "cls2")
+        )
 
         val option = GetCustomCredentialOption(
             expectedType,
             expectedBundle,
             expectedCandidateQueryDataBundle,
             expectedSystemProvider,
-            expectedAutoSelectAllowed
+            expectedAutoSelectAllowed,
+            expectedAllowedProviders
         )
 
         assertThat(option.type).isEqualTo(expectedType)
@@ -75,6 +82,52 @@ class GetCustomCredentialOptionTest {
                 expectedCandidateQueryDataBundle
             )
         ).isTrue()
+        assertThat(option.isAutoSelectAllowed).isEqualTo(expectedAutoSelectAllowed)
         assertThat(option.isSystemProviderRequired).isEqualTo(expectedSystemProvider)
+        assertThat(option.allowedProviders)
+            .containsAtLeastElementsIn(expectedAllowedProviders)
+    }
+
+    @Test
+    fun frameworkConversion_success() {
+        val expectedType = "TYPE"
+        val expectedBundle = Bundle()
+        expectedBundle.putString("Test", "Test")
+        val expectedCandidateQueryDataBundle = Bundle()
+        expectedCandidateQueryDataBundle.putBoolean("key", true)
+        val expectedSystemProvider = true
+        val expectedAutoSelectAllowed = false
+        val expectedAllowedProviders: Set<ComponentName> = setOf(
+            ComponentName("pkg", "cls"),
+            ComponentName("pkg2", "cls2")
+        )
+        val option = GetCustomCredentialOption(
+            expectedType,
+            expectedBundle,
+            expectedCandidateQueryDataBundle,
+            expectedSystemProvider,
+            expectedAutoSelectAllowed,
+            expectedAllowedProviders
+        )
+
+        val convertedOption = createFrom(
+            option.type, option.requestData, option.candidateQueryData,
+            option.isSystemProviderRequired, option.allowedProviders
+        )
+
+        assertThat(convertedOption).isInstanceOf(GetCustomCredentialOption::class.java)
+        val actualOption = convertedOption as GetCustomCredentialOption
+        assertThat(actualOption.type).isEqualTo(expectedType)
+        assertThat(equals(actualOption.requestData, expectedBundle)).isTrue()
+        assertThat(
+            equals(
+                actualOption.candidateQueryData,
+                expectedCandidateQueryDataBundle
+            )
+        ).isTrue()
+        assertThat(actualOption.isAutoSelectAllowed).isEqualTo(expectedAutoSelectAllowed)
+        assertThat(actualOption.isSystemProviderRequired).isEqualTo(expectedSystemProvider)
+        assertThat(actualOption.allowedProviders)
+            .containsAtLeastElementsIn(expectedAllowedProviders)
     }
 }

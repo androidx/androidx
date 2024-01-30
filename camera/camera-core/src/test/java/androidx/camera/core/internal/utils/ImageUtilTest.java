@@ -34,8 +34,8 @@ import android.util.Rational;
 import android.util.Size;
 
 import androidx.camera.core.ImageProxy;
-import androidx.camera.testing.fakes.FakeImageInfo;
-import androidx.camera.testing.fakes.FakeImageProxy;
+import androidx.camera.testing.impl.fakes.FakeImageInfo;
+import androidx.camera.testing.impl.fakes.FakeImageProxy;
 
 import org.junit.Before;
 import org.junit.Test;

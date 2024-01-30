@@ -19,6 +19,7 @@ package androidx.wear.protolayout.expression.pipeline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
+import androidx.wear.protolayout.expression.DynamicBuilders.DynamicColor;
 import androidx.wear.protolayout.expression.proto.AnimationParameterProto.AnimationSpec;
 import androidx.wear.protolayout.expression.proto.DynamicProto.AnimatableFixedColor;
 import androidx.wear.protolayout.expression.proto.DynamicProto.StateColorSource;
@@ -31,9 +32,11 @@ class ColorNodes {
     /** Dynamic color node that has a fixed value. */
     static class FixedColorNode implements DynamicDataSourceNode<Integer> {
         private final int mValue;
-        private final DynamicTypeValueReceiver<Integer> mDownstream;
+        private final DynamicTypeValueReceiverWithPreUpdate<Integer> mDownstream;
 
-        FixedColorNode(FixedColor protoNode, DynamicTypeValueReceiver<Integer> downstream) {
+        FixedColorNode(
+                FixedColor protoNode,
+                DynamicTypeValueReceiverWithPreUpdate<Integer> downstream) {
             this.mValue = protoNode.getArgb();
             this.mDownstream = downstream;
         }
@@ -57,12 +60,13 @@ class ColorNodes {
     /** Dynamic color node that gets value from the platform source. */
     static class StateColorSourceNode extends StateSourceNode<Integer> {
         StateColorSourceNode(
-                ObservableStateStore observableStateStore,
+                DataStore dataStore,
                 StateColorSource protoNode,
-                DynamicTypeValueReceiver<Integer> downstream) {
+                DynamicTypeValueReceiverWithPreUpdate<Integer> downstream) {
             super(
-                    observableStateStore,
-                    protoNode.getSourceKey(),
+                    dataStore,
+                    StateSourceNode.<DynamicColor>createKey(
+                            protoNode.getSourceNamespace(), protoNode.getSourceKey()),
                     se -> se.getColorVal().getArgb(),
                     downstream);
         }
@@ -73,11 +77,11 @@ class ColorNodes {
             implements DynamicDataSourceNode<Integer> {
 
         private final AnimatableFixedColor mProtoNode;
-        private final DynamicTypeValueReceiver<Integer> mDownstream;
+        private final DynamicTypeValueReceiverWithPreUpdate<Integer> mDownstream;
 
         AnimatableFixedColorNode(
                 AnimatableFixedColor protoNode,
-                DynamicTypeValueReceiver<Integer> downstream,
+                DynamicTypeValueReceiverWithPreUpdate<Integer> downstream,
                 QuotaManager quotaManager) {
 
             super(quotaManager, protoNode.getAnimationSpec(), ARGB_EVALUATOR);
@@ -111,8 +115,8 @@ class ColorNodes {
     static class DynamicAnimatedColorNode extends AnimatableNode
             implements DynamicDataNode<Integer> {
 
-        final DynamicTypeValueReceiver<Integer> mDownstream;
-        private final DynamicTypeValueReceiver<Integer> mInputCallback;
+        final DynamicTypeValueReceiverWithPreUpdate<Integer> mDownstream;
+        private final DynamicTypeValueReceiverWithPreUpdate<Integer> mInputCallback;
 
         @Nullable Integer mCurrentValue = null;
         int mPendingCalls = 0;
@@ -121,7 +125,7 @@ class ColorNodes {
         // initialization but mInputCallback is only used after the constructor is finished.
         @SuppressWarnings("method.invocation.invalid")
         DynamicAnimatedColorNode(
-                DynamicTypeValueReceiver<Integer> downstream,
+                DynamicTypeValueReceiverWithPreUpdate<Integer> downstream,
                 @NonNull AnimationSpec spec,
                 QuotaManager quotaManager) {
 
@@ -135,7 +139,7 @@ class ColorNodes {
                         }
                     });
             this.mInputCallback =
-                    new DynamicTypeValueReceiver<Integer>() {
+                    new DynamicTypeValueReceiverWithPreUpdate<Integer>() {
                         @Override
                         public void onPreUpdate() {
                             mPendingCalls++;
@@ -176,7 +180,7 @@ class ColorNodes {
                     };
         }
 
-        public DynamicTypeValueReceiver<Integer> getInputCallback() {
+        public DynamicTypeValueReceiverWithPreUpdate<Integer> getInputCallback() {
             return mInputCallback;
         }
     }

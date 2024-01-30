@@ -47,8 +47,19 @@ class FlashTooSlowQuirkTest(
             arrayOf("Pixel 3a", CameraCharacteristics.LENS_FACING_BACK, true),
             arrayOf("Pixel 3a", CameraCharacteristics.LENS_FACING_FRONT, false),
             arrayOf("Pixel 3a XL", CameraCharacteristics.LENS_FACING_BACK, true),
-            arrayOf("Pixel 4", CameraCharacteristics.LENS_FACING_BACK, false),
+            arrayOf("Pixel 4", CameraCharacteristics.LENS_FACING_BACK, true),
+            arrayOf("Pixel 4 XL", CameraCharacteristics.LENS_FACING_BACK, true),
+            arrayOf("Pixel 4a", CameraCharacteristics.LENS_FACING_BACK, true),
+            arrayOf("Pixel 4a (5g)", CameraCharacteristics.LENS_FACING_BACK, true),
+            arrayOf("Pixel 5", CameraCharacteristics.LENS_FACING_BACK, true),
+            arrayOf("Pixel 5a", CameraCharacteristics.LENS_FACING_BACK, true),
+            arrayOf("Pixel 6", CameraCharacteristics.LENS_FACING_BACK, false),
+            arrayOf("sm-a320f", CameraCharacteristics.LENS_FACING_BACK, true),
+            arrayOf("SM-A320FL", CameraCharacteristics.LENS_FACING_BACK, true),
             arrayOf("Samsung S7", CameraCharacteristics.LENS_FACING_BACK, false),
+            arrayOf("moto g(20)", CameraCharacteristics.LENS_FACING_BACK, true),
+            arrayOf("itel l6006", CameraCharacteristics.LENS_FACING_BACK, true),
+            arrayOf("rmx3231", CameraCharacteristics.LENS_FACING_BACK, true),
         )
     }
 

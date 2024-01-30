@@ -21,6 +21,6 @@ import androidx.room.compiler.processing.XProcessingEnvironmentTestConfigProvide
 
 class RoomTestEnvConfigProvider : XProcessingEnvironmentTestConfigProvider {
     override fun configure(options: Map<String, String>): XProcessingEnvConfig {
-        return DatabaseProcessingStep.ENV_CONFIG
+        return DatabaseProcessingStep.getEnvConfig(options)
     }
 }

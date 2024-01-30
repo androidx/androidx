@@ -16,21 +16,16 @@
 
 package androidx.camera.camera2.internal.compat.workaround;
 
-import android.util.Rational;
 import android.util.Size;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.camera2.internal.compat.quirk.DeviceQuirks;
 import androidx.camera.camera2.internal.compat.quirk.ExtraSupportedOutputSizeQuirk;
-import androidx.camera.core.impl.utils.AspectRatioUtil;
-import androidx.camera.core.impl.utils.CompareSizesByArea;
+import androidx.camera.core.Logger;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -38,182 +33,122 @@ import java.util.List;
  *
  * 1. ExtraSupportedOutputSizeQuirk
  * 2. ExcludedSupportedSizesContainer
- * 3. TargetAspectRatio
  */
 @RequiresApi(21)
 public class OutputSizesCorrector {
+    private static final String TAG = "OutputSizesCorrector";
     private final String mCameraId;
-    private final CameraCharacteristicsCompat mCameraCharacteristicsCompat;
 
     private final ExtraSupportedOutputSizeQuirk mExtraSupportedOutputSizeQuirk =
             DeviceQuirks.get(ExtraSupportedOutputSizeQuirk.class);
 
     private final ExcludedSupportedSizesContainer mExcludedSupportedSizesContainer;
 
-    private final TargetAspectRatio mTargetAspectRatio = new TargetAspectRatio();
-
     /**
      * Constructor.
      */
-    public OutputSizesCorrector(@NonNull String cameraId,
-            @NonNull CameraCharacteristicsCompat cameraCharacteristicsCompat) {
+    public OutputSizesCorrector(@NonNull String cameraId) {
         mCameraId = cameraId;
-        mCameraCharacteristicsCompat = cameraCharacteristicsCompat;
         mExcludedSupportedSizesContainer = new ExcludedSupportedSizesContainer(mCameraId);
     }
 
     /**
      * Applies the output sizes related quirks onto the input sizes array.
      */
-    @Nullable
-    public Size[] applyQuirks(@Nullable Size[] sizes, int format) {
-        Size[] result = addExtraSupportedOutputSizesByFormat(sizes, format);
-        result = excludeProblematicOutputSizesByFormat(result, format);
-        return excludeOutputSizesByTargetAspectRatioWorkaround(result);
+    @NonNull
+    public Size[] applyQuirks(@NonNull Size[] sizes, int format) {
+        List<Size> sizeList = new ArrayList<>(Arrays.asList(sizes));
+        addExtraSupportedOutputSizesByFormat(sizeList, format);
+        excludeProblematicOutputSizesByFormat(sizeList, format);
+        if (sizeList.isEmpty()) {
+            Logger.w(TAG, "Sizes array becomes empty after excluding problematic output sizes.");
+        }
+        return sizeList.toArray(new Size[0]);
     }
 
     /**
      * Applies the output sizes related quirks onto the input sizes array.
      */
-    @Nullable
-    public <T> Size[] applyQuirks(@Nullable Size[] sizes, @NonNull Class<T> klass) {
-        Size[] result = addExtraSupportedOutputSizesByClass(sizes, klass);
-        result = excludeProblematicOutputSizesByClass(result, klass);
-        return excludeOutputSizesByTargetAspectRatioWorkaround(result);
+    @NonNull
+    public <T> Size[] applyQuirks(@NonNull Size[] sizes, @NonNull Class<T> klass) {
+        List<Size> sizeList = new ArrayList<>(Arrays.asList(sizes));
+        addExtraSupportedOutputSizesByClass(sizeList, klass);
+        excludeProblematicOutputSizesByClass(sizeList, klass);
+        if (sizeList.isEmpty()) {
+            Logger.w(TAG, "Sizes array becomes empty after excluding problematic output sizes.");
+        }
+        return sizeList.toArray(new Size[0]);
     }
 
     /**
      * Adds extra supported output sizes for the specified format by ExtraSupportedOutputSizeQuirk.
+     *
+     * @param sizeList the original sizes list which must be a mutable list
+     * @param format the image format to apply the workaround
      */
-    @Nullable
-    private Size[] addExtraSupportedOutputSizesByFormat(@Nullable Size[] sizes, int format) {
+    private void addExtraSupportedOutputSizesByFormat(@NonNull List<Size> sizeList, int format) {
         if (mExtraSupportedOutputSizeQuirk == null) {
-            return sizes;
+            return;
         }
 
         Size[] extraSizes = mExtraSupportedOutputSizeQuirk.getExtraSupportedResolutions(format);
-        return concatNullableSizeLists(Arrays.asList(sizes), Arrays.asList(extraSizes)).toArray(
-                new Size[0]);
+
+        if (extraSizes.length > 0) {
+            sizeList.addAll(Arrays.asList(extraSizes));
+        }
     }
 
     /**
      * Adds extra supported output sizes for the specified class by ExtraSupportedOutputSizeQuirk.
+     *
+     * @param sizeList the original sizes list which must be a mutable list
+     * @param klass the class to apply the workaround
      */
-    @Nullable
-    private <T> Size[] addExtraSupportedOutputSizesByClass(@Nullable Size[] sizes,
-            @NonNull Class<T> klass) {
+    private void addExtraSupportedOutputSizesByClass(@NonNull List<Size> sizeList,
+            @NonNull Class<?> klass) {
         if (mExtraSupportedOutputSizeQuirk == null) {
-            return sizes;
+            return;
         }
 
         Size[] extraSizes = mExtraSupportedOutputSizeQuirk.getExtraSupportedResolutions(klass);
-        return concatNullableSizeLists(Arrays.asList(sizes), Arrays.asList(extraSizes)).toArray(
-                new Size[0]);
+
+        if (extraSizes.length > 0) {
+            sizeList.addAll(Arrays.asList(extraSizes));
+        }
     }
 
     /**
      * Excludes problematic output sizes for the specified format by
      * ExcludedSupportedSizesContainer.
+     *
+     * @param sizeList the original sizes list which must be a mutable list
+     * @param format the image format to apply the workaround
      */
-    @Nullable
-    private Size[] excludeProblematicOutputSizesByFormat(@Nullable Size[] sizes, int format) {
-        if (sizes == null) {
-            return null;
-        }
-
+    private void excludeProblematicOutputSizesByFormat(@NonNull List<Size> sizeList, int format) {
         List<Size> excludedSizes = mExcludedSupportedSizesContainer.get(format);
 
-        List<Size> resultList = new ArrayList<>(Arrays.asList(sizes));
-        resultList.removeAll(excludedSizes);
-
-        if (resultList.isEmpty()) {
-            return null;
-        } else {
-            return resultList.toArray(new Size[0]);
+        if (excludedSizes.isEmpty()) {
+            return;
         }
+
+        sizeList.removeAll(excludedSizes);
     }
 
     /**
      * Excludes problematic output sizes for the specified class type by
      * ExcludedSupportedSizesContainer.
+     *
+     * @param sizeList the original sizes list which must be a mutable list
+     * @param klass the class to apply the workaround
      */
-    @Nullable
-    private <T> Size[] excludeProblematicOutputSizesByClass(@Nullable Size[] sizes,
-            @NonNull Class<T> klass) {
-        if (sizes == null) {
-            return null;
-        }
-
+    private void excludeProblematicOutputSizesByClass(@NonNull List<Size> sizeList,
+            @NonNull Class<?> klass) {
         List<Size> excludedSizes = mExcludedSupportedSizesContainer.get(klass);
 
-        List<Size> resultList = new ArrayList<>(Arrays.asList(sizes));
-        resultList.removeAll(excludedSizes);
-
-        if (resultList.isEmpty()) {
-            return null;
-        } else {
-            return resultList.toArray(new Size[0]);
-        }
-    }
-
-    /**
-     * Excludes output sizes by TargetAspectRatio.
-     */
-    @Nullable
-    private Size[] excludeOutputSizesByTargetAspectRatioWorkaround(@Nullable Size[] sizes) {
-        if (sizes == null) {
-            return null;
+        if (excludedSizes.isEmpty()) {
+            return;
         }
 
-        int targetAspectRatio = mTargetAspectRatio.get(mCameraId, mCameraCharacteristicsCompat);
-
-        Rational ratio = null;
-
-        switch (targetAspectRatio) {
-            case TargetAspectRatio.RATIO_4_3:
-                ratio = AspectRatioUtil.ASPECT_RATIO_4_3;
-                break;
-            case TargetAspectRatio.RATIO_16_9:
-                ratio = AspectRatioUtil.ASPECT_RATIO_16_9;
-                break;
-            case TargetAspectRatio.RATIO_MAX_JPEG:
-                Size maxJpegSize = Collections.max(Arrays.asList(sizes), new CompareSizesByArea());
-                ratio = new Rational(maxJpegSize.getWidth(), maxJpegSize.getHeight());
-                break;
-            case TargetAspectRatio.RATIO_ORIGINAL:
-                ratio = null;
-        }
-
-        if (ratio == null) {
-            return sizes;
-        }
-
-        List<Size> resultList = new ArrayList<>();
-
-        for (Size size : sizes) {
-            if (AspectRatioUtil.hasMatchingAspectRatio(size, ratio)) {
-                resultList.add(size);
-            }
-        }
-
-        if (resultList.isEmpty()) {
-            return null;
-        } else {
-            return resultList.toArray(new Size[0]);
-        }
-    }
-
-    @Nullable
-    private static List<Size> concatNullableSizeLists(@Nullable List<Size> sizeList1,
-            @Nullable List<Size> sizeList2) {
-        if (sizeList1 == null) {
-            return sizeList2;
-        } else if (sizeList2 == null) {
-            return sizeList1;
-        } else {
-            List<Size> resultList = new ArrayList<>(sizeList1);
-            resultList.addAll(sizeList2);
-            return resultList;
-        }
+        sizeList.removeAll(excludedSizes);
     }
 }

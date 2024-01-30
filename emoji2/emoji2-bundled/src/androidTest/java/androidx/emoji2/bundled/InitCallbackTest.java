@@ -15,6 +15,7 @@
  */
 package androidx.emoji2.bundled;
 
+import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.doThrow;
@@ -31,6 +32,8 @@ import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.util.concurrent.Executor;
 
 @MediumTest
 @RunWith(AndroidJUnit4.class)
@@ -164,6 +167,22 @@ public class InitCallbackTest {
 
         verify(initCallback1, times(1)).onInitialized();
         verify(initCallback2, times(1)).onInitialized();
+    }
+
+    @Test
+    public void testInitCallback_dispatchesOnExecutor() {
+        boolean[] didRun = new boolean[] { false };
+        Executor executor = new Executor() {
+            @Override
+            public void execute(Runnable r) {
+                didRun[0] = true;
+            }
+        };
+        EmojiCompat.Config config = TestConfigBuilder.config();
+        config.registerInitCallback(executor, mock(EmojiCompat.InitCallback.class));
+        EmojiCompat.reset(config);
+
+        assertEquals(didRun[0], true);
     }
 
 }

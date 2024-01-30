@@ -14,10 +14,6 @@
  * limitations under the License.
  */
 
-
-//import androidx.build.LibraryType
-//import androidx.build.LibraryGroups
-
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
@@ -27,7 +23,6 @@ plugins {
 android {
     defaultConfig {
         applicationId "androidx.core.graphics.sample"
-        minSdkVersion 17
     }
     namespace "androidx.core.graphics.sample"
 }
@@ -40,8 +35,7 @@ dependencies {
 }
 
 androidx {
-    name = "AndroidX bitmap scaling Sample"
-    // type = LibraryType.SAMPLES
+    name = "bitmap scaling Sample"
     inceptionYear = "2021"
     description = "Sample for the AndoridX graphics bitmap compatibility"
 }

@@ -31,7 +31,7 @@ android {
 }
 
 dependencies {
-    compileOnly(projectOrArtifact(":annotation:annotation-sampled"))
+    compileOnly(project(":annotation:annotation-sampled"))
 
     implementation("androidx.appcompat:appcompat:1.2.0")
     implementation("androidx.annotation:annotation-experimental:1.1.0-rc02")
@@ -52,7 +52,7 @@ dependencies {
 }
 
 androidx {
-    name = "AndroidX Paging Samples"
+    name = "Paging Samples"
     type = LibraryType.SAMPLES
     inceptionYear = "2019"
     description = "Contains the sample code for the Androidx Paging library"

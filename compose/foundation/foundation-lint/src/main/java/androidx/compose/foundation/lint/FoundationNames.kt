@@ -22,6 +22,11 @@ import androidx.compose.lint.Package
 object FoundationNames {
     val PackageName = Package("androidx.compose.foundation")
 
+    object Interaction {
+        val PackageName = Package(FoundationNames.PackageName, "interaction")
+        val MutableInteractionSource = Name(PackageName, "MutableInteractionSource")
+    }
+
     object Lazy {
         val PackageName = Package(FoundationNames.PackageName, "lazy")
         val LazyListState = Name(PackageName, "LazyListState")
@@ -36,5 +41,7 @@ object FoundationNames {
         val PackageName = Package(FoundationNames.PackageName, "layout")
         val Offset = Name(PackageName, "offset")
         val AbsoluteOffset = Name(PackageName, "absoluteOffset")
+        val BoxWithConstraints = Name(PackageName, "BoxWithConstraints")
+        val BoxWithConstraintsScope = Name(PackageName, "BoxWithConstraintsScope")
     }
 }

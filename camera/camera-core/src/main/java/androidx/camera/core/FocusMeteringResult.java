@@ -27,14 +27,12 @@ import androidx.annotation.RestrictTo;
 public final class FocusMeteringResult {
     private boolean mIsFocusSuccessful;
 
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull
     public static FocusMeteringResult emptyInstance() {
         return new FocusMeteringResult(false);
     }
 
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull
     public static FocusMeteringResult create(boolean isFocusSuccess) {

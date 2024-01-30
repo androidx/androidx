@@ -15,7 +15,6 @@
  */
 
 /**
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP)
 package androidx.core.google.shortcuts;

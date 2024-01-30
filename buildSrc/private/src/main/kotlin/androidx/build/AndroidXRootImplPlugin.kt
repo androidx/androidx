@@ -92,8 +92,6 @@ abstract class AndroidXRootImplPlugin : Plugin<Project> {
         )
         buildOnServerTask.cacheEvenIfNoOutputs()
         buildOnServerTask.distributionDirectory = getDistributionDirectory()
-        buildOnServerTask.repositoryDirectory = getRepositoryDirectory()
-        buildOnServerTask.buildId = getBuildId()
         buildOnServerTask.dependsOn(
             tasks.register(
                 CREATE_AGGREGATE_BUILD_INFO_FILES_TASK,
@@ -139,8 +137,6 @@ abstract class AndroidXRootImplPlugin : Plugin<Project> {
             }
         }
 
-        tasks.register(AndroidXImplPlugin.BUILD_TEST_APKS_TASK)
-
         // NOTE: this task is used by the Github CI as well. If you make any changes here,
         // please update the .github/workflows files as well, if necessary.
         project.tasks.register(
@@ -153,6 +149,7 @@ abstract class AndroidXRootImplPlugin : Plugin<Project> {
             it.entryCompression = ZipEntryCompression.STORED
             // Archive is greater than 4Gb :O
             it.isZip64 = true
+            it.isReproducibleFileOrder = true
         }
         project.tasks.register(
             ZIP_CONSTRAINED_TEST_CONFIGS_WITH_APKS_TASK, Zip::class.java
@@ -164,12 +161,12 @@ abstract class AndroidXRootImplPlugin : Plugin<Project> {
             it.entryCompression = ZipEntryCompression.STORED
             // Archive is greater than 4Gb :O
             it.isZip64 = true
+            it.isReproducibleFileOrder = true
         }
 
         AffectedModuleDetector.configure(gradle, this)
 
         // Needs to be called before evaluationDependsOnChildren in usingMaxDepVersions block
-        publishInspectionArtifacts()
         registerOwnersServiceTasks()
 
         // If useMaxDepVersions is set, iterate through all the project and substitute any androidx

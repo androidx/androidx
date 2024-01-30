@@ -38,11 +38,11 @@ dependencies {
     implementation(projectOrArtifact(":appcompat:appcompat"))
     implementation projectOrArtifact(":annotation:annotation")
     implementation(projectOrArtifact(":interpolator:interpolator"))
-    compileOnly(projectOrArtifact(":annotation:annotation-sampled"))
+    compileOnly(project(":annotation:annotation-sampled"))
 }
 
 androidx {
-    name = "AndroidX Splashscreen Samples"
+    name = "Splashscreen Samples"
     type = LibraryType.SAMPLES
     mavenVersion = LibraryVersions.CORE_SPLASHSCREEN
     inceptionYear = "2021"

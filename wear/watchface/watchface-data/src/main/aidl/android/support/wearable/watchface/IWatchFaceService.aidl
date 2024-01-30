@@ -27,8 +27,8 @@ import androidx.wear.watchface.style.data.UserStyleSchemaWireFormat;
 /**
  * Interface of a service that allows the watch face to interact with the wearable.
  *
- * @hide
  */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 interface IWatchFaceService {
     // IMPORTANT NOTE: All methods must be given an explicit transaction id that must never change
     // in the future to remain binary backwards compatible.

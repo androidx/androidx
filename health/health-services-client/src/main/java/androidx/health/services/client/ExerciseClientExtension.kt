@@ -15,6 +15,7 @@
  */
 package androidx.health.services.client
 
+import androidx.health.services.client.data.BatchingMode
 import androidx.health.services.client.data.DataPoint
 import androidx.health.services.client.data.DataType
 import androidx.health.services.client.data.ExerciseCapabilities
@@ -237,6 +238,19 @@ public suspend fun ExerciseClient.removeGoalFromActiveExercise(exerciseGoal: Exe
 public suspend fun ExerciseClient.overrideAutoPauseAndResumeForActiveExercise(
     enabled: Boolean
 ) = overrideAutoPauseAndResumeForActiveExerciseAsync(enabled).awaitWithException()
+
+/**
+ * Sets the batching mode for the current exercise synchronously.
+ *
+ * @param batchingModes [BatchingMode] overrides for exercise updates. Passing an empty set will
+ * clear all existing overrides.
+ * @throws HealthServicesException if an exercise is not active for this app or Health Service fails
+ * to process the call
+ */
+@kotlin.jvm.Throws(HealthServicesException::class)
+public suspend fun ExerciseClient.overrideBatchingModesForActiveExercise(
+    batchingModes: Set<BatchingMode>
+) = overrideBatchingModesForActiveExerciseAsync(batchingModes).awaitWithException()
 
 /**
  * Returns the [ExerciseCapabilities] of this client for the device.

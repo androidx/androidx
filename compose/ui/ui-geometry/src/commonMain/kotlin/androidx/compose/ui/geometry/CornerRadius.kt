@@ -38,7 +38,7 @@ fun CornerRadius(x: Float, y: Float = x) = CornerRadius(packFloats(x, y))
  * Note consumers should create an instance of this class through the corresponding
  * function constructor as it is represented as an inline class with 2 float
  * parameters packed into a single long to reduce allocation overhead
- **/
+ */
 @Immutable
 @kotlin.jvm.JvmInline
 value class CornerRadius internal constructor(@PublishedApi internal val packedValue: Long) {

@@ -38,6 +38,19 @@ for line in file:
 file.close()
 outfile.close()
 
+file = open('src/main/java/com/example/android/leanback/GuidedStepActivity.java', 'r')
+outfile = open('src/main/java/com/example/android/leanback/GuidedStepAppCompatActivity.java', 'w')
+write_java_head(outfile, "GuidedStepActivity")
+for line in file:
+    line = line.replace('android.app.Fragment', 'androidx.fragment.app.Fragment')
+    line = line.replace('android.app.Activity', 'androidx.appcompat.app.AppCompatActivity')
+    line = line.replace('GuidedStepFragment', 'GuidedStepSupportFragment')
+    line = line.replace('GuidedStepActivity', 'GuidedStepAppCompatActivity')
+    line = line.replace('extends Activity', 'extends AppCompatActivity')
+    outfile.write(line)
+file.close()
+outfile.close()
+
 file = open('src/main/java/com/example/android/leanback/GuidedStepHalfScreenActivity.java', 'r')
 outfile = open('src/main/java/com/example/android/leanback/GuidedStepSupportHalfScreenActivity.java', 'w')
 write_java_head(outfile, "GuidedStepHalfScreenActivity")

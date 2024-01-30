@@ -17,5 +17,5 @@
 package androidx.stableaidl
 
 interface StableAidlProjectDslExtension {
-    val version: Int?
+    var version: Int?
 }

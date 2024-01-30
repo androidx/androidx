@@ -1,3 +1,4 @@
+
 /*
  * Copyright 2023 The Android Open Source Project
  *
@@ -13,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package androidx.appactions.interaction.service
 
 import android.annotation.SuppressLint
@@ -21,14 +21,16 @@ import android.util.SizeF
 import android.widget.RemoteViews
 import android.widget.RemoteViewsService.RemoteViewsFactory
 import androidx.annotation.IdRes
-import androidx.wear.tiles.LayoutElementBuilders
-import androidx.wear.tiles.ResourceBuilders
+import androidx.annotation.RestrictTo
 
 /**
  * A class representing the UI response being returned to the host. A `UiResponse` cannot be built
  * directly, it must be built from a [UiResponse] Builder.
  */
+// TODO(b/284056880): Open up UI related APIs.
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class UiResponse {
+
     internal val remoteViewsInternal: RemoteViewsInternal?
     internal val tileLayoutInternal: TileLayoutInternal?
 
@@ -36,46 +38,17 @@ class UiResponse {
         this.remoteViewsInternal = remoteViewsInternal
         this.tileLayoutInternal = null
     }
-
-    internal constructor(tileLayout: TileLayoutInternal) {
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    constructor(tileLayout: TileLayoutInternal) {
         this.remoteViewsInternal = null
         this.tileLayoutInternal = tileLayout
-    }
-
-    /** Builder for TileLayouts, used in Wear OS. */
-    class TileLayoutBuilder {
-        private var layout: LayoutElementBuilders.Layout? = null
-        private var resources: ResourceBuilders.Resources? = null
-
-        /**
-         * Sets the [LayoutElementBuilders.Layout] and the associated [ResourceBuilders.Resources]
-         * to be displayed. [RemoteViews] should not be used together with
-         * [LayoutElementBuilders.Layout] in the same session.
-         *
-         * @param layout the wear-tile [LayoutElementBuilders.Layout] to be displayed.
-         * @param resources the resources associated with the layout.
-         */
-        @SuppressLint("MissingGetterMatchingBuilder")
-        fun setTileLayout(
-            layout: LayoutElementBuilders.Layout,
-            resources: ResourceBuilders.Resources
-        ): TileLayoutBuilder {
-            this.layout = layout
-            this.resources = resources
-            return this
-        }
-
-        /** Builds the UiResponse. */
-        fun build() = UiResponse(TileLayoutInternal(layout!!, resources!!))
     }
 
     /** Builder for RemoteViews UI response. */
     class RemoteViewsUiBuilder {
         private var remoteViews: RemoteViews? = null
         private var size: SizeF? = null
-        private val changedViewIds: HashSet<Int> = HashSet()
-        private val remoteViewsFactories: HashMap<Int, RemoteViewsFactory> = HashMap()
-
+        private val collectionViewFactories: HashMap<Int, RemoteViewsFactory> = HashMap()
         /**
          * Sets the `RemoteViews` to be displayed in the host.
          *
@@ -88,19 +61,6 @@ class UiResponse {
             this.size = size
             return this
         }
-
-        /**
-         * Add the specified view ID to the list of changed views for RemoteViews collection update.
-         *
-         * Any errors resulting from the provided view IDs will contain "RemoteViewsCollection
-         * error: " errors with some message from the host.
-         */
-        @SuppressLint("MissingGetterMatchingBuilder")
-        fun addViewIdForCollectionUpdate(@IdRes viewId: Int): RemoteViewsUiBuilder {
-            changedViewIds.add(viewId)
-            return this
-        }
-
         /**
          * Implemented to generate the appropriate factories for collection views (e.g. ListView).
          * Called when the host detects a collection view in the response UI. The
@@ -114,14 +74,13 @@ class UiResponse {
             @IdRes viewId: Int,
             factory: RemoteViewsFactory
         ): RemoteViewsUiBuilder {
-            remoteViewsFactories.put(viewId, factory)
+            collectionViewFactories[viewId] = factory
             return this
         }
-
         /** Builds the UiResponse. */
         fun build() =
             UiResponse(
-                RemoteViewsInternal(remoteViews!!, size!!, changedViewIds, remoteViewsFactories)
+                RemoteViewsInternal(remoteViews!!, size!!, collectionViewFactories)
             )
     }
 }

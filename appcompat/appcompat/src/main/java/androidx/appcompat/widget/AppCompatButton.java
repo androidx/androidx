@@ -113,7 +113,6 @@ public class AppCompatButton extends Button implements TintableBackgroundView,
      * This should be accessed via
      * {@link androidx.core.view.ViewCompat#setBackgroundTintList(android.view.View, ColorStateList)}
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
@@ -127,7 +126,6 @@ public class AppCompatButton extends Button implements TintableBackgroundView,
      * This should be accessed via
      * {@link androidx.core.view.ViewCompat#getBackgroundTintList(android.view.View)}
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
@@ -141,7 +139,6 @@ public class AppCompatButton extends Button implements TintableBackgroundView,
      * This should be accessed via
      * {@link androidx.core.view.ViewCompat#setBackgroundTintMode(android.view.View, PorterDuff.Mode)}
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
@@ -155,7 +152,6 @@ public class AppCompatButton extends Button implements TintableBackgroundView,
      * This should be accessed via
      * {@link androidx.core.view.ViewCompat#getBackgroundTintMode(android.view.View)}
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
@@ -226,7 +222,6 @@ public class AppCompatButton extends Button implements TintableBackgroundView,
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
@@ -242,7 +237,6 @@ public class AppCompatButton extends Button implements TintableBackgroundView,
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
@@ -263,7 +257,6 @@ public class AppCompatButton extends Button implements TintableBackgroundView,
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
@@ -279,7 +272,6 @@ public class AppCompatButton extends Button implements TintableBackgroundView,
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
@@ -300,7 +292,6 @@ public class AppCompatButton extends Button implements TintableBackgroundView,
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
@@ -316,7 +307,6 @@ public class AppCompatButton extends Button implements TintableBackgroundView,
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
@@ -332,7 +322,6 @@ public class AppCompatButton extends Button implements TintableBackgroundView,
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
@@ -348,7 +337,6 @@ public class AppCompatButton extends Button implements TintableBackgroundView,
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
@@ -397,7 +385,6 @@ public class AppCompatButton extends Button implements TintableBackgroundView,
     }
 
     /**
-     * @hide
      * @param tint the tint to apply, may be {@code null} to clear tint
      */
     @Override
@@ -408,7 +395,6 @@ public class AppCompatButton extends Button implements TintableBackgroundView,
     }
 
     /**
-     * @hide
      * @return the tint applied to the compound drawables
      */
     @Nullable
@@ -419,7 +405,6 @@ public class AppCompatButton extends Button implements TintableBackgroundView,
     }
 
     /**
-     * @hide
      * @param tintMode the blending mode used to apply the tint, may be {@code null} to clear tint
      */
     @Override
@@ -430,7 +415,6 @@ public class AppCompatButton extends Button implements TintableBackgroundView,
     }
 
     /**
-     * @hide
      * @return the blending mode used to apply the tint to the compound drawables
      */
     @Nullable

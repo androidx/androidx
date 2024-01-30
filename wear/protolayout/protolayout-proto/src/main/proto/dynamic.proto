@@ -75,6 +75,9 @@ message ArithmeticInt32Op {
 message StateInt32Source {
   // The key in the state to bind to.
   string source_key = 1;
+
+  // The namespace for the state key.
+  string source_namespace = 2;
 }
 
 // A conditional operator which yields an integer depending on the boolean
@@ -189,6 +192,7 @@ message DynamicInt32 {
     GetDurationPartOp duration_part = 7;
     AnimatableFixedInt32 animatable_fixed = 8;
     AnimatableDynamicInt32 animatable_dynamic = 9;
+    GetZonedDateTimePartOp zoned_date_time_part = 10;
   }
 }
 
@@ -214,6 +218,9 @@ message Int32FormatOp {
 message StateStringSource {
   // The key in the state to bind to.
   string source_key = 1;
+
+  // The namespace for the state key.
+  string source_namespace = 2;
 }
 
 // A conditional operator which yields an string depending on the boolean
@@ -299,6 +306,9 @@ message ArithmeticFloatOp {
 message StateFloatSource {
   // The key in the state to bind to.
   string source_key = 1;
+
+  // The namespace for the state key.
+  string source_namespace = 2;
 }
 
 // An operation to convert a Int32 value in the dynamic data pipeline to a Float
@@ -373,6 +383,9 @@ message DynamicFloat {
 message StateBoolSource {
   // The key in the state to bind to.
   string source_key = 1;
+
+  // The namespace for the state key.
+  string source_namespace = 2;
 }
 
 // The type of comparison used in ComparisonInt32Op and ComparisonFloatOp.
@@ -446,6 +459,12 @@ enum LogicalOpType {
 
   // Logical OR.
   LOGICAL_OP_TYPE_OR = 2;
+
+  // Equal check
+  LOGICAL_OP_TYPE_EQUAL = 3;
+
+  // Not Equal check.
+  LOGICAL_OP_TYPE_NOT_EQUAL = 4;
 }
 
 // A logical boolean operator, implementing "boolean result = LHS <op> RHS",
@@ -477,6 +496,9 @@ message DynamicBool {
 message StateColorSource {
   // The key in the state to bind to.
   string source_key = 1;
+
+  // The namespace for the state key.
+  string source_namespace = 2;
 }
 
 // A static interpolation node, between two fixed color values.
@@ -507,6 +529,20 @@ message AnimatableDynamicColor {
   AnimationSpec animation_spec = 3;
 }
 
+// A conditional operator which yields a color depending on the boolean
+// operand. This implements:
+// ```color result = condition ? value_if_true : value_if_false```
+message ConditionalColorOp {
+    // The condition to use.
+  DynamicBool condition = 1;
+
+  // The color to yield if condition is true.
+  DynamicColor value_if_true = 2;
+
+  // The color to yield if condition is false.
+  DynamicColor value_if_false = 3;
+}
+
 // A dynamic color type.
 message DynamicColor {
   oneof inner {
@@ -514,18 +550,80 @@ message DynamicColor {
     StateColorSource state_source = 2;
     AnimatableFixedColor animatable_fixed = 3;
     AnimatableDynamicColor animatable_dynamic = 4;
+    ConditionalColorOp conditional_op = 5;
   }
 }
 
 // A dynamic time instant that sources its value from the platform.
 message PlatformTimeSource {}
 
+// A conditional operator which yields a instant depending on the boolean
+// operand. This implements:
+// ```instant result = condition ? value_if_true : value_if_false```
+message ConditionalInstantOp {
+  // The condition to use.
+  DynamicBool condition = 1;
+
+  // The instant to yield if condition is true.
+  DynamicInstant value_if_true = 2;
+
+  // The instant to yield if condition is false.
+  DynamicInstant value_if_false = 3;
+}
+
 // A dynamic time instant type.
 message DynamicInstant {
   oneof inner {
     FixedInstant fixed = 1;
     PlatformTimeSource platform_source = 2;
+    ConditionalInstantOp conditional_op = 3;
   }
+}
+
+// A dynamic zoned date-time type.
+// <p> DynamicZonedDateTime precision is seconds. Thus, any related time
+// operation will operate on that precision level.
+message DynamicZonedDateTime {
+  oneof inner {
+    InstantToZonedDateTimeOp instant_to_zoned_date_time = 1;
+  }
+}
+
+// Converts a DynamicInstant into a DynamicZonedDateTime.
+message InstantToZonedDateTimeOp {
+  // The instant to convert.
+  DynamicInstant instant = 1;
+  // The ZoneId following the time-zone ID format used by java {@link ZoneId}.
+  string zone_id = 2;
+}
+
+// The date-time part to retrieve using ZonedDateTimePartOp.
+enum ZonedDateTimePartType {
+  // Undefined date-time part type.
+  ZONED_DATE_TIME_PART_UNDEFINED = 0;
+  // The second-of-minute field from 0 to 59.
+  ZONED_DATE_TIME_PART_SECOND = 1;
+  // The minute-of-hour field from 0 to 59.
+  ZONED_DATE_TIME_PART_MINUTE = 2;
+  // The hour-of-day field from 0 to 23.
+  ZONED_DATE_TIME_PART_HOUR_24H = 3;
+  // The day-of-week field going from MONDAY (1) to SUNDAY (7).
+  ZONED_DATE_TIME_PART_DAY_OF_WEEK = 4;
+  // The day-of-month field from 1 to 31.
+  ZONED_DATE_TIME_PART_DAY_OF_MONTH = 5;
+  // The month-of-year field from 1 to 12.
+  ZONED_DATE_TIME_PART_MONTH = 6;
+  // The year field.
+  ZONED_DATE_TIME_PART_YEAR = 7;
+}
+
+// Retrieve the specified date-time part of a DynamicZonedDateTime instance as a
+// DynamicInt32.
+message GetZonedDateTimePartOp {
+  // The zoned date-time input.
+  DynamicZonedDateTime input = 1;
+  // The date-time part to retrieve.
+  ZonedDateTimePartType part_type = 2;
 }
 
 // A dynamic duration type that represents the duration between two dynamic time
@@ -538,10 +636,26 @@ message BetweenDuration {
   DynamicInstant end_exclusive = 2;
 }
 
+// A conditional operator which yields a duration depending on the boolean
+// operand. This implements:
+// ```duration result = condition ? value_if_true : value_if_false```
+message ConditionalDurationOp {
+  // The condition to use.
+  DynamicBool condition = 1;
+
+  // The duration to yield if condition is true.
+  DynamicDuration value_if_true = 2;
+
+  // The duration to yield if condition is false.
+  DynamicDuration value_if_false = 3;
+}
+
 // A dynamic duration type.
 message DynamicDuration {
   oneof inner {
     BetweenDuration between = 1;
+    FixedDuration fixed = 2;
+    ConditionalDurationOp conditional_op = 3;
   }
 }
 

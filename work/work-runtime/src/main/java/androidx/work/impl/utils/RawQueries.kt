@@ -32,7 +32,7 @@ fun WorkQuery.toRawQuery(): SupportSQLiteQuery {
     val builder = StringBuilder("SELECT * FROM workspec")
     var conjunction = " WHERE"
     if (states.isNotEmpty()) {
-        val stateIds = states.map { stateToInt(it!!) }
+        val stateIds = states.map { stateToInt(it) }
         builder.append("$conjunction state IN (")
         bindings(builder, stateIds.size)
         builder.append(")")

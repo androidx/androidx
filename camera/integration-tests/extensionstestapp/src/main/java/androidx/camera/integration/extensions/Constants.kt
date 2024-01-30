@@ -141,6 +141,8 @@ object ValidationErrorCode {
 object ExtensionTestType {
     const val TEST_TYPE_CAMERAX_EXTENSION = "CameraX Extension"
     const val TEST_TYPE_CAMERA2_EXTENSION = "Camera2 Extension"
+    const val TEST_TYPE_CAMERA2_EXTENSION_STREAM_CONFIG_LATENCY =
+        "Camera2 Extension Stream Config Latency"
 }
 
 /**

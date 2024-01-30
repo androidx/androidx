@@ -91,19 +91,30 @@ public class KeyFrames {
                         tagName = parser.getName();
 
                         if (sKeyMakers.containsKey(tagName)) {
-                            try {
-                                Constructor<? extends Key> keyMaker = sKeyMakers.get(tagName);
-                                if (keyMaker != null) {
-                                    key = keyMaker.newInstance();
-                                    key.load(context, Xml.asAttributeSet(parser));
-                                    addKey(key);
-                                } else {
+
+                            switch (tagName) {
+                                case KeyAttributes.NAME:
+                                    key = new KeyAttributes();
+                                    break;
+                                case KeyPosition.NAME:
+                                    key = new KeyPosition();
+                                    break;
+                                case KeyCycle.NAME:
+                                    key = new KeyCycle();
+                                    break;
+                                case KeyTimeCycle.NAME:
+                                    key = new KeyTimeCycle();
+                                    break;
+                                case KeyTrigger.NAME:
+                                    key = new KeyTrigger();
+                                    break;
+                                default:
                                     throw new NullPointerException(
-                                            "Keymaker for " + tagName + " not found");
-                                }
-                            } catch (Exception e) {
-                                Log.e(TAG, "unable to create ", e);
+                                            "Key " + tagName + " not found");
                             }
+                            key.load(context, Xml.asAttributeSet(parser));
+                            addKey(key);
+
                         } else if (tagName.equalsIgnoreCase(CUSTOM_ATTRIBUTE)) {
                             if (key != null && key.mCustomConstraints != null) {
                                 ConstraintAttribute.parse(context, parser, key.mCustomConstraints);

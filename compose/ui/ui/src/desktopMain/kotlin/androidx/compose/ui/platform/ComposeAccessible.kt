@@ -19,9 +19,10 @@ package androidx.compose.ui.platform
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.node.requireCoordinator
 import androidx.compose.ui.node.Nodes
+import androidx.compose.ui.node.requireCoordinator
 import androidx.compose.ui.semantics.AccessibilityAction
+import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsConfiguration
@@ -64,6 +65,8 @@ import javax.swing.text.AttributeSet
 import kotlin.math.roundToInt
 import org.jetbrains.skia.BreakIterator
 import javax.swing.text.SimpleAttributeSet
+import kotlinx.atomicfu.atomic
+import org.jetbrains.skiko.nativeInitializeAccessible
 
 private fun <T> SemanticsConfiguration.getFirstOrNull(key: SemanticsPropertyKey<List<T>>): T? {
     return getOrNull(key)?.firstOrNull()
@@ -76,10 +79,33 @@ private typealias ActionKey = SemanticsPropertyKey<AccessibilityAction<() -> Boo
  */
 internal class ComposeAccessible(
     var semanticsNode: SemanticsNode,
-    val controller: AccessibilityControllerImpl? = null
-) : Accessible {
-    val accessibleContext: ComposeAccessibleComponent by lazy { ComposeAccessibleComponent() }
-    override fun getAccessibleContext(): AccessibleContext = accessibleContext
+    val controller: AccessibilityController? = null
+) : Accessible,
+    // Must be a subclass of java.awt.Component because CAccessible only registers property
+    // listeners with the accessible context if the Accessible is an instance of java.awt.Component
+    // (see constructor of sun.lwawt.macosx.CAccessible), even though there's no reason for it.
+    // The property change listener is what allows us to update CAccessible when some value changes.
+    java.awt.Component()
+{
+    private val isNativelyInitialized = atomic(false)
+
+    val composeAccessibleContext: ComposeAccessibleComponent by lazy { ComposeAccessibleComponent() }
+
+    var removed = false
+
+    override fun getAccessibleContext(): AccessibleContext? {
+        if (removed) {
+            // The accessibility system keeps calling functions on the context even after the node
+            // has been removed. We return null so it doesn't do that.
+            return null
+        }
+
+        // see doc for [nativeInitializeAccessible] for details, why this initialization is needed
+        if (isNativelyInitialized.compareAndSet(false, true)) {
+            nativeInitializeAccessible(this)
+        }
+        return composeAccessibleContext
+    }
 
     open inner class ComposeAccessibleComponent : AccessibleContext(), AccessibleComponent, AccessibleAction {
         val textSelectionRange
@@ -141,6 +167,16 @@ internal class ComposeAccessible(
                     add(makeScrollbarChild(true))
                 }
             }
+
+        val progressBarRangeInfo
+            get() = semanticsNode.config.getOrNull(SemanticsProperties.ProgressBarRangeInfo)
+
+        val isContainer
+            @Suppress("DEPRECATION")
+            get() = semanticsNode.config.getOrNull(SemanticsProperties.IsContainer)
+
+        val isTraversalGroup
+            get() = semanticsNode.config.getOrNull(SemanticsProperties.IsTraversalGroup)
 
         private fun makeScrollbarChild(
             vertical: Boolean
@@ -254,29 +290,11 @@ internal class ComposeAccessible(
         }
 
         override fun getAccessibleValue(): AccessibleValue? {
-            if (toggleableState != null) {
-                return object : AccessibleValue {
-                    override fun getCurrentAccessibleValue(): Number {
-                        return when (toggleableState) {
-                            ToggleableState.On -> 1
-                            else -> 0
-                        }
-                    }
-
-                    override fun setCurrentAccessibleValue(n: Number?): Boolean {
-                        TODO("Not yet implemented")
-                    }
-
-                    override fun getMinimumAccessibleValue(): Number {
-                        return 0
-                    }
-
-                    override fun getMaximumAccessibleValue(): Number {
-                        return 1
-                    }
-                }
+            return when {
+                toggleableState != null -> ToggleableAccessibleValue(this)
+                progressBarRangeInfo != null -> ProgressBarAccessibleValue(this)
+                else -> null
             }
-            return null
         }
 
         override fun getAccessibleIndexInParent(): Int {
@@ -372,28 +390,29 @@ internal class ComposeAccessible(
 
         override fun getAccessibleRole(): AccessibleRole {
             controller?.notifyIsInUse()
-            when (semanticsNode.config.getOrNull(SemanticsProperties.Role)) {
-                Role.Button -> return AccessibleRole.PUSH_BUTTON
-                Role.Checkbox -> return AccessibleRole.CHECK_BOX
-                Role.RadioButton -> return AccessibleRole.RADIO_BUTTON
+            val fromSemanticRole = when (semanticsNode.config.getOrNull(SemanticsProperties.Role)) {
+                Role.Button -> AccessibleRole.PUSH_BUTTON
+                Role.Checkbox -> AccessibleRole.CHECK_BOX
+                Role.RadioButton -> AccessibleRole.RADIO_BUTTON
                 Role.Tab -> AccessibleRole.PAGE_TAB
+                Role.DropdownList -> AccessibleRole.COMBO_BOX
+                else -> null
                 // ?
                 //  Role.Switch ->
                 //  Role.Image ->
             }
-            if (isPassword) {
-                return AccessibleRole.PASSWORD_TEXT
+
+            return when {
+                fromSemanticRole != null -> fromSemanticRole
+                isPassword -> AccessibleRole.PASSWORD_TEXT
+                scrollBy != null -> AccessibleRole.SCROLL_PANE
+                setText != null -> AccessibleRole.TEXT
+                text != null -> AccessibleRole.LABEL
+                progressBarRangeInfo != null -> AccessibleRole.PROGRESS_BAR
+                isContainer != null -> AccessibleRole.GROUP_BOX
+                isTraversalGroup != null -> AccessibleRole.GROUP_BOX
+                else -> AccessibleRole.UNKNOWN
             }
-            if (scrollBy != null) {
-                return AccessibleRole.SCROLL_PANE
-            }
-            if (setText != null) {
-                return AccessibleRole.TEXT
-            }
-            if (text != null) {
-                return AccessibleRole.LABEL
-            }
-            return AccessibleRole.PANEL
         }
 
         override fun getAccessibleStateSet(): AccessibleStateSet {
@@ -445,7 +464,7 @@ internal class ComposeAccessible(
             }
         }
 
-        open inner class ComposeAccessibleText() : AccessibleText,
+        open inner class ComposeAccessibleText : AccessibleText,
             AccessibleExtendedText {
             override fun getIndexAtPoint(p: Point): Int {
                 return textLayoutResult!!.getOffsetForPosition(p.toComposeOffset())
@@ -789,5 +808,54 @@ internal class ComposeAccessible(
         override fun doAccessibleAction(i: Int): Boolean {
             return accessibleAction?.doAccessibleAction(i) ?: false
         }
+    }
+}
+
+private class ToggleableAccessibleValue(
+    val component: ComposeAccessible.ComposeAccessibleComponent
+): AccessibleValue {
+    override fun getCurrentAccessibleValue(): Number {
+        return when (component.toggleableState) {
+            ToggleableState.On -> 1
+            else -> 0
+        }
+    }
+
+    override fun setCurrentAccessibleValue(n: Number?): Boolean {
+        // TODO: Implement this
+        return false
+    }
+
+    override fun getMinimumAccessibleValue(): Number {
+        return 0
+    }
+
+    override fun getMaximumAccessibleValue(): Number {
+        return 1
+    }
+}
+
+private class ProgressBarAccessibleValue(
+    val component: ComposeAccessible.ComposeAccessibleComponent
+): AccessibleValue {
+
+    private val rangeInfo: ProgressBarRangeInfo?
+        get() = component.progressBarRangeInfo
+
+    override fun getCurrentAccessibleValue(): Number {
+        return rangeInfo?.current ?: 0f
+    }
+
+    override fun setCurrentAccessibleValue(n: Number?): Boolean {
+        // Can't set the value of a progress bar
+        return false
+    }
+
+    override fun getMinimumAccessibleValue(): Number {
+        return rangeInfo?.range?.start ?: 0f
+    }
+
+    override fun getMaximumAccessibleValue(): Number {
+        return rangeInfo?.range?.endInclusive ?: 1f
     }
 }

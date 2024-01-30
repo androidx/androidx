@@ -30,7 +30,7 @@ internal data class FrameStatsResult(
     val lastFrameNs: Long?
 ) {
     companion object {
-        private val NAME_REGEX = Regex("(\\S+) \\(visibility=[0-9]+\\)")
+        private val NAME_REGEX = Regex("(\\S+) \\(visibility=\\d+\\)")
 
         fun parse(frameStatsOutput: String): List<FrameStatsResult> {
             return frameStatsOutput

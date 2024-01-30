@@ -22,7 +22,6 @@ import androidx.work.impl.utils.taskexecutor.TaskExecutor
 
 /**
  * A singleton class to hold an instance of each [ConstraintTracker].
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class Trackers

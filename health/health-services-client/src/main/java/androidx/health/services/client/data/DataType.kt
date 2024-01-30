@@ -184,6 +184,26 @@ abstract class DataType<T : Any, D : DataPoint<T>>(
         }
     }
 
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as DataType<*, *>
+
+        if (name != other.name) return false
+        if (timeType != other.timeType) return false
+        if (isAggregate != other.isAggregate) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = name.hashCode()
+        result = 31 * result + timeType.hashCode()
+        result = 31 * result + isAggregate.hashCode()
+        return result
+    }
+
     companion object {
         private const val TAG = "DataType"
 
@@ -325,7 +345,7 @@ abstract class DataType<T : Any, D : DataPoint<T>>(
 
         /**
          * The number of golf shots taken since the last update, where a golf shot consists of
-         * swinging the club and hitting the ball. Expressed in seconds.
+         * swinging the club and hitting the ball.
          */
         @JvmField
         val GOLF_SHOT_COUNT: DeltaDataType<Long, IntervalDataPoint<Long>> =
@@ -333,7 +353,7 @@ abstract class DataType<T : Any, D : DataPoint<T>>(
 
         /**
          * The total number of golf shots taken since the start of the current active exercise,
-         * where a golf shot consists swinging the club and hitting the ball. Expressed in seconds.
+         * where a golf shot consists swinging the club and hitting the ball.
          */
         @JvmField
         val GOLF_SHOT_COUNT_TOTAL: AggregateDataType<Long, CumulativeDataPoint<Long>> =
@@ -691,6 +711,9 @@ abstract class DataType<T : Any, D : DataPoint<T>>(
         /** The format used for a [DataProto.Value] represented as a [ByteArray]. */
         internal const val FORMAT_BYTE_ARRAY: Int = 5
 
+        /** A name prefix for custom data types. */
+        internal const val CUSTOM_DATA_TYPE_PREFIX = "health_services.device_private"
+
         @Suppress("UNCHECKED_CAST")
         internal fun aggregateFromProto(
             proto: DataProto.DataType
@@ -713,10 +736,12 @@ abstract class DataType<T : Any, D : DataPoint<T>>(
         ): List<DataType<out Any, out DataPoint<out Any>>> {
             val list = mutableListOf<DataType<out Any, out DataPoint<out Any>>>()
 
-            if (!namesOfAggregatesWithNoDelta.contains(proto.name)) {
+            val isCustom = proto.name.startsWith(CUSTOM_DATA_TYPE_PREFIX)
+
+            if (isCustom || !namesOfAggregatesWithNoDelta.contains(proto.name)) {
                 list += deltaFromProto(proto)
             }
-            if (!namesOfDeltasWithNoAggregate.contains(proto.name)) {
+            if (!isCustom && !namesOfDeltasWithNoAggregate.contains(proto.name)) {
                 list += aggregateFromProto(proto)
             }
 

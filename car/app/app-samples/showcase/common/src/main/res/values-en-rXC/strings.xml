@@ -264,6 +264,7 @@
     <string name="tab_title_list" msgid="5104962518489668123">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‏‏‎‎‎‏‏‎‏‏‎‏‏‎‎‎‎‏‏‏‏‎‎‎‎‏‎‏‏‏‎‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‎‏‎‎‏‏‎‏‎‎‎‎‏‏‎‏‏‎List Tab‎‏‎‎‏‎"</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‏‏‎‎‏‎‎‏‎‎‎‏‏‏‎‎‎‏‎‎‏‎‏‏‏‎‏‏‎‏‎‏‏‎‏‏‏‎‎‎‏‎‏‎‏‏‏‏‏‎‏‏‏‎‎‎‎‎‏‎‎‎‏‎‎Grid Tab with Long Tab Title‎‏‎‎‏‎"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‎‏‏‏‎‏‎‎‏‎‎‎‏‎‏‎‎‎‎‎‏‎‏‏‏‏‎‎‎‏‏‏‎‎‎‎‏‏‎‎‎‏‏‎‏‏‏‎‎‎‎‏‏‎‎‎‎‎‎‎‏‎‏‎Search Tab‎‏‎‎‏‎"</string>
+    <string name="tab_title_loading" msgid="5385807479734490989">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‏‏‎‎‏‎‏‎‏‎‏‏‏‏‏‎‎‎‏‏‏‎‏‏‎‏‎‏‏‏‏‎‎‎‎‏‏‎‏‎‎‎‏‏‎‏‏‏‎‏‎‏‎‏‏‏‎‏‏‎‏‏‎‏‎Loading Tab‎‏‎‎‏‎"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‏‏‎‎‎‎‎‎‎‏‎‏‏‏‎‏‏‎‏‎‏‎‏‏‎‏‎‏‏‏‏‎‏‏‎‏‎‎‏‏‏‏‎‎‏‏‏‏‎‏‏‏‏‏‏‏‎‏‏‎‎‏‏‎‎Tab Template Loading Demo‎‏‎‎‏‎"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‏‏‎‏‏‏‏‏‏‏‎‏‏‏‎‎‎‎‏‏‏‏‏‏‏‏‏‎‏‎‎‏‏‎‏‎‏‎‏‎‎‏‏‎‎‎‏‏‏‎‎‏‏‎‏‎‎‎‎‎‎‏‎‏‎Tab Template No Tabs Demo‎‏‎‎‏‎"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‎‏‎‏‏‎‎‎‎‏‎‎‎‏‏‏‏‏‏‏‎‏‏‎‎‎‏‎‎‏‎‎‎‏‏‎‎‏‎‏‎‏‏‏‎‎‏‏‏‎‎‎‎‏‎‏‏‎‎‏‏‎‎‎Images cannot be displayed for an unknown host‎‏‎‎‏‎"</string>
@@ -298,7 +299,7 @@
     <string name="some_additional_text" msgid="4009872495806318260">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‎‏‏‎‏‏‏‏‎‏‎‎‏‎‏‏‏‏‎‏‏‎‏‏‏‎‎‏‎‏‎‎‎‏‎‏‎‏‏‎‎‏‎‎‏‎‏‎‎‎‎‎‏‏‎‏‎‏‏‎‏‎‎‎Some additional text‎‏‎‎‏‎"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‏‏‎‎‎‏‏‎‏‎‎‏‎‎‏‎‏‏‎‏‏‏‏‏‏‎‏‏‎‎‏‏‏‎‎‎‎‎‎‎‎‏‏‎‏‏‏‎‎‏‏‏‏‏‏‎‎‏‏‏‎‎‏‎‎Sample selectable list‎‏‎‎‏‎"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‎‏‏‏‏‏‎‏‎‏‏‎‎‏‎‏‏‏‎‎‏‏‎‏‏‏‏‏‏‏‏‎‎‏‏‎‎‎‏‏‏‎‎‏‎‏‎‏‏‏‎‏‏‏‏‎‏‎‏‏‏‎‏‎Task Restriction Demo‎‏‎‎‏‎"</string>
-    <string name="task_limit_reached_msg" msgid="6038763366777119364">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‏‏‎‏‎‎‏‏‏‏‎‎‏‏‎‏‏‏‏‏‏‏‏‏‎‏‎‎‏‎‎‏‏‎‎‎‏‏‏‏‎‏‏‎‎‏‎‎‎‏‏‎‎‎‏‎‏‎‎‎‎‏‎‎‎Task limit reached‎‏‎‎‏‏‎\n‎‏‎‎‏‏‏‎Going forward will force stop the app‎‏‎‎‏‎"</string>
+    <string name="task_limit_reached_msg" msgid="7162842196382260992">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‏‏‏‎‎‎‏‏‎‏‏‎‎‏‏‏‏‎‎‎‎‏‏‏‎‎‎‎‎‏‏‎‏‏‏‏‏‎‎‏‏‎‎‎‏‎‏‏‎‎‎‏‏‏‏‏‎‎‎‎‎‎‎‎‎This will overflow the step count, and lead you to a new screen.‎‏‎‎‏‎"</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‎‏‎‎‏‏‎‏‎‏‏‏‏‏‎‎‎‏‎‏‏‎‎‏‎‏‏‎‎‏‎‎‎‎‏‏‏‏‎‎‎‎‎‎‏‎‎‏‏‏‎‎‎‏‏‎‎‏‏‏‏‏‏‎Task step %1$d of %2$d‎‏‎‎‏‎"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‏‏‎‎‎‎‎‎‎‏‏‏‏‏‎‎‏‎‎‎‎‎‎‎‎‎‎‏‏‏‎‏‏‏‏‎‎‏‏‏‎‏‎‎‏‎‎‎‏‏‎‏‏‎‎‏‎‎‎‏‎‎‏‏‎Click to go forward‎‏‎‎‏‎"</string>
     <string name="task_content_allowed" msgid="545061986612431190">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‎‏‏‏‏‏‏‎‎‏‎‎‎‎‎‏‏‏‎‎‏‎‏‏‏‏‏‏‎‏‎‎‏‎‏‏‎‎‏‎‎‏‏‎‏‎‎‏‎‎‏‎‎‏‎‏‎‏‎‏‏‎‎Please visit the different templates and ensure the car is in driving mode‎‏‎‎‏‎"</string>
@@ -323,6 +324,12 @@
     <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‎‏‎‏‎‎‎‏‎‏‎‎‏‏‏‎‏‎‎‎‎‎‎‏‏‏‎‎‏‎‏‎‎‏‎‎‏‏‏‏‎‏‎‎‏‎‎‏‎‏‏‏‎‎‎‏‏‎‏‎‎‎The row can also be selected‎‏‎‎‏‎"</string>
     <string name="secondary_action_toast" msgid="5076434693504006565">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‏‏‎‎‎‏‏‎‎‏‏‏‎‎‏‏‎‎‎‏‏‏‏‎‎‏‏‏‎‏‎‏‎‎‏‎‎‏‏‏‏‏‎‎‎‏‏‎‎‏‏‏‏‎‎‏‏‎‏‎‎‏‎‏‎Secondary Action is selected‎‏‎‎‏‎"</string>
     <string name="row_primary_action_toast" msgid="756516694751965204">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‎‎‏‎‏‎‎‏‏‏‏‏‏‏‏‎‏‎‏‏‏‏‏‏‏‎‏‏‎‎‏‏‏‏‏‎‎‏‎‏‎‏‎‏‏‏‏‏‏‏‎‎‎‎‎‎‎‏‎‏‎‎‎Row primary action is selected‎‏‎‎‏‎"</string>
+    <string name="sectioned_item_list_demo_title" msgid="1236735461225007729">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‎‏‏‎‎‎‏‎‎‏‎‏‎‎‏‏‏‎‎‎‏‎‎‎‏‎‏‏‎‎‏‎‏‏‏‎‏‏‏‎‏‏‏‎‎‏‎‎‎‎‎‏‎‏‎‎‏‏‏‎‎‎‏‎Sectioned Item List Demo‎‏‎‎‏‎"</string>
+    <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‏‏‎‏‏‎‏‏‏‎‎‎‎‎‏‏‎‏‎‏‎‎‎‏‏‏‏‎‏‎‏‏‎‏‎‎‎‏‎‎‎‏‏‎‎‏‏‎‎‏‏‎‎‎‏‏‎‏‏‎‏‎‏‎‎List 1‎‏‎‎‏‎"</string>
+    <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‏‏‎‎‎‏‎‎‏‎‎‏‎‎‏‏‏‏‏‎‎‏‎‏‎‏‎‏‎‏‏‏‏‏‏‎‎‎‎‎‎‏‎‎‎‎‏‏‏‏‎‏‎‎‏‎‏‏‏‏‎‎‎‏‎List 2‎‏‎‎‏‎"</string>
+    <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‎‏‎‏‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‏‎‎‏‎‎‎‏‎‎‎‏‎‏‎‎‎‎‏‏‏‎‏‏‎‎‎‎‎‎‎‎‏‎‎‎‏‏‎‏‏‏‏‎Subtext under each list‎‏‎‎‏‎"</string>
+    <string name="empty_list_demo_title" msgid="5989013634820902455">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‏‏‎‏‎‎‏‏‎‎‎‏‏‏‎‏‎‏‎‎‎‎‎‎‎‎‏‎‏‎‏‏‎‏‏‏‎‎‏‎‎‏‏‏‏‎‎‎‏‎‎‎‏‏‏‎‎‎‏‏‎‏‏‏‎Empty List Demo‎‏‎‎‏‎"</string>
+    <string name="empty_list_message" msgid="5331395517560728138">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‏‏‎‎‏‎‎‏‏‏‏‏‏‏‎‎‏‏‏‎‏‎‏‏‏‏‏‏‏‎‎‏‏‏‏‎‏‏‎‏‎‏‎‏‎‎‎‏‎‎‏‎‏‎‏‎‎‏‎‎‏‎‏‎‎The list is empty‎‏‎‎‏‎"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‏‏‎‏‎‏‎‎‎‏‎‏‎‏‏‎‎‏‏‏‎‎‎‏‎‎‎‎‎‏‎‎‎‏‎‎‎‎‎‎‎‏‎‏‎‎‎‏‎‎‎‏‏‎‏‏‎‎‏‏‎‎‏‎‎Misc Templates Demos‎‏‎‎‏‎"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‎‏‏‎‏‎‏‎‏‏‎‎‏‏‎‏‎‎‏‏‏‎‏‎‎‏‎‎‎‎‏‎‎‎‏‎‏‏‏‏‎‏‏‎‎‏‏‏‏‎‎‏‎‎‎‎‎‎‏‏‎‎‎‎Showcase Demos‎‏‎‎‏‎"</string>
     <string name="template_layouts_demo_title" msgid="788249269446087847">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‎‎‏‎‏‎‏‏‏‏‎‎‎‎‎‏‏‎‏‏‎‎‏‎‎‎‏‎‎‎‏‏‎‎‎‎‏‏‏‏‎‎‏‎‏‏‏‎‎‏‎‏‎‎‏‎‏‎‎‏‏‏‎Template Layout Demos‎‏‎‎‏‎"</string>

@@ -41,6 +41,7 @@ import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -153,8 +154,8 @@ fun FocusGrabber(modifier: Modifier = Modifier) {
 }
 
 private class ResizableState {
-    var widthOverride by mutableStateOf(-1)
-    var heightOverride by mutableStateOf(-1)
+    var widthOverride by mutableIntStateOf(-1)
+    var heightOverride by mutableIntStateOf(-1)
 
     fun resetToMaxSize() {
         widthOverride = -1

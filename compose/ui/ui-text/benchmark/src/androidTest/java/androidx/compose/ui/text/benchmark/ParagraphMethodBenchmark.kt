@@ -20,7 +20,6 @@ import android.content.Context
 import androidx.benchmark.junit4.BenchmarkRule
 import androidx.benchmark.junit4.measureRepeated
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.Paragraph
 import androidx.compose.ui.text.ParagraphIntrinsics
 import androidx.compose.ui.text.TextStyle
@@ -60,7 +59,6 @@ class ParagraphMethodBenchmark(private val textType: TextType, private val textL
     private val context: Context = InstrumentationRegistry.getInstrumentation().context
 
     // A fake resource loader required to construct Paragraph
-    @OptIn(ExperimentalTextApi::class)
     private val fontFamilyResolver = createFontFamilyResolver(context)
 
     private fun paragraphIntrinsics(

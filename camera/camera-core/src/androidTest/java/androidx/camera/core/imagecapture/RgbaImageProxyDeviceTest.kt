@@ -25,8 +25,8 @@ import androidx.camera.core.imagecapture.Utils.SENSOR_TO_BUFFER
 import androidx.camera.core.imagecapture.Utils.TIMESTAMP
 import androidx.camera.core.imagecapture.Utils.WIDTH
 import androidx.camera.core.processing.Packet
-import androidx.camera.testing.ExifUtil
-import androidx.camera.testing.TestImageUtil
+import androidx.camera.testing.impl.ExifUtil
+import androidx.camera.testing.impl.TestImageUtil
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest

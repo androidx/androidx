@@ -18,8 +18,7 @@ package androidx.compose.runtime
 
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.runtime.snapshots.SnapshotContextElement
-
-internal expect fun getCurrentThreadId(): Long
+import kotlinx.coroutines.CancellationException
 
 /**
  * Returns the hash code for the given object that is unique across all currently allocated objects.
@@ -36,9 +35,10 @@ internal expect fun getCurrentThreadId(): Long
  * if (identityHashCode(midVal) < identityHashCode(leftVal)) ...
  * ```
  */
-internal expect fun identityHashCode(instance: Any?): Int
+@InternalComposeApi
+expect fun identityHashCode(instance: Any?): Int
 
-expect class AtomicReference<V>(value: V) {
+internal expect class AtomicReference<V>(value: V) {
     fun get(): V
     fun set(value: V)
     fun getAndSet(value: V): V
@@ -49,14 +49,19 @@ internal expect class AtomicInt(value: Int) {
     fun get(): Int
     fun set(value: Int)
     fun add(amount: Int): Int
+    fun compareAndSet(expect: Int, newValue: Int): Boolean
 }
 
 internal fun AtomicInt.postIncrement(): Int = add(1) - 1
 
 expect annotation class CompositionContextLocal
 
+internal expect class WeakReference<T : Any>(reference: T) {
+    fun get(): T?
+}
+
 @MustBeDocumented
-@Retention(AnnotationRetention.SOURCE)
+@Retention(AnnotationRetention.BINARY)
 @Target(
     AnnotationTarget.FUNCTION,
     AnnotationTarget.CONSTRUCTOR,
@@ -101,3 +106,15 @@ internal expect class SnapshotContextElementImpl(
 ) : SnapshotContextElement
 
 internal expect fun logError(message: String, e: Throwable)
+
+internal expect fun currentThreadId(): Long
+
+internal expect fun currentThreadName(): String
+
+/**
+ * Represents a platform-optimized cancellation exception.
+ * This allows us to configure exceptions separately on JVM and other platforms.
+ */
+internal expect abstract class PlatformOptimizedCancellationException(
+    message: String? = null
+) : CancellationException

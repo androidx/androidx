@@ -12,7 +12,6 @@ import androidx.annotation.RestrictTo;
  * Simple struct-like class for output parameters.
  * @param <T> The type of the parameter.
  * icu_annot::stable ICU 4.8
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class Output<T> {

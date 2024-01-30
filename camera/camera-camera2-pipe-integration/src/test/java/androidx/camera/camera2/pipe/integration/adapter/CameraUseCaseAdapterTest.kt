@@ -21,6 +21,7 @@ import android.hardware.camera2.CameraCaptureSession.CaptureCallback
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CaptureRequest
 import android.os.Build
+import android.util.Size
 import android.view.Surface
 import androidx.camera.camera2.pipe.integration.impl.Camera2ImplConfig
 import androidx.camera.camera2.pipe.integration.impl.createCaptureRequestOption
@@ -41,6 +42,8 @@ import org.robolectric.annotation.Config
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 class CameraUseCaseAdapterTest {
 
+    private val resolution: Size = Size(640, 480)
+
     @Test
     fun shouldApplyOptionsFromConfigToBuilder_whenDefaultConfigSet() {
         // Arrange
@@ -60,7 +63,7 @@ class CameraUseCaseAdapterTest {
         val builder = CaptureConfig.Builder()
 
         // Act
-        CameraUseCaseAdapter.DefaultCaptureOptionsUnpacker.unpack(useCaseConfig, builder)
+        CameraUseCaseAdapter.DefaultCaptureOptionsUnpacker.INSTANCE.unpack(useCaseConfig, builder)
 
         // Assert
         val config = builder.build()
@@ -115,7 +118,8 @@ class CameraUseCaseAdapterTest {
         val builder = SessionConfig.Builder()
 
         // Act
-        CameraUseCaseAdapter.DefaultSessionOptionsUnpacker.unpack(useCaseConfig, builder)
+        CameraUseCaseAdapter.DefaultSessionOptionsUnpacker.unpack(resolution,
+            useCaseConfig, builder)
 
         // Assert
         val config = builder.build()
@@ -159,6 +163,7 @@ class CameraUseCaseAdapterTest {
         // Act
         val sessionBuilder = SessionConfig.Builder()
         CameraUseCaseAdapter.DefaultSessionOptionsUnpacker.unpack(
+            resolution,
             imageCaptureBuilder.useCaseConfig,
             sessionBuilder
         )
@@ -189,7 +194,11 @@ class CameraUseCaseAdapterTest {
             CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_AUTO
         ).setCaptureRequestOption<Int>(
             CaptureRequest.FLASH_MODE, CaptureRequest.FLASH_MODE_TORCH
-        ).setPhysicalCameraId(physicalCameraId)
+        ).apply {
+            if (Build.VERSION.SDK_INT >= 28) {
+                setPhysicalCameraId(physicalCameraId)
+            }
+        }
         val useCaseConfig = imageCaptureConfigBuilder.useCaseConfig
         val priorityAfMode = useCaseConfig.getCaptureRequestOptionPriority(
             CaptureRequest.CONTROL_AF_MODE
@@ -200,7 +209,8 @@ class CameraUseCaseAdapterTest {
         val sessionBuilder = SessionConfig.Builder()
 
         // Act
-        CameraUseCaseAdapter.DefaultSessionOptionsUnpacker.unpack(useCaseConfig, sessionBuilder)
+        CameraUseCaseAdapter.DefaultSessionOptionsUnpacker.unpack(resolution,
+            useCaseConfig, sessionBuilder)
         val sessionConfig = sessionBuilder.build()
 
         // Assert
@@ -216,10 +226,11 @@ class CameraUseCaseAdapterTest {
                 CaptureRequest.FLASH_MODE, CaptureRequest.FLASH_MODE_OFF
             )
         ).isEqualTo(CaptureRequest.FLASH_MODE_TORCH)
-        assertThat(
-            config.getPhysicalCameraId(null)
-        ).isEqualTo(physicalCameraId)
-
+        if (Build.VERSION.SDK_INT >= 28) {
+            assertThat(
+                config.getPhysicalCameraId(null)
+            ).isEqualTo(physicalCameraId)
+        }
         // Make sures the priority of Camera2Interop is preserved after unpacking.
         assertThat(config.getCaptureRequestOptionPriority(CaptureRequest.CONTROL_AF_MODE))
             .isEqualTo(priorityAfMode)
@@ -239,7 +250,7 @@ class CameraUseCaseAdapterTest {
 
         // Act
         val captureBuilder = CaptureConfig.Builder()
-        CameraUseCaseAdapter.DefaultCaptureOptionsUnpacker.unpack(
+        CameraUseCaseAdapter.DefaultCaptureOptionsUnpacker.INSTANCE.unpack(
             imageCaptureBuilder.useCaseConfig,
             captureBuilder
         )
@@ -277,7 +288,9 @@ class CameraUseCaseAdapterTest {
         val captureBuilder = CaptureConfig.Builder()
 
         // Act
-        CameraUseCaseAdapter.DefaultCaptureOptionsUnpacker.unpack(useCaseConfig, captureBuilder)
+        CameraUseCaseAdapter.DefaultCaptureOptionsUnpacker.INSTANCE.unpack(
+            useCaseConfig, captureBuilder
+        )
         val captureConfig = captureBuilder.build()
 
         // Assert

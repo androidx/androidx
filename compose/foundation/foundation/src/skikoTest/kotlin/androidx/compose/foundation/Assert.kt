@@ -23,6 +23,9 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue
 
+// TODO: may be replace it with :kruth or with the published androidx.kruth:1.1.0-SNAPSHOT?
+//  So tests copied from androidx will work properly
+
 internal class AssertThat<T>(val t: T?, val message: String? = null)
 
 internal class AssertMessage(private val message: String) {
@@ -65,9 +68,14 @@ internal fun AssertThat<Boolean>.isTrue() = assertTrue(t == true, message)
 
 internal fun AssertThat<Boolean>.isFalse() = assertTrue(t == false, message)
 
-internal fun <K, T : Iterable<K>> AssertThat<T>.containsExactly(vararg any: K) {
+internal fun <K, T : Iterable<K>> AssertThat<T>.containsExactlyInOrder(vararg any: K) {
     require(t != null)
     assertContentEquals(t, any.toList(), message)
+}
+
+internal fun <K : Comparable<K>, T : Iterable<K>> AssertThat<T>.containsExactly(vararg any: K) {
+    require(t != null)
+    assertContentEquals(t.sorted(), any.sorted(), message)
 }
 
 internal fun <K, T : Iterable<K>> AssertThat<T>.containsAtLeast(vararg any: K) {

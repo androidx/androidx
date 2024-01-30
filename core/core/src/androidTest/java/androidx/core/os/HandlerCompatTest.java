@@ -28,7 +28,6 @@ import android.os.Looper;
 import android.os.Message;
 
 import androidx.test.filters.MediumTest;
-import androidx.test.filters.SdkSuppress;
 
 import org.junit.After;
 import org.junit.Before;
@@ -117,7 +116,6 @@ public final class HandlerCompatTest {
         assertTrue(latch.await(1, SECONDS));
     }
 
-    @SdkSuppress(minSdkVersion = 17)
     @Test
     public void createAsyncWhenAsyncAvailable() throws InterruptedException {
         Handler handler = HandlerCompat.createAsync(mThread.getLooper());
@@ -155,7 +153,6 @@ public final class HandlerCompatTest {
         assertTrue(latch.await(1, SECONDS));
     }
 
-    @SdkSuppress(minSdkVersion = 17)
     @Test
     public void createAsyncWithCallbackWhenAsyncAvailable() throws InterruptedException {
         final CountDownLatch latch = new CountDownLatch(1);
@@ -174,7 +171,6 @@ public final class HandlerCompatTest {
         assertTrue(isAsync.get());
     }
 
-    @SdkSuppress(minSdkVersion = 16)
     @Test
     public void testHasCallbacks() {
         Runnable r = new Runnable() {

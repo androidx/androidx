@@ -1,0 +1,132 @@
+/*
+ * Copyright 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import androidx.build.LibraryType
+
+plugins {
+    id("AndroidXPlugin")
+    id("kotlin-multiplatform")
+}
+
+kotlin {
+    iosX64("uikitX64") {
+        configureCInterop(it, false, "x86_64")
+    }
+    iosArm64("uikitArm64") {
+        configureCInterop(it, true, "arm64")
+    }
+    iosSimulatorArm64("uikitSimArm64") {
+        configureCInterop(it, false, "arm64")
+    }
+
+    sourceSets {
+        commonMain {}
+        def uikitMain = sourceSets.create("uikitMain")
+        def uikitX64Main = sourceSets.getByName("uikitX64Main")
+        def uikitArm64Main = sourceSets.getByName("uikitArm64Main")
+        def uikitSimArm64Main = sourceSets.getByName("uikitSimArm64Main")
+
+        uikitMain.dependsOn(commonMain)
+        uikitX64Main.dependsOn(uikitMain)
+        uikitArm64Main.dependsOn(uikitMain)
+        uikitSimArm64Main.dependsOn(uikitMain)
+    }
+}
+
+def configureCInterop(target, isDevice, architecture) {
+    def frameworkName = "CMPUIKitUtils"
+    def schemeName = frameworkName
+    def objcDir = new File(project.projectDir, "src/uikitMain/objc")
+    def frameworkSourcesDir = new File(objcDir, frameworkName)
+    def sdkName
+    def destination
+    if (isDevice) {
+        sdkName = "iphoneos"
+        destination = "generic/platform=iOS"
+    } else {
+        sdkName = "iphonesimulator"
+        destination = "generic/platform=iOS Simulator"
+    }
+    def buildDir = new File(project.buildDir, "objc/${sdkName}.xcarchive")
+    def frameworkPath = new File(buildDir, "/Products/usr/local/lib/lib${frameworkName}.a")
+    def headersPath = new File(frameworkSourcesDir, frameworkName)
+
+    def systemFrameworks = ["UIKit", frameworkName]
+    def linkerFlags = ["-ObjC"] + systemFrameworks.collectMany {
+        ["-framework", it]
+    }
+    def compilerArgs = [
+            "-include-binary", frameworkPath.toString(),
+    ] + linkerFlags.collectMany {
+        ["-linker-option", it]
+    }
+
+    target.compilations.main {
+        def taskName = "${compileTaskProvider.name}ObjCLib"
+        project.tasks.register(taskName, Exec) {
+            inputs.dir(frameworkSourcesDir)
+                    .withPropertyName("${frameworkName}-${sdkName}")
+                    .withPathSensitivity(PathSensitivity.RELATIVE)
+
+            outputs.cacheIf { true }
+            outputs.dir(buildDir)
+                    .withPropertyName("${frameworkName}-${sdkName}-archive")
+
+            workingDir(frameworkSourcesDir)
+            commandLine("xcodebuild")
+            args(
+                    "archive",
+                    "-scheme", schemeName,
+                    "-archivePath", buildDir,
+                    "-sdk", sdkName,
+                    "-destination", destination,
+                    "SKIP_INSTALL=NO",
+                    "BUILD_LIBRARY_FOR_DISTRIBUTION=YES",
+                    "VALID_ARCHS=" + architecture,
+                    "MACH_O_TYPE=staticlib"
+            )
+        }
+
+        tasks[compileTaskProvider.name].dependsOn(taskName)
+
+        cinterops {
+            utils {
+                headersPath.eachFileRecurse {
+                    if (it.name.endsWith('.h')) {
+                        headers(it)
+                    }
+                }
+            }
+        }
+    }
+
+    target.binaries.all {
+        freeCompilerArgs += compilerArgs
+    }
+    target.compilations.all {
+        kotlinOptions {
+            freeCompilerArgs += compilerArgs
+        }
+    }
+}
+
+androidx {
+    name = "Compose UIKit Utils"
+    type = LibraryType.PUBLISHED_LIBRARY
+    inceptionYear = "2023"
+    description = "Internal iOS UIKit utilities including Objective-C library."
+    legacyDisableKotlinStrictApiMode = true
+}

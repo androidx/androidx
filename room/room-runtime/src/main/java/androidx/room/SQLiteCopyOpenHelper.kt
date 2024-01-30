@@ -20,8 +20,8 @@ import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.room.Room.LOG_TAG
-import androidx.room.util.readVersion
 import androidx.room.util.copy
+import androidx.room.util.readVersion
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.db.SupportSQLiteOpenHelper
 import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory

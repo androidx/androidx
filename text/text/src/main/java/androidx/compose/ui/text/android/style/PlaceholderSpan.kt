@@ -21,7 +21,6 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.text.style.ReplacementSpan
 import androidx.annotation.IntDef
-import androidx.compose.ui.text.android.InternalPlatformTextApi
 import kotlin.math.ceil
 import kotlin.math.max
 import kotlin.math.min
@@ -40,10 +39,8 @@ import kotlin.math.min
  * @param pxPerSp The number of pixels 1 Sp equals to.
  * @param verticalAlign How the inline element is aligned with the text.
  *
- * @suppress
  */
-@InternalPlatformTextApi
-class PlaceholderSpan(
+internal class PlaceholderSpan(
     private val width: Float,
     @Unit
     private val widthUnit: Int,

@@ -264,6 +264,7 @@
     <string name="tab_title_list" msgid="5104962518489668123">"Ցանկերի ներդիր"</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"Ցանցերի ներդիր՝ երկար վերնագրով"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"Որոնումների ներդիր"</string>
+    <string name="tab_title_loading" msgid="5385807479734490989">"Ներդիրի բեռնում"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"Ներդիրների ձևանմուշի բեռնման դեմո"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"Առանց ներդիրների ձևանմուշի դեմո"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"Պատկերները չեն կարող ցուցադրվել անհայտ խնամորդի համար"</string>
@@ -298,7 +299,7 @@
     <string name="some_additional_text" msgid="4009872495806318260">"Լրացուցիչ տեքստ"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"Ընտրելու տարբերակներով ցանկի օրինակ"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"Առաջադրանքների սահմանափակման դեմո"</string>
-    <string name="task_limit_reached_msg" msgid="6038763366777119364">"Առաջադրանքների սահմանաչափը սպառված է։\nԵթե շարունակեք, հավելվածի աշխատանքը կկանգնեցվի։"</string>
+    <string name="task_limit_reached_msg" msgid="7162842196382260992">"Քայլերի սահմանաչափը կարող է գերազանցվել, և կբացվի նոր էկրան։"</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"Առաջադրանքի քայլ %1$d՝ %2$d-ից"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"Սեղմեք՝ առաջ անցնելու համար"</string>
     <string name="task_content_allowed" msgid="545061986612431190">"Դիտեք տարբեր ձևանմուշներ և համոզվեք, որ մեքենան վարելու ռեժիմում է"</string>
@@ -323,6 +324,12 @@
     <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"Շարքը ևս կարելի է ընտրել"</string>
     <string name="secondary_action_toast" msgid="5076434693504006565">"Ընտրված է շարքի երկրորդական գործողությունը"</string>
     <string name="row_primary_action_toast" msgid="756516694751965204">"Ընտրված է շարքի գլխավոր գործողությունը"</string>
+    <string name="sectioned_item_list_demo_title" msgid="1236735461225007729">"Բաժիններով օբյեկտների ցանկի ցուցադրում"</string>
+    <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"Ցանկ 1"</string>
+    <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"Ցանկ 2"</string>
+    <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"Նկարագրություն՝ յուրաքանչյուր ցանկի տակ"</string>
+    <string name="empty_list_demo_title" msgid="5989013634820902455">"Դատարկ ցանկի ցուցադրում"</string>
+    <string name="empty_list_message" msgid="5331395517560728138">"Ցանկը դատարկ է"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"Այլ ձևանմուշների դեմոներ"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"Ցուցադրել դեմոները"</string>
     <string name="template_layouts_demo_title" msgid="788249269446087847">"Ձևանմուշի դասավորության դեմոներ"</string>

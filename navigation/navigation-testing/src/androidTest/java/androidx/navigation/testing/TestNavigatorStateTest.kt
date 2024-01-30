@@ -380,7 +380,8 @@ class TestNavigatorStateTest {
 
     @Navigator.Name("test")
     internal class TestTransitionNavigator : Navigator<NavDestination>() {
-        val testLifecycle = TestLifecycleOwner().lifecycle
+        private val testLifecycleOwner = TestLifecycleOwner()
+        val testLifecycle = testLifecycleOwner.lifecycle
 
         override fun createDestination(): NavDestination = NavDestination(this)
 

@@ -1,5 +1,113 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.0.0-alpha05" type="baseline" client="gradle" dependencies="false" name="AGP (8.0.0-alpha05)" variant="all" version="8.0.0-alpha05">
+<issues format="6" by="lint 8.2.0-alpha15" type="baseline" client="gradle" dependencies="false" name="AGP (8.2.0-alpha15)" variant="all" version="8.2.0-alpha15">
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="                    Thread.sleep(PrefHelper.getPreviewBuffer(activity)) // Let preview run"
+        errorLine2="                           ~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/antelope/cameracontrollers/Camera1Controller.kt"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="                    Thread.sleep(PrefHelper.getPreviewBuffer(activity)) // Let preview run"
+        errorLine2="                           ~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/antelope/cameracontrollers/Camera1Controller.kt"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="                Thread.sleep(PrefHelper.getPreviewBuffer(activity)) // Let preview run"
+        errorLine2="                       ~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/antelope/cameracontrollers/Camera1Controller.kt"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(PrefHelper.getPreviewBuffer(activity))"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/antelope/cameracontrollers/Camera1Controller.kt"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="    sleep(PrefHelper.getPreviewBuffer(activity))"
+        errorLine2="    ~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/antelope/cameracontrollers/Camera2Controller.kt"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="                        Thread.sleep(PrefHelper.getPreviewBuffer(activity)) // Let preview run"
+        errorLine2="                               ~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/antelope/cameracontrollers/Camera2PreviewSessionStateCallback.kt"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="                        Thread.sleep(PrefHelper.getPreviewBuffer(activity)) // Let preview run"
+        errorLine2="                               ~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/antelope/cameracontrollers/Camera2PreviewSessionStateCallback.kt"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="                    Thread.sleep(PrefHelper.getPreviewBuffer(activity)) // Let preview run"
+        errorLine2="                           ~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/antelope/cameracontrollers/Camera2PreviewSessionStateCallback.kt"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="    Thread.sleep(PrefHelper.getPreviewBuffer(activity))"
+        errorLine2="           ~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/antelope/cameracontrollers/CameraXController.kt"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="                        Thread.sleep(PrefHelper.getPreviewBuffer(activity)) // Let preview run"
+        errorLine2="                               ~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/antelope/cameracontrollers/CameraXPreviewSessionStateCallback.kt"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="                        Thread.sleep(PrefHelper.getPreviewBuffer(activity)) // Let preview run"
+        errorLine2="                               ~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/antelope/cameracontrollers/CameraXPreviewSessionStateCallback.kt"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="                    Thread.sleep(PrefHelper.getPreviewBuffer(activity)) // Let preview run"
+        errorLine2="                           ~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/antelope/cameracontrollers/CameraXPreviewSessionStateCallback.kt"/>
+    </issue>
 
     <issue
         id="ClassVerificationFailure"
@@ -20,21 +128,21 @@
     </issue>
 
     <issue
-        id="PermissionImpliesUnsupportedChromeOsHardware"
-        message="Permission exists without corresponding hardware `&lt;uses-feature android:name=&quot;android.hardware.camera&quot; required=&quot;false&quot;>` tag"
-        errorLine1="    &lt;uses-permission android:name=&quot;android.permission.CAMERA&quot; />"
-        errorLine2="     ~~~~~~~~~~~~~~~">
+        id="RestrictedApiAndroidX"
+        message="CameraXExecutors.directExecutor can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="                    surface, CameraXExecutors.directExecutor(),"
+        errorLine2="                                              ~~~~~~~~~~~~~~">
         <location
-            file="src/main/AndroidManifest.xml"/>
+            file="src/main/java/androidx/camera/integration/antelope/cameracontrollers/CameraXController.kt"/>
     </issue>
 
     <issue
-        id="PermissionImpliesUnsupportedChromeOsHardware"
-        message="Permission exists without corresponding hardware `&lt;uses-feature android:name=&quot;android.hardware.camera.autofocus&quot; required=&quot;false&quot;>` tag"
-        errorLine1="    &lt;uses-permission android:name=&quot;android.permission.CAMERA&quot; />"
-        errorLine2="     ~~~~~~~~~~~~~~~">
+        id="RestrictedApiAndroidX"
+        message="CameraXExecutors.mainThreadExecutor can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="                CameraXExecutors.mainThreadExecutor(),"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/AndroidManifest.xml"/>
+            file="src/main/java/androidx/camera/integration/antelope/cameracontrollers/CameraXController.kt"/>
     </issue>
 
 </issues>

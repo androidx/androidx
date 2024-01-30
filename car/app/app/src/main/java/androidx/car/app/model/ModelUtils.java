@@ -31,7 +31,6 @@ import java.util.List;
 /**
  * Utility class for common operations on the car app models
  *
- * @hide
  */
 @RestrictTo(LIBRARY)
 public final class ModelUtils {

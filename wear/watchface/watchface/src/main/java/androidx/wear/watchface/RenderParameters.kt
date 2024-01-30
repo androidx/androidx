@@ -213,7 +213,6 @@ constructor(
             RenderParameters(DrawMode.INTERACTIVE, WatchFaceLayer.ALL_WATCH_FACE_LAYERS, null)
     }
 
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public constructor(
         wireFormat: RenderParametersWireFormat
@@ -259,7 +258,6 @@ constructor(
             ?: emptyMap()
     )
 
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun toWireFormat(): RenderParametersWireFormat {
         val idAndTapEventWireFormats =

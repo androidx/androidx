@@ -32,7 +32,7 @@
 // later when a module using the interface is updated, e.g., Mainline modules.
 
 package androidx.core.app.unusedapprestrictions;
-/* @hide */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 interface IUnusedAppRestrictionsBackportCallback {
   oneway void onIsPermissionRevocationEnabledForAppResult(boolean success, boolean isEnabled);
 }

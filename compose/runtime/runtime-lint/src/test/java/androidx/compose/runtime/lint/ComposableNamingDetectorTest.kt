@@ -187,7 +187,7 @@ Fix for src/androidx/compose/runtime/foo/test.kt line 7: Change to getInt:
     }
 
     @Test
-    fun ignoreOverriddenOperatorComposableFunctions() {
+    fun ignoreInvalidOverrides() {
         lint().files(
             kotlin(
                 """
@@ -195,20 +195,27 @@ Fix for src/androidx/compose/runtime/foo/test.kt line 7: Change to getInt:
 
                 import androidx.compose.runtime.Composable
 
-                interface Test {
+                interface Test<T> {
                     @Composable
                     operator fun invoke()
 
+                    @Suppress("ComposableNaming")
                     @Composable
-                    operator fun unaryPlus()
+                    fun button()
+
+                    @Composable
+                    fun generic(): T
                 }
 
-                object TestImpl : Test {
+                object TestImpl : Test<Unit> {
                     @Composable
                     override fun invoke() {}
 
                     @Composable
-                    override fun unaryPlus() {}
+                    override fun button() {}
+
+                    @Composable
+                    override fun generic() {}
                 }
             """
             ),

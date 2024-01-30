@@ -16,10 +16,10 @@
 
 package androidx.datastore.migrations
 
-import androidx.annotation.DoNotInline
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Build
+import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.datastore.core.DataMigration
 import java.io.File

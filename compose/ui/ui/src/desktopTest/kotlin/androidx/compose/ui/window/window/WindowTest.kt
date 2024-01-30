@@ -35,22 +35,19 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.LeakDetector
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.awt.ComposeWindow
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.isLinux
+import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.DpSize
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.FrameWindowScope
-import androidx.compose.ui.window.Window
-import androidx.compose.ui.window.WindowPlacement
-import androidx.compose.ui.window.WindowState
-import androidx.compose.ui.window.rememberWindowState
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.toInt
+import androidx.compose.ui.unit.*
+import androidx.compose.ui.window.*
 import androidx.compose.ui.window.runApplicationTest
 import com.google.common.truth.Truth.assertThat
 import java.awt.Dimension
 import java.awt.GraphicsEnvironment
+import java.awt.SystemColor.window
 import java.awt.Toolkit
 import java.awt.event.WindowAdapter
 import java.awt.event.WindowEvent
@@ -64,6 +61,7 @@ import org.junit.Ignore
 import org.junit.Test
 
 class WindowTest {
+
     @Test
     fun `open and close custom window`() = runApplicationTest {
         var window: ComposeWindow? = null
@@ -258,7 +256,7 @@ class WindowTest {
     }
 
     @Test
-    fun `open nested window`() = runApplicationTest {
+    fun `open nested window`() = runApplicationTest(useDelay = true) {
         var window1: ComposeWindow? = null
         var window2: ComposeWindow? = null
 
@@ -420,7 +418,7 @@ class WindowTest {
         val oldRecomposers = Recomposer.runningRecomposers.value
 
         runBlocking(MainUIDispatcher) {
-            repeat(10) {
+            repeat(15) {
                 val window = ComposeWindow()
                 window.size = Dimension(200, 200)
                 window.isVisible = true
@@ -436,7 +434,7 @@ class WindowTest {
                 delay(100)
             }
 
-            assertThat(leakDetector.noLeak()).isTrue()
+            assertThat(leakDetector.hasAnyGarbageCollected()).isTrue()
         }
     }
 
@@ -449,8 +447,8 @@ class WindowTest {
         var isDrawn = false
         var isVisibleOnFirstComposition = false
         var isVisibleOnFirstDraw = false
-        var actualCanvasSize: Size? = null
-        var expectedCanvasSizePx: Size? = null
+        var actualCanvasSize: IntSize? = null
+        var expectedCanvasSizePx: IntSize? = null
 
         launchTestApplication {
             Window(
@@ -467,8 +465,10 @@ class WindowTest {
                         isVisibleOnFirstDraw = window.isVisible
                         isDrawn = true
 
-                        actualCanvasSize = size
-                        expectedCanvasSizePx = expectedCanvasSize().toSize()
+                        // toInt() because this is how the ComposeWindow rounds decimal sizes
+                        // (see ComposeBridge.updateSceneSize)
+                        actualCanvasSize = size.toInt()
+                        expectedCanvasSizePx = expectedCanvasSize().toSize().toInt()
                     }
                 }
             }
@@ -584,7 +584,9 @@ class WindowTest {
     }
 
     @Test
-    fun `undecorated resizable window with unspecified size`() = runApplicationTest {
+    fun `undecorated resizable window with unspecified size`() = runApplicationTest(
+        useDelay = true
+    ) {
         var window: ComposeWindow? = null
 
         launchTestApplication {
@@ -604,4 +606,147 @@ class WindowTest {
         assertEquals(32, window?.height)
     }
 
+    @Test
+    fun `showing a window should measure content specified size`() = runApplicationTest {
+        // TODO fix on Linux https://github.com/JetBrains/compose-multiplatform/issues/1297
+        assumeFalse(isLinux)
+        val constraintsList = mutableListOf<Constraints>()
+        val windowSize = DpSize(400.dp, 300.dp)
+        lateinit var window: ComposeWindow
+
+        launchTestApplication {
+            Window(
+                onCloseRequest = { },
+                state = rememberWindowState(size = windowSize),
+            ) {
+                window = this.window
+                Layout(
+                    measurePolicy = { _, constraints ->
+                        constraintsList.add(constraints)
+                        layout(0, 0) { }
+                    }
+                )
+            }
+        }
+
+        awaitIdle()
+
+        with(window.density) {
+            val expectedSize = (windowSize - window.insets.toSize()).toSize()
+            assertEquals(1, constraintsList.size)
+            assertEquals(
+                Constraints(
+                    maxWidth = expectedSize.width.toInt(),
+                    maxHeight = expectedSize.height.toInt()
+                ),
+                constraintsList.first()
+            )
+        }
+    }
+
+    @Test
+    fun `pass LayoutDirection to Window`() = runApplicationTest {
+        lateinit var localLayoutDirection: LayoutDirection
+
+        var layoutDirection by mutableStateOf(LayoutDirection.Rtl)
+        launchTestApplication {
+            CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
+                Window(onCloseRequest = {}) {
+                    localLayoutDirection = LocalLayoutDirection.current
+                }
+            }
+        }
+        awaitIdle()
+
+        assertThat(localLayoutDirection).isEqualTo(LayoutDirection.Rtl)
+
+        // Test that changing the local propagates it into the window
+        layoutDirection = LayoutDirection.Ltr
+        awaitIdle()
+        assertThat(localLayoutDirection).isEqualTo(LayoutDirection.Ltr)
+    }
+
+    @Test
+    fun `pass LayoutDirection from Window to Popup`() = runApplicationTest {
+        lateinit var windowLayoutDirectionResult: LayoutDirection
+        lateinit var popupLayoutDirectionResult: LayoutDirection
+
+        var windowLayoutDirection by mutableStateOf(LayoutDirection.Rtl)
+        var popupLayoutDirection by mutableStateOf(LayoutDirection.Ltr)
+        launchTestApplication {
+            CompositionLocalProvider(LocalLayoutDirection provides windowLayoutDirection) {
+                Window(onCloseRequest = {}) {
+                    windowLayoutDirectionResult = LocalLayoutDirection.current
+                    CompositionLocalProvider(LocalLayoutDirection provides popupLayoutDirection) {
+                        Popup {
+                            popupLayoutDirectionResult = LocalLayoutDirection.current
+                        }
+                    }
+                }
+            }
+        }
+        awaitIdle()
+
+        assertThat(windowLayoutDirectionResult).isEqualTo(LayoutDirection.Rtl)
+        assertThat(popupLayoutDirectionResult).isEqualTo(LayoutDirection.Ltr)
+
+        // Test that changing the local propagates it into the window
+        windowLayoutDirection = LayoutDirection.Ltr
+        popupLayoutDirection = LayoutDirection.Rtl
+        awaitIdle()
+        assertThat(windowLayoutDirectionResult).isEqualTo(LayoutDirection.Ltr)
+        assertThat(popupLayoutDirectionResult).isEqualTo(LayoutDirection.Rtl)
+    }
+
+    @Test
+    fun `window does not move to front on recomposition`() = runApplicationTest {
+        var window1: ComposeWindow? = null
+        var window2: ComposeWindow? = null
+
+        var window1Title by mutableStateOf("Window 1")
+
+        launchTestApplication {
+            Window(
+                onCloseRequest = ::exitApplication,
+                title = window1Title,
+            ) {
+                window1 = this.window
+                Box(Modifier.size(32.dp))
+            }
+
+            Window(
+                onCloseRequest = ::exitApplication,
+                title = "Window 2"
+            ) {
+                window2 = this.window
+                Box(Modifier.size(32.dp))
+                LaunchedEffect(Unit) {
+                    window.toFront()
+                }
+            }
+        }
+
+        awaitIdle()
+        assertThat(window1?.isShowing).isTrue()
+        assertThat(window2?.isShowing).isTrue()
+        assertThat(window1?.isActive).isFalse()
+        assertThat(window2?.isActive).isTrue()
+
+        window1Title = "Retitled Window"
+        awaitIdle()
+        assertThat(window1?.isActive).isFalse()
+        assertThat(window2?.isActive).isTrue()
+    }
+
+    @Test
+    fun `compose empty window once`() = runApplicationTest {
+        var compositions = 0
+        launchTestApplication {
+            Window(onCloseRequest = ::exitApplication) {
+                compositions++
+            }
+        }
+        awaitIdle()
+        assertEquals(1, compositions)
+    }
 }

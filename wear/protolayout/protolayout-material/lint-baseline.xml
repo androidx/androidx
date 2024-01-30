@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.1.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.0-beta02)" variant="all" version="8.1.0-beta02">
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(1000);"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/wear/protolayout/material/RunnerUtils.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(1000);"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/wear/protolayout/material/RunnerUtils.java"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with `@androidx.wear.protolayout.expression.ProtoLayoutExperimental` or `@OptIn(markerClass = androidx.wear.protolayout.expression.ProtoLayoutExperimental.class)`"
+        errorLine1="                .setVariant(variant)"
+        errorLine2="                 ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/protolayout/material/Typography.java"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with `@androidx.wear.protolayout.expression.ProtoLayoutExperimental` or `@OptIn(markerClass = androidx.wear.protolayout.expression.ProtoLayoutExperimental.class)`"
+        errorLine1="                40, FONT_WEIGHT_MEDIUM, FONT_VARIANT_TITLE, 0.01f, isScalable, context);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/protolayout/material/Typography.java"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with `@androidx.wear.protolayout.expression.ProtoLayoutExperimental` or `@OptIn(markerClass = androidx.wear.protolayout.expression.ProtoLayoutExperimental.class)`"
+        errorLine1="                34, FONT_WEIGHT_MEDIUM, FONT_VARIANT_TITLE, 0.03f, isScalable, context);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/protolayout/material/Typography.java"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with `@androidx.wear.protolayout.expression.ProtoLayoutExperimental` or `@OptIn(markerClass = androidx.wear.protolayout.expression.ProtoLayoutExperimental.class)`"
+        errorLine1="                30, FONT_WEIGHT_MEDIUM, FONT_VARIANT_TITLE, 0.03f, isScalable, context);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/protolayout/material/Typography.java"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with `@androidx.wear.protolayout.expression.ProtoLayoutExperimental` or `@OptIn(markerClass = androidx.wear.protolayout.expression.ProtoLayoutExperimental.class)`"
+        errorLine1="                24, FONT_WEIGHT_MEDIUM, FONT_VARIANT_TITLE, 0.008f, isScalable, context);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/protolayout/material/Typography.java"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with `@androidx.wear.protolayout.expression.ProtoLayoutExperimental` or `@OptIn(markerClass = androidx.wear.protolayout.expression.ProtoLayoutExperimental.class)`"
+        errorLine1="                20, FONT_WEIGHT_MEDIUM, FONT_VARIANT_TITLE, 0.01f, isScalable, context);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/protolayout/material/Typography.java"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with `@androidx.wear.protolayout.expression.ProtoLayoutExperimental` or `@OptIn(markerClass = androidx.wear.protolayout.expression.ProtoLayoutExperimental.class)`"
+        errorLine1="                16, FONT_WEIGHT_MEDIUM, FONT_VARIANT_TITLE, 0.01f, isScalable, context);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/protolayout/material/Typography.java"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with `@androidx.wear.protolayout.expression.ProtoLayoutExperimental` or `@OptIn(markerClass = androidx.wear.protolayout.expression.ProtoLayoutExperimental.class)`"
+        errorLine1="                14, FONT_WEIGHT_MEDIUM, FONT_VARIANT_BODY, 0.01f, isScalable, context);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/protolayout/material/Typography.java"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with `@androidx.wear.protolayout.expression.ProtoLayoutExperimental` or `@OptIn(markerClass = androidx.wear.protolayout.expression.ProtoLayoutExperimental.class)`"
+        errorLine1="                12, FONT_WEIGHT_MEDIUM, FONT_VARIANT_BODY, 0.01f, isScalable, context);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/protolayout/material/Typography.java"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with `@androidx.wear.protolayout.expression.ProtoLayoutExperimental` or `@OptIn(markerClass = androidx.wear.protolayout.expression.ProtoLayoutExperimental.class)`"
+        errorLine1="                10, FONT_WEIGHT_MEDIUM, FONT_VARIANT_BODY, 0.01f, isScalable, context);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/protolayout/material/Typography.java"/>
+    </issue>
+
+</issues>

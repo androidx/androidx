@@ -56,17 +56,10 @@ internal class DataStoreInMemoryCache<T> {
                     // if version changed, and it will arrive here as either new data or
                     // new error with its new version.
                     //
-                    // The only other case that might happen is when a read happens in
-                    // parallel to a write.
-                    // In that case, read either has:
-                    // old version, old data
-                    // old version, new data
-                    // new version, new data
-                    // Since the write will send (new version, new data); it is OK to ignore
-                    // what read sent if it has old version (or ignore what write sent
-                    // if read already sent (new version, new data).
-                    // The key constraint here is that, we will never receive
-                    // (new version, old data) as version updates happen after data is written.
+                    // If a read happens in parallel to a write ("dirty read"), we will not update
+                    // the cache here but make it local in the flow that does the dirty read. In
+                    // this cache we guarantee the version matches with the data because only reads
+                    // that have file lock can set the cache.
                     if (newState.version > cached.version) {
                         newState
                     } else {

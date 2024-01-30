@@ -27,7 +27,6 @@ import androidx.annotation.RestrictTo;
 /**
  * This evaluator can be used to perform type interpolation between integer
  * values that represent ARGB colors.
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public class ArgbEvaluator implements TypeEvaluator<Object> {

@@ -90,23 +90,23 @@ public class BatteryChargingTrackerTest {
 
     @Test
     @SmallTest
-    public void testGetInitialState_nullIntent() {
+    public void testReadSystemState_nullIntent() {
         mockContextReturns(null);
-        assertThat(mTracker.getInitialState(), is(false));
+        assertThat(mTracker.readSystemState(), is(false));
     }
 
     @Test
     @SmallTest
-    public void testGetInitialState_chargingIntent() {
+    public void testReadSystemState_chargingIntent() {
         mockContextReturns(createBatteryChangedIntent(true));
-        assertThat(mTracker.getInitialState(), is(true));
+        assertThat(mTracker.readSystemState(), is(true));
     }
 
     @Test
     @SmallTest
-    public void testGetInitialState_dischargingIntent() {
+    public void testReadSystemState_dischargingIntent() {
         mockContextReturns(createBatteryChangedIntent(false));
-        assertThat(mTracker.getInitialState(), is(false));
+        assertThat(mTracker.readSystemState(), is(false));
     }
 
     @Test

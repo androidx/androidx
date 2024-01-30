@@ -42,6 +42,10 @@ internal class JavacMethodElement(
         }
     }
 
+    override val propertyName: String? by lazy {
+        if (isKotlinPropertyMethod()) kotlinMetadata?.propertyName else null
+    }
+
     override val name: String by lazy {
         kotlinMetadata?.name ?: jvmName
     }
@@ -99,6 +103,10 @@ internal class JavacMethodElement(
         )
     }
 
+    val defaultValue: JavacAnnotationValue? = element.defaultValue?.let {
+        JavacAnnotationValue(env, this, element.defaultValue, returnType)
+    }
+
     override fun asMemberOf(other: XType): XMethodType {
         return if (other !is JavacDeclaredType || enclosingElement.type.isSameType(other)) {
             executableType
@@ -114,7 +122,7 @@ internal class JavacMethodElement(
 
     override fun isJavaDefault() = element.modifiers.contains(Modifier.DEFAULT)
 
-    override fun isSuspendFunction() = kotlinMetadata?.isSuspend() == true
+    override fun isSuspendFunction() = kotlinMetadata?.isSuspend == true
 
     override fun isExtensionFunction() = kotlinMetadata?.isExtension() == true
 
@@ -179,4 +187,8 @@ internal class JavacMethodElement(
     }
 
     override fun isKotlinPropertyMethod() = kotlinMetadata?.isPropertyFunction() ?: false
+
+    override fun isKotlinPropertySetter() = kotlinMetadata?.isPropertySetter() ?: false
+
+    override fun isKotlinPropertyGetter() = kotlinMetadata?.isPropertyGetter() ?: false
 }

@@ -51,7 +51,7 @@ public class TestUtil {
     }
 
     @NonNull
-    private static PendingIntent makeMockPendingIntent() {
+    public static PendingIntent makeMockPendingIntent() {
         return PendingIntent.getBroadcast(mock(Context.class), 0, new Intent(), 0);
     }
 

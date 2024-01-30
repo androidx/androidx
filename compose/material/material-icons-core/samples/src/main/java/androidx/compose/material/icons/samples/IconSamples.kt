@@ -20,6 +20,7 @@ import androidx.annotation.Sampled
 import androidx.compose.foundation.layout.Box
 import androidx.compose.material.Icon
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.ArrowForward
 import androidx.compose.material.icons.rounded.Menu
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -39,6 +40,13 @@ fun AppIcons() {
 @Composable
 fun DrawIcon() {
     Icon(Icons.Rounded.Menu, contentDescription = "Localized description")
+}
+
+@Sampled
+@Composable
+fun AutoMirroredIcon() {
+    // This icon will be mirrored when the LayoutDirection is Rtl.
+    Icon(Icons.AutoMirrored.Outlined.ArrowForward, contentDescription = "Localized description")
 }
 
 @Composable

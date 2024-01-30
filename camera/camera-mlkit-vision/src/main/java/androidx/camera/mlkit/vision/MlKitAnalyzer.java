@@ -16,6 +16,8 @@
 package androidx.camera.mlkit.vision;
 
 import static androidx.camera.core.ImageAnalysis.COORDINATE_SYSTEM_ORIGINAL;
+import static androidx.camera.core.impl.utils.TransformUtils.getRectToRect;
+import static androidx.camera.core.impl.utils.TransformUtils.rotateRect;
 
 import static com.google.android.gms.common.internal.Preconditions.checkArgument;
 import static com.google.mlkit.vision.interfaces.Detector.TYPE_BARCODE_SCANNING;
@@ -23,6 +25,7 @@ import static com.google.mlkit.vision.interfaces.Detector.TYPE_SEGMENTATION;
 import static com.google.mlkit.vision.interfaces.Detector.TYPE_TEXT_RECOGNITION;
 
 import android.graphics.Matrix;
+import android.graphics.RectF;
 import android.media.Image;
 import android.util.Size;
 
@@ -35,9 +38,7 @@ import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.Logger;
 import androidx.camera.view.TransformExperimental;
-import androidx.camera.view.transform.CoordinateTransform;
 import androidx.camera.view.transform.ImageProxyTransformFactory;
-import androidx.camera.view.transform.OutputTransform;
 import androidx.core.util.Consumer;
 
 import com.google.android.gms.tasks.Task;
@@ -61,8 +62,8 @@ import java.util.concurrent.Executor;
  * <p> This class handles the coordinate transformation between ML Kit output and the target
  * coordinate system. Using the {@code targetCoordinateSystem} set in the constructor, it
  * calculates the {@link Matrix} with the value provided by CameraX via
- * {@link ImageAnalysis.Analyzer#updateTransform} and forwards it to the ML Kit {@code Detector}. The
- * coordinates returned by MLKit will be in the specified coordinate system.
+ * {@link ImageAnalysis.Analyzer#updateTransform} and forwards it to the ML Kit {@code Detector}.
+ * The coordinates returned by MLKit will be in the specified coordinate system.
  *
  * <p> This class is designed to work seamlessly with the {@code CameraController} class in
  * camera-view. When used with {@link ImageAnalysis} in camera-core, the following scenarios may
@@ -155,7 +156,7 @@ public class MlKitAnalyzer implements ImageAnalysis.Analyzer {
     @OptIn(markerClass = TransformExperimental.class)
     public final void analyze(@NonNull ImageProxy imageProxy) {
         // By default, the matrix is identity for COORDINATE_SYSTEM_ORIGINAL.
-        Matrix transform = new Matrix();
+        Matrix analysisToTarget = new Matrix();
         if (mTargetCoordinateSystem != COORDINATE_SYSTEM_ORIGINAL) {
             // Calculate the transform if not COORDINATE_SYSTEM_ORIGINAL.
             Matrix sensorToTarget = mSensorToTarget;
@@ -166,16 +167,24 @@ public class MlKitAnalyzer implements ImageAnalysis.Analyzer {
                 imageProxy.close();
                 return;
             }
-            OutputTransform analysisTransform =
-                    mImageAnalysisTransformFactory.getOutputTransform(imageProxy);
-            Size cropRectSize = new Size(imageProxy.getCropRect().width(),
-                    imageProxy.getCropRect().height());
-            CoordinateTransform coordinateTransform = new CoordinateTransform(analysisTransform,
-                    new OutputTransform(sensorToTarget, cropRectSize));
-            coordinateTransform.transform(transform);
+            Matrix sensorToAnalysis =
+                    new Matrix(imageProxy.getImageInfo().getSensorToBufferTransformMatrix());
+            // Calculate the rotation added by ML Kit.
+            RectF sourceRect = new RectF(0, 0, imageProxy.getWidth(),
+                    imageProxy.getHeight());
+            RectF bufferRect = rotateRect(sourceRect,
+                    imageProxy.getImageInfo().getRotationDegrees());
+            Matrix analysisToMlKitRotation = getRectToRect(sourceRect, bufferRect,
+                    imageProxy.getImageInfo().getRotationDegrees());
+            // Concat the MLKit transformation with sensor to Analysis.
+            sensorToAnalysis.postConcat(analysisToMlKitRotation);
+            // Invert to get analysis to sensor.
+            sensorToAnalysis.invert(analysisToTarget);
+            // Concat sensor to target to get analysisToTarget.
+            analysisToTarget.postConcat(sensorToTarget);
         }
         // Detect the image recursively, starting from index 0.
-        detectRecursively(imageProxy, 0, transform, new HashMap<>(), new HashMap<>());
+        detectRecursively(imageProxy, 0, analysisToTarget, new HashMap<>(), new HashMap<>());
     }
 
     /**

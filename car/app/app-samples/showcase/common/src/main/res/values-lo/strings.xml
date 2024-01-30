@@ -264,6 +264,7 @@
     <string name="tab_title_list" msgid="5104962518489668123">"ແຖບລາຍຊື່"</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"ແຖບຕາໜ່າງພ້ອມຊື່ແຖບຍາວ"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"ແຖບຊອກຫາ"</string>
+    <string name="tab_title_loading" msgid="5385807479734490989">"ກຳລັງໂຫຼດແຖບ"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"ເດໂມແມ່ແບບແຖບການໂຫຼດ"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"ເດໂມແມ່ແບບແຖບທີ່ບໍ່ມີແຖບ"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"ບໍ່ສາມາດສະແດງຮູບສຳລັບໂຮສທີ່ບໍ່ຮູ້ຈັກໄດ້"</string>
@@ -298,7 +299,7 @@
     <string name="some_additional_text" msgid="4009872495806318260">"ຂໍ້ຄວາມເພີ່ມເຕີມບາງຢ່າງ"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"ລາຍຊື່ທີ່ເລືອກໄດ້ຂອງຕົວຢ່າງ"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"ເດໂມການຈຳກັດໜ້າວຽກ"</string>
-    <string name="task_limit_reached_msg" msgid="6038763366777119364">"ຮອດຂີດຈຳກັດໜ້າວຽກແລ້ວ\nຕໍ່ໄປຈະບັງຄັບຢຸດແອັບ"</string>
+    <string name="task_limit_reached_msg" msgid="7162842196382260992">"ການດຳເນີນການນີ້ຈະເຮັດໃຫ້ມີຂັ້ນຕອນການເຮັດວຽກເກີນຂີດຈຳກັດທີ່ກຳນົດໄວ້ ແລະ ຈະພາທ່ານໄປຫາໜ້າຈໍໃໝ່."</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"ຂັ້ນຕອນໜ້າວຽກທີ %1$d ຈາກທັງໝົດ %2$d"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"ຄລິກເພື່ອໄປໜ້າ"</string>
     <string name="task_content_allowed" msgid="545061986612431190">"ກະລຸນາເຂົ້າໄປແມ່ແບບອື່ນ ແລະ ກວດໃຫ້ແນ່ໃຈວ່າລົດຢູ່ໃນໂໝດຂັບຂີ່"</string>
@@ -323,6 +324,12 @@
     <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"ນອກຈາກນັ້ນຍັງເລືອກແຖວໄດ້ນຳ"</string>
     <string name="secondary_action_toast" msgid="5076434693504006565">"ເລືອກຄຳສັ່ງສຳຮອງຂອງແຖວແລ້ວ"</string>
     <string name="row_primary_action_toast" msgid="756516694751965204">"ເລືອກຄຳສັ່ງຫຼັກຂອງແຖວແລ້ວ"</string>
+    <string name="sectioned_item_list_demo_title" msgid="1236735461225007729">"ເດໂມລາຍຊື່ລາຍການຕາມພາກສ່ວນ"</string>
+    <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"ລາຍຊື່ 1"</string>
+    <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"ລາຍຊື່ 2"</string>
+    <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"ຂໍ້ຄວາມຍ່ອຍພາຍໃຕ້ແຕ່ລະລາຍຊື່"</string>
+    <string name="empty_list_demo_title" msgid="5989013634820902455">"ເດໂມລາຍການທີ່ຫວ່າງເປົ່າ"</string>
+    <string name="empty_list_message" msgid="5331395517560728138">"ລາຍການຫວ່າງເປົ່າ"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"ເດໂມແມ່ແບບອື່ນໆ"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"ເດໂມ Showcase"</string>
     <string name="template_layouts_demo_title" msgid="788249269446087847">"ເດໂມໂຄງຮ່າງແມ່ແບບ"</string>

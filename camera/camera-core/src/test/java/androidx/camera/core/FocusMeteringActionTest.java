@@ -18,15 +18,20 @@ package androidx.camera.core;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import android.os.Build;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
+import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
+@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 public class FocusMeteringActionTest {
     private SurfaceOrientedMeteringPointFactory mPointFactory =
             new SurfaceOrientedMeteringPointFactory(1.0f, 1.0f);
@@ -311,13 +316,53 @@ public class FocusMeteringActionTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void builderWithNullPoint() {
-        new FocusMeteringAction.Builder(null).build();
-    }
-
-    @Test(expected = IllegalArgumentException.class)
     public void builderWithNullPoint2() {
         new FocusMeteringAction.Builder(null, FocusMeteringAction.FLAG_AF).build();
+    }
+
+    @Test
+    public void copyBuilder() {
+        // 1. Arrange
+        FocusMeteringAction action1 = new FocusMeteringAction.Builder(mPoint1)
+                .addPoint(mPoint2, FocusMeteringAction.FLAG_AE)
+                .setAutoCancelDuration(8000, TimeUnit.MILLISECONDS)
+                .build();
+
+        // 2. Act
+        FocusMeteringAction action2 = new FocusMeteringAction.Builder(action1).build();
+
+        // 3. Assert
+        assertThat(action1.getMeteringPointsAf()).containsExactlyElementsIn(
+                action2.getMeteringPointsAf()
+        );
+        assertThat(action1.getMeteringPointsAe()).containsExactlyElementsIn(
+                action2.getMeteringPointsAe()
+        );
+        assertThat(action1.getMeteringPointsAwb()).containsExactlyElementsIn(
+                action2.getMeteringPointsAwb()
+        );
+        assertThat(action1.getAutoCancelDurationInMillis())
+                .isEqualTo(action2.getAutoCancelDurationInMillis());
+        assertThat(action1.isAutoCancelEnabled()).isEqualTo(action2.isAutoCancelEnabled());
+    }
+
+    @Test
+    public void removePoints() {
+        // 1. Arrange
+        FocusMeteringAction.Builder builder = new FocusMeteringAction.Builder(mPoint1)
+                .addPoint(mPoint2, FocusMeteringAction.FLAG_AE);
+
+        // 2. Act
+        FocusMeteringAction action = builder.removePoints(FocusMeteringAction.FLAG_AE).build();
+
+        // 3. Assert
+        assertThat(action.getMeteringPointsAe()).isEmpty();
+        assertThat(action.getMeteringPointsAf()).containsExactlyElementsIn(
+                Arrays.asList(mPoint1)
+        );
+        assertThat(action.getMeteringPointsAwb()).containsExactlyElementsIn(
+                Arrays.asList(mPoint1)
+        );
     }
 
 }

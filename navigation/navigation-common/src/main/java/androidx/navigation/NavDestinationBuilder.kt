@@ -148,12 +148,6 @@ public open class NavDestinationBuilder<out D : NavDestination> internal constru
      */
     public open fun build(): D {
         return navigator.createDestination().also { destination ->
-            if (route != null) {
-                destination.route = route
-            }
-            if (id != -1) {
-                destination.id = id
-            }
             destination.label = label
             arguments.forEach { (name, argument) ->
                 destination.addArgument(name, argument)
@@ -163,6 +157,12 @@ public open class NavDestinationBuilder<out D : NavDestination> internal constru
             }
             actions.forEach { (actionId, action) ->
                 destination.putAction(actionId, action)
+            }
+            if (route != null) {
+                destination.route = route
+            }
+            if (id != -1) {
+                destination.id = id
             }
         }
     }

@@ -264,6 +264,7 @@
     <string name="tab_title_list" msgid="5104962518489668123">"Kartica liste"</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"Kartica mreže s dugim naslovom kartice"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"Kartica pretraživanja"</string>
+    <string name="tab_title_loading" msgid="5385807479734490989">"Učitavanje kartice"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"Demo verzija učitavanja šablona kartice"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"Demo verzija šablona kartice bez kartice"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"Nije moguće prikazati slike za nepoznatog hosta"</string>
@@ -298,7 +299,7 @@
     <string name="some_additional_text" msgid="4009872495806318260">"Neki dodatni tekst"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"Uzorak liste s odabirima"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"Demo verzija ograničenja za zadatak"</string>
-    <string name="task_limit_reached_msg" msgid="6038763366777119364">"Dostignuto je ograničenje za zadatak\nAko nastavite, prisilno ćete zaustaviti aplikaciju"</string>
+    <string name="task_limit_reached_msg" msgid="7162842196382260992">"Ovo će premašiti broj koraka i odvesti vas na novi ekran."</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"Korak zadatka: %1$d od %2$d"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"Kliknite da idete naprijed"</string>
     <string name="task_content_allowed" msgid="545061986612431190">"Posjetite različite šablone i pobrinite se da automobil bude u načinu rada za vožnju"</string>
@@ -323,6 +324,12 @@
     <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"Moguće je odabrati i red"</string>
     <string name="secondary_action_toast" msgid="5076434693504006565">"Odabrana je sekundarna radnja"</string>
     <string name="row_primary_action_toast" msgid="756516694751965204">"Odabrana je primarna radnja reda"</string>
+    <string name="sectioned_item_list_demo_title" msgid="1236735461225007729">"Demo verzija liste stavki u odjeljcima"</string>
+    <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"1. lista"</string>
+    <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"2. lista"</string>
+    <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"Podtekst ispod svake liste"</string>
+    <string name="empty_list_demo_title" msgid="5989013634820902455">"Demonstracija prazne liste"</string>
+    <string name="empty_list_message" msgid="5331395517560728138">"Lista je prazna"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"Demo verzije raznih šablona"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"Demo verzije predstavljanja"</string>
     <string name="template_layouts_demo_title" msgid="788249269446087847">"Demo verzije rasporeda predloška"</string>

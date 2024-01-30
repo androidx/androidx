@@ -26,7 +26,7 @@ class CervicalMucusRecordTest {
 
     @Test
     fun appearanceEnums_existInMapping() {
-        val allEnums = CervicalMucusRecord.Companion::class.allIntDefEnumsWithPrefix("APPEARANCE")
+        val allEnums = getAllIntDefEnums<CervicalMucusRecord>("""APPEARANCE.*(?<!UNKNOWN)$""")
 
         assertThat(CervicalMucusRecord.APPEARANCE_STRING_TO_INT_MAP.values)
             .containsExactlyElementsIn(allEnums)
@@ -36,7 +36,7 @@ class CervicalMucusRecordTest {
 
     @Test
     fun sensationEnums_existInMapping() {
-        val allEnums = CervicalMucusRecord.Companion::class.allIntDefEnumsWithPrefix("SENSATION")
+        val allEnums = getAllIntDefEnums<CervicalMucusRecord>("""SENSATION.*(?<!UNKNOWN)$""")
 
         assertThat(CervicalMucusRecord.SENSATION_STRING_TO_INT_MAP.values)
             .containsExactlyElementsIn(allEnums)

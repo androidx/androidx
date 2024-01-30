@@ -103,10 +103,7 @@ class FullyDrawnReporter(
      */
     fun removeReporter() {
         synchronized(lock) {
-            if (!reportedFullyDrawn) {
-                check(reporterCount > 0) {
-                    "removeReporter() called when all reporters have already been removed."
-                }
+            if (!reportedFullyDrawn && reporterCount > 0) {
                 reporterCount--
                 postWhenReportersAreDone()
             }

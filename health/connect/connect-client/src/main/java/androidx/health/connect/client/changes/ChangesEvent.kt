@@ -24,7 +24,6 @@ import androidx.annotation.RestrictTo
  * @property nextChangesToken Continuation token to access the next changes.
  * @property changes List of changes required to sync.
  *
- * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 class ChangesEvent

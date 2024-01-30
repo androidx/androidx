@@ -32,7 +32,7 @@
     <string name="fingerprint_dialog_icon_description" msgid="5462024216548165325">"Манжа изинин сүрөтчөсү"</string>
     <string name="use_fingerprint_label" msgid="6961788485681412417">"Манжа изин колдонуу"</string>
     <string name="use_face_label" msgid="6533512708069459542">"Жүзүнөн таанып ачууну колдонуу"</string>
-    <string name="use_biometric_label" msgid="6524145989441579428">"Биометрикалык жөндөөлөрдү колдонуу"</string>
+    <string name="use_biometric_label" msgid="6524145989441579428">"Биометрикалык параметрлерди колдонуу"</string>
     <string name="use_screen_lock_label" msgid="5459869335976243512">"Экран кулпусун колдонуу"</string>
     <string name="use_fingerprint_or_screen_lock_label" msgid="7577690399303139443">"Манжа изин же экрандын кулпусун колдонуу"</string>
     <string name="use_face_or_screen_lock_label" msgid="2116180187159450292">"Жүзүнөн таанып ачууну же экрандын кулпусун колдонуу"</string>

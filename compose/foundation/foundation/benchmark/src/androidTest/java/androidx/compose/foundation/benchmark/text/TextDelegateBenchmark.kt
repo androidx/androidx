@@ -24,7 +24,6 @@ import androidx.compose.foundation.text.InternalFoundationTextApi
 import androidx.compose.foundation.text.TextDelegate
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.benchmark.RandomTextGenerator
 import androidx.compose.ui.text.benchmark.TextBenchmarkTestRule
@@ -36,12 +35,12 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.sp
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
+import kotlin.math.roundToInt
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
-import kotlin.math.roundToInt
 
 @OptIn(InternalFoundationTextApi::class)
 @LargeTest
@@ -85,7 +84,6 @@ class TextDelegateBenchmark(
         ).roundToInt()
     }
 
-    @OptIn(ExperimentalTextApi::class)
     private fun textDelegate(textGenerator: RandomTextGenerator): TextDelegate {
         val text = textGenerator.nextAnnotatedString(
             length = textLength,
@@ -101,7 +99,6 @@ class TextDelegateBenchmark(
         )
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun constructor() {
         textBenchmarkTestRule.generator { textGenerator ->

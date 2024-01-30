@@ -38,10 +38,11 @@ dependencies {
 }
 
 androidx {
-    name = "Android Wear Watchface Client Editor"
+    name = "Android Wear Watchface Editor Guava Integration"
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2021"
     description = "Guava wrappers for the Androidx Wear Watchface Editor library"
+    metalavaK2UastEnabled = true
 }
 
 android {

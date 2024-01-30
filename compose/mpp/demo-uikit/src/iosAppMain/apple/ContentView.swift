@@ -20,13 +20,24 @@ import shared
 
 struct ContentView: View {
     var body: some View {
-        ComposeView()
+        ComposeView().ignoresSafeArea(.all, edges: .top.union(.horizontal)).ignoresSafeArea(.keyboard)
+    }
+}
+
+struct NestedContentView: View {
+    let index: Int
+
+    var body: some View {
+        Text("Hello from SwiftUI #\(index)")
     }
 }
 
 struct ComposeView: UIViewControllerRepresentable {
     func makeUIViewController(context: Context) -> UIViewController {
-        SwiftHelper().getViewController()
+        SwiftHelper().getViewController { index in
+            let viewController = UIHostingController(rootView: NestedContentView(index: Int(index)))
+            return viewController
+        }
     }
 
     func updateUIViewController(_ uiViewController: UIViewController, context: Context) {}

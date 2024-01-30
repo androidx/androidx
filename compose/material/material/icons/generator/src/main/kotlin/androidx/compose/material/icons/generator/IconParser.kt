@@ -41,11 +41,10 @@ class IconParser(private val icon: Icon) {
             seekToStartTag()
         }
 
-        check(parser.name == "vector") { "The start tag must be <vector>!" }
-
-        parser.next()
+        check(parser.name == VECTOR) { "The start tag must be <vector>!" }
 
         val nodes = mutableListOf<VectorNode>()
+        var autoMirrored = false
 
         var currentGroup: VectorNode.Group? = null
 
@@ -53,6 +52,10 @@ class IconParser(private val icon: Icon) {
             when (parser.eventType) {
                 START_TAG -> {
                     when (parser.name) {
+                        VECTOR -> {
+                            autoMirrored = parser.getValueAsBoolean(AUTO_MIRRORED)
+                        }
+
                         PATH -> {
                             val pathData = parser.getAttributeValue(
                                 null,
@@ -84,6 +87,7 @@ class IconParser(private val icon: Icon) {
                             currentGroup = group
                             nodes.add(group)
                         }
+
                         CLIP_PATH -> { /* TODO: b/147418351 - parse clipping paths */
                         }
                     }
@@ -92,7 +96,7 @@ class IconParser(private val icon: Icon) {
             parser.next()
         }
 
-        return Vector(nodes)
+        return Vector(autoMirrored, nodes)
     }
 }
 
@@ -101,6 +105,12 @@ class IconParser(private val icon: Icon) {
  */
 private fun XmlPullParser.getValueAsFloat(name: String) =
     getAttributeValue(null, name)?.toFloatOrNull()
+
+/**
+ * @return the boolean value for the attribute [name], or 'false' if it couldn't be found
+ */
+private fun XmlPullParser.getValueAsBoolean(name: String) =
+    getAttributeValue(null, name).toBoolean()
 
 private fun XmlPullParser.seekToStartTag(): XmlPullParser {
     var type = next()
@@ -118,11 +128,13 @@ private fun XmlPullParser.isAtEnd() =
     eventType == END_DOCUMENT || (depth < 1 && eventType == END_TAG)
 
 // XML tag names
+private const val VECTOR = "vector"
 private const val CLIP_PATH = "clip-path"
 private const val GROUP = "group"
 private const val PATH = "path"
 
 // XML attribute names
+private const val AUTO_MIRRORED = "android:autoMirrored"
 private const val PATH_DATA = "android:pathData"
 private const val FILL_ALPHA = "android:fillAlpha"
 private const val STROKE_ALPHA = "android:strokeAlpha"

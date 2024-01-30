@@ -264,6 +264,7 @@
     <string name="tab_title_list" msgid="5104962518489668123">"စာရင်းတဘ်"</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"တဘ်ခေါင်းစဉ်အရှည် ပါဝင်သော ဇယားကွက်တဘ်"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"ရှာဖွေရေးတဘ်"</string>
+    <string name="tab_title_loading" msgid="5385807479734490989">"တဘ် ဖွင့်နေသည်"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"တဘ်ပုံစံဖွင့်နေသည့် သရုပ်ပြချက်"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"တဘ်ပုံစံတွင် တဘ်မရှိသည့် သရုပ်ပြချက်"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"မသိသောဆာဗာပင်ရင်းအတွက် ပုံများကို ပြ၍မရပါ"</string>
@@ -298,7 +299,7 @@
     <string name="some_additional_text" msgid="4009872495806318260">"ထပ်တိုးစာသားအချို့"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"နမူနာ ရွေးချယ်နိုင်သည့်စာရင်း"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"လုပ်ဆောင်စရာကန့်သတ်မှု သရုပ်ပြချက်"</string>
-    <string name="task_limit_reached_msg" msgid="6038763366777119364">"လုပ်ဆောင်စရာကန့်သတ်ချက် ရောက်သွားပြီ\nရှေ့ဆက်သွားခြင်းက အက်ပ်ကို မဖြစ်မနေရပ်ခိုင်းမည်"</string>
+    <string name="task_limit_reached_msg" msgid="7162842196382260992">"၎င်းသည် အဆင့်အရေအတွက်ကို ကျော်လွန်သွားမည်ဖြစ်၍ စခရင်သစ်သို့ ရောက်ရှိသွားမည်။"</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"လုပ်ဆောင်စရာအဆင့် %2$d ခုအနက် %1$d"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"ရှေ့ဆက်သွားရန် နှိပ်ပါ"</string>
     <string name="task_content_allowed" msgid="545061986612431190">"ပုံစံအမျိုးမျိုးကို ဝင်ကြည့်ပြီး ကားသည် မောင်းနှင်မုဒ်တွင်ရှိကြောင်း သေချာပါစေ"</string>
@@ -323,6 +324,12 @@
     <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"အတန်းကိုလည်း ရွေးနိုင်သည်"</string>
     <string name="secondary_action_toast" msgid="5076434693504006565">"ဒုတိယဦးစားပေး လုပ်ဆောင်ချက်ကို ရွေးထားသည်"</string>
     <string name="row_primary_action_toast" msgid="756516694751965204">"အတန်း၏ ပထမဦးစားပေး လုပ်ဆောင်ချက်ကို ရွေးထားသည်"</string>
+    <string name="sectioned_item_list_demo_title" msgid="1236735461225007729">"အပိုင်းခွဲထားသည့် ဖိုင်စာရင်းသရုပ်ပြချက်"</string>
+    <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"စာရင်း ၁"</string>
+    <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"စာရင်း ၂"</string>
+    <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"စာရင်းတစ်ခုစီ၏အောက်ရှိ ရှင်းလင်းချက်"</string>
+    <string name="empty_list_demo_title" msgid="5989013634820902455">"စာရင်းအလွတ် သရုပ်ပြ"</string>
+    <string name="empty_list_message" msgid="5331395517560728138">"ဤစာရင်းသည် အလွတ်ဖြစ်သည်"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"အထွေထွေ ပုံစံသရုပ်ပြချက်များ"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"Showcase သရုပ်ပြချက်များ"</string>
     <string name="template_layouts_demo_title" msgid="788249269446087847">"နမူနာပုံစံ သရုပ်ပြချက်များ"</string>

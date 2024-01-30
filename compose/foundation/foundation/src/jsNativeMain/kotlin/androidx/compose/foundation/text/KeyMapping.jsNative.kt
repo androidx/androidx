@@ -41,6 +41,7 @@ internal actual object MappedKeys {
     actual val MoveEnd: Key = Key(Key.MoveEnd.keyCode)
     actual val Insert: Key = Key(Key.Insert.keyCode)
     actual val Enter: Key = Key(Key.Enter.keyCode)
+    actual val NumPadEnter: Key = Key(Key.NumPadEnter.keyCode)
     actual val Backspace: Key = Key(Key.Backspace.keyCode)
     actual val Delete: Key = Key(Key.Delete.keyCode)
     actual val Paste: Key = Key(Key.Paste.keyCode)

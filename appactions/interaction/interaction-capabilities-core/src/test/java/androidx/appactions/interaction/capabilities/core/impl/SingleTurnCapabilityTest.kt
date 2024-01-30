@@ -17,112 +17,349 @@
 package androidx.appactions.interaction.capabilities.core.impl
 
 import android.util.SizeF
-import androidx.appactions.interaction.capabilities.core.ActionCapability
+import androidx.appactions.interaction.capabilities.core.ExecutionCallback
+import androidx.appactions.interaction.capabilities.core.ExecutionCallbackAsync
 import androidx.appactions.interaction.capabilities.core.ExecutionResult
 import androidx.appactions.interaction.capabilities.core.HostProperties
 import androidx.appactions.interaction.capabilities.core.impl.concurrent.Futures
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpec
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
-import androidx.appactions.interaction.capabilities.core.properties.EntityProperty
-import androidx.appactions.interaction.capabilities.core.properties.StringProperty
-import androidx.appactions.interaction.capabilities.core.testing.ArgumentUtils
-import androidx.appactions.interaction.capabilities.core.testing.spec.Argument
+import androidx.appactions.interaction.capabilities.core.impl.spec.BoundProperty
+import androidx.appactions.interaction.capabilities.core.properties.Property
+import androidx.appactions.interaction.capabilities.core.properties.StringValue
+import androidx.appactions.interaction.capabilities.core.testing.spec.Arguments
 import androidx.appactions.interaction.capabilities.core.testing.spec.Output
-import androidx.appactions.interaction.capabilities.core.testing.spec.Property
-import androidx.appactions.interaction.capabilities.core.testing.spec.Session
+import androidx.appactions.interaction.capabilities.core.toExecutionCallback
+import androidx.appactions.interaction.capabilities.testing.internal.ArgumentUtils
+import androidx.appactions.interaction.capabilities.testing.internal.FakeCallbackInternal
+import androidx.appactions.interaction.capabilities.testing.internal.TestingUtils.BLOCKING_TIMEOUT
+import androidx.appactions.interaction.capabilities.testing.internal.TestingUtils.CB_TIMEOUT
+import androidx.appactions.interaction.proto.AppActionsContext.AppAction
+import androidx.appactions.interaction.proto.AppActionsContext.IntentParameter
 import androidx.appactions.interaction.proto.FulfillmentResponse
 import androidx.appactions.interaction.proto.FulfillmentResponse.StructuredOutput
 import androidx.appactions.interaction.proto.FulfillmentResponse.StructuredOutput.OutputValue
 import androidx.appactions.interaction.proto.ParamValue
-import com.google.common.util.concurrent.ListenableFuture
+import androidx.appactions.interaction.proto.TaskInfo
+import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeoutOrNull
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import org.mockito.Mockito.verify
-import org.mockito.kotlin.mock
 
 @RunWith(JUnit4::class)
 class SingleTurnCapabilityTest {
+    private val hostProperties =
+        HostProperties.Builder().setMaxHostSizeDp(SizeF(300f, 500f)).build()
+    private val fakeSessionId = "fakeSessionId"
 
-    val mockCalback: CallbackInternal = mock()
+    @Test
+    fun appAction_computedProperty() {
+        val mutableEntityList = mutableListOf<StringValue>()
+        val dynamicStringProperty = Property(possibleValueSupplier = mutableEntityList::toList)
+        val capability = SingleTurnCapabilityImpl(
+            id = "capabilityId",
+            actionSpec = ACTION_SPEC,
+            boundProperties = listOf(
+                BoundProperty(
+                    "requiredString",
+                    dynamicStringProperty,
+                    TypeConverters.STRING_VALUE_ENTITY_CONVERTER
+                )
+            ),
+            executionCallback = ExecutionCallback<Arguments, Output> {
+                ExecutionResult.Builder<Output>().build()
+            }
+        )
+        mutableEntityList.add(StringValue("entity1"))
+
+        assertThat(capability.appAction).isEqualTo(
+            AppAction.newBuilder()
+                .setIdentifier("capabilityId")
+                .setName("actions.intent.TEST")
+                .addParams(
+                    IntentParameter.newBuilder()
+                        .setName("requiredString")
+                        .addPossibleEntities(
+                            androidx.appactions.interaction.proto.Entity.newBuilder()
+                                .setIdentifier("entity1")
+                                .setName("entity1")
+                        )
+                )
+                .setTaskInfo(TaskInfo.newBuilder().setSupportsPartialFulfillment(false))
+                .build()
+        )
+
+        mutableEntityList.add(StringValue("entity2"))
+        assertThat(capability.appAction).isEqualTo(
+            AppAction.newBuilder()
+                .setIdentifier("capabilityId")
+                .setName("actions.intent.TEST")
+                .addParams(
+                    IntentParameter.newBuilder()
+                        .setName("requiredString")
+                        .addPossibleEntities(
+                            androidx.appactions.interaction.proto.Entity.newBuilder()
+                                .setIdentifier("entity1")
+                                .setName("entity1")
+                        )
+                        .addPossibleEntities(
+                            androidx.appactions.interaction.proto.Entity.newBuilder()
+                                .setIdentifier("entity2")
+                                .setName("entity2")
+                        )
+                )
+                .setTaskInfo(TaskInfo.newBuilder().setSupportsPartialFulfillment(false))
+                .build()
+        )
+    }
 
     @Test
     fun oneShotCapability_successWithOutput() {
-        val capability: ActionCapability =
-            SingleTurnCapabilityImpl<Property, Argument, Output>(
-                "capabilityId",
-                ACTION_SPEC,
-                Property.newBuilder().setRequiredEntityField(
-                    EntityProperty.Builder().build(),
-                ).setOptionalStringField(
-                    StringProperty.Builder().setProhibited(true).build(),
-                ).build(),
-                {
-                    object : Session {
-                        override fun onFinishAsync(
-                            argument: Argument,
-                        ): ListenableFuture<ExecutionResult<Output>> {
-                            return Futures.immediateFuture(
-                                ExecutionResult.Builder<Output>().setOutput(
-                                    Output.builder().setOptionalStringField("stringOutput")
-                                        .build(),
-                                ).build(),
-                            )
-                        }
-                    }
-                },
-            )
-        val expectedFulfillmentResponse: FulfillmentResponse =
-            FulfillmentResponse.newBuilder().setExecutionOutput(
-                StructuredOutput.newBuilder()
-                    .addOutputValues(
-                        OutputValue.newBuilder()
-                            .setName("optionalStringOutput")
-                            .addValues(
-                                ParamValue.newBuilder()
-                                    .setStringValue("stringOutput")
-                                    .build(),
-                            )
-                            .build(),
+        val executionCallback =
+            ExecutionCallback<Arguments, Output> {
+                ExecutionResult.Builder<Output>()
+                    .setOutput(
+                        Output.Builder().setOptionalStringField("stringOutput").build()
                     )
-                    .build(),
-            ).build()
+                    .build()
+            }
+        val capability =
+            SingleTurnCapabilityImpl(
+                id = "capabilityId",
+                actionSpec = ACTION_SPEC,
+                boundProperties = listOf(
+                    BoundProperty(
+                        "requiredString",
+                        Property<StringValue>(),
+                        TypeConverters.STRING_VALUE_ENTITY_CONVERTER
+                    ),
+                    BoundProperty(
+                        "optionalString",
+                        Property.unsupported<StringValue>(),
+                        TypeConverters.STRING_VALUE_ENTITY_CONVERTER
+                    )
+                ),
+                executionCallback = executionCallback
+            )
 
-        val capabilitySession = capability.createSession(
-            HostProperties.Builder().setMaxHostSizeDp(SizeF(300f, 500f)).build(),
-        )
+        val capabilitySession = capability.createSession(fakeSessionId, hostProperties)
+        assertThat(capabilitySession.sessionId).isEqualTo(fakeSessionId)
+        assertThat(capabilitySession.state).isNull()
+        assertThat(capabilitySession.isActive).isTrue()
+
+        val callbackInternal = FakeCallbackInternal(CB_TIMEOUT)
         capabilitySession.execute(
             ArgumentUtils.buildArgs(
                 mapOf(
-                    "optionalString" to ParamValue.newBuilder().setIdentifier(
-                        "string argument value",
-                    ).build(),
-                ),
+                    "optionalString" to
+                        ParamValue.newBuilder().setStringValue("string argument value").build()
+                )
             ),
-            mockCalback,
+            callbackInternal
         )
 
-        verify(mockCalback).onSuccess(expectedFulfillmentResponse)
+        assertThat(capabilitySession.isActive).isFalse()
+        val response = callbackInternal.receiveResponse()
+        assertThat(response.fulfillmentResponse).isNotNull()
+        assertThat(response.fulfillmentResponse)
+            .isEqualTo(
+                FulfillmentResponse.newBuilder()
+                    .setExecutionOutput(
+                        StructuredOutput.newBuilder()
+                            .addOutputValues(
+                                OutputValue.newBuilder()
+                                    .setName("optionalStringOutput")
+                                    .addValues(
+                                        ParamValue.newBuilder()
+                                            .setStringValue("stringOutput")
+                                            .build()
+                                    )
+                                    .build()
+                            )
+                            .build()
+                    )
+                    .build()
+            )
+    }
+
+    @Test
+    fun oneShotCapability_exceptionInExecutionCallback() {
+        val executionCallback =
+            ExecutionCallback<Arguments, Output> { throw IllegalStateException("") }
+        val capability =
+            SingleTurnCapabilityImpl(
+                id = "capabilityId",
+                actionSpec = ACTION_SPEC,
+                boundProperties = listOf(
+                    BoundProperty(
+                        "requiredString",
+                        Property<StringValue>(),
+                        TypeConverters.STRING_VALUE_ENTITY_CONVERTER
+                    ),
+                    BoundProperty(
+                        "optionalString",
+                        Property.unsupported<StringValue>(),
+                        TypeConverters.STRING_VALUE_ENTITY_CONVERTER
+                    )
+                ),
+                executionCallback = executionCallback
+            )
+
+        val capabilitySession = capability.createSession(fakeSessionId, hostProperties)
+        val callbackInternal = FakeCallbackInternal(CB_TIMEOUT)
+        capabilitySession.execute(
+            ArgumentUtils.buildArgs(
+                mapOf(
+                    "optionalString" to
+                        ParamValue.newBuilder().setStringValue("string argument value").build()
+                )
+            ),
+            callbackInternal
+        )
+
+        val response = callbackInternal.receiveResponse()
+        assertThat(response.errorStatus).isNotNull()
+        assertThat(response.errorStatus).isEqualTo(ErrorStatusInternal.EXTERNAL_EXCEPTION)
+    }
+
+    @Test
+    fun oneShotSession_uiHandle_withExecutionCallback() {
+        val executionCallback =
+            ExecutionCallback<Arguments, Output> { ExecutionResult.Builder<Output>().build() }
+        val capability =
+            SingleTurnCapabilityImpl(
+                id = "capabilityId",
+                actionSpec = ACTION_SPEC,
+                boundProperties = listOf(
+                    BoundProperty(
+                        "requiredString",
+                        Property<StringValue>(),
+                        TypeConverters.STRING_VALUE_ENTITY_CONVERTER
+                    ),
+                ),
+                executionCallback = executionCallback
+            )
+        val session = capability.createSession(fakeSessionId, hostProperties)
+        assertThat(session.uiHandle).isSameInstanceAs(executionCallback)
+    }
+
+    @Test
+    fun oneShotSession_uiHandle_withExecutionCallbackAsync() {
+        val executionCallbackAsync =
+            ExecutionCallbackAsync<Arguments, Output> {
+                Futures.immediateFuture(ExecutionResult.Builder<Output>().build())
+            }
+        val capability =
+            SingleTurnCapabilityImpl(
+                id = "capabilityId",
+                actionSpec = ACTION_SPEC,
+                boundProperties = listOf(
+                    BoundProperty(
+                        "requiredString",
+                        Property<StringValue>(),
+                        TypeConverters.STRING_VALUE_ENTITY_CONVERTER
+                    )
+                ),
+                executionCallback = executionCallbackAsync.toExecutionCallback()
+            )
+        val session = capability.createSession(fakeSessionId, hostProperties)
+        assertThat(session.uiHandle).isSameInstanceAs(executionCallbackAsync)
+    }
+
+    @Test
+    fun multipleSessions_sequentialExecution(): Unit = runBlocking {
+        val executionResultChannel = Channel<ExecutionResult<Output>>()
+        val argumentChannel = Channel<Arguments>()
+
+        val executionCallback = ExecutionCallback<Arguments, Output> {
+            argumentChannel.send(it)
+            executionResultChannel.receive()
+        }
+        val capability = SingleTurnCapabilityImpl(
+            id = "capabilityId",
+            actionSpec = ACTION_SPEC,
+            boundProperties = listOf(
+                BoundProperty(
+                    "requiredString",
+                    Property<StringValue>(),
+                    TypeConverters.STRING_VALUE_ENTITY_CONVERTER
+                )
+            ),
+            executionCallback = executionCallback
+        )
+        val session1 = capability.createSession("session1", hostProperties)
+        val session2 = capability.createSession("session2", hostProperties)
+
+        val callbackInternal1 = FakeCallbackInternal(CB_TIMEOUT)
+        val callbackInternal2 = FakeCallbackInternal(CB_TIMEOUT)
+
+        session1.execute(
+            ArgumentUtils.buildArgs(
+                mapOf(
+                    "optionalString" to
+                        ParamValue.newBuilder().setStringValue("string value 1").build()
+                )
+            ),
+            callbackInternal1
+        )
+        session2.execute(
+            ArgumentUtils.buildArgs(
+                mapOf(
+                    "optionalString" to
+                        ParamValue.newBuilder().setStringValue("string value 2").build()
+                )
+            ),
+            callbackInternal2
+        )
+
+        // verify ExecutionCallback receives 1st request.
+        assertThat(argumentChannel.receive()).isEqualTo(
+            Arguments.Builder().setOptionalStringField("string value 1").build()
+        )
+        // verify the 2nd request cannot be received due to mutex.
+        assertThat(withTimeoutOrNull(BLOCKING_TIMEOUT) { argumentChannel.receive() }).isNull()
+
+        // unblock first request handling.
+        executionResultChannel.send(ExecutionResult.Builder<Output>().build())
+        assertThat(callbackInternal1.receiveResponse().fulfillmentResponse).isEqualTo(
+            FulfillmentResponse.getDefaultInstance()
+        )
+
+        assertThat(argumentChannel.receive()).isEqualTo(
+            Arguments.Builder().setOptionalStringField("string value 2").build()
+        )
+        executionResultChannel.send(ExecutionResult.Builder<Output>().build())
+        assertThat(callbackInternal2.receiveResponse().fulfillmentResponse).isEqualTo(
+            FulfillmentResponse.getDefaultInstance()
+        )
     }
 
     companion object {
-        val ACTION_SPEC: ActionSpec<Property, Argument, Output> =
-            ActionSpecBuilder.ofCapabilityNamed(
-                "actions.intent.TEST",
-            )
-                .setDescriptor(Property::class.java)
-                .setArgument(Argument::class.java, Argument::newBuilder)
+        val ACTION_SPEC: ActionSpec<Arguments, Output> =
+            ActionSpecBuilder.ofCapabilityNamed("actions.intent.TEST")
+                .setArguments(Arguments::class.java, Arguments::Builder, Arguments.Builder::build)
                 .setOutput(Output::class.java)
-                .bindOptionalStringParameter(
-                    "optionalString",
-                    Property::optionalStringField,
-                    Argument.Builder::setOptionalStringField,
+                .bindParameter(
+                    "requiredString",
+                    Arguments::requiredStringField,
+                    Arguments.Builder::setRequiredStringField,
+                    TypeConverters.STRING_PARAM_VALUE_CONVERTER,
                 )
-                .bindOptionalOutput(
+                .bindParameter(
+                    "optionalString",
+                    Arguments::optionalStringField,
+                    Arguments.Builder::setOptionalStringField,
+                    TypeConverters.STRING_PARAM_VALUE_CONVERTER,
+                )
+                .bindOutput(
                     "optionalStringOutput",
                     Output::optionalStringField,
-                    TypeConverters::toParamValue,
-                ).build()
+                    TypeConverters.STRING_PARAM_VALUE_CONVERTER::toParamValue
+                )
+                .build()
     }
 }

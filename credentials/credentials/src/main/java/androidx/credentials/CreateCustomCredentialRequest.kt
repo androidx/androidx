@@ -33,36 +33,48 @@ import android.os.Bundle
  * Note: The Bundle keys for [credentialData] and [candidateQueryData] should not be in the form
  * of androidx.credentials.*` as they are reserved for internal use by this androidx library.
  *
- * @property type the credential type determined by the credential-type-specific subclass for
+ * @param type the credential type determined by the credential-type-specific subclass for
  * custom use cases
- * @property credentialData the data of this [CreateCustomCredentialRequest] in the [Bundle]
- * format (note: bundle keys in the form of `androidx.credentials.*` are reserved for internal
- * library use)
- * @property candidateQueryData the partial request data in the [Bundle] format that will be sent
+ * @param credentialData the data of this [CreateCustomCredentialRequest] in the [Bundle]
+ * format (note: bundle keys in the form of `androidx.credentials.*` and `android.credentials.*` are
+ * reserved for internal library usage)
+ * @param candidateQueryData the partial request data in the [Bundle] format that will be sent
  * to the provider during the initial candidate query stage, which should not contain sensitive
- * user credential information (note: bundle keys in the form of `androidx.credentials.*` are
- * reserved for internal library use)
- * @property isSystemProviderRequired true if must only be fulfilled by a system provider and
+ * user credential information (note: bundle keys in the form of `androidx.credentials.*` and
+ * `android.credentials.*` are reserved for internal library usage)
+ * @param isSystemProviderRequired true if must only be fulfilled by a system provider and
  * false otherwise
- * @property isAutoSelectAllowed defines if a create entry will be automatically chosen if it is
+ * @param isAutoSelectAllowed defines if a create entry will be automatically chosen if it is
  * the only one available option, false by default
+ * @param displayInfo the information to be displayed on the screen
+ * @param origin the origin of a different application if the request is being made on behalf of
+ * that application (Note: for API level >=34, setting a non-null value for this parameter will
+ * throw a SecurityException if android.permission.CREDENTIAL_MANAGER_SET_ORIGIN is not present)
+ * @param preferImmediatelyAvailableCredentials true if you prefer the operation to return
+ * immediately when there is no available passkey registration offering instead of falling back to
+ * discovering remote options, and false (default) otherwise
  * @throws IllegalArgumentException If [type] is empty
  * @throws NullPointerException If [type], [credentialData], or [candidateQueryData] is null
  */
-open class CreateCustomCredentialRequest @JvmOverloads constructor(
-    final override val type: String,
-    final override val credentialData: Bundle,
-    final override val candidateQueryData: Bundle,
-    final override val isSystemProviderRequired: Boolean,
+open class CreateCustomCredentialRequest
+@JvmOverloads constructor(
+    type: String,
+    credentialData: Bundle,
+    candidateQueryData: Bundle,
+    isSystemProviderRequired: Boolean,
     displayInfo: DisplayInfo,
-    final override val isAutoSelectAllowed: Boolean = false,
+    isAutoSelectAllowed: Boolean = false,
+    origin: String? = null,
+    preferImmediatelyAvailableCredentials: Boolean = false,
 ) : CreateCredentialRequest(
     type,
     credentialData,
     candidateQueryData,
     isSystemProviderRequired,
     isAutoSelectAllowed,
-    displayInfo
+    displayInfo,
+    origin,
+    preferImmediatelyAvailableCredentials
 ) {
     init {
         require(type.isNotEmpty()) { "type should not be empty" }

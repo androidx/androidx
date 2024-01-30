@@ -30,7 +30,6 @@ import androidx.annotation.RestrictTo;
  * Common superclass for layout helpers. Layout helpers are used to calculate bounds for each
  * element depending on width, height of the complication and complication data.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class LayoutHelper {

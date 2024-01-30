@@ -230,12 +230,9 @@ class SavedStateRegistry internal constructor() {
      * merge with unconsumed state.
      *
      * @param outBundle Bundle in which to place a saved state
-     * @suppress INACCESSIBLE_TYPE iterator is used strictly as Iterator, does not access
-     * inaccessible type IteratorWithAdditions
      */
     @MainThread
-    @Suppress("INACCESSIBLE_TYPE")
-    fun performSave(outBundle: Bundle) {
+    internal fun performSave(outBundle: Bundle) {
         val components = Bundle()
         if (restoredState != null) {
             components.putAll(restoredState)

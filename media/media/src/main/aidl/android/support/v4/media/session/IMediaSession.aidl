@@ -24,6 +24,7 @@ import android.support.v4.media.session.IMediaControllerCallback;
 import android.support.v4.media.session.ParcelableVolumeInfo;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.support.v4.media.session.MediaSessionCompat;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.KeyEvent;
 
@@ -31,8 +32,8 @@ import java.util.List;
 
 /**
  * Interface to a MediaSessionCompat.
- * @hide
  */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 interface IMediaSession {
     // Next ID: 50
     void sendCommand(String command, in Bundle args, in MediaSessionCompat.ResultReceiverWrapper cb) = 0;

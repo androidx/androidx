@@ -19,7 +19,9 @@ package androidx.graphics.opengl
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.ColorSpace
+import android.graphics.Paint
 import android.graphics.PixelFormat
+import android.graphics.RenderNode
 import android.graphics.SurfaceTexture
 import android.hardware.HardwareBuffer
 import android.media.Image
@@ -37,12 +39,15 @@ import android.view.SurfaceHolder
 import android.view.TextureView
 import androidx.annotation.RequiresApi
 import androidx.annotation.WorkerThread
+import androidx.graphics.SurfaceTextureRenderer
+import androidx.graphics.isAllColor
 import androidx.graphics.lowlatency.LineRenderer
 import androidx.graphics.lowlatency.Rectangle
-import androidx.hardware.SyncFenceCompat
 import androidx.graphics.opengl.egl.EGLManager
 import androidx.graphics.opengl.egl.EGLSpec
 import androidx.graphics.opengl.egl.supportsNativeAndroidFence
+import androidx.graphics.verifyQuadrants
+import androidx.hardware.SyncFenceCompat
 import androidx.lifecycle.Lifecycle.State
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -808,7 +813,7 @@ class GLRendererTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q, maxSdkVersion = 32) // b/268117579
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     fun testFrontBufferedRenderer() {
         val width = 10
         val height = 10
@@ -816,7 +821,7 @@ class GLRendererTest {
         val teardownLatch = CountDownLatch(1)
         val glRenderer = GLRenderer().apply { start() }
         var frameBuffer: FrameBuffer? = null
-        var status: Boolean? = false
+        var status = false
         var supportsFence = false
 
         val callbacks = object : FrameBufferRenderer.RenderCallback {
@@ -862,7 +867,7 @@ class GLRendererTest {
                 frameBuffer: FrameBuffer,
                 syncFenceCompat: SyncFenceCompat?
             ) {
-                status = syncFenceCompat?.await(3000)
+                status = syncFenceCompat?.await(3000) ?: true
                 renderLatch.countDown()
             }
         }
@@ -877,10 +882,7 @@ class GLRendererTest {
         try {
             assertTrue(renderLatch.await(3000, TimeUnit.MILLISECONDS))
             if (supportsFence) {
-                assert(status != null)
-                status?.let {
-                    assertTrue(it)
-                }
+                assert(status)
             }
 
             hardwareBuffer = frameBuffer?.hardwareBuffer
@@ -902,6 +904,279 @@ class GLRendererTest {
             glRenderer.stop(true) {
                 teardownLatch.countDown()
             }
+            assertTrue(teardownLatch.await(3000, TimeUnit.MILLISECONDS))
+        }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
+    fun testQuadTextureRenderer() {
+        val width = 10
+        val height = 10
+        val renderLatch = CountDownLatch(1)
+        val teardownLatch = CountDownLatch(1)
+        val glRenderer = GLRenderer().apply { start() }
+        var frameBuffer: FrameBuffer? = null
+        var status = false
+        var supportsFence = false
+        val frameHandlerThread = HandlerThread("frameAvailable").apply { start() }
+        val frameHandler = Handler(frameHandlerThread.looper)
+        val callbacks = object : FrameBufferRenderer.RenderCallback {
+
+            private val mOrthoMatrix = FloatArray(16)
+
+            override fun obtainFrameBuffer(egl: EGLSpec): FrameBuffer =
+                FrameBuffer(
+                    egl,
+                    HardwareBuffer.create(
+                        width,
+                        height,
+                        HardwareBuffer.RGBA_8888,
+                        1,
+                        HardwareBuffer.USAGE_GPU_SAMPLED_IMAGE
+                    )
+                ).also { frameBuffer = it }
+
+            override fun onDraw(eglManager: EGLManager) {
+                val texId = genTexture()
+                val frameAvailableLatch = CountDownLatch(1)
+                val surfaceTexture = SurfaceTexture(texId).apply {
+                    setDefaultBufferSize(width, height)
+                    setOnFrameAvailableListener({
+                        frameAvailableLatch.countDown()
+                    }, frameHandler)
+                }
+
+                val surface = Surface(surfaceTexture)
+                val canvas = surface.lockCanvas(null)
+                canvas.save()
+                val paint = Paint()
+                // top left
+                canvas.drawRect(0f, 0f, width / 2f, height / 2f,
+                    paint.apply { color = Color.RED })
+                // top right
+                canvas.drawRect(width / 2f, 0f, width.toFloat(), height / 2f,
+                    paint.apply { color = Color.BLUE })
+                // bottom left
+                canvas.drawRect(0f, height / 2f, width / 2f, height.toFloat(),
+                    paint.apply { color = Color.YELLOW })
+                // bottom right
+                canvas.drawRect(width / 2f, height / 2f, width.toFloat(), height.toFloat(),
+                    paint.apply { color = Color.GREEN })
+                canvas.restore()
+                surface.unlockCanvasAndPost(canvas)
+
+                assertTrue(frameAvailableLatch.await(3000, TimeUnit.MILLISECONDS))
+
+                GLES20.glViewport(0, 0, width, height)
+                Matrix.orthoM(
+                    mOrthoMatrix,
+                    0,
+                    0f,
+                    width.toFloat(),
+                    0f,
+                    height.toFloat(),
+                    -1f,
+                    1f
+                )
+                val quadRenderer = QuadTextureRenderer().apply {
+                    setSurfaceTexture(surfaceTexture)
+                }
+                quadRenderer.draw(
+                    mOrthoMatrix,
+                    width.toFloat(),
+                    height.toFloat()
+                )
+                // See: b/236394768 Workaround for ANGLE issue where FBOs with HardwareBuffer
+                GLES20.glFinish()
+                supportsFence = eglManager.supportsNativeAndroidFence()
+                quadRenderer.release()
+                surface.release()
+                surfaceTexture.release()
+                deleteTexture(texId)
+            }
+
+            override fun onDrawComplete(
+                frameBuffer: FrameBuffer,
+                syncFenceCompat: SyncFenceCompat?
+            ) {
+                status = syncFenceCompat?.await(3000) ?: true
+                renderLatch.countDown()
+            }
+        }
+
+        glRenderer.createRenderTarget(
+            width,
+            height,
+            FrameBufferRenderer(callbacks)
+        ).requestRender()
+
+        var hardwareBuffer: HardwareBuffer? = null
+        try {
+            assertTrue(renderLatch.await(3000, TimeUnit.MILLISECONDS))
+            if (supportsFence) {
+                assertTrue(status)
+            }
+
+            hardwareBuffer = frameBuffer?.hardwareBuffer
+            if (hardwareBuffer != null) {
+                val colorSpace = ColorSpace.get(ColorSpace.Named.LINEAR_SRGB)
+                // Copy to non hardware bitmap to be able to sample pixels
+                val bitmap = Bitmap.wrapHardwareBuffer(hardwareBuffer, colorSpace)
+                    ?.copy(Bitmap.Config.ARGB_8888, false)
+                if (bitmap != null) {
+                    bitmap.verifyQuadrants(Color.RED, Color.BLUE, Color.YELLOW, Color.GREEN)
+                } else {
+                    fail("Unable to obtain Bitmap from hardware buffer")
+                }
+            } else {
+                fail("Unable to obtain hardwarebuffer from FrameBuffer")
+            }
+        } finally {
+            hardwareBuffer?.close()
+            glRenderer.stop(true) {
+                teardownLatch.countDown()
+            }
+            frameHandlerThread.quit()
+            assertTrue(teardownLatch.await(3000, TimeUnit.MILLISECONDS))
+        }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
+    fun testRenderSurfaceTextureFromSurfaceTextureRenderer() {
+        val width = 10
+        val height = 10
+        val renderLatch = CountDownLatch(1)
+        val teardownLatch = CountDownLatch(1)
+        val glRenderer = GLRenderer().apply { start() }
+        var frameBuffer: FrameBuffer? = null
+        var status = false
+        var supportsFence = false
+        val frameHandlerThread = HandlerThread("frameAvailable").apply { start() }
+        val frameHandler = Handler(frameHandlerThread.looper)
+        val renderNode = RenderNode("node").apply {
+            setPosition(0, 0, width, height)
+            val canvas = beginRecording()
+            val paint = Paint()
+            // top left
+            canvas.drawRect(0f, 0f, width / 2f, height / 2f,
+                paint.apply { color = Color.RED })
+            // top right
+            canvas.drawRect(width / 2f, 0f, width.toFloat(), height / 2f,
+                paint.apply { color = Color.BLUE })
+            // bottom left
+            canvas.drawRect(0f, height / 2f, width / 2f, height.toFloat(),
+                paint.apply { color = Color.YELLOW })
+            // bottom right
+            canvas.drawRect(width / 2f, height / 2f, width.toFloat(), height.toFloat(),
+                paint.apply { color = Color.GREEN })
+            endRecording()
+        }
+        val frameAvailableLatch = CountDownLatch(1)
+        var surfaceTexture: SurfaceTexture? = null
+        val surfaceTextureRenderer = SurfaceTextureRenderer(
+            renderNode,
+            width,
+            height,
+            frameHandler
+        ) {
+            surfaceTexture = it
+            frameAvailableLatch.countDown()
+        }
+        surfaceTextureRenderer.renderFrame()
+
+        val callbacks = object : FrameBufferRenderer.RenderCallback {
+
+            private val mOrthoMatrix = FloatArray(16)
+
+            override fun obtainFrameBuffer(egl: EGLSpec): FrameBuffer =
+                FrameBuffer(
+                    egl,
+                    HardwareBuffer.create(
+                        width,
+                        height,
+                        HardwareBuffer.RGBA_8888,
+                        1,
+                        HardwareBuffer.USAGE_GPU_SAMPLED_IMAGE
+                    )
+                ).also { frameBuffer = it }
+
+            override fun onDraw(eglManager: EGLManager) {
+                val texId = genTexture()
+                assertTrue(frameAvailableLatch.await(3000, TimeUnit.MILLISECONDS))
+                assertNotNull(surfaceTexture)
+                surfaceTexture!!.attachToGLContext(texId)
+
+                GLES20.glViewport(0, 0, width, height)
+                Matrix.orthoM(
+                    mOrthoMatrix,
+                    0,
+                    0f,
+                    width.toFloat(),
+                    0f,
+                    height.toFloat(),
+                    -1f,
+                    1f
+                )
+                val quadRenderer = QuadTextureRenderer().apply {
+                    setSurfaceTexture(surfaceTexture!!)
+                }
+                quadRenderer.draw(
+                    mOrthoMatrix,
+                    width.toFloat(),
+                    height.toFloat()
+                )
+                // See: b/236394768 Workaround for ANGLE issue where FBOs with HardwareBuffer
+                GLES20.glFinish()
+                supportsFence = eglManager.supportsNativeAndroidFence()
+                quadRenderer.release()
+                deleteTexture(texId)
+            }
+
+            override fun onDrawComplete(
+                frameBuffer: FrameBuffer,
+                syncFenceCompat: SyncFenceCompat?
+            ) {
+                status = syncFenceCompat?.await(3000) ?: true
+                renderLatch.countDown()
+            }
+        }
+
+        glRenderer.createRenderTarget(
+            width,
+            height,
+            FrameBufferRenderer(callbacks)
+        ).requestRender()
+
+        var hardwareBuffer: HardwareBuffer? = null
+        try {
+            assertTrue(renderLatch.await(3000, TimeUnit.MILLISECONDS))
+            if (supportsFence) {
+                assertTrue(status)
+            }
+
+            hardwareBuffer = frameBuffer?.hardwareBuffer
+            if (hardwareBuffer != null) {
+                val colorSpace = ColorSpace.get(ColorSpace.Named.LINEAR_SRGB)
+                // Copy to non hardware bitmap to be able to sample pixels
+                val bitmap = Bitmap.wrapHardwareBuffer(hardwareBuffer, colorSpace)
+                    ?.copy(Bitmap.Config.ARGB_8888, false)
+                if (bitmap != null) {
+                    bitmap.verifyQuadrants(Color.RED, Color.BLUE, Color.YELLOW, Color.GREEN)
+                } else {
+                    fail("Unable to obtain Bitmap from hardware buffer")
+                }
+            } else {
+                fail("Unable to obtain hardwarebuffer from FrameBuffer")
+            }
+        } finally {
+            surfaceTextureRenderer.release()
+            hardwareBuffer?.close()
+            glRenderer.stop(true) {
+                teardownLatch.countDown()
+            }
+            frameHandlerThread.quit()
             assertTrue(teardownLatch.await(3000, TimeUnit.MILLISECONDS))
         }
     }
@@ -1068,14 +1343,15 @@ class GLRendererTest {
         assertTrue(copyLatch.await(3000, TimeUnit.MILLISECONDS))
     }
 
-    private fun Bitmap.isAllColor(targetColor: Int): Boolean {
-        for (i in 0 until width) {
-            for (j in 0 until height) {
-                if (getPixel(i, j) != targetColor) {
-                    return false
-                }
-            }
-        }
-        return true
+    private fun genTexture(): Int {
+        val buffer = IntArray(1)
+        GLES20.glGenTextures(1, buffer, 0)
+        return buffer[0]
+    }
+
+    private fun deleteTexture(texId: Int) {
+        val buffer = IntArray(1)
+        buffer[0] = texId
+        GLES20.glDeleteTextures(1, buffer, 0)
     }
 }

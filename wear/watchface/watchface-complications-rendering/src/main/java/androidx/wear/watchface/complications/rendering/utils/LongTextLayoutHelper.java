@@ -33,7 +33,6 @@ import androidx.annotation.RestrictTo;
 /**
  * Layout helper for {@link ComplicationData#TYPE_LONG_TEXT}.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class LongTextLayoutHelper extends LayoutHelper {

@@ -14,14 +14,15 @@
  * limitations under the License.
  */
 
+
 import androidx.build.AndroidXComposePlugin
 import androidx.build.LibraryType
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXComposePlugin")
+    id("kotlinx-atomicfu")
 }
 
 AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project)
@@ -89,6 +90,7 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
         desktop()
         darwin()
         js()
+        wasm()
     }
 
     kotlin {
@@ -110,6 +112,9 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                 implementation(project(":compose:runtime:runtime-saveable"))
 
                 implementation(project(":compose:ui:ui-util"))
+                implementation(project(":compose:ui:ui-geometry"))
+
+                implementation(project(":annotation:annotation"))
             }
 
             jvmMain.dependencies {
@@ -130,7 +135,21 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
 
             jsNativeMain.dependsOn(skikoMain)
 
-            jsMain.dependsOn(jsNativeMain)
+            jsWasmMain.dependsOn(jsNativeMain)
+
+            jsMain {
+                dependsOn(jsWasmMain)
+            }
+
+            if (project.kotlinWasmEnabled.toBoolean()) {
+                wasmJsMain {
+                    dependsOn(jsWasmMain)
+                    dependencies {
+                        implementation(libs.create("skikoWasm"))
+                        implementation(libs.create("skikoWasmWasm"))
+                    }
+                }
+            }
 
             nativeMain.dependsOn(jsNativeMain)
 
@@ -210,6 +229,11 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
             }
             nativeTest.dependsOn(jsNativeTest)
             jsTest.dependsOn(jsNativeTest)
+            wasmJsTest.dependsOn(jsNativeTest)
+
+            configureEach {
+                languageSettings.optIn("androidx.compose.ui.text.ExperimentalTextApi")
+            }
         }
     }
     dependencies {
@@ -227,4 +251,16 @@ androidx {
 
 android {
     namespace "androidx.compose.ui.text"
+}
+
+project.tasks.configureEach {
+    if (name == "compileJsWasmMainKotlinMetadata") {
+        enabled = false
+    }
+}
+
+afterEvaluate {
+    tasks.withType(Test) { t ->
+        t.jvmArgs += ["--add-opens=java.desktop/sun.font=ALL-UNNAMED"]
+    }
 }

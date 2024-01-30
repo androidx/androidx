@@ -31,7 +31,6 @@ import androidx.work.impl.utils.taskexecutor.TaskExecutor;
 /**
  * Utility methods for {@link LiveData}.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class LiveDataUtils {

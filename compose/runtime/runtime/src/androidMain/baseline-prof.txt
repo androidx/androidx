@@ -11,6 +11,8 @@ Landroidx/compose/runtime/external/kotlinx/collections/immutable/**;
 # ====
 # Note: AbstractApplier might benefit from inline caches. consider removing.
 HSPLandroidx/compose/runtime/AbstractApplier;->**(**)**
+HSPLandroidx/compose/runtime/ActualJvm_jvmKt;->identityHashCode(Ljava/lang/Object;)I
+HSPLandroidx/compose/runtime/ActualAndroid**->**(**)**
 HSPLandroidx/compose/runtime/Anchor;->**(**)**
 HSPLandroidx/compose/runtime/Applier$DefaultImpls;->**(**)**
 HSPLandroidx/compose/runtime/BroadcastFrameClock**->**(**)**
@@ -30,15 +32,19 @@ HSPLandroidx/compose/runtime/DisposableEffectScope;->**(**)**
 HSPLandroidx/compose/runtime/DynamicProvidableCompositionLocal;->**(**)**
 HSPLandroidx/compose/runtime/EffectsKt;->**(**)**
 HSPLandroidx/compose/runtime/GroupInfo;->**(**)**
+HSPLandroidx/compose/runtime/GroupKind**->**(**)**
 HSPLandroidx/compose/runtime/InvalidationResult;->**(**)**
 HSPLandroidx/compose/runtime/Invalidation;->**(**)**
 HSPLandroidx/compose/runtime/KeyInfo;->**(**)**
-HSPLandroidx/compose/runtime/Latch;->**(**)**
+HSPLandroidx/compose/runtime/Latch**->**(**)**
 HSPLandroidx/compose/runtime/LaunchedEffectImpl;->**(**)**
 HSPLandroidx/compose/runtime/LazyValueHolder;->**(**)**
 HSPLandroidx/compose/runtime/MonotonicFrameClock**->**(**)**
 HSPLandroidx/compose/runtime/NeverEqualPolicy;->**(**)**
 HSPLandroidx/compose/runtime/OpaqueKey;->**(**)**
+HSPLandroidx/compose/runtime/ParcelableSnapshotMutableFloatState;->**(**)**
+HSPLandroidx/compose/runtime/ParcelableSnapshotMutableIntState;->**(**)**
+HSPLandroidx/compose/runtime/ParcelableSnapshotMutableLongState;->**(**)**
 HSPLandroidx/compose/runtime/ParcelableSnapshotMutableState**->**(**)**
 HSPLandroidx/compose/runtime/PausableMonotonicFrameClock;->**(**)**
 HSPLandroidx/compose/runtime/Pending**->**(**)**
@@ -51,8 +57,15 @@ HSPLandroidx/compose/runtime/SkippableUpdater;->**(**)**
 HSPLandroidx/compose/runtime/SlotReader;->**(**)**
 HSPLandroidx/compose/runtime/SlotTable;->**(**)**
 HSPLandroidx/compose/runtime/SlotTableKt;->**(**)**
-HSPLandroidx/compose/runtime/SlotWriter;->**(**)**
+HSPLandroidx/compose/runtime/SlotWriter**->**(**)**
+HSPLandroidx/compose/runtime/SnapshotMutableFloatStateImpl**->**(**)**
+HSPLandroidx/compose/runtime/SnapshotMutableIntStateImpl**->**(**)**
+HSPLandroidx/compose/runtime/SnapshotMutableLongStateImpl**->**(**)**
 HSPLandroidx/compose/runtime/SnapshotMutableStateImpl**->**(**)**
+HSPLandroidx/compose/runtime/SnapshotDoubleStateKt**->**(**)**
+HSPLandroidx/compose/runtime/SnapshotIntStateKt**->**(**)**
+HSPLandroidx/compose/runtime/SnapshotLongStateKt**->**(**)**
+HSPLandroidx/compose/runtime/PrimitiveSnapshotStateKt**->**(**)**
 HSPLandroidx/compose/runtime/SnapshotStateKt**->**(**)**
 HSPLandroidx/compose/runtime/SnapshotThreadLocal;->**(**)**
 HSPLandroidx/compose/runtime/StaticProvidableCompositionLocal;->**(**)**
@@ -60,10 +73,10 @@ HSPLandroidx/compose/runtime/StaticValueHolder;->**(**)**
 HSPLandroidx/compose/runtime/StructuralEqualityPolicy;->**(**)**
 HSPLandroidx/compose/runtime/Trace;->**(**)**
 HSPLandroidx/compose/runtime/Updater**->**(**)**
+HSPLandroidx/compose/runtime/changelist/**->**(**)**
 HSPLandroidx/compose/runtime/internal/ComposableLambdaImpl**->**(**)**
 HSPLandroidx/compose/runtime/internal/ComposableLambdaKt;->**(**)**
-HSPLandroidx/compose/runtime/ActualJvm_jvmKt;->identityHashCode(Ljava/lang/Object;)I
-HSPLandroidx/compose/runtime/ActualAndroid**->**(**)**
+HSPLandroidx/compose/runtime/internal/IntRef;->**(**)**
 HSPLandroidx/compose/runtime/tooling/**->**(**)**
 HSPLandroidx/compose/runtime/tracing/**->**(**)**
 
@@ -84,7 +97,25 @@ HSPLandroidx/compose/runtime/snapshots/TransparentObserverMutableSnapshot;->**(*
 HSPLandroidx/compose/runtime/collection/**->**(**)**
 HSPLandroidx/compose/runtime/Stack;->**(**)**
 HSPLandroidx/compose/runtime/IntStack;->**(**)**
+HSPLandroidx/compose/runtime/internal/PersistentCompositionLocalHashMap**->**(**)**
 HSPLandroidx/compose/runtime/internal/ThreadMap;->**(**)**
+HSPLandroidx/compose/runtime/PrioritySet;->**(**)**
+#
+# AndroidX collections
+Landroidx/collection/**;
+HSPLandroidx/collection/ArraySet**->**(**)**
+HSPLandroidx/collection/IntSetKt;->**(**)**
+HSPLandroidx/collection/LongSparseArray**->**(**)**
+HSPLandroidx/collection/MutableIntIntMap;->**(**)**
+HSPLandroidx/collection/MutableObjectIntMap;->**(**)**
+HSPLandroidx/collection/MutableScatterMap;->**(**)**
+HSPLandroidx/collection/MutableScatterSet**->**(**)**
+HSPLandroidx/collection/ObjectIntMapKt;->**(**)**
+HSPLandroidx/collection/ScatterMapKt;->**(**)**
+HSPLandroidx/collection/ScatterSet**->**(**)**
+HSPLandroidx/collection/SimpleArrayMap;->**(**)**
+HSPLandroidx/collection/SparseArrayCompat;->**(**)**
+HSPLandroidx/collection/internal/ContainerHelpersKt;->**(**)**
 #
 # kotlinx.collections.immutable copy
 # ====

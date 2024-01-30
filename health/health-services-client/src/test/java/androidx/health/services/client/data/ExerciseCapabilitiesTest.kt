@@ -31,8 +31,8 @@ class ExerciseCapabilitiesTest {
             EXERCISE_CAPABILITIES.getExerciseTypeCapabilities(
                 ExerciseType.WALKING
             ).supportedDataTypes
-        ).isEqualTo(
-            ImmutableSet.of(DataType.STEPS)
+        ).containsExactly(
+            DataType.STEPS
         )
     }
 
@@ -55,6 +55,23 @@ class ExerciseCapabilitiesTest {
         ).isEqualTo(
             EXERCISE_CAPABILITIES.typeToCapabilities.get(ExerciseType.RUNNING)!!.supportedMilestones
         )
+    }
+
+    @Test
+    fun supportedExerciseEventForGolfExercise() {
+        assertThat(
+            EXERCISE_CAPABILITIES.getExerciseTypeCapabilities(
+                ExerciseType.GOLF).supportedExerciseEvents
+        ).isEqualTo(setOf(ExerciseEventType.GOLF_SHOT_EVENT))
+        assertThat(
+            EXERCISE_CAPABILITIES.getExerciseTypeCapabilities(
+                ExerciseType.GOLF).supportedExerciseEvents
+        ).isEqualTo(
+            EXERCISE_CAPABILITIES.typeToCapabilities.get(ExerciseType.GOLF)?.supportedExerciseEvents
+        )
+        assertThat(EXERCISE_CAPABILITIES.typeToCapabilities[ExerciseType.GOLF]
+                        ?.getExerciseEventCapabilityDetails(ExerciseEventType.GOLF_SHOT_EVENT)
+                        ?.isSwingTypeClassificationSupported).isTrue()
     }
 
     @Test
@@ -93,6 +110,9 @@ class ExerciseCapabilitiesTest {
         assertThat(capabilities.autoPauseAndResumeEnabledExercises).containsExactlyElementsIn(
             EXERCISE_CAPABILITIES.autoPauseAndResumeEnabledExercises
         )
+        assertThat(capabilities.supportedBatchingModeOverrides).containsExactlyElementsIn(
+            EXERCISE_CAPABILITIES.supportedBatchingModeOverrides
+        )
     }
 
     @Test
@@ -105,6 +125,9 @@ class ExerciseCapabilitiesTest {
         )
         assertThat(emptyCapabilities.autoPauseAndResumeEnabledExercises).containsExactlyElementsIn(
             roundTripEmptyCapabilities.autoPauseAndResumeEnabledExercises
+        )
+        assertThat(emptyCapabilities.supportedBatchingModeOverrides).containsExactlyElementsIn(
+            roundTripEmptyCapabilities.supportedBatchingModeOverrides
         )
     }
 
@@ -145,14 +168,28 @@ class ExerciseCapabilitiesTest {
             supportsAutoPauseAndResume = true,
         )
 
+        private val GOLF_SHOT_EVENT_CAPABILITIES: GolfShotEventCapabilities =
+            GolfShotEventCapabilities(isSupported = true, isSwingTypeClassificationSupported = true)
+
+        private val GOLF_CAPABILITIES = ExerciseTypeCapabilities(
+            supportedDataTypes = emptySet(),
+            supportedGoals = emptyMap(),
+            supportedMilestones = emptyMap(),
+            supportsAutoPauseAndResume = true,
+            exerciseEventCapabilities =
+            ImmutableMap.of(ExerciseEventType.GOLF_SHOT_EVENT, GOLF_SHOT_EVENT_CAPABILITIES),
+        )
+
         private val EXERCISE_TYPE_TO_EXERCISE_CAPABILITIES_MAPPING =
             ImmutableMap.of(
                 ExerciseType.WALKING, WALKING_CAPABILITIES,
                 ExerciseType.RUNNING, RUNNING_CAPABILITIES,
-                ExerciseType.SWIMMING_POOL, SWIMMING_CAPABILITIES
+                ExerciseType.SWIMMING_POOL, SWIMMING_CAPABILITIES,
+                ExerciseType.GOLF, GOLF_CAPABILITIES,
             )
 
         private val EXERCISE_CAPABILITIES: ExerciseCapabilities =
-            ExerciseCapabilities(EXERCISE_TYPE_TO_EXERCISE_CAPABILITIES_MAPPING)
+            ExerciseCapabilities(EXERCISE_TYPE_TO_EXERCISE_CAPABILITIES_MAPPING,
+                ImmutableSet.of(BatchingMode.HEART_RATE_5_SECONDS))
     }
 }

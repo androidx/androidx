@@ -96,7 +96,6 @@ public class EditTextPreferenceDialogFragmentCompat extends PreferenceDialogFrag
         return (EditTextPreference) getPreference();
     }
 
-    /** @hide */
     @RestrictTo(LIBRARY)
     @Override
     protected boolean needInputMethod() {
@@ -113,7 +112,6 @@ public class EditTextPreferenceDialogFragmentCompat extends PreferenceDialogFrag
         mShowRequestTime = pendingShowSoftInputRequest ? SystemClock.currentThreadTimeMillis() : -1;
     }
 
-    /** @hide */
     @RestrictTo(LIBRARY)
     @Override
     protected void scheduleShowSoftInput() {
@@ -121,7 +119,6 @@ public class EditTextPreferenceDialogFragmentCompat extends PreferenceDialogFrag
         scheduleShowSoftInputInner();
     }
 
-    /** @hide */
     @RestrictTo(LIBRARY)
     void scheduleShowSoftInputInner() {
         if (hasPendingShowSoftInputRequest()) {

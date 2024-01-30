@@ -40,9 +40,13 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /**
- * Result class to be used with {@link ListenableFuture} for asynchronous calls between
- * {@link MediaSession} and {@link MediaController}.
+ * Result class to be used with {@link ListenableFuture} for asynchronous calls between {@link
+ * MediaSession} and {@link MediaController}.
+ *
+ * @deprecated androidx.media2 is deprecated. Please migrate to <a
+ *     href="https://developer.android.com/guide/topics/media/media3">androidx.media3</a>.
  */
+@Deprecated
 @VersionedParcelize(isCustom = true)
 public class SessionResult extends CustomVersionedParcelable implements RemoteResult {
     /**
@@ -56,7 +60,6 @@ public class SessionResult extends CustomVersionedParcelable implements RemoteRe
     public static final int RESULT_SUCCESS = 0;
 
     /**
-     * @hide
      */
     @IntDef(flag = false, /*prefix = "RESULT_CODE",*/ value = {
             RESULT_SUCCESS,
@@ -217,7 +220,6 @@ public class SessionResult extends CustomVersionedParcelable implements RemoteRe
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @Override
@@ -233,7 +235,6 @@ public class SessionResult extends CustomVersionedParcelable implements RemoteRe
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @Override

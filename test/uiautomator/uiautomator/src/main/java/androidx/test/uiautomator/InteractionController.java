@@ -50,6 +50,10 @@ class InteractionController {
 
     private static final String TAG = InteractionController.class.getSimpleName();
 
+    // Duration of a long press (with multiplier to ensure detection).
+    private static final long LONG_PRESS_DURATION_MS =
+            (long) (ViewConfiguration.getLongPressTimeout() * 1.5f);
+
     private final KeyCharacterMap mKeyCharacterMap =
             KeyCharacterMap.load(KeyCharacterMap.VIRTUAL_KEYBOARD);
 
@@ -187,7 +191,7 @@ class InteractionController {
      * @return true if events are received, else false if timeout.
      */
     public boolean clickAndSync(final int x, final int y, long timeout) {
-        return runAndWaitForEvents(clickRunnable(x, y), new WaitForAnyEventPredicate(
+        return runAndWaitForEvents(() -> clickNoSync(x, y), new WaitForAnyEventPredicate(
                 AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED |
                 AccessibilityEvent.TYPE_VIEW_SELECTED), timeout) != null;
     }
@@ -202,43 +206,9 @@ class InteractionController {
      * @return true if both events occurred in the expected order
      */
     public boolean clickAndWaitForNewWindow(final int x, final int y, long timeout) {
-        return runAndWaitForEvents(clickRunnable(x, y), new WaitForAllEventPredicate(
+        return runAndWaitForEvents(() -> clickNoSync(x, y), new WaitForAllEventPredicate(
                 AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED |
                 AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED), timeout) != null;
-    }
-
-    /**
-     * Returns a Runnable for use in
-     * {@link #runAndWaitForEvents(Runnable, AccessibilityEventFilter, long) to perform a click.
-     *
-     * @param x coordinate
-     * @param y coordinate
-     * @return Runnable
-     */
-    private Runnable clickRunnable(final int x, final int y) {
-        return () -> {
-            if (touchDown(x, y)) {
-                SystemClock.sleep(REGULAR_CLICK_LENGTH);
-                touchUp(x, y);
-            }
-        };
-    }
-
-    /**
-     * Returns a Runnable for use in
-     * {@link #runAndWaitForEvents(Runnable, AccessibilityEventFilter, long) to perform a long tap.
-     *
-     * @param x coordinate
-     * @param y coordinate
-     * @return Runnable
-     */
-    private Runnable longTapRunnable(final int x, final int y) {
-        return () -> {
-            if (touchDown(x, y)) {
-                SystemClock.sleep(ViewConfiguration.getLongPressTimeout());
-                touchUp(x, y);
-            }
-        };
     }
 
     /**
@@ -250,7 +220,7 @@ class InteractionController {
      */
     public boolean longTapNoSync(int x, int y) {
         if (touchDown(x, y)) {
-            SystemClock.sleep(ViewConfiguration.getLongPressTimeout());
+            SystemClock.sleep(LONG_PRESS_DURATION_MS);
             return touchUp(x, y);
         }
         return false;
@@ -266,7 +236,7 @@ class InteractionController {
      * @return true if events are received, else false if timeout.
      */
     public boolean longTapAndSync(final int x, final int y, long timeout) {
-        return runAndWaitForEvents(longTapRunnable(x, y), new WaitForAnyEventPredicate(
+        return runAndWaitForEvents(() -> longTapNoSync(x, y), new WaitForAnyEventPredicate(
                 AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED |
                 AccessibilityEvent.TYPE_VIEW_SELECTED), timeout) != null;
     }
@@ -318,7 +288,7 @@ class InteractionController {
                 condition,
                 Configurator.getInstance().getScrollAcknowledgmentTimeout());
 
-        return !condition.getResult();
+        return Boolean.FALSE.equals(condition.getResult());
     }
 
     /**
@@ -360,7 +330,7 @@ class InteractionController {
         ret = touchDown(downX, downY);
         SystemClock.sleep(MOTION_EVENT_INJECTION_DELAY_MILLIS);
         if (drag)
-            SystemClock.sleep(ViewConfiguration.getLongPressTimeout());
+            SystemClock.sleep(LONG_PRESS_DURATION_MS);
         for(int i = 1; i < swipeSteps; i++) {
             ret &= touchMove(downX + (int)(xStep * i), downY + (int)(yStep * i));
             if (!ret) {
@@ -477,60 +447,6 @@ class InteractionController {
             }
         }
         return true;
-    }
-
-    /**
-     * Rotates right and also freezes rotation in that position by
-     * disabling the sensors. If you want to un-freeze the rotation
-     * and re-enable the sensors see {@link #unfreezeRotation()}. Note
-     * that doing so may cause the screen contents to rotate
-     * depending on the current physical position of the test device.
-     * @throws RemoteException
-     */
-    public void setRotationRight() {
-        getUiAutomation().setRotation(UiAutomation.ROTATION_FREEZE_270);
-    }
-
-    /**
-     * Rotates left and also freezes rotation in that position by
-     * disabling the sensors. If you want to un-freeze the rotation
-     * and re-enable the sensors see {@link #unfreezeRotation()}. Note
-     * that doing so may cause the screen contents to rotate
-     * depending on the current physical position of the test device.
-     * @throws RemoteException
-     */
-    public void setRotationLeft() {
-        getUiAutomation().setRotation(UiAutomation.ROTATION_FREEZE_90);
-    }
-
-    /**
-     * Rotates up and also freezes rotation in that position by
-     * disabling the sensors. If you want to un-freeze the rotation
-     * and re-enable the sensors see {@link #unfreezeRotation()}. Note
-     * that doing so may cause the screen contents to rotate
-     * depending on the current physical position of the test device.
-     * @throws RemoteException
-     */
-    public void setRotationNatural() {
-        getUiAutomation().setRotation(UiAutomation.ROTATION_FREEZE_0);
-    }
-
-    /**
-     * Disables the sensors and freezes the device rotation at its
-     * current rotation state.
-     * @throws RemoteException
-     */
-    public void freezeRotation() {
-        getUiAutomation().setRotation(UiAutomation.ROTATION_FREEZE_CURRENT);
-    }
-
-    /**
-     * Re-enables the sensors and un-freezes the device rotation
-     * allowing its contents to rotate with the device physical rotation.
-     * @throws RemoteException
-     */
-    public void unfreezeRotation() {
-        getUiAutomation().setRotation(UiAutomation.ROTATION_UNFREEZE);
     }
 
     /**

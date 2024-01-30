@@ -22,7 +22,8 @@ import androidx.room.compiler.processing.XAnnotationBox
 import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XEquality
 import androidx.room.compiler.processing.XHasModifiers
-import androidx.room.compiler.processing.javac.kotlin.KmFlags
+import androidx.room.compiler.processing.javac.kotlin.KmData
+import androidx.room.compiler.processing.javac.kotlin.KmVisibility
 import androidx.room.compiler.processing.unwrapRepeatedAnnotationsFromContainer
 import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreElements.isAnnotationPresent
@@ -31,7 +32,6 @@ import java.util.Locale
 import javax.lang.model.element.Element
 import javax.lang.model.element.Modifier
 import kotlin.reflect.KClass
-import kotlinx.metadata.Flag
 
 @Suppress("UnstableApiUsage")
 internal abstract class JavacElement(
@@ -39,7 +39,7 @@ internal abstract class JavacElement(
     open val element: Element
 ) : XElement, XEquality, InternalXAnnotated, XHasModifiers {
 
-    abstract val kotlinMetadata: KmFlags?
+    abstract val kotlinMetadata: KmData?
 
     override fun <T : Annotation> getAnnotations(
         annotation: KClass<T>,
@@ -121,7 +121,7 @@ internal abstract class JavacElement(
     }
 
     override fun isInternal(): Boolean {
-        return kotlinMetadata?.flags?.let { Flag.IS_INTERNAL(it) } ?: false
+        return (kotlinMetadata as? KmVisibility)?.isInternal() ?: false
     }
 
     override fun isProtected(): Boolean {
@@ -130,6 +130,10 @@ internal abstract class JavacElement(
 
     override fun isAbstract(): Boolean {
         return element.modifiers.contains(Modifier.ABSTRACT)
+    }
+
+    override fun isKtPrivate(): Boolean {
+        return (kotlinMetadata as? KmVisibility)?.isPrivate() ?: false
     }
 
     override fun isPrivate(): Boolean {

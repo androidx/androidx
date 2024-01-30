@@ -1,0 +1,20 @@
+// Signature format: 4.0
+package androidx.wear.compose.ui.tooling.preview {
+
+  @androidx.compose.ui.tooling.preview.Preview(device=androidx.compose.ui.tooling.preview.Devices.WEAR_OS_SQUARE, backgroundColor=4278190080L, showBackground=true, group="Devices - Small Square", showSystemUi=true) @androidx.compose.ui.tooling.preview.Preview(device=androidx.compose.ui.tooling.preview.Devices.WEAR_OS_LARGE_ROUND, backgroundColor=4278190080L, showBackground=true, group="Devices - Large Round", showSystemUi=true) @androidx.compose.ui.tooling.preview.Preview(device=androidx.compose.ui.tooling.preview.Devices.WEAR_OS_SMALL_ROUND, backgroundColor=4278190080L, showBackground=true, group="Devices - Small Round", showSystemUi=true) public @interface WearPreviewDevices {
+  }
+
+  @androidx.compose.ui.tooling.preview.Preview(device=androidx.compose.ui.tooling.preview.Devices.WEAR_OS_SMALL_ROUND, showSystemUi=true, backgroundColor=4278190080L, showBackground=true, group="Fonts - Small", fontScale=0.94f) @androidx.compose.ui.tooling.preview.Preview(device=androidx.compose.ui.tooling.preview.Devices.WEAR_OS_SMALL_ROUND, showSystemUi=true, backgroundColor=4278190080L, showBackground=true, group="Fonts - Normal", fontScale=1.0f) @androidx.compose.ui.tooling.preview.Preview(device=androidx.compose.ui.tooling.preview.Devices.WEAR_OS_SMALL_ROUND, showSystemUi=true, backgroundColor=4278190080L, showBackground=true, group="Fonts - Medium", fontScale=1.06f) @androidx.compose.ui.tooling.preview.Preview(device=androidx.compose.ui.tooling.preview.Devices.WEAR_OS_SMALL_ROUND, showSystemUi=true, backgroundColor=4278190080L, showBackground=true, group="Fonts - Large", fontScale=1.12f) @androidx.compose.ui.tooling.preview.Preview(device=androidx.compose.ui.tooling.preview.Devices.WEAR_OS_SMALL_ROUND, showSystemUi=true, backgroundColor=4278190080L, showBackground=true, group="Fonts - Larger", fontScale=1.18f) @androidx.compose.ui.tooling.preview.Preview(device=androidx.compose.ui.tooling.preview.Devices.WEAR_OS_SMALL_ROUND, showSystemUi=true, backgroundColor=4278190080L, showBackground=true, group="Fonts - Largest", fontScale=1.24f) public @interface WearPreviewFontScales {
+  }
+
+  @androidx.compose.ui.tooling.preview.Preview(device=androidx.compose.ui.tooling.preview.Devices.WEAR_OS_LARGE_ROUND, backgroundColor=4278190080L, showBackground=true, group="Devices - Large Round", showSystemUi=true) public @interface WearPreviewLargeRound {
+  }
+
+  @androidx.compose.ui.tooling.preview.Preview(device=androidx.compose.ui.tooling.preview.Devices.WEAR_OS_SMALL_ROUND, backgroundColor=4278190080L, showBackground=true, group="Devices - Small Round", showSystemUi=true) public @interface WearPreviewSmallRound {
+  }
+
+  @androidx.compose.ui.tooling.preview.Preview(device=androidx.compose.ui.tooling.preview.Devices.WEAR_OS_SQUARE, backgroundColor=4278190080L, showBackground=true, group="Devices - Small Square", showSystemUi=true) public @interface WearPreviewSquare {
+  }
+
+}
+

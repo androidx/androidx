@@ -20,9 +20,6 @@ import androidx.annotation.RestrictTo
 
 object SdkRuntimeUiLibVersions {
     var clientVersion: Int = -1
-        /**
-         * @hide
-         */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         set
 

@@ -23,8 +23,9 @@ plugins {
 }
 
 dependencies {
-    implementation(projectOrArtifact(":annotation:annotation"))
-    implementation(projectOrArtifact(":annotation:annotation-experimental"))
+    implementation(androidxArtifact(":annotation:annotation"))
+    // TODO: artifact is not found, so commented out
+//    implementation(androidxArtifact(":annotation:annotation-experimental"))
     implementation(libs.kotlinStdlib)
 }
 
@@ -72,7 +73,10 @@ class CompareFilesTask extends DefaultTask {
 
 // workaround for b/189877657
 afterEvaluate {
-    tasks.named("copyDebugAndroidLintReports").configure {
+    tasks.findByName("copyDebugAndroidLintReports")?.configure {
+        enabled = false
+    }
+    tasks.findByName("copyDebugLintReports")?.configure {
         enabled = false
     }
 }

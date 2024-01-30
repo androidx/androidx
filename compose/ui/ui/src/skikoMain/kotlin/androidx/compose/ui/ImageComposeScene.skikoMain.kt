@@ -21,6 +21,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.asComposeCanvas
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.pointer.PointerButton
 import androidx.compose.ui.input.pointer.PointerButtons
@@ -28,16 +29,19 @@ import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.PointerKeyboardModifiers
 import androidx.compose.ui.input.pointer.PointerType
 import androidx.compose.ui.node.RootForTest
-import androidx.compose.ui.platform.setContent
+import androidx.compose.ui.scene.MultiLayerComposeScene
+import androidx.compose.ui.scene.ComposeScenePointer
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.toIntRect
 import kotlin.coroutines.CoroutineContext
 import kotlin.time.Duration
 import kotlin.time.DurationUnit.NANOSECONDS
 import kotlin.time.ExperimentalTime
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import org.jetbrains.skia.Color
 import org.jetbrains.skia.Image
@@ -103,22 +107,47 @@ inline fun <R> ImageComposeScene.use(
  * [rememberCoroutineScope]) and run recompositions.
  * @param content Composable content which needed to be rendered.
  */
-class ImageComposeScene(
+@OptIn(InternalComposeUiApi::class)
+class ImageComposeScene @ExperimentalComposeUiApi constructor(
     width: Int,
     height: Int,
     density: Density = Density(1f),
+    layoutDirection: LayoutDirection = LayoutDirection.Ltr,
     coroutineContext: CoroutineContext = Dispatchers.Unconfined,
     content: @Composable () -> Unit = {},
 ) {
+
+    constructor(
+        width: Int,
+        height: Int,
+        density: Density = Density(1f),
+        coroutineContext: CoroutineContext = Dispatchers.Unconfined,
+        content: @Composable () -> Unit = {},
+    ): this(
+        width,
+        height,
+        density,
+        LayoutDirection.Ltr,
+        coroutineContext,
+        content
+    )
+
     private val surface = Surface.makeRasterN32Premul(width, height)
 
-    private val scene = ComposeScene(
+    private val scene = MultiLayerComposeScene(
         density = density,
-        coroutineContext = coroutineContext
-    ).apply {
-        constraints = Constraints(maxWidth = surface.width, maxHeight = surface.height)
-        setContent(content = content)
+        layoutDirection = layoutDirection,
+        coroutineContext = coroutineContext,
+    ).also {
+        it.boundsInWindow = IntRect(0, 0, width, height)
+        it.setContent(content = content)
     }
+
+    /**
+     * The default direction of layout for content.
+     */
+    @ExperimentalComposeUiApi
+    var layoutDirection: LayoutDirection by scene::layoutDirection
 
     /**
      * Close all resources and subscriptions. Not calling this method when [ImageComposeScene] is no
@@ -131,21 +160,20 @@ class ImageComposeScene(
      */
     fun close(): Unit = scene.close()
 
-    /**
-     * All currently registered [RootForTest]s. After calling [setContent] the first root
-     * will be added. If there is an any [Popup] is present in the content, it will be added as
-     * another [RootForTest]
-     */
-    val roots: Set<RootForTest> get() = scene.roots
+    @Deprecated(
+        message = "The scene isn't tracking list of roots anymore",
+        level = DeprecationLevel.ERROR,
+        replaceWith = ReplaceWith("SkiaRootForTest.onRootCreatedCallback")
+    )
+    val roots: Set<RootForTest>
+        get() = throw NotImplementedError()
 
     /**
      * Constraints used to measure and layout content.
      */
     var constraints: Constraints
-        get() = scene.constraints
-        set(value) {
-            scene.constraints = value
-        }
+        get() = scene.boundsInWindow?.size?.toConstraints() ?: Constraints()
+        set(value) { scene.boundsInWindow = value.toSize()?.toIntRect() }
 
     /**
      * Returns true if there are pending recompositions, renders or dispatched tasks.
@@ -168,7 +196,20 @@ class ImageComposeScene(
     /**
      * Returns the current content size
      */
-    val contentSize: IntSize get() = scene.contentSize
+    @Deprecated("Use calculateContentSize() instead", replaceWith = ReplaceWith("calculateContentSize()"))
+    val contentSize: IntSize
+        get() = scene.calculateContentSize()
+
+    /**
+     * Returns the current content size in infinity constraints.
+     *
+     * @throws IllegalStateException when [ComposeScene] content has lazy layouts without maximum size bounds
+     * (e.g. LazyColumn without maximum height).
+     */
+    @ExperimentalComposeUiApi
+    fun calculateContentSize(): IntSize {
+        return scene.calculateContentSize()
+    }
 
     /**
      * Render the current content into an image. [nanoTime] will be used to drive all
@@ -176,7 +217,7 @@ class ImageComposeScene(
      */
     fun render(nanoTime: Long = 0): Image {
         surface.canvas.clear(Color.TRANSPARENT)
-        scene.render(surface.canvas, nanoTime)
+        scene.render(surface.canvas.asComposeCanvas(), nanoTime)
         return surface.makeImageSnapshot()
     }
 
@@ -193,18 +234,18 @@ class ImageComposeScene(
      *
      * @param eventType Indicates the primary reason that the event was sent.
      * @param position The [Offset] of the current pointer event, relative to the content.
+     * @param scrollDelta scroll delta for the PointerEventType.Scroll event
      * @param timeMillis The time of the current pointer event, in milliseconds. The start (`0`) time
      * is platform-dependent.
      * @param type The device type that produced the event, such as [mouse][PointerType.Mouse],
      * or [touch][PointerType.Touch].
-     * @param buttons Contains the state of pointer buttons (e.g. mouse and stylus buttons).
-     * @param keyboardModifiers Contains the state of modifier keys, such as Shift, Control, and Alt,
-     * as well as the state of the lock keys, such as Caps Lock and Num Lock.
+     * @param buttons Contains the state of pointer buttons (e.g. mouse and stylus buttons) after the event.
+     * @param keyboardModifiers Contains the state of modifier keys, such as Shift, Control,
+     * and Alt, as well as the state of the lock keys, such as Caps Lock and Num Lock.
      * @param nativeEvent The original native event.
      * @param button Represents the index of a button which state changed in this event. It's null
      * when there was no change of the buttons state or when button is not applicable (e.g. touch event).
      */
-    @OptIn(ExperimentalComposeUiApi::class)
     fun sendPointerEvent(
         eventType: PointerEventType,
         position: Offset,
@@ -218,9 +259,53 @@ class ImageComposeScene(
     ): Unit = scene.sendPointerEvent(
         eventType, position, scrollDelta, timeMillis, type, buttons, keyboardModifiers, nativeEvent, button
     )
+
+    /**
+     * Send pointer event to the content. The more detailed version of [sendPointerEvent] that can accept
+     * multiple pointers.
+     *
+     * @param eventType Indicates the primary reason that the event was sent.
+     * @param pointers The current pointers with position relative to the content.
+     * There can be multiple pointers, for example, if we use Touch and touch screen with multiple fingers.
+     * Contains only the state of the active pointers.
+     * Touch that is released still considered as active on PointerEventType.Release event (but with pressed=false). It
+     * is no longer active after that, and shouldn't be passed to the scene.
+     * @param buttons Contains the state of pointer buttons (e.g. mouse and stylus buttons) after the event.
+     * @param keyboardModifiers Contains the state of modifier keys, such as Shift, Control,
+     * and Alt, as well as the state of the lock keys, such as Caps Lock and Num Lock.
+     * @param scrollDelta scroll delta for the PointerEventType.Scroll event
+     * @param timeMillis The time of the current pointer event, in milliseconds. The start (`0`) time
+     * is platform-dependent.
+     * @param nativeEvent The original native event.
+     * @param button Represents the index of a button which state changed in this event. It's null
+     * when there was no change of the buttons state or when button is not applicable (e.g. touch event).
+     */
+    @ExperimentalComposeUiApi
+    fun sendPointerEvent(
+        eventType: PointerEventType,
+        pointers: List<ComposeScenePointer>,
+        buttons: PointerButtons = PointerButtons(),
+        keyboardModifiers: PointerKeyboardModifiers = PointerKeyboardModifiers(),
+        scrollDelta: Offset = Offset(0f, 0f),
+        timeMillis: Long = (currentNanoTime() / 1E6).toLong(),
+        nativeEvent: Any? = null,
+        button: PointerButton? = null,
+    ): Unit = scene.sendPointerEvent(
+        eventType, pointers, buttons, keyboardModifiers, scrollDelta, timeMillis, nativeEvent, button
+    )
+
     /**
      * Send [KeyEvent] to the content.
      * @return true if the event was consumed by the content
      */
     fun sendKeyEvent(event: KeyEvent): Boolean = scene.sendKeyEvent(event)
 }
+
+private fun Constraints.toSize() =
+    if (maxWidth != Constraints.Infinity || maxHeight != Constraints.Infinity) {
+        IntSize(width = maxWidth, height = maxHeight)
+    } else {
+        null
+    }
+
+private fun IntSize.toConstraints() = Constraints(maxWidth = width, maxHeight = height)

@@ -29,7 +29,6 @@ import androidx.annotation.RestrictTo;
  * A MenuPresenter is responsible for building views for a Menu object. It takes over some
  * responsibility from the old style monolithic MenuBuilder class.
  *
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public interface MenuPresenter {

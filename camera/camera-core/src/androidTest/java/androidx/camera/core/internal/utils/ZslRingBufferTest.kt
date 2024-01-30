@@ -25,17 +25,17 @@ import androidx.camera.core.impl.CameraCaptureMetaData.AwbState
 import androidx.camera.core.impl.CameraCaptureResult
 import androidx.camera.core.internal.CameraCaptureResultImageInfo
 import androidx.camera.core.internal.utils.RingBuffer.OnRemoveCallback
-import androidx.camera.testing.fakes.FakeImageProxy
+import androidx.camera.testing.impl.fakes.FakeImageProxy
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import org.mockito.Mockito.`when`
 import org.mockito.Mockito.any
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.times
 import org.mockito.Mockito.verify
+import org.mockito.Mockito.`when`
 
 @RunWith(JUnit4::class)
 @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
@@ -62,10 +62,19 @@ class ZslRingBufferTest {
 
         val imageInfo: ImageInfo = CameraCaptureResultImageInfo(mMockedCameraCaptureResult)
 
-        val imageProxy1 = FakeImageProxy(imageInfo)
+        val imageProxy1 =
+            FakeImageProxy(imageInfo)
         ringBuffer.enqueue(imageProxy1)
-        ringBuffer.enqueue(FakeImageProxy(imageInfo))
-        ringBuffer.enqueue(FakeImageProxy(imageInfo))
+        ringBuffer.enqueue(
+            FakeImageProxy(
+                imageInfo
+            )
+        )
+        ringBuffer.enqueue(
+            FakeImageProxy(
+                imageInfo
+            )
+        )
 
         verify(onRemoveCallback).onRemove(imageProxy1)
         verify(onRemoveCallback, times(1)).onRemove(any())
@@ -82,23 +91,27 @@ class ZslRingBufferTest {
 
         val imageInfo: ImageInfo = CameraCaptureResultImageInfo(mMockedCameraCaptureResult)
 
-        val imageProxy1 = FakeImageProxy(imageInfo)
+        val imageProxy1 =
+            FakeImageProxy(imageInfo)
         ringBuffer.enqueue(imageProxy1)
 
         `when`(mMockedCameraCaptureResult.aeState).thenReturn(AeState.SEARCHING)
-        val imageProxy2 = FakeImageProxy(imageInfo)
+        val imageProxy2 =
+            FakeImageProxy(imageInfo)
         ringBuffer.enqueue(imageProxy2)
         verify(onRemoveCallback, times(1)).onRemove(imageProxy2)
         `when`(mMockedCameraCaptureResult.aeState).thenReturn(AeState.CONVERGED)
 
         `when`(mMockedCameraCaptureResult.afState).thenReturn(AfState.PASSIVE_NOT_FOCUSED)
-        val imageProxy3 = FakeImageProxy(imageInfo)
+        val imageProxy3 =
+            FakeImageProxy(imageInfo)
         ringBuffer.enqueue(imageProxy3)
         verify(onRemoveCallback, times(1)).onRemove(imageProxy3)
         `when`(mMockedCameraCaptureResult.afState).thenReturn(AfState.PASSIVE_NOT_FOCUSED)
 
         `when`(mMockedCameraCaptureResult.awbState).thenReturn(AwbState.METERING)
-        val imageProxy4 = FakeImageProxy(imageInfo)
+        val imageProxy4 =
+            FakeImageProxy(imageInfo)
         ringBuffer.enqueue(imageProxy4)
         verify(onRemoveCallback, times(1)).onRemove(imageProxy4)
         `when`(mMockedCameraCaptureResult.awbState).thenReturn(AwbState.CONVERGED)

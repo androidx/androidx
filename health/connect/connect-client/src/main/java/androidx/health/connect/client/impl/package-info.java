@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-/** @hide */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-package androidx.health.data.client.impl;
+package androidx.health.connect.client.impl;
 
 import androidx.annotation.RestrictTo;

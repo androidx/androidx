@@ -38,7 +38,7 @@ import java.util.Locale
 import kotlin.math.max
 import kotlin.math.min
 
-internal class PlatformInput(private val component: PlatformComponent) :
+internal class DesktopTextInputService(private val component: PlatformComponent) :
     PlatformTextInputService {
     data class CurrentInput(
         var value: TextFieldValue,
@@ -177,7 +177,7 @@ internal class PlatformInput(private val component: PlatformComponent) :
                 return AttributedString(str).iterator
             }
 
-            override fun getTextLocation(offset: TextHitInfo): Rectangle? {
+            override fun getTextLocation(offset: TextHitInfo?): Rectangle? {
                 return input.focusedRect?.let {
                     val x = (it.right / component.density.density).toInt() +
                         component.locationOnScreen.x

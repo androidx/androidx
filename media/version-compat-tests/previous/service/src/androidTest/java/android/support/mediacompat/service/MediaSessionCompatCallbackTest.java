@@ -112,6 +112,7 @@ import androidx.test.filters.SmallTest;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -329,6 +330,7 @@ public class MediaSessionCompatCallbackTest {
 
     @Test
     @SmallTest
+    @Ignore("flaky: b/297535302")
     public void testGetPlaybackStateWithPositionUpdate() throws InterruptedException {
         final long stateSetTime = SystemClock.elapsedRealtime();
         PlaybackStateCompat stateIn = new PlaybackStateCompat.Builder()

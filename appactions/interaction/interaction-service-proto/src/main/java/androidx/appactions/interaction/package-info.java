@@ -15,6 +15,9 @@
  */
 
 /**
- * Insert package level documentation here
+ * Internal protos for interaction-service.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 package androidx.appactions.interaction.service.proto;
+
+import androidx.annotation.RestrictTo;

@@ -43,7 +43,6 @@ import java.util.Set;
 
 /**
  * Parses information of static shortcuts from shortcuts.xml
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP)
 public class ShortcutXmlParser {

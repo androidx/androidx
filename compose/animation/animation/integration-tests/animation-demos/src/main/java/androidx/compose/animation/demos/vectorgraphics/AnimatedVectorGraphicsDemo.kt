@@ -111,7 +111,7 @@ fun createSampleVectorPainter(toggle: Boolean): Painter {
                     keyframes {
                         durationMillis = duration
                         0f at 0
-                        360f at duration with LinearEasing
+                        360f at duration using LinearEasing
                     }
                 } else {
                     spring(
@@ -175,7 +175,7 @@ fun createSampleVectorPainter(toggle: Boolean): Painter {
                         keyframes {
                             durationMillis = duration
                             Color.Red at 0
-                            Color.Blue at duration with LinearEasing
+                            Color.Blue at duration using LinearEasing
                         }
                     } else {
                         spring()

@@ -30,13 +30,14 @@ import androidx.wear.remote.interactions.RemoteActivityHelper.Companion.ACTION_R
 import androidx.wear.remote.interactions.RemoteActivityHelper.Companion.DEFAULT_PACKAGE
 import androidx.wear.remote.interactions.RemoteActivityHelper.Companion.RESULT_FAILED
 import androidx.wear.remote.interactions.RemoteActivityHelper.Companion.RESULT_OK
+import androidx.wear.remote.interactions.RemoteActivityHelper.Companion.getRemoteIntentResultReceiver
 import androidx.wear.remote.interactions.RemoteActivityHelper.Companion.getTargetIntent
 import androidx.wear.remote.interactions.RemoteActivityHelper.Companion.getTargetNodeId
-import androidx.wear.remote.interactions.RemoteActivityHelper.Companion.getRemoteIntentResultReceiver
 import com.google.android.gms.tasks.Tasks
 import com.google.android.gms.wearable.Node
 import com.google.android.gms.wearable.NodeClient
-import org.mockito.kotlin.mock
+import java.util.concurrent.ExecutionException
+import java.util.concurrent.Executor
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
@@ -47,11 +48,10 @@ import org.junit.runner.RunWith
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mock
 import org.mockito.Mockito
+import org.mockito.kotlin.mock
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.Implements
-import java.util.concurrent.ExecutionException
-import java.util.concurrent.Executor
 
 @RunWith(WearRemoteInteractionsTestRunner::class)
 @Config(shadows = [RemoteActivityHelperTest.ActualResultReceiver::class])

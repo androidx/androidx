@@ -17,11 +17,12 @@
 package androidx.hilt.assisted
 
 import androidx.hilt.ClassNames
-import androidx.hilt.ext.hasAnnotation
+import androidx.room.compiler.codegen.toJavaPoet
+import androidx.room.compiler.processing.XVariableElement
+import androidx.room.compiler.processing.toAnnotationSpec
 import com.squareup.javapoet.AnnotationSpec
 import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
-import javax.lang.model.element.VariableElement
 
 /**
  * Data class that represents a binding request for an assisted injected type.
@@ -51,17 +52,16 @@ internal data class DependencyRequest(
     }
 }
 
-internal fun VariableElement.toDependencyRequest(): DependencyRequest {
-    val qualifier = annotationMirrors.find {
-        it.annotationType.asElement().hasAnnotation("javax.inject.Qualifier")
-    }?.let { AnnotationSpec.get(it) }
-    val type = TypeName.get(asType())
+internal fun XVariableElement.toDependencyRequest(): DependencyRequest {
+    val qualifier = getAllAnnotations().find {
+        it.qualifiedName == "javax.inject.Qualifier"
+    }?.toAnnotationSpec(includeDefaultValues = false)
     return DependencyRequest(
-        name = simpleName.toString(),
-        type = type,
+        name = this.name,
+        type = this.type.asTypeName().toJavaPoet(),
         isAssisted = (
-            hasAnnotation(ClassNames.ANDROIDX_ASSISTED.canonicalName()) ||
-                hasAnnotation(ClassNames.ASSISTED.canonicalName())
+            this.hasAnnotation(ClassNames.ANDROIDX_ASSISTED) ||
+                this.hasAnnotation(ClassNames.ASSISTED)
             ) && qualifier == null,
         qualifier = qualifier
     )

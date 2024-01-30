@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.inspection.inspector
 
-import java.lang.reflect.Modifier as JavaModifier
 import android.util.Log
 import android.view.View
 import androidx.compose.runtime.internal.ComposableLambda
@@ -46,6 +45,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import java.lang.reflect.Field
+import java.lang.reflect.Modifier as JavaModifier
 import java.util.IdentityHashMap
 import kotlin.jvm.internal.FunctionReference
 import kotlin.jvm.internal.Lambda

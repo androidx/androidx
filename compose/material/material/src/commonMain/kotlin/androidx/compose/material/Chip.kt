@@ -21,6 +21,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
@@ -66,8 +67,8 @@ import androidx.compose.ui.unit.dp
  * Action chips should appear in a set and can be horizontally scrollable
  * @sample androidx.compose.material.samples.ChipGroupSingleLineSample
  *
- * Alternatively, use Accompanist's [Flow Layouts](https://google.github.io/accompanist/flowlayout/)
- * to wrap chips to a new line.
+ * Alternatively, use [androidx.compose.foundation.layout.FlowRow] to wrap chips to a new line.
+ * @sample androidx.compose.material.samples.ChipGroupReflowSample
  *
  * @param onClick called when the chip is clicked.
  * @param modifier Modifier to be applied to the chip
@@ -214,6 +215,7 @@ fun FilterChip(
             ) {
                 Row(
                     Modifier
+                        .width(IntrinsicSize.Max)
                         .defaultMinSize(
                             minHeight = ChipDefaults.MinHeight
                         )
@@ -274,7 +276,12 @@ fun FilterChip(
                         }
                         Spacer(Modifier.width(LeadingIconEndSpacing))
                     }
-                    content()
+                    Row(
+                        modifier = Modifier.weight(1f),
+                        horizontalArrangement = Arrangement.Start,
+                        verticalAlignment = Alignment.CenterVertically,
+                        content = content,
+                    )
                     if (trailingIcon != null) {
                         Spacer(Modifier.width(TrailingIconSpacing))
                         trailingIcon()

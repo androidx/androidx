@@ -23,6 +23,8 @@
     <string name="green_droid">Green droid</string>
     <string name="display_features_config_change">Display features handle config change</string>
     <string name="display_features_no_config_change">Display features no config change</string>
+    <string name="display_features_slim_portrait">Display features slim portrait</string>
+    <string name="display_features_slim_landscape">Display features slim landscape</string>
     <string name="split_layout">Split layout</string>
     <string name="presentation">Presentation</string>
     <string name="start_presentation">Start presentation</string>
@@ -39,6 +41,8 @@
     <string name="test_activity">Test activity</string>
     <string name="show_all_display_features_config_change_description">Show all display features of the device on the screen and handle config changes</string>
     <string name="show_all_display_features_no_config_change_description">Show all display features of the device on the screen and do not handle config changes.  The activity is recreated instead on rotation or resize</string>
+    <string name="show_all_display_features_portrait_slim">Show all display features of the device on the screen with slim portrait window.</string>
+    <string name="show_all_display_features_landscape_slim">Show all display features of the device on the screen with slim landscape window.</string>
     <string name="split_layout_demo_description">Demo of a layout that splits the content to sides of a fold or a hinge. If not present or minimal size requirements are not meant, it behave like a FrameLayout.</string>
     <string name="presentation_demo_description">Demo of using Presentation API to show content on secondary display.</string>
     <string name="window_metrics">Window metrics</string>
@@ -58,4 +62,28 @@
     <string name="ime_button_switch_default">Switch default IME</string>
     <string name="install_samples_2">Install window-demos:demo-second-app to launch activities from a different UID.</string>
     <string name="toast_split_not_support">Please enable PROPERTY_ACTIVITY_EMBEDDING_SPLITS_ENABLED and ensure device supports splits.</string>
+    <string name="latest_configuration_title">Latest Configuration</string>
+    <string name="application_display_listener_title">Application DisplayListener#onDisplayChanged</string>
+    <string name="activity_display_listener_title">Activity DisplayListener#onDisplayChanged</string>
+    <string name="application_configuration_title">Application#onConfigurationChanged</string>
+    <string name="activity_configuration_title">Activity#onConfigurationChanged</string>
+    <string name="display_feature_title">WindowInfoTracker</string>
+    <string name="timestamp_title">Timestamp:</string>
+    <string name="application_display_rotation_title">Application Display Rotation:</string>
+    <string name="activity_display_rotation_title">Activity Display Rotation:</string>
+    <string name="application_display_bounds_title">Application Display Bounds:</string>
+    <string name="activity_display_bounds_title">Activity Display Bounds:</string>
+    <string name="prev_application_display_rotation_title">Previous Application Display Rotation:</string>
+    <string name="prev_activity_display_rotation_title">Previous Activity Display Rotation:</string>
+    <string name="prev_application_display_bounds_title">Previous Application Display Bounds:</string>
+    <string name="prev_activity_display_bounds_title">Previous Activity Display Bounds:</string>
+    <string name="window_state_placeholder">N/A</string>
+    <string name="split_attributes_calculator_not_supported">SplitAttributesCalculator is not supported!</string>
+    <string name="finish_this_activity">Finish this Activity</string>
+    <string name="use_default_split_attributes">Use default split attributes</string>
+    <string name="use_folding_aware_split_attributes">Show fullscreen in portrait and horizontal split in tabletop</string>
+    <string name="use_customized_split_attributes">Use runtime changed split attributes</string>
+    <string name="choose_split_type">Choose the split type</string>
+    <string name="choose_layout_direction">Choose the layout direction</string>
+    <string name="show_placeholder_warning">Placeholder Activity may show (again) because "Use a placeholder for A is checked". Clear the check box to expand Activity A to fill the task by either clicking "FINISH SECONDARY ACTIVITIES".</string>
 </resources>

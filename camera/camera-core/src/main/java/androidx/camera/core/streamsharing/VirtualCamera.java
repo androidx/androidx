@@ -15,24 +15,37 @@
  */
 package androidx.camera.core.streamsharing;
 
+import static androidx.camera.core.CameraEffect.IMAGE_CAPTURE;
 import static androidx.camera.core.CameraEffect.PREVIEW;
 import static androidx.camera.core.CameraEffect.VIDEO_CAPTURE;
 import static androidx.camera.core.impl.ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE;
+import static androidx.camera.core.impl.ImageInputConfig.OPTION_INPUT_DYNAMIC_RANGE;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_CUSTOM_ORDERED_RESOLUTIONS;
+import static androidx.camera.core.impl.UseCaseConfig.OPTION_PREVIEW_STABILIZATION_MODE;
+import static androidx.camera.core.impl.UseCaseConfig.OPTION_SURFACE_OCCUPANCY_PRIORITY;
+import static androidx.camera.core.impl.UseCaseConfig.OPTION_VIDEO_STABILIZATION_MODE;
 import static androidx.camera.core.impl.utils.Threads.checkMainThread;
+import static androidx.camera.core.impl.utils.TransformUtils.getRotatedSize;
 import static androidx.camera.core.impl.utils.TransformUtils.rectToSize;
+import static androidx.camera.core.streamsharing.DynamicRangeUtils.resolveDynamicRange;
 import static androidx.camera.core.streamsharing.ResolutionUtils.getMergedResolutions;
 import static androidx.core.util.Preconditions.checkState;
 
 import static java.util.Objects.requireNonNull;
 
+import android.graphics.ImageFormat;
 import android.os.Build;
 import android.util.Size;
 
+import androidx.annotation.IntRange;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.VisibleForTesting;
+import androidx.camera.core.CameraEffect;
+import androidx.camera.core.DynamicRange;
+import androidx.camera.core.ImageCapture;
 import androidx.camera.core.Preview;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.CameraCaptureCallback;
@@ -46,6 +59,7 @@ import androidx.camera.core.impl.Observable;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.UseCaseConfigFactory;
+import androidx.camera.core.impl.stabilization.StabilizationMode;
 import androidx.camera.core.processing.SurfaceEdge;
 import androidx.camera.core.processing.SurfaceProcessorNode.OutConfig;
 
@@ -86,6 +100,10 @@ class VirtualCamera implements CameraInternal {
     // The callback that receives the parent camera's metadata.
     @NonNull
     private final CameraCaptureCallback mParentMetadataCallback = createCameraCaptureCallback();
+    @NonNull
+    private final VirtualCameraControl mVirtualCameraControl;
+    @NonNull
+    private final VirtualCameraInfo mVirtualCameraInfo;
 
     /**
      * @param parentCamera         the parent {@link CameraInternal} instance. For example, the
@@ -95,10 +113,14 @@ class VirtualCamera implements CameraInternal {
      */
     VirtualCamera(@NonNull CameraInternal parentCamera,
             @NonNull Set<UseCase> children,
-            @NonNull UseCaseConfigFactory useCaseConfigFactory) {
+            @NonNull UseCaseConfigFactory useCaseConfigFactory,
+            @NonNull StreamSharing.Control streamSharingControl) {
         mParentCamera = parentCamera;
         mUseCaseConfigFactory = useCaseConfigFactory;
         mChildren = children;
+        mVirtualCameraControl = new VirtualCameraControl(parentCamera.getCameraControlInternal(),
+                streamSharingControl);
+        mVirtualCameraInfo = new VirtualCameraInfo(parentCamera.getCameraInfoInternal());
         // Set children state to inactive by default.
         for (UseCase child : children) {
             mChildrenActiveState.put(child, false);
@@ -113,6 +135,7 @@ class VirtualCamera implements CameraInternal {
                     null,
                     useCase.getDefaultConfig(true, mUseCaseConfigFactory)));
         }
+
         // Merge resolution configs.
         List<Size> supportedResolutions =
                 new ArrayList<>(mParentCamera.getCameraInfoInternal().getSupportedResolutions(
@@ -121,6 +144,38 @@ class VirtualCamera implements CameraInternal {
         mutableConfig.insertOption(OPTION_CUSTOM_ORDERED_RESOLUTIONS,
                 getMergedResolutions(supportedResolutions, sensorSize,
                         childrenConfigs));
+
+        // Merge Surface occupancy priority.
+        mutableConfig.insertOption(OPTION_SURFACE_OCCUPANCY_PRIORITY,
+                getHighestSurfacePriority(childrenConfigs));
+
+        // Merge dynamic range configs. Try to find a dynamic range that can match all child
+        // requirements, or throw an exception if no matching dynamic range.
+        //  TODO: This approach works for the current code base, where only VideoCapture can be
+        //   configured (Preview follows the settings, ImageCapture is fixed as SDR). When
+        //   dynamic range APIs opened on other use cases, we might want a more advanced approach
+        //   that allows conflicts, e.g. converting HDR stream to SDR stream.
+        DynamicRange dynamicRange = resolveDynamicRange(childrenConfigs);
+        if (dynamicRange == null) {
+            throw new IllegalArgumentException("Failed to merge child dynamic ranges, can not find"
+                    + " a dynamic range that satisfies all children.");
+        }
+        mutableConfig.insertOption(OPTION_INPUT_DYNAMIC_RANGE, dynamicRange);
+
+        // Merge Preview stabilization and video stabilization configs.
+        for (UseCase useCase : mChildren) {
+            if (useCase.getCurrentConfig().getVideoStabilizationMode()
+                    != StabilizationMode.UNSPECIFIED) {
+                mutableConfig.insertOption(OPTION_VIDEO_STABILIZATION_MODE,
+                        useCase.getCurrentConfig().getVideoStabilizationMode());
+            }
+
+            if (useCase.getCurrentConfig().getPreviewStabilizationMode()
+                    != StabilizationMode.UNSPECIFIED) {
+                mutableConfig.insertOption(OPTION_PREVIEW_STABILIZATION_MODE,
+                        useCase.getCurrentConfig().getPreviewStabilizationMode());
+            }
+        }
     }
 
     void bindChildren() {
@@ -163,14 +218,14 @@ class VirtualCamera implements CameraInternal {
             // TODO(b/264936115): This is a temporary solution where children use the parent
             //  stream without changing it. Later we will update it to allow
             //  cropping/down-sampling to better match children UseCase config.
-            int target = useCase instanceof Preview ? PREVIEW : VIDEO_CAPTURE;
-            boolean mirroring = useCase instanceof Preview && isFrontFacing();
+            int rotationDegrees = getChildRotationDegrees(useCase);
             outConfigs.put(useCase, OutConfig.of(
-                    target,
-                    INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE, // TODO: use JPEG for ImageCapture
+                    getChildTargetType(useCase),
+                    getChildFormat(useCase),
                     cameraEdge.getCropRect(),
-                    rectToSize(cameraEdge.getCropRect()),
-                    mirroring));
+                    getRotatedSize(cameraEdge.getCropRect(), rotationDegrees),
+                    rotationDegrees,
+                    useCase.isMirroringRequired(this)));
         }
         return outConfigs;
     }
@@ -185,8 +240,19 @@ class VirtualCamera implements CameraInternal {
             UseCase useCase = entry.getKey();
             SurfaceEdge surfaceEdge = entry.getValue();
             useCase.setViewPortCropRect(surfaceEdge.getCropRect());
+            useCase.setSensorToBufferTransformMatrix(surfaceEdge.getSensorToBufferTransform());
             useCase.updateSuggestedStreamSpec(surfaceEdge.getStreamSpec());
             useCase.notifyState();
+        }
+    }
+
+    /**
+     * Invokes {@link UseCase.StateChangeCallback#onUseCaseReset} for all children.
+     */
+    void resetChildren() {
+        checkMainThread();
+        for (UseCase useCase : mChildren) {
+            onUseCaseReset(useCase);
         }
     }
 
@@ -207,9 +273,9 @@ class VirtualCamera implements CameraInternal {
             return;
         }
         mChildrenActiveState.put(useCase, true);
-        DeferrableSurface childSurface = getChildRepeatingSurface(useCase);
+        DeferrableSurface childSurface = getChildSurface(useCase);
         if (childSurface != null) {
-            forceSetProvider(getUseCaseEdge(useCase), childSurface);
+            forceSetProvider(getUseCaseEdge(useCase), childSurface, useCase.getSessionConfig());
         }
     }
 
@@ -233,11 +299,11 @@ class VirtualCamera implements CameraInternal {
             return;
         }
         SurfaceEdge edge = getUseCaseEdge(useCase);
-        DeferrableSurface childSurface = getChildRepeatingSurface(useCase);
+        DeferrableSurface childSurface = getChildSurface(useCase);
         if (childSurface != null) {
             // If the child has a Surface, connect. VideoCapture uses this mechanism to
             // resume/start recording.
-            forceSetProvider(edge, childSurface);
+            forceSetProvider(edge, childSurface, useCase.getSessionConfig());
         } else {
             // If the child has no Surface, disconnect. VideoCapture uses this mechanism to
             // pause/stop recording.
@@ -255,9 +321,9 @@ class VirtualCamera implements CameraInternal {
             // No-op if the child is inactive. It will connect when it becomes active.
             return;
         }
-        DeferrableSurface childSurface = getChildRepeatingSurface(useCase);
+        DeferrableSurface childSurface = getChildSurface(useCase);
         if (childSurface != null) {
-            forceSetProvider(edge, childSurface);
+            forceSetProvider(edge, childSurface, useCase.getSessionConfig());
         }
     }
 
@@ -271,15 +337,13 @@ class VirtualCamera implements CameraInternal {
     @NonNull
     @Override
     public CameraControlInternal getCameraControlInternal() {
-        return mParentCamera.getCameraControlInternal();
+        return mVirtualCameraControl;
     }
 
     @NonNull
     @Override
     public CameraInfoInternal getCameraInfoInternal() {
-        // TODO(b/265818567): replace this with a virtual camera info that returns a updated sensor
-        //  rotation degrees based on buffer transformation applied in StreamSharing.
-        return mParentCamera.getCameraInfoInternal();
+        return mVirtualCameraInfo;
     }
 
     @NonNull
@@ -289,6 +353,43 @@ class VirtualCamera implements CameraInternal {
     }
 
     // --- private methods ---
+
+    @IntRange(from = 0, to = 359)
+    private int getChildRotationDegrees(@NonNull UseCase child) {
+        if (child instanceof Preview) {
+            // Rotate the buffer for Preview because SurfaceView cannot handle rotation.
+            return mParentCamera.getCameraInfo().getSensorRotationDegrees(
+                    ((Preview) child).getTargetRotation());
+        }
+        // By default, sharing node does not rotate
+        return 0;
+    }
+
+    private static int getChildFormat(@NonNull UseCase useCase) {
+        return useCase instanceof ImageCapture ? ImageFormat.JPEG
+                : INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE;
+    }
+
+    @CameraEffect.Targets
+    private static int getChildTargetType(@NonNull UseCase useCase) {
+        if (useCase instanceof Preview) {
+            return PREVIEW;
+        } else if (useCase instanceof ImageCapture) {
+            return IMAGE_CAPTURE;
+        } else {
+            return VIDEO_CAPTURE;
+        }
+    }
+
+    private static int getHighestSurfacePriority(Set<UseCaseConfig<?>> childrenConfigs) {
+        int highestPriority = 0;
+        for (UseCaseConfig<?> childConfig : childrenConfigs) {
+            highestPriority = Math.max(highestPriority,
+                    childConfig.getSurfaceOccupancyPriority(0));
+        }
+        return highestPriority;
+    }
+
     @NonNull
     private SurfaceEdge getUseCaseEdge(@NonNull UseCase useCase) {
         return requireNonNull(mChildrenEdges.get(useCase));
@@ -299,23 +400,31 @@ class VirtualCamera implements CameraInternal {
     }
 
     private void forceSetProvider(@NonNull SurfaceEdge edge,
-            @NonNull DeferrableSurface surface) {
+            @NonNull DeferrableSurface childSurface,
+            @NonNull SessionConfig childSessionConfig) {
         edge.invalidate();
         try {
-            edge.setProvider(surface);
+            edge.setProvider(childSurface);
         } catch (DeferrableSurface.SurfaceClosedException e) {
-            // Throws an exception when DeferrableSurface is closed, which should never happen.
-            throw new RuntimeException(e);
+            // The Surface is closed by the child. This will happen when e.g. the child is Preview
+            // with SurfaceView implementation.
+            // Invoke the error listener so it will recreate the pipeline.
+            for (SessionConfig.ErrorListener listener : childSessionConfig.getErrorListeners()) {
+                listener.onError(childSessionConfig,
+                        SessionConfig.SessionError.SESSION_ERROR_SURFACE_NEEDS_RESET);
+            }
         }
     }
 
     /**
      * Gets the {@link DeferrableSurface} associated with the child.
      */
+    @VisibleForTesting
     @Nullable
-    private static DeferrableSurface getChildRepeatingSurface(@NonNull UseCase child) {
-        // TODO(b/267620162): use non-repeating surface for ImageCapture.
-        List<DeferrableSurface> surfaces =
+    static DeferrableSurface getChildSurface(@NonNull UseCase child) {
+        // Get repeating Surface for preview & video, regular Surface for image capture.
+        List<DeferrableSurface> surfaces = child instanceof ImageCapture
+                ? child.getSessionConfig().getSurfaces() :
                 child.getSessionConfig().getRepeatingCaptureConfig().getSurfaces();
         checkState(surfaces.size() <= 1);
         if (surfaces.size() == 1) {
@@ -330,7 +439,8 @@ class VirtualCamera implements CameraInternal {
             public void onCaptureCompleted(@NonNull CameraCaptureResult cameraCaptureResult) {
                 super.onCaptureCompleted(cameraCaptureResult);
                 for (UseCase child : mChildren) {
-                    sendCameraCaptureResultToChild(cameraCaptureResult, child.getSessionConfig());
+                    sendCameraCaptureResultToChild(cameraCaptureResult,
+                            child.getSessionConfig());
                 }
             }
         };
@@ -339,9 +449,11 @@ class VirtualCamera implements CameraInternal {
     static void sendCameraCaptureResultToChild(
             @NonNull CameraCaptureResult cameraCaptureResult,
             @NonNull SessionConfig sessionConfig) {
-        for (CameraCaptureCallback callback : sessionConfig.getRepeatingCameraCaptureCallbacks()) {
-            callback.onCaptureCompleted(new VirtualCameraCaptureResult(cameraCaptureResult,
-                    sessionConfig.getRepeatingCaptureConfig().getTagBundle()));
+        for (CameraCaptureCallback callback :
+                sessionConfig.getRepeatingCameraCaptureCallbacks()) {
+            callback.onCaptureCompleted(new VirtualCameraCaptureResult(
+                    sessionConfig.getRepeatingCaptureConfig().getTagBundle(),
+                    cameraCaptureResult));
         }
     }
 

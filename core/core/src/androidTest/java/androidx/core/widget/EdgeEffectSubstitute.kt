@@ -24,8 +24,8 @@ import kotlin.math.abs
 
 /**
  * This class can be used as a simple substitute for EdgeEffect. When animations are disabled,
- * stretch EdgeEffect doesn't work as expected. This is an implementation of
- * EdgeEffect that supports stretch to the minimum necessary to make tests work.
+ * stretch EdgeEffect doesn't work as expected. This is an implementation of EdgeEffect that
+ * supports stretch to the minimum necessary to make tests work.
  */
 class EdgeEffectSubstitute(context: Context) : EdgeEffect(context) {
     var width = 0
@@ -54,11 +54,12 @@ class EdgeEffectSubstitute(context: Context) : EdgeEffect(context) {
 
     override fun onPull(deltaDistance: Float, displacement: Float) {
         currentDistance = (currentDistance + deltaDistance).coerceIn(0f, 1f)
-        state = if (distance == 0f) {
-            State.Idle
-        } else {
-            State.Pull
-        }
+        state =
+            if (distance == 0f) {
+                State.Idle
+            } else {
+                State.Pull
+            }
     }
 
     override fun onPullDistance(deltaDistance: Float, displacement: Float): Float {
@@ -72,11 +73,12 @@ class EdgeEffectSubstitute(context: Context) : EdgeEffect(context) {
     }
 
     override fun onRelease() {
-        state = if (distance == 0f) {
-            State.Idle
-        } else {
-            State.Animating
-        }
+        state =
+            if (distance == 0f) {
+                State.Idle
+            } else {
+                State.Animating
+            }
     }
 
     override fun onAbsorb(velocity: Int) {
@@ -84,11 +86,9 @@ class EdgeEffectSubstitute(context: Context) : EdgeEffect(context) {
         state = State.Animating
     }
 
-    override fun setColor(color: Int) {
-    }
+    override fun setColor(color: Int) {}
 
-    override fun setBlendMode(blendmode: BlendMode?) {
-    }
+    override fun setBlendMode(blendmode: BlendMode?) {}
 
     override fun getColor(): Int = 0
 

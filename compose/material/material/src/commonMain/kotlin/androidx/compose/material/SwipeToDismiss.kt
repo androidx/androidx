@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("Deprecation") // b/279939308
 
 package androidx.compose.material
 
@@ -38,8 +39,8 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.CancellationException
 import kotlin.math.roundToInt
+import kotlinx.coroutines.CancellationException
 
 /**
  * The directions in which a [SwipeToDismiss] can be dismissed.

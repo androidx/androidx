@@ -27,8 +27,8 @@ import perfetto.protos.UiState
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 fun UiState(
-    timelineStart: Long?,
-    timelineEnd: Long?,
+    timelineStart: Long? = null,
+    timelineEnd: Long? = null,
     highlightPackage: String?
 ) = UiState(
     timeline_start_ts = timelineStart,

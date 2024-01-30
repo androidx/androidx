@@ -7,7 +7,7 @@ cd "$(dirname $0)"
 
 # Must be run on Mac
 
-export ANDROIDX_PROJECTS=KMP
+export ANDROIDX_PROJECTS=INFRAROGUE   # TODO: Switch from `INFRAROGUE` to `KMP`
 
 # disable GCP cache, these machines don't have credentials.
 export USE_ANDROIDX_REMOTE_BUILD_CACHE=false
@@ -15,7 +15,7 @@ export USE_ANDROIDX_REMOTE_BUILD_CACHE=false
 # Setup simulators
 impl/androidx-native-mac-simulator-setup.sh
 
-impl/build.sh buildOnServer :docs-kmp:zipCombinedKmpDocs --no-configuration-cache -Pandroidx.displayTestOutput=false
+impl/build.sh buildOnServer --no-configuration-cache createAllArchives -Pandroidx.constraints=true
 
 # run a separate createAllArchives task to prepare a repository
 # folder in DIST.

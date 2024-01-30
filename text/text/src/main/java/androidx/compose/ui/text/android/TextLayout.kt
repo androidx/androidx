@@ -38,8 +38,6 @@ import androidx.compose.ui.text.android.LayoutCompat.ALIGN_NORMAL
 import androidx.compose.ui.text.android.LayoutCompat.ALIGN_OPPOSITE
 import androidx.compose.ui.text.android.LayoutCompat.ALIGN_RIGHT
 import androidx.compose.ui.text.android.LayoutCompat.BreakStrategy
-import androidx.compose.ui.text.android.LayoutCompat.LineBreakStyle
-import androidx.compose.ui.text.android.LayoutCompat.LineBreakWordStyle
 import androidx.compose.ui.text.android.LayoutCompat.DEFAULT_ALIGNMENT
 import androidx.compose.ui.text.android.LayoutCompat.DEFAULT_BREAK_STRATEGY
 import androidx.compose.ui.text.android.LayoutCompat.DEFAULT_HYPHENATION_FREQUENCY
@@ -52,6 +50,8 @@ import androidx.compose.ui.text.android.LayoutCompat.DEFAULT_LINE_BREAK_WORD_STY
 import androidx.compose.ui.text.android.LayoutCompat.DEFAULT_TEXT_DIRECTION
 import androidx.compose.ui.text.android.LayoutCompat.HyphenationFrequency
 import androidx.compose.ui.text.android.LayoutCompat.JustificationMode
+import androidx.compose.ui.text.android.LayoutCompat.LineBreakStyle
+import androidx.compose.ui.text.android.LayoutCompat.LineBreakWordStyle
 import androidx.compose.ui.text.android.LayoutCompat.TEXT_DIRECTION_ANY_RTL_LTR
 import androidx.compose.ui.text.android.LayoutCompat.TEXT_DIRECTION_FIRST_STRONG_LTR
 import androidx.compose.ui.text.android.LayoutCompat.TEXT_DIRECTION_FIRST_STRONG_RTL
@@ -108,13 +108,11 @@ private val SharedTextAndroidCanvas: TextAndroidCanvas = TextAndroidCanvas()
  * @see StaticLayoutFactory
  * @see BoringLayoutFactory
  *
- * @suppress
  */
 @OptIn(InternalPlatformTextApi::class)
-@InternalPlatformTextApi
-class TextLayout constructor(
+internal class TextLayout constructor(
     charSequence: CharSequence,
-    width: Float = 0.0f,
+    width: Float,
     textPaint: TextPaint,
     @TextLayoutAlignment alignment: Int = DEFAULT_ALIGNMENT,
     ellipsize: TextUtils.TruncateAt? = null,
@@ -137,31 +135,6 @@ class TextLayout constructor(
         textDirectionHeuristic
     )
 ) {
-    companion object {
-        // This is used for benchmarks in HyphensLineBreakBenchmark.kt
-        @VisibleForTesting
-        fun constructStaticLayout(
-            charSequence: CharSequence,
-            width: Int,
-            textPaint: TextPaint,
-            hyphenationFrequency: Int,
-            lineBreakStyle: Int,
-            breakStrategy: Int,
-            lineBreakWordStyle: Int
-        ): StaticLayout {
-            val layout = StaticLayoutFactory.create(
-                text = charSequence,
-                paint = textPaint,
-                width = width,
-                hyphenationFrequency = hyphenationFrequency,
-                lineBreakStyle = lineBreakStyle,
-                breakStrategy = breakStrategy,
-                lineBreakWordStyle = lineBreakWordStyle
-            )
-            return layout
-        }
-    }
-
     val maxIntrinsicWidth: Float
         get() = layoutIntrinsics.maxIntrinsicWidth
 
@@ -278,10 +251,10 @@ class TextLayout constructor(
                 isBoringLayout = false
                 StaticLayoutFactory.create(
                     text = charSequence,
-                    start = 0,
-                    end = charSequence.length,
                     paint = textPaint,
                     width = widthInt,
+                    start = 0,
+                    end = charSequence.length,
                     textDir = frameworkTextDir,
                     alignment = frameworkAlignment,
                     maxLines = maxLines,
@@ -317,6 +290,8 @@ class TextLayout constructor(
           always returned.
          */
         lineCount = min(layout.lineCount, maxLines)
+        val lastLine = lineCount - 1
+
         didExceedMaxLines =
             /* When lineCount is less than maxLines, actual line count is guaranteed not to exceed
             the maxLines.
@@ -337,23 +312,29 @@ class TextLayout constructor(
                   handled by truncating.
                   So we have to check both cases, no matter what ellipsis parameter is passed.
                  */
-                layout.getEllipsisCount(lineCount - 1) > 0 ||
-                    layout.getLineEnd(lineCount - 1) != charSequence.length
+                layout.getEllipsisCount(lastLine) > 0 ||
+                    layout.getLineEnd(lastLine) != charSequence.length
             }
 
         val verticalPaddings = getVerticalPaddings()
 
         lineHeightSpans = getLineHeightSpans()
         val lineHeightPaddings = getLineHeightPaddings(lineHeightSpans)
-        topPadding = max(verticalPaddings.first, lineHeightPaddings.first)
-        bottomPadding = max(verticalPaddings.second, lineHeightPaddings.second)
+        topPadding = max(verticalPaddings.topPadding, lineHeightPaddings.topPadding)
+        bottomPadding = max(verticalPaddings.bottomPadding, lineHeightPaddings.bottomPadding)
 
-        val lastLineMetricsPair = getLastLineMetrics(textPaint, frameworkTextDir, lineHeightSpans)
-        lastLineFontMetrics = lastLineMetricsPair.first
-        lastLineExtra = lastLineMetricsPair.second
+        val fontMetrics = getLastLineMetrics(textPaint, frameworkTextDir, lineHeightSpans)
+        lastLineExtra = if (fontMetrics != null) {
+            fontMetrics.bottom - getLineHeight(lastLine).toInt()
+        } else {
+            0
+        }
+        // Set lastLineFontMetrics after calling getLineHeight() above, as the metrics
+        // are different when lastLineFontMetrics is null
+        lastLineFontMetrics = fontMetrics
 
-        leftPadding = layout.getEllipsizedLeftPadding(lineCount - 1)
-        rightPadding = layout.getEllipsizedRightPadding(lineCount - 1)
+        leftPadding = layout.getEllipsizedLeftPadding(lastLine)
+        rightPadding = layout.getEllipsizedRightPadding(lastLine)
     }
 
     private val layoutHelper by lazy(LazyThreadSafetyMode.NONE) { LayoutHelper(layout) }
@@ -479,7 +460,7 @@ class TextLayout constructor(
      */
     fun getLineVisibleEnd(lineIndex: Int): Int =
         if (layout.getEllipsisStart(lineIndex) == 0) { // no ellipsis
-            layout.getLineVisibleEnd(lineIndex)
+            layoutHelper.getLineVisibleEnd(lineIndex)
         } else {
             layout.getLineStart(lineIndex) + layout.getEllipsisStart(lineIndex)
         }
@@ -490,7 +471,7 @@ class TextLayout constructor(
 
     fun getLineEllipsisCount(lineIndex: Int): Int = layout.getEllipsisCount(lineIndex)
 
-    fun getLineForVertical(vertical: Int): Int = layout.getLineForVertical(topPadding + vertical)
+    fun getLineForVertical(vertical: Int): Int = layout.getLineForVertical(vertical - topPadding)
 
     fun getOffsetForHorizontal(line: Int, horizontal: Float): Int {
         return layout.getOffsetForHorizontal(line, horizontal + -1 * getHorizontalPadding(line))
@@ -897,9 +878,24 @@ internal object TextAlignmentAdapter {
     }
 }
 
+internal fun VerticalPaddings(
+    topPadding: Int,
+    bottomPadding: Int
+) = VerticalPaddings(packInts(topPadding, bottomPadding))
+
+@kotlin.jvm.JvmInline
+internal value class VerticalPaddings internal constructor(internal val packedValue: Long) {
+
+  val topPadding: Int
+      get() = unpackInt1(packedValue)
+
+  val bottomPadding: Int
+      get() = unpackInt2(packedValue)
+}
+
 @OptIn(InternalPlatformTextApi::class)
-private fun TextLayout.getVerticalPaddings(): Pair<Int, Int> {
-    if (includePadding || isFallbackLinespacingApplied()) return Pair(0, 0)
+private fun TextLayout.getVerticalPaddings(): VerticalPaddings {
+    if (includePadding || isFallbackLinespacingApplied()) return ZeroVerticalPadding
 
     val paint = layout.paint
     val text = layout.text
@@ -937,18 +933,18 @@ private fun TextLayout.getVerticalPaddings(): Pair<Int, Int> {
     }
 
     return if (topPadding == 0 && bottomPadding == 0) {
-        EmptyPair
+        ZeroVerticalPadding
     } else {
-        Pair(topPadding, bottomPadding)
+        VerticalPaddings(topPadding, bottomPadding)
     }
 }
 
-private val EmptyPair = Pair(0, 0)
+private val ZeroVerticalPadding = VerticalPaddings(0, 0)
 
 @OptIn(InternalPlatformTextApi::class)
 private fun TextLayout.getLineHeightPaddings(
     lineHeightSpans: Array<LineHeightStyleSpan>
-): Pair<Int, Int> {
+): VerticalPaddings {
     var firstAscentDiff = 0
     var lastDescentDiff = 0
 
@@ -962,9 +958,9 @@ private fun TextLayout.getLineHeightPaddings(
     }
 
     return if (firstAscentDiff == 0 && lastDescentDiff == 0) {
-        EmptyPair
+        ZeroVerticalPadding
     } else {
-        Pair(firstAscentDiff, lastDescentDiff)
+        VerticalPaddings(firstAscentDiff, lastDescentDiff)
     }
 }
 
@@ -973,7 +969,7 @@ private fun TextLayout.getLastLineMetrics(
     textPaint: TextPaint,
     frameworkTextDir: TextDirectionHeuristic,
     lineHeightSpans: Array<LineHeightStyleSpan>
-): Pair<FontMetricsInt?, Int> {
+): FontMetricsInt? {
     val lastLine = lineCount - 1
     // did not check for "\n" since the last line might include zero width characters
     if (layout.getLineStart(lastLine) == layout.getLineEnd(lastLine) &&
@@ -1000,10 +996,10 @@ private fun TextLayout.getLastLineMetrics(
 
         val tmpLayout = StaticLayoutFactory.create(
             text = emptyText,
+            paint = textPaint,
+            width = Int.MAX_VALUE,
             start = 0,
             end = emptyText.length,
-            width = Int.MAX_VALUE,
-            paint = textPaint,
             textDir = frameworkTextDir,
             includePadding = includePadding,
             useFallbackLineSpacing = fallbackLineSpacing
@@ -1016,10 +1012,9 @@ private fun TextLayout.getLastLineMetrics(
             bottom = tmpLayout.getLineBottom(0)
         }
 
-        val lastLineExtra = lastLineFontMetrics.bottom - getLineHeight(lastLine).toInt()
-        return Pair(lastLineFontMetrics, lastLineExtra)
+        return lastLineFontMetrics
     }
-    return Pair(null, 0)
+    return null
 }
 
 @OptIn(InternalPlatformTextApi::class)

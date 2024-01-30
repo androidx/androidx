@@ -17,6 +17,7 @@
 package androidx.camera.extensions.internal.sessionprocessor;
 
 import android.graphics.ImageFormat;
+import android.hardware.camera2.CaptureResult;
 import android.hardware.camera2.TotalCaptureResult;
 import android.media.Image;
 import android.util.Pair;
@@ -37,6 +38,10 @@ import androidx.camera.core.impl.ImageReaderProxy;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.internal.CameraCaptureResultImageInfo;
 import androidx.camera.extensions.impl.CaptureProcessorImpl;
+import androidx.camera.extensions.impl.ProcessResultImpl;
+import androidx.camera.extensions.internal.ClientVersion;
+import androidx.camera.extensions.internal.ExtensionVersion;
+import androidx.camera.extensions.internal.Version;
 
 import org.jetbrains.annotations.TestOnly;
 
@@ -161,6 +166,8 @@ class StillCaptureProcessor {
 
     interface OnCaptureResultCallback {
         void onCompleted();
+        void onCaptureResult(long shutterTimestamp,
+                @NonNull List<Pair<CaptureResult.Key, Object>> result);
         void onError(@NonNull Exception e);
     }
 
@@ -210,7 +217,29 @@ class StillCaptureProcessor {
                             }
                             Logger.d(TAG, "CaptureProcessorImpl.process()");
                             try {
-                                mCaptureProcessorImpl.process(convertedResult);
+                                if (ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_3)
+                                        && ClientVersion.isMinimumCompatibleVersion(
+                                                Version.VERSION_1_3)) {
+                                    mCaptureProcessorImpl.process(convertedResult,
+                                            new ProcessResultImpl() {
+                                                @Override
+                                                public void onCaptureCompleted(
+                                                        long shutterTimestamp,
+                                                        @NonNull List<Pair<CaptureResult.Key,
+                                                                Object>> result) {
+                                                    onCaptureResultCallback.onCaptureResult(
+                                                            shutterTimestamp, result);
+                                                }
+
+                                                @Override
+                                                public void onCaptureProcessProgressed(
+                                                        int progress) {
+
+                                                }
+                                            }, CameraXExecutors.ioExecutor());
+                                } else {
+                                    mCaptureProcessorImpl.process(convertedResult);
+                                }
                             } catch (Exception e) {
                                 mOnCaptureResultCallback = null;
                                 errorException = e;

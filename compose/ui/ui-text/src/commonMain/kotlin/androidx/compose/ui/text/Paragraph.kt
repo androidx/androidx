@@ -15,6 +15,7 @@
  */
 package androidx.compose.ui.text
 
+import androidx.annotation.IntRange
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.BlendMode
@@ -230,6 +231,37 @@ expect sealed interface Paragraph {
     fun getBoundingBox(offset: Int): Rect
 
     /**
+     * Fills the bounding boxes for characters provided in the [range] into [array]. The array is
+     * filled starting from [arrayStart] (inclusive). The coordinates are in local text layout
+     * coordinates.
+     *
+     * The returned information consists of left/right of a character; line top and bottom for the
+     * same character.
+     *
+     * For the grapheme consists of multiple code points, e.g. ligatures, combining marks, the first
+     * character has the total width and the remaining are returned as zero-width.
+     *
+     * The array divided into segments of four where each index in that segment represents left,
+     * top, right, bottom of the character.
+     *
+     * The size of the provided [array] should be greater or equal than the four times * [TextRange]
+     * length.
+     *
+     * The final order of characters in the [array] is from [TextRange.min] to [TextRange.max].
+     *
+     * @param range the [TextRange] representing the start and end indices in the [Paragraph].
+     * @param array the array to fill in the values. The array divided into segments of four where
+     * each index in that segment represents left, top, right, bottom of the character.
+     * @param arrayStart the inclusive start index in the array where the function will start
+     * filling in the values from
+     */
+    fun fillBoundingBoxes(
+        range: TextRange,
+        array: FloatArray,
+        @IntRange(from = 0) arrayStart: Int
+    )
+
+    /**
      * Returns the TextRange of the word at the given character offset. Characters not
      * part of a word, such as spaces, symbols, and punctuation, have word breaks
      * on both sides. In such cases, this method will return TextRange(offset, offset).
@@ -254,6 +286,10 @@ expect sealed interface Paragraph {
      * TextDecoration on this paragraph, `null` does not change the currently set [TextDecoration]
      * configuration.
      */
+    @Deprecated(
+        "Use the new paint function that takes canvas as the only required parameter.",
+        level = DeprecationLevel.HIDDEN
+    )
     fun paint(
         canvas: Canvas,
         color: Color = Color.Unspecified,
@@ -281,7 +317,6 @@ expect sealed interface Paragraph {
      * currently set DrawStyle.
      * @param blendMode Blending algorithm to be applied to the Paragraph while painting.
      */
-    @ExperimentalTextApi
     fun paint(
         canvas: Canvas,
         color: Color = Color.Unspecified,
@@ -316,7 +351,6 @@ expect sealed interface Paragraph {
      * currently set DrawStyle.
      * @param blendMode Blending algorithm to be applied to the Paragraph while painting.
      */
-    @ExperimentalTextApi
     fun paint(
         canvas: Canvas,
         brush: Brush,

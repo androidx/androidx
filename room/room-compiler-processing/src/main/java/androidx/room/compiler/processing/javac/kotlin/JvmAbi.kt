@@ -47,6 +47,10 @@ internal object JvmAbi {
             }
     }
 
+    fun computeSyntheticMethodForAnnotationsName(propertyName: String): String {
+        return "${computeGetterName(propertyName)}\$annotations"
+    }
+
     private fun String.startsWithIsPrefix(): Boolean {
         if (!startsWith(IS_PREFIX)) return false
         if (length == IS_PREFIX.length) return false

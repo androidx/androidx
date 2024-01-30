@@ -18,6 +18,10 @@ package androidx.tv.foundation.lazy.grid
 
 import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.SpringSpec
+import androidx.compose.animation.core.VectorConverter
+import androidx.compose.animation.core.VisibilityThreshold
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.scrollBy
@@ -53,6 +57,7 @@ import androidx.compose.ui.unit.round
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import java.util.concurrent.TimeUnit
 import kotlin.math.roundToInt
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
@@ -72,15 +77,17 @@ class LazyGridAnimateItemPlacementTest(private val config: Config) {
     @get:Rule
     val rule = createComposeRule()
 
-    private val itemSize: Float = 50f
+    // the numbers should be divisible by 8 to avoid the rounding issues as we run 4 or 8 frames
+    // of the animation.
+    private val itemSize: Float = 40f
     private var itemSizeDp: Dp = Dp.Infinity
-    private val itemSize2: Float = 30f
+    private val itemSize2: Float = 24f
     private var itemSize2Dp: Dp = Dp.Infinity
-    private val itemSize3: Float = 20f
+    private val itemSize3: Float = 16f
     private var itemSize3Dp: Dp = Dp.Infinity
     private val containerSize: Float = itemSize * 5
     private var containerSizeDp: Dp = Dp.Infinity
-    private val spacing: Float = 10f
+    private val spacing: Float = 8f
     private var spacingDp: Dp = Dp.Infinity
     private val itemSizePlusSpacing = itemSize + spacing
     private var itemSizePlusSpacingDp = Dp.Infinity
@@ -2085,6 +2092,285 @@ class LazyGridAnimateItemPlacementTest(private val config: Config) {
         }
     }
 
+    @Test
+    fun scrollIsAffectingItemsMovingWithinViewport() {
+        var list by mutableStateOf(listOf(0, 1, 2, 3))
+        val scrollDelta = spacing
+        rule.setContent {
+            LazyGrid(1, maxSize = itemSizeDp * 2) {
+                items(list, key = { it }) {
+                    Item(it)
+                }
+            }
+        }
+
+        rule.runOnUiThread {
+            list = listOf(0, 2, 1, 3)
+        }
+
+        onAnimationFrame { fraction ->
+            if (fraction == 0f) {
+                assertPositions(
+                    0 to AxisOffset(0f, 0f),
+                    1 to AxisOffset(0f, itemSize),
+                    2 to AxisOffset(0f, itemSize * 2),
+                    fraction = fraction
+                )
+                rule.runOnUiThread {
+                    runBlocking { state.scrollBy(scrollDelta) }
+                }
+            }
+            assertPositions(
+                0 to AxisOffset(0f, -scrollDelta),
+                1 to AxisOffset(0f, itemSize - scrollDelta + itemSize * fraction),
+                2 to AxisOffset(0f, itemSize * 2 - scrollDelta - itemSize * fraction),
+                fraction = fraction
+            )
+        }
+    }
+
+    @Test
+    fun scrollIsNotAffectingItemMovingToTheBottomOutsideOfBounds() {
+        var list by mutableStateOf(listOf(0, 1, 2, 3, 4))
+        val scrollDelta = spacing
+        val containerSizeDp = itemSizeDp * 2
+        val containerSize = itemSize * 2
+        rule.setContent {
+            LazyGrid(1, maxSize = containerSizeDp) {
+                items(list, key = { it }) {
+                    Item(it)
+                }
+            }
+        }
+
+        rule.runOnUiThread {
+            list = listOf(0, 4, 2, 3, 1)
+        }
+
+        onAnimationFrame { fraction ->
+            if (fraction == 0f) {
+                assertPositions(
+                    0 to AxisOffset(0f, 0f),
+                    1 to AxisOffset(0f, itemSize),
+                    fraction = fraction
+                )
+                rule.runOnUiThread {
+                    runBlocking { state.scrollBy(scrollDelta) }
+                }
+            }
+            assertPositions(
+                0 to AxisOffset(0f, -scrollDelta),
+                1 to AxisOffset(0f, itemSize + (containerSize - itemSize) * fraction),
+                fraction = fraction
+            )
+        }
+    }
+
+    @Test
+    fun scrollIsNotAffectingItemMovingToTheTopOutsideOfBounds() {
+        var list by mutableStateOf(listOf(0, 1, 2, 3, 4))
+        val scrollDelta = -spacing
+        val containerSizeDp = itemSizeDp * 2
+        rule.setContent {
+            LazyGrid(1, maxSize = containerSizeDp, startIndex = 2) {
+                items(list, key = { it }) {
+                    Item(it)
+                }
+            }
+        }
+
+        rule.runOnUiThread {
+            list = listOf(3, 0, 1, 2, 4)
+        }
+
+        onAnimationFrame { fraction ->
+            if (fraction == 0f) {
+                assertPositions(
+                    2 to AxisOffset(0f, 0f),
+                    3 to AxisOffset(0f, itemSize),
+                    fraction = fraction
+                )
+                rule.runOnUiThread {
+                    runBlocking { state.scrollBy(scrollDelta) }
+                }
+            }
+            assertPositions(
+                2 to AxisOffset(0f, -scrollDelta),
+                3 to AxisOffset(0f, itemSize - (itemSize * 2 * fraction)),
+                fraction = fraction
+            )
+        }
+    }
+
+    @Test
+    fun afterScrollingEnoughToReachNewPositionScrollDeltasStartAffectingPosition() {
+        var list by mutableStateOf(listOf(0, 1, 2, 3, 4))
+        val containerSizeDp = itemSizeDp * 2
+        val scrollDelta = spacing
+        rule.setContent {
+            LazyGrid(1, maxSize = containerSizeDp) {
+                items(list, key = { it }) {
+                    Item(it)
+                }
+            }
+        }
+
+        rule.runOnUiThread {
+            list = listOf(0, 4, 2, 3, 1)
+        }
+
+        onAnimationFrame { fraction ->
+            if (fraction == 0f) {
+                assertPositions(
+                    0 to AxisOffset(0f, 0f),
+                    1 to AxisOffset(0f, itemSize),
+                    fraction = fraction
+                )
+                rule.runOnUiThread {
+                    runBlocking { state.scrollBy(itemSize * 2) }
+                }
+                assertPositions(
+                    2 to AxisOffset(0f, 0f),
+                    3 to AxisOffset(0f, itemSize),
+                    // after the first scroll the new position of item 1 is still not reached
+                    // so the target didn't change, we still aim to end right after the bounds
+                    1 to AxisOffset(0f, itemSize),
+                    fraction = fraction
+                )
+                rule.runOnUiThread {
+                    runBlocking { state.scrollBy(scrollDelta) }
+                }
+                assertPositions(
+                    2 to AxisOffset(0f, 0f - scrollDelta),
+                    3 to AxisOffset(0f, itemSize - scrollDelta),
+                    // after the second scroll the item 1 is visible, so we know its new target
+                    // position. the animation is now targeting the real end position and now
+                    // we are reacting on the scroll deltas
+                    1 to AxisOffset(0f, itemSize - scrollDelta),
+                    fraction = fraction
+                )
+            }
+            assertPositions(
+                2 to AxisOffset(0f, -scrollDelta),
+                3 to AxisOffset(0f, itemSize - scrollDelta),
+                1 to AxisOffset(0f, itemSize - scrollDelta + itemSize * fraction),
+                fraction = fraction
+            )
+        }
+    }
+
+    @Test
+    fun interruptedSizeChange() {
+        var item0Size by mutableStateOf(itemSizeDp)
+        val animSpec = spring(visibilityThreshold = IntOffset.VisibilityThreshold)
+        rule.setContent {
+            LazyGrid(cells = 1) {
+                items(2, key = { it }) {
+                    Item(it, if (it == 0) item0Size else itemSizeDp, animSpec = animSpec)
+                }
+            }
+        }
+
+        rule.runOnUiThread {
+            item0Size = itemSize2Dp
+        }
+
+        rule.waitForIdle()
+        rule.mainClock.advanceTimeByFrame()
+        onAnimationFrame(duration = FrameDuration) { fraction ->
+            if (fraction == 0f) {
+                assertPositions(
+                    0 to AxisOffset(0f, 0f),
+                    1 to AxisOffset(0f, itemSize)
+                )
+            } else {
+                assertThat(fraction).isEqualTo(1f)
+                val valueAfterOneFrame =
+                    animSpec.getValueAtFrame(1, from = itemSize, to = itemSize2)
+                assertPositions(
+                    0 to AxisOffset(0f, 0f),
+                    1 to AxisOffset(0f, valueAfterOneFrame)
+                )
+            }
+        }
+
+        rule.runOnUiThread {
+            item0Size = 0.dp
+        }
+
+        rule.waitForIdle()
+        val startValue = animSpec.getValueAtFrame(2, from = itemSize, to = itemSize2)
+        val startVelocity = animSpec.getVelocityAtFrame(2, from = itemSize, to = itemSize2)
+        onAnimationFrame(duration = FrameDuration) { fraction ->
+            if (fraction == 0f) {
+                assertPositions(
+                    0 to AxisOffset(0f, 0f),
+                    1 to AxisOffset(0f, startValue)
+                )
+            } else {
+                assertThat(fraction).isEqualTo(1f)
+                val valueAfterThreeFrames = animSpec.getValueAtFrame(
+                    1,
+                    from = startValue,
+                    to = 0f,
+                    initialVelocity = startVelocity
+                )
+                assertPositions(
+                    0 to AxisOffset(0f, 0f),
+                    1 to AxisOffset(0f, valueAfterThreeFrames)
+                )
+            }
+        }
+    }
+
+    internal fun SpringSpec<IntOffset>.getVelocityAtFrame(
+        frameCount: Int,
+        from: Float,
+        to: Float,
+        initialVelocity: IntOffset = IntOffset.Zero
+    ): IntOffset {
+        val frameInNanos = TimeUnit.MILLISECONDS.toNanos(FrameDuration)
+        val vectorized = vectorize(converter = IntOffset.VectorConverter)
+        return IntOffset.VectorConverter.convertFromVector(
+            vectorized.getVelocityFromNanos(
+                playTimeNanos = frameInNanos * frameCount,
+                initialValue = IntOffset.VectorConverter.convertToVector(
+                    IntOffset(0, from.toInt())
+                ),
+                targetValue = IntOffset.VectorConverter.convertToVector(
+                    IntOffset(0, to.toInt())
+                ),
+                initialVelocity = IntOffset.VectorConverter.convertToVector(
+                    initialVelocity
+                )
+            )
+        )
+    }
+
+    internal fun SpringSpec<IntOffset>.getValueAtFrame(
+        frameCount: Int,
+        from: Float,
+        to: Float,
+        initialVelocity: IntOffset = IntOffset.Zero
+    ): Float {
+        val frameInNanos = TimeUnit.MILLISECONDS.toNanos(FrameDuration)
+        val vectorized = vectorize(converter = IntOffset.VectorConverter)
+        return IntOffset.VectorConverter.convertFromVector(
+            vectorized.getValueFromNanos(
+                playTimeNanos = frameInNanos * frameCount,
+                initialValue = IntOffset.VectorConverter.convertToVector(
+                    IntOffset(0, from.toInt())
+                ),
+                targetValue = IntOffset.VectorConverter.convertToVector(
+                    IntOffset(0, to.toInt())
+                ),
+                initialVelocity = IntOffset.VectorConverter.convertToVector(
+                    initialVelocity
+                )
+            )
+        ).y.toFloat()
+    }
+
     private fun AxisOffset(crossAxis: Float, mainAxis: Float) =
         if (isVertical) Offset(crossAxis, mainAxis) else Offset(mainAxis, crossAxis)
 
@@ -2168,9 +2454,11 @@ class LazyGridAnimateItemPlacementTest(private val config: Config) {
         for (i in 0..duration step FrameDuration) {
             val fraction = i / duration.toFloat()
             onFrame(fraction)
-            rule.mainClock.advanceTimeBy(FrameDuration)
-            expectedTime += FrameDuration
-            assertThat(expectedTime).isEqualTo(rule.mainClock.currentTime)
+            if (i < duration) {
+                rule.mainClock.advanceTimeBy(FrameDuration)
+                expectedTime += FrameDuration
+                assertThat(expectedTime).isEqualTo(rule.mainClock.currentTime)
+            }
         }
     }
 
@@ -2224,7 +2512,11 @@ class LazyGridAnimateItemPlacementTest(private val config: Config) {
         animSpec: FiniteAnimationSpec<IntOffset>? = AnimSpec
     ) {
         Box(
-            Modifier
+            if (animSpec != null) {
+                Modifier.animateItemPlacement(animSpec)
+            } else {
+                Modifier
+            }
                 .then(
                     if (isVertical) {
                         Modifier.requiredHeight(size)
@@ -2233,13 +2525,6 @@ class LazyGridAnimateItemPlacementTest(private val config: Config) {
                     }
                 )
                 .testTag(tag.toString())
-                .then(
-                    if (animSpec != null) {
-                        Modifier.animateItemPlacement(animSpec)
-                    } else {
-                        Modifier
-                    }
-                )
         )
     }
 

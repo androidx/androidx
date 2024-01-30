@@ -28,11 +28,8 @@ import kotlin.math.ceil
 
 /**
  * Computes and caches the text layout intrinsic values such as min/max width.
- *
- * @suppress
  */
-@InternalPlatformTextApi
-class LayoutIntrinsics(
+internal class LayoutIntrinsics(
     private val charSequence: CharSequence,
     private val textPaint: TextPaint,
     @LayoutCompat.TextDirection private val textDirectionHeuristic: Int

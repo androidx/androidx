@@ -28,7 +28,6 @@ import androidx.work.Logger;
 /**
  * The {@link android.app.Service} which hosts an implementation of {@link RemoteWorkManager}.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RemoteWorkManagerService extends Service {

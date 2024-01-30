@@ -26,16 +26,19 @@ package androidx.annotation
  * @RequiresPermission(ACCESS_COARSE_LOCATION)
  * public abstract Location getLastKnownLocation(String provider);
  * ```
+ *
  * Example of requiring at least one permission from a set:
  * ```
  * @RequiresPermission(anyOf = {ACCESS_COARSE_LOCATION, ACCESS_FINE_LOCATION})
  * public abstract Location getLastKnownLocation(String provider);
  * ```
+ *
  * Example of requiring multiple permissions:
  * ```
  * @RequiresPermission(allOf = {ACCESS_COARSE_LOCATION, ACCESS_FINE_LOCATION})
  * public abstract Location getLastKnownLocation(String provider);
  * ```
+ *
  * Example of requiring separate read and write permissions for a content provider:
  * ```
  * @RequiresPermission.Read(@RequiresPermission(READ_HISTORY_BOOKMARKS))
@@ -43,21 +46,23 @@ package androidx.annotation
  * public static final Uri BOOKMARKS_URI = Uri.parse("content://browser/bookmarks");
  * ```
  *
- * When specified on a parameter, the annotation indicates that the method requires
- * a permission which depends on the value of the parameter. For example, consider
+ * When specified on a parameter, the annotation indicates that the method requires a permission
+ * which depends on the value of the parameter. For example, consider
  * `android.app.Activity.startActivity(android.content.Intent)`:
  * ```
  * public void startActivity(@RequiresPermission Intent intent) { ... }
  * ```
- * Notice how there are no actual permission names listed in the annotation. The actual
- * permissions required will depend on the particular intent passed in. For example,
- * the code may look like this:
+ *
+ * Notice how there are no actual permission names listed in the annotation. The actual permissions
+ * required will depend on the particular intent passed in. For example, the code may look like
+ * this:
  * ```
  * Intent intent = new Intent(Intent.ACTION_CALL);
  * startActivity(intent);
  * ```
- * and the actual permission requirement for this particular intent is described on
- * the Intent name itself:
+ *
+ * and the actual permission requirement for this particular intent is described on the Intent name
+ * itself:
  * ```
  * @RequiresPermission(Manifest.permission.CALL_PHONE)
  * public static final String ACTION_CALL = "android.intent.action.CALL";
@@ -76,10 +81,8 @@ package androidx.annotation
 )
 public annotation class RequiresPermission(
     /**
-     * The name of the permission that is required, if precisely one permission
-     * is required. If more than one permission is required, specify either
-     * [allOf] or [anyOf] instead.
-     *
+     * The name of the permission that is required, if precisely one permission is required. If more
+     * than one permission is required, specify either [allOf] or [anyOf] instead.
      *
      * If specified, [anyOf] and [allOf] must both be null.
      */
@@ -87,31 +90,28 @@ public annotation class RequiresPermission(
     /**
      * Specifies a list of permission names that are all required.
      *
-     *
      * If specified, [anyOf] and [value] must both be null.
      */
     val allOf: Array<String> = [],
     /**
      * Specifies a list of permission names where at least one is required
      *
-     *
      * If specified, [allOf] and [value] must both be null.
      */
     val anyOf: Array<String> = [],
     /**
-     * If true, the permission may not be required in all cases (e.g. it may only be
-     * enforced on certain platforms, or for certain call parameters, etc.
+     * If true, the permission may not be required in all cases (e.g. it may only be enforced on
+     * certain platforms, or for certain call parameters, etc.
      */
     val conditional: Boolean = false
 ) {
     /**
      * Specifies that the given permission is required for read operations.
      *
-     *
-     * When specified on a parameter, the annotation indicates that the method requires
-     * a permission which depends on the value of the parameter (and typically
-     * the corresponding field passed in will be one of a set of constants which have
-     * been annotated with a `@RequiresPermission` annotation.)
+     * When specified on a parameter, the annotation indicates that the method requires a permission
+     * which depends on the value of the parameter (and typically the corresponding field passed in
+     * will be one of a set of constants which have been annotated with a `@RequiresPermission`
+     * annotation.)
      */
     @Target(
         AnnotationTarget.FIELD,
@@ -125,11 +125,10 @@ public annotation class RequiresPermission(
     /**
      * Specifies that the given permission is required for write operations.
      *
-     *
-     * When specified on a parameter, the annotation indicates that the method requires
-     * a permission which depends on the value of the parameter (and typically
-     * the corresponding field passed in will be one of a set of constants which have
-     * been annotated with a `@RequiresPermission` annotation.)
+     * When specified on a parameter, the annotation indicates that the method requires a permission
+     * which depends on the value of the parameter (and typically the corresponding field passed in
+     * will be one of a set of constants which have been annotated with a `@RequiresPermission`
+     * annotation.)
      */
     @Target(
         AnnotationTarget.FIELD,

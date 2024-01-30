@@ -26,7 +26,6 @@ import java.util.concurrent.Executor;
  * A static class that serves as a central point to execute common tasks.
  * <p>
  *
- * @hide This API is not final.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class ArchTaskExecutor extends TaskExecutor {

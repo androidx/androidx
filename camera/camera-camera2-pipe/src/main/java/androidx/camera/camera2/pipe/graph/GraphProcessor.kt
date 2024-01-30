@@ -22,6 +22,8 @@ import androidx.annotation.GuardedBy
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CaptureSequenceProcessor
+import androidx.camera.camera2.pipe.FrameInfo
+import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.GraphState
 import androidx.camera.camera2.pipe.GraphState.GraphStateError
 import androidx.camera.camera2.pipe.GraphState.GraphStateStarted
@@ -29,6 +31,8 @@ import androidx.camera.camera2.pipe.GraphState.GraphStateStarting
 import androidx.camera.camera2.pipe.GraphState.GraphStateStopped
 import androidx.camera.camera2.pipe.GraphState.GraphStateStopping
 import androidx.camera.camera2.pipe.Request
+import androidx.camera.camera2.pipe.RequestMetadata
+import androidx.camera.camera2.pipe.compat.Camera2Quirks
 import androidx.camera.camera2.pipe.config.CameraGraphScope
 import androidx.camera.camera2.pipe.config.ForCameraGraph
 import androidx.camera.camera2.pipe.core.Debug
@@ -37,7 +41,10 @@ import androidx.camera.camera2.pipe.core.Log.warn
 import androidx.camera.camera2.pipe.core.Threads
 import androidx.camera.camera2.pipe.formatForLogs
 import androidx.camera.camera2.pipe.putAllMetadata
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -55,10 +62,44 @@ internal interface GraphProcessor {
 
     fun submit(request: Request)
     fun submit(requests: List<Request>)
-    suspend fun submit(parameters: Map<*, Any?>): Boolean
+
+    /**
+     * This tries to submit a list of parameters — essentially a list of request settings usually
+     * from 3A methods. It does this by setting the given parameters onto the current repeating
+     * request on a best-effort basis.
+     *
+     * If the CameraGraph hasn't been started yet, but we do have a pending repeating request
+     * queued, the method will suspend until we have a submitted repeating request and only then
+     * submits the parameters.
+     *
+     * This behavior is required if users call 3A methods immediately after start. For example:
+     *
+     * ```
+     * cameraGraph.start()
+     * cameraGraph.acquireSession().use {
+     *     it.startRepeating(request)
+     *     it.lock3A(...)
+     * }
+     * ```
+     *
+     * Under this scenario, developers should reasonably expect things to work, and therefore
+     * the implementation handles this on a best-effort basis for the developer. Please read
+     * b/263211462 for more context.
+     *
+     * However, if the CameraGraph does NOT have a current repeating request or any repeating
+     * requests queued up, the method will return false.
+     */
+    suspend fun trySubmit(parameters: Map<*, Any?>): Boolean
 
     fun startRepeating(request: Request)
     fun stopRepeating()
+
+    /**
+     * Checks whether we have a repeating request in progress. Returns true when we have a repeating
+     * request already submitted or is being submitted. This is used to check whether we can try
+     * to submit parameters (used by 3A methods).
+     */
+    fun hasRepeatingRequest(): Boolean
 
     /**
      * Indicates that internal parameters may have changed, and that the repeating request should be
@@ -91,15 +132,16 @@ constructor(
     @ForCameraGraph private val graphListeners: List<@JvmSuppressWildcards Request.Listener>
 ) : GraphProcessor, GraphListener {
     private val lock = Any()
+    private val tryStartRepeatingExecutionLock = Any()
 
     @GuardedBy("lock")
     private val submitQueue: MutableList<List<Request>> = ArrayList()
 
     @GuardedBy("lock")
-    private var currentRepeatingRequest: Request? = null
+    private val repeatingQueue: MutableList<Request> = ArrayList()
 
     @GuardedBy("lock")
-    private var nextRepeatingRequest: Request? = null
+    private var currentRepeatingRequest: Request? = null
 
     @GuardedBy("lock")
     private var _requestProcessor: GraphRequestProcessor? = null
@@ -112,6 +154,33 @@ constructor(
 
     @GuardedBy("lock")
     private var closed = false
+
+    @GuardedBy("lock")
+    private var pendingParameters: Map<*, Any?>? = null
+
+    @GuardedBy("lock")
+    private var pendingParametersDeferred: CompletableDeferred<Boolean>? = null
+
+    // On some devices, we need to wait for 10 frames to complete before we can guarantee the
+    // success of single capture requests. This is a quirk identified as part of b/287020251 and
+    // reported in b/289284907.
+    private var repeatingRequestsCompleted = CountDownLatch(10)
+
+    // Graph listener added to repeating requests in order to handle the aforementioned quirk.
+    private val graphProcessorRepeatingListeners =
+        if (!Camera2Quirks.shouldWaitForRepeatingBeforeCapture()) {
+            graphListeners
+        } else {
+            graphListeners + object : Request.Listener {
+                override fun onComplete(
+                    requestMetadata: RequestMetadata,
+                    frameNumber: FrameNumber,
+                    result: FrameInfo
+                ) {
+                    repeatingRequestsCompleted.countDown()
+                }
+            }
+        }
 
     private val _graphState = MutableStateFlow<GraphState>(GraphStateStopped)
 
@@ -178,6 +247,7 @@ constructor(
     }
 
     override fun onGraphModified(requestProcessor: GraphRequestProcessor) {
+        debug { "$this onGraphModified" }
         synchronized(lock) {
             if (closed) {
                 return
@@ -190,6 +260,7 @@ constructor(
     }
 
     override fun onGraphError(graphStateError: GraphStateError) {
+        debug { "$this onGraphError($graphStateError)" }
         _graphState.update { graphState ->
             if (graphState is GraphStateStopping || graphState is GraphStateStopped) {
                 GraphStateStopped
@@ -202,11 +273,11 @@ constructor(
     override fun startRepeating(request: Request) {
         synchronized(lock) {
             if (closed) return
-            nextRepeatingRequest = request
+            repeatingQueue.add(request)
             debug { "startRepeating with ${request.formatForLogs()}" }
         }
 
-        graphScope.launch { tryStartRepeating() }
+        graphScope.launch(threads.lightweightDispatcher) { tryStartRepeating() }
     }
 
     override fun stopRepeating() {
@@ -214,11 +285,11 @@ constructor(
 
         synchronized(lock) {
             processor = _requestProcessor
-            nextRepeatingRequest = null
+            repeatingQueue.clear()
             currentRepeatingRequest = null
         }
 
-        graphScope.launch {
+        graphScope.launch(threads.lightweightDispatcher) {
             Debug.traceStart { "$this#stopRepeating" }
             // Start with requests that have already been submitted
             if (processor != null) {
@@ -244,25 +315,48 @@ constructor(
         graphScope.launch(threads.lightweightDispatcher) { submitLoop() }
     }
 
-    /** Submit a request to the camera using only the current repeating request. */
-    override suspend fun submit(parameters: Map<*, Any?>): Boolean =
+    /**
+     * Submit a request to the camera using only the current repeating request. If we don't have the
+     * current repeating request, and there are no repeating requests queued, this will return
+     * false. Otherwise, the method tries to submit the provided [parameters] and suspends until
+     * it finishes.
+     */
+    override suspend fun trySubmit(parameters: Map<*, Any?>): Boolean =
         withContext(threads.lightweightDispatcher) {
             val processor: GraphRequestProcessor?
             val request: Request?
             val requiredParameters: MutableMap<Any, Any?> = mutableMapOf()
+            var deferredResult: CompletableDeferred<Boolean>? = null
 
             synchronized(lock) {
                 if (closed) return@withContext false
                 processor = _requestProcessor
                 request = currentRepeatingRequest
 
+                // If there is no current repeating request and no repeating requests are in the
+                // queue (i.e., startRepeating wasn't called before the 3A methods), we should just
+                // fail immediately.
+                if (request == null && repeatingQueue.isEmpty()) {
+                    return@withContext false
+                }
+
                 requiredParameters.putAllMetadata(parameters.toMutableMap())
                 graphState3A.writeTo(requiredParameters)
                 requiredParameters.putAllMetadata(cameraGraphConfig.requiredParameters)
+
+                if (processor == null || request == null) {
+                    // If a previous set of parameters haven't been submitted yet, consider it stale
+                    pendingParametersDeferred?.complete(false)
+
+                    debug { "Holding parameters to be submitted later" }
+                    deferredResult = CompletableDeferred<Boolean>()
+                    pendingParametersDeferred = deferredResult
+                    pendingParameters = requiredParameters
+                }
             }
 
             return@withContext when {
-                processor == null || request == null -> false
+                processor == null || request == null -> deferredResult?.await() == true
                 else ->
                     processor.submit(
                         isRepeating = false,
@@ -273,6 +367,12 @@ constructor(
                     )
             }
         }
+
+    override fun hasRepeatingRequest() = synchronized(tryStartRepeatingExecutionLock) {
+        synchronized(lock) {
+            currentRepeatingRequest != null || repeatingQueue.isNotEmpty()
+        }
+    }
 
     override fun invalidate() {
         // Invalidate is only used for updates to internal state (listeners, parameters, etc) and
@@ -290,7 +390,7 @@ constructor(
             submitQueue.clear()
         }
 
-        graphScope.launch {
+        graphScope.launch(threads.lightweightDispatcher) {
             Debug.traceStart { "$this#abort" }
             // Start with requests that have already been submitted
             if (processor != null) {
@@ -343,38 +443,33 @@ constructor(
         }
     }
 
-    private fun tryStartRepeating() {
-        val processor: GraphRequestProcessor?
-        val request: Request?
+    private fun tryStartRepeating() = synchronized(tryStartRepeatingExecutionLock) {
+        val processor: GraphRequestProcessor
+        val requests = mutableListOf<Request>()
+        var shouldRetryRequests = false
 
         synchronized(lock) {
-            if (closed) return
+            if (closed || _requestProcessor == null) return
 
-            processor = _requestProcessor
-            request = nextRepeatingRequest ?: currentRepeatingRequest
+            processor = _requestProcessor!!
 
-            // TODO: It might be a good idea to turn the "nextRepeatingRequest" into a queue to
-            //  help with cases where we want to start the camera early. Example: If we have a
-            //  stream configuration where the viewfinder is deferred, but we have an ImageReader
-            //  that is _not_ deferred, it may be possible to submit the repeating request.
-            //  However, a request with *both* streams would be rejected because not all streams
-            //  are ready.
-            //  Example:
-            //   - Request(listOf(viewfinderStream, otherStream)) // Fails (no viewfinder surface)
-            //   - Request(listOf(otherStream)) // works
-            //  If (as an app developer) we wanted to make sure the camera starts before the
-            //  viewfinder is ready, we would likely want to do something like:
-            //   - startRepeating(listOf(otherStream))
-            //   - startRepeating(listOf(viewfinderStream, otherStream))
-            //  The way this is implemented at the moment, the "nextRepeatingRequest" would be set
-            //  to the second call to startRepeating, which would not work. Since the first call got
-            //  discarded, we would be unable to start the camera before the viewfinder was
-            //  available.
+            if (repeatingQueue.isNotEmpty()) {
+                requests.addAll(repeatingQueue)
+                repeatingQueue.clear()
+                shouldRetryRequests = true
+            } else {
+                currentRepeatingRequest?.let { requests.add(it) }
+            }
         }
+        if (requests.isEmpty()) return
 
-        if (processor != null && request != null) {
-            Debug.traceStart { "$this#startRepeating" }
-            synchronized(processor) {
+        Debug.traceStart { "$this#startRepeating" }
+        var succeededIndex = -1
+        synchronized(processor) {
+            // Here an important optimization is applied. Newer repeating requests should always
+            // supersede older ones. Instead of going from oldest request to newest, we can start
+            // from the newest request and immediately break when a request submission succeeds.
+            for ((index, request) in requests.reversed().withIndex()) {
                 val requiredParameters = mutableMapOf<Any, Any?>()
                 graphState3A.writeTo(requiredParameters)
                 requiredParameters.putAllMetadata(cameraGraphConfig.requiredParameters)
@@ -384,31 +479,65 @@ constructor(
                         requests = listOf(request),
                         defaultParameters = cameraGraphConfig.defaultParameters,
                         requiredParameters = requiredParameters,
-                        listeners = graphListeners
+                        listeners = graphProcessorRepeatingListeners,
                     )
                 ) {
                     // ONLY update the current repeating request if the update succeeds
                     synchronized(lock) {
                         if (processor === _requestProcessor) {
                             currentRepeatingRequest = request
-
-                            // There is a race condition where the nextRepeating request might be
-                            // changed
-                            // while trying to update the current repeating request. If this
-                            // happens, do no
-                            // overwrite the pending request.
-                            if (nextRepeatingRequest == request) {
-                                nextRepeatingRequest = null
-                            }
+                            trySubmitPendingParameters(processor, request)
                         }
                     }
+                    succeededIndex = index
+                    break
                 }
             }
-            Debug.traceStop()
+        }
+        Debug.traceStop()
+
+        if (shouldRetryRequests) {
+            synchronized(lock) {
+                // We should only retry the requests newer than the succeeded request, since the
+                // succeeded request would prevail over the preceding requests that failed.
+                val requestsToRetry = requests.slice(succeededIndex + 1 until requests.size)
+
+                // We might have new repeating requests at this point, and these requests to retry
+                // should be placed in the front in order to preserve FIFO order.
+                repeatingQueue.addAll(0, requestsToRetry)
+            }
+        }
+    }
+
+    @GuardedBy("lock")
+    private fun trySubmitPendingParameters(processor: GraphRequestProcessor, request: Request) {
+        val parameters = pendingParameters
+        val deferred = pendingParametersDeferred
+        if (parameters != null && deferred != null) {
+            val resubmitResult = processor.submit(
+                isRepeating = false,
+                requests = listOf(request),
+                defaultParameters = cameraGraphConfig.defaultParameters,
+                requiredParameters = parameters,
+                listeners = graphListeners
+            )
+            deferred.complete(resubmitResult)
+
+            pendingParameters = null
+            pendingParametersDeferred = null
         }
     }
 
     private fun submitLoop() {
+        if (Camera2Quirks.shouldWaitForRepeatingBeforeCapture() && hasRepeatingRequest()) {
+            debug {
+                "Quirk: Waiting for 10 repeating requests to complete before submitting requests"
+            }
+            if (!repeatingRequestsCompleted.await(2, TimeUnit.SECONDS)) {
+                warn { "Failed to wait for 10 repeating requests to complete after 2 seconds" }
+            }
+        }
+
         var burst: List<Request>
         var processor: GraphRequestProcessor
 

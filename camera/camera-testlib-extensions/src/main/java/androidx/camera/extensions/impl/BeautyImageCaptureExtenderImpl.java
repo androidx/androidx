@@ -22,6 +22,7 @@ import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.CaptureResult;
 import android.hardware.camera2.TotalCaptureResult;
+import android.hardware.camera2.params.SessionConfiguration;
 import android.hardware.camera2.params.StreamConfigurationMap;
 import android.media.Image;
 import android.media.ImageWriter;
@@ -84,6 +85,7 @@ public final class BeautyImageCaptureExtenderImpl implements ImageCaptureExtende
         return CameraCharacteristicAvailability.isEffectAvailable(cameraCharacteristics, EFFECT);
     }
 
+    @NonNull
     @Override
     public List<CaptureStageImpl> getCaptureStages() {
         // Placeholder set of CaptureRequest.Key values
@@ -94,6 +96,7 @@ public final class BeautyImageCaptureExtenderImpl implements ImageCaptureExtende
         return captureStages;
     }
 
+    @Nullable
     @Override
     public CaptureProcessorImpl getCaptureProcessor() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -115,6 +118,7 @@ public final class BeautyImageCaptureExtenderImpl implements ImageCaptureExtende
 
     }
 
+    @Nullable
     @Override
     public CaptureStageImpl onPresetSession() {
         // The CaptureRequest parameters will be set via SessionConfiguration#setSessionParameters
@@ -132,6 +136,12 @@ public final class BeautyImageCaptureExtenderImpl implements ImageCaptureExtende
     }
 
     @Override
+    public int onSessionType() {
+        return SessionConfiguration.SESSION_REGULAR;
+    }
+
+    @Nullable
+    @Override
     public CaptureStageImpl onEnableSession() {
         // Set the necessary CaptureRequest parameters via CaptureStage, here we use some
         // placeholder set of CaptureRequest.Key values
@@ -141,6 +151,7 @@ public final class BeautyImageCaptureExtenderImpl implements ImageCaptureExtende
         return captureStage;
     }
 
+    @Nullable
     @Override
     public CaptureStageImpl onDisableSession() {
         // Set the necessary CaptureRequest parameters via CaptureStage, here we use some
@@ -156,6 +167,7 @@ public final class BeautyImageCaptureExtenderImpl implements ImageCaptureExtende
         return 3;
     }
 
+    @Nullable
     @Override
     public List<Pair<Integer, Size[]>> getSupportedResolutions() {
         List<Pair<Integer, Size[]>> formatResolutionsPairList = new ArrayList<>();
@@ -188,6 +200,28 @@ public final class BeautyImageCaptureExtenderImpl implements ImageCaptureExtende
         return new Range<>(300L, 1000L);
     }
 
+    @Nullable
+    @Override
+    public List<Pair<Integer, Size[]>> getSupportedPostviewResolutions(@NonNull Size captureSize) {
+        return null;
+    }
+
+    @Override
+    public boolean isCaptureProcessProgressAvailable() {
+        return false;
+    }
+
+    @Nullable
+    @Override
+    public Pair<Long, Long> getRealtimeCaptureLatency() {
+        return null;
+    }
+
+    @Override
+    public boolean isPostviewAvailable() {
+        return false;
+    }
+
     @RequiresApi(23)
     static final class BeautyImageCaptureExtenderCaptureProcessorImpl implements
             CaptureProcessorImpl {
@@ -199,7 +233,7 @@ public final class BeautyImageCaptureExtenderImpl implements ImageCaptureExtende
         }
 
         @Override
-        public void process(Map<Integer, Pair<Image, TotalCaptureResult>> results) {
+        public void process(@NonNull Map<Integer, Pair<Image, TotalCaptureResult>> results) {
             Log.d(TAG, "Started beauty CaptureProcessor");
 
             Pair<Image, TotalCaptureResult> result = results.get(DEFAULT_STAGE_ID);
@@ -228,8 +262,9 @@ public final class BeautyImageCaptureExtenderImpl implements ImageCaptureExtende
         }
 
         @Override
-        public void process(Map<Integer, Pair<Image, TotalCaptureResult>> results,
-                ProcessResultImpl resultCallback, Executor executor) {
+        public void process(@NonNull Map<Integer, Pair<Image, TotalCaptureResult>> results,
+                @NonNull ProcessResultImpl resultCallback, @Nullable Executor executor) {
+            process(results);
         }
 
         @Override
@@ -240,6 +275,23 @@ public final class BeautyImageCaptureExtenderImpl implements ImageCaptureExtende
         @Override
         public void onImageFormatUpdate(int imageFormat) {
 
+        }
+
+        @Override
+        public void onPostviewOutputSurface(@NonNull Surface surface) {
+
+        }
+
+        @Override
+        public void onResolutionUpdate(@NonNull Size size, @NonNull Size postviewSize) {
+
+        }
+
+        @Override
+        public void processWithPostview(
+                @NonNull Map<Integer, Pair<Image, TotalCaptureResult>> results,
+                @NonNull ProcessResultImpl resultCallback, @Nullable Executor executor) {
+            throw new UnsupportedOperationException("Postview is not supported");
         }
     }
 

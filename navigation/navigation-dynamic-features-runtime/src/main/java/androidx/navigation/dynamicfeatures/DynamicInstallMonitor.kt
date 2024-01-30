@@ -68,8 +68,8 @@ public class DynamicInstallMonitor {
 
     /**
      * The [SplitInstallManager] used to monitor the installation if any was set.
-     * @hide
      */
+    @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public var splitInstallManager: SplitInstallManager? = null
 

@@ -16,6 +16,7 @@
 
 package androidx.compose.animation.core
 
+import androidx.compose.animation.core.internal.PlatformOptimizedCancellationException
 import androidx.compose.runtime.Stable
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
@@ -55,6 +56,14 @@ internal enum class MutatePriority {
 }
 
 /**
+ * Used in place of the standard Job cancellation pathway to avoid reflective
+ * javaClass.simpleName lookups to build the exception message and stack trace collection.
+ * Remove if these are changed in kotlinx.coroutines.
+ */
+private class MutationInterruptedException :
+    PlatformOptimizedCancellationException("Mutation interrupted")
+
+/**
  * Mutual exclusion for UI state mutation over time.
  *
  * [mutate] permits interruptible state mutation over time using a standard [MutatePriority].
@@ -73,7 +82,7 @@ internal class MutatorMutex {
     private class Mutator(val priority: MutatePriority, val job: Job) {
         fun canInterrupt(other: Mutator) = priority >= other.priority
 
-        fun cancel() = job.cancel()
+        fun cancel() = job.cancel(MutationInterruptedException())
     }
 
     private val currentMutator = AtomicReference<Mutator?>(null)

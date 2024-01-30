@@ -10,14 +10,7 @@
       </option>
       <option name="taskNames">
         <list>
-          <option value=":compose:ui:ui:cleanDesktopTest" />
-          <option value=":compose:ui:ui:desktopTest" />
-          <option value=":compose:foundation:foundation:cleanDesktopTest" />
-          <option value=":compose:foundation:foundation:desktopTest" />
-          <option value=":compose:material:material:cleanDesktopTest" />
-          <option value=":compose:material:material:desktopTest" />
-          <option value=":compose:ui:ui-graphics:cleanDesktopTest" />
-          <option value=":compose:ui:ui-graphics:desktopTest" />
+          <option value="desktopTest" />
         </list>
       </option>
       <option name="vmOptions" />

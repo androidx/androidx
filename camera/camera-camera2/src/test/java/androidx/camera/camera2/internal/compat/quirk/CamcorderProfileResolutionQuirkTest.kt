@@ -23,14 +23,14 @@ import android.hardware.camera2.params.StreamConfigurationMap
 import android.os.Build
 import android.util.Size
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat
-import androidx.camera.testing.EncoderProfilesUtil.RESOLUTION_1080P
-import androidx.camera.testing.EncoderProfilesUtil.RESOLUTION_2160P
+import androidx.camera.testing.impl.EncoderProfilesUtil.RESOLUTION_1080P
+import androidx.camera.testing.impl.EncoderProfilesUtil.RESOLUTION_2160P
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.ArgumentMatchers
-import org.mockito.Mockito.`when`
 import org.mockito.Mockito.mock
+import org.mockito.Mockito.`when`
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument

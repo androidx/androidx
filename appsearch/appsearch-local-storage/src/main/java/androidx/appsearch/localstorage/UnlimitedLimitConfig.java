@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+// @exportToFramework:copyToPath(testing/testutils/src/android/app/appsearch/testutil/external/UnlimitedLimitConfig.java)
 package androidx.appsearch.localstorage;
 
 import androidx.annotation.RestrictTo;
@@ -22,7 +22,6 @@ import androidx.annotation.RestrictTo;
  * In Jetpack, AppSearch doesn't enforce artificial limits on number of documents or size of
  * documents, since the app is the only user of the Icing instance. Icing still enforces a docid
  * limit of 1M docs.
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class UnlimitedLimitConfig implements LimitConfig {

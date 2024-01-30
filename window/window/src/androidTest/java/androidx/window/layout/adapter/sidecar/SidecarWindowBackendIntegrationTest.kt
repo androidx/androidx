@@ -37,11 +37,6 @@ import androidx.window.layout.FoldingFeature
 import androidx.window.layout.WindowLayoutInfo
 import androidx.window.layout.WindowMetricsCalculator
 import androidx.window.layout.adapter.sidecar.ExtensionInterfaceCompat.ExtensionCallbackInterface
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.argThat
-import com.nhaarman.mockitokotlin2.atLeastOnce
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.verify
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Assume
@@ -49,7 +44,11 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.ArgumentMatcher
-import java.util.HashSet
+import org.mockito.kotlin.any
+import org.mockito.kotlin.argThat
+import org.mockito.kotlin.atLeastOnce
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.verify
 
 /** Tests for the extension implementation on the device.  */
 @LargeTest
@@ -228,12 +227,15 @@ public class SidecarWindowBackendIntegrationTest : WindowTestBase() {
                     // First element is emitted twice so it is allowed
                     true
                 }
+
                 mWindowLayoutInfos.contains(windowLayoutInfo) -> {
                     false
                 }
+
                 windowLayoutInfo.displayFeatures.isEmpty() -> {
                     true
                 }
+
                 else -> {
                     mWindowLayoutInfos.add(windowLayoutInfo)
                     true

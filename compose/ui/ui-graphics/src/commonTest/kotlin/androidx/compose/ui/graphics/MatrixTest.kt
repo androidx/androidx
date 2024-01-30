@@ -19,12 +19,12 @@ package androidx.compose.ui.graphics
 import androidx.compose.ui.geometry.MutableRect
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
+import kotlin.math.abs
+import kotlin.math.sqrt
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
-import kotlin.math.abs
-import kotlin.math.sqrt
 
 class MatrixTest {
     @Test

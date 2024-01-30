@@ -15,7 +15,6 @@
  */
 
 package androidx.appsearch.app;
-import static androidx.appsearch.app.AppSearchResult.RESULT_INVALID_ARGUMENT;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
@@ -24,6 +23,7 @@ import androidx.annotation.IntDef;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.CanIgnoreReturnValue;
 import androidx.appsearch.annotation.Document;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.util.BundleUtil;
@@ -45,9 +45,9 @@ import java.util.Set;
  * This class represents the specification logic for AppSearch. It can be used to set the filter
  * and settings of search a suggestions.
  *
- * @see AppSearchSession#searchSuggestionAsync(String, SearchSuggestionSpec)
+ * @see AppSearchSession#searchSuggestionAsync
  */
-public class SearchSuggestionSpec {
+public final class SearchSuggestionSpec {
     static final String NAMESPACE_FIELD = "namespace";
     static final String SCHEMA_FIELD = "schema";
     static final String PROPERTY_FIELD = "property";
@@ -57,7 +57,7 @@ public class SearchSuggestionSpec {
     private final Bundle mBundle;
     private final int mMaximumResultCount;
 
-    /** @hide */
+    /** @exportToFramework:hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public SearchSuggestionSpec(@NonNull Bundle bundle) {
         Preconditions.checkNotNull(bundle);
@@ -70,7 +70,7 @@ public class SearchSuggestionSpec {
     /**
      * Ranking Strategy for {@link SearchSuggestionResult}.
      *
-     * @hide
+     * @exportToFramework:hide
      */
     @IntDef(value = {
             SUGGESTION_RANKING_STRATEGY_NONE,
@@ -113,7 +113,7 @@ public class SearchSuggestionSpec {
     /**
      * Returns the {@link Bundle} populated by this builder.
      *
-     * @hide
+     * @exportToFramework:hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull
@@ -143,7 +143,8 @@ public class SearchSuggestionSpec {
     }
 
     /** Returns the ranking strategy. */
-    public @SuggestionRankingStrategy int getRankingStrategy() {
+    @SuggestionRankingStrategy
+    public int getRankingStrategy() {
         return mBundle.getInt(RANKING_STRATEGY_FIELD);
     }
 
@@ -173,7 +174,7 @@ public class SearchSuggestionSpec {
      * <p>Calling this function repeatedly is inefficient. Prefer to retain the Map returned
      * by this function, rather than calling it multiple times.
      *
-     * @hide
+     * @exportToFramework:hide
      */
     // TODO(b/228240987) migrate this API when we support property restrict for multiple terms
     @NonNull
@@ -222,7 +223,7 @@ public class SearchSuggestionSpec {
         private Bundle mTypePropertyFilters = new Bundle();
         private Bundle mDocumentIds = new Bundle();
         private final int mTotalResultCount;
-        private @SuggestionRankingStrategy int mRankingStrategy =
+        @SuggestionRankingStrategy private int mRankingStrategy =
                 SUGGESTION_RANKING_STRATEGY_DOCUMENT_COUNT;
         private boolean mBuilt = false;
 
@@ -243,6 +244,7 @@ public class SearchSuggestionSpec {
          *
          * <p>If unset, the query will search over all namespaces.
          */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder addFilterNamespaces(@NonNull String... namespaces) {
             Preconditions.checkNotNull(namespaces);
@@ -256,6 +258,7 @@ public class SearchSuggestionSpec {
          *
          * <p>If unset, the query will search over all namespaces.
          */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder addFilterNamespaces(@NonNull Collection<String> namespaces) {
             Preconditions.checkNotNull(namespaces);
@@ -270,6 +273,7 @@ public class SearchSuggestionSpec {
          * <p>The default value {@link #SUGGESTION_RANKING_STRATEGY_DOCUMENT_COUNT} will be used if
          * this method is never called.
          */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder setRankingStrategy(@SuggestionRankingStrategy int rankingStrategy) {
             Preconditions.checkArgumentInRange(rankingStrategy,
@@ -286,6 +290,7 @@ public class SearchSuggestionSpec {
          *
          * <p>If unset, the query will search over all schema.
          */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder addFilterSchemas(@NonNull String... schemaTypes) {
             Preconditions.checkNotNull(schemaTypes);
@@ -299,6 +304,7 @@ public class SearchSuggestionSpec {
          *
          * <p>If unset, the query will search over all schema.
          */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder addFilterSchemas(@NonNull Collection<String> schemaTypes) {
             Preconditions.checkNotNull(schemaTypes);
@@ -315,10 +321,12 @@ public class SearchSuggestionSpec {
          *
          * <p>If unset, the query will search over all schema.
          *
+         * <p>Merged list available from {@link #getFilterSchemas()}.
+         *
          * @param documentClasses classes annotated with {@link Document}.
          */
-        // Merged list available from getFilterSchemas()
         @SuppressLint("MissingGetterMatchingBuilder")
+        @CanIgnoreReturnValue
         @NonNull
         public Builder addFilterDocumentClasses(@NonNull Class<?>... documentClasses)
                 throws AppSearchException {
@@ -337,10 +345,12 @@ public class SearchSuggestionSpec {
          *
          * <p>If unset, the query will search over all schema.
          *
+         * <p>Merged list available from {@link #getFilterSchemas()}.
+         *
          * @param documentClasses classes annotated with {@link Document}.
          */
-        // Merged list available from getFilterSchemas
         @SuppressLint("MissingGetterMatchingBuilder")
+        @CanIgnoreReturnValue
         @NonNull
         public Builder addFilterDocumentClasses(
                 @NonNull Collection<? extends Class<?>> documentClasses) throws AppSearchException {
@@ -375,7 +385,7 @@ public class SearchSuggestionSpec {
          * @param propertyPaths The String version of {@link PropertyPath}. A dot-delimited
          *                      sequence of property names indicating which property in the
          *                      document these snippets correspond to.
-         * @hide
+         * @exportToFramework:hide
          */
         // TODO(b/228240987) migrate this API when we support property restrict for multiple terms
         @NonNull
@@ -409,7 +419,7 @@ public class SearchSuggestionSpec {
          * @param schema the {@link AppSearchSchema} that contains the target properties
          * @param propertyPaths The {@link PropertyPath} to search suggestion over
          *
-         * @hide
+         * @exportToFramework:hide
          */
         // TODO(b/228240987) migrate this API when we support property restrict for multiple terms
         @NonNull
@@ -443,7 +453,7 @@ public class SearchSuggestionSpec {
          * @param propertyPaths The String version of {@link PropertyPath}. A
          * {@code dot-delimited sequence of property names indicating which property in the
          * document these snippets correspond to.
-         * @hide
+         * @exportToFramework:hide
          */
         // TODO(b/228240987) migrate this API when we support property restrict for multiple terms
         @NonNull
@@ -474,7 +484,7 @@ public class SearchSuggestionSpec {
          *
          * @param documentClass class annotated with {@link Document}.
          * @param propertyPaths The {@link PropertyPath} to search suggestion over
-         * @hide
+         * @exportToFramework:hide
          */
         // TODO(b/228240987) migrate this API when we support property restrict for multiple terms
         @NonNull
@@ -496,6 +506,7 @@ public class SearchSuggestionSpec {
          *
          * <p>If unset, the query will search over all documents.
          */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder addFilterDocumentIds(@NonNull String namespace,
                 @NonNull String... documentIds) {
@@ -511,6 +522,7 @@ public class SearchSuggestionSpec {
          *
          * <p>If unset, the query will search over all documents.
          */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder addFilterDocumentIds(@NonNull String namespace,
                 @NonNull Collection<String> documentIds) {
@@ -527,13 +539,13 @@ public class SearchSuggestionSpec {
 
         /** Constructs a new {@link SearchSpec} from the contents of this builder. */
         @NonNull
-        public SearchSuggestionSpec build() throws AppSearchException {
+        public SearchSuggestionSpec build() {
             Bundle bundle = new Bundle();
             if (!mSchemas.isEmpty()) {
                 Set<String> schemaFilter = new ArraySet<>(mSchemas);
                 for (String schema : mTypePropertyFilters.keySet()) {
                     if (!schemaFilter.contains(schema)) {
-                        throw new AppSearchException(RESULT_INVALID_ARGUMENT,
+                        throw new IllegalStateException(
                                 "The schema: " + schema + " exists in the property filter but "
                                         + "doesn't exist in the schema filter.");
                     }
@@ -543,7 +555,7 @@ public class SearchSuggestionSpec {
                 Set<String> namespaceFilter = new ArraySet<>(mNamespaces);
                 for (String namespace : mDocumentIds.keySet()) {
                     if (!namespaceFilter.contains(namespace)) {
-                        throw new AppSearchException(RESULT_INVALID_ARGUMENT,
+                        throw new IllegalStateException(
                                 "The namespace: " + namespace + " exists in the document id "
                                         + "filter but doesn't exist in the namespace filter.");
                     }

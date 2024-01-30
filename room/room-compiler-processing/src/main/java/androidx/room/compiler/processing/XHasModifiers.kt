@@ -41,6 +41,11 @@ interface XHasModifiers {
     fun isAbstract(): Boolean
 
     /**
+     * Returns `true` if this element has private modifier in Kotlin.
+     */
+    fun isKtPrivate(): Boolean = isPrivate()
+
+    /**
      * Returns `true` if this element has private modifier.
      */
     fun isPrivate(): Boolean

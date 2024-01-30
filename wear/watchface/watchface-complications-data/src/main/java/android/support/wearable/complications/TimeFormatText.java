@@ -35,11 +35,11 @@ import java.util.concurrent.TimeUnit;
 /**
  * Class to generate string representations of dates/times according to a specified format.
  *
- * @hide
  * @see ComplicationText.TimeFormatBuilder
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public final class TimeFormatText implements TimeDependentText {
+    private static final Date sDate = new Date();
 
     @Override
     public boolean equals(Object o) {
@@ -49,13 +49,12 @@ public final class TimeFormatText implements TimeDependentText {
         return mStyle == that.mStyle
                 && mTimePrecision == that.mTimePrecision
                 && Objects.equals(mDateFormat, that.mDateFormat)
-                && Objects.equals(mTimeZone, that.mTimeZone)
-                && Objects.equals(mDate.toString(), that.mDate.toString());
+                && Objects.equals(mTimeZone, that.mTimeZone);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(mDateFormat, mStyle, mTimeZone, mDate, mTimePrecision);
+        return Objects.hash(mDateFormat, mStyle, mTimeZone, mTimePrecision);
     }
 
     @NonNull
@@ -70,8 +69,6 @@ public final class TimeFormatText implements TimeDependentText {
                 + mStyle
                 + ", mTimeZone="
                 + mTimeZone
-                + ", mDate="
-                + mDate
                 + ", mTimePrecision="
                 + mTimePrecision
                 + '}';
@@ -99,7 +96,6 @@ public final class TimeFormatText implements TimeDependentText {
 
     @ComplicationText.TimeFormatStyle private final int mStyle;
     private final TimeZone mTimeZone;
-    private final Date mDate;
     private long mTimePrecision;
 
     public TimeFormatText(
@@ -118,7 +114,6 @@ public final class TimeFormatText implements TimeDependentText {
         } else {
             mTimeZone = mDateFormat.getTimeZone();
         }
-        mDate = new Date();
     }
 
     TimeFormatText(
@@ -129,7 +124,6 @@ public final class TimeFormatText implements TimeDependentText {
         mDateFormat = dateFormat;
         mStyle = style;
         mTimeZone = timeZone;
-        mDate = new Date();
         mTimePrecision = timePrecision;
     }
 
@@ -230,8 +224,8 @@ public final class TimeFormatText implements TimeDependentText {
     }
 
     private long getOffset(long date) {
-        mDate.setTime(date);
-        if (mTimeZone.inDaylightTime(mDate)) {
+        sDate.setTime(date);
+        if (mTimeZone.inDaylightTime(sDate)) {
             return (long) mTimeZone.getRawOffset() + mTimeZone.getDSTSavings();
         }
         return mTimeZone.getRawOffset();
@@ -278,7 +272,6 @@ public final class TimeFormatText implements TimeDependentText {
         this.mStyle = in.readInt();
         this.mTimeZone = (TimeZone) in.readSerializable();
         this.mTimePrecision = -1;
-        this.mDate = new Date();
     }
 
     public static final Creator<TimeFormatText> CREATOR =

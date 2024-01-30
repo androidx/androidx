@@ -19,22 +19,22 @@ package androidx.media2.player;
 import androidx.annotation.NonNull;
 
 /**
- * An immutable object that represents the linear correlation between the media time
- * and the system time. It contains the media clock rate, together with the media timestamp
- * of an anchor frame and the system time when that frame was presented or is committed
- * to be presented.
- * <p>
- * The phrase "present" means that audio/video produced on device is detectable by an external
- * observer off device.
- * The time is based on the implementation's best effort, using whatever knowledge
- * is available to the system, but cannot account for any delay unknown to the implementation.
- * The anchor frame could be any frame, including a just-rendered frame, or even a theoretical
- * or in-between frame, based on the source of the MediaTimestamp.
- * When the anchor frame is a just-rendered one, the media time stands for
- * current position of the playback or recording.
+ * An immutable object that represents the linear correlation between the media time and the system
+ * time. It contains the media clock rate, together with the media timestamp of an anchor frame and
+ * the system time when that frame was presented or is committed to be presented.
+ *
+ * <p>The phrase "present" means that audio/video produced on device is detectable by an external
+ * observer off device. The time is based on the implementation's best effort, using whatever
+ * knowledge is available to the system, but cannot account for any delay unknown to the
+ * implementation. The anchor frame could be any frame, including a just-rendered frame, or even a
+ * theoretical or in-between frame, based on the source of the MediaTimestamp. When the anchor frame
+ * is a just-rendered one, the media time stands for current position of the playback or recording.
  *
  * @see MediaPlayer#getTimestamp
+ * @deprecated androidx.media2 is deprecated. Please migrate to <a
+ *     href="https://developer.android.com/guide/topics/media/media3">androidx.media3</a>.
  */
+@Deprecated
 public final class MediaTimestamp {
     /**
      * An unknown media timestamp value

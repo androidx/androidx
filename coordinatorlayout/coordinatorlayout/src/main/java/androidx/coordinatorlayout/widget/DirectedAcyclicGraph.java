@@ -33,7 +33,6 @@ import java.util.List;
  *
  * @param <T> Class for the data objects of this graph.
  *
- * @hide
  */
 @RestrictTo(LIBRARY)
 public final class DirectedAcyclicGraph<T> {

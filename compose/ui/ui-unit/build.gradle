@@ -60,6 +60,7 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
         desktop()
         darwin()
         js()
+        wasm()
     }
 
     kotlin {
@@ -75,6 +76,7 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
 
                 implementation(project(":compose:runtime:runtime"))
                 implementation(project(":compose:ui:ui-util"))
+                implementation(project(":annotation:annotation"))
             }
             jvmMain.dependencies {
                 implementation(libs.kotlinStdlib)
@@ -83,9 +85,24 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                 api("androidx.annotation:annotation:1.1.0")
             }
 
-            jsNativeMain.dependsOn(commonMain)
+            jbMain.dependsOn(commonMain)
+            desktopMain.dependsOn(jbMain)
+            jsNativeMain.dependsOn(jbMain)
             jsMain.dependsOn(jsNativeMain)
             nativeMain.dependsOn(jsNativeMain)
+
+            jsMain {
+                dependsOn(jsNativeMain)
+            }
+
+            if (project.kotlinWasmEnabled.toBoolean()) {
+                wasmJsMain {
+                    dependsOn(jsNativeMain)
+                    dependencies {
+                        implementation(libs.kotlinStdlib)
+                    }
+                }
+            }
 
             commonTest.dependencies {
                 implementation(kotlin("test-junit"))

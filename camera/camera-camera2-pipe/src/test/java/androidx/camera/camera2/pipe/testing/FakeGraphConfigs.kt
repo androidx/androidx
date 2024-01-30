@@ -19,6 +19,7 @@ package androidx.camera.camera2.pipe.testing
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CaptureRequest
 import android.util.Size
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraStream
@@ -29,6 +30,7 @@ import androidx.camera.camera2.pipe.StreamFormat
  * Fake CameraGraph configuration that can be used for more complicated tests that need a realistic
  * configuration for tests.
  */
+@RequiresApi(21)
 internal object FakeGraphConfigs {
     private val camera1 = CameraId("TestCamera-1")
     private val camera2 = CameraId("TestCamera-2")
@@ -109,6 +111,18 @@ internal object FakeGraphConfigs {
             streamUseCase = OutputStream.StreamUseCase.VIDEO_RECORD
         )
 
+    val streamConfig8 =
+        CameraStream.Config.create(
+            size = Size(200, 200),
+            format = StreamFormat.UNKNOWN,
+            camera = camera2,
+            outputType = OutputStream.OutputType.SURFACE_TEXTURE,
+            mirrorMode = OutputStream.MirrorMode.MIRROR_MODE_AUTO,
+            timestampBase = OutputStream.TimestampBase.TIMESTAMP_BASE_DEFAULT,
+            dynamicRangeProfile = OutputStream.DynamicRangeProfile.STANDARD,
+            streamUseHint = OutputStream.StreamUseHint.VIDEO_RECORD
+        )
+
     val sharedOutputConfig =
         OutputStream.Config.create(
             size = Size(200, 200), format = StreamFormat.YUV_420_888, camera = camera1
@@ -128,6 +142,7 @@ internal object FakeGraphConfigs {
                 streamConfig5,
                 streamConfig6,
                 streamConfig7,
+                streamConfig8,
                 sharedStreamConfig1,
                 sharedStreamConfig2
             ),

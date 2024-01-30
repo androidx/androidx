@@ -16,8 +16,6 @@
 
 package androidx.work;
 
-import android.annotation.SuppressLint;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.lifecycle.LifecycleOwner;
@@ -36,19 +34,15 @@ import com.google.common.util.concurrent.ListenableFuture;
 public interface Operation {
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @SuppressWarnings("VariableNameSameAsType")
-    @SuppressLint("SyntheticAccessor")
     State.SUCCESS SUCCESS = new State.SUCCESS();
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @SuppressWarnings("VariableNameSameAsType")
-    @SuppressLint("SyntheticAccessor")
     State.IN_PROGRESS IN_PROGRESS = new State.IN_PROGRESS();
 
     /**
@@ -81,7 +75,6 @@ public interface Operation {
     abstract class State {
 
         /**
-         * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         State() {

@@ -17,10 +17,9 @@
 package androidx.build.dependencyTracker
 
 import androidx.build.getSupportRootFolder
-import org.gradle.api.Project
 import java.io.File
-
 import java.io.Serializable
+import org.gradle.api.Project
 import org.gradle.api.logging.Logger
 
 /**

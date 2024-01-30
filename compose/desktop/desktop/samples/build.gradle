@@ -42,19 +42,19 @@ kotlin {
     }
 }
 
-task run1(type: JavaExec) {
+tasks.register('run1', JavaExec) {
     dependsOn(":compose:desktop:desktop:jar")
-    main = "androidx.compose.desktop.examples.example1.Main_jvmKt"
+    mainClass = "androidx.compose.desktop.examples.example1.Main_jvmKt"
     systemProperty("skiko.fps.enabled", "true")
     def compilation = kotlin.jvm().compilations["main"]
     classpath =
-        compilation.output.allOutputs +
-        compilation.runtimeDependencyFiles
+            compilation.output.allOutputs +
+                    compilation.runtimeDependencyFiles
 }
 
-task run1rtl(type: JavaExec) {
+tasks.register('run1rtl', JavaExec) {
     dependsOn(":compose:desktop:desktop:jar")
-    main = "androidx.compose.desktop.examples.example1.Main_jvmKt"
+    mainClass = "androidx.compose.desktop.examples.example1.Main_jvmKt"
     systemProperty("skiko.fps.enabled", "true")
     systemProperty("user.language", "ar") // arabic language for rtl
     def compilation = kotlin.jvm().compilations["main"]
@@ -63,66 +63,65 @@ task run1rtl(type: JavaExec) {
                     compilation.runtimeDependencyFiles
 }
 
-task run2(type: JavaExec) {
+tasks.register('run2', JavaExec) {
     dependsOn(":compose:desktop:desktop:jar")
-    main = "androidx.compose.desktop.examples.example2.Main_jvmKt"
+    mainClass = "androidx.compose.desktop.examples.example2.Main_jvmKt"
     def compilation = kotlin.jvm().compilations["main"]
     classpath =
-        compilation.output.allOutputs +
-        compilation.runtimeDependencyFiles
+            compilation.output.allOutputs +
+                    compilation.runtimeDependencyFiles
 }
 
-task run3(type: JavaExec) {
+tasks.register('run3', JavaExec) {
     dependsOn(":compose:desktop:desktop:jar")
-    main = "androidx.compose.desktop.examples.popupexample.Main_jvmKt"
+    mainClass = "androidx.compose.desktop.examples.popupexample.Main_jvmKt"
     def compilation = kotlin.jvm().compilations["main"]
     classpath =
-        compilation.output.allOutputs +
-        compilation.runtimeDependencyFiles
+            compilation.output.allOutputs +
+                    compilation.runtimeDependencyFiles
 }
 
-task runSwing(type: JavaExec) {
+tasks.register('runSwing', JavaExec) {
     dependsOn(":compose:desktop:desktop:jar")
-    main = "androidx.compose.desktop.examples.swingexample.Main_jvmKt"
+    mainClass = "androidx.compose.desktop.examples.swingexample.Main_jvmKt"
     def compilation = kotlin.jvm().compilations["main"]
     classpath =
-        compilation.output.allOutputs +
-        compilation.runtimeDependencyFiles
+            compilation.output.allOutputs +
+                    compilation.runtimeDependencyFiles
 }
 
-task runMouseClicks(type: JavaExec) {
+tasks.register('runSwingOffscreenRendering', JavaExec) {
     dependsOn(":compose:desktop:desktop:jar")
-    main = "androidx.compose.desktop.examples.mouseclicks.Main_jvmKt"
+    mainClass = "androidx.compose.desktop.examples.swingexample.Main_jvmKt"
     def compilation = kotlin.jvm().compilations["main"]
     classpath =
-        compilation.output.allOutputs +
-        compilation.runtimeDependencyFiles
+            compilation.output.allOutputs +
+                    compilation.runtimeDependencyFiles
+    jvmArgs("-Dcompose.swing.render.on.graphics=true")
 }
 
-task runVsync(type: JavaExec) {
+tasks.register('runMouseClicks', JavaExec) {
     dependsOn(":compose:desktop:desktop:jar")
-    main = "androidx.compose.desktop.examples.vsynctest.Main_jvmKt"
+    mainClass = "androidx.compose.desktop.examples.mouseclicks.Main_jvmKt"
+    def compilation = kotlin.jvm().compilations["main"]
+    classpath =
+            compilation.output.allOutputs +
+                    compilation.runtimeDependencyFiles
+}
+
+tasks.register('runVsync', JavaExec) {
+    dependsOn(":compose:desktop:desktop:jar")
+    mainClass = "androidx.compose.desktop.examples.vsynctest.Main_jvmKt"
     jvmArgs("-verbose:gc")
     def compilation = kotlin.jvm().compilations["main"]
     classpath =
-        compilation.output.allOutputs +
-        compilation.runtimeDependencyFiles
+            compilation.output.allOutputs +
+                    compilation.runtimeDependencyFiles
 }
 
-task runWindowApi(type: JavaExec) {
+tasks.register('runWindowApi', JavaExec) {
     dependsOn(":compose:desktop:desktop:jar")
-    main = "androidx.compose.desktop.examples.windowapi.Main_jvmKt"
-    def compilation = kotlin.jvm().compilations["main"]
-    systemProperty("skiko.rendering.laf.global", "true")
-    systemProperty("skiko.rendering.useScreenMenuBar", "true")
-    classpath =
-        compilation.output.allOutputs +
-        compilation.runtimeDependencyFiles
-}
-
-task runLayout(type: JavaExec) {
-    dependsOn(":compose:desktop:desktop:jar")
-    main = "androidx.compose.desktop.examples.layout.Main_jvmKt"
+    mainClass = "androidx.compose.desktop.examples.windowapi.Main_jvmKt"
     def compilation = kotlin.jvm().compilations["main"]
     systemProperty("skiko.rendering.laf.global", "true")
     systemProperty("skiko.rendering.useScreenMenuBar", "true")
@@ -131,16 +130,37 @@ task runLayout(type: JavaExec) {
                     compilation.runtimeDependencyFiles
 }
 
-task runFocusTest(type: JavaExec) {
+tasks.register('runLayout', JavaExec) {
     dependsOn(":compose:desktop:desktop:jar")
-    main = "androidx.compose.desktop.examples.focustest.Main_jvmKt"
+    mainClass = "androidx.compose.desktop.examples.layout.Main_jvmKt"
     def compilation = kotlin.jvm().compilations["main"]
+    systemProperty("skiko.rendering.laf.global", "true")
+    systemProperty("skiko.rendering.useScreenMenuBar", "true")
     classpath =
-        compilation.output.allOutputs +
-        compilation.runtimeDependencyFiles
+            compilation.output.allOutputs +
+                    compilation.runtimeDependencyFiles
 }
 
-task run {
+tasks.register('runFocusTest', JavaExec) {
+    dependsOn(":compose:desktop:desktop:jar")
+    mainClass = "androidx.compose.desktop.examples.focustest.Main_jvmKt"
+    def compilation = kotlin.jvm().compilations["main"]
+    classpath =
+            compilation.output.allOutputs +
+                    compilation.runtimeDependencyFiles
+}
+
+tasks.register('runFont', JavaExec) {
+    dependsOn(":compose:desktop:desktop:jar")
+    mainClass = "androidx.compose.desktop.examples.fonts.Fonts_jvmKt"
+    jvmArgs("--add-opens", "java.desktop/sun.font=ALL-UNNAMED")
+    def compilation = kotlin.jvm().compilations["main"]
+    classpath =
+            compilation.output.allOutputs +
+                    compilation.runtimeDependencyFiles
+}
+
+tasks.register('run') {
     dependsOn("run1")
 }
 

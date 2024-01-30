@@ -16,13 +16,14 @@
 
 package androidx.activity
 
+import android.view.View
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.testutils.withActivity
+import androidx.testutils.withUse
 import leakcanary.DetectLeaksAfterTestSuccess
 import org.junit.Rule
-import androidx.testutils.withUse
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -42,6 +43,21 @@ class ComponentActivityReportFullyDrawnTest {
                 // (regardless or permissions).
                 reportFullyDrawn()
             }
+        }
+    }
+
+    @Test
+    fun testReportFullyDrawnRecreate() {
+        val activity = ActivityScenario.launch(ReportFullyDrawnActivity::class.java)
+        activity.withActivity {
+            setContentView(
+                View(this)
+            )
+        }
+        activity.recreate().withActivity {
+            setContentView(
+                View(this)
+            )
         }
     }
 }

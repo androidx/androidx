@@ -2,6 +2,7 @@
 package androidx.camera.view {
 
   @RequiresApi(21) public abstract class CameraController {
+    method @MainThread public void clearEffects();
     method @MainThread public void clearImageAnalysisAnalyzer();
     method @MainThread public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> enableTorch(boolean);
     method @MainThread public androidx.camera.core.CameraControl? getCameraControl();
@@ -26,7 +27,7 @@ package androidx.camera.view {
     method @MainThread public boolean isPinchToZoomEnabled();
     method @MainThread public boolean isTapToFocusEnabled();
     method @MainThread public void setCameraSelector(androidx.camera.core.CameraSelector);
-    method @MainThread public void setEffects(java.util.Set<androidx.camera.core.CameraEffect!>?);
+    method @MainThread public void setEffects(java.util.Set<androidx.camera.core.CameraEffect!>);
     method @MainThread public void setEnabledUseCases(int);
     method @MainThread public void setImageAnalysisAnalyzer(java.util.concurrent.Executor, androidx.camera.core.ImageAnalysis.Analyzer);
     method @MainThread public void setImageAnalysisBackgroundExecutor(java.util.concurrent.Executor?);

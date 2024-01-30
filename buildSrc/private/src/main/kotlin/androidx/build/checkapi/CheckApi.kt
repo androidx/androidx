@@ -17,11 +17,14 @@
 package androidx.build.checkapi
 
 import androidx.build.Version
-import androidx.build.checkapi.ApiLocation.Companion.isResourceApiFile
+import androidx.build.checkapi.ApiLocation.Companion.isResourceApiFilename
 import androidx.build.version
+import java.io.File
+import java.nio.file.Files
+import java.nio.file.Path
+import kotlin.io.path.name
 import org.gradle.api.GradleException
 import org.gradle.api.Project
-import java.io.File
 
 enum class ApiType {
     CLASSAPI,
@@ -88,28 +91,30 @@ fun isValidArtifactVersion(version: Version): Boolean {
  */
 fun getRequiredCompatibilityApiFileFromDir(
     apiDir: File,
-    version: Version,
+    apiVersion: Version,
     apiType: ApiType
 ): File? {
-    var lastFile: File? = null
-    var lastVersion: Version? = null
-    apiDir.listFiles()
-        ?.filter { file ->
-            (apiType == ApiType.RESOURCEAPI && isResourceApiFile(file)) ||
-                (apiType == ApiType.CLASSAPI && !isResourceApiFile(file))
-        }
-        ?.forEach { file ->
-            val parsed = Version.parseOrNull(file)
-            parsed?.let { otherVersion ->
-                if ((lastFile == null || lastVersion!! < otherVersion) &&
-                    (otherVersion < version) &&
-                    (otherVersion.isFinalApi()) &&
-                    (otherVersion.major == version.major)
-                ) {
-                    lastFile = file
-                    lastVersion = otherVersion
-                }
+    var highestPath: Path? = null
+    var highestVersion: Version? = null
+
+    // Find the path with highest version that is lower than the current API version.
+    Files.newDirectoryStream(apiDir.toPath()).forEach { path ->
+        val pathName = path.name
+        if ((apiType == ApiType.RESOURCEAPI && isResourceApiFilename(pathName)) ||
+            (apiType == ApiType.CLASSAPI && !isResourceApiFilename(pathName))
+        ) {
+            val pathVersion = Version.parseFilenameOrNull(pathName)
+            if (pathVersion != null &&
+                (highestVersion == null || pathVersion > highestVersion!!) &&
+                pathVersion < apiVersion &&
+                pathVersion.isFinalApi() &&
+                pathVersion.major == apiVersion.major
+            ) {
+                highestPath = path
+                highestVersion = pathVersion
             }
         }
-    return lastFile
+    }
+
+    return highestPath?.toFile()
 }

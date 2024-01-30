@@ -32,8 +32,6 @@ import androidx.annotation.RestrictTo
  * of your [WatchFaceService.Engine.onCreate] override.
  *
  * <p>To construct a WatchFaceStyle use [WatchFaceStyle.Builder].
- *
- * @hide
  */
 @SuppressWarnings("BanParcelableUsage")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

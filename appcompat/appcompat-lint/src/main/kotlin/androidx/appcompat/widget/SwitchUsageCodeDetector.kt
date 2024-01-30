@@ -33,7 +33,7 @@ import org.jetbrains.uast.UVariable
 class SwitchUsageCodeDetector : Detector(), Detector.UastScanner {
     companion object {
         private const val USING_CORE_SWITCH_DESCRIPTION =
-            "Use `SwitchCompat` from AppCompat or `SwitchMaterial` from Material library"
+            "Use `SwitchCompat` from AppCompat or `MaterialSwitch` from Material library"
 
         internal val USING_CORE_SWITCH_CODE: Issue = Issue.create(
             "UseSwitchCompatOrMaterialCode",

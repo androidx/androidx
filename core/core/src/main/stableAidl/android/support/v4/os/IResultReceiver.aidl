@@ -18,7 +18,7 @@ package android.support.v4.os;
 
 import android.os.Bundle;
 
-/** @hide */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 oneway interface IResultReceiver {
     void send(int resultCode, in Bundle resultData);
 }

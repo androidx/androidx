@@ -16,12 +16,12 @@
 
 import androidx.build.AndroidXComposePlugin
 import androidx.build.LibraryType
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
     id("AndroidXComposePlugin")
     id("com.android.library")
+    id("kotlinx-atomicfu")
 }
 
 AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project)
@@ -64,22 +64,24 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
         android()
         desktop()
         js()
+        wasm()
         darwin()
     }
 
     kotlin {
         // Not all modules can have these targets, so declare them here instead of androidXComposeMultiplatform.
         // We can support the kotlin-native targets supported by kotlin coroutines:
-        // https://github.com/Kotlin/kotlinx.coroutines/blob/master/gradle/compile-native-multiplatform.gradle
+        // https://github.com/Kotlin/kotlinx.coroutines/blob/master/buildSrc/src/main/kotlin/kotlin-multiplatform-conventions.gradle.kts
+        // NOTE: Keep this list in sync with runtime-saveable's targets.
         watchosArm64()
         watchosArm32()
-        watchosX86()
         watchosX64()
         watchosSimulatorArm64()
         tvosArm64()
         tvosX64()
         tvosSimulatorArm64()
         mingwX64()
+        linuxArm64()
         linuxX64()
 
         targets.js {
@@ -93,10 +95,10 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
             browser() {
                 testTask {
                     testLogging.showStandardStreams = true
-                    useKarma {
-                        useChromeHeadless()
-                        useFirefox()
-                    }
+//                    useKarma {
+//                        useChromeHeadless()
+//                        useFirefox()
+//                    }
                 }
             }
         }
@@ -110,6 +112,7 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                 implementation(libs.kotlinStdlibCommon)
                 implementation(libs.kotlinCoroutinesCore)
                 implementation(libs.atomicFu)
+                implementation(project(":collection:collection"))
             }
             jvmMain.dependencies {
                 implementation(libs.kotlinStdlib)
@@ -138,16 +141,47 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                 }
             }
 
+            jbMain.dependsOn(commonMain)
+            jbTest.dependsOn(commonTest)
+
             jsMain {
                 dependencies {
                     implementation(libs.kotlinStdlibJs)
                 }
             }
 
-            jsNativeMain.dependsOn(commonMain)
-            jsMain.dependsOn(jsNativeMain)
-            nativeMain.dependsOn(jsNativeMain)
+            jsNativeMain.dependsOn(jbMain)
+            jsWasmMain.dependsOn(jsNativeMain)
+            jsMain.dependsOn(jsWasmMain)
+            desktopMain.dependsOn(jbMain)
 
+            desktopTest.dependsOn(jbTest)
+            jsTest.dependsOn(jbTest)
+            nativeTest.dependsOn(jbTest)
+
+            if (project.kotlinWasmEnabled.toBoolean()) {
+                wasmJsMain.dependsOn(jsWasmMain)
+                wasmJsTest.dependsOn(jbTest)
+            }
+
+            nativeMain {
+                dependsOn(jsNativeMain)
+                dependencies {
+                    implementation(libs.atomicFu)
+                }
+            }
+
+            jbMain {
+                dependsOn(commonMain)
+                dependencies {
+                    implementation(libs.atomicFu)
+                }
+            }
+            desktopMain.dependsOn(jbMain)
+            jsNativeMain.dependsOn(jbMain)
+
+            linuxArm64Main.dependsOn(nativeMain)
+            linuxArm64Test.dependsOn(nativeTest)
             linuxX64Main.dependsOn(nativeMain)
             linuxX64Test.dependsOn(nativeTest)
             mingwX64Main.dependsOn(nativeMain)
@@ -165,8 +199,6 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
             watchosArm64Test.dependsOn(watchOsTest)
             watchosArm32Main.dependsOn(watchOsMain)
             watchosArm32Test.dependsOn(watchOsTest)
-            watchosX86Main.dependsOn(watchOsMain)
-            watchosX86Test.dependsOn(watchOsTest)
             watchosX64Main.dependsOn(watchOsMain)
             watchosX64Test.dependsOn(watchOsTest)
             watchosSimulatorArm64Main.dependsOn(watchOsMain)
@@ -184,16 +216,44 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
             tvosSimulatorArm64Main.dependsOn(tvOsMain)
             tvosSimulatorArm64Test.dependsOn(tvOsTest)
 
-            jvmTest.dependencies {
-                implementation(libs.kotlinTestJunit)
-                implementation(libs.kotlinCoroutinesTest)
+            nonEmulatorCommonTest {
+                dependsOn(commonTest)
+                dependencies {
+                }
+            }
+            nonEmulatorJvmTest {
+                dependsOn(nonEmulatorCommonTest)
+                dependencies {
+                }
+            }
+
+
+            jvmTest {
+                dependsOn(nonEmulatorJvmTest)
+                dependencies {
+                    implementation(libs.kotlinTestJunit)
+                    implementation(libs.kotlinCoroutinesTest)
+                    implementation(libs.kotlinReflect)
+                }
+            }
+
+            desktopTest {
+                dependsOn(jvmTest)
             }
             jsTest {
+                dependsOn(nonEmulatorCommonTest)
                 dependencies {
                     implementation(libs.kotlinTestJs)
                 }
             }
+            wasmJsTest {
+                dependsOn(nonEmulatorCommonTest)
+                dependencies {
+                    implementation(libs.create("kotlinTestWasm"))
+                }
+            }
             nativeTest {
+                dependsOn(nonEmulatorCommonTest)
                 kotlin.srcDir("src/nativeTest/kotlin")
             }
         }
@@ -216,11 +276,4 @@ androidx {
     inceptionYear = "2019"
     description = "Tree composition support for code generated by the Compose compiler plugin and corresponding public API"
     legacyDisableKotlinStrictApiMode = true
-}
-
-// Workaround for older Node JS not available for macOS M1 machines.
-afterEvaluate {
-    rootProject.plugins.withType(org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsRootPlugin) {
-        rootProject.extensions.getByType(org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsRootExtension).nodeVersion = "16.0.0"
-    }
 }

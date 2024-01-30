@@ -18,7 +18,7 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="error_action_finish" msgid="7621130025103996211">"App sluiten"</string>
-    <string name="error_action_update_host" msgid="4802951804749609593">"Checken op updates"</string>
+    <string name="error_action_update_host" msgid="4802951804749609593">"Controleren op updates"</string>
     <string name="error_action_retry" msgid="985347670495166517">"Opnieuw proberen"</string>
     <string name="error_message_client_side_error" msgid="3323186720368387787">"App-fout. Meld deze fout aan de app-ontwikkelaar."</string>
     <string name="error_message_host_error" msgid="5484419926049675696">"Systeemfout"</string>

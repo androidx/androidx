@@ -27,10 +27,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.node.RootForTest
 import androidx.compose.ui.platform.InfiniteAnimationPolicy
-import androidx.compose.ui.platform.ViewRootForTest
 import androidx.compose.ui.platform.WindowRecomposerPolicy
-import androidx.compose.ui.platform.textInputServiceFactory
-import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.test.junit4.ComposeIdlingResource
 import androidx.compose.ui.test.junit4.ComposeRootRegistry
 import androidx.compose.ui.test.junit4.EspressoLink
@@ -38,16 +35,14 @@ import androidx.compose.ui.test.junit4.IdlingResourceRegistry
 import androidx.compose.ui.test.junit4.IdlingStrategy
 import androidx.compose.ui.test.junit4.MainTestClockImpl
 import androidx.compose.ui.test.junit4.RobolectricIdlingStrategy
-import androidx.compose.ui.test.junit4.TextInputServiceForTests
 import androidx.compose.ui.test.junit4.UncaughtExceptionHandler
 import androidx.compose.ui.test.junit4.awaitComposeRoots
 import androidx.compose.ui.test.junit4.isOnUiThread
 import androidx.compose.ui.test.junit4.waitForComposeRoots
-import androidx.compose.ui.text.ExperimentalTextApi
-import androidx.compose.ui.text.input.TextInputForTests
 import androidx.compose.ui.unit.Density
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
+import kotlin.coroutines.ContinuationInterceptor
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlinx.coroutines.CancellationException
@@ -56,6 +51,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
@@ -245,7 +241,9 @@ abstract class AndroidComposeUiTestEnvironment<A : ComponentActivity>(
     private var idlingStrategy: IdlingStrategy = EspressoLink(idlingResourceRegistry)
 
     private val recomposer: Recomposer
-    private val testCoroutineDispatcher = UnconfinedTestDispatcher()
+    // We can only accept a TestDispatcher here because we need to access its scheduler.
+    private val testCoroutineDispatcher = effectContext[ContinuationInterceptor] as? TestDispatcher
+        ?: UnconfinedTestDispatcher()
     private val testCoroutineScope = TestScope(testCoroutineDispatcher)
     private val recomposerCoroutineScope: CoroutineScope
     private val coroutineExceptionHandler = UncaughtExceptionHandler()
@@ -326,9 +324,7 @@ abstract class AndroidComposeUiTestEnvironment<A : ComponentActivity>(
                     withTestCoroutines {
                         withWindowRecomposer {
                             withComposeIdlingResource {
-                                withTextInputService {
-                                    testReceiverScope.withDisposableContent(block)
-                                }
+                                testReceiverScope.withDisposableContent(block)
                             }
                         }
                     }
@@ -383,19 +379,6 @@ abstract class AndroidComposeUiTestEnvironment<A : ComponentActivity>(
             return block()
         } finally {
             test.unregisterIdlingResource(composeIdlingResource)
-        }
-    }
-
-    @OptIn(InternalComposeUiApi::class)
-    private fun <R> withTextInputService(block: () -> R): R {
-        val oldTextInputFactory = textInputServiceFactory
-        try {
-            textInputServiceFactory = {
-                TextInputServiceForTests(it)
-            }
-            return block()
-        } finally {
-            textInputServiceFactory = oldTextInputFactory
         }
     }
 
@@ -541,17 +524,6 @@ abstract class AndroidComposeUiTestEnvironment<A : ComponentActivity>(
     internal inner class AndroidTestOwner : TestOwner {
         override val mainClock: MainTestClock
             get() = mainClockImpl
-
-        @OptIn(ExperimentalTextApi::class)
-        override fun performTextInput(node: SemanticsNode, action: TextInputForTests.() -> Unit) {
-            val owner = node.root as ViewRootForTest
-
-            test.runOnIdle {
-                val textInput = owner.textInputForTests
-                    ?: error("No input session started. Missing a focus?")
-                action(textInput)
-            }
-        }
 
         override fun <T> runOnUiThread(action: () -> T): T {
             return androidx.compose.ui.test.junit4.runOnUiThread(action)

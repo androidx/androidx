@@ -22,17 +22,16 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.util.fastForEach
+import org.jetbrains.skia.ClipMode as SkClipMode
 import org.jetbrains.skia.CubicResampler
 import org.jetbrains.skia.FilterMipmap
 import org.jetbrains.skia.FilterMode
 import org.jetbrains.skia.Image
 import org.jetbrains.skia.Matrix44
 import org.jetbrains.skia.MipmapMode
-import org.jetbrains.skia.SamplingMode
-import org.jetbrains.skia.ClipMode as SkClipMode
 import org.jetbrains.skia.RRect as SkRRect
 import org.jetbrains.skia.Rect as SkRect
-// Using skiko use as it has versions for all mpp platforms
+import org.jetbrains.skia.SamplingMode
 import org.jetbrains.skia.impl.use
 
 actual typealias NativeCanvas = org.jetbrains.skia.Canvas
@@ -52,9 +51,12 @@ fun org.jetbrains.skia.Canvas.asComposeCanvas(): Canvas = SkiaBackedCanvas(this)
 
 actual val Canvas.nativeCanvas: NativeCanvas get() = (this as SkiaBackedCanvas).skia
 
-class SkiaBackedCanvas(val skia: org.jetbrains.skia.Canvas) : Canvas {
+var Canvas.alphaMultiplier: Float
+    get() = (this as SkiaBackedCanvas).alphaMultiplier
+    set(value) { (this as SkiaBackedCanvas).alphaMultiplier = value }
 
-    var alphaMultiplier: Float = 1.0f
+internal class SkiaBackedCanvas(val skia: org.jetbrains.skia.Canvas) : Canvas {
+    internal var alphaMultiplier: Float = 1.0f
 
     private val Paint.skia get() = (this as SkiaBackedPaint).apply {
         this.alphaMultiplier = this@SkiaBackedCanvas.alphaMultiplier

@@ -59,7 +59,7 @@ class RemoteWorker(private val context: Context, private val parameters: WorkerP
             val scope = CoroutineScope(Dispatchers.Default)
             job = scope.launch {
                 for (i in 1..10) {
-                    delay(1000)
+                    delay(10000)
                     progress = workDataOf(Progress to i * 10)
                     setForegroundAsync(getForegroundInfo(NotificationId))
                     setProgressAsync(progress).await()
@@ -75,6 +75,7 @@ class RemoteWorker(private val context: Context, private val parameters: WorkerP
     }
 
     override fun onStopped() {
+        super.onStopped()
         job?.cancel()
     }
 

@@ -28,7 +28,6 @@ import androidx.emoji.text.EmojiCompat;
 /**
  * KeyListener class to handle delete operations correctly.
  *
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 @RequiresApi(19)

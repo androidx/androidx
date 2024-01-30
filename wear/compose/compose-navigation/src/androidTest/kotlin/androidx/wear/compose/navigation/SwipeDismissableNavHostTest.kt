@@ -25,8 +25,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
@@ -98,6 +98,21 @@ class SwipeDismissableNavHostTest {
 
         // Should now display "start".
         rule.onNodeWithText(START).assertExists()
+    }
+
+    @Test
+    fun does_not_navigate_back_to_previous_level_when_swipe_disabled() {
+        rule.setContentWithTheme {
+            SwipeDismissWithNavigation(userSwipeEnabled = false)
+        }
+
+        // Click to move to next destination then swipe to dismiss.
+        rule.onNodeWithText(START).performClick()
+        rule.onNodeWithTag(TEST_TAG).performTouchInput { swipeRight() }
+
+        // Should still display "next".
+        rule.onNodeWithText(NEXT).assertExists()
+        rule.onNodeWithText(START).assertDoesNotExist()
     }
 
     @Test
@@ -423,12 +438,14 @@ class SwipeDismissableNavHostTest {
 
     @Composable
     fun SwipeDismissWithNavigation(
-        navController: NavHostController = rememberSwipeDismissableNavController()
+        navController: NavHostController = rememberSwipeDismissableNavController(),
+        userSwipeEnabled: Boolean = true
     ) {
         SwipeDismissableNavHost(
             navController = navController,
             startDestination = START,
             modifier = Modifier.testTag(TEST_TAG),
+            userSwipeEnabled = userSwipeEnabled
         ) {
             composable(START) {
                 CompactChip(

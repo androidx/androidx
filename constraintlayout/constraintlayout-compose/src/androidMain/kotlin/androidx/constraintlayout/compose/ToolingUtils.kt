@@ -20,6 +20,7 @@ import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.semantics.SemanticsPropertyKey
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
+import androidx.compose.ui.util.fastForEach
 import androidx.constraintlayout.core.state.State.PARENT
 import androidx.constraintlayout.core.widgets.ConstraintWidget
 import androidx.constraintlayout.core.widgets.ConstraintWidgetContainer
@@ -76,7 +77,7 @@ internal fun parseConstraintsToJson(
         withConstraints = it shr CONSTRAINTS == 1
     }
 
-    root.children.forEach { constraintWidget ->
+    root.children.fastForEach { constraintWidget ->
         val constraintsInfoArray = JSONArray()
         val helperReferences = mutableListOf<String>()
         val isHelper = constraintWidget is HelperWidget
@@ -86,7 +87,7 @@ internal fun parseConstraintsToJson(
             addReferencesIds(constraintWidget as HelperWidget, helperReferences, root, rootId)
         }
 
-        constraintWidget.anchors.forEach { anchor ->
+        constraintWidget.anchors.fastForEach { anchor ->
             if (anchor.isConnected) {
                 val targetWidget = anchor.target.owner
                 val targetIsParent = root == targetWidget
@@ -186,7 +187,7 @@ private fun JSONObject.putViewIdToBoundsAndConstraints(
     viewWithBoundsAndConstraints.put("isRoot", isRoot)
 
     val helperReferencesArray = JSONArray()
-    helperReferences.forEach(helperReferencesArray::put)
+    helperReferences.fastForEach(helperReferencesArray::put)
     viewWithBoundsAndConstraints.put("helperReferences", helperReferencesArray)
 
     if (withConstraints) {

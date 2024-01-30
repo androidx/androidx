@@ -41,6 +41,7 @@ import java.security.GeneralSecurityException;
 import java.security.KeyStore;
 
 @MediumTest
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.M)
 @RunWith(AndroidJUnit4.class)
 public class MasterKeyTest {
     private static final String PREFS_FILE = "test_shared_prefs";
@@ -100,7 +101,6 @@ public class MasterKeyTest {
         assertKeyExists(masterKey.getKeyAlias());
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.M)
     @Test
     public void testCreateKeyWithParamSpec() throws GeneralSecurityException, IOException {
         KeyGenParameterSpec spec = new KeyGenParameterSpec.Builder(
@@ -116,7 +116,6 @@ public class MasterKeyTest {
         assertKeyExists(masterKey.getKeyAlias());
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.M)
     @Test
     public void testCreateKeyWithParamSpecAndAlias() throws GeneralSecurityException,
             IOException {
@@ -133,7 +132,6 @@ public class MasterKeyTest {
         assertKeyExists(masterKey.getKeyAlias());
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.M)
     @Test
     public void testCreateKeyWithParamSpecWithDifferentAliasFails() throws GeneralSecurityException,
             IOException {
@@ -160,14 +158,11 @@ public class MasterKeyTest {
 
         KeyStore keyStore = KeyStore.getInstance("AndroidKeyStore");
         keyStore.load(null);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            Assert.assertTrue(masterKey.isKeyStoreBacked());
-            assertKeyExists(masterKey.getKeyAlias());
-        }
+        Assert.assertTrue(masterKey.isKeyStoreBacked());
+        assertKeyExists(masterKey.getKeyAlias());
     }
 
     @SuppressWarnings("deprecation")
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.M)
     @Test
     public void testUseOfSchemeAndParamsFails() throws GeneralSecurityException,
             IOException {
@@ -197,21 +192,13 @@ public class MasterKeyTest {
                 .build();
         Assert.assertFalse(masterKey.isUserAuthenticationRequired());
         Assert.assertFalse(masterKey.isStrongBoxBacked());
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            Assert.assertEquals(masterKey.getUserAuthenticationValidityDurationSeconds(), 0);
-        }
     }
 
     static void assertKeyExists(String keyAlias) {
         try {
             KeyStore keyStore = KeyStore.getInstance("AndroidKeyStore");
             keyStore.load(null);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                Assert.assertTrue(keyStore.isKeyEntry(keyAlias));
-            } else {
-                // Key shouldn't exist on Lollipop =o
-                Assert.assertFalse(keyStore.isKeyEntry(keyAlias));
-            }
+            Assert.assertTrue(keyStore.isKeyEntry(keyAlias));
         } catch (Exception e) {
             Assert.fail("Exception checking for key: " + keyAlias);
             throw new RuntimeException(e);

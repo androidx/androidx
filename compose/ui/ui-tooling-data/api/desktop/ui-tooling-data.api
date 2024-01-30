@@ -1,0 +1,113 @@
+public final class androidx/compose/ui/tooling/data/CallGroup : androidx/compose/ui/tooling/data/Group {
+	public static final field $stable I
+	public fun <init> (Ljava/lang/Object;Ljava/lang/String;Landroidx/compose/ui/unit/IntRect;Landroidx/compose/ui/tooling/data/SourceLocation;Ljava/lang/Object;Ljava/util/List;Ljava/util/Collection;Ljava/util/Collection;Z)V
+	public fun getParameters ()Ljava/util/List;
+}
+
+public final class androidx/compose/ui/tooling/data/ContextCache {
+	public static final field $stable I
+	public fun <init> ()V
+	public final fun clear ()V
+}
+
+public abstract class androidx/compose/ui/tooling/data/Group {
+	public static final field $stable I
+	public synthetic fun <init> (Ljava/lang/Object;Ljava/lang/String;Landroidx/compose/ui/tooling/data/SourceLocation;Ljava/lang/Object;Landroidx/compose/ui/unit/IntRect;Ljava/util/Collection;Ljava/util/Collection;ZLkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun getBox ()Landroidx/compose/ui/unit/IntRect;
+	public final fun getChildren ()Ljava/util/Collection;
+	public final fun getData ()Ljava/util/Collection;
+	public final fun getIdentity ()Ljava/lang/Object;
+	public final fun getKey ()Ljava/lang/Object;
+	public final fun getLocation ()Landroidx/compose/ui/tooling/data/SourceLocation;
+	public fun getModifierInfo ()Ljava/util/List;
+	public final fun getName ()Ljava/lang/String;
+	public fun getParameters ()Ljava/util/List;
+	public final fun isInline ()Z
+}
+
+public final class androidx/compose/ui/tooling/data/JoinedKey {
+	public static final field $stable I
+	public fun <init> (Ljava/lang/Object;Ljava/lang/Object;)V
+	public final fun component1 ()Ljava/lang/Object;
+	public final fun component2 ()Ljava/lang/Object;
+	public final fun copy (Ljava/lang/Object;Ljava/lang/Object;)Landroidx/compose/ui/tooling/data/JoinedKey;
+	public static synthetic fun copy$default (Landroidx/compose/ui/tooling/data/JoinedKey;Ljava/lang/Object;Ljava/lang/Object;ILjava/lang/Object;)Landroidx/compose/ui/tooling/data/JoinedKey;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getLeft ()Ljava/lang/Object;
+	public final fun getRight ()Ljava/lang/Object;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class androidx/compose/ui/tooling/data/NodeGroup : androidx/compose/ui/tooling/data/Group {
+	public static final field $stable I
+	public fun <init> (Ljava/lang/Object;Ljava/lang/Object;Landroidx/compose/ui/unit/IntRect;Ljava/util/Collection;Ljava/util/List;Ljava/util/Collection;)V
+	public fun getModifierInfo ()Ljava/util/List;
+	public final fun getNode ()Ljava/lang/Object;
+}
+
+public final class androidx/compose/ui/tooling/data/ParameterInformation {
+	public static final field $stable I
+	public fun <init> (Ljava/lang/String;Ljava/lang/Object;ZZZLjava/lang/String;Z)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/Object;
+	public final fun component3 ()Z
+	public final fun component4 ()Z
+	public final fun component5 ()Z
+	public final fun component6 ()Ljava/lang/String;
+	public final fun component7 ()Z
+	public final fun copy (Ljava/lang/String;Ljava/lang/Object;ZZZLjava/lang/String;Z)Landroidx/compose/ui/tooling/data/ParameterInformation;
+	public static synthetic fun copy$default (Landroidx/compose/ui/tooling/data/ParameterInformation;Ljava/lang/String;Ljava/lang/Object;ZZZLjava/lang/String;ZILjava/lang/Object;)Landroidx/compose/ui/tooling/data/ParameterInformation;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getCompared ()Z
+	public final fun getFromDefault ()Z
+	public final fun getInlineClass ()Ljava/lang/String;
+	public final fun getName ()Ljava/lang/String;
+	public final fun getStable ()Z
+	public final fun getStatic ()Z
+	public final fun getValue ()Ljava/lang/Object;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class androidx/compose/ui/tooling/data/SlotTreeKt {
+	public static final fun asTree (Landroidx/compose/runtime/tooling/CompositionData;)Landroidx/compose/ui/tooling/data/Group;
+	public static final fun findParameters (Landroidx/compose/runtime/tooling/CompositionGroup;Landroidx/compose/ui/tooling/data/ContextCache;)Ljava/util/List;
+	public static synthetic fun findParameters$default (Landroidx/compose/runtime/tooling/CompositionGroup;Landroidx/compose/ui/tooling/data/ContextCache;ILjava/lang/Object;)Ljava/util/List;
+	public static final fun getPosition (Landroidx/compose/ui/tooling/data/Group;)Ljava/lang/String;
+	public static final fun mapTree (Landroidx/compose/runtime/tooling/CompositionData;Lkotlin/jvm/functions/Function3;Landroidx/compose/ui/tooling/data/ContextCache;)Ljava/lang/Object;
+	public static synthetic fun mapTree$default (Landroidx/compose/runtime/tooling/CompositionData;Lkotlin/jvm/functions/Function3;Landroidx/compose/ui/tooling/data/ContextCache;ILjava/lang/Object;)Ljava/lang/Object;
+}
+
+public abstract interface class androidx/compose/ui/tooling/data/SourceContext {
+	public abstract fun getBounds ()Landroidx/compose/ui/unit/IntRect;
+	public abstract fun getDepth ()I
+	public abstract fun getLocation ()Landroidx/compose/ui/tooling/data/SourceLocation;
+	public abstract fun getName ()Ljava/lang/String;
+	public abstract fun getParameters ()Ljava/util/List;
+	public fun isInline ()Z
+}
+
+public final class androidx/compose/ui/tooling/data/SourceLocation {
+	public static final field $stable I
+	public fun <init> (IIILjava/lang/String;I)V
+	public final fun component1 ()I
+	public final fun component2 ()I
+	public final fun component3 ()I
+	public final fun component4 ()Ljava/lang/String;
+	public final fun component5 ()I
+	public final fun copy (IIILjava/lang/String;I)Landroidx/compose/ui/tooling/data/SourceLocation;
+	public static synthetic fun copy$default (Landroidx/compose/ui/tooling/data/SourceLocation;IIILjava/lang/String;IILjava/lang/Object;)Landroidx/compose/ui/tooling/data/SourceLocation;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getLength ()I
+	public final fun getLineNumber ()I
+	public final fun getOffset ()I
+	public final fun getPackageHash ()I
+	public final fun getSourceFile ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract interface annotation class androidx/compose/ui/tooling/data/UiToolingDataApi : java/lang/annotation/Annotation {
+}
+

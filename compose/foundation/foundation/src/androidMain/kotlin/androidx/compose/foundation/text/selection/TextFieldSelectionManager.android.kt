@@ -16,9 +16,9 @@
 
 package androidx.compose.foundation.text.selection
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.MagnifierStyle
+import androidx.compose.foundation.PlatformMagnifierFactory
+import androidx.compose.foundation.isPlatformMagnifierSupported
 import androidx.compose.foundation.magnifier
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -32,11 +32,10 @@ import androidx.compose.ui.unit.IntSize
 
 // We use composed{} to read a local, but don't provide inspector info because the underlying
 // magnifier modifier provides more meaningful inspector info.
-@SuppressLint("ModifierInspectorInfo")
 @OptIn(ExperimentalFoundationApi::class)
 internal actual fun Modifier.textFieldMagnifier(manager: TextFieldSelectionManager): Modifier {
     // Avoid tracking animation state on older Android versions that don't support magnifiers.
-    if (!MagnifierStyle.TextDefault.isSupported) {
+    if (!isPlatformMagnifierSupported()) {
         return this
     }
 
@@ -55,8 +54,8 @@ internal actual fun Modifier.textFieldMagnifier(manager: TextFieldSelectionManag
                             IntSize(size.width.roundToPx(), size.height.roundToPx())
                         }
                     },
-                    // TODO(b/202451044) Support fisheye magnifier for eloquent.
-                    style = MagnifierStyle.TextDefault
+                    useTextDefault = true,
+                    platformMagnifierFactory = PlatformMagnifierFactory.getForCurrentPlatform()
                 )
             }
         )

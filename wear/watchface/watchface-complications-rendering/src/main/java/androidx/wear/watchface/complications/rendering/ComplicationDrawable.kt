@@ -179,7 +179,7 @@ public class ComplicationDrawable : Drawable {
         private set
 
     /** Returns complication renderer. */
-    @VisibleForTesting(otherwise = VisibleForTesting.NONE)
+    @VisibleForTesting
     @get:JvmName("getComplicationRenderer")
     internal var complicationRenderer: ComplicationRenderer? = null
         private set

@@ -18,6 +18,7 @@
 <resources>
     <!-- Alternative leanback theme which is to be used when extending AppCompatActivity -->
     <style name="Theme.AppCompat.LeanbackBase" parent="Theme.AppCompat.NoActionBar">
+        <item name="viewInflaterClass">androidx.leanback.widget.LeanbackAppCompatViewInflater</item>
         <item name="playbackProgressPrimaryColor">@color/lb_playback_progress_color_no_theme</item>
         <item name="playbackControlsIconHighlightColor">@color/lb_playback_icon_highlight_no_theme</item>
         <item name="defaultBrandColor">@color/lb_default_brand_color</item>

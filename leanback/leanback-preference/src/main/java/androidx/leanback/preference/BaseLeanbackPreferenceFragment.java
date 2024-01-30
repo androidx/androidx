@@ -50,7 +50,6 @@ public abstract class BaseLeanbackPreferenceFragment extends PreferenceFragment 
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override

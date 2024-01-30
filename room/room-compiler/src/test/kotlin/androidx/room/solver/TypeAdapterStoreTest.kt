@@ -17,11 +17,13 @@
 package androidx.room.solver
 
 import COMMON
+import androidx.kruth.assertThat
 import androidx.paging.DataSource
 import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.compiler.codegen.XCodeBlock
 import androidx.room.compiler.codegen.XTypeName
+import androidx.room.compiler.codegen.XTypeName.Companion.PRIMITIVE_INT
 import androidx.room.compiler.processing.XProcessingEnv
 import androidx.room.compiler.processing.XRawType
 import androidx.room.compiler.processing.isTypeElement
@@ -62,18 +64,19 @@ import androidx.room.solver.shortcut.binderprovider.RxCallableInsertMethodBinder
 import androidx.room.solver.shortcut.binderprovider.RxCallableUpsertMethodBinderProvider
 import androidx.room.solver.types.BoxedPrimitiveColumnTypeAdapter
 import androidx.room.solver.types.ByteBufferColumnTypeAdapter
+import androidx.room.solver.types.ColumnTypeAdapter
 import androidx.room.solver.types.CompositeAdapter
 import androidx.room.solver.types.CustomTypeConverterWrapper
 import androidx.room.solver.types.EnumColumnTypeAdapter
 import androidx.room.solver.types.PrimitiveColumnTypeAdapter
 import androidx.room.solver.types.SingleStatementTypeConverter
+import androidx.room.solver.types.StringColumnTypeAdapter
 import androidx.room.solver.types.TypeConverter
 import androidx.room.solver.types.UuidColumnTypeAdapter
+import androidx.room.solver.types.ValueClassConverterWrapper
 import androidx.room.testing.context
 import androidx.room.vo.BuiltInConverterFlags
 import androidx.room.vo.ReadQueryMethod
-import com.google.common.truth.Truth.assertThat
-import java.util.UUID
 import org.hamcrest.CoreMatchers.instanceOf
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.notNullValue
@@ -221,6 +224,99 @@ class TypeAdapterStoreTest {
     }
 
     @Test
+    fun testKotlinLangValueClassCompilesWithoutError() {
+        val source = Source.kotlin(
+            "Foo.kt",
+            """
+            import androidx.room.*
+            @JvmInline
+            value class IntValueClass(val data: Int)
+            @JvmInline
+            value class StringValueClass(val data: String)
+            class EntityWithValueClass {
+                val intData = IntValueClass(123)
+                val stringData = StringValueClass("bla")
+            }
+            """.trimIndent()
+        )
+        var results: Map<String, String?> = mutableMapOf()
+
+        runProcessorTest(
+            sources = listOf(source)
+        ) { invocation ->
+            val typeAdapterStore = TypeAdapterStore.create(
+                context = invocation.context,
+                builtInConverterFlags = BuiltInConverterFlags.DEFAULT
+            )
+            val subject = invocation.processingEnv.requireTypeElement("EntityWithValueClass")
+            results = subject.getAllFieldsIncludingPrivateSupers().associate { field ->
+                val columnAdapter = typeAdapterStore.findColumnTypeAdapter(
+                    out = field.type,
+                    affinity = null,
+                    false
+                )
+
+                val typeElementColumnAdapter: ColumnTypeAdapter? =
+                    if (columnAdapter is ValueClassConverterWrapper) {
+                        columnAdapter.valueTypeColumnAdapter
+                    } else {
+                        columnAdapter
+                    }
+
+                when (typeElementColumnAdapter) {
+                    is PrimitiveColumnTypeAdapter -> {
+                        field.name to "primitive"
+                    }
+
+                    is StringColumnTypeAdapter -> {
+                        field.name to "string"
+                    }
+
+                    else -> {
+                        field.name to null
+                    }
+                }
+            }
+        }
+        assertThat(results).containsExactlyEntriesIn(
+            mapOf(
+                "intData" to "primitive",
+                "stringData" to "string"
+            )
+        )
+    }
+
+    @Test
+    fun testValueClassWithDifferentTypeVal() {
+        val source = Source.kotlin(
+            "Foo.kt",
+            """
+            import androidx.room.*
+            @JvmInline
+            value class Foo(val value : Int) {
+                val double
+                    get() = value * 2
+            }
+            """.trimIndent()
+        )
+
+        runProcessorTest(
+            sources = listOf(source)
+        ) { invocation ->
+            TypeAdapterStore.create(
+                context = invocation.context,
+                builtInConverterFlags = BuiltInConverterFlags.DEFAULT
+            )
+            val typeElement = invocation
+                .processingEnv
+                .requireTypeElement("Foo")
+            assertThat(typeElement.getDeclaredFields()).hasSize(1)
+            assertThat(typeElement.getDeclaredFields().single().type.asTypeName())
+                .isEqualTo(PRIMITIVE_INT)
+        }
+    }
+
+    @Test
     fun testJavaLangByteBufferCompilesWithoutError() {
         runProcessorTest { invocation ->
             val store = TypeAdapterStore.create(
@@ -255,7 +351,7 @@ class TypeAdapterStoreTest {
             )
 
             assertThat(adapter).isNotNull()
-            assertThat(adapter).isInstanceOf(UuidColumnTypeAdapter::class.java)
+            assertThat(adapter).isInstanceOf<UuidColumnTypeAdapter>()
         }
     }
 
@@ -1460,7 +1556,7 @@ class TypeAdapterStoreTest {
                     isMultipleParameter = true
                 )
                 assertThat(adapter).isNotNull()
-                assertThat(adapter).isInstanceOf(CollectionQueryParameterAdapter::class.java)
+                assertThat(adapter).isInstanceOf<CollectionQueryParameterAdapter>()
             }
         }
     }

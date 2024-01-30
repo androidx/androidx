@@ -264,6 +264,7 @@
     <string name="tab_title_list" msgid="5104962518489668123">"ලැයිස්තු පටිත්ත"</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"දිගු පටිති මාතෘකාව සහිත ජාල පටිත්ත"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"සෙවීම් පටිත්ත"</string>
+    <string name="tab_title_loading" msgid="5385807479734490989">"පටිත්ත පූරණය වේ"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"පටිති අච්චු පූරණය වීමේ ආදර්ශනය"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"පටිති අච්චු පටිති නැති ආදර්ශනය"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"නොදන්නා සංග්‍රාහකයෙක් සඳහා රූප සංදර්ශනය කළ නොහැකිය"</string>
@@ -298,7 +299,7 @@
     <string name="some_additional_text" msgid="4009872495806318260">"සමහර අතිරේක පෙළ"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"නියැදි තේරිය හැකි ලැයිස්තුව"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"කාර්ය සීමා කිරීම් ආදර්ශනය"</string>
-    <string name="task_limit_reached_msg" msgid="6038763366777119364">"කාර්ය සීමාව ළඟා විය\nඉදිරියට යාම යෙදුම බලෙන් නවත්වනු ඇත"</string>
+    <string name="task_limit_reached_msg" msgid="7162842196382260992">"මෙය පියවර ගණන පිරී ඉතිරී යනු ඇති අතර, ඔබව නව තිරයකට ගෙන යනු ඇත."</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"%2$d කින් %1$dවන කාර්ය පියවර"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"ඉදිරියට යාමට ක්ලික් කරන්න"</string>
     <string name="task_content_allowed" msgid="545061986612431190">"විවිධ අච්චු වෙත පැමිණ මෝටර් රථය ධාවන ප්‍රකාරයේ ඇති බව තහවුරු කර ගන්න"</string>
@@ -323,6 +324,12 @@
     <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"පේළිය ද තෝරා ගත හැක"</string>
     <string name="secondary_action_toast" msgid="5076434693504006565">"ද්විතියික ක්‍රියාව තෝරා ඇත"</string>
     <string name="row_primary_action_toast" msgid="756516694751965204">"පේළියේ මූලික ක්‍රියාව තෝරා ඇත"</string>
+    <string name="sectioned_item_list_demo_title" msgid="1236735461225007729">"කොටස් කරන ලද අයිතම ලැයිස්තු ආදර්ශනය"</string>
+    <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"ලැයිස්තුව 1"</string>
+    <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"ලැයිස්තුව 2"</string>
+    <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"එක් එක් ලැයිස්තුව යටතේ උප පෙළ"</string>
+    <string name="empty_list_demo_title" msgid="5989013634820902455">"හිස් ලැයිස්තු ආදර්ශනය"</string>
+    <string name="empty_list_message" msgid="5331395517560728138">"ලැයිස්තුව හිස් ය"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"විවිධ අච්චු ආදර්ශන"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"ප්‍රකාශක තේරූ ආදර්ශන"</string>
     <string name="template_layouts_demo_title" msgid="788249269446087847">"අච්චු පිරිසැලසුම් ආදර්ශන"</string>

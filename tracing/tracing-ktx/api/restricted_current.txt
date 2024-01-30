@@ -2,10 +2,10 @@
 package androidx.tracing {
 
   public final class TraceKt {
-    method public static inline <T> T! trace(String label, kotlin.jvm.functions.Function0<? extends T> block);
-    method public static inline <T> T! trace(kotlin.jvm.functions.Function0<java.lang.String> lazyLabel, kotlin.jvm.functions.Function0<? extends T> block);
+    method public static inline <T> T trace(String label, kotlin.jvm.functions.Function0<? extends T> block);
+    method public static inline <T> T trace(kotlin.jvm.functions.Function0<java.lang.String> lazyLabel, kotlin.jvm.functions.Function0<? extends T> block);
     method public static suspend inline <T> Object? traceAsync(String methodName, int cookie, kotlin.jvm.functions.Function1<? super kotlin.coroutines.Continuation<? super T>,?> block, kotlin.coroutines.Continuation<? super T>);
-    method public static inline <T> T! traceAsync(kotlin.jvm.functions.Function0<java.lang.String> lazyMethodName, kotlin.jvm.functions.Function0<java.lang.Integer> lazyCookie, kotlin.jvm.functions.Function0<? extends T> block);
+    method public static inline <T> T traceAsync(kotlin.jvm.functions.Function0<java.lang.String> lazyMethodName, kotlin.jvm.functions.Function0<java.lang.Integer> lazyCookie, kotlin.jvm.functions.Function0<? extends T> block);
   }
 
 }

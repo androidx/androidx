@@ -34,13 +34,14 @@ dependencies {
 }
 
 androidx {
-    name = "AndroidX Inspection"
+    name = "Inspection"
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2019"
     description = "Experimental AndroidX Inspection Project"
     runApiTasks =  new RunApiTasks.Yes(
             "Interfaces provided in this artifact should be binary compatible to guarantee " +
                     "that old inspectors are compatible with newer Android Studio versions")
+    metalavaK2UastEnabled = true
 }
 
 android {

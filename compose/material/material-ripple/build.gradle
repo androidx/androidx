@@ -59,6 +59,7 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
         desktop()
         darwin()
         js()
+        wasm()
     }
 
     kotlin {
@@ -95,6 +96,20 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                 implementation(libs.junit)
                 implementation(libs.truth)
             }
+
+            jsWasmMain {
+                dependsOn(commonMain)
+            }
+
+            jsMain {
+                dependsOn(jsWasmMain)
+            }
+
+            if (project.kotlinWasmEnabled.toBoolean()) {
+                wasmJsMain {
+                    dependsOn(jsWasmMain)
+                }
+            }
         }
     }
 }
@@ -112,4 +127,10 @@ androidx {
 
 android {
     namespace "androidx.compose.material.ripple"
+}
+
+project.tasks.configureEach {
+    if (name == "compileJsWasmMainKotlinMetadata") {
+        enabled = false
+    }
 }

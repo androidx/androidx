@@ -18,7 +18,6 @@ package androidx.camera.camera2.pipe.testing
 
 import android.content.Context
 import android.graphics.SurfaceTexture
-import android.hardware.camera2.CaptureFailure
 import android.hardware.camera2.CaptureResult
 import android.view.Surface
 import androidx.annotation.RequiresApi
@@ -34,6 +33,7 @@ import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.GraphState.GraphStateError
 import androidx.camera.camera2.pipe.Metadata
 import androidx.camera.camera2.pipe.Request
+import androidx.camera.camera2.pipe.RequestFailure
 import androidx.camera.camera2.pipe.StreamId
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -283,9 +283,9 @@ class CameraGraphSimulator private constructor(
             }
         }
 
-        fun simulateFailure(captureFailure: CaptureFailure) {
+        fun simulateFailure(requestFailure: RequestFailure) {
             requestSequence.invokeOnRequest(requestMetadata) {
-                it.onFailed(requestMetadata, frameNumber, captureFailure)
+                it.onFailed(requestMetadata, frameNumber, requestFailure)
             }
         }
 

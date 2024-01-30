@@ -27,9 +27,9 @@ import org.junit.runner.RunWith
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
-@SdkSuppress(minSdkVersion = 33)
 class DeletionRequestTest {
     @Test
+    @SdkSuppress(minSdkVersion = 26) // For Instant#MIN and Instant#MAX reference
     fun testToString() {
         val now = Instant.now()
         val result = "DeletionRequest { DeletionMode=DELETION_MODE_ALL, " +
@@ -48,6 +48,7 @@ class DeletionRequestTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 26) // For Instant#MIN and Instant#MAX reference
     fun testEquals() {
         val deletionRequest1 = DeletionRequest(
             DeletionRequest.DELETION_MODE_ALL,

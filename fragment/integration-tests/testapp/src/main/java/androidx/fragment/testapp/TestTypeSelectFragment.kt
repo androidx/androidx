@@ -28,25 +28,25 @@ class TestTypeSelectFragment : Fragment(R.layout.test_type_select) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        addButton("Fragment Animation Test", AnimationTestsFragment())
+        addButton("Fragment Animator Test", AnimatorTestsFragment())
         addButton("Fragment Transition Test", TransitionTestsFragment())
     }
+}
 
-    private fun Fragment.addButton(text: String, fragment: Fragment) {
-        (requireView() as LinearLayout).addView(
-            Button(context).apply {
-                this.text = text
+internal fun Fragment.addButton(text: String, fragment: Fragment) {
+    (requireView() as LinearLayout).addView(
+        Button(context).apply {
+            this.text = text
 
-                setOnClickListener {
-                    parentFragmentManager.commit {
-                        replace(R.id.fragment_container, fragment)
-                        addToBackStack(null)
-                    }
-                }
-                layoutParams = LinearLayout.LayoutParams(-1, 0).apply {
-                    weight = 1f
+            setOnClickListener {
+                parentFragmentManager.commit {
+                    replace(R.id.fragment_container, fragment)
+                    addToBackStack(null)
                 }
             }
-        )
-    }
+            layoutParams = LinearLayout.LayoutParams(-1, 0).apply {
+                weight = 1f
+            }
+        }
+    )
 }

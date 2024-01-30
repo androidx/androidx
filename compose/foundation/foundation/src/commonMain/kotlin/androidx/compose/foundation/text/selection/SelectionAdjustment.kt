@@ -19,7 +19,6 @@ package androidx.compose.foundation.text.selection
 import androidx.compose.foundation.text.findFollowingBreak
 import androidx.compose.foundation.text.findPrecedingBreak
 import androidx.compose.foundation.text.getParagraphBoundary
-import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextRange
 
 /**
@@ -28,77 +27,34 @@ import androidx.compose.ui.text.TextRange
  * without adjustments. With a mouse, double-click selects by words and triple-clicks by paragraph.
  * @see [SelectionRegistrar.notifySelectionUpdate]
  */
-internal interface SelectionAdjustment {
+internal fun interface SelectionAdjustment {
 
     /**
      * The callback function that is called once a new selection arrives, the return value of
-     * this function will be the final selection range on the corresponding [Selectable].
-     *
-     * @param textLayoutResult the [TextLayoutResult] of the involved [Selectable].
-     * @param newRawSelectionRange the new selection range computed from the selection handle
-     * position on screen.
-     * @param previousHandleOffset the previous offset of the moving handle. When isStartHandle is
-     * true, it's the previous offset of the start handle before the movement, and vice versa.
-     * When there isn't a valid previousHandleOffset, previousHandleOffset should be -1.
-     * @param isStartHandle whether the moving handle is the start handle.
-     * @param previousSelectionRange the previous selection range, or the selection range to be
-     * updated.
+     * this function will be the final adjusted [Selection].
      */
-    fun adjust(
-        textLayoutResult: TextLayoutResult,
-        newRawSelectionRange: TextRange,
-        previousHandleOffset: Int,
-        isStartHandle: Boolean,
-        previousSelectionRange: TextRange?
-    ): TextRange
+    fun adjust(layout: SelectionLayout): Selection
 
     companion object {
         /**
          * The selection adjustment that does nothing and directly return the input raw
          * selection range.
          */
-        val None = object : SelectionAdjustment {
-            override fun adjust(
-                textLayoutResult: TextLayoutResult,
-                newRawSelectionRange: TextRange,
-                previousHandleOffset: Int,
-                isStartHandle: Boolean,
-                previousSelectionRange: TextRange?
-            ): TextRange = newRawSelectionRange
+        val None = SelectionAdjustment { layout ->
+            Selection(
+                start = layout.startInfo.anchorForOffset(layout.startInfo.rawStartHandleOffset),
+                end = layout.endInfo.anchorForOffset(layout.endInfo.rawEndHandleOffset),
+                handlesCrossed = layout.crossStatus == CrossStatus.CROSSED
+            )
         }
 
         /**
          * The character based selection. It normally won't change the raw selection range except
-         * when the input raw selection range is collapsed. In this case, it will always make
-         * sure at least one character is selected.
-         * When the given raw selection range is collapsed:
-         * a) it will always try to adjust the changing selection boundary(base on the value of
-         * isStartHandle) and makes sure the other boundary remains the same after the adjustment
-         * b) if the previous selection range is reversed, it will try to make the adjusted
-         * selection range reversed as well, and vice versa.
+         * when the input raw selection range is collapsed. In this case, it will almost
+         * always make sure at least one character is selected.
          */
-        val Character = object : SelectionAdjustment {
-            override fun adjust(
-                textLayoutResult: TextLayoutResult,
-                newRawSelectionRange: TextRange,
-                previousHandleOffset: Int,
-                isStartHandle: Boolean,
-                previousSelectionRange: TextRange?
-            ): TextRange {
-                return if (newRawSelectionRange.collapsed) {
-                    // If there isn't any selection before, we assume handles are not crossed.
-                    val previousHandlesCrossed = previousSelectionRange?.reversed ?: false
-                    ensureAtLeastOneChar(
-                        text = textLayoutResult.layoutInput.text.text,
-                        offset = newRawSelectionRange.start,
-                        lastOffset = textLayoutResult.layoutInput.text.lastIndex,
-                        isStartHandle = isStartHandle,
-                        previousHandlesCrossed = previousHandlesCrossed
-                    )
-                } else {
-                    newRawSelectionRange
-                }
-            }
+        val Character = SelectionAdjustment { layout ->
+            None.adjust(layout).ensureAtLeastOneChar(layout)
         }
 
         /**
@@ -107,19 +63,9 @@ internal interface SelectionAdjustment {
          * selection range to the closest word boundary. If the raw selection is reversed, it
          * will always return a reversed selection, and vice versa.
          */
-        val Word = object : SelectionAdjustment {
-            override fun adjust(
-                textLayoutResult: TextLayoutResult,
-                newRawSelectionRange: TextRange,
-                previousHandleOffset: Int,
-                isStartHandle: Boolean,
-                previousSelectionRange: TextRange?
-            ): TextRange {
-                return adjustByBoundary(
-                    textLayoutResult = textLayoutResult,
-                    newRawSelection = newRawSelectionRange,
-                    boundaryFun = textLayoutResult::getWordBoundary
-                )
+        val Word = SelectionAdjustment { layout ->
+            adjustToBoundaries(layout) {
+                textLayoutResult.getWordBoundary(it)
             }
         }
 
@@ -129,43 +75,10 @@ internal interface SelectionAdjustment {
          * raw input selection range to the closest paragraph boundary. If the raw selection is
          * reversed, it will always return a reversed selection, and vice versa.
          */
-        val Paragraph = object : SelectionAdjustment {
-            override fun adjust(
-                textLayoutResult: TextLayoutResult,
-                newRawSelectionRange: TextRange,
-                previousHandleOffset: Int,
-                isStartHandle: Boolean,
-                previousSelectionRange: TextRange?
-            ): TextRange {
-                val boundaryFun = textLayoutResult.layoutInput.text::getParagraphBoundary
-                return adjustByBoundary(
-                    textLayoutResult = textLayoutResult,
-                    newRawSelection = newRawSelectionRange,
-                    boundaryFun = boundaryFun
-                )
+        val Paragraph = SelectionAdjustment { layout ->
+            adjustToBoundaries(layout) {
+                inputText.getParagraphBoundary(it)
             }
-        }
-
-        private fun adjustByBoundary(
-            textLayoutResult: TextLayoutResult,
-            newRawSelection: TextRange,
-            boundaryFun: (Int) -> TextRange
-        ): TextRange {
-            if (textLayoutResult.layoutInput.text.isEmpty()) {
-                return TextRange.Zero
-            }
-            val maxOffset = textLayoutResult.layoutInput.text.lastIndex
-            val startBoundary = boundaryFun(newRawSelection.start.coerceIn(0, maxOffset))
-            val endBoundary = boundaryFun(newRawSelection.end.coerceIn(0, maxOffset))
-
-            // If handles are not crossed, start should be snapped to the start of the word
-            // containing the start offset, and end should be snapped to the end of the word
-            // containing the end offset. If handles are crossed, start should be snapped to the
-            // end of the word containing the start offset, and end should be snapped to the start
-            // of the word containing the end offset.
-            val start = if (newRawSelection.reversed) startBoundary.end else startBoundary.start
-            val end = if (newRawSelection.reversed) endBoundary.start else endBoundary.end
-            return TextRange(start, end)
         }
 
         /**
@@ -173,7 +86,7 @@ internal interface SelectionAdjustment {
          * with word based selection. In short, it expands by word and shrinks by character.
          * Here is more details of the behavior:
          * 1. When previous selection is null, it will use word based selection.
-         * 2. When the start/end offset has moved to a different line, it will use word
+         * 2. When the start/end offset has moved to a different line/Text, it will use word
          * based selection.
          * 3. When the selection is shrinking, it behave same as the character based selection.
          * Shrinking means that the start/end offset is moving in the direction that makes
@@ -186,288 +99,332 @@ internal interface SelectionAdjustment {
          *  Notice that this selection adjustment assumes that when isStartHandle is true, only
          *  start handle is moving(or unchanged), and vice versa.
          */
-        val CharacterWithWordAccelerate = object : SelectionAdjustment {
-            override fun adjust(
-                textLayoutResult: TextLayoutResult,
-                newRawSelectionRange: TextRange,
-                previousHandleOffset: Int,
-                isStartHandle: Boolean,
-                previousSelectionRange: TextRange?
-            ): TextRange {
-                // Previous selection is null. We start a word based selection.
-                if (previousSelectionRange == null) {
-                    return Word.adjust(
-                        textLayoutResult = textLayoutResult,
-                        newRawSelectionRange = newRawSelectionRange,
-                        previousHandleOffset = previousHandleOffset,
-                        isStartHandle = isStartHandle,
-                        previousSelectionRange = previousSelectionRange
-                    )
-                }
+        val CharacterWithWordAccelerate = SelectionAdjustment { layout ->
+            val previousSelection = layout.previousSelection
+                ?: return@SelectionAdjustment Word.adjust(layout)
 
-                // The new selection is collapsed, ensure at least one char is selected.
-                if (newRawSelectionRange.collapsed) {
-                    return ensureAtLeastOneChar(
-                        text = textLayoutResult.layoutInput.text.text,
-                        offset = newRawSelectionRange.start,
-                        lastOffset = textLayoutResult.layoutInput.text.lastIndex,
-                        isStartHandle = isStartHandle,
-                        previousHandlesCrossed = previousSelectionRange.reversed
-                    )
-                }
+            val previousAnchor: Selection.AnchorInfo
+            val newAnchor: Selection.AnchorInfo
+            val startAnchor: Selection.AnchorInfo
+            val endAnchor: Selection.AnchorInfo
 
-                val start: Int
-                val end: Int
-                if (isStartHandle) {
-                    start = updateSelectionBoundary(
-                        textLayoutResult = textLayoutResult,
-                        newRawOffset = newRawSelectionRange.start,
-                        previousRawOffset = previousHandleOffset,
-                        previousAdjustedOffset = previousSelectionRange.start,
-                        otherBoundaryOffset = newRawSelectionRange.end,
-                        isStart = true,
-                        isReversed = newRawSelectionRange.reversed
-                    )
-                    end = newRawSelectionRange.end
-                } else {
-                    start = newRawSelectionRange.start
-                    end = updateSelectionBoundary(
-                        textLayoutResult = textLayoutResult,
-                        newRawOffset = newRawSelectionRange.end,
-                        previousRawOffset = previousHandleOffset,
-                        previousAdjustedOffset = previousSelectionRange.end,
-                        otherBoundaryOffset = newRawSelectionRange.start,
-                        isStart = false,
-                        isReversed = newRawSelectionRange.reversed
-                    )
-                }
-                return TextRange(start, end)
+            if (layout.isStartHandle) {
+                previousAnchor = previousSelection.start
+                newAnchor = layout.updateSelectionBoundary(layout.startInfo, previousAnchor)
+                startAnchor = newAnchor
+                endAnchor = previousSelection.end
+            } else {
+                previousAnchor = previousSelection.end
+                newAnchor = layout.updateSelectionBoundary(layout.endInfo, previousAnchor)
+                startAnchor = previousSelection.start
+                endAnchor = newAnchor
             }
 
-            /**
-             * Helper function that updates start or end boundary of the selection. It implements
-             * the "expand by word and shrink by character behavior".
-             *
-             * @param textLayoutResult the text layout result
-             * @param newRawOffset the new raw offset of the selection boundary after the movement.
-             * @param previousRawOffset the raw offset of the updated selection boundary before the
-             * movement. In the case where previousRawOffset invalid(when selection update is
-             * triggered by long-press or click) pass -1 for this parameter.
-             * @param previousAdjustedOffset the previous final/adjusted offset. It's the current
-             * @param otherBoundaryOffset the offset of the other selection boundary. It is used
-             * to avoid empty selection in word based selection mode.
-             * selection boundary.
-             * @param isStart whether it's updating the selection start or end boundary.
-             * @param isReversed whether the selection is reversed or not. We use
-             * this information to determine if the selection is expanding or shrinking.
-             */
-            private fun updateSelectionBoundary(
-                textLayoutResult: TextLayoutResult,
-                newRawOffset: Int,
-                previousRawOffset: Int,
-                previousAdjustedOffset: Int,
-                otherBoundaryOffset: Int,
-                isStart: Boolean,
-                isReversed: Boolean
-            ): Int {
-                // The raw offset didn't change, directly return the previous adjusted start offset.
-                if (newRawOffset == previousRawOffset) {
-                    return previousAdjustedOffset
-                }
-
-                val currentLine = textLayoutResult.getLineForOffset(newRawOffset)
-                val previousLine = textLayoutResult.getLineForOffset(previousAdjustedOffset)
-
-                // The updating selection boundary has crossed a line, use word based selection.
-                if (currentLine != previousLine) {
-                    return snapToWordBoundary(
-                        textLayoutResult = textLayoutResult,
-                        newRawOffset = newRawOffset,
-                        currentLine = currentLine,
-                        otherBoundaryOffset = otherBoundaryOffset,
-                        isStart = isStart,
-                        isReversed = isReversed
-                    )
-                }
-
-                // Check if the start or end selection boundary is expanding. If it's shrinking,
-                // use character based selection.
-                val isExpanding =
-                    isExpanding(newRawOffset, previousRawOffset, isStart, isReversed)
-                if (!isExpanding) {
-                    return newRawOffset
-                }
-
-                // If the previous start/end offset is not at a word boundary, which is indicating
-                // that start/end offset is updating within a word. In this case, it still uses
-                // character based selection.
-                if (!textLayoutResult.isAtWordBoundary(previousAdjustedOffset)) {
-                    return newRawOffset
-                }
-
-                // At this point we know, the updating start/end offset is still in the same line,
-                // it's expanding the selection, and it's not updating within a word. It should
-                // use word based selection.
-                return snapToWordBoundary(
-                    textLayoutResult = textLayoutResult,
-                    newRawOffset = newRawOffset,
-                    currentLine = currentLine,
-                    otherBoundaryOffset = otherBoundaryOffset,
-                    isStart = isStart,
-                    isReversed = isReversed
-                )
-            }
-
-            private fun snapToWordBoundary(
-                textLayoutResult: TextLayoutResult,
-                newRawOffset: Int,
-                currentLine: Int,
-                otherBoundaryOffset: Int,
-                isStart: Boolean,
-                isReversed: Boolean
-            ): Int {
-                val wordBoundary = textLayoutResult.getWordBoundary(newRawOffset)
-
-                // In the case where the target word crosses multiple lines due to hyphenation or
-                // being too long, we use the line start/end to keep the adjusted offset at the
-                // same line.
-                val wordStartLine = textLayoutResult.getLineForOffset(wordBoundary.start)
-                val start = if (wordStartLine == currentLine) {
-                    wordBoundary.start
-                } else {
-                    textLayoutResult.getLineStart(currentLine)
-                }
-
-                val wordEndLine = textLayoutResult.getLineForOffset(wordBoundary.end)
-                val end = if (wordEndLine == currentLine) {
-                    wordBoundary.end
-                } else {
-                    textLayoutResult.getLineEnd(currentLine)
-                }
-
-                // If one of the word boundary is exactly same as the otherBoundaryOffset, we
-                // can't snap to this word boundary since it will result in an empty selection
-                // range.
-                if (start == otherBoundaryOffset) {
-                    return end
-                }
-                if (end == otherBoundaryOffset) {
-                    return start
-                }
-
-                val threshold = (start + end) / 2
-                return if (isStart xor isReversed) {
-                    // In this branch when:
-                    // 1. selection is updating the start offset, and selection is not reversed.
-                    // 2. selection is updating the end offset, and selection is reversed.
-                    if (newRawOffset <= threshold) {
-                        start
-                    } else {
-                        end
-                    }
-                } else {
-                    // In this branch when:
-                    // 1. selection is updating the end offset, and selection is not reversed.
-                    // 2. selection is updating the start offset, and selection is reversed.
-                    if (newRawOffset >= threshold) {
-                        end
-                    } else {
-                        start
-                    }
-                }
-            }
-
-            private fun TextLayoutResult.isAtWordBoundary(offset: Int): Boolean {
-                val wordBoundary = getWordBoundary(offset)
-                return offset == wordBoundary.start || offset == wordBoundary.end
-            }
-
-            private fun isExpanding(
-                newRawOffset: Int,
-                previousRawOffset: Int,
-                isStart: Boolean,
-                previousReversed: Boolean
-            ): Boolean {
-                // -1 is considered as no previous offset, so the selection is expanding.
-                if (previousRawOffset == -1) {
-                    return true
-                }
-                if (newRawOffset == previousRawOffset) {
-                    return false
-                }
-                return if (isStart xor previousReversed) {
-                    newRawOffset < previousRawOffset
-                } else {
-                    newRawOffset > previousRawOffset
-                }
+            if (newAnchor == previousAnchor) {
+                // This avoids some cases in BiDi where `layout.crossed` is incorrect.
+                // In BiDi layout, a single character move gesture can result in the offset
+                // changing a large amount when crossing over from LTR -> RTL or visa versa.
+                // This can result in a layout which says it is crossed, but our new selection
+                // is uncrossed. Instead, just re-use the old selection.
+                // It also saves an allocation.
+                previousSelection
+            } else {
+                val crossed = layout.crossStatus == CrossStatus.CROSSED ||
+                    (layout.crossStatus == CrossStatus.COLLAPSED &&
+                        startAnchor.offset > endAnchor.offset)
+                Selection(startAnchor, endAnchor, crossed).ensureAtLeastOneChar(layout)
             }
         }
     }
 }
 
 /**
- * This method adjusts the raw start and end offset and bounds the selection to one character
- * respecting [String.findPrecedingBreak] and [String.findFollowingBreak]. The logic of bounding
- * evaluates the last selection result, which handle is being dragged, and if selection reaches the
- * boundary.
- *
- * @param text the complete string
- * @param offset unprocessed start and end offset calculated directly from input position, in
- * this case start and offset equals to each other.
- * @param lastOffset last offset of the text. It's actually the length of the text.
- * @param isStartHandle true if the start handle is being dragged
- * @param previousHandlesCrossed true if the selection handles are crossed in the previous
- * selection. This function will try to maintain the handle cross state. This can help make
- * selection stable.
- *
- * @return the adjusted [TextRange].
+ * @receiver The selection layout. It is expected that its previousSelection is non-null
  */
-internal fun ensureAtLeastOneChar(
-    text: String,
-    offset: Int,
-    lastOffset: Int,
-    isStartHandle: Boolean,
-    previousHandlesCrossed: Boolean
-): TextRange {
-    // When lastOffset is 0, it can only return an empty TextRange.
-    // When previousSelection is null, it won't start a selection and return an empty TextRange.
-    if (lastOffset == 0) return TextRange(offset, offset)
+private fun SelectionLayout.updateSelectionBoundary(
+    info: SelectableInfo,
+    previousSelectionAnchor: Selection.AnchorInfo
+): Selection.AnchorInfo {
+    val currentRawOffset =
+        if (isStartHandle) info.rawStartHandleOffset
+        else info.rawEndHandleOffset
 
-    // When offset is at the boundary, the handle that is not dragged should be at [offset]. Here
-    // the other handle's position is computed accordingly.
-    if (offset == 0) {
-        return if (isStartHandle) {
-            TextRange(text.findFollowingBreak(0), 0)
-        } else {
-            TextRange(0, text.findFollowingBreak(0))
-        }
+    val currentSlot = if (isStartHandle) startSlot else endSlot
+    if (currentSlot != info.slot) {
+        // we are between Texts
+        return info.anchorForOffset(currentRawOffset)
     }
 
-    if (offset == lastOffset) {
-        return if (isStartHandle) {
-            TextRange(text.findPrecedingBreak(lastOffset), lastOffset)
-        } else {
-            TextRange(lastOffset, text.findPrecedingBreak(lastOffset))
-        }
+    val currentRawLine by lazy(LazyThreadSafetyMode.NONE) {
+        info.textLayoutResult.getLineForOffset(currentRawOffset)
     }
 
-    // In other cases, this function will try to maintain the current cross handle states.
-    // Only in this way the selection can be stable.
-    return if (isStartHandle) {
-        if (!previousHandlesCrossed) {
-            // Handle is NOT crossed, and the start handle is dragged.
-            TextRange(text.findPrecedingBreak(offset), offset)
-        } else {
-            // Handle is crossed, and the start handle is dragged.
-            TextRange(text.findFollowingBreak(offset), offset)
-        }
+    val otherRawOffset =
+        if (isStartHandle) info.rawEndHandleOffset
+        else info.rawStartHandleOffset
+
+    val anchorSnappedToWordBoundary by lazy(LazyThreadSafetyMode.NONE) {
+        info.snapToWordBoundary(
+            currentLine = currentRawLine,
+            currentOffset = currentRawOffset,
+            otherOffset = otherRawOffset,
+            isStart = isStartHandle,
+            crossed = crossStatus == CrossStatus.CROSSED
+        )
+    }
+
+    if (info.selectableId != previousSelectionAnchor.selectableId) {
+        // moved to an entirely new Text, use word based adjustment
+        return anchorSnappedToWordBoundary
+    }
+
+    val rawPreviousHandleOffset = info.rawPreviousHandleOffset
+    if (currentRawOffset == rawPreviousHandleOffset) {
+        // no change in current handle, return the previous result unchanged
+        return previousSelectionAnchor
+    }
+
+    val previousRawLine = info.textLayoutResult.getLineForOffset(rawPreviousHandleOffset)
+    // Check raw lines. The previous adjusted selection offset could remain
+    // on a different line after snapping to the word boundary, causing the code to
+    // always seem like it is switching lines and never allowing it to not use the
+    // word boundary offset.
+    if (currentRawLine != previousRawLine) {
+        // Line changed, use word based adjustment.
+        return anchorSnappedToWordBoundary
+    }
+
+    val previousSelectionOffset = previousSelectionAnchor.offset
+    val previousSelectionWordBoundary =
+        info.textLayoutResult.getWordBoundary(previousSelectionOffset)
+
+    if (!info.isExpanding(currentRawOffset, isStartHandle)) {
+        // we're shrinking, use the raw offset.
+        return info.anchorForOffset(currentRawOffset)
+    }
+
+    if (previousSelectionOffset == previousSelectionWordBoundary.start ||
+        previousSelectionOffset == previousSelectionWordBoundary.end
+    ) {
+        // We are expanding, and the previous offset was a word boundary,
+        // so continue using word boundaries.
+        return anchorSnappedToWordBoundary
+    }
+
+    // We're expanding, but our previousOffset was not at a word boundary. This means
+    // we are adjusting a selection within a word already, so continue to do so.
+    return info.anchorForOffset(currentRawOffset)
+}
+
+private fun SelectableInfo.isExpanding(
+    currentRawOffset: Int,
+    isStart: Boolean
+): Boolean {
+    if (rawPreviousHandleOffset == -1) {
+        return true
+    }
+    if (currentRawOffset == rawPreviousHandleOffset) {
+        return false
+    }
+
+    val crossed = rawCrossStatus == CrossStatus.CROSSED
+    return if (isStart xor crossed) {
+        currentRawOffset < rawPreviousHandleOffset
     } else {
-        if (!previousHandlesCrossed) {
-            // Handle is NOT crossed, and the end handle is dragged.
-            TextRange(offset, text.findFollowingBreak(offset))
-        } else {
-            // Handle is crossed, and the end handle is dragged.
-            TextRange(offset, text.findPrecedingBreak(offset))
+        currentRawOffset > rawPreviousHandleOffset
+    }
+}
+
+private fun SelectableInfo.snapToWordBoundary(
+    currentLine: Int,
+    currentOffset: Int,
+    otherOffset: Int,
+    isStart: Boolean,
+    crossed: Boolean,
+): Selection.AnchorInfo {
+    val wordBoundary = textLayoutResult.getWordBoundary(currentOffset)
+
+    // In the case where the target word crosses multiple lines due to hyphenation or
+    // being too long, we use the line start/end to keep the adjusted offset at the
+    // same line.
+    val wordStartLine = textLayoutResult.getLineForOffset(wordBoundary.start)
+    val start = if (wordStartLine == currentLine) {
+        wordBoundary.start
+    } else if (currentLine >= textLayoutResult.lineCount) {
+        // We cannot find the line start, because this line is not even visible.
+        // Since we cannot really select meaningfully in this area,
+        // just use the start of the last visible line.
+        textLayoutResult.getLineStart(textLayoutResult.lineCount - 1)
+    } else {
+        textLayoutResult.getLineStart(currentLine)
+    }
+
+    val wordEndLine = textLayoutResult.getLineForOffset(wordBoundary.end)
+    val end = if (wordEndLine == currentLine) {
+        wordBoundary.end
+    } else if (currentLine >= textLayoutResult.lineCount) {
+        // We cannot find the line end, because this line is not even visible.
+        // Since we cannot really select meaningfully in this area,
+        // just use the end of the last visible line.
+        textLayoutResult.getLineEnd(textLayoutResult.lineCount - 1)
+    } else {
+        textLayoutResult.getLineEnd(currentLine)
+    }
+
+    // If one of the word boundary is exactly same as the otherBoundaryOffset, we
+    // can't snap to this word boundary since it will result in an empty selection
+    // range.
+    if (start == otherOffset) {
+        return anchorForOffset(end)
+    }
+    if (end == otherOffset) {
+        return anchorForOffset(start)
+    }
+
+    val resultOffset = if (isStart xor crossed) {
+        // In this branch when:
+        // 1. selection is updating the start offset, and selection is not reversed.
+        // 2. selection is updating the end offset, and selection is reversed.
+        if (currentOffset <= end) start else end
+    } else {
+        // In this branch when:
+        // 1. selection is updating the end offset, and selection is not reversed.
+        // 2. selection is updating the start offset, and selection is reversed.
+        if (currentOffset >= start) end else start
+    }
+
+    return anchorForOffset(resultOffset)
+}
+
+private fun interface BoundaryFunction {
+    fun SelectableInfo.getBoundary(offset: Int): TextRange
+}
+
+private fun adjustToBoundaries(
+    layout: SelectionLayout,
+    boundaryFunction: BoundaryFunction,
+): Selection {
+    val crossed = layout.crossStatus == CrossStatus.CROSSED
+    return Selection(
+        start = layout.startInfo.anchorOnBoundary(
+            crossed = crossed,
+            isStart = true,
+            slot = layout.startSlot,
+            boundaryFunction = boundaryFunction,
+        ),
+        end = layout.endInfo.anchorOnBoundary(
+            crossed = crossed,
+            isStart = false,
+            slot = layout.endSlot,
+            boundaryFunction = boundaryFunction,
+        ),
+        handlesCrossed = crossed
+    )
+}
+
+private fun SelectableInfo.anchorOnBoundary(
+    crossed: Boolean,
+    isStart: Boolean,
+    slot: Int,
+    boundaryFunction: BoundaryFunction,
+): Selection.AnchorInfo {
+    val offset = if (isStart) rawStartHandleOffset else rawEndHandleOffset
+
+    if (slot != this.slot) {
+        return anchorForOffset(offset)
+    }
+
+    val range = with(boundaryFunction) {
+        getBoundary(offset)
+    }
+
+    return anchorForOffset(if (isStart xor crossed) range.start else range.end)
+}
+
+/**
+ * This method adjusts the selection to one character respecting [String.findPrecedingBreak]
+ * and [String.findFollowingBreak].
+ */
+internal fun Selection.ensureAtLeastOneChar(layout: SelectionLayout): Selection {
+    // There already is at least one char in this selection, return this selection unchanged.
+    if (!isCollapsed(layout)) {
+        return this
+    }
+
+    // Exceptions where 0 char selection is acceptable:
+    //   - The selection crosses multiple Texts, but is still collapsed.
+    //       - In the same situation in a single Text, we usually select some whitespace.
+    //         Since there is no whitespace to select, select nothing. Expanding the selection
+    //         into any Texts in this case is likely confusing to the user
+    //         as it is different functionality compared to single text.
+    //   - The previous selection is null, indicating this is the start of a selection.
+    //       - This allows a selection to start off as collapsed. This is necessary for
+    //         Character adjustment to allow an initial collapsed selection, and then once a
+    //         non-collapsed selection is started, this exception goes away.
+    //   - There is no text to select at all, so you can't expand anywhere.
+    val text = layout.currentInfo.inputText
+    if (layout.size > 1 || layout.previousSelection == null || text.isEmpty()) {
+        return this
+    }
+
+    return expandOneChar(layout)
+}
+
+/**
+ * Precondition: the selection is empty.
+ */
+private fun Selection.expandOneChar(layout: SelectionLayout): Selection {
+    val info = layout.currentInfo
+    val text = info.inputText
+    val offset = info.rawStartHandleOffset // start and end are the same, so either works
+
+    // when the offset is at either boundary of the text,
+    // expand the current handle one character into the text from the boundary.
+    val lastOffset = text.length
+    return when (offset) {
+        0 -> {
+            val followingBreak = text.findFollowingBreak(0)
+            if (layout.isStartHandle) {
+                copy(start = start.changeOffset(info, followingBreak), handlesCrossed = true)
+            } else {
+                copy(end = end.changeOffset(info, followingBreak), handlesCrossed = false)
+            }
+        }
+
+        lastOffset -> {
+            val precedingBreak = text.findPrecedingBreak(lastOffset)
+            if (layout.isStartHandle) {
+                copy(start = start.changeOffset(info, precedingBreak), handlesCrossed = false)
+            } else {
+                copy(end = end.changeOffset(info, precedingBreak), handlesCrossed = true)
+            }
+        }
+
+        else -> {
+            // In cases where offset is not along the boundary,
+            // we will try to maintain the current cross handle states.
+            val crossed = layout.previousSelection?.handlesCrossed == true
+            val newOffset =
+                if (layout.isStartHandle xor crossed) {
+                    text.findPrecedingBreak(offset)
+                } else {
+                    text.findFollowingBreak(offset)
+                }
+
+            if (layout.isStartHandle) {
+                copy(start = start.changeOffset(info, newOffset), handlesCrossed = crossed)
+            } else {
+                copy(end = end.changeOffset(info, newOffset), handlesCrossed = crossed)
+            }
         }
     }
 }
+
+// update direction when we are changing the offset since it may be different
+private fun Selection.AnchorInfo.changeOffset(
+    info: SelectableInfo,
+    newOffset: Int,
+): Selection.AnchorInfo = copy(
+    offset = newOffset,
+    direction = info.textLayoutResult.getBidiRunDirection(newOffset)
+)

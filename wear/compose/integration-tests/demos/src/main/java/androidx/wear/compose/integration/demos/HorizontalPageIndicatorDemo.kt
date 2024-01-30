@@ -24,7 +24,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.GenericShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -37,7 +37,7 @@ import androidx.wear.compose.material.PageIndicatorState
 @Composable
 fun CustomizedHorizontalPageIndicator() {
     val maxPages = 6
-    var selectedPage by remember { mutableStateOf(0) }
+    var selectedPage by remember { mutableIntStateOf(0) }
     val animatedSelectedPage by animateFloatAsState(
         targetValue = selectedPage.toFloat(),
         animationSpec = TweenSpec(durationMillis = 500)

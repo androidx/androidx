@@ -36,7 +36,7 @@ public class PackageManagerHelper {
      * Uses {@link PackageManager} to enable/disable a manifest-defined component
      *
      * @param context {@link Context}
-     * @param klazz The class of component
+     * @param klazz   The class of component
      * @param enabled {@code true} if component should be enabled
      */
     public static void setComponentEnabled(
@@ -44,6 +44,14 @@ public class PackageManagerHelper {
             @NonNull Class<?> klazz,
             boolean enabled) {
         try {
+            boolean current = isComponentEnabled(
+                    getComponentEnabledSetting(context, klazz.getName()), false);
+
+            if (enabled == current) {
+                Logger.get().debug(TAG, "Skipping component enablement for " + klazz.getName());
+                return;
+            }
+
             PackageManager packageManager = context.getPackageManager();
             ComponentName componentName = new ComponentName(context, klazz.getName());
             packageManager.setComponentEnabledSetting(componentName,
@@ -63,23 +71,48 @@ public class PackageManagerHelper {
     /**
      * Convenience method for {@link #isComponentExplicitlyEnabled(Context, String)}
      */
-    public static boolean isComponentExplicitlyEnabled(@NonNull Context context,
+    public static boolean isComponentExplicitlyEnabled(
+            @NonNull Context context,
             @NonNull Class<?> klazz) {
-        return isComponentExplicitlyEnabled(context, klazz.getName());
+        int setting = getComponentEnabledSetting(context, klazz.getName());
+        return isComponentEnabled(setting, false);
     }
 
     /**
      * Checks if a manifest-defined component is explicitly enabled
      *
-     * @param context {@link Context}
+     * @param context   {@link Context}
      * @param className {@link Class#getName()} name of component
      * @return {@code true} if component is explicitly enabled
      */
     public static boolean isComponentExplicitlyEnabled(@NonNull Context context,
             @NonNull String className) {
+        int state = getComponentEnabledSetting(context, className);
+        return state == PackageManager.COMPONENT_ENABLED_STATE_ENABLED;
+    }
+
+    /**
+     * Retrieves the component enabled setting from {@link PackageManager}.
+     */
+    private static int getComponentEnabledSetting(
+            @NonNull Context context,
+            @NonNull String className) {
         PackageManager packageManager = context.getPackageManager();
         ComponentName componentName = new ComponentName(context, className);
-        int state = packageManager.getComponentEnabledSetting(componentName);
-        return state == PackageManager.COMPONENT_ENABLED_STATE_ENABLED;
+        return packageManager.getComponentEnabledSetting(componentName);
+    }
+
+    private static boolean isComponentEnabled(
+            int setting,
+            boolean defaults) {
+        if (setting == PackageManager.COMPONENT_ENABLED_STATE_DEFAULT) {
+            return defaults;
+        }
+        // Simplifying the expression here, given the linter is extremely unhappy.
+        // Treating the below cases as enabled == false
+        // COMPONENT_ENABLED_STATE_DISABLED
+        // COMPONENT_ENABLED_STATE_DISABLED_USER
+        // COMPONENT_ENABLED_STATE_DISABLED_UNTIL_USED
+        return setting == PackageManager.COMPONENT_ENABLED_STATE_ENABLED;
     }
 }

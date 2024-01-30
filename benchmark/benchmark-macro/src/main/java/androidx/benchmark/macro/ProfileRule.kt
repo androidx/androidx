@@ -23,7 +23,6 @@ import androidx.annotation.RestrictTo
 private val PROFILE_RULE_REGEX = "(H?S?P?)L([^;]*);(->)?(.*)".toRegex()
 
 /**
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 data class ProfileRule(

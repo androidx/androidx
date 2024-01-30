@@ -212,6 +212,9 @@ class EmojiPickerView @JvmOverloads constructor(
                         }
                     }
                     bodyLayoutManager.scrollToPositionWithOffset(this, 0)
+                    // The scroll position change will not be reflected until the next layout call,
+                    // so force a new layout call here.
+                    invalidate()
                 }
             })
 

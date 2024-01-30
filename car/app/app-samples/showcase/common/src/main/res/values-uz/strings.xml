@@ -34,7 +34,7 @@
     <string name="checked_action_title" msgid="906023941445896399">"Belgilandi"</string>
     <string name="unchecked_action_title" msgid="802503415474307811">"Belgi olib tashlandi"</string>
     <string name="on_action_title" msgid="4129601573763429611">"Yoniq"</string>
-    <string name="off_action_title" msgid="8669201170189204848">"Yoqilmagan"</string>
+    <string name="off_action_title" msgid="8669201170189204848">"Oʻchiq"</string>
     <string name="settings_action_title" msgid="8616900063253887861">"Sozlamalar"</string>
     <string name="accept_action_title" msgid="4899660585470647578">"Qabul qilish"</string>
     <string name="reject_action_title" msgid="6730366705938402668">"Rad etish"</string>
@@ -264,6 +264,7 @@
     <string name="tab_title_list" msgid="5104962518489668123">"Roʻyxat varagʻi"</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"Uzun varaq nomi bilan katakli varaq"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"Qidiruv varagʻi"</string>
+    <string name="tab_title_loading" msgid="5385807479734490989">"Varaq yuklanmoqda"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"Varaq andozasi yuklanish demo versiyasi"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"Varaq andozasi varaqsiz demo versiyasi"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"Rasmlar notanish xost uchun chiqarilmaydi"</string>
@@ -298,7 +299,7 @@
     <string name="some_additional_text" msgid="4009872495806318260">"Yana qoʻshimcha matn"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"Belgilanuvchi roʻyxat namunasi"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"Vazifa cheklovi namoyishi"</string>
-    <string name="task_limit_reached_msg" msgid="6038763366777119364">"Vazifa chekloviga yetildi\nDavom etish ilovani majburiy toʻxtatadi."</string>
+    <string name="task_limit_reached_msg" msgid="7162842196382260992">"Bu qadamlar sonini oshirib yuboradi va sizni yangi ekranga olib boradi."</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"Vazifa qadami: %1$d / %2$d"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"Oldinga oʻtish uchun bosing"</string>
     <string name="task_content_allowed" msgid="545061986612431190">"Turli andozalarni ochib koʻring va avtomobil haydash rejimida ekanini tekshiring"</string>
@@ -323,6 +324,12 @@
     <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"Qator ham tanlanishi mumkin"</string>
     <string name="secondary_action_toast" msgid="5076434693504006565">"Ikkilamchi amal tanlandi"</string>
     <string name="row_primary_action_toast" msgid="756516694751965204">"Asosiy amal qatori tanlandi"</string>
+    <string name="sectioned_item_list_demo_title" msgid="1236735461225007729">"Boʻlimlarga ajratilgan elementlar roʻyxati namoyishi"</string>
+    <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"Roʻyxat 1"</string>
+    <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"Roʻyxat 2"</string>
+    <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"Har bir roʻyxat ostida quyi matn"</string>
+    <string name="empty_list_demo_title" msgid="5989013634820902455">"Boʻsh roʻyxat demosi"</string>
+    <string name="empty_list_message" msgid="5331395517560728138">"Roʻyxat boʻsh"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"Aralash andozalar demolari"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"Namoyish demolari"</string>
     <string name="template_layouts_demo_title" msgid="788249269446087847">"Andoza dizayni demolari"</string>

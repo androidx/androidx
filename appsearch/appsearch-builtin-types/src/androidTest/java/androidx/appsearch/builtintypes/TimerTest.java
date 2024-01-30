@@ -182,5 +182,10 @@ public class TimerTest {
         assertThat(genericDocument.getPropertyLong("baseTimeMillisInElapsedRealtime"))
                 .isEqualTo(700);
         assertThat(genericDocument.getPropertyLong("bootCount")).isEqualTo(1);
+
+        // Test that toDocumentClass doesn't lose information.
+        GenericDocument newGenericDocument = GenericDocument.fromDocumentClass(
+                genericDocument.toDocumentClass(Timer.class));
+        assertThat(newGenericDocument).isEqualTo(genericDocument);
     }
 }

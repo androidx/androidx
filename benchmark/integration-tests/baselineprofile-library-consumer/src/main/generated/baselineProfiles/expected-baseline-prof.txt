@@ -1,0 +1,5 @@
+Landroidx/benchmark/integration/baselineprofile/library/consumer/IncludeClass;
+HSPLandroidx/benchmark/integration/baselineprofile/library/consumer/IncludeClass;-><init>()V
+HSPLandroidx/benchmark/integration/baselineprofile/library/consumer/IncludeClass;->doSomething()V
+HSPLandroidx/benchmark/integration/baselineprofile/library/consumer/IncludeClass;->doSomethingWithArgument(Ljava/lang/String;)V
+HSPLandroidx/benchmark/integration/baselineprofile/library/consumer/IncludeClass;->doSomethingWithReturnType(II)I

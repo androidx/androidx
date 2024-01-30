@@ -9,8 +9,12 @@ import kotlin.Int
 
 public abstract class AbstractSandboxedSdkProviderCompat : SandboxedSdkProviderCompat() {
   public override fun onLoadSdk(params: Bundle): SandboxedSdkCompat {
-    val sdk = createMySdk(context!!)
-    return SandboxedSdkCompat(MySdkStubDelegate(sdk, context!!))
+    val ctx = context
+    if (ctx == null) {
+      throw IllegalStateException("Context must not be null. Do you need to call attachContext()?")
+    }
+    val sdk = createMySdk(ctx)
+    return SandboxedSdkCompat(MySdkStubDelegate(sdk, ctx))
   }
 
   public override fun getView(
@@ -18,9 +22,8 @@ public abstract class AbstractSandboxedSdkProviderCompat : SandboxedSdkProviderC
     params: Bundle,
     width: Int,
     height: Int,
-  ): View {
-    TODO("Implement")
-  }
+  ): View = throw
+      UnsupportedOperationException("This SDK doesn't support explicit SurfaceView requests.")
 
   protected abstract fun createMySdk(context: Context): MySdk
 }

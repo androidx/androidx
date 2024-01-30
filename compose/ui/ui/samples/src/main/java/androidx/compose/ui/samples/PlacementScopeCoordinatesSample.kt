@@ -17,7 +17,6 @@ package androidx.compose.ui.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.Layout
@@ -27,7 +26,6 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.round
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Sampled
 @Composable
 fun PlacementScopeCoordinatesSample() {

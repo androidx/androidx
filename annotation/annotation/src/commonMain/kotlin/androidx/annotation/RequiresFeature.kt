@@ -32,15 +32,13 @@ package androidx.annotation
     AnnotationTarget.CONSTRUCTOR
 )
 public annotation class RequiresFeature(
-    /**
-     * The name of the feature that is required.
-     */
+    /** The name of the feature that is required. */
     val name: String,
     /**
      * Defines the name of the method that should be called to check whether the feature is
-     * available, using the same signature format as javadoc.
-     * The feature checking method can have multiple parameters, but the feature name parameter must
-     * be of type String and must also be the first String-type parameter.
+     * available, using the same signature format as javadoc. The feature checking method can have
+     * multiple parameters, but the feature name parameter must be of type String and must also be
+     * the first String-type parameter.
      */
     val enforcement: String
 )

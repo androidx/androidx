@@ -264,6 +264,7 @@
     <string name="tab_title_list" msgid="5104962518489668123">"ലിസ്റ്റ് ടാബ്"</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"നീളമേറിയ ടാബ് പേരോട് കൂടിയ ഗ്രിഡ് ടാബ്"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"തിരയൽ ടാബ്"</string>
+    <string name="tab_title_loading" msgid="5385807479734490989">"ലോഡ് ചെയ്യൽ ടാബ്"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"ടാബ് ടെംപ്ലേറ്റ് ലോഡ് ചെയ്യൽ ഡെമോ"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"ടാബ് ടെംപ്ലേറ്റ് ടാബുകളൊന്നുമില്ല ഡെമോ"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"അജ്ഞാത ഹോസ്റ്റിൽ നിന്നുള്ള ചിത്രങ്ങൾ പ്രദർശിപ്പിക്കാനാകില്ല"</string>
@@ -298,7 +299,7 @@
     <string name="some_additional_text" msgid="4009872495806318260">"ഏതാനും അധിക ടെക്സ്റ്റ്"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"തിരഞ്ഞെടുക്കാവുന്നവയുടെ സാമ്പിൾ ലിസ്റ്റ്"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"ടാസ്ക്ക് നിയന്ത്രണ ഡെമോ"</string>
-    <string name="task_limit_reached_msg" msgid="6038763366777119364">"ടാസ്ക്ക് പരിധിയെത്തി\nമുന്നോട്ട് പോകുന്നത് ആപ്പ് നിർബന്ധിതമായി നിർത്താൻ കാരണമാകും"</string>
+    <string name="task_limit_reached_msg" msgid="7162842196382260992">"ഇത് ഘട്ടങ്ങളുടെ എണ്ണം വർദ്ധിക്കാൻ ഇടയാക്കും, പുതിയൊരു സ്‌ക്രീനിലേക്ക് നിങ്ങളെ നയിക്കുകയും ചെയ്യും."</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"%2$d ടാസ്ക്ക് ഘട്ടങ്ങളിൽ %1$d -ാമത്തേത്"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"മുന്നോട്ട് പോകാൻ ക്ലിക്ക് ചെയ്യുക"</string>
     <string name="task_content_allowed" msgid="545061986612431190">"വ്യത്യസ്ത ടെംപ്ലേറ്റുകൾ സന്ദർശിച്ച്, ഡ്രൈവിംഗ് മോഡിലാണ് കാർ ഉള്ളതെന്ന് ഉറപ്പാക്കുക"</string>
@@ -323,6 +324,12 @@
     <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"വരിയും തിരഞ്ഞെടുക്കാവുന്നതാണ്"</string>
     <string name="secondary_action_toast" msgid="5076434693504006565">"സെക്കൻഡറി പ്രവർത്തനം തിരഞ്ഞെടുത്തു"</string>
     <string name="row_primary_action_toast" msgid="756516694751965204">"വരിയുടെ പ്രാഥമിക പ്രവർത്തനം തിരഞ്ഞെടുത്തു"</string>
+    <string name="sectioned_item_list_demo_title" msgid="1236735461225007729">"വിഭാഗങ്ങളാക്കിയ ഇന ലിസ്‌റ്റിന്റെ ഡെമോ"</string>
+    <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"ലിസ്റ്റ് 1"</string>
+    <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"ലിസ്റ്റ് 2"</string>
+    <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"ഓരോ ലിസ്‌റ്റിന് കീഴിലും സബ്‌ടെക്‌സ്‌റ്റ്"</string>
+    <string name="empty_list_demo_title" msgid="5989013634820902455">"ശൂന്യമായ ലിസ്‌റ്റിന്റെ ഡെമോ"</string>
+    <string name="empty_list_message" msgid="5331395517560728138">"ലിസ്‌റ്റിൽ ഒന്നുമില്ല"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"പലവക ടെംപ്ലേറ്റ് ഡെമോകൾ"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"ഡെമോകൾ ഷോക്കേസ് ചെയ്യുക"</string>
     <string name="template_layouts_demo_title" msgid="788249269446087847">"ടെംപ്ലേറ്റ് ലേഔട്ട് ഡെമോകൾ"</string>

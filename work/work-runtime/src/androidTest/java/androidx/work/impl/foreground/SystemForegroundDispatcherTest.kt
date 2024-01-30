@@ -29,7 +29,6 @@ import androidx.work.Configuration
 import androidx.work.Constraints
 import androidx.work.ForegroundInfo
 import androidx.work.ListenableWorker
-import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkInfo
 import androidx.work.WorkerParameters
@@ -38,13 +37,15 @@ import androidx.work.impl.Scheduler
 import androidx.work.impl.StartStopToken
 import androidx.work.impl.WorkDatabase
 import androidx.work.impl.WorkManagerImpl
-import androidx.work.impl.constraints.WorkConstraintsCallback
 import androidx.work.impl.constraints.WorkConstraintsTracker
+import androidx.work.impl.constraints.trackers.Trackers
 import androidx.work.impl.foreground.SystemForegroundDispatcher.createCancelWorkIntent
 import androidx.work.impl.foreground.SystemForegroundDispatcher.createNotifyIntent
 import androidx.work.impl.foreground.SystemForegroundDispatcher.createStartForegroundIntent
 import androidx.work.impl.foreground.SystemForegroundDispatcher.createStopForegroundIntent
 import androidx.work.impl.model.WorkGenerationalId
+import androidx.work.impl.schedulers
+import androidx.work.impl.testutils.TestConstraintTracker
 import androidx.work.impl.utils.SynchronousExecutor
 import androidx.work.impl.utils.futures.SettableFuture
 import androidx.work.impl.utils.taskexecutor.InstantWorkTaskExecutor
@@ -64,49 +65,49 @@ import org.mockito.Mockito.reset
 import org.mockito.Mockito.spy
 import org.mockito.Mockito.times
 import org.mockito.Mockito.verify
-import org.mockito.Mockito.verifyZeroInteractions
-import org.mockito.Mockito.`when`
 
 @RunWith(AndroidJUnit4::class)
 @MediumTest
 class SystemForegroundDispatcherTest {
 
-    private lateinit var context: Context
+    private val context: Context = ApplicationProvider.getApplicationContext()
     private lateinit var config: Configuration
-    private lateinit var taskExecutor: TaskExecutor
+    private val taskExecutor: TaskExecutor = InstantWorkTaskExecutor()
     private lateinit var workManager: WorkManagerImpl
     private lateinit var workDatabase: WorkDatabase
     private lateinit var processor: Processor
     private lateinit var tracker: WorkConstraintsTracker
-    private lateinit var constraintsCallback: WorkConstraintsCallback
     private lateinit var dispatcher: SystemForegroundDispatcher
     private lateinit var dispatcherCallback: SystemForegroundDispatcher.Callback
+    private val fakeChargingTracker = TestConstraintTracker(true, context, taskExecutor)
 
     @Before
     fun setUp() {
-        context = ApplicationProvider.getApplicationContext()
         config = Configuration.Builder()
             .setExecutor(SynchronousExecutor())
             .setMinimumLoggingLevel(Log.DEBUG)
             .build()
-        taskExecutor = InstantWorkTaskExecutor()
         val scheduler = mock(Scheduler::class.java)
-        workDatabase = WorkDatabase.create(context, taskExecutor.serialTaskExecutor, true)
+        workDatabase = WorkDatabase.create(
+            context, taskExecutor.serialTaskExecutor, config.clock, true)
         processor = spy(Processor(context, config, taskExecutor, workDatabase))
         workManager = spy(
             WorkManagerImpl(
-                context,
-                config,
-                taskExecutor,
-                workDatabase,
-                listOf(scheduler),
-                processor
+                context = context,
+                configuration = config,
+                workTaskExecutor = taskExecutor,
+                workDatabase = workDatabase,
+                processor = processor,
+                schedulersCreator = schedulers(scheduler),
             )
         )
         workDatabase = workManager.workDatabase
         // Initialize WorkConstraintsTracker
-        constraintsCallback = mock(WorkConstraintsCallback::class.java)
-        tracker = mock(WorkConstraintsTracker::class.java)
+        tracker = WorkConstraintsTracker(Trackers(
+            context = context,
+            taskExecutor = taskExecutor,
+            batteryChargingTracker = fakeChargingTracker
+        ))
         // Initialize dispatcher
         dispatcherCallback = mock(SystemForegroundDispatcher.Callback::class.java)
         dispatcher = spy(SystemForegroundDispatcher(context, workManager, tracker))
@@ -114,7 +115,7 @@ class SystemForegroundDispatcherTest {
     }
 
     @Test
-    fun testStartForeground_noInteractions_workSpecHasNoConstraints() {
+    fun testStartForeground_workSpecHasNoConstraints() {
         val request = OneTimeWorkRequest.Builder(TestWorker::class.java).build()
         val notificationId = 1
         val notification = mock(Notification::class.java)
@@ -125,14 +126,13 @@ class SystemForegroundDispatcherTest {
         dispatcher.onStartCommand(intent)
         verify(dispatcherCallback, times(1))
             .startForeground(eq(notificationId), eq(0), any<Notification>())
-        verifyZeroInteractions(tracker)
     }
 
     @Test
     fun testStartForeground_trackConstraints_workSpecHasConstraints() {
         val request = OneTimeWorkRequest.Builder(NeverResolvedWorker::class.java)
             .setConstraints(
-                Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build()
+                Constraints.Builder().setRequiresCharging(true).build()
             ).build()
         workDatabase.workSpecDao().insertWorkSpec(request.workSpec)
         processor.startWork(StartStopToken(WorkGenerationalId(request.stringId, 0)))
@@ -144,7 +144,7 @@ class SystemForegroundDispatcherTest {
         dispatcher.onStartCommand(intent)
         verify(dispatcherCallback, times(1))
             .startForeground(eq(notificationId), eq(0), any<Notification>())
-        verify(tracker, times(1)).replace(setOf(request.workSpec))
+        assertThat(fakeChargingTracker.isTracking, `is`(true))
     }
 
     @Test
@@ -302,6 +302,43 @@ class SystemForegroundDispatcherTest {
     }
 
     @Test
+    fun testRestartFromEmpty() {
+        val firstWorkSpecId = WorkGenerationalId("first", 0)
+        val firstId = 1
+        val notification = mock(Notification::class.java)
+        val firstInfo = ForegroundInfo(firstId, notification)
+        val firstIntent = createNotifyIntent(context, firstWorkSpecId, firstInfo)
+
+        val secondWorkSpecId = WorkGenerationalId("second", 0)
+        val secondId = 2
+        val secondInfo = ForegroundInfo(secondId, notification)
+        val secondIntent = createNotifyIntent(context, secondWorkSpecId, secondInfo)
+
+        dispatcher.onStartCommand(firstIntent)
+        assertThat(dispatcher.mCurrentForegroundId, `is`(firstWorkSpecId))
+        verify(dispatcherCallback, times(1))
+            .startForeground(eq(firstId), eq(0), any<Notification>())
+
+        dispatcher.onExecuted(firstWorkSpecId, false)
+
+        verify(dispatcherCallback, times(1))
+            .cancelNotification(firstId)
+
+        assertThat(dispatcher.mForegroundInfoById.count(), `is`(0))
+        reset(dispatcherCallback)
+
+        dispatcher.onStartCommand(secondIntent)
+        assertThat(dispatcher.mCurrentForegroundId, `is`(secondWorkSpecId))
+        verify(dispatcherCallback, times(1))
+            .startForeground(eq(secondId), eq(0), any<Notification>())
+
+        dispatcher.onExecuted(secondWorkSpecId, false)
+        verify(dispatcherCallback, times(1))
+            .cancelNotification(secondId)
+        assertThat(dispatcher.mForegroundInfoById.count(), `is`(0))
+    }
+
+    @Test
     @SdkSuppress(minSdkVersion = 29)
     fun testUpdateNotificationWithDifferentForegroundServiceType() {
         val firstWorkSpecId = WorkGenerationalId("first", 0)
@@ -344,7 +381,7 @@ class SystemForegroundDispatcherTest {
     fun testStartForeground_trackConstraints_constraintsUnMet() {
         val request = OneTimeWorkRequest.Builder(NeverResolvedWorker::class.java)
             .setConstraints(
-                Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build()
+                Constraints.Builder().setRequiresCharging(true).build()
             ).build()
         workDatabase.workSpecDao().insertWorkSpec(request.workSpec)
         processor.startWork(StartStopToken(WorkGenerationalId(request.stringId, 0)))
@@ -354,8 +391,8 @@ class SystemForegroundDispatcherTest {
         val intent = createStartForegroundIntent(context,
             WorkGenerationalId(request.stringId, 0), metadata)
         dispatcher.onStartCommand(intent)
-        verify(tracker, times(1)).replace(setOf(request.workSpec))
-        dispatcher.onAllConstraintsNotMet(listOf(request.workSpec))
+        assertThat(fakeChargingTracker.isTracking, `is`(true))
+        fakeChargingTracker.state = false
         verify(workManager, times(1)).stopForegroundWork(eq(
             WorkGenerationalId(request.workSpec.id, 0)
         ))
@@ -365,7 +402,7 @@ class SystemForegroundDispatcherTest {
     fun testCancelForegroundWork() {
         val request = OneTimeWorkRequest.Builder(NeverResolvedWorker::class.java)
             .setConstraints(
-                Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build()
+                Constraints.Builder().setRequiresCharging(true).build()
             ).build()
         workDatabase.workSpecDao().insertWorkSpec(request.workSpec)
         processor.startWork(StartStopToken(WorkGenerationalId(request.stringId, 0)))
@@ -375,7 +412,7 @@ class SystemForegroundDispatcherTest {
         val intent = createStartForegroundIntent(context,
             WorkGenerationalId(request.workSpec.id, 0), metadata)
         dispatcher.onStartCommand(intent)
-        verify(tracker, times(1)).replace(setOf(request.workSpec))
+        assertThat(fakeChargingTracker.isTracking, `is`(true))
         val stopIntent = createCancelWorkIntent(context, request.stringId)
         dispatcher.onStartCommand(stopIntent)
         verify(workManager, times(1)).cancelWorkById(eq(UUID.fromString(request.workSpec.id)))
@@ -388,7 +425,6 @@ class SystemForegroundDispatcherTest {
             .setInitialState(WorkInfo.State.RUNNING)
             .build()
 
-        `when`(processor.isEnqueuedInForeground(eq(request.stringId))).thenReturn(true)
         workDatabase.workSpecDao().insertWorkSpec(request.workSpec)
         val notificationId = 1
         val notification = mock(Notification::class.java)
@@ -396,7 +432,7 @@ class SystemForegroundDispatcherTest {
         val intent = createStartForegroundIntent(context,
             WorkGenerationalId(request.stringId, 0), metadata)
         dispatcher.onStartCommand(intent)
-        processor.stopWork(StartStopToken(WorkGenerationalId(request.stringId, 0)))
+        processor.stopWork(StartStopToken(WorkGenerationalId(request.stringId, 0)), 0)
         val state = workDatabase.workSpecDao().getState(request.stringId)
         assertThat(state, `is`(WorkInfo.State.RUNNING))
         val stopAndCancelIntent = createCancelWorkIntent(context, request.stringId)
@@ -408,7 +444,7 @@ class SystemForegroundDispatcherTest {
     @Test
     fun testUseRunningWork() {
         val request = OneTimeWorkRequest.Builder(NeverResolvedWorker::class.java)
-            .setConstraints(Constraints(requiredNetworkType = NetworkType.CONNECTED))
+            .setConstraints(Constraints.Builder().setRequiresCharging(true).build())
             .build()
         workDatabase.workSpecDao().insertWorkSpec(request.workSpec)
         processor.startWork(StartStopToken(WorkGenerationalId(request.stringId, 0)))
@@ -422,7 +458,7 @@ class SystemForegroundDispatcherTest {
         val intent = createStartForegroundIntent(context,
             WorkGenerationalId(request.stringId, 0), metadata)
         dispatcher.onStartCommand(intent)
-        verify(tracker, times(1)).replace(setOf(request.workSpec))
+        assertThat(fakeChargingTracker.isTracking, `is`(true))
     }
 }
 

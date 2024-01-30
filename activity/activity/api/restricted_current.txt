@@ -20,9 +20,9 @@ package androidx.activity {
     method public final androidx.activity.OnBackPressedDispatcher getOnBackPressedDispatcher();
     method public final androidx.savedstate.SavedStateRegistry getSavedStateRegistry();
     method public androidx.lifecycle.ViewModelStore getViewModelStore();
+    method @CallSuper public void initializeViewTreeOwners();
     method public void invalidateMenu();
     method @Deprecated @CallSuper protected void onActivityResult(int, int, android.content.Intent?);
-    method @MainThread public void onBackPressed();
     method @CallSuper public void onMultiWindowModeChanged(boolean);
     method @CallSuper public void onPictureInPictureModeChanged(boolean);
     method @Deprecated @CallSuper public void onRequestPermissionsResult(int, String![], int[]);
@@ -50,10 +50,17 @@ package androidx.activity {
     method public androidx.lifecycle.Lifecycle getLifecycle();
     method public final androidx.activity.OnBackPressedDispatcher getOnBackPressedDispatcher();
     method public androidx.savedstate.SavedStateRegistry getSavedStateRegistry();
+    method @CallSuper public void initializeViewTreeOwners();
     method @CallSuper public void onBackPressed();
     property public androidx.lifecycle.Lifecycle lifecycle;
     property public final androidx.activity.OnBackPressedDispatcher onBackPressedDispatcher;
     property public androidx.savedstate.SavedStateRegistry savedStateRegistry;
+  }
+
+  public final class EdgeToEdge {
+    method public static void enable(androidx.activity.ComponentActivity, optional androidx.activity.SystemBarStyle statusBarStyle, optional androidx.activity.SystemBarStyle navigationBarStyle);
+    method public static void enable(androidx.activity.ComponentActivity, optional androidx.activity.SystemBarStyle statusBarStyle);
+    method public static void enable(androidx.activity.ComponentActivity);
   }
 
   public final class FullyDrawnReporter {
@@ -101,6 +108,19 @@ package androidx.activity {
   public interface OnBackPressedDispatcherOwner extends androidx.lifecycle.LifecycleOwner {
     method public androidx.activity.OnBackPressedDispatcher getOnBackPressedDispatcher();
     property public abstract androidx.activity.OnBackPressedDispatcher onBackPressedDispatcher;
+  }
+
+  public final class SystemBarStyle {
+    method public static androidx.activity.SystemBarStyle auto(@ColorInt int lightScrim, @ColorInt int darkScrim);
+    method public static androidx.activity.SystemBarStyle dark(@ColorInt int scrim);
+    method public static androidx.activity.SystemBarStyle light(@ColorInt int scrim, @ColorInt int darkScrim);
+    field public static final androidx.activity.SystemBarStyle.Companion Companion;
+  }
+
+  public static final class SystemBarStyle.Companion {
+    method public androidx.activity.SystemBarStyle auto(@ColorInt int lightScrim, @ColorInt int darkScrim);
+    method public androidx.activity.SystemBarStyle dark(@ColorInt int scrim);
+    method public androidx.activity.SystemBarStyle light(@ColorInt int scrim, @ColorInt int darkScrim);
   }
 
   public final class ViewTreeFullyDrawnReporterOwner {
@@ -155,7 +175,7 @@ package androidx.activity.result {
   }
 
   public fun interface ActivityResultCallback<O> {
-    method public void onActivityResult(O? result);
+    method public void onActivityResult(O result);
   }
 
   public interface ActivityResultCaller {
@@ -234,15 +254,15 @@ package androidx.activity.result.contract {
 
   public abstract class ActivityResultContract<I, O> {
     ctor public ActivityResultContract();
-    method public abstract android.content.Intent createIntent(android.content.Context context, I? input);
-    method public androidx.activity.result.contract.ActivityResultContract.SynchronousResult<O>? getSynchronousResult(android.content.Context context, I? input);
-    method public abstract O! parseResult(int resultCode, android.content.Intent? intent);
+    method public abstract android.content.Intent createIntent(android.content.Context context, I input);
+    method public androidx.activity.result.contract.ActivityResultContract.SynchronousResult<O>? getSynchronousResult(android.content.Context context, I input);
+    method public abstract O parseResult(int resultCode, android.content.Intent? intent);
   }
 
   public static final class ActivityResultContract.SynchronousResult<T> {
-    ctor public ActivityResultContract.SynchronousResult(T? value);
-    method public T! getValue();
-    property public final T! value;
+    ctor public ActivityResultContract.SynchronousResult(T value);
+    method public T getValue();
+    property public final T value;
   }
 
   public final class ActivityResultContracts {

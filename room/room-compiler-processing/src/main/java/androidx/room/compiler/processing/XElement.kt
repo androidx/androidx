@@ -20,8 +20,8 @@ import androidx.room.compiler.processing.javac.JavacElement
 import androidx.room.compiler.processing.ksp.KSFileAsOriginatingElement
 import androidx.room.compiler.processing.ksp.KspElement
 import androidx.room.compiler.processing.ksp.KspMemberContainer
-import androidx.room.compiler.processing.ksp.wrapAsOriginatingElement
 import androidx.room.compiler.processing.ksp.synthetic.KspSyntheticPropertyMethodElement
+import androidx.room.compiler.processing.ksp.wrapAsOriginatingElement
 import javax.lang.model.element.Element
 import kotlin.contracts.contract
 
@@ -61,10 +61,10 @@ interface XElement : XAnnotated {
 
     /**
      * Returns the immediate enclosing element. This uses Element.getEnclosingElement() on the
-     * Java side, and KSNode.parent on the KSP side. For non-nested classes we return null as we
-     * don't model packages yet. For fields declared in primary constructors in Kotlin we return
+     * Java side, and KSNode.parent on the KSP side. For non-nested classes we return null.
+     * For fields declared in primary constructors in Kotlin we return
      * the enclosing type, not the constructor. For top-level properties or functions in Kotlin
-     * we return JavacTypeElement on the Java side and KspFileMemberContainer or
+     * we return JavacTypeElement on the Javac/KAPT side and KspFileMemberContainer or
      * KspSyntheticFileMemberContainer on the KSP side.
      */
     val enclosingElement: XElement?

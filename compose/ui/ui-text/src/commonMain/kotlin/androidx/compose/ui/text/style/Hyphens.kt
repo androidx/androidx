@@ -77,11 +77,18 @@ value class Hyphens private constructor(internal val value: Int) {
          * </pre>
          */
         val Auto = Hyphens(2)
+
+        /**
+         * This represents an unset value, a usual replacement for "null" when a primitive value
+         * is desired.
+         */
+        val Unspecified = Hyphens(Int.MIN_VALUE)
     }
 
     override fun toString() = when (this) {
         None -> "Hyphens.None"
         Auto -> "Hyphens.Auto"
+        Unspecified -> "Hyphens.Unspecified"
         else -> "Invalid"
     }
 }

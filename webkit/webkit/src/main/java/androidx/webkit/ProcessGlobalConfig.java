@@ -157,34 +157,36 @@ public class ProcessGlobalConfig {
      * current process.
      *
      * @param context a Context to access application assets. This value cannot be null.
-     * @param dataDirectoryBasePath the base path for the WebView data directory.
-     * @param cacheDirectoryBasePath the base path for the WebView cache directory.
+     * @param dataDirectoryBasePath the absolute base path for the WebView data directory.
+     * @param cacheDirectoryBasePath the absolute base path for the WebView cache directory.
      * @return the ProcessGlobalConfig that has the value set to allow chaining of setters
      * @throws UnsupportedOperationException if underlying WebView does not support the use of
      *                                       the method.
      * @throws IllegalArgumentException if the paths supplied do not have the right permissions
      */
-    @RequiresFeature(name = WebViewFeature.STARTUP_FEATURE_SET_DIRECTORY_BASE_PATH,
+    @SuppressWarnings("StreamFiles")
+    @RequiresFeature(name =
+            WebViewFeature.STARTUP_FEATURE_SET_DIRECTORY_BASE_PATHS,
             enforcement =
                     "androidx.webkit.WebViewFeature#isConfigFeatureSupported(String, Context)")
     @NonNull
-    public ProcessGlobalConfig setDirectoryBasePath(@NonNull Context context,
-            @NonNull String dataDirectoryBasePath, @NonNull String cacheDirectoryBasePath) {
+    public ProcessGlobalConfig setDirectoryBasePaths(@NonNull Context context,
+            @NonNull File dataDirectoryBasePath, @NonNull File cacheDirectoryBasePath) {
         final StartupApiFeature.NoFramework feature =
                 WebViewFeatureInternal.STARTUP_FEATURE_SET_DIRECTORY_BASE_PATH;
         if (!feature.isSupported(context)) {
             throw WebViewFeatureInternal.getUnsupportedOperationException();
         }
-        if (!dataDirectoryBasePath.startsWith("/")) {
+        if (!dataDirectoryBasePath.isAbsolute()) {
             throw new IllegalArgumentException("dataDirectoryBasePath must be a non-empty absolute"
                     + " path");
         }
-        if (!cacheDirectoryBasePath.startsWith("/")) {
+        if (!cacheDirectoryBasePath.isAbsolute()) {
             throw new IllegalArgumentException("cacheDirectoryBasePath must be a non-empty absolute"
                     + " path");
         }
-        mDataDirectoryBasePath = dataDirectoryBasePath;
-        mCacheDirectoryBasePath = cacheDirectoryBasePath;
+        mDataDirectoryBasePath = dataDirectoryBasePath.getAbsolutePath();
+        mCacheDirectoryBasePath = cacheDirectoryBasePath.getAbsolutePath();
         return this;
     }
 

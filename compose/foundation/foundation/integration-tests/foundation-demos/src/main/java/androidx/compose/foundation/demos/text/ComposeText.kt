@@ -44,8 +44,8 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.ListItem
-import androidx.compose.material.Slider
 import androidx.compose.material.RadioButton
+import androidx.compose.material.Slider
 import androidx.compose.material.Switch
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
@@ -54,6 +54,7 @@ import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -562,7 +563,7 @@ fun TextDemoHyphens() {
     val textStyleHyphensOff = TextStyle(fontSize = fontSize8, color = Color.Blue,
         hyphens = Hyphens.None)
     Column {
-        var width by remember { mutableStateOf(30f) }
+        var width by remember { mutableFloatStateOf(30f) }
         Slider(
             value = width,
             onValueChange = { width = it },

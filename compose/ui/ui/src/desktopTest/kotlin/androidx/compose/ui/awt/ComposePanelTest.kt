@@ -18,26 +18,43 @@ package androidx.compose.ui.awt
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.requiredSize
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.sizeIn
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.Text
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.PointerEventType
+import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.layout.layout
+import androidx.compose.ui.sendMouseEvent
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.density
 import androidx.compose.ui.window.runApplicationTest
 import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.runBlocking
-import org.jetbrains.skiko.MainUIDispatcher
-import org.junit.Assume
-import org.junit.Test
+import java.awt.BorderLayout
 import java.awt.Dimension
 import java.awt.GraphicsEnvironment
+import java.awt.event.MouseEvent
 import javax.swing.JFrame
+import javax.swing.JPanel
+import junit.framework.TestCase.assertTrue
+import kotlin.test.assertEquals
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
 import org.jetbrains.skiko.ExperimentalSkikoApi
 import org.jetbrains.skiko.GraphicsApi
+import org.jetbrains.skiko.MainUIDispatcher
 import org.jetbrains.skiko.OS
 import org.jetbrains.skiko.SkiaLayerAnalytics
 import org.junit.Assume.assumeFalse
+import org.junit.Test
 
 class ComposePanelTest {
     @Test
@@ -162,6 +179,234 @@ class ComposePanelTest {
             } finally {
                 frame.dispose()
             }
+        }
+    }
+
+    @OptIn(ExperimentalComposeUiApi::class)
+    @Test
+    fun `compose state shouldn't reset on panel remove and add with isDisposeOnRemove = false`() {
+        assumeFalse(GraphicsEnvironment.getLocalGraphicsEnvironment().isHeadlessInstance)
+
+        runBlocking(MainUIDispatcher) {
+            var initialStateCounter = 0
+            val composePanel = ComposePanel().apply {
+                isDisposeOnRemove = false
+            }
+            composePanel.setContent {
+                var state by remember { mutableStateOf(0) }
+
+                LaunchedEffect(state) {
+                    if (state == 0) {
+                        state++
+                        initialStateCounter++
+                    }
+                }
+            }
+
+            val frame = JFrame()
+            try {
+                frame.contentPane.add(composePanel)
+                frame.isUndecorated = true
+
+                frame.pack()
+
+                frame.isVisible = true
+                delay(1000)
+                assertEquals(1, initialStateCounter)
+
+                frame.contentPane.remove(composePanel)
+                delay(1000)
+                assertEquals(1, initialStateCounter)
+
+                frame.contentPane.add(composePanel)
+                delay(1000)
+                assertEquals(1, initialStateCounter)
+            } finally {
+                frame.dispose()
+                composePanel.dispose()
+            }
+        }
+    }
+
+    @Test
+    fun `compose state should reset on panel remove and add`() {
+        assumeFalse(GraphicsEnvironment.getLocalGraphicsEnvironment().isHeadlessInstance)
+
+        runBlocking(MainUIDispatcher) {
+            var initialStateCounter = 0
+            val composePanel = ComposePanel()
+            composePanel.setContent {
+                var state by remember { mutableStateOf(0) }
+
+                LaunchedEffect(state) {
+                    if (state == 0) {
+                        state++
+                        initialStateCounter++
+                    }
+                }
+            }
+
+            val frame = JFrame()
+            try {
+                frame.contentPane.add(composePanel)
+                frame.isUndecorated = true
+
+                frame.pack()
+
+                frame.isVisible = true
+                delay(1000)
+                assertEquals(1, initialStateCounter)
+
+                frame.contentPane.remove(composePanel)
+                delay(1000)
+                assertEquals(1, initialStateCounter)
+
+                frame.contentPane.add(composePanel)
+                delay(1000)
+                assertEquals(2, initialStateCounter)
+            } finally {
+                frame.dispose()
+            }
+        }
+    }
+
+    @Test
+    fun `initial panel size with border layout`() {
+        assumeFalse(GraphicsEnvironment.getLocalGraphicsEnvironment().isHeadlessInstance)
+
+        runBlocking(MainUIDispatcher) {
+            val composePanel = ComposePanel()
+            composePanel.setContent {
+                Text("Content")
+            }
+
+            val frame = JFrame()
+            try {
+                val content = JPanel(BorderLayout()).apply {
+                    add(composePanel, BorderLayout.CENTER)
+                }
+                frame.contentPane.add(content)
+                frame.pack()
+
+                frame.isVisible = true
+                delay(1000)
+                assertTrue(content.size.height > 2)
+                assertTrue(content.size.width > 2)
+            } finally {
+                frame.dispose()
+            }
+        }
+    }
+
+    @Test
+    fun `initial panel size of LazyColumn with border layout`() {
+        assumeFalse(GraphicsEnvironment.getLocalGraphicsEnvironment().isHeadlessInstance)
+
+        runBlocking(MainUIDispatcher) {
+            val composePanel = ComposePanel()
+            composePanel.setContent {
+                LazyColumn(modifier = Modifier.sizeIn(maxHeight = 500.dp)) {
+                    repeat(100_000) {
+                        item {
+                            Text("Text $it")
+                        }
+                    }
+                }
+            }
+
+            val frame = JFrame()
+            try {
+                val content = JPanel(BorderLayout()).apply {
+                    add(composePanel, BorderLayout.CENTER)
+                }
+                frame.contentPane.add(content)
+                frame.pack()
+
+                frame.isVisible = true
+                delay(1000)
+                assertTrue(content.size.width > 2)
+                assertEquals(500, content.size.height)
+            } finally {
+                frame.dispose()
+            }
+        }
+    }
+
+    @Test
+    fun `initial panel size of LazyColumn with border layout and preferred frame size`() {
+        assumeFalse(GraphicsEnvironment.getLocalGraphicsEnvironment().isHeadlessInstance)
+
+        runBlocking(MainUIDispatcher) {
+            val composePanel = ComposePanel()
+            composePanel.setContent {
+                LazyColumn {
+                    repeat(100_000) {
+                        item {
+                            Text("Text $it")
+                        }
+                    }
+                }
+            }
+
+            val frame = JFrame()
+            try {
+                val content = JPanel(BorderLayout()).apply {
+                    add(composePanel, BorderLayout.CENTER)
+                }
+                frame.contentPane.add(content)
+                frame.contentPane.preferredSize = Dimension(200, 300)
+                frame.pack()
+
+                frame.isVisible = true
+                delay(1000)
+                assertEquals(200, content.size.width)
+                assertEquals(300, content.size.height)
+            } finally {
+                frame.dispose()
+            }
+        }
+    }
+
+    // Issue: https://github.com/JetBrains/compose-multiplatform/issues/4123
+    @Test
+    fun `hover events in panel with offset`() = runApplicationTest {
+        var enterEvents = 0
+        var exitEvents = 0
+
+        val composePanel = ComposePanel()
+        composePanel.setBounds(25, 25, 50, 50)
+        composePanel.setContent {
+            Box(Modifier.size(50.dp)
+                .onPointerEvent(PointerEventType.Enter) { enterEvents++ }
+                .onPointerEvent(PointerEventType.Exit) { exitEvents++ }
+            )
+        }
+
+        val window = JFrame()
+        window.size = Dimension(200, 200)
+        try {
+            val content = JPanel(BorderLayout()).apply {
+                layout = null
+                add(composePanel, BorderLayout.CENTER)
+            }
+            window.contentPane.add(content)
+            window.isVisible = true
+
+            composePanel.sendMouseEvent(MouseEvent.MOUSE_ENTERED, 20, 20)
+            awaitIdle()
+            composePanel.sendMouseEvent(MouseEvent.MOUSE_MOVED, 20, 20)
+            awaitIdle()
+
+            assertEquals(1, enterEvents)
+            assertEquals(0, exitEvents)
+
+            composePanel.sendMouseEvent(MouseEvent.MOUSE_MOVED, 50, 50)
+            awaitIdle()
+
+            assertEquals(1, enterEvents)
+            assertEquals(1, exitEvents)
+        } finally {
+            window.dispose()
         }
     }
 }

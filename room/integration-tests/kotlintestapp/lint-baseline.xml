@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.2.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.2.0-beta01)" variant="all" version="8.2.0-beta01">
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="                Thread.sleep(3_500)"
+        errorLine2="                       ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/room/integration/kotlintestapp/test/MultiTypedPagingSourceTest.kt"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="                        .doOnSubscribe { Thread.sleep(500) }"
+        errorLine2="                                                ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/room/integration/kotlintestapp/test/Rx2PagingSourceTest.kt"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="                        .doOnSubscribe { Thread.sleep(500) }"
+        errorLine2="                                                ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/room/integration/kotlintestapp/test/Rx2PagingSourceTest.kt"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="                        .doOnSubscribe { Thread.sleep(500) }"
+        errorLine2="                                                ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/room/integration/kotlintestapp/test/Rx2PagingSourceTest.kt"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="                        .doOnSubscribe { Thread.sleep(500) }"
+        errorLine2="                                                ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/room/integration/kotlintestapp/test/Rx3PagingSourceTest.kt"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="                        .doOnSubscribe { Thread.sleep(500) }"
+        errorLine2="                                                ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/room/integration/kotlintestapp/test/Rx3PagingSourceTest.kt"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="                        .doOnSubscribe { Thread.sleep(500) }"
+        errorLine2="                                                ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/room/integration/kotlintestapp/test/Rx3PagingSourceTest.kt"/>
+    </issue>
+
+</issues>

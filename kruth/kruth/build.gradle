@@ -1,0 +1,96 @@
+/*
+ * Copyright 2022 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import androidx.build.KmpPlatformsKt
+import androidx.build.LibraryType
+import androidx.build.PlatformIdentifier
+import androidx.build.Publish
+import androidx.build.RunApiTasks
+
+plugins {
+    id("AndroidXPlugin")
+}
+
+def macEnabled = KmpPlatformsKt.enableMac(project)
+def linuxEnabled = KmpPlatformsKt.enableLinux(project)
+
+androidXMultiplatform {
+    jvm {}
+    mac()
+    linux()
+    ios()
+
+    defaultPlatform(PlatformIdentifier.JVM)
+
+    sourceSets {
+        commonMain {
+            dependencies {
+                api(libs.kotlinStdlibCommon)
+                api(libs.kotlinTestCommon)
+            }
+        }
+
+        commonTest {
+            dependencies {
+                implementation(libs.kotlinTestCommon)
+                implementation(libs.kotlinTestAnnotationsCommon)
+            }
+        }
+
+        jvmMain {
+            dependsOn(commonMain)
+            dependencies {
+                api(libs.kotlinStdlib)
+                api(libs.kotlinTest)
+                implementation(libs.guavaAndroid)
+            }
+        }
+
+        jvmTest {
+            dependencies {
+                implementation(libs.kotlinStdlib)
+                implementation(libs.kotlinTest)
+            }
+        }
+
+        if (macEnabled || linuxEnabled) {
+            nativeMain {
+                dependsOn(commonMain)
+            }
+        }
+
+        targets.all { target ->
+            if (target.platformType == org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType.native) {
+                target.compilations["main"].defaultSourceSet {
+                    dependsOn(nativeMain)
+                }
+            }
+        }
+
+        // Workaround for https://youtrack.jetbrains.com/issue/KT-51763
+        // Make sure commonization runs before any compilation task.
+        tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinNativeCompile).configureEach {
+            it.dependsOn(tasks.named("commonize"))
+        }
+    }
+}
+
+androidx {
+    legacyDisableKotlinStrictApiMode = true // Temporarily enabled to allow API tracking
+    publish = Publish.SNAPSHOT_ONLY
+    runApiTasks = new RunApiTasks.Yes() // Used to diff against Google Truth
+    type = LibraryType.INTERNAL_TEST_LIBRARY
+}

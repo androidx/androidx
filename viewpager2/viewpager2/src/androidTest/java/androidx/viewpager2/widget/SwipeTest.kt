@@ -23,11 +23,11 @@ import androidx.viewpager2.widget.ViewPager2.ORIENTATION_HORIZONTAL
 import androidx.viewpager2.widget.ViewPager2.ORIENTATION_VERTICAL
 import androidx.viewpager2.widget.ViewPager2.Orientation
 import androidx.viewpager2.widget.swipe.PageView
+import java.util.Random
+import java.util.concurrent.TimeUnit
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
-import java.util.Random
-import java.util.concurrent.TimeUnit
 
 // region test
 

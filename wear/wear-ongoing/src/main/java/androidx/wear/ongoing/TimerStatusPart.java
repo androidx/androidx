@@ -32,7 +32,6 @@ import java.util.Objects;
  * {@link Status.StopwatchPart}
  * <p>
  * Available since wear-ongoing:1.0.0
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @VersionedParcelize

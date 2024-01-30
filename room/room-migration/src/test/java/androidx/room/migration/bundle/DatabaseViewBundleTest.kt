@@ -18,7 +18,6 @@ package androidx.room.migration.bundle
 
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
-
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4

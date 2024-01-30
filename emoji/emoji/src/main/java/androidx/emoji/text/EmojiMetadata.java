@@ -36,7 +36,6 @@ import java.lang.annotation.RetentionPolicy;
 /**
  * Information about a single emoji.
  *
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 @AnyThread

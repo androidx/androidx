@@ -129,6 +129,23 @@ limitations under the License.
         app:layout_constraintVertical_bias="1.0" />
 
     <ToggleButton
+        android:id="@+id/video_persistent"
+        android:layout_width="46dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="1dp"
+        android:layout_marginRight="5dp"
+        android:scaleType="fitXY"
+        android:textColor="#EEEEEE"
+        android:textSize="14dp"
+        android:textOn="@string/toggle_video_persistent_on"
+        android:textOff="@string/toggle_video_persistent_off"
+        android:visibility="invisible"
+        android:checked="false"
+        android:background="@drawable/round_toggle_button"
+        app:layout_constraintTop_toBottomOf="@id/video_quality"
+        app:layout_constraintRight_toRightOf="parent" />
+
+    <ToggleButton
         android:id="@+id/VideoToggle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -291,6 +308,20 @@ limitations under the License.
         app:layout_constraintLeft_toRightOf="@id/plus_ev_toggle"
         app:layout_constraintTop_toBottomOf="@id/VideoToggle" />
 
+    <ToggleButton
+        android:id="@+id/preview_stabilization"
+        android:layout_width="46dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="1dp"
+        android:background="@android:drawable/btn_default"
+        android:textOff="@string/toggle_preview_stabilization_off"
+        android:textOn="@string/toggle_preview_stabilization_on"
+        android:textSize="11dp"
+        android:translationZ="1dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/direction_toggle" />
+
     <Button
         android:id="@+id/video_quality"
         android:layout_width="46dp"
@@ -303,6 +334,21 @@ limitations under the License.
         android:textSize="14dp"
         android:visibility="invisible"
         app:layout_constraintTop_toBottomOf="@id/direction_toggle"
+        app:layout_constraintRight_toRightOf="parent"
+        />
+
+    <Button
+        android:id="@+id/video_dynamic_range"
+        android:layout_width="46dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="1dp"
+        android:layout_marginRight="5dp"
+        android:background="@drawable/round_button"
+        android:scaleType="fitXY"
+        android:textColor="#EEEEEE"
+        android:textSize="14dp"
+        android:visibility="invisible"
+        app:layout_constraintTop_toBottomOf="@id/video_persistent"
         app:layout_constraintRight_toRightOf="parent"
         />
 
@@ -359,4 +405,8 @@ limitations under the License.
         app:layout_constraintStart_toEndOf="@+id/seekBar"
         app:layout_constraintTop_toTopOf="@+id/seekBar" />
 
+    <androidx.camera.view.ScreenFlashView
+        android:id="@+id/screen_flash_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

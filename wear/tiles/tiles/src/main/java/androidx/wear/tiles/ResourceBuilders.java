@@ -38,15 +38,16 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-/** Builders for the resources for a layout. */
+/**
+ * Builders for the resources for a layout.
+ *
+ * @deprecated Use {@link androidx.wear.protolayout.ResourceBuilders} instead.
+ */
+@Deprecated
 public final class ResourceBuilders {
     private ResourceBuilders() {}
 
-    /**
-     * Format describing the contents of an image data byte array.
-     *
-     * @hide
-     */
+    /** Format describing the contents of an image data byte array. */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef({IMAGE_FORMAT_UNDEFINED, IMAGE_FORMAT_RGB_565})
     @Retention(RetentionPolicy.SOURCE)
@@ -78,18 +79,14 @@ public final class ResourceBuilders {
             return mImpl.getResourceId();
         }
 
-        /** @hide */
-        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        public static AndroidImageResourceByResId fromProto(
+        static AndroidImageResourceByResId fromProto(
                 @NonNull ResourceProto.AndroidImageResourceByResId proto) {
             return new AndroidImageResourceByResId(proto);
         }
 
-        /** @hide */
-        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        public ResourceProto.AndroidImageResourceByResId toProto() {
+        ResourceProto.AndroidImageResourceByResId toProto() {
             return mImpl;
         }
 
@@ -166,18 +163,13 @@ public final class ResourceBuilders {
             return mImpl.getFormat().getNumber();
         }
 
-        /** @hide */
-        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        public static InlineImageResource fromProto(
-                @NonNull ResourceProto.InlineImageResource proto) {
+        static InlineImageResource fromProto(@NonNull ResourceProto.InlineImageResource proto) {
             return new InlineImageResource(proto);
         }
 
-        /** @hide */
-        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        public ResourceProto.InlineImageResource toProto() {
+        ResourceProto.InlineImageResource toProto() {
             return mImpl;
         }
 
@@ -272,17 +264,13 @@ public final class ResourceBuilders {
             }
         }
 
-        /** @hide */
-        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        public static ImageResource fromProto(@NonNull ResourceProto.ImageResource proto) {
+        static ImageResource fromProto(@NonNull ResourceProto.ImageResource proto) {
             return new ImageResource(proto);
         }
 
-        /** @hide */
-        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        public ResourceProto.ImageResource toProto() {
+        ResourceProto.ImageResource toProto() {
             return mImpl;
         }
 
@@ -374,14 +362,13 @@ public final class ResourceBuilders {
             }
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static Resources fromProto(@NonNull ResourceProto.Resources proto) {
             return new Resources(proto);
         }
 
-        /** @hide */
+        /** Returns the internal proto instance. */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public ResourceProto.Resources toProto() {

@@ -20,106 +20,28 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.Snapshot
-import androidx.compose.runtime.staticCompositionLocalOf
-import androidx.compose.runtime.withFrameNanos
-import androidx.compose.ui.ExperimentalComposeUiApi
-import androidx.compose.ui.FillBox
-import androidx.compose.ui.ImageComposeScene
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.PopupState
-import androidx.compose.ui.assertReceivedLast
-import androidx.compose.ui.assertReceivedNoEvents
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.input.pointer.PointerEventType
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.keyEvent
 import androidx.compose.ui.layout.Layout
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.isPopup
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.IntRect
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performKeyPress
+import androidx.compose.ui.test.runSkikoComposeUiTest
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.use
-import com.google.common.truth.Truth
 import com.google.common.truth.Truth.assertThat
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 
-@OptIn(ExperimentalTestApi::class, ExperimentalComposeUiApi::class)
 class DesktopPopupTest {
     @get:Rule
     val rule = createComposeRule()
-
-    @Test
-    fun `pass composition locals to popup`() {
-        val compositionLocal = staticCompositionLocalOf<Int> {
-            error("not set")
-        }
-
-        var actualLocalValue = 0
-
-        rule.setContent {
-            CompositionLocalProvider(compositionLocal provides 3) {
-                Popup {
-                    actualLocalValue = compositionLocal.current
-                }
-            }
-        }
-
-        Truth.assertThat(actualLocalValue).isEqualTo(3)
-    }
-
-    @Test
-    fun `onDispose inside popup`() {
-        var isPopupShowing by mutableStateOf(true)
-        var isDisposed = false
-
-        rule.setContent {
-            if (isPopupShowing) {
-                Popup {
-                    DisposableEffect(Unit) {
-                        onDispose {
-                            isDisposed = true
-                        }
-                    }
-                }
-            }
-        }
-
-        isPopupShowing = false
-        rule.waitForIdle()
-
-        Truth.assertThat(isDisposed).isEqualTo(true)
-    }
-
-    @Test
-    fun `use density inside popup`() {
-        var density by mutableStateOf(Density(2f, 1f))
-        var densityInsidePopup = 0f
-
-        rule.setContent {
-            CompositionLocalProvider(LocalDensity provides density) {
-                Popup {
-                    densityInsidePopup = LocalDensity.current.density
-                }
-            }
-        }
-
-        Truth.assertThat(densityInsidePopup).isEqualTo(2f)
-
-        density = Density(3f, 1f)
-        rule.waitForIdle()
-        Truth.assertThat(densityInsidePopup).isEqualTo(3f)
-    }
 
     @Test(timeout = 5000) // TODO(demin): why, when an error has occurred, this test never ends?
     fun `(Bug) after open popup use derivedStateOf inside main window draw`() {
@@ -210,7 +132,7 @@ class DesktopPopupTest {
 
         rule.waitForIdle()
 
-        Truth.assertThat(lastCompositionState).isEqualTo(1)
+        assertThat(lastCompositionState).isEqualTo(1)
     }
 
     @Test(timeout = 5000)
@@ -235,89 +157,99 @@ class DesktopPopupTest {
         rule.waitForIdle()
     }
 
-    // TODO(https://github.com/JetBrains/compose-jb/issues/1866) enable when deadlock is fixed
     @Test
-    @Ignore("Enable when deadlock https://github.com/JetBrains/compose-jb/issues/1866 is fixed")
-    fun `call dismiss if clicked outside of focusable popup`() = ImageComposeScene(
-        100,
-        100
-    ).use { scene ->
+    fun dismissPopupByEscWithBackPressProperty() {
         var onDismissRequestCallCount = 0
-
-        val background = FillBox()
-        val popup = PopupState(
-            IntRect(20, 20, 60, 60),
-            focusable = true,
-            onDismissRequest = { onDismissRequestCallCount++ }
-        )
-
-        scene.setContent {
-            background.Content()
-            popup.Content()
+        rule.setContent {
+            Popup(
+                onDismissRequest = { onDismissRequestCallCount++ },
+                properties = PopupProperties(
+                    focusable = true,
+                    dismissOnBackPress = true
+                )
+            ) {
+                Box(Modifier)
+            }
         }
 
-        assertThat(onDismissRequestCallCount).isEqualTo(0)
-        scene.sendPointerEvent(PointerEventType.Press, Offset(10f, 10f))
-        background.events.assertReceivedNoEvents()
+        rule.onNode(isPopup())
+            .performKeyPress(keyEvent(Key.Escape, KeyEventType.KeyDown))
+        rule.waitForIdle()
+        assertThat(onDismissRequestCallCount).isEqualTo(1)
+        rule.onNode(isPopup())
+            .performKeyPress(keyEvent(Key.Escape, KeyEventType.KeyUp))
+        rule.waitForIdle()
         assertThat(onDismissRequestCallCount).isEqualTo(1)
     }
 
-    // TODO(https://github.com/JetBrains/compose-jb/issues/1866) enable when deadlock is fixed
     @Test
-    @Ignore("Enable when deadlock https://github.com/JetBrains/compose-jb/issues/1866 is fixed")
-    fun `pass event if clicked outside of non-focusable popup`() = ImageComposeScene(
-        100,
-        100
-    ).use { scene ->
+    fun doNotDismissPopupByEscWithoutBackPressProperty() {
         var onDismissRequestCallCount = 0
-
-        val background = FillBox()
-        val popup = PopupState(
-            IntRect(20, 20, 60, 60),
-            focusable = false,
-            onDismissRequest = { onDismissRequestCallCount++ }
-        )
-
-        scene.setContent {
-            background.Content()
-            popup.Content()
+        rule.setContent {
+            Popup(
+                onDismissRequest = { onDismissRequestCallCount++ },
+                properties = PopupProperties(
+                    focusable = true,
+                    dismissOnBackPress = false
+                )
+            ) {
+                Box(Modifier)
+            }
         }
 
+        rule.onNode(isPopup())
+            .performKeyPress(keyEvent(Key.Escape, KeyEventType.KeyDown))
+        rule.waitForIdle()
         assertThat(onDismissRequestCallCount).isEqualTo(0)
-        scene.sendPointerEvent(PointerEventType.Press, Offset(10f, 10f))
-        background.events.assertReceivedLast(PointerEventType.Press, Offset(10f, 10f))
+        rule.onNode(isPopup())
+            .performKeyPress(keyEvent(Key.Escape, KeyEventType.KeyUp))
+        rule.waitForIdle()
         assertThat(onDismissRequestCallCount).isEqualTo(0)
     }
 
-    // TODO(https://github.com/JetBrains/compose-jb/issues/1866) enable when deadlock is fixed
     @Test
-    @Ignore("Enable when deadlock https://github.com/JetBrains/compose-jb/issues/1866 is fixed")
-    fun `can scroll outside of non-focusable popup`() = ImageComposeScene(100, 100).use { scene ->
-        val background = FillBox()
-        val popup = PopupState(IntRect(20, 20, 60, 60), focusable = false)
-
-        scene.setContent {
-            background.Content()
-            popup.Content()
+    fun dismissPopupByEscOnNotConsumedKeyEvent() {
+        var onDismissRequestCallCount = 0
+        rule.setContent {
+            Popup(
+                focusable = true,
+                onDismissRequest = { onDismissRequestCallCount++ },
+                onKeyEvent = { false }
+            ) {
+                Box(Modifier)
+            }
         }
 
-        scene.sendPointerEvent(PointerEventType.Scroll, Offset(10f, 10f))
-        background.events.assertReceivedLast(PointerEventType.Scroll, Offset(10f, 10f))
+        rule.onNode(isPopup())
+            .performKeyPress(keyEvent(Key.Escape, KeyEventType.KeyDown))
+        rule.waitForIdle()
+        assertThat(onDismissRequestCallCount).isEqualTo(1)
+        rule.onNode(isPopup())
+            .performKeyPress(keyEvent(Key.Escape, KeyEventType.KeyUp))
+        rule.waitForIdle()
+        assertThat(onDismissRequestCallCount).isEqualTo(1)
     }
 
-    // TODO(https://github.com/JetBrains/compose-jb/issues/1866) enable when deadlock is fixed
     @Test
-    @Ignore("Enable when deadlock https://github.com/JetBrains/compose-jb/issues/1866 is fixed")
-    fun `can't scroll outside of focusable popup`() = ImageComposeScene(100, 100).use { scene ->
-        val background = FillBox()
-        val popup = PopupState(IntRect(20, 20, 60, 60), focusable = true)
-
-        scene.setContent {
-            background.Content()
-            popup.Content()
+    fun doNotDismissPopupByEscOnConsumedKeyEvent() {
+        var onDismissRequestCallCount = 0
+        rule.setContent {
+            Popup(
+                focusable = true,
+                onDismissRequest = { onDismissRequestCallCount++ },
+                onKeyEvent = { true }
+            ) {
+                Box(Modifier)
+            }
         }
 
-        scene.sendPointerEvent(PointerEventType.Scroll, Offset(10f, 10f))
-        background.events.assertReceivedNoEvents()
+        rule.onNode(isPopup())
+            .performKeyPress(keyEvent(Key.Escape, KeyEventType.KeyDown))
+        rule.waitForIdle()
+        assertThat(onDismissRequestCallCount).isEqualTo(0)
+        rule.onNode(isPopup())
+            .performKeyPress(keyEvent(Key.Escape, KeyEventType.KeyUp))
+        rule.waitForIdle()
+        assertThat(onDismissRequestCallCount).isEqualTo(0)
     }
 }

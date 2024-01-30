@@ -23,7 +23,6 @@ import androidx.annotation.RestrictTo;
 /**
  * A provider that supplies OpenGL shader code.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface ShaderProvider {

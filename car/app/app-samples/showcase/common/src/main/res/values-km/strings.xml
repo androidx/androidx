@@ -264,6 +264,7 @@
     <string name="tab_title_list" msgid="5104962518489668123">"ផ្ទាំង​​បញ្ជី"</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"ផ្ទាំងក្រឡាដែលមានចំណងជើងផ្ទាំងវែង"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"ផ្ទាំងស្វែងរក"</string>
+    <string name="tab_title_loading" msgid="5385807479734490989">"កំពុងផ្ទុកផ្ទាំង"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"គំរូបង្ហាញផ្ទុកទម្រង់គំរូផ្ទាំង"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"គំរូបង្ហាញគ្មានផ្ទាំងទម្រង់គំរូផ្ទាំង"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"មិនអាចបង្ហាញរូបភាព​សម្រាប់ម៉ាស៊ីនដែល​មិនស្គាល់បានទេ"</string>
@@ -298,7 +299,7 @@
     <string name="some_additional_text" msgid="4009872495806318260">"អត្ថបទ​បន្ថែមមួយចំនួន"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"បញ្ជីគំរូដែល​អាចជ្រើសរើសបាន"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"គំរូបង្ហាញការដាក់​កំហិតកិច្ចការ"</string>
-    <string name="task_limit_reached_msg" msgid="6038763366777119364">"បានឈានដល់​ដែនកំណត់កិច្ចការហើយ\nការបន្តទៀត​នឹងបង្ខំឱ្យកម្មវិធីបញ្ឈប់"</string>
+    <string name="task_limit_reached_msg" msgid="7162842196382260992">"ដំណើរការនេះនឹងធ្វើឱ្យចំនួនជំហានហៀរចេញ ហើយនាំអ្នកទៅកាន់អេក្រង់ថ្មី។"</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"ជំហានកិច្ចការទី %1$d នៃ %2$d"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"ចុចដើម្បីបន្ត"</string>
     <string name="task_content_allowed" msgid="545061986612431190">"សូមចូលមើលទម្រង់គំរូផ្សេងៗ និងធ្វើឱ្យប្រាកដថា រថយន្តស្ថិតក្នុងមុខងារបើកបរ"</string>
@@ -323,6 +324,12 @@
     <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"ជួរដេកក៏អាចត្រូវបានជ្រើសរើសផងដែរ"</string>
     <string name="secondary_action_toast" msgid="5076434693504006565">"សកម្មភាពបន្ទាប់បន្សំត្រូវបានជ្រើសរើស"</string>
     <string name="row_primary_action_toast" msgid="756516694751965204">"សកម្មភាពចម្បងជួរដេកត្រូវបានជ្រើសរើស"</string>
+    <string name="sectioned_item_list_demo_title" msgid="1236735461225007729">"គំរូបង្ហាញបញ្ជីធាតុតាមផ្នែក"</string>
+    <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"បញ្ជីទី 1"</string>
+    <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"បញ្ជីទី 2"</string>
+    <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"អត្ថបទរងនៅក្រោមបញ្ជីនីមួយៗ"</string>
+    <string name="empty_list_demo_title" msgid="5989013634820902455">"គំរូបង្ហាញបញ្ជីទទេ"</string>
+    <string name="empty_list_message" msgid="5331395517560728138">"បញ្ជីគឺទទេ"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"គំរូបង្ហាញនៃ​ទម្រង់គំរូផ្សេងៗ"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"គំរូបង្ហាញអំពីការតាំងរំលេច"</string>
     <string name="template_layouts_demo_title" msgid="788249269446087847">"គំរូបង្ហាញនៃប្លង់​ទម្រង់គំរូ"</string>

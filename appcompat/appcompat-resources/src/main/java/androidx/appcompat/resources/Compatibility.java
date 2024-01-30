@@ -37,7 +37,6 @@ import java.io.IOException;
 /**
  * Unified ApiXXImpls for appcompat-resources.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public final class Compatibility {

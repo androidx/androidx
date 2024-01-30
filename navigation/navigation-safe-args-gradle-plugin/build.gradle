@@ -50,7 +50,7 @@ gradlePlugin {
 }
 
 androidx {
-    name = "Android Navigation TypeSafe Arguments Gradle Plugin"
+    name = "Navigation TypeSafe Arguments Gradle Plugin"
     type = LibraryType.GRADLE_PLUGIN
     inceptionYear = "2017"
     description = "Android Navigation TypeSafe Arguments Gradle Plugin"

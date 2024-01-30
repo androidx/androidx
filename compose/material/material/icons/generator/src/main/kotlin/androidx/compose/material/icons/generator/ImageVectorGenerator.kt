@@ -19,6 +19,7 @@ package androidx.compose.material.icons.generator
 import androidx.compose.material.icons.generator.vector.FillType
 import androidx.compose.material.icons.generator.vector.Vector
 import androidx.compose.material.icons.generator.vector.VectorNode
+import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
@@ -28,7 +29,7 @@ import com.squareup.kotlinpoet.buildCodeBlock
 import java.util.Locale
 
 /**
- * Generator for creating a Kotlin source file with a ImageVectror property for the given [vector],
+ * Generator for creating a Kotlin source file with an ImageVector property for the given [vector],
  * with name [iconName] and theme [iconTheme].
  *
  * @param iconName the name for the generated property, which is also used for the generated file.
@@ -51,26 +52,98 @@ class ImageVectorGenerator(
      * [PackageNames.MaterialIconsPackage] + [IconTheme.themePackageName].
      */
     fun createFileSpec(): FileSpec {
+        val builder = createFileSpecBuilder(themePackageName = iconTheme.themePackageName)
+        val backingProperty = getBackingProperty()
+        // Create a property with a getter. The autoMirror is always false in this case.
+        val propertySpecBuilder =
+            PropertySpec.builder(name = iconName, type = ClassNames.ImageVector)
+                .receiver(iconTheme.className)
+                .getter(
+                    iconGetter(
+                        backingProperty = backingProperty,
+                        iconName = iconName,
+                        iconTheme = iconTheme,
+                        autoMirror = false
+                    )
+                )
+        // Add a deprecation warning with a suggestion to replace this icon's usage with its
+        // equivalent that was generated under the automirrored package.
+        if (vector.autoMirrored) {
+            val autoMirroredPackage = "${PackageNames.MaterialIconsPackage.packageName}." +
+                "$AutoMirroredPackageName.${iconTheme.themePackageName}"
+            propertySpecBuilder.addAnnotation(
+                AnnotationSpec.builder(Deprecated::class)
+                    .addMember(
+                        "\"Use the AutoMirrored version at %N.%N.%N.%N\"",
+                        ClassNames.Icons.simpleName,
+                        AutoMirroredName,
+                        iconTheme.name,
+                        iconName
+                    )
+                    .addMember(
+                        "ReplaceWith( \"%N.%N.%N.%N\", \"$autoMirroredPackage.%N\")",
+                        ClassNames.Icons.simpleName,
+                        AutoMirroredName,
+                        iconTheme.name,
+                        iconName,
+                        iconName
+                    )
+                    .build()
+            )
+        }
+        builder.addProperty(propertySpecBuilder.build())
+        builder.addProperty(backingProperty)
+        return builder.setIndent().build()
+    }
+
+    /**
+     * @return a [FileSpec] representing a Kotlin source file containing the property for this
+     * programmatic, auto-mirrored, [vector] representation.
+     *
+     * The package name and hence file location of the generated file is:
+     * [PackageNames.MaterialIconsPackage] + [AutoMirroredPackageName] +
+     * [IconTheme.themePackageName].
+     */
+    fun createAutoMirroredFileSpec(): FileSpec {
+        // Prepend the AutoMirroredName package name to the IconTheme package name.
+        val builder = createFileSpecBuilder(
+            themePackageName = "$AutoMirroredPackageName.${iconTheme.themePackageName}"
+        )
+        val backingProperty = getBackingProperty()
+        // Create a property with a getter. The autoMirror is always false in this case.
+        builder.addProperty(
+            PropertySpec.builder(name = iconName, type = ClassNames.ImageVector)
+                .receiver(iconTheme.autoMirroredClassName)
+                .getter(
+                    iconGetter(
+                        backingProperty = backingProperty,
+                        iconName = iconName,
+                        iconTheme = iconTheme,
+                        autoMirror = true
+                    )
+                )
+                .build()
+        )
+        builder.addProperty(backingProperty)
+        return builder.setIndent().build()
+    }
+
+    private fun createFileSpecBuilder(themePackageName: String): FileSpec.Builder {
         val iconsPackage = PackageNames.MaterialIconsPackage.packageName
-        val themePackage = iconTheme.themePackageName
-        val combinedPackageName = "$iconsPackage.$themePackage"
+        val combinedPackageName = "$iconsPackage.$themePackageName"
+        return FileSpec.builder(
+            packageName = combinedPackageName,
+            fileName = iconName
+        )
+    }
+
+    private fun getBackingProperty(): PropertySpec {
         // Use a unique property name for the private backing property. This is because (as of
         // Kotlin 1.4) each property with the same name will be considered as a possible candidate
         // for resolution, regardless of the access modifier, so by using unique names we reduce
         // the size from ~6000 to 1, and speed up compilation time for these icons.
         val backingPropertyName = "_" + iconName.replaceFirstChar { it.lowercase(Locale.ROOT) }
-        val backingProperty = backingProperty(name = backingPropertyName)
-        return FileSpec.builder(
-            packageName = combinedPackageName,
-            fileName = iconName
-        ).addProperty(
-            PropertySpec.builder(name = iconName, type = ClassNames.ImageVector)
-                .receiver(iconTheme.className)
-                .getter(iconGetter(backingProperty, iconName, iconTheme))
-                .build()
-        ).addProperty(
-            backingProperty
-        ).setIndent().build()
+        return backingProperty(name = backingPropertyName)
     }
 
     /**
@@ -81,7 +154,8 @@ class ImageVectorGenerator(
     private fun iconGetter(
         backingProperty: PropertySpec,
         iconName: String,
-        iconTheme: IconTheme
+        iconTheme: IconTheme,
+        autoMirror: Boolean
     ): FunSpec {
         return FunSpec.getterBuilder()
             .addCode(
@@ -93,8 +167,13 @@ class ImageVectorGenerator(
             )
             .addCode(
                 buildCodeBlock {
+                    val controlFlow = if (autoMirror) {
+                        "%N = %M(name = \"$AutoMirroredName.%N.%N\", autoMirror = true)"
+                    } else {
+                        "%N = %M(name = \"%N.%N\")"
+                    }
                     beginControlFlow(
-                        "%N = %M(name = \"%N.%N\")",
+                        controlFlow,
                         backingProperty,
                         MemberNames.MaterialIcon,
                         iconTheme.name,
@@ -137,6 +216,7 @@ private fun CodeBlock.Builder.addRecursively(vectorNode: VectorNode) {
             }
             endControlFlow()
         }
+
         is VectorNode.Path -> {
             addPath(vectorNode) {
                 vectorNode.nodes.forEach { pathNode ->

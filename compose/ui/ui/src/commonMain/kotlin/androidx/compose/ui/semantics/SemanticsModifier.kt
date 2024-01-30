@@ -16,13 +16,17 @@
 
 package androidx.compose.ui.semantics
 
+import androidx.compose.runtime.InternalComposeApi
+import androidx.compose.runtime.identityHashCode
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.internal.JvmDefaultWithCompatibility
+import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.node.SemanticsModifierNode
 import androidx.compose.ui.platform.AtomicInt
 import androidx.compose.ui.platform.InspectorInfo
-import androidx.compose.ui.platform.InspectorValueInfo
-import androidx.compose.ui.platform.NoInspectorInfo
-import androidx.compose.ui.platform.debugInspectorInfo
-import androidx.compose.ui.internal.JvmDefaultWithCompatibility
+
+private var lastIdentifier = AtomicInt(0)
+internal fun generateSemanticsId() = lastIdentifier.addAndGet(1)
 
 /**
  * A [Modifier.Element] that adds semantics key/value for use in testing,
@@ -44,34 +48,38 @@ interface SemanticsModifier : Modifier.Element {
     val semanticsConfiguration: SemanticsConfiguration
 }
 
-internal class SemanticsModifierCore(
-    mergeDescendants: Boolean,
-    clearAndSetSemantics: Boolean,
-    properties: (SemanticsPropertyReceiver.() -> Unit),
-    inspectorInfo: InspectorInfo.() -> Unit = NoInspectorInfo
-) : SemanticsModifier, InspectorValueInfo(inspectorInfo) {
-    override val semanticsConfiguration: SemanticsConfiguration =
-        SemanticsConfiguration().also {
-            it.isMergingSemanticsOfDescendants = mergeDescendants
-            it.isClearingSemantics = clearAndSetSemantics
-            it.properties()
-        }
+internal object EmptySemanticsElement :
+    ModifierNodeElement<EmptySemanticsModifier>() {
+    override fun create() = EmptySemanticsModifier()
 
-    companion object {
-        private var lastIdentifier = AtomicInt(0)
-        fun generateSemanticsId() = lastIdentifier.addAndGet(1)
+    override fun update(node: EmptySemanticsModifier) {}
+
+    override fun InspectorInfo.inspectableProperties() {
+        // Nothing to inspect.
     }
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is SemanticsModifierCore) return false
-        if (semanticsConfiguration != other.semanticsConfiguration) return false
-        return true
-    }
+    @OptIn(InternalComposeApi::class)
+    private val arbitraryHashCode: Int = identityHashCode(this)
+    override fun hashCode(): Int = arbitraryHashCode
+    override fun equals(other: Any?) = (other === this)
+}
 
-    override fun hashCode(): Int {
-        return semanticsConfiguration.hashCode()
+internal class CoreSemanticsModifierNode(
+    var mergeDescendants: Boolean,
+    var isClearingSemantics: Boolean,
+    var properties: SemanticsPropertyReceiver.() -> Unit
+) : Modifier.Node(), SemanticsModifierNode {
+    override val shouldClearDescendantSemantics: Boolean
+        get() = isClearingSemantics
+    override val shouldMergeDescendantSemantics: Boolean
+        get() = mergeDescendants
+    override fun SemanticsPropertyReceiver.applySemantics() {
+        properties()
     }
+}
+
+internal class EmptySemanticsModifier : Modifier.Node(), SemanticsModifierNode {
+    override fun SemanticsPropertyReceiver.applySemantics() {}
 }
 
 /**
@@ -107,16 +115,43 @@ internal class SemanticsModifierCore(
 fun Modifier.semantics(
     mergeDescendants: Boolean = false,
     properties: (SemanticsPropertyReceiver.() -> Unit)
-): Modifier = this then SemanticsModifierCore(
+): Modifier = this then AppendedSemanticsElement(
     mergeDescendants = mergeDescendants,
-    clearAndSetSemantics = false,
-    properties = properties,
-    inspectorInfo = debugInspectorInfo {
-        name = "semantics"
-        this.properties["mergeDescendants"] = mergeDescendants
-        this.properties["properties"] = properties
-    }
+    properties = properties
 )
+
+// Implement SemanticsModifier to allow tooling to inspect the semantics configuration
+internal data class AppendedSemanticsElement(
+    val mergeDescendants: Boolean,
+    val properties: (SemanticsPropertyReceiver.() -> Unit)
+) : ModifierNodeElement<CoreSemanticsModifierNode>(), SemanticsModifier {
+
+    // This should only ever be called by layout inspector
+    override val semanticsConfiguration: SemanticsConfiguration
+        get() = SemanticsConfiguration().apply {
+            isMergingSemanticsOfDescendants = mergeDescendants
+            properties()
+        }
+
+    override fun create(): CoreSemanticsModifierNode {
+        return CoreSemanticsModifierNode(
+            mergeDescendants = mergeDescendants,
+            isClearingSemantics = false,
+            properties = properties
+        )
+    }
+
+    override fun update(node: CoreSemanticsModifierNode) {
+        node.mergeDescendants = mergeDescendants
+        node.properties = properties
+    }
+
+    override fun InspectorInfo.inspectableProperties() {
+        name = "semantics"
+        properties["mergeDescendants"] = mergeDescendants
+        addSemanticsPropertiesFrom(semanticsConfiguration)
+    }
+}
 
 /**
  * Clears the semantics of all the descendant nodes and sets new semantics.
@@ -135,12 +170,43 @@ fun Modifier.semantics(
  */
 fun Modifier.clearAndSetSemantics(
     properties: (SemanticsPropertyReceiver.() -> Unit)
-): Modifier = this then SemanticsModifierCore(
-    mergeDescendants = false,
-    clearAndSetSemantics = true,
-    properties = properties,
-    inspectorInfo = debugInspectorInfo {
-        name = "clearAndSetSemantics"
-        this.properties["properties"] = properties
+): Modifier = this then ClearAndSetSemanticsElement(properties)
+
+// Implement SemanticsModifier to allow tooling to inspect the semantics configuration
+internal data class ClearAndSetSemanticsElement(
+    val properties: SemanticsPropertyReceiver.() -> Unit
+) : ModifierNodeElement<CoreSemanticsModifierNode>(), SemanticsModifier {
+
+    // This should only ever be called by layout inspector
+    override val semanticsConfiguration: SemanticsConfiguration
+        get() = SemanticsConfiguration().apply {
+            isMergingSemanticsOfDescendants = false
+            isClearingSemantics = true
+            properties()
+        }
+
+    override fun create(): CoreSemanticsModifierNode {
+        return CoreSemanticsModifierNode(
+            mergeDescendants = false,
+            isClearingSemantics = true,
+            properties = properties
+        )
     }
-)
+
+    override fun update(node: CoreSemanticsModifierNode) {
+        node.properties = properties
+    }
+
+    override fun InspectorInfo.inspectableProperties() {
+        name = "clearAndSetSemantics"
+        addSemanticsPropertiesFrom(semanticsConfiguration)
+    }
+}
+
+private fun InspectorInfo.addSemanticsPropertiesFrom(
+    semanticsConfiguration: SemanticsConfiguration
+) {
+    properties["properties"] = semanticsConfiguration.associate { (key, value) ->
+        key.name to value
+    }
+}

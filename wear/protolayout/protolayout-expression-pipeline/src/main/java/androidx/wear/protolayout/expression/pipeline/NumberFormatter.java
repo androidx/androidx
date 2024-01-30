@@ -27,10 +27,12 @@ import android.icu.text.NumberFormat;
 import android.icu.util.ULocale;
 import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
+import android.util.Log;
 
 import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.VisibleForTesting;
 import androidx.wear.protolayout.expression.proto.DynamicProto.FloatFormatOp;
 import androidx.wear.protolayout.expression.proto.DynamicProto.Int32FormatOp;
 
@@ -38,8 +40,12 @@ import androidx.wear.protolayout.expression.proto.DynamicProto.Int32FormatOp;
 class NumberFormatter {
 
     Formatter mFormatter;
+    private static final String TAG = "NumberFormatter";
     private static final int DEFAULT_MIN_INTEGER_DIGITS = 1;
     private static final int DEFAULT_MAX_FRACTION_DIGITS = 3;
+
+    @VisibleForTesting static final int MAX_INTEGER_PART_LENGTH = 15;
+    @VisibleForTesting static final int MAX_FRACTION_PART_LENGTH = 15;
 
     private interface Formatter {
         String format(int value);
@@ -52,16 +58,35 @@ class NumberFormatter {
                 floatFormatOp.hasMinIntegerDigits()
                         ? floatFormatOp.getMinIntegerDigits()
                         : DEFAULT_MIN_INTEGER_DIGITS;
+
+        int minFractionDigits = floatFormatOp.getMinFractionDigits();
+        if (minFractionDigits > MAX_FRACTION_PART_LENGTH) {
+            logLargeParam("MinFractionDigits", minFractionDigits, MAX_FRACTION_PART_LENGTH);
+            minFractionDigits = MAX_FRACTION_PART_LENGTH;
+        }
+
+        // maxFractionDigits should be larger or equal to minFractionDigits
         int maxFractionDigits =
                 max(
                         floatFormatOp.hasMaxFractionDigits()
                                 ? floatFormatOp.getMaxFractionDigits()
                                 : DEFAULT_MAX_FRACTION_DIGITS,
-                        floatFormatOp.getMinFractionDigits());
+                        minFractionDigits);
+
+        if (maxFractionDigits > MAX_FRACTION_PART_LENGTH) {
+            logLargeParam("MaxFractionDigits", maxFractionDigits, MAX_FRACTION_PART_LENGTH);
+            maxFractionDigits = MAX_FRACTION_PART_LENGTH;
+        }
+
+        if (minIntegerDigits > MAX_INTEGER_PART_LENGTH) {
+            logLargeParam("MinIntegerDigits", minIntegerDigits, MAX_INTEGER_PART_LENGTH);
+            minIntegerDigits = MAX_INTEGER_PART_LENGTH;
+        }
+
         mFormatter =
                 buildFormatter(
                         minIntegerDigits,
-                        floatFormatOp.getMinFractionDigits(),
+                        minFractionDigits,
                         maxFractionDigits,
                         floatFormatOp.getGroupingUsed(),
                         currentLocale);
@@ -72,6 +97,12 @@ class NumberFormatter {
                 int32FormatOp.hasMinIntegerDigits()
                         ? int32FormatOp.getMinIntegerDigits()
                         : DEFAULT_MIN_INTEGER_DIGITS;
+
+        if (minIntegerDigits > MAX_INTEGER_PART_LENGTH) {
+            logLargeParam("MinIntegerDigits", minIntegerDigits, MAX_INTEGER_PART_LENGTH);
+            minIntegerDigits = MAX_INTEGER_PART_LENGTH;
+        }
+
         mFormatter =
                 buildFormatter(
                         minIntegerDigits,
@@ -116,6 +147,14 @@ class NumberFormatter {
                     .integerWidth(IntegerWidth.zeroFillTo(minIntegerDigits))
                     .precision(Precision.minMaxFraction(minFractionDigits, maxFractionDigits));
         }
+    }
+
+    private static void logLargeParam(String paramName, int oldValue, int newValue) {
+        Log.w(
+                TAG,
+                String.format(
+                        "%s (%d) is too large. Using the maximum allowed value instead: %d",
+                        paramName, oldValue, newValue));
     }
 
     private static Formatter buildFormatter(

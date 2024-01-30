@@ -16,10 +16,13 @@
 
 package androidx.window.layout
 
-import android.util.Log
 import androidx.window.core.ConsumerAdapter
+import androidx.window.core.ExtensionsUtil
+import androidx.window.extensions.WindowExtensions.VENDOR_API_LEVEL_1
 import androidx.window.extensions.WindowExtensionsProvider
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /**
@@ -37,8 +40,8 @@ class SafeWindowLayoutComponentProviderTest {
     fun windowLayoutComponentIsAvailable_ifProviderIsAvailable() {
         val loader = SafeWindowLayoutComponentProviderTest::class.java.classLoader!!
         val consumerAdapter = ConsumerAdapter(loader)
-        val safeComponent = SafeWindowLayoutComponentProvider(loader, consumerAdapter)
-            .windowLayoutComponent
+        val safeProvider = SafeWindowLayoutComponentProvider(loader, consumerAdapter)
+        val safeComponent = safeProvider.windowLayoutComponent
 
         try {
             val extensions = WindowExtensionsProvider.getWindowExtensions()
@@ -48,15 +51,16 @@ class SafeWindowLayoutComponentProviderTest {
             } else {
                 // TODO(b/267831038): verify upon each api level
                 // TODO(b/267708462): more reliable test for testing actual method matching
-                Log.d(TAG, "WindowLayoutComponent on device doesn't match our constraints")
+                assertNotNull(safeComponent)
+                assertTrue(safeProvider.isWindowLayoutComponentAccessible())
+                when (ExtensionsUtil.safeVendorApiLevel) {
+                    VENDOR_API_LEVEL_1 -> assertTrue(safeProvider.hasValidVendorApiLevel1())
+                    else -> assertTrue(safeProvider.hasValidVendorApiLevel2())
+                }
             }
         } catch (e: UnsupportedOperationException) {
             // Invalid implementation of extensions
             assertNull(safeComponent)
         }
-    }
-
-    companion object {
-        private const val TAG = "SafeWindowLayoutComponentProviderTest"
     }
 }

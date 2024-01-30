@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.2.0-alpha14" type="baseline" client="cli" dependencies="false" name="AGP (8.2.0-alpha14)" variant="all" version="8.2.0-alpha14">
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 33 (current min is 26): `TargetWatchFaceSafety`"
+        errorLine1="        [TargetWatchFaceSafety.UNKNOWN, TargetWatchFaceSafety.SAFE, TargetWatchFaceSafety.UNSAFE]"
+        errorLine2="         ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/watchface/complications/datasource/ComplicationDataSourceService.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 33 (current min is 26): `TargetWatchFaceSafety`"
+        errorLine1="        [TargetWatchFaceSafety.UNKNOWN, TargetWatchFaceSafety.SAFE, TargetWatchFaceSafety.UNSAFE]"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/watchface/complications/datasource/ComplicationDataSourceService.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 33 (current min is 26): `TargetWatchFaceSafety`"
+        errorLine1="        [TargetWatchFaceSafety.UNKNOWN, TargetWatchFaceSafety.SAFE, TargetWatchFaceSafety.UNSAFE]"
+        errorLine2="                                                                    ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/watchface/complications/datasource/ComplicationDataSourceService.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 33 (current min is 26): `TargetWatchFaceSafety`"
+        errorLine1="                        TargetWatchFaceSafety.UNKNOWN"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/watchface/complications/datasource/ComplicationDataSourceService.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 33 (current min is 26): `TargetWatchFaceSafety`"
+        errorLine1="                        ?: TargetWatchFaceSafety.UNKNOWN"
+        errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/watchface/complications/datasource/ComplicationDataSourceService.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 33 (current min is 26): `TargetWatchFaceSafety`"
+        errorLine1="                        TargetWatchFaceSafety.UNKNOWN"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/watchface/complications/datasource/ComplicationDataSourceService.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 33 (current min is 26): `TargetWatchFaceSafety`"
+        errorLine1="                        ?: TargetWatchFaceSafety.UNKNOWN"
+        errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/watchface/complications/datasource/ComplicationDataSourceService.kt"/>
+    </issue>
+
+</issues>

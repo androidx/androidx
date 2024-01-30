@@ -23,6 +23,11 @@ import androidx.annotation.NonNull;
 import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler;
 import androidx.test.core.app.ApplicationProvider;
 
+import io.reactivex.rxjava3.core.Completable;
+import io.reactivex.rxjava3.core.Scheduler;
+import io.reactivex.rxjava3.core.Single;
+import io.reactivex.rxjava3.schedulers.Schedulers;
+
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -30,11 +35,6 @@ import org.junit.rules.TemporaryFolder;
 import java.io.File;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
-
-import io.reactivex.rxjava3.core.Completable;
-import io.reactivex.rxjava3.core.Scheduler;
-import io.reactivex.rxjava3.core.Single;
-import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class RxDataStoreBuilderTest {
     @Rule
@@ -166,5 +166,18 @@ public class RxDataStoreBuilderTest {
                 .setCorruptionHandler(replaceFileCorruptionHandler)
                 .build();
         assertThat(dataStore.data().blockingFirst()).isEqualTo(99);
+    }
+
+    @Test
+    public void isDisposed() {
+        TestingSerializer testingSerializer = new TestingSerializer();
+        testingSerializer.setFailReadWithCorruptionException(true);
+        RxDataStore<Byte> dataStore = new RxDataStoreBuilder<Byte>(
+                () -> tempFolder.newFile(),
+                testingSerializer)
+                .build();
+        assertThat(dataStore.isDisposed()).isFalse();
+        dataStore.dispose();
+        assertThat(dataStore.isDisposed()).isTrue();
     }
 }

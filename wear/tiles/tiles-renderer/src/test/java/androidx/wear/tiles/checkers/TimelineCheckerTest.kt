@@ -16,10 +16,12 @@
 
 package androidx.wear.tiles.checkers
 
-import androidx.wear.tiles.LayoutElementBuilders
+import androidx.wear.protolayout.LayoutElementBuilders
+import androidx.wear.protolayout.TimelineBuilders
 import androidx.wear.tiles.TilesTestRunner
-import androidx.wear.tiles.TimelineBuilders
 import com.google.common.truth.Truth.assertThat
+import org.junit.Test
+import org.junit.runner.RunWith
 import org.mockito.kotlin.any
 import org.mockito.kotlin.argumentCaptor
 import org.mockito.kotlin.doReturn
@@ -27,8 +29,6 @@ import org.mockito.kotlin.doThrow
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
-import org.junit.Test
-import org.junit.runner.RunWith
 
 @RunWith(TilesTestRunner::class)
 class TimelineCheckerTest {
@@ -97,13 +97,17 @@ class TimelineCheckerTest {
         TimelineBuilders.Timeline.Builder().addTimelineEntry(
             TimelineBuilders.TimelineEntry.Builder().setLayout(
                 LayoutElementBuilders.Layout.Builder().setRoot(
-                    LayoutElementBuilders.Text.Builder().setText("Hello").build()
+                    LayoutElementBuilders.Text.Builder()
+                        .setText("Hello")
+                        .build()
                 ).build()
             ).build()
         ).addTimelineEntry(
             TimelineBuilders.TimelineEntry.Builder().setLayout(
                 LayoutElementBuilders.Layout.Builder().setRoot(
-                    LayoutElementBuilders.Text.Builder().setText("World").build()
+                    LayoutElementBuilders.Text.Builder()
+                        .setText("World")
+                        .build()
                 ).build()
             ).build()
         ).build()

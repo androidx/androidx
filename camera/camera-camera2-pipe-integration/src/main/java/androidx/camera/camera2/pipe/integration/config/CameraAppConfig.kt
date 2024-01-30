@@ -36,21 +36,6 @@ import javax.inject.Singleton
 )
 abstract class CameraAppModule {
     companion object {
-        @Singleton
-        @Provides
-        fun provideCameraPipe(
-            context: Context,
-            cameraInteropStateCallbackRepository: CameraInteropStateCallbackRepository
-        ): CameraPipe = CameraPipe(
-            CameraPipe.Config(
-                appContext = context.applicationContext,
-                cameraInteropConfig = CameraPipe.CameraInteropConfig(
-                    cameraInteropStateCallbackRepository.deviceStateCallback,
-                    cameraInteropStateCallbackRepository.sessionStateCallback
-                )
-            )
-        )
-
         @Provides
         fun provideCameraDevices(cameraPipe: CameraPipe): CameraDevices {
             return cameraPipe.cameras()
@@ -63,12 +48,21 @@ abstract class CameraAppModule {
 class CameraAppConfig(
     private val context: Context,
     private val cameraThreadConfig: CameraThreadConfig,
+    private val cameraPipe: CameraPipe,
+    private val camera2InteropCallbacks: CameraInteropStateCallbackRepository
 ) {
     @Provides
     fun provideContext(): Context = context
 
     @Provides
     fun provideCameraThreadConfig(): CameraThreadConfig = cameraThreadConfig
+
+    @Provides
+    fun provideCameraPipe(): CameraPipe = cameraPipe
+
+    @Provides
+    fun provideCamera2InteropCallbacks(): CameraInteropStateCallbackRepository =
+        camera2InteropCallbacks
 }
 
 /** Dagger component for Application (Process) scoped dependencies. */

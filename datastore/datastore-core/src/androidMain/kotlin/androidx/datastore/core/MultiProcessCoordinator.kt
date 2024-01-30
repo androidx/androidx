@@ -16,17 +16,15 @@
 
 package androidx.datastore.core
 
-import android.os.FileObserver
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.IOException
 import java.nio.channels.FileLock
+import kotlin.contracts.ExperimentalContracts
 import kotlin.coroutines.CoroutineContext
-import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.channels.trySendBlocking
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.channelFlow
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
@@ -36,24 +34,10 @@ internal class MultiProcessCoordinator(
     protected val file: File
 ) : InterProcessCoordinator {
     // TODO(b/269375542): the flow should `flowOn` the provided [context]
-    override val updateNotifications: Flow<Unit> = channelFlow {
-        @Suppress("DEPRECATION")
-        val fileObserver =
-            object : FileObserver(file.canonicalFile.parent!!, FileObserver.MOVED_TO) {
-                // It will be triggered by same-process-write as well. Shared memory version check
-                // will prevent it from reading again. parameter `path` is relative to the observed
-                // directory
-                override fun onEvent(event: Int, path: String?) {
-                    if (file.name == path) {
-                        trySendBlocking(Unit)
-                    }
-                }
-            }
-        fileObserver.startWatching()
-        awaitClose {
-            fileObserver.stopWatching()
-        }
-    }
+    override val updateNotifications: Flow<Unit> = MulticastFileObserver.observe(file)
+        // MulticastFileObserver dispatches 1 value upon connecting to the FileSystem, which
+        // is useful for its tests but not necessary here.
+        .drop(1)
 
     // run block with the exclusive lock
     override suspend fun <T> lock(block: suspend () -> T): T {
@@ -72,6 +56,7 @@ internal class MultiProcessCoordinator(
 
     // run block with an attempt to get the exclusive lock, still run even if
     // attempt fails. Pass a boolean to indicate if the attempt succeeds.
+    @OptIn(ExperimentalContracts::class) // withTryLock
     override suspend fun <T> tryLock(block: suspend (Boolean) -> T): T {
         inMemoryMutex.withTryLock<T> {
             if (it == false) {

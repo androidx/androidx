@@ -18,11 +18,11 @@ package androidx.build
 
 import com.android.build.gradle.AppPlugin
 import com.android.build.gradle.LibraryPlugin
+import com.android.utils.childrenIterator
+import com.android.utils.forEach
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonObject
 import com.google.gson.stream.JsonWriter
-import org.gradle.api.artifacts.Configuration
-import groovy.util.Node
 import java.io.File
 import java.io.StringReader
 import java.io.StringWriter
@@ -37,6 +37,7 @@ import org.dom4j.io.XMLWriter
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.XmlProvider
+import org.gradle.api.artifacts.Configuration
 import org.gradle.api.component.ComponentWithVariants
 import org.gradle.api.component.SoftwareComponent
 import org.gradle.api.component.SoftwareComponentFactory
@@ -61,13 +62,14 @@ import org.xml.sax.XMLReader
 
 fun Project.configureMavenArtifactUpload(
     extension: AndroidXExtension,
+    kmpExtension: AndroidXMultiplatformExtension,
     componentFactory: SoftwareComponentFactory
 ) {
     apply(mapOf("plugin" to "maven-publish"))
     var registered = false
     fun registerOnFirstPublishableArtifact(component: SoftwareComponent) {
         if (!registered) {
-            configureComponentPublishing(extension, component, componentFactory)
+            configureComponentPublishing(extension, kmpExtension, component, componentFactory)
             Release.register(this, extension)
             registered = true
         }
@@ -104,6 +106,7 @@ private fun Project.releaseTaskShouldBeRegistered(extension: AndroidXExtension):
  */
 private fun Project.configureComponentPublishing(
     extension: AndroidXExtension,
+    kmpExtension: AndroidXMultiplatformExtension,
     component: SoftwareComponent,
     componentFactory: SoftwareComponentFactory
 ) {
@@ -123,11 +126,14 @@ private fun Project.configureComponentPublishing(
         // Check every project is the project map to see if they are an Android Library
         val projectModules = project.getProjectsMap()
         for ((mavenCoordinates, projectPath) in projectModules) {
-            project.findProject(projectPath)?.plugins?.hasPlugin(
-                LibraryPlugin::class.java
-            )?.let { hasLibraryPlugin ->
-                if (hasLibraryPlugin) {
-                    androidxAndroidProjects.add(mavenCoordinates)
+            project.findProject(projectPath)?.plugins?.let { plugins ->
+                if (plugins.hasPlugin(LibraryPlugin::class.java)) {
+                    if (plugins.hasPlugin(KotlinMultiplatformPluginWrapper::class.java)) {
+                        // For KMP projects, android AAR is published under -android
+                        androidxAndroidProjects.add("$mavenCoordinates-android")
+                    } else {
+                        androidxAndroidProjects.add(mavenCoordinates)
+                    }
                 }
             }
         }
@@ -160,10 +166,11 @@ private fun Project.configureComponentPublishing(
                 }
             }
         }
-        publications.withType(MavenPublication::class.java).all {
-            it.pom { pom ->
+        publications.withType(MavenPublication::class.java).all { publication ->
+            publication.pom { pom ->
                 addInformativeMetadata(extension, pom)
-                tweakDependenciesMetadata(androidxGroup, pom, androidLibrariesSetProvider)
+                tweakDependenciesMetadata(androidxGroup, pom, androidLibrariesSetProvider,
+                    publication.name == KMP_ANCHOR_PUBLICATION_NAME, kmpExtension.defaultPlatform)
             }
         }
     }
@@ -345,11 +352,11 @@ private fun Project.replaceBaseMultiplatformPublication(
     val kotlinComponent = components.findByName("kotlin") as SoftwareComponentInternal
     withSourcesComponents(
         componentFactory,
-        setOf("sourcesElements", "androidxSourcesElements")
+        setOf("androidxSourcesElements")
     ) { sourcesComponents ->
         configure<PublishingExtension> {
             publications { pubs ->
-                pubs.create<MavenPublication>("androidxKmp") {
+                pubs.create<MavenPublication>(KMP_ANCHOR_PUBLICATION_NAME) {
                     // Duplicate behavior from KMP plugin
                     // (https://cs.github.com/JetBrains/kotlin/blob/0c001cc9939a2ab11815263ed825c1096b3ce087/libraries/tools/kotlin-gradle-plugin/src/common/kotlin/org/jetbrains/kotlin/gradle/plugin/mpp/Publishing.kt#L42)
                     // Should be able to remove internal API usage once
@@ -358,7 +365,7 @@ private fun Project.replaceBaseMultiplatformPublication(
 
                     from(object : ComponentWithVariants, SoftwareComponentInternal {
                         override fun getName(): String {
-                            return "androidxKmp"
+                            return KMP_ANCHOR_PUBLICATION_NAME
                         }
 
                         override fun getUsages(): MutableSet<out UsageContext> {
@@ -506,7 +513,9 @@ private fun Project.addInformativeMetadata(extension: AndroidXExtension, pom: Ma
 private fun tweakDependenciesMetadata(
     mavenGroup: LibraryGroup,
     pom: MavenPom,
-    androidLibrariesSetProvider: Provider<Set<String>>
+    androidLibrariesSetProvider: Provider<Set<String>>,
+    kmpAnchor: Boolean,
+    pomPlatform: String?
 ) {
     pom.withXml { xml ->
         // The following code depends on getProjectsMap which is only available late in
@@ -515,38 +524,87 @@ private fun tweakDependenciesMetadata(
         // For more context see:
         // https://android-review.googlesource.com/c/platform/frameworks/support/+/1144664/8/buildSrc/src/main/kotlin/androidx/build/MavenUploadHelper.kt#177
         assignSingleVersionDependenciesInGroupForPom(xml, mavenGroup)
-        assignAarTypes(xml, androidLibrariesSetProvider)
+        assignAarTypes(xml, androidLibrariesSetProvider.get())
         ensureConsistentJvmSuffix(xml)
+
+        if (kmpAnchor && pomPlatform != null) {
+            insertDefaultMultiplatformDependencies(xml, pomPlatform)
+        }
     }
 }
 
 // TODO(aurimas): remove this when Gradle bug is fixed.
 // https://github.com/gradle/gradle/issues/3170
-private fun assignAarTypes(
+fun assignAarTypes(
     xml: XmlProvider,
-    androidLibrariesSetProvider: Provider<Set<String>>
+    androidLibrariesSet: Set<String>
 ) {
-    val dependencies = xml.asNode().children().find {
-        it is Node && it.name().toString().endsWith("dependencies")
-    } as Node?
+    val xmlElement = xml.asElement()
+    val dependencies = xmlElement.find {
+        it.nodeName == "dependencies"
+    } as? org.w3c.dom.Element
 
-    dependencies?.children()?.forEach { dep ->
-        if (dep !is Node) {
-            return@forEach
-        }
-        val groupId = dep.children().first {
-            it is Node && it.name().toString().endsWith("groupId")
-        } as Node
-        val artifactId = dep.children().first {
-            it is Node && it.name().toString().endsWith("artifactId")
-        } as Node
-        if (androidLibrariesSetProvider.get().contains(
-                "${groupId.children()[0] as String}:${artifactId.children()[0] as String}"
-            )
-        ) {
-            dep.appendNode("type", "aar")
+    dependencies?.getElementsByTagName("dependency")?.forEach { dependency ->
+        val groupId = dependency.find { it.nodeName == "groupId" }?.textContent
+            ?: throw IllegalArgumentException("Failed to locate groupId node")
+        val artifactId = dependency.find { it.nodeName == "artifactId" }?.textContent
+            ?: throw IllegalArgumentException("Failed to locate artifactId node")
+        if (androidLibrariesSet.contains("$groupId:$artifactId")) {
+            dependency.appendElement("type", "aar")
         }
     }
+}
+
+fun insertDefaultMultiplatformDependencies(
+    xml: XmlProvider,
+    platformId: String
+) {
+    val xmlElement = xml.asElement()
+    val groupId = xmlElement.find { it.nodeName == "groupId" }?.textContent
+        ?: throw IllegalArgumentException("Failed to locate groupId node")
+    val artifactId = xmlElement.find { it.nodeName == "artifactId" }?.textContent
+        ?: throw IllegalArgumentException("Failed to locate artifactId node")
+    val version = xmlElement.find { it.nodeName == "version" }?.textContent
+        ?: throw IllegalArgumentException("Failed to locate version node")
+
+    // Find the top-level <dependencies> element or add one if there are no other dependencies.
+    val dependencies = xmlElement.find {
+        it.nodeName == "dependencies"
+    } ?: xmlElement.appendElement("dependencies")
+    dependencies.appendElement("dependency").apply {
+        appendElement("groupId", groupId)
+        appendElement("artifactId", "$artifactId-$platformId")
+        appendElement("version", version)
+        appendElement("scope", "runtime")
+    }
+}
+
+private fun org.w3c.dom.Node.appendElement(
+    tagName: String,
+    textValue: String? = null
+): org.w3c.dom.Element {
+    val element = ownerDocument.createElement(tagName)
+    appendChild(element)
+
+    if (textValue != null) {
+        val textNode = ownerDocument.createTextNode(textValue)
+        element.appendChild(textNode)
+    }
+
+    return element
+}
+
+private fun org.w3c.dom.Node.find(
+    predicate: (org.w3c.dom.Node) -> Boolean
+): org.w3c.dom.Node? {
+    val iterator = childrenIterator()
+    while (iterator.hasNext()) {
+        val node = iterator.next()
+        if (predicate(node)) {
+            return node
+        }
+    }
+    return null
 }
 
 /**
@@ -557,7 +615,7 @@ private fun assignAarTypes(
  * Note: this is not enforced in Gradle nor in plain Maven (without the Enforcer plugin)
  * (https://github.com/gradle/gradle/issues/8297)
  */
-private fun assignSingleVersionDependenciesInGroupForPom(
+fun assignSingleVersionDependenciesInGroupForPom(
     xml: XmlProvider,
     mavenGroup: LibraryGroup
 ) {
@@ -565,29 +623,22 @@ private fun assignSingleVersionDependenciesInGroupForPom(
         return
     }
 
-    val dependencies = xml.asNode().children().find {
-        it is Node && it.name().toString().endsWith("dependencies")
-    } as Node?
-    dependencies?.children()?.forEach { dep ->
-        if (dep !is Node) {
-            return@forEach
-        }
-        val groupId = dep.children().first {
-            it is Node && it.name().toString().endsWith("groupId")
-        } as Node
-        if (groupId.children()[0].toString() == mavenGroup.group) {
-            val versionNode = dep.children().first {
-                it is Node && it.name().toString().endsWith("version")
-            } as Node
-            val declaredVersion = versionNode.children()[0].toString()
-            if (isVersionRange(declaredVersion)) {
-                throw GradleException(
-                    "Unsupported version '$declaredVersion': " +
-                        "already is a version range"
-                )
+    val dependencies = xml.asElement().find {
+        it.nodeName == "dependencies"
+    } as? org.w3c.dom.Element ?: return
+
+    dependencies.getElementsByTagName("dependency").forEach { dependency ->
+        val groupId = dependency.find { it.nodeName == "groupId" }?.textContent
+            ?: throw IllegalArgumentException("Failed to locate groupId node")
+        if (groupId == mavenGroup.group) {
+            val versionNode = dependency.find { it.nodeName == "version" }
+                ?: throw IllegalArgumentException("Failed to locate version node")
+            val version = versionNode.textContent
+            if (isVersionRange(version)) {
+                throw GradleException("Unsupported version '$version': already is a version range")
             }
-            val pinnedVersion = "[$declaredVersion]"
-            versionNode.setValue(pinnedVersion)
+            val pinnedVersion = "[$version]"
+            versionNode.textContent = pinnedVersion
         }
     }
 }
@@ -604,27 +655,23 @@ private fun isVersionRange(text: String): Boolean {
  * Ensures that artifactIds are consistent when using configuration caching.
  * A workaround for https://github.com/gradle/gradle/issues/18369
  */
-private fun ensureConsistentJvmSuffix(
+fun ensureConsistentJvmSuffix(
     xml: XmlProvider
 ) {
-    val dependencies = xml.asNode().children().find {
-        it is Node && it.name().toString().endsWith("dependencies")
-    } as Node?
-    dependencies?.children()?.forEach { dep ->
-        if (dep !is Node) {
-            return@forEach
-        }
-        val artifactIdNode = dep.children().first {
-            it is Node && it.name().toString().endsWith("artifactId")
-        } as Node
-        val artifactId = artifactIdNode.children()[0].toString()
+    val dependencies = xml.asElement().find {
+        it.nodeName == "dependencies"
+    } as? org.w3c.dom.Element ?: return
+
+    dependencies.getElementsByTagName("dependency").forEach { dependency ->
+        val artifactId = dependency.find { it.nodeName == "artifactId" }
+            ?: throw IllegalArgumentException("Failed to locate artifactId node")
         // kotlinx-coroutines-core is only a .pom and only depends on kotlinx-coroutines-core-jvm,
         // so the two artifacts should be approximately equivalent. However,
         // when loading from configuration cache, Gradle often returns a different resolution.
         // We replace it here to ensure consistency and predictability, and
         // to avoid having to rerun any zip tasks that include it
-        if (artifactId == "kotlinx-coroutines-core-jvm") {
-            artifactIdNode.setValue("kotlinx-coroutines-core")
+        if (artifactId.textContent == "kotlinx-coroutines-core-jvm") {
+            artifactId.textContent = "kotlinx-coroutines-core"
         }
     }
 }
@@ -633,3 +680,5 @@ private fun Project.appliesJavaGradlePluginPlugin() = pluginManager.hasPlugin("j
 
 private const val ANDROID_GIT_URL =
     "scm:git:https://android.googlesource.com/platform/frameworks/support"
+
+internal const val KMP_ANCHOR_PUBLICATION_NAME = "androidxKmp"

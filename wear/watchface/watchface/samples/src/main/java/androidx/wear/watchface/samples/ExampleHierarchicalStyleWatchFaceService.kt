@@ -33,12 +33,12 @@ import androidx.wear.watchface.DrawMode
 import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.Renderer
 import androidx.wear.watchface.WatchFace
-import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.WatchFaceType
 import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.complications.ComplicationSlotBounds
 import androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy
 import androidx.wear.watchface.complications.SystemDataSources
+import androidx.wear.watchface.complications.data.ComplicationExperimental
 import androidx.wear.watchface.complications.data.ComplicationType
 import androidx.wear.watchface.complications.rendering.CanvasComplicationDrawable
 import androidx.wear.watchface.style.CurrentUserStyleRepository
@@ -55,7 +55,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-open class ExampleHierarchicalStyleWatchFaceService : WatchFaceService() {
+open class ExampleHierarchicalStyleWatchFaceService : SampleWatchFaceService() {
 
     internal val twelveHourClockOption by lazy {
         ListOption(
@@ -287,6 +287,7 @@ open class ExampleHierarchicalStyleWatchFaceService : WatchFaceService() {
 
     private val watchFaceStyle by lazy { WatchFaceColorStyle.create(this, "red_style") }
 
+    @OptIn(ComplicationExperimental::class)
     public override fun createComplicationSlotsManager(
         currentUserStyleRepository: CurrentUserStyleRepository
     ): ComplicationSlotsManager {

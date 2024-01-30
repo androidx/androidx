@@ -40,7 +40,6 @@ public final class PlaceMarker {
     /**
      * Describes the type of image a marker icon represents.
      *
-     * @hide
      */
     @IntDef(value = {TYPE_ICON, TYPE_IMAGE})
     @Retention(RetentionPolicy.SOURCE)

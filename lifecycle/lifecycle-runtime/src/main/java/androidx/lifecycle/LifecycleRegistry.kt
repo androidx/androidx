@@ -21,6 +21,9 @@ import androidx.annotation.VisibleForTesting
 import androidx.arch.core.executor.ArchTaskExecutor
 import androidx.arch.core.internal.FastSafeIterableMap
 import java.lang.ref.WeakReference
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 /**
  * An implementation of [Lifecycle] that can handle multiple observers.
@@ -105,6 +108,10 @@ open class LifecycleRegistry private constructor(
             enforceMainThreadIfNeeded("setCurrentState")
             moveToState(state)
         }
+
+    private val _currentStateFlow: MutableStateFlow<State> = MutableStateFlow(State.INITIALIZED)
+    override val currentStateFlow: StateFlow<State>
+        get() = _currentStateFlow.asStateFlow()
 
     /**
      * Sets the current state and notifies the observers.
@@ -288,6 +295,7 @@ open class LifecycleRegistry private constructor(
             }
         }
         newEventOccurred = false
+        _currentStateFlow.value = currentState
     }
 
     @SuppressLint("RestrictedApi")

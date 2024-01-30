@@ -72,7 +72,6 @@ public final class MediaTransferReceiver extends BroadcastReceiver  {
 
     /**
      * Check whether the {@link MediaTransferReceiver} is declared in the app manifest.
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public static boolean isDeclared(@NonNull Context applicationContext) {

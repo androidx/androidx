@@ -55,22 +55,19 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.graphics.toComposeImageBitmap
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.SkikoComposeUiTest
-import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertPositionInRootIsEqualTo
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
-import androidx.compose.ui.test.onChildren
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.runSkikoComposeUiTest
 import androidx.compose.ui.test.swipeUp
 import androidx.compose.ui.unit.dp
-import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -85,7 +82,7 @@ import kotlinx.coroutines.launch
 class LazyColumnTest {
     private val LazyListTag = "LazyListTag"
 
-    internal val NeverEqualObject = object {
+    private val NeverEqualObject = object {
         override fun equals(other: Any?): Boolean {
             return false
         }
@@ -178,39 +175,28 @@ class LazyColumnTest {
 
     @Test
     fun removeItemsTest() = runSkikoComposeUiTest {
-        val startingNumItems = 3
-        var numItems = startingNumItems
-        var numItemsModel by mutableStateOf(numItems)
+        var itemCount by mutableStateOf(3)
         val tag = "List"
         setContent {
             LazyColumn(Modifier.testTag(tag)) {
-                items((1..numItemsModel).toList()) {
+                items((0 until itemCount).toList()) {
                     BasicText("$it")
                 }
             }
         }
 
-        while (numItems >= 0) {
-            // Confirm the number of children to ensure there are no extra items
-            onNodeWithTag(tag)
-                .onChildren()
-                .assertCountEquals(numItems)
-
+        while (itemCount >= 0) {
             // Confirm the children's content
-            for (i in 1..3) {
+            for (i in 0 until 3) {
                 onNodeWithText("$i").apply {
-                    if (i <= numItems) {
-                        assertExists()
+                    if (i < itemCount) {
+                        assertIsPlaced()
                     } else {
-                        assertDoesNotExist()
+                        assertIsNotPlaced()
                     }
                 }
             }
-            numItems--
-            if (numItems >= 0) {
-                // Don't set the model to -1
-                runOnIdle { numItemsModel = numItems }
-            }
+            itemCount--
         }
     }
 
@@ -266,15 +252,13 @@ class LazyColumnTest {
         for (data in dataLists) {
             runOnIdle { dataModel = data }
 
-            // Confirm the number of children to ensure there are no extra items
-            val numItems = data.size
-            onNodeWithTag(tag)
-                .onChildren()
-                .assertCountEquals(numItems)
-
             // Confirm the children's content
-            for (item in data) {
-                onNodeWithText("$item").assertExists()
+            for (index in 1..8) {
+                if (index in data) {
+                    onNodeWithText("$index").assertIsDisplayed()
+                } else {
+                    onNodeWithText("$index").assertIsNotPlaced()
+                }
             }
         }
     }
@@ -411,7 +395,7 @@ class LazyColumnTest {
             .assertIsDisplayed()
 
         onNodeWithTag("3")
-            .assertDoesNotExist()
+            .assertIsNotPlaced()
     }
 
     @Test
@@ -481,7 +465,11 @@ class LazyColumnTest {
         }
 
         // and verify there is no Red item displayed
-        captureToImage().assertPixels { Color.Blue }
+        onNodeWithTag(LazyListTag)
+            .captureToImage()
+            .assertPixels {
+                Color.Blue
+            }
     }
 
     @Test
@@ -522,6 +510,7 @@ class LazyColumnTest {
     }
 }
 
+@Suppress("unused")
 internal fun Modifier.drawOutsideOfBounds() = drawBehind {
     val inflate = 20.dp.roundToPx().toFloat()
     drawRect(
@@ -529,4 +518,38 @@ internal fun Modifier.drawOutsideOfBounds() = drawBehind {
         Offset(-inflate, -inflate),
         Size(size.width + inflate * 2, size.height + inflate * 2)
     )
+}
+
+/**
+ * Asserts that the current semantics node is not placed.
+ *
+ * Throws [AssertionError] if the node is placed.
+ */
+internal fun SemanticsNodeInteraction.assertIsNotPlaced() {
+    // TODO(b/187188981): We don't have a non-throwing API to check whether an item exists.
+    //  So until this bug is fixed, we are going to catch the assertion error and then check
+    //  whether the node is placed or not.
+    try {
+        // If the node does not exist, it implies that it is also not placed.
+        assertDoesNotExist()
+    } catch (e: AssertionError) {
+        // If the node exists, we need to assert that it is not placed.
+        val errorMessageOnFail = "Assert failed: The component is placed!"
+        if (fetchSemanticsNode().layoutInfo.isPlaced) {
+            throw AssertionError(errorMessageOnFail)
+        }
+    }
+}
+
+/**
+ * Asserts that the current semantics node is placed.
+ *
+ * Throws [AssertionError] if the node is not placed.
+ */
+internal fun SemanticsNodeInteraction.assertIsPlaced(): SemanticsNodeInteraction {
+    val errorMessageOnFail = "Assert failed: The component is not placed!"
+    if (!fetchSemanticsNode(errorMessageOnFail).layoutInfo.isPlaced) {
+        throw AssertionError(errorMessageOnFail)
+    }
+    return this
 }

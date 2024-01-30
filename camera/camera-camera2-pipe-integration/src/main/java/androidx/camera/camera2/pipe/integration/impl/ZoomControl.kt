@@ -19,6 +19,7 @@ package androidx.camera.camera2.pipe.integration.impl
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.integration.adapter.ZoomValue
 import androidx.camera.camera2.pipe.integration.adapter.asListenableFuture
+import androidx.camera.camera2.pipe.integration.adapter.propagateTo
 import androidx.camera.camera2.pipe.integration.compat.ZoomCompat
 import androidx.camera.camera2.pipe.integration.config.CameraScope
 import androidx.camera.camera2.pipe.integration.internal.ZoomMath.getLinearZoomFromZoomRatio
@@ -33,8 +34,10 @@ import dagger.Binds
 import dagger.Module
 import dagger.multibindings.IntoSet
 import javax.inject.Inject
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -81,22 +84,14 @@ class ZoomControl @Inject constructor(
         get() = _useCaseCamera
         set(value) {
             _useCaseCamera = value
-            update()
+            applyZoomState(_zoomState.value ?: defaultZoomState, false)
         }
+
+    private var updateSignal: CompletableDeferred<Unit>? = null
 
     override fun reset() {
         // TODO: 1.0 may not be a reasonable value to reset the zoom state to.
-        threads.sequentialScope.launch(start = CoroutineStart.UNDISPATCHED) {
-            setZoomState(defaultZoomState)
-        }
-
-        update()
-    }
-
-    private fun update() {
-        _useCaseCamera?.let {
-            zoomCompat.apply(_zoomState.value?.zoomRatio ?: DEFAULT_ZOOM_RATIO, it)
-        }
+        applyZoomState(defaultZoomState)
     }
 
     private suspend fun setZoomState(value: ZoomState) {
@@ -122,7 +117,7 @@ class ZoomControl @Inject constructor(
             minZoomRatio,
             maxZoomRatio,
         )
-        return setZoomValue(zoomValue)
+        return applyZoomState(zoomValue)
     }
 
     fun setZoomRatio(zoomRatio: Float): ListenableFuture<Void> {
@@ -140,21 +135,47 @@ class ZoomControl @Inject constructor(
             minZoomRatio,
             maxZoomRatio,
         )
-        return setZoomValue(zoomValue)
+        return applyZoomState(zoomValue)
     }
 
-    fun setZoomValue(zoomValue: ZoomValue): ListenableFuture<Void> {
-        // TODO: report IllegalArgumentException if ratio not in range
-        return Futures.nonCancellationPropagating(
+    fun applyZoomState(
+        zoomState: ZoomState,
+        cancelPreviousTask: Boolean = true,
+    ): ListenableFuture<Void> {
+        val signal = CompletableDeferred<Unit>()
+
+        updateSignal?.let { previousUpdateSignal ->
+            if (cancelPreviousTask) {
+                // Cancel the previous request signal if exist.
+                previousUpdateSignal.completeExceptionally(
+                    CameraControl.OperationCanceledException(
+                        "Cancelled due to another zoom value being set."
+                    )
+                )
+            } else {
+                // Propagate the result to the previous updateSignal
+                signal.propagateTo(previousUpdateSignal)
+            }
+        }
+        updateSignal = signal
+
+        threads.sequentialScope.launch(start = CoroutineStart.UNDISPATCHED) {
+            setZoomState(zoomState)
+
             useCaseCamera?.let {
-                threads.scope.launch(start = CoroutineStart.UNDISPATCHED) {
-                    setZoomState(zoomValue)
-                    update()
-                }.asListenableFuture()
-            } ?: Futures.immediateFailedFuture(
+                zoomCompat.applyAsync(zoomState.zoomRatio, it).propagateTo(signal)
+            } ?: signal.completeExceptionally(
                 CameraControl.OperationCanceledException("Camera is not active.")
             )
-        )
+        }
+
+        /**
+         * TODO: Use signal.asListenableFuture() directly.
+         * Deferred<T>.asListenableFuture() returns a ListenableFuture<T>, so this currently reports
+         * a type mismatch error (Required: Void!, Found: Unit).
+         * Currently, Job.asListenableFuture() is used as a workaround for this problem.
+         */
+        return Futures.nonCancellationPropagating((signal as Job).asListenableFuture())
     }
 
     @Module

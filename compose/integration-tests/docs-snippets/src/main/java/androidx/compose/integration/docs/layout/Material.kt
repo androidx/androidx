@@ -1,4 +1,3 @@
-// ktlint-disable indent https://github.com/pinterest/ktlint/issues/967
 /*
  * Copyright 2021 The Android Open Source Project
  *

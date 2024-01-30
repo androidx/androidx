@@ -16,26 +16,32 @@
 
 package androidx.appsearch.stats;
 
-import android.os.Bundle;
+import android.os.Parcel;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.CanIgnoreReturnValue;
 import androidx.appsearch.app.AppSearchResult;
 import androidx.appsearch.app.SetSchemaRequest;
-import androidx.appsearch.util.BundleUtil;
-import androidx.core.util.Preconditions;
+import androidx.appsearch.safeparcel.AbstractSafeParcelable;
+import androidx.appsearch.safeparcel.SafeParcelable;
+import androidx.appsearch.safeparcel.stub.StubCreators.SchemaMigrationStatsCreator;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.Objects;
 
 /**
  * Class holds detailed stats for Schema migration.
  *
- * @hide
+ * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public final class SchemaMigrationStats {
+@SafeParcelable.Class(creator = "SchemaMigrationStatsCreator")
+public final class SchemaMigrationStats extends AbstractSafeParcelable {
+    @NonNull public static final SchemaMigrationStatsCreator CREATOR =
+            new SchemaMigrationStatsCreator();
 
     // Indicate the how a SetSchema call relative to SchemaMigration case.
     @IntDef(
@@ -54,82 +60,114 @@ public final class SchemaMigrationStats {
     /**  This is the second SetSchema call in Migration cases to apply new schema changes */
     public static final int SECOND_CALL_APPLY_NEW_SCHEMA = 2;
 
-    private static final String PACKAGE_NAME_FIELD = "packageName";
-    private static final String DATABASE_FIELD = "database";
-    private static final String STATUS_CODE_FIELD = "StatusCode";
-    private static final String EXECUTOR_ACQUISITION_MILLIS_FIELD =
-            "ExecutorAcquisitionLatencyMillis";
-    private static final String TOTAL_LATENCY_MILLIS_FIELD = "totalLatencyMillis";
-    private static final String GET_SCHEMA_LATENCY_MILLIS_FIELD = "getSchemaLatencyMillis";
-    private static final String QUERY_AND_TRANSFORM_LATENCY_MILLIS_FIELD =
-            "queryAndTransformLatencyMillis";
-    private static final String FIRST_SET_SCHEMA_LATENCY_MILLIS_FIELD =
-            "firstSetSchemaLatencyMillis";
-    private static final String IS_FIRST_SET_SCHEMA_SUCCESS_FIELD = "isFirstSetSchemaSuccess";
-    private static final String SECOND_SET_SCHEMA_LATENCY_MILLIS_FIELD =
-            "secondSetSchemaLatencyMillis";
-    private static final String SAVE_DOCUMENT_LATENCY_MILLIS_FIELD = "saveDocumentLatencyMillis";
-    private static final String TOTAL_NEED_MIGRATED_DOCUMENT_COUNT_FIELD =
-            "totalNeedMigratedDocumentCount";
-    private static final String MIGRATION_FAILURE_COUNT_FIELD = "migrationFailureCount";
-    private static final String TOTAL_SUCCESS_MIGRATED_DOCUMENT_COUNT_FIELD =
-            "totalSuccessMigratedDocumentCount";
-
-    /**
-     * Contains all {@link SchemaMigrationStats} information in a packaged format.
-     *
-     * <p>Keys are the {@code *_FIELD} constants in this class.
-     */
+    @Field(id = 1, getter = "getPackageName")
     @NonNull
-    final Bundle mBundle;
+    private final String mPackageName;
 
-    /** Build a {@link SchemaMigrationStats} from the given bundle. */
-    public SchemaMigrationStats(@NonNull Bundle bundle) {
-        mBundle = Preconditions.checkNotNull(bundle);
-    }
-
-    /**
-     * Returns the {@link Bundle} populated by this builder.
-     *
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @Field(id = 2, getter = "getDatabase")
     @NonNull
-    public Bundle getBundle() {
-        return mBundle;
+    private final String mDatabase;
+
+    @Field(id = 3, getter = "getStatusCode")
+    private final int mStatusCode;
+
+    @Field(id = 4, getter = "getExecutorAcquisitionLatencyMillis")
+    private final int mExecutorAcquisitionLatencyMillis;
+
+    @Field(id = 5, getter = "getTotalLatencyMillis")
+    private final int mTotalLatencyMillis;
+
+    @Field(id = 6, getter = "getGetSchemaLatencyMillis")
+    private final int mGetSchemaLatencyMillis;
+
+    @Field(id = 7, getter = "getQueryAndTransformLatencyMillis")
+    private final int mQueryAndTransformLatencyMillis;
+
+    @Field(id = 8, getter = "getFirstSetSchemaLatencyMillis")
+    private final int mFirstSetSchemaLatencyMillis;
+
+    @Field(id = 9, getter = "isFirstSetSchemaSuccess")
+    private final boolean mIsFirstSetSchemaSuccess;
+
+    @Field(id = 10, getter = "getSecondSetSchemaLatencyMillis")
+    private final int mSecondSetSchemaLatencyMillis;
+
+    @Field(id = 11, getter = "getSaveDocumentLatencyMillis")
+    private final int mSaveDocumentLatencyMillis;
+
+    @Field(id = 12, getter = "getTotalNeedMigratedDocumentCount")
+    private final int mTotalNeedMigratedDocumentCount;
+
+    @Field(id = 13, getter = "getMigrationFailureCount")
+    private final int mMigrationFailureCount;
+
+    @Field(id = 14, getter = "getTotalSuccessMigratedDocumentCount")
+    private final int mTotalSuccessMigratedDocumentCount;
+
+    /** Build a {@link SchemaMigrationStats} from the given parameters. */
+    @Constructor
+    public SchemaMigrationStats(
+            @Param(id = 1) @NonNull String packageName,
+            @Param(id = 2) @NonNull String database,
+            @Param(id = 3) int statusCode,
+            @Param(id = 4) int executorAcquisitionLatencyMillis,
+            @Param(id = 5) int totalLatencyMillis,
+            @Param(id = 6) int getSchemaLatencyMillis,
+            @Param(id = 7) int queryAndTransformLatencyMillis,
+            @Param(id = 8) int firstSetSchemaLatencyMillis,
+            @Param(id = 9) boolean isFirstSetSchemaSuccess,
+            @Param(id = 10) int secondSetSchemaLatencyMillis,
+            @Param(id = 11) int saveDocumentLatencyMillis,
+            @Param(id = 12) int totalNeedMigratedDocumentCount,
+            @Param(id = 13) int migrationFailureCount,
+            @Param(id = 14) int totalSuccessMigratedDocumentCount) {
+        mPackageName = packageName;
+        mDatabase = database;
+        mStatusCode = statusCode;
+        mExecutorAcquisitionLatencyMillis = executorAcquisitionLatencyMillis;
+        mTotalLatencyMillis = totalLatencyMillis;
+        mGetSchemaLatencyMillis = getSchemaLatencyMillis;
+        mQueryAndTransformLatencyMillis = queryAndTransformLatencyMillis;
+        mFirstSetSchemaLatencyMillis = firstSetSchemaLatencyMillis;
+        mIsFirstSetSchemaSuccess = isFirstSetSchemaSuccess;
+        mSecondSetSchemaLatencyMillis = secondSetSchemaLatencyMillis;
+        mSaveDocumentLatencyMillis = saveDocumentLatencyMillis;
+        mTotalNeedMigratedDocumentCount = totalNeedMigratedDocumentCount;
+        mMigrationFailureCount = migrationFailureCount;
+        mTotalSuccessMigratedDocumentCount = totalSuccessMigratedDocumentCount;
     }
 
     /** Returns calling package name. */
     @NonNull
     public String getPackageName() {
-        return mBundle.getString(PACKAGE_NAME_FIELD);
+        return mPackageName;
     }
 
     /** Returns calling database name. */
     @NonNull
     public String getDatabase() {
-        return mBundle.getString(DATABASE_FIELD);
+        return mDatabase;
     }
 
     /** Returns status of the schema migration action. */
     @AppSearchResult.ResultCode
     public int getStatusCode() {
-        return mBundle.getInt(STATUS_CODE_FIELD);
+        return mStatusCode;
     }
 
     /** Gets the latency for waiting the executor. */
     public int getExecutorAcquisitionLatencyMillis() {
-        return mBundle.getInt(EXECUTOR_ACQUISITION_MILLIS_FIELD);
+        return mExecutorAcquisitionLatencyMillis;
     }
 
     /** Gets total latency for the schema migration action in milliseconds. */
     public int getTotalLatencyMillis() {
-        return mBundle.getInt(TOTAL_LATENCY_MILLIS_FIELD);
+        return mTotalLatencyMillis;
     }
 
     /** Returns GetSchema latency in milliseconds. */
     public int getGetSchemaLatencyMillis() {
-        return mBundle.getInt(GET_SCHEMA_LATENCY_MILLIS_FIELD);
+        return mGetSchemaLatencyMillis;
     }
 
     /**
@@ -137,7 +175,7 @@ public final class SchemaMigrationStats {
      * transforming documents to new version in milliseconds.
      */
     public int getQueryAndTransformLatencyMillis() {
-        return mBundle.getInt(QUERY_AND_TRANSFORM_LATENCY_MILLIS_FIELD);
+        return mQueryAndTransformLatencyMillis;
     }
 
     /**
@@ -149,12 +187,12 @@ public final class SchemaMigrationStats {
      * <p>Please see {@link SetSchemaRequest} for what is "incompatible".
      */
     public int getFirstSetSchemaLatencyMillis() {
-        return mBundle.getInt(FIRST_SET_SCHEMA_LATENCY_MILLIS_FIELD);
+        return mFirstSetSchemaLatencyMillis;
     }
 
     /** Returns whether the first SetSchema action success. */
     public boolean isFirstSetSchemaSuccess() {
-        return mBundle.getBoolean(IS_FIRST_SET_SCHEMA_SUCCESS_FIELD);
+        return mIsFirstSetSchemaSuccess;
     }
 
     /**
@@ -165,39 +203,56 @@ public final class SchemaMigrationStats {
      * be set to Icing by this action.
      */
     public int getSecondSetSchemaLatencyMillis() {
-        return mBundle.getInt(SECOND_SET_SCHEMA_LATENCY_MILLIS_FIELD);
+        return mSecondSetSchemaLatencyMillis;
     }
 
     /** Returns latency of putting migrated document to Icing lib in milliseconds. */
     public int getSaveDocumentLatencyMillis() {
-        return mBundle.getInt(SAVE_DOCUMENT_LATENCY_MILLIS_FIELD);
+        return mSaveDocumentLatencyMillis;
     }
 
     /** Returns number of document that need to be migrated to another version. */
     public int getTotalNeedMigratedDocumentCount() {
-        return mBundle.getInt(TOTAL_NEED_MIGRATED_DOCUMENT_COUNT_FIELD);
+        return mTotalNeedMigratedDocumentCount;
     }
 
     /** Returns number of {@link androidx.appsearch.app.SetSchemaResponse.MigrationFailure}. */
     public int getMigrationFailureCount() {
-        return mBundle.getInt(MIGRATION_FAILURE_COUNT_FIELD);
+        return mMigrationFailureCount;
     }
 
     /** Returns number of successfully migrated and saved in Icing. */
     public int getTotalSuccessMigratedDocumentCount() {
-        return mBundle.getInt(TOTAL_SUCCESS_MIGRATED_DOCUMENT_COUNT_FIELD);
+        return mTotalSuccessMigratedDocumentCount;
+    }
+
+    @Override
+    public void writeToParcel(@NonNull Parcel dest, int flags) {
+        SchemaMigrationStatsCreator.writeToParcel(this, dest, flags);
     }
 
     /** Builder for {@link SchemaMigrationStats}. */
     public static class Builder {
 
-        private final Bundle mBundle;
+        String mPackageName;
+        String mDatabase;
+        int mStatusCode;
+        int mExecutorAcquisitionLatencyMillis;
+        int mTotalLatencyMillis;
+        int mGetSchemaLatencyMillis;
+        int mQueryAndTransformLatencyMillis;
+        int mFirstSetSchemaLatencyMillis;
+        boolean mIsFirstSetSchemaSuccess;
+        int mSecondSetSchemaLatencyMillis;
+        int mSaveDocumentLatencyMillis;
+        int mTotalNeedMigratedDocumentCount;
+        int mMigrationFailureCount;
+        int mTotalSuccessMigratedDocumentCount;
 
         /** Creates a {@link SchemaMigrationStats.Builder}. */
         public Builder(@NonNull String packageName, @NonNull String database) {
-            mBundle = new Bundle();
-            mBundle.putString(PACKAGE_NAME_FIELD, packageName);
-            mBundle.putString(DATABASE_FIELD, database);
+            mPackageName = Objects.requireNonNull(packageName);
+            mDatabase = Objects.requireNonNull(database);
         }
 
         /**
@@ -207,44 +262,54 @@ public final class SchemaMigrationStats {
          * SchemaMigrationStats.
          */
         public Builder(@NonNull SchemaMigrationStats stats) {
-            mBundle = BundleUtil.deepCopy(stats.mBundle);
-        }
+            Objects.requireNonNull(stats);
 
-        /**
-         * Creates a new {@link SchemaMigrationStats.Builder} from the given Bundle
-         *
-         * <p>The bundle is NOT copied.
-         */
-        public Builder(@NonNull Bundle bundle) {
-            mBundle = Preconditions.checkNotNull(bundle);
+            mPackageName = stats.mPackageName;
+            mDatabase = stats.mDatabase;
+            mStatusCode = stats.mStatusCode;
+            mExecutorAcquisitionLatencyMillis = stats.mExecutorAcquisitionLatencyMillis;
+            mTotalLatencyMillis = stats.mTotalLatencyMillis;
+            mGetSchemaLatencyMillis = stats.mGetSchemaLatencyMillis;
+            mQueryAndTransformLatencyMillis = stats.mQueryAndTransformLatencyMillis;
+            mFirstSetSchemaLatencyMillis = stats.mFirstSetSchemaLatencyMillis;
+            mIsFirstSetSchemaSuccess = stats.mIsFirstSetSchemaSuccess;
+            mSecondSetSchemaLatencyMillis = stats.mSecondSetSchemaLatencyMillis;
+            mSaveDocumentLatencyMillis = stats.mSaveDocumentLatencyMillis;
+            mTotalNeedMigratedDocumentCount = stats.mTotalNeedMigratedDocumentCount;
+            mMigrationFailureCount = stats.mMigrationFailureCount;
+            mTotalSuccessMigratedDocumentCount = stats.mTotalSuccessMigratedDocumentCount;
         }
 
         /** Sets status code for the schema migration action. */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder setStatusCode(@AppSearchResult.ResultCode int statusCode) {
-            mBundle.putInt(STATUS_CODE_FIELD, statusCode);
+            mStatusCode = statusCode;
             return this;
         }
 
         /** Sets the latency for waiting the executor. */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder setExecutorAcquisitionLatencyMillis(int executorAcquisitionLatencyMillis) {
-            mBundle.putInt(EXECUTOR_ACQUISITION_MILLIS_FIELD, executorAcquisitionLatencyMillis);
+            mExecutorAcquisitionLatencyMillis = executorAcquisitionLatencyMillis;
             return this;
         }
 
 
         /** Sets total latency for the schema migration action in milliseconds. */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder setTotalLatencyMillis(int totalLatencyMillis) {
-            mBundle.putInt(TOTAL_LATENCY_MILLIS_FIELD, totalLatencyMillis);
+            mTotalLatencyMillis = totalLatencyMillis;
             return this;
         }
 
         /** Sets latency for the GetSchema action in milliseconds. */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder setGetSchemaLatencyMillis(int getSchemaLatencyMillis) {
-            mBundle.putInt(GET_SCHEMA_LATENCY_MILLIS_FIELD, getSchemaLatencyMillis);
+            mGetSchemaLatencyMillis = getSchemaLatencyMillis;
             return this;
         }
 
@@ -252,65 +317,71 @@ public final class SchemaMigrationStats {
          * Sets latency for querying all documents that need to be migrated to new version and
          * transforming documents to new version in milliseconds.
          */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder setQueryAndTransformLatencyMillis(
                 int queryAndTransformLatencyMillis) {
-            mBundle.putInt(QUERY_AND_TRANSFORM_LATENCY_MILLIS_FIELD,
-                    queryAndTransformLatencyMillis);
+            mQueryAndTransformLatencyMillis = queryAndTransformLatencyMillis;
             return this;
         }
 
         /** Sets latency of first SetSchema action in milliseconds. */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder setFirstSetSchemaLatencyMillis(
                 int firstSetSchemaLatencyMillis) {
-            mBundle.putInt(FIRST_SET_SCHEMA_LATENCY_MILLIS_FIELD, firstSetSchemaLatencyMillis);
+            mFirstSetSchemaLatencyMillis = firstSetSchemaLatencyMillis;
             return this;
         }
 
         /** Returns status of the first SetSchema action. */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder setIsFirstSetSchemaSuccess(boolean isFirstSetSchemaSuccess) {
-            mBundle.putBoolean(IS_FIRST_SET_SCHEMA_SUCCESS_FIELD, isFirstSetSchemaSuccess);
+            mIsFirstSetSchemaSuccess = isFirstSetSchemaSuccess;
             return this;
         }
 
         /** Sets latency of second SetSchema action in milliseconds. */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder setSecondSetSchemaLatencyMillis(
                 int secondSetSchemaLatencyMillis) {
-            mBundle.putInt(SECOND_SET_SCHEMA_LATENCY_MILLIS_FIELD, secondSetSchemaLatencyMillis);
+            mSecondSetSchemaLatencyMillis = secondSetSchemaLatencyMillis;
             return this;
         }
 
         /** Sets latency for putting migrated document to Icing lib in milliseconds. */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder setSaveDocumentLatencyMillis(
                 int saveDocumentLatencyMillis) {
-            mBundle.putInt(SAVE_DOCUMENT_LATENCY_MILLIS_FIELD, saveDocumentLatencyMillis);
+            mSaveDocumentLatencyMillis = saveDocumentLatencyMillis;
             return this;
         }
 
         /** Sets number of document that need to be migrated to another version. */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder setTotalNeedMigratedDocumentCount(int migratedDocumentCount) {
-            mBundle.putInt(TOTAL_NEED_MIGRATED_DOCUMENT_COUNT_FIELD, migratedDocumentCount);
+            mTotalNeedMigratedDocumentCount = migratedDocumentCount;
             return this;
         }
 
         /** Sets total document count of successfully migrated and saved in Icing. */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder setTotalSuccessMigratedDocumentCount(
                 int totalSuccessMigratedDocumentCount) {
-            mBundle.putInt(TOTAL_SUCCESS_MIGRATED_DOCUMENT_COUNT_FIELD,
-                    totalSuccessMigratedDocumentCount);
+            mTotalSuccessMigratedDocumentCount = totalSuccessMigratedDocumentCount;
             return this;
         }
 
         /** Sets number of {@link androidx.appsearch.app.SetSchemaResponse.MigrationFailure}. */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder setMigrationFailureCount(int migrationFailureCount) {
-            mBundle.putInt(MIGRATION_FAILURE_COUNT_FIELD, migrationFailureCount);
+            mMigrationFailureCount = migrationFailureCount;
             return this;
         }
 
@@ -319,7 +390,21 @@ public final class SchemaMigrationStats {
          */
         @NonNull
         public SchemaMigrationStats build() {
-            return new SchemaMigrationStats(mBundle);
+            return new SchemaMigrationStats(
+                    mPackageName,
+                    mDatabase,
+                    mStatusCode,
+                    mExecutorAcquisitionLatencyMillis,
+                    mTotalLatencyMillis,
+                    mGetSchemaLatencyMillis,
+                    mQueryAndTransformLatencyMillis,
+                    mFirstSetSchemaLatencyMillis,
+                    mIsFirstSetSchemaSuccess,
+                    mSecondSetSchemaLatencyMillis,
+                    mSaveDocumentLatencyMillis,
+                    mTotalNeedMigratedDocumentCount,
+                    mMigrationFailureCount,
+                    mTotalSuccessMigratedDocumentCount);
         }
     }
 }

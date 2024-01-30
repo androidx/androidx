@@ -23,13 +23,16 @@ import groovy.lang.Closure
 import java.io.File
 import org.gradle.api.GradleException
 import org.gradle.api.Project
+import org.gradle.api.plugins.ExtensionAware
+import org.gradle.api.plugins.ExtensionContainer
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 
 /**
  * Extension for [AndroidXImplPlugin] that's responsible for holding configuration options.
  */
-open class AndroidXExtension(val project: Project) {
+abstract class AndroidXExtension(val project: Project) : ExtensionAware {
+
     @JvmField
     val LibraryVersions: Map<String, Version>
 
@@ -44,6 +47,8 @@ open class AndroidXExtension(val project: Project) {
     val listProjectsService: Provider<ListProjectsService>
 
     private val versionService: LibraryVersionsService
+
+    val deviceTests = DeviceTests.register(project.extensions)
 
     init {
         val tomlFileName = "libraryversions.toml"
@@ -123,15 +128,21 @@ open class AndroidXExtension(val project: Project) {
             chooseProjectVersion()
         }
 
-    fun getAllProjectPathsInSameGroup(): List<String> {
-        val allProjectPaths = listProjectsService.get().allPossibleProjectPaths
+    internal var projectDirectlySpecifiesMavenVersion: Boolean = false
+
+    fun getOtherProjectsInSameGroup(): List<SettingsParser.IncludedProject> {
+        val allProjects = listProjectsService.get().allPossibleProjects
         val ourGroup = chooseLibraryGroup()
         if (ourGroup == null)
-            return listOf(project.path)
-        val projectPathsInSameGroup = allProjectPaths.filter { otherPath ->
-            getLibraryGroupFromProjectPath(otherPath) == ourGroup
+            return listOf()
+        val otherProjectsInSameGroup = allProjects.filter { otherProject ->
+            if (otherProject.gradlePath == project.path) {
+                false
+            } else {
+                getLibraryGroupFromProjectPath(otherProject.gradlePath) == ourGroup
+            }
         }
-        return projectPathsInSameGroup
+        return otherProjectsInSameGroup
     }
 
     /**
@@ -160,7 +171,7 @@ open class AndroidXExtension(val project: Project) {
     }
 
     // gets the library group from the project path, including special cases
-    private fun getLibraryGroupFromProjectPath(
+    fun getLibraryGroupFromProjectPath(
         projectPath: String,
         explanationBuilder: MutableList<String>? = null
     ): LibraryGroup? {
@@ -228,6 +239,7 @@ open class AndroidXExtension(val project: Project) {
         val groupVersion: Version? = mavenGroup?.atomicGroupVersion
         val mavenVersion: Version? = mavenVersion
         if (mavenVersion != null) {
+            projectDirectlySpecifiesMavenVersion = true
             if (groupVersion != null && !isGroupVersionOverrideAllowed()) {
                 throw GradleException(
                     "Cannot set mavenVersion (" + mavenVersion +
@@ -240,6 +252,7 @@ open class AndroidXExtension(val project: Project) {
                 version = mavenVersion
             }
         } else {
+            projectDirectlySpecifiesMavenVersion = false
             if (groupVersion != null) {
                 verifyVersionExtraFormat(groupVersion)
                 version = groupVersion
@@ -286,11 +299,13 @@ open class AndroidXExtension(val project: Project) {
     }
 
     private fun isGroupVersionOverrideAllowed(): Boolean {
+        // TODO: [1.4 Update] seems that for JetBrains fork version override is always allowed to build publications
+        return true
         // Grant an exception to the same-version-group policy for artifacts that haven't shipped a
         // stable API surface, e.g. 1.0.0-alphaXX, to allow for rapid early-stage development.
-        val version = mavenVersion
-        return version != null && version.major == 1 && version.minor == 0 && version.patch == 0 &&
-            version.isAlpha()
+//        val version = mavenVersion
+//        return version != null && version.major == 1 && version.minor == 0 && version.patch == 0 &&
+//            version.isAlpha()
     }
 
     private var versionIsSet = false
@@ -370,15 +385,19 @@ open class AndroidXExtension(val project: Project) {
 
     var legacyDisableKotlinStrictApiMode = false
 
-    var benchmarkRunAlsoInterpreted = false
-
     var bypassCoordinateValidation = false
 
     var metalavaK2UastEnabled = false
 
-    var disableDeviceTests = false
-
     val additionalDeviceTestApkKeys = mutableListOf<String>()
+
+    val additionalDeviceTestTags: MutableList<String> by lazy {
+        when {
+            project.path.startsWith(":privacysandbox:") -> mutableListOf("privacysandbox")
+            project.path.startsWith(":wear:") -> mutableListOf("wear")
+            else -> mutableListOf()
+        }
+    }
 
     fun shouldEnforceKotlinStrictApiMode(): Boolean {
         return !legacyDisableKotlinStrictApiMode &&
@@ -413,4 +432,19 @@ open class AndroidXExtension(val project: Project) {
 class License {
     var name: String? = null
     var url: String? = null
+}
+
+abstract class DeviceTests {
+
+    companion object {
+        private const val EXTENSION_NAME = "deviceTests"
+        internal fun register(extensions: ExtensionContainer): DeviceTests {
+            return extensions.findByType(DeviceTests::class.java)
+                ?: extensions.create(EXTENSION_NAME, DeviceTests::class.java)
+        }
+    }
+
+    var enabled = true
+    var targetAppProject: Project? = null
+    var targetAppVariant = "debug"
 }

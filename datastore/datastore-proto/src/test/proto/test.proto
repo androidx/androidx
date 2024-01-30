@@ -1,9 +1,9 @@
 // Protos for use in tests
 syntax = "proto2";
 
-package androidx.testing;
+package androidx.datastore.testing;
 
-option java_package = "androidx.testing";
+option java_package = "androidx.datastore.testing";
 option java_outer_classname = "TestMessageProto";
 
 message FooProto {

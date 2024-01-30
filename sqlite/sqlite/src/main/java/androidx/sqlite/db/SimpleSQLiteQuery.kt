@@ -15,8 +15,6 @@
  */
 package androidx.sqlite.db
 
-import android.annotation.SuppressLint
-
 /**
  * A basic implementation of [SupportSQLiteQuery] which receives a query and its args and
  * binds args based on the passed in Object type.
@@ -61,7 +59,6 @@ class SimpleSQLiteQuery(
          * @param [statement] The sqlite statement
          * @param [bindArgs]  The list of bind arguments
          */
-        @SuppressLint("SyntheticAccessor")
         @JvmStatic
         fun bind(
             statement: SupportSQLiteProgram,

@@ -26,6 +26,10 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.awt.ComposeDialog
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.scene.BaseComposeScene
+import androidx.compose.ui.scene.LocalComposeScene
+import androidx.compose.ui.scene.platformContext
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.ComponentUpdater
@@ -43,12 +47,47 @@ import java.awt.event.WindowAdapter
 import java.awt.event.WindowEvent
 import javax.swing.JDialog
 
+@Deprecated(
+    message = "Replaced by DialogWindow",
+    replaceWith = ReplaceWith("DialogWindow(onCloseRequest, state, visible, title, icon, undecorated, transparent, resizable, enabled, focusable, onPreviewKeyEvent, onKeyEvent, content)")
+)
+@Composable
+fun Dialog(
+    onCloseRequest: () -> Unit,
+    state: DialogState = rememberDialogState(),
+    visible: Boolean = true,
+    title: String = "Untitled",
+    icon: Painter? = null,
+    undecorated: Boolean = false,
+    transparent: Boolean = false,
+    resizable: Boolean = true,
+    enabled: Boolean = true,
+    focusable: Boolean = true,
+    onPreviewKeyEvent: ((KeyEvent) -> Boolean) = { false },
+    onKeyEvent: ((KeyEvent) -> Boolean) = { false },
+    content: @Composable DialogWindowScope.() -> Unit
+) = DialogWindow(
+    onCloseRequest,
+    state,
+    visible,
+    title,
+    icon,
+    undecorated,
+    transparent,
+    resizable,
+    enabled,
+    focusable,
+    onPreviewKeyEvent,
+    onKeyEvent,
+    content
+)
+
 /**
  * Composes platform dialog in the current composition. When Dialog enters the composition,
  * a new platform dialog will be created and receives the focus. When Dialog leaves the
  * composition, dialog will be disposed and closed.
  *
- * Dialog is a modal window. It means it blocks the parent [Window] / [Dialog] in which composition
+ * Dialog is a modal window. It means it blocks the parent [Window] / [DialogWindow] in which composition
  * context it was created.
  *
  * Usage:
@@ -72,11 +111,11 @@ import javax.swing.JDialog
  * the native dialog will update its corresponding properties.
  * If [DialogState.position] is not [WindowPosition.isSpecified], then after the first show on the
  * screen [DialogState.position] will be set to the absolute values.
- * @param visible Is [Dialog] visible to user.
+ * @param visible Is [DialogWindow] visible to user.
  * If `false`:
- * - internal state of [Dialog] is preserved and will be restored next time the dialog
+ * - internal state of [DialogWindow] is preserved and will be restored next time the dialog
  * will be visible;
- * - native resources will not be released. They will be released only when [Dialog]
+ * - native resources will not be released. They will be released only when [DialogWindow]
  * will leave the composition.
  * @param title Title in the titlebar of the dialog
  * @param icon Icon in the titlebar of the window (for platforms which support this).
@@ -101,7 +140,7 @@ import javax.swing.JDialog
  * @param content content of the dialog
  */
 @Composable
-fun Dialog(
+fun DialogWindow(
     onCloseRequest: () -> Unit,
     state: DialogState = rememberDialogState(),
     visible: Boolean = true,
@@ -150,8 +189,7 @@ fun Dialog(
         }
     }
 
-
-    Dialog(
+    DialogWindow(
         visible = visible,
         onPreviewKeyEvent = onPreviewKeyEvent,
         onKeyEvent = onKeyEvent,
@@ -223,6 +261,29 @@ fun Dialog(
     )
 }
 
+@Deprecated(
+    message = "Replaced by DialogWindow",
+    replaceWith = ReplaceWith("DialogWindow(visible, onPreviewKeyEvent, onKeyEvent, create, dispose, update, content)")
+)
+@Composable
+fun Dialog(
+    visible: Boolean = true,
+    onPreviewKeyEvent: ((KeyEvent) -> Boolean) = { false },
+    onKeyEvent: ((KeyEvent) -> Boolean) = { false },
+    create: () -> ComposeDialog,
+    dispose: (ComposeDialog) -> Unit,
+    update: (ComposeDialog) -> Unit = {},
+    content: @Composable DialogWindowScope.() -> Unit
+) = DialogWindow(
+    visible,
+    onPreviewKeyEvent,
+    onKeyEvent,
+    create,
+    dispose,
+    update,
+    content
+)
+
 // TODO(demin): fix mouse hover after opening a dialog.
 //  When we open a modal dialog, ComposeLayer/mouseExited will
 //  never be called for the parent window. See ./gradlew run3
@@ -234,7 +295,7 @@ fun Dialog(
  * Once Dialog leaves the composition, [dispose] will be called to free resources that
  * obtained by the [ComposeDialog].
  *
- * Dialog is a modal window. It means it blocks the parent [Window] / [Dialog] in which composition
+ * Dialog is a modal window. It means it blocks the parent [Window] / [DialogWindow] in which composition
  * context it was created.
  *
  * The [update] block can be run multiple times (on the UI thread as well) due to recomposition,
@@ -243,13 +304,13 @@ fun Dialog(
  * Note the block will also be ran once right after the [create] block completes.
  *
  * Dialog is needed for creating dialog's that still can't be created with
- * the default Compose function [androidx.compose.ui.window.Dialog]
+ * the default Compose function [androidx.compose.ui.window.DialogWindow]
  *
  * @param visible Is [ComposeDialog] visible to user.
  * If `false`:
  * - internal state of [ComposeDialog] is preserved and will be restored next time the dialog
  * will be visible;
- * - native resources will not be released. They will be released only when [Dialog]
+ * - native resources will not be released. They will be released only when [DialogWindow]
  * will leave the composition.
  * @param onPreviewKeyEvent This callback is invoked when the user interacts with the hardware
  * keyboard. It gives ancestors of a focused component the chance to intercept a [KeyEvent].
@@ -268,7 +329,7 @@ fun Dialog(
 @OptIn(ExperimentalComposeUiApi::class)
 @Suppress("unused")
 @Composable
-fun Dialog(
+fun DialogWindow(
     visible: Boolean = true,
     onPreviewKeyEvent: ((KeyEvent) -> Boolean) = { false },
     onKeyEvent: ((KeyEvent) -> Boolean) = { false },
@@ -281,19 +342,25 @@ fun Dialog(
     val windowExceptionHandlerFactory by rememberUpdatedState(
         LocalWindowExceptionHandlerFactory.current
     )
+    val parentPlatformContext = LocalComposeScene.current?.platformContext
+    val layoutDirection = LocalLayoutDirection.current
     AwtWindow(
         visible = visible,
         create = {
             create().apply {
+                this.rootForTestListener = parentPlatformContext?.rootForTestListener
                 this.compositionLocalContext = compositionLocalContext
                 this.exceptionHandler = windowExceptionHandlerFactory.exceptionHandler(this)
                 setContent(onPreviewKeyEvent, onKeyEvent, content)
             }
         },
-        dispose = dispose,
+        dispose = {
+            dispose(it)
+        },
         update = {
             it.compositionLocalContext = compositionLocalContext
             it.exceptionHandler = windowExceptionHandlerFactory.exceptionHandler(it)
+            it.componentOrientation = layoutDirection.componentOrientation
 
             val wasDisplayable = it.isDisplayable
 
@@ -307,17 +374,17 @@ fun Dialog(
             if (!wasDisplayable && it.isDisplayable) {
                 it.contentPane.paint(it.contentPane.graphics)
             }
-        }
+        },
     )
 }
 
 /**
- * Receiver scope which is used by [androidx.compose.ui.window.Dialog].
+ * Receiver scope which is used by [androidx.compose.ui.window.DialogWindow].
  */
 @Stable
 interface DialogWindowScope : WindowScope {
     /**
-     * [ComposeDialog] that was created inside [androidx.compose.ui.window.Dialog].
+     * [ComposeDialog] that was created inside [androidx.compose.ui.window.DialogWindow].
      */
     override val window: ComposeDialog
 }

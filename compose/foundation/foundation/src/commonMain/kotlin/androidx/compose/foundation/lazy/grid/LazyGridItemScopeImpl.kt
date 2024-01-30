@@ -18,37 +18,32 @@ package androidx.compose.foundation.lazy.grid
 
 import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.lazy.layout.LazyLayoutAnimationSpecsNode
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.ParentDataModifier
+import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.platform.InspectorInfo
-import androidx.compose.ui.platform.InspectorValueInfo
-import androidx.compose.ui.platform.debugInspectorInfo
-import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 
 @OptIn(ExperimentalFoundationApi::class)
 internal object LazyGridItemScopeImpl : LazyGridItemScope {
     @ExperimentalFoundationApi
     override fun Modifier.animateItemPlacement(animationSpec: FiniteAnimationSpec<IntOffset>) =
-        this.then(AnimateItemPlacementModifier(animationSpec, debugInspectorInfo {
-            name = "animateItemPlacement"
-            value = animationSpec
-        }))
+        this then AnimateItemElement(animationSpec)
 }
 
-private class AnimateItemPlacementModifier(
-    val animationSpec: FiniteAnimationSpec<IntOffset>,
-    inspectorInfo: InspectorInfo.() -> Unit,
-) : ParentDataModifier, InspectorValueInfo(inspectorInfo) {
-    override fun Density.modifyParentData(parentData: Any?): Any = animationSpec
+private data class AnimateItemElement(
+    val placementSpec: FiniteAnimationSpec<IntOffset>
+) : ModifierNodeElement<LazyLayoutAnimationSpecsNode>() {
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is AnimateItemPlacementModifier) return false
-        return animationSpec != other.animationSpec
+    override fun create(): LazyLayoutAnimationSpecsNode =
+        LazyLayoutAnimationSpecsNode(null, placementSpec)
+
+    override fun update(node: LazyLayoutAnimationSpecsNode) {
+        node.placementSpec = placementSpec
     }
 
-    override fun hashCode(): Int {
-        return animationSpec.hashCode()
+    override fun InspectorInfo.inspectableProperties() {
+        name = "animateItemPlacement"
+        value = placementSpec
     }
 }

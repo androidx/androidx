@@ -268,6 +268,7 @@
     <string name="tab_title_list" msgid="5104962518489668123">"فہرست ٹیب"</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"طویل ٹیب کے عنوان کے ساتھ گرڈ ٹیب"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"تلاش ٹیب"</string>
+    <string name="tab_title_loading" msgid="5385807479734490989">"ٹیب لوڈ ہو رہا ہے"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"ٹیب کی تمثیل ڈیمو لوڈ ہو رہا ہے"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"ٹیب کی تمثیل کوئی ٹیبز ڈیمو نہیں"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"نامعلوم میزبان کیلئے تصاویر کو ڈسپلے نہیں کیا جا سکتا"</string>
@@ -302,7 +303,7 @@
     <string name="some_additional_text" msgid="4009872495806318260">"کچھ اضافی ٹیکسٹ"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"قابل انتخاب نمونہ کی فہرست"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"ٹاسک کی پابندی کا ڈیمو"</string>
-    <string name="task_limit_reached_msg" msgid="6038763366777119364">"ٹاسک کی حد پوری ہو گئی\nآگے بڑھنے سے ایپ کو زبردستی روک دیا جائے گا"</string>
+    <string name="task_limit_reached_msg" msgid="7162842196382260992">"یہ قدم کی گنتی کو اوور فلو کرے گا اور آپ کو ایک نئی اسکرین پر لے جائے گا۔"</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"‏%2$d میں سے ‎%1$d ٹاسک کا مرحلہ"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"آگے بڑھنے کے لیے کلک کریں"</string>
     <string name="task_content_allowed" msgid="545061986612431190">"براہ کرم مختلف ٹیمپلیٹس دیکھیں اور یقینی بنائیں کہ کار ڈرائیونگ موڈ میں ہے"</string>
@@ -327,6 +328,12 @@
     <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"قطار بھی منتخب کی جا سکتی ہے"</string>
     <string name="secondary_action_toast" msgid="5076434693504006565">"ثانوی کارروائی کا انتخاب کیا گیا ہے"</string>
     <string name="row_primary_action_toast" msgid="756516694751965204">"قطار کی بنیادی کارروائی کا انتخاب کیا گیا ہے"</string>
+    <string name="sectioned_item_list_demo_title" msgid="1236735461225007729">"سیکشن کردہ آئٹم کی فہرست کا ڈیمو"</string>
+    <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"فہرست 1"</string>
+    <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"فہرست 2"</string>
+    <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"ہر فہرست کے نیچے ذیلی ٹیکسٹ"</string>
+    <string name="empty_list_demo_title" msgid="5989013634820902455">"خالی فہرست کا ڈیمو"</string>
+    <string name="empty_list_message" msgid="5331395517560728138">"فہرست خالی ہے"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"متفرق تمثیلات کے ڈیموز"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"ڈیموز دکھائیں"</string>
     <string name="template_layouts_demo_title" msgid="788249269446087847">"تمثیل کے لے آؤٹ کے ڈیموز"</string>

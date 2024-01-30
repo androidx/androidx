@@ -6,11 +6,11 @@
 
 <table>
     <tr>
-      <td><strong>Macrobenchmark</strong> (new!)</td>
-      <td><strong>Benchmark</strong> (existing!)</td>
+      <td><strong>Macrobenchmark</strong></td>
+      <td><strong>Benchmark</strong></td>
     </tr>
     <tr>
-        <td>Measure high-level entry points (Activity launch / Scrolling a list)</td>
+        <td>Measure high-level entry points(Activity launch / Scrolling a list)</td>
         <td>Measure individual functions</td>
     </tr>
     <tr>
@@ -22,12 +22,16 @@
         <td>Fast iteration speed (Often less than 10 seconds)</td>
     </tr>
     <tr>
-        <td>Results come with profiling traces</td>
-        <td>Optional stack sampling/method tracing</td>
+        <td>Configure compilation with CompilationMode</td>
+        <td>Always fully AOT (<code>speed</code>) compiled.</td>
     </tr>
     <tr>
         <td>Min API 23</td>
         <td>Min API 14</td>
+    </tr>
+    <tr>
+        <td>Relatively lower stability measurements</td>
+        <td>Higher stability measurements</td>
     </tr>
 </table>
 
@@ -41,7 +45,7 @@ MICRObenchmarks [here](/company/teams/androidx/benchmarking.md).
 ### Writing the benchmark
 
 Benchmarks are just regular instrumentation tests! Just use the
-[`MacrobenchmarkRule`](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:benchmark/macro-junit4/src/main/java/androidx/benchmark/macro/junit4/MacrobenchmarkRule.kt)
+[`MacrobenchmarkRule`](https://developer.android.com/reference/kotlin/androidx/benchmark/macro/junit4/MacrobenchmarkRule)
 provided by the library:
 
 <section class="tabs">
@@ -57,7 +61,7 @@ provided by the library:
         packageName = "mypackage.myapp",
         metrics = listOf(StartupTimingMetric()),
         startupMode = StartupMode.COLD,
-        iterations = 5
+        iterations = 10
     ) { // this = MacrobenchmarkScope
         pressHome()
         val intent = Intent()
@@ -79,7 +83,7 @@ provided by the library:
                 "mypackage.myapp",
                 Collections.singletonList(new StartupTimingMetric()),
                 StartupMode.COLD,
-                /* iterations = */ 5,
+                /* iterations = */ 10,
                 scope -> {
                     scope.pressHome();
                     Intent intent = Intent();
@@ -97,28 +101,26 @@ provided by the library:
 ## Project structure
 
 As in the public documentation, macrobenchmarks in the AndroidX repo are
-comprised of an app, and a separate macrobenchmark module. Additional setups
-steps/constraints for the AndroidX repository are listed below.
+comprised of an app, and a separate macrobenchmark test module. In the AndroidX
+repository, there are additional requirements:
 
-1.  App and macrobenchmark modules must be unique, and map 1:1.
+1.  Macrobenchmark test module path in `settings.gradle` must end with
+    `macrobenchmark` to run in CI.
 
-1.  Target app path in `settings.gradle` must end with
-    `:integration-tests:macrobenchmark-target`.
+1.  Macrobenchmark target module path in `settings.gradle` must end with
+    `macrobenchmark-target` to follow convention.
 
-1.  Macrobenchmark library path must be at the same path, but instead ending
-    with `:integration-tests:macrobenchmark`
-
-1.  An entry should be placed in AffectedModuleDetector to recognize
-    macrobenchmark dependency on target app module,
-    [for example](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:buildSrc/src/main/kotlin/androidx/build/dependencyTracker/AffectedModuleDetector.kt;l=518;drc=cfb504756386b6225a2176d1d6efe2f55d4fa564)
+1.  Each library group should declare its own in-group macrobenchmark test and
+    app module. More than one is allowed, which is sometimes necessary to
+    compare different startup behaviors, see e.g.
+    `:emoji2:integration-tests:init-<disabled/enabled>-macrobenchmark-target`.
+    Note that comparing multiple app variants are not currently supported by CI.
 
 Compose Macrobenchmark Examples:
 
 *   [`:compose:integration-tests:macrobenchmark-target`](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:compose/integration-tests/macrobenchmark-target/)
 
 *   [`:compose:integration-tests:macrobenchmark`](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:compose/integration-tests/macrobenchmark/)
-
-*   [AffectedModuleDetector Entry](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:buildSrc/src/main/kotlin/androidx/build/dependencyTracker/AffectedModuleDetector.kt;l=526;drc=cfb504756386b6225a2176d1d6efe2f55d4fa564)
 
 Note: Compose macrobenchmarks are generally duplicated with View system
 counterparts, defined in `:benchmark:integration-tests:macrobenchmark-target`.
@@ -132,21 +134,16 @@ This is how we compare performance of the two systems.
       <td><strong>Required setup</strong></td>
     </tr>
     <tr>
-        <td>Two modules in settings.gradle</td>
-        <td>Both the macrobenchmark and target must be defined in sibling
-          modules</td>
+        <td>Two modules in <code>settings.gradle</code></td>
+        <td>Both the macrobenchmark and target must be added for your group</td>
     </tr>
     <tr>
-        <td>The module name for the benchmark (test) module</td>
-        <td>It must match /.*:integration-tests:.*macrobenchmark/</td>
+        <td>The module name for the benchmark (<code>com.android.test</code>) module</td>
+        <td>Must end with <code>macrobenchmark</code></td>
     </tr>
     <tr>
-        <td>The module name for the target (integration app) module</td>
-        <td>It must match /.*:integration-tests:.*macrobenchmark-target</td>
-    </tr>
-    <tr>
-        <td>Register the modules in AffectedModuleDetector.kt</td>
-        <td>It must link the modules (see docs above)</td>
+        <td>The module name for the app (<code>com.android.app</code>) module</td>
+        <td>Must end with <code>macrobenchmark-target</code></td>
     </tr>
     <tr>
         <td>Name the test class in a discoverable way</td>

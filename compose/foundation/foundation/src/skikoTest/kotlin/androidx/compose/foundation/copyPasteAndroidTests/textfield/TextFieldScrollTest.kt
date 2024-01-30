@@ -16,12 +16,11 @@
 
 package androidx.compose.foundation.copyPasteAndroidTests.textfield
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.assertPixels
 import androidx.compose.foundation.assertThat
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.containsExactly
+import androidx.compose.foundation.containsExactlyInOrder
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.isEqualTo
@@ -94,7 +93,7 @@ import kotlin.test.Test
  * [BasicText] which is equivalent for testing these modifiers
  */
 
-@OptIn(ExperimentalFoundationApi::class, ExperimentalTestApi::class)
+@OptIn(ExperimentalTestApi::class)
 class TextFieldScrollTest {
 
     private val TextfieldTag = "textField"
@@ -364,7 +363,7 @@ class TextFieldScrollTest {
                 Modifier.textFieldScrollable(position, interactionSource) as InspectableValue
             assertThat(modifier.nameFallback).isEqualTo("textFieldScrollable")
             assertThat(modifier.valueOverride).isNull()
-            assertThat(modifier.inspectableElements.map { it.name }.asIterable()).containsExactly(
+            assertThat(modifier.inspectableElements.map { it.name }.asIterable()).containsExactlyInOrder(
                 "scrollerPosition",
                 "interactionSource",
                 "enabled"
@@ -692,7 +691,7 @@ class TextFieldScrollTest {
                     remember { scrollerPosition },
                     TextFieldValue(text),
                     VisualTransformation.None,
-                    { textLayoutResultRef.value }
+                    textLayoutResultProvider = { textLayoutResultRef.value }
                 )
         )
     }

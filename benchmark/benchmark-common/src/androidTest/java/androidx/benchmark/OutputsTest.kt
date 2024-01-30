@@ -23,6 +23,7 @@ import java.io.File
 import java.util.Date
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 import org.junit.Assert
 import org.junit.Assume.assumeTrue
 import org.junit.Before
@@ -58,11 +59,38 @@ public class OutputsTest {
         assertRelativePaths(Outputs.dirUsableByAppAndShell, outputs)
     }
 
+    /**
+     * This test validates the strings searched for by BPGP aren't broken by filename sanitization.
+     */
+    @Test
+    public fun sanitizeFilename_baselineProfileGradlePlugin() {
+        val baselineSanitized = Outputs.sanitizeFilename("foo[a=b]-baseline-prof-001.txt")
+        val startupSanitized = Outputs.sanitizeFilename("foo[a=b]-startup-prof-001.txt")
+
+        assertEquals("foo_a_b_-baseline-prof-001.txt", baselineSanitized)
+        assertEquals("foo_a_b_-startup-prof-001.txt", startupSanitized)
+        baselineSanitized.apply {
+            // NOTE: behavior MUST MATCH baseline profile gradle plugin check, see b/303034735
+            assertTrue(contains("-baseline-prof-") && endsWith(".txt"))
+        }
+        startupSanitized.apply {
+            // NOTE: behavior MUST MATCH baseline profile gradle plugin check, see b/303034735
+            assertTrue(contains("-startup-prof-") && endsWith(".txt"))
+        }
+    }
     @Test
     public fun sanitizeFilename() {
         assertEquals(
-            "testFilename[Thing[]]",
-            Outputs.sanitizeFilename("testFilename[Thing( )]")
+            "testFilename_one_Thing_two_other_",
+            Outputs.sanitizeFilename("testFilename[one=Thing( ),two:other]")
+        )
+    }
+
+    @Test
+    public fun sanitizeFilename_withExtension() {
+        assertEquals(
+            "testFilename_one_Thing_two_other_.trace",
+            Outputs.sanitizeFilename("testFilename[one=Thing( ),two:other].trace")
         )
     }
 

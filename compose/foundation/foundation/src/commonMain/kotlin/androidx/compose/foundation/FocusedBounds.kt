@@ -16,19 +16,16 @@
 
 package androidx.compose.foundation
 
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
 import androidx.compose.ui.layout.LayoutCoordinates
-import androidx.compose.ui.layout.OnGloballyPositionedModifier
-import androidx.compose.ui.modifier.ModifierLocalConsumer
-import androidx.compose.ui.modifier.ModifierLocalProvider
-import androidx.compose.ui.modifier.ModifierLocalReadScope
-import androidx.compose.ui.modifier.ProvidableModifierLocal
+import androidx.compose.ui.modifier.ModifierLocalMap
+import androidx.compose.ui.modifier.ModifierLocalModifierNode
+import androidx.compose.ui.modifier.modifierLocalMapOf
 import androidx.compose.ui.modifier.modifierLocalOf
-import androidx.compose.ui.platform.debugInspectorInfo
+import androidx.compose.ui.node.GlobalPositionAwareModifierNode
+import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.platform.InspectorInfo
 
-@OptIn(ExperimentalFoundationApi::class)
 internal val ModifierLocalFocusedBoundsObserver =
     modifierLocalOf<((LayoutCoordinates?) -> Unit)?> { null }
 
@@ -46,77 +43,91 @@ internal val ModifierLocalFocusedBoundsObserver =
  */
 @ExperimentalFoundationApi
 fun Modifier.onFocusedBoundsChanged(onPositioned: (LayoutCoordinates?) -> Unit): Modifier =
-    composed(
-        debugInspectorInfo {
-            name = "onFocusedBoundsChanged"
-            properties["onPositioned"] = onPositioned
-        }
-    ) {
-        remember(onPositioned) { FocusedBoundsObserverModifier(onPositioned) }
+    this then FocusedBoundsObserverElement(onPositioned)
+
+private class FocusedBoundsObserverElement(
+    val onPositioned: (LayoutCoordinates?) -> Unit
+) : ModifierNodeElement<FocusedBoundsObserverNode>() {
+    override fun create(): FocusedBoundsObserverNode = FocusedBoundsObserverNode(onPositioned)
+
+    override fun update(node: FocusedBoundsObserverNode) {
+        node.onPositioned = onPositioned
     }
 
-fun interface InvokeOnLayoutCoordinates {
-    fun invoke(focusedBounds: LayoutCoordinates?)
+    override fun hashCode(): Int = onPositioned.hashCode()
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        val otherModifier = other as? FocusedBoundsObserverElement ?: return false
+        return onPositioned == otherModifier.onPositioned
+    }
+
+    override fun InspectorInfo.inspectableProperties() {
+        name = "onFocusedBoundsChanged"
+        properties["onPositioned"] = onPositioned
+    }
 }
 
-private class FocusedBoundsObserverModifier(
-    private val handler: (LayoutCoordinates?) -> Unit
-) : ModifierLocalConsumer,
-    ModifierLocalProvider<((LayoutCoordinates?) -> Unit)?>,
-    InvokeOnLayoutCoordinates {
-    private var parent: ((LayoutCoordinates?) -> Unit)? = null
-    private var lastBounds: LayoutCoordinates? = null
+internal class FocusedBoundsObserverNode(
+    var onPositioned: (LayoutCoordinates?) -> Unit
+) : Modifier.Node(), ModifierLocalModifierNode {
+    private val parent: ((LayoutCoordinates?) -> Unit)?
+        get() = if (isAttached) ModifierLocalFocusedBoundsObserver.current else null
 
-    override val key: ProvidableModifierLocal<((LayoutCoordinates?) -> Unit)?>
-        get() = ModifierLocalFocusedBoundsObserver
-    override val value: (LayoutCoordinates?) -> Unit
-        get() = { invoke(it) }
-
-    override fun onModifierLocalsUpdated(scope: ModifierLocalReadScope) {
-        val newParent = with(scope) { ModifierLocalFocusedBoundsObserver.current }
-        if (newParent != parent) {
-            parent = newParent
-            // Don't need to call the new parent ourselves because the child will also get the
-            // modifier locals updated callback, and it will bubble the event up itself.
+    /** Called when a child gains/loses focus or is focused and changes position. */
+    private val focusBoundsObserver: (LayoutCoordinates?) -> Unit = { focusedBounds ->
+        if (isAttached) {
+            onPositioned(focusedBounds)
+            parent?.invoke(focusedBounds)
         }
     }
 
-    /** Called when a child gains/loses focus or is focused and changes position. */
-    override fun invoke(focusedBounds: LayoutCoordinates?) {
-        lastBounds = focusedBounds
-        handler(focusedBounds)
-        parent?.invoke(focusedBounds)
-    }
+    override val providedValues: ModifierLocalMap =
+        modifierLocalMapOf(entry = ModifierLocalFocusedBoundsObserver to focusBoundsObserver)
 }
 
 /**
  * Modifier used by [Modifier.focusable] to publish the location of the focused element.
- * Should only be applied to the node when it is actually focused.
+ * Should only be applied to the node when it is actually focused. Right now this will keep
+ * this node around, but once the un-delegate API lands we can remove this node entirely if it
+ * is not focused. (b/276790428)
  */
-@OptIn(ExperimentalFoundationApi::class)
-internal class FocusedBoundsModifier : ModifierLocalConsumer,
-    OnGloballyPositionedModifier {
-    private var observer: ((LayoutCoordinates?) -> Unit)? = null
+internal class FocusedBoundsNode : Modifier.Node(), ModifierLocalModifierNode,
+    GlobalPositionAwareModifierNode {
+    private var isFocused: Boolean = false
+
+    private val observer: ((LayoutCoordinates?) -> Unit)?
+        get() = if (isAttached) {
+            ModifierLocalFocusedBoundsObserver.current
+        } else {
+            null
+        }
+
     private var layoutCoordinates: LayoutCoordinates? = null
+
+    /**
+     * This should be called from a [androidx.compose.ui.focus.FocusEventModifierNode.onFocusEvent]
+     * where it is guarantee that an event will be dispatched during the lifecycle of the node. This
+     * means that when the node is detached (and we should warn observers) we'll receive an event.
+     */
+    fun setFocus(focused: Boolean) {
+        if (focused == isFocused) return
+        if (!focused) {
+            observer?.invoke(null)
+        } else {
+            notifyObserverWhenAttached()
+        }
+        isFocused = focused
+    }
 
     override fun onGloballyPositioned(coordinates: LayoutCoordinates) {
         layoutCoordinates = coordinates
+        if (!isFocused) return
         if (coordinates.isAttached) {
             notifyObserverWhenAttached()
         } else {
             observer?.invoke(null)
         }
-    }
-
-    override fun onModifierLocalsUpdated(scope: ModifierLocalReadScope) {
-        val newObserver = with(scope) { ModifierLocalFocusedBoundsObserver.current }
-        if (newObserver == null) {
-            // We're being removed from the hierarchy. Inform the previous listener.
-            observer?.invoke(null)
-        }
-        observer = newObserver
-        // Don't need to explicitly notify observers here because onGloballyPositioned will get
-        // called after this method, and that will notify observers.
     }
 
     private fun notifyObserverWhenAttached() {

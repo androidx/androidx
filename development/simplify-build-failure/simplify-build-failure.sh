@@ -397,9 +397,18 @@ else
 
   # set up command for running diff-filterer against diffs within files
   filtererOptions="--num-jobs $numJobs"
-  if echo $subfilePath | grep -v buildSrc >/dev/null 2>/dev/null; then
-    # If we're not making changes in buildSrc, then we want to keep the gradle caches around for more speed
-    # If we are making changes in buildSrc, then Gradle doesn't necessarily do up-to-date checks correctly, and we want to clear the caches between builds
+
+  # Determine whether we are willing to rely on incremental builds
+  # If we're making changes to buildSrc or gradlew then we can't rely on incremental builds to be reliable
+  incrementalBuildReliable=true
+  if [ "$subfilePath" == "" ]; then
+    incrementalBuildReliable=false
+  else
+    if echo $subfilePath | grep -v buildSrc >/dev/null 2>/dev/null; then
+      incrementalBuildReliable=false
+    fi
+  fi
+  if [ "$incrementalBuildReliable" == false ]; then
     filtererOptions="$filtererOptions --assume-no-side-effects"
   fi
 
@@ -425,7 +434,7 @@ else
     # TODO: maybe we should make diff-filterer.py directly support checking individual line differences within files rather than first running split.sh and asking diff-filterer.py to run join.sh
     # It would be harder to implement in diff-filterer.py though because diff-filterer.py would also need to support comparing against nonempty files too
     echo Running diff-filterer.py again to identify which function bodies can be removed
-    if "$supportRoot/development/file-utils/diff-filterer.py" --assume-input-states-are-correct $filtererOptions --work-path "$(cd $supportRoot/../.. && pwd)" "$noFunctionBodies_Passing" "$noFunctionBodies_goal" "${scriptPath}/impl/join.sh ${splitsPath} ${noFunctionBodies_sandbox} && cd ${noFunctionBodies_work} && $testCommand"; then
+    if "$supportRoot/development/file-utils/diff-filterer.py" $filtererOptions --work-path "$(cd $supportRoot/../.. && pwd)" "$noFunctionBodies_Passing" "$noFunctionBodies_goal" "${scriptPath}/impl/join.sh ${splitsPath} ${noFunctionBodies_sandbox} && cd ${noFunctionBodies_work} && $testCommand"; then
       echo diff-filterer completed successfully
     else
       failed

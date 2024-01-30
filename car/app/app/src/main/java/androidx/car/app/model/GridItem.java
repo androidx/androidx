@@ -48,7 +48,6 @@ public final class GridItem implements Item {
     /**
      * The type of images supported within grid items.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @IntDef(value = {IMAGE_TYPE_ICON, IMAGE_TYPE_LARGE})
@@ -349,6 +348,47 @@ public final class GridItem implements Item {
         }
 
         /**
+         * Sets an image to show in the grid item with the given {@link Badge} to be displayed over
+         * the image, with the default size {@link #IMAGE_TYPE_LARGE}.
+         *
+         * <p>A dot badge denotes some sort of call to action or notification and is
+         * displayed in the upper right corner of the image. An icon badge gives additional
+         * context about the image and is displayed in the lower right corner.
+         *
+         * @throws NullPointerException if {@code image} or {@code badge} is {@code null}
+         * @see #setImage(CarIcon, int)
+         */
+        @NonNull
+        @ExperimentalCarApi
+        @RequiresCarApi(7)
+        public Builder setImage(@NonNull CarIcon image, @NonNull Badge badge) {
+            requireNonNull(badge);
+            mBadge = badge;
+            return setImage(requireNonNull(image));
+        }
+
+        /**
+         * Sets an image to show in the grid item with the given {@code imageType} and given
+         * {@link Badge} to be displayed over the image.
+         *
+         * <p>A dot badge denotes a call to action or notification and is
+         * displayed in the upper right corner of the image. An icon badge gives additional
+         * context about the image and is displayed in the lower right corner.
+         *
+         * @throws NullPointerException if {@code image} or {@code badge} is {@code null}
+         * @see #setImage(CarIcon, int)
+         */
+        @NonNull
+        @ExperimentalCarApi
+        @RequiresCarApi(7)
+        public Builder setImage(@NonNull CarIcon image, @GridItemImageType int imageType,
+                @NonNull Badge badge) {
+            requireNonNull(badge);
+            mBadge = badge;
+            return setImage(requireNonNull(image), imageType);
+        }
+
+        /**
          * Sets an image to show in the grid item with the given {@code imageType}.
          *
          * <p>For a custom {@link CarIcon}, its {@link androidx.core.graphics.drawable.IconCompat}
@@ -390,23 +430,6 @@ public final class GridItem implements Item {
         @SuppressLint({"MissingGetterMatchingBuilder", "ExecutorRegistration"})
         public Builder setOnClickListener(@NonNull OnClickListener onClickListener) {
             mOnClickDelegate = OnClickDelegateImpl.create(onClickListener);
-            return this;
-        }
-
-        /**
-         * Sets a {@link Badge} to be displayed over the grid item image.
-         *
-         * <p>A badge denotes some sort of call to action, notification, alert, etc.
-         *
-         * <p>A badge can only be set if an image is also set on the grid item.
-         *
-         * @param badge the {@link Badge} to display.
-         */
-        @NonNull
-        @ExperimentalCarApi
-        @RequiresCarApi(7)
-        public Builder setBadge(@NonNull Badge badge) {
-            mBadge = badge;
             return this;
         }
 

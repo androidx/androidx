@@ -23,7 +23,6 @@ import androidx.annotation.RestrictTo
  *
  * Each field directly corresponds to JSON output, though not every JSON object may be
  * represented directly here.
- * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public data class BenchmarkResult(

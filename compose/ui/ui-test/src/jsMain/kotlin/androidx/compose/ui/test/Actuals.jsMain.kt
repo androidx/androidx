@@ -38,35 +38,3 @@ private fun memoizeIdentityHashCode(instance: Any?): Int {
     return value
 }
 
-/**
- * Returns the hash code for the given object that is unique across all currently allocated objects.
- * The hash code for the null reference is zero.
- *
- * Can be negative, and near Int.MAX_VALUE, so it can overflow if used as part of calculations.
- * For example, don't use this:
- * ```
- * val comparison = identityHashCode(midVal) - identityHashCode(leftVal)
- * if (comparison < 0) ...
- * ```
- * Use this instead:
- * ```
- * if (identityHashCode(midVal) < identityHashCode(leftVal)) ...
- * ```
- */
-internal actual fun identityHashCode(instance: Any?): Int {
-    if (instance == null) {
-        return 0
-    }
-
-    val hashCode = instance.asDynamic()[IDENTITY_HASHCODE_FIELD]
-    if (hashCode != null) {
-        return hashCode
-    }
-
-    return when (jsTypeOf(instance)) {
-        "object", "function" -> memoizeIdentityHashCode(instance)
-        else -> throw IllegalArgumentException(
-            "identity hash code for ${jsTypeOf(instance)} is not supported"
-        )
-    }
-}

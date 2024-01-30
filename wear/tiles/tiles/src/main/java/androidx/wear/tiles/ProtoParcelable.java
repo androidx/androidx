@@ -30,8 +30,6 @@ import java.util.function.BiFunction;
 /**
  * Base class for holders of protobuf messages that can be parceled to be transferred to the rest of
  * the system.
- *
- * @hide
  */
 @SuppressWarnings("AndroidApiChecker") // Uses java.util.function.Function
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

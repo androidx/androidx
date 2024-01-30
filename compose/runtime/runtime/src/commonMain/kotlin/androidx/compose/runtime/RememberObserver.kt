@@ -28,7 +28,7 @@ package androidx.compose.runtime
  * the same composition, its [onRemembered] and [onForgotten] will be called for each location in
  * the composition.
  *
- * When objects implementing this interface is remmembered and forgotten together,
+ * When objects implementing this interface is remembered and forgotten together,
  * the order of [onForgotten] is guaranteed to be called in the opposite order of [onRemembered].
  * For example, if two objects, A and B are [remember]ed together, A followed by B,
  * [onRemembered] will be called first on A then on B. If they forgotten together then

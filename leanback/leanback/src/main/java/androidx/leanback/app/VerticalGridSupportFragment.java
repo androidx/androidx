@@ -188,7 +188,7 @@ public class VerticalGridSupportFragment extends BaseSupportFragment {
     }
 
     @Override
-    @NonNull
+    @Nullable
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState) {
         ViewGroup root = (ViewGroup) inflater.inflate(R.layout.lb_vertical_grid_fragment,

@@ -21,7 +21,6 @@ import android.graphics.drawable.Drawable;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.concurrent.futures.ResolvableFuture;
 import androidx.wear.protolayout.expression.proto.DynamicProto.DynamicFloat;
 import androidx.wear.protolayout.proto.ResourceProto;
 import androidx.wear.protolayout.proto.ResourceProto.AndroidAnimatedImageResourceByResId;
@@ -31,6 +30,7 @@ import androidx.wear.protolayout.proto.ResourceProto.AndroidSeekableAnimatedImag
 import androidx.wear.protolayout.proto.ResourceProto.InlineImageResource;
 import androidx.wear.protolayout.proto.TriggerProto.Trigger;
 
+import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 
 /**
@@ -39,7 +39,7 @@ import com.google.common.util.concurrent.ListenableFuture;
  * common resolver implementations.
  */
 public class ResourceResolvers {
-    private final ResourceProto.Resources mProtoResources;
+    @NonNull private final ResourceProto.Resources mProtoResources;
 
     @Nullable
     private final AndroidImageResourceByResIdResolver mAndroidImageResourceByResIdResolver;
@@ -206,7 +206,7 @@ public class ResourceResolvers {
                 mProtoResources.getIdToImageMap().get(protoResourceId);
 
         if (imageResource == null) {
-            return createFailedFuture(
+            return Futures.immediateFailedFuture(
                     new IllegalArgumentException(
                             "Resource " + protoResourceId + " is not defined in resources bundle"));
         }
@@ -215,7 +215,7 @@ public class ResourceResolvers {
         ListenableFuture<Drawable> drawableFutureOrNull =
                 getDrawableForImageResource(imageResource);
         if (drawableFutureOrNull == null) {
-            return createFailedFuture(
+            return Futures.immediateFailedFuture(
                     new ResourceAccessException(
                             "Can't find resolver for image resource " + protoResourceId));
         }
@@ -301,10 +301,10 @@ public class ResourceResolvers {
         try {
             Drawable drawable = getDrawableForImageResourceSynchronously(imageResource);
             if (drawable != null) {
-                return createImmediateFuture(drawable);
+                return Futures.immediateFuture(drawable);
             }
         } catch (ResourceAccessException e) {
-            return createFailedFuture(e);
+            return Futures.immediateFailedFuture(e);
         }
 
         if (imageResource.hasAndroidContentUri()
@@ -349,18 +349,6 @@ public class ResourceResolvers {
         }
 
         return null;
-    }
-
-    static <T> ListenableFuture<T> createImmediateFuture(@NonNull T value) {
-        ResolvableFuture<T> future = ResolvableFuture.create();
-        future.set(value);
-        return future;
-    }
-
-    static <T> ListenableFuture<T> createFailedFuture(@NonNull Throwable throwable) {
-        ResolvableFuture<T> errorFuture = ResolvableFuture.create();
-        errorFuture.setException(throwable);
-        return errorFuture;
     }
 
     /** Builder for ResourceResolvers */

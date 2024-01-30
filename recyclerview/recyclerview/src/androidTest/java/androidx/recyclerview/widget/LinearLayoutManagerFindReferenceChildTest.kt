@@ -21,11 +21,11 @@ import android.view.View
 import androidx.recyclerview.widget.RecyclerView.HORIZONTAL
 import androidx.recyclerview.widget.RecyclerView.VERTICAL
 import androidx.test.filters.MediumTest
+import java.util.ArrayList
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
-import java.util.ArrayList
 
 // Size of both the width and height of both RecyclerView and it's children
 private const val size = 500

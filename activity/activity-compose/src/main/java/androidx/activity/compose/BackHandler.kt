@@ -16,10 +16,10 @@
 
 package androidx.activity.compose
 
-import androidx.activity.findViewTreeOnBackPressedDispatcherOwner
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.OnBackPressedDispatcher
 import androidx.activity.OnBackPressedDispatcherOwner
+import androidx.activity.findViewTreeOnBackPressedDispatcherOwner
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.ProvidedValue

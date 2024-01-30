@@ -30,6 +30,8 @@ import com.google.common.truth.Truth.assertWithMessage
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import leakcanary.DetectLeaksAfterTestSuccess
+import leakcanary.SkipLeakDetection
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.RuleChain
@@ -110,7 +112,9 @@ class DialogFragmentDismissTest(
     val ruleChain: RuleChain = RuleChain.outerRule(DetectLeaksAfterTestSuccess())
         .around(activityTestRule)
 
+    @SkipLeakDetection("There is a platform ViewRootImpl leak this is triggered on this test")
     @Test
+    @Ignore("b/308684873")
     fun testDialogFragmentDismiss() {
         // Due to b/157955883, we need to early return if API == 30.
         // Otherwise, this test flakes.

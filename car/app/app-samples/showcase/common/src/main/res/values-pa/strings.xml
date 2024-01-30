@@ -264,6 +264,7 @@
     <string name="tab_title_list" msgid="5104962518489668123">"ਸੂਚੀ ਟੈਬ"</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"ਲੰਮੇ ਟੈਬ ਸਿਰਲੇਖ ਵਾਲੇ ਗਰਿੱਡ ਟੈਬ"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"ਖੋਜੋ ਟੈਬ"</string>
+    <string name="tab_title_loading" msgid="5385807479734490989">"ਟੈਬ ਨੂੰ ਲੋਡ ਕੀਤਾ ਜਾ ਰਿਹਾ ਹੈ"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"ਟੈਬ ਟੈਮਪਲੇਟ ਲੋਡ ਕਰਨ ਦੀ ਪ੍ਰਕਿਰਿਆ ਦਾ ਡੈਮੋ"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"ਬਿਨਾ ਕਿਸੇ ਟੈਬ ਵਾਲੇ ਟੈਬ ਟੈਮਪਲੇਟ ਦਾ ਡੈਮੋ"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"ਕਿਸੇ ਅਗਿਆਤ ਹੋਸਟ ਲਈ ਚਿੱਤਰ ਨਹੀਂ ਦਿਖਾਏ ਜਾ ਸਕਦੇ"</string>
@@ -298,7 +299,7 @@
     <string name="some_additional_text" msgid="4009872495806318260">"ਕੁਝ ਵਧੀਕ ਲਿਖਤ"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"ਸੈਂਪਲ ਚੁਣਨਯੋਗ ਸੂਚੀ"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"ਕਾਰਜ ਸੰਬੰਧੀ ਪਾਬੰਦੀ ਦਾ ਡੈਮੋ"</string>
-    <string name="task_limit_reached_msg" msgid="6038763366777119364">"ਕਾਰਜ ਸੀਮਾ ਪੂਰੀ ਹੋ ਗਈ\nਜਾਰੀ ਰੱਖਣ \'ਤੇ ਐਪ ਜ਼ਬਰਦਸਤੀ ਬੰਦ ਹੋ ਜਾਵੇਗੀ"</string>
+    <string name="task_limit_reached_msg" msgid="7162842196382260992">"ਇਸ ਨਾਲ ਕਦਮਾਂ ਦੀ ਗਿਣਤੀ ਨਿਯਤ ਸੀਮਾ ਤੋਂ ਪਾਰ ਹੋ ਜਾਵੇਗੀ, ਅਤੇ ਤੁਹਾਨੂੰ ਨਵੀਂ ਸਕ੍ਰੀਨ \'ਤੇ ਲਿਜਾਇਆ ਜਾਵੇਗਾ।"</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"%2$d ਵਿੱਚੋਂ %1$d ਕਾਰਜ ਪੜਾਅ"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"ਅੱਗੇ ਜਾਣ ਲਈ ਕਲਿੱਕ ਕਰੋ"</string>
     <string name="task_content_allowed" msgid="545061986612431190">"ਕਿਰਪਾ ਕਰਕੇ ਵੱਖ-ਵੱਖ ਟੈਮਪਲੇਟਾਂ \'ਤੇ ਜਾਓ ਅਤੇ ਪੱਕਾ ਕਰੋ ਕਿ ਕਾਰ ਡਰਾਈਵਿੰਗ ਮੋਡ ਵਿੱਚ ਹੈ"</string>
@@ -323,6 +324,12 @@
     <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"ਕਤਾਰ ਨੂੰ ਵੀ ਚੁਣਿਆ ਜਾ ਸਕਦਾ ਹੈ"</string>
     <string name="secondary_action_toast" msgid="5076434693504006565">"ਸੈਕੰਡਰੀ ਕਾਰਵਾਈ ਚੁਣੀ ਗਈ ਹੈ"</string>
     <string name="row_primary_action_toast" msgid="756516694751965204">"ਕਤਾਰ ਨਾਲ ਸੰਬੰਧਿਤ ਪ੍ਰਾਇਮਰੀ ਕਾਰਵਾਈ ਚੁਣੀ ਗਈ ਹੈ"</string>
+    <string name="sectioned_item_list_demo_title" msgid="1236735461225007729">"ਸੈਕਸ਼ਨਬੱਧ ਆਈਟਮ ਦੀ ਸੂਚੀ ਦਾ ਡੈਮੋ"</string>
+    <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"ਸੂਚੀ 1"</string>
+    <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"ਸੂਚੀ 2"</string>
+    <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"ਹਰੇਕ ਸੂਚੀ ਦੇ ਹੇਠਾਂ ਸਬਟੈਕਸਟ"</string>
+    <string name="empty_list_demo_title" msgid="5989013634820902455">"ਖਾਲੀ ਸੂਚੀ ਡੈਮੋ"</string>
+    <string name="empty_list_message" msgid="5331395517560728138">"ਇਹ ਸੂਚੀ ਖਾਲੀ ਹੈ"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"ਫੁਟਕਲ ਟੈਮਪਲੇਟਾਂ ਦੇ ਡੈਮੋ"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"ਸ਼ੋਅਕੇਸ ਦੇ ਡੈਮੋ"</string>
     <string name="template_layouts_demo_title" msgid="788249269446087847">"ਟੈਮਪਲੇਟ ਖਾਕੇ ਦੇ ਡੈਮੋ"</string>

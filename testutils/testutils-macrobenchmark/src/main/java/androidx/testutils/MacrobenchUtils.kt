@@ -20,10 +20,12 @@ import android.content.Intent
 import android.os.Build
 import androidx.benchmark.macro.BaselineProfileMode
 import androidx.benchmark.macro.CompilationMode
+import androidx.benchmark.macro.ExperimentalMetricApi
+import androidx.benchmark.macro.MemoryUsageMetric
 import androidx.benchmark.macro.Metric
 import androidx.benchmark.macro.StartupMode
-import androidx.benchmark.macro.StartupTimingLegacyMetric
 import androidx.benchmark.macro.StartupTimingMetric
+import androidx.benchmark.macro.TraceSectionMetric
 import androidx.benchmark.macro.isSupportedWithVmSettings
 import androidx.benchmark.macro.junit4.MacrobenchmarkRule
 
@@ -64,11 +66,13 @@ val STARTUP_MODES = listOf(
 /**
  * Temporary, while transitioning to new metrics
  */
-fun getStartupMetrics() = if (Build.VERSION.SDK_INT >= 29) {
-    listOf(StartupTimingMetric(), StartupTimingLegacyMetric())
-} else {
-    listOf(StartupTimingMetric())
-}
+@OptIn(ExperimentalMetricApi::class)
+fun getStartupMetrics() =
+    listOf(
+        StartupTimingMetric(),
+        TraceSectionMetric("StartupTracingInitializer"),
+        MemoryUsageMetric(MemoryUsageMetric.Mode.Last)
+    )
 
 fun MacrobenchmarkRule.measureStartup(
     compilationMode: CompilationMode,

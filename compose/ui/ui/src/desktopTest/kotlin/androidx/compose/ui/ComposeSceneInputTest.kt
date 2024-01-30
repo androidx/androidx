@@ -21,6 +21,7 @@ import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.unit.IntRect
 import org.junit.Test
 
+@OptIn(ExperimentalComposeUiApi::class)
 class ComposeSceneInputTest {
     @Test
     fun move() = ImageComposeScene(100, 100).use { scene ->
@@ -66,10 +67,16 @@ class ComposeSceneInputTest {
             independentPopup.Content()
         }
 
-        scene.sendPointerEvent(PointerEventType.Enter, Offset(-10f, -10f))
+        // Popup takes two iterations to complete its layout, so we need to run render an extra time
+        // TODO(maryanovsky): Remove this when https://github.com/JetBrains/compose-jb/issues/2726
+        //                    is completed.
+        while (scene.hasInvalidations())
+            scene.render()
+
+        scene.sendPointerEvent(PointerEventType.Enter, Offset(5f, 5f))
         background.events.assertReceivedNoEvents()
         cutPopup.events.assertReceivedLast(
-            PointerEventType.Enter, Offset(-10f, -10f) - cutPopup.origin)
+            PointerEventType.Enter, Offset(5f, 5f) - cutPopup.origin)
         overlappedPopup.events.assertReceivedNoEvents()
         independentPopup.events.assertReceivedNoEvents()
 
@@ -161,12 +168,12 @@ class ComposeSceneInputTest {
         while (scene.hasInvalidations())
             scene.render()
 
-        scene.sendPointerEvent(PointerEventType.Enter, Offset(-10f, -10f))
-        scene.sendPointerEvent(PointerEventType.Press, Offset(-10f, -10f))
+        scene.sendPointerEvent(PointerEventType.Enter, Offset(5f, 5f))
+        scene.sendPointerEvent(PointerEventType.Press, Offset(5f, 5f))
         background.events.assertReceivedNoEvents()
-        cutPopup.events.assertReceived(PointerEventType.Enter, Offset(-10f, -10f) - cutPopup.origin)
+        cutPopup.events.assertReceived(PointerEventType.Enter, Offset(5f, 5f) - cutPopup.origin)
         cutPopup.events.assertReceivedLast(
-            PointerEventType.Press, Offset(-10f, -10f) - cutPopup.origin)
+            PointerEventType.Press, Offset(5f, 5f) - cutPopup.origin)
         overlappedPopup.events.assertReceivedNoEvents()
         independentPopup.events.assertReceivedNoEvents()
 
@@ -221,43 +228,45 @@ class ComposeSceneInputTest {
 
         scene.sendPointerEvent(PointerEventType.Release, Offset(20f, 20f))
         background.events.assertReceivedNoEvents()
-        cutPopup.events.assertReceivedLast(
+        cutPopup.events.assertReceived(
             PointerEventType.Release, Offset(20f, 20f) - cutPopup.origin)
-        overlappedPopup.events.assertReceivedNoEvents()
-        independentPopup.events.assertReceivedNoEvents()
-
-        scene.sendPointerEvent(PointerEventType.Move, Offset(20f, 20f))
-        background.events.assertReceivedNoEvents()
         cutPopup.events.assertReceivedLast(
             PointerEventType.Exit, Offset(20f, 20f) - cutPopup.origin)
         overlappedPopup.events.assertReceivedLast(
             PointerEventType.Enter, Offset(20f, 20f) - overlappedPopup.origin)
         independentPopup.events.assertReceivedNoEvents()
 
-        scene.sendPointerEvent(PointerEventType.Press, Offset(20f, 20f))
+        scene.sendPointerEvent(PointerEventType.Move, Offset(21f, 21f))
         background.events.assertReceivedNoEvents()
         cutPopup.events.assertReceivedNoEvents()
         overlappedPopup.events.assertReceivedLast(
-            PointerEventType.Press, Offset(20f, 20f) - overlappedPopup.origin)
+            PointerEventType.Move, Offset(21f, 21f) - overlappedPopup.origin)
         independentPopup.events.assertReceivedNoEvents()
 
-        scene.sendPointerEvent(PointerEventType.Move, Offset(-10f, -10f))
+        scene.sendPointerEvent(PointerEventType.Press, Offset(21f, 21f))
         background.events.assertReceivedNoEvents()
         cutPopup.events.assertReceivedNoEvents()
         overlappedPopup.events.assertReceivedLast(
-            PointerEventType.Exit, Offset(-10f, -10f) - overlappedPopup.origin)
+            PointerEventType.Press, Offset(21f, 21f) - overlappedPopup.origin)
         independentPopup.events.assertReceivedNoEvents()
 
-        scene.sendPointerEvent(PointerEventType.Release, Offset(-10f, -10f))
+        scene.sendPointerEvent(PointerEventType.Move, Offset(5f, 5f))
         background.events.assertReceivedNoEvents()
         cutPopup.events.assertReceivedNoEvents()
         overlappedPopup.events.assertReceivedLast(
-            PointerEventType.Release, Offset(-10f, -10f) - overlappedPopup.origin
+            PointerEventType.Exit, Offset(5f, 5f) - overlappedPopup.origin)
+        independentPopup.events.assertReceivedNoEvents()
+
+        scene.sendPointerEvent(PointerEventType.Release, Offset(5f, 5f))
+        background.events.assertReceivedNoEvents()
+        cutPopup.events.assertReceivedLast(
+            PointerEventType.Enter, Offset(5f, 5f) - cutPopup.origin)
+        overlappedPopup.events.assertReceivedLast(
+            PointerEventType.Release, Offset(5f, 5f) - overlappedPopup.origin
         )
         overlappedPopup.events.assertReceivedNoEvents()
         independentPopup.events.assertReceivedNoEvents()
     }
-
 
     @Test
     fun scroll() = ImageComposeScene(100, 100).use { scene ->
@@ -283,5 +292,167 @@ class ComposeSceneInputTest {
         scene.sendPointerEvent(PointerEventType.Scroll, Offset(30f, 10f))
         background.events.assertReceived(PointerEventType.Move, Offset(30f, 10f))
         background.events.assertReceivedLast(PointerEventType.Scroll, Offset(30f, 10f))
+    }
+
+    @Test
+    fun touch() = ImageComposeScene(100, 100).use { scene ->
+        val background = FillBox()
+
+        scene.setContent {
+            background.Content()
+        }
+
+        scene.sendPointerEvent(
+            PointerEventType.Press,
+            touch(10f, 20f, pressed = true, id = 1)
+        )
+        background.events.assertReceivedLast(
+            PointerEventType.Press,
+            touch(10f, 20f, pressed = true, id = 1)
+        )
+
+        scene.sendPointerEvent(
+            PointerEventType.Move,
+            touch(10f, 30f, pressed = true, id = 1)
+        )
+        background.events.assertReceivedLast(
+            PointerEventType.Move,
+            touch(10f, 30f, pressed = true, id = 1)
+        )
+
+        scene.sendPointerEvent(
+            PointerEventType.Release,
+            touch(10f, 30f, pressed = false, id = 1)
+        )
+        background.events.assertReceivedLast(
+            PointerEventType.Release,
+            touch(10f, 30f, pressed = false, id = 1)
+        )
+    }
+
+    @Test
+    fun `multitouch, send multiple touch changes as multiple events`() = ImageComposeScene(
+        100, 100
+    ).use { scene ->
+        val background = FillBox()
+
+        scene.setContent {
+            background.Content()
+        }
+
+        scene.sendPointerEvent(
+            PointerEventType.Press,
+            touch(10f, 20f, pressed = true, id = 1)
+        )
+        scene.sendPointerEvent(
+            PointerEventType.Press,
+            touch(10f, 20f, pressed = true, id = 1),
+            touch(1f, 20f, pressed = true, id = 2),
+        )
+        background.events.assertReceived(
+            PointerEventType.Press,
+            touch(10f, 20f, pressed = true, id = 1)
+        )
+        background.events.assertReceivedLast(
+            PointerEventType.Press,
+            touch(10f, 20f, pressed = true, id = 1),
+            touch(1f, 20f, pressed = true, id = 2),
+        )
+
+        scene.sendPointerEvent(
+            PointerEventType.Move,
+            touch(10f, 55f, pressed = true, id = 1),
+            touch(1f, 20f, pressed = true, id = 2),
+        )
+        background.events.assertReceivedLast(
+            PointerEventType.Move,
+            touch(10f, 55f, pressed = true, id = 1),
+            touch(1f, 20f, pressed = true, id = 2),
+        )
+
+        scene.sendPointerEvent(
+            PointerEventType.Move,
+            touch(10f, 55f, pressed = true, id = 1),
+            touch(1f, 55f, pressed = true, id = 2),
+        )
+        background.events.assertReceivedLast(
+            PointerEventType.Move,
+            touch(10f, 55f, pressed = true, id = 1),
+            touch(1f, 55f, pressed = true, id = 2),
+        )
+
+        scene.sendPointerEvent(
+            PointerEventType.Release,
+            touch(10f, 55f, pressed = false, id = 1),
+            touch(1f, 55f, pressed = true, id = 2),
+        )
+        background.events.assertReceivedLast(
+            PointerEventType.Release,
+            touch(10f, 55f, pressed = false, id = 1),
+            touch(1f, 55f, pressed = true, id = 2),
+        )
+
+        scene.sendPointerEvent(
+            PointerEventType.Release,
+            touch(1f, 55f, pressed = false, id = 2)
+        )
+        background.events.assertReceivedLast(
+            PointerEventType.Release,
+            touch(1f, 55f, pressed = false, id = 2)
+        )
+    }
+
+    @Test
+    fun `multitouch, send multiple touch changes in a single event`() = ImageComposeScene(
+        100, 100
+    ).use { scene ->
+        val background = FillBox()
+
+        scene.setContent {
+            background.Content()
+        }
+
+        scene.sendPointerEvent(
+            PointerEventType.Press,
+            touch(10f, 20f, pressed = true, id = 1),
+            touch(1f, 20f, pressed = true, id = 2),
+        )
+        // Simulate sequential touch presses, not all touches at once
+        background.events.assertReceived(
+            PointerEventType.Press,
+            touch(10f, 20f, pressed = true, id = 1),
+        )
+        background.events.assertReceivedLast(
+            PointerEventType.Press,
+            touch(10f, 20f, pressed = true, id = 1),
+            touch(1f, 20f, pressed = true, id = 2),
+        )
+
+        scene.sendPointerEvent(
+            PointerEventType.Move,
+            touch(10f, 55f, pressed = true, id = 1),
+            touch(1f, 55f, pressed = true, id = 2),
+        )
+        background.events.assertReceivedLast(
+            PointerEventType.Move,
+            touch(10f, 55f, pressed = true, id = 1),
+            touch(1f, 55f, pressed = true, id = 2),
+        )
+
+        scene.sendPointerEvent(
+            PointerEventType.Release,
+            touch(1f, 1f, pressed = false, id = 1),
+            touch(1f, 2f, pressed = false, id = 2),
+        )
+
+        background.events.assertReceived(
+            PointerEventType.Release,
+            touch(10f, 55f, pressed = false, id = 1),
+            touch(1f, 55f, pressed = true, id = 2),
+        )
+        background.events.assertReceivedLast(
+            PointerEventType.Release,
+            touch(1f, 2f, pressed = false, id = 2),
+        )
     }
 }

@@ -27,7 +27,6 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.util.Preconditions;
 
-/** @hide */
 @RestrictTo(LIBRARY)
 @RequiresApi(24)
 class GnssStatusWrapper extends GnssStatusCompat {

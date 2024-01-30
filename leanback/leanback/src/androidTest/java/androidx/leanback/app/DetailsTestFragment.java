@@ -47,6 +47,7 @@ public class DetailsTestFragment extends androidx.leanback.app.DetailsFragment {
     private ArrayObjectAdapter mRowsAdapter;
     private PhotoItem mPhotoItem;
     private final Presenter mCardPresenter = new Presenter() {
+        @NonNull
         @Override
         public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent) {
             ImageCardView cardView = new ImageCardView(getActivity());

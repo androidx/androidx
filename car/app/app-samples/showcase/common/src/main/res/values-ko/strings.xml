@@ -264,6 +264,7 @@
     <string name="tab_title_list" msgid="5104962518489668123">"탭 목록"</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"긴 탭 제목이 있는 그리드 탭"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"검색 탭"</string>
+    <string name="tab_title_loading" msgid="5385807479734490989">"탭 로드 중"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"탭 템플릿 로딩 데모"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"탭 없음 탭 템플릿 데모"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"알려지지 않은 호스트의 이미지를 표시할 수 없음"</string>
@@ -298,7 +299,7 @@
     <string name="some_additional_text" msgid="4009872495806318260">"일부 추가 텍스트"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"샘플 선택 가능 목록"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"작업 제한사항 데모"</string>
-    <string name="task_limit_reached_msg" msgid="6038763366777119364">"작업 제한에 도달함\n계속 진행하면 앱이 강제 종료됩니다"</string>
+    <string name="task_limit_reached_msg" msgid="7162842196382260992">"이렇게 하면 걸음 수가 오버플로되며 새로운 화면으로 이동합니다."</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"작업 단계 %1$d/%2$d"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"클릭하여 진행"</string>
     <string name="task_content_allowed" msgid="545061986612431190">"다른 템플릿을 방문하여 자동차가 운전 모드인지 확인하세요."</string>
@@ -323,6 +324,12 @@
     <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"행도 선택할 수 있습니다."</string>
     <string name="secondary_action_toast" msgid="5076434693504006565">"보조 작업 선택됨"</string>
     <string name="row_primary_action_toast" msgid="756516694751965204">"행 기본 작업 선택됨"</string>
+    <string name="sectioned_item_list_demo_title" msgid="1236735461225007729">"섹션으로 구분된 항목 목록 데모"</string>
+    <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"목록 1"</string>
+    <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"목록 2"</string>
+    <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"각 목록 아래 하위 텍스트"</string>
+    <string name="empty_list_demo_title" msgid="5989013634820902455">"빈 목록 데모"</string>
+    <string name="empty_list_message" msgid="5331395517560728138">"목록이 비어 있음"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"기타 템플릿 데모"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"쇼케이스 데모"</string>
     <string name="template_layouts_demo_title" msgid="788249269446087847">"템플릿 레이아웃 데모"</string>

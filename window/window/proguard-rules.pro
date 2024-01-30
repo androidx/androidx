@@ -23,3 +23,5 @@
   public *** onDeviceStateChanged(androidx.window.sidecar.SidecarDeviceState);
   public *** onWindowLayoutChanged(android.os.IBinder, androidx.window.sidecar.SidecarWindowLayoutInfo);
 }
+# Required for window area API reflection guard
+-keep interface androidx.window.area.reflectionguard.* {*;}

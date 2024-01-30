@@ -31,6 +31,7 @@ value class TextDirection internal constructor(internal val value: Int) {
             Content -> "Content"
             ContentOrLtr -> "ContentOrLtr"
             ContentOrRtl -> "ContentOrRtl"
+            Unspecified -> "Unspecified"
             else -> "Invalid"
         }
     }
@@ -70,5 +71,11 @@ value class TextDirection internal constructor(internal val value: Int) {
          * directional character is present, then Right to Left will be used as the default direction.
          */
         val ContentOrRtl = TextDirection(5)
+
+        /**
+         * This represents an unset value, a usual replacement for "null" when a primitive value
+         * is desired.
+         */
+        val Unspecified = TextDirection(Int.MIN_VALUE)
     }
 }

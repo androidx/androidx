@@ -17,13 +17,13 @@
 package androidx.navigation.safeargs.gradle
 
 import androidx.testutils.gradle.ProjectSetupRule
+import java.io.File
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
 import org.hamcrest.CoreMatchers
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Rule
-import java.io.File
 
 internal const val MAIN_DIR = "androidx/navigation/testapp"
 

@@ -48,7 +48,6 @@ import java.util.Set;
  *
  * @param <T> is the value type of response.
  *
- * @hide
  */
 @RestrictTo(LIBRARY)
 @AutoValue

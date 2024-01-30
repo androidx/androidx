@@ -15,8 +15,6 @@
  */
 package androidx.fragment.app
 
-import android.widget.FrameLayout
-import androidx.fragment.R
 import android.animation.LayoutTransition
 import android.content.Context
 import android.graphics.Canvas
@@ -25,10 +23,12 @@ import android.util.AttributeSet
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowInsets
+import android.widget.FrameLayout
 import androidx.annotation.RequiresApi
 import androidx.core.content.withStyledAttributes
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.fragment.R
 
 /**
  * FragmentContainerView is a customized Layout designed specifically for Fragments. It extends
@@ -151,6 +151,11 @@ public class FragmentContainerView : FrameLayout {
             }
             val containerFragment: Fragment =
                 fm.fragmentFactory.instantiate(context.classLoader, name)
+            containerFragment.mFragmentId = id
+            containerFragment.mContainerId = id
+            containerFragment.mTag = tag
+            containerFragment.mFragmentManager = fm
+            containerFragment.mHost = fm.host
             containerFragment.onInflate(context, attrs, null)
             fm.beginTransaction()
                 .setReorderingAllowed(true)

@@ -17,6 +17,7 @@
 package androidx.inspection.gradle
 
 import com.android.build.api.variant.Variant
+import java.io.File
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.Project
@@ -36,7 +37,6 @@ import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.work.DisableCachingByDefault
-import java.io.File
 
 /**
  * Generates a file into META-INF/ folder that has version of androidx.inspection used

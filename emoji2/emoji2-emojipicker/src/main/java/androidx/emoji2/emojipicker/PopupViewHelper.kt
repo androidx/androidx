@@ -4,10 +4,8 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.util.AttributeSet
-import android.view.LayoutInflater
 import android.view.View
 import android.view.View.OnClickListener
-import android.view.ViewGroup
 import android.view.accessibility.AccessibilityEvent
 import android.widget.GridLayout
 import androidx.core.content.ContextCompat
@@ -80,7 +78,6 @@ internal class PopupViewHelper(private val context: Context) {
 
     fun fillPopupView(
         popupView: GridLayout,
-        layoutInflater: LayoutInflater,
         gridWidth: Int,
         gridHeight: Int,
         variants: List<String>,
@@ -95,12 +92,9 @@ internal class PopupViewHelper(private val context: Context) {
             }
         gridTemplate.template.flatMap { it.asIterable() }.forEach {
             val gridCell = when (it) {
-                in 1..variants.size -> (layoutInflater.inflate(
-                    R.layout.emoji_view_holder,
-                    null,
-                    false
-                ) as ViewGroup).apply {
-                    findViewById<EmojiView>(R.id.emoji_view).apply {
+                in 1..variants.size ->
+                    EmojiView(context).apply {
+                        willDrawVariantIndicator = false
                         emoji = variants[it - 1]
                         setOnClickListener(clickListener)
                         if (it == 1) {
@@ -110,10 +104,8 @@ internal class PopupViewHelper(private val context: Context) {
                             }
                         }
                     }
-                }
 
-                0 -> layoutInflater
-                    .inflate(R.layout.emoji_view_holder, null, false)
+                0 -> EmojiView(context)
 
                 else -> SkinToneCircleView(context).apply {
                     paint = Paint().apply {
@@ -167,9 +159,9 @@ internal class SkinToneCircleView @JvmOverloads constructor(
     private val radius = resources.getDimension(R.dimen.emoji_picker_skin_tone_circle_radius)
     var paint: Paint? = null
 
-    override fun draw(canvas: Canvas?) {
+    override fun draw(canvas: Canvas) {
         super.draw(canvas)
-        canvas?.apply {
+        canvas.apply {
             paint?.let { drawCircle(width / 2f, height / 2f, radius, it) }
         }
     }

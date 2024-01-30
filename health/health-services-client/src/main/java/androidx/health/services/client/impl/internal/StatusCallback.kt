@@ -25,7 +25,6 @@ import java.lang.SecurityException
 /**
  * A generic callback for ipc invocations.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 internal open class StatusCallback(private val resultFuture: SettableFuture<Void?>) :

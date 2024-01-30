@@ -45,6 +45,7 @@ dependencies {
     androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.kotlinCoroutinesAndroid)
     androidTestImplementation(libs.testCore)
+    androidTestImplementation(project(":compose:foundation:foundation-layout"))
     androidTestImplementation(project(":compose:ui:ui-tooling"))
     androidTestImplementation(project(":compose:ui:ui-tooling-data"))
     androidTestImplementation(project(":compose:ui:ui"))
@@ -52,7 +53,7 @@ dependencies {
     androidTestImplementation(project(":compose:ui:ui-test-junit4"))
     androidTestImplementation(project(":internal-testutils-fonts"))
     androidTestImplementation(project(":compose:material:material"))
-    androidTestImplementation(project(":inspection:inspection-testing"))
+    androidTestImplementation(androidxArtifact(":inspection:inspection-testing"))
     androidTestImplementation("androidx.activity:activity-compose:1.3.1")
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testRules)
@@ -61,7 +62,7 @@ dependencies {
 }
 
 androidx {
-    name = "Android Compose Layout Inspector"
+    name = "Compose Layout Inspector"
     type = LibraryType.IDE_PLUGIN
     inceptionYear = "2021"
     description = "Compose layout inspector. Exposes information to our tools for better IDE support."

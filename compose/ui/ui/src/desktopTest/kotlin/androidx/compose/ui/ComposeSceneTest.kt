@@ -39,14 +39,17 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Surface
+import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.neverEqualPolicy
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.FocusState
 import androidx.compose.ui.focus.focusProperties
@@ -57,6 +60,8 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.toComposeImageBitmap
+import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.keyEvent
@@ -65,20 +70,25 @@ import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.PointerKeyboardModifiers
 import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.layout.Layout
-import androidx.compose.ui.test.InternalTestApi
+import androidx.compose.ui.layout.MeasurePolicy
+import androidx.compose.ui.layout.RootMeasurePolicy.measure
 import androidx.compose.ui.platform.renderingTest
+import androidx.compose.ui.test.InternalTestApi
 import androidx.compose.ui.test.junit4.DesktopScreenshotTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performKeyPress
 import androidx.compose.ui.unit.dp
 import com.google.common.truth.Truth.assertThat
+import java.awt.event.KeyEvent
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertFalse
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
-import java.awt.event.KeyEvent
 
 @OptIn(InternalTestApi::class, ExperimentalComposeUiApi::class)
 class ComposeSceneTest {
@@ -152,6 +162,70 @@ class ComposeSceneTest {
         assertFalse(hasRenders())
     }
 
+    // https://github.com/JetBrains/compose-multiplatform/issues/3137
+    @Test
+    fun `rendering of Text state change`() = renderingTest(width = 400, height = 200) {
+        var text by mutableStateOf("before")
+        setContent {
+            Text(text)
+        }
+        awaitNextRender()
+        val before = surface.makeImageSnapshot().toComposeImageBitmap().toPixelMap().buffer
+
+        text = "after"
+        awaitNextRender()
+        val after = surface.makeImageSnapshot().toComposeImageBitmap().toPixelMap().buffer
+        assertThat(after).isNotEqualTo(before)
+    }
+
+    // Verify that when snapshot state changes in one of the render phases, the change is applied
+    // before the next phase, and is visible there.
+    // Note that it tests the same thing as `rendering of Text state change` is trying to, but at a
+    // lower-level, and without depending on the implementation of Text.
+    @Suppress("UNUSED_EXPRESSION")
+    @Test
+    fun stateChangesAppliedBetweenRenderPhases() = renderingTest(width = 400, height = 200) {
+        var value by mutableStateOf(0)
+        var compositionCount = 0
+        var layoutCount = 0
+        var drawCount = 0
+
+        var layoutScopeInvalidation by mutableStateOf(Unit, neverEqualPolicy())
+        var drawScopeInvalidation by mutableStateOf(Unit, neverEqualPolicy())
+
+        setContent {
+            value
+            compositionCount += 1
+            layoutScopeInvalidation = Unit
+            Layout(
+                modifier = remember {
+                    Modifier.graphicsLayer().drawBehind {
+                        drawScopeInvalidation
+                        drawCount += 1
+                    }
+                },
+                measurePolicy = remember {
+                    MeasurePolicy { measurables, constraints ->
+                        layoutScopeInvalidation
+                        drawScopeInvalidation = Unit
+                        layoutCount += 1
+                        measure(measurables, constraints)
+                    }
+                }
+            )
+        }
+
+        awaitNextRender()
+        assertEquals(compositionCount, layoutCount)
+        assertEquals(layoutCount, drawCount)
+
+        value = 1
+        awaitNextRender()
+        assertTrue(compositionCount >= 2)
+        assertTrue(layoutCount >= compositionCount, "Layout was performed less times than composition")
+        assertTrue(drawCount >= layoutCount, "Draw was performed less times than layout")
+    }
+
     @Test(timeout = 5000)
     fun `rendering of Layout state change`() = renderingTest(width = 40, height = 40) {
         var width by mutableStateOf(10)
@@ -161,8 +235,8 @@ class ComposeSceneTest {
             Row(Modifier.height(height.dp)) {
                 Layout({
                     Box(Modifier.fillMaxSize().background(Color.Green))
-                }) { measureables, constraints ->
-                    val placeables = measureables.map { it.measure(constraints) }
+                }) { measurables, constraints ->
+                    val placeables = measurables.map { it.measure(constraints) }
                     layout(width, constraints.maxHeight) {
                         placeables.forEach { it.place(x, 0) }
                     }
@@ -278,6 +352,7 @@ class ComposeSceneTest {
     }
 
     @Test(timeout = 5000)
+    @Ignore("b/271123970 Fails in AOSP. Will be fixed after upstreaming Compose for Desktop")
     fun `rendering of clickable`() = renderingTest(width = 40, height = 40) {
         setContent {
             val interactionSource = remember { MutableInteractionSource() }
@@ -308,6 +383,9 @@ class ComposeSceneTest {
         scene.sendPointerEvent(PointerEventType.Move, Offset(-1f, -1f))
         scene.sendPointerEvent(PointerEventType.Exit, Offset(-1f, -1f))
         awaitNextRender()
+        // TODO(https://github.com/JetBrains/compose-multiplatform/issues/2970)
+        //  fix one-frame lag after a Release
+        awaitNextRender()
         screenshotRule.snap(surface, "frame3_onMouseReleased")
 
         scene.sendPointerEvent(PointerEventType.Enter, Offset(1f, 1f))
@@ -320,6 +398,7 @@ class ComposeSceneTest {
     }
 
     @Test(timeout = 5000)
+    @Ignore("b/271123970 Fails in AOSP. Will be fixed after upstreaming Compose for Desktop")
     fun `rendering of LazyColumn`() = renderingTest(
         width = 40,
         height = 40

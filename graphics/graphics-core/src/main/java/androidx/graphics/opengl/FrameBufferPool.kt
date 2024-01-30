@@ -18,11 +18,10 @@ package androidx.graphics.opengl
 
 import android.hardware.HardwareBuffer
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.graphics.opengl.egl.EGLSpec
-import java.util.concurrent.locks.ReentrantLock
-import kotlin.concurrent.withLock
+import androidx.hardware.BufferPool
+import androidx.hardware.SyncFenceCompat
 
 /**
  * Allocation pool used for the creation and reuse of [FrameBuffer] instances.
@@ -57,16 +56,24 @@ internal class FrameBufferPool(
     private val maxPoolSize: Int
 ) {
 
-    private val mPool = ArrayList<FrameBuffer>()
-    private var mNumAllocated = 0
-    private val mLock = ReentrantLock()
-    private val mCondition = mLock.newCondition()
+    private class FrameBufferProvider(val frameBuffer: FrameBuffer) : BufferPool.BufferProvider {
+        override val hardwareBuffer: HardwareBuffer
+            get() = frameBuffer.hardwareBuffer
 
-    init {
-        if (maxPoolSize <= 0) {
-            throw IllegalArgumentException("Pool size must be at least 1")
+        override fun release() {
+            frameBuffer.close()
         }
     }
+
+    private val mPool = BufferPool<FrameBufferProvider>(maxPoolSize)
+
+    /**
+     * Return the current pool allocation size. This will increase until the [maxPoolSize].
+     * This count will decrease if a buffer is closed before it is returned to the pool as a
+     * closed buffer is no longer re-usable
+     */
+    val allocationCount: Int
+        get() = mPool.allocationCount
 
     /**
      * Obtains a [FrameBuffer] instance. This will either return a [FrameBuffer] if one is
@@ -74,21 +81,8 @@ internal class FrameBufferPool(
      * outstanding [FrameBuffer] instances is less than [maxPoolSize]
      */
     fun obtain(eglSpec: EGLSpec): FrameBuffer {
-        mLock.withLock {
-            while (mPool.isEmpty() && mNumAllocated >= maxPoolSize) {
-                Log.w(
-                    TAG,
-                    "Waiting for FrameBuffer to become available, current allocation " +
-                        "count: $mNumAllocated"
-                )
-                mCondition.await()
-            }
-            return if (mPool.isNotEmpty()) {
-                val frameBuffer = mPool[mPool.size - 1]
-                mPool.removeAt(mPool.size - 1)
-                frameBuffer
-            } else {
-                mNumAllocated++
+        return mPool.obtain {
+            FrameBufferProvider(
                 FrameBuffer(
                     eglSpec,
                     HardwareBuffer.create(
@@ -99,8 +93,8 @@ internal class FrameBufferPool(
                         usage
                     )
                 )
-            }
-        }
+            )
+        }.frameBuffer
     }
 
     /**
@@ -109,12 +103,12 @@ internal class FrameBufferPool(
      * via [FrameBufferPool.obtain]
      * This method is thread safe.
      */
-    fun release(frameBuffer: FrameBuffer) {
-        mLock.withLock {
-            mPool.add(frameBuffer)
-            mCondition.signal()
-        }
+    fun release(frameBuffer: FrameBuffer, fence: SyncFenceCompat? = null) {
+        mPool.release(frameBuffer.hardwareBuffer, fence)
     }
+
+    val isClosed: Boolean
+        get() = mPool.isClosed
 
     /**
      * Invokes [FrameBuffer.close] on all [FrameBuffer] instances currently available within
@@ -122,16 +116,6 @@ internal class FrameBufferPool(
      * This method is thread safe.
      */
     fun close() {
-        mLock.withLock {
-            for (frameBuffer in mPool) {
-                frameBuffer.close()
-            }
-            mPool.clear()
-            mNumAllocated = 0
-        }
-    }
-
-    private companion object {
-        private const val TAG = "FrameBufferPool"
+        mPool.close()
     }
 }

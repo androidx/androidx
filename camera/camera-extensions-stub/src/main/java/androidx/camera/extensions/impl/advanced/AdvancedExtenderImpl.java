@@ -16,13 +16,14 @@
 
 package androidx.camera.extensions.impl.advanced;
 
-import android.annotation.SuppressLint;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.CaptureResult;
 import android.util.Range;
 import android.util.Size;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.camera.extensions.impl.ExtensionVersionImpl;
 
 import java.util.List;
@@ -50,7 +51,6 @@ import java.util.Map;
  *
  * @since 1.2
  */
-@SuppressLint("UnknownNullness")
 public interface AdvancedExtenderImpl {
 
     /**
@@ -64,8 +64,8 @@ public interface AdvancedExtenderImpl {
      *                           physical camera ids and their CameraCharacteristics.
      * @return true if the extension is supported, otherwise false
      */
-    boolean isExtensionAvailable(String cameraId,
-            Map<String, CameraCharacteristics> characteristicsMap);
+    boolean isExtensionAvailable(@NonNull String cameraId,
+            @NonNull Map<String, CameraCharacteristics> characteristicsMap);
 
     /**
      * Initializes the extender to be used with the specified camera.
@@ -80,7 +80,8 @@ public interface AdvancedExtenderImpl {
      *                           If the camera is logical camera, it will also contain associated
      *                           physical camera ids and their CameraCharacteristics.
      */
-    void init(String cameraId, Map<String, CameraCharacteristics> characteristicsMap);
+    void init(@NonNull String cameraId,
+            @NonNull Map<String, CameraCharacteristics> characteristicsMap);
 
     /**
      * Returns the estimated capture latency range in milliseconds for the
@@ -97,8 +98,9 @@ public interface AdvancedExtenderImpl {
      * @return the range of estimated minimal and maximal capture latency in milliseconds.
      * Returns null if no capture latency info can be provided.
      */
-    Range<Long> getEstimatedCaptureLatencyRange(String cameraId,
-            Size captureOutputSize, int imageFormat);
+    @Nullable
+    Range<Long> getEstimatedCaptureLatencyRange(@NonNull String cameraId,
+            @Nullable Size captureOutputSize, int imageFormat);
 
     /**
      * Returns supported output format/size map for preview. The format could be PRIVATE or
@@ -111,7 +113,8 @@ public interface AdvancedExtenderImpl {
      * the HAL. Alternatively OEM can configure a intermediate YUV surface of the same size and
      * writes the output to the preview output surface.
      */
-    Map<Integer, List<Size>> getSupportedPreviewOutputResolutions(String cameraId);
+    @NonNull
+    Map<Integer, List<Size>> getSupportedPreviewOutputResolutions(@NonNull String cameraId);
 
     /**
      * Returns supported output format/size map for image capture. OEM is required to support
@@ -121,7 +124,21 @@ public interface AdvancedExtenderImpl {
      * format/size could be either added in CameraCaptureSession with HAL processing OR it
      * configures intermediate surfaces(YUV/RAW..) and writes the output to the output surface.
      */
-    Map<Integer, List<Size>> getSupportedCaptureOutputResolutions(String cameraId);
+    @NonNull
+    Map<Integer, List<Size>> getSupportedCaptureOutputResolutions(@NonNull String cameraId);
+
+    /**
+     * Returns supported output format/size map for postview image. OEM is required to support
+     * both JPEG and YUV_420_888 format output.
+     *
+     * <p>The returned sizes must be smaller than or equal to the provided capture size and have the
+     * same aspect ratio as the given capture size. If no supported resolution exists for the
+     * provided capture size then an empty map is returned.
+     *
+     * @since 1.4
+     */
+    @NonNull
+    Map<Integer, List<Size>> getSupportedPostviewResolutions(@NonNull Size captureSize);
 
     /**
      * Returns supported output sizes for Image Analysis (YUV_420_888 format).
@@ -130,12 +147,14 @@ public interface AdvancedExtenderImpl {
      * output surfaces. If imageAnalysis YUV surface is not supported, OEM should return null or
      * empty list.
      */
-    List<Size> getSupportedYuvAnalysisResolutions(String cameraId);
+    @Nullable
+    List<Size> getSupportedYuvAnalysisResolutions(@NonNull String cameraId);
 
     /**
      * Returns a processor for activating extension sessions. It implements all the interactions
      * required for starting a extension and cleanup.
      */
+    @NonNull
     SessionProcessorImpl createSessionProcessor();
 
     /**
@@ -169,6 +188,7 @@ public interface AdvancedExtenderImpl {
      * are not supported.
      * @since 1.3
      */
+    @NonNull
     List<CaptureRequest.Key> getAvailableCaptureRequestKeys();
 
     /**
@@ -184,5 +204,26 @@ public interface AdvancedExtenderImpl {
      * an empty list if capture results are not supported.
      * @since 1.3
      */
+    @NonNull
     List<CaptureResult.Key> getAvailableCaptureResultKeys();
+
+    /**
+     * Advertise support for {@link SessionProcessorImpl#onCaptureProcessProgressed}.
+     *
+     * @return {@code true} in case the process progress callback is supported and is expected to
+     * be triggered, {@code false} otherwise.
+     * @since 1.4
+     */
+    boolean isCaptureProcessProgressAvailable();
+
+    /**
+     * Indicates whether the extension supports the postview for still capture feature.
+     * If the extension is using HAL processing, false should be returned since the
+     * postview feature is not currently supported for this case.
+     *
+     * @return {@code true} in case postview for still capture is supported
+     * {@code false} otherwise.
+     * @since 1.4
+     */
+    boolean isPostviewAvailable();
 }

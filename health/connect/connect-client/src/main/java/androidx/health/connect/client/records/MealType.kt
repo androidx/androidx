@@ -49,6 +49,7 @@ public object MealType {
     @JvmField
     val MEAL_TYPE_STRING_TO_INT_MAP: Map<String, Int> =
         mapOf(
+            UNKNOWN to MEAL_TYPE_UNKNOWN,
             BREAKFAST to MEAL_TYPE_BREAKFAST,
             LUNCH to MEAL_TYPE_LUNCH,
             DINNER to MEAL_TYPE_DINNER,
@@ -62,8 +63,8 @@ public object MealType {
 
 /**
  * Type of meal.
- * @suppress
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 @Retention(AnnotationRetention.SOURCE)
 @IntDef(
     value =

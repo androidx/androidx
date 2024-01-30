@@ -226,7 +226,7 @@
     <string name="title_prefix" msgid="3991742709199357049">"標題"</string>
     <string name="list_template_demo_title" msgid="1740208242737246151">"「清單範本」示範"</string>
     <string name="long_msg_template_demo_title" msgid="1793748562161438131">"「長訊息範本」示範"</string>
-    <string name="long_msg_template_not_supported_text" msgid="3641559637317672505">"您的主機不支援「長訊息」範本"</string>
+    <string name="long_msg_template_not_supported_text" msgid="3641559637317672505">"你的主機不支援「長訊息」範本"</string>
     <string name="long_msg_template_not_supported_title" msgid="8600719470226274925">"主機不兼容"</string>
     <string name="msg_template_demo_title" msgid="3895210951340409473">"「訊息範本」示範"</string>
     <string name="msg_template_demo_text" msgid="2275291617716161409">"訊息會在這裡顯示。\n其他文字會在第二行顯示。"</string>
@@ -240,7 +240,7 @@
     <string name="google_sign_in" msgid="6556259799319701727">"Google 登入"</string>
     <string name="use_pin" msgid="7850893299484337431">"使用 PIN"</string>
     <string name="qr_code" msgid="5487041647280777397">"QR 碼"</string>
-    <string name="sign_in_template_not_supported_text" msgid="7184733753948837646">"您的主機不支援登入範本"</string>
+    <string name="sign_in_template_not_supported_text" msgid="7184733753948837646">"你的主機不支援登入範本"</string>
     <string name="sign_in_template_not_supported_title" msgid="4892883228898541764">"主機不兼容"</string>
     <string name="email_hint" msgid="7205549445477319606">"電郵"</string>
     <string name="sign_in_title" msgid="4551967308262681703">"登入"</string>
@@ -254,7 +254,7 @@
     <string name="qr_code_sign_in_title" msgid="8137070561006464518">"掃瞄 QR 碼即登入"</string>
     <string name="sign_in_with_google_title" msgid="8043752000786977249">"使用 Google 帳戶登入"</string>
     <string name="provider_sign_in_instruction" msgid="7586815688292506743">"使用這個按鈕可完成 Google 登入程序"</string>
-    <string name="sign_in_complete_text" msgid="8423984266325680606">"您已登入！"</string>
+    <string name="sign_in_complete_text" msgid="8423984266325680606">"你已登入！"</string>
     <string name="sign_in_complete_title" msgid="8919868148773983428">"已完成登入"</string>
     <string name="sign_in_template_demo_title" msgid="6052035424941410249">"「登入範本」示範"</string>
     <string name="tab_template_layouts_demo_title" msgid="6529681462424538165">"分頁範本示範"</string>
@@ -264,6 +264,7 @@
     <string name="tab_title_list" msgid="5104962518489668123">"清單分頁"</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"有長分頁標題的格線分頁"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"搜尋分頁"</string>
+    <string name="tab_title_loading" msgid="5385807479734490989">"正在載入分頁"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"分頁範本載入示範"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"分頁範本無分頁示範"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"無法顯示不明主機的圖片"</string>
@@ -298,7 +299,7 @@
     <string name="some_additional_text" msgid="4009872495806318260">"一些其他文字"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"可選取的清單範本"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"「工作限制」示範"</string>
-    <string name="task_limit_reached_msg" msgid="6038763366777119364">"工作已達上限\n繼續使用將強制停止應用程式"</string>
+    <string name="task_limit_reached_msg" msgid="7162842196382260992">"這會導致步數超過上限，並將你向到新畫面。"</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"工作步驟 %1$d，共 %2$d 個步驟"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"點擊即可繼續使用"</string>
     <string name="task_content_allowed" msgid="545061986612431190">"請查看各種範本，並確保汽車處於駕駛模式"</string>
@@ -323,6 +324,12 @@
     <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"亦可選取列"</string>
     <string name="secondary_action_toast" msgid="5076434693504006565">"已選取次要動作"</string>
     <string name="row_primary_action_toast" msgid="756516694751965204">"已選取列的主要動作"</string>
+    <string name="sectioned_item_list_demo_title" msgid="1236735461225007729">"分類項目清單示範"</string>
+    <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"清單 1"</string>
+    <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"清單 2"</string>
+    <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"每個清單的說明文字"</string>
+    <string name="empty_list_demo_title" msgid="5989013634820902455">"空白清單示範"</string>
+    <string name="empty_list_message" msgid="5331395517560728138">"清單中沒有內容"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"其他範本示範"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"展示示範"</string>
     <string name="template_layouts_demo_title" msgid="788249269446087847">"「範本版面配置」示範"</string>

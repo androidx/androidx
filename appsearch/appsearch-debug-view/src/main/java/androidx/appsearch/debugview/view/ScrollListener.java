@@ -25,7 +25,7 @@ import androidx.recyclerview.widget.RecyclerView;
 /**
  * Listens for scrolling and loads the next page of results if the end of the view is reached.
  *
- * @hide
+ * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public abstract class ScrollListener extends RecyclerView.OnScrollListener {

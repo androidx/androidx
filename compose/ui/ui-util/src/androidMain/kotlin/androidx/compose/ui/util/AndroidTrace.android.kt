@@ -22,7 +22,7 @@ import android.os.Trace
  * Wrap the specified [block] in calls to [Trace.beginSection] (with the supplied [sectionName])
  * and [Trace.endSection].
  */
-inline fun <T> trace(sectionName: String, block: () -> T): T {
+actual inline fun <T> trace(sectionName: String, block: () -> T): T {
     Trace.beginSection(sectionName)
     try {
         return block()

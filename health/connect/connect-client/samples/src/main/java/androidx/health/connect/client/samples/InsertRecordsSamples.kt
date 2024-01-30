@@ -20,9 +20,14 @@ package androidx.health.connect.client.samples
 
 import androidx.annotation.Sampled
 import androidx.health.connect.client.HealthConnectClient
+import androidx.health.connect.client.permission.HealthPermission.Companion.PERMISSION_WRITE_EXERCISE_ROUTE
+import androidx.health.connect.client.permission.HealthPermission.Companion.getWritePermission
+import androidx.health.connect.client.records.ExerciseRoute
+import androidx.health.connect.client.records.ExerciseSessionRecord
 import androidx.health.connect.client.records.HeartRateRecord
 import androidx.health.connect.client.records.NutritionRecord
 import androidx.health.connect.client.records.StepsRecord
+import androidx.health.connect.client.units.Length
 import androidx.health.connect.client.units.grams
 import androidx.health.connect.client.units.kilocalories
 import java.time.Duration
@@ -88,4 +93,55 @@ suspend fun InsertHeartRateSeries(healthConnectClient: HealthConnectClient) {
                 },
         )
     healthConnectClient.insertRecords(listOf(heartRateRecord))
+}
+
+@Sampled
+suspend fun InsertExerciseRoute(healthConnectClient: HealthConnectClient) {
+    val grantedPermissions = healthConnectClient.permissionController.getGrantedPermissions()
+
+    if (!grantedPermissions.contains(getWritePermission(ExerciseSessionRecord::class))) {
+        return
+    }
+
+    val sessionStartTime = Instant.parse("2023-07-11T10:00:00.00Z")
+    val sessionDuration = Duration.ofMinutes(10)
+
+    val startLatitude = 51.511831
+    val endLatitude = 51.506007
+    val startLongitude = -0.165785
+    val endLongitude = -0.164888
+    val latitudeDeltaPerSecond = (endLatitude - startLatitude) / sessionDuration.seconds
+    val longitudeDeltaPerSecond = (endLongitude - startLongitude) / sessionDuration.seconds
+
+    val exerciseRoute =
+        if (grantedPermissions.contains(PERMISSION_WRITE_EXERCISE_ROUTE)) {
+            ExerciseRoute(
+                List(sessionDuration.seconds.toInt()) { timeSeconds ->
+                    ExerciseRoute.Location(
+                        time = sessionStartTime.plusSeconds(timeSeconds.toLong()),
+                        latitude = startLatitude + latitudeDeltaPerSecond * timeSeconds,
+                        longitude = startLongitude + longitudeDeltaPerSecond * timeSeconds,
+                        horizontalAccuracy = Length.meters(2.0),
+                        verticalAccuracy = Length.meters(2.0),
+                        altitude = Length.meters(19.0)
+                    )
+                }
+            )
+        } else {
+            null
+        }
+
+    val exerciseSessionRecord =
+        ExerciseSessionRecord(
+            startTime = sessionStartTime,
+            startZoneOffset = ZoneOffset.UTC,
+            endTime = sessionStartTime.plus(sessionDuration),
+            endZoneOffset = ZoneOffset.UTC,
+            exerciseType = ExerciseSessionRecord.EXERCISE_TYPE_RUNNING,
+            title = "Morning Run",
+            notes = "A nice run in a park",
+            exerciseRoute = exerciseRoute
+        )
+
+    healthConnectClient.insertRecords(listOf(exerciseSessionRecord))
 }

@@ -92,11 +92,9 @@ internal constructor(public val image: Icon, public val ambientImage: Icon?) {
         return "MonochromaticImage(image=$image, ambientImage=$ambientImage)"
     }
 
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) fun isPlaceholder() = image.isPlaceholder()
 
-    /** @hide */
-    public companion object {
+    companion object {
         /**
          * For use when the real data isn't available yet, this [MonochromaticImage] should be
          * rendered as a placeholder. It is suggested that it should be rendered with a light grey
@@ -205,8 +203,7 @@ internal constructor(
         return "SmallImage(image=$image, type=$type, ambientImage=$ambientImage)"
     }
 
-    /** @hide */
-    public companion object {
+    companion object {
         /**
          * For use when the real data isn't available yet, this [SmallImage] should be rendered as a
          * placeholder. It is suggested that it should be rendered with a light grey box.
@@ -219,11 +216,9 @@ internal constructor(
             SmallImage(createPlaceholderIcon(), SmallImageType.ICON, null)
     }
 
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) fun isPlaceholder() = image.isPlaceholder()
 }
 
-/** @hide */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 fun Icon.isPlaceholder() =
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {

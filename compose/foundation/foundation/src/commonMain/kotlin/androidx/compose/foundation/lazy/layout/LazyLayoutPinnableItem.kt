@@ -21,6 +21,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -37,6 +38,10 @@ import androidx.compose.ui.layout.PinnableContainer
  * @param index index of the item inside the lazy layout
  * @param pinnedItemList container of currently pinned items
  * @param content inner content of this item
+ *
+ * Note: this function is a part of [LazyLayout] harness that allows for building custom lazy
+ * layouts. LazyLayout and all corresponding APIs are still under development and are subject to
+ * change.
  */
 @ExperimentalFoundationApi
 @Composable
@@ -59,6 +64,10 @@ fun LazyLayoutPinnableItem(
  * Read-only list of pinned items in a lazy layout.
  * The items are modified internally by the [PinnableContainer] consumers, for example if something
  * inside item content is focused.
+ *
+ * Note: this class is a part of [LazyLayout] harness that allows for building custom lazy
+ * layouts. LazyLayout and all corresponding APIs are still under development and are subject to
+ * change.
  */
 @ExperimentalFoundationApi
 class LazyLayoutPinnedItemList private constructor(
@@ -77,6 +86,10 @@ class LazyLayoutPinnedItemList private constructor(
     /**
      * Item pinned in a lazy layout. Pinned item should be always measured and laid out,
      * even if the item is beyond the boundaries of the layout.
+     *
+     * Note: this interface is a part of [LazyLayout] harness that allows for building custom lazy
+     * layouts. LazyLayout and all corresponding APIs are still under development and are subject to
+     * change.
      */
     @ExperimentalFoundationApi
     sealed interface PinnedItem {
@@ -101,13 +114,13 @@ private class LazyLayoutPinnableItem(
     /**
      * Current index associated with this item.
      */
-    override var index by mutableStateOf(-1)
+    override var index by mutableIntStateOf(-1)
 
     /**
      * It is a valid use case when users of this class call [pin] multiple times individually,
      * so we want to do the unpinning only when all of the users called [release].
      */
-    private var pinsCount by mutableStateOf(0)
+    private var pinsCount by mutableIntStateOf(0)
 
     /**
      * Handle associated with the current [parentPinnableContainer].

@@ -17,6 +17,7 @@
 package androidx.browser.customtabs;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -142,5 +143,24 @@ public class PostMessageTest {
         assertEquals(CustomTabsService.RESULT_SUCCESS, mSession.postMessage("", null));
         PollingCheck.waitFor(() -> mPostMessageServiceConnected);
         assertTrue(mPostMessageServiceConnected);
+    }
+
+    @Test
+    public void testWithDisallowedTargetOrigin() {
+        PollingCheck.waitFor(() -> mCustomTabsServiceConnected);
+        assertTrue(mCustomTabsServiceConnected);
+        assertFalse(mSession.requestPostMessageChannel(Uri.EMPTY, Uri.parse("www.notallowed.com"),
+                new Bundle()));
+        assertEquals(CustomTabsService.RESULT_FAILURE_DISALLOWED, mSession.postMessage("", null));
+    }
+
+    @Test
+    public void testWithAllowedTargetOrigin() {
+        PollingCheck.waitFor(() -> mCustomTabsServiceConnected);
+        assertTrue(mCustomTabsServiceConnected);
+        assertTrue(mSession.requestPostMessageChannel(Uri.EMPTY,
+                Uri.parse(TestCustomTabsService.ALLOWED_TARGET_ORIGIN),
+                new Bundle()));
+        assertEquals(CustomTabsService.RESULT_SUCCESS, mSession.postMessage("", null));
     }
 }

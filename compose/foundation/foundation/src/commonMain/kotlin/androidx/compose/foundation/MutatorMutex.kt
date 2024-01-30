@@ -54,6 +54,14 @@ enum class MutatePriority {
 }
 
 /**
+ * Used in place of the standard Job cancellation pathway to avoid reflective
+ * javaClass.simpleName lookups to build the exception message and stack trace collection.
+ * Remove if these are changed in kotlinx.coroutines.
+ */
+private class MutationInterruptedException :
+    PlatformOptimizedCancellationException("Mutation interrupted")
+
+/**
  * Mutual exclusion for UI state mutation over time.
  *
  * [mutate] permits interruptible state mutation over time using a standard [MutatePriority].
@@ -73,7 +81,7 @@ class MutatorMutex {
     private class Mutator(val priority: MutatePriority, val job: Job) {
         fun canInterrupt(other: Mutator) = priority >= other.priority
 
-        fun cancel() = job.cancel()
+        fun cancel() = job.cancel(MutationInterruptedException())
     }
 
     private val currentMutator = AtomicReference<Mutator?>(null)
@@ -162,5 +170,39 @@ class MutatorMutex {
                 currentMutator.compareAndSet(mutator, null)
             }
         }
+    }
+
+    /**
+     * Attempt to mutate synchronously if there is no other active caller.
+     * If there is no other active caller, the [block] will be executed in a lock. If there is
+     * another active caller, this method will return false, indicating that the active caller
+     * needs to be cancelled through a [mutate] or [mutateWith] call with an equal or higher
+     * mutation priority.
+     *
+     * Calls to [mutate] and [mutateWith] will suspend until execution of the [block] has finished.
+     *
+     * @param block mutation code to run mutually exclusive with any other call to [mutate],
+     * [mutateWith] or [tryMutate].
+     * @return true if the [block] was executed, false if there was another active caller and the
+     * [block] was not executed.
+     */
+    inline fun tryMutate(block: () -> Unit): Boolean {
+        val didLock = tryLock()
+        if (didLock) {
+            try {
+                block()
+            } finally {
+                unlock()
+            }
+        }
+        return didLock
+    }
+
+    @PublishedApi
+    internal fun tryLock(): Boolean = mutex.tryLock()
+
+    @PublishedApi
+    internal fun unlock() {
+        mutex.unlock()
     }
 }

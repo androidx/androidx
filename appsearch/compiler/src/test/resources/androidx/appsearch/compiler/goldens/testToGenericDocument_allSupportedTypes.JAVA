@@ -5,7 +5,7 @@ import androidx.appsearch.app.DocumentClassFactory;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.exceptions.AppSearchException;
 import java.lang.Boolean;
-import java.lang.Byte;
+import java.lang.Class;
 import java.lang.Double;
 import java.lang.Float;
 import java.lang.Integer;
@@ -54,6 +54,7 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
             .setTokenizerType(AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_NONE)
             .setIndexingType(AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_NONE)
+            .setJoinableValueType(AppSearchSchema.StringPropertyConfig.JOINABLE_VALUE_TYPE_NONE)
             .build())
           .addProperty(new AppSearchSchema.DocumentPropertyConfig.Builder("collectGift", $$__AppSearch__Gift.SCHEMA_NAME)
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
@@ -96,13 +97,11 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
           .addProperty(new AppSearchSchema.BytesPropertyConfig.Builder("arrUnboxByteArr")
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
             .build())
-          .addProperty(new AppSearchSchema.BytesPropertyConfig.Builder("boxByteArr")
-            .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
-            .build())
           .addProperty(new AppSearchSchema.StringPropertyConfig.Builder("arrString")
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
             .setTokenizerType(AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_NONE)
             .setIndexingType(AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_NONE)
+            .setJoinableValueType(AppSearchSchema.StringPropertyConfig.JOINABLE_VALUE_TYPE_NONE)
             .build())
           .addProperty(new AppSearchSchema.DocumentPropertyConfig.Builder("arrGift", $$__AppSearch__Gift.SCHEMA_NAME)
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
@@ -112,6 +111,7 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
             .setTokenizerType(AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_NONE)
             .setIndexingType(AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_NONE)
+            .setJoinableValueType(AppSearchSchema.StringPropertyConfig.JOINABLE_VALUE_TYPE_NONE)
             .build())
           .addProperty(new AppSearchSchema.LongPropertyConfig.Builder("boxLong")
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
@@ -155,6 +155,13 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
             .setShouldIndexNestedProperties(false)
             .build())
           .build();
+  }
+
+  @Override
+  public List<Class<?>> getDependencyDocumentClasses() throws AppSearchException {
+    List<Class<?>> classSet = new ArrayList<Class<?>>();
+    classSet.add(Gift.class);
+    return classSet;
   }
 
   @Override
@@ -232,7 +239,7 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
     Long[] arrBoxLongCopy = document.arrBoxLong;
     if (arrBoxLongCopy != null) {
       long[] arrBoxLongConv = new long[arrBoxLongCopy.length];
-      for (int i = 0 ; i < arrBoxLongCopy.length ; i++) {
+      for (int i = 0; i < arrBoxLongCopy.length; i++) {
         arrBoxLongConv[i] = arrBoxLongCopy[i];
       }
       builder.setPropertyLong("arrBoxLong", arrBoxLongConv);
@@ -244,7 +251,7 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
     Integer[] arrBoxIntegerCopy = document.arrBoxInteger;
     if (arrBoxIntegerCopy != null) {
       long[] arrBoxIntegerConv = new long[arrBoxIntegerCopy.length];
-      for (int i = 0 ; i < arrBoxIntegerCopy.length ; i++) {
+      for (int i = 0; i < arrBoxIntegerCopy.length; i++) {
         arrBoxIntegerConv[i] = arrBoxIntegerCopy[i];
       }
       builder.setPropertyLong("arrBoxInteger", arrBoxIntegerConv);
@@ -252,7 +259,7 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
     int[] arrUnboxIntCopy = document.arrUnboxInt;
     if (arrUnboxIntCopy != null) {
       long[] arrUnboxIntConv = new long[arrUnboxIntCopy.length];
-      for (int i = 0 ; i < arrUnboxIntCopy.length ; i++) {
+      for (int i = 0; i < arrUnboxIntCopy.length; i++) {
         arrUnboxIntConv[i] = arrUnboxIntCopy[i];
       }
       builder.setPropertyLong("arrUnboxInt", arrUnboxIntConv);
@@ -260,7 +267,7 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
     Double[] arrBoxDoubleCopy = document.arrBoxDouble;
     if (arrBoxDoubleCopy != null) {
       double[] arrBoxDoubleConv = new double[arrBoxDoubleCopy.length];
-      for (int i = 0 ; i < arrBoxDoubleCopy.length ; i++) {
+      for (int i = 0; i < arrBoxDoubleCopy.length; i++) {
         arrBoxDoubleConv[i] = arrBoxDoubleCopy[i];
       }
       builder.setPropertyDouble("arrBoxDouble", arrBoxDoubleConv);
@@ -272,7 +279,7 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
     Float[] arrBoxFloatCopy = document.arrBoxFloat;
     if (arrBoxFloatCopy != null) {
       double[] arrBoxFloatConv = new double[arrBoxFloatCopy.length];
-      for (int i = 0 ; i < arrBoxFloatCopy.length ; i++) {
+      for (int i = 0; i < arrBoxFloatCopy.length; i++) {
         arrBoxFloatConv[i] = arrBoxFloatCopy[i];
       }
       builder.setPropertyDouble("arrBoxFloat", arrBoxFloatConv);
@@ -280,7 +287,7 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
     float[] arrUnboxFloatCopy = document.arrUnboxFloat;
     if (arrUnboxFloatCopy != null) {
       double[] arrUnboxFloatConv = new double[arrUnboxFloatCopy.length];
-      for (int i = 0 ; i < arrUnboxFloatCopy.length ; i++) {
+      for (int i = 0; i < arrUnboxFloatCopy.length; i++) {
         arrUnboxFloatConv[i] = arrUnboxFloatCopy[i];
       }
       builder.setPropertyDouble("arrUnboxFloat", arrUnboxFloatConv);
@@ -288,7 +295,7 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
     Boolean[] arrBoxBooleanCopy = document.arrBoxBoolean;
     if (arrBoxBooleanCopy != null) {
       boolean[] arrBoxBooleanConv = new boolean[arrBoxBooleanCopy.length];
-      for (int i = 0 ; i < arrBoxBooleanCopy.length ; i++) {
+      for (int i = 0; i < arrBoxBooleanCopy.length; i++) {
         arrBoxBooleanConv[i] = arrBoxBooleanCopy[i];
       }
       builder.setPropertyBoolean("arrBoxBoolean", arrBoxBooleanConv);
@@ -300,14 +307,6 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
     byte[][] arrUnboxByteArrCopy = document.arrUnboxByteArr;
     if (arrUnboxByteArrCopy != null) {
       builder.setPropertyBytes("arrUnboxByteArr", arrUnboxByteArrCopy);
-    }
-    Byte[] boxByteArrCopy = document.boxByteArr;
-    if (boxByteArrCopy != null) {
-      byte[] boxByteArrConv = new byte[boxByteArrCopy.length];
-      for (int i = 0 ; i < boxByteArrCopy.length ; i++) {
-        boxByteArrConv[i] = boxByteArrCopy[i];
-      }
-      builder.setPropertyBytes("boxByteArr", boxByteArrConv);
     }
     String[] arrStringCopy = document.arrString;
     if (arrStringCopy != null) {
@@ -364,8 +363,8 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
 
   @Override
   public Gift fromGenericDocument(GenericDocument genericDoc) throws AppSearchException {
-    String idConv = genericDoc.getId();
     String namespaceConv = genericDoc.getNamespace();
+    String idConv = genericDoc.getId();
     long[] collectLongCopy = genericDoc.getPropertyLongArray("collectLong");
     List<Long> collectLongConv = null;
     if (collectLongCopy != null) {
@@ -487,14 +486,6 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
     }
     boolean[] arrUnboxBooleanConv = genericDoc.getPropertyBooleanArray("arrUnboxBoolean");
     byte[][] arrUnboxByteArrConv = genericDoc.getPropertyBytesArray("arrUnboxByteArr");
-    byte[] boxByteArrCopy = genericDoc.getPropertyBytes("boxByteArr");
-    Byte[] boxByteArrConv = null;
-    if (boxByteArrCopy != null) {
-      boxByteArrConv = new Byte[boxByteArrCopy.length];
-      for (int i = 0; i < boxByteArrCopy.length; i++) {
-        boxByteArrConv[i] = boxByteArrCopy[i];
-      }
-    }
     String[] arrStringConv = genericDoc.getPropertyStringArray("arrString");
     GenericDocument[] arrGiftCopy = genericDoc.getPropertyDocumentArray("arrGift");
     Gift[] arrGiftConv = null;
@@ -571,7 +562,6 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
     document.arrBoxBoolean = arrBoxBooleanConv;
     document.arrUnboxBoolean = arrUnboxBooleanConv;
     document.arrUnboxByteArr = arrUnboxByteArrConv;
-    document.boxByteArr = boxByteArrConv;
     document.arrString = arrStringConv;
     document.arrGift = arrGiftConv;
     document.string = stringConv;

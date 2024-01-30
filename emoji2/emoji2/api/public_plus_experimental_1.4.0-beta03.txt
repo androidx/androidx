@@ -1,0 +1,131 @@
+// Signature format: 4.0
+package androidx.emoji2.text {
+
+  public final class DefaultEmojiCompatConfig {
+    method public static androidx.emoji2.text.FontRequestEmojiCompatConfig? create(android.content.Context);
+  }
+
+  @AnyThread public class EmojiCompat {
+    method public static androidx.emoji2.text.EmojiCompat get();
+    method public String getAssetSignature();
+    method public int getEmojiEnd(CharSequence, @IntRange(from=0) int);
+    method public int getEmojiMatch(CharSequence, @IntRange(from=0) int);
+    method public int getEmojiStart(CharSequence, @IntRange(from=0) int);
+    method public int getLoadState();
+    method public static boolean handleDeleteSurroundingText(android.view.inputmethod.InputConnection, android.text.Editable, @IntRange(from=0) int, @IntRange(from=0) int, boolean);
+    method public static boolean handleOnKeyDown(android.text.Editable, int, android.view.KeyEvent);
+    method @Deprecated public boolean hasEmojiGlyph(CharSequence);
+    method @Deprecated public boolean hasEmojiGlyph(CharSequence, @IntRange(from=0) int);
+    method public static androidx.emoji2.text.EmojiCompat? init(android.content.Context);
+    method public static androidx.emoji2.text.EmojiCompat init(androidx.emoji2.text.EmojiCompat.Config);
+    method public static boolean isConfigured();
+    method public void load();
+    method @CheckResult public CharSequence? process(CharSequence?);
+    method @CheckResult public CharSequence? process(CharSequence?, @IntRange(from=0) int, @IntRange(from=0) int);
+    method @CheckResult public CharSequence? process(CharSequence?, @IntRange(from=0) int, @IntRange(from=0) int, @IntRange(from=0) int);
+    method @CheckResult public CharSequence? process(CharSequence?, @IntRange(from=0) int, @IntRange(from=0) int, @IntRange(from=0) int, int);
+    method public void registerInitCallback(androidx.emoji2.text.EmojiCompat.InitCallback);
+    method public void unregisterInitCallback(androidx.emoji2.text.EmojiCompat.InitCallback);
+    method public void updateEditorInfo(android.view.inputmethod.EditorInfo);
+    field public static final String EDITOR_INFO_METAVERSION_KEY = "android.support.text.emoji.emojiCompat_metadataVersion";
+    field public static final String EDITOR_INFO_REPLACE_ALL_KEY = "android.support.text.emoji.emojiCompat_replaceAll";
+    field public static final int EMOJI_FALLBACK = 2; // 0x2
+    field public static final int EMOJI_SUPPORTED = 1; // 0x1
+    field public static final int EMOJI_UNSUPPORTED = 0; // 0x0
+    field public static final int LOAD_STATE_DEFAULT = 3; // 0x3
+    field public static final int LOAD_STATE_FAILED = 2; // 0x2
+    field public static final int LOAD_STATE_LOADING = 0; // 0x0
+    field public static final int LOAD_STATE_SUCCEEDED = 1; // 0x1
+    field public static final int LOAD_STRATEGY_DEFAULT = 0; // 0x0
+    field public static final int LOAD_STRATEGY_MANUAL = 1; // 0x1
+    field public static final int REPLACE_STRATEGY_ALL = 1; // 0x1
+    field public static final int REPLACE_STRATEGY_DEFAULT = 0; // 0x0
+    field public static final int REPLACE_STRATEGY_NON_EXISTENT = 2; // 0x2
+  }
+
+  public abstract static class EmojiCompat.Config {
+    ctor protected EmojiCompat.Config(androidx.emoji2.text.EmojiCompat.MetadataRepoLoader);
+    method protected final androidx.emoji2.text.EmojiCompat.MetadataRepoLoader getMetadataRepoLoader();
+    method public androidx.emoji2.text.EmojiCompat.Config registerInitCallback(androidx.emoji2.text.EmojiCompat.InitCallback);
+    method public androidx.emoji2.text.EmojiCompat.Config setEmojiSpanIndicatorColor(@ColorInt int);
+    method public androidx.emoji2.text.EmojiCompat.Config setEmojiSpanIndicatorEnabled(boolean);
+    method public androidx.emoji2.text.EmojiCompat.Config setGlyphChecker(androidx.emoji2.text.EmojiCompat.GlyphChecker);
+    method public androidx.emoji2.text.EmojiCompat.Config setMetadataLoadStrategy(int);
+    method public androidx.emoji2.text.EmojiCompat.Config setReplaceAll(boolean);
+    method public androidx.emoji2.text.EmojiCompat.Config setSpanFactory(androidx.emoji2.text.EmojiCompat.SpanFactory);
+    method public androidx.emoji2.text.EmojiCompat.Config setUseEmojiAsDefaultStyle(boolean);
+    method public androidx.emoji2.text.EmojiCompat.Config setUseEmojiAsDefaultStyle(boolean, java.util.List<java.lang.Integer!>?);
+    method public androidx.emoji2.text.EmojiCompat.Config unregisterInitCallback(androidx.emoji2.text.EmojiCompat.InitCallback);
+  }
+
+  public static interface EmojiCompat.GlyphChecker {
+    method public boolean hasGlyph(CharSequence, @IntRange(from=0) int, @IntRange(from=0) int, @IntRange(from=0) int);
+  }
+
+  public abstract static class EmojiCompat.InitCallback {
+    ctor public EmojiCompat.InitCallback();
+    method public void onFailed(Throwable?);
+    method public void onInitialized();
+  }
+
+  public static interface EmojiCompat.MetadataRepoLoader {
+    method public void load(androidx.emoji2.text.EmojiCompat.MetadataRepoLoaderCallback);
+  }
+
+  public abstract static class EmojiCompat.MetadataRepoLoaderCallback {
+    ctor public EmojiCompat.MetadataRepoLoaderCallback();
+    method public abstract void onFailed(Throwable?);
+    method public abstract void onLoaded(androidx.emoji2.text.MetadataRepo);
+  }
+
+  public static interface EmojiCompat.SpanFactory {
+    method @RequiresApi(19) public androidx.emoji2.text.EmojiSpan createSpan(androidx.emoji2.text.TypefaceEmojiRasterizer);
+  }
+
+  public class EmojiCompatInitializer implements androidx.startup.Initializer<java.lang.Boolean> {
+    ctor public EmojiCompatInitializer();
+    method public Boolean create(android.content.Context);
+    method public java.util.List<java.lang.Class<? extends androidx.startup.Initializer<?>>!> dependencies();
+  }
+
+  @RequiresApi(19) public abstract class EmojiSpan extends android.text.style.ReplacementSpan {
+    method public int getSize(android.graphics.Paint, CharSequence!, int, int, android.graphics.Paint.FontMetricsInt?);
+    method public final androidx.emoji2.text.TypefaceEmojiRasterizer getTypefaceRasterizer();
+  }
+
+  public class FontRequestEmojiCompatConfig extends androidx.emoji2.text.EmojiCompat.Config {
+    ctor public FontRequestEmojiCompatConfig(android.content.Context, androidx.core.provider.FontRequest);
+    method @Deprecated public androidx.emoji2.text.FontRequestEmojiCompatConfig setHandler(android.os.Handler?);
+    method public androidx.emoji2.text.FontRequestEmojiCompatConfig setLoadingExecutor(java.util.concurrent.Executor);
+    method public androidx.emoji2.text.FontRequestEmojiCompatConfig setRetryPolicy(androidx.emoji2.text.FontRequestEmojiCompatConfig.RetryPolicy?);
+  }
+
+  public static class FontRequestEmojiCompatConfig.ExponentialBackoffRetryPolicy extends androidx.emoji2.text.FontRequestEmojiCompatConfig.RetryPolicy {
+    ctor public FontRequestEmojiCompatConfig.ExponentialBackoffRetryPolicy(long);
+    method public long getRetryDelay();
+  }
+
+  public abstract static class FontRequestEmojiCompatConfig.RetryPolicy {
+    ctor public FontRequestEmojiCompatConfig.RetryPolicy();
+    method public abstract long getRetryDelay();
+  }
+
+  @AnyThread @RequiresApi(19) public final class MetadataRepo {
+    method public static androidx.emoji2.text.MetadataRepo create(android.graphics.Typeface, java.io.InputStream) throws java.io.IOException;
+    method public static androidx.emoji2.text.MetadataRepo create(android.graphics.Typeface, java.nio.ByteBuffer) throws java.io.IOException;
+    method public static androidx.emoji2.text.MetadataRepo create(android.content.res.AssetManager, String) throws java.io.IOException;
+  }
+
+  @AnyThread @RequiresApi(19) public class TypefaceEmojiRasterizer {
+    method public void draw(android.graphics.Canvas, float, float, android.graphics.Paint);
+    method public int getCodepointAt(int);
+    method public int getCodepointsLength();
+    method public int getHeight();
+    method public android.graphics.Typeface getTypeface();
+    method public int getWidth();
+    method public boolean isDefaultEmoji();
+    method public boolean isPreferredSystemRender();
+  }
+
+}
+

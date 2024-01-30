@@ -16,6 +16,8 @@
 
 package androidx.camera.integration.core;
 
+import static androidx.camera.core.impl.utils.TransformUtils.within360;
+
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.SurfaceTexture;
@@ -25,10 +27,12 @@ import android.util.Log;
 import android.util.Size;
 import android.view.Surface;
 
+import androidx.annotation.IntDef;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
+import androidx.camera.core.DynamicRange;
 import androidx.camera.core.Preview;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.util.Consumer;
@@ -36,6 +40,9 @@ import androidx.core.util.Pair;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.Executor;
@@ -50,6 +57,19 @@ final class OpenGLRenderer {
         System.loadLibrary("opengl_renderer_jni");
     }
 
+    // -----------------------------------------------------------------------------------------//
+    // Dynamic range encoding constants for renderer.
+    // These need to be kept in sync with the equivalent constants in opengl_renderer_jni.cpp
+    private static final int RENDER_DYN_RNG_SDR = DynamicRange.ENCODING_SDR;
+    private static final int RENDER_DYN_RNG_HDR_HLG = DynamicRange.ENCODING_HLG;
+    // TODO(b/303675500): Support HDR10/HDR10+ dynamic range
+    // -----------------------------------------------------------------------------------------//
+
+    @IntDef({RENDER_DYN_RNG_SDR, RENDER_DYN_RNG_HDR_HLG})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface RendererDynamicRange {
+    }
+
     private static final AtomicInteger RENDERER_COUNT = new AtomicInteger(0);
     private final SingleThreadHandlerExecutor mExecutor =
             new SingleThreadHandlerExecutor(
@@ -61,6 +81,8 @@ final class OpenGLRenderer {
     private boolean mIsPreviewCropRectPrecalculated = false;
     private Size mPreviewSize;
     private int mTextureRotationDegrees;
+    private int mSurfaceRequestRotationDegrees;
+    private boolean mHasCameraTransform;
     // Transform retrieved by SurfaceTexture.getTransformMatrix
     private final float[] mTextureTransform = new float[16];
 
@@ -77,6 +99,9 @@ final class OpenGLRenderer {
 
     private Size mSurfaceSize = null;
     private int mSurfaceRotationDegrees = 0;
+
+    private int mRendererDynamicRange = RENDER_DYN_RNG_SDR;
+    private int mRendererBitDepth = 8;
 
     // Vectors defining the 'up' direction for the 4 angles we're interested in. These are based
     // off our world-space coordinate system (sensor coordinates), where the origin (0, 0) is in
@@ -95,7 +120,10 @@ final class OpenGLRenderer {
 
     private Pair<Executor, Consumer<Long>> mFrameUpdateListener;
 
-    OpenGLRenderer() {
+    private final List<Integer> mHdrEncodingsSupportedByOutput;
+
+    OpenGLRenderer(@NonNull List<Integer> hdrEncodingsSupportedByOutput) {
+        mHdrEncodingsSupportedByOutput = hdrEncodingsSupportedByOutput;
         // Initialize the GL context on the GL thread
         mExecutor.execute(() -> mNativeContext = initContext());
     }
@@ -119,15 +147,43 @@ final class OpenGLRenderer {
                             surfaceRequest.willNotProvideSurface();
                             return;
                         }
+
                         SurfaceTexture surfaceTexture = resetPreviewTexture(
                                 surfaceRequest.getResolution());
                         Surface inputSurface = new Surface(surfaceTexture);
                         mNumOutstandingSurfaces++;
 
+                        DynamicRange newDynamicRange = surfaceRequest.getDynamicRange();
+                        int newRendererDynRng = RENDER_DYN_RNG_SDR;
+                        int newRendererBitDepth = 8;
+                        if (!Objects.equals(newDynamicRange, DynamicRange.SDR)) {
+                            if (supportsHdr(mNativeContext)
+                                    && outputSupportsDynamicRange(newDynamicRange)) {
+                                if (newDynamicRange.getEncoding() == DynamicRange.ENCODING_HLG) {
+                                    newRendererDynRng = RENDER_DYN_RNG_HDR_HLG;
+                                }
+                                // TODO(b/303675500): Support PQ for HDR10/HDR10+. In the case
+                                //  where the output does not support the dynamic range, we may
+                                //  need to do tonemapping in the future.
+                                newRendererBitDepth = newDynamicRange.getBitDepth();
+                            }
+                        }
+
+                        if (newRendererDynRng != mRendererDynamicRange
+                                || newRendererBitDepth != mRendererBitDepth) {
+                            mRendererDynamicRange = newRendererDynRng;
+                            mRendererBitDepth = newRendererBitDepth;
+                            updateRenderedDynamicRange(mNativeContext, mRendererDynamicRange,
+                                    mRendererBitDepth);
+                        }
+
                         surfaceRequest.setTransformationInfoListener(
                                 mExecutor,
                                 transformationInfo -> {
                                     mMvpDirty = true;
+                                    mHasCameraTransform = transformationInfo.hasCameraTransform();
+                                    mSurfaceRequestRotationDegrees =
+                                            transformationInfo.getRotationDegrees();
                                     if (!isCropRectFullTexture(transformationInfo.getCropRect())) {
                                         // Crop rect is pre-calculated. Use it directly.
                                         mPreviewCropRect = new RectF(
@@ -160,6 +216,14 @@ final class OpenGLRenderer {
         });
     }
 
+    private boolean outputSupportsDynamicRange(DynamicRange newDynamicRange) {
+        if (!Objects.equals(newDynamicRange, DynamicRange.SDR)) {
+            return mHdrEncodingsSupportedByOutput.contains(newDynamicRange.getEncoding());
+        }
+        // SDR is always supported
+        return true;
+    }
+
     void attachOutputSurface(
             @NonNull Surface surface, @NonNull Size surfaceSize, int surfaceRotationDegrees) {
         try {
@@ -169,7 +233,7 @@ final class OpenGLRenderer {
                             return;
                         }
 
-                        if (setWindowSurface(mNativeContext, surface)) {
+                        if (setWindowSurface(mNativeContext, surface, mRendererDynamicRange)) {
                             if (surfaceRotationDegrees != mSurfaceRotationDegrees
                                     || !Objects.equals(surfaceSize, mSurfaceSize)) {
                                 mMvpDirty = true;
@@ -243,7 +307,7 @@ final class OpenGLRenderer {
                 mExecutor.execute(
                         () -> {
                             if (!mIsShutdown) {
-                                setWindowSurface(mNativeContext, null);
+                                setWindowSurface(mNativeContext, null, RENDER_DYN_RNG_SDR);
                                 mSurfaceSize = null;
                             }
                             completer.set(null);
@@ -317,6 +381,7 @@ final class OpenGLRenderer {
         if (textureRotationDegrees != mTextureRotationDegrees) {
             mMvpDirty = true;
         }
+
         mTextureRotationDegrees = textureRotationDegrees;
         if (mSurfaceSize != null) {
             if (mMvpDirty) {
@@ -495,7 +560,15 @@ final class OpenGLRenderer {
         // device is rotated in a counter-clockwise direction and our world-space coordinates
         // define positive angles in the clockwise direction, we add the two together to get the
         // total angle required.
-        return (mTextureRotationDegrees + mSurfaceRotationDegrees) % 360;
+        if (mHasCameraTransform) {
+            // If the Surface is connected to the camera, there is surface rotation encoded in
+            // the SurfaceTexture.
+            return within360((180 - mTextureRotationDegrees) + mSurfaceRotationDegrees);
+        } else {
+            // When the Surface is connected to an internal OpenGl renderer, the texture rotation
+            // is always 0. Use the rotation provided by SurfaceRequest instead.
+            return mSurfaceRequestRotationDegrees;
+        }
     }
 
     /**
@@ -540,7 +613,7 @@ final class OpenGLRenderer {
     private void updateModelTransform() {
         // Remove the rotation to the device 'natural' orientation so our world space will be in
         // sensor coordinates.
-        Matrix.setRotateM(mTempMatrix, 0, -mTextureRotationDegrees, 0.0f, 0.0f, 1.0f);
+        Matrix.setRotateM(mTempMatrix, 0, -(180 - mTextureRotationDegrees), 0.0f, 0.0f, 1.0f);
 
         Matrix.setIdentityM(mTempMatrix, 16);
         // Translate to the upper left corner of the quad so we are in buffer space
@@ -678,7 +751,8 @@ final class OpenGLRenderer {
     private static native long initContext();
 
     @WorkerThread
-    private static native boolean setWindowSurface(long nativeContext, @Nullable Surface surface);
+    private static native boolean setWindowSurface(long nativeContext, @Nullable Surface surface,
+            @RendererDynamicRange int dynamicRange);
 
     @WorkerThread
     private static native int getTexName(long nativeContext);
@@ -693,4 +767,11 @@ final class OpenGLRenderer {
 
     @WorkerThread
     private static native void closeContext(long nativeContext);
+
+    @WorkerThread
+    private static native void updateRenderedDynamicRange(long nativeContext,
+            @RendererDynamicRange int dynamicRange, int bitDepth);
+
+    @WorkerThread
+    private static native boolean supportsHdr(long nativeContext);
 }

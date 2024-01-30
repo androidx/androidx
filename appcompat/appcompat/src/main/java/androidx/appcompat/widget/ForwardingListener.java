@@ -30,7 +30,6 @@ import androidx.appcompat.view.menu.ShowableListMenu;
 /**
  * Abstract class that forwards touch events to a {@link ShowableListMenu}.
  *
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public abstract class ForwardingListener

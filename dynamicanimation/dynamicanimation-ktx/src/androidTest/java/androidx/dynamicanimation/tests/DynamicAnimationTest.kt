@@ -17,7 +17,6 @@
 package androidx.dynamicanimation.tests
 
 import android.view.View
-
 import androidx.dynamicanimation.animation.DynamicAnimation
 import androidx.dynamicanimation.animation.SpringForce
 import androidx.dynamicanimation.animation.flingAnimationOf
@@ -27,7 +26,6 @@ import androidx.dynamicanimation.ktx.test.R
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.platform.app.InstrumentationRegistry
-
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull

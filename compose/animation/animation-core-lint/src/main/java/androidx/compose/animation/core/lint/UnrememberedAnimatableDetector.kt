@@ -32,9 +32,9 @@ import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
 import com.intellij.psi.impl.source.PsiClassReferenceType
+import java.util.EnumSet
 import org.jetbrains.uast.UCallExpression
 import org.jetbrains.uast.util.isConstructorCall
-import java.util.EnumSet
 
 /**
  * [Detector] that checks `Animatable` calls to make sure that if they are called inside a

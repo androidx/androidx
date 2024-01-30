@@ -16,8 +16,17 @@
 
 package androidx.test.uiautomator;
 
+import android.os.Build;
 import android.util.Log;
+import android.view.Display;
 import android.view.accessibility.AccessibilityNodeInfo;
+import android.view.accessibility.AccessibilityWindowInfo;
+
+import androidx.annotation.DoNotInline;
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
+import androidx.test.uiautomator.util.Traces;
+import androidx.test.uiautomator.util.Traces.Section;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -27,133 +36,124 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 /**
- * A utility class which provides static methods for searching the {@link AccessibilityNodeInfo}
- * hierarchy for nodes that match {@link BySelector} criteria.
+ * Provides utility methods for searching the {@link AccessibilityNodeInfo} hierarchy for nodes
+ * that match {@link BySelector}s.
  */
 class ByMatcher {
 
     private static final String TAG = ByMatcher.class.getSimpleName();
 
     private final UiDevice mDevice;
-    private final BySelector mSelector;
+    // Selector which denotes the nodes to return from the search.
+    private final BySelector mTargetSelector;
+    // Root selector obtained by walking up the target selector's parents.
+    private final BySelector mRootSelector;
     private final boolean mShortCircuit;
 
     /**
-     * Constructs a new {@link ByMatcher} instance. Used by
-     * {@link ByMatcher#findMatch(UiDevice, BySelector, AccessibilityNodeInfo...)} to store state information
-     * that does not change during recursive calls.
+     * Constructs a {@link ByMatcher} instance to store parameters for recursive searches.
      *
-     * @param selector The criteria used to determine if a {@link AccessibilityNodeInfo} is a match.
-     * @param shortCircuit If true, this method will return early when the first match is found.
+     * @param selector     search criteria
+     * @param shortCircuit true to stop searching when the first match is found
      */
     private ByMatcher(UiDevice device, BySelector selector, boolean shortCircuit) {
         mDevice = device;
-        mSelector = selector;
         mShortCircuit = shortCircuit;
+        // Create a copy of the target selector and determine the root selector to match.
+        mTargetSelector = new BySelector(selector);
+        mRootSelector = invertSelector(mTargetSelector);
+    }
+
+    // Inverts parent-child relationships until a root selector is found.
+    private BySelector invertSelector(BySelector selector) {
+        if (selector.mAncestorSelector == null) {
+            return selector;
+        }
+        BySelector ancestor = new BySelector(selector.mAncestorSelector);
+        selector.mAncestorSelector = null;
+        selector.mMaxDepth = selector.mMaxAncestorDistance;
+        selector.mMaxAncestorDistance = null;
+        return invertSelector(ancestor.hasDescendant(selector));
     }
 
     /**
-     * Traverses the {@link AccessibilityNodeInfo} hierarchy starting at each {@code root} and
-     * returns the first node to match the {@code selector} criteria. <br />
-     * <strong>Note:</strong> The caller must release the {@link AccessibilityNodeInfo} instance by
-     * calling {@link AccessibilityNodeInfo#recycle()} to avoid leaking resources.
-     *
-     * @param device A reference to the {@link UiDevice}.
-     * @param selector The {@link BySelector} criteria used to determine if a node is a match.
-     * @return The first {@link AccessibilityNodeInfo} which matched the search criteria.
+     * Searches the hierarchy under each root for a node that matches the selector.
+     * <p>Note: call {@link AccessibilityNodeInfo#recycle()} when done to avoid leaking resources.
      */
     static AccessibilityNodeInfo findMatch(UiDevice device, BySelector selector,
             AccessibilityNodeInfo... roots) {
-
-        // TODO: Don't short-circuit when debugging, and warn if more than one match.
-        ByMatcher matcher = new ByMatcher(device, selector, true);
-        for (AccessibilityNodeInfo root : roots) {
-            List<AccessibilityNodeInfo> matches = matcher.findMatches(root);
-            if (!matches.isEmpty()) {
-                return matches.get(0);
+        try (Section ignored = Traces.trace("ByMatcher.findMatch")) {
+            ByMatcher matcher = new ByMatcher(device, selector, true);
+            for (AccessibilityNodeInfo root : roots) {
+                List<AccessibilityNodeInfo> matches = matcher.findMatches(root);
+                if (!matches.isEmpty()) {
+                    return matches.get(0);
+                }
             }
+            return null;
         }
-        return null;
     }
 
     /**
-     * Traverses the {@link AccessibilityNodeInfo} hierarchy starting at each {@code root} and
-     * returns a list of nodes which match the {@code selector} criteria. <br />
-     * <strong>Note:</strong> The caller must release each {@link AccessibilityNodeInfo} instance
-     * by calling {@link AccessibilityNodeInfo#recycle()} to avoid leaking resources.
-     *
-     * @param device A reference to the {@link UiDevice}.
-     * @param selector The {@link BySelector} criteria used to determine if a node is a match.
-     * @return A list containing all of the nodes which matched the search criteria.
+     * Searches the hierarchy under each root for nodes that match the selector.
+     * <p>Note: call {@link AccessibilityNodeInfo#recycle()} when done to avoid leaking resources.
      */
     static List<AccessibilityNodeInfo> findMatches(UiDevice device, BySelector selector,
             AccessibilityNodeInfo... roots) {
-
-        List<AccessibilityNodeInfo> ret = new ArrayList<>();
-        ByMatcher matcher = new ByMatcher(device, selector, false);
-        for (AccessibilityNodeInfo root : roots) {
-            ret.addAll(matcher.findMatches(root));
+        try (Section ignored = Traces.trace("ByMatcher.findMatches")) {
+            List<AccessibilityNodeInfo> ret = new ArrayList<>();
+            ByMatcher matcher = new ByMatcher(device, selector, false);
+            for (AccessibilityNodeInfo root : roots) {
+                ret.addAll(matcher.findMatches(root));
+            }
+            return ret;
         }
-        return ret;
     }
 
-    /**
-     * Traverses the {@link AccessibilityNodeInfo} hierarchy starting at {@code root}, and returns
-     * a list of nodes which match the {@code selector} criteria. <br />
-     * <strong>Note:</strong> The caller must release each {@link AccessibilityNodeInfo} instance
-     * by calling {@link AccessibilityNodeInfo#recycle()} to avoid leaking resources.
-     *
-     * @param root The root {@link AccessibilityNodeInfo} from which to start the search.
-     * @return A list containing all of the nodes which matched the search criteria.
-     */
+    /** Searches the hierarchy under the root for nodes that match the selector. */
     private List<AccessibilityNodeInfo> findMatches(AccessibilityNodeInfo root) {
-        List<AccessibilityNodeInfo> ret =
-                findMatches(root, 0, 0, new SinglyLinkedList<>());
-
-        // If no matches were found
-        if (ret.isEmpty()) {
-            // Run watchers and retry
-            mDevice.runWatchers();
-            ret = findMatches(root, 0, 0, new SinglyLinkedList<>());
+        if (!matchesDisplayId(root)) {
+            return new ArrayList<>();
         }
-
+        List<AccessibilityNodeInfo> ret = findMatches(root, 0, new PartialMatchList());
+        if (ret.isEmpty()) {
+            // No matches found, run watchers and retry.
+            mDevice.runWatchers();
+            ret = findMatches(root, 0, new PartialMatchList());
+        }
         return ret;
     }
 
     /**
-     * Traverses the {@link AccessibilityNodeInfo} hierarchy starting at {@code node}, and returns
-     * a list of nodes which match the {@code selector} criteria. <br />
-     * <strong>Note:</strong> The caller must release each {@link AccessibilityNodeInfo} instance
-     * by calling {@link AccessibilityNodeInfo#recycle()} to avoid leaking resources.
+     * Recursively searches a node's hierarchy for nodes that match the search criteria.
      *
-     * @param node The root of the {@link AccessibilityNodeInfo} subtree we are currently searching.
-     * @param index The index of this node underneath its parent.
-     * @param depth The distance between {@code node} and the root node.
-     * @param partialMatches The current list of {@link PartialMatch}es that need to be updated.
-     * @return A {@link List} of {@link AccessibilityNodeInfo}s that meet the search criteria.
+     * @param node           node to search
+     * @param depth          distance between the node and the search root
+     * @param partialMatches list of potential matches to track
+     * @return list of matching nodes
      */
-    private List<AccessibilityNodeInfo> findMatches(AccessibilityNodeInfo node,
-            int index, int depth, SinglyLinkedList<PartialMatch> partialMatches) {
+    private List<AccessibilityNodeInfo> findMatches(AccessibilityNodeInfo node, int depth,
+            PartialMatchList partialMatches) {
         List<AccessibilityNodeInfo> ret = new ArrayList<>();
 
-        // Don't bother searching the subtree if it is not visible
+        // Don't bother searching the subtree if it is not visible.
         if (!node.isVisibleToUser()) {
-            Log.v(TAG, String.format("Skipping invisible child: %s", node));
             return ret;
         }
 
-        // Update partial matches
+        // Update partial matches (check if this node satisfies a previous child selector).
         for (PartialMatch partialMatch : partialMatches) {
-            partialMatches = partialMatch.update(node, index, depth, partialMatches);
+            partialMatches = partialMatch.matchChildren(node, depth, partialMatches);
         }
 
-        // Create a new match, if necessary
-        PartialMatch currentMatch = PartialMatch.accept(node, mSelector, index, depth);
+        // Create a new match if possible (check if this node satisfied the root selector).
+        PartialMatch currentMatch = PartialMatch.create(
+                mTargetSelector, mRootSelector, node, depth, depth);
         if (currentMatch != null) {
-            partialMatches = SinglyLinkedList.prepend(currentMatch, partialMatches);
+            partialMatches = partialMatches.prepend(currentMatch);
         }
 
-        // For each child
+        // Iterate over the child subtree (depth-first search).
         int numChildren = node.getChildCount();
         boolean hasNullChild = false;
         for (int i = 0; i < numChildren; i++) {
@@ -167,193 +167,235 @@ class ByMatcher {
                 continue;
             }
 
-            // Add any matches found under the child subtree
-            ret.addAll(findMatches(child, i, depth + 1, partialMatches));
-
-            // We're done with the child
+            // Add any matches found in the child subtree, and return early if possible.
+            ret.addAll(findMatches(child, depth + 1, partialMatches));
             child.recycle();
-
-            // Return early if we sound a match and shortCircuit is true
             if (!ret.isEmpty() && mShortCircuit) {
+                if (currentMatch != null) {
+                    currentMatch.recycleNodes();
+                }
                 return ret;
             }
         }
 
-        // Finalize match, if necessary
-        if (currentMatch != null && currentMatch.finalizeMatch()) {
-            ret.add(AccessibilityNodeInfo.obtain(node));
+        // If this node was a partial match, check or recycle it after traversing its children.
+        if (currentMatch != null) {
+            if (currentMatch.isComplete()) {
+                ret.addAll(currentMatch.getNodes());
+            } else {
+                currentMatch.recycleNodes();
+            }
         }
-
         return ret;
     }
 
-    /** Helper method used to evaluate a {@link Pattern} criteria if it is set. */
-    static boolean checkCriteria(Pattern criteria, CharSequence value) {
-        if (criteria == null) {
+    /** Returns true if the display ID criteria is null or equal to that of the node. */
+    private boolean matchesDisplayId(AccessibilityNodeInfo node) {
+        Set<Integer> displayIds = getDisplayIds(mRootSelector);
+        if (displayIds.size() == 0) {
+            // No display ID specified in the selector tree.
             return true;
+        } else if (displayIds.size() > 1) {
+            // A selector tree with multiple display IDs is invalid.
+            return false;
         }
-        return criteria.matcher(value != null ? value : "").matches();
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
+                && displayIds.contains(Api30Impl.getDisplayId(node));
     }
 
-    /** Helper method used to evaluate a {@link Boolean} criteria if it is set. */
-    static boolean checkCriteria(Boolean criteria, boolean value) {
-        if (criteria == null) {
-            return true;
+    /** Returns all the specified display IDs in the selector tree. */
+    private Set<Integer> getDisplayIds(BySelector selector) {
+        Set<Integer> displayIds = new HashSet<>();
+        if (selector.mDisplayId != null) {
+            displayIds.add(selector.mDisplayId);
         }
-        return criteria.equals(value);
+        for (BySelector childSelector : selector.mChildSelectors) {
+            displayIds.addAll(getDisplayIds(childSelector));
+        }
+        return displayIds;
     }
 
     /**
-     * A {@link PartialMatch} instance represents a potential match against the given
-     * {@link BySelector}. Attributes of the current node itself have been evaluated, but any child
-     * selectors have not, since we must first visit the subtree under the node before we can tell
-     * if the child selectors were matched.
+     * Represents a potential match with a {@link BySelector}. The attributes of the selector were
+     * matched, but its child selectors may not have been matched.
      */
-    static private class PartialMatch {
-        private final int matchDepth;
-        private final BySelector matchSelector;
-        private final List<PartialMatch> partialMatches = new ArrayList<>();
+    private static class PartialMatch {
+        private final BySelector mTargetSelector;
+        private final BySelector mMatchSelector;
+        private final int mMatchDepth;
+        private final AccessibilityNodeInfo mMatchNode;
+        private final List<PartialMatch> mChildMatches = new ArrayList<>();
 
-        /**
-         * Private constructor. Should be instanciated by calling the
-         * {@link PartialMatch#accept(AccessibilityNodeInfo, BySelector, int, int)} factory method.
-         */
-        private PartialMatch(BySelector selector, int depth) {
-            matchSelector = selector;
-            matchDepth = depth;
+        private PartialMatch(BySelector target, BySelector selector, int depth,
+                AccessibilityNodeInfo node) {
+            mTargetSelector = target;
+            mMatchSelector = selector;
+            mMatchDepth = depth;
+            // Keep a copy of the matched node if it has matched with the target selector.
+            mMatchNode = target == selector ? AccessibilityNodeInfo.obtain(node) : null;
         }
 
         /**
-         * Factory method which returns a new {@link PartialMatch} if the node partially matches
-         * the {@code selector}, otherwise returns null.
+         * Creates a match if the provided selector matches the node.
          *
-         * @param node The node to check.
-         * @param selector The criteria used to evaluate the node.
-         * @param index The index of this node underneath its parent.
-         * @param depth The distance between {@code node} and the root node.
-         * @return A {@link PartialMatch} instance if the node matches all non-child selector
-         * criteria, otherwise null.
+         * @param target        search criteria to return nodes for
+         * @param selector      current search criteria to match
+         * @param node          node to check
+         * @param absoluteDepth distance between the node and the search root
+         * @param relativeDepth distance between the node and its relevant ancestor
+         * @return potential match or null
          */
-        public static PartialMatch accept(AccessibilityNodeInfo node, BySelector selector,
-                int index, int depth) {
-            return accept(node, selector, index, depth, depth);
-        }
-
-        /**
-         * Factory method which returns a new {@link PartialMatch} if the node partially matches
-         * the {@code selector}, otherwise returns null.
-         *
-         * @param node The node to check.
-         * @param selector The criteria used to evaluate the node.
-         * @param index The index of this node underneath its parent.
-         * @param absoluteDepth The distance between {@code node} and the root node.
-         * @param relativeDepth The distance between {@code node} and the matching ancestor.
-         * @return A {@link PartialMatch} instance if the node matches all non-child selector
-         * criteria, otherwise null.
-         */
-        public static PartialMatch accept(AccessibilityNodeInfo node, BySelector selector,
-                int index, int absoluteDepth, int relativeDepth) {
-
-            if ((selector.mMinDepth != null && relativeDepth < selector.mMinDepth) ||
-                    (selector.mMaxDepth != null && relativeDepth > selector.mMaxDepth)) {
+        static PartialMatch create(BySelector target, BySelector selector,
+                AccessibilityNodeInfo node, int absoluteDepth, int relativeDepth) {
+            if (!matchesSelector(selector, node, relativeDepth)) {
                 return null;
             }
-
-            // NB: index is not checked, as it is not a BySelector criteria (yet). Keeping the
-            // parameter in place in case matching on index is really needed.
-
-            PartialMatch ret = null;
-            if (checkCriteria(selector.mClazz, node.getClassName()) &&
-                    checkCriteria(selector.mDesc, node.getContentDescription()) &&
-                    checkCriteria(selector.mPkg, node.getPackageName()) &&
-                    checkCriteria(selector.mRes, node.getViewIdResourceName()) &&
-                    checkCriteria(selector.mText, node.getText()) &&
-                    checkCriteria(selector.mChecked, node.isChecked()) &&
-                    checkCriteria(selector.mCheckable, node.isCheckable()) &&
-                    checkCriteria(selector.mClickable, node.isClickable()) &&
-                    checkCriteria(selector.mEnabled, node.isEnabled()) &&
-                    checkCriteria(selector.mFocused, node.isFocused()) &&
-                    checkCriteria(selector.mFocusable, node.isFocusable()) &&
-                    checkCriteria(selector.mLongClickable, node.isLongClickable()) &&
-                    checkCriteria(selector.mScrollable, node.isScrollable()) &&
-                    checkCriteria(selector.mSelected, node.isSelected())) {
-
-                ret = new PartialMatch(selector, absoluteDepth);
-            }
-            return ret;
+            return new PartialMatch(target, selector, absoluteDepth, node);
         }
 
         /**
-         * Updates this {@link PartialMatch} as part of the tree traversal. Checks to see if
-         * {@code node} matches any of the child selectors that need to match for this
-         * {@link PartialMatch} to be considered a full match.
+         * Returns true if the node matches the selector, ignoring child selectors.
          *
-         * @param node The node to process.
-         * @param index The index of this node underneath its parent.
-         * @param depth The distance between {@code node} and the root node.
-         * @param rest The list of {@link PartialMatch}es that our caller is currently tracking
-         * @return The list of {@link PartialMatch}es that our caller should track while traversing
-         * the subtree under this node.
+         * @param selector search criteria to match
+         * @param node     node to check
+         * @param depth    distance between the node and its relevant ancestor
          */
-        public SinglyLinkedList<PartialMatch> update(AccessibilityNodeInfo node,
-                int index, int depth, SinglyLinkedList<PartialMatch> rest) {
+        private static boolean matchesSelector(
+                BySelector selector, AccessibilityNodeInfo node, int depth) {
+            return (selector.mMinDepth == null || depth >= selector.mMinDepth)
+                    && (selector.mMaxDepth == null || depth <= selector.mMaxDepth)
+                    && matchesCriteria(selector.mClazz, node.getClassName())
+                    && matchesCriteria(selector.mDesc, node.getContentDescription())
+                    && matchesCriteria(selector.mPkg, node.getPackageName())
+                    && matchesCriteria(selector.mRes, node.getViewIdResourceName())
+                    && matchesCriteria(selector.mText, node.getText())
+                    && matchesCriteria(selector.mChecked, node.isChecked())
+                    && matchesCriteria(selector.mCheckable, node.isCheckable())
+                    && matchesCriteria(selector.mClickable, node.isClickable())
+                    && matchesCriteria(selector.mEnabled, node.isEnabled())
+                    && matchesCriteria(selector.mFocused, node.isFocused())
+                    && matchesCriteria(selector.mFocusable, node.isFocusable())
+                    && matchesCriteria(selector.mLongClickable, node.isLongClickable())
+                    && matchesCriteria(selector.mScrollable, node.isScrollable())
+                    && matchesCriteria(selector.mSelected, node.isSelected())
+                    && matchesHint(selector.mHint, node);
+        }
 
-            // Check if this node matches any of our children
-            for (BySelector childSelector : matchSelector.mChildSelectors) {
-                PartialMatch m = PartialMatch.accept(node, childSelector, index, depth,
-                        depth - matchDepth);
-                if (m != null) {
-                    partialMatches.add(m);
-                    rest = SinglyLinkedList.prepend(m, rest);
-                }
+        /** Returns true if the criteria is null or matches the value. */
+        private static boolean matchesCriteria(Pattern criteria, CharSequence value) {
+            if (criteria == null) {
+                return true;
             }
-            return rest;
+            return criteria.matcher(value != null ? value : "").matches();
+        }
+
+        /** Returns true if the criteria is null or equal to the value. */
+        private static boolean matchesCriteria(Boolean criteria, boolean value) {
+            return criteria == null || criteria.equals(value);
+        }
+
+        /** Returns true if the criteria is null or equal to the hint text of node. */
+        private static boolean matchesHint(Pattern criteria, AccessibilityNodeInfo node) {
+            if (criteria == null) {
+                return true;
+            }
+            return Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && matchesCriteria(criteria,
+                    Api26Impl.getHintText(node));
         }
 
         /**
-         * Finalizes this {@link PartialMatch} and returns true if it was a full match, or false
-         * otherwise.
+         * Checks whether a node matches any child selector. Creates a child match if it does and
+         * adds it to the list of tracked matches.
+         *
+         * @param node           node to check
+         * @param depth          distance between the node and the search root
+         * @param partialMatches list of matches to track
+         * @return new list of matches to track
          */
-        public boolean finalizeMatch() {
-            // Find out which of our child selectors were fully matched
-            Set<BySelector> matches = new HashSet<>();
-            for (PartialMatch p : partialMatches) {
-                if (p.finalizeMatch()) {
-                    matches.add(p.matchSelector);
+        PartialMatchList matchChildren(AccessibilityNodeInfo node, int depth,
+                PartialMatchList partialMatches) {
+            for (BySelector childSelector : mMatchSelector.mChildSelectors) {
+                PartialMatch pm = PartialMatch.create(
+                        mTargetSelector, childSelector, node, depth, depth - mMatchDepth);
+                if (pm != null) {
+                    mChildMatches.add(pm);
+                    partialMatches = partialMatches.prepend(pm);
                 }
             }
+            return partialMatches;
+        }
 
-            // Return true if matches were found for all of the child selectors
-            return matches.containsAll(matchSelector.mChildSelectors);
+        /** Returns true if all child selectors were matched. */
+        boolean isComplete() {
+            Set<BySelector> matches = new HashSet<>();
+            for (PartialMatch pm : mChildMatches) {
+                if (pm.isComplete()) {
+                    matches.add(pm.mMatchSelector);
+                }
+            }
+            return matches.containsAll(mMatchSelector.mChildSelectors);
+        }
+
+        /** Returns all nodes matched by selector and its children. */
+        List<AccessibilityNodeInfo> getNodes() {
+            if (!isComplete()) return new ArrayList<>();
+
+            List<AccessibilityNodeInfo> nodes = new ArrayList<>();
+            if (mMatchNode != null) {
+                nodes.add(mMatchNode);
+            }
+            for (PartialMatch pm : mChildMatches) {
+                nodes.addAll(pm.getNodes());
+            }
+            return nodes;
+        }
+
+        /** Recycles all nodes matched by selector and its children. */
+        void recycleNodes() {
+            if (mMatchNode != null) {
+                mMatchNode.recycle();
+            }
+            for (PartialMatch pm : mChildMatches) {
+                pm.recycleNodes();
+            }
+        }
+
+        @RequiresApi(26)
+        static class Api26Impl {
+            private Api26Impl() {
+            }
+
+            @DoNotInline
+            static String getHintText(AccessibilityNodeInfo accessibilityNodeInfo) {
+                CharSequence chars = accessibilityNodeInfo.getHintText();
+                return chars != null ? chars.toString() : null;
+            }
         }
     }
 
-    /**
-     * Immutable, singly-linked List. Used to keep track of the {@link PartialMatch}es that we
-     * need to update when visiting nodes.
-     */
-    private static class SinglyLinkedList<T> implements Iterable<T> {
+    /** Immutable singly-linked list of matches that is safe for tree traversal. */
+    private static class PartialMatchList implements Iterable<PartialMatch> {
 
-        final Node<T> mHead;
+        final Node mHead;
 
-        /** Constructs an empty list. */
-        public SinglyLinkedList() {
+        PartialMatchList() {
             this(null);
         }
 
-        private SinglyLinkedList(Node<T> head) {
+        private PartialMatchList(Node head) {
             mHead = head;
         }
 
-        /** Returns a new list obtained by prepending {@code data} to {@code rest}. */
-        public static <T> SinglyLinkedList<T> prepend(T data, SinglyLinkedList<T> rest) {
-            return new SinglyLinkedList<>(new Node<>(data, rest.mHead));
+        /** Returns a new list obtained by prepending a match. */
+        PartialMatchList prepend(PartialMatch match) {
+            return new PartialMatchList(new Node(match, mHead));
         }
 
         @Override
-        public Iterator<T> iterator() {
-            return new Iterator<T>() {
-                private Node<T> mNext = mHead;
+        @NonNull
+        public Iterator<PartialMatch> iterator() {
+            return new Iterator<PartialMatch>() {
+                private Node mNext = mHead;
 
                 @Override
                 public boolean hasNext() {
@@ -361,27 +403,35 @@ class ByMatcher {
                 }
 
                 @Override
-                public T next() {
-                    T ret = mNext.data;
-                    mNext = mNext.next;
-                    return ret;
-                }
-
-                @Override
-                public void remove() {
-                    throw new UnsupportedOperationException();
+                public PartialMatch next() {
+                    PartialMatch match = mNext.mMatch;
+                    mNext = mNext.mNext;
+                    return match;
                 }
             };
         }
 
-        private static class Node<T> {
-            public final T data;
-            public final Node<T> next;
+        private static class Node {
+            final PartialMatch mMatch;
+            final Node mNext;
 
-            public Node(T d, Node<T> n) {
-                data = d;
-                next = n;
+            Node(PartialMatch match, Node next) {
+                mMatch = match;
+                mNext = next;
             }
+        }
+    }
+
+    @RequiresApi(30)
+    static class Api30Impl {
+        private Api30Impl() {
+        }
+
+        @DoNotInline
+        static int getDisplayId(AccessibilityNodeInfo accessibilityNodeInfo) {
+            AccessibilityWindowInfo accessibilityWindowInfo = accessibilityNodeInfo.getWindow();
+            return accessibilityWindowInfo == null ? Display.DEFAULT_DISPLAY :
+                    accessibilityWindowInfo.getDisplayId();
         }
     }
 }

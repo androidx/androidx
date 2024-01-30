@@ -15,6 +15,8 @@
  */
 package androidx.compose.ui.test
 
+import androidx.compose.runtime.InternalComposeApi
+import androidx.compose.runtime.identityHashCode
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.key.Key
@@ -64,6 +66,7 @@ internal expect fun createInputDispatcher(
  * Chaining methods:
  * * [advanceEventTime]
  */
+@OptIn(InternalComposeApi::class)
 internal abstract class InputDispatcher(
     private val testContext: TestContext,
     private val root: RootForTest,
@@ -611,7 +614,7 @@ internal abstract class InputDispatcher(
 
     fun enqueueRotaryScrollVertically(verticalScrollPixels: Float) {
         // TODO(b/214437966): figure out if ongoing scroll events need to be cancelled.
-        rotaryInputState.enqueueRotaryScrollHorizontally(verticalScrollPixels)
+        rotaryInputState.enqueueRotaryScrollVertically(verticalScrollPixels)
     }
 
     private fun MouseInputState.enterHover() {

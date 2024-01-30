@@ -30,4 +30,7 @@ class AndroidViewConfiguration(
 
     override val touchSlop: Float
         get() = viewConfiguration.scaledTouchSlop.toFloat()
+
+    override val maximumFlingVelocity: Float
+        get() = viewConfiguration.scaledMaximumFlingVelocity.toFloat()
 }

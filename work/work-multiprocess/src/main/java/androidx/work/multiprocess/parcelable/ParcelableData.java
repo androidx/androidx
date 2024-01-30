@@ -41,7 +41,6 @@ import java.util.Map;
 /**
  * {@link androidx.work.Data} but {@link android.os.Parcelable}.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @SuppressLint("BanParcelableUsage")

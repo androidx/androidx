@@ -264,6 +264,7 @@
     <string name="tab_title_list" msgid="5104962518489668123">"Zavihek s seznamom"</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"Zavihek z mrežo in dolgim naslovom zavihka"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"Zavihek za iskanje"</string>
+    <string name="tab_title_loading" msgid="5385807479734490989">"Nalaganje zavihka"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"Predstavitvena različica predloge zavihka za stanje nalaganja"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"Predstavitvena različica predloge zavihka za stanje brez zavihkov"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"Slik ni mogoče prikazati za neznanega gostitelja."</string>
@@ -298,7 +299,7 @@
     <string name="some_additional_text" msgid="4009872495806318260">"Nekaj dodatnega besedila"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"Vzorčni seznam, ki omogoča izbiro"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"Predstavitvena različica omejitve opravil"</string>
-    <string name="task_limit_reached_msg" msgid="6038763366777119364">"Dosežena je omejitev opravil.\nČe nadaljujete, bo aplikacija prisilno ustavljena."</string>
+    <string name="task_limit_reached_msg" msgid="7162842196382260992">"S tem bo število korakov prelito in boste preusmerjeni na nov zaslon."</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"Korak opravila %1$d od %2$d"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"Kliknite, če želite nadaljevati."</string>
     <string name="task_content_allowed" msgid="545061986612431190">"Odprite različne predloge in poskrbite, da je avtomobil v načinu vožnje."</string>
@@ -323,6 +324,12 @@
     <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"Izbrati je mogoče tudi vrstico."</string>
     <string name="secondary_action_toast" msgid="5076434693504006565">"Sekundarno dejanje je izbrano."</string>
     <string name="row_primary_action_toast" msgid="756516694751965204">"Glavno dejanje vrstice je izbrano."</string>
+    <string name="sectioned_item_list_demo_title" msgid="1236735461225007729">"Predstavitvena različica seznama elementov po razdelkih"</string>
+    <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"Seznam 1"</string>
+    <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"Seznam 2"</string>
+    <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"Podbesedilo pod posameznim seznamom"</string>
+    <string name="empty_list_demo_title" msgid="5989013634820902455">"Predstavitvena različica praznega seznama"</string>
+    <string name="empty_list_message" msgid="5331395517560728138">"Seznam je prazen"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"Predstavitvene različice različnih predlog"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"Predstavitvene različice izpostavljenih stvari"</string>
     <string name="template_layouts_demo_title" msgid="788249269446087847">"Predstavitvene različice postavitev predlog"</string>

@@ -19,8 +19,6 @@ package androidx.compose.ui.test
 import androidx.compose.ui.node.RootForTest
 import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.semantics.getAllSemanticsNodes
-import androidx.compose.ui.text.ExperimentalTextApi
-import androidx.compose.ui.text.input.TextInputForTests
 
 /**
  * Provides necessary services to facilitate testing.
@@ -33,13 +31,6 @@ interface TestOwner {
      * Clock that drives frames and recompositions in compose tests.
      */
     val mainClock: MainTestClock
-
-    /**
-     * Runs [action] on the main thread to perform text input via the [TextInputForTests] for the
-     * active text input service for the given semantics node.
-     */
-    @OptIn(ExperimentalTextApi::class)
-    fun performTextInput(node: SemanticsNode, action: TextInputForTests.() -> Unit)
 
     /**
      * Runs the given [action] on the ui thread.
@@ -89,7 +80,8 @@ class TestContext internal constructor(internal val testOwner: TestOwner) {
      */
     internal fun getAllSemanticsNodes(
         atLeastOneRootRequired: Boolean,
-        useUnmergedTree: Boolean
+        useUnmergedTree: Boolean,
+        skipDeactivatedNodes: Boolean = true
     ): Iterable<SemanticsNode> {
         val roots = testOwner.getRoots(atLeastOneRootRequired).also {
             check(!atLeastOneRootRequired || it.isNotEmpty()) {
@@ -102,8 +94,13 @@ class TestContext internal constructor(internal val testOwner: TestOwner) {
             }
         }
 
-        return roots.flatMap {
-            it.semanticsOwner.getAllSemanticsNodes(mergingEnabled = !useUnmergedTree)
+        return testOwner.runOnUiThread {
+            roots.flatMap {
+                it.semanticsOwner.getAllSemanticsNodes(
+                    mergingEnabled = !useUnmergedTree,
+                    skipDeactivatedNodes = skipDeactivatedNodes
+                )
+            }
         }
     }
 }

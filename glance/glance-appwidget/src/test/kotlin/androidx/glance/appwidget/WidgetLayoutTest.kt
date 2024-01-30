@@ -18,9 +18,12 @@ package androidx.glance.appwidget
 
 import android.app.Activity
 import android.content.Context
+import android.os.Build
 import androidx.compose.ui.unit.dp
 import androidx.glance.Button
+import androidx.glance.ColorFilter
 import androidx.glance.GlanceModifier
+import androidx.glance.GlanceTheme
 import androidx.glance.Image
 import androidx.glance.ImageProvider
 import androidx.glance.action.actionStartActivity
@@ -89,16 +92,30 @@ class WidgetLayoutTest {
         assertThat(column.horizontalAlignment).isEqualTo(LayoutProto.HorizontalAlignment.END)
 
         val (checkBox, button, image) = column.childrenList
-        assertThat(checkBox.type).isEqualTo(LayoutProto.LayoutType.CHECK_BOX)
-        assertThat(checkBox.width).isEqualTo(LayoutProto.DimensionType.FILL)
-        assertThat(checkBox.height).isEqualTo(LayoutProto.DimensionType.FILL)
-        assertThat(button.type).isEqualTo(LayoutProto.LayoutType.BUTTON)
-        assertThat(button.width).isEqualTo(LayoutProto.DimensionType.WRAP)
-        assertThat(button.height).isEqualTo(LayoutProto.DimensionType.WRAP)
-        assertThat(image.type).isEqualTo(LayoutProto.LayoutType.IMAGE)
-        assertThat(image.width).isEqualTo(LayoutProto.DimensionType.EXACT)
-        assertThat(image.height).isEqualTo(LayoutProto.DimensionType.EXPAND)
-        assertThat(image.imageScale).isEqualTo(LayoutProto.ContentScale.CROP)
+        // S+ uses native checkboxes that have different layout parameters to the back ports ones
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            assertThat(checkBox.type).isEqualTo(LayoutProto.LayoutType.CHECK_BOX)
+            assertThat(checkBox.width).isEqualTo(LayoutProto.DimensionType.WRAP)
+            assertThat(checkBox.height).isEqualTo(LayoutProto.DimensionType.WRAP)
+            assertThat(button.type).isEqualTo(LayoutProto.LayoutType.BUTTON)
+            assertThat(button.width).isEqualTo(LayoutProto.DimensionType.WRAP)
+            assertThat(button.height).isEqualTo(LayoutProto.DimensionType.WRAP)
+            assertThat(image.type).isEqualTo(LayoutProto.LayoutType.IMAGE)
+            assertThat(image.width).isEqualTo(LayoutProto.DimensionType.WRAP)
+            assertThat(image.height).isEqualTo(LayoutProto.DimensionType.EXPAND)
+            assertThat(image.imageScale).isEqualTo(LayoutProto.ContentScale.CROP)
+        } else {
+            assertThat(checkBox.type).isEqualTo(LayoutProto.LayoutType.CHECK_BOX)
+            assertThat(checkBox.width).isEqualTo(LayoutProto.DimensionType.FILL)
+            assertThat(checkBox.height).isEqualTo(LayoutProto.DimensionType.FILL)
+            assertThat(button.type).isEqualTo(LayoutProto.LayoutType.BUTTON)
+            assertThat(button.width).isEqualTo(LayoutProto.DimensionType.WRAP)
+            assertThat(button.height).isEqualTo(LayoutProto.DimensionType.WRAP)
+            assertThat(image.type).isEqualTo(LayoutProto.LayoutType.IMAGE)
+            assertThat(image.width).isEqualTo(LayoutProto.DimensionType.EXACT)
+            assertThat(image.height).isEqualTo(LayoutProto.DimensionType.EXPAND)
+            assertThat(image.imageScale).isEqualTo(LayoutProto.ContentScale.CROP)
+        }
     }
 
     @Test
@@ -114,7 +131,7 @@ class WidgetLayoutTest {
                 Button(text = "test", onClick = actionStartActivity<Activity>())
             }
         }
-        val root2 = runTestingComposition {
+        val rootWithSizeChanged = runTestingComposition {
             Column {
                 CheckBox(
                     checked = true,
@@ -127,7 +144,11 @@ class WidgetLayoutTest {
 
         val layoutConfig = LayoutConfiguration.create(context, appId)
         assertThat(layoutConfig.addLayout(root)).isEqualTo(0)
-        assertThat(layoutConfig.addLayout(root2)).isEqualTo(1)
+
+        // On S+ the layout can have its size changed, so don't bump index, earlier versions needed
+        // a change.
+        val expectedIndex = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) 0 else 1
+        assertThat(layoutConfig.addLayout(rootWithSizeChanged)).isEqualTo(expectedIndex)
     }
 
     @Test
@@ -166,6 +187,52 @@ class WidgetLayoutTest {
         val layoutConfig = LayoutConfiguration.create(context, appId)
         assertThat(layoutConfig.addLayout(root)).isEqualTo(0)
         assertThat(layoutConfig.addLayout(root2)).isEqualTo(0)
+    }
+
+    @Test
+    fun testChange_imageDescription() = fakeCoroutineScope.runTest {
+        val appId = 999
+        val root = runTestingComposition {
+            Column {
+                Image(ImageProvider(R.drawable.oval), null, contentScale = ContentScale.Crop)
+            }
+        }
+        val root2 = runTestingComposition {
+            Column {
+                Image(ImageProvider(R.drawable.oval), "test", contentScale = ContentScale.Crop)
+            }
+        }
+
+        val layoutConfig = LayoutConfiguration.create(context, appId)
+        assertThat(layoutConfig.addLayout(root)).isEqualTo(0)
+        assertThat(layoutConfig.addLayout(root2)).isEqualTo(1)
+    }
+
+    @Test
+    fun testChange_imageColorFilter() = fakeCoroutineScope.runTest {
+        val appId = 999
+        val root = runTestingComposition {
+            Column {
+                Image(
+                    ImageProvider(R.drawable.oval),
+                    colorFilter = ColorFilter.tint(GlanceTheme.colors.onSurface),
+                    contentDescription = null
+                )
+            }
+        }
+        val root2 = runTestingComposition {
+            Column {
+                Image(
+                    ImageProvider(R.drawable.oval),
+                    colorFilter = null,
+                    contentDescription = null
+                )
+            }
+        }
+
+        val layoutConfig = LayoutConfiguration.create(context, appId)
+        assertThat(layoutConfig.addLayout(root)).isEqualTo(0)
+        assertThat(layoutConfig.addLayout(root2)).isEqualTo(1)
     }
 
     @Test

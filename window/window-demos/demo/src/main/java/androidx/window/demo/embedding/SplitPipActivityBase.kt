@@ -141,7 +141,7 @@ abstract class SplitPipActivityBase : AppCompatActivity(), CompoundButton.OnChec
                 viewBinding.finishSecondaryWithPrimaryCheckBox.isChecked = false
             }
         }
-        if (button.id == R.id.use_place_holder_check_box) {
+        if (button.id == R.id.use_placeholder_check_box) {
             if (isChecked) {
                 viewBinding.useStickyPlaceHolderCheckBox.isEnabled = true
             } else {

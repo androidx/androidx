@@ -136,11 +136,11 @@ fun Path(
 
 class VectorApplier(root: VNode) : AbstractApplier<VNode>(root) {
     override fun insertTopDown(index: Int, instance: VNode) {
-        current.asGroup().insertAt(index, instance)
+        // Ignored as the tree is built bottom-up.
     }
 
     override fun insertBottomUp(index: Int, instance: VNode) {
-        // Ignored as the tree is built top-down.
+        current.asGroup().insertAt(index, instance)
     }
 
     override fun remove(index: Int, count: Int) {

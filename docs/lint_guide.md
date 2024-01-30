@@ -119,10 +119,11 @@ or binary resource files like images, but these are less common.
 
 To view the PSI structure of any file in Android Studio, use the
 [PSI Viewer](https://www.jetbrains.com/help/idea/psi-viewer.html) located in
-`Tools > View PSI Structure`. The PSI Viewer should be enabled by default on the
-Android Studio configuration loaded by `studiow` in `androidx-main`. If it is
-not available under `Tools`, you must enable it by adding the line
-`idea.is.internal=true` to `idea.properties.`
+`Tools > View PSI Structure`.
+
+Note: The PSI Viewer requires enabling internal mode. Follow the directions
+[here](https://plugins.jetbrains.com/docs/intellij/enabling-internal.html) to
+add `idea.is.internal=true` to `idea.properties.`
 
 <table>
   <tr>
@@ -455,19 +456,18 @@ place the actions you want to take if a violation of the lint check is found.
 
 ```kotlin
 override fun visitElement(context: XmlContext, element: Element) {
-    val lintFix = fix().replace()
+    val fix = LintFix.create()
+        .replace()
         .text(ELEMENT)
-        .with(REPLACEMENT TEXT)
+        .with(REPLACEMENT_TEXT)
         .build()
 
-    val incident = Incident(context)
-        .fix(lintFix)
-        .issue(ISSUE)
-        .location(context.getLocation(node))
-        .message("My issue message")
-        .scope(context.getNameLocation(element))
-
-    context.report(incident)
+    context.report(
+        issue = ISSUE,
+        location = context.getNameLocation(element),
+        message = "My issue message",
+        quickFixData = fix
+    )
 }
 ```
 

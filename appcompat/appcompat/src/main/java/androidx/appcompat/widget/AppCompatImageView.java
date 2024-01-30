@@ -155,7 +155,6 @@ public class AppCompatImageView extends ImageView implements TintableBackgroundV
      * This should be accessed via
      * {@link androidx.core.view.ViewCompat#setBackgroundTintList(android.view.View, ColorStateList)}
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
@@ -169,7 +168,6 @@ public class AppCompatImageView extends ImageView implements TintableBackgroundV
      * This should be accessed via
      * {@link androidx.core.view.ViewCompat#getBackgroundTintList(android.view.View)}
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
@@ -183,7 +181,6 @@ public class AppCompatImageView extends ImageView implements TintableBackgroundV
      * This should be accessed via
      * {@link androidx.core.view.ViewCompat#setBackgroundTintMode(android.view.View, PorterDuff.Mode)}
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
@@ -197,7 +194,6 @@ public class AppCompatImageView extends ImageView implements TintableBackgroundV
      * This should be accessed via
      * {@link androidx.core.view.ViewCompat#getBackgroundTintMode(android.view.View)}
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
@@ -211,7 +207,6 @@ public class AppCompatImageView extends ImageView implements TintableBackgroundV
      * This should be accessed via
      * {@link androidx.core.widget.ImageViewCompat#setImageTintList(ImageView, ColorStateList)}
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
@@ -225,7 +220,6 @@ public class AppCompatImageView extends ImageView implements TintableBackgroundV
      * This should be accessed via
      * {@link androidx.core.widget.ImageViewCompat#getImageTintList(ImageView)}
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
@@ -239,7 +233,6 @@ public class AppCompatImageView extends ImageView implements TintableBackgroundV
      * This should be accessed via
      * {@link androidx.core.widget.ImageViewCompat#setImageTintMode(ImageView, PorterDuff.Mode)}
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
@@ -253,7 +246,6 @@ public class AppCompatImageView extends ImageView implements TintableBackgroundV
      * This should be accessed via
      * {@link androidx.core.widget.ImageViewCompat#getImageTintMode(ImageView)}
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override

@@ -30,8 +30,8 @@
       <item quantity="other">For <xliff:g id="ID_2">%d</xliff:g> år siden</item>
     </plurals>
     <plurals name="abc_slice_duration_days" formatted="false" msgid="8356547162075064530">
-      <item quantity="one">For <xliff:g id="ID_2">%d</xliff:g> dag siden</item>
-      <item quantity="other">For <xliff:g id="ID_2">%d</xliff:g> dage siden</item>
+      <item quantity="one"><xliff:g id="ID_2">%d</xliff:g> dag siden</item>
+      <item quantity="other"><xliff:g id="ID_2">%d</xliff:g> dage siden</item>
     </plurals>
     <string name="abc_slice_error" msgid="1794214973158263497">"Der kunne ikke oprettes forbindelse"</string>
 </resources>

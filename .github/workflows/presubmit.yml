@@ -1,7 +1,6 @@
 name: AndroidX Presubmits
 on:
-  push:
-  pull_request:
+  workflow_dispatch:
 
 env:
   # Allow precise monitoring of the save/restore of Gradle User Home by `gradle-build-action`

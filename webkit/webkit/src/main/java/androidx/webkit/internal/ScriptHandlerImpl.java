@@ -27,11 +27,21 @@ import java.lang.reflect.InvocationHandler;
 /**
  * Internal implementation of {@link androidx.webkit.ScriptHandler}.
  */
-public class ScriptHandlerImpl extends ScriptHandler {
-    private ScriptHandlerBoundaryInterface mBoundaryInterface;
+public class ScriptHandlerImpl implements ScriptHandler {
+    private final ScriptHandlerBoundaryInterface mBoundaryInterface;
 
     private ScriptHandlerImpl(@NonNull ScriptHandlerBoundaryInterface boundaryInterface) {
         mBoundaryInterface = boundaryInterface;
+    }
+
+    /**
+     * Removes the corresponding script from WebView.
+     */
+    @Override
+    public void remove() {
+        // If this method is called, the feature must exist, so no need to check feature
+        // DOCUMENT_START_JAVASCRIPT.
+        mBoundaryInterface.remove();
     }
 
     /**
@@ -43,15 +53,5 @@ public class ScriptHandlerImpl extends ScriptHandler {
                 BoundaryInterfaceReflectionUtil.castToSuppLibClass(
                         ScriptHandlerBoundaryInterface.class, invocationHandler);
         return new ScriptHandlerImpl(boundaryInterface);
-    }
-
-    /**
-     * Removes the corresponding script from WebView.
-     */
-    @Override
-    public void remove() {
-        // If this method is called, the feature must exist, so no need to check feature
-        // DOCUMENT_START_JAVASCRIPT.
-        mBoundaryInterface.remove();
     }
 }

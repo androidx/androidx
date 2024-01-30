@@ -1,0 +1,60 @@
+// Signature format: 4.0
+package androidx.fragment.app.testing {
+
+  public final class FragmentScenario<F extends androidx.fragment.app.Fragment> implements java.io.Closeable {
+    method public void close();
+    method public static <F extends androidx.fragment.app.Fragment> androidx.fragment.app.testing.FragmentScenario<F> launch(Class<F> fragmentClass, android.os.Bundle? fragmentArgs, androidx.fragment.app.FragmentFactory? factory);
+    method public static <F extends androidx.fragment.app.Fragment> androidx.fragment.app.testing.FragmentScenario<F> launch(Class<F> fragmentClass, android.os.Bundle? fragmentArgs, @StyleRes int themeResId, androidx.fragment.app.FragmentFactory? factory);
+    method public static <F extends androidx.fragment.app.Fragment> androidx.fragment.app.testing.FragmentScenario<F> launch(Class<F> fragmentClass, optional android.os.Bundle? fragmentArgs, optional @StyleRes int themeResId, optional androidx.lifecycle.Lifecycle.State initialState, optional androidx.fragment.app.FragmentFactory? factory);
+    method public static <F extends androidx.fragment.app.Fragment> androidx.fragment.app.testing.FragmentScenario<F> launch(Class<F> fragmentClass, optional android.os.Bundle? fragmentArgs, optional @StyleRes int themeResId, optional androidx.lifecycle.Lifecycle.State initialState);
+    method public static <F extends androidx.fragment.app.Fragment> androidx.fragment.app.testing.FragmentScenario<F> launch(Class<F> fragmentClass, optional android.os.Bundle? fragmentArgs, optional @StyleRes int themeResId);
+    method public static <F extends androidx.fragment.app.Fragment> androidx.fragment.app.testing.FragmentScenario<F> launch(Class<F> fragmentClass, optional android.os.Bundle? fragmentArgs);
+    method public static <F extends androidx.fragment.app.Fragment> androidx.fragment.app.testing.FragmentScenario<F> launch(Class<F> fragmentClass);
+    method public static <F extends androidx.fragment.app.Fragment> androidx.fragment.app.testing.FragmentScenario<F> launchInContainer(Class<F> fragmentClass, android.os.Bundle? fragmentArgs, androidx.fragment.app.FragmentFactory? factory);
+    method public static <F extends androidx.fragment.app.Fragment> androidx.fragment.app.testing.FragmentScenario<F> launchInContainer(Class<F> fragmentClass, android.os.Bundle? fragmentArgs, @StyleRes int themeResId, androidx.fragment.app.FragmentFactory? factory);
+    method public static <F extends androidx.fragment.app.Fragment> androidx.fragment.app.testing.FragmentScenario<F> launchInContainer(Class<F> fragmentClass, optional android.os.Bundle? fragmentArgs, optional @StyleRes int themeResId, optional androidx.lifecycle.Lifecycle.State initialState, optional androidx.fragment.app.FragmentFactory? factory);
+    method public static <F extends androidx.fragment.app.Fragment> androidx.fragment.app.testing.FragmentScenario<F> launchInContainer(Class<F> fragmentClass, optional android.os.Bundle? fragmentArgs, optional @StyleRes int themeResId, optional androidx.lifecycle.Lifecycle.State initialState);
+    method public static <F extends androidx.fragment.app.Fragment> androidx.fragment.app.testing.FragmentScenario<F> launchInContainer(Class<F> fragmentClass, optional android.os.Bundle? fragmentArgs, optional @StyleRes int themeResId);
+    method public static <F extends androidx.fragment.app.Fragment> androidx.fragment.app.testing.FragmentScenario<F> launchInContainer(Class<F> fragmentClass, optional android.os.Bundle? fragmentArgs);
+    method public static <F extends androidx.fragment.app.Fragment> androidx.fragment.app.testing.FragmentScenario<F> launchInContainer(Class<F> fragmentClass);
+    method public androidx.fragment.app.testing.FragmentScenario<F> moveToState(androidx.lifecycle.Lifecycle.State newState);
+    method public androidx.fragment.app.testing.FragmentScenario<F> onFragment(androidx.fragment.app.testing.FragmentScenario.FragmentAction<F> action);
+    method public androidx.fragment.app.testing.FragmentScenario<F> recreate();
+    field public static final androidx.fragment.app.testing.FragmentScenario.Companion Companion;
+  }
+
+  public static final class FragmentScenario.Companion {
+    method public <F extends androidx.fragment.app.Fragment> androidx.fragment.app.testing.FragmentScenario<F> launch(Class<F> fragmentClass, android.os.Bundle? fragmentArgs, androidx.fragment.app.FragmentFactory? factory);
+    method public <F extends androidx.fragment.app.Fragment> androidx.fragment.app.testing.FragmentScenario<F> launch(Class<F> fragmentClass, android.os.Bundle? fragmentArgs, @StyleRes int themeResId, androidx.fragment.app.FragmentFactory? factory);
+    method public <F extends androidx.fragment.app.Fragment> androidx.fragment.app.testing.FragmentScenario<F> launch(Class<F> fragmentClass, optional android.os.Bundle? fragmentArgs, optional @StyleRes int themeResId, optional androidx.lifecycle.Lifecycle.State initialState, optional androidx.fragment.app.FragmentFactory? factory);
+    method public <F extends androidx.fragment.app.Fragment> androidx.fragment.app.testing.FragmentScenario<F> launch(Class<F> fragmentClass, optional android.os.Bundle? fragmentArgs, optional @StyleRes int themeResId, optional androidx.lifecycle.Lifecycle.State initialState);
+    method public <F extends androidx.fragment.app.Fragment> androidx.fragment.app.testing.FragmentScenario<F> launch(Class<F> fragmentClass, optional android.os.Bundle? fragmentArgs, optional @StyleRes int themeResId);
+    method public <F extends androidx.fragment.app.Fragment> androidx.fragment.app.testing.FragmentScenario<F> launch(Class<F> fragmentClass, optional android.os.Bundle? fragmentArgs);
+    method public <F extends androidx.fragment.app.Fragment> androidx.fragment.app.testing.FragmentScenario<F> launch(Class<F> fragmentClass);
+    method public <F extends androidx.fragment.app.Fragment> androidx.fragment.app.testing.FragmentScenario<F> launchInContainer(Class<F> fragmentClass, android.os.Bundle? fragmentArgs, androidx.fragment.app.FragmentFactory? factory);
+    method public <F extends androidx.fragment.app.Fragment> androidx.fragment.app.testing.FragmentScenario<F> launchInContainer(Class<F> fragmentClass, android.os.Bundle? fragmentArgs, @StyleRes int themeResId, androidx.fragment.app.FragmentFactory? factory);
+    method public <F extends androidx.fragment.app.Fragment> androidx.fragment.app.testing.FragmentScenario<F> launchInContainer(Class<F> fragmentClass, optional android.os.Bundle? fragmentArgs, optional @StyleRes int themeResId, optional androidx.lifecycle.Lifecycle.State initialState, optional androidx.fragment.app.FragmentFactory? factory);
+    method public <F extends androidx.fragment.app.Fragment> androidx.fragment.app.testing.FragmentScenario<F> launchInContainer(Class<F> fragmentClass, optional android.os.Bundle? fragmentArgs, optional @StyleRes int themeResId, optional androidx.lifecycle.Lifecycle.State initialState);
+    method public <F extends androidx.fragment.app.Fragment> androidx.fragment.app.testing.FragmentScenario<F> launchInContainer(Class<F> fragmentClass, optional android.os.Bundle? fragmentArgs, optional @StyleRes int themeResId);
+    method public <F extends androidx.fragment.app.Fragment> androidx.fragment.app.testing.FragmentScenario<F> launchInContainer(Class<F> fragmentClass, optional android.os.Bundle? fragmentArgs);
+    method public <F extends androidx.fragment.app.Fragment> androidx.fragment.app.testing.FragmentScenario<F> launchInContainer(Class<F> fragmentClass);
+  }
+
+  public static fun interface FragmentScenario.FragmentAction<F extends androidx.fragment.app.Fragment> {
+    method public void perform(F fragment);
+  }
+
+  public final class FragmentScenarioKt {
+    method @Deprecated public static inline <reified F extends androidx.fragment.app.Fragment> androidx.fragment.app.testing.FragmentScenario<F> launchFragment(optional android.os.Bundle? fragmentArgs, optional @StyleRes int themeResId, optional androidx.fragment.app.FragmentFactory? factory);
+    method @Deprecated public static inline <reified F extends androidx.fragment.app.Fragment> androidx.fragment.app.testing.FragmentScenario<F> launchFragment(optional android.os.Bundle? fragmentArgs, optional @StyleRes int themeResId, kotlin.jvm.functions.Function0<? extends F> instantiate);
+    method public static inline <reified F extends androidx.fragment.app.Fragment> androidx.fragment.app.testing.FragmentScenario<F> launchFragment(optional android.os.Bundle? fragmentArgs, optional @StyleRes int themeResId, optional androidx.lifecycle.Lifecycle.State initialState, optional androidx.fragment.app.FragmentFactory? factory);
+    method public static inline <reified F extends androidx.fragment.app.Fragment> androidx.fragment.app.testing.FragmentScenario<F> launchFragment(optional android.os.Bundle? fragmentArgs, optional @StyleRes int themeResId, optional androidx.lifecycle.Lifecycle.State initialState, kotlin.jvm.functions.Function0<? extends F> instantiate);
+    method @Deprecated public static inline <reified F extends androidx.fragment.app.Fragment> androidx.fragment.app.testing.FragmentScenario<F> launchFragmentInContainer(optional android.os.Bundle? fragmentArgs, optional @StyleRes int themeResId, optional androidx.fragment.app.FragmentFactory? factory);
+    method @Deprecated public static inline <reified F extends androidx.fragment.app.Fragment> androidx.fragment.app.testing.FragmentScenario<F> launchFragmentInContainer(optional android.os.Bundle? fragmentArgs, optional @StyleRes int themeResId, kotlin.jvm.functions.Function0<? extends F> instantiate);
+    method public static inline <reified F extends androidx.fragment.app.Fragment> androidx.fragment.app.testing.FragmentScenario<F> launchFragmentInContainer(optional android.os.Bundle? fragmentArgs, optional @StyleRes int themeResId, optional androidx.lifecycle.Lifecycle.State initialState, optional androidx.fragment.app.FragmentFactory? factory);
+    method public static inline <reified F extends androidx.fragment.app.Fragment> androidx.fragment.app.testing.FragmentScenario<F> launchFragmentInContainer(optional android.os.Bundle? fragmentArgs, optional @StyleRes int themeResId, optional androidx.lifecycle.Lifecycle.State initialState, kotlin.jvm.functions.Function0<? extends F> instantiate);
+    method public static inline <reified F extends androidx.fragment.app.Fragment, T> T withFragment(androidx.fragment.app.testing.FragmentScenario<F>, kotlin.jvm.functions.Function1<? super F,? extends T> block);
+  }
+
+}
+

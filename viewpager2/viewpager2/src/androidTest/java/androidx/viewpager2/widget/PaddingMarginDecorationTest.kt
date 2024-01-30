@@ -33,13 +33,13 @@ import androidx.viewpager2.widget.ViewPager2.SCROLL_STATE_DRAGGING
 import androidx.viewpager2.widget.ViewPager2.SCROLL_STATE_IDLE
 import androidx.viewpager2.widget.ViewPager2.SCROLL_STATE_SETTLING
 import androidx.viewpager2.widget.swipe.ViewAdapter
+import java.util.concurrent.TimeUnit.SECONDS
+import kotlin.math.roundToInt
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
-import java.util.concurrent.TimeUnit.SECONDS
-import kotlin.math.roundToInt
 
 @RunWith(Parameterized::class)
 @LargeTest

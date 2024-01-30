@@ -17,13 +17,14 @@
 package androidx.core.i18n
 
 import androidx.annotation.IntDef
+import androidx.annotation.RestrictTo
 import java.text.DateFormat
 
 /**
  * Date/time formatting styles,
  * compatible to the ones in [java.text.DateFormat]
- * @hide
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 @Target(AnnotationTarget.TYPE)
 @Retention(AnnotationRetention.SOURCE)
 @IntDef(

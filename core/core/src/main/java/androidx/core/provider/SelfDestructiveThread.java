@@ -40,7 +40,6 @@ import java.util.concurrent.locks.ReentrantLock;
  *
  * @deprecated Not being used by any cross library, and should not be used, internal
  * implementation detail.
- * @hide
  */
 @Deprecated
 @RestrictTo(LIBRARY_GROUP_PREFIX)

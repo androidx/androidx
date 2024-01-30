@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.focus
 
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.input.key.KeyEvent
@@ -38,6 +37,14 @@ internal interface FocusOwner : FocusManager {
      * The owner sets the layoutDirection that is then used during focus search.
      */
     var layoutDirection: LayoutDirection
+
+    /**
+     * This manager provides a way to ensure that only one focus transaction is running at a time.
+     * We use this to prevent re-entrant focus operations. Starting a new transaction automatically
+     * cancels the previous transaction and reverts any focus state changes made during that
+     * transaction.
+     */
+    val focusTransactionManager: FocusTransactionManager
 
     /**
      * The [Owner][androidx.compose.ui.node.Owner] calls this function when it gains focus. This
@@ -80,6 +87,11 @@ internal interface FocusOwner : FocusManager {
     fun dispatchKeyEvent(keyEvent: KeyEvent): Boolean
 
     /**
+     * Dispatches an intercepted soft keyboard key event through the compose hierarchy.
+     */
+    fun dispatchInterceptedSoftKeyboardEvent(keyEvent: KeyEvent): Boolean
+
+    /**
      * Dispatches a rotary scroll event through the compose hierarchy.
      */
     fun dispatchRotaryEvent(event: RotaryScrollEvent): Boolean
@@ -87,18 +99,15 @@ internal interface FocusOwner : FocusManager {
     /**
      * Schedule a FocusTarget node to be invalidated after onApplyChanges.
      */
-    @OptIn(ExperimentalComposeUiApi::class)
-    fun scheduleInvalidation(node: FocusTargetModifierNode)
+    fun scheduleInvalidation(node: FocusTargetNode)
 
     /**
      * Schedule a FocusEvent node to be invalidated after onApplyChanges.
      */
-    @OptIn(ExperimentalComposeUiApi::class)
     fun scheduleInvalidation(node: FocusEventModifierNode)
 
     /**
      * Schedule a FocusProperties node to be invalidated after onApplyChanges.
      */
-    @OptIn(ExperimentalComposeUiApi::class)
     fun scheduleInvalidation(node: FocusPropertiesModifierNode)
 }

@@ -22,7 +22,7 @@ import java.io.InputStream
 import java.io.OutputStream
 
 class TestingSerializer(
-    val config: TestingSerializerConfig = TestingSerializerConfig(),
+    private val config: TestingSerializerConfig = TestingSerializerConfig(),
 ) : Serializer<Byte> {
     override suspend fun readFrom(input: InputStream): Byte {
         // hack to make failReadWithCorruptionException during runtime

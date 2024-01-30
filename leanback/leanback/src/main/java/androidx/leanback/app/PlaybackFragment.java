@@ -128,7 +128,6 @@ public class PlaybackFragment extends Fragment {
 
     /**
      * Resets the focus on the button in the middle of control row.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public void resetFocus() {
@@ -212,7 +211,6 @@ public class PlaybackFragment extends Fragment {
     /**
      * Listener allowing the application to receive notification of fade in and/or fade out
      * completion events.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public static class OnFadeCompleteListener {
@@ -412,7 +410,6 @@ public class PlaybackFragment extends Fragment {
 
     /**
      * Sets the listener to be called when fade in or out has completed.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public void setFadeCompleteListener(OnFadeCompleteListener listener) {
@@ -421,7 +418,6 @@ public class PlaybackFragment extends Fragment {
 
     /**
      * Returns the listener to be called when fade in or out has completed.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public OnFadeCompleteListener getFadeCompleteListener() {
@@ -919,8 +915,8 @@ public class PlaybackFragment extends Fragment {
             };
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    @Nullable
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         mRootView = inflater.inflate(R.layout.lb_playback_fragment, container, false);
         mBackgroundView = mRootView.findViewById(R.id.playback_fragment_background);
         mRowsFragment = (RowsFragment) getChildFragmentManager().findFragmentById(

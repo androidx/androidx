@@ -28,7 +28,6 @@ import androidx.health.platform.client.proto.RequestProto
 /**
  * Converts public API object into internal proto for ipc.
  *
- * @suppress
  */
 fun <T : Record> toReadDataRangeRequestProto(
     request: ReadRecordsRequest<T>

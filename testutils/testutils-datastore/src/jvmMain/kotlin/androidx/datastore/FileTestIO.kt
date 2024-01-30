@@ -17,42 +17,26 @@
 package androidx.datastore
 
 import androidx.datastore.core.FileStorage
+import androidx.datastore.core.InterProcessCoordinator
 import androidx.datastore.core.Storage
 import androidx.datastore.core.TestingSerializer
 import java.io.File
 import java.io.IOException
 import kotlin.reflect.KClass
 
-class FileTestIO(dirName: String = "test-dir") : TestIO<JavaIOFile, IOException>(dirName) {
-
-    override fun tempDir(directoryPath: String?, makeDirs: Boolean): JavaIOFile {
-        return if (directoryPath != null) {
-            val tempRoot = File.createTempFile("placeholder", "placeholder").parentFile
-            val tempPath = File(tempRoot, directoryPath)
-            if (makeDirs) {
-                tempPath.mkdirs()
-            }
-            tempPath.toJavaFile()
-        } else {
-            File.createTempFile("temp", "tmp").parentFile.toJavaFile()
-        }
+class FileTestIO : TestIO<JavaIOFile, IOException>(
+    getTmpDir = {
+        File(System.getProperty("java.io.tmpdir")).toJavaFile()
     }
-
-    override fun newTempFile(tempFolder: JavaIOFile): JavaIOFile {
-        return File.createTempFile("temp", "temp", tempFolder.file).toJavaFile()
-    }
-
+) {
     override fun getStorage(
         serializerConfig: TestingSerializerConfig,
-        futureFile: () -> TestFile
+        coordinatorProducer: () -> InterProcessCoordinator,
+        futureFile: () -> JavaIOFile
     ): Storage<Byte> {
-        return FileStorage(TestingSerializer(serializerConfig)) {
-            (futureFile() as JavaIOFile).file
+        return FileStorage(TestingSerializer(serializerConfig), { coordinatorProducer() }) {
+            futureFile().file
         }
-    }
-
-    override fun isDirectory(file: JavaIOFile): Boolean {
-        return file.file.isDirectory
     }
 
     override fun ioException(message: String): IOException {
@@ -63,13 +47,56 @@ class FileTestIO(dirName: String = "test-dir") : TestIO<JavaIOFile, IOException>
         IOException::class
 }
 
-class JavaIOFile(val file: File) : TestFile() {
-    override fun getAbsolutePath(): String {
-        return file.absolutePath
+class JavaIOFile(val file: File) : TestFile<JavaIOFile>() {
+    override val name: String
+        get() = file.name
+
+    override fun path(): String {
+        return file.canonicalFile.absolutePath
     }
 
     override fun delete(): Boolean {
         return file.delete()
+    }
+
+    override fun exists(): Boolean {
+        return file.exists()
+    }
+
+    override fun mkdirs(mustCreate: Boolean) {
+        if (file.exists()) {
+            check(!mustCreate) {
+                "file $file already exists"
+            }
+        }
+        file.mkdirs()
+        check(file.isDirectory) {
+            "Failed to create directories for $file"
+        }
+    }
+
+    override fun isRegularFile(): Boolean {
+        return file.isFile
+    }
+
+    override fun isDirectory(): Boolean {
+        return file.isDirectory
+    }
+
+    override fun protectedResolve(relative: String): JavaIOFile {
+        return file.resolve(relative).toJavaFile()
+    }
+
+    override fun parentFile(): JavaIOFile? {
+        return file.parentFile?.toJavaFile()
+    }
+
+    override fun protectedWrite(body: ByteArray) {
+        file.writeBytes(body)
+    }
+
+    override fun protectedReadBytes(): ByteArray {
+        return file.readBytes()
     }
 }
 

@@ -6,22 +6,6 @@
 # The aim of this workflow is to run checks and some tests before submitting the CL upstream.
 name: JB-COMPOSE-variant of AndroidX Presubmits
 on:
-  push:
-    branches:
-      - jb_cl*
-      - jb_presubmit*
-
-  pull_request:
-    branches:
-      - jb-main
-      - jb_presubmit*
-      - jb_cl*
-    types:
-      - opened
-      - reopened
-      - synchronize
-
-  # Allows to run this workflow manually from the Actions tab
   workflow_dispatch:
 
 jobs:

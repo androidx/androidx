@@ -75,7 +75,7 @@
     <string name="alert_timeout_toast_msg" msgid="5568380708832805374">"अलर्ट का तय समय खत्म हो गया है!"</string>
     <string name="first_row_title" msgid="219428344573165351">"बड़ी इमेज और लंबे टेक्स्ट वाली पंक्ति"</string>
     <string name="first_row_text" msgid="3887390298628338716">"टेक्स्ट टेक्स्ट टेक्स्ट"</string>
-    <string name="other_row_title_prefix" msgid="4702355788835253197">"पंक्ति का शीर्षक"</string>
+    <string name="other_row_title_prefix" msgid="4702355788835253197">"पंक्ति का टाइटल"</string>
     <string name="other_row_text" msgid="7510279447493169945">"पंक्ति का टेक्स्ट"</string>
     <string name="navigate" msgid="2713090390373996139">"नेविगेट करें"</string>
     <string name="dial" msgid="3145707439707628311">"डायल करें"</string>
@@ -214,16 +214,16 @@
     <string name="second_item" msgid="5245792503030812493">"दूसरा आइटम"</string>
     <string name="third_item" msgid="334088179008716411">"तीसरा आइटम"</string>
     <string name="fourth_item" msgid="1153409687260543158">"चौथा आइटम"</string>
-    <string name="fifth_item" msgid="295284272719956932">"पांचवें आइटम का शीर्षक लंबा है"</string>
-    <string name="sixth_item" msgid="3880321601391343607">"छठे आइटम का शीर्षक लंबा है"</string>
+    <string name="fifth_item" msgid="295284272719956932">"पांचवें आइटम का टाइटल लंबा है"</string>
+    <string name="sixth_item" msgid="3880321601391343607">"छठे आइटम का टाइटल लंबा है"</string>
     <string name="grid_template_demo_title" msgid="6159115661928982245">"ग्रिड टेंप्लेट का डेमो"</string>
-    <string name="parked_only_title" msgid="3190603222397552672">"\'सिर्फ़ पार्क किया गया\' मोड के लिए शीर्षक"</string>
+    <string name="parked_only_title" msgid="3190603222397552672">"\'सिर्फ़ पार्क किया गया\' मोड के लिए टाइटल"</string>
     <string name="parked_only_text" msgid="8720610556452272916">"\'सिर्फ़ पार्क किया गया\' मोड में दिया और टेक्स्ट."</string>
     <string name="clicked_row_prefix" msgid="9068303427922069941">"क्लिक की गई पंक्ति"</string>
     <string name="first_line_text" msgid="6648055806656590336">"टेक्स्ट की पहली लाइन"</string>
     <string name="second_line_text" msgid="38664490158836864">"टेक्स्ट की दूसरी लाइन"</string>
     <string name="long_line_text" msgid="8082962600953333087">"यह सबटेक्स्ट, बिना पाबंदी वाले मोड में पूरी तरह दिख सकता है. जैसे, पार्किंग मोड, पाबंदी वाला लो स्पीड मोड. हालांकि, यह सबटेक्स्ट पाबंदी वाले मोड में दो पंक्तियों में दिखेगा. जैसे, ड्राइविंग मोड. जांच के लिए इस्तेमाल करने पर, यह सबटेक्स्ट बहुत ज़्यादा लंबा हो जाता है"</string>
-    <string name="title_prefix" msgid="3991742709199357049">"शीर्षक"</string>
+    <string name="title_prefix" msgid="3991742709199357049">"टाइटल"</string>
     <string name="list_template_demo_title" msgid="1740208242737246151">"सूची के टेंप्लेट का डेमो"</string>
     <string name="long_msg_template_demo_title" msgid="1793748562161438131">"लंबे मैसेज के टेंप्लेट का डेमो"</string>
     <string name="long_msg_template_not_supported_text" msgid="3641559637317672505">"आपके होस्ट पर लंबे मैसेज का टेंप्लेट काम नहीं करता है"</string>
@@ -264,6 +264,7 @@
     <string name="tab_title_list" msgid="5104962518489668123">"सूची टैब"</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"लंबे टैब टाइटल वाले ग्रिड टैब"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"खोज टैब"</string>
+    <string name="tab_title_loading" msgid="5385807479734490989">"टैब लोड हो रहा है"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"टैब टेंप्लेट लोड करने का डेमो"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"बिना किसी टैब वाले टैब टेंप्लेट का डेमो"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"अनजान होस्ट के लिए इमेज नहीं दिखाई जा सकतीं"</string>
@@ -276,12 +277,12 @@
     <string name="vector_with_app_theme_attr_title" msgid="4890094482708376219">"ऐप्लिकेशन की थीम के ऐट्रिब्यूट के रंग में, ड्रॉ करने लायक वेक्टर"</string>
     <string name="png_res_title" msgid="7437083018336747544">"रिसॉर्स के तौर पर भेजी गई PNG इमेज"</string>
     <string name="png_bitmap_title" msgid="3385912074130977032">"बिट मैप के तौर पर भेजी गई PNG फ़ाइल"</string>
-    <string name="just_row_title" msgid="965700021568970725">"सिर्फ़ एक शीर्षक है"</string>
-    <string name="title_with_app_icon_row_title" msgid="6294250714820740520">"ऐप्लिकेशन आइकॉन के साथ शीर्षक"</string>
-    <string name="title_with_res_id_image_row_title" msgid="3813134904602875778">"रिसॉर्स आईडी इमेज के साथ शीर्षक"</string>
-    <string name="title_with_svg_image_row_title" msgid="6109092343637263755">"SVG इमेज के साथ शीर्षक"</string>
+    <string name="just_row_title" msgid="965700021568970725">"सिर्फ़ एक टाइटल है"</string>
+    <string name="title_with_app_icon_row_title" msgid="6294250714820740520">"ऐप्लिकेशन आइकॉन के साथ टाइटल"</string>
+    <string name="title_with_res_id_image_row_title" msgid="3813134904602875778">"रिसॉर्स आईडी इमेज के साथ टाइटल"</string>
+    <string name="title_with_svg_image_row_title" msgid="6109092343637263755">"SVG इमेज के साथ टाइटल"</string>
     <string name="colored_secondary_row_title" msgid="5173288934252528929">"दूसरे रंग में लिखा गया अतिरिक्त टेक्स्ट"</string>
-    <string name="title_with_secondary_lines_row_title" msgid="7769408881272549837">"एक से ज़्यादा, दूसरी टेक्स्ट लाइनों के साथ शीर्षक"</string>
+    <string name="title_with_secondary_lines_row_title" msgid="7769408881272549837">"एक से ज़्यादा, दूसरी टेक्स्ट लाइनों के साथ टाइटल"</string>
     <string name="title_with_secondary_lines_row_text_1" msgid="8945114692653524102">"बार-बार गलतियां करें, लेकिन हर बार पहले से कुछ कम करें."</string>
     <string name="title_with_secondary_lines_row_text_2" msgid="1017734603405251531">"- पीट हाइन"</string>
     <string name="rows_demo_title" msgid="3198566660454251007">"पंक्तियों का डेमो"</string>
@@ -298,7 +299,7 @@
     <string name="some_additional_text" msgid="4009872495806318260">"अतिरिक्त टेक्स्ट"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"चुनी जा सकने वाली सूची का सैंपल"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"टास्क पर लगी पाबंदी से जुड़ा डेमो"</string>
-    <string name="task_limit_reached_msg" msgid="6038763366777119364">"टास्क की सीमा पूरी हुई\nआगे जाने पर, ऐप्लिकेशन को ज़बरदस्ती रोक दिया जाएगा"</string>
+    <string name="task_limit_reached_msg" msgid="7162842196382260992">"क्लिक करने पर चरणों की संख्या, तय सीमा से ज़्यादा हो जाएगी और आपको एक नई स्क्रीन पर ले जाया जाएगा."</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"टास्क के %2$d चरणों में से %1$d चरण"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"आगे जाने के लिए क्लिक करें"</string>
     <string name="task_content_allowed" msgid="545061986612431190">"कृपया अलग-अलग टेंप्लेट पर जाकर, यह पक्का करें कि कार ड्राइविंग मोड में है"</string>
@@ -323,6 +324,12 @@
     <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"पंक्ति को भी चुना जा सकता है"</string>
     <string name="secondary_action_toast" msgid="5076434693504006565">"सेकंडरी ऐक्शन चुना गया"</string>
     <string name="row_primary_action_toast" msgid="756516694751965204">"पंक्ति से जुड़ा प्राइमरी ऐक्शन चुना गया"</string>
+    <string name="sectioned_item_list_demo_title" msgid="1236735461225007729">"सेक्शन में मौजूद आइटम की सूची का डेमो"</string>
+    <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"सूची 1"</string>
+    <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"सूची 2"</string>
+    <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"हर सूची के नीचे सबटेक्स्ट"</string>
+    <string name="empty_list_demo_title" msgid="5989013634820902455">"खाली सूची का डेमो"</string>
+    <string name="empty_list_message" msgid="5331395517560728138">"सूची खाली है"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"दूसरे टेंप्लेट के डेमो"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"डेमो दिखाएं"</string>
     <string name="template_layouts_demo_title" msgid="788249269446087847">"टेंप्लेट लेआउट के डेमो"</string>

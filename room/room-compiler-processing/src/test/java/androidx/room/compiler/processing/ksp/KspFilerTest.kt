@@ -16,6 +16,7 @@
 
 package androidx.room.compiler.processing.ksp
 
+import androidx.kruth.assertThat
 import androidx.room.compiler.processing.XAnnotation
 import androidx.room.compiler.processing.XAnnotationValue
 import androidx.room.compiler.processing.XElement
@@ -23,7 +24,6 @@ import androidx.room.compiler.processing.XMessager
 import androidx.room.compiler.processing.addOriginatingElement
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.runKspTest
-import com.google.common.truth.Truth.assertThat
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.symbol.KSClassDeclaration

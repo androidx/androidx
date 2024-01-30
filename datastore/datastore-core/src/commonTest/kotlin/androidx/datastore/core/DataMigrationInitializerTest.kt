@@ -23,17 +23,17 @@ import androidx.kruth.assertThat
 import androidx.kruth.assertThrows
 import kotlin.test.BeforeTest
 import kotlin.test.Test
-import kotlinx.coroutines.test.TestScope
-import kotlinx.coroutines.test.UnconfinedTestDispatcher
-
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 
 @OptIn(ExperimentalCoroutinesApi::class)
-abstract class DataMigrationInitializerTest<F : TestFile, IOE : Throwable>
+abstract class DataMigrationInitializerTest<F : TestFile<F>, IOE : Throwable>
     (private val testIO: TestIO<F, IOE>) {
 
     private lateinit var storage: Storage<Byte>
@@ -47,7 +47,7 @@ abstract class DataMigrationInitializerTest<F : TestFile, IOE : Throwable>
     }
 
     fun doTest(test: suspend TestScope.() -> Unit) {
-        testScope.runTest(dispatchTimeoutMs = 10000) {
+        testScope.runTest(timeout = 10000.milliseconds) {
             test(testScope)
         }
     }
@@ -143,7 +143,8 @@ abstract class DataMigrationInitializerTest<F : TestFile, IOE : Throwable>
         )
 
         val storage = testIO.getStorage(
-            TestingSerializerConfig(failingWrite = true)
+            TestingSerializerConfig(failingWrite = true),
+            { createSingleProcessCoordinator() }
         ) { testIO.newTempFile() }
         val store = newDataStore(
             initTasksList = listOf(
@@ -194,7 +195,8 @@ abstract class DataMigrationInitializerTest<F : TestFile, IOE : Throwable>
     private fun newDataStore(
         initTasksList: List<suspend (api: InitializerApi<Byte>) -> Unit> = listOf(),
         storage: Storage<Byte> = testIO.getStorage(
-            TestingSerializerConfig()
+            TestingSerializerConfig(),
+            { createSingleProcessCoordinator() }
         )
     ): DataStore<Byte> {
         return DataStoreImpl(

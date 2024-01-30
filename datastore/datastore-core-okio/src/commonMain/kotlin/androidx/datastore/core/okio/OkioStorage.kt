@@ -16,15 +16,13 @@
 
 package androidx.datastore.core.okio
 
+import androidx.datastore.core.InterProcessCoordinator
 import androidx.datastore.core.ReadScope
 import androidx.datastore.core.Storage
 import androidx.datastore.core.StorageConnection
 import androidx.datastore.core.WriteScope
 import androidx.datastore.core.createSingleProcessCoordinator
 import androidx.datastore.core.use
-import kotlinx.atomicfu.locks.synchronized
-import kotlinx.atomicfu.locks.SynchronizedObject
-import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import okio.FileNotFoundException
@@ -36,10 +34,20 @@ import okio.use
 
 /**
  * OKIO implementation of the Storage interface, providing cross platform IO using the OKIO library.
+ *
+ * @param fileSystem The file system to perform IO operations on.
+ * @param serializer The serializer for `T`.
+ * @param coordinatorProducer The producer to provide [InterProcessCoordinator] that coordinates IO
+ * operations across processes if needed. By default it provides single process coordinator, which
+ * doesn't support cross process use cases.
+ * @param producePath The file producer that returns the file path that will be read and written.
  */
 public class OkioStorage<T>(
     private val fileSystem: FileSystem,
     private val serializer: OkioSerializer<T>,
+    private val coordinatorProducer: (Path, FileSystem) -> InterProcessCoordinator = { _, _ ->
+        createSingleProcessCoordinator()
+    },
     private val producePath: () -> Path
 ) : Storage<T> {
     private val canonicalPath by lazy {
@@ -48,12 +56,12 @@ public class OkioStorage<T>(
             "OkioStorage requires absolute paths, but did not get an absolute path from " +
                 "producePath = $producePath, instead got $path"
         }
-        path
+        path.normalized()
     }
 
     override fun createConnection(): StorageConnection<T> {
         canonicalPath.toString().let { path ->
-            synchronized(activeFilesLock) {
+            activeFilesLock.withLock {
                 check(!activeFiles.contains(path)) {
                     "There are multiple DataStores active for the same file: $path. You should " +
                         "either maintain your DataStore as a singleton or confirm that there is " +
@@ -63,8 +71,13 @@ public class OkioStorage<T>(
                 activeFiles.add(path)
             }
         }
-        return OkioStorageConnection(fileSystem, canonicalPath, serializer) {
-            synchronized(activeFilesLock) {
+        return OkioStorageConnection(
+            fileSystem,
+            canonicalPath,
+            serializer,
+            coordinatorProducer(canonicalPath, fileSystem)
+        ) {
+            activeFilesLock.withLock {
                 activeFiles.remove(canonicalPath.toString())
             }
         }
@@ -72,9 +85,7 @@ public class OkioStorage<T>(
 
     internal companion object {
         internal val activeFiles = mutableSetOf<String>()
-
-        class Sync : SynchronizedObject()
-        internal val activeFilesLock = Sync()
+        val activeFilesLock = Synchronizer()
     }
 }
 
@@ -82,13 +93,14 @@ internal class OkioStorageConnection<T>(
     private val fileSystem: FileSystem,
     private val path: Path,
     private val serializer: OkioSerializer<T>,
+    override val coordinator: InterProcessCoordinator,
     private val onClose: () -> Unit
 ) : StorageConnection<T> {
 
     private val closed = AtomicBoolean(false)
+
     // TODO:(b/233402915) support multiple readers
     private val transactionMutex = Mutex()
-    override val coordinator = createSingleProcessCoordinator()
 
     override suspend fun <R> readScope(
         block: suspend ReadScope<T>.(locked: Boolean) -> R
@@ -156,7 +168,7 @@ internal open class OkioReadScope<T>(
     protected val serializer: OkioSerializer<T>
 ) : ReadScope<T> {
 
-    private var closed by atomic(false)
+    private val closed = AtomicBoolean(false)
 
     override suspend fun readData(): T {
         checkClose()
@@ -176,10 +188,11 @@ internal open class OkioReadScope<T>(
     }
 
     override fun close() {
-        closed = true
+        closed.set(true)
     }
+
     protected fun checkClose() {
-        check(!closed) { "This scope has already been closed." }
+        check(!closed.get()) { "This scope has already been closed." }
     }
 }
 

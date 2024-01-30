@@ -29,6 +29,9 @@ import androidx.camera.camera2.pipe.compat.Camera2CameraOpener
 import androidx.camera.camera2.pipe.compat.Camera2CameraStatusMonitor
 import androidx.camera.camera2.pipe.compat.Camera2CaptureSequenceProcessorFactory
 import androidx.camera.camera2.pipe.compat.Camera2CaptureSessionsModule
+import androidx.camera.camera2.pipe.compat.Camera2DeviceCloser
+import androidx.camera.camera2.pipe.compat.Camera2DeviceCloserImpl
+import androidx.camera.camera2.pipe.compat.Camera2ErrorProcessor
 import androidx.camera.camera2.pipe.compat.Camera2MetadataCache
 import androidx.camera.camera2.pipe.compat.Camera2MetadataProvider
 import androidx.camera.camera2.pipe.compat.CameraAvailabilityMonitor
@@ -37,6 +40,7 @@ import androidx.camera.camera2.pipe.compat.StandardCamera2CaptureSequenceProcess
 import androidx.camera.camera2.pipe.core.Threads
 import androidx.camera.camera2.pipe.graph.GraphListener
 import androidx.camera.camera2.pipe.graph.StreamGraphImpl
+import androidx.camera.camera2.pipe.internal.CameraErrorListener
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -61,6 +65,11 @@ internal abstract class Camera2Module {
     ): Camera2MetadataProvider
 
     @Binds
+    abstract fun bindCameraErrorListener(
+        camera2ErrorProcessor: Camera2ErrorProcessor
+    ): CameraErrorListener
+
+    @Binds
     abstract fun bindCameraAvailabilityMonitor(
         camera2CameraAvailabilityMonitor: Camera2CameraAvailabilityMonitor
     ): CameraAvailabilityMonitor
@@ -69,6 +78,11 @@ internal abstract class Camera2Module {
     abstract fun bindCameraStatusMonitor(
         camera2CameraStatusMonitor: Camera2CameraStatusMonitor
     ): CameraStatusMonitor
+
+    @Binds
+    abstract fun bindCamera2DeviceCloser(
+        camera2CameraDeviceCloser: Camera2DeviceCloserImpl
+    ): Camera2DeviceCloser
 }
 
 @Scope

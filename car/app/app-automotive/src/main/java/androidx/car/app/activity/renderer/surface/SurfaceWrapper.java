@@ -64,7 +64,7 @@ public final class SurfaceWrapper {
         mSurface = surface;
     }
 
-    /** Empty constructor needed for serializations. **/
+    /** Empty constructor needed for serializations. */
     private SurfaceWrapper() {
     }
 

@@ -51,7 +51,6 @@ public final class ClimateProfileRequest {
     /**
      * Possible feature flags can be used to create request.
      *
-     * @hide
      */
     @IntDef({
             FEATURE_HVAC_POWER,

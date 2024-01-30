@@ -51,6 +51,22 @@
             android:supportsPictureInPicture="true"
             android:label="@string/display_features_no_config_change" />
         <activity
+            android:name=".DisplayFeaturesLetterboxPortraitSlimActivity"
+            android:exported="false"
+            android:resizeableActivity="false"
+            android:screenOrientation="portrait"
+            android:minAspectRatio="2"
+            android:maxAspectRatio="3"
+            android:label="@string/display_features_slim_portrait" />
+        <activity
+            android:name=".DisplayFeaturesLetterboxLandscapeSlimActivity"
+            android:exported="false"
+            android:resizeableActivity="false"
+            android:screenOrientation="landscape"
+            android:minAspectRatio="2"
+            android:maxAspectRatio="3"
+            android:label="@string/display_features_slim_landscape" />
+        <activity
             android:name=".SplitLayoutActivity"
             android:exported="false"
             android:label="@string/split_layout" />
@@ -220,6 +236,34 @@
             android:taskAffinity="androidx.window.demo.split_device_state_activity_affinity">
         </activity>
 
+        <!-- The demo app to show how to change layout with runtime APIs -->
+        <activity
+            android:name=".embedding.SplitAttributesToggleMainActivity"
+            android:exported="true"
+            android:label="Split Toggle at Runtime"
+            android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|colorMode|density|touchscreen"
+            android:taskAffinity="androidx.window.demo.split_attributes_toggle_activity_affinity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".embedding.SplitAttributesTogglePrimaryActivity"
+            android:label="Split Toggle Activity A"
+            android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|colorMode|density|touchscreen"
+            android:taskAffinity="androidx.window.demo.split_attributes_toggle_activity_affinity" />
+        <activity
+            android:name=".embedding.SplitAttributesToggleSecondaryActivity"
+            android:label="Split Toggle Activity B"
+            android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|colorMode|density|touchscreen"
+            android:taskAffinity="androidx.window.demo.split_attributes_toggle_activity_affinity" />
+        <activity
+            android:name=".embedding.SplitAttributesTogglePlaceholderActivity"
+            android:label="Split Toggle Placeholder"
+            android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|colorMode|density|touchscreen"
+            android:taskAffinity="androidx.window.demo.split_attributes_toggle_activity_affinity" />
+
         <!-- The demo app that shows various IME-related use cases -->
 
         <activity android:name=".ImeActivity"
@@ -246,6 +290,20 @@
             android:label="Split with IME Placeholder"
             android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|colorMode|density|touchscreen"
             android:taskAffinity="androidx.window.demo.split_ime">
+        </activity>
+
+        <!-- The demo app to show display configuration from different system callbacks. -->
+
+        <activity
+            android:name=".coresdk.WindowStateCallbackActivity"
+            android:exported="true"
+            android:label="Window State Callbacks"
+            android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|colorMode|density|touchscreen"
+            android:taskAffinity="androidx.window.demo.window_state_callback">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
 
         <!-- Activity embedding initializer -->

@@ -75,6 +75,7 @@ public final class BitmapCompat {
      * This property is only a suggestion that can be ignored by the
      * renderer. It is not guaranteed to have any effect.
      *
+     * @param bitmap bitmap for which to set the state.
      * @param hasMipMap indicates whether the renderer should attempt
      *                  to use mipmaps
      * @see Bitmap#setHasMipMap(boolean)
@@ -317,10 +318,9 @@ public final class BitmapCompat {
      * Return the size that a scratch bitmap dimension (x or y) should be at a given step.
      * When scaling up step counts down to zero from positive numbers.
      * When scaling down, step counts up to zero from negative numbers.
-     * @hide
      */
     @VisibleForTesting
-    public static int sizeAtStep(int srcSize, int dstSize, int step, int totalSteps) {
+    static int sizeAtStep(int srcSize, int dstSize, int step, int totalSteps) {
         if (step == 0) {
             return dstSize;
         } else if (step > 0) { // upscale

@@ -17,17 +17,25 @@
 package androidx.window.testing.embedding
 
 import android.app.Activity
+import android.app.ActivityOptions
+import android.os.IBinder
 import androidx.core.util.Consumer
-import androidx.window.core.ExperimentalWindowApi
+import androidx.window.embedding.ActivityStack
 import androidx.window.embedding.EmbeddingBackend
 import androidx.window.embedding.EmbeddingRule
 import androidx.window.embedding.SplitAttributes
 import androidx.window.embedding.SplitAttributesCalculatorParams
 import androidx.window.embedding.SplitController
+import androidx.window.embedding.SplitController.SplitSupportStatus.Companion.SPLIT_UNAVAILABLE
 import androidx.window.embedding.SplitInfo
 import java.util.concurrent.Executor
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
 
-// TODO(b/269360912): Support SplitController.
 /**
  * A stub implementation of [EmbeddingBackend] that's intended to be used by Robolectric.
  */
@@ -35,6 +43,8 @@ internal class StubEmbeddingBackend : EmbeddingBackend {
 
     private val embeddedActivities = HashSet<Activity>()
     private val embeddingRules = HashSet<EmbeddingRule>()
+    private val splitInfoFlow = mutableMapOf<Activity, MutableSharedFlow<List<SplitInfo>>>()
+    private val splitInfoJobs = mutableMapOf<Consumer<*>, Job>()
 
     fun reset() {
         embeddedActivities.clear()
@@ -81,25 +91,64 @@ internal class StubEmbeddingBackend : EmbeddingBackend {
         embeddingRules.remove(rule)
     }
 
+    /**
+     * Adds a callback to the list of listeners associated to the [Activity]. If the listener
+     * has been added before it is ignored. If a value has been set for the [Activity] then it is
+     * emitted immediately to the listener
+     *
+     * @param activity the associated [Activity] for the listener
+     * @param executor the executor that will deliver values to the callback
+     * @param callback a listener that wants to receive updates about the current [SplitInfo]
+     */
     override fun addSplitListenerForActivity(
         activity: Activity,
         executor: Executor,
         callback: Consumer<List<SplitInfo>>
     ) {
-        TODO("Not yet implemented")
+        if (splitInfoJobs.containsKey(callback)) {
+            return
+        }
+        val job = CoroutineScope(executor.asCoroutineDispatcher()).launch {
+            splitInfoFlow.getOrPut(activity) { MutableStateFlow(emptyList()) }
+                .collect { value -> callback.accept(value) }
+        }
+        splitInfoJobs[callback] = job
     }
 
+    /**
+     * Removes the [Consumer] if it is present for any [Activity]. If the [Consumer] was not
+     * registered then no effect happens. If a [Consumer] is registered for multiple [Activity]s
+     * then it will be removed for each one.
+     *
+     * @param consumer a consumer that no longer wishes to receive updates.
+     */
     override fun removeSplitListenerForActivity(consumer: Consumer<List<SplitInfo>>) {
-        TODO("Not yet implemented")
+        splitInfoJobs[consumer]?.cancel()
+        splitInfoJobs.remove(consumer)
     }
 
-    override val splitSupportStatus: SplitController.SplitSupportStatus
-        get() = TODO("Not yet implemented")
+    /**
+     * Overrides the list of [SplitInfo]s for a specific [Activity]. If there was an existing
+     * listener for the [SplitInfo]s then it will be updated with the new value.
+     *
+     * @param activity an [Activity] that is associated with the [List<SplitInfo>]
+     * @param value the new value to emit.
+     */
+    fun overrideSplitInfo(activity: Activity, value: List<SplitInfo>) {
+        splitInfoFlow.getOrPut(activity) { MutableStateFlow(emptyList()) }.tryEmit(value)
+    }
+
+    fun hasSplitInfoListeners(activity: Activity): Boolean {
+        return splitInfoFlow[activity]?.let { splitInfoFlow ->
+            splitInfoFlow.subscriptionCount.value != 0
+        } ?: false
+    }
+
+    override var splitSupportStatus: SplitController.SplitSupportStatus = SPLIT_UNAVAILABLE
 
     override fun isActivityEmbedded(activity: Activity): Boolean =
         embeddedActivities.contains(activity)
 
-    @ExperimentalWindowApi
     override fun setSplitAttributesCalculator(
         calculator: (SplitAttributesCalculatorParams) -> SplitAttributes
     ) {
@@ -110,7 +159,22 @@ internal class StubEmbeddingBackend : EmbeddingBackend {
         TODO("Not yet implemented")
     }
 
-    override fun isSplitAttributesCalculatorSupported(): Boolean {
+    override fun getActivityStack(activity: Activity): ActivityStack? {
+        TODO("Not yet implemented")
+    }
+
+    override fun setLaunchingActivityStack(
+        options: ActivityOptions,
+        token: IBinder
+    ): ActivityOptions {
+        TODO("Not yet implemented")
+    }
+
+    override fun invalidateTopVisibleSplitAttributes() {
+        TODO("Not yet implemented")
+    }
+
+    override fun updateSplitAttributes(splitInfo: SplitInfo, splitAttributes: SplitAttributes) {
         TODO("Not yet implemented")
     }
 

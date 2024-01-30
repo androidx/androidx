@@ -48,7 +48,6 @@ import java.util.concurrent.Executor;
  * A fragment that hosts the system-dependent UI for {@link BiometricPrompt} and coordinates logic
  * for the ongoing authentication session across device configuration changes.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class BiometricFragment extends Fragment {

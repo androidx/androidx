@@ -21,10 +21,8 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXComposePlugin")
+    id("org.jetbrains.kotlin.android")
 }
-
-// Disable multi-platform.
-AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project, /* isMultiplatformEnabled= */ false)
 
 dependencies {
     api(project(":compose:foundation:foundation"))
@@ -35,7 +33,8 @@ dependencies {
     implementation(libs.kotlinStdlib)
     implementation(project(":compose:foundation:foundation-layout"))
     implementation(project(":compose:ui:ui-util"))
-    implementation("androidx.profileinstaller:profileinstaller:1.2.0")
+    implementation("androidx.core:core:1.11.0-beta02")
+    implementation("androidx.profileinstaller:profileinstaller:1.3.0")
 
     testImplementation(libs.testRules)
     testImplementation(libs.testRunner)

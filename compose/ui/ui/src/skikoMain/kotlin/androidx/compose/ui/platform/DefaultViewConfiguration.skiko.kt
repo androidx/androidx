@@ -16,12 +16,16 @@
 
 package androidx.compose.ui.platform
 
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.dp
 
-@Deprecated("Used only for tests. In application code, use LocalViewConfiguration.current instead")
+@Deprecated(
+    message = "Use LocalViewConfiguration.current instead",
+    replaceWith = ReplaceWith("LocalViewConfiguration.current"),
+    level = DeprecationLevel.ERROR
+)
 class DefaultViewConfiguration(private val density: Density) : ViewConfiguration {
-    private val emptyViewConfiguration = Platform.Empty.viewConfiguration
+    private val emptyViewConfiguration = PlatformContext.Empty.viewConfiguration
 
     override val longPressTimeoutMillis: Long
         get() = emptyViewConfiguration.longPressTimeoutMillis

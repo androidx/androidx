@@ -18,8 +18,8 @@ package androidx.datastore.preferences
 
 import android.content.Context
 import android.content.SharedPreferences
-import androidx.datastore.migrations.SharedPreferencesView
 import androidx.datastore.migrations.SharedPreferencesMigration
+import androidx.datastore.migrations.SharedPreferencesView
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.floatPreferencesKey

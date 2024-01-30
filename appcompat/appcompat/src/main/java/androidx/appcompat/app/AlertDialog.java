@@ -189,7 +189,6 @@ public class AlertDialog extends AppCompatDialog implements DialogInterface {
 
     /**
      * Internal api to allow hinting for the best button panel layout.
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     void setButtonPanelLayoutHint(int layoutHint) {
@@ -870,8 +869,10 @@ public class AlertDialog extends AppCompatDialog implements DialogInterface {
         }
 
         /**
-         * Set a custom view resource to be the contents of the Dialog. The
-         * resource will be inflated, adding all top-level views to the screen.
+         * Inflates a custom view resource inside the dialog, below the message and above the
+         * buttons. If none of the other parts of the dialog are made visible, the custom view
+         * occupies the entire view. Because the view is inflated inside the parent dialog's
+         * view, take care not to define conflicting resource IDs.
          *
          * @param layoutResId Resource ID to be inflated.
          * @return this Builder object to allow for chaining of calls to set
@@ -925,7 +926,6 @@ public class AlertDialog extends AppCompatDialog implements DialogInterface {
          *
          * This is currently hidden because it seems like people should just
          * be able to put padding around the view.
-         * @hide
          * @deprecated This method has been deprecated.
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
@@ -959,7 +959,6 @@ public class AlertDialog extends AppCompatDialog implements DialogInterface {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         public Builder setRecycleOnMeasureEnabled(boolean enabled) {

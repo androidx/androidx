@@ -18,7 +18,6 @@ package androidx.health.services.client.impl
 
 import android.content.Context
 import androidx.annotation.RestrictTo
-import androidx.annotation.VisibleForTesting
 import androidx.core.content.ContextCompat
 import androidx.health.services.client.HealthServicesException
 import androidx.health.services.client.PassiveListenerCallback
@@ -46,11 +45,8 @@ import java.util.concurrent.Executor
 
 /**
  * [PassiveMonitoringClient] implementation that is backed by Health Services.
- *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-@VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
 public class ServiceBackedPassiveMonitoringClient(
     private val applicationContext: Context,
     private val connectionManager: ConnectionManager =
@@ -83,7 +79,8 @@ public class ServiceBackedPassiveMonitoringClient(
                     )
                 } else {
                     resultFuture.setException(HealthServicesException(
-                            "DataType for the requested passive goal is not tracked"
+                            "Service registration failed: DataType for the requested " +
+                            "passive goal must be tracked"
                         ))
                 }
             },
@@ -120,7 +117,8 @@ public class ServiceBackedPassiveMonitoringClient(
                 } else {
                     result.setException(
                         HealthServicesException(
-                            "DataType for the requested passive goal is not tracked"
+                            "Callback registration failed: DataType for the requested " +
+                            "passive goal must be tracked"
                         )
                     )
                 }

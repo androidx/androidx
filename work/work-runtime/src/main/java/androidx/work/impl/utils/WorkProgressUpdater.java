@@ -38,7 +38,6 @@ import java.util.UUID;
 /**
  * Persists {@link androidx.work.ListenableWorker} progress in a {@link WorkDatabase}.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class WorkProgressUpdater implements ProgressUpdater {

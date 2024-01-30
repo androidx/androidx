@@ -42,7 +42,6 @@ import androidx.lifecycle.Lifecycle;
 /**
  * Assorted utilities to deal with serialization of remote calls.
  *
- * @hide
  */
 @RestrictTo(LIBRARY)
 public final class RemoteUtils {

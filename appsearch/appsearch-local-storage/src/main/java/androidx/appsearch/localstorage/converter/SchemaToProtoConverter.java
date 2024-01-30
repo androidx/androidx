@@ -36,7 +36,7 @@ import java.util.List;
 
 /**
  * Translates an {@link AppSearchSchema} into a {@link SchemaTypeConfigProto}.
- * @hide
+ * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class SchemaToProtoConverter {
@@ -48,6 +48,7 @@ public final class SchemaToProtoConverter {
      * Converts an {@link androidx.appsearch.app.AppSearchSchema} into a
      * {@link SchemaTypeConfigProto}.
      */
+    // TODO(b/284356266): Consider handling addition of schema name prefixes in this function.
     @NonNull
     public static SchemaTypeConfigProto toSchemaTypeConfigProto(@NonNull AppSearchSchema schema,
             int version) {
@@ -60,6 +61,7 @@ public final class SchemaToProtoConverter {
             PropertyConfigProto propertyProto = toPropertyConfigProto(properties.get(i));
             protoBuilder.addProperties(propertyProto);
         }
+        protoBuilder.addAllParentTypes(schema.getParentTypes());
         return protoBuilder.build();
     }
 
@@ -99,6 +101,11 @@ public final class SchemaToProtoConverter {
                         .setValueType(
                                 convertJoinableValueTypeToProto(
                                         stringProperty.getJoinableValueType()))
+                        // @exportToFramework:startStrip()
+                        // Do not call this in framework as it will populate the proto field and
+                        // fail comparison tests.
+                        .setPropagateDelete(stringProperty.getDeletionPropagation())
+                        // @exportToFramework:endStrip()
                         .build();
                 builder.setJoinableConfig(joinableConfig);
             }
@@ -116,8 +123,11 @@ public final class SchemaToProtoConverter {
             builder
                     .setSchemaType(documentProperty.getSchemaType())
                     .setDocumentIndexingConfig(
-                            DocumentIndexingConfig.newBuilder().setIndexNestedProperties(
-                                    documentProperty.shouldIndexNestedProperties()));
+                            DocumentIndexingConfig.newBuilder()
+                                    .setIndexNestedProperties(
+                                            documentProperty.shouldIndexNestedProperties())
+                                    .addAllIndexableNestedPropertiesList(
+                                            documentProperty.getIndexableNestedProperties()));
         } else if (property instanceof AppSearchSchema.LongPropertyConfig) {
             AppSearchSchema.LongPropertyConfig longProperty =
                     (AppSearchSchema.LongPropertyConfig) property;
@@ -138,6 +148,7 @@ public final class SchemaToProtoConverter {
      * Converts a {@link SchemaTypeConfigProto} into an
      * {@link androidx.appsearch.app.AppSearchSchema}.
      */
+    // TODO(b/284356266): Consider handling removal of schema name prefixes in this function.
     @NonNull
     public static AppSearchSchema toAppSearchSchema(@NonNull SchemaTypeConfigProtoOrBuilder proto) {
         Preconditions.checkNotNull(proto);
@@ -147,6 +158,10 @@ public final class SchemaToProtoConverter {
         for (int i = 0; i < properties.size(); i++) {
             AppSearchSchema.PropertyConfig propertyConfig = toPropertyConfig(properties.get(i));
             builder.addProperty(propertyConfig);
+        }
+        List<String> parentTypes = proto.getParentTypesList();
+        for (int i = 0; i < parentTypes.size(); i++) {
+            builder.addParentType(parentTypes.get(i));
         }
         return builder.build();
     }
@@ -188,6 +203,7 @@ public final class SchemaToProtoConverter {
                         .setJoinableValueType(
                                 convertJoinableValueTypeFromProto(
                                         proto.getJoinableConfig().getValueType()))
+                        .setDeletionPropagation(proto.getJoinableConfig().getPropagateDelete())
                         .setTokenizerType(
                                 proto.getStringIndexingConfig().getTokenizerType().getNumber());
 
@@ -201,12 +217,15 @@ public final class SchemaToProtoConverter {
     @NonNull
     private static AppSearchSchema.DocumentPropertyConfig toDocumentPropertyConfig(
             @NonNull PropertyConfigProto proto) {
-        return new AppSearchSchema.DocumentPropertyConfig.Builder(
-                proto.getPropertyName(), proto.getSchemaType())
-                .setCardinality(proto.getCardinality().getNumber())
-                .setShouldIndexNestedProperties(
-                        proto.getDocumentIndexingConfig().getIndexNestedProperties())
-                .build();
+        AppSearchSchema.DocumentPropertyConfig.Builder builder =
+                new AppSearchSchema.DocumentPropertyConfig.Builder(
+                                proto.getPropertyName(), proto.getSchemaType())
+                        .setCardinality(proto.getCardinality().getNumber())
+                        .setShouldIndexNestedProperties(
+                                proto.getDocumentIndexingConfig().getIndexNestedProperties());
+        builder.addIndexableNestedProperties(
+                proto.getDocumentIndexingConfig().getIndexableNestedPropertiesListList());
+        return builder.build();
     }
 
     @NonNull

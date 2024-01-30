@@ -47,7 +47,7 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.ApplicationScope
 import androidx.compose.ui.window.AwtWindow
-import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogWindow
 import androidx.compose.ui.window.MenuBar
 import androidx.compose.ui.window.Notification
 import androidx.compose.ui.window.Tray
@@ -60,6 +60,12 @@ import androidx.compose.ui.window.awaitApplication
 import androidx.compose.ui.window.launchApplication
 import androidx.compose.ui.window.rememberNotification
 import androidx.compose.ui.window.rememberWindowState
+import java.awt.Dimension
+import java.awt.FileDialog
+import java.awt.Frame
+import java.awt.event.WindowAdapter
+import java.awt.event.WindowEvent
+import javax.imageio.ImageIO
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -67,12 +73,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
-import java.awt.Dimension
-import java.awt.FileDialog
-import java.awt.Frame
-import java.awt.event.WindowAdapter
-import java.awt.event.WindowEvent
-import javax.imageio.ImageIO
 
 @OptIn(DelicateCoroutinesApi::class)
 fun helloWorld() = GlobalScope.launchApplication {
@@ -262,7 +262,7 @@ fun dialog() = GlobalScope.launchApplication {
             }
 
             if (isDialogShowing) {
-                Dialog(onCloseRequest = { isDialogShowing = false }) {
+                DialogWindow(onCloseRequest = { isDialogShowing = false }) {
                     Text("Dialog")
                 }
             }
@@ -279,7 +279,7 @@ fun hideDialog() = GlobalScope.launchApplication {
             Text("Dialog")
         }
 
-        Dialog(
+        DialogWindow(
             onCloseRequest = { isDialogVisible = false },
             visible = isDialogVisible
         ) {

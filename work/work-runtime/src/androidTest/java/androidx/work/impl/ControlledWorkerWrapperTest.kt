@@ -29,6 +29,7 @@ import androidx.work.ListenableWorker
 import androidx.work.ListenableWorker.Result
 import androidx.work.OneTimeWorkRequest
 import androidx.work.OutOfQuotaPolicy
+import androidx.work.SystemClock
 import androidx.work.WorkerFactory
 import androidx.work.WorkerParameters
 import androidx.work.impl.foreground.ForegroundProcessor
@@ -48,7 +49,7 @@ class ControlledWorkerWrapperTest {
     private val taskExecutor = ManualTaskExecutor()
     private val backgroundExecutor = ManualExecutor()
     private val workDatabase = WorkDatabase.create(
-        context, taskExecutor.serialTaskExecutor, true
+        context, taskExecutor.serialTaskExecutor, SystemClock(), true
     )
     private val foregroundInfoFuture = SettableFuture.create<ForegroundInfo>()
     private val resultFuture = SettableFuture.create<Result>().also { it.set(Result.success()) }
@@ -67,7 +68,7 @@ class ControlledWorkerWrapperTest {
             taskExecutor.serialTaskExecutor.drain()
             backgroundExecutor.drain()
         }
-        workerWrapper.interrupt()
+        workerWrapper.interrupt(0)
         drainAll()
         assertThat(workerWrapper.future.isDone).isTrue()
         assertThat(worker.startWorkWasCalled).isFalse()
@@ -92,7 +93,7 @@ class ControlledWorkerWrapperTest {
                 NotificationCompat.Builder(context, "test").build()
             )
         )
-        workerWrapper.interrupt()
+        workerWrapper.interrupt(0)
         drainAll()
         assertThat(worker.startWorkWasCalled).isFalse()
         assertThat(workerWrapper.future.isDone).isTrue()
@@ -166,13 +167,6 @@ internal class TestWrapperWorker(
 
 object NoOpForegroundProcessor : ForegroundProcessor {
     override fun startForeground(workSpecId: String, foregroundInfo: ForegroundInfo) {
-    }
-
-    override fun stopForeground(workSpecId: String) {
-    }
-
-    override fun isEnqueuedInForeground(workSpecId: String): Boolean {
-        return false
     }
 }
 

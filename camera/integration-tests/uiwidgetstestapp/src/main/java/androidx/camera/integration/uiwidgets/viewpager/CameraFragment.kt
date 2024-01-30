@@ -99,6 +99,7 @@ class CameraFragment : Fragment() {
                     removeExtra(KEY_CAMERA_IMPLEMENTATION)
                     removeExtra(KEY_CAMERA_IMPLEMENTATION_NO_HISTORY)
                 }
+                cameraImpl = null
             }
         }
 

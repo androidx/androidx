@@ -16,12 +16,10 @@
 
 package androidx.compose.ui
 
-import org.jetbrains.skiko.SkiaLayer
-
-internal actual fun createSkiaLayer(): SkiaLayer = SkiaLayer()
-
 internal actual fun areObjectsOfSameType(a: Any, b: Any): Boolean {
-    return js(
+    return (js(
         "Object.getPrototypeOf(a).constructor == Object.getPrototypeOf(b).constructor"
-    ) as Boolean
+    )) as Boolean
 }
+
+internal actual fun getCurrentThreadId(): Long = 0

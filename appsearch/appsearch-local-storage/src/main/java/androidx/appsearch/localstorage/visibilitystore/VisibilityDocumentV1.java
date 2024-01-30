@@ -28,7 +28,7 @@ import java.util.Set;
 
 /**
  * Holds the visibility settings in version 1 that apply to a schema type.
- * @hide
+ * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class VisibilityDocumentV1 extends GenericDocument {

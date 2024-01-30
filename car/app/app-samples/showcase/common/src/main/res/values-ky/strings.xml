@@ -123,7 +123,7 @@
     <string name="pop_to_prefix" msgid="4288884615669751608">"Кыска убакытка токтотуу"</string>
     <string name="pop_to_title" msgid="3924696281273379455">"Кыска убакытка токтотуу демосу"</string>
     <string name="package_not_found_error_msg" msgid="7525619456883627939">"Топтом табылган жок."</string>
-    <string name="permissions_granted_msg" msgid="2348556088141992714">"Бардык уруксаттар берилди. Уруксаттарга мүмкүнчүлүктү Жөндөөлөрдөн жабыңыз."</string>
+    <string name="permissions_granted_msg" msgid="2348556088141992714">"Бардык уруксаттар берилди. Уруксаттарга мүмкүнчүлүктү Параметрлерден жабыңыз."</string>
     <string name="needs_access_msg_prefix" msgid="2204136858798832382">"Колдонмого төмөнкү уруксаттар керек:\n"</string>
     <string name="phone_screen_permission_msg" msgid="3599815596923367256">"Телефондун экранындагы Уруксат берүү"</string>
     <string name="enable_location_permission_on_device_msg" msgid="472752487966156897">"Түзмөктө Жайгашкан жер уруксаттарын иштетүү"</string>
@@ -239,7 +239,7 @@
     <string name="additional_text" msgid="8410289578276941586">"Тейлөө шарттарыбызды карап чыгыңыз"</string>
     <string name="google_sign_in" msgid="6556259799319701727">"Google кирүү"</string>
     <string name="use_pin" msgid="7850893299484337431">"PIN кодду колдонуу"</string>
-    <string name="qr_code" msgid="5487041647280777397">"QR коду"</string>
+    <string name="qr_code" msgid="5487041647280777397">"QR код"</string>
     <string name="sign_in_template_not_supported_text" msgid="7184733753948837646">"Башкы түйүнүңүз Кирүү үлгүлөрүн колдоого албайт"</string>
     <string name="sign_in_template_not_supported_title" msgid="4892883228898541764">"Шайкеш келбеген башкы түйүн"</string>
     <string name="email_hint" msgid="7205549445477319606">"Кат жөнөтүү"</string>
@@ -251,7 +251,7 @@
     <string name="password_hint" msgid="2869107073860012864">"сырсөз"</string>
     <string name="password_sign_in_instruction_prefix" msgid="9105788349198243508">"Колдонуучунун аты"</string>
     <string name="pin_sign_in_instruction" msgid="2288691296234360441">"Телефонуңузда бул PIN кодду киргизиңиз"</string>
-    <string name="qr_code_sign_in_title" msgid="8137070561006464518">"Кирүү үчүн QR кодун скандаңыз"</string>
+    <string name="qr_code_sign_in_title" msgid="8137070561006464518">"Кирүү үчүн QR кодду скандаңыз"</string>
     <string name="sign_in_with_google_title" msgid="8043752000786977249">"Google аккаунту менен кирүү"</string>
     <string name="provider_sign_in_instruction" msgid="7586815688292506743">"Google\'га кирүүңүздү аягына чыгаруу үчүн бул баскычты колдонуңуз"</string>
     <string name="sign_in_complete_text" msgid="8423984266325680606">"Сиз кирдиңиз!"</string>
@@ -264,6 +264,7 @@
     <string name="tab_title_list" msgid="5104962518489668123">"Тизме өтмөгү"</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"Өтмөктүн аталышы узун болгон торчо түрүндөгү өтмөк"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"Издөө өтмөгү"</string>
+    <string name="tab_title_loading" msgid="5385807479734490989">"Өтмөк жүктөлүүдө"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"Өтмөктүн үлгүсүн жүктөөнүн демо версиясы"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"Өтмөктүн үлгүсү, өтмөктөр жок демо версиясы"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"Сүрөттөрдү белгисиз башкы түйүн үчүн көрсөтүүгө болбойт"</string>
@@ -298,7 +299,7 @@
     <string name="some_additional_text" msgid="4009872495806318260">"Айрым кошумча текст"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"Тандалуучу үлгү тизмеси"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"Тапшырманы чектөө демосу"</string>
-    <string name="task_limit_reached_msg" msgid="6038763366777119364">"Тапшырманын чегине жетти\nАлдыга жылсаңыз, колдонмо мажбурлап токтотулат"</string>
+    <string name="task_limit_reached_msg" msgid="7162842196382260992">"Ушуну менен аткарылуучу кадамдардын саны көбөйүп, жаңы экранга өтөсүз."</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"Тапшырма кадамы %1$d of %2$d"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"Алдыга өтүү үчүн чыкылдатыңыз"</string>
     <string name="task_content_allowed" msgid="545061986612431190">"Башка үлгүлөргө өтүп, унаа айдоо режиминде экенин текшериңиз"</string>
@@ -323,6 +324,12 @@
     <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"Сапты да тандоого болот"</string>
     <string name="secondary_action_toast" msgid="5076434693504006565">"Кошумча аракет тандалды"</string>
     <string name="row_primary_action_toast" msgid="756516694751965204">"Негизги аракет сабы тандалды"</string>
+    <string name="sectioned_item_list_demo_title" msgid="1236735461225007729">"Бөлүмдөргө иреттелген нерселердин тизмесинин демо версиясы"</string>
+    <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"1-тизме"</string>
+    <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"2-тизме"</string>
+    <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"Ар бир тизмеге берилген кошумча текст"</string>
+    <string name="empty_list_demo_title" msgid="5989013634820902455">"Бош тизменин көрүнүшү"</string>
+    <string name="empty_list_message" msgid="5331395517560728138">"Тизме бош"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"Башка үлгүлөрдүн демолору"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"Showcase демолору"</string>
     <string name="template_layouts_demo_title" msgid="788249269446087847">"Үлгү калыптарынын демолору"</string>

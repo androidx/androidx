@@ -16,8 +16,8 @@
 
 package androidx.build.dependencyTracker
 
-import org.gradle.api.logging.Logger
 import java.io.File
+import org.gradle.api.logging.Logger
 
 /**
  * Utility class that can parse build.prop files and extract the sha's for frameworks/support.

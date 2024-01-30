@@ -18,10 +18,8 @@ package androidx.test.uiautomator.testapp;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.Button;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 public class LongClickTestActivity extends Activity {
@@ -29,14 +27,12 @@ public class LongClickTestActivity extends Activity {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.long_click_test_activity);
 
-        Button button = (Button) findViewById(R.id.button);
-        button.setOnClickListener(this::onButtonLongClick);
-    }
-
-    public void onButtonLongClick(@NonNull View v) {
-        ((Button) v).setText("I've been long clicked!");
+        Button button = findViewById(R.id.button);
+        button.setOnLongClickListener(v -> {
+            button.setText("I've been long clicked!");
+            return true;
+        });
     }
 }

@@ -27,7 +27,7 @@ plugins {
 dependencies {
     implementation(libs.kotlinStdlib)
 
-    compileOnly(projectOrArtifact(":annotation:annotation-sampled"))
+    compileOnly(project(":annotation:annotation-sampled"))
     implementation(projectOrArtifact(":hilt:hilt-navigation-compose"))
 }
 

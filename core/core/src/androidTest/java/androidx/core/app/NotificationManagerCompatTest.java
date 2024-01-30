@@ -26,7 +26,10 @@ import static androidx.core.app.NotificationManagerCompat.IMPORTANCE_LOW;
 import static androidx.core.app.NotificationManagerCompat.IMPORTANCE_MAX;
 import static androidx.core.app.NotificationManagerCompat.IMPORTANCE_MIN;
 
+import static org.mockito.Mockito.spy;
+
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -34,6 +37,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import android.Manifest;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationChannelGroup;
@@ -43,6 +47,7 @@ import android.graphics.Color;
 import android.media.AudioAttributes;
 import android.net.Uri;
 import android.os.Build;
+import android.service.notification.StatusBarNotification;
 
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -1144,10 +1149,10 @@ public class NotificationManagerCompatTest {
                         .build();
         NotificationManagerCompat.NotificationWithIdAndTag n1 =
                 new NotificationManagerCompat.NotificationWithIdAndTag("tag1", 1,
-                notification);
+                        notification);
         NotificationManagerCompat.NotificationWithIdAndTag n2 =
                 new NotificationManagerCompat.NotificationWithIdAndTag(2,
-                notification2);
+                        notification2);
         List<NotificationManagerCompat.NotificationWithIdAndTag> notifications =
                 Arrays.asList(n1, n2);
 
@@ -1157,4 +1162,73 @@ public class NotificationManagerCompatTest {
         verify(fakeManager, times(1)).notify(null, 2, notification2);
     }
 
+    @Test
+    public void testCanUseFullScreenIntent() {
+        NotificationManager fakeManager = mock(NotificationManager.class);
+
+        Context spyContext = spy(mContext);
+
+        NotificationManagerCompat notificationManagerCompat =
+                new NotificationManagerCompat(fakeManager, spyContext);
+
+        final boolean canUse = notificationManagerCompat.canUseFullScreenIntent();
+
+        if (Build.VERSION.SDK_INT < 29) {
+            assertTrue(canUse);
+
+        } else if (Build.VERSION.SDK_INT < 34) {
+            verify(spyContext, times(1))
+                    .checkSelfPermission(Manifest.permission.USE_FULL_SCREEN_INTENT);
+        } else {
+            verify(fakeManager, times(1)).canUseFullScreenIntent();
+        }
+    }
+
+    public void testGetActiveNotifications() {
+        NotificationManager fakeManager = mock(NotificationManager.class);
+        NotificationManagerCompat notificationManager =
+                new NotificationManagerCompat(fakeManager, mContext);
+
+        List<StatusBarNotification> notifs = notificationManager.getActiveNotifications();
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            verify(fakeManager, times(1)).getActiveNotifications();
+        } else {
+            assertEquals(0, notifs.size());
+        }
+    }
+
+    @Test
+    public void testInterruptionFilterConstantCorrespondence() {
+        assertEquals(NotificationManager.INTERRUPTION_FILTER_UNKNOWN,
+                NotificationManagerCompat.INTERRUPTION_FILTER_UNKNOWN);
+        assertEquals(NotificationManager.INTERRUPTION_FILTER_ALL,
+                NotificationManagerCompat.INTERRUPTION_FILTER_ALL);
+        assertEquals(NotificationManager.INTERRUPTION_FILTER_PRIORITY,
+                NotificationManagerCompat.INTERRUPTION_FILTER_PRIORITY);
+        assertEquals(NotificationManager.INTERRUPTION_FILTER_NONE,
+                NotificationManagerCompat.INTERRUPTION_FILTER_NONE);
+        assertEquals(NotificationManager.INTERRUPTION_FILTER_ALARMS,
+                NotificationManagerCompat.INTERRUPTION_FILTER_ALARMS);
+    }
+
+    @Test
+    @SdkSuppress(maxSdkVersion = 22)
+    public void testGetCurrentInterruptionFilterLegacy() {
+        NotificationManager fakeManager = mPlatformNotificationManager;
+        NotificationManagerCompat notificationManager = new NotificationManagerCompat(fakeManager,
+                mContext);
+        assertEquals(NotificationManagerCompat.INTERRUPTION_FILTER_UNKNOWN,
+                notificationManager.getCurrentInterruptionFilter());
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 23)
+    public void testGetCurrentInterruptionFilter() {
+        NotificationManagerCompat notificationManager = new NotificationManagerCompat(
+                mPlatformNotificationManager,
+                mContext);
+        assertEquals(notificationManager.getCurrentInterruptionFilter(),
+                mPlatformNotificationManager.getCurrentInterruptionFilter());
+    }
 }

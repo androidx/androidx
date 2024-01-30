@@ -24,11 +24,13 @@ plugins {
 
 dependencies {
     api("androidx.annotation:annotation:1.1.0")
+    api("androidx.annotation:annotation-experimental:1.3.0")
     implementation("androidx.core:core:1.3.2")
     api("androidx.fragment:fragment:1.1.0")
-    api("androidx.recyclerview:recyclerview:1.2.0")
+    api("androidx.recyclerview:recyclerview:1.3.1-rc01")
     implementation("androidx.collection:collection:1.1.0")
 
+    androidTestImplementation(libs.multidex)
     androidTestImplementation(libs.testUiautomator)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
@@ -50,12 +52,16 @@ dependencies {
 }
 
 androidx {
-    name = "AndroidX Widget ViewPager2"
+    name = "ViewPager2"
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2017"
     description = "AndroidX Widget ViewPager2"
+    metalavaK2UastEnabled = true
 }
 
 android {
     namespace "androidx.viewpager2"
+    defaultConfig {
+        multiDexEnabled = true
+    }
 }

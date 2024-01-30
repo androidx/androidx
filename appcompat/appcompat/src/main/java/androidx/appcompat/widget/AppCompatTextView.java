@@ -32,10 +32,12 @@ import android.util.AttributeSet;
 import android.view.ActionMode;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
+import android.view.inputmethod.InputMethodManager;
 import android.view.textclassifier.TextClassifier;
 import android.widget.TextView;
 
 import androidx.annotation.DrawableRes;
+import androidx.annotation.FloatRange;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -159,7 +161,6 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
      * This should be accessed via
      * {@link androidx.core.view.ViewCompat#setBackgroundTintList(android.view.View, ColorStateList)}
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
@@ -173,7 +174,6 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
      * This should be accessed via
      * {@link androidx.core.view.ViewCompat#getBackgroundTintList(android.view.View)}
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
@@ -187,7 +187,6 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
      * This should be accessed via
      * {@link androidx.core.view.ViewCompat#setBackgroundTintMode(android.view.View, PorterDuff.Mode)}
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
@@ -201,7 +200,6 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
      * This should be accessed via
      * {@link androidx.core.view.ViewCompat#getBackgroundTintMode(android.view.View)}
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
@@ -285,7 +283,6 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
      * {@link androidx.core.widget.TextViewCompat#setAutoSizeTextTypeWithDefaults(
      *TextView, int)}
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
@@ -305,7 +302,6 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
      * {@link androidx.core.widget.TextViewCompat#setAutoSizeTextTypeUniformWithConfiguration(
      *TextView, int, int, int, int)}
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
@@ -330,7 +326,6 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
      * {@link androidx.core.widget.TextViewCompat#setAutoSizeTextTypeUniformWithPresetSizes(
      *TextView, int[], int)}
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
@@ -349,7 +344,6 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
      * This should be accessed via
      * {@link androidx.core.widget.TextViewCompat#getAutoSizeTextType(TextView)}
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
@@ -374,7 +368,6 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
      * This should be accessed via
      * {@link androidx.core.widget.TextViewCompat#getAutoSizeStepGranularity(TextView)}
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
@@ -393,7 +386,6 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
      * This should be accessed via
      * {@link androidx.core.widget.TextViewCompat#getAutoSizeMinTextSize(TextView)}
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
@@ -412,7 +404,6 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
      * This should be accessed via
      * {@link androidx.core.widget.TextViewCompat#getAutoSizeMaxTextSize(TextView)}
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
@@ -431,7 +422,6 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
      * This should be accessed via
      * {@link androidx.core.widget.TextViewCompat#getAutoSizeTextAvailableSizes(TextView)}
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
@@ -486,6 +476,15 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
     @Override
     public void setLineHeight(@Px @IntRange(from = 0) int lineHeight) {
         TextViewCompat.setLineHeight(this, lineHeight);
+    }
+
+    @Override
+    public void setLineHeight(int unit, @FloatRange(from = 0) float lineHeight) {
+        if (Build.VERSION.SDK_INT >= 34) {
+            getSuperCaller().setLineHeight(unit, lineHeight);
+        } else {
+            TextViewCompat.setLineHeight(this, unit, lineHeight);
+        }
     }
 
     /**
@@ -689,7 +688,6 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
      * @attr ref androidx.appcompat.R.styleable#AppCompatTextView_drawableTint
      * @see #setSupportCompoundDrawablesTintList(ColorStateList)
      *
-     * @hide
      */
     @Nullable
     @Override
@@ -713,7 +711,6 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
      * @attr ref androidx.appcompat.R.styleable#AppCompatTextView_drawableTint
      * @see #getSupportCompoundDrawablesTintList()
      *
-     * @hide
      */
     @Override
     @RestrictTo(LIBRARY_GROUP_PREFIX)
@@ -732,7 +729,6 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
      * @attr ref androidx.appcompat.R.styleable#AppCompatTextView_drawableTintMode
      * @see #setSupportCompoundDrawablesTintMode(PorterDuff.Mode)
      *
-     * @hide
      */
     @Nullable
     @Override
@@ -753,7 +749,6 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
      * @attr ref androidx.appcompat.R.styleable#AppCompatTextView_drawableTintMode
      * @see #setSupportCompoundDrawablesTintList(ColorStateList)
      *
-     * @hide
      */
     @Override
     @RestrictTo(LIBRARY_GROUP_PREFIX)
@@ -785,11 +780,28 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
 
     }
 
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        if (Build.VERSION.SDK_INT >= 30 && Build.VERSION.SDK_INT < 33 && onCheckIsTextEditor()) {
+            final InputMethodManager imm = (InputMethodManager) getContext().getSystemService(
+                    Context.INPUT_METHOD_SERVICE);
+            // If the AppCompatTextView is editable, user can input text on it.
+            // Calling isActive() here implied a checkFocus() call to update the active served
+            // view for input method. This is a backport for mServedView was detached, but the
+            // next served view gets mistakenly cleared as well.
+            // https://android.googlesource.com/platform/frameworks/base/+/734613a500fb
+            imm.isActive(this);
+        }
+    }
+
     @UiThread
     @RequiresApi(api = 26)
     SuperCaller getSuperCaller() {
         if (mSuperCaller == null) {
-            if (Build.VERSION.SDK_INT >= 28) {
+            if (Build.VERSION.SDK_INT >= 34) {
+                mSuperCaller = new SuperCallerApi34();
+            } else if (Build.VERSION.SDK_INT >= 28) {
                 mSuperCaller = new SuperCallerApi28();
             } else if (Build.VERSION.SDK_INT >= 26) {
                 mSuperCaller = new SuperCallerApi26();
@@ -817,6 +829,9 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
         // api 28
         void setFirstBaselineToTopHeight(@Px int firstBaselineToTopHeight);
         void setLastBaselineToBottomHeight(@Px int lastBaselineToBottomHeight);
+
+        // api 34
+        void setLineHeight(int unit, @FloatRange(from = 0) float lineHeight);
     }
 
     @RequiresApi(api = 26)
@@ -878,6 +893,9 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
 
         @Override
         public void setLastBaselineToBottomHeight(int lastBaselineToBottomHeight) {}
+
+        @Override
+        public void setLineHeight(int unit, float lineHeight) {}
     }
 
     @RequiresApi(api = 28)
@@ -891,6 +909,14 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
         @Override
         public void setLastBaselineToBottomHeight(@Px int lastBaselineToBottomHeight) {
             AppCompatTextView.super.setLastBaselineToBottomHeight(lastBaselineToBottomHeight);
+        }
+    }
+
+    @RequiresApi(api = 34)
+    class SuperCallerApi34 extends SuperCallerApi28 {
+        @Override
+        public void setLineHeight(int unit, float lineHeight) {
+            AppCompatTextView.super.setLineHeight(unit, lineHeight);
         }
     }
 }

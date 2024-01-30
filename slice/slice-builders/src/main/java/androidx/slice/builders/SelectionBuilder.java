@@ -38,8 +38,13 @@ import java.util.Set;
  *
  * A selection presents a list of options to the user and allows the user to select exactly one
  * option.
+ *
+ * @deprecated Slice framework has been deprecated, it will not receive any updates moving
+ * forward. If you are looking for a framework that handles communication across apps,
+ * consider using {@link android.app.appsearch.AppSearchManager}.
  */
 @RequiresApi(19)
+@Deprecated
 public class SelectionBuilder {
     private final List<Pair<String, CharSequence>> mOptions;
     private final Set<String> mOptionKeys;
@@ -180,7 +185,6 @@ public class SelectionBuilder {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public List<Pair<String, CharSequence>> getOptions() {
@@ -188,7 +192,6 @@ public class SelectionBuilder {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public SliceAction getPrimaryAction() {
@@ -196,7 +199,6 @@ public class SelectionBuilder {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public PendingIntent getInputAction() {
@@ -204,7 +206,6 @@ public class SelectionBuilder {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public String getSelectedOption() {
@@ -212,7 +213,6 @@ public class SelectionBuilder {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public CharSequence getTitle() {
@@ -220,7 +220,6 @@ public class SelectionBuilder {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public CharSequence getSubtitle() {
@@ -228,7 +227,6 @@ public class SelectionBuilder {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public CharSequence getContentDescription() {
@@ -236,7 +234,6 @@ public class SelectionBuilder {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public int getLayoutDirection() {
@@ -244,7 +241,6 @@ public class SelectionBuilder {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public void check() {

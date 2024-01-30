@@ -26,22 +26,24 @@ class LeakDetector {
         weakReferences.add(WeakReference(obj))
     }
 
-    fun noLeak(): Boolean {
+    /**
+     * Return true if any of the objects has GC'ed. We don't check `haveAllGarbageCollected()`,
+     * because GC can collect only some of the objects, depending on the implementation.
+     * Checking for `hasAnyGarbageCollected` is more reliable (but less useful).
+     */
+    fun hasAnyGarbageCollected(): Boolean {
         System.gc()
         System.runFinalization()
-        for (weakReference in weakReferences) {
-            var count = 0
-            while (weakReference.get() != null && count < 5) {
-                System.gc()
-                System.runFinalization()
-                Thread.sleep(1000)
-                count++
-            }
+        var count = 0
+        fun isAnyReferenceNull() = weakReferences.any { it.get() == null }
 
-            if (weakReference.get() != null) {
-                return false
-            }
+        while (!isAnyReferenceNull() && count < 100) {
+            System.gc()
+            System.runFinalization()
+            Thread.sleep(100)
+            count++
         }
-        return true
+
+        return isAnyReferenceNull()
     }
 }

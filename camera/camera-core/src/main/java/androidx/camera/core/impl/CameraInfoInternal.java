@@ -18,22 +18,29 @@ package androidx.camera.core.impl;
 
 import android.graphics.ImageFormat;
 import android.graphics.PixelFormat;
+import android.hardware.camera2.CaptureRequest;
 import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
+import androidx.camera.core.DynamicRange;
 import androidx.core.util.Preconditions;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Executor;
 
 /**
  * An interface for retrieving camera information.
  *
  * <p>Contains methods for retrieving characteristics for a specific camera.
+ *
+ * <p>{@link #getImplementation()} returns a {@link CameraInfoInternal} instance
+ * that contains the actual implementation and can be cast to an implementation specific class.
+ * If the instance itself is the implementation instance, then it should return <code>this</code>.
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface CameraInfoInternal extends CameraInfo {
@@ -82,6 +89,54 @@ public interface CameraInfoInternal extends CameraInfo {
     @NonNull
     List<Size> getSupportedResolutions(int format);
 
+    /**
+     * Returns the supported high resolutions of this camera based on the input image format.
+     *
+     * @param format an image format from {@link ImageFormat} or {@link PixelFormat}.
+     * @return a list of supported resolutions, or an empty list if the format is not supported.
+     */
+    @NonNull
+    List<Size> getSupportedHighResolutions(int format);
+
+    /**
+     * Returns the supported dynamic ranges of this camera.
+     *
+     * @return a set of supported dynamic range, or an empty set if no dynamic range is supported.
+     */
+    @NonNull
+    Set<DynamicRange> getSupportedDynamicRanges();
+
+    /**
+     * Returns if preview stabilization is supported on the device.
+     *
+     * @return true if
+     * {@link CaptureRequest#CONTROL_VIDEO_STABILIZATION_MODE_PREVIEW_STABILIZATION} is supported,
+     * otherwise false.
+     *
+     * @see CaptureRequest#CONTROL_VIDEO_STABILIZATION_MODE
+     */
+    boolean isPreviewStabilizationSupported();
+
+    /**
+     * Returns if video stabilization is supported on the device.
+     *
+     * @return true if {@link CaptureRequest#CONTROL_VIDEO_STABILIZATION_MODE_ON} is supported,
+     * otherwise false.
+     *
+     * @see CaptureRequest#CONTROL_VIDEO_STABILIZATION_MODE
+     */
+    boolean isVideoStabilizationSupported();
+
+    /**
+     * Gets the underlying implementation instance which could be cast into an implementation
+     * specific class for further use in implementation module. Returns <code>this</code> if this
+     * instance is the implementation instance.
+     */
+    @NonNull
+    default CameraInfoInternal getImplementation() {
+        return this;
+    }
+
     /** {@inheritDoc} */
     @NonNull
     @Override
@@ -100,6 +155,7 @@ public interface CameraInfoInternal extends CameraInfo {
                     throw new IllegalStateException("Unable to find camera with id " + cameraId
                             + " from list of available cameras.");
                 })
+                .addCameraFilter(new LensFacingCameraFilter(getLensFacing()))
                 .build();
     }
 }

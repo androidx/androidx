@@ -16,10 +16,9 @@
 
 package androidx.wear.tiles.tooling
 
-import org.junit.Test
-
 import org.junit.Assert.assertEquals
 import org.junit.Assert.fail
+import org.junit.Test
 
 @Suppress("unused")
 open class A {

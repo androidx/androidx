@@ -17,14 +17,12 @@
 package androidx.room.migration.bundle
 
 import androidx.annotation.RestrictTo
-
 import com.google.gson.annotations.SerializedName
 
 /**
  * Data class that holds the schema information about a
  * {@link androidx.room.DatabaseView DatabaseView}.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public open class DatabaseViewBundle(

@@ -19,7 +19,7 @@ package androidx.compose.ui.text.font
 internal actual class PlatformFontFamilyTypefaceAdapter actual constructor() :
     FontFamilyTypefaceAdapter {
 
-    override fun resolve(
+    actual override fun resolve(
         typefaceRequest: TypefaceRequest,
         platformFontLoader: PlatformFontLoader,
         onAsyncCompletion: (TypefaceResult.Immutable) -> Unit,

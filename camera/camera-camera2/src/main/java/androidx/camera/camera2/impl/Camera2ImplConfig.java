@@ -41,49 +41,35 @@ import androidx.camera.core.impl.OptionsBundle;
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class Camera2ImplConfig extends CaptureRequestOptions {
 
-    /** @hide */
     @RestrictTo(Scope.LIBRARY)
     public static final String CAPTURE_REQUEST_ID_STEM = "camera2.captureRequest.option.";
 
     // Option Declarations:
     // *********************************************************************************************
 
-    /** @hide */
     @RestrictTo(Scope.LIBRARY)
     public static final Config.Option<Integer> TEMPLATE_TYPE_OPTION =
             Option.create("camera2.captureRequest.templateType", int.class);
-    /** @hide */
     @RestrictTo(Scope.LIBRARY)
     public static final Config.Option<Long> STREAM_USE_CASE_OPTION =
             Option.create("camera2.cameraCaptureSession.streamUseCase", long.class);
-    /** @hide */
     @RestrictTo(Scope.LIBRARY)
     public static final Option<CameraDevice.StateCallback> DEVICE_STATE_CALLBACK_OPTION =
             Option.create("camera2.cameraDevice.stateCallback", CameraDevice.StateCallback.class);
-    /** @hide */
     @RestrictTo(Scope.LIBRARY)
     public static final Option<CameraCaptureSession.StateCallback> SESSION_STATE_CALLBACK_OPTION =
             Option.create(
                     "camera2.cameraCaptureSession.stateCallback",
                     CameraCaptureSession.StateCallback.class);
-    /** @hide */
     @RestrictTo(Scope.LIBRARY)
     public static final Option<CameraCaptureSession.CaptureCallback>
             SESSION_CAPTURE_CALLBACK_OPTION =
             Option.create("camera2.cameraCaptureSession.captureCallback",
                     CameraCaptureSession.CaptureCallback.class);
-
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY)
-    public static final Option<CameraEventCallbacks> CAMERA_EVENT_CALLBACK_OPTION =
-            Option.create("camera2.cameraEvent.callback", CameraEventCallbacks.class);
-
-    /** @hide */
     @RestrictTo(Scope.LIBRARY)
     public static final Option<Object> CAPTURE_REQUEST_TAG_OPTION = Option.create(
             "camera2.captureRequest.tag", Object.class);
 
-    /** @hide */
     @RestrictTo(Scope.LIBRARY)
     public static final Option<String> SESSION_PHYSICAL_CAMERA_ID_OPTION = Option.create(
             "camera2.cameraCaptureSession.physicalCameraId", String.class);
@@ -103,7 +89,6 @@ public final class Camera2ImplConfig extends CaptureRequestOptions {
     // erase the type. This shouldn't be a problem as long as we are only using these options
     // within the Camera2ImplConfig and Camera2ImplConfig.Builder classes.
 
-    /** @hide */
     @RestrictTo(Scope.LIBRARY)
     @NonNull
     public static Option<Object> createCaptureRequestOption(@NonNull CaptureRequest.Key<?> key) {
@@ -113,7 +98,6 @@ public final class Camera2ImplConfig extends CaptureRequestOptions {
     /**
      * Returns all capture request options contained in this configuration.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY)
     @NonNull
@@ -191,19 +175,6 @@ public final class Camera2ImplConfig extends CaptureRequestOptions {
     }
 
     /**
-     * Returns the stored CameraEventCallbacks instance.
-     *
-     * @param valueIfMissing The value to return if this configuration option has not been set.
-     * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
-     * configuration.
-     */
-    @Nullable
-    public CameraEventCallbacks getCameraEventCallback(
-            @Nullable CameraEventCallbacks valueIfMissing) {
-        return getConfig().retrieveOption(CAMERA_EVENT_CALLBACK_OPTION, valueIfMissing);
-    }
-
-    /**
      * Returns the capture request tag.
      *
      * @param valueIfMissing The value to return if this configuration option has not been set.
@@ -273,10 +244,19 @@ public final class Camera2ImplConfig extends CaptureRequestOptions {
         /** Inserts options from other {@link Config} object. */
         @NonNull
         public Camera2ImplConfig.Builder insertAllOptions(@NonNull Config config) {
+            insertAllOptions(config, OptionPriority.OPTIONAL);
+            return this;
+        }
+
+        /** Inserts options from other {@link Config} object with the given option priority. */
+        @NonNull
+        public Camera2ImplConfig.Builder insertAllOptions(@NonNull Config config,
+                @NonNull OptionPriority optionPriority) {
             for (Option<?> option : config.listOptions()) {
                 @SuppressWarnings("unchecked") // Options/values are being copied directly
                 Option<Object> objectOpt = (Option<Object>) option;
-                mMutableOptionsBundle.insertOption(objectOpt, config.retrieveOption(objectOpt));
+                mMutableOptionsBundle.insertOption(objectOpt, optionPriority,
+                        config.retrieveOption(objectOpt));
             }
             return this;
         }
@@ -290,40 +270,6 @@ public final class Camera2ImplConfig extends CaptureRequestOptions {
         @NonNull
         public Camera2ImplConfig build() {
             return new Camera2ImplConfig(OptionsBundle.from(mMutableOptionsBundle));
-        }
-    }
-
-    /**
-     * Extends a {@link ExtendableBuilder} to add Camera2 implementation options.
-     *
-     * @param <T> the type being built by the extendable builder.
-     */
-    public static final class Extender<T> {
-
-        ExtendableBuilder<T> mBaseBuilder;
-
-        /**
-         * Creates an Extender that can be used to add Camera2 implementation options to another
-         * Builder.
-         *
-         * @param baseBuilder The builder being extended.
-         */
-        public Extender(@NonNull ExtendableBuilder<T> baseBuilder) {
-            mBaseBuilder = baseBuilder;
-        }
-
-        /**
-         * Sets a CameraEventCallbacks instance.
-         *
-         * @param cameraEventCallbacks The CameraEventCallbacks.
-         * @return The current Extender.
-         */
-        @NonNull
-        public Extender<T> setCameraEventCallback(
-                @NonNull CameraEventCallbacks cameraEventCallbacks) {
-            mBaseBuilder.getMutableConfig().insertOption(CAMERA_EVENT_CALLBACK_OPTION,
-                    cameraEventCallbacks);
-            return this;
         }
     }
 }

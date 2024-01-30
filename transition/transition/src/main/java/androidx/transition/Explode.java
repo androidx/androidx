@@ -79,6 +79,11 @@ public class Explode extends Visibility {
         captureValues(transitionValues);
     }
 
+    @Override
+    public boolean isSeekingSupported() {
+        return true;
+    }
+
     @Nullable
     @Override
     public Animator onAppear(@NonNull ViewGroup sceneRoot, @NonNull View view,

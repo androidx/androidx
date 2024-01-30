@@ -22,7 +22,7 @@
     <string name="exit_action_title" msgid="9086586388884500731">"Surt"</string>
     <string name="refresh_action_title" msgid="3674260822403151377">"Actualitza"</string>
     <string name="close_action_title" msgid="2661907510124308560">"Tanca"</string>
-    <string name="grant_access_action_title" msgid="4033140828804350723">"Dona accés"</string>
+    <string name="grant_access_action_title" msgid="4033140828804350723">"Concedeix accés"</string>
     <string name="enable_location_action_title" msgid="8181862247222797044">"Activa la ubicació"</string>
     <string name="cancel_action_title" msgid="1149738685397349236">"Cancel·la"</string>
     <string name="stop_action_title" msgid="1187619482795416314">"Atura"</string>
@@ -264,6 +264,7 @@
     <string name="tab_title_list" msgid="5104962518489668123">"Pestanya de llista"</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"Pestanya de quadrícula amb títol llarg"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"Pestanya de cerca"</string>
+    <string name="tab_title_loading" msgid="5385807479734490989">"S\'està carregant la pestanya"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"Demostració de càrrega d\'una plantilla de pestanya"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"Demostració d\'una plantilla de pestanya sense pestanyes"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"No es poden mostrar les imatges per a un amfitrió desconegut"</string>
@@ -298,7 +299,7 @@
     <string name="some_additional_text" msgid="4009872495806318260">"Text addicional"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"Llista seleccionable de mostra"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"Demostració de restricció de tasques"</string>
-    <string name="task_limit_reached_msg" msgid="6038763366777119364">"S\'ha arribat al límit de tasques\nEn continuar es forçarà l\'aturada de l\'aplicació"</string>
+    <string name="task_limit_reached_msg" msgid="7162842196382260992">"Aquesta acció superarà el límit de passos i et portarà a una nova pantalla."</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"Pas de la tasca %1$d de %2$d"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"Fes clic per anar endavant"</string>
     <string name="task_content_allowed" msgid="545061986612431190">"Visita les diferents plantilles i comprova que el cotxe sigui en mode de conducció"</string>
@@ -323,6 +324,12 @@
     <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"La fila també es pot seleccionar"</string>
     <string name="secondary_action_toast" msgid="5076434693504006565">"S\'ha seleccionat l\'acció secundària"</string>
     <string name="row_primary_action_toast" msgid="756516694751965204">"S\'ha seleccionat l\'acció principal de la fila"</string>
+    <string name="sectioned_item_list_demo_title" msgid="1236735461225007729">"Demostració d\'una llista d\'elements amb seccions"</string>
+    <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"Llista 1"</string>
+    <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"Llista 2"</string>
+    <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"Subtext a sota de cada llista"</string>
+    <string name="empty_list_demo_title" msgid="5989013634820902455">"Demostració de llista buida"</string>
+    <string name="empty_list_message" msgid="5331395517560728138">"La llista és buida"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"Demostracions de plantilles diverses"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"Demostracions de Showcase"</string>
     <string name="template_layouts_demo_title" msgid="788249269446087847">"Demostracions de dissenys de plantilles"</string>
@@ -330,7 +337,7 @@
     <string name="voice_access_demo_title" msgid="3825223890895361496">"Pantalla de demostració de Voice Access"</string>
     <string name="user_interactions_demo_title" msgid="1356952319161314986">"Interaccions dels usuaris"</string>
     <string name="request_permission_menu_demo_title" msgid="4796486779527427017">"Demostracions de sol·licitud de permisos"</string>
-    <string name="application_overflow_title" msgid="396427940886169325">"Validador del menú addicional de l\'aplicació"</string>
+    <string name="application_overflow_title" msgid="396427940886169325">"Validador del menú de desbordament de l\'aplicació"</string>
     <string name="application_overflow_subtitle1" msgid="7429415605726615529">"Prova les següents plantilles mentre canvies"</string>
     <string name="application_overflow_subtitle2" msgid="4385123036846369714">"el vehicle de l\'estat aparcat a mode de conducció"</string>
     <string name="perm_group" msgid="3834918337351876270">"Grup de permisos"</string>

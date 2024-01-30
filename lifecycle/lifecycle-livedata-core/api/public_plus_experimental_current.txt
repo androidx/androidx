@@ -26,7 +26,7 @@ package androidx.lifecycle {
   }
 
   public fun interface Observer<T> {
-    method public void onChanged(T? value);
+    method public void onChanged(T value);
   }
 
 }

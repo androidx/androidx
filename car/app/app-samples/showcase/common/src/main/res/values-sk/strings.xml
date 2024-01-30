@@ -264,6 +264,7 @@
     <string name="tab_title_list" msgid="5104962518489668123">"Karta zoznamu"</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"Karta mriežky s dlhým názvom karty"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"Karta vyhľadávania"</string>
+    <string name="tab_title_loading" msgid="5385807479734490989">"Načítava sa karta"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"Ukážka načítavania šablóny karty"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"Ukážka šablón karty bez kariet"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"Obrázky nie je možné zobraziť pre neznámeho hostiteľa"</string>
@@ -298,7 +299,7 @@
     <string name="some_additional_text" msgid="4009872495806318260">"Nejaký dodatočný text"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"Ukážka vybrateľného zoznamu"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"Obmedzenie úlohy – demo"</string>
-    <string name="task_limit_reached_msg" msgid="6038763366777119364">"Bolo dosiahnuté obmedzenie úlohy\nAk budete pokračovať, aplikácia sa vynútene zastaví"</string>
+    <string name="task_limit_reached_msg" msgid="7162842196382260992">"Rozbalí sa počet krokov a systém vás privedie na novú obrazovku."</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"Krok úlohy: %1$d z %2$d"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"Pokračujte kliknutím"</string>
     <string name="task_content_allowed" msgid="545061986612431190">"Prejdite na rôzne šablóny a uistite sa, že auto je režime v aute"</string>
@@ -323,6 +324,12 @@
     <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"Môžete vybrať aj daný riadok"</string>
     <string name="secondary_action_toast" msgid="5076434693504006565">"Bola vybraná sekundárna akcia"</string>
     <string name="row_primary_action_toast" msgid="756516694751965204">"Bola vybraná primárna akcia riadka"</string>
+    <string name="sectioned_item_list_demo_title" msgid="1236735461225007729">"Ukážka sekcií zoznamu položiek"</string>
+    <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"1. zoznam"</string>
+    <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"2. zoznam"</string>
+    <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"Podtext pod každým zoznamom"</string>
+    <string name="empty_list_demo_title" msgid="5989013634820902455">"Prázdny zoznam – demo"</string>
+    <string name="empty_list_message" msgid="5331395517560728138">"Zoznam je prázdny"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"Rôzne šablóny – demá"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"Výber – demá"</string>
     <string name="template_layouts_demo_title" msgid="788249269446087847">"Demo rozložení šablóny"</string>

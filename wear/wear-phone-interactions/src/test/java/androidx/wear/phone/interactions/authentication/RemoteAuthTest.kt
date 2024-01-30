@@ -29,13 +29,13 @@ import androidx.annotation.RequiresApi
 import androidx.test.core.app.ApplicationProvider
 import androidx.wear.phone.interactions.WearPhoneInteractionsTestRunner
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.Executor
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito
 import org.robolectric.Shadows
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
-import java.util.concurrent.Executor
 
 /** Unit tests for [RemoteAuthClient].  */
 @RunWith(WearPhoneInteractionsTestRunner::class)
@@ -209,11 +209,11 @@ public class RemoteAuthTest {
         var state = ConnectionState.DISCONNECTED
         private var serviceConnection: ServiceConnection? = null
         override fun bindService(
-            intent: Intent?,
-            connection: ServiceConnection?,
+            intent: Intent,
+            connection: ServiceConnection,
             flags: Int
         ): Boolean {
-            if (intent!!.getPackage() != RemoteAuthClient.WEARABLE_PACKAGE_NAME) {
+            if (intent.getPackage() != RemoteAuthClient.WEARABLE_PACKAGE_NAME) {
                 throw UnsupportedOperationException()
             }
             if (intent.action != RemoteAuthClient.ACTION_AUTH) {

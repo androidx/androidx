@@ -1,0 +1,598 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.2.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.2.0-beta01)" variant="all" version="8.2.0-beta01">
+
+    <issue
+        id="PrimitiveInCollection"
+        message="constructor FortyFiveDegreeLinearGradient has parameter colors with type List&lt;Color>: replace with LongList"
+        errorLine1="    private val colors: List&lt;Color>,"
+        errorLine2="                        ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/Card.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field colors with type List&lt;Color>: replace with LongList"
+        errorLine1="    private val colors: List&lt;Color>,"
+        errorLine2="                        ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/Card.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="constructor FortyFiveDegreeLinearGradient has parameter stops with type List&lt;Float>: replace with FloatList"
+        errorLine1="    private val stops: List&lt;Float>? = null,"
+        errorLine2="                       ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/Card.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field stops with type List&lt;Float>: replace with FloatList"
+        errorLine1="    private val stops: List&lt;Float>? = null,"
+        errorLine2="                       ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/Card.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable backgroundColors with type List&lt;? extends Color>: replace with LongList"
+        errorLine1="        val backgroundColors: List&lt;Color>"
+        errorLine2="                              ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/Chip.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable disabledBackgroundColors with type List&lt;? extends Color>: replace with LongList"
+        errorLine1="        val disabledBackgroundColors: List&lt;Color>"
+        errorLine2="                                      ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/Chip.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method setAnchors$lint_module has parameter &lt;set-?> with type Map&lt;Float, ? extends T>: replace with FloatObjectMap"
+        errorLine1="    internal var anchors by mutableStateOf(emptyMap&lt;Float, T>())"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/Swipeable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="return type Map&lt;Float, T> of getAnchors$lint_module: replace with FloatObjectMap"
+        errorLine1="    internal var anchors by mutableStateOf(emptyMap&lt;Float, T>())"
+        errorLine2="                 ~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/Swipeable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method ensureInit$lint_module has parameter newAnchors with type Map&lt;Float, ? extends T>: replace with FloatObjectMap"
+        errorLine1="    internal fun ensureInit(newAnchors: Map&lt;Float, T>) {"
+        errorLine2="                                        ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/Swipeable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method processNewAnchors$lint_module has parameter oldAnchors with type Map&lt;Float, ? extends T>: replace with FloatObjectMap"
+        errorLine1="        oldAnchors: Map&lt;Float, T>,"
+        errorLine2="                    ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/Swipeable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method processNewAnchors$lint_module has parameter newAnchors with type Map&lt;Float, ? extends T>: replace with FloatObjectMap"
+        errorLine1="        newAnchors: Map&lt;Float, T>"
+        errorLine2="                    ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/Swipeable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable bounds with type List&lt;? extends Float>: replace with FloatList"
+        errorLine1="            val bounds = findBounds(offset.value, anchors.keys)"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/Swipeable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method swipeable has parameter anchors with type Map&lt;Float, ? extends T>: replace with FloatObjectMap"
+        errorLine1="    anchors: Map&lt;Float, T>,"
+        errorLine2="             ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/Swipeable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable oldAnchors with type Map&lt;Float, ? extends T>: replace with FloatObjectMap"
+        errorLine1="        val oldAnchors = state.anchors"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/Swipeable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method findBounds has parameter anchors with type Set&lt;Float>: replace with FloatSet"
+        errorLine1="    anchors: Set&lt;Float>"
+        errorLine2="             ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/Swipeable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="return type List&lt;Float> of findBounds: replace with FloatList"
+        errorLine1="): List&lt;Float> {"
+        errorLine2="   ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/Swipeable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method computeTarget has parameter anchors with type Set&lt;Float>: replace with FloatSet"
+        errorLine1="    anchors: Set&lt;Float>,"
+        errorLine2="             ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/Swipeable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable bounds with type List&lt;? extends Float>: replace with FloatList"
+        errorLine1="    val bounds = findBounds(offset, anchors)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/Swipeable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method getOffset has parameter $this$getOffset with type Map&lt;Float, ? extends T>: replace with FloatObjectMap"
+        errorLine1="private fun &lt;T> Map&lt;Float, T>.getOffset(state: T): Float? {"
+        errorLine2="                ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/Swipeable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method resistanceConfig has parameter anchors with type Set&lt;Float>: replace with FloatSet"
+        errorLine1="        anchors: Set&lt;Float>,"
+        errorLine2="                 ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/Swipeable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable checkedBackgroundColors with type List&lt;? extends Color>: replace with LongList"
+        errorLine1="        val checkedBackgroundColors: List&lt;Color>"
+        errorLine2="                                     ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/ToggleChip.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable disabledCheckedBackgroundColors with type List&lt;? extends Color>: replace with LongList"
+        errorLine1="        val disabledCheckedBackgroundColors: List&lt;Color>"
+        errorLine2="                                             ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/ToggleChip.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable uncheckedBackgroundColors with type List&lt;? extends Color>: replace with LongList"
+        errorLine1="        val uncheckedBackgroundColors: List&lt;Color>"
+        errorLine2="                                       ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/ToggleChip.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable disabledUncheckedBackgroundColors with type List&lt;? extends Color>: replace with LongList"
+        errorLine1="        val disabledUncheckedBackgroundColors: List&lt;Color>"
+        errorLine2="                                               ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/ToggleChip.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;indicatorFactory&apos; with type Function1&lt;? super Integer, ? extends Unit>."
+        errorLine1="    val indicatorFactory: @Composable (Int) -> Unit = { page ->"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/HorizontalPageIndicator.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method LinearPageIndicator has parameter &apos;indicatorFactory&apos; with type Function1&lt;? super Integer, Unit>."
+        errorLine1="    indicatorFactory: @Composable (Int) -> Unit,"
+        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/HorizontalPageIndicator.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method CurvedPageIndicator has parameter &apos;indicatorFactory&apos; with type Function1&lt;? super Integer, Unit>."
+        errorLine1="    indicatorFactory: @Composable (Int) -> Unit,"
+        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/HorizontalPageIndicator.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method Picker has parameter &apos;option&apos; with type Function2&lt;? super PickerScope, ? super Integer, Unit>."
+        errorLine1="    option: @Composable PickerScope.(optionIndex: Int) -> Unit"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/Picker.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method Picker has parameter &apos;option&apos; with type Function2&lt;? super PickerScope, ? super Integer, Unit>."
+        errorLine1="    option: @Composable PickerScope.(optionIndex: Int) -> Unit"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/Picker.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method Picker has parameter &apos;option&apos; with type Function2&lt;? super PickerScope, ? super Integer, Unit>."
+        errorLine1="    option: @Composable PickerScope.(optionIndex: Int) -> Unit"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/Picker.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method Picker has parameter &apos;option&apos; with type Function2&lt;? super PickerScope, ? super Integer, Unit>."
+        errorLine1="    option: @Composable PickerScope.(optionIndex: Int) -> Unit"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/Picker.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method scalingParams has parameter &apos;viewportVerticalOffsetResolver&apos; with type Function1&lt;? super Constraints, Integer>."
+        errorLine1="        viewportVerticalOffsetResolver: (Constraints) -> Int = { (it.maxHeight / 5f).toInt() }"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/Picker.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method defaultScalingParams has parameter &apos;viewportVerticalOffsetResolver&apos; with type Function1&lt;? super Constraints, Integer>."
+        errorLine1="        viewportVerticalOffsetResolver: (Constraints) -> Int = { (it.maxHeight / 5f).toInt() }"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/Picker.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method PickerGroup has parameter &apos;onSelected&apos; with type Function1&lt;? super Integer, Unit>."
+        errorLine1="    onSelected: (selectedIndex: Int) -> Unit = {},"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/PickerGroup.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method PickerGroup has parameter &apos;separator&apos; with type Function1&lt;? super Integer, Unit>."
+        errorLine1="    separator: (@Composable (Int) -> Unit)? = null"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/PickerGroup.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor PickerGroupItem has parameter &apos;option&apos; with type Function3&lt;? super PickerScope, ? super Integer, ? super Boolean, Unit>."
+        errorLine1="    val option: @Composable PickerScope.(optionIndex: Int, pickerSelected: Boolean) -> Unit"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/PickerGroup.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function3&lt;PickerScope, Integer, Boolean, Unit> of &apos;getOption&apos;."
+        errorLine1="    val option: @Composable PickerScope.(optionIndex: Int, pickerSelected: Boolean) -> Unit"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/PickerGroup.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method PositionIndicator has parameter &apos;value&apos; with type Function0&lt;Float>."
+        errorLine1="    value: () -> Float,"
+        errorLine2="           ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/PositionIndicator.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;boundsSize&apos; with type Function1&lt;? super Density, ? extends IntSize>."
+        errorLine1="    val boundsSize: Density.() -> IntSize = {"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/PositionIndicator.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;boundsOffset&apos; with type Function1&lt;? super Density, ? extends IntOffset>."
+        errorLine1="    val boundsOffset: Density.() -> IntOffset = {"
+        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/PositionIndicator.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor FractionPositionIndicatorState has parameter &apos;fraction&apos; with type Function0&lt;Float>."
+        errorLine1="    private val fraction: () -> Float"
+        errorLine2="                          ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/PositionIndicator.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method BoundsLimiter has parameter &apos;offset&apos; with type Function1&lt;? super Density, IntOffset>."
+        errorLine1="    offset: Density.() -> IntOffset,"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/PositionIndicator.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method BoundsLimiter has parameter &apos;size&apos; with type Function1&lt;? super Density, IntSize>."
+        errorLine1="    size: Density.() -> IntSize,"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/PositionIndicator.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method BoundsLimiter has parameter &apos;onSizeChanged&apos; with type Function1&lt;? super IntSize, Unit>."
+        errorLine1="    onSizeChanged: (IntSize) -> Unit = { },"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/PositionIndicator.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method transparentSizeModifier has parameter &apos;size&apos; with type Function1&lt;? super Density, IntSize>."
+        errorLine1="private fun Modifier.transparentSizeModifier(size: Density.() -> IntSize): Modifier = this.then("
+        errorLine2="                                                   ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/PositionIndicator.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method rangeSemantics has parameter &apos;onValueChange&apos; with type Function1&lt;? super Float, Unit>."
+        errorLine1="    onValueChange: (Float) -> Unit,"
+        errorLine2="                   ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/RangeDefaults.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method items has parameter &apos;key&apos; with type Function1&lt;? super Integer, ? extends Object>."
+        errorLine1="        key: ((index: Int) -> Any)? = null,"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/ScalingLazyColumn.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method items has parameter &apos;itemContent&apos; with type Function2&lt;? super ScalingLazyListItemScope, ? super Integer, Unit>."
+        errorLine1="        itemContent: @Composable ScalingLazyListItemScope.(index: Int) -> Unit"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/ScalingLazyColumn.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method itemsIndexed has parameter &apos;key&apos; with type Function2&lt;? super Integer, ? super T, ? extends Object>."
+        errorLine1="    noinline key: ((index: Int, item: T) -> Any)? = null,"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/ScalingLazyColumn.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method itemsIndexed has parameter &apos;key&apos; with type Function2&lt;? super Integer, ? super T, ? extends Object>."
+        errorLine1="    noinline key: ((index: Int, item: T) -> Any)? = null,"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/ScalingLazyColumn.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method scalingParams has parameter &apos;viewportVerticalOffsetResolver&apos; with type Function1&lt;? super Constraints, Integer>."
+        errorLine1="        viewportVerticalOffsetResolver: (Constraints) -> Int = { (it.maxHeight / 20f).toInt() }"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/ScalingLazyColumn.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method autoCenteringHeight has parameter &apos;getHeight&apos; with type Function0&lt;Integer>."
+        errorLine1="private fun Modifier.autoCenteringHeight(getHeight: () -> Int) ="
+        errorLine2="                                                    ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/ScalingLazyColumn.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor DefaultScalingParams has parameter &apos;viewportVerticalOffsetResolver&apos; with type Function1&lt;? super Constraints, Integer>."
+        errorLine1="    val viewportVerticalOffsetResolver: (Constraints) -> Int,"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/ScalingLazyColumnMeasure.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function1&lt;Constraints, Integer> of &apos;getViewportVerticalOffsetResolver&apos;."
+        errorLine1="    val viewportVerticalOffsetResolver: (Constraints) -> Int,"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/ScalingLazyColumnMeasure.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method InlineSlider has parameter &apos;onValueChange&apos; with type Function1&lt;? super Float, Unit>."
+        errorLine1="    onValueChange: (Float) -> Unit,"
+        errorLine2="                   ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/Slider.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;updateValue&apos; with type Function1&lt;? super Integer, ? extends Unit>."
+        errorLine1="        val updateValue: (Int) -> Unit = { stepDiff ->"
+        errorLine2="                         ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/Slider.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method InlineSlider has parameter &apos;onValueChange&apos; with type Function1&lt;? super Integer, Unit>."
+        errorLine1="    onValueChange: (Int) -> Unit,"
+        errorLine2="                   ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/Slider.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method Stepper has parameter &apos;onValueChange&apos; with type Function1&lt;? super Float, Unit>."
+        errorLine1="    onValueChange: (Float) -> Unit,"
+        errorLine2="                   ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/Stepper.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method Stepper has parameter &apos;onValueChange&apos; with type Function1&lt;? super Integer, Unit>."
+        errorLine1="    onValueChange: (Int) -> Unit,"
+        errorLine2="                   ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/Stepper.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method Stepper has parameter &apos;onValueChange&apos; with type Function1&lt;? super Float, Unit>."
+        errorLine1="    onValueChange: (Float) -> Unit,"
+        errorLine2="                   ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/Stepper.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method Stepper has parameter &apos;onValueChange&apos; with type Function1&lt;? super Integer, Unit>."
+        errorLine1="    onValueChange: (Int) -> Unit,"
+        errorLine2="                   ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/Stepper.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method setThresholds$lint_module has parameter &apos;&lt;set-?>&apos; with type Function2&lt;? super Float, ? super Float, Float>."
+        errorLine1="    internal var thresholds: (Float, Float) -> Float by mutableStateOf({ _, _ -> 0f })"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/Swipeable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function2&lt;Float, Float, Float> of &apos;getThresholds$lint_module&apos;."
+        errorLine1="    internal var thresholds: (Float, Float) -> Float by mutableStateOf({ _, _ -> 0f })"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/Swipeable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method computeTarget has parameter &apos;thresholds&apos; with type Function2&lt;? super Float, ? super Float, Float>."
+        errorLine1="    thresholds: (Float, Float) -> Float,"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/Swipeable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method currentTime has parameter &apos;time&apos; with type Function0&lt;Long>."
+        errorLine1="    time: () -> Long,"
+        errorLine2="          ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/TimeText.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInLambda"
+        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;updatedTimeLambda&apos; with type Function0&lt;? extends Long>."
+        errorLine1="    val updatedTimeLambda by rememberUpdatedState(time)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/TimeText.kt"/>
+    </issue>
+
+</issues>

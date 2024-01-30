@@ -25,6 +25,7 @@ import androidx.annotation.CallSuper
 import androidx.annotation.NavigationRes
 import androidx.annotation.RestrictTo
 import androidx.core.content.res.use
+import androidx.core.os.bundleOf
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentContainerView
@@ -74,8 +75,44 @@ import androidx.navigation.plusAssign
  * coupling to the navigation host.
  */
 public open class NavHostFragment : Fragment(), NavHost {
-    private var navHostController: NavHostController? = null
-    private var isPrimaryBeforeOnCreate: Boolean? = null
+    internal val navHostController: NavHostController by lazy {
+        val context = checkNotNull(context) {
+            "NavController cannot be created before the fragment is attached"
+        }
+        NavHostController(context).apply {
+            setLifecycleOwner(this@NavHostFragment)
+            setViewModelStore(viewModelStore)
+            onCreateNavHostController(this)
+            savedStateRegistry.consumeRestoredStateForKey(KEY_NAV_CONTROLLER_STATE)?.let {
+                restoreState(it)
+            }
+            savedStateRegistry.registerSavedStateProvider(KEY_NAV_CONTROLLER_STATE) {
+                saveState() ?: Bundle.EMPTY
+            }
+            savedStateRegistry.consumeRestoredStateForKey(KEY_GRAPH_ID)?.let { bundle ->
+                graphId = bundle.getInt(KEY_GRAPH_ID)
+            }
+            savedStateRegistry.registerSavedStateProvider(KEY_GRAPH_ID) {
+                if (graphId != 0) {
+                    bundleOf(KEY_GRAPH_ID to graphId)
+                } else {
+                    Bundle.EMPTY
+                }
+            }
+            if (graphId != 0) {
+                // Set from onInflate()
+                setGraph(graphId)
+            } else {
+                // See if it was set by NavHostFragment.create()
+                val args = arguments
+                val graphId = args?.getInt(KEY_GRAPH_ID) ?: 0
+                val startDestinationArgs = args?.getBundle(KEY_START_DESTINATION_ARGS)
+                if (graphId != 0) {
+                    setGraph(graphId, startDestinationArgs)
+                }
+            }
+        }
+    }
     private var viewParent: View? = null
 
     // State that will be saved and restored
@@ -91,14 +128,12 @@ public open class NavHostFragment : Fragment(), NavHost {
      * @throws IllegalStateException if called before [onCreate]
      */
     final override val navController: NavController
-        get() {
-            checkNotNull(navHostController) { "NavController is not available before onCreate()" }
-            return navHostController as NavHostController
-        }
+        get() = navHostController
 
     @CallSuper
     public override fun onAttach(context: Context) {
         super.onAttach(context)
+
         // TODO This feature should probably be a first-class feature of the Fragment system,
         // but it can stay here until we can add the necessary attr resources to
         // the fragment lib.
@@ -111,42 +146,14 @@ public open class NavHostFragment : Fragment(), NavHost {
 
     @CallSuper
     public override fun onCreate(savedInstanceState: Bundle?) {
-        val context = requireContext()
-        navHostController = NavHostController(context)
-        navHostController!!.setLifecycleOwner(this)
-        // Set the default state - this will be updated whenever
-        // onPrimaryNavigationFragmentChanged() is called
-        navHostController!!.enableOnBackPressed(
-            isPrimaryBeforeOnCreate != null && isPrimaryBeforeOnCreate as Boolean
-        )
-        isPrimaryBeforeOnCreate = null
-        navHostController!!.setViewModelStore(viewModelStore)
-        onCreateNavHostController(navHostController!!)
-        var navState: Bundle? = null
+        // We are accessing the NavController here to ensure that it is always created by this point
+        navHostController
         if (savedInstanceState != null) {
-            navState = savedInstanceState.getBundle(KEY_NAV_CONTROLLER_STATE)
             if (savedInstanceState.getBoolean(KEY_DEFAULT_NAV_HOST, false)) {
                 defaultNavHost = true
                 parentFragmentManager.beginTransaction()
                     .setPrimaryNavigationFragment(this)
                     .commit()
-            }
-            graphId = savedInstanceState.getInt(KEY_GRAPH_ID)
-        }
-        if (navState != null) {
-            // Navigation controller state overrides arguments
-            navHostController!!.restoreState(navState)
-        }
-        if (graphId != 0) {
-            // Set from onInflate()
-            navHostController!!.setGraph(graphId)
-        } else {
-            // See if it was set by NavHostFragment.create()
-            val args = arguments
-            val graphId = args?.getInt(KEY_GRAPH_ID) ?: 0
-            val startDestinationArgs = args?.getBundle(KEY_START_DESTINATION_ARGS)
-            if (graphId != 0) {
-                navHostController!!.setGraph(graphId, startDestinationArgs)
             }
         }
 
@@ -167,7 +174,8 @@ public open class NavHostFragment : Fragment(), NavHost {
      *
      * By default, this adds a [DialogFragmentNavigator] and [FragmentNavigator].
      *
-     * This is only called once in [onCreate] and should not be called directly by
+     * This is only called once when the navController is called. This will be called in [onCreate]
+     * if the navController has not yet been called. This should not be called directly by
      * subclasses.
      *
      * @param navHostController The newly created [NavHostController] that will be
@@ -186,7 +194,8 @@ public open class NavHostFragment : Fragment(), NavHost {
      *
      * By default, this adds a [DialogFragmentNavigator] and [FragmentNavigator].
      *
-     * This is only called once in [onCreate] and should not be called directly by
+     * This is only called once when the navController is called. This will be called in [onCreate]
+     * if the navController has not yet been called. This should not be called directly by
      * subclasses.
      *
      * @param navController The newly created [NavController].
@@ -201,15 +210,6 @@ public open class NavHostFragment : Fragment(), NavHost {
         navController.navigatorProvider +=
             DialogFragmentNavigator(requireContext(), childFragmentManager)
         navController.navigatorProvider.addNavigator(createFragmentNavigator())
-    }
-
-    @CallSuper
-    public override fun onPrimaryNavigationFragmentChanged(isPrimaryNavigationFragment: Boolean) {
-        if (navHostController != null) {
-            navHostController?.enableOnBackPressed(isPrimaryNavigationFragment)
-        } else {
-            isPrimaryBeforeOnCreate = isPrimaryNavigationFragment
-        }
     }
 
     /**
@@ -299,15 +299,8 @@ public open class NavHostFragment : Fragment(), NavHost {
     @CallSuper
     public override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        val navState = navHostController!!.saveState()
-        if (navState != null) {
-            outState.putBundle(KEY_NAV_CONTROLLER_STATE, navState)
-        }
         if (defaultNavHost) {
             outState.putBoolean(KEY_DEFAULT_NAV_HOST, true)
-        }
-        if (graphId != 0) {
-            outState.putInt(KEY_GRAPH_ID, graphId)
         }
     }
 
@@ -323,13 +316,11 @@ public open class NavHostFragment : Fragment(), NavHost {
 
     public companion object {
         /**
-         * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public const val KEY_GRAPH_ID: String = "android-support-nav:fragment:graphId"
 
         /**
-         * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public const val KEY_START_DESTINATION_ARGS: String =
@@ -357,12 +348,12 @@ public open class NavHostFragment : Fragment(), NavHost {
             var findFragment: Fragment? = fragment
             while (findFragment != null) {
                 if (findFragment is NavHostFragment) {
-                    return findFragment.navHostController as NavController
+                    return findFragment.navHostController
                 }
                 val primaryNavFragment = findFragment.parentFragmentManager
                     .primaryNavigationFragment
                 if (primaryNavFragment is NavHostFragment) {
-                    return primaryNavFragment.navHostController as NavController
+                    return primaryNavFragment.navHostController
                 }
                 findFragment = findFragment.parentFragment
             }

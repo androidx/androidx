@@ -73,6 +73,9 @@ class PreparedQueryResultAdapter(
             } else {
                 "executeUpdateDelete"
             }
+            if (preparedStmtProperty != null) {
+                beginControlFlow("try")
+            }
             addStatement("%N.beginTransaction()", dbProperty)
             beginControlFlow("try").apply {
                 if (returnType.isVoid() || returnType.isVoidObject() || returnType.isKotlinUnit()) {
@@ -97,11 +100,13 @@ class PreparedQueryResultAdapter(
             }
             nextControlFlow("finally").apply {
                 addStatement("%N.endTransaction()", dbProperty)
-                if (preparedStmtProperty != null) {
-                    addStatement("%N.release(%L)", preparedStmtProperty, stmtQueryVal)
-                }
             }
             endControlFlow()
+            if (preparedStmtProperty != null) {
+                nextControlFlow("finally")
+                addStatement("%N.release(%L)", preparedStmtProperty, stmtQueryVal)
+                endControlFlow()
+            }
         }
     }
 }

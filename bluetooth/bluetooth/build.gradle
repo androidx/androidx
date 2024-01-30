@@ -24,12 +24,21 @@ plugins {
 
 dependencies {
     implementation(libs.kotlinStdlib)
+    implementation(libs.kotlinCoroutinesCore)
 
-    implementation "androidx.annotation:annotation:1.4.0"
+    implementation("androidx.annotation:annotation:1.7.0")
+
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testExtTruth)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.junit)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.kotlinCoroutinesTest)
+    androidTestImplementation(libs.kotlinTest)
 }
 
 androidx {
-    name = "AndroidX Bluetooth"
+    name = "Bluetooth"
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2022"
     description = "AndroidX Bluetooth Library"
@@ -38,6 +47,6 @@ androidx {
 android {
     namespace "androidx.bluetooth"
     defaultConfig {
-        minSdkVersion 21
+        minSdkVersion 29
     }
 }

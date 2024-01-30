@@ -25,27 +25,28 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.work.Configuration
 import androidx.work.OneTimeWorkRequest
-import androidx.work.impl.model.WorkGenerationalId
+import androidx.work.impl.TestWorkManagerImpl
 import androidx.work.impl.WorkManagerImpl
+import androidx.work.impl.model.WorkGenerationalId
 import androidx.work.impl.utils.SerialExecutorImpl
 import androidx.work.impl.utils.SynchronousExecutor
 import androidx.work.impl.utils.WorkTimer
 import androidx.work.impl.utils.taskexecutor.SerialExecutor
 import com.google.android.gms.gcm.GcmNetworkManager
 import com.google.android.gms.gcm.TaskParams
+import java.util.concurrent.Executor
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.ArgumentMatchers.any
 import org.mockito.ArgumentMatchers.anyLong
 import org.mockito.ArgumentMatchers.eq
-import org.mockito.Mockito.`when`
 import org.mockito.Mockito.atLeastOnce
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.spy
 import org.mockito.Mockito.times
 import org.mockito.Mockito.verify
-import java.util.concurrent.Executor
+import org.mockito.Mockito.`when`
 
 @RunWith(AndroidJUnit4::class)
 @MediumTest
@@ -92,7 +93,7 @@ class WorkManagerGcmDispatcherTest {
             .setExecutor(mExecutor)
             .build()
 
-        mWorkManager = WorkManagerImpl(mContext, configuration, workTaskExecutor, true)
+        mWorkManager = TestWorkManagerImpl(mContext, configuration, workTaskExecutor)
         WorkManagerImpl.setDelegate(mWorkManager)
         mWorkTimer = spy(WorkTimer(configuration.runnableScheduler))
         mDispatcher = WorkManagerGcmDispatcher(mWorkManager, mWorkTimer)

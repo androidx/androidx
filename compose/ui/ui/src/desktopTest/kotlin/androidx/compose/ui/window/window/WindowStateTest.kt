@@ -23,12 +23,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
+import androidx.compose.ui.*
 import androidx.compose.ui.awt.ComposeWindow
 import androidx.compose.ui.isLinux
 import androidx.compose.ui.isMacOs
-import androidx.compose.ui.isWindows
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.WindowInfo
 import androidx.compose.ui.unit.Dp
@@ -48,6 +46,7 @@ import java.awt.Window
 import java.awt.event.WindowEvent
 import javax.swing.JFrame
 import kotlin.math.abs
+import kotlin.math.absoluteValue
 import kotlin.math.max
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.consumeEach
@@ -60,7 +59,6 @@ import org.junit.Test
 // It is not a good solution, but it works.
 
 // TODO(demin): figure out how can we fix flaky tests on Linux
-// TODO(demin): fix fullscreen tests on macOs
 
 class WindowStateTest {
     @Test
@@ -106,7 +104,7 @@ class WindowStateTest {
     }
 
     @Test
-    fun `programmatically open and close nested window`() = runApplicationTest {
+    fun `programmatically open and close nested window`() = runApplicationTest(useDelay = true) {
         var parentWindow: ComposeWindow? = null
         var childWindow: ComposeWindow? = null
         var isParentOpen by mutableStateOf(true)
@@ -146,9 +144,11 @@ class WindowStateTest {
 
     @Test
     fun `set size and position before show`() = runApplicationTest(useDelay = isLinux) {
+        val size = Dimension(200, 200)
+        val position = Point(242, 242)
         val state = WindowState(
-            size = DpSize(200.dp, 200.dp),
-            position = WindowPosition(242.dp, 242.dp)
+            size = size.toDpSize(),
+            position = position.toWindowPosition()
         )
 
         lateinit var window: ComposeWindow
@@ -160,16 +160,18 @@ class WindowStateTest {
         }
         
         awaitIdle()
-        assertThat(window)
-        assertThat(window.size).isEqualTo(Dimension(200, 200))
-        assertThat(window.location).isEqualTo(Point(242, 242))
+        assertSizesApproximatelyEqual(size, window.size)
+        assertCoordinatesApproximatelyEqual(position, window.location)
     }
 
     @Test
     fun `change position after show`() = runApplicationTest(useDelay = isLinux) {
+        val size = Dimension(200, 200)
+        val position = Point(200, 200)
+
         val state = WindowState(
-            size = DpSize(200.dp, 200.dp),
-            position = WindowPosition(200.dp, 200.dp)
+            size = size.toDpSize(),
+            position = position.toWindowPosition()
         )
         lateinit var window: ComposeWindow
 
@@ -181,16 +183,20 @@ class WindowStateTest {
 
         awaitIdle()
 
-        state.position = WindowPosition(242.dp, (242).dp)
+        val newPosition = Point(242, 242)
+        state.position = newPosition.toWindowPosition()
         awaitIdle()
-        assertThat(window.location).isEqualTo(Point(242, 242))
+        assertCoordinatesApproximatelyEqual(newPosition, window.location)
     }
 
     @Test
     fun `change size after show`() = runApplicationTest(useDelay = isLinux) {
+        val size = Dimension(200, 200)
+        val position = Point(200, 200)
+
         val state = WindowState(
-            size = DpSize(200.dp, 200.dp),
-            position = WindowPosition(200.dp, 200.dp)
+            size = size.toDpSize(),
+            position = position.toWindowPosition()
         )
         lateinit var window: ComposeWindow
 
@@ -202,9 +208,10 @@ class WindowStateTest {
 
         awaitIdle()
 
-        state.size = DpSize(250.dp, 200.dp)
+        val newSize = Dimension(250, 200)
+        state.size = newSize.toDpSize()
         awaitIdle()
-        assertThat(window.size).isEqualTo(Dimension(250, 200))
+        assertSizesApproximatelyEqual(newSize, window.size)
     }
 
     @Test
@@ -251,13 +258,14 @@ class WindowStateTest {
 
         awaitIdle()
 
-        state.position = WindowPosition(242.dp, 242.dp)
+        val position = Point(242, 242)
+        state.position = position.toWindowPosition()
         awaitIdle()
-        assertThat(window1?.location == Point(242, 242))
+        assertThat(window1?.location == position)
 
         isWindow1 = false
         awaitIdle()
-        assertThat(window2?.location == Point(242, 242))
+        assertThat(window2?.location == position)
     }
 
     @Test
@@ -278,11 +286,10 @@ class WindowStateTest {
     }
 
     @Test
-    fun `enter fullscreen`() = runApplicationTest(useDelay = isLinux) {
-        // TODO(demin): fix macOs. We disabled it because it is not deterministic.
-        //  If we set in skiko SkiaLayer.setFullscreen(true) then isFullscreen still returns false
-        assumeTrue(isWindows || isLinux)
-
+    fun `enter fullscreen`() = runApplicationTest(
+        useDelay = isLinux || isMacOs,
+        delayMillis = 1000
+    ) {
         val state = WindowState(size = DpSize(200.dp, 200.dp))
         lateinit var window: ComposeWindow
 
@@ -303,8 +310,27 @@ class WindowStateTest {
         assertThat(window.placement).isEqualTo(WindowPlacement.Floating)
     }
 
+    // https://github.com/JetBrains/compose-multiplatform/issues/3003
     @Test
-    fun maximize() = runApplicationTest(useDelay = isLinux || isMacOs) {
+    fun `WindowState placement after showing fullscreen window`() = runApplicationTest(
+        useDelay = isLinux || isMacOs,
+        delayMillis = 1000
+    ) {
+        val state = WindowState(placement = WindowPlacement.Fullscreen)
+
+        launchTestApplication {
+            Window(onCloseRequest = {}, state) { }
+        }
+
+        awaitIdle()
+
+        assertThat(state.placement).isEqualTo(WindowPlacement.Fullscreen)
+    }
+
+    // TODO(https://github.com/JetBrains/compose-multiplatform/issues/3557): check this test on Linux CI
+    @Test
+    fun maximize() = runApplicationTest(useDelay = isMacOs) {
+        assumeTrue(!isLinux)
         val state = WindowState(size = DpSize(200.dp, 200.dp))
         lateinit var window: ComposeWindow
 
@@ -326,7 +352,7 @@ class WindowStateTest {
     }
 
     @Test
-    fun minimize() = runApplicationTest {
+    fun minimize() = runApplicationTest(useDelay = isMacOs, delayMillis = 1000) {
         val state = WindowState(size = DpSize(200.dp, 200.dp))
         lateinit var window: ComposeWindow
 
@@ -348,9 +374,10 @@ class WindowStateTest {
     }
 
     @Test
-    fun `maximize and minimize `() = runApplicationTest {
+    fun `maximize and minimize`() = runApplicationTest {
         // macOS can't be maximized and minimized at the same time
-        assumeTrue(isWindows || isLinux)
+        // Seems like it can't be on Linux too
+        assumeTrue(!isMacOs && !isLinux)
 
         val state = WindowState(size = DpSize(200.dp, 200.dp))
         lateinit var window: ComposeWindow
@@ -370,25 +397,19 @@ class WindowStateTest {
         assertThat(window.placement).isEqualTo(WindowPlacement.Maximized)
     }
 
+    // TODO(https://github.com/JetBrains/compose-multiplatform/issues/3557): check this test on Linux CI
     @Test
-    fun `restore size and position after maximize`() = runApplicationTest {
-        // Swing/macOS can't re-change isMaximized in a deterministic way:
-//        fun main() = runBlocking(MainUIDispatcher) {
-//            val window = ComposeWindow()
-//            window.size = Dimension(200, 200)
-//            window.isVisible = true
-//            window.isMaximized = true
-//            delay(100)
-//            window.isMaximized = false  // we cannot do that on macOS (window is still animating)
-//            delay(1000)
-//            println(window.isMaximized) // prints true
-//        }
-//        Swing/Linux has animations and sometimes adds an offset to the size/position
-        assumeTrue(isWindows)
+    fun `restore size and position after maximize`() = runApplicationTest(
+        useDelay = isMacOs,
+        delayMillis = 1000
+    ) {
+        assumeTrue(!isLinux)
+        val size = Dimension(201, 203)
+        val position = Point(196, 257)
 
         val state = WindowState(
-            size = DpSize(201.dp, 203.dp),
-            position = WindowPosition(196.dp, 257.dp)
+            size = size.toDpSize(),
+            position = position.toWindowPosition()
         )
         lateinit var window: ComposeWindow
 
@@ -399,30 +420,33 @@ class WindowStateTest {
         }
 
         awaitIdle()
-        assertThat(window.size).isEqualTo(Dimension(201, 203))
-        assertThat(window.location).isEqualTo(Point(196, 257))
+        assertSizesApproximatelyEqual(size, window.size)
+        assertCoordinatesApproximatelyEqual(position, window.location)
 
         state.placement = WindowPlacement.Maximized
         awaitIdle()
         assertThat(window.placement).isEqualTo(WindowPlacement.Maximized)
-        assertThat(window.size).isNotEqualTo(Dimension(201, 203))
-        assertThat(window.location).isNotEqualTo(Point(196, 257))
+        assertSizesNotApproximatelyEqual(size, window.size)
+        assertCoordinatesNotApproximatelyEqual(position, window.location)
 
         state.placement = WindowPlacement.Floating
         awaitIdle()
         assertThat(window.placement).isEqualTo(WindowPlacement.Floating)
-        assertThat(window.size).isEqualTo(Dimension(201, 203))
-        assertThat(window.location).isEqualTo(Point(196, 257))
+        assertSizesApproximatelyEqual(size, window.size)
+        assertCoordinatesApproximatelyEqual(position, window.location)
     }
 
     @Test
-    fun `restore size and position after fullscreen`() = runApplicationTest {
-//        Swing/Linux has animations and sometimes adds an offset to the size/position
-        assumeTrue(isWindows)
+    fun `restore size and position after fullscreen`() = runApplicationTest(
+        useDelay = isMacOs || isLinux,
+        delayMillis = 1000,
+    ) {
+        val size = Dimension(201, 203)
+        val position = Point(196, 257)
 
         val state = WindowState(
-            size = DpSize(201.dp, 203.dp),
-            position = WindowPosition(196.dp, 257.dp)
+            size = size.toDpSize(),
+            position = position.toWindowPosition()
         )
         lateinit var window: ComposeWindow
 
@@ -433,39 +457,39 @@ class WindowStateTest {
         }
 
         awaitIdle()
-        assertThat(window.size).isEqualTo(Dimension(201, 203))
-        assertThat(window.location).isEqualTo(Point(196, 257))
+        assertSizesApproximatelyEqual(size, window.size)
+        assertCoordinatesApproximatelyEqual(position, window.location)
 
         state.placement = WindowPlacement.Fullscreen
         awaitIdle()
-        assertThat(window.placement).isEqualTo(WindowPlacement.Fullscreen)
-        assertThat(window.size).isNotEqualTo(Dimension(201, 203))
-        assertThat(window.location).isNotEqualTo(Point(196, 257))
+        assertSizesNotApproximatelyEqual(size, window.size)
+        assertCoordinatesNotApproximatelyEqual(position, window.location)
+        assertThat(window.size).isNotEqualTo(size)
 
         state.placement = WindowPlacement.Floating
         awaitIdle()
         assertThat(window.placement).isEqualTo(WindowPlacement.Floating)
-        assertThat(window.size).isEqualTo(Dimension(201, 203))
-        assertThat(window.location).isEqualTo(Point(196, 257))
+        assertSizesApproximatelyEqual(size, window.size)
+        assertCoordinatesApproximatelyEqual(position, window.location)
     }
 
     @Test
     fun `window state size and position determine unmaximized state`() = runApplicationTest(
-        useDelay = true
+        useDelay = true,
+        delayMillis = 1000
     ) {
-        // On Linux the behaviour generally works, but this test fails because the size after
-        // un-maximizing it not exactly as expected. Perhaps the window insets are not included
-        // somewhere in AWT.
-        // Specifically on our CI (which is also Linux), however, it fails because the initial
-        // placement fails to be Maximized. The `maximize window before show` test fails the same
-        // way.
+        // This fails on our CI it fails because the initial placement fails to be Maximized.
+        // The `maximize window before show` test fails the same way.
         // Haven't actually tested on Windows; if you run it, and it doesn't pass, replace with
         // assumeTrue(isMacOs), or investigate/fix.
         assumeTrue(!isLinux)
 
+        val size = Dimension(201, 203)
+        val position = Point(196, 257)
+
         val state = WindowState(
-            size = DpSize(201.dp, 203.dp),
-            position = WindowPosition(196.dp, 257.dp),
+            size = size.toDpSize(),
+            position = position.toWindowPosition(),
             placement = WindowPlacement.Maximized
         )
         lateinit var window: ComposeWindow
@@ -482,14 +506,16 @@ class WindowStateTest {
         state.placement = WindowPlacement.Floating
         awaitIdle()
         assertThat(window.placement).isEqualTo(WindowPlacement.Floating)
-        assertThat(window.size).isEqualTo(Dimension(201, 203))
-        assertThat(window.location).isEqualTo(Point(196, 257))
+        assertSizesApproximatelyEqual(size, window.size)
+        assertCoordinatesApproximatelyEqual(position, window.location)
     }
 
     @Test
     fun `maximize window before show`() = runApplicationTest(useDelay = isLinux) {
         // This fails on our Linux CI; the window reports WindowPlacement.Floating.
         // But testing in an actual Ubuntu 22 system, it succeeds.
+        assumeTrue(!isLinux)
+
         val state = WindowState(
             size = DpSize(200.dp, 200.dp),
             position = WindowPosition(Alignment.Center),
@@ -508,19 +534,10 @@ class WindowStateTest {
     }
 
     @Test
-    fun `minimize window before show`() = runApplicationTest {
-        // Linux/macos doesn't support this:
-//        fun main() = runBlocking(MainUIDispatcher) {
-//            val window = ComposeWindow()
-//            window.size = Dimension(200, 200)
-//            window.isMinimized = true
-//            window.isVisible = true
-//            delay(2000)
-//            println(window.isMinimized) // prints false
-//        }
-        // TODO(demin): can we minimize after window.isVisible?
-        assumeTrue(isWindows)
-
+    fun `minimize window before show`() = runApplicationTest(
+        useDelay = isMacOs,
+        delayMillis = 1000
+    ) {
         val state = WindowState(
             size = DpSize(200.dp, 200.dp),
             position = WindowPosition(Alignment.Center),
@@ -539,11 +556,10 @@ class WindowStateTest {
     }
 
     @Test
-    fun `enter fullscreen before show`() = runApplicationTest {
-        // TODO(demin): probably we have a bug in skiko (we can't change fullscreen on macOs before
-        //  showing the window)
-        assumeTrue(isLinux || isWindows)
-
+    fun `enter fullscreen before show`() = runApplicationTest(
+        useDelay = isMacOs,
+        delayMillis = 1000,
+    ) {
         val state = WindowState(
             size = DpSize(200.dp, 200.dp),
             position = WindowPosition(Alignment.Center),
@@ -570,50 +586,49 @@ class WindowStateTest {
             position = WindowPosition(3.dp, 3.dp),
             isMinimized = true,
         )
+        lateinit var lastRecomposedState: WindowState
 
         var index by mutableStateOf(0)
-        val states = mutableListOf<WindowState>()
 
         launchTestApplication {
             val saveableStateHolder = rememberSaveableStateHolder()
             saveableStateHolder.SaveableStateProvider(index) {
                 val state = rememberWindowState()
-
-                LaunchedEffect(Unit) {
-                    state.placement = newState.placement
-                    state.isMinimized = newState.isMinimized
-                    state.size = newState.size
-                    state.position = newState.position
-                    states.add(state)
-                }
+                lastRecomposedState = state
             }
 
             Window(onCloseRequest = {}) {}
         }
 
         awaitIdle()
-        assertThat(states.size == 1)
+        assertThat(lastRecomposedState.placement).isEqualTo(initialState.placement)
+        assertThat(lastRecomposedState.isMinimized).isEqualTo(initialState.isMinimized)
+        assertThat(lastRecomposedState.size).isEqualTo(initialState.size)
+        assertThat(lastRecomposedState.position).isEqualTo(initialState.position)
+        lastRecomposedState.placement = newState.placement
+        lastRecomposedState.isMinimized = newState.isMinimized
+        lastRecomposedState.size = newState.size
+        lastRecomposedState.position = newState.position
 
         index = 1
         awaitIdle()
-        assertThat(states.size == 2)
+        assertThat(lastRecomposedState.placement).isEqualTo(initialState.placement)
+        assertThat(lastRecomposedState.isMinimized).isEqualTo(initialState.isMinimized)
+        assertThat(lastRecomposedState.size).isEqualTo(initialState.size)
+        assertThat(lastRecomposedState.position).isEqualTo(initialState.position)
 
         index = 0
         awaitIdle()
-        assertThat(states.size == 3)
-
-        assertThat(states[0].placement == initialState.placement)
-        assertThat(states[0].isMinimized == initialState.isMinimized)
-        assertThat(states[0].size == initialState.size)
-        assertThat(states[0].position == initialState.position)
-        assertThat(states[2].placement == newState.placement)
-        assertThat(states[2].isMinimized == newState.isMinimized)
-        assertThat(states[2].size == newState.size)
-        assertThat(states[2].position == newState.position)
+        assertThat(lastRecomposedState.placement).isEqualTo(newState.placement)
+        assertThat(lastRecomposedState.isMinimized).isEqualTo(newState.isMinimized)
+        assertThat(lastRecomposedState.size).isEqualTo(newState.size)
+        assertThat(lastRecomposedState.position).isEqualTo(newState.position)
     }
 
     @Test
     fun `set window height by its content`() = runApplicationTest(useDelay = isLinux) {
+        assumeTrue(!isLinux)  // Flaky on our CI
+
         lateinit var window: ComposeWindow
         val state = WindowState(size = DpSize(300.dp, Dp.Unspecified))
 
@@ -639,7 +654,9 @@ class WindowStateTest {
     }
 
     @Test
-    fun `set window width by its content`() = runApplicationTest(useDelay = isLinux) {
+    fun `set window width by its content`() = runApplicationTest {
+        assumeTrue(!isLinux)  // Flaky on our CI
+
         lateinit var window: ComposeWindow
         val state = WindowState(size = DpSize(Dp.Unspecified, 300.dp))
 
@@ -665,7 +682,9 @@ class WindowStateTest {
     }
 
     @Test
-    fun `set window size by its content`() = runApplicationTest(useDelay = isLinux) {
+    fun `set window size by its content`() = runApplicationTest {
+        assumeTrue(!isLinux) // Flaky on our CI
+
         lateinit var window: ComposeWindow
         val state = WindowState(size = DpSize.Unspecified)
 
@@ -828,4 +847,64 @@ class WindowStateTest {
             size.width - insets.left - insets.right,
             size.height - insets.top - insets.bottom,
         )
+}
+
+private const val LinuxCoordinateTolerance = 10
+
+private val CoordinateTolerance = if (isLinux) LinuxCoordinateTolerance else 0
+
+private fun assertCoordinatesApproximatelyEqual(
+    expected: Point,
+    actual: Point,
+) {
+    if (((expected.x - actual.x).absoluteValue > CoordinateTolerance) ||
+        ((expected.y - actual.y).absoluteValue > CoordinateTolerance)
+    ) {
+        throw AssertionError(
+            "Expected <$expected> with absolute tolerance" +
+                " <$CoordinateTolerance>, actual <$actual>."
+        )
+    }
+}
+
+private fun assertSizesApproximatelyEqual(
+    expected: Dimension,
+    actual: Dimension,
+) {
+    if (((expected.width - actual.width).absoluteValue > CoordinateTolerance) ||
+        ((expected.height - actual.height).absoluteValue > CoordinateTolerance)
+    ) {
+        throw AssertionError(
+            "Expected <$expected> with absolute tolerance" +
+                " <$CoordinateTolerance>, actual <$actual>."
+        )
+    }
+}
+
+private fun assertCoordinatesNotApproximatelyEqual(
+    expected: Point,
+    actual: Point,
+) {
+    if (((expected.x - actual.x).absoluteValue <= CoordinateTolerance) &&
+        ((expected.y - actual.y).absoluteValue <= CoordinateTolerance)
+    ) {
+        throw AssertionError(
+            "Expected <$expected> to not equal actual <$actual> with absolute" +
+                " tolerance <$CoordinateTolerance>"
+        )
+    }
+}
+
+private fun assertSizesNotApproximatelyEqual(
+    expected: Dimension,
+    actual: Dimension,
+) {
+    if (((expected.width - actual.width).absoluteValue <= CoordinateTolerance) &&
+        ((expected.height - actual.height).absoluteValue <= CoordinateTolerance)
+    ) {
+        throw AssertionError(
+            "Expected <$expected> to not equal actual <$actual> with absolute" +
+                " tolerance <$CoordinateTolerance>"
+        )
+    }
 }

@@ -1,0 +1,60 @@
+/*
+ * Copyright (C) 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import androidx.build.LibraryType
+
+plugins {
+    id("AndroidXPlugin")
+    id("com.android.library")
+}
+
+android {
+    defaultConfig {
+        minSdk 26
+    }
+
+    defaultConfig {
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    namespace "androidx.wear.protolayout.materialcore"
+}
+
+dependencies {
+    annotationProcessor(libs.nullaway)
+    api("androidx.annotation:annotation:1.2.0")
+    api(project(":wear:protolayout:protolayout"))
+    implementation(project(":wear:protolayout:protolayout-proto"))
+
+    testImplementation(libs.junit)
+    testImplementation(libs.mockitoCore4)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.testExtJunit)
+    testImplementation(libs.testExtTruth)
+    testImplementation(libs.testCore)
+    testImplementation(libs.testRunner)
+    testImplementation(libs.testRules)
+    testImplementation(libs.truth)
+}
+
+androidx {
+    name = "androidx.wear.protolayout:protolayout-material-core"
+    type = LibraryType.PUBLISHED_LIBRARY
+    inceptionYear = "2023"
+    description = "Material Core components library for ProtoLayout. This library contains" +
+            "themeless components that are shared with ProtoLayout Material libraries."
+    metalavaK2UastEnabled = true
+}

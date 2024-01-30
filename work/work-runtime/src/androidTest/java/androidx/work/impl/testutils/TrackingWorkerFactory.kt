@@ -51,9 +51,9 @@ class TrackingWorkerFactory : WorkerFactory() {
         }
     }
 
-    fun awaitWorker(id: UUID): ListenableWorker {
-        return runBlocking {
-            createdWorkers.map { it[id] }.filterNotNull().first()
-        }
+    fun awaitWorker(id: UUID) = runBlocking { await(id) }
+
+    suspend fun await(id: UUID): ListenableWorker {
+        return createdWorkers.map { it[id] }.filterNotNull().first()
     }
 }

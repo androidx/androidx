@@ -50,7 +50,6 @@ public abstract class MeteringPointFactory {
     /**
      * Constructor that use Preview aspect ratio for {@link MeteringPoint}.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public MeteringPointFactory() {
@@ -60,7 +59,6 @@ public abstract class MeteringPointFactory {
     /**
      * Constructor that takes a custom surface aspect ratio for {@link MeteringPoint}.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public MeteringPointFactory(@Nullable Rational surfaceAspectRatio) {
@@ -94,7 +92,6 @@ public abstract class MeteringPointFactory {
      * @param x x to be converted.
      * @param y y to be converted.
      * @return a {@link PointF} consisting of converted normalized surface coordinates.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull

@@ -18,6 +18,7 @@ package androidx.compose.foundation.gestures
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.PointerMatcher
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
@@ -153,18 +154,19 @@ fun Modifier.onDrag(
     factory = {
         if (!enabled) return@composed Modifier
 
-        val onDragState = rememberUpdatedState(onDrag)
-        val onDragStartState = rememberUpdatedState(onDragStart)
-        val onDragEndState = rememberUpdatedState(onDragEnd)
-        val onDragCancelState = rememberUpdatedState(onDragCancel)
+        val matcherState by rememberUpdatedState(matcher)
+        val onDragState by rememberUpdatedState(onDrag)
+        val onDragStartState by rememberUpdatedState(onDragStart)
+        val onDragEndState by rememberUpdatedState(onDragEnd)
+        val onDragCancelState by rememberUpdatedState(onDragCancel)
 
-        Modifier.pointerInput(matcher) {
+        Modifier.pointerInput(Unit) {
             detectDragGestures(
-                matcher = matcher,
-                onDragStart = { onDragStartState.value(it) },
-                onDrag = { onDragState.value(it) },
-                onDragEnd = { onDragEndState.value() },
-                onDragCancel = { onDragCancelState.value() }
+                matcher = { matcherState.matches(it) },
+                onDragStart = { onDragStartState(it) },
+                onDrag = { onDragState(it) },
+                onDragEnd = { onDragEndState() },
+                onDragCancel = { onDragCancelState() }
             )
         }
     }
@@ -179,7 +181,8 @@ private suspend fun AwaitPointerEventScope.awaitDragStartOnSlop(initialDown: Poi
     do {
         drag = awaitPointerSlopOrCancellation(
             initialDown.changes[0].id,
-            initialDown.changes[0].type
+            initialDown.changes[0].type,
+            pointerDirectionConfig = BidirectionalPointerDirectionConfig,
         ) { change, over ->
             change.consume()
             overSlop = over

@@ -30,20 +30,28 @@ allprojects {
 
     tasks.withType(KotlinCompile).configureEach {
         kotlinOptions {
-            jvmTarget = "11"
+            jvmTarget = "17"
             freeCompilerArgs += [
                     "-Werror",
                     "-Xskip-metadata-version-check",
                     // Issue where sam conversion in gradle's kts file causes task-out-of-date
                     // Details: KT-46445 and https://github.com/gradle/gradle/issues/17052
-                    "-Xsam-conversions=class"
+                    "-Xsam-conversions=class",
+                    "-opt-in=kotlin.RequiresOptIn", // for JB-fork only - don't upstream
             ]
-            languageVersion = "1.5"
-            apiVersion = "1.5"
+            languageVersion = "1.8"
+            apiVersion = "1.8"
         }
     }
 }
 
 dependencies {
     api(project("plugins"))
+}
+
+// use jvmTarger 17 for buildSrc .kts scripts. Keep during merge
+tasks.withType(KotlinCompile).configureEach {
+    kotlinOptions {
+        jvmTarget = "17"
+    }
 }

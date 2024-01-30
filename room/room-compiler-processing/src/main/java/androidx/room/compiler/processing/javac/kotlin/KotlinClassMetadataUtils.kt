@@ -27,9 +27,9 @@ import androidx.room.compiler.processing.util.sanitizeAsJavaParameterName
 import javax.lang.model.element.Element
 import javax.lang.model.element.ElementKind
 import javax.lang.model.element.ExecutableElement
+import javax.lang.model.element.VariableElement
 import javax.tools.Diagnostic
-import kotlinx.metadata.Flag
-import kotlinx.metadata.Flags
+import kotlinx.metadata.ClassKind
 import kotlinx.metadata.KmAnnotation
 import kotlinx.metadata.KmAnnotationArgument
 import kotlinx.metadata.KmClass
@@ -40,30 +40,54 @@ import kotlinx.metadata.KmProperty
 import kotlinx.metadata.KmType
 import kotlinx.metadata.KmTypeParameter
 import kotlinx.metadata.KmValueParameter
+import kotlinx.metadata.Visibility
+import kotlinx.metadata.declaresDefaultValue
+import kotlinx.metadata.isData
+import kotlinx.metadata.isDelegated
+import kotlinx.metadata.isExpect
+import kotlinx.metadata.isFunInterface
+import kotlinx.metadata.isNullable
+import kotlinx.metadata.isSecondary
+import kotlinx.metadata.isSuspend
+import kotlinx.metadata.isValue
 import kotlinx.metadata.jvm.KotlinClassMetadata
 import kotlinx.metadata.jvm.annotations
+import kotlinx.metadata.jvm.fieldSignature
 import kotlinx.metadata.jvm.getterSignature
 import kotlinx.metadata.jvm.setterSignature
 import kotlinx.metadata.jvm.signature
+import kotlinx.metadata.jvm.syntheticMethodForAnnotations
+import kotlinx.metadata.kind
+import kotlinx.metadata.visibility
 
-internal interface KmFlags {
-    val flags: Flags
+internal interface KmData
+
+internal interface KmVisibility : KmData {
+    val visibility: Visibility
+    fun isInternal() = visibility == Visibility.INTERNAL
+    fun isPrivate() = visibility == Visibility.PRIVATE
+}
+
+internal interface KmBaseTypeContainer : KmData {
+    val upperBounds: List<KmTypeContainer>
+    val nullability: XNullability
 }
 
 internal class KmClassContainer(
+    private val env: JavacProcessingEnv,
     private val kmClass: KmClass
-) : KmFlags {
-    override val flags: Flags
-        get() = kmClass.flags
+) : KmVisibility {
+    override val visibility: Visibility
+        get() = kmClass.visibility
 
     val type: KmTypeContainer by lazy {
         KmTypeContainer(
-            kmType = KmType(flags).apply {
+            kmType = KmType().apply {
                 classifier = KmClassifier.Class(kmClass.name)
             },
             typeArguments = kmClass.typeParameters.map { kmTypeParameter ->
                 KmTypeContainer(
-                    kmType = KmType(kmTypeParameter.flags).apply {
+                    kmType = KmType().apply {
                         classifier = KmClassifier.Class(kmTypeParameter.name)
                     },
                     typeArguments = emptyList(),
@@ -101,37 +125,31 @@ internal class KmClassContainer(
         constructorList.firstOrNull { it.isPrimary() }?.descriptor
     }
 
-    fun isObject() = Flag.Class.IS_OBJECT(flags)
-    fun isCompanionObject() = Flag.Class.IS_COMPANION_OBJECT(flags)
-    fun isAnnotationClass() = Flag.Class.IS_ANNOTATION_CLASS(flags)
-    fun isClass() = Flag.Class.IS_CLASS(flags)
-    fun isInterface() = Flag.Class.IS_INTERFACE(flags)
-    fun isDataClass() = Flag.Class.IS_DATA(flags)
-    fun isValueClass() = Flag.Class.IS_VALUE(flags)
-    fun isFunctionalInterface() = Flag.Class.IS_FUN(flags)
-    fun isExpect() = Flag.Class.IS_EXPECT(flags)
+    fun isObject() = kmClass.kind == ClassKind.OBJECT
+    fun isCompanionObject() = kmClass.kind == ClassKind.COMPANION_OBJECT
+    fun isAnnotationClass() = kmClass.kind == ClassKind.ANNOTATION_CLASS
+    fun isClass() = kmClass.kind == ClassKind.CLASS
+    fun isInterface() = kmClass.kind == ClassKind.INTERFACE
+    fun isDataClass() = kmClass.isData
+    fun isValueClass() = kmClass.isValue
+    fun isFunctionalInterface() = kmClass.isFunInterface
+    fun isExpect() = kmClass.isExpect
 
     fun getFunctionMetadata(method: ExecutableElement): KmFunctionContainer? {
         check(method.kind == ElementKind.METHOD) {
             "must pass an element type of method"
         }
-        val methodSignature = method.descriptor()
-        functionList.firstOrNull { it.descriptor == methodSignature }?.let {
-            return it
-        }
-        // might be a property getter or setter
-        return propertyList.firstNotNullOfOrNull { property ->
-            when {
-                property.getter?.descriptor == methodSignature -> {
-                    property.getter
-                }
+        return functionByDescriptor[method.descriptor(env.delegate)]
+    }
 
-                property.setter?.descriptor == methodSignature -> {
-                    property.setter
-                }
-
-                else -> {
-                    null
+    private val functionByDescriptor: Map<String, KmFunctionContainer> by lazy {
+        buildMap {
+            functionList.forEach { put(it.descriptor, it) }
+            propertyList.forEach { property ->
+                property.getter?.descriptor?.let { put(it, property.getter) }
+                property.setter?.descriptor?.let { put(it, property.setter) }
+                property.syntheticMethodForAnnotations?.descriptor?.let {
+                    put(it, property.syntheticMethodForAnnotations)
                 }
             }
         }
@@ -141,12 +159,17 @@ internal class KmClassContainer(
         check(method.kind == ElementKind.CONSTRUCTOR) {
             "must pass an element type of constructor"
         }
-        val methodSignature = method.descriptor()
+        val methodSignature = method.descriptor(env.delegate)
         return constructorList.firstOrNull { it.descriptor == methodSignature }
     }
 
-    fun getPropertyMetadata(propertyName: String): KmPropertyContainer? =
-        propertyList.firstOrNull { it.name == propertyName }
+    fun getPropertyMetadata(field: VariableElement): KmPropertyContainer? {
+        check(field.kind == ElementKind.FIELD) {
+            "must pass an element type of field"
+        }
+        val fieldName = field.simpleName.toString()
+        return propertyList.firstOrNull { it.backingFieldName == fieldName || it.name == fieldName }
+    }
 
     companion object {
         /**
@@ -158,20 +181,23 @@ internal class KmClassContainer(
          */
         fun createFor(env: JavacProcessingEnv, element: Element): KmClassContainer? {
             val metadataAnnotation = getMetadataAnnotation(element) ?: return null
-            val classMetadata = KotlinClassMetadata.read(metadataAnnotation)
-            if (classMetadata == null) {
-                env.delegate.messager.printMessage(
-                    Diagnostic.Kind.WARNING,
-                    "Unable to read Kotlin metadata due to unsupported metadata version.",
-                    element
-                )
-            }
-            // TODO: Support more metadata kind (file facade, synthetic class, etc...)
-            return when (classMetadata) {
-                is KotlinClassMetadata.Class -> KmClassContainer(classMetadata.toKmClass())
+            return when (val classMetadata = KotlinClassMetadata.read(metadataAnnotation)) {
+                is KotlinClassMetadata.Class -> KmClassContainer(env, classMetadata.kmClass)
+                // Synthetic classes generated for various Kotlin features ($DefaultImpls,
+                // $WhenMappings, etc) are ignored because the data contained does not affect
+                // the metadata derived APIs. These classes are never referenced by user code but
+                // could be discovered by processors when inspecting inner classes.
+                is KotlinClassMetadata.SyntheticClass,
+                // Multi file classes are also ignored, the elements contained in these might be
+                // referenced by user code in method bodies but not part of the AST, however it
+                // is possible for a processor to discover them by inspecting elements under a
+                // package.
+                is KotlinClassMetadata.FileFacade,
+                is KotlinClassMetadata.MultiFileClassFacade,
+                is KotlinClassMetadata.MultiFileClassPart -> null
                 else -> {
                     env.delegate.messager.printMessage(
-                        Diagnostic.Kind.WARNING,
+                        Diagnostic.Kind.ERROR,
                         "Unable to read Kotlin metadata due to unsupported metadata " +
                             "kind: $classMetadata.",
                         element
@@ -194,81 +220,102 @@ internal class KmClassContainer(
     }
 }
 
-internal interface KmFunctionContainer : KmFlags {
-    /** Name of the function in source code **/
+internal interface KmFunctionContainer : KmVisibility {
+    /** Name of the function in source code */
     val name: String
-    /** Name of the function in byte code **/
+    /** Name of the function in byte code */
     val jvmName: String
     val descriptor: String
     val typeParameters: List<KmTypeParameterContainer>
     val parameters: List<KmValueParameterContainer>
     val returnType: KmTypeContainer
+    val propertyName: String?
+    val isSuspend: Boolean
 
-    fun isPropertyFunction(): Boolean = this is KmPropertyFunctionContainerImpl
-    fun isSuspend() = Flag.Function.IS_SUSPEND(flags)
+    fun isPropertySetter() = false
+    fun isPropertyGetter() = false
+    fun isSyntheticMethodForAnnotations() =
+        (this as? KmPropertyFunctionContainerImpl)?.syntheticMethodForAnnotations == true
+    fun isPropertyFunction() = this is KmPropertyFunctionContainerImpl
     fun isExtension() =
-        this is KmFunctionContainerImpl && this.kmFunction.receiverParameterType != null
+        (this as? KmFunctionContainerImpl)?.kmFunction?.receiverParameterType != null
 }
 
 private class KmFunctionContainerImpl(
     val kmFunction: KmFunction,
     override val returnType: KmTypeContainer,
 ) : KmFunctionContainer {
-    override val flags: Flags
-        get() = kmFunction.flags
+    override val visibility: Visibility
+        get() = kmFunction.visibility
     override val name: String
         get() = kmFunction.name
+    override val propertyName: String? = null
     override val jvmName: String
         get() = kmFunction.signature!!.name
     override val descriptor: String
-        get() = kmFunction.signature!!.asString()
+        get() = kmFunction.signature!!.toString()
     override val typeParameters: List<KmTypeParameterContainer>
         get() = kmFunction.typeParameters.map { it.asContainer() }
     override val parameters: List<KmValueParameterContainer>
         get() = kmFunction.valueParameters.map { it.asContainer() }
+    override val isSuspend: Boolean
+        get() = kmFunction.isSuspend
 }
 
-private class KmPropertyFunctionContainerImpl(
-    override val flags: Flags,
+private open class KmPropertyFunctionContainerImpl(
+    override val visibility: Visibility,
     override val name: String,
     override val jvmName: String,
     override val descriptor: String,
     override val parameters: List<KmValueParameterContainer>,
     override val returnType: KmTypeContainer,
+    override val propertyName: String?,
+    val isSetterMethod: Boolean,
+    val isGetterMethod: Boolean,
+    val syntheticMethodForAnnotations: Boolean = false
 ) : KmFunctionContainer {
     override val typeParameters: List<KmTypeParameterContainer> = emptyList()
+    override val isSuspend: Boolean = false
+    override fun isPropertySetter() = isSetterMethod
+    override fun isPropertyGetter() = isGetterMethod
 }
 
 internal class KmConstructorContainer(
     private val kmConstructor: KmConstructor,
-    override val returnType: KmTypeContainer
+    override val returnType: KmTypeContainer,
 ) : KmFunctionContainer {
-    override val flags: Flags
-        get() = kmConstructor.flags
+    override val visibility: Visibility
+        get() = kmConstructor.visibility
     override val name: String = "<init>"
+    override val propertyName: String? = null
     override val jvmName: String = name
     override val descriptor: String
-        get() = checkNotNull(kmConstructor.signature).asString()
+        get() = checkNotNull(kmConstructor.signature).toString()
     override val typeParameters: List<KmTypeParameterContainer> = emptyList()
     override val parameters: List<KmValueParameterContainer> by lazy {
         kmConstructor.valueParameters.map { it.asContainer() }
     }
-    fun isPrimary() = !Flag.Constructor.IS_SECONDARY(flags)
+    override val isSuspend: Boolean
+        get() = false
+    fun isPrimary() = !kmConstructor.isSecondary
 }
 
 internal class KmPropertyContainer(
     private val kmProperty: KmProperty,
     val type: KmTypeContainer,
+    val backingFieldName: String?,
     val getter: KmFunctionContainer?,
-    val setter: KmFunctionContainer?
-) : KmFlags {
-    override val flags: Flags
-        get() = kmProperty.flags
+    val setter: KmFunctionContainer?,
+    val syntheticMethodForAnnotations: KmFunctionContainer?,
+) : KmVisibility {
+    override val visibility: Visibility
+        get() = kmProperty.visibility
     val name: String
         get() = kmProperty.name
     val typeParameters: List<KmTypeContainer>
         get() = type.typeArguments
     fun isNullable() = type.isNullable()
+    fun isDelegated() = kmProperty.isDelegated
 }
 
 internal class KmTypeContainer(
@@ -276,11 +323,10 @@ internal class KmTypeContainer(
     val typeArguments: List<KmTypeContainer>,
     /** The extends bounds are only non-null for wildcard (i.e. in/out variant) types. */
     val extendsBound: KmTypeContainer? = null,
-    /** The upper bounds are only non-null for type variable types with upper bounds. */
-    val upperBounds: List<KmTypeContainer>? = null
-) : KmFlags {
-    override val flags: Flags
-        get() = kmType.flags
+    /** The upper bounds are only non-empty for type variable types with upper bounds. */
+    override val upperBounds: List<KmTypeContainer> = emptyList()
+) : KmBaseTypeContainer {
+    fun isNullable() = kmType.isNullable
 
     val className: String? = kmType.classifier.let {
         when (it) {
@@ -293,15 +339,17 @@ internal class KmTypeContainer(
 
     fun isExtensionType() =
         kmType.annotations.any { it.className == "kotlin/ExtensionFunctionType" }
-    fun isNullable() = Flag.Type.IS_NULLABLE(flags)
 
     fun erasure(): KmTypeContainer = KmTypeContainer(
         kmType = kmType,
         typeArguments = emptyList(),
         extendsBound = extendsBound?.erasure(),
         // The erasure of a type variable is equal to the erasure of the first upper bound.
-        upperBounds = upperBounds?.firstOrNull()?.erasure()?.let { listOf(it) },
+        upperBounds = upperBounds.firstOrNull()?.erasure()?.let { listOf(it) } ?: emptyList(),
     )
+
+    override val nullability: XNullability
+        get() = computeTypeNullability(this.isNullable(), this.upperBounds, this.extendsBound)
 }
 
 internal class KmAnnotationContainer(private val kmAnnotation: KmAnnotation) {
@@ -342,43 +390,54 @@ internal class KmAnnotationArgumentContainer(
                 is KmAnnotationArgument.KClassValue -> {
                     env.requireType(it.className.replace('/', '.'))
                 }
+                is KmAnnotationArgument.ArrayKClassValue -> {
+                    val innerType = env.requireType(it.className.replace('/', '.'))
+                    var arrayType = env.getArrayType(innerType)
+                    repeat(it.arrayDimensionCount - 1) {
+                        arrayType = env.getArrayType(arrayType)
+                    }
+                    arrayType
+                }
             }
         }
     }
 }
 
-internal val KmTypeContainer.nullability: XNullability
-    get() = if (isNullable()) {
-        XNullability.NULLABLE
-    } else {
-        // if there is an upper bound information, use its nullability (e.g. it might be T : Foo?)
-        if (upperBounds?.all { it.nullability == XNullability.NULLABLE } == true) {
-            XNullability.NULLABLE
-        } else {
-            extendsBound?.nullability ?: XNullability.NONNULL
-        }
-    }
-
 internal class KmTypeParameterContainer(
     private val kmTypeParameter: KmTypeParameter,
-    val upperBounds: List<KmTypeContainer>
-) : KmFlags {
-    override val flags: Flags
-        get() = kmTypeParameter.flags
+    override val upperBounds: List<KmTypeContainer>
+) : KmBaseTypeContainer {
     val name: String
         get() = kmTypeParameter.name
+
+    override val nullability: XNullability
+        get() = computeTypeNullability(false, this.upperBounds, null)
 }
 
 internal class KmValueParameterContainer(
     private val kmValueParameter: KmValueParameter,
     val type: KmTypeContainer
-) : KmFlags {
-    override val flags: Flags
-        get() = kmValueParameter.flags
+) : KmData {
     val name: String
         get() = kmValueParameter.name
+    fun isVarArgs() = kmValueParameter.varargElementType != null
     fun isNullable() = type.isNullable()
-    fun hasDefault() = Flag.ValueParameter.DECLARES_DEFAULT_VALUE(flags)
+    fun hasDefault() = kmValueParameter.declaresDefaultValue
+}
+
+private fun computeTypeNullability(
+    isNullable: Boolean,
+    upperBounds: List<KmTypeContainer>,
+    extendsBound: KmTypeContainer?
+): XNullability {
+    if (isNullable) {
+        return XNullability.NULLABLE
+    }
+    // if there is an upper bound information, use its nullability (e.g. it might be T : Foo?)
+    if (upperBounds.isNotEmpty() && upperBounds.all { it.nullability == XNullability.NULLABLE }) {
+        return XNullability.NULLABLE
+    }
+    return extendsBound?.nullability ?: XNullability.NONNULL
 }
 
 private fun KmFunction.asContainer(): KmFunctionContainer =
@@ -397,32 +456,53 @@ private fun KmProperty.asContainer(): KmPropertyContainer =
     KmPropertyContainer(
         kmProperty = this,
         type = this.returnType.asContainer(),
+        backingFieldName = fieldSignature?.name,
         getter = getterSignature?.let {
             KmPropertyFunctionContainerImpl(
-                flags = this.getterFlags,
+                visibility = this.visibility,
                 name = JvmAbi.computeGetterName(this.name),
                 jvmName = it.name,
-                descriptor = it.asString(),
+                descriptor = it.toString(),
                 parameters = emptyList(),
                 returnType = this.returnType.asContainer(),
+                propertyName = this.name,
+                isSetterMethod = false,
+                isGetterMethod = true,
             )
         },
         setter = setterSignature?.let {
             // setter parameter visitor may not be available when not declared explicitly
             val param = this.setterParameter ?: KmValueParameter(
-                flags = 0,
                 // kotlinc will set this to set-? but it is better to not expose
                 // it here since it is not valid name
                 name = "set-?".sanitizeAsJavaParameterName(0)
             ).apply { type = this@asContainer.returnType }
-            val returnType = KmType(0).apply { classifier = KmClassifier.Class("Unit") }
+            val returnType = KmType().apply { classifier = KmClassifier.Class("Unit") }
             KmPropertyFunctionContainerImpl(
-                flags = this.setterFlags,
+                visibility = this.visibility,
                 name = JvmAbi.computeSetterName(this.name),
                 jvmName = it.name,
-                descriptor = it.asString(),
+                descriptor = it.toString(),
                 parameters = listOf(param.asContainer()),
                 returnType = returnType.asContainer(),
+                propertyName = this.name,
+                isSetterMethod = true,
+                isGetterMethod = false,
+            )
+        },
+        syntheticMethodForAnnotations = syntheticMethodForAnnotations?.let {
+            val returnType = KmType().apply { classifier = KmClassifier.Class("Unit") }
+            KmPropertyFunctionContainerImpl(
+                visibility = this.visibility,
+                name = JvmAbi.computeSyntheticMethodForAnnotationsName(this.name),
+                jvmName = it.name,
+                descriptor = it.toString(),
+                parameters = emptyList(),
+                returnType = returnType.asContainer(),
+                syntheticMethodForAnnotations = true,
+                propertyName = this.name,
+                isSetterMethod = false,
+                isGetterMethod = false,
             )
         },
     )

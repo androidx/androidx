@@ -18,7 +18,6 @@ package androidx.camera.extensions.impl;
 
 import android.graphics.ImageFormat;
 import android.hardware.camera2.CameraCharacteristics;
-import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.TotalCaptureResult;
 import android.util.Pair;
 import android.util.Size;
@@ -69,7 +68,7 @@ public interface PreviewExtenderImpl extends ExtenderStateListener {
      * The set of parameters required to produce the effect on the preview stream.
      *
      * <p> This will be the initial set of parameters used for the preview
-     * {@link CaptureRequest}. If the {@link ProcessorType} is defined as
+     * {@link android.hardware.camera2.CaptureRequest}. If the {@link ProcessorType} is defined as
      * {@link ProcessorType#PROCESSOR_TYPE_REQUEST_UPDATE_ONLY} then this will be updated when
      * the {@link RequestUpdateProcessorImpl#process(TotalCaptureResult)} from {@link
      * #getProcessor()} has been called, this should be updated to reflect the new {@link

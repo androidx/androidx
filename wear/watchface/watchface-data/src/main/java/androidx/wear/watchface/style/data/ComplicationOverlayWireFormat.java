@@ -31,7 +31,6 @@ import androidx.versionedparcelable.VersionedParcelize;
 
 import java.util.Map;
 
-/** @hide */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @VersionedParcelize
 @SuppressLint("BanParcelableUsage") // TODO(b/169214666): Remove Parcelable

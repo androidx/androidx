@@ -37,6 +37,7 @@ public interface CapabilityLogger {
         INFO,
         WARN,
         ERROR,
+        DEBUG,
     }
 
 }

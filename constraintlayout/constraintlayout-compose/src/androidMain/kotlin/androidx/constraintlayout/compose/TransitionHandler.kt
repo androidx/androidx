@@ -16,40 +16,44 @@
 
 package androidx.constraintlayout.compose
 
-import androidx.compose.runtime.ExperimentalComposeApi
-import androidx.compose.runtime.monotonicFrameClock
+import androidx.compose.runtime.MutableFloatState
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.Velocity
-import kotlin.coroutines.coroutineContext
 
 /**
  * Helper class that handles the interactions between Compose and
  * [androidx.constraintlayout.core.state.Transition].
  */
-@OptIn(ExperimentalComposeApi::class)
-@PublishedApi
-@ExperimentalMotionApi
 internal class TransitionHandler(
     private val motionMeasurer: MotionMeasurer,
-    private val motionProgress: MotionProgress
+    private val motionProgress: MutableFloatState
 ) {
     private val transition: androidx.constraintlayout.core.state.Transition
         get() = motionMeasurer.transition
+
+    /**
+     * Whether we consume the rest of the drag for OnSwipe.
+     *
+     * @see androidx.constraintlayout.core.state.Transition.isFirstDownAccepted
+     */
+    fun onAcceptFirstDownForOnSwipe(offset: Offset) =
+        transition.isFirstDownAccepted(offset.x, offset.y)
 
     /**
      * The [motionProgress] is updated based on the [Offset] from a single drag event.
      */
     fun updateProgressOnDrag(dragAmount: Offset) {
         val progressDelta = transition.dragToProgress(
-            motionProgress.currentProgress,
+            motionProgress.floatValue,
             motionMeasurer.layoutCurrentWidth,
             motionMeasurer.layoutCurrentHeight,
             dragAmount.x,
             dragAmount.y
         )
-        var newProgress = motionProgress.currentProgress + progressDelta
+        var newProgress = motionProgress.floatValue + progressDelta
         newProgress = newProgress.coerceIn(0f, 1f)
-        motionProgress.updateProgress(newProgress)
+        motionProgress.floatValue = newProgress
     }
 
     /**
@@ -57,8 +61,8 @@ internal class TransitionHandler(
      * swipe at the next frame..
      */
     suspend fun onTouchUp(velocity: Velocity) {
-        coroutineContext.monotonicFrameClock.withFrameNanos { timeNanos ->
-            transition.setTouchUp(motionProgress.currentProgress, timeNanos, velocity.x, velocity.y)
+        withFrameNanos { timeNanos ->
+            transition.setTouchUp(motionProgress.floatValue, timeNanos, velocity.x, velocity.y)
         }
     }
 
@@ -67,16 +71,16 @@ internal class TransitionHandler(
      * touch gestures.
      */
     suspend fun updateProgressWhileTouchUp() {
-        val newProgress = coroutineContext.monotonicFrameClock.withFrameNanos { timeNanos ->
+        val newProgress = withFrameNanos { timeNanos ->
             transition.getTouchUpProgress(timeNanos)
         }
-        motionProgress.updateProgress(newProgress)
+        motionProgress.floatValue = newProgress
     }
 
     /**
      * Returns true if the progress is still expected to be updated by [updateProgressWhileTouchUp].
      */
     fun pendingProgressWhileTouchUp(): Boolean {
-        return transition.isTouchNotDone(motionProgress.currentProgress)
+        return transition.isTouchNotDone(motionProgress.floatValue)
     }
 }

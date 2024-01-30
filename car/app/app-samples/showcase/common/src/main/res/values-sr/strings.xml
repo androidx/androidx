@@ -243,7 +243,7 @@
     <string name="sign_in_template_not_supported_text" msgid="7184733753948837646">"Хост не подржава шаблон за пријављивање"</string>
     <string name="sign_in_template_not_supported_title" msgid="4892883228898541764">"Некомпатибилан хост"</string>
     <string name="email_hint" msgid="7205549445477319606">"Имејл"</string>
-    <string name="sign_in_title" msgid="4551967308262681703">"Пријавите се"</string>
+    <string name="sign_in_title" msgid="4551967308262681703">"Пријави ме"</string>
     <string name="sign_in_instructions" msgid="9044850228284294762">"Унесите акредитиве"</string>
     <string name="invalid_email_error_msg" msgid="5261362663718987167">"Корисничко име мора да буде важећа имејл адреса"</string>
     <string name="invalid_length_error_msg" msgid="8238905276326976425">"Најмањи број знакова у корисничком имену је %s"</string>
@@ -264,6 +264,7 @@
     <string name="tab_title_list" msgid="5104962518489668123">"Картица листе"</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"Картица са решетком и дугачким насловом"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"Картица претраге"</string>
+    <string name="tab_title_loading" msgid="5385807479734490989">"Учитава се картица"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"Демонстрација учитавања шаблона картице"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"Демонстрација шаблона картице када нема картица"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"Слике не могу да се приказују за непознат хост"</string>
@@ -298,7 +299,7 @@
     <string name="some_additional_text" msgid="4009872495806318260">"Додатни текст"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"Пример листе која може да се изабере"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"Демонстрација ограничења за задатке"</string>
-    <string name="task_limit_reached_msg" msgid="6038763366777119364">"Достигнуто је ограничење задатака\nАко наставите, апликација ће се принудно зауставити"</string>
+    <string name="task_limit_reached_msg" msgid="7162842196382260992">"Тиме ће се премашити ограничење броја корака и преусмериће вас на нов екран."</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"%1$d. корак задатка од %2$d"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"Кликните да бисте ишли напред"</string>
     <string name="task_content_allowed" msgid="545061986612431190">"Посетите различите шаблоне и уверите се да је аутомобил у режиму вожње"</string>
@@ -323,6 +324,12 @@
     <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"Може да се изабере и ред"</string>
     <string name="secondary_action_toast" msgid="5076434693504006565">"Секундарна радња је изабрана"</string>
     <string name="row_primary_action_toast" msgid="756516694751965204">"Примарна радња реда је изабрана"</string>
+    <string name="sectioned_item_list_demo_title" msgid="1236735461225007729">"Демонстрација листе за ставке са одељцима"</string>
+    <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"Листа 1"</string>
+    <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"Листа 2"</string>
+    <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"Подтекст испод сваке листе"</string>
+    <string name="empty_list_demo_title" msgid="5989013634820902455">"Демонстрација празне листе"</string>
+    <string name="empty_list_message" msgid="5331395517560728138">"Листа је празна"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"Демонстрације различитих шаблона"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"Демонстрације приказивања"</string>
     <string name="template_layouts_demo_title" msgid="788249269446087847">"Демонстрације изгледа шаблона"</string>

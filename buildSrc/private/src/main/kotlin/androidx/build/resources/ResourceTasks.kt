@@ -23,8 +23,8 @@ import androidx.build.checkapi.ApiLocation
 import androidx.build.checkapi.getRequiredCompatibilityApiLocation
 import androidx.build.metalava.UpdateApiTask
 import androidx.build.uptodatedness.cacheEvenIfNoOutputs
-import org.gradle.api.Project
 import java.util.Locale
+import org.gradle.api.Project
 
 object ResourceTasks {
     private const val GENERATE_RESOURCE_API_TASK = "generateResourceApi"

@@ -18,14 +18,13 @@ import javax.`annotation`.processing.Generated
 import kotlin.Int
 import kotlin.String
 import kotlin.Suppress
-import kotlin.Unit
 import kotlin.collections.List
 import kotlin.collections.MutableList
 import kotlin.jvm.JvmStatic
 import kotlinx.coroutines.flow.Flow
 
 @Generated(value = ["androidx.room.RoomProcessor"])
-@Suppress(names = ["UNCHECKED_CAST", "DEPRECATION"])
+@Suppress(names = ["UNCHECKED_CAST", "DEPRECATION", "REDUNDANT_PROJECTION"])
 public class MyDao_Impl(
     __db: RoomDatabase,
 ) : MyDao {
@@ -66,7 +65,7 @@ public class MyDao_Impl(
                         _tmpOther = _cursor.getString(_cursorIndexOfOther)
                         _result = MyEntity(_tmpPk,_tmpOther)
                     } else {
-                        error("Cursor was empty, but expected a single item.")
+                        error("The query result was empty, but expected a single row to return a NON-NULL object of type <MyEntity>.")
                     }
                     return _result
                 } finally {
@@ -74,7 +73,7 @@ public class MyDao_Impl(
                 }
             }
 
-            protected fun finalize(): Unit {
+            protected fun finalize() {
                 _statement.release()
             }
         })
@@ -121,7 +120,7 @@ public class MyDao_Impl(
                 }
             }
 
-            protected fun finalize(): Unit {
+            protected fun finalize() {
                 _statement.release()
             }
         })

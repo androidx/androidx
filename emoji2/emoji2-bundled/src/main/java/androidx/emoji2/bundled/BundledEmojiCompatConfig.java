@@ -20,10 +20,13 @@ import android.content.Context;
 import android.content.res.AssetManager;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.util.Preconditions;
 import androidx.emoji2.text.EmojiCompat;
 import androidx.emoji2.text.MetadataRepo;
+
+import java.util.concurrent.Executor;
 
 /**
  * {@link EmojiCompat.Config} implementation that loads the metadata using AssetManager and
@@ -40,19 +43,37 @@ import androidx.emoji2.text.MetadataRepo;
 public class BundledEmojiCompatConfig extends EmojiCompat.Config {
 
     /**
-     * Default constructor.
+     * Font will be loaded on a new temporary Thread.
      *
      * @param context Context instance
+     * @deprecated please call BundledEmojiCompatConfig(context, executor) to control the
+     * font loading thread. This constructor will spin up a new temporary thread.
      */
+    @Deprecated
     public BundledEmojiCompatConfig(@NonNull Context context) {
-        super(new BundledMetadataLoader(context));
+        super(new BundledMetadataLoader(context, null));
+    }
+
+    /**
+     * Controls the executor font is loaded on.
+     *
+     * @param context Context instance
+     * @param fontLoadExecutor Executor to load font on
+     */
+    public BundledEmojiCompatConfig(@NonNull Context context, @NonNull Executor fontLoadExecutor) {
+        super(new BundledMetadataLoader(context, fontLoadExecutor));
     }
 
     private static class BundledMetadataLoader implements EmojiCompat.MetadataRepoLoader {
+        @NonNull
         private final Context mContext;
 
-        BundledMetadataLoader(@NonNull Context context) {
+        @Nullable
+        private final Executor mExecutor;
+
+        BundledMetadataLoader(@NonNull Context context, @Nullable Executor executor) {
             mContext = context.getApplicationContext();
+            mExecutor = executor;
         }
 
         @Override
@@ -60,9 +81,13 @@ public class BundledEmojiCompatConfig extends EmojiCompat.Config {
         public void load(@NonNull EmojiCompat.MetadataRepoLoaderCallback loaderCallback) {
             Preconditions.checkNotNull(loaderCallback, "loaderCallback cannot be null");
             final InitRunnable runnable = new InitRunnable(mContext, loaderCallback);
-            final Thread thread = new Thread(runnable);
-            thread.setDaemon(false);
-            thread.start();
+            if (mExecutor != null) {
+                mExecutor.execute(runnable);
+            } else {
+                final Thread thread = new Thread(runnable);
+                thread.setDaemon(false);
+                thread.start();
+            }
         }
     }
 

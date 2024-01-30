@@ -18,8 +18,8 @@ package androidx.compose.ui.util
 
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.toAwtImage
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.graphics.toAwtImage
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
@@ -28,6 +28,7 @@ import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.WindowPosition
 import androidx.compose.ui.window.density
 import androidx.compose.ui.window.layoutDirection
+import androidx.compose.ui.window.layoutDirectionFor
 import java.awt.Component
 import java.awt.Dialog
 import java.awt.Dimension
@@ -111,6 +112,7 @@ private fun Window.setSizeImpl(size: DpSize) {
 
     if (!isDisplayable) {
         // Pack to allow drawing the first frame
+        preferredSize = Dimension(width, height)
         pack()
     }
 
@@ -169,13 +171,11 @@ internal fun Dialog.setUndecoratedSafely(value: Boolean) {
     }
 }
 
-// In fact, this size doesn't affect anything on Windows/Linux, and isn't used by macOS (macOS
-// doesn't have separate Window icons). We specify it to support Painter's with
-// Unspecified intrinsicSize
-private val iconSize = Size(32f, 32f)
+// We specify this to support Painter's with unspecified intrinsicSize
+private val iconSize = Size(192f, 192f)
 
 internal fun Window.setIcon(painter: Painter?) {
-    setIconImage(painter?.toAwtImage(density, layoutDirection, iconSize))
+    setIconImage(painter?.toAwtImage(density, layoutDirectionFor(this), iconSize))
 }
 
 internal class ListenerOnWindowRef<T>(

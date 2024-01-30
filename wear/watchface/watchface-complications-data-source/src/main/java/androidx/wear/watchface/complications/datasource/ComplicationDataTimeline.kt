@@ -116,9 +116,12 @@ public class ComplicationDataTimeline(
     public val defaultComplicationData: ComplicationData,
     public val timelineEntries: Collection<TimelineEntry>
 ) {
-    init {
+    /** Throws [IllegalArgumentException] if the [ComplicationDataTimeline] is invalid. */
+    internal fun validate() {
+        defaultComplicationData.validate()
         for (entry in timelineEntries) {
             val complicationData = entry.complicationData
+            complicationData.validate()
             if (complicationData is NoDataComplicationData) {
                 require(
                     complicationData.placeholder == null ||

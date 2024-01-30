@@ -19,8 +19,9 @@ package androidx.camera.video
 import android.content.Context
 import androidx.annotation.RequiresApi
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.DynamicRange
 import androidx.camera.core.Logger
-import androidx.camera.testing.CameraUtil
+import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.video.internal.audio.AudioStreamImpl
 import androidx.camera.video.internal.config.AudioSettingsAudioProfileResolver
 import kotlinx.coroutines.runBlocking
@@ -51,16 +52,20 @@ class AudioChecker {
             cameraSelector: CameraSelector,
             qualitySelector: QualitySelector
         ) = runBlocking {
+            // Only standard dynamic range is checked, since video and audio should be independent.
+            val sdr = DynamicRange.SDR
+
             // Get audio source settings from EncoderProfiles
             val cameraInfo =
                 CameraUtil.createCameraUseCaseAdapter(context, cameraSelector).cameraInfo
-            val videoCapabilities = VideoCapabilities.from(cameraInfo)
-            val quality = qualitySelector.getPrioritizedQualities(cameraInfo).first()
+            val videoCapabilities = Recorder.getVideoCapabilities(cameraInfo)
+            val supportedQualities = videoCapabilities.getSupportedQualities(sdr)
+            val quality = qualitySelector.getPrioritizedQualities(supportedQualities).first()
             // Get a config using the default audio spec.
             val audioSettings =
                 AudioSettingsAudioProfileResolver(
                     AudioSpec.builder().build(),
-                    videoCapabilities.getProfiles(quality)!!.defaultAudioProfile!!
+                    videoCapabilities.getProfiles(quality, sdr)!!.defaultAudioProfile!!
                 ).get()
             with(AudioStreamImpl(audioSettings, null)) {
                 try {

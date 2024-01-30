@@ -20,7 +20,7 @@ import androidx.compose.foundation.Indication
 import androidx.compose.foundation.IndicationInstance
 import androidx.compose.foundation.assertThat
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.containsExactly
+import androidx.compose.foundation.containsExactlyInOrder
 import androidx.compose.foundation.indication
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.InteractionSource
@@ -162,7 +162,7 @@ class IndicationTest {
             val modifier = Modifier.indication(state, indication) as InspectableValue
             assertThat(modifier.nameFallback).isEqualTo("indication")
             assertThat(modifier.valueOverride).isNull()
-            assertThat(modifier.inspectableElements.map { it.name }.asIterable()).containsExactly(
+            assertThat(modifier.inspectableElements.map { it.name }.asIterable()).containsExactlyInOrder(
                 "indication",
                 "interactionSource"
             )

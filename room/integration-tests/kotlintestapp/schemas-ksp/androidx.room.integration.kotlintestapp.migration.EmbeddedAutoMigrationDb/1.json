@@ -1,0 +1,105 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 1,
+    "identityHash": "5eac636b72950b38807bb59226d793cc",
+    "entities": [
+      {
+        "tableName": "Entity1",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `name` TEXT, `addedInV1` INTEGER NOT NULL DEFAULT 1, `embeddedId1` INTEGER, `embeddedId2` INTEGER, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "addedInV1",
+            "columnName": "addedInV1",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "1"
+          },
+          {
+            "fieldPath": "embeddedEntity1.embeddedId1",
+            "columnName": "embeddedId1",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "embeddedEntity1.embeddedEntity2.embeddedId2",
+            "columnName": "embeddedId2",
+            "affinity": "INTEGER",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "EmbeddedEntity1",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`embeddedId1` INTEGER NOT NULL, `embeddedId2` INTEGER, PRIMARY KEY(`embeddedId1`))",
+        "fields": [
+          {
+            "fieldPath": "embeddedId1",
+            "columnName": "embeddedId1",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "embeddedEntity2.embeddedId2",
+            "columnName": "embeddedId2",
+            "affinity": "INTEGER",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "embeddedId1"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "EmbeddedEntity2",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`embeddedId2` INTEGER NOT NULL, PRIMARY KEY(`embeddedId2`))",
+        "fields": [
+          {
+            "fieldPath": "embeddedId2",
+            "columnName": "embeddedId2",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "embeddedId2"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      }
+    ],
+    "views": [],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '5eac636b72950b38807bb59226d793cc')"
+    ]
+  }
+}

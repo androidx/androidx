@@ -18,6 +18,7 @@ package androidx.compose.compiler.plugins.kotlin.lower.decoys
 
 import androidx.compose.compiler.plugins.kotlin.ComposeFqNames
 import androidx.compose.compiler.plugins.kotlin.ModuleMetrics
+import androidx.compose.compiler.plugins.kotlin.analysis.StabilityInferencer
 import androidx.compose.compiler.plugins.kotlin.lower.ComposerParamTransformer
 import androidx.compose.compiler.plugins.kotlin.lower.ModuleLoweringPass
 import androidx.compose.compiler.plugins.kotlin.lower.changedParamCount
@@ -57,15 +58,17 @@ class SubstituteDecoyCallsTransformer(
     pluginContext: IrPluginContext,
     symbolRemapper: DeepCopySymbolRemapper,
     signatureBuilder: IdSignatureSerializer,
+    stabilityInferencer: StabilityInferencer,
     metrics: ModuleMetrics,
 ) : AbstractDecoysLowering(
     pluginContext = pluginContext,
     symbolRemapper = symbolRemapper,
     metrics = metrics,
+    stabilityInferencer = stabilityInferencer,
     signatureBuilder = signatureBuilder
 ), ModuleLoweringPass {
     private val decoysTransformer = CreateDecoysTransformer(
-        pluginContext, symbolRemapper, signatureBuilder, metrics
+        pluginContext, symbolRemapper, signatureBuilder, stabilityInferencer, metrics
     )
     private val lazyDeclarationsCache = mutableMapOf<IrFunctionSymbol, IrFunction>()
 
@@ -117,6 +120,11 @@ class SubstituteDecoyCallsTransformer(
             return super.visitSimpleFunction(declaration)
         }
 
+        remapOverriddenSymbols(declaration)
+        return super.visitSimpleFunction(declaration)
+    }
+
+    private fun remapOverriddenSymbols(declaration: IrSimpleFunction) {
         val newOverriddenSymbols = declaration.overriddenSymbols.map {
             // It can be an overridden symbol from another module, so access it via `decoyOwner`
             val maybeDecoy = it.decoyOwner
@@ -124,11 +132,13 @@ class SubstituteDecoyCallsTransformer(
                 maybeDecoy.getComposableForDecoy() as IrSimpleFunctionSymbol
             } else {
                 it
+            }.also {
+                // need to fix for entire hierarchy (because of "original" symbols in LazyIR)
+                remapOverriddenSymbols(it.owner)
             }
         }
 
         declaration.overriddenSymbols = newOverriddenSymbols
-        return super.visitSimpleFunction(declaration)
     }
 
     override fun visitConstructorCall(expression: IrConstructorCall): IrExpression {
@@ -150,7 +160,7 @@ class SubstituteDecoyCallsTransformer(
             constructorTypeArgumentsCount = expression.constructorTypeArgumentsCount
         ).let {
             it.copyTypeAndValueArgumentsFrom(expression)
-            return@let it.copyWithNewTypeParams(callee, actualConstructor)
+            it
         }
 
         return super.visitConstructorCall(updatedCall)
@@ -175,7 +185,7 @@ class SubstituteDecoyCallsTransformer(
             valueArgumentsCount = expression.valueArgumentsCount,
         ).let {
             it.copyTypeAndValueArgumentsFrom(expression)
-            return@let it.copyWithNewTypeParams(callee, actualConstructor)
+            it
         }
 
         return super.visitDelegatingConstructorCall(updatedCall)
@@ -200,7 +210,7 @@ class SubstituteDecoyCallsTransformer(
             superQualifierSymbol = expression.superQualifierSymbol
         ).let {
             it.copyTypeAndValueArgumentsFrom(expression)
-            return@let it.copyWithNewTypeParams(callee, actualFunction)
+            it
         }
         return super.visitCall(updatedCall)
     }
@@ -224,14 +234,14 @@ class SubstituteDecoyCallsTransformer(
             reflectionTarget = expression.reflectionTarget
         ).let {
             it.copyTypeAndValueArgumentsFrom(expression)
-            return@let it.copyWithNewTypeParams(callee, actualFunction)
+            it
         }
         return super.visitFunctionReference(updatedReference)
     }
 
     private val addComposerParameterInplace = object : IrElementTransformerVoid() {
         private val composerParamTransformer = ComposerParamTransformer(
-            context, symbolRemapper, true, metrics
+            context, symbolRemapper, stabilityInferencer, true, metrics
         )
 
         private fun IrType.isComposable(): Boolean {

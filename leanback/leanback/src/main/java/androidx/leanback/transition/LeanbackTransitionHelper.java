@@ -25,7 +25,6 @@ import androidx.leanback.R;
 
 /**
  * Helper class to load Leanback specific transition.
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public class LeanbackTransitionHelper {

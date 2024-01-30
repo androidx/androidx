@@ -18,6 +18,8 @@ package androidx.work.impl.testutils
 
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
+import androidx.work.WorkInfo.Companion.STOP_REASON_PREEMPT
+import androidx.work.impl.constraints.ConstraintsState
 import androidx.work.impl.constraints.controllers.ConstraintController
 import androidx.work.impl.constraints.trackers.ConstraintTracker
 import androidx.work.impl.model.WorkSpec
@@ -25,11 +27,20 @@ import androidx.work.impl.utils.taskexecutor.InstantWorkTaskExecutor
 import androidx.work.impl.utils.taskexecutor.TaskExecutor
 
 class TestConstraintTracker(
-    override val initialState: Boolean = false,
+    initialState: Boolean = false,
     context: Context = ApplicationProvider.getApplicationContext(),
     taskExecutor: TaskExecutor = InstantWorkTaskExecutor(),
 ) : ConstraintTracker<Boolean>(context, taskExecutor) {
     var isTracking = false
+
+    // some awkwardness because "this.state = ..." is overridden
+    // with `readSystemState` when first listener is added.
+    // so we have a separate state returns that we return from `readSystemState` too.
+    var constraintState: Boolean = initialState
+        set(value) {
+            state = value
+            field = value
+        }
 
     override fun startTracking() {
         isTracking = true
@@ -38,12 +49,18 @@ class TestConstraintTracker(
     override fun stopTracking() {
         isTracking = false
     }
+
+    override fun readSystemState() = constraintState
 }
 
 class TestConstraintController(
     tracker: ConstraintTracker<Boolean>,
     private val constrainedIds: List<String>
 ) : ConstraintController<Boolean>(tracker) {
+    // using obscure stop reason for test purposes
+    override val reason = STOP_REASON_PREEMPT
     override fun hasConstraint(workSpec: WorkSpec) = workSpec.id in constrainedIds
     override fun isConstrained(value: Boolean) = !value
 }
+
+val ConstraintsNotMet = ConstraintsState.ConstraintsNotMet(STOP_REASON_PREEMPT)

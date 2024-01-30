@@ -64,6 +64,7 @@ public final class MessageCompat {
      * <p>
      * This API has no effect prior to API 16.
      *
+     * @param message message for this to set the mode.
      * @param async True if the message is asynchronous.
      *
      * @see #isAsynchronous(Message)

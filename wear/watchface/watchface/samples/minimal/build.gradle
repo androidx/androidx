@@ -28,7 +28,7 @@ dependencies {
 }
 
 androidx {
-    name = "AndroidX Wear Watchface Minimal Sample"
+    name = "Wear Watchface Minimal Sample"
     type = LibraryType.SAMPLES
     inceptionYear = "2021"
     description = "Contains the sample code for the Androidx Wear Watchface library"

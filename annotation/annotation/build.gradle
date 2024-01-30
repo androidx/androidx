@@ -1,18 +1,39 @@
-import androidx.build.KmpPlatformsKt
+import androidx.build.AndroidXComposePlugin
 import androidx.build.LibraryType
-import androidx.build.Publish
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.tasks.KotlinNativeCompile
 
 plugins {
     id("AndroidXPlugin")
+
+    //  TODO move all functionality to Compose-independent plugin (`collection` shouldn't depend on Compose concepts)
+    id("AndroidXComposePlugin")
 }
 
-androidXMultiplatform {
-    jvm()
-    mac()
-    linux()
-    ios()
+AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project)
+
+androidXComposeMultiplatform {
+    desktop()
+    js()
+    wasm()
+    darwin()
+}
+
+kotlin {
+    // Not all modules can have these targets, so declare them here instead of androidXComposeMultiplatform.
+    // We can support the kotlin-native targets supported by kotlin coroutines:
+    // https://github.com/Kotlin/kotlinx.coroutines/blob/master/gradle/compile-native-multiplatform.gradle
+    // NOTE: Keep this list in sync with runtime-saveable's targets.
+    watchosArm64()
+    watchosArm32()
+    watchosX64()
+    watchosSimulatorArm64()
+    tvosArm64()
+    tvosX64()
+    tvosSimulatorArm64()
+    mingwX64()
+    linuxArm64()
+    linuxX64()
 
     sourceSets {
         commonMain {
@@ -21,16 +42,14 @@ androidXMultiplatform {
             }
         }
 
-        if (KmpPlatformsKt.enableNative(project)) {
-            nonJvmMain {
-                dependsOn commonMain
-            }
+        nonJvmMain {
+            dependsOn commonMain
+        }
 
-            targets.all { target ->
-                if (target.platformType !in [KotlinPlatformType.jvm, KotlinPlatformType.common]) {
-                    target.compilations["main"].defaultSourceSet {
-                        dependsOn(nonJvmMain)
-                    }
+        targets.all { target ->
+            if (target.platformType !in [KotlinPlatformType.jvm, KotlinPlatformType.common]) {
+                target.compilations["main"].defaultSourceSet {
+                    dependsOn(nonJvmMain)
                 }
             }
         }
@@ -43,33 +62,14 @@ androidXMultiplatform {
     }
 }
 
-jvmJar {
-    // Strip out typedef classes. For Android libraries, this is done
-    // automatically by the Gradle plugin, but the Annotation library is a
-    // plain jar, built by the regular Gradle java plugin. The typedefs
-    // themselves have been manually extracted into the
-    // external-annotations directory, and those are packaged separately
-    // below by the annotationsZip task.
-    exclude("androidx/annotation/ProductionVisibility.class")
-    exclude("androidx/annotation/DimensionUnit.class")
-}
-
-task annotationsZip(type: Zip) {
-    archiveClassifier.set("annotations")
-    from("external-annotations")
-}
-
-// add annotations jar task as artifacts
-artifacts {
-    archives jvmJar
-    archives annotationsZip
-}
-
 androidx {
-    name = "Android Support Library Annotations"
+    name = "Annotation"
     type = LibraryType.PUBLISHED_LIBRARY
     mavenVersion = LibraryVersions.ANNOTATION
-    mavenMultiplatformVersion = LibraryVersions.ANNOTATION_KMP
     inceptionYear = "2013"
-    description = "The Support Library is a static library that you can add to your Android application in order to use APIs that are either not available for older platform versions or utility APIs that aren't a part of the framework APIs."
+    description = "Provides source annotations for tooling and readability."
+}
+
+androidxCompose {
+    composeCompilerPluginEnabled = false
 }

@@ -2,7 +2,7 @@
 package androidx.sqlite.db {
 
   public final class SupportSQLiteDatabaseKt {
-    method public static inline <T> T! transaction(androidx.sqlite.db.SupportSQLiteDatabase, optional boolean exclusive, kotlin.jvm.functions.Function1<? super androidx.sqlite.db.SupportSQLiteDatabase,? extends T> body);
+    method public static inline <T> T transaction(androidx.sqlite.db.SupportSQLiteDatabase, optional boolean exclusive, kotlin.jvm.functions.Function1<? super androidx.sqlite.db.SupportSQLiteDatabase,? extends T> body);
   }
 
 }

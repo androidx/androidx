@@ -23,11 +23,6 @@ plugins {
 }
 
 dependencies {
-    // Atomic group
-    constraints {
-        implementation(project(":preference:preference"))
-    }
-
     api(project(":preference:preference"))
     api("androidx.core:core-ktx:1.1.0") {
         because "Mirror preference dependency graph for -ktx artifacts"
@@ -48,10 +43,11 @@ dependencies {
 }
 
 androidx {
-    name = "Android Preferences KTX"
+    name = "Preferences KTX"
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2018"
     description = "Kotlin extensions for preferences"
+    metalavaK2UastEnabled = true
 }
 
 android {

@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("Deprecation")
+
 package androidx.compose.material
 
 import androidx.compose.animation.core.Animatable
@@ -34,6 +36,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.Saver
@@ -51,17 +54,18 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastMaxBy
+import androidx.compose.ui.util.fastMinByOrNull
 import androidx.compose.ui.util.lerp
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.take
-import kotlinx.coroutines.launch
 import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.sign
 import kotlin.math.sin
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.take
+import kotlinx.coroutines.launch
 
 /**
  * State of the [swipeable] modifier.
@@ -76,6 +80,7 @@ import kotlin.math.sin
  */
 @Stable
 @ExperimentalMaterialApi
+@Deprecated(SwipeableDeprecation)
 open class SwipeableState<T>(
     initialValue: T,
     internal val animationSpec: AnimationSpec<Float> = AnimationSpec,
@@ -111,12 +116,12 @@ open class SwipeableState<T>(
     val overflow: State<Float> get() = overflowState
 
     // Use `Float.NaN` as a placeholder while the state is uninitialised.
-    private val offsetState = mutableStateOf(0f)
-    private val overflowState = mutableStateOf(0f)
+    private val offsetState = mutableFloatStateOf(0f)
+    private val overflowState = mutableFloatStateOf(0f)
 
     // the source of truth for the "real"(non ui) position
     // basically position in bounds + overflow
-    private val absoluteOffset = mutableStateOf(0f)
+    private val absoluteOffset = mutableFloatStateOf(0f)
 
     // current animation target, if animating, otherwise null
     private val animationTarget = mutableStateOf<Float?>(null)
@@ -138,8 +143,8 @@ open class SwipeableState<T>(
             requireNotNull(initialOffset) {
                 "The initial value must have an associated anchor."
             }
-            offsetState.value = initialOffset
-            absoluteOffset.value = initialOffset
+            offsetState.floatValue = initialOffset
+            absoluteOffset.floatValue = initialOffset
         }
     }
 
@@ -194,29 +199,29 @@ open class SwipeableState<T>(
 
     internal var thresholds: (Float, Float) -> Float by mutableStateOf({ _, _ -> 0f })
 
-    internal var velocityThreshold by mutableStateOf(0f)
+    internal var velocityThreshold by mutableFloatStateOf(0f)
 
     internal var resistance: ResistanceConfig? by mutableStateOf(null)
 
     internal val draggableState = DraggableState {
-        val newAbsolute = absoluteOffset.value + it
+        val newAbsolute = absoluteOffset.floatValue + it
         val clamped = newAbsolute.coerceIn(minBound, maxBound)
         val overflow = newAbsolute - clamped
         val resistanceDelta = resistance?.computeResistance(overflow) ?: 0f
-        offsetState.value = clamped + resistanceDelta
-        overflowState.value = overflow
-        absoluteOffset.value = newAbsolute
+        offsetState.floatValue = clamped + resistanceDelta
+        overflowState.floatValue = overflow
+        absoluteOffset.floatValue = newAbsolute
     }
 
     private suspend fun snapInternalToOffset(target: Float) {
         draggableState.drag {
-            dragBy(target - absoluteOffset.value)
+            dragBy(target - absoluteOffset.floatValue)
         }
     }
 
     private suspend fun animateInternalToOffset(target: Float, spec: AnimationSpec<Float>) {
         draggableState.drag {
-            var prevValue = absoluteOffset.value
+            var prevValue = absoluteOffset.floatValue
             animationTarget.value = target
             isAnimationRunning = true
             try {
@@ -334,7 +339,7 @@ open class SwipeableState<T>(
                 }
                 animateInternalToOffset(targetOffset, anim)
             } finally {
-                val endOffset = absoluteOffset.value
+                val endOffset = absoluteOffset.floatValue
                 val endValue = anchors
                     // fighting rounding error once again, anchor should be as close as 0.5 pixels
                     .filterKeys { anchorOffset -> abs(anchorOffset - endOffset) < 0.5f }
@@ -392,9 +397,9 @@ open class SwipeableState<T>(
      * @return the amount of [delta] consumed
      */
     fun performDrag(delta: Float): Float {
-        val potentiallyConsumed = absoluteOffset.value + delta
+        val potentiallyConsumed = absoluteOffset.floatValue + delta
         val clamped = potentiallyConsumed.coerceIn(minBound, maxBound)
-        val deltaToConsume = clamped - absoluteOffset.value
+        val deltaToConsume = clamped - absoluteOffset.floatValue
         if (abs(deltaToConsume) > 0) {
             draggableState.dispatchRawDelta(deltaToConsume)
         }
@@ -427,6 +432,7 @@ open class SwipeableState<T>(
  */
 @Immutable
 @ExperimentalMaterialApi
+@Deprecated(SwipeableDeprecation)
 class SwipeProgress<T>(
     val from: T,
     val to: T,
@@ -465,6 +471,7 @@ class SwipeProgress<T>(
  */
 @Composable
 @ExperimentalMaterialApi
+@Deprecated(SwipeableDeprecation)
 fun <T : Any> rememberSwipeableState(
     initialValue: T,
     animationSpec: AnimationSpec<Float> = AnimationSpec,
@@ -494,6 +501,7 @@ fun <T : Any> rememberSwipeableState(
  */
 @Composable
 @ExperimentalMaterialApi
+@Deprecated(SwipeableDeprecation)
 internal fun <T : Any> rememberSwipeableStateFor(
     value: T,
     onValueChange: (T) -> Unit,
@@ -560,6 +568,7 @@ internal fun <T : Any> rememberSwipeableStateFor(
  * in order to animate to the next state, even if the positional [thresholds] have not been reached.
  */
 @ExperimentalMaterialApi
+@Deprecated(SwipeableDeprecation)
 fun <T> Modifier.swipeable(
     state: SwipeableState<T>,
     anchors: Map<Float, T>,
@@ -625,6 +634,7 @@ fun <T> Modifier.swipeable(
  */
 @Stable
 @ExperimentalMaterialApi
+@Deprecated(SwipeableDeprecation)
 interface ThresholdConfig {
     /**
      * Compute the value of the threshold (in pixels), once the values of the anchors are known.
@@ -639,6 +649,7 @@ interface ThresholdConfig {
  */
 @Immutable
 @ExperimentalMaterialApi
+@Deprecated(SwipeableDeprecation)
 data class FixedThreshold(private val offset: Dp) : ThresholdConfig {
     override fun Density.computeThreshold(fromValue: Float, toValue: Float): Float {
         return fromValue + offset.toPx() * sign(toValue - fromValue)
@@ -652,6 +663,7 @@ data class FixedThreshold(private val offset: Dp) : ThresholdConfig {
  */
 @Immutable
 @ExperimentalMaterialApi
+@Deprecated(SwipeableDeprecation)
 data class FractionalThreshold(
     /*@FloatRange(from = 0.0, to = 1.0)*/
     private val fraction: Float
@@ -684,6 +696,7 @@ data class FractionalThreshold(
  * Must not be negative.
  */
 @Immutable
+@Deprecated(SwipeableDeprecation)
 class ResistanceConfig(
     /*@FloatRange(from = 0.0, fromInclusive = false)*/
     val basis: Float,
@@ -736,8 +749,8 @@ private fun findBounds(
     anchors: Set<Float>
 ): List<Float> {
     // Find the anchors the target lies between with a little bit of rounding error.
-    val a = anchors.filter { it <= offset + 0.001 }.maxOrNull()
-    val b = anchors.filter { it >= offset - 0.001 }.minOrNull()
+    val a = anchors.filter { it <= offset + 0.001 }.fastMaxBy { it }
+    val b = anchors.filter { it >= offset - 0.001 }.fastMinByOrNull { it }
 
     return when {
         a == null ->
@@ -800,6 +813,7 @@ private fun <T> Map<Float, T>.getOffset(state: T): Float? {
 /**
  * Contains useful defaults for [swipeable] and [SwipeableState].
  */
+@Deprecated(SwipeableDeprecation)
 object SwipeableDefaults {
     /**
      * The default animation used by [SwipeableState].
@@ -887,3 +901,7 @@ internal val <T> SwipeableState<T>.PreUpPostDownNestedScrollConnection: NestedSc
 
         private fun Offset.toFloat(): Float = this.y
     }
+
+private const val SwipeableDeprecation = "Material's Swipeable has been replaced by Foundation's " +
+    "AnchoredDraggable APIs. Please see developer.android.com for an overview of the changes and " +
+    "a migration guide."

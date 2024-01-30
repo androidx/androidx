@@ -16,6 +16,8 @@
 
 package androidx.camera.core.impl;
 
+import static androidx.camera.core.concurrent.CameraCoordinator.CAMERA_OPERATING_MODE_CONCURRENT;
+
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -23,6 +25,8 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.WorkerThread;
 import androidx.camera.core.Camera;
 import androidx.camera.core.Logger;
+import androidx.camera.core.concurrent.CameraCoordinator;
+import androidx.camera.core.concurrent.CameraCoordinator.CameraOperatingMode;
 import androidx.core.util.Preconditions;
 
 import java.util.HashMap;
@@ -39,13 +43,23 @@ import java.util.concurrent.RejectedExecutionException;
  * there is a slot available to open a camera.
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-public final class CameraStateRegistry {
+public final class CameraStateRegistry implements CameraCoordinator.ConcurrentCameraModeListener {
     private static final String TAG = "CameraStateRegistry";
+
+    /**
+     * Only two cameras are allowed in concurrent mode now.
+     */
+    private static final int MAX_ALLOWED_CONCURRENT_CAMERAS_IN_SINGLE_MODE = 1;
+    private static final int MAX_ALLOWED_CONCURRENT_CAMERAS_IN_CONCURRENT_MODE = 2;
+
     private final StringBuilder mDebugString = new StringBuilder();
 
     private final Object mLock = new Object();
 
-    private final int mMaxAllowedOpenedCameras;
+    private int mMaxAllowedOpenedCameras;
+
+    @GuardedBy("mLock")
+    private final CameraCoordinator mCameraCoordinator;
     @GuardedBy("mLock")
     private final Map<Camera, CameraRegistration> mCameraStates = new HashMap<>();
     @GuardedBy("mLock")
@@ -55,11 +69,15 @@ public final class CameraStateRegistry {
     /**
      * Creates a new registry with a limit of {@code maxAllowedOpenCameras} allowed to be opened.
      *
+     * @param cameraCoordinator The camera coordinator for conucurrent cameras.
      * @param maxAllowedOpenedCameras The limit for number of simultaneous open cameras.
      */
-    public CameraStateRegistry(int maxAllowedOpenedCameras) {
+    public CameraStateRegistry(
+            @NonNull CameraCoordinator cameraCoordinator,
+            int maxAllowedOpenedCameras) {
         mMaxAllowedOpenedCameras = maxAllowedOpenedCameras;
-        synchronized ("mLock") {
+        synchronized (mLock) {
+            mCameraCoordinator = cameraCoordinator;
             mAvailableCameras = mMaxAllowedOpenedCameras;
         }
     }
@@ -77,14 +95,20 @@ public final class CameraStateRegistry {
      * {@link CameraInternal.State#RELEASED} state.
      *
      * @param camera The camera to register.
+     * @param notifyExecutor The executor to notify camera device opened or capture session
+     *                       configured.
+     * @param onOpenAvailableListener The listener for camera device open available.
+     * @param onConfigureAvailableListener The listener for camera capture session configure
+     *                                     available.
      */
     public void registerCamera(@NonNull Camera camera, @NonNull Executor notifyExecutor,
-            @NonNull OnOpenAvailableListener cameraAvailableListener) {
+            @NonNull OnConfigureAvailableListener onConfigureAvailableListener,
+            @NonNull OnOpenAvailableListener onOpenAvailableListener) {
         synchronized (mLock) {
             Preconditions.checkState(!mCameraStates.containsKey(camera), "Camera is "
                     + "already registered: " + camera);
-            mCameraStates.put(camera,
-                    new CameraRegistration(null, notifyExecutor, cameraAvailableListener));
+            mCameraStates.put(camera, new CameraRegistration(null, notifyExecutor,
+                    onConfigureAvailableListener, onOpenAvailableListener));
         }
     }
 
@@ -95,9 +119,12 @@ public final class CameraStateRegistry {
      * open, then this will return {@code false}, and the caller should not attempt to open the
      * camera. Instead, the caller should mark its state as
      * {@link CameraInternal.State#PENDING_OPEN} with
-     * {@link #markCameraState(Camera, CameraInternal.State)}, and the listener registered with
-     * {@link #registerCamera(Camera, Executor, OnOpenAvailableListener)} will be notified when a
-     * camera becomes available. At that time, the caller should attempt to call this method again.
+     * {@link #markCameraState(Camera, CameraInternal.State)} and the listener
+     * registered with {@link #registerCamera(Camera, Executor,OnConfigureAvailableListener,
+     * OnOpenAvailableListener)} will be notified when a camera becomes available. At that
+     * time, the caller should attempt to call this method again.
+     *
+     * @param camera The camera instance.
      *
      * @return {@code true} if it is safe to open the camera. If this returns {@code true}, it is
      * assumed the camera is now in an {@link CameraInternal.State#OPENING} state, and the
@@ -138,6 +165,34 @@ public final class CameraStateRegistry {
     }
 
     /**
+     * Checks if opening capture session is allowed in concurrent camera mode.
+     *
+     * @param cameraId The camera id.
+     * @param pairedCameraId The paired camera id.
+     *
+     * @return True if it is safe to open the capture session, otherwise false.
+     */
+    public boolean tryOpenCaptureSession(
+            @NonNull String cameraId,
+            @Nullable String pairedCameraId) {
+        synchronized (mLock) {
+            if (mCameraCoordinator.getCameraOperatingMode() != CAMERA_OPERATING_MODE_CONCURRENT) {
+                return true;
+            }
+            CameraInternal.State selfState = getCameraRegistration(cameraId) != null
+                    ? getCameraRegistration(cameraId).getState() : null;
+            CameraInternal.State pairedState =
+                    (pairedCameraId != null && getCameraRegistration(pairedCameraId) != null)
+                            ? getCameraRegistration(pairedCameraId).getState() : null;
+            boolean isSelfAvailable = CameraInternal.State.OPEN.equals(selfState)
+                    || CameraInternal.State.CONFIGURED.equals(selfState);
+            boolean isPairAvailable = CameraInternal.State.OPEN.equals(pairedState)
+                            || CameraInternal.State.CONFIGURED.equals(pairedState);
+            return isSelfAvailable && isPairAvailable;
+        }
+    }
+
+    /**
      * Mark the state of a registered camera.
      *
      * <p>This is used to track the states of all cameras in order to determine how many cameras
@@ -146,7 +201,9 @@ public final class CameraStateRegistry {
      * @param camera Registered camera whose state is being set
      * @param state  New state of the registered camera
      */
-    public void markCameraState(@NonNull Camera camera, @NonNull CameraInternal.State state) {
+    public void markCameraState(
+            @NonNull Camera camera,
+            @NonNull CameraInternal.State state) {
         markCameraState(camera, state, true);
     }
 
@@ -170,7 +227,8 @@ public final class CameraStateRegistry {
      */
     public void markCameraState(@NonNull Camera camera, @NonNull CameraInternal.State state,
             boolean notifyImmediately) {
-        Map<Camera, CameraRegistration> camerasToNotify = null;
+        Map<Camera, CameraRegistration> camerasToNotifyOpen = null;
+        CameraRegistration cameraToNotifyConfigure = null;
         synchronized (mLock) {
             CameraInternal.State previousState = null;
             int previousAvailableCameras = mAvailableCameras;
@@ -185,31 +243,67 @@ public final class CameraStateRegistry {
                 return;
             }
 
+            // In concurrent mode, if state transits to CONFIGURED, need to notify paired camera
+            // to configure capture session.
+            if (mCameraCoordinator.getCameraOperatingMode() == CAMERA_OPERATING_MODE_CONCURRENT
+                    && state == CameraInternal.State.CONFIGURED) {
+                String cameraId = ((CameraInfoInternal) camera.getCameraInfo()).getCameraId();
+                String pairedCameraId = mCameraCoordinator.getPairedConcurrentCameraId(cameraId);
+                if (pairedCameraId != null) {
+                    cameraToNotifyConfigure = getCameraRegistration(pairedCameraId);
+                }
+            }
+
             if (previousAvailableCameras < 1 && mAvailableCameras > 0) {
                 // Cameras are now available, notify ALL cameras in a PENDING_OPEN state.
-                camerasToNotify = new HashMap<>();
+                camerasToNotifyOpen = new HashMap<>();
                 for (Map.Entry<Camera, CameraRegistration> entry : mCameraStates.entrySet()) {
                     if (entry.getValue().getState() == CameraInternal.State.PENDING_OPEN) {
-                        camerasToNotify.put(entry.getKey(), entry.getValue());
+                        camerasToNotifyOpen.put(entry.getKey(), entry.getValue());
                     }
                 }
             } else if (state == CameraInternal.State.PENDING_OPEN && mAvailableCameras > 0) {
                 // This camera entered a PENDING_OPEN state while there are available cameras,
                 // only notify the single camera.
-                camerasToNotify = new HashMap<>();
-                camerasToNotify.put(camera, mCameraStates.get(camera));
+                camerasToNotifyOpen = new HashMap<>();
+                camerasToNotifyOpen.put(camera, mCameraStates.get(camera));
             }
 
             // Omit notifying this camera if `notifyImmediately` is false
-            if (camerasToNotify != null && !notifyImmediately) {
-                camerasToNotify.remove(camera);
+            if (camerasToNotifyOpen != null && !notifyImmediately) {
+                camerasToNotifyOpen.remove(camera);
             }
         }
 
         // Notify pending cameras unlocked.
-        if (camerasToNotify != null) {
-            for (CameraRegistration registration : camerasToNotify.values()) {
-                registration.notifyListener();
+        if (camerasToNotifyOpen != null) {
+            for (CameraRegistration registration : camerasToNotifyOpen.values()) {
+                registration.notifyOnOpenAvailableListener();
+            }
+        }
+
+        // Notify paired camera to configure for concurrent camera
+        if (cameraToNotifyConfigure != null) {
+            cameraToNotifyConfigure.notifyOnConfigureAvailableListener();
+        }
+    }
+
+    @Override
+    public void onCameraOperatingModeUpdated(
+            @CameraOperatingMode int prevMode,
+            @CameraOperatingMode int currMode) {
+        synchronized (mLock) {
+            mMaxAllowedOpenedCameras = (currMode == CAMERA_OPERATING_MODE_CONCURRENT)
+                    ? MAX_ALLOWED_CONCURRENT_CAMERAS_IN_CONCURRENT_MODE
+                    : MAX_ALLOWED_CONCURRENT_CAMERAS_IN_SINGLE_MODE;
+            boolean isConcurrentCameraModeOn =
+                    prevMode != CAMERA_OPERATING_MODE_CONCURRENT
+                            && currMode == CAMERA_OPERATING_MODE_CONCURRENT;
+            boolean isConcurrentCameraModeOff =
+                    prevMode == CAMERA_OPERATING_MODE_CONCURRENT
+                            && currMode != CAMERA_OPERATING_MODE_CONCURRENT;
+            if (isConcurrentCameraModeOn || isConcurrentCameraModeOff) {
+                recalculateAvailableCameras();
             }
         }
     }
@@ -217,7 +311,7 @@ public final class CameraStateRegistry {
     // Unregisters the given camera and returns the state before being unregistered
     @GuardedBy("mLock")
     @Nullable
-    private CameraInternal.State unregisterCamera(Camera camera) {
+    private CameraInternal.State unregisterCamera(@NonNull Camera camera) {
         CameraRegistration registration = mCameraStates.remove(camera);
         if (registration != null) {
             recalculateAvailableCameras();
@@ -309,6 +403,18 @@ public final class CameraStateRegistry {
         }
     }
 
+    @Nullable
+    @GuardedBy("mLock")
+    private CameraRegistration getCameraRegistration(@NonNull String targetCameraId) {
+        for (Camera camera : mCameraStates.keySet()) {
+            String cameraId = ((CameraInfoInternal) camera.getCameraInfo()).getCameraId();
+            if (targetCameraId.equals(cameraId)) {
+                return mCameraStates.get(camera);
+            }
+        }
+        return null;
+    }
+
     /**
      * A listener that is notified when a camera slot becomes available for opening.
      */
@@ -325,17 +431,32 @@ public final class CameraStateRegistry {
         void onOpenAvailable();
     }
 
+    /**
+     * A listener that is notified when capture session is available to config. It is used in
+     * concurrent camera mode when all of the cameras are opened.
+     */
+    public interface OnConfigureAvailableListener {
+        /**
+         * Called when a camera slot becomes available for configuring.
+         */
+        void onConfigureAvailable();
+    }
+
     private static class CameraRegistration {
         private CameraInternal.State mState;
         private final Executor mNotifyExecutor;
-        private final OnOpenAvailableListener mCameraAvailableListener;
+        private final OnConfigureAvailableListener mOnConfigureAvailableListener;
+        private final OnOpenAvailableListener mOnOpenAvailableListener;
 
-        CameraRegistration(@Nullable CameraInternal.State initialState,
+        CameraRegistration(
+                @Nullable CameraInternal.State initialState,
                 @NonNull Executor notifyExecutor,
-                @NonNull OnOpenAvailableListener cameraAvailableListener) {
+                @NonNull OnConfigureAvailableListener onConfigureAvailableListener,
+                @NonNull OnOpenAvailableListener onOpenAvailableListener) {
             mState = initialState;
             mNotifyExecutor = notifyExecutor;
-            mCameraAvailableListener = cameraAvailableListener;
+            mOnConfigureAvailableListener = onConfigureAvailableListener;
+            mOnOpenAvailableListener = onOpenAvailableListener;
         }
 
         CameraInternal.State setState(@Nullable CameraInternal.State state) {
@@ -348,11 +469,19 @@ public final class CameraStateRegistry {
             return mState;
         }
 
-        void notifyListener() {
+        void notifyOnConfigureAvailableListener() {
             try {
-                mNotifyExecutor.execute(mCameraAvailableListener::onOpenAvailable);
+                mNotifyExecutor.execute(mOnConfigureAvailableListener::onConfigureAvailable);
             } catch (RejectedExecutionException e) {
-                Logger.e(TAG, "Unable to notify camera.", e);
+                Logger.e(TAG, "Unable to notify camera to configure.", e);
+            }
+        }
+
+        void notifyOnOpenAvailableListener() {
+            try {
+                mNotifyExecutor.execute(mOnOpenAvailableListener::onOpenAvailable);
+            } catch (RejectedExecutionException e) {
+                Logger.e(TAG, "Unable to notify camera to open.", e);
             }
         }
     }

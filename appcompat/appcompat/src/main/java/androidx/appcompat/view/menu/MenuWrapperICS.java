@@ -31,7 +31,6 @@ import androidx.core.internal.view.SupportMenu;
 
 /**
  * Wraps a support {@link SupportMenu} as a framework {@link android.view.Menu}
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public class MenuWrapperICS extends BaseMenuWrapper implements Menu {

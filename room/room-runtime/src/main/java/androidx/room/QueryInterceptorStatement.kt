@@ -17,7 +17,6 @@
 package androidx.room
 
 import androidx.sqlite.db.SupportSQLiteStatement
-
 import java.util.concurrent.Executor
 
 /**
@@ -68,7 +67,7 @@ internal class QueryInterceptorStatement(
     }
 
     override fun bindNull(index: Int) {
-        saveArgsToCache(index, arrayOf(*bindArgsCache.toTypedArray()))
+        saveArgsToCache(index, null)
         delegate.bindNull(index)
     }
 

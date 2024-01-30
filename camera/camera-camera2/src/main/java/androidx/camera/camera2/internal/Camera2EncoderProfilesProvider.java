@@ -31,6 +31,9 @@ import androidx.camera.core.impl.EncoderProfilesProvider;
 import androidx.camera.core.impl.EncoderProfilesProxy;
 import androidx.camera.core.impl.compat.EncoderProfilesProxyCompat;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /** An implementation that provides the {@link EncoderProfilesProxy}. */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class Camera2EncoderProfilesProvider implements EncoderProfilesProvider {
@@ -40,6 +43,7 @@ public class Camera2EncoderProfilesProvider implements EncoderProfilesProvider {
     private final boolean mHasValidCameraId;
     private final String mCameraId;
     private final int mIntCameraId;
+    private final Map<Integer, EncoderProfilesProxy> mEncoderProfilesCache = new HashMap<>();
 
     public Camera2EncoderProfilesProvider(@NonNull String cameraId) {
         mCameraId = cameraId;
@@ -78,7 +82,14 @@ public class Camera2EncoderProfilesProvider implements EncoderProfilesProvider {
             return null;
         }
 
-        return getProfilesInternal(quality);
+        // Cache the value on first query, and reuse the result in subsequent queries.
+        if (mEncoderProfilesCache.containsKey(quality)) {
+            return mEncoderProfilesCache.get(quality);
+        } else {
+            EncoderProfilesProxy profiles = getProfilesInternal(quality);
+            mEncoderProfilesCache.put(quality, profiles);
+            return profiles;
+        }
     }
 
     @Nullable

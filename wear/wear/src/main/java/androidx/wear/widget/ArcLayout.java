@@ -131,7 +131,6 @@ public class ArcLayout extends ViewGroup {
     public static class LayoutParams extends ViewGroup.MarginLayoutParams {
 
         /** Vertical alignment of elements within the arc. */
-        /** @hide */
         @Retention(RetentionPolicy.SOURCE)
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @IntDef({VERTICAL_ALIGN_OUTER, VERTICAL_ALIGN_CENTER, VERTICAL_ALIGN_INNER})
@@ -254,7 +253,6 @@ public class ArcLayout extends ViewGroup {
     }
 
     /** Annotation for anchor types. */
-    /** @hide */
     @Retention(RetentionPolicy.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @IntDef({ANCHOR_START, ANCHOR_CENTER, ANCHOR_END})
@@ -308,7 +306,6 @@ public class ArcLayout extends ViewGroup {
 
     private boolean mClockwise;
 
-    @SuppressWarnings("SyntheticAccessor")
     private final ChildArcAngles mChildArcAngles = new ChildArcAngles();
 
     public ArcLayout(@NonNull Context context) {

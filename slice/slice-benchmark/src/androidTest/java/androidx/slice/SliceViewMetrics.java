@@ -39,6 +39,7 @@ import java.util.Arrays;
 @RunWith(Parameterized.class)
 @SmallTest
 @SdkSuppress(minSdkVersion = 19)
+@SuppressWarnings("deprecation")
 public class SliceViewMetrics {
 
     private final int mMode;

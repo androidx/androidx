@@ -31,7 +31,6 @@ import android.support.v4.BaseInstrumentationTestCase;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
-import androidx.test.filters.SdkSuppress;
 import androidx.test.rule.ActivityTestRule;
 
 import org.junit.Rule;
@@ -109,7 +108,6 @@ public class ShareCompatTest extends BaseInstrumentationTestCase<TestActivity> {
 
     @SuppressWarnings("deprecation")
     @Test
-    @SdkSuppress(minSdkVersion = 16)
     public void testBuilderSingleStreamUri() {
         Activity activity = mActivityTestRule.getActivity();
         Uri uri = Uri.parse("content://fake/file");
@@ -123,7 +121,6 @@ public class ShareCompatTest extends BaseInstrumentationTestCase<TestActivity> {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 16)
     public void testBuilderMultipleStreamUris() {
         Activity activity = mActivityTestRule.getActivity();
         Uri uri1 = Uri.parse("content://fake/file1");

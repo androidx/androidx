@@ -19,7 +19,7 @@ package androidx.compose.foundation.copyPasteAndroidTests
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.assertThat
 import androidx.compose.foundation.containsAtLeast
-import androidx.compose.foundation.containsExactly
+import androidx.compose.foundation.containsExactlyInOrder
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.isEmpty
 import androidx.compose.foundation.layout.Box
@@ -46,6 +46,7 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.runSkikoComposeUiTest
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
+import kotlin.test.Ignore
 import kotlin.test.Test
 
 @OptIn(ExperimentalTestApi::class, ExperimentalFoundationApi::class, ExperimentalComposeUiApi::class)
@@ -80,7 +81,7 @@ class FocusableBoundsTest {
         }
 
         runOnIdle {
-            assertThat(focusedBounds).containsExactly(Rect(0f, 0f, size, size))
+            assertThat(focusedBounds).containsExactlyInOrder(Rect(0f, 0f, size, size))
         }
     }
 
@@ -121,7 +122,7 @@ class FocusableBoundsTest {
         }
 
         runOnIdle {
-            assertThat(focusedBounds).containsExactly(
+            assertThat(focusedBounds).containsExactlyInOrder(
                 Rect(0f, 0f, size, size),
                 // First child sends null when it loses focus before the second child gains it.
                 null,
@@ -205,6 +206,8 @@ class FocusableBoundsTest {
             assertThat(focusedBounds).isEmpty()
         }
     }
+
+    @Ignore // b/278258427
     @Test
     fun onFocusedBoundsPositioned_notified_whenFocusedBoundsLeavesComposition() = runSkikoComposeUiTest {
         val focusRequester = FocusRequester()
@@ -232,13 +235,14 @@ class FocusableBoundsTest {
         }
 
         runOnIdle {
-            assertThat(focusedBounds).containsExactly(
+            assertThat(focusedBounds).containsExactlyInOrder(
                 Rect(0f, 0f, size, size),
                 null
             )
         }
     }
 
+    @Ignore // b/278258427
     @Test
     fun onFocusedBoundsPositioned_notified_whenFocusedBoundsIsDisabled() = runSkikoComposeUiTest {
         val focusRequester = FocusRequester()
@@ -267,7 +271,7 @@ class FocusableBoundsTest {
         }
 
         runOnIdle {
-            assertThat(focusedBounds).containsExactly(
+            assertThat(focusedBounds).containsExactlyInOrder(
                 Rect(0f, 0f, size, size),
                 null
             )
@@ -302,7 +306,7 @@ class FocusableBoundsTest {
         }
 
         runOnIdle {
-            assertThat(focusedBounds).containsExactly(
+            assertThat(focusedBounds).containsExactlyInOrder(
                 Rect(0f, 0f, size, size),
                 null
             )
@@ -344,7 +348,7 @@ class FocusableBoundsTest {
         }
 
         runOnIdle {
-            assertThat(focusedBounds).containsExactly(
+            assertThat(focusedBounds).containsExactlyInOrder(
                 Rect(0f, 0f, size, size),
                 null
             )
@@ -384,7 +388,7 @@ class FocusableBoundsTest {
         }
 
         runOnIdle {
-            assertThat(focusedBounds).containsExactly(
+            assertThat(focusedBounds).containsExactlyInOrder(
                 Pair(1, Rect(0f, 0f, size, size)),
                 Pair(0, Rect(0f, 0f, size, size)),
             )
@@ -427,7 +431,7 @@ class FocusableBoundsTest {
         }
 
         runOnIdle {
-            assertThat(focusedBounds).containsExactly(
+            assertThat(focusedBounds).containsExactlyInOrder(
                 Rect(0f, 0f, size, size)
             )
         }
@@ -479,7 +483,7 @@ class FocusableBoundsTest {
         }
 
         runOnIdle {
-            assertThat(focusedBounds).containsExactly(
+            assertThat(focusedBounds).containsExactlyInOrder(
                 Pair(1, Rect(0f, 0f, size, size)),
                 Pair(1, Rect(0f, 0f, size, size)),
                 Pair(0, Rect(0f, 0f, size, size)),
@@ -533,7 +537,7 @@ class FocusableBoundsTest {
         }
 
         runOnIdle {
-            assertThat(focusedBounds).containsExactly(
+            assertThat(focusedBounds).containsExactlyInOrder(
                 Pair(0, Rect(0f, 0f, size, size)),
                 Pair(1, Rect(0f, 0f, size, size)),
                 Pair(0, Rect(0f, 0f, size, size)),

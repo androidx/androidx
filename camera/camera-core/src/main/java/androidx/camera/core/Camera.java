@@ -83,7 +83,6 @@ public interface Camera {
      *
      * <p> The set of CameraInternal should be static for the lifetime of the Camera.
      *
-     * @hide
      */
     @NonNull
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -92,7 +91,6 @@ public interface Camera {
     /**
      * Get the currently set extended config of the Camera.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull
@@ -107,20 +105,48 @@ public interface Camera {
      * HDR or bokeh.
      *
      * @param cameraConfig if null then it will reset the camera to an empty config.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     void setExtendedConfig(@Nullable CameraConfig cameraConfig);
 
     /**
-     * Checks whether the use cases combination is supported by the camera.
+     * Checks whether the use cases combination is supported.
      *
      * @param useCases to be checked whether can be supported.
-     * @return whether the use cases combination is supported by the camera
-     * @hide
+     * @return whether the use cases combination is supported by the camera.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     default boolean isUseCasesCombinationSupported(@NonNull UseCase... useCases) {
+        return isUseCasesCombinationSupported(true, useCases);
+    }
+
+    /**
+     * Checks whether the use cases combination is supported by camera framework.
+     *
+     * <p>This method verify whether the given use cases can be supported solely by the surface
+     * configurations they require. It doesn't consider the optimization done by CameraX such as
+     * {@link androidx.camera.core.streamsharing.StreamSharing}.
+     *
+     * @param useCases to be checked whether can be supported.
+     * @return whether the use cases combination is supported by the camera.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    default boolean isUseCasesCombinationSupportedByFramework(@NonNull UseCase... useCases) {
+        return isUseCasesCombinationSupported(false, useCases);
+    }
+
+    /**
+     * Checks whether the use cases combination is supported.
+     *
+     * @param withStreamSharing {@code true} if
+     * {@link androidx.camera.core.streamsharing.StreamSharing} feature is considered, otherwise
+     * {@code false}.
+     * @param useCases to be checked whether can be supported.
+     * @return whether the use cases combination is supported by the camera.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    default boolean isUseCasesCombinationSupported(boolean withStreamSharing,
+            @NonNull UseCase... useCases) {
         return true;
     }
 }

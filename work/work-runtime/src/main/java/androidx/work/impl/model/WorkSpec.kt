@@ -40,7 +40,6 @@ import java.util.UUID
 /**
  * Stores information about a logical unit of work.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Entity(indices = [Index(value = ["schedule_requested_at"]), Index(value = ["last_enqueue_time"])])
@@ -103,8 +102,8 @@ data class WorkSpec(
      * Time in millis when work was marked as ENQUEUED in database.
      */
     @JvmField
-    @ColumnInfo(name = "last_enqueue_time")
-    var lastEnqueueTime: Long = 0,
+    @ColumnInfo(name = "last_enqueue_time", defaultValue = "$NOT_ENQUEUED")
+    var lastEnqueueTime: Long = NOT_ENQUEUED,
 
     @JvmField
     @ColumnInfo(name = "minimum_retention_duration")
@@ -147,6 +146,46 @@ data class WorkSpec(
 
     @ColumnInfo(defaultValue = "0")
     val generation: Int = 0,
+
+    /**
+     * If not Long.MAX_VALUE, this will be the next schedule time, regardless of configured delay.
+     * Only valid for periodic workers
+     */
+    @ColumnInfo(
+        name = "next_schedule_time_override",
+        defaultValue = Long.MAX_VALUE.toString()
+    )
+    var nextScheduleTimeOverride: Long = Long.MAX_VALUE,
+
+    /**
+     * Generation counter that tracks only the nextScheduleTimeOverride version, which allows the
+     * overall generation to be incremented without clearing the nextScheduleTimeOverride. Eg.
+     * while an override is set, a WorkSpec's constraints are changed using UPDATE,
+     * but the override time is neither set nor cleared.
+     *
+     * We could implicitly cancel the nextScheduleTimeOverride since it was not specified in the
+     * update. However, this would require every caller to know that there is an override,
+     * and what the value of that time was, in order to make unrelated changes.
+     *
+     * Instead, we keep track of a separate override schedule generation, so only updates that
+     * change or cancel the nextScheduleTimeOverride will affect the override generation.
+     *
+     * This allows WorkSpec changes to be made mid-worker run, and WorkerWrapper can still
+     * correctly clear a previous nextScheduleTimeOverride upon conclusion by consulting the
+     * overrideGeneration instead of the overall generation.
+     */
+    @ColumnInfo(
+        name = "next_schedule_time_override_generation",
+        defaultValue = "0"
+    )
+    // If reset every min interval, would last 500 years.
+    var nextScheduleTimeOverrideGeneration: Int = 0,
+
+    @ColumnInfo(
+        name = "stop_reason",
+        defaultValue = "${WorkInfo.STOP_REASON_NOT_STOPPED}"
+    )
+    val stopReason: Int = WorkInfo.STOP_REASON_NOT_STOPPED,
 ) {
     constructor(
         id: String,
@@ -173,6 +212,9 @@ data class WorkSpec(
         expedited = other.expedited,
         outOfQuotaPolicy = other.outOfQuotaPolicy,
         periodCount = other.periodCount,
+        nextScheduleTimeOverride = other.nextScheduleTimeOverride,
+        nextScheduleTimeOverrideGeneration = other.nextScheduleTimeOverrideGeneration,
+        stopReason = other.stopReason,
     )
 
     /**
@@ -273,44 +315,19 @@ data class WorkSpec(
      * @return UTC time at which this [WorkSpec] should be allowed to run.
      */
     fun calculateNextRunTime(): Long {
-        return if (isBackedOff) {
-            val isLinearBackoff = backoffPolicy == BackoffPolicy.LINEAR
-            val delay = if (isLinearBackoff) backoffDelayDuration * runAttemptCount else Math.scalb(
-                backoffDelayDuration.toFloat(),
-                runAttemptCount - 1
-            )
-                .toLong()
-            lastEnqueueTime + delay.coerceAtMost(WorkRequest.MAX_BACKOFF_MILLIS)
-        } else if (isPeriodic) {
-            val start = if (periodCount == 0) lastEnqueueTime + initialDelay else lastEnqueueTime
-            val isFlexApplicable = flexDuration != intervalDuration
-            if (isFlexApplicable) {
-                // To correctly emulate flex, we need to set it
-                // to now, so the PeriodicWorkRequest has an initial delay of
-                // initialDelay + (interval - flex).
-
-                // The subsequent runs will only add the interval duration and no flex.
-                // This gives us the following behavior:
-                // 1 => now + (interval - flex) + initialDelay = firstRunTime
-                // 2 => firstRunTime + 2 * interval - flex
-                // 3 => firstRunTime + 3 * interval - flex
-                val offset = if (periodCount == 0) -1 * flexDuration else 0
-                start + intervalDuration + offset
-            } else {
-                // Don't use flexDuration for determining next run time for PeriodicWork
-                // This is because intervalDuration could equal flexDuration.
-
-                // The first run of a periodic work request is immediate in JobScheduler, and we
-                // need to emulate this behavior.
-                val offset = if (periodCount == 0) 0 else intervalDuration
-                start + offset
-            }
-        } else {
-            // We are checking for (periodStartTime == 0) to support our testing use case.
-            // For newly created WorkSpecs periodStartTime will always be 0.
-            val start = if (lastEnqueueTime == 0L) System.currentTimeMillis() else lastEnqueueTime
-            start + initialDelay
-        }
+        return calculateNextRunTime(
+            isBackedOff = isBackedOff,
+            runAttemptCount = runAttemptCount,
+            backoffPolicy = backoffPolicy,
+            backoffDelayDuration = backoffDelayDuration,
+            lastEnqueueTime = lastEnqueueTime,
+            periodCount = periodCount,
+            isPeriodic = isPeriodic,
+            initialDelay = initialDelay,
+            flexDuration = flexDuration,
+            intervalDuration = intervalDuration,
+            nextScheduleTimeOverride = nextScheduleTimeOverride
+        )
     }
 
     /**
@@ -337,7 +354,7 @@ data class WorkSpec(
     )
 
     /**
-     * A POJO containing the ID, state, output, tags, and run attempt count of a WorkSpec.
+     * A POJO containing externally queryable info for the WorkSpec.
      */
     data class WorkInfoPojo(
         @ColumnInfo(name = "id")
@@ -349,14 +366,41 @@ data class WorkSpec(
         @ColumnInfo(name = "output")
         val output: Data,
 
+        @ColumnInfo(name = "initial_delay")
+        val initialDelay: Long = 0,
+
+        @ColumnInfo(name = "interval_duration")
+        val intervalDuration: Long = 0,
+
+        @ColumnInfo(name = "flex_duration")
+        val flexDuration: Long = 0,
+
+        @Embedded
+        val constraints: Constraints,
+
         @ColumnInfo(name = "run_attempt_count")
         val runAttemptCount: Int,
+
+        @ColumnInfo(name = "backoff_policy")
+        var backoffPolicy: BackoffPolicy = BackoffPolicy.EXPONENTIAL,
+
+        @ColumnInfo(name = "backoff_delay_duration")
+        var backoffDelayDuration: Long = WorkRequest.DEFAULT_BACKOFF_DELAY_MILLIS,
+
+        @ColumnInfo(name = "last_enqueue_time")
+        var lastEnqueueTime: Long = 0,
+
+        @ColumnInfo(name = "period_count", defaultValue = "0")
+        var periodCount: Int = 0,
 
         @ColumnInfo(name = "generation")
         val generation: Int,
 
-        @Embedded
-        val constraints: Constraints,
+        @ColumnInfo(name = "next_schedule_time_override")
+        val nextScheduleTimeOverride: Long,
+
+        @ColumnInfo(name = "stop_reason")
+        val stopReason: Int,
 
         @Relation(
             parentColumn = "id",
@@ -376,6 +420,11 @@ data class WorkSpec(
         )
         val progress: List<Data>,
     ) {
+        val isPeriodic: Boolean
+            get() = intervalDuration != 0L
+        val isBackedOff: Boolean
+            get() = state == WorkInfo.State.ENQUEUED && runAttemptCount > 0
+
         /**
          * Converts this POJO to a [WorkInfo].
          *
@@ -391,8 +440,36 @@ data class WorkSpec(
                 progress,
                 runAttemptCount,
                 generation,
-                constraints
+                constraints,
+                initialDelay,
+                getPeriodicityOrNull(),
+                calculateNextRunTimeMillis(),
+                stopReason,
             )
+        }
+
+        private fun getPeriodicityOrNull() = if (intervalDuration != 0L)
+            WorkInfo.PeriodicityInfo(
+                intervalDuration,
+                flexDuration
+            ) else null
+
+        private fun calculateNextRunTimeMillis(): Long {
+            return if (state == WorkInfo.State.ENQUEUED)
+                calculateNextRunTime(
+                    isBackedOff = isBackedOff,
+                    runAttemptCount = runAttemptCount,
+                    backoffPolicy = backoffPolicy,
+                    backoffDelayDuration = backoffDelayDuration,
+                    lastEnqueueTime = lastEnqueueTime,
+                    periodCount = periodCount,
+                    isPeriodic = isPeriodic,
+                    initialDelay = initialDelay,
+                    flexDuration = flexDuration,
+                    intervalDuration = intervalDuration,
+                    nextScheduleTimeOverride = nextScheduleTimeOverride
+                )
+            else Long.MAX_VALUE
         }
     }
 
@@ -404,9 +481,63 @@ data class WorkSpec(
         val WORK_INFO_MAPPER: Function<List<WorkInfoPojo>, List<WorkInfo>> = Function { input ->
             input?.map { it.toWorkInfo() }
         }
+
+        fun calculateNextRunTime(
+            isBackedOff: Boolean,
+            runAttemptCount: Int,
+            backoffPolicy: BackoffPolicy,
+            backoffDelayDuration: Long,
+            lastEnqueueTime: Long,
+            periodCount: Int,
+            isPeriodic: Boolean,
+            initialDelay: Long,
+            flexDuration: Long,
+            intervalDuration: Long,
+            nextScheduleTimeOverride: Long,
+        ): Long {
+            // Override takes priority over backoff, but only applies to periodic work.
+            return if (nextScheduleTimeOverride != Long.MAX_VALUE && isPeriodic) {
+                return if (periodCount == 0) nextScheduleTimeOverride else
+                    nextScheduleTimeOverride.coerceAtLeast(
+                        lastEnqueueTime + MIN_PERIODIC_INTERVAL_MILLIS)
+            } else if (isBackedOff) {
+                val isLinearBackoff = backoffPolicy == BackoffPolicy.LINEAR
+                val delay =
+                    if (isLinearBackoff) backoffDelayDuration * runAttemptCount else Math.scalb(
+                        backoffDelayDuration.toFloat(),
+                        runAttemptCount - 1
+                    )
+                        .toLong()
+                lastEnqueueTime + delay.coerceAtMost(WorkRequest.MAX_BACKOFF_MILLIS)
+            } else if (isPeriodic) {
+                // The first run of a periodic work request is immediate in JobScheduler, so
+                // don't apply intervalDuration to the first run.
+                var schedule =
+                    if (periodCount == 0) lastEnqueueTime + initialDelay
+                    else lastEnqueueTime + intervalDuration
+
+                val isFlexApplicable = flexDuration != intervalDuration
+                // Flex only applies to the first run of a Periodic worker, to avoid
+                // repeatedly pushing the schedule forward on every period.
+                if (isFlexApplicable && periodCount == 0) {
+                    // With flex, the first run does not run immediately, but instead respects
+                    // the first interval duration.
+                    schedule += (intervalDuration - flexDuration)
+                }
+
+                schedule
+            } else if (lastEnqueueTime == NOT_ENQUEUED) {
+                // If never enqueued, we aren't scheduled to run.
+                Long.MAX_VALUE // 200 million years.
+            } else {
+                lastEnqueueTime + initialDelay
+            }
+        }
     }
 }
 
 data class WorkGenerationalId(val workSpecId: String, val generation: Int)
 
 fun WorkSpec.generationalId() = WorkGenerationalId(id, generation)
+
+private const val NOT_ENQUEUED = -1L

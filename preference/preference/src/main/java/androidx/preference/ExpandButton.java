@@ -28,7 +28,6 @@ import java.util.List;
  * A {@link Preference} that visually wraps preferences collapsed in a {@link PreferenceGroup},
  * and expands those preferences into the group when tapped.
  *
- * @hide
  */
 final class ExpandButton extends Preference {
     private long mId;

@@ -54,7 +54,6 @@ function explodePath() {
   mkdir -p "$explodedPath"
 
   # split $sourceFile into lines, and put each line into a file named 00001, 00002, 00003, ...
-  cd "$explodedPath"
   $scriptDir/explode.py $removeLeavesArg "$sourceFile" "$explodedPath"
   touch "$explodedPath/file"
 }
@@ -72,6 +71,9 @@ function main() {
     cd $sourcePath
     for filePath in $(find -type f); do
       explodePath "$sourcePath/$filePath" "$explodedDir/$filePath"
+    done
+    for filePath in $(find -type l); do
+      cp -P "$sourcePath/$filePath" "$explodedDir/$filePath"
     done
   fi
   echo done splitting everything in $sourcePath into $explodedDir

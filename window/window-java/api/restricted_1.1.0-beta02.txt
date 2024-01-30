@@ -1,0 +1,12 @@
+// Signature format: 4.0
+package androidx.window.java.layout {
+
+  public final class WindowInfoTrackerCallbackAdapter implements androidx.window.layout.WindowInfoTracker {
+    ctor public WindowInfoTrackerCallbackAdapter(androidx.window.layout.WindowInfoTracker tracker);
+    method public void addWindowLayoutInfoListener(android.app.Activity activity, java.util.concurrent.Executor executor, androidx.core.util.Consumer<androidx.window.layout.WindowLayoutInfo> consumer);
+    method public void addWindowLayoutInfoListener(@UiContext android.content.Context context, java.util.concurrent.Executor executor, androidx.core.util.Consumer<androidx.window.layout.WindowLayoutInfo> consumer);
+    method public void removeWindowLayoutInfoListener(androidx.core.util.Consumer<androidx.window.layout.WindowLayoutInfo> consumer);
+  }
+
+}
+

@@ -16,7 +16,7 @@ import kotlin.collections.MutableMap
 import kotlin.jvm.JvmStatic
 
 @Generated(value = ["androidx.room.RoomProcessor"])
-@Suppress(names = ["UNCHECKED_CAST", "DEPRECATION"])
+@Suppress(names = ["UNCHECKED_CAST", "DEPRECATION", "REDUNDANT_PROJECTION"])
 public class MyDao_Impl(
     __db: RoomDatabase,
 ) : MyDao {
@@ -43,7 +43,7 @@ public class MyDao_Impl(
                 _tmpArtistKey = _cursor.getString(_cursorIndexOfArtistKey)
                 _key = Song(_tmpSongId,_tmpArtistKey)
                 if (_cursor.isNull(_cursorIndexOfArtistId)) {
-                    error("Missing value for a key.")
+                    error("The column(s) of the map value object of type 'Artist' are NULL but the map's value type argument expect it to be NON-NULL")
                 }
                 val _value: Artist
                 val _tmpArtistId: String

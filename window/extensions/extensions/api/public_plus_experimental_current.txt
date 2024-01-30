@@ -66,16 +66,13 @@ package androidx.window.extensions.embedding {
   }
 
   public class SplitAttributes {
-    method @ColorInt public int getAnimationBackgroundColor();
     method public int getLayoutDirection();
     method public androidx.window.extensions.embedding.SplitAttributes.SplitType getSplitType();
-    field @ColorInt public static final int DEFAULT_ANIMATION_BACKGROUND_COLOR = 0; // 0x0
   }
 
   public static final class SplitAttributes.Builder {
     ctor public SplitAttributes.Builder();
     method public androidx.window.extensions.embedding.SplitAttributes build();
-    method public androidx.window.extensions.embedding.SplitAttributes.Builder setAnimationBackgroundColor(@ColorInt int);
     method public androidx.window.extensions.embedding.SplitAttributes.Builder setLayoutDirection(int);
     method public androidx.window.extensions.embedding.SplitAttributes.Builder setSplitType(androidx.window.extensions.embedding.SplitAttributes.SplitType);
   }
@@ -198,7 +195,6 @@ package androidx.window.extensions.layout {
 
   public interface WindowLayoutComponent {
     method @Deprecated public void addWindowLayoutInfoListener(android.app.Activity, java.util.function.Consumer<androidx.window.extensions.layout.WindowLayoutInfo!>);
-    method @Deprecated public default void addWindowLayoutInfoListener(@UiContext android.content.Context, java.util.function.Consumer<androidx.window.extensions.layout.WindowLayoutInfo!>);
     method public default void addWindowLayoutInfoListener(@UiContext android.content.Context, androidx.window.extensions.core.util.function.Consumer<androidx.window.extensions.layout.WindowLayoutInfo!>);
     method @Deprecated public void removeWindowLayoutInfoListener(java.util.function.Consumer<androidx.window.extensions.layout.WindowLayoutInfo!>);
     method public default void removeWindowLayoutInfoListener(androidx.window.extensions.core.util.function.Consumer<androidx.window.extensions.layout.WindowLayoutInfo!>);

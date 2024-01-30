@@ -230,7 +230,7 @@ class ActivityResultRegistryTest {
                 LaunchedEffect(Unit) {
                     launchFlow.collect { shouldLaunch ->
                         if (shouldLaunch) {
-                            launcher.launch(null)
+                            launcher.launch(Intent())
                         }
                     }
                 }
@@ -280,7 +280,7 @@ class ActivityResultRegistryTest {
                 }
                 Button(
                     onClick = {
-                        launcher.launch(null)
+                        launcher.launch(Intent())
                         recompose = true
                     }
                 ) {
@@ -327,7 +327,7 @@ class ActivityResultRegistryTest {
                 }
                 Button(
                     onClick = {
-                        launcher.launch(null)
+                        launcher.launch(Intent())
                         recompose = true
                     }
                 ) {

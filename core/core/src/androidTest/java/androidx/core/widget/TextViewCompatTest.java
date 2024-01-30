@@ -733,7 +733,6 @@ public class TextViewCompatTest extends BaseInstrumentationTestCase<TextViewTest
 
     @UiThreadTest
     @Test
-    @SdkSuppress(minSdkVersion = 18)
     public void testSetGetTextMetricsParams_API18() {
         PrecomputedTextCompat.Params params = TextViewCompat.getTextMetricsParams(mTextView);
         assertNotNull(params);

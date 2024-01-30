@@ -17,6 +17,7 @@
 package androidx.compose.animation.core
 
 import androidx.compose.animation.core.internal.JvmDefaultWithCompatibility
+import kotlin.math.roundToLong
 
 /**
  * This interface provides a convenient way to query from an [VectorizedAnimationSpec] or
@@ -33,6 +34,7 @@ import androidx.compose.animation.core.internal.JvmDefaultWithCompatibility
  * stateful and manage their own lifecycles.
  *
  * @see [Animatable]
+ * @see [rememberTransition]
  * @see [updateTransition]
  */
 @JvmDefaultWithCompatibility
@@ -90,6 +92,15 @@ internal val Animation<*, *>.durationMillis: Long
     get() = durationNanos / MillisToNanos
 
 internal const val MillisToNanos: Long = 1_000_000L
+internal const val SecondsToNanos: Long = 1_000_000_000L
+
+internal fun convertSecondsToNanos(seconds: Float): Long =
+    (seconds.toDouble() * SecondsToNanos).roundToLong()
+
+internal fun convertNanosToSeconds(nanos: Long): Double =
+    nanos.toDouble() / SecondsToNanos
+
+internal const val SecondsToMillis: Long = 1_000L
 
 /**
  * Returns the velocity of the animation at the given play time.
@@ -108,7 +119,6 @@ fun <T, V : AnimationVector> Animation<T, V>.getVelocityFromNanos(playTimeNanos:
  * @param initialVelocity the initial velocity to start the animation at
  * @suppress
  */
-/*@VisibleForTesting(otherwise = PACKAGE_PRIVATE)*/
 fun <V : AnimationVector> VectorizedAnimationSpec<V>.createAnimation(
     initialValue: V,
     targetValue: V,
@@ -178,6 +188,7 @@ fun <T, V : AnimationVector> TargetBasedAnimation(
  * @param initialVelocityVector the start velocity of the animation in the form of [AnimationVector]
  *
  * @see [Transition]
+ * @see [rememberTransition]
  * @see [updateTransition]
  * @see [Animatable]
  */

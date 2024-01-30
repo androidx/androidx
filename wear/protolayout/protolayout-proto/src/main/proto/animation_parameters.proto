@@ -10,19 +10,45 @@ option java_outer_classname = "AnimationParameterProto";
 message AnimationSpec {
   // The duration of the animation in milliseconds. If not set, defaults to
   // 300ms.
+  // @deprecated Use animation_parameters instead.
   uint32 duration_millis = 1;
 
   // The delay to start the animation in milliseconds. If not set, defaults to
   // 0.
+  // @deprecated Use animation_parameters instead.
   uint32 start_delay_millis = 2;
 
   // The easing to be used for adjusting an animation's fraction. If not set,
   // defaults to Linear Interpolator.
+  // @deprecated Use animation_parameters instead.
   Easing easing = 3;
+
+  // Animation parameters including duration, easing and repeat delay.
+  AnimationParameters animation_parameters = 4;
 
   // The repeatable mode to be used for specifying repetition parameters for the
   // animation. If not set, animation won't be repeated.
   Repeatable repeatable = 5;
+}
+
+// Animation specs of duration, easing and repeat delay.
+message AnimationParameters {
+  // The duration of the animation in milliseconds. If not set, defaults to
+  // 300ms.
+  uint64 duration_millis = 1;
+
+  // The easing to be used for adjusting an animation's fraction. If not set,
+  // defaults to Linear Interpolator.
+  Easing easing = 2;
+
+  // Animation delay in millis.
+  oneof optional_delay_millis {
+    // Animation delay in millis. When used outside repeatable, this is the
+    // delay to start the animation in milliseconds. When set inside repeatable,
+    // this is the delay before repeating animation in milliseconds. If not set,
+    // no delay will be applied.
+    uint64 delay_millis = 3;
+  }
 }
 
 // The easing to be used for adjusting an animation's fraction. This allows
@@ -69,12 +95,15 @@ message Repeatable {
   // set, defaults to restart.
   RepeatMode repeat_mode = 2;
 
-  // The delay before the forward part of the repeat in milliseconds. If not set, defaults to 0.
-  uint32 forward_repeat_delay_millis = 3;
+  reserved 3, 4, 5;
 
-  // The delay before the reversed part of the repeat in milliseconds. This delay will not be used
-  // when the repeat mode is restart. If not set, defaults to 0.
-  uint32 reverse_repeat_delay_millis = 4;
+  // Optional custom parameters for the forward passes of animation. If not set,
+  // use the main animation parameters set outside of Repeatable.
+  AnimationParameters forward_repeat_override = 6;
+
+  // Optional custom parameters for the reverse passes of animation. If not set,
+  // use the main animation parameters set outside of Repeatable.
+  AnimationParameters reverse_repeat_override = 7;
 }
 
 // The repeat mode to specify how animation will behave when repeated.

@@ -12,6 +12,10 @@ package androidx.car.app.activity {
     ctor public CarAppActivity();
   }
 
+  @androidx.car.app.annotations.ExperimentalCarApi public final class LauncherActivity extends androidx.fragment.app.FragmentActivity implements androidx.lifecycle.LifecycleOwner {
+    ctor public LauncherActivity();
+  }
+
 }
 
 package androidx.car.app.activity.renderer.surface {

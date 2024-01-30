@@ -39,7 +39,7 @@ dependencies {
 }
 
 androidx {
-    name = "AndroidX Compose UI Core Classes Samples"
+    name = "Compose UI Core Classes Samples"
     type = LibraryType.SAMPLES
     inceptionYear = "2019"
     description = "Contains the sample code for the Androidx Compose UI Core Classes"

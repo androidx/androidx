@@ -297,6 +297,15 @@ public class ActivityOptionsCompat {
             }
             return Api24Impl.getLaunchBounds(mActivityOptions);
         }
+
+        @Override
+        public ActivityOptionsCompat setShareIdentityEnabled(boolean shareIdentity) {
+            if (Build.VERSION.SDK_INT < 34) {
+                return this;
+            }
+            return new ActivityOptionsCompatImpl(
+                    Api34Impl.setShareIdentityEnabled(mActivityOptions, shareIdentity));
+        }
     }
 
     protected ActivityOptionsCompat() {
@@ -374,6 +383,32 @@ public class ActivityOptionsCompat {
      */
     public void requestUsageTimeReport(@NonNull PendingIntent receiver) {
         // Do nothing.
+    }
+
+    /**
+     * Sets whether the identity of the launching app should be shared with the activity.
+     *
+     * <p>Use this option when starting an activity that needs to know the identity of the
+     * launching app; with this set to {@code true}, the activity will have access to the launching
+     * app's package name and uid.
+     *
+     * <p>Defaults to {@code false} if not set. This is a no-op before U.
+     *
+     * <p>Note, even if the launching app does not explicitly enable sharing of its identity, if
+     * the activity is started with {@code Activity#startActivityForResult}, then {@link
+     * Activity#getCallingPackage()} will still return the launching app's package name to
+     * allow validation of the result's recipient. Also, an activity running within a package
+     * signed by the same key used to sign the platform (some system apps such as Settings will
+     * be signed with the platform's key) will have access to the launching app's identity.
+     *
+     * @param shareIdentity whether the launching app's identity should be shared with the activity
+     * @return {@code this} {@link ActivityOptions} instance.
+     * @see Activity#getLaunchedFromPackage()
+     * @see Activity#getLaunchedFromUid()
+     */
+    @NonNull
+    public ActivityOptionsCompat setShareIdentityEnabled(boolean shareIdentity) {
+        return this;
     }
 
     @RequiresApi(16)
@@ -465,6 +500,19 @@ public class ActivityOptionsCompat {
         @DoNotInline
         static Rect getLaunchBounds(ActivityOptions activityOptions) {
             return activityOptions.getLaunchBounds();
+        }
+    }
+
+    @RequiresApi(34)
+    static class Api34Impl {
+        private Api34Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static ActivityOptions setShareIdentityEnabled(ActivityOptions activityOptions,
+                boolean shareIdentity) {
+            return activityOptions.setShareIdentityEnabled(shareIdentity);
         }
     }
 }

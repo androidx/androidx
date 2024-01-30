@@ -20,10 +20,10 @@ import android.os.Looper
 import android.view.Choreographer
 import androidx.compose.runtime.MonotonicFrameClock
 import androidx.core.os.HandlerCompat
+import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
-import kotlin.coroutines.CoroutineContext
 
 /**
  * A [CoroutineDispatcher] that will perform dispatch during a [handler] callback or
@@ -131,7 +131,7 @@ class AndroidUiDispatcher private constructor(
      * A [MonotonicFrameClock] associated with this [AndroidUiDispatcher]'s [choreographer]
      * that may be used to await [Choreographer] frame dispatch.
      */
-    val frameClock: MonotonicFrameClock = AndroidUiFrameClock(choreographer)
+    val frameClock: MonotonicFrameClock = AndroidUiFrameClock(choreographer, this)
 
     override fun dispatch(context: CoroutineContext, block: Runnable) {
         synchronized(lock) {

@@ -21,11 +21,11 @@ import androidx.benchmark.InstrumentationResults
 import androidx.benchmark.Outputs
 import androidx.benchmark.perfetto.UiState
 import androidx.benchmark.perfetto.appendUiState
+import java.io.File
 import org.junit.rules.RuleChain
 import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
-import java.io.File
 
 /**
  * Rule to enable linking files and traces to Studio UI for macrobench correctness tests.
@@ -107,10 +107,7 @@ class FileLinkingRule : TestRule {
 
         if (Outputs.outputDirectory == Outputs.dirUsableByAppAndShell) {
             InstrumentationResults.instrumentationReport {
-                ideSummaryRecord(
-                    summaryV1 = "", // not supported
-                    summaryV2 = summaryString.trim()
-                )
+                reportSummaryToIde(message = summaryString.trim())
             }
         } else {
             Log.d(TAG, "FileLinkingRule doesn't support outputDirectory != dirUsableByAppAndShell")

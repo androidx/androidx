@@ -20,20 +20,22 @@ import android.content.Context
 import android.media.MediaCodecList
 import android.media.MediaFormat
 import android.text.TextUtils
+import android.util.Size
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
+import androidx.camera.core.SurfaceRequest
 import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.impl.Timebase
-import androidx.camera.testing.CameraPipeConfigTestRule
-import androidx.camera.testing.CameraUtil
-import androidx.camera.testing.CameraXUtil
-import androidx.camera.testing.LabTestRule
+import androidx.camera.testing.impl.CameraPipeConfigTestRule
+import androidx.camera.testing.impl.CameraUtil
+import androidx.camera.testing.impl.CameraXUtil
+import androidx.camera.testing.impl.LabTestRule
 import androidx.camera.video.Quality
 import androidx.camera.video.QualitySelector
-import androidx.camera.video.VideoCapabilities
+import androidx.camera.video.Recorder
 import androidx.camera.video.VideoSpec
 import androidx.camera.video.internal.compat.quirk.DeviceQuirks
 import androidx.camera.video.internal.compat.quirk.MediaCodecInfoReportIncorrectInfoQuirk
@@ -147,38 +149,42 @@ class EncoderFinderTest(
     fun findEncoderForFormat_EncoderProfiles() {
         // Arrange.
         val cameraInfo = camera.cameraInfo as CameraInfoInternal
-        val resolution = QualitySelector.getResolution(cameraInfo, quality)
-        Assume.assumeTrue(
-            "Quality $quality is not supported on the device.",
-            resolution != null
-        )
+        val videoCapabilities = Recorder.getVideoCapabilities(cameraInfo)
+        for (dynamicRange in videoCapabilities.supportedDynamicRanges) {
+            Assume.assumeTrue(
+                "Quality $quality is not supported on the device.",
+                videoCapabilities.isQualitySupported(quality, dynamicRange)
+            )
 
-        val encoderProfiles = VideoCapabilities.from(cameraInfo).getProfiles(quality)
-        val videoProfile = encoderProfiles!!.defaultVideoProfile
+            val encoderProfiles = videoCapabilities.getProfiles(quality, dynamicRange)
+            val videoProfile = encoderProfiles!!.defaultVideoProfile
+            val resolution = Size(videoProfile.width, videoProfile.height)
+            val videoSpec = VideoSpec.builder()
+                .setQualitySelector(QualitySelector.from(quality))
+                .build()
 
-        val videoSpec =
-            VideoSpec.builder().setQualitySelector(QualitySelector.from(quality)).build()
+            val mediaFormat = VideoEncoderConfigVideoProfileResolver(
+                videoProfile.mediaType,
+                timebase,
+                videoSpec,
+                resolution,
+                videoProfile,
+                dynamicRange,
+                SurfaceRequest.FRAME_RATE_RANGE_UNSPECIFIED
+            ).get().toMediaFormat()
 
-        val mediaFormat = VideoEncoderConfigVideoProfileResolver(
-            videoProfile.mediaType,
-            timebase,
-            videoSpec,
-            resolution!!,
-            videoProfile,
-            /*expectedFrameRateRange=*/null
-        ).get().toMediaFormat()
+            // Act.
+            val encoderName = EncoderFinder().findEncoderForFormat(
+                mediaFormat,
+                MediaCodecList(MediaCodecList.ALL_CODECS)
+            )
 
-        // Act.
-        val encoderName = EncoderFinder().findEncoderForFormat(
-            mediaFormat,
-            MediaCodecList(MediaCodecList.ALL_CODECS)
-        )
-
-        // Assert.
-        assertTrue(
-            "Cannot find video encoder & the device config is not listed in Quirk.",
-            !TextUtils.isEmpty(encoderName) || isInQuirk(mediaFormat)
-        )
+            // Assert.
+            assertTrue(
+                "Cannot find video encoder & the device config is not listed in Quirk.",
+                !TextUtils.isEmpty(encoderName) || isInQuirk(mediaFormat)
+            )
+        }
     }
 
     private fun isInQuirk(mediaFormat: MediaFormat): Boolean {

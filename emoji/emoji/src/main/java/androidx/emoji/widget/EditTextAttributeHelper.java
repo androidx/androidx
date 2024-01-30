@@ -30,7 +30,6 @@ import androidx.emoji.R;
 /**
  * Helper class to parse EmojiCompat EditText attributes.
  *
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public class EditTextAttributeHelper {

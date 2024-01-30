@@ -17,12 +17,15 @@
 package androidx.tv.foundation.lazy.grid
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.lazy.layout.LazyLayoutIntervalContent
+import androidx.compose.foundation.lazy.layout.MutableIntervalList
+import androidx.compose.runtime.Composable
 import kotlin.math.min
 import kotlin.math.sqrt
 
 @Suppress("IllegalExperimentalApiUsage") // TODO (b/233188423): Address before moving to beta
 @OptIn(ExperimentalFoundationApi::class)
-internal class LazyGridSpanLayoutProvider(private val itemProvider: LazyGridItemProvider) {
+internal class LazyGridSpanLayoutProvider(private val gridContent: LazyGridIntervalContent) {
     class LineConfiguration(val firstItemIndex: Int, val spans: List<TvGridItemSpan>)
 
     /** Caches the bucket info on lines 0, [bucketSize], 2 * [bucketSize], etc. */
@@ -61,7 +64,7 @@ internal class LazyGridSpanLayoutProvider(private val itemProvider: LazyGridItem
             List(currentSlotsPerLine) { TvGridItemSpan(1) }.also { previousDefaultSpans = it }
         }
 
-    val totalSize get() = itemProvider.itemCount
+    val totalSize get() = gridContent.intervals.size
 
     /** The number of slots on one grid line e.g. the number of columns of a vertical grid. */
     var slotsPerLine = 0
@@ -73,7 +76,7 @@ internal class LazyGridSpanLayoutProvider(private val itemProvider: LazyGridItem
         }
 
     fun getLineConfiguration(lineIndex: Int): LineConfiguration {
-        if (!itemProvider.hasCustomSpans) {
+        if (!gridContent.hasCustomSpans) {
             // Quick return when all spans are 1x1 - in this case we can easily calculate positions.
             val firstItemIndex = lineIndex * slotsPerLine
             return LineConfiguration(
@@ -111,7 +114,7 @@ internal class LazyGridSpanLayoutProvider(private val itemProvider: LazyGridItem
             cachedBucket.clear()
         }
 
-        check(currentLine <= lineIndex)
+        check(currentLine <= lineIndex) { "currentLine > lineIndex" }
 
         while (currentLine < lineIndex && currentItemIndex < totalSize) {
             if (cacheThisBucket) {
@@ -137,7 +140,7 @@ internal class LazyGridSpanLayoutProvider(private val itemProvider: LazyGridItem
             if (currentLine % bucketSize == 0 && currentItemIndex < totalSize) {
                 val currentLineBucket = currentLine / bucketSize
                 // This should happen, as otherwise this should have been used as starting point.
-                check(buckets.size == currentLineBucket)
+                check(buckets.size == currentLineBucket) { "invalid starting point" }
                 buckets.add(Bucket(currentItemIndex, knownCurrentItemSpan))
             }
         }
@@ -168,13 +171,13 @@ internal class LazyGridSpanLayoutProvider(private val itemProvider: LazyGridItem
     /**
      * Calculate the line of index [itemIndex].
      */
-    fun getLineIndexOfItem(itemIndex: Int): LineIndex {
+    fun getLineIndexOfItem(itemIndex: Int): Int {
         if (totalSize <= 0) {
-            return LineIndex(0)
+            return 0
         }
-        require(itemIndex < totalSize)
-        if (!itemProvider.hasCustomSpans) {
-            return LineIndex(itemIndex / slotsPerLine)
+        require(itemIndex < totalSize) { "ItemIndex > total count" }
+        if (!gridContent.hasCustomSpans) {
+            return itemIndex / slotsPerLine
         }
 
         val lowerBoundBucket = buckets.binarySearch { it.firstItemIndex - itemIndex }.let {
@@ -183,7 +186,7 @@ internal class LazyGridSpanLayoutProvider(private val itemProvider: LazyGridItem
         var currentLine = lowerBoundBucket * bucketSize
         var currentItemIndex = buckets[lowerBoundBucket].firstItemIndex
 
-        require(currentItemIndex <= itemIndex)
+        require(currentItemIndex <= itemIndex) { "currentItemIndex > itemIndex" }
         var spansUsed = 0
         while (currentItemIndex < itemIndex) {
             val span = spanOf(currentItemIndex++, slotsPerLine - spansUsed)
@@ -208,17 +211,19 @@ internal class LazyGridSpanLayoutProvider(private val itemProvider: LazyGridItem
             ++currentLine
         }
 
-        return LineIndex(currentLine)
+        return currentLine
     }
 
-    fun spanOf(itemIndex: Int, maxSpan: Int) = with(itemProvider) {
+    fun spanOf(itemIndex: Int, maxSpan: Int): Int =
         with(TvLazyGridItemSpanScopeImpl) {
             maxCurrentLineSpan = maxSpan
             maxLineSpan = slotsPerLine
 
-            getSpan(itemIndex).currentLineSpan.coerceIn(1, slotsPerLine)
+            val interval = gridContent.intervals[itemIndex]
+            val localIntervalIndex = itemIndex - interval.startIndex
+            val span = interval.value.span.invoke(this, localIntervalIndex)
+            return span.currentLineSpan
         }
-    }
 
     private fun invalidateCache() {
         buckets.clear()
@@ -242,3 +247,69 @@ internal class LazyGridSpanLayoutProvider(private val itemProvider: LazyGridItem
         override var maxLineSpan = 0
     }
 }
+
+@OptIn(ExperimentalFoundationApi::class)
+internal class LazyGridIntervalContent(
+    content: TvLazyGridScope.() -> Unit
+) : TvLazyGridScope, LazyLayoutIntervalContent<LazyGridInterval>() {
+    internal val spanLayoutProvider: LazyGridSpanLayoutProvider =
+        LazyGridSpanLayoutProvider(this)
+
+    override val intervals = MutableIntervalList<LazyGridInterval>()
+
+    internal var hasCustomSpans = false
+
+    init {
+        apply(content)
+    }
+
+    override fun item(
+        key: Any?,
+        span: (TvLazyGridItemSpanScope.() -> TvGridItemSpan)?,
+        contentType: Any?,
+        content: @Composable() (TvLazyGridItemScope.() -> Unit)
+    ) {
+        intervals.addInterval(
+            1,
+            LazyGridInterval(
+                key = key?.let { { key } },
+                span = span?.let { { span() } } ?: DefaultSpan,
+                type = { contentType },
+                item = { content() }
+            )
+        )
+        if (span != null) hasCustomSpans = true
+    }
+
+    override fun items(
+        count: Int,
+        key: ((index: Int) -> Any)?,
+        span: (TvLazyGridItemSpanScope.(index: Int) -> TvGridItemSpan)?,
+        contentType: (index: Int) -> Any?,
+        itemContent: @Composable() (TvLazyGridItemScope.(index: Int) -> Unit)
+    ) {
+        intervals.addInterval(
+            count,
+            LazyGridInterval(
+                key = key,
+                span = span ?: DefaultSpan,
+                type = contentType,
+                item = itemContent
+            )
+        )
+        if (span != null) hasCustomSpans = true
+    }
+
+    private companion object {
+        val DefaultSpan: TvLazyGridItemSpanScope.(Int) -> TvGridItemSpan =
+            { TvGridItemSpan(1) }
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+internal class LazyGridInterval(
+    override val key: ((index: Int) -> Any)?,
+    val span: TvLazyGridItemSpanScope.(Int) -> TvGridItemSpan,
+    override val type: ((index: Int) -> Any?),
+    val item: @Composable TvLazyGridItemScope.(Int) -> Unit
+) : LazyLayoutIntervalContent.Interval

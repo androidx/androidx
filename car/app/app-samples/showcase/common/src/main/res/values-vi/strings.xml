@@ -264,6 +264,7 @@
     <string name="tab_title_list" msgid="5104962518489668123">"Thẻ dạng danh sách"</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"Thẻ dạng lưới có tiêu đề thẻ dài"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"Thẻ tìm kiếm"</string>
+    <string name="tab_title_loading" msgid="5385807479734490989">"Đang tải thẻ"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"Bản demo mẫu thẻ đang tải"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"Bản demo mẫu thẻ không có thẻ"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"Không thể hiển thị hình ảnh cho một máy chủ không xác định"</string>
@@ -298,7 +299,7 @@
     <string name="some_additional_text" msgid="4009872495806318260">"Một số văn bản bổ sung"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"Danh sách có thể chọn mẫu"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"Bản demo tác vụ hạn chế"</string>
-    <string name="task_limit_reached_msg" msgid="6038763366777119364">"Đã đạt đến giới hạn nhiệm vụ\nNếu tiếp tục sẽ buộc phải dừng ứng dụng"</string>
+    <string name="task_limit_reached_msg" msgid="7162842196382260992">"Thao tác nhấp này sẽ vượt quá giới hạn về số bước và chuyển bạn đến màn hình mới."</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"Bước %1$d trong số %2$d của nhiệm vụ"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"Nhấp để tiếp tục"</string>
     <string name="task_content_allowed" msgid="545061986612431190">"Vui lòng truy cập nhiều mẫu riêng biệt và đảm bảo xe đang ở chế độ lái"</string>
@@ -323,6 +324,12 @@
     <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"Bạn cũng có thể chọn hàng"</string>
     <string name="secondary_action_toast" msgid="5076434693504006565">"Đã chọn hành động phụ"</string>
     <string name="row_primary_action_toast" msgid="756516694751965204">"Đã chọn hành động chính cho hàng"</string>
+    <string name="sectioned_item_list_demo_title" msgid="1236735461225007729">"Bản minh hoạ danh sách mục theo phần"</string>
+    <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"Danh sách 1"</string>
+    <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"Danh sách 2"</string>
+    <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"Nội dung phụ dưới mỗi danh sách"</string>
+    <string name="empty_list_demo_title" msgid="5989013634820902455">"Bản minh hoạ danh sách trống"</string>
+    <string name="empty_list_message" msgid="5331395517560728138">"Danh sách này đang trống"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"Bản demo biểu mẫu Misc"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"Bản demo nổi bật"</string>
     <string name="template_layouts_demo_title" msgid="788249269446087847">"Bản minh hoạ bố cục mẫu"</string>

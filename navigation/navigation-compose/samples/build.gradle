@@ -28,9 +28,9 @@ plugins {
 dependencies {
     implementation(libs.kotlinStdlib)
 
-    compileOnly(projectOrArtifact(":annotation:annotation-sampled"))
+    compileOnly(project(":annotation:annotation-sampled"))
     implementation("androidx.compose.foundation:foundation:1.0.1")
-    implementation projectOrArtifact(":compose:ui:ui-tooling")
+    implementation("androidx.compose.ui:ui-tooling:1.4.0-beta02")
     implementation(projectOrArtifact(":navigation:navigation-compose"))
     implementation("androidx.compose.material:material:1.0.1")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.0.1")
@@ -39,7 +39,7 @@ dependencies {
 }
 
 androidx {
-    name = "AndroidX Compose UI Navigation Integration Samples"
+    name = "Compose UI Navigation Integration Samples"
     type = LibraryType.SAMPLES
     inceptionYear = "2020"
     description = "Samples for Compose integration with Navigation"

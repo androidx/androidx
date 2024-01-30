@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2023 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <!-- Callback name -->
+    <TextView
+        android:id="@+id/callback_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="@android:style/TextAppearance.Material.Title"
+        android:text="@string/window_state_placeholder"/>
+
+    <!-- Last update timestamp -->
+    <androidx.window.demo.coresdk.WindowStateConfigView
+        android:id="@+id/timestamp_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:configName="@string/timestamp_title"/>
+
+    <!-- Application Display rotation -->
+    <androidx.window.demo.coresdk.WindowStateConfigView
+        android:id="@+id/application_display_rotation_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:configName="@string/application_display_rotation_title"/>
+
+    <!-- Activity Display rotation -->
+    <androidx.window.demo.coresdk.WindowStateConfigView
+        android:id="@+id/activity_display_rotation_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:configName="@string/activity_display_rotation_title"/>
+
+    <!-- Application Display bounds -->
+    <androidx.window.demo.coresdk.WindowStateConfigView
+        android:id="@+id/application_display_bounds_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:configName="@string/application_display_bounds_title"/>
+
+    <!-- Activity Display bounds -->
+    <androidx.window.demo.coresdk.WindowStateConfigView
+        android:id="@+id/activity_display_bounds_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:configName="@string/activity_display_bounds_title"/>
+
+    <!-- Previous Application Display rotation -->
+    <androidx.window.demo.coresdk.WindowStateConfigView
+        android:id="@+id/prev_application_display_rotation_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:configName="@string/prev_application_display_rotation_title"/>
+
+    <!-- Previous Activity Display rotation -->
+    <androidx.window.demo.coresdk.WindowStateConfigView
+        android:id="@+id/prev_activity_display_rotation_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:configName="@string/prev_activity_display_rotation_title"/>
+
+    <!-- Previous Application Display bounds -->
+    <androidx.window.demo.coresdk.WindowStateConfigView
+        android:id="@+id/prev_application_display_bounds_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:configName="@string/prev_application_display_bounds_title"/>
+
+    <!-- Previous Activity Display bounds -->
+    <androidx.window.demo.coresdk.WindowStateConfigView
+        android:id="@+id/prev_activity_display_bounds_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:configName="@string/prev_activity_display_bounds_title"/>
+
+</LinearLayout>

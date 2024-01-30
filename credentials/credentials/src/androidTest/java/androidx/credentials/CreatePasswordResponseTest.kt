@@ -39,9 +39,17 @@ class CreatePasswordResponseTest {
     @Test
     fun frameworkConversion_success() {
         val response = CreatePasswordResponse()
+        // Add additional data to the request data and candidate query data to make sure
+        // they persist after the conversion
+        val data = response.data
+        val customDataKey = "customRequestDataKey"
+        val customDataValue: CharSequence = "customRequestDataValue"
+        data.putCharSequence(customDataKey, customDataValue)
 
-        val convertedResponse = createFrom(response.type, response.data)
+        val convertedResponse = createFrom(response.type, data)
 
         assertThat(convertedResponse).isInstanceOf(CreatePasswordResponse::class.java)
+        assertThat(convertedResponse.data.getCharSequence(customDataKey))
+            .isEqualTo(customDataValue)
     }
 }

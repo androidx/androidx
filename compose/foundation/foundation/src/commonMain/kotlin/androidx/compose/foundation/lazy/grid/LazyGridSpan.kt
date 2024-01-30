@@ -16,7 +16,7 @@
 
 package androidx.compose.foundation.lazy.grid
 
-import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.annotation.IntRange
 import androidx.compose.runtime.Immutable
 
 /**
@@ -29,7 +29,6 @@ value class GridItemSpan internal constructor(private val packedValue: Long) {
      * The span of the item on the current line. This will be the horizontal span for items of
      * [LazyVerticalGrid].
      */
-    @ExperimentalFoundationApi
     val currentLineSpan: Int get() = packedValue.toInt()
 }
 
@@ -37,7 +36,10 @@ value class GridItemSpan internal constructor(private val packedValue: Long) {
  * Creates a [GridItemSpan] with a specified [currentLineSpan]. This will be the horizontal span
  * for an item of a [LazyVerticalGrid].
  */
-fun GridItemSpan(currentLineSpan: Int) = GridItemSpan(currentLineSpan.toLong())
+fun GridItemSpan(@IntRange(from = 1) currentLineSpan: Int): GridItemSpan {
+    require(currentLineSpan > 0) { "The span value should be higher than 0" }
+    return GridItemSpan(currentLineSpan.toLong())
+}
 
 /**
  * Scope of lambdas used to calculate the spans of items in lazy grids.

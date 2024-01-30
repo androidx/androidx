@@ -45,7 +45,6 @@ import java.util.List;
 /**
  * An {@link Activity} to show how WebMessageListener deals with malicious websites.
  */
-@SuppressLint("RestrictedApi")
 public class WebMessageListenerMaliciousWebsiteActivity extends AppCompatActivity {
     private final Uri mMaliciousUrl = new Uri.Builder().scheme("https").authority(
             "malicious.com").appendPath("androidx_webkit").appendPath("example").appendPath(

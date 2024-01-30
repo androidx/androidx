@@ -25,8 +25,8 @@ import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.viewpager2.widget.ViewPager2.ORIENTATION_HORIZONTAL
-import org.hamcrest.Matchers.containsString
 import org.hamcrest.MatcherAssert.assertThat
+import org.hamcrest.Matchers.containsString
 import org.junit.Assert.fail
 import org.junit.Test
 import org.junit.runner.RunWith

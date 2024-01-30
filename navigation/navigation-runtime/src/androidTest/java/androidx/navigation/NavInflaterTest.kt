@@ -114,6 +114,19 @@ class NavInflaterTest {
     }
 
     @Test
+    fun testInflateDeepLinkWithApplicationIdAction_nonNullableArg() {
+        val context = ApplicationProvider.getApplicationContext() as Context
+        val navInflater = NavInflater(context, TestNavigatorProvider())
+        val graph = navInflater.inflate(R.navigation.nav_simple)
+
+        assertThat(graph).isNotNull()
+        val expectedDeepLinkRequest = NavDeepLinkRequest.Builder.fromAction("test.action2").build()
+        val result = graph.matchDeepLink(expectedDeepLinkRequest)
+        assertThat(result)
+            .isNull()
+    }
+
+    @Test
     fun testInflateDeepLinkWithApplicationIdEmptyAction() {
         val context = ApplicationProvider.getApplicationContext() as Context
         val navInflater = NavInflater(context, TestNavigatorProvider())
@@ -149,6 +162,19 @@ class NavInflaterTest {
         assertThat(result?.destination)
             .isNotNull()
         assertThat(result?.destination?.id).isEqualTo(R.id.second_test)
+    }
+
+    @Test
+    fun testInflateDeepLinkWithApplicationIdMimeType_nonNullableArg() {
+        val context = ApplicationProvider.getApplicationContext() as Context
+        val navInflater = NavInflater(context, TestNavigatorProvider())
+        val graph = navInflater.inflate(R.navigation.nav_simple)
+
+        assertThat(graph).isNotNull()
+        val expectedDeepLinkRequest = NavDeepLinkRequest.Builder.fromMimeType("type/test2").build()
+        val result = graph.matchDeepLink(expectedDeepLinkRequest)
+        assertThat(result)
+            .isNull()
     }
 
     @Test

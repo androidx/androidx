@@ -15,7 +15,7 @@
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <application>
+    <application android:name="androidx.multidex.MultiDexApplication">
         <service android:name="androidx.work.multiprocess.RemoteWorkerService" />
     </application>
 

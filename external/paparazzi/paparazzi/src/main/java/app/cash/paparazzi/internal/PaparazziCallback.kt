@@ -30,9 +30,6 @@ import com.android.layoutlib.bridge.android.RenderParamsFlags
 import com.android.resources.ResourceType
 import com.android.resources.ResourceType.STYLE
 import com.google.common.io.ByteStreams
-import org.kxml2.io.KXmlParser
-import org.xmlpull.v1.XmlPullParser
-import org.xmlpull.v1.XmlPullParserException
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -40,6 +37,9 @@ import java.io.FileInputStream
 import java.io.FileNotFoundException
 import java.io.IOException
 import java.lang.reflect.Modifier
+import org.kxml2.io.KXmlParser
+import org.xmlpull.v1.XmlPullParser
+import org.xmlpull.v1.XmlPullParserException
 
 internal class PaparazziCallback(
   private val logger: PaparazziLogger,

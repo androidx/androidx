@@ -119,7 +119,6 @@ public class TestAppManager extends AppManager {
     }
 
     /**
-     * @hide
      */
     @Override
     @Nullable
@@ -132,7 +131,6 @@ public class TestAppManager extends AppManager {
     /**
      * Returns the last {@link OpenMicrophoneRequest} sent to the host.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
     @Nullable

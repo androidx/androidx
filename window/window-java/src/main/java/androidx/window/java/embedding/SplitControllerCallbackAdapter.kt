@@ -21,6 +21,7 @@ import androidx.core.util.Consumer
 import androidx.window.core.ExperimentalWindowApi
 import androidx.window.embedding.SplitController
 import androidx.window.embedding.SplitInfo
+import androidx.window.java.core.CallbackToFlowAdapter
 import java.util.concurrent.Executor
 
 /**
@@ -33,8 +34,13 @@ import java.util.concurrent.Executor
  * @param controller A [SplitController] that can be obtained by [SplitController.getInstance]
  */
 @ExperimentalWindowApi
-@Suppress("Deprecation") // To call legacy SplitController SplitInfo callback APIs
-class SplitControllerCallbackAdapter(private val controller: SplitController) {
+class SplitControllerCallbackAdapter private constructor(
+    private val controller: SplitController,
+    private val callbackToFlowAdapter: CallbackToFlowAdapter
+) {
+
+    constructor(controller: SplitController) : this(controller, CallbackToFlowAdapter())
+
     /**
      * Registers a listener for updates about the active split state(s) that this
      * activity is part of. An activity can be in zero, one or more active splits.
@@ -56,13 +62,16 @@ class SplitControllerCallbackAdapter(private val controller: SplitController) {
         activity: Activity,
         executor: Executor,
         consumer: Consumer<List<SplitInfo>>
-    ) = controller.addSplitListener(activity, executor, consumer)
+    ) {
+        callbackToFlowAdapter.connect(executor, consumer, controller.splitInfoList(activity))
+    }
 
     /**
      * Unregisters a listener that was previously registered via [addSplitListener].
      *
      * @param consumer the previously registered [Consumer] to unregister.
      */
-    fun removeSplitListener(consumer: Consumer<List<SplitInfo>>) =
-        controller.removeSplitListener(consumer)
+    fun removeSplitListener(consumer: Consumer<List<SplitInfo>>) {
+        callbackToFlowAdapter.disconnect(consumer)
+    }
 }

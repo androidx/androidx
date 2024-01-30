@@ -70,7 +70,6 @@ public class MenstruationFlowRecord(
     }
     /**
      * How heavy the user's menstruation flow was.
-     * @suppress
      */
     @Retention(AnnotationRetention.SOURCE)
     @IntDef(value = [FLOW_UNKNOWN, FLOW_LIGHT, FLOW_MEDIUM, FLOW_HEAVY])

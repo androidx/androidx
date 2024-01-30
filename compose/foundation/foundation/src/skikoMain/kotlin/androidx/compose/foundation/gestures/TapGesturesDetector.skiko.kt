@@ -18,6 +18,7 @@ package androidx.compose.foundation.gestures
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.PointerMatcher
+import androidx.compose.foundation.text.selection.ClicksCounter
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.input.pointer.AwaitPointerEventScope
@@ -34,6 +35,7 @@ import androidx.compose.ui.input.pointer.changedToUp
 import androidx.compose.ui.input.pointer.changedToUpIgnoreConsumed
 import androidx.compose.ui.input.pointer.isOutOfBounds
 import androidx.compose.ui.platform.ViewConfiguration
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastAll
 import androidx.compose.ui.util.fastAny
 import androidx.compose.ui.util.fastForEach
@@ -94,8 +96,6 @@ suspend fun PointerInputScope.detectTapGestures(
 
     while (currentCoroutineContext().isActive) {
         awaitPointerEventScope {
-            // TODO: [1.4 Update] seems that launch may introduce races?
-            //  TapGestureDetectorKt.detectTapGestures also use it
             launch { pressScope.reset() }
 
             val down = awaitPress(filter = filter, requireUnconsumed = true).apply { changes[0].consume() }
@@ -119,10 +119,10 @@ suspend fun PointerInputScope.detectTapGestures(
             }
 
             if (cancelled) {
-                pressScope.cancel()
+                launch { pressScope.cancel() }
                 return@awaitPointerEventScope
             } else if (firstRelease != null) {
-                pressScope.release()
+                launch { pressScope.release() }
             }
 
             if (firstRelease == null) {
@@ -132,7 +132,7 @@ suspend fun PointerInputScope.detectTapGestures(
                         consumeUntilRelease = true,
                         filter = longClickReleaseFilter
                     )
-                    pressScope.release()
+                    launch { pressScope.release() }
                 }
             } else if (onDoubleTap == null) {
                 onTap?.invoke(firstRelease.changes[0].position)
@@ -146,8 +146,6 @@ suspend fun PointerInputScope.detectTapGestures(
                 if (secondPress == null) {
                     onTap?.invoke(firstRelease.changes[0].position)
                 } else {
-                    // TODO: [1.4 Update] seems that launch may introduce races?
-                    //  TapGestureDetectorKt.detectTapGestures also use it
                     launch { pressScope.reset() }
                     launch { pressScope.onPress(secondPress.changes[0].position) }
 
@@ -161,10 +159,10 @@ suspend fun PointerInputScope.detectTapGestures(
                     }
 
                     if (cancelled) {
-                        pressScope.cancel()
+                        launch { pressScope.cancel() }
                         return@awaitPointerEventScope
                     } else if (secondRelease != null) {
-                        pressScope.release()
+                        launch { pressScope.release() }
                     }
 
                     if (secondRelease == null) {
@@ -174,7 +172,7 @@ suspend fun PointerInputScope.detectTapGestures(
                                 consumeUntilRelease = true,
                                 filter = longClickReleaseFilter
                             )
-                            pressScope.release()
+                            launch { pressScope.release() }
                         }
                     } else if (!cancelled) {
                         onDoubleTap(secondRelease.changes[0].position)
@@ -201,6 +199,58 @@ internal suspend fun AwaitPointerEventScope.awaitPress(
     }
 
     return event
+}
+
+/**
+ * Detects repeating tap gestures on the given PointerInputScope.
+ *
+ * **Important**: for every tap sequence corresponding callback will be called.
+ *
+ * For example, if there is triple tap gesture, the call stack will look as follows: onTap, onDoubleTap, onTripleTap
+ *
+ * If there is a double tap gesture, the call stack will look as follows: onTap, onDoubleTap
+ *
+ * The order of callback execution is guaranteed.
+ *
+ * @param onTap  A callback function that will be called when a single tap gesture is detected. It will receive the position (Offset) where the tap occurred.
+ * @param onDoubleTap  A callback function that will be called when a double tap gesture is detected. It will receive the position (Offset) where the tap occurred.
+ * @param onTripleTap  A callback function that will be called when a triple tap gesture is detected. It will receive the position (Offset) where the tap occurred.
+ */
+internal suspend fun PointerInputScope.detectRepeatingTapGestures(
+    onTap: ((Offset) -> Unit)? = null,
+    onDoubleTap: ((Offset) -> Unit)? = null,
+    onTripleTap: ((Offset) -> Unit)? = null,
+) {
+    awaitEachGesture {
+        val touchesCounter = ClicksCounter(viewConfiguration, clicksSlop = 50.dp.toPx())
+        while (true) {
+            val down = awaitFirstDown()
+            touchesCounter.update(down)
+            val downChange = down
+            when (touchesCounter.clicks) {
+                1 -> {
+                    if (onTap != null) {
+                        onTap(downChange.position)
+                        downChange.consume()
+                    }
+                }
+
+                2 -> {
+                    if (onDoubleTap != null) {
+                        onDoubleTap(downChange.position)
+                        downChange.consume()
+                    }
+                }
+
+                else -> {
+                    if (onTripleTap != null) {
+                        onTripleTap(downChange.position)
+                        downChange.consume()
+                    }
+                }
+            }
+        }
+    }
 }
 
 private suspend fun AwaitPointerEventScope.awaitSecondPressUnconsumed(

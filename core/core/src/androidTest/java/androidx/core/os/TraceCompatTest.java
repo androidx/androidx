@@ -18,6 +18,8 @@ package androidx.core.os;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assume.assumeTrue;
+
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import android.app.UiAutomation;
@@ -33,10 +35,14 @@ import androidx.test.filters.SmallTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -46,21 +52,61 @@ import java.util.regex.Pattern;
 public final class TraceCompatTest {
 
     private static final int TRACE_BUFFER_SIZE = 8192;
+
+    private static final boolean TRACE_AVAILABLE;
+
+    private static String sTracedPreviousState = null;
+
+    static {
+        // Check if tracing is available via debugfs or tracefs
+        TRACE_AVAILABLE = new File("/sys/kernel/debug/tracing/trace_marker").exists()
+                || new File("/sys/kernel/tracing/trace_marker").exists();
+    }
+
     private ByteArrayOutputStream mByteArrayOutputStream;
+
+    @BeforeClass
+    public static void setUpClass() throws IOException {
+        if (TRACE_AVAILABLE && Build.VERSION.SDK_INT >= 30 && Build.VERSION.SDK_INT < 32) {
+            // On API 30 and 31, iorapd frequently uses perfetto, which competes for the trace
+            // buffer (see b/291108969, b/156260391, b/145554890, b/149790059 for more context).
+            // iorap was removed in API 32.
+            // Ensure perfetto's traced is disabled on affected API levels for the duration
+            // of the test so we're not competing for the trace buffer.
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            executeCommand("getprop persist.traced.enable", outputStream);
+            sTracedPreviousState = new String(outputStream.toByteArray(), UTF_8).trim();
+            if ("1".equals(sTracedPreviousState)) {
+                executeCommand("setprop persist.traced.enable 0");
+            }
+        }
+    }
+
+    @AfterClass
+    public static void tearDownClass() throws IOException {
+        // Re-enable traced if needed
+        if (TRACE_AVAILABLE && "1".equals(sTracedPreviousState)) {
+            executeCommand("setprop persist.traced.enable 1");
+        }
+    }
 
     @Before
     public void setUp() {
+        assumeTrue("Tracing is not available via debugfs or tracefs.", TRACE_AVAILABLE);
         mByteArrayOutputStream = new ByteArrayOutputStream();
     }
 
     @After
     public void stopAtrace() throws IOException {
-        // Since API 23, 'async_stop' will work. On lower API levels it was broken (see aosp/157142)
-        if (Build.VERSION.SDK_INT >= 23) {
-            executeCommand("atrace --async_stop");
-        } else {
-            // Ensure tracing is not currently running by performing a short synchronous trace.
-            executeCommand("atrace -t 0");
+        if (TRACE_AVAILABLE) {
+            // Since API 23, 'async_stop' will work. On lower API levels it was broken
+            // (see aosp/157142)
+            if (Build.VERSION.SDK_INT >= 23) {
+                executeCommand("atrace --async_stop");
+            } else {
+                // Ensure tracing is not currently running by performing a short synchronous trace.
+                executeCommand("atrace -t 0");
+            }
         }
     }
 
@@ -108,6 +154,7 @@ public final class TraceCompatTest {
         assertThat(enabled).isTrue();
     }
 
+    @Ignore("b/308151557")
     @SmallTest
     @Test
     public void isNotEnabledWhenNotTracing() {

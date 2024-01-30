@@ -37,6 +37,7 @@ public class GenericDocumentCtsTest {
             .build();
 
     @Test
+    @SuppressWarnings("deprecation")
     public void testMaxIndexedProperties() {
         assertThat(GenericDocument.getMaxIndexedProperties()).isEqualTo(16);
     }
@@ -334,7 +335,8 @@ public class GenericDocumentCtsTest {
                 .setPropertyBytes("byteKey1", sByteArray1, sByteArray2)
                 .setPropertyDocument("documentKey1", sDocumentProperties1, sDocumentProperties2)
                 .build();
-        GenericDocument document2 = document1.toBuilder()
+        GenericDocument document2 =
+                new GenericDocument.Builder<>(document1)
                 .setId("id2")
                 .setNamespace("namespace2")
                 .setPropertyBytes("byteKey1", sByteArray2)

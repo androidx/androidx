@@ -27,6 +27,7 @@ import androidx.hilt.navigation.fragment.test.R
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.navigation.findNavController
+import androidx.navigation.navGraphViewModels
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -37,10 +38,10 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
+import javax.inject.Inject
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import javax.inject.Inject
 
 /*
  * Copyright 2021 The Android Open Source Project
@@ -77,15 +78,23 @@ class HiltNavGraphViewModelLazyTest {
             }
             val viewModel = withActivity { firstFragment.viewModel }
             val savedStateViewModel = withActivity { firstFragment.savedStateViewModel }
+            val hiltSavedStateViewModel = withActivity { firstFragment.hiltSavedStateViewModel }
             assertThat(viewModel).isNotNull()
             assertThat(savedStateViewModel).isNotNull()
+            assertThat(hiltSavedStateViewModel).isNotNull()
+            assertThat(hiltSavedStateViewModel.otherDep).isNotNull()
 
-            // First assert that we have the default value
+            // First assert that the initial value is null. Note that we won't get the
+            // default value from nav args passed to the destination as this viewmodel
+            // is scoped to parent.
             val initialState: String? = savedStateViewModel.savedStateHandle["test"]
-            assertThat(initialState).isEqualTo("first")
+            assertThat(initialState).isNull()
+            val hiltInitialState: String? = hiltSavedStateViewModel.savedStateHandle["test"]
+            assertThat(hiltInitialState).isNull()
 
             // Now set arguments
             savedStateViewModel.savedStateHandle.set("test", "test")
+            hiltSavedStateViewModel.savedStateHandle.set("test", "test")
 
             // Navigate to the second destination and ensure it
             // gets the same ViewModels and data
@@ -101,13 +110,16 @@ class HiltNavGraphViewModelLazyTest {
                 .isSameInstanceAs(viewModel)
             assertThat(secondFragment.savedStateViewModel)
                 .isSameInstanceAs(savedStateViewModel)
+            assertThat(secondFragment.hiltSavedStateViewModel)
+                .isSameInstanceAs(hiltSavedStateViewModel)
             val savedValue: String? = secondFragment.savedStateViewModel
                 .savedStateHandle["test"]
             assertThat(savedValue).isEqualTo("test")
 
             // Now recreate the Activity and ensure that when we
             // first request the nav graph ViewModel on the second destination
-            // that we get the same ViewModel and data back
+            // that we get the same ViewModel and data back. Note that this is
+            // different to process deaths and the viewmodels are not recreated.
             recreate()
             val recreatedFragment: TestVMFragment = withActivity {
                 val navHostFragment = supportFragmentManager
@@ -118,6 +130,8 @@ class HiltNavGraphViewModelLazyTest {
                 .isSameInstanceAs(viewModel)
             assertThat(recreatedFragment.savedStateViewModel)
                 .isSameInstanceAs(savedStateViewModel)
+            assertThat(recreatedFragment.hiltSavedStateViewModel)
+                .isSameInstanceAs(hiltSavedStateViewModel)
             val recreatedValue: String? = recreatedFragment.savedStateViewModel
                 .savedStateHandle["test"]
             assertThat(recreatedValue).isEqualTo("test")
@@ -131,7 +145,9 @@ class NavGraphActivity : FragmentActivity(R.layout.activity_nav_graph)
 @AndroidEntryPoint
 class TestVMFragment : Fragment() {
     val viewModel: TestViewModel by hiltNavGraphViewModels(R.id.vm_graph)
-    val savedStateViewModel: TestSavedStateViewModel by hiltNavGraphViewModels(R.id.vm_graph)
+    val savedStateViewModel: TestSavedStateViewModel by navGraphViewModels(R.id.vm_graph)
+    val hiltSavedStateViewModel: TestHiltSavedStateViewModel
+            by hiltNavGraphViewModels(R.id.vm_graph)
     // TODO(kuanyingchou) Remove this after https://github.com/google/dagger/issues/3601 is resolved
     @Inject @ApplicationContext
     lateinit var applicationContext: Context
@@ -148,7 +164,14 @@ class TestVMFragment : Fragment() {
 @HiltViewModel
 class TestViewModel @Inject constructor() : ViewModel()
 
-@HiltViewModel
-class TestSavedStateViewModel @Inject constructor(
+class TestSavedStateViewModel constructor(
     val savedStateHandle: SavedStateHandle
 ) : ViewModel()
+
+@HiltViewModel
+class TestHiltSavedStateViewModel @Inject constructor(
+    val savedStateHandle: SavedStateHandle,
+    val otherDep: OtherDep
+) : ViewModel()
+
+class OtherDep @Inject constructor()

@@ -39,7 +39,6 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.ExperimentalTime
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.skiko.MainUIDispatcher
 import org.junit.Ignore
@@ -48,7 +47,6 @@ import org.junit.Test
 
 @OptIn(
     ExperimentalTime::class,
-    ExperimentalCoroutinesApi::class,
     InternalTestApi::class
 )
 class ImageComposeSceneTest {
@@ -96,7 +94,6 @@ class ImageComposeSceneTest {
         }
     }
 
-    @Ignore("See https://github.com/JetBrains/compose-jb/issues/1866")
     @Test
     fun `run multiple ImageComposeScene`() {
         for (i in 1..300) {

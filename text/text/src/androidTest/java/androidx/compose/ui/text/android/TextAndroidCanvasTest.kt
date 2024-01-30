@@ -19,10 +19,10 @@ package androidx.compose.ui.text.android
 import android.graphics.Canvas
 import android.graphics.Rect
 import com.google.common.truth.Truth.assertThat
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
 import org.junit.Test
+import org.mockito.kotlin.any
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.whenever
 
 class TextAndroidCanvasTest {
 

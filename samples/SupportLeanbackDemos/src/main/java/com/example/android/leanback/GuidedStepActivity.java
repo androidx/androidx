@@ -31,6 +31,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.leanback.app.GuidedStepFragment;
 import androidx.leanback.widget.GuidanceStylist;
@@ -70,7 +72,7 @@ public class GuidedStepActivity extends Activity {
     private static final String TAG = GuidedStepActivity.class.getSimpleName();
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         Log.v(TAG, "onCreate");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.guided_step_activity);
@@ -81,19 +83,19 @@ public class GuidedStepActivity extends Activity {
     }
 
     @Override
-    public void onConfigurationChanged(Configuration newConfig) {
+    public void onConfigurationChanged(@Nullable Configuration newConfig) {
         Log.v(TAG, "onConfigurationChanged");
         super.onConfigurationChanged(newConfig);
     }
 
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
+    protected void onSaveInstanceState(@Nullable Bundle outState) {
         Log.v(TAG, "onSaveInstanceState");
         super.onSaveInstanceState(outState);
     }
 
     @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+    protected void onRestoreInstanceState(@Nullable Bundle savedInstanceState) {
         Log.v(TAG, "onRestoreInstanceState");
         super.onRestoreInstanceState(savedInstanceState);
     }
@@ -194,7 +196,8 @@ public class GuidedStepActivity extends Activity {
         }
 
         @Override
-        public Guidance onCreateGuidance(Bundle savedInstanceState) {
+        @NonNull
+        public Guidance onCreateGuidance(@Nullable Bundle savedInstanceState) {
             String title = getString(R.string.guidedstep_first_title);
             String breadcrumb = getString(R.string.guidedstep_first_breadcrumb);
             String description = getString(R.string.guidedstep_first_description);
@@ -205,7 +208,8 @@ public class GuidedStepActivity extends Activity {
         }
 
         @Override
-        public void onCreateActions(List<GuidedAction> actions, Bundle savedInstanceState) {
+        public void onCreateActions(@NonNull List<GuidedAction> actions,
+                @Nullable Bundle savedInstanceState) {
             Context context = getActivity();
             actions.add(new GuidedAction.Builder(context)
                     .clickAction(GuidedAction.ACTION_ID_CONTINUE)
@@ -222,7 +226,7 @@ public class GuidedStepActivity extends Activity {
         }
 
         @Override
-        public void onGuidedActionClicked(GuidedAction action) {
+        public void onGuidedActionClicked(@NonNull GuidedAction action) {
             FragmentManager fm = getFragmentManager();
             if (action.getId() == GuidedAction.ACTION_ID_CONTINUE) {
                 GuidedStepFragment.add(fm, new SecondStepFragment(), R.id.lb_guidedstep_host);
@@ -242,7 +246,6 @@ public class GuidedStepActivity extends Activity {
                         .clickAction(GuidedAction.ACTION_ID_CANCEL)
                         .description("Never mind")
                         .build());
-                //setActionsDiffCallback(null);
                 setActions(newActions);
             } else if (action.getId() == GuidedAction.ACTION_ID_CANCEL){
                 finishGuidedStepFragments();
@@ -267,7 +270,7 @@ public class GuidedStepActivity extends Activity {
         NewPaymentFragmentTarget mNewPaymentTarget;
 
         @Override
-        public void onCreate(Bundle savedInstance) {
+        public void onCreate(@Nullable Bundle savedInstance) {
             super.onCreate(savedInstance);
             Fragment targetFragment = getTargetFragment();
             if (targetFragment instanceof NewPaymentFragmentTarget) {
@@ -277,7 +280,8 @@ public class GuidedStepActivity extends Activity {
         }
 
         @Override
-        public Guidance onCreateGuidance(Bundle savedInstanceState) {
+        @NonNull
+        public Guidance onCreateGuidance(@Nullable Bundle savedInstanceState) {
             String title = getString(R.string.guidedstep_newpayment_title);
             String breadcrumb = getString(R.string.guidedstep_newpayment_breadcrumb);
             String description = getString(R.string.guidedstep_newpayment_description);
@@ -288,7 +292,8 @@ public class GuidedStepActivity extends Activity {
         }
 
         @Override
-        public void onCreateActions(List<GuidedAction> actions, Bundle savedInstanceState) {
+        public void onCreateActions(@NonNull List<GuidedAction> actions,
+                @Nullable Bundle savedInstanceState) {
             addEditableAction(actions, NEW_PAYMENT, "Input credit card number", "",
                     InputType.TYPE_CLASS_NUMBER,
                     "Input credit card number", "Input credit card number");
@@ -296,7 +301,8 @@ public class GuidedStepActivity extends Activity {
         }
 
         @Override
-        public void onCreateButtonActions(List<GuidedAction> actions, Bundle savedInstanceState) {
+        public void onCreateButtonActions(@NonNull List<GuidedAction> actions,
+                @Nullable Bundle savedInstanceState) {
             Context context = getActivity();
             actions.add(new GuidedAction.Builder(context).clickAction(GuidedAction.ACTION_ID_OK)
                     .build());
@@ -304,7 +310,7 @@ public class GuidedStepActivity extends Activity {
         }
 
         @Override
-        public void onGuidedActionClicked(GuidedAction action) {
+        public void onGuidedActionClicked(@NonNull GuidedAction action) {
             if (action.getId() == GuidedAction.ACTION_ID_OK) {
                 CharSequence desc = findActionById(NEW_PAYMENT).getDescription();
                 String cardNumber = desc.subSequence(desc.length() - 4, desc.length()).toString();
@@ -325,7 +331,7 @@ public class GuidedStepActivity extends Activity {
         }
 
         @Override
-        public long onGuidedActionEditedAndProceed(GuidedAction action) {
+        public long onGuidedActionEditedAndProceed(@NonNull GuidedAction action) {
             if (action.getId() == NEW_PAYMENT) {
                 CharSequence editTitle = action.getEditTitle();
                 if (isCardNumberValid(editTitle)) {
@@ -374,7 +380,7 @@ public class GuidedStepActivity extends Activity {
 
         @Override
         public void onNewPaymentAdded(int selection) {
-            // if a new payment is added, we dont need expand the sub actions list.
+            // if a new payment is added, we don't need expand the sub actions list.
             mExpandPaymentListInOnCreateView = false;
             sSelectedCard = selection;
             updatePaymentAction(findActionById(PAYMENT));
@@ -389,6 +395,7 @@ public class GuidedStepActivity extends Activity {
         }
 
         @Override
+        @NonNull
         public GuidedActionsStylist onCreateActionsStylist() {
             return new GuidedActionsStylist() {
                 @Override
@@ -405,7 +412,8 @@ public class GuidedStepActivity extends Activity {
         }
 
         @Override
-        public Guidance onCreateGuidance(Bundle savedInstanceState) {
+        @NonNull
+        public Guidance onCreateGuidance(@Nullable Bundle savedInstanceState) {
             String title = getString(R.string.guidedstep_second_title);
             String breadcrumb = getString(R.string.guidedstep_second_breadcrumb);
             String description = getString(R.string.guidedstep_second_description);
@@ -416,7 +424,8 @@ public class GuidedStepActivity extends Activity {
         }
 
         @Override
-        public void onCreateActions(List<GuidedAction> actions, Bundle savedInstanceState) {
+        public void onCreateActions(@NonNull List<GuidedAction> actions,
+                @Nullable Bundle savedInstanceState) {
             addEditableAction(getActivity(), actions, FIRST_NAME, "Pat", "Your first name");
             addEditableAction(getActivity(), actions, LAST_NAME, "Smith", "Your last name");
             List<GuidedAction> subActions = new ArrayList<GuidedAction>();
@@ -426,7 +435,8 @@ public class GuidedStepActivity extends Activity {
         }
 
         @Override
-        public void onCreateButtonActions(List<GuidedAction> actions, Bundle savedInstanceState) {
+        public void onCreateButtonActions(@NonNull List<GuidedAction> actions,
+                @Nullable Bundle savedInstanceState) {
             actions.add(new GuidedAction.Builder(getActivity())
                     .clickAction(GuidedAction.ACTION_ID_CONTINUE)
                     .description("Continue")
@@ -435,7 +445,7 @@ public class GuidedStepActivity extends Activity {
         }
 
         @Override
-        public void onGuidedActionClicked(GuidedAction action) {
+        public void onGuidedActionClicked(@NonNull GuidedAction action) {
             if (action.getId() == GuidedAction.ACTION_ID_CONTINUE) {
                 FragmentManager fm = getFragmentManager();
                 GuidedStepFragment.add(fm, new ThirdStepFragment(), R.id.lb_guidedstep_host);
@@ -457,7 +467,7 @@ public class GuidedStepActivity extends Activity {
         }
 
         @Override
-        public long onGuidedActionEditedAndProceed(GuidedAction action) {
+        public long onGuidedActionEditedAndProceed(@NonNull GuidedAction action) {
             if (action.getId() == PASSWORD) {
                 CharSequence password = action.getEditDescription();
                 if (password.length() > 0) {
@@ -477,7 +487,7 @@ public class GuidedStepActivity extends Activity {
         }
 
         @Override
-        public boolean onSubGuidedActionClicked(GuidedAction action) {
+        public boolean onSubGuidedActionClicked(@NonNull GuidedAction action) {
             if (action.isChecked()) {
                 String payment = action.getTitle().toString();
                 for (int i = 0; i < sCards.size(); i++) {
@@ -500,8 +510,9 @@ public class GuidedStepActivity extends Activity {
         }
 
         @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                Bundle savedInstanceState) {
+        @Nullable
+        public View onCreateView(@NonNull LayoutInflater inflater, @NonNull ViewGroup container,
+                @Nullable Bundle savedInstanceState) {
             View view = super.onCreateView(inflater, container, savedInstanceState);
             if (mExpandPaymentListInOnCreateView) {
                 expandAction(findActionById(PAYMENT), false);
@@ -533,7 +544,8 @@ public class GuidedStepActivity extends Activity {
         private long mSelectedOption = DEFAULT_OPTION;
 
         @Override
-        public Guidance onCreateGuidance(Bundle savedInstanceState) {
+        @NonNull
+        public Guidance onCreateGuidance(@Nullable Bundle savedInstanceState) {
             String title = getString(R.string.guidedstep_third_title);
             String breadcrumb = getString(R.string.guidedstep_third_breadcrumb);
             String description = getString(R.string.guidedstep_third_description);
@@ -544,6 +556,7 @@ public class GuidedStepActivity extends Activity {
         }
 
         @Override
+        @NonNull
         public GuidanceStylist onCreateGuidanceStylist() {
             return new GuidanceStylist() {
                 @Override
@@ -554,7 +567,8 @@ public class GuidedStepActivity extends Activity {
         }
 
         @Override
-        public void onCreateActions(List<GuidedAction> actions, Bundle savedInstanceState) {
+        public void onCreateActions(@NonNull List<GuidedAction> actions,
+                @Nullable Bundle savedInstanceState) {
             String desc = "The description can be quite long as well.  "
                     + "Just be sure to set multilineDescription to true in the GuidedAction."
                     + "For testing purpose we make this line even longer since "
@@ -581,14 +595,15 @@ public class GuidedStepActivity extends Activity {
         }
 
         @Override
-        public void onCreateButtonActions(List<GuidedAction> actions, Bundle savedInstanceState) {
+        public void onCreateButtonActions(@NonNull List<GuidedAction> actions,
+                @Nullable Bundle savedInstanceState) {
             actions.add(new GuidedAction.Builder(getActivity())
                     .clickAction(GuidedAction.ACTION_ID_CONTINUE)
                     .build());
         }
 
         @Override
-        public void onGuidedActionClicked(GuidedAction action) {
+        public void onGuidedActionClicked(@NonNull GuidedAction action) {
             if (action.getId() == GuidedAction.ACTION_ID_CONTINUE) {
                 FragmentManager fm = getFragmentManager();
                 FourthStepFragment f = new FourthStepFragment();
@@ -616,7 +631,8 @@ public class GuidedStepActivity extends Activity {
         }
 
         @Override
-        public Guidance onCreateGuidance(Bundle savedInstanceState) {
+        @NonNull
+        public Guidance onCreateGuidance(@Nullable Bundle savedInstanceState) {
             String title = getString(R.string.guidedstep_fourth_title);
             String breadcrumb = getString(R.string.guidedstep_fourth_breadcrumb);
             String description = "You chose: " + OPTION_NAMES[(int) getOption()];
@@ -627,7 +643,8 @@ public class GuidedStepActivity extends Activity {
         }
 
         @Override
-        public void onCreateActions(List<GuidedAction> actions, Bundle savedInstanceState) {
+        public void onCreateActions(@NonNull List<GuidedAction> actions,
+                @Nullable Bundle savedInstanceState) {
             actions.add(new GuidedAction.Builder(getActivity())
                     .clickAction(GuidedAction.ACTION_ID_FINISH)
                     .description("All Done...")
@@ -636,7 +653,7 @@ public class GuidedStepActivity extends Activity {
         }
 
         @Override
-        public void onGuidedActionClicked(GuidedAction action) {
+        public void onGuidedActionClicked(@NonNull GuidedAction action) {
             if (action.getId() == GuidedAction.ACTION_ID_FINISH) {
                 finishGuidedStepFragments();
             } else if (action.getId() == BACK) {

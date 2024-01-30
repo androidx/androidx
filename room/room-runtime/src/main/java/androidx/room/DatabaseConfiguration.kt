@@ -88,8 +88,6 @@ constructor(
      * Intent that should be bound to acquire the invalidation service or `null` if not used.
      *
      * @see [multiInstanceInvalidation]
-     *
-     * @suppress
      */
     @field:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     @JvmField
@@ -144,7 +142,6 @@ constructor(
      * @param migrationNotRequiredFrom The collection of schema versions from which migrations
      * aren't required.
      *
-     * @suppress
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     @Deprecated(
@@ -207,7 +204,6 @@ constructor(
      * @param migrationNotRequiredFrom The collection of schema versions from which migrations
      * aren't required.
      *
-     * @suppress
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     @Deprecated(
@@ -278,7 +274,6 @@ constructor(
      * @param copyFromAssetPath The assets path to the pre-packaged database.
      * @param copyFromFile The pre-packaged database file.
      *
-     * @suppress
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     @Deprecated(
@@ -353,7 +348,6 @@ constructor(
      * @param copyFromInputStream The callable to get the input stream from which a
      * pre-package database file will be copied from.
      *
-     * @suppress
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     @Deprecated(
@@ -430,7 +424,6 @@ constructor(
      * pre-package database file will be copied from.
      * @param prepackagedDatabaseCallback The pre-packaged callback.
      *
-     * @suppress
      */
     @SuppressLint("LambdaLast")
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
@@ -510,7 +503,6 @@ constructor(
      * @param prepackagedDatabaseCallback The pre-packaged callback.
      * @param typeConverters The type converters.
      *
-     * @suppress
      */
     @SuppressLint("LambdaLast")
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
@@ -592,7 +584,6 @@ constructor(
      * @param typeConverters The type converters.
      * @param autoMigrationSpecs The auto migration specs.
      *
-     * @suppress
      */
     @SuppressLint("LambdaLast")
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)

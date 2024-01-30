@@ -18,6 +18,9 @@ package androidx.build.libabigail
 
 import androidx.build.OperatingSystem
 import androidx.build.getOperatingSystem
+import java.io.ByteArrayOutputStream
+import java.io.File
+import javax.inject.Inject
 import org.gradle.api.DefaultTask
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
@@ -34,9 +37,6 @@ import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
 import org.gradle.workers.WorkerExecutionException
 import org.gradle.workers.WorkerExecutor
-import java.io.ByteArrayOutputStream
-import java.io.File
-import javax.inject.Inject
 
 /**
  * Task which depends on [GenerateNativeApiTask] and compares the current native API from the build

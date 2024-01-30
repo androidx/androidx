@@ -21,17 +21,15 @@ import androidx.room.compiler.processing.XEquality
 import androidx.room.compiler.processing.XExecutableParameterElement
 import androidx.room.compiler.processing.XMemberContainer
 import androidx.room.compiler.processing.XType
+import androidx.room.compiler.processing.ksp.KSTypeVarianceResolverScope
 import androidx.room.compiler.processing.ksp.KspAnnotated
 import androidx.room.compiler.processing.ksp.KspAnnotated.UseSiteFilter.Companion.NO_USE_SITE
-import androidx.room.compiler.processing.ksp.KspJvmTypeResolutionScope
 import androidx.room.compiler.processing.ksp.KspMethodElement
 import androidx.room.compiler.processing.ksp.KspProcessingEnv
 import androidx.room.compiler.processing.ksp.KspType
 import androidx.room.compiler.processing.ksp.requireContinuationClass
 import androidx.room.compiler.processing.ksp.returnTypeAsMemberOf
 import androidx.room.compiler.processing.ksp.swapResolvedType
-import com.google.devtools.ksp.symbol.KSDeclaration
-import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.Variance
 
 /**
@@ -39,7 +37,7 @@ import com.google.devtools.ksp.symbol.Variance
  * this is what KAPT generates and Room needs it as long as it generates java code.
  */
 internal class KspSyntheticContinuationParameterElement(
-    private val env: KspProcessingEnv,
+    val env: KspProcessingEnv,
     override val enclosingElement: KspMethodElement
 ) : XExecutableParameterElement,
     XEquality,
@@ -48,38 +46,39 @@ internal class KspSyntheticContinuationParameterElement(
         delegate = null, // does not matter, this is synthetic and has no annotations.
         filter = NO_USE_SITE
     ) {
+    override fun isContinuationParam() = true
+
+    override fun isReceiverParam() = false
+
+    override fun isKotlinPropertyParam() = false
+
+    override fun isVarArgs() = false
 
     override val name: String by lazy {
-        // KAPT uses `continuation` but it doesn't check for conflicts, we do.
-        var candidate = "continuation"
+        // KAPT uses `$completion` but it doesn't check for conflicts, we do. Be aware that before
+        // Kotlin 1.8.0 the param was named 'continuation'.
+        var candidate = PARAM_NAME
         var suffix = 0
         while (
             enclosingElement.declaration.parameters.any { it.name?.asString() == candidate }
         ) {
-            candidate = "continuation_$suffix"
+            candidate = PARAM_NAME + "_" + suffix
             suffix ++
         }
         candidate
     }
 
+    override val jvmName = name
+
     override val equalityItems: Array<out Any?> by lazy {
-        arrayOf("continuation", enclosingElement)
+        arrayOf(PARAM_NAME, enclosingElement)
     }
 
     override val hasDefaultValue: Boolean
         get() = false
 
-    private fun jvmTypeResolutionScope(container: KSDeclaration?): KspJvmTypeResolutionScope {
-        return KspJvmTypeResolutionScope.MethodParameter(
-            kspExecutableElement = enclosingElement,
-            parameterIndex = enclosingElement.parameters.size - 1,
-            annotated = enclosingElement.declaration,
-            container = container
-        )
-    }
-
     override val type: KspType by lazy {
-        asMemberOf(enclosingElement.enclosingElement.type?.ksType)
+        createAsMemberOf(closestMemberContainer.type)
     }
 
     override val fallbackLocationText: String
@@ -93,17 +92,18 @@ internal class KspSyntheticContinuationParameterElement(
     }
 
     override fun asMemberOf(other: XType): KspType {
-        if (enclosingElement.enclosingElement.type?.isSameType(other) != false) {
-            return type
+        return if (closestMemberContainer.type?.isSameType(other) != false) {
+            type
+        } else {
+            createAsMemberOf(other)
         }
-        check(other is KspType)
-        return asMemberOf(other.ksType)
     }
 
-    private fun asMemberOf(ksType: KSType?): KspType {
+    private fun createAsMemberOf(container: XType?): KspType {
+        check(container is KspType?)
         val continuation = env.resolver.requireContinuationClass()
         val asMember = enclosingElement.declaration.returnTypeAsMemberOf(
-            ksType = ksType
+            ksType = container?.ksType
         )
         val returnTypeRef = checkNotNull(enclosingElement.declaration.returnType) {
             "cannot find return type reference for $this"
@@ -118,9 +118,13 @@ internal class KspSyntheticContinuationParameterElement(
         return env.wrap(
             ksType = contType,
             allowPrimitives = false
-        ).withJvmTypeResolver(
-            jvmTypeResolutionScope(
-                container = ksType?.declaration
+        ).copyWithScope(
+            KSTypeVarianceResolverScope.MethodParameter(
+                kspExecutableElement = enclosingElement,
+                parameterIndex = enclosingElement.parameters.size - 1,
+                annotated = enclosingElement.declaration,
+                container = container?.ksType?.declaration,
+                asMemberOf = container
             )
         )
     }
@@ -139,5 +143,13 @@ internal class KspSyntheticContinuationParameterElement(
 
     override fun hashCode(): Int {
         return XEquality.hashCode(equalityItems)
+    }
+
+    override fun toString(): String {
+        return name
+    }
+
+    companion object {
+        const val PARAM_NAME = "\$completion"
     }
 }

@@ -16,6 +16,7 @@
 
 package androidx.compose.animation.core
 
+import androidx.annotation.FloatRange
 import kotlin.math.abs
 import kotlin.math.exp
 import kotlin.math.ln
@@ -99,15 +100,15 @@ private const val ExponentialDecayFriction = -4.2f
  * rest for the animation to finish.
  */
 class FloatExponentialDecaySpec(
-    /*@FloatRange(
+    @FloatRange(
         from = 0.0,
         fromInclusive = false
-    )*/
+    )
     frictionMultiplier: Float = 1f,
-    /*@FloatRange(
+    @FloatRange(
         from = 0.0,
         fromInclusive = false
-    )*/
+    )
     absVelocityThreshold: Float = 0.1f
 ) : FloatDecayAnimationSpec {
 

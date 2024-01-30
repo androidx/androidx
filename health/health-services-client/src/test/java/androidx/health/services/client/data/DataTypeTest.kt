@@ -20,25 +20,27 @@ import androidx.health.services.client.data.DataType.Companion.ABSOLUTE_ELEVATIO
 import androidx.health.services.client.data.DataType.Companion.ABSOLUTE_ELEVATION_STATS
 import androidx.health.services.client.data.DataType.Companion.ACTIVE_EXERCISE_DURATION_TOTAL
 import androidx.health.services.client.data.DataType.Companion.CALORIES
-import androidx.health.services.client.data.DataType.Companion.CALORIES_TOTAL
 import androidx.health.services.client.data.DataType.Companion.CALORIES_DAILY
+import androidx.health.services.client.data.DataType.Companion.CALORIES_TOTAL
 import androidx.health.services.client.data.DataType.Companion.DISTANCE_DAILY
 import androidx.health.services.client.data.DataType.Companion.FLOORS_DAILY
-import androidx.health.services.client.data.DataType.Companion.STEPS_DAILY
 import androidx.health.services.client.data.DataType.Companion.FORMAT_BYTE_ARRAY
 import androidx.health.services.client.data.DataType.Companion.LOCATION
 import androidx.health.services.client.data.DataType.Companion.STEPS
+import androidx.health.services.client.data.DataType.Companion.STEPS_DAILY
 import androidx.health.services.client.data.DataType.Companion.SWIMMING_LAP_COUNT
+import androidx.health.services.client.data.DataType.TimeType.Companion.INTERVAL
 import androidx.health.services.client.data.DataType.TimeType.Companion.UNKNOWN
 import androidx.health.services.client.proto.DataProto
+import androidx.health.services.client.proto.DataProto.DataType.TimeType.TIME_TYPE_INTERVAL
 import androidx.health.services.client.proto.DataProto.DataType.TimeType.TIME_TYPE_UNKNOWN
 import com.google.common.truth.Truth.assertThat
 import kotlin.reflect.KVisibility
+import kotlin.reflect.full.declaredMemberProperties
+import kotlin.reflect.jvm.javaField
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import kotlin.reflect.full.declaredMemberProperties
-import kotlin.reflect.jvm.javaField
 
 @RunWith(RobolectricTestRunner::class)
 internal class DataTypeTest {
@@ -164,6 +166,25 @@ internal class DataTypeTest {
         assertThat(item2.valueClass.kotlin).isEqualTo(ByteArray::class)
         assertThat(item2::class).isEqualTo(AggregateDataType::class)
         assertThat(item2.isAggregate).isTrue()
+    }
+
+    @Test
+    fun onlyDeltaShouldContainCustomDataTypes() {
+        val proto = DataProto.DataType.newBuilder()
+            .setName("health_services.device_private.65537")
+            .setTimeType(TIME_TYPE_INTERVAL)
+            .setFormat(FORMAT_BYTE_ARRAY)
+            .build()
+
+        val list = DataType.deltaAndAggregateFromProto(proto)
+
+        assertThat(list).hasSize(1)
+        val item1 = list[0]
+        assertThat(item1.name).isEqualTo("health_services.device_private.65537")
+        assertThat(item1.timeType).isEqualTo(INTERVAL)
+        assertThat(item1.valueClass.kotlin).isEqualTo(ByteArray::class)
+        assertThat(item1::class).isEqualTo(DeltaDataType::class)
+        assertThat(item1.isAggregate).isFalse()
     }
 
     @Test

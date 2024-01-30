@@ -36,7 +36,6 @@ import androidx.annotation.RestrictTo;
 /**
  * Layout helper for {@link ComplicationData#TYPE_RANGED_VALUE}.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class RangedValueLayoutHelper extends LayoutHelper {

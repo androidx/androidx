@@ -40,6 +40,10 @@ abstract class ObservableQueryResultBinderProvider(val context: Context) :
         query: ParsedQuery,
         extras: TypeAdapterExtras
     ): QueryResultBinder {
+        extras.putData(
+            OriginalTypeArg::class,
+            OriginalTypeArg(declared)
+        )
         val typeArg = extractTypeArg(declared)
         val adapter = context.typeAdapterStore.findQueryResultAdapter(typeArg, query, extras)
         val tableNames = (
@@ -55,4 +59,6 @@ abstract class ObservableQueryResultBinderProvider(val context: Context) :
             tableNames = tableNames
         )
     }
+
+    data class OriginalTypeArg(val original: XType)
 }

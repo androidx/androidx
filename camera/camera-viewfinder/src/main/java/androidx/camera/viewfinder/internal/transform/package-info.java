@@ -15,7 +15,6 @@
  */
 
 /**
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 package androidx.camera.viewfinder.internal.transform;

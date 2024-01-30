@@ -10,7 +10,6 @@ SNAPSHOT=true impl/build.sh \
     -Pandroidx.enableAffectedModuleDetection=false \
     -Pandroidx.enableComposeCompilerMetrics=true \
     -Pandroidx.enableComposeCompilerReports=true \
-    -Pandroidx.constraints=true \
     "$@"
 
 echo "Completing $0 at $(date)"

@@ -55,7 +55,7 @@ public class FakeKeyedAppStatesReporter extends KeyedAppStatesReporter {
             Collections.synchronizedMap(new HashMap<String, KeyedAppState>());
     private AtomicInteger mNumberOfUploads = new AtomicInteger();
 
-    /** @deprecated see {@link #setStates(Collection, KeyedAppStatesCallback)}. **/
+    /** @deprecated see {@link #setStates(Collection, KeyedAppStatesCallback)}. */
     @Override
     @Deprecated
     public void setStates(@NonNull Collection<KeyedAppState> states) {
@@ -81,7 +81,7 @@ public class FakeKeyedAppStatesReporter extends KeyedAppStatesReporter {
         }
     }
 
-    /** @deprecated See {@link #setStatesImmediate(Collection, KeyedAppStatesCallback)}. **/
+    /** @deprecated See {@link #setStatesImmediate(Collection, KeyedAppStatesCallback)}. */
     @Override
     @Deprecated
     public void setStatesImmediate(@NonNull Collection<KeyedAppState> states) {

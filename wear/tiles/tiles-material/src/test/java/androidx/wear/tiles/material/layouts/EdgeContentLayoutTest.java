@@ -26,14 +26,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters;
-import androidx.wear.tiles.LayoutElementBuilders.Box;
-import androidx.wear.tiles.LayoutElementBuilders.Column;
-import androidx.wear.tiles.LayoutElementBuilders.LayoutElement;
-import androidx.wear.tiles.ModifiersBuilders.ElementMetadata;
-import androidx.wear.tiles.ModifiersBuilders.Modifiers;
-import androidx.wear.tiles.material.CircularProgressIndicator;
-import androidx.wear.tiles.material.Text;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -41,19 +33,26 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 
 @RunWith(AndroidJUnit4.class)
 @DoNotInstrument
+@SuppressWarnings("deprecation")
 public class EdgeContentLayoutTest {
     private static final Context CONTEXT = ApplicationProvider.getApplicationContext();
-    private static final DeviceParameters DEVICE_PARAMETERS =
-            new DeviceParameters.Builder().setScreenWidthDp(192).setScreenHeightDp(192).build();
-    private static final Text PRIMARY_LABEL = new Text.Builder(CONTEXT, "Primary label").build();
-    private static final Text SECONDARY_LABEL =
-            new Text.Builder(CONTEXT, "Secondary label").build();
+    private static final androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters
+            DEVICE_PARAMETERS =
+                    new androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters.Builder()
+                            .setScreenWidthDp(192)
+                            .setScreenHeightDp(192)
+                            .build();
+    private static final androidx.wear.tiles.material.Text PRIMARY_LABEL =
+            new androidx.wear.tiles.material.Text.Builder(CONTEXT, "Primary label").build();
+    private static final androidx.wear.tiles.material.Text SECONDARY_LABEL =
+            new androidx.wear.tiles.material.Text.Builder(CONTEXT, "Secondary label").build();
 
     @Test
     public void testAll() {
-        LayoutElement content = new Box.Builder().build();
-        CircularProgressIndicator progressIndicator =
-                new CircularProgressIndicator.Builder().build();
+        androidx.wear.tiles.LayoutElementBuilders.LayoutElement content =
+                new androidx.wear.tiles.LayoutElementBuilders.Box.Builder().build();
+        androidx.wear.tiles.material.CircularProgressIndicator progressIndicator =
+                new androidx.wear.tiles.material.CircularProgressIndicator.Builder().build();
         EdgeContentLayout layout =
                 new EdgeContentLayout.Builder(DEVICE_PARAMETERS)
                         .setContent(content)
@@ -67,7 +66,8 @@ public class EdgeContentLayoutTest {
 
     @Test
     public void testContentOnly() {
-        LayoutElement content = new Box.Builder().build();
+        androidx.wear.tiles.LayoutElementBuilders.LayoutElement content =
+                new androidx.wear.tiles.LayoutElementBuilders.Box.Builder().build();
         EdgeContentLayout layout =
                 new EdgeContentLayout.Builder(DEVICE_PARAMETERS).setContent(content).build();
 
@@ -76,8 +76,8 @@ public class EdgeContentLayoutTest {
 
     @Test
     public void testIndicatorOnly() {
-        CircularProgressIndicator progressIndicator =
-                new CircularProgressIndicator.Builder().build();
+        androidx.wear.tiles.material.CircularProgressIndicator progressIndicator =
+                new androidx.wear.tiles.material.CircularProgressIndicator.Builder().build();
         EdgeContentLayout layout =
                 new EdgeContentLayout.Builder(DEVICE_PARAMETERS)
                         .setEdgeContent(progressIndicator)
@@ -95,26 +95,29 @@ public class EdgeContentLayoutTest {
 
     @Test
     public void testWrongElement() {
-        Column box = new Column.Builder().build();
+        androidx.wear.tiles.LayoutElementBuilders.Column box =
+                new androidx.wear.tiles.LayoutElementBuilders.Column.Builder().build();
 
         assertThat(EdgeContentLayout.fromLayoutElement(box)).isNull();
     }
 
     @Test
     public void testWrongBox() {
-        Box box = new Box.Builder().build();
+        androidx.wear.tiles.LayoutElementBuilders.Box box =
+                new androidx.wear.tiles.LayoutElementBuilders.Box.Builder().build();
 
         assertThat(EdgeContentLayout.fromLayoutElement(box)).isNull();
     }
 
     @Test
     public void testWrongTag() {
-        Box box =
-                new Box.Builder()
+        androidx.wear.tiles.LayoutElementBuilders.Box box =
+                new androidx.wear.tiles.LayoutElementBuilders.Box.Builder()
                         .setModifiers(
-                                new Modifiers.Builder()
+                                new androidx.wear.tiles.ModifiersBuilders.Modifiers.Builder()
                                         .setMetadata(
-                                                new ElementMetadata.Builder()
+                                                new androidx.wear.tiles.ModifiersBuilders
+                                                                .ElementMetadata.Builder()
                                                         .setTagData("test".getBytes(UTF_8))
                                                         .build())
                                         .build())
@@ -125,12 +128,13 @@ public class EdgeContentLayoutTest {
 
     @Test
     public void testWrongLengthTag() {
-        Box box =
-                new Box.Builder()
+        androidx.wear.tiles.LayoutElementBuilders.Box box =
+                new androidx.wear.tiles.LayoutElementBuilders.Box.Builder()
                         .setModifiers(
-                                new Modifiers.Builder()
+                                new androidx.wear.tiles.ModifiersBuilders.Modifiers.Builder()
                                         .setMetadata(
-                                                new ElementMetadata.Builder()
+                                                new androidx.wear.tiles.ModifiersBuilders
+                                                                .ElementMetadata.Builder()
                                                         .setTagData(
                                                                 EdgeContentLayout
                                                                         .METADATA_TAG_PREFIX
@@ -144,10 +148,14 @@ public class EdgeContentLayoutTest {
 
     private void assertLayout(
             @NonNull EdgeContentLayout actualLayout,
-            @Nullable LayoutElement expectedProgressIndicator,
-            @Nullable LayoutElement expectedContent,
-            @Nullable LayoutElement expectedPrimaryLabel,
-            @Nullable LayoutElement expectedSecondaryLabel) {
+            @Nullable
+                    androidx.wear.tiles.LayoutElementBuilders.LayoutElement
+                            expectedProgressIndicator,
+            @Nullable androidx.wear.tiles.LayoutElementBuilders.LayoutElement expectedContent,
+            @Nullable androidx.wear.tiles.LayoutElementBuilders.LayoutElement expectedPrimaryLabel,
+            @Nullable
+                    androidx.wear.tiles.LayoutElementBuilders.LayoutElement
+                            expectedSecondaryLabel) {
         assertLayoutIsEqual(
                 actualLayout,
                 expectedProgressIndicator,
@@ -155,7 +163,10 @@ public class EdgeContentLayoutTest {
                 expectedPrimaryLabel,
                 expectedSecondaryLabel);
 
-        Box box = new Box.Builder().addContent(actualLayout).build();
+        androidx.wear.tiles.LayoutElementBuilders.Box box =
+                new androidx.wear.tiles.LayoutElementBuilders.Box.Builder()
+                        .addContent(actualLayout)
+                        .build();
 
         EdgeContentLayout newLayout = EdgeContentLayout.fromLayoutElement(box.getContents().get(0));
 
@@ -172,10 +183,14 @@ public class EdgeContentLayoutTest {
 
     private void assertLayoutIsEqual(
             @NonNull EdgeContentLayout actualLayout,
-            @Nullable LayoutElement expectedProgressIndicator,
-            @Nullable LayoutElement expectedContent,
-            @Nullable LayoutElement expectedPrimaryLabel,
-            @Nullable LayoutElement expectedSecondaryLabel) {
+            @Nullable
+                    androidx.wear.tiles.LayoutElementBuilders.LayoutElement
+                            expectedProgressIndicator,
+            @Nullable androidx.wear.tiles.LayoutElementBuilders.LayoutElement expectedContent,
+            @Nullable androidx.wear.tiles.LayoutElementBuilders.LayoutElement expectedPrimaryLabel,
+            @Nullable
+                    androidx.wear.tiles.LayoutElementBuilders.LayoutElement
+                            expectedSecondaryLabel) {
         byte[] expectedMetadata = EdgeContentLayout.METADATA_TAG_BASE.clone();
 
         if (expectedProgressIndicator == null) {

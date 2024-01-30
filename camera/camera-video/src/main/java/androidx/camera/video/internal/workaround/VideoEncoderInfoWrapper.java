@@ -29,6 +29,9 @@ import androidx.camera.video.internal.compat.quirk.MediaCodecInfoReportIncorrect
 import androidx.camera.video.internal.encoder.VideoEncoderInfo;
 import androidx.core.util.Preconditions;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * Workaround to wrap the VideoEncoderInfo in order to fix the wrong information provided by
  * {@link MediaCodecInfo}.
@@ -48,6 +51,10 @@ public class VideoEncoderInfoWrapper implements VideoEncoderInfo {
     private final VideoEncoderInfo mVideoEncoderInfo;
     private final Range<Integer> mSupportedWidths;
     private final Range<Integer> mSupportedHeights;
+    // Extra supported sizes is used to put resolutions that are actually supported on the device
+    // but the MediaCodecInfo indicates the resolution is invalid. The most common one is
+    // 1920x1080. For resolutions in this set, #isSizeSupported(w, h) should return true.
+    private final Set<Size> mExtraSupportedSizes = new HashSet<>();
 
     /**
      * Check and wrap an input VideoEncoderInfo
@@ -89,10 +96,11 @@ public class VideoEncoderInfoWrapper implements VideoEncoderInfo {
         } else {
             toWrap = false;
         }
-        return toWrap ? new VideoEncoderInfoWrapper(videoEncoderInfo) : videoEncoderInfo;
+        return toWrap ? new VideoEncoderInfoWrapper(videoEncoderInfo, validSizeToCheck)
+                : videoEncoderInfo;
     }
 
-    VideoEncoderInfoWrapper(@NonNull VideoEncoderInfo videoEncoderInfo) {
+    VideoEncoderInfoWrapper(@NonNull VideoEncoderInfo videoEncoderInfo, @Nullable Size validSize) {
         mVideoEncoderInfo = videoEncoderInfo;
 
         // Ideally we should find out supported widths/heights for each problematic device.
@@ -104,6 +112,12 @@ public class VideoEncoderInfoWrapper implements VideoEncoderInfo {
         int heightAlignment = videoEncoderInfo.getHeightAlignment();
         int maxHeight = (int) Math.ceil((double) HEIGHT_4KDCI / heightAlignment) * heightAlignment;
         mSupportedHeights = Range.create(heightAlignment, maxHeight);
+
+        if (validSize != null) {
+            mExtraSupportedSizes.add(validSize);
+        }
+        mExtraSupportedSizes.addAll(
+                MediaCodecInfoReportIncorrectInfoQuirk.getExtraSupportedSizes());
     }
 
     @NonNull
@@ -114,6 +128,10 @@ public class VideoEncoderInfoWrapper implements VideoEncoderInfo {
 
     @Override
     public boolean isSizeSupported(int width, int height) {
+        if (!mExtraSupportedSizes.isEmpty() && mExtraSupportedSizes.contains(
+                new Size(width, height))) {
+            return true;
+        }
         return mSupportedWidths.contains(width)
                 && mSupportedHeights.contains(height)
                 && width % mVideoEncoderInfo.getWidthAlignment() == 0

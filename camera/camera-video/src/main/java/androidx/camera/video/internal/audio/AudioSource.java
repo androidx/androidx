@@ -27,6 +27,7 @@ import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
 import android.Manifest;
 import android.content.Context;
+import android.media.AudioFormat;
 import android.media.AudioRecord;
 
 import androidx.annotation.NonNull;
@@ -41,13 +42,13 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.video.internal.BufferProvider;
-import androidx.camera.video.internal.SilentAudioStream;
 import androidx.camera.video.internal.encoder.InputBuffer;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.nio.ByteBuffer;
+import java.nio.ShortBuffer;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
@@ -141,6 +142,10 @@ public final class AudioSource {
     boolean mMuted;
     @Nullable
     private byte[] mZeroBytes;
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+            double mAudioAmplitude;
+    long mAmplitudeTimestamp = 0;
+    private final int mAudioFormat;
 
     /**
      * Creates an AudioSource for the given settings.
@@ -181,12 +186,14 @@ public final class AudioSource {
         mExecutor = CameraXExecutors.newSequentialExecutor(executor);
         mStartRetryIntervalNs = MILLISECONDS.toNanos(startRetryIntervalMs);
         try {
-            mAudioStream = audioStreamFactory.create(settings, attributionContext);
+            mAudioStream = new BufferedAudioStream(audioStreamFactory.create(settings,
+                    attributionContext), settings);
         } catch (IllegalArgumentException | AudioStream.AudioStreamException e) {
             throw new AudioSourceAccessException("Unable to create AudioStream", e);
         }
         mAudioStream.setCallback(new AudioStreamCallback(), mExecutor);
         mSilentAudioStream = new SilentAudioStream(settings);
+        mAudioFormat = settings.getAudioFormat();
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
@@ -242,14 +249,42 @@ public final class AudioSource {
      * is called.
      * <li>Trigger {@link AudioSourceCallback#onSilenceStateChanged(boolean)} with {@code true}
      * on the first failure and {@code false} on the successful retry.</li>
+     *
+     * <p>Use {@link #mute(boolean)} to mute the audio source before starting it. If not call,
+     * the audio source will be started unmuted by default.
      */
     public void start() {
+        mExecutor.execute(() -> start(mMuted));
+    }
+
+    /**
+     * Starts the AudioSource.
+     *
+     * <p>Before starting, a {@link BufferProvider} should be set with
+     * {@link #setBufferProvider(BufferProvider)}. If a buffer provider is not set, audio data
+     * will be dropped.
+     *
+     * <p>Audio data will start being sent to the {@link BufferProvider} when
+     * {@link BufferProvider}'s state is {@link BufferProvider.State#ACTIVE}.
+     *
+     * <p>If the AudioSource fails to start, instead of firing
+     * {@link AudioSourceCallback#onError(Throwable)}, it will
+     * <li>Retry internally with a fixed interval.</li>
+     * <li>Write silent audio to the BufferProvider until a successful retry or {@link #stop()}
+     * is called.
+     * <li>Trigger {@link AudioSourceCallback#onSilenceStateChanged(boolean, int)} with {@code true}
+     * on the first failure and {@code false} on the successful retry.</li>
+     *
+     * @param muted {@code true} to start the audio source muted, otherwise {@code false}.
+     */
+    public void start(boolean muted) {
         mExecutor.execute(() -> {
             switch (mState) {
                 case CONFIGURED:
                     mNotifiedSilenceState.set(null);
                     mNotifiedSuspendState.set(false);
                     setState(STARTED);
+                    mute(muted);
                     updateSendingAudio();
                     break;
                 case STARTED:
@@ -422,12 +457,19 @@ public final class AudioSource {
                         if (mMuted) {
                             overrideBySilence(byteBuffer, packetInfo.getSizeInBytes());
                         }
+                        // should only be ENCODING_PCM_16BIT for now at least
+                        // reads incoming bytebuffer for amplitude value every .2 seconds
+                        if (mCallbackExecutor != null
+                                && (packetInfo.getTimestampNs() - mAmplitudeTimestamp) >= 200) {
+                            mAmplitudeTimestamp = packetInfo.getTimestampNs();
+                            postMaxAmplitude(byteBuffer);
+                        }
                         byteBuffer.limit(byteBuffer.position() + packetInfo.getSizeInBytes());
                         inputBuffer.setPresentationTimeUs(
                                 NANOSECONDS.toMicros(packetInfo.getTimestampNs()));
                         inputBuffer.submit();
                     } else {
-                        Logger.w(TAG, "Unable to read data from AudioRecord.");
+                        Logger.w(TAG, "Unable to read data from AudioStream.");
                         inputBuffer.cancel();
                     }
                     sendNextAudio();
@@ -591,6 +633,31 @@ public final class AudioSource {
         mState = state;
     }
 
+    void postMaxAmplitude(ByteBuffer byteBuffer) {
+        Executor executor = mCallbackExecutor;
+        AudioSourceCallback callback = mAudioSourceCallback;
+        double maxAmplitude = 0;
+
+        if (mAudioFormat == AudioFormat.ENCODING_PCM_16BIT) {
+            //TODO
+            // may want to add calculation for different audio formats
+            ShortBuffer shortBuffer = byteBuffer.asShortBuffer();
+
+            while (shortBuffer.hasRemaining()) {
+                maxAmplitude = Math.max(maxAmplitude, Math.abs(shortBuffer.get()));
+            }
+
+            maxAmplitude = maxAmplitude / Short.MAX_VALUE;
+
+            mAudioAmplitude = maxAmplitude;
+
+            if (executor != null && callback != null) {
+                executor.execute(() -> callback.onAmplitudeValue(mAudioAmplitude));
+            }
+        }
+    }
+
+
     @Nullable
     private static BufferProvider.State fetchBufferProviderState(
             @NonNull BufferProvider<? extends InputBuffer> bufferProvider) {
@@ -639,5 +706,10 @@ public final class AudioSource {
          * The method called when the audio source encountered errors.
          */
         void onError(@NonNull Throwable t);
+
+        /**
+         * The method called to retrieve audio amplitude values.
+         */
+        void onAmplitudeValue(double maxAmplitude);
     }
 }

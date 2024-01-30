@@ -56,8 +56,8 @@ public final class TileBuilders {
         }
 
         /**
-         * Gets a {@link Timeline} containing the layouts for the tiles to show in the carousel,
-         * along with their validity periods.
+         * Gets the {@link androidx.wear.protolayout.TimelineBuilders.Timeline} containing the
+         * layouts for the tiles to show in the carousel, along with their validity periods.
          *
          * @since 1.0
          */
@@ -104,10 +104,15 @@ public final class TileBuilders {
         }
 
         /**
-         * Gets a {@link androidx.wear.tiles.TimelineBuilders.Timeline} containing the layouts for
+         * Gets the {@link androidx.wear.tiles.TimelineBuilders.Timeline} containing the layouts for
          * the tiles to show in the carousel, along with their validity periods.
+         *
+         * @since 1.0
+         * @deprecated Use {@link #getTileTimeline()} instead.
          */
+        @Deprecated
         @Nullable
+        @SuppressWarnings("deprecation") // for backward compatibility
         public androidx.wear.tiles.TimelineBuilders.Timeline getTimeline() {
             if (mImpl.hasTileTimeline()) {
                 return androidx.wear.tiles.TimelineBuilders.Timeline.fromProto(
@@ -117,22 +122,14 @@ public final class TileBuilders {
             }
         }
 
-        /**
-         * Creates a new wrapper instance from the proto.
-         *
-         * @hide
-         */
+        /** Creates a new wrapper instance from the proto. */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static Tile fromProto(@NonNull TileProto.Tile proto) {
             return new Tile(proto);
         }
 
-        /**
-         * Returns the internal proto instance.
-         *
-         * @hide
-         */
+        /** Returns the internal proto instance. */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public TileProto.Tile toProto() {
@@ -175,8 +172,8 @@ public final class TileBuilders {
             }
 
             /**
-             * Sets a {@link Timeline} containing the layouts for the tiles to show in the
-             * carousel, along with their validity periods.
+             * Sets the {@link androidx.wear.protolayout.TimelineBuilders.Timeline} containing the
+             * layouts for the tiles to show in the carousel, along with their validity periods.
              *
              * @since 1.0
              */
@@ -219,11 +216,13 @@ public final class TileBuilders {
             }
 
             /**
-             * Sets a {@link androidx.wear.tiles.TimelineBuilders.Timeline} containing the layouts
+             * Sets the {@link androidx.wear.tiles.TimelineBuilders.Timeline} containing the layouts
              * for the tiles to show in the carousel, along with their validity periods.
              *
              * @since 1.0
+             * @deprecated Use {@link #setTileTimeline(Timeline)} instead.
              */
+            @Deprecated
             @NonNull
             public Builder setTimeline(
                     @NonNull androidx.wear.tiles.TimelineBuilders.Timeline timeline) {
@@ -239,11 +238,7 @@ public final class TileBuilders {
         }
     }
 
-    /**
-     * Utility class with the current version of the Tile schema in use.
-     *
-     * @hide
-     */
+    /** Utility class with the current version of the Tile schema in use. */
     @RestrictTo(Scope.LIBRARY)
     public static final class Version {
         private Version() {}

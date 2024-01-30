@@ -120,7 +120,7 @@ private fun findColumnIndexBySuffix(cursor: Cursor, name: String): Int {
     return findColumnIndexBySuffix(columnNames, name)
 }
 
-@VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+@VisibleForTesting
 fun findColumnIndexBySuffix(columnNames: Array<String>, name: String): Int {
     val dotSuffix = ".$name"
     val backtickSuffix = ".$name`"

@@ -45,6 +45,9 @@ public class CameraCharacteristicsCompat {
     @NonNull
     private final String mCameraId;
 
+    @Nullable
+    private StreamConfigurationMapCompat mStreamConfigurationMapCompat = null;
+
     private CameraCharacteristicsCompat(@NonNull CameraCharacteristics cameraCharacteristics,
             @NonNull String cameraId) {
         if (Build.VERSION.SDK_INT >= 28) {
@@ -59,7 +62,7 @@ public class CameraCharacteristicsCompat {
      * Tests might need to create CameraCharacteristicsCompat directly for convenience. Elsewhere
      * we should get the CameraCharacteristicsCompat instance from {@link CameraManagerCompat}.
      */
-    @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
+    @VisibleForTesting
     @NonNull
     public static CameraCharacteristicsCompat toCameraCharacteristicsCompat(
             @NonNull CameraCharacteristics characteristics, @NonNull String cameraId) {
@@ -125,13 +128,27 @@ public class CameraCharacteristicsCompat {
      */
     @NonNull
     public StreamConfigurationMapCompat getStreamConfigurationMapCompat() {
-        StreamConfigurationMap map = get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
-        if (map == null) {
-            throw new IllegalArgumentException("StreamConfigurationMap is null!");
+        if (mStreamConfigurationMapCompat == null) {
+            StreamConfigurationMap map;
+            try {
+                map = get(
+                        CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
+            } catch (AssertionError e) {
+                // Some devices may throw AssertionError when querying stream configuration map
+                // from CameraCharacteristics during bindToLifecycle. Catch the AssertionError and
+                // throw IllegalArgumentException so app level can decide how to handle.
+                throw new IllegalArgumentException(e.getMessage());
+            }
+            if (map == null) {
+                throw new IllegalArgumentException("StreamConfigurationMap is null!");
+            }
+            OutputSizesCorrector outputSizesCorrector = new OutputSizesCorrector(mCameraId);
+            mStreamConfigurationMapCompat =
+                    StreamConfigurationMapCompat.toStreamConfigurationMapCompat(map,
+                            outputSizesCorrector);
         }
-        OutputSizesCorrector outputSizesCorrector = new OutputSizesCorrector(mCameraId, this);
-        return StreamConfigurationMapCompat.toStreamConfigurationMapCompat(map,
-                outputSizesCorrector);
+
+        return mStreamConfigurationMapCompat;
     }
 
     /**

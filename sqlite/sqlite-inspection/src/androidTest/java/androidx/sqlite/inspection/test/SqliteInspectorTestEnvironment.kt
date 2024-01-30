@@ -28,12 +28,12 @@ import androidx.sqlite.inspection.SqliteInspectorProtocol.DatabaseOpenedEvent
 import androidx.sqlite.inspection.SqliteInspectorProtocol.Event
 import androidx.sqlite.inspection.SqliteInspectorProtocol.Response
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.Executor
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.runBlocking
 import org.junit.rules.ExternalResource
-import java.util.concurrent.Executor
 
 private const val SQLITE_INSPECTOR_ID = "androidx.sqlite.inspection"
 

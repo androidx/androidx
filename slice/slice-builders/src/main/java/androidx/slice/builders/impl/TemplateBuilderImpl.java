@@ -40,10 +40,10 @@ import androidx.slice.SystemClock;
 import java.util.ArrayList;
 
 /**
- * @hide
  */
 @RestrictTo(LIBRARY)
 @RequiresApi(19)
+@Deprecated
 public abstract class TemplateBuilderImpl {
 
     private Slice.Builder mSliceBuilder;
@@ -74,7 +74,6 @@ public abstract class TemplateBuilderImpl {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public Slice.Builder getBuilder() {
@@ -82,7 +81,6 @@ public abstract class TemplateBuilderImpl {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public Slice.Builder createChildBuilder() {
@@ -90,13 +88,11 @@ public abstract class TemplateBuilderImpl {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public abstract void apply(@NonNull Slice.Builder builder);
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public Clock getClock() {
@@ -104,7 +100,6 @@ public abstract class TemplateBuilderImpl {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public SliceSpec getSpec() {
@@ -112,7 +107,6 @@ public abstract class TemplateBuilderImpl {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @NonNull

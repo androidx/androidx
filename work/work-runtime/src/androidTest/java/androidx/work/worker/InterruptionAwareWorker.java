@@ -22,7 +22,10 @@ import androidx.annotation.NonNull;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
+import java.util.concurrent.CountDownLatch;
+
 public class InterruptionAwareWorker extends Worker {
+    public CountDownLatch doWorkLatch = new CountDownLatch(1);
 
     public InterruptionAwareWorker(@NonNull Context context,
             @NonNull WorkerParameters workerParams) {
@@ -31,6 +34,7 @@ public class InterruptionAwareWorker extends Worker {
 
     @Override
     public @NonNull Result doWork() {
+        doWorkLatch.countDown();
         try {
             do {
                 Thread.sleep(1000L);

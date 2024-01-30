@@ -41,7 +41,7 @@
     <string name="ok_action_title" msgid="7128494973966098611">"确定"</string>
     <string name="throw_action_title" msgid="7163710562670220163">"抛出"</string>
     <string name="commute_action_title" msgid="2585755255290185096">"通勤"</string>
-    <string name="sign_out_action_title" msgid="1653943000866713010">"退出"</string>
+    <string name="sign_out_action_title" msgid="1653943000866713010">"退出账号"</string>
     <string name="try_anyway_action_title" msgid="7384500054249311718">"仍然尝试"</string>
     <string name="yes_action_title" msgid="5507096013762092189">"是"</string>
     <string name="no_action_title" msgid="1452124604210014010">"否"</string>
@@ -68,7 +68,7 @@
     <string name="more_toast_msg" msgid="5938288138225509885">"已点击更多"</string>
     <string name="commute_toast_msg" msgid="4112684360647638688">"已按下通勤按钮"</string>
     <string name="grant_location_permission_toast_msg" msgid="268046297444808010">"授予位置信息权限以查看当前位置"</string>
-    <string name="sign_in_with_google_toast_msg" msgid="5720947549233124775">"从此处开始使用 Google 帐号登录"</string>
+    <string name="sign_in_with_google_toast_msg" msgid="5720947549233124775">"从此处开始使用 Google 账号登录"</string>
     <string name="changes_selection_to_index_toast_msg_prefix" msgid="957766225794389167">"选取内容已更改为索引"</string>
     <string name="yes_action_toast_msg" msgid="6216215197177241247">"已按下“是”按钮！"</string>
     <string name="no_action_toast_msg" msgid="6165492423831023809">"已按下“否”按钮！"</string>
@@ -252,7 +252,7 @@
     <string name="password_sign_in_instruction_prefix" msgid="9105788349198243508">"用户名"</string>
     <string name="pin_sign_in_instruction" msgid="2288691296234360441">"在您的手机中输入此 PIN 码"</string>
     <string name="qr_code_sign_in_title" msgid="8137070561006464518">"扫描二维码登录"</string>
-    <string name="sign_in_with_google_title" msgid="8043752000786977249">"使用 Google 帐号登录"</string>
+    <string name="sign_in_with_google_title" msgid="8043752000786977249">"使用 Google 账号登录"</string>
     <string name="provider_sign_in_instruction" msgid="7586815688292506743">"使用此按钮完成 Google 登录"</string>
     <string name="sign_in_complete_text" msgid="8423984266325680606">"您已登录！"</string>
     <string name="sign_in_complete_title" msgid="8919868148773983428">"已完成登录"</string>
@@ -264,6 +264,7 @@
     <string name="tab_title_list" msgid="5104962518489668123">"列表标签页"</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"包含长标签页标题的网格标签页"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"搜索标签页"</string>
+    <string name="tab_title_loading" msgid="5385807479734490989">"正在加载标签页"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"标签页模板加载演示"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"标签页模板无标签页演示"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"无法为未知主机显示图像"</string>
@@ -298,7 +299,7 @@
     <string name="some_additional_text" msgid="4009872495806318260">"一些其他文本"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"可选列表示例"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"任务限制演示"</string>
-    <string name="task_limit_reached_msg" msgid="6038763366777119364">"已达到任务限制\n继续会强制停止应用"</string>
+    <string name="task_limit_reached_msg" msgid="7162842196382260992">"这会超出步骤数限制，并使您进入新的界面。"</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"任务第 %1$d 步（共 %2$d 步）"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"点击以继续"</string>
     <string name="task_content_allowed" msgid="545061986612431190">"请访问不同模板并确保此车辆处于驾驶模式"</string>
@@ -323,6 +324,12 @@
     <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"也可以选择行"</string>
     <string name="secondary_action_toast" msgid="5076434693504006565">"次要操作处于选中状态"</string>
     <string name="row_primary_action_toast" msgid="756516694751965204">"行主要操作处于选中状态"</string>
+    <string name="sectioned_item_list_demo_title" msgid="1236735461225007729">"分节项目列表演示"</string>
+    <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"列表 1"</string>
+    <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"列表 2"</string>
+    <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"每个列表下的辅助文本"</string>
+    <string name="empty_list_demo_title" msgid="5989013634820902455">"空列表演示"</string>
+    <string name="empty_list_message" msgid="5331395517560728138">"列表为空"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"其他模板演示"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"展示演示"</string>
     <string name="template_layouts_demo_title" msgid="788249269446087847">"模板布局演示"</string>

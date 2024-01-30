@@ -14,16 +14,18 @@
  * limitations under the License.
  */
 
-
 import androidx.build.KmpPlatformsKt
 import androidx.build.LibraryType
+import androidx.build.PlatformIdentifier
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
+import com.google.protobuf.gradle.ProtobufExtract
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("com.google.protobuf")
+    id ("kotlin-parcelize")
 }
 
 def enableNative = KmpPlatformsKt.enableNative(project)
@@ -42,9 +44,6 @@ protobuf {
     protoc {
         artifact = libs.protobufCompiler.get()
     }
-    // Generates the java proto-lite code for the protos in this project. See
-    // https://github.com/google/protobuf-gradle-plugin#customizing-protobuf-compilation
-    // for more information.
     generateProtoTasks {
         all().each { task ->
             task.builtins {
@@ -56,12 +55,19 @@ protobuf {
     }
 }
 
+def protoDir = project.layout.projectDirectory.dir("src/androidInstrumentedTest/proto")
+tasks.named("extractAndroidTestProto").configure {
+    it.inputFiles.from(project.files(protoDir))
+}
+
 androidXMultiplatform {
     jvm()
     mac()
     linux()
     ios()
     android()
+
+    defaultPlatform(PlatformIdentifier.ANDROID)
 
     sourceSets {
         all {
@@ -90,7 +96,7 @@ androidXMultiplatform {
                 implementation(libs.kotlinCoroutinesTest)
                 implementation(libs.okio)
                 api(project(":datastore:datastore-core-okio"))
-                implementation(project(":internal-testutils-kmp"))
+                implementation(project(":kruth:kruth"))
                 implementation(project(":internal-testutils-datastore"))
             }
         }
@@ -99,7 +105,7 @@ androidXMultiplatform {
             dependencies {
                 implementation(libs.junit)
                 implementation(libs.kotlinTest)
-                implementation(project(":internal-testutils-kmp"))
+                implementation(project(":kruth:kruth"))
                 implementation(project(":internal-testutils-datastore"))
 
                 // Workaround bug in 1.8.0, was supposed be fixed in RC2/final, but apparently not.
@@ -107,7 +113,14 @@ androidXMultiplatform {
             }
         }
 
-        androidTest {
+        androidUnitTest {
+            dependsOn(jvmTest)
+            dependencies {
+                implementation(libs.protobufLite)
+            }
+        }
+
+        androidInstrumentedTest {
             dependsOn(jvmTest)
             dependencies {
                 implementation(libs.protobufLite)
@@ -115,10 +128,15 @@ androidXMultiplatform {
                 implementation(project(":internal-testutils-truth"))
                 implementation(libs.testRunner)
                 implementation(libs.testCore)
+                implementation("androidx.lifecycle:lifecycle-service:2.6.1")
 
                 // Workaround bug in 1.8.0, was supposed be fixed in RC2/final, but apparently not.
                 implementation(libs.kotlinTestJunit)
             }
+        }
+
+        androidInstrumentedTest {
+            dependsOn(androidUnitTest)
         }
 
         if (enableNative) {
@@ -133,11 +151,6 @@ androidXMultiplatform {
             }
         }
 
-        targets.withType(KotlinNativeTarget).configureEach {
-            binaries.all {
-                binaryOptions["memoryModel"] = "experimental"
-            }
-        }
         targets.all { target ->
             if (target.platformType == KotlinPlatformType.native) {
                 target.compilations["main"].defaultSourceSet {
@@ -152,7 +165,7 @@ androidXMultiplatform {
 }
 
 androidx {
-    name = "Android DataStore Core"
+    name = "DataStore Core"
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2020"
     description = "Android DataStore Core - contains the underlying store used by each serialization method"

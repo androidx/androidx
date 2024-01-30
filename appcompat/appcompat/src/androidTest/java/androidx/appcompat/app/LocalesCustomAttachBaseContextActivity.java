@@ -25,7 +25,7 @@ import android.os.Build;
  * An activity with customized configuration.
  */
 public class LocalesCustomAttachBaseContextActivity extends LocalesUpdateActivity {
-    public static final float CUSTOM_FONT_SCALE = 4.24f;
+    public static final float CUSTOM_FONT_SCALE = 4.23f;
 
     @Override
     protected void attachBaseContext(Context newBase) {
@@ -33,7 +33,7 @@ public class LocalesCustomAttachBaseContextActivity extends LocalesUpdateActivit
     }
 
     private Context useCustomConfig(Context context) {
-        if (Build.VERSION.SDK_INT >= 24) {
+        if (Build.VERSION.SDK_INT >= 17) {
             Configuration config = new Configuration();
             config.fontScale = CUSTOM_FONT_SCALE;
             return context.createConfigurationContext(config);

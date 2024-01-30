@@ -16,10 +16,6 @@
 
 import androidx.build.Publish
 
-/*
- * All the following content was derived from :datastore:datastore-core.
- */
-
 plugins {
     id("AndroidXPlugin")
     id("java-library")
@@ -30,17 +26,13 @@ dependencies {
     implementation(libs.protobufLite)
 }
 
-sourceSets {
-    main.java.srcDirs += "$buildDir/generated/source/proto"
-}
-
 protobuf {
     protoc {
         artifact = libs.protobufCompiler.get()
     }
     generateProtoTasks {
         ofSourceSet("main").each { task ->
-            sourceSets.main.java.srcDir(task)
+            project.sourceSets.main.java.srcDir(task)
         }
         all().each { task ->
             task.builtins {
@@ -55,30 +47,14 @@ protobuf {
 afterEvaluate {
     lint {
         lintOptions {
-            // protobuf generates unannotated and synthetic accessor methods
-            disable("UnknownNullness", "SyntheticAccessor")
+            // protobuf generates unannotated methods
+            disable("UnknownNullness")
         }
     }
 }
 
-// Create export artifact for for JarJaring
-def preferencesProtoJarJarTask = tasks.register("exportJar", Jar) {
-    archiveBaseName.set("export")
-    from(sourceSets.main.output)
-    // The proto-lite dependency includes .proto files, which are not used by datastore. When apps
-    // depend on datastore as well as proto-lite directly, these files conflict since jarjar only
-    // renames the java classes. Remove them here since they are unused.
-    exclude("**/*.proto")
-
-    from(zipTree(configurations.detachedConfiguration(
-            dependencies.create(libs.protobufLite.get())).getSingleFile()))
-}
-
-def jarjarConf = configurations.register("export")
-artifacts.add(jarjarConf.name, preferencesProtoJarJarTask.flatMap { it.archiveFile })
-
 androidx {
-    name = "AndroidX Health Connect Client Proto"
+    name = "Health Connect Client Proto"
     publish = Publish.NONE
     inceptionYear = "2022"
     description = "Proto files for health-connect-client"

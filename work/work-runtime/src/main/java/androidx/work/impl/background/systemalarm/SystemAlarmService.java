@@ -28,7 +28,6 @@ import androidx.work.impl.utils.WakeLocks;
 /**
  * Service invoked by {@link android.app.AlarmManager} to run work tasks.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class SystemAlarmService extends LifecycleService

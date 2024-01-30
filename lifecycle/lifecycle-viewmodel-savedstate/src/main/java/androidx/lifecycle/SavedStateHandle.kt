@@ -390,9 +390,6 @@ class SavedStateHandle {
             return SavedStateHandle(state)
         }
 
-        /**
-         * @suppress
-         */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         fun validateValue(value: Any?): Boolean {
             if (value == null) {

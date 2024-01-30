@@ -264,6 +264,7 @@
     <string name="tab_title_list" msgid="5104962518489668123">"Karta listy"</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"Wersja demonstracyjna szablonu kart korzystająca z długich kart"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"Karta wyszukiwania"</string>
+    <string name="tab_title_loading" msgid="5385807479734490989">"Ładowanie karty"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"Ładowanie wersji demonstracyjnej szablonu kart"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"Wersja demonstracyjna szablonu kart bez kart"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"Nie można wyświetlać grafiki z nieznanego serwera"</string>
@@ -298,7 +299,7 @@
     <string name="some_additional_text" msgid="4009872495806318260">"Dodatkowy tekst"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"Przykładowa lista z możliwością wyboru"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"Wersja demonstracyjna ograniczenia dotyczącego zadań"</string>
-    <string name="task_limit_reached_msg" msgid="6038763366777119364">"Osiągnięto limit zadań\nKontynuowanie spowoduje wymuszenie zatrzymania aplikacji"</string>
+    <string name="task_limit_reached_msg" msgid="7162842196382260992">"Spowoduje to przekroczenie liczby kroków i przejście do nowego ekranu."</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"Krok zadania %1$d z %2$d"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"Kliknij, aby przejść dalej"</string>
     <string name="task_content_allowed" msgid="545061986612431190">"Sprawdź różne szablony i upewnij się, że samochód jest w trybie jazdy"</string>
@@ -323,6 +324,12 @@
     <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"Można wybrać również wiersz"</string>
     <string name="secondary_action_toast" msgid="5076434693504006565">"Wybrano działanie alternatywne"</string>
     <string name="row_primary_action_toast" msgid="756516694751965204">"Wybrano wiersz z działaniem głównym"</string>
+    <string name="sectioned_item_list_demo_title" msgid="1236735461225007729">"Wersja demonstracyjna podzielonej listy elementów"</string>
+    <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"Lista 1"</string>
+    <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"Lista 2"</string>
+    <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"Tekst pod każdą listą"</string>
+    <string name="empty_list_demo_title" msgid="5989013634820902455">"Wersja demonstracyjna pustej listy"</string>
+    <string name="empty_list_message" msgid="5331395517560728138">"Lista jest pusta"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"Wersje demonstracyjne różnych szablonów"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"Wersje demonstracyjne do prezentacji"</string>
     <string name="template_layouts_demo_title" msgid="788249269446087847">"Wersje demonstracyjne szablonów układu"</string>

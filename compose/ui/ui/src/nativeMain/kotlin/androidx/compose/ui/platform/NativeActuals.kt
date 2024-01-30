@@ -16,8 +16,6 @@
 
 package androidx.compose.ui.platform
 
-internal actual typealias AtomicInt = kotlin.native.concurrent.AtomicInt
-
 internal actual fun Any.nativeClass(): Any = this::class
 
 internal actual fun simpleIdentityToString(obj: Any, name: String?): String {

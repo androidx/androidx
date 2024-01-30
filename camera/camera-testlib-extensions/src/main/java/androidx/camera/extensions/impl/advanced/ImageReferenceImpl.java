@@ -16,8 +16,9 @@
 
 package androidx.camera.extensions.impl.advanced;
 
-import android.annotation.SuppressLint;
 import android.media.Image;
+
+import androidx.annotation.Nullable;
 
 /**
  * A Image reference container that enables the Image sharing between Camera2/CameraX and OEM
@@ -25,8 +26,9 @@ import android.media.Image;
  * reaches 0.
  *
  * <p>Implemented by Camera2/CameraX.
+ *
+ * @since 1.2
  */
-@SuppressLint("UnknownNullness")
 public interface ImageReferenceImpl {
 
     /**
@@ -46,5 +48,6 @@ public interface ImageReferenceImpl {
      * Return the Android image. This object MUST not be closed directly.
      * Returns null when the reference count is zero.
      */
+    @Nullable
     Image get();
 }

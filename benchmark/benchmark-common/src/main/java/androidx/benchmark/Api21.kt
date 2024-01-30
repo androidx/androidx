@@ -22,13 +22,15 @@ import android.content.Context
 import android.os.Debug
 import android.os.Environment
 import androidx.annotation.RequiresApi
+import androidx.annotation.RestrictTo
 import java.io.File
 
 internal fun startMethodTracingSampling(tracePath: String, bufferSize: Int, intervalUs: Int) {
     Debug.startMethodTracingSampling(tracePath, bufferSize, intervalUs)
 }
 
-internal fun Context.getFirstMountedMediaDir(): File? {
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+fun Context.getFirstMountedMediaDir(): File? {
     @Suppress("DEPRECATION")
     return externalMediaDirs.firstOrNull {
         Environment.getExternalStorageState(it) == Environment.MEDIA_MOUNTED

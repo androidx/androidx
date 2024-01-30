@@ -36,7 +36,6 @@ import androidx.car.app.automotive.R;
 /**
  * A view to be displayed while the app is trying to connect to the host
  *
- * @hide
  */
 @RestrictTo(LIBRARY)
 public class LoadingView extends FrameLayout {

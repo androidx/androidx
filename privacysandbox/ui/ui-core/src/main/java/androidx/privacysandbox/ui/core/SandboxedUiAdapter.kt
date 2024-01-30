@@ -17,7 +17,10 @@
 package androidx.privacysandbox.ui.core
 
 import android.content.Context
+import android.content.res.Configuration
+import android.os.IBinder
 import android.view.View
+import java.lang.AutoCloseable
 import java.util.concurrent.Executor
 
 /**
@@ -35,6 +38,7 @@ interface SandboxedUiAdapter {
      */
     fun openSession(
         context: Context,
+        windowInputToken: IBinder,
         initialWidth: Int,
         initialHeight: Int,
         isZOrderOnTop: Boolean,
@@ -45,7 +49,7 @@ interface SandboxedUiAdapter {
     /**
      * A single session with the provider of remote content.
      */
-    interface Session {
+    interface Session : AutoCloseable {
 
         /**
          * Return the [View] that presents content for this session. The same view will be returned
@@ -55,11 +59,28 @@ interface SandboxedUiAdapter {
         val view: View
 
         /**
+         * Notify the provider that the size of the host presentation area has changed to a size of
+         * [width] x [height] pixels.
+         */
+        fun notifyResized(width: Int, height: Int)
+
+        /**
+         * Notify the provider that there's a change in the intended z order of the session UI and
+         * it is now set to [isZOrderOnTop].
+         */
+        fun notifyZOrderChanged(isZOrderOnTop: Boolean)
+
+        /**
+         * Notify the session that the host configuration has changed to [configuration].
+         */
+        fun notifyConfigurationChanged(configuration: Configuration)
+
+        /**
          * Close this session, indicating that the remote provider of content should
          * dispose of associated resources and that the [SessionClient] should not
          * receive further callback events.
          */
-        fun close()
+        override fun close()
     }
 
     /**
@@ -78,5 +99,12 @@ interface SandboxedUiAdapter {
          * that may have been in flight may be ignored.
          */
         fun onSessionError(throwable: Throwable)
+
+        /**
+         * Called when the provider of content would like the UI to be presented at [width] and
+         * [height]. The library tries to get as close a fit as possible whilst staying within the
+         * container's constraints.
+         */
+        fun onResizeRequested(width: Int, height: Int)
     }
 }

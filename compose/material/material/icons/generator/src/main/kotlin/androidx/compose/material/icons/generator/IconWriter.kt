@@ -48,6 +48,18 @@ class IconWriter(private val icons: List<Icon>) {
             ).createFileSpec()
 
             fileSpec.writeToWithCopyright(outputSrcDirectory)
+
+            // Write additional file specs for auto-mirrored icons. These files will be written into
+            // an automirrored package and will hold a similar icons theme structure underneath.
+            if (vector.autoMirrored) {
+                val autoMirroredFileSpec = ImageVectorGenerator(
+                    icon.kotlinName,
+                    icon.theme,
+                    vector
+                ).createAutoMirroredFileSpec()
+
+                autoMirroredFileSpec.writeToWithCopyright(outputSrcDirectory)
+            }
         }
     }
 }

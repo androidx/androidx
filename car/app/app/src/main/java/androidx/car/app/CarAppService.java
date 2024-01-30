@@ -144,6 +144,18 @@ public abstract class CarAppService extends Service {
     @ExperimentalCarApi
     public static final String CATEGORY_MESSAGING_APP = "androidx.car.app.category.MESSAGING";
 
+    /**
+     * Used in the app manifest to declare that this app supports calling.
+     */
+    @ExperimentalCarApi
+    public static final String CATEGORY_CALLING_APP = "androidx.car.app.category.CALLING";
+
+    /**
+     * Used to declare that this app is a weather app in the manifest.
+     */
+    @ExperimentalCarApi
+    public static final String CATEGORY_WEATHER_APP = "androidx.car.app.category.WEATHER";
+
     private static final String AUTO_DRIVE = "AUTO_DRIVE";
 
     @NonNull

@@ -44,22 +44,22 @@ import androidx.compose.ui.util.fastAll
  */
 @ExperimentalFoundationApi
 @OptIn(ExperimentalComposeUiApi::class)
-interface PointerMatcher {
+fun interface PointerMatcher {
 
     @ExperimentalFoundationApi
     fun matches(event: PointerEvent): Boolean
 
     @ExperimentalFoundationApi
     operator fun plus(pointerMatcher: PointerMatcher): PointerMatcher {
-        return if (this is CombinedPointerMatcher) {
-            this.sources.add(pointerMatcher)
-            this
-        } else if (pointerMatcher is CombinedPointerMatcher) {
-            pointerMatcher.sources.add(this)
-            pointerMatcher
-        } else {
-            CombinedPointerMatcher(mutableListOf(this, pointerMatcher))
+        val sources = buildList {
+            for (matcher in listOf(this@PointerMatcher, pointerMatcher)) {
+                if (matcher is CombinedPointerMatcher)
+                    addAll(matcher.sources)
+                else
+                    add(matcher)
+            }
         }
+        return CombinedPointerMatcher(sources)
     }
 
     @Suppress("MemberVisibilityCanBePrivate")
@@ -68,68 +68,37 @@ interface PointerMatcher {
         fun pointer(
             pointerType: PointerType,
             button: PointerButton? = null
-        ): PointerMatcher = object : PointerTypeAndButtonMatcher {
-            override val pointerType = pointerType
-            override val button = button
-        }
+        ): PointerMatcher = PointerTypeAndButtonMatcher(pointerType, button)
 
         @ExperimentalFoundationApi
-        fun mouse(button: PointerButton): PointerMatcher = MousePointerMatcher(button)
+        fun mouse(button: PointerButton): PointerMatcher = pointer(PointerType.Mouse, button)
 
         @ExperimentalFoundationApi
-        fun stylus(button: PointerButton? = null): PointerMatcher = StylusPointerMatcher(button)
+        fun stylus(button: PointerButton? = null): PointerMatcher =
+            pointer(PointerType.Stylus, button)
 
         @ExperimentalFoundationApi
-        val stylus: PointerMatcher = StylusPointerMatcher.Companion
+        val stylus: PointerMatcher = stylus(button = null)
 
         @ExperimentalFoundationApi
-        val touch: PointerMatcher = TouchPointerMatcher
+        val touch: PointerMatcher = PointerTypeAndButtonMatcher(PointerType.Touch)
 
         @ExperimentalFoundationApi
-        val eraser: PointerMatcher = EraserPointerMatcher
+        val eraser: PointerMatcher =
+            PointerTypeAndButtonMatcher(PointerType.Eraser, matchAllButtons = true)
 
-        private interface PointerTypeMatcher : PointerMatcher {
-            val pointerType: PointerType
-
+        private class PointerTypeAndButtonMatcher(
+            val pointerType: PointerType,
+            val button: PointerButton? = null,
+            val matchAllButtons: Boolean = false,
+        ) : PointerMatcher {
             override fun matches(event: PointerEvent): Boolean {
-                return event.changes.fastAll { it.type == pointerType }
+                return (matchAllButtons || (event.button == button))
+                    && event.changes.fastAll { it.type == pointerType }
             }
         }
 
-        private interface PointerTypeAndButtonMatcher : PointerTypeMatcher {
-            val button: PointerButton?
-
-            override fun matches(event: PointerEvent): Boolean {
-                return super.matches(event) && event.button == button
-            }
-        }
-
-        private class MousePointerMatcher(
-            override val button: PointerButton
-        ) : PointerTypeAndButtonMatcher {
-            override val pointerType = PointerType.Mouse
-        }
-
-        private class StylusPointerMatcher(
-            override val button: PointerButton? = null
-        ) : PointerTypeAndButtonMatcher {
-            override val pointerType = PointerType.Stylus
-
-            companion object : PointerTypeMatcher {
-                override val pointerType = PointerType.Stylus
-            }
-        }
-
-        private object TouchPointerMatcher : PointerTypeMatcher {
-            override val pointerType = PointerType.Touch
-        }
-
-        private object EraserPointerMatcher : PointerTypeMatcher {
-            override val pointerType = PointerType.Eraser
-        }
-
-        private class CombinedPointerMatcher(val sources: MutableList<PointerMatcher>) : PointerMatcher {
-
+        private class CombinedPointerMatcher(val sources: List<PointerMatcher>) : PointerMatcher {
             override fun matches(event: PointerEvent): Boolean {
                 return sources.any { it.matches(event) }
             }
@@ -144,6 +113,13 @@ interface PointerMatcher {
          * - [PointerType] is [PointerType.Eraser]
          */
         @ExperimentalFoundationApi
-        val Primary = mouse(PointerButton.Primary) + touch + stylus + eraser
+        val Primary: PointerMatcher = CombinedPointerMatcher(
+            listOf(
+                mouse(PointerButton.Primary),
+                touch,
+                stylus,
+                eraser
+            )
+        )
     }
 }

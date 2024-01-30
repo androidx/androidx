@@ -16,7 +16,9 @@
 
 package androidx.compose.ui
 
+import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 internal class AssertThat<T>(val t: T)
 
@@ -24,9 +26,13 @@ internal fun <T> AssertThat<T>.isEqualTo(a: Any?) {
     assertEquals(a, t)
 }
 
-internal fun AssertThat<Boolean>.isTrue() = t
+internal fun AssertThat<*>.isEmpty() {
+    assertTrue((t as Collection<*>).isEmpty())
+}
 
-internal fun AssertThat<Boolean>.isFalse() = !t
+internal fun AssertThat<*>.containsExactly(vararg varargs: Any?) {
+    assertContentEquals((t as Collection<*>).toSet(), varargs.toSet().asIterable())
+}
 
 internal fun <T> assertThat(t: T): AssertThat<T> {
     return AssertThat(t)

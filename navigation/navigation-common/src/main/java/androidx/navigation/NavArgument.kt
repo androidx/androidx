@@ -57,7 +57,6 @@ public class NavArgument internal constructor(
      */
     public val defaultValue: Any?
 
-    /** @suppress */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun putDefaultValue(name: String, bundle: Bundle) {
         if (isDefaultValuePresent) {
@@ -65,7 +64,6 @@ public class NavArgument internal constructor(
         }
     }
 
-    /** @suppress */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @Suppress("DEPRECATION")
     public fun verify(name: String, bundle: Bundle): Boolean {
@@ -182,4 +180,22 @@ public class NavArgument internal constructor(
         this.defaultValue = defaultValue
         isDefaultValuePresent = defaultValuePresent
     }
+}
+
+/**
+ * Returns a list of NavArgument keys where required NavArguments with that key
+ * returns false for the predicate `isArgumentMissing`.
+ *
+ * @param [isArgumentMissing] predicate that returns true if the key of a required NavArgument
+ * is missing from a Bundle that is expected to contain it.
+ */
+internal fun Map<String, NavArgument?>.missingRequiredArguments(
+    isArgumentMissing: (key: String) -> Boolean
+): List<String> {
+    val requiredArgumentKeys = filterValues {
+        if (it != null) {
+            !it.isNullable && !it.isDefaultValuePresent
+        } else false
+    }.keys
+    return requiredArgumentKeys.filter { key -> isArgumentMissing(key) }
 }

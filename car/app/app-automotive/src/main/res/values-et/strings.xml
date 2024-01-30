@@ -18,7 +18,7 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="error_action_finish" msgid="7621130025103996211">"Sule rakendus"</string>
-    <string name="error_action_update_host" msgid="4802951804749609593">"Otsige värskendusi"</string>
+    <string name="error_action_update_host" msgid="4802951804749609593">"Otsi värskendusi"</string>
     <string name="error_action_retry" msgid="985347670495166517">"Proovi uuesti"</string>
     <string name="error_message_client_side_error" msgid="3323186720368387787">"Rakenduse viga. Teavitage sellest veast rakenduse arendajat."</string>
     <string name="error_message_host_error" msgid="5484419926049675696">"Süsteemi viga"</string>

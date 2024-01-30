@@ -31,14 +31,14 @@ class UiIssueRegistry : IssueRegistry() {
     override val minApi = CURRENT_API
     override val issues get() = listOf(
         ComposedModifierDetector.UnnecessaryComposedModifier,
-        ModifierDeclarationDetector.ComposableModifierFactory,
         ModifierDeclarationDetector.ModifierFactoryExtensionFunction,
         ModifierDeclarationDetector.ModifierFactoryReturnType,
         ModifierDeclarationDetector.ModifierFactoryUnreferencedReceiver,
         ModifierNodeInspectablePropertiesDetector.ModifierNodeInspectableProperties,
         ModifierParameterDetector.ModifierParameter,
+        MultipleAwaitPointerEventScopesDetector.MultipleAwaitPointerEventScopes,
         ReturnFromAwaitPointerEventScopeDetector.ExitAwaitPointerEventScope,
-        MultipleAwaitPointerEventScopesDetector.MultipleAwaitPointerEventScopes
+        SuspiciousCompositionLocalModifierReadDetector.SuspiciousCompositionLocalModifierRead,
     )
     override val vendor = Vendor(
         vendorName = "Jetpack Compose",

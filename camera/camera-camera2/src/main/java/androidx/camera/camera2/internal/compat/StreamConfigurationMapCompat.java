@@ -26,6 +26,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.internal.compat.workaround.OutputSizesCorrector;
+import androidx.camera.core.Logger;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Helper for accessing features in {@link StreamConfigurationMap} in a backwards compatible
@@ -33,9 +37,13 @@ import androidx.camera.camera2.internal.compat.workaround.OutputSizesCorrector;
  */
 @RequiresApi(21)
 public class StreamConfigurationMapCompat {
+    private static final String TAG = "StreamConfigurationMapCompat";
 
     private final StreamConfigurationMapCompatImpl mImpl;
     private final OutputSizesCorrector mOutputSizesCorrector;
+    private final Map<Integer, Size[]> mCachedFormatOutputSizes = new HashMap<>();
+    private final Map<Integer, Size[]> mCachedFormatHighResolutionOutputSizes = new HashMap<>();
+    private final Map<Class<?>, Size[]> mCachedClassOutputSizes = new HashMap<>();
 
     private StreamConfigurationMapCompat(@NonNull StreamConfigurationMap map,
             @NonNull OutputSizesCorrector outputSizesCorrector) {
@@ -76,7 +84,21 @@ public class StreamConfigurationMapCompat {
      */
     @Nullable
     public Size[] getOutputSizes(int format) {
-        return mOutputSizesCorrector.applyQuirks(mImpl.getOutputSizes(format), format);
+        if (mCachedFormatOutputSizes.containsKey(format)) {
+            Size[] cachedOutputSizes = mCachedFormatOutputSizes.get(format);
+            return cachedOutputSizes == null ? null : mCachedFormatOutputSizes.get(format).clone();
+        }
+
+        Size[] outputSizes = mImpl.getOutputSizes(format);
+
+        if (outputSizes == null || outputSizes.length == 0) {
+            Logger.w(TAG, "Retrieved output sizes array is null or empty for format " + format);
+            return outputSizes;
+        }
+
+        outputSizes = mOutputSizesCorrector.applyQuirks(outputSizes, format);
+        mCachedFormatOutputSizes.put(format, outputSizes);
+        return outputSizes.clone();
     }
 
     /**
@@ -91,7 +113,49 @@ public class StreamConfigurationMapCompat {
      */
     @Nullable
     public <T> Size[] getOutputSizes(@NonNull Class<T> klass) {
-        return mOutputSizesCorrector.applyQuirks(mImpl.getOutputSizes(klass), klass);
+        if (mCachedClassOutputSizes.containsKey(klass)) {
+            Size[] cachedOutputSizes = mCachedClassOutputSizes.get(klass);
+            return cachedOutputSizes == null ? null : mCachedClassOutputSizes.get(klass).clone();
+        }
+
+        Size[] outputSizes = mImpl.getOutputSizes(klass);
+
+        if (outputSizes == null || outputSizes.length == 0) {
+            Logger.w(TAG, "Retrieved output sizes array is null or empty for class " + klass);
+            return outputSizes;
+        }
+
+        outputSizes = mOutputSizesCorrector.applyQuirks(outputSizes, klass);
+        mCachedClassOutputSizes.put(klass, outputSizes);
+        return outputSizes.clone();
+    }
+
+    /**
+     * Get a list of high resolution sizes compatible with the requested image {@code format}.
+     *
+     * @param format an image format from {@link ImageFormat} or {@link PixelFormat}
+     * @return an array of supported sizes, or {@code null} if the {@code format} is not a
+     * supported output
+     * @see ImageFormat
+     * @see PixelFormat
+     */
+    @Nullable
+    public Size[] getHighResolutionOutputSizes(int format) {
+        if (mCachedFormatHighResolutionOutputSizes.containsKey(format)) {
+            Size[] cachedOutputSizes = mCachedFormatHighResolutionOutputSizes.get(format);
+            return cachedOutputSizes == null ? null : mCachedFormatHighResolutionOutputSizes.get(
+                    format).clone();
+        }
+
+        Size[] outputSizes = mImpl.getHighResolutionOutputSizes(format);
+
+        // High resolution output sizes can be null.
+        if (outputSizes != null && outputSizes.length > 0) {
+            outputSizes = mOutputSizesCorrector.applyQuirks(outputSizes, format);
+        }
+
+        mCachedFormatHighResolutionOutputSizes.put(format, outputSizes);
+        return outputSizes != null ? outputSizes.clone() : null;
     }
 
     /**
@@ -109,6 +173,9 @@ public class StreamConfigurationMapCompat {
 
         @Nullable
         <T> Size[] getOutputSizes(@NonNull Class<T> klass);
+
+        @Nullable
+        Size[] getHighResolutionOutputSizes(int format);
 
         /**
          * Returns the underlying {@link StreamConfigurationMap} instance.

@@ -230,7 +230,10 @@ internal class MutableInspectorNode {
 
     fun shallowCopy(node: InspectorNode): MutableInspectorNode = apply {
         id = node.id
-        viewId = node.viewId
+        key = node.key
+        anchorId = node.anchorId
+        mergedSemantics.addAll(node.mergedSemantics)
+        unmergedSemantics.addAll(node.unmergedSemantics)
         name = node.name
         fileName = node.fileName
         packageHash = node.packageHash
@@ -240,9 +243,8 @@ internal class MutableInspectorNode {
         box = node.box
         bounds = node.bounds
         inlined = node.inlined
-        mergedSemantics.addAll(node.mergedSemantics)
-        unmergedSemantics.addAll(node.unmergedSemantics)
         parameters.addAll(node.parameters)
+        viewId = node.viewId
         children.addAll(node.children)
     }
 

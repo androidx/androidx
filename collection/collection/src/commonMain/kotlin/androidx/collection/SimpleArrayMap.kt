@@ -51,6 +51,12 @@ private const val BASE_SIZE = 4
  * class can be preferable since it doesn't bring in any of the implementation of those
  * APIs, allowing that code to be stripped by ProGuard.
  *
+ * **NOTE:** Consider using [MutableScatterMap] instead of this class. [MutableScatterMap] also
+ * avoids creating a new object per entry but offers better performance characteristics. If
+ * a [Map] interface is required, see [MutableScatterMap.asMap]. If a [MutableMap] interface is
+ * required, see [MutableScatterMap.asMutableMap]. A [MutableScatterMap] can also be passed as
+ * a [ScatterMap] to provide a read-only API surface.
+ *
  * @constructor Create a new [SimpleArrayMap] with a given initial capacity. The default capacity of
  * an array map is 0, and will grow once items are added to it.
  */

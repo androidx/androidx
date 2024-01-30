@@ -24,7 +24,6 @@ import com.google.common.util.concurrent.SettableFuture;
 /**
  * Tracker for tracking operations that are currently in progress.
  *
- * @hide
  */
 @RestrictTo(Scope.LIBRARY)
 public interface ExecutionTracker {

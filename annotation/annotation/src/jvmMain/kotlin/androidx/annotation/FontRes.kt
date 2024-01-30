@@ -16,8 +16,8 @@
 package androidx.annotation
 
 /**
- * Denotes that an integer parameter, field or method return value is expected
- * to be a font resource reference (e.g. `R.font.myfont`).
+ * Denotes that an integer parameter, field or method return value is expected to be a font resource
+ * reference (e.g. `R.font.myfont`).
  */
 @MustBeDocumented
 @kotlin.annotation.Retention(AnnotationRetention.BINARY)

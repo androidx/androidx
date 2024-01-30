@@ -23,7 +23,6 @@ import android.graphics.Rect;
 import androidx.annotation.RestrictTo;
 
 /**
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public interface FitWindowsViewGroup {

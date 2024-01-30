@@ -15,7 +15,6 @@
  */
 
 /**
- * @hide
  */
 @RestrictTo(LIBRARY)
 package androidx.webkit.internal;

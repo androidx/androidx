@@ -21,7 +21,7 @@
     <string name="abc_action_bar_up_description" msgid="8388173803310557296">"Idi gore"</string>
     <string name="abc_action_menu_overflow_description" msgid="3937310113216875497">"Više opcija"</string>
     <string name="abc_toolbar_collapse_description" msgid="1656852541809559762">"Suzi"</string>
-    <string name="abc_searchview_description_search" msgid="3417662926640357176">"Pretraži"</string>
+    <string name="abc_searchview_description_search" msgid="3417662926640357176">"Pretraživanje"</string>
     <string name="abc_search_hint" msgid="7208076849092622260">"Pretražite..."</string>
     <string name="abc_searchview_description_query" msgid="693312494995508443">"Pretraži upit"</string>
     <string name="abc_searchview_description_clear" msgid="3741173234950517107">"Obriši upit"</string>

@@ -18,6 +18,7 @@ package androidx.camera.camera2.internal.compat.params;
 
 import android.annotation.SuppressLint;
 import android.graphics.ImageFormat;
+import android.hardware.camera2.params.DynamicRangeProfiles;
 import android.os.Build;
 import android.util.Size;
 import android.view.Surface;
@@ -144,6 +145,16 @@ class OutputConfigurationCompatBaseImpl implements
         return OutputConfigurationParamsApi21.MAX_SURFACES_COUNT;
     }
 
+    @Override
+    public long getDynamicRangeProfile() {
+        return ((OutputConfigurationParamsApi21) mObject).mDynamicRangeProfile;
+    }
+
+    @Override
+    public void setDynamicRangeProfile(long profile) {
+        ((OutputConfigurationParamsApi21) mObject).mDynamicRangeProfile = profile;
+    }
+
     /**
      * Get the {@link Surface} associated with this {@link OutputConfigurationCompat}.
      */
@@ -230,6 +241,7 @@ class OutputConfigurationCompatBaseImpl implements
         @Nullable
         String mPhysicalCameraId;
         boolean mIsShared = false;
+        long mDynamicRangeProfile = DynamicRangeProfiles.STANDARD;
 
         OutputConfigurationParamsApi21(@NonNull Surface surface) {
             Preconditions.checkNotNull(surface, "Surface must not be null");
@@ -310,6 +322,7 @@ class OutputConfigurationCompatBaseImpl implements
                     || mConfiguredFormat != otherOutputConfig.mConfiguredFormat
                     || mConfiguredGenerationId != otherOutputConfig.mConfiguredGenerationId
                     || mIsShared != otherOutputConfig.mIsShared
+                    || mDynamicRangeProfile != otherOutputConfig.mDynamicRangeProfile
                     || !Objects.equals(mPhysicalCameraId, otherOutputConfig.mPhysicalCameraId)) {
                 return false;
             }
@@ -337,7 +350,8 @@ class OutputConfigurationCompatBaseImpl implements
             // (h * 31) XOR mPhysicalCameraId.hashCode()
             h = ((h << 5) - h)
                     ^ (mPhysicalCameraId == null ? 0 : mPhysicalCameraId.hashCode());
-
+            // (h * 31) XOR mDynamicRangeProfile
+            h = ((h << 5) - h) ^ Long.hashCode(mDynamicRangeProfile);
             return h;
         }
     }

@@ -64,7 +64,7 @@ import java.util.concurrent.Executors;
  *     startActivity(intent);
  * </pre>
  *
- * @hide
+ * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class AppSearchDebugActivity extends FragmentActivity {

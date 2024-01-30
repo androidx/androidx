@@ -22,8 +22,8 @@ import androidx.work.impl.utils.toRawQuery
 import androidx.work.worker.RetryWorker
 import androidx.work.worker.TestWorker
 import org.hamcrest.CoreMatchers.`is`
-import org.hamcrest.Matchers.containsInAnyOrder
 import org.hamcrest.MatcherAssert.assertThat
+import org.hamcrest.Matchers.containsInAnyOrder
 import org.junit.Test
 import org.junit.runner.RunWith
 

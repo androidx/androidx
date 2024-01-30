@@ -40,7 +40,7 @@ public final class HintConstants {
      * should be <code>{@value #AUTOFILL_HINT_EMAIL_ADDRESS}</code>).
      *
      * <p>See {@link android.view.View#setAutofillHints(String...)} for more info about autofill
-     * hints.
+     * hints.3
      */
     public static final String AUTOFILL_HINT_EMAIL_ADDRESS = "emailAddress";
 
@@ -680,4 +680,65 @@ public final class HintConstants {
      * hints.
      */
     public static final String AUTOFILL_HINT_UPI_VPA = "upiVirtualPaymentAddress";
+
+    /**
+     * Hint indicating that this view can be autofilled with a loyalty number.
+     *
+     * <p>Can be used with either {@link android.view.View#setAutofillHints(String[])} or <a
+     * href="#attr_android:autofillHint">{@code android:autofillHint}</a> (in which case the value
+     * should be <code>{@value #AUTOFILL_HINT_LOYALTY_ACCOUNT_NUMBER}</code>).
+     *
+     * <p>See {@link android.view.View#setAutofillHints(String...)} for more info about autofill
+     * hints.
+     */
+    public static final String AUTOFILL_HINT_LOYALTY_ACCOUNT_NUMBER = "loyaltyAccountNumber";
+
+    /**
+     * Hint indicating that this view can be autofilled with a gift card code.
+     *
+     * <p>Can be used with either {@link android.view.View#setAutofillHints(String[])} or <a
+     * href="#attr_android:autofillHint">{@code android:autofillHint}</a> (in which case the value
+     * should be <code>{@value #AUTOFILL_HINT_GIFT_CARD_NUMBER}</code>).
+     *
+     * <p>See {@link android.view.View#setAutofillHints(String...)} for more info about autofill
+     * hints.
+     */
+    public static final String AUTOFILL_HINT_GIFT_CARD_NUMBER = "giftCardNumber";
+
+    /**
+     * Hint indicating that this view can be autofilled with a gift card pin.
+     *
+     * <p>Can be used with either {@link android.view.View#setAutofillHints(String[])} or <a
+     * href="#attr_android:autofillHint">{@code android:autofillHint}</a> (in which case the value
+     * should be <code>{@value #AUTOFILL_HINT_GIFT_CARD_PIN}</code>).
+     *
+     * <p>See {@link android.view.View#setAutofillHints(String...)} for more info about autofill
+     * hints.
+     */
+    public static final String AUTOFILL_HINT_GIFT_CARD_PIN = "giftCardPIN";
+
+    /**
+     * Hint indicating that this view can be autofilled with a flight number.
+     * Examples: UA 355 (United Airlines), WN 355 (Southwest), AA 9158 (American Airlines)
+     *
+     * <p>Can be used with either {@link android.view.View#setAutofillHints(String[])} or <a
+     * href="#attr_android:autofillHint">{@code android:autofillHint}</a> (in which case the value
+     * should be <code>{@value #AUTOFILL_HINT_FLIGHT_NUMBER}</code>).
+     *
+     * <p>See {@link android.view.View#setAutofillHints(String...)} for more info about autofill
+     * hints.
+     */
+    public static final String AUTOFILL_HINT_FLIGHT_NUMBER = "flightNumber";
+
+    /**
+     * Hint indicating that this view can be autofilled with a flight confirmation code.
+     *
+     * <p>Can be used with either {@link android.view.View#setAutofillHints(String[])} or <a
+     * href="#attr_android:autofillHint">{@code android:autofillHint}</a> (in which case the value
+     * should be <code>{@value #AUTOFILL_HINT_FLIGHT_CONFIRMATION_CODE}</code>).
+     *
+     * <p>See {@link android.view.View#setAutofillHints(String...)} for more info about autofill
+     * hints.
+     */
+    public static final String AUTOFILL_HINT_FLIGHT_CONFIRMATION_CODE = "flightConfirmationCode";
 }

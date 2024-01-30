@@ -53,6 +53,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -64,7 +65,6 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.InternalTestApi
 import androidx.compose.ui.test.MouseInjectionScope
-import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assertTopPositionInRootIsEqualTo
 import androidx.compose.ui.test.click
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
@@ -81,6 +81,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastFold
 import kotlin.math.abs
 import kotlin.math.roundToInt
 import org.junit.Assert.assertEquals
@@ -340,21 +341,19 @@ class ScrollbarTest {
             )
         }
 
-        // Thumb should be half the height of the scrollbar, as the viewport (200.dp) is half
-        // the height of the content (400.dp). So clicking on the top half of the scrollbar
-        // should do nothing.
-        for (offset in 1..50) {
-            rule.onNodeWithTag("scrollbar").performMouseInput {
-                click(position = Offset(0f, offset.toFloat()))
+        rule.testVerticalThumbEnd(
+            lastPixelPosition = Offset(0f, 49f),
+            dragAmount = 10f,
+            assertNotMoved = {
+                assertEquals(0, scrollState.value)
+            },
+            assertDraggedBy = { pixelAmount ->
+                assertEquals((4 * pixelAmount).toInt(), scrollState.value)
+            },
+            assertPageDown = {
+                assertEquals(200, scrollState.value)
             }
-            assertEquals(0, scrollState.value)
-        }
-
-        // Clicking one pixel below the thumb should scroll the content by one viewport
-        rule.onNodeWithTag("scrollbar").performMouseInput {
-            click(position = Offset(0f, 51f))
-        }
-        assertEquals(200, scrollState.value)
+        )
     }
 
     // See https://github.com/JetBrains/compose-jb/issues/2640
@@ -503,6 +502,8 @@ class ScrollbarTest {
 
     @Theory
     fun `press on track just below slider`(scrollbarProvider: ScrollbarProvider) {
+        rule.mainClock.autoAdvance = false
+
         rule.setContent(scrollbarProvider) {
             TestBox(size = 100.dp, childSize = 20.dp, childCount = 20, scrollbarWidth = 10.dp)
         }
@@ -525,6 +526,8 @@ class ScrollbarTest {
 
     @Theory
     fun `press on the end of track outside slider`(scrollbarProvider: ScrollbarProvider) {
+        rule.mainClock.autoAdvance = false
+
         rule.setContent(scrollbarProvider) {
             TestBox(size = 100.dp, childSize = 20.dp, childCount = 20, scrollbarWidth = 10.dp)
         }
@@ -547,6 +550,8 @@ class ScrollbarTest {
     fun `press on track outside slider then move forward`(
         scrollbarProvider: ScrollbarProvider
     ) {
+        rule.mainClock.autoAdvance = false
+
         rule.setContent(scrollbarProvider) {
             TestBox(size = 100.dp, childSize = 20.dp, childCount = 20, scrollbarWidth = 10.dp)
         }
@@ -570,6 +575,8 @@ class ScrollbarTest {
     fun `press on track outside slider then move back`(
         scrollbarProvider: ScrollbarProvider
     ) {
+        rule.mainClock.autoAdvance = false
+
         rule.setContent(scrollbarProvider) {
             TestBox(size = 100.dp, childSize = 20.dp, childCount = 20, scrollbarWidth = 10.dp)
         }
@@ -594,6 +601,8 @@ class ScrollbarTest {
     fun `press on track outside slider then move outside scrollbar`(
         scrollbarProvider: ScrollbarProvider
     ) {
+        rule.mainClock.autoAdvance = false
+
         rule.setContent(scrollbarProvider) {
             TestBox(size = 100.dp, childSize = 20.dp, childCount = 20, scrollbarWidth = 10.dp)
         }
@@ -614,7 +623,6 @@ class ScrollbarTest {
     }
 
     @Theory
-    @Suppress("JUnitMalformedDeclaration")
     fun `dynamically change content then drag slider to the end`(
         scrollbarProvider: ScrollbarProvider
     ) {
@@ -644,7 +652,7 @@ class ScrollbarTest {
     }
 
     @Theory
-    @Suppress("SameParameterValue", "JUnitMalformedDeclaration")
+    @Suppress("SameParameterValue")
     fun `scroll by less than one page in lazy list`(scrollbarProvider: ScrollbarProvider) {
         lateinit var state: LazyListState
 
@@ -668,7 +676,7 @@ class ScrollbarTest {
     }
 
     @Theory
-    @Suppress("SameParameterValue", "JUnitMalformedDeclaration")
+    @Suppress("SameParameterValue")
     fun `scroll in reversed lazy list`(scrollbarProvider: ScrollbarProvider) {
         lateinit var state: LazyListState
 
@@ -692,7 +700,7 @@ class ScrollbarTest {
     }
 
     @Theory
-    @Suppress("SameParameterValue", "JUnitMalformedDeclaration")
+    @Suppress("SameParameterValue")
     fun `scroll by more than one page in lazy list`(scrollbarProvider: ScrollbarProvider) {
         lateinit var state: LazyListState
 
@@ -715,7 +723,7 @@ class ScrollbarTest {
     }
 
     @Theory
-    @Suppress("SameParameterValue", "JUnitMalformedDeclaration")
+    @Suppress("SameParameterValue")
     fun `scroll outside of scrollbar bounds in lazy list`(scrollbarProvider: ScrollbarProvider) {
         lateinit var state: LazyListState
 
@@ -757,7 +765,7 @@ class ScrollbarTest {
     }
 
     @Test
-    fun `basic lazy grid scrollbar test`() {
+    fun `basic lazy grid test`() {
         rule.setContent {
             LazyGridTestBox(
                 // 3x20 grid, each item is 30x20 dp
@@ -771,19 +779,19 @@ class ScrollbarTest {
 
         rule.onNodeWithTag("box0").assertTopPositionInRootIsEqualTo(0.dp)
 
-        // Test the size of the scrollbar thumb by trying to drag by one pixel below where it
-        // should end
-        rule.onNodeWithTag("scrollbar").performMouseInput {
-            instantDrag(start = Offset(0f, 100f), end = Offset(0f, 200f))
-        }
-        rule.onNodeWithTag("box0").assertTopPositionInRootIsEqualTo(0.dp)
-
-        // Test the size of the scrollbar thumb by trying to drag by its bottommost pixel
-        // This also tests the proportionality of the scrolling
-        rule.onNodeWithTag("scrollbar").performMouseInput {
-            instantDrag(start = Offset(0f, 99f), end = Offset(0f, 104f))
-        }
-        rule.onNodeWithTag("box0").assertTopPositionInRootIsEqualTo((-10).dp)
+        rule.testVerticalThumbEnd(
+            lastPixelPosition = Offset(0f, 99f),
+            dragAmount = 5f,
+            assertNotMoved = {
+                rule.onNodeWithTag("box0").assertTopPositionInRootIsEqualTo(0.dp)
+            },
+            assertDraggedBy = { pixelAmount ->
+                rule.onNodeWithTag("box0").assertTopPositionInRootIsEqualTo((-2 * pixelAmount).dp)
+            },
+            assertPageDown = {
+                rule.onNodeWithTag("box30").assertTopPositionInRootIsEqualTo(0.dp)
+            }
+        )
 
         // Drag the scrollbar to the bottom and test the position of the last item
         rule.onNodeWithTag("scrollbar").performMouseInput {
@@ -828,8 +836,6 @@ class ScrollbarTest {
         }
     }
 
-    // TODO: [1.4 Update] test hangs on waitForIdle after 1.4 merge
-    @Ignore
     @Test
     @OptIn(ExperimentalFoundationApi::class, ExperimentalComposeUiApi::class)
     fun `basic text field with vertical scrolling test`() {
@@ -1030,21 +1036,23 @@ class ScrollbarTest {
     ){
         // Test the size of the scrollbar thumb by trying to drag by one pixel below where it
         // should end
-        onNodeWithTag("scrollbar").performMouseInput {
-            instantDrag(start = Offset(0f, 50f), end = Offset(0f, 200f))
-        }
-        onNodeWithTag(firstBoxTag).assertTopPositionInRootIsEqualTo(0.dp)
-
-        // Test the size of the scrollbar thumb by trying to drag by its bottommost pixel
-        // This also tests the proportionality of the scrolling
-        onNodeWithTag("scrollbar").performMouseInput {
-            instantDrag(start = Offset(0f, 49f), end = Offset(0f, 54f))
-        }
-        onNodeWithTag(firstBoxTag).assertTopPositionInRootIsEqualTo((-10).dp)
+        testVerticalThumbEnd(
+            lastPixelPosition = Offset(0f, 49f),
+            dragAmount = 5f,
+            assertNotMoved = {
+                onNodeWithTag(firstBoxTag).assertTopPositionInRootIsEqualTo(0.dp)
+            },
+            assertDraggedBy = { pixelAmount ->
+                onNodeWithTag(firstBoxTag).assertTopPositionInRootIsEqualTo((-2 * pixelAmount).dp)
+            },
+            assertPageDown = {
+                onNodeWithTag(lastBoxTag).assertTopPositionInRootIsEqualTo(80.dp)
+            }
+        )
 
         // Scroll to the bottom and check the last item position
         onNodeWithTag("scrollbar").performMouseInput {
-            instantDrag(start = Offset(0f, 54f), end = Offset(0f, 99f))
+            instantDrag(start = Offset(0f, 49f), end = Offset(0f, 99f))
         }
         onNodeWithTag(lastBoxTag).assertTopPositionInRootIsEqualTo(80.dp)
     }
@@ -1080,7 +1088,137 @@ class ScrollbarTest {
         rule.testLazyContentWithLineSpacing("box0", "box17")
     }
 
-    @OptIn(InternalTestApi::class, ExperimentalComposeUiApi::class)
+    /**
+     * Validates the expected bottom pixel position of the scrollbar thumb.
+     *
+     * The testing is done by:
+     * 1. Clicking the expected bottom pixel of the thumb and verifying that nothing moves.
+     * 2. Dragging the thumb by its expected bottom pixel and verifying that the content moved.
+     * 3. Clicking one pixel below the expected bottom pixel of the thumb and verifying a page-down.
+     */
+    private fun ComposeContentTestRule.testVerticalThumbEnd(
+        nodeTag: String = "scrollbar",
+        lastPixelPosition: Offset,
+        dragAmount: Float = 10f,
+        assertNotMoved: () -> Unit,
+        assertDraggedBy: (Float) -> Unit,
+        assertPageDown: () -> Unit,
+    ) {
+        // Test that clicking the last pixel of the thumb doesn't do anything
+        onNodeWithTag(nodeTag).performMouseInput {
+            click(lastPixelPosition)
+        }
+        assertNotMoved()
+
+        // Test that the last pixel of the thumb can be dragged by,
+        val dragEnd = lastPixelPosition.plus(Offset(0f, dragAmount))
+        onNodeWithTag(nodeTag).performMouseInput {
+            instantDrag(start = lastPixelPosition, end = dragEnd)
+        }
+        assertDraggedBy(dragAmount)
+
+        // Drag back and click one pixel below the thumb
+        onNodeWithTag(nodeTag).performMouseInput {
+            instantDrag(start = dragEnd, end = lastPixelPosition)
+        }
+        assertNotMoved()
+        onNodeWithTag(nodeTag).performMouseInput {
+            click(lastPixelPosition.plus(Offset(0f, 1f)))
+        }
+        assertPageDown()
+
+        // Click above the thumb to reset the state of the scrollbar back to its initial state
+        onNodeWithTag(nodeTag).performMouseInput {
+            click(lastPixelPosition)
+        }
+        assertNotMoved()
+    }
+
+    @Test
+    fun `thumb bounds test`(){
+        // Test that the last pixel of the thumb can be dragged by,
+        // and clicking one pixel below causes a page-down
+        rule.setContent {
+            LazyListTestBox(
+                size = 100.dp,
+                scrollbarWidth = 10.dp
+            ) {
+                items(10) {
+                    Box(Modifier.size(20.dp).testTag("box$it"))
+                }
+            }
+        }
+
+        rule.testVerticalThumbEnd(
+            lastPixelPosition = Offset(0f, 49f),
+            dragAmount = 10f,
+            assertNotMoved = {
+                rule.onNodeWithTag("box0").assertTopPositionInRootIsEqualTo(0.dp)
+            },
+            assertDraggedBy = { pixelAmount ->
+                rule.onNodeWithTag("box5")
+                    .assertTopPositionInRootIsEqualTo((100 - pixelAmount * 2).dp)
+            },
+            assertPageDown = {
+                rule.onNodeWithTag("box5").assertTopPositionInRootIsEqualTo(0.dp)
+            }
+        )
+    }
+
+    @OptIn(ExperimentalFoundationApi::class)
+    @Test
+    fun `basic lazy list with sticky headers test`() {
+        rule.setContent {
+            LazyListTestBox(
+                size = 200.dp,
+                scrollbarWidth = 10.dp
+            ) {
+                stickyHeader {
+                    Box(Modifier.size(20.dp).testTag("header1"))
+                }
+                items(9) {
+                    Box(Modifier.size(20.dp).testTag("box1_$it"))
+                }
+                stickyHeader {
+                    Box(Modifier.size(20.dp).testTag("header2"))
+                }
+                items(9) {
+                    Box(Modifier.size(20.dp).testTag("box2_$it"))
+                }
+            }
+        }
+        rule.onNodeWithTag("box1_0").assertTopPositionInRootIsEqualTo(20.dp)
+
+        rule.testVerticalThumbEnd(
+            lastPixelPosition = Offset(0f, 99f),
+            dragAmount = 10f,
+            assertNotMoved = {
+                rule.onNodeWithTag("box1_0").assertTopPositionInRootIsEqualTo(20.dp)
+            },
+            assertDraggedBy = { pixelAmount ->
+                rule.onNodeWithTag("box1_0")
+                    .assertTopPositionInRootIsEqualTo((20 - 2 * pixelAmount).dp)
+            },
+            assertPageDown = {
+                rule.onNodeWithTag("box2_0").assertTopPositionInRootIsEqualTo(20.dp)
+            }
+        )
+
+        // Drag the scrollbar to the bottom and test the position of the last item
+        rule.onNodeWithTag("scrollbar").performMouseInput {
+            instantDrag(start = Offset(0f, 0f), end = Offset(0f, 100f))
+        }
+        rule.onNodeWithTag("box2_8").assertTopPositionInRootIsEqualTo(180.dp)
+
+        // Press above the scrollbar and test the new position
+        rule.onNodeWithTag("scrollbar").performMouseInput {
+            click(position = Offset(0f, 0f))
+        }
+        rule.onNodeWithTag("box1_0").assertTopPositionInRootIsEqualTo(20.dp)
+    }
+
+
+    @OptIn(InternalTestApi::class, InternalComposeUiApi::class)
     private fun ComposeTestRule.performMouseScroll(x: Int, y: Int, delta: Float) {
         (this as DesktopComposeTestRule).scene.sendPointerEvent(
             PointerEventType.Scroll,
@@ -1530,8 +1668,8 @@ private fun ComposeContentTestRule.setContent(
 }
 
 internal object TestConfig : ScrollConfig {
-    // the formula was determined experimentally based on MacOS Finder behaviour
-    // MacOS driver will send events with accelerating delta
+    // the formula was determined experimentally based on macOS Finder behaviour
+    // macOS driver will send events with accelerating delta
     override fun Density.calculateMouseWheelScroll(event: PointerEvent, bounds: IntSize): Offset {
         return -event.totalScrollDelta * 10.dp.toPx()
     }

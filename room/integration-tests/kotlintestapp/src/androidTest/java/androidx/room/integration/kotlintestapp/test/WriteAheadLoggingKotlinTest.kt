@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.room.androidx.room.integration.kotlintestapp.test
+package androidx.room.integration.kotlintestapp.test
 
 import android.content.Context
 import androidx.arch.core.executor.testing.CountingTaskExecutorRule
@@ -23,7 +23,6 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.integration.kotlintestapp.TestDatabase
 import androidx.room.integration.kotlintestapp.dao.BooksDao
-import androidx.room.integration.kotlintestapp.test.TestUtil
 import androidx.room.integration.kotlintestapp.test.TestUtil.Companion.BOOK_1
 import androidx.room.integration.kotlintestapp.vo.Book
 import androidx.test.core.app.ApplicationProvider

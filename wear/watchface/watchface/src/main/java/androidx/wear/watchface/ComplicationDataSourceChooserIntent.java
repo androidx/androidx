@@ -30,7 +30,6 @@ import androidx.annotation.RestrictTo;
 /**
  * Utilities to allow watch faces to launch the complication data source chooser.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class ComplicationDataSourceChooserIntent {
@@ -43,7 +42,6 @@ public class ComplicationDataSourceChooserIntent {
     /**
      * Key for an extra used to provide the watch face component.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @SuppressWarnings("ActionValue")
@@ -53,7 +51,6 @@ public class ComplicationDataSourceChooserIntent {
     /**
      * Key for an extra holding a pending intent used to verify the caller.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @SuppressWarnings("ActionValue")
@@ -63,7 +60,6 @@ public class ComplicationDataSourceChooserIntent {
     /**
      * Key for an extra used to provide the watch face supported types.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @SuppressWarnings("ActionValue")
@@ -73,7 +69,6 @@ public class ComplicationDataSourceChooserIntent {
     /**
      * Key for an extra that holds the watch face complication id.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @SuppressWarnings("ActionValue")
@@ -83,7 +78,6 @@ public class ComplicationDataSourceChooserIntent {
     /**
      * Key for an extra that holds the watch face instance id.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final String EXTRA_WATCHFACE_INSTANCE_ID =
@@ -92,7 +86,6 @@ public class ComplicationDataSourceChooserIntent {
     /**
      * Key for an extra that holds the intent to launch the complication permission rational dialog.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final String EXTRA_COMPLICATION_RATIONALE =
@@ -101,7 +94,6 @@ public class ComplicationDataSourceChooserIntent {
     /**
      * Key for an extra that holds the intent to launch the complication permission denied dialog.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final String EXTRA_COMPLICATION_DENIED =
@@ -116,6 +108,13 @@ public class ComplicationDataSourceChooserIntent {
     @SuppressWarnings("ActionValue")
     public static final String EXTRA_PROVIDER_INFO =
             "android.support.wearable.complications.EXTRA_PROVIDER_INFO";
+
+    /**
+     * Key for an extra that holds the [UserStyleWireFormat].
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final String EXTRA_USER_STYLE =
+            "androidx.wear.watchface.complications.EXTRA_USER_STYLE";
 
     /**
      * Returns an intent that may be used to start an activity to allow the user to select a

@@ -23,7 +23,6 @@ import androidx.annotation.RestrictTo;
 /**
  * Represents a Share Target definition read from the app's manifest.
  *
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 class ShareTargetCompat {

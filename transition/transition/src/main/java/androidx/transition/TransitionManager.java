@@ -17,6 +17,7 @@
 package androidx.transition;
 
 import android.content.Context;
+import android.os.Build;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,6 +25,7 @@ import android.view.ViewTreeObserver;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 import androidx.collection.ArrayMap;
 import androidx.core.view.ViewCompat;
 
@@ -193,6 +195,7 @@ public class TransitionManager {
         }
     }
 
+    @VisibleForTesting
     static ArrayMap<ViewGroup, ArrayList<Transition>> getRunningTransitions() {
         WeakReference<ArrayMap<ViewGroup, ArrayList<Transition>>> runningTransitions =
                 sRunningTransitions.get();
@@ -347,6 +350,59 @@ public class TransitionManager {
     }
 
     /**
+     * Convenience method to seek to the given scene using the given transition. If seeking
+     * is not supported because the device is {@link Build.VERSION_CODES.TIRAMISU} or earlier,
+     * the scene transition is immediate and {@code null} is returned.
+     *
+     * @param scene      The Scene to change to
+     * @param transition The transition to use for this scene change.
+     * @return a {@link TransitionSeekController} that can be used control the animation to the
+     * destination scene. {@code null} is returned when seeking is not supported on the scene,
+     * either because it is running on {@link android.os.Build.VERSION_CODES.TIRAMISU} or earlier,
+     * another Transition is being captured for {@code sceneRoot}, or {@code sceneRoot} hasn't
+     * had a layout yet.
+     * @throws IllegalArgumentException if {@code transition} returns {@code false} from
+     * {@link Transition#isSeekingSupported()}.
+     */
+    @Nullable
+    public static TransitionSeekController createSeekController(
+            @NonNull Scene scene,
+            @NonNull Transition transition
+    ) {
+        final ViewGroup sceneRoot = scene.getSceneRoot();
+
+        if (!transition.isSeekingSupported()) {
+            throw new IllegalArgumentException("The Transition must support seeking.");
+        }
+        if (sPendingTransitions.contains(sceneRoot)) {
+            return null; // Already in the process of transitioning
+        }
+        Scene oldScene = Scene.getCurrentScene(sceneRoot);
+        if (!ViewCompat.isLaidOut(sceneRoot)
+                || Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE
+        ) {
+            // Can't control it, so just change the scene immediately
+            if (oldScene != null) {
+                oldScene.exit();
+            }
+            scene.enter();
+            return null;
+        }
+        sPendingTransitions.add(sceneRoot);
+        final Transition transitionClone = transition.clone();
+        final TransitionSet set = new TransitionSet();
+        set.addTransition(transitionClone);
+        if (oldScene != null && oldScene.isCreatedFromLayoutResource()) {
+            set.setCanRemoveViews(true);
+        }
+        sceneChangeSetup(sceneRoot, set);
+        scene.enter();
+
+        sceneChangeRunTransition(sceneRoot, set);
+        return set.createSeekController();
+    }
+
+    /**
      * Convenience method to simply change to the given scene using
      * the given transition.
      *
@@ -419,6 +475,59 @@ public class TransitionManager {
     }
 
     /**
+     * Create a {@link TransitionSeekController} to allow seeking an animation to a new
+     * scene defined by all changes within the given scene root between calling this method and
+     * the next rendered frame. Calling this method causes TransitionManager to capture current
+     * values in the scene root and then post a request to run a transition on the next frame.
+     * At that time, the new values in the scene root will be captured and changes
+     * will be animated. There is no need to create a Scene; it is implied by
+     * changes which take place between calling this method and the next frame when
+     * the transition begins.
+     *
+     * <p>Calling this method several times before the next frame (for example, if
+     * unrelated code also wants to make dynamic changes and run a transition on
+     * the same scene root), only the first call will trigger capturing values
+     * and exiting the current scene. Subsequent calls to the method with the
+     * same scene root during the same frame will be ignored.</p>
+     *
+     * @param sceneRoot  The root of the View hierarchy to run the transition on.
+     * @param transition The transition to use for this change.
+     * @return a {@link TransitionSeekController} that can be used control the animation to the
+     * destination scene. {@code null} is returned when seeking is not supported on the scene,
+     * either because it is running on {@link android.os.Build.VERSION_CODES#TIRAMISU} or earlier,
+     * another Transition is being captured for {@code sceneRoot}, or {@code sceneRoot} hasn't
+     * had a layout yet.
+     * @throws IllegalArgumentException if {@code transition} returns {@code false} from
+     * {@link Transition#isSeekingSupported()}.
+     */
+    @Nullable
+    public static TransitionSeekController controlDelayedTransition(
+            @NonNull final ViewGroup sceneRoot,
+            @NonNull Transition transition
+    ) {
+        if (sPendingTransitions.contains(sceneRoot) || !ViewCompat.isLaidOut(sceneRoot)
+                || Build.VERSION.SDK_INT < 34) {
+            return null;
+        }
+        if (!transition.isSeekingSupported()) {
+            throw new IllegalArgumentException("The Transition must support seeking.");
+        }
+        if (Transition.DBG) {
+            Log.d(LOG_TAG, "controlDelayedTransition: root, transition = "
+                    + sceneRoot + ", " + transition);
+        }
+        sPendingTransitions.add(sceneRoot);
+        final Transition transitionClone = transition.clone();
+        final TransitionSet set = new TransitionSet();
+        set.addTransition(transitionClone);
+        sceneChangeSetup(sceneRoot, set);
+        Scene.setCurrentScene(sceneRoot, null);
+        sceneChangeRunTransition(sceneRoot, set);
+        sceneRoot.invalidate();
+        return set.createSeekController();
+    }
+
+    /**
      * Ends all pending and ongoing transitions on the specified scene root.
      *
      * @param sceneRoot The root of the View hierarchy to end transitions on.
@@ -435,5 +544,4 @@ public class TransitionManager {
             }
         }
     }
-
 }

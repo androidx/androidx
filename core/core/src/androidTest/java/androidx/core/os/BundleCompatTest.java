@@ -22,7 +22,10 @@ import static org.junit.Assert.assertNull;
 
 import android.content.Intent;
 import android.content.pm.Signature;
+import android.os.Binder;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.SparseArray;
@@ -62,8 +65,9 @@ public class BundleCompatTest {
     }
 
     @Test
-    public void getParcelableArray_postU() {
-        if (!BuildCompat.isAtLeastU()) return;
+    @SdkSuppress(minSdkVersion = 33)
+    public void getParcelableArray_post33() {
+        if (Build.VERSION.SDK_INT < 34) return;
         Bundle bundle = new Bundle();
         bundle.putParcelableArray("array", new Intent[] { new Intent() });
         parcelAndUnparcel(bundle);
@@ -73,8 +77,9 @@ public class BundleCompatTest {
     }
 
     @Test
-    public void getParcelableArray_returnsNullOnClassMismatch_postU() {
-        if (!BuildCompat.isAtLeastU()) return;
+    @SdkSuppress(minSdkVersion = 33)
+    public void getParcelableArray_returnsNullOnClassMismatch_post33() {
+        if (Build.VERSION.SDK_INT < 34) return;
         Bundle bundle = new Bundle();
         bundle.putParcelableArray("array", new Intent[] { new Intent() });
         parcelAndUnparcel(bundle);
@@ -83,8 +88,9 @@ public class BundleCompatTest {
     }
 
     @Test
-    public void getParcelableArray_preU() {
-        if (BuildCompat.isAtLeastU()) return;
+    @SdkSuppress(maxSdkVersion = 32)
+    public void getParcelableArray_pre33() {
+        if (Build.VERSION.SDK_INT >= 34) return;
         Bundle bundle = new Bundle();
         bundle.putParcelableArray("array", new Intent[] { new Intent() });
         parcelAndUnparcel(bundle);
@@ -112,8 +118,9 @@ public class BundleCompatTest {
     }
 
     @Test
-    public void getParcelableArrayList_returnsNullOnClassMismatch_postU() {
-        if (!BuildCompat.isAtLeastU()) return;
+    @SdkSuppress(minSdkVersion = 34)
+    public void getParcelableArrayList_returnsNullOnClassMismatch_post34() {
+        if (Build.VERSION.SDK_INT < 34) return;
         Bundle bundle = new Bundle();
         bundle.putParcelableArrayList("array", Lists.newArrayList(new Intent()));
         parcelAndUnparcel(bundle);
@@ -122,8 +129,9 @@ public class BundleCompatTest {
     }
 
     @Test
-    public void getParcelableArrayList_noTypeCheck_preU() {
-        if (BuildCompat.isAtLeastU()) return;
+    @SdkSuppress(maxSdkVersion = 33)
+    public void getParcelableArrayList_noTypeCheck_pre34() {
+        if (Build.VERSION.SDK_INT >= 34) return;
         Bundle bundle = new Bundle();
         bundle.putParcelableArrayList("array", Lists.newArrayList(new Intent()));
         parcelAndUnparcel(bundle);
@@ -148,9 +156,9 @@ public class BundleCompatTest {
     }
 
     @Test
-    @SdkSuppress(codeName = "UpsideDownCake")
-    public void getSparseParcelableArray_returnsNullOnClassMismatch_postU() {
-        if (!BuildCompat.isAtLeastU()) return;
+    @SdkSuppress(minSdkVersion = 34)
+    public void getSparseParcelableArray_returnsNullOnClassMismatch_post34() {
+        if (Build.VERSION.SDK_INT < 34) return;
         Bundle bundle = new Bundle();
         SparseArray<Intent> array = new SparseArray<>();
         array.put(0, new Intent());
@@ -161,8 +169,9 @@ public class BundleCompatTest {
     }
 
     @Test
-    public void getSparseParcelableArray_noTypeCheck_preU() {
-        if (BuildCompat.isAtLeastU()) return;
+    @SdkSuppress(maxSdkVersion = 33)
+    public void getSparseParcelableArray_noTypeCheck_pre34() {
+        if (Build.VERSION.SDK_INT >= 34) return;
         Bundle bundle = new Bundle();
         SparseArray<Intent> array = new SparseArray<>();
         array.put(0, new Intent());
@@ -180,5 +189,14 @@ public class BundleCompatTest {
         bundle.writeToParcel(p, 0);
         p.setDataPosition(0);
         bundle.readFromParcel(p);
+    }
+
+    @Test
+    public void getBinder() {
+        IBinder binder = new Binder();
+        Bundle bundle = new Bundle();
+        BundleCompat.putBinder(bundle, "binder", binder);
+        IBinder result = BundleCompat.getBinder(bundle, "binder");
+        assertEquals(binder, result);
     }
 }

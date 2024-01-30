@@ -45,10 +45,14 @@ import androidx.arch.core.util.Function
 @JvmName("map")
 @MainThread
 @CheckResult
+@Suppress("UNCHECKED_CAST")
 fun <X, Y> LiveData<X>.map(
     transform: (@JvmSuppressWildcards X) -> (@JvmSuppressWildcards Y)
 ): LiveData<Y> {
     val result = MediatorLiveData<Y>()
+    if (isInitialized) {
+        result.value = transform(value as X)
+    }
     result.addSource(this) { x -> result.value = transform(x) }
     return result
 }
@@ -113,18 +117,21 @@ fun <X, Y> LiveData<X>.map(mapFunction: Function<X, Y>): LiveData<Y> {
 @JvmName("switchMap")
 @MainThread
 @CheckResult
+@Suppress("UNCHECKED_CAST")
 fun <X, Y> LiveData<X>.switchMap(
     transform: (@JvmSuppressWildcards X) -> (@JvmSuppressWildcards LiveData<Y>)?
 ): LiveData<Y> {
     val result = MediatorLiveData<Y>()
-    result.addSource(this, object : Observer<X> {
-        var liveData: LiveData<Y>? = null
-
-        override fun onChanged(value: X) {
-            val newLiveData = transform(value)
-            if (liveData === newLiveData) {
-                return
-            }
+    var liveData: LiveData<Y>? = null
+    if (isInitialized) {
+        val initialLiveData = transform(value as X)
+        if (initialLiveData != null && initialLiveData.isInitialized) {
+            result.value = initialLiveData.value
+        }
+    }
+    result.addSource(this) { value: X ->
+        val newLiveData = transform(value)
+        if (liveData !== newLiveData) {
             if (liveData != null) {
                 result.removeSource(liveData!!)
             }
@@ -133,7 +140,7 @@ fun <X, Y> LiveData<X>.switchMap(
                 result.addSource(liveData!!) { y -> result.setValue(y) }
             }
         }
-    })
+    }
     return result
 }
 

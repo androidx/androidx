@@ -41,9 +41,9 @@ import java.util.Collection;
 import java.util.Set;
 
 /**
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
+@Deprecated
 public class SliceProviderWrapperContainer {
 
     /**

@@ -18,10 +18,10 @@ package androidx.compose.animation.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.AnimatedContentScope
-import androidx.compose.animation.AnimatedContentScope.SlideDirection
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.AnimatedContentTransitionScope.SlideDirection
 import androidx.compose.animation.ContentTransform
-import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.core.animateDp
 import androidx.compose.animation.core.keyframes
@@ -31,7 +31,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
-import androidx.compose.animation.with
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -58,7 +58,6 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 @Sampled
 fun AnimateIncrementDecrementSample() {
@@ -77,11 +76,13 @@ fun AnimateIncrementDecrementSample() {
                 if (targetState > initialState) {
                     // If the incoming number is larger, new number slides up and fades in while
                     // the previous (smaller) number slides up to make room and fades out.
-                    slideInVertically { it } + fadeIn() with slideOutVertically { -it } + fadeOut()
+                    slideInVertically { it } + fadeIn() togetherWith
+                        slideOutVertically { -it } + fadeOut()
                 } else {
                     // If the incoming number is smaller, new number slides down and fades in while
                     // the previous number slides down and fades out.
-                    slideInVertically { -it } + fadeIn() with slideOutVertically { it } + fadeOut()
+                    slideInVertically { -it } + fadeIn() togetherWith
+                        slideOutVertically { it } + fadeOut()
                     // Disable clipping since the faded slide-out is desired out of bounds, but
                     // the size transform is still needed from number getting longer
                 }.using(SizeTransform(clip = false)) // Using default spring for the size change.
@@ -106,24 +107,35 @@ fun AnimateIncrementDecrementSample() {
     }
 }
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 @Sampled
 fun SimpleAnimatedContentSample() {
     // enum class ContentState { Foo, Bar, Baz }
     @Composable
     fun Foo() {
-        Box(Modifier.size(200.dp).background(Color(0xffffdb00)))
+        Box(
+            Modifier
+                .size(200.dp)
+                .background(Color(0xffffdb00))
+        )
     }
 
     @Composable
     fun Bar() {
-        Box(Modifier.size(40.dp).background(Color(0xffff8100)))
+        Box(
+            Modifier
+                .size(40.dp)
+                .background(Color(0xffff8100))
+        )
     }
 
     @Composable
     fun Baz() {
-        Box(Modifier.size(80.dp, 20.dp).background(Color(0xffff4400)))
+        Box(
+            Modifier
+                .size(80.dp, 20.dp)
+                .background(Color(0xffff4400))
+        )
     }
 
     var contentState: ContentState by remember { mutableStateOf(ContentState.Foo) }
@@ -139,16 +151,15 @@ fun SimpleAnimatedContentSample() {
 
 private enum class ContentState { Foo, Bar, Baz }
 
-@OptIn(ExperimentalAnimationApi::class)
 @Suppress("UNUSED_VARIABLE")
 @Sampled
 fun AnimatedContentTransitionSpecSample() {
     // enum class CartState { Expanded, Collapsed }
-    val transitionSpec: AnimatedContentScope<CartState>.() -> ContentTransform =
+    val transitionSpec: AnimatedContentTransitionScope<CartState>.() -> ContentTransform =
         {
             // Fade in with a delay so that it starts after fade out
             fadeIn(animationSpec = tween(150, delayMillis = 150))
-                .with(fadeOut(animationSpec = tween(150)))
+                .togetherWith(fadeOut(animationSpec = tween(150)))
                 .using(
                     SizeTransform { initialSize, targetSize ->
                         // Using different SizeTransform for different state change
@@ -177,7 +188,6 @@ fun AnimatedContentTransitionSpecSample() {
 
 @Sampled
 @Composable
-@OptIn(ExperimentalAnimationApi::class)
 fun TransitionExtensionAnimatedContentSample() {
     @Composable
     fun CollapsedCart() { /* Some content here */
@@ -197,6 +207,7 @@ fun TransitionExtensionAnimatedContentSample() {
             when {
                 CartState.Expanded isTransitioningTo CartState.Collapsed ->
                     tween(durationMillis = 433, delayMillis = 67)
+
                 else ->
                     tween(durationMillis = 150)
             }
@@ -204,7 +215,8 @@ fun TransitionExtensionAnimatedContentSample() {
     ) { if (it == CartState.Expanded) 0.dp else 24.dp }
 
     Surface(
-        Modifier.shadow(8.dp, CutCornerShape(topStart = cornerSize))
+        Modifier
+            .shadow(8.dp, CutCornerShape(topStart = cornerSize))
             .clip(CutCornerShape(topStart = cornerSize)),
         color = Color(0xfffff0ea),
     ) {
@@ -215,7 +227,7 @@ fun TransitionExtensionAnimatedContentSample() {
         cartOpenTransition.AnimatedContent(
             transitionSpec = {
                 fadeIn(animationSpec = tween(150, delayMillis = 150))
-                    .with(fadeOut(animationSpec = tween(150)))
+                    .togetherWith(fadeOut(animationSpec = tween(150)))
                     .using(
                         SizeTransform { initialSize, targetSize ->
                             // Using different SizeTransform for different state change
@@ -264,7 +276,6 @@ fun TransitionExtensionAnimatedContentSample() {
 
 @Suppress("UNUSED_VARIABLE")
 @Sampled
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun SlideIntoContainerSample() {
     // enum class NestedMenuState { Level1, Level2, Level3 }
@@ -272,24 +283,19 @@ fun SlideIntoContainerSample() {
     // is to 1) establish a z-order for different levels of the menu, and 2) imply a spatial
     // order between the menus via the different slide direction when navigating to child menu vs
     // parent menu. See the demos directory of the source code for a full demo.
-    val transitionSpec: AnimatedContentScope<NestedMenuState>.() -> ContentTransform = {
+    val transitionSpec: AnimatedContentTransitionScope<NestedMenuState>.() -> ContentTransform = {
         if (initialState < targetState) {
             // Going from parent menu to child menu, slide towards left
-            slideIntoContainer(towards = SlideDirection.Left) with
-                // Slide the parent out by 1/2 the amount required to be completely
-                // out of the bounds. This creates a sense of child menu catching up. Since
-                // the child menu has a higher z-order, it will cover the parent meu as it
-                // comes in.
-                slideOutOfContainer(towards = SlideDirection.Left) { offsetForFullSlide ->
-                    offsetForFullSlide / 2
-                }
+            slideIntoContainer(towards = SlideDirection.Left) togetherWith
+                // Keep exiting content in place while sliding in the incoming content.
+                ExitTransition.KeepUntilTransitionsFinished
         } else {
             // Going from child menu to parent menu, slide towards right.
             // Slide parent by half amount compared to child menu to create an interesting
             // parallax visual effect.
             slideIntoContainer(towards = SlideDirection.Right) { offsetForFullSlide ->
                 offsetForFullSlide / 2
-            } with slideOutOfContainer(towards = SlideDirection.Right)
+            } togetherWith slideOutOfContainer(towards = SlideDirection.Right)
         }.apply {
             // Here we can specify the zIndex for the target (i.e. incoming) content.
             targetContentZIndex = when (targetState) {

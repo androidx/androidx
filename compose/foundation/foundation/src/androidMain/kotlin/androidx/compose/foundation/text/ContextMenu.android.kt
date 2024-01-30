@@ -20,8 +20,10 @@ import androidx.compose.foundation.text.selection.SelectionManager
 import androidx.compose.foundation.text.selection.TextFieldSelectionManager
 import androidx.compose.runtime.Composable
 
+// TODO (b/269341173) remove inline once these composables are non-trivial
+
 @Composable
-internal actual fun ContextMenuArea(
+internal actual inline fun ContextMenuArea(
     manager: TextFieldSelectionManager,
     content: @Composable () -> Unit
 ) {
@@ -29,7 +31,7 @@ internal actual fun ContextMenuArea(
 }
 
 @Composable
-internal actual fun ContextMenuArea(
+internal actual inline fun ContextMenuArea(
     manager: SelectionManager,
     content: @Composable () -> Unit
 ) {

@@ -38,13 +38,11 @@ import java.util.TimeZone;
 /**
  * Base class for derived classes that want to have common fields for preview programs.
  *
- * @hide
  */
 @RestrictTo(LIBRARY)
 @SuppressWarnings("unchecked")
 public abstract class BasePreviewProgram extends BaseProgram {
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public static final String[] PROJECTION = getProjection();
@@ -55,7 +53,6 @@ public abstract class BasePreviewProgram extends BaseProgram {
     private static final int IS_LIVE = 1;
     private static final int IS_BROWSABLE = 1;
 
-    /** @hide */
     @IntDef({
             TYPE_UNKNOWN,
             PreviewProgramColumns.TYPE_MOVIE,
@@ -81,7 +78,6 @@ public abstract class BasePreviewProgram extends BaseProgram {
      */
     private static final int TYPE_UNKNOWN = -1;
 
-    /** @hide */
     @IntDef({
             ASPECT_RATIO_UNKNOWN,
             PreviewProgramColumns.ASPECT_RATIO_16_9,
@@ -101,7 +97,6 @@ public abstract class BasePreviewProgram extends BaseProgram {
      */
     private static final int ASPECT_RATIO_UNKNOWN = -1;
 
-    /** @hide */
     @IntDef({
             AVAILABILITY_UNKNOWN,
             PreviewProgramColumns.AVAILABILITY_AVAILABLE,
@@ -120,7 +115,6 @@ public abstract class BasePreviewProgram extends BaseProgram {
      */
     private static final int AVAILABILITY_UNKNOWN = -1;
 
-    /** @hide */
     @IntDef({
             INTERACTION_TYPE_UNKNOWN,
             PreviewProgramColumns.INTERACTION_TYPE_VIEWS,
@@ -135,7 +129,6 @@ public abstract class BasePreviewProgram extends BaseProgram {
     @RestrictTo(LIBRARY)
     public @interface InteractionType {}
 
-    /** @hide */
     @IntDef({
             PreviewProgramColumns.TV_SERIES_ITEM_TYPE_EPISODE,
             PreviewProgramColumns.TV_SERIES_ITEM_TYPE_CHAPTER
@@ -422,7 +415,6 @@ public abstract class BasePreviewProgram extends BaseProgram {
      * into the TV Input Framework database.
      *
      * @param includeProtectedFields Whether the fields protected by system is included or not.
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public ContentValues toContentValues(boolean includeProtectedFields) {
@@ -980,7 +972,6 @@ public abstract class BasePreviewProgram extends BaseProgram {
          * @param browsable Whether the program is browsable or not.
          * @return This Builder object to allow for chaining of calls to builder methods.
          * @see androidx.tvprovider.media.tv.TvContractCompat.PreviewPrograms#COLUMN_BROWSABLE
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public T setBrowsable(boolean browsable) {

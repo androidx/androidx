@@ -106,11 +106,12 @@ public class AsyncListenableGlesRendererTest : WatchFaceControlClientServiceTest
                 onUiThreadGlSurfaceCreatedFuture,
                 onBackgroundThreadGlContextFuture
             )
+        val controlClient = createWatchFaceControlClientService()
 
         val deferredClient =
             handlerCoroutineScope.async {
                 @Suppress("deprecation")
-                watchFaceControlClientService.getOrCreateInteractiveWatchFaceClient(
+                controlClient.getOrCreateInteractiveWatchFaceClient(
                     "testId",
                     DeviceConfig(false, false, 0, 0),
                     WatchUiState(false, 0),
@@ -119,7 +120,7 @@ public class AsyncListenableGlesRendererTest : WatchFaceControlClientServiceTest
                 )
             }
 
-        handler.post { watchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper }
+        handler.post { watchFaceService.onCreateEngine() }
 
         val client = awaitWithTimeout(deferredClient)
         try {

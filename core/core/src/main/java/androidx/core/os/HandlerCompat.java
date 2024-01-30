@@ -113,6 +113,7 @@ public final class HandlerCompat {
      * </ul>
      *
      * @param looper the Looper that the new Handler should be bound to
+     * @param callback callback to send events to
      * @return a new async Handler instance
      * @see Handler#createAsync(Looper, Handler.Callback)
      */
@@ -162,6 +163,7 @@ public final class HandlerCompat {
      * <b>The time-base is {@link android.os.SystemClock#uptimeMillis}.</b>
      * Time spent in deep sleep will add an additional delay to execution.
      *
+     * @param handler handler to use for posting the runnable.
      * @param r The Runnable that will be executed.
      * @param token An instance which can be used to cancel {@code r} via
      *         {@link Handler#removeCallbacksAndMessages}.

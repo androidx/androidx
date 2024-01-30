@@ -36,9 +36,7 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
-/**
- * On S and higher, a large fling back should remove the stretch and start flinging the content.
- */
+/** On S and higher, a large fling back should remove the stretch and start flinging the content. */
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
 @MediumTest
 class NestedScrollViewStretchFlingTest {
@@ -54,18 +52,20 @@ class NestedScrollViewStretchFlingTest {
         val drawLatch = CountDownLatch(1)
         mRule.scenario.onActivity { activity ->
             nestedScrollView = NestedScrollView(activity)
-            val layoutParams = ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT
-            )
+            val layoutParams =
+                ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT
+                )
             activity.setContentView(nestedScrollView, layoutParams)
 
             val linearLayout = LinearLayout(activity)
             linearLayout.orientation = LinearLayout.VERTICAL
-            val linearLayoutParams = ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-            )
+            val linearLayoutParams =
+                ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+                )
             nestedScrollView.addView(linearLayout, linearLayoutParams)
 
             repeat(1000) {
@@ -97,16 +97,12 @@ class NestedScrollViewStretchFlingTest {
         }
 
         // Wait for the stretch to release
-        PollingCheck.waitFor(1000L) {
-            nestedScrollView.mEdgeGlowTop.isFinished
-        }
+        PollingCheck.waitFor(1000L) { nestedScrollView.mEdgeGlowTop.isFinished }
 
         var lastScroll = 0
         PollingCheck.waitFor(1000L) {
             var nextScroll = 0
-            mRule.scenario.onActivity {
-                nextScroll = nestedScrollView.scrollY
-            }
+            mRule.scenario.onActivity { nextScroll = nestedScrollView.scrollY }
             val changed = nextScroll == lastScroll
             lastScroll = nextScroll
             !changed
@@ -128,16 +124,12 @@ class NestedScrollViewStretchFlingTest {
         }
 
         // Wait for the stretch to release
-        PollingCheck.waitFor(1000L) {
-            nestedScrollView.mEdgeGlowBottom.isFinished
-        }
+        PollingCheck.waitFor(1000L) { nestedScrollView.mEdgeGlowBottom.isFinished }
 
         var lastScroll = 0
         PollingCheck.waitFor(1000L) {
             var nextScroll = 0
-            mRule.scenario.onActivity {
-                nextScroll = nestedScrollView.scrollY
-            }
+            mRule.scenario.onActivity { nextScroll = nestedScrollView.scrollY }
             val changed = nextScroll == lastScroll
             lastScroll = nextScroll
             !changed

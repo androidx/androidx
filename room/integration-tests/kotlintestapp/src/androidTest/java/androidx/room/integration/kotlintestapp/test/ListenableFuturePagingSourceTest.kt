@@ -31,19 +31,19 @@
 
 package androidx.room.integration.kotlintestapp.test
 
+import androidx.kruth.assertThat
 import androidx.paging.ListenableFuturePagingSource
 import androidx.paging.Pager
 import androidx.paging.PagingState
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import androidx.room.androidx.room.integration.kotlintestapp.testutil.ItemStore
-import androidx.room.androidx.room.integration.kotlintestapp.testutil.PagingDb
-import androidx.room.androidx.room.integration.kotlintestapp.testutil.PagingEntity
+import androidx.room.integration.kotlintestapp.testutil.ItemStore
+import androidx.room.integration.kotlintestapp.testutil.PagingDb
+import androidx.room.integration.kotlintestapp.testutil.PagingEntity
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import androidx.testutils.FilteringExecutor
-import com.google.common.truth.Truth.assertThat
 import com.google.common.util.concurrent.ListenableFuture
 import java.util.concurrent.Executors
 import kotlin.test.assertFailsWith

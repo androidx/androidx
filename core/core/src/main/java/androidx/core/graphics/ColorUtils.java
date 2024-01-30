@@ -25,7 +25,9 @@ import androidx.annotation.FloatRange;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.Size;
 import androidx.annotation.VisibleForTesting;
+import androidx.core.content.res.CamColor;
 
 import java.util.Objects;
 
@@ -679,6 +681,49 @@ public final class ColorUtils {
         outResult[0] = lab1[0] * inverseRatio + lab2[0] * ratio;
         outResult[1] = lab1[1] * inverseRatio + lab2[1] * ratio;
         outResult[2] = lab1[2] * inverseRatio + lab2[2] * ratio;
+    }
+
+    /**
+     * Generate an ARGB color using M3HCT color parameters.
+     *
+     * HCT color space is a new color space proposed in Material Design 3
+     * @see
+     * <a href="https://developer.android.com/design/ui/mobile/guides/styles/color#about-color-spaces">About Color Spaces</a>
+     *
+     * @param hue is Hue in M3HCT [0, 360); invalid values are corrected.
+     * @param chroma is Chroma in M3HCT [0, ?); Chroma may decrease because chroma has a
+     *               different maximum for any given hue and tone.
+     * @param tone is Tone in M3HCT [0, 100]; invalid values are corrected.
+     */
+    @SuppressWarnings("AcronymName")
+    @ColorInt
+    public static int M3HCTToColor(@FloatRange(from = 0.0, to = 360, toInclusive = false) float hue,
+            @FloatRange(from = 0.0, to = Double.POSITIVE_INFINITY, toInclusive = false)
+            float chroma, @FloatRange(from = 0.0, to = 100) float tone) {
+        return CamColor.toColor(hue, chroma, tone);
+    }
+
+    /**
+     * Generate a M3HCT color from an ARGB color.
+     *
+     * HCT color space is a new color space proposed in Material Design 3
+     * @see
+     * <a href="https://developer.android.com/design/ui/mobile/guides/styles/color#about-color-spaces">About Color Spaces</a>
+     *
+     * <ul>
+     * <li>outM3HCT[0] is Hue in M3HCT [0, 360); invalid values are corrected.</li>
+     * <li>outM3HCT[1] is Chroma in M3HCT [0, ?); Chroma may decrease because chroma has a
+     * different maximum for any given hue and tone.</li>
+     * <li>outM3HCT[2] is Tone in M3HCT [0, 100]; invalid values are corrected.</li>
+     * </ul>
+     *
+     * @param color is the ARGB color value we use to get its respective M3HCT values.
+     * @param outM3HCT 3-element array which holds the resulting M3HCT components (Hue, Chroma,
+     *                 Tone).
+     */
+    @SuppressWarnings("AcronymName")
+    public static void colorToM3HCT(@ColorInt int color, @NonNull @Size(3) float[] outM3HCT) {
+        CamColor.getM3HCTfromColor(color, outM3HCT);
     }
 
     @VisibleForTesting

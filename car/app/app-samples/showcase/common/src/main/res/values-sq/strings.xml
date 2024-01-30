@@ -119,7 +119,7 @@
     <string name="loading_demo_row_title" msgid="8933049915126088142">"Ngarkimi përfundoi!"</string>
     <string name="pop_to_root" msgid="2078277386355064198">"Hidhu te rrënja"</string>
     <string name="pop_to_marker" msgid="5007078308762725207">"Hidhu te shënuesi i demonstrimeve të ndryshme"</string>
-    <string name="push_stack" msgid="2433062141810168976">"Shty më tej te stiva"</string>
+    <string name="push_stack" msgid="2433062141810168976">"Shtyj më tej te stiva"</string>
     <string name="pop_to_prefix" msgid="4288884615669751608">"Hidhu te"</string>
     <string name="pop_to_title" msgid="3924696281273379455">"Hidhu te demonstrimi"</string>
     <string name="package_not_found_error_msg" msgid="7525619456883627939">"Paketa nuk u gjet."</string>
@@ -264,6 +264,7 @@
     <string name="tab_title_list" msgid="5104962518489668123">"Skeda e listës"</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"Skeda e rrjetës me titull të gjatë skede"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"Skeda e \"Kërko\""</string>
+    <string name="tab_title_loading" msgid="5385807479734490989">"Skeda po ngarkohet"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"Demonstrimi i ngarkimit të shabllonit të skedës"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"Demonstrimi i shabllonit të skedës pa skeda"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"Imazhet nuk mund të shfaqen për një organizator të panjohur"</string>
@@ -298,7 +299,7 @@
     <string name="some_additional_text" msgid="4009872495806318260">"Pak tekst shtesë"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"Shabllon i listës së zgjedhshme"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"Demonstrimi i kufizimit të detyrës"</string>
-    <string name="task_limit_reached_msg" msgid="6038763366777119364">"U arrit kufiri i detyrës\nVazhdimi përpara do ta ndalojë aplikacionin me forcë"</string>
+    <string name="task_limit_reached_msg" msgid="7162842196382260992">"Kjo do të tejkalojë numërimin e hapave dhe do të të çojë në një ekran të ri."</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"Hapi i detyrës: %1$d nga %2$d"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"Kliko për të vazhduar përpara"</string>
     <string name="task_content_allowed" msgid="545061986612431190">"Vizito shabllonet e ndryshme dhe sigurohu që makina të jetë në modalitetin e lëvizjes"</string>
@@ -323,6 +324,12 @@
     <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"Rreshti mund të zgjidhet gjithashtu"</string>
     <string name="secondary_action_toast" msgid="5076434693504006565">"U zgjodh veprimi dytësor"</string>
     <string name="row_primary_action_toast" msgid="756516694751965204">"U zgjodh veprimi kryesor i rreshtit"</string>
+    <string name="sectioned_item_list_demo_title" msgid="1236735461225007729">"Demonstrimi i listës me artikuj me seksione"</string>
+    <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"Lista 1"</string>
+    <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"Lista 2"</string>
+    <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"Nënteksti poshtë çdo liste"</string>
+    <string name="empty_list_demo_title" msgid="5989013634820902455">"Boshatis listën e demonstrimit"</string>
+    <string name="empty_list_message" msgid="5331395517560728138">"Lista është bosh"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"Demonstrime shabllonesh të ndryshme"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"Demonstrime të prezantimit"</string>
     <string name="template_layouts_demo_title" msgid="788249269446087847">"Demonstrimet e strukturës së shabllonit"</string>

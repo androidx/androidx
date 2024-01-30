@@ -192,6 +192,11 @@ public class StopwatchTest {
                 .isEqualTo(1100);
         assertThat(genericDocument.getPropertyDocumentArray("laps")).asList().containsExactly(
                 GenericDocument.fromDocumentClass(lap1), GenericDocument.fromDocumentClass(lap2));
+
+        // Test that toDocumentClass doesn't lose information.
+        GenericDocument newGenericDocument = GenericDocument.fromDocumentClass(
+                genericDocument.toDocumentClass(Stopwatch.class));
+        assertThat(newGenericDocument).isEqualTo(genericDocument);
     }
 
     @Test
@@ -202,5 +207,10 @@ public class StopwatchTest {
 
         GenericDocument genericDocument = GenericDocument.fromDocumentClass(stopwatch);
         assertThat(genericDocument.getPropertyDocumentArray("laps")).asList().isEmpty();
+
+        // Test that toDocumentClass doesn't lose information.
+        GenericDocument newGenericDocument = GenericDocument.fromDocumentClass(
+                genericDocument.toDocumentClass(Stopwatch.class));
+        assertThat(newGenericDocument).isEqualTo(genericDocument);
     }
 }

@@ -243,7 +243,7 @@
     <string name="sign_in_template_not_supported_text" msgid="7184733753948837646">"Host ne podržava šablon za prijavljivanje"</string>
     <string name="sign_in_template_not_supported_title" msgid="4892883228898541764">"Nekompatibilan host"</string>
     <string name="email_hint" msgid="7205549445477319606">"Imejl"</string>
-    <string name="sign_in_title" msgid="4551967308262681703">"Prijavite se"</string>
+    <string name="sign_in_title" msgid="4551967308262681703">"Prijavi me"</string>
     <string name="sign_in_instructions" msgid="9044850228284294762">"Unesite akreditive"</string>
     <string name="invalid_email_error_msg" msgid="5261362663718987167">"Korisničko ime mora da bude važeća imejl adresa"</string>
     <string name="invalid_length_error_msg" msgid="8238905276326976425">"Najmanji broj znakova u korisničkom imenu je %s"</string>
@@ -264,6 +264,7 @@
     <string name="tab_title_list" msgid="5104962518489668123">"Kartica liste"</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"Kartica sa rešetkom i dugačkim naslovom"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"Kartica pretrage"</string>
+    <string name="tab_title_loading" msgid="5385807479734490989">"Učitava se kartica"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"Demonstracija učitavanja šablona kartice"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"Demonstracija šablona kartice kada nema kartica"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"Slike ne mogu da se prikazuju za nepoznat host"</string>
@@ -298,7 +299,7 @@
     <string name="some_additional_text" msgid="4009872495806318260">"Dodatni tekst"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"Primer liste koja može da se izabere"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"Demonstracija ograničenja za zadatke"</string>
-    <string name="task_limit_reached_msg" msgid="6038763366777119364">"Dostignuto je ograničenje zadataka\nAko nastavite, aplikacija će se prinudno zaustaviti"</string>
+    <string name="task_limit_reached_msg" msgid="7162842196382260992">"Time će se premašiti ograničenje broja koraka i preusmeriće vas na nov ekran."</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"%1$d. korak zadatka od %2$d"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"Kliknite da biste išli napred"</string>
     <string name="task_content_allowed" msgid="545061986612431190">"Posetite različite šablone i uverite se da je automobil u režimu vožnje"</string>
@@ -323,6 +324,12 @@
     <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"Može da se izabere i red"</string>
     <string name="secondary_action_toast" msgid="5076434693504006565">"Sekundarna radnja je izabrana"</string>
     <string name="row_primary_action_toast" msgid="756516694751965204">"Primarna radnja reda je izabrana"</string>
+    <string name="sectioned_item_list_demo_title" msgid="1236735461225007729">"Demonstracija liste za stavke sa odeljcima"</string>
+    <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"Lista 1"</string>
+    <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"Lista 2"</string>
+    <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"Podtekst ispod svake liste"</string>
+    <string name="empty_list_demo_title" msgid="5989013634820902455">"Demonstracija prazne liste"</string>
+    <string name="empty_list_message" msgid="5331395517560728138">"Lista je prazna"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"Demonstracije različitih šablona"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"Demonstracije prikazivanja"</string>
     <string name="template_layouts_demo_title" msgid="788249269446087847">"Demonstracije izgleda šablona"</string>

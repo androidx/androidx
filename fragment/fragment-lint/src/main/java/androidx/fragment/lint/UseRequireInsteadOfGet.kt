@@ -29,6 +29,7 @@ import com.android.tools.lint.detector.api.SourceCodeScanner
 import com.android.tools.lint.detector.api.isKotlin
 import com.intellij.psi.PsiClass
 import com.intellij.psi.PsiMethod
+import java.util.Locale
 import org.jetbrains.uast.UCallExpression
 import org.jetbrains.uast.UElement
 import org.jetbrains.uast.UExpression
@@ -42,7 +43,6 @@ import org.jetbrains.uast.skipParenthesizedExprDown
 import org.jetbrains.uast.skipParenthesizedExprUp
 import org.jetbrains.uast.toUElement
 import org.jetbrains.uast.tryResolve
-import java.util.Locale
 
 /**
  * Androidx added new "require____()" versions of common "get___()" APIs, such as

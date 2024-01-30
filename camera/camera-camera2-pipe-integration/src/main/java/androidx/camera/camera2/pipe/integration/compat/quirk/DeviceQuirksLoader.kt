@@ -33,11 +33,61 @@ object DeviceQuirksLoader {
     fun loadQuirks(): List<Quirk> {
         val quirks: MutableList<Quirk> = mutableListOf()
 
-        // Load all device specific quirks.
-        if (InvalidVideoProfilesQuirk.load()) {
+        // Load all device specific quirks, preferably in lexicographical order
+        if (CloseCameraDeviceOnCameraGraphCloseQuirk.isEnabled()) {
+            quirks.add(CloseCameraDeviceOnCameraGraphCloseQuirk())
+        }
+        if (CloseCaptureSessionOnDisconnectQuirk.isEnabled()) {
+            quirks.add(CloseCaptureSessionOnDisconnectQuirk())
+        }
+        if (CrashWhenTakingPhotoWithAutoFlashAEModeQuirk.isEnabled()) {
+            quirks.add(CrashWhenTakingPhotoWithAutoFlashAEModeQuirk())
+        }
+        if (ControlZoomRatioRangeAssertionErrorQuirk.isEnabled()) {
+            quirks.add(ControlZoomRatioRangeAssertionErrorQuirk())
+        }
+        if (FlashAvailabilityBufferUnderflowQuirk.isEnabled()) {
+            quirks.add(FlashAvailabilityBufferUnderflowQuirk())
+        }
+        if (ImageCapturePixelHDRPlusQuirk.isEnabled()) {
+            quirks.add(ImageCapturePixelHDRPlusQuirk())
+        }
+        if (InvalidVideoProfilesQuirk.isEnabled()) {
             quirks.add(InvalidVideoProfilesQuirk())
         }
-
+        if (ExcludedSupportedSizesQuirk.isEnabled()) {
+            quirks.add(ExcludedSupportedSizesQuirk())
+        }
+        if (ExtraCroppingQuirk.isEnabled()) {
+            quirks.add(ExtraCroppingQuirk())
+        }
+        if (ExtraSupportedOutputSizeQuirk.isEnabled()) {
+            quirks.add(ExtraSupportedOutputSizeQuirk())
+        }
+        if (ExtraSupportedSurfaceCombinationsQuirk.isEnabled()) {
+            quirks.add(ExtraSupportedSurfaceCombinationsQuirk())
+        }
+        if (Nexus4AndroidLTargetAspectRatioQuirk.isEnabled()) {
+            quirks.add(Nexus4AndroidLTargetAspectRatioQuirk())
+        }
+        if (PreviewPixelHDRnetQuirk.isEnabled()) {
+            quirks.add(PreviewPixelHDRnetQuirk())
+        }
+        if (RepeatingStreamConstraintForVideoRecordingQuirk.isEnabled()) {
+            quirks.add(RepeatingStreamConstraintForVideoRecordingQuirk())
+        }
+        if (StillCaptureFlashStopRepeatingQuirk.isEnabled()) {
+            quirks.add(StillCaptureFlashStopRepeatingQuirk())
+        }
+        if (TorchIsClosedAfterImageCapturingQuirk.isEnabled()) {
+            quirks.add(TorchIsClosedAfterImageCapturingQuirk())
+        }
+        if (SurfaceOrderQuirk.isEnabled()) {
+            quirks.add(SurfaceOrderQuirk())
+        }
+        if (CaptureSessionOnClosedNotCalledQuirk.isEnabled()) {
+            quirks.add(CaptureSessionOnClosedNotCalledQuirk())
+        }
         return quirks
     }
 }

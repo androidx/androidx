@@ -23,9 +23,14 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.ParcelFileDescriptor;
+import android.os.RemoteException;
+import android.support.customtabs.ICustomTabsCallback;
+import android.support.customtabs.ICustomTabsService;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
+import org.mockito.Mockito;
 
 import java.io.FileDescriptor;
 import java.io.IOException;
@@ -39,17 +44,98 @@ import java.util.concurrent.TimeUnit;
 
 public class TestCustomTabsService extends CustomTabsService {
     public static final String CALLBACK_BIND_TO_POST_MESSAGE = "BindToPostMessageService";
+    public static final String ALLOWED_TARGET_ORIGIN = "www.example.com";
     private static TestCustomTabsService sInstance;
 
     private final CountDownLatch mFileReceivingLatch = new CountDownLatch(1);
-
     private boolean mPostMessageRequested;
     private CustomTabsSessionToken mSession;
+    private ICustomTabsService mMock;
 
     /** Returns the instance of the Service. Returns null if it hasn't been bound yet. */
     public static TestCustomTabsService getInstance() {
         return sInstance;
     }
+
+    public TestCustomTabsService() {
+        mMock = Mockito.mock(ICustomTabsService.class);
+    }
+
+    private final ICustomTabsService.Stub mWrapper = new ICustomTabsService.Stub() {
+        @Override
+        public boolean warmup(long flags) throws RemoteException {
+            return false;
+        }
+
+        @Override
+        public boolean newSession(ICustomTabsCallback callback) throws RemoteException {
+            return false;
+        }
+
+        @Override
+        public boolean newSessionWithExtras(ICustomTabsCallback callback, Bundle extras)
+                throws RemoteException {
+            return false;
+        }
+
+        @Override
+        public boolean mayLaunchUrl(ICustomTabsCallback callback, Uri url, Bundle extras,
+                List<Bundle> otherLikelyBundles) throws RemoteException {
+            return false;
+        }
+
+        @Override
+        public Bundle extraCommand(String commandName, Bundle args) throws RemoteException {
+            return null;
+        }
+
+        @Override
+        public boolean updateVisuals(ICustomTabsCallback callback, Bundle bundle)
+                throws RemoteException {
+            return false;
+        }
+
+        @Override
+        public boolean requestPostMessageChannel(ICustomTabsCallback callback,
+                Uri postMessageOrigin) throws RemoteException {
+            return false;
+        }
+
+        @Override
+        public boolean requestPostMessageChannelWithExtras(ICustomTabsCallback callback,
+                Uri postMessageOrigin, Bundle extras) throws RemoteException {
+            return false;
+        }
+        @Override
+        public int postMessage(ICustomTabsCallback callback, String message, Bundle extras)
+                throws RemoteException {
+            return 0;
+        }
+
+        @Override
+        public boolean validateRelationship(ICustomTabsCallback callback, int relation, Uri origin,
+                Bundle extras) throws RemoteException {
+            return false;
+        }
+
+        @Override
+        public boolean receiveFile(ICustomTabsCallback callback, Uri uri, int purpose,
+                Bundle extras) throws RemoteException {
+            return false;
+        }
+
+        @Override
+        public boolean isEngagementSignalsApiAvailable(ICustomTabsCallback customTabsCallback,
+                Bundle extras) throws RemoteException {
+            return mMock.isEngagementSignalsApiAvailable(customTabsCallback, extras);
+        }
+
+        @Override
+        public boolean setEngagementSignalsCallback(ICustomTabsCallback customTabsCallback,
+                IBinder callback, Bundle extras) throws RemoteException {
+            return mMock.setEngagementSignalsCallback(customTabsCallback, callback, extras);
+        }
+    };
 
     @NonNull
     @Override
@@ -89,7 +175,16 @@ public class TestCustomTabsService extends CustomTabsService {
     @Override
     protected boolean requestPostMessageChannel(
             @NonNull CustomTabsSessionToken sessionToken, @NonNull Uri postMessageOrigin) {
+        return requestPostMessageChannel(sessionToken, postMessageOrigin, null, new Bundle());
+    }
+
+    @Override
+    protected boolean requestPostMessageChannel(@NonNull CustomTabsSessionToken sessionToken,
+            @NonNull Uri postMessageOrigin, @Nullable Uri postMessageTargetOrigin,
+            @NonNull Bundle extras) {
         if (mSession == null) return false;
+        if (postMessageTargetOrigin != null
+                && !postMessageTargetOrigin.toString().equals(ALLOWED_TARGET_ORIGIN)) return false;
         mPostMessageRequested = true;
         mSession.getCallback().extraCallback(CALLBACK_BIND_TO_POST_MESSAGE, null);
         return true;
@@ -142,5 +237,13 @@ public class TestCustomTabsService extends CustomTabsService {
         } catch (InterruptedException e) {
             return false;
         }
+    }
+
+    /* package */ ICustomTabsService getStub() {
+        return mWrapper;
+    }
+
+    /* package */ ICustomTabsService getMock() {
+        return mMock;
     }
 }

@@ -1,0 +1,64 @@
+/*
+ * Copyright (C) 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import androidx.build.LibraryType
+
+plugins {
+    id("AndroidXPlugin")
+    id("com.android.library")
+    id("AndroidXComposePlugin")
+    id("org.jetbrains.kotlin.android")
+}
+
+dependencies {
+    api(libs.kotlinStdlib)
+    api(libs.kotlinCoroutinesTest)
+    api(project(":glance:glance-testing"))
+    api(project(":glance:glance-appwidget"))
+
+    testImplementation("androidx.core:core:1.7.0")
+    testImplementation("androidx.core:core-ktx:1.7.0")
+    testImplementation(libs.junit)
+    testImplementation(libs.kotlinCoroutinesTest)
+    testImplementation(libs.kotlinTest)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.testCore)
+    testImplementation(libs.testRunner)
+    testImplementation(libs.truth)
+
+    samples(projectOrArtifact(":glance:glance-appwidget-testing:glance-appwidget-testing-samples"))
+}
+
+android {
+    testOptions {
+        unitTests {
+            includeAndroidResources = true
+        }
+    }
+
+    defaultConfig {
+        minSdkVersion 23
+    }
+    namespace "androidx.glance.appwidget.testing"
+}
+
+androidx {
+    name = "androidx.glance:glance-appwidget-testing"
+    type = LibraryType.PUBLISHED_LIBRARY
+    targetsJavaConsumers = false
+    inceptionYear = "2023"
+    description = "This library provides APIs for developers to use for testing their appWidget specific Glance composables."
+}

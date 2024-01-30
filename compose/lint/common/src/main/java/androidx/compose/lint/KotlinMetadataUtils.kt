@@ -54,14 +54,13 @@ private fun PsiClass.getKmDeclarationContainer(): KmDeclarationContainer? {
     } ?: return null
 
     val metadata = KotlinClassMetadata.read(classKotlinMetadataPsiAnnotation.toMetadataAnnotation())
-        ?: return null
 
     return when (metadata) {
-        is KotlinClassMetadata.Class -> metadata.toKmClass()
-        is KotlinClassMetadata.FileFacade -> metadata.toKmPackage()
+        is KotlinClassMetadata.Class -> metadata.kmClass
+        is KotlinClassMetadata.FileFacade -> metadata.kmPackage
         is KotlinClassMetadata.SyntheticClass -> null
         is KotlinClassMetadata.MultiFileClassFacade -> null
-        is KotlinClassMetadata.MultiFileClassPart -> metadata.toKmPackage()
+        is KotlinClassMetadata.MultiFileClassPart -> metadata.kmPackage
         is KotlinClassMetadata.Unknown -> null
     }
 }
@@ -129,8 +128,8 @@ private fun KmDeclarationContainer.findKmFunctionForPsiMethod(method: PsiMethod)
 
     return functions.find {
         it.name == expectedName && (
-            it.signature?.desc == expectedSignature ||
-                it.signature?.desc == expectedSignatureConvertedFromUnitToVoid
+            it.signature?.descriptor == expectedSignature ||
+                it.signature?.descriptor == expectedSignatureConvertedFromUnitToVoid
         )
     }
 }

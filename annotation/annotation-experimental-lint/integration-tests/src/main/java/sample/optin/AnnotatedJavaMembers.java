@@ -38,6 +38,11 @@ class AnnotatedJavaMembers {
         return -1;
     }
 
+    @ExperimentalJavaAnnotation
+    public int getAccessor() {
+        return -1;
+    }
+
     public int getFieldWithSetMarker() {
         return mFieldWithSetMarker;
     }

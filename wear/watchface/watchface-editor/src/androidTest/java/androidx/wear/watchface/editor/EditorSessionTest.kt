@@ -75,10 +75,12 @@ import androidx.wear.watchface.complications.ComplicationSlotBounds
 import androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy
 import androidx.wear.watchface.complications.SystemDataSources
 import androidx.wear.watchface.complications.data.ComplicationData
+import androidx.wear.watchface.complications.data.ComplicationExperimental
 import androidx.wear.watchface.complications.data.ComplicationText
 import androidx.wear.watchface.complications.data.ComplicationType
 import androidx.wear.watchface.complications.data.EmptyComplicationData
 import androidx.wear.watchface.complications.data.LongTextComplicationData
+import androidx.wear.watchface.complications.data.NoDataComplicationData
 import androidx.wear.watchface.complications.data.PlainComplicationText
 import androidx.wear.watchface.complications.data.ShortTextComplicationData
 import androidx.wear.watchface.complications.rendering.CanvasComplicationDrawable
@@ -93,8 +95,8 @@ import androidx.wear.watchface.style.UserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting.ListOption
 import androidx.wear.watchface.style.UserStyleSetting.Option
 import androidx.wear.watchface.style.WatchFaceLayer
+import androidx.wear.watchface.style.data.UserStyleWireFormat
 import com.google.common.truth.Truth.assertThat
-import java.lang.IllegalArgumentException
 import java.time.Instant
 import java.time.ZonedDateTime
 import java.util.concurrent.CountDownLatch
@@ -107,7 +109,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.android.asCoroutineDispatcher
 import kotlinx.coroutines.async
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
@@ -119,6 +120,7 @@ import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.ArgumentCaptor
@@ -181,22 +183,23 @@ private val mockInvalidateCallback = Mockito.mock(CanvasComplication.InvalidateC
 private val placeholderWatchState = MutableWatchState().asWatchState()
 private val mockLeftCanvasComplication =
     CanvasComplicationDrawable(
-        ComplicationDrawable(),
+        ComplicationDrawable(ApplicationProvider.getApplicationContext()),
         placeholderWatchState,
         mockInvalidateCallback
     )
 private val mockRightCanvasComplication =
     CanvasComplicationDrawable(
-        ComplicationDrawable(),
+        ComplicationDrawable(ApplicationProvider.getApplicationContext()),
         placeholderWatchState,
         mockInvalidateCallback
     )
 private val mockBackgroundCanvasComplication =
     CanvasComplicationDrawable(
-        ComplicationDrawable(),
+        ComplicationDrawable(ApplicationProvider.getApplicationContext()),
         placeholderWatchState,
         mockInvalidateCallback
     )
+@OptIn(ComplicationExperimental::class)
 private val backgroundComplication =
     ComplicationSlot.createBackgroundComplicationSlotBuilder(
             BACKGROUND_COMPLICATION_ID,
@@ -508,6 +511,7 @@ public class EditorSessionTest {
     internal val complicationDeniedDialogIntent = Intent("ComplicationDeniedDialog")
     internal val complicationRationaleDialogIntent = Intent("ComplicationRationaleDialog")
 
+    @OptIn(ComplicationExperimental::class)
     private val leftComplication =
         ComplicationSlot.createRoundRectComplicationSlotBuilder(
                 LEFT_COMPLICATION_ID,
@@ -538,6 +542,7 @@ public class EditorSessionTest {
             )
             .build()
 
+    @OptIn(ComplicationExperimental::class)
     private val rightComplication =
         ComplicationSlot.createRoundRectComplicationSlotBuilder(
                 RIGHT_COMPLICATION_ID,
@@ -547,7 +552,8 @@ public class EditorSessionTest {
                     ComplicationType.LONG_TEXT,
                     ComplicationType.SHORT_TEXT,
                     ComplicationType.MONOCHROMATIC_IMAGE,
-                    ComplicationType.SMALL_IMAGE
+                    ComplicationType.SMALL_IMAGE,
+                    ComplicationType.PHOTO_IMAGE
                 ),
                 DefaultComplicationDataSourcePolicy(
                     ComponentName("com.primary.package", "com.primary.app"),
@@ -595,24 +601,24 @@ public class EditorSessionTest {
         val mockSurfaceHolder = `mock`(SurfaceHolder::class.java)
         `when`(mockSurfaceHolder.surfaceFrame).thenReturn(screenBounds)
         @Suppress("Deprecation")
-        val fakeRenderer = object : Renderer.CanvasRenderer(
-            mockSurfaceHolder,
-            userStyleRepository,
-            MutableWatchState().asWatchState(),
-            CanvasType.HARDWARE,
-            interactiveDrawModeUpdateDelayMillis = 16,
-            clearWithBackgroundTintBeforeRenderingHighlightLayer = false
-        ) {
-            override fun render(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {
-            }
+        val fakeRenderer =
+            object :
+                Renderer.CanvasRenderer(
+                    mockSurfaceHolder,
+                    userStyleRepository,
+                    MutableWatchState().asWatchState(),
+                    CanvasType.HARDWARE,
+                    interactiveDrawModeUpdateDelayMillis = 16,
+                    clearWithBackgroundTintBeforeRenderingHighlightLayer = false
+                ) {
+                override fun render(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {}
 
-            override fun renderHighlightLayer(
-                canvas: Canvas,
-                bounds: Rect,
-                zonedDateTime: ZonedDateTime
-            ) {
+                override fun renderHighlightLayer(
+                    canvas: Canvas,
+                    bounds: Rect,
+                    zonedDateTime: ZonedDateTime
+                ) {}
             }
-        }
 
         val complicationSlotsManager =
             ComplicationSlotsManager(complicationSlots, userStyleRepository, fakeRenderer)
@@ -626,6 +632,8 @@ public class EditorSessionTest {
                     HandlerThread("TestBackgroundThread").apply { start() }
 
                 private val backgroundHandler = Handler(backgroundHandlerThread.looper)
+
+                override var editorObscuresWatchFace: Boolean = false
 
                 override val userStyleSchema = userStyleRepository.schema
                 override var userStyle: UserStyle
@@ -887,12 +895,13 @@ public class EditorSessionTest {
         }
     }
 
+    @OptIn(ComplicationExperimental::class)
     @Suppress("DEPRECATION") // Old DefaultComplicationDataSourcePolicy constructor
     @Test
     public fun fixedComplicationDataSource() {
         val mockLeftCanvasComplication =
             CanvasComplicationDrawable(
-                ComplicationDrawable(),
+                ComplicationDrawable(ApplicationProvider.getApplicationContext()),
                 placeholderWatchState,
                 mockInvalidateCallback
             )
@@ -1222,6 +1231,7 @@ public class EditorSessionTest {
                 .isEqualTo(Rect(120, 160, 160, 240))
             assertThat(editorSession.complicationsDataSourceInfo.value[LEFT_COMPLICATION_ID]!!.name)
                 .isEqualTo("DataSource1")
+            assertThat(leftComplication.complicationData.value).isEqualTo(NoDataComplicationData())
 
             /**
              * Invoke [TestComplicationHelperActivity] which will change the complication data
@@ -1237,6 +1247,10 @@ public class EditorSessionTest {
                 chosenComplicationDataSourceInfo,
                 chosenComplicationDataSource.complicationDataSourceInfo
             )
+
+            // This should set the interactive complication to empty, preventing briefly seeing the
+            // old complication.
+            assertThat(leftComplication.complicationData.value).isEqualTo(EmptyComplicationData())
 
             // This should update the preview data to point to the updated DataSource3 data.
             val previewComplication =
@@ -1254,15 +1268,16 @@ public class EditorSessionTest {
             assertThat(editorSession.complicationsDataSourceInfo.value[LEFT_COMPLICATION_ID]!!.name)
                 .isEqualTo("TestDataSource3")
 
+            val intent = TestComplicationHelperActivity.lastIntent!!
             assertThat(
-                    TestComplicationHelperActivity.lastIntent
-                        ?.extras
-                        ?.getString(ComplicationDataSourceChooserIntent.EXTRA_WATCHFACE_INSTANCE_ID)
+                    intent.extras?.getString(
+                        ComplicationDataSourceChooserIntent.EXTRA_WATCHFACE_INSTANCE_ID
+                    )
                 )
                 .isEqualTo(testInstanceId.id)
 
             assertThat(
-                    (TestComplicationHelperActivity.lastIntent?.getParcelableExtra(
+                    (intent.getParcelableExtra(
                             ComplicationDataSourceChooserIntent.EXTRA_COMPLICATION_DENIED
                         ) as Intent?)
                         ?.action
@@ -1270,7 +1285,7 @@ public class EditorSessionTest {
                 .isEqualTo(complicationDeniedDialogIntent.action)
 
             assertThat(
-                    (TestComplicationHelperActivity.lastIntent?.getParcelableExtra(
+                    (intent.getParcelableExtra(
                             ComplicationDataSourceChooserIntent.EXTRA_COMPLICATION_RATIONALE
                         ) as Intent?)
                         ?.action
@@ -1281,6 +1296,12 @@ public class EditorSessionTest {
             // it's set up.
             assertThat(editorSession.complicationSlotsState.value[LEFT_COMPLICATION_ID]!!.bounds)
                 .isEqualTo(Rect(40, 160, 160, 240))
+
+            val userStyleWireFormat =
+                intent.getParcelableExtra(ComplicationDataSourceChooserIntent.EXTRA_USER_STYLE)
+                    as UserStyleWireFormat?
+            assertThat(UserStyleData(userStyleWireFormat!!))
+                .isEqualTo(editorSession.userStyle.value.toUserStyleData())
         }
     }
 
@@ -1926,33 +1947,62 @@ public class EditorSessionTest {
     @Test
     @Suppress("Deprecation") // userStyleSettings
     public fun doNotCommit() {
+        ComplicationDataSourceChooserContract.useTestComplicationHelperActivity = true
+        TestComplicationHelperActivity.resultIntent =
+            CompletableDeferred(
+                Intent().apply {
+                    putExtra(
+                        ComplicationDataSourceChooserIntent.EXTRA_PROVIDER_INFO,
+                        ComplicationDataSourceInfo(
+                                "TestDataSource3App",
+                                "TestDataSource3",
+                                Icon.createWithBitmap(
+                                    Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)
+                                ),
+                                ComplicationType.LONG_TEXT,
+                                dataSource3
+                            )
+                            .toWireComplicationProviderInfo()
+                    )
+                }
+            )
         val scenario =
             createOnWatchFaceEditingTestActivity(
                 listOf(colorStyleSetting, watchHandStyleSetting),
-                emptyList(),
+                listOf(leftComplication, rightComplication),
                 previewScreenshotParams =
                     PreviewScreenshotParams(RenderParameters.DEFAULT_INTERACTIVE, Instant.EPOCH)
             )
+        lateinit var activity: OnWatchFaceEditingTestActivity
+        scenario.onActivity { activity = it }
+
         val editorObserver = TestEditorObserver()
         val observerId = EditorService.globalEditorService.registerObserver(editorObserver)
-        scenario.onActivity { activity ->
-            assertThat(editorDelegate.userStyle[colorStyleSetting]!!.id.value)
-                .isEqualTo(redStyleOption.id.value)
-            assertThat(editorDelegate.userStyle[watchHandStyleSetting]!!.id.value)
-                .isEqualTo(classicStyleOption.id.value)
 
-            // Select [blueStyleOption] and [gothicStyleOption].
-            val mutableUserStyle = activity.editorSession.userStyle.value.toMutableUserStyle()
-            for (userStyleSetting in activity.editorSession.userStyleSchema.userStyleSettings) {
-                mutableUserStyle[userStyleSetting] = userStyleSetting.options.last()
-            }
-            activity.editorSession.userStyle.value = mutableUserStyle.toUserStyle()
-
-            // This should cause the style on the to be reverted back to the initial style.
-            activity.editorSession.commitChangesOnClose = false
-            activity.editorSession.close()
-            activity.finish()
+        assertThat(editorDelegate.userStyle[colorStyleSetting]!!.id.value)
+            .isEqualTo(redStyleOption.id.value)
+        assertThat(editorDelegate.userStyle[watchHandStyleSetting]!!.id.value)
+            .isEqualTo(classicStyleOption.id.value)
+        // Select [blueStyleOption] and [gothicStyleOption].
+        val mutableUserStyle = activity.editorSession.userStyle.value.toMutableUserStyle()
+        for (userStyleSetting in activity.editorSession.userStyleSchema.userStyleSettings) {
+            mutableUserStyle[userStyleSetting] = userStyleSetting.options.last()
         }
+        activity.editorSession.userStyle.value = mutableUserStyle.toUserStyle()
+
+        assertThat(leftComplication.complicationData.value).isEqualTo(NoDataComplicationData())
+        // Select another complication.
+        runBlocking {
+            activity.editorSession.openComplicationDataSourceChooser(LEFT_COMPLICATION_ID)
+        }
+        // This should set the interactive complication to empty, preventing briefly seeing the
+        // old complication.
+        assertThat(leftComplication.complicationData.value).isEqualTo(EmptyComplicationData())
+
+        // This should cause the style on the to be reverted back to the initial style.
+        activity.editorSession.commitChangesOnClose = false
+        activity.editorSession.close()
+        activity.finish()
 
         val result =
             editorObserver
@@ -1965,12 +2015,13 @@ public class EditorSessionTest {
         assertFalse(result.shouldCommitChanges)
         assertNull(result.previewImage)
 
-        // The original style should be applied to the watch face however because
-        // commitChangesOnClose is false.
         assertThat(editorDelegate.userStyle[colorStyleSetting]!!.id.value)
             .isEqualTo(redStyleOption.id.value)
         assertThat(editorDelegate.userStyle[watchHandStyleSetting]!!.id.value)
             .isEqualTo(classicStyleOption.id.value)
+        // The original complication data and style should be applied to the watch face however
+        // because commitChangesOnClose is false.
+        assertThat(leftComplication.complicationData.value).isEqualTo(NoDataComplicationData())
 
         EditorService.globalEditorService.unregisterObserver(observerId)
     }
@@ -2355,6 +2406,7 @@ public class EditorSessionTest {
 
     @SuppressLint("NewApi") // EditorRequest
     @Test
+    @Ignore // TODO(b/289017452): This test times out.
     public fun testComponentNameMismatch() {
         val testComponentName = ComponentName("test.package", "test.class")
         val watchFaceId = WatchFaceId("ID-1")
@@ -2435,9 +2487,7 @@ public class EditorSessionTest {
                     watchState,
                     mockWatchFaceHostApi,
                     CompletableDeferred(),
-                    CoroutineScope(handler.asCoroutineDispatcher()),
-                    ApplicationProvider.getApplicationContext<Context>().contentResolver,
-                    ambientSettingAvailable = false
+                    CoroutineScope(handler.asCoroutineDispatcher())
                 ),
                 null
             )

@@ -264,6 +264,7 @@
     <string name="tab_title_list" msgid="5104962518489668123">"பட்டியல் டேப் (Tab)"</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"நீண்ட தலைப்புள்ள கட்டமான டேப் (Tab)"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"தேடல் டேப் (Tab)"</string>
+    <string name="tab_title_loading" msgid="5385807479734490989">"பிரிவை ஏற்றுகிறது"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"டேப் (Tab) ஏற்றும்போதுள்ள டெம்ப்ளேட் டெமோ"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"டேப் (Tab)  இல்லாதபோதுள்ள டெம்ப்ளேட் டேப்கள் டெமோ"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"அறியப்படாத ஹோஸ்ட்டிற்குப் படங்கள் காட்டப்படாது"</string>
@@ -298,7 +299,7 @@
     <string name="some_additional_text" msgid="4009872495806318260">"சில கூடுதல் உரை"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"தேர்ந்தெடுக்கக்கூடிய மாதிரிப் பட்டியல்"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"பணிக் கட்டுப்பாட்டின் டெமோ"</string>
-    <string name="task_limit_reached_msg" msgid="6038763366777119364">"பணி வரம்பை எட்டிவிட்டது.\nமேலும் தொடர்ந்தால் ஆப்ஸ் உடனே நிறுத்தப்படும்"</string>
+    <string name="task_limit_reached_msg" msgid="7162842196382260992">"இது சில படிகளைக் கடந்து புதிய திரைக்கு அழைத்துச் செல்லும்."</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"%1$d / %2$d படியை எடுங்கள்"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"முன்னேறிச் செல்ல கிளிக் செய்யவும்"</string>
     <string name="task_content_allowed" msgid="545061986612431190">"வெவ்வேறு டெம்ப்ளேட்களைப் பாருங்கள். கார் \'வாகனம் ஓட்டும் பயன்முறையில்\' இருப்பதை உறுதிசெய்துகொள்ளுங்கள்."</string>
@@ -323,6 +324,12 @@
     <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"வரிசையையும் தேர்ந்தெடுக்க முடியும்"</string>
     <string name="secondary_action_toast" msgid="5076434693504006565">"இரண்டாம்நிலைச் செயல் தேர்ந்தெடுக்கப்பட்டது"</string>
     <string name="row_primary_action_toast" msgid="756516694751965204">"வரிசையின் முதன்மைச் செயல் தேர்ந்தெடுக்கப்பட்டது"</string>
+    <string name="sectioned_item_list_demo_title" msgid="1236735461225007729">"பிரிக்கப்பட்ட உருப்படி பட்டியலின் டெமோ"</string>
+    <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"பட்டியல் 1"</string>
+    <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"பட்டியல் 2"</string>
+    <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"ஒவ்வொரு பட்டியலுக்கும் கீழுள்ள சுருக்க விவரம்"</string>
+    <string name="empty_list_demo_title" msgid="5989013634820902455">"காலிப் பட்டியலுக்கான டெமோ"</string>
+    <string name="empty_list_message" msgid="5331395517560728138">"பட்டியல் காலியாக உள்ளது"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"மற்ற டெம்ப்ளேட்டுகளின் டெமோக்கள்"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"ஷோகேஸின் டெமோக்கள்"</string>
     <string name="template_layouts_demo_title" msgid="788249269446087847">"டெம்ப்ளேட் தளவமைப்பின் டெமோக்கள்"</string>

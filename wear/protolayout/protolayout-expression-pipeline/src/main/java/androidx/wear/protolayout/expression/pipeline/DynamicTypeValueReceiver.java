@@ -17,7 +17,6 @@
 package androidx.wear.protolayout.expression.pipeline;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
 
 /**
  * Callback for an evaluation result. This is intended to support two-step updates; first a
@@ -26,29 +25,12 @@ import androidx.annotation.RestrictTo;
  * their updates if they depend on two or more evaluation result items, rather than updating
  * multiple times (with potentially invalid states).
  *
- * <p>It is guaranteed that for any given batch evaluation result, {@link #onPreUpdate()} will be
- * called on all listeners before any {@link #onData} calls are fired.
- *
  * @param <T> Data type.
  */
 public interface DynamicTypeValueReceiver<T> {
     /**
-     * Called when evaluation result for the dynamic type that this callback was registered for is
-     * about to be updated. This allows a downstream consumer to properly synchronize updates if it
-     * depends on two or more evaluation result items. In that case, it should use this call to
-     * figure out how many of its dependencies are going to be updated, and wait for all of them to
-     * be updated (via {@link DynamicTypeValueReceiver#onData(T)}) before acting on the change.
-     *
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    void onPreUpdate();
-
-    /**
      * Called when the dynamic type that this callback was registered for has a new evaluation
      * result.
-     *
-     * @see DynamicTypeValueReceiver#onPreUpdate()
      */
     void onData(@NonNull T newData);
 

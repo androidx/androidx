@@ -53,7 +53,6 @@ public final class AutomotiveCarHardwareManager implements CarHardwareManager {
         mCarClimate = new AutomotiveCarClimate(mPropertyManager);
     }
 
-    /** @hide */
     @RestrictTo(LIBRARY_GROUP)
     public AutomotiveCarHardwareManager(@NonNull CarContext context,
             @NonNull HostDispatcher dispatcher) {

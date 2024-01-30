@@ -35,7 +35,6 @@ import androidx.car.app.utils.RemoteUtils;
 /**
  * Implementation class for {@link OnContentRefreshListener}.
  *
- * @hide
  */
 @RestrictTo(LIBRARY)
 @CarProtocol

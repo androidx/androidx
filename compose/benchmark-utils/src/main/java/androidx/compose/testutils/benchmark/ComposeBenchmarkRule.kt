@@ -17,6 +17,8 @@
 package androidx.compose.testutils.benchmark
 
 import androidx.activity.ComponentActivity
+import androidx.benchmark.ExperimentalBenchmarkConfigApi
+import androidx.benchmark.MicrobenchmarkConfig
 import androidx.benchmark.junit4.BenchmarkRule
 import androidx.benchmark.junit4.measureRepeated
 import androidx.compose.testutils.ComposeBenchmarkScope
@@ -32,12 +34,31 @@ import org.junit.runners.model.Statement
 /**
  * Rule to be used to run Compose / Android benchmarks.
  */
-class ComposeBenchmarkRule : TestRule {
+@OptIn(ExperimentalBenchmarkConfigApi::class)
+class ComposeBenchmarkRule internal constructor(
+    // this is a hack to avoid exposing the config param to all callers,
+    // can change to optional when MicrobenchmarkConfig is non-experimental
+    internalConfig: MicrobenchmarkConfig? = null,
+    // used to differentiate signature for internal constructor
+    @Suppress("UNUSED_PARAMETER") ignored: Int = 0
+) : TestRule {
+
+    constructor(config: MicrobenchmarkConfig) : this(internalConfig = config)
+
+    // Explicit constructor without config arg
+    constructor() : this(internalConfig = null)
+
     @Suppress("DEPRECATION")
     private val activityTestRule =
         androidx.test.rule.ActivityTestRule(ComponentActivity::class.java)
 
-    val benchmarkRule = BenchmarkRule()
+    // We don't use the config default constructor as a default, as it overrides values from
+    // instrumentation args, which may be surprising
+    val benchmarkRule = if (internalConfig == null) {
+        BenchmarkRule()
+    } else {
+        BenchmarkRule(internalConfig)
+    }
 
     override fun apply(base: Statement, description: Description?): Statement {
         @OptIn(InternalTestApi::class)
@@ -73,6 +94,7 @@ class ComposeBenchmarkRule : TestRule {
                 block(runner)
             } finally {
                 runner.disposeContent()
+                runner.close()
             }
         }
     }

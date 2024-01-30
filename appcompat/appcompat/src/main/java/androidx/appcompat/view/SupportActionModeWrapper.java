@@ -37,7 +37,6 @@ import java.util.ArrayList;
  * Wraps a support {@link androidx.appcompat.view.ActionMode} as a framework
  * {@link android.view.ActionMode}.
  *
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public class SupportActionModeWrapper extends ActionMode {
@@ -137,7 +136,6 @@ public class SupportActionModeWrapper extends ActionMode {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static class CallbackWrapper implements androidx.appcompat.view.ActionMode.Callback {

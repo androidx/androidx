@@ -35,7 +35,6 @@ public class TorchState {
     }
 
     /**
-     * @hide
      */
     @IntDef({OFF, ON})
     @Retention(RetentionPolicy.SOURCE)

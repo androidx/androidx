@@ -41,7 +41,6 @@ import androidx.emoji.text.EmojiSpan;
  * When used on devices running API 18 or below, this widget acts as a {@link ExtractEditText} and
  * does not provide any emoji compatibility feature.
  *
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public class EmojiExtractEditText extends ExtractEditText {

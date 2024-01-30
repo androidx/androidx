@@ -20,6 +20,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.test.filters.MediumTest
 import androidx.testutils.MainDispatcherRule
 import com.google.common.truth.Truth.assertThat
+import kotlin.coroutines.ContinuationInterceptor
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -33,7 +34,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
-import kotlin.coroutines.ContinuationInterceptor
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @MediumTest

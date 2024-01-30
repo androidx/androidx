@@ -26,7 +26,6 @@ import androidx.annotation.RestrictTo;
  * Customized FrameLayout excludes margin of child from calculating the child size.
  * So we can change left margin of rows while keep the width of rows unchanged without
  * using hardcoded DIPS.
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public class BrowseRowsFrameLayout extends FrameLayout {

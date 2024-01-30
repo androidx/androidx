@@ -42,7 +42,7 @@ internal actual fun CursorHandle(
     content: @Composable (() -> Unit)?
 ) {
     HandlePopup(
-        position = handlePosition,
+        positionProvider = { handlePosition },
         handleReferencePoint = HandleReferencePoint.TopMiddle
     ) {
         if (content == null) {
@@ -59,7 +59,6 @@ internal fun DefaultCursorHandle(modifier: Modifier) {
     Spacer(modifier.size(CursorHandleWidth, CursorHandleHeight).drawCursorHandle())
 }
 
-@Suppress("ModifierInspectorInfo")
 internal fun Modifier.drawCursorHandle() = composed {
     val handleColor = LocalTextSelectionColors.current.handleColor
     this.then(

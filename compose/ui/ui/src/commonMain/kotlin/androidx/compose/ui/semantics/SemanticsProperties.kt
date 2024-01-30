@@ -36,7 +36,7 @@ object SemanticsProperties {
     /**
      * @see SemanticsPropertyReceiver.contentDescription
      */
-    val ContentDescription = SemanticsPropertyKey<List<String>>(
+    val ContentDescription = AccessibilityKey<List<String>>(
         name = "ContentDescription",
         mergePolicy = { parentValue, childValue ->
             parentValue?.toMutableList()?.also { it.addAll(childValue) } ?: childValue
@@ -46,18 +46,18 @@ object SemanticsProperties {
     /**
      * @see SemanticsPropertyReceiver.stateDescription
      */
-    val StateDescription = SemanticsPropertyKey<String>("StateDescription")
+    val StateDescription = AccessibilityKey<String>("StateDescription")
 
     /**
      * @see SemanticsPropertyReceiver.progressBarRangeInfo
      */
     val ProgressBarRangeInfo =
-        SemanticsPropertyKey<ProgressBarRangeInfo>("ProgressBarRangeInfo")
+        AccessibilityKey<ProgressBarRangeInfo>("ProgressBarRangeInfo")
 
     /**
      * @see SemanticsPropertyReceiver.paneTitle
      */
-    val PaneTitle = SemanticsPropertyKey<String>(
+    val PaneTitle = AccessibilityKey<String>(
         name = "PaneTitle",
         mergePolicy = { _, _ ->
             throw IllegalStateException(
@@ -67,38 +67,47 @@ object SemanticsProperties {
     )
 
     /** @see SemanticsPropertyReceiver.selectableGroup */
-    val SelectableGroup = SemanticsPropertyKey<Unit>("SelectableGroup")
+    val SelectableGroup = AccessibilityKey<Unit>("SelectableGroup")
 
     /** @see SemanticsPropertyReceiver.collectionInfo */
-    val CollectionInfo = SemanticsPropertyKey<CollectionInfo>("CollectionInfo")
+    val CollectionInfo = AccessibilityKey<CollectionInfo>("CollectionInfo")
 
     /** @see SemanticsPropertyReceiver.collectionItemInfo */
-    val CollectionItemInfo = SemanticsPropertyKey<CollectionItemInfo>("CollectionItemInfo")
+    val CollectionItemInfo = AccessibilityKey<CollectionItemInfo>("CollectionItemInfo")
 
     /**
      * @see SemanticsPropertyReceiver.heading
      */
-    val Heading = SemanticsPropertyKey<Unit>("Heading")
+    val Heading = AccessibilityKey<Unit>("Heading")
 
     /**
      * @see SemanticsPropertyReceiver.disabled
      */
-    val Disabled = SemanticsPropertyKey<Unit>("Disabled")
+    val Disabled = AccessibilityKey<Unit>("Disabled")
 
     /**
      * @see SemanticsPropertyReceiver.liveRegion
      */
-    val LiveRegion = SemanticsPropertyKey<LiveRegionMode>("LiveRegion")
+    val LiveRegion = AccessibilityKey<LiveRegionMode>("LiveRegion")
 
     /**
      * @see SemanticsPropertyReceiver.focused
      */
-    val Focused = SemanticsPropertyKey<Boolean>("Focused")
+    val Focused = AccessibilityKey<Boolean>("Focused")
 
     /**
      * @see SemanticsPropertyReceiver.isContainer
      */
-    val IsContainer = SemanticsPropertyKey<Boolean>("IsContainer")
+    @Deprecated("Use `isTraversalGroup` instead.",
+        replaceWith = ReplaceWith("IsTraversalGroup"),
+    )
+    val IsContainer: SemanticsPropertyKey<Boolean>
+        get() = IsTraversalGroup
+
+    /**
+     * @see SemanticsPropertyReceiver.isTraversalGroup
+     */
+    val IsTraversalGroup = AccessibilityKey<Boolean>("IsTraversalGroup")
 
     /**
      * @see SemanticsPropertyReceiver.invisibleToUser
@@ -112,21 +121,32 @@ object SemanticsProperties {
     )
 
     /**
+     * @see SemanticsPropertyReceiver.traversalIndex
+     */
+    val TraversalIndex = AccessibilityKey<Float>(
+        name = "TraversalIndex",
+        mergePolicy = { parentValue, _ ->
+            // Never merge traversal indices
+            parentValue
+        }
+    )
+
+    /**
      * @see SemanticsPropertyReceiver.horizontalScrollAxisRange
      */
     val HorizontalScrollAxisRange =
-        SemanticsPropertyKey<ScrollAxisRange>("HorizontalScrollAxisRange")
+        AccessibilityKey<ScrollAxisRange>("HorizontalScrollAxisRange")
 
     /**
      * @see SemanticsPropertyReceiver.verticalScrollAxisRange
      */
     val VerticalScrollAxisRange =
-        SemanticsPropertyKey<ScrollAxisRange>("VerticalScrollAxisRange")
+        AccessibilityKey<ScrollAxisRange>("VerticalScrollAxisRange")
 
     /**
      * @see SemanticsPropertyReceiver.popup
      */
-    val IsPopup = SemanticsPropertyKey<Unit>(
+    val IsPopup = AccessibilityKey<Unit>(
         name = "IsPopup",
         mergePolicy = { _, _ ->
             throw IllegalStateException(
@@ -139,7 +159,7 @@ object SemanticsProperties {
     /**
      * @see SemanticsPropertyReceiver.dialog
      */
-    val IsDialog = SemanticsPropertyKey<Unit>(
+    val IsDialog = AccessibilityKey<Unit>(
         name = "IsDialog",
         mergePolicy = { _, _ ->
             throw IllegalStateException(
@@ -158,13 +178,14 @@ object SemanticsProperties {
      *
      * @see SemanticsPropertyReceiver.role
      */
-    val Role = SemanticsPropertyKey<Role>("Role") { parentValue, _ -> parentValue }
+    val Role = AccessibilityKey<Role>("Role") { parentValue, _ -> parentValue }
 
     /**
      * @see SemanticsPropertyReceiver.testTag
      */
     val TestTag = SemanticsPropertyKey<String>(
         name = "TestTag",
+        isImportantForAccessibility = false,
         mergePolicy = { parentValue, _ ->
             // Never merge TestTags, to avoid leaking internal test tags to parents.
             parentValue
@@ -174,7 +195,7 @@ object SemanticsProperties {
     /**
      * @see SemanticsPropertyReceiver.text
      */
-    val Text = SemanticsPropertyKey<List<AnnotatedString>>(
+    val Text = AccessibilityKey<List<AnnotatedString>>(
         name = "Text",
         mergePolicy = { parentValue, childValue ->
             parentValue?.toMutableList()?.also { it.addAll(childValue) } ?: childValue
@@ -182,39 +203,49 @@ object SemanticsProperties {
     )
 
     /**
+     * @see SemanticsPropertyReceiver.textSubstitution
+     */
+    val TextSubstitution = SemanticsPropertyKey<AnnotatedString>(name = "TextSubstitution")
+
+    /**
+     * @see SemanticsPropertyReceiver.isShowingTextSubstitution
+     */
+    val IsShowingTextSubstitution = SemanticsPropertyKey<Boolean>("IsShowingTextSubstitution")
+
+    /**
      * @see SemanticsPropertyReceiver.editableText
      */
-    val EditableText = SemanticsPropertyKey<AnnotatedString>(name = "EditableText")
+    val EditableText = AccessibilityKey<AnnotatedString>(name = "EditableText")
 
     /**
      * @see SemanticsPropertyReceiver.textSelectionRange
      */
-    val TextSelectionRange = SemanticsPropertyKey<TextRange>("TextSelectionRange")
+    val TextSelectionRange = AccessibilityKey<TextRange>("TextSelectionRange")
 
     /**
-     *  @see SemanticsPropertyReceiver.imeAction
+     * @see SemanticsPropertyReceiver.onImeAction
      */
-    val ImeAction = SemanticsPropertyKey<ImeAction>("ImeAction")
+    val ImeAction = AccessibilityKey<ImeAction>("ImeAction")
 
     /**
      * @see SemanticsPropertyReceiver.selected
      */
-    val Selected = SemanticsPropertyKey<Boolean>("Selected")
+    val Selected = AccessibilityKey<Boolean>("Selected")
 
     /**
      * @see SemanticsPropertyReceiver.toggleableState
      */
-    val ToggleableState = SemanticsPropertyKey<ToggleableState>("ToggleableState")
+    val ToggleableState = AccessibilityKey<ToggleableState>("ToggleableState")
 
     /**
      * @see SemanticsPropertyReceiver.password
      */
-    val Password = SemanticsPropertyKey<Unit>("Password")
+    val Password = AccessibilityKey<Unit>("Password")
 
     /**
      * @see SemanticsPropertyReceiver.error
      */
-    val Error = SemanticsPropertyKey<String>("Error")
+    val Error = AccessibilityKey<String>("Error")
 
     /**
      * @see SemanticsPropertyReceiver.indexForKey
@@ -273,6 +304,31 @@ object SemanticsActions {
     val SetText = ActionPropertyKey<(AnnotatedString) -> Boolean>("SetText")
 
     /**
+     * @see SemanticsPropertyReceiver.setTextSubstitution
+     */
+    val SetTextSubstitution = ActionPropertyKey<(AnnotatedString) -> Boolean>("SetTextSubstitution")
+
+    /**
+     * @see SemanticsPropertyReceiver.showTextSubstitution
+     */
+    val ShowTextSubstitution = ActionPropertyKey<(Boolean) -> Boolean>("ShowTextSubstitution")
+
+    /**
+     * @see SemanticsPropertyReceiver.clearTextSubstitution
+     */
+    val ClearTextSubstitution = ActionPropertyKey<() -> Boolean>("ClearTextSubstitution")
+
+    /**
+     * @see SemanticsPropertyReceiver.insertTextAtCursor
+     */
+    val InsertTextAtCursor = ActionPropertyKey<(AnnotatedString) -> Boolean>("InsertTextAtCursor")
+
+    /**
+     * @see SemanticsPropertyReceiver.onImeAction
+     */
+    val OnImeAction = ActionPropertyKey<() -> Boolean>("PerformImeAction")
+
+    /**
      * @see SemanticsPropertyReceiver.copyText
      */
     val CopyText = ActionPropertyKey<() -> Boolean>("CopyText")
@@ -311,7 +367,7 @@ object SemanticsActions {
      * @see SemanticsPropertyReceiver.customActions
      */
     val CustomActions =
-        SemanticsPropertyKey<List<CustomAccessibilityAction>>("CustomActions")
+        AccessibilityKey<List<CustomAccessibilityAction>>("CustomActions")
 
     /**
      * @see SemanticsPropertyReceiver.pageUp
@@ -348,6 +404,40 @@ class SemanticsPropertyKey<T>(
     }
 ) {
     /**
+     * Whether this type of property provides information relevant to accessibility services.
+     *
+     * Most built-in semantics properties are relevant to accessibility, but a very common
+     * exception is testTag. Nodes with only a testTag still need to be included
+     * in the AccessibilityNodeInfo tree because UIAutomator tests rely on
+     * that, but we mark them `isImportantForAccessibility = false` on the AccessibilityNodeInfo
+     * to inform accessibility services that they are best ignored.
+     *
+     * The default value is false and it is not exposed as a public API. That's because
+     * it is impossible in the first place for `SemanticsPropertyKey`s
+     * defined outside the UI package to be relevant to accessibility, because
+     * for each accessibility-relevant SemanticsProperty type to get plumbed into the
+     * AccessibilityNodeInfo, the private `createNodeInfo` implementation must also have
+     * a line of code.
+     */
+    internal var isImportantForAccessibility = false
+        private set
+
+    internal constructor(
+        name: String,
+        isImportantForAccessibility: Boolean,
+    ) : this(name) {
+        this.isImportantForAccessibility = isImportantForAccessibility
+    }
+
+    internal constructor(
+        name: String,
+        isImportantForAccessibility: Boolean,
+        mergePolicy: (T?, T) -> T?
+    ) : this(name, mergePolicy) {
+        this.isImportantForAccessibility = isImportantForAccessibility
+    }
+
+    /**
      * Method implementing the semantics merge policy of a particular key.
      *
      * When mergeDescendants is set on a semantics node, then this function will called for each
@@ -380,7 +470,7 @@ class SemanticsPropertyKey<T>(
     }
 
     override fun toString(): String {
-        return "SemanticsPropertyKey: $name"
+        return "AccessibilityKey: $name"
     }
 }
 
@@ -422,22 +512,6 @@ class AccessibilityAction<T : Function<Boolean>>(val label: String?, val action:
     override fun toString(): String {
         return "AccessibilityAction(label=$label, action=$action)"
     }
-}
-
-@Suppress("NOTHING_TO_INLINE")
-// inline to break static initialization cycle issue
-private inline fun <T : Function<Boolean>> ActionPropertyKey(
-    name: String
-): SemanticsPropertyKey<AccessibilityAction<T>> {
-    return SemanticsPropertyKey(
-        name = name,
-        mergePolicy = { parentValue, childValue ->
-            AccessibilityAction(
-                parentValue?.label ?: childValue.label,
-                parentValue?.action ?: childValue.action
-            )
-        }
-    )
 }
 
 /**
@@ -772,7 +846,18 @@ var SemanticsPropertyReceiver.focused by SemanticsProperties.Focused
  *
  * @see SemanticsProperties.IsContainer
  */
-var SemanticsPropertyReceiver.isContainer by SemanticsProperties.IsContainer
+@Deprecated("Use `isTraversalGroup` instead.",
+    replaceWith = ReplaceWith("isTraversalGroup"),
+)
+var SemanticsPropertyReceiver.isContainer by SemanticsProperties.IsTraversalGroup
+
+/**
+ * Whether this semantics node is a traversal group. This is defined as a node whose function
+ * is to serve as a boundary or border in organizing its children.
+ *
+ * @see SemanticsProperties.IsTraversalGroup
+ */
+var SemanticsPropertyReceiver.isTraversalGroup by SemanticsProperties.IsTraversalGroup
 
 /**
  * Whether this node is specially known to be invisible to the user.
@@ -790,6 +875,24 @@ var SemanticsPropertyReceiver.isContainer by SemanticsProperties.IsContainer
 fun SemanticsPropertyReceiver.invisibleToUser() {
     this[SemanticsProperties.InvisibleToUser] = Unit
 }
+
+/**
+ * A value to manually control screenreader traversal order.
+ *
+ * This API can be used to customize TalkBack traversal order. When the `traversalIndex` property is
+ * set on a traversalGroup or on a screenreader-focusable node, then the sorting algorithm will
+ * prioritize nodes with smaller `traversalIndex`s earlier. The default traversalIndex value is
+ * zero, and traversalIndices are compared at a peer level.
+ *
+ * For example,` traversalIndex = -1f` can be used to force a top bar to be ordered earlier, and
+ * `traversalIndex = 1f` to make a bottom bar ordered last, in the edge cases where this does not
+ * happen by default.  As another example, if you need to reorder two Buttons within a Row, then
+ * you can set `isTraversalGroup = true` on the Row, and set `traversalIndex` on one of the Buttons.
+ *
+ * Note that if `traversalIndex` seems to have no effect, be sure to set `isTraversalGroup = true`
+ * as well.
+ */
+var SemanticsPropertyReceiver.traversalIndex by SemanticsProperties.TraversalIndex
 
 /**
  * The horizontal scroll state of this node if this node is scrollable.
@@ -852,6 +955,19 @@ var SemanticsPropertyReceiver.text: AnnotatedString
     }
 
 /**
+ * Text substitution of the semantics node. This property is only available after calling
+ * [SemanticsActions.SetTextSubstitution].
+ */
+var SemanticsPropertyReceiver.textSubstitution by SemanticsProperties.TextSubstitution
+
+/**
+ * Whether this element is showing the text substitution. This property is only available after
+ * calling [SemanticsActions.SetTextSubstitution].
+ */
+var SemanticsPropertyReceiver.isShowingTextSubstitution
+    by SemanticsProperties.IsShowingTextSubstitution
+
+/**
  * Input text of the text field with visual transformation applied to it. It must be a real text
  * entered by the user with visual transformation applied on top of the input text instead of a
  * developer-set content description.
@@ -867,7 +983,13 @@ var SemanticsPropertyReceiver.textSelectionRange by SemanticsProperties.TextSele
  * Contains the IME action provided by the node.
  *
  * For example, "go to next form field" or "submit".
+ *
+ * A node that specifies an action should also specify a callback to perform the action via
+ * [onImeAction].
  */
+@Deprecated("Pass the ImeAction to onImeAction instead.")
+@get:Deprecated("Pass the ImeAction to onImeAction instead.")
+@set:Deprecated("Pass the ImeAction to onImeAction instead.")
 var SemanticsPropertyReceiver.imeAction by SemanticsProperties.ImeAction
 
 /**
@@ -1021,13 +1143,101 @@ fun SemanticsPropertyReceiver.setProgress(label: String? = null, action: ((Float
  * Expected to be used on editable text fields.
  *
  * @param label Optional label for this action.
- * @param action Action to be performed when the [SemanticsActions.SetText] is called.
+ * @param action Action to be performed when [SemanticsActions.SetText] is called.
  */
 fun SemanticsPropertyReceiver.setText(
     label: String? = null,
     action: ((AnnotatedString) -> Boolean)?
 ) {
     this[SemanticsActions.SetText] = AccessibilityAction(label, action)
+}
+
+/**
+ * Action to set the text substitution of this node.
+ *
+ * Expected to be used on non-editable text.
+ *
+ * Note, this action doesn't show the text substitution. Please call
+ * [SemanticsPropertyReceiver.showTextSubstitution] to show the text substitution.
+ *
+ * @param label Optional label for this action.
+ * @param action Action to be performed when [SemanticsActions.SetTextSubstitution] is called.
+ */
+fun SemanticsPropertyReceiver.setTextSubstitution(
+    label: String? = null,
+    action: ((AnnotatedString) -> Boolean)?
+) {
+    this[SemanticsActions.SetTextSubstitution] = AccessibilityAction(label, action)
+}
+
+/**
+ * Action to show or hide the text substitution of this node.
+ *
+ * Expected to be used on non-editable text.
+ *
+ * Note, this action only takes effect when the node has the text substitution.
+ *
+ * @param label Optional label for this action.
+ * @param action Action to be performed when [SemanticsActions.ShowTextSubstitution] is called.
+ */
+fun SemanticsPropertyReceiver.showTextSubstitution(
+    label: String? = null,
+    action: ((Boolean) -> Boolean)?
+) {
+    this[SemanticsActions.ShowTextSubstitution] = AccessibilityAction(label, action)
+}
+
+/**
+ * Action to clear the text substitution of this node.
+ *
+ * Expected to be used on non-editable text.
+ *
+ * @param label Optional label for this action.
+ * @param action Action to be performed when [SemanticsActions.ClearTextSubstitution] is called.
+ */
+fun SemanticsPropertyReceiver.clearTextSubstitution(
+    label: String? = null,
+    action: (() -> Boolean)?
+) {
+    this[SemanticsActions.ClearTextSubstitution] = AccessibilityAction(label, action)
+}
+
+/**
+ * Action to insert text into this node at the current cursor position, or replacing the selection
+ * if text is selected.
+ *
+ * Expected to be used on editable text fields.
+ *
+ * @param label Optional label for this action.
+ * @param action Action to be performed when [SemanticsActions.InsertTextAtCursor] is called.
+ */
+fun SemanticsPropertyReceiver.insertTextAtCursor(
+    label: String? = null,
+    action: ((AnnotatedString) -> Boolean)?
+) {
+    this[SemanticsActions.InsertTextAtCursor] = AccessibilityAction(label, action)
+}
+
+/**
+ * Action to invoke the IME action handler configured on the node, as well as specify the type of
+ * IME action provided by the node.
+ *
+ * Expected to be used on editable text fields.
+ *
+ * @param imeActionType The IME type, such as [ImeAction.Next] or [ImeAction.Search]
+ * @param label Optional label for this action.
+ * @param action Action to be performed when [SemanticsActions.OnImeAction] is called.
+ *
+ * @see SemanticsProperties.ImeAction
+ * @see SemanticsActions.OnImeAction
+ */
+fun SemanticsPropertyReceiver.onImeAction(
+    imeActionType: ImeAction,
+    label: String? = null,
+    action: (() -> Boolean)?
+) {
+    this[SemanticsProperties.ImeAction] = imeActionType
+    this[SemanticsActions.OnImeAction] = AccessibilityAction(label, action)
 }
 
 /**

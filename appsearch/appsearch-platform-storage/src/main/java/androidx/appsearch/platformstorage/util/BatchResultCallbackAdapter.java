@@ -37,7 +37,7 @@ import java.util.function.Function;
  * @param <PlatformValue> The type of value in the Framework's
  *                        {@link android.app.appsearch.AppSearchBatchResult}.
  * @param <JetpackValue>  The type of value in Jetpack's {@link AppSearchBatchResult}.
- * @hide
+ * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresApi(Build.VERSION_CODES.S)

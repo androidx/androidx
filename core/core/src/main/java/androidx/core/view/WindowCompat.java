@@ -78,6 +78,7 @@ public final class WindowCompat {
      * the target class type is unconstrained, an explicit cast may be
      * necessary.
      *
+     * @param window window in which to find the view.
      * @param id the ID to search for
      * @return a view with given ID
      * @see ViewCompat#requireViewById(View, int)

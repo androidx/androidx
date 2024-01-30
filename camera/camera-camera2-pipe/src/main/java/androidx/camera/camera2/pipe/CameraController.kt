@@ -17,6 +17,7 @@
 package androidx.camera.camera2.pipe
 
 import android.view.Surface
+import androidx.annotation.RestrictTo
 import androidx.camera.camera2.pipe.CameraController.ControllerState.CLOSED
 import androidx.camera.camera2.pipe.graph.GraphListener
 
@@ -35,8 +36,15 @@ import androidx.camera.camera2.pipe.graph.GraphListener
  *
  * Once [close] is invoked, this instance should not respond to any additional events.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 interface CameraController {
     val cameraId: CameraId
+
+    /**
+     * Whether the camera is being used in a foreground setting, and thus should be kept open on a
+     * best-effort basis, for example continuously retrying on a longer timeout.
+     */
+    var isForeground: Boolean
 
     /**
      * Connect and start the underlying camera. This may be called on the main thread and should not
@@ -53,10 +61,10 @@ interface CameraController {
 
     /**
      * Restart the current session. This should basically perform stop() then start(). However, the
-     * implementation should handle its internal states correctly, and only restart when the
-     * conditions are appropriate.
+     * implementation should handle its internal states correctly, and only restart under the right
+     * [CameraStatusMonitor.CameraStatus] and [ControllerState].
      */
-    fun tryRestart()
+    fun tryRestart(cameraStatus: CameraStatusMonitor.CameraStatus)
 
     /**
      * Close this instance. [start] and [stop] should not be invoked, and any additional calls will

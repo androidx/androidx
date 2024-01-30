@@ -19,9 +19,12 @@ package androidx.test.uiautomator {
     method public static androidx.test.uiautomator.BySelector enabled(boolean);
     method public static androidx.test.uiautomator.BySelector focusable(boolean);
     method public static androidx.test.uiautomator.BySelector focused(boolean);
+    method public static androidx.test.uiautomator.BySelector hasAncestor(androidx.test.uiautomator.BySelector);
+    method public static androidx.test.uiautomator.BySelector hasAncestor(androidx.test.uiautomator.BySelector, @IntRange(from=1) int);
     method public static androidx.test.uiautomator.BySelector hasChild(androidx.test.uiautomator.BySelector);
     method public static androidx.test.uiautomator.BySelector hasDescendant(androidx.test.uiautomator.BySelector);
     method public static androidx.test.uiautomator.BySelector hasDescendant(androidx.test.uiautomator.BySelector, int);
+    method public static androidx.test.uiautomator.BySelector hasParent(androidx.test.uiautomator.BySelector);
     method public static androidx.test.uiautomator.BySelector longClickable(boolean);
     method public static androidx.test.uiautomator.BySelector pkg(String);
     method public static androidx.test.uiautomator.BySelector pkg(java.util.regex.Pattern);
@@ -55,9 +58,12 @@ package androidx.test.uiautomator {
     method public androidx.test.uiautomator.BySelector enabled(boolean);
     method public androidx.test.uiautomator.BySelector focusable(boolean);
     method public androidx.test.uiautomator.BySelector focused(boolean);
+    method public androidx.test.uiautomator.BySelector hasAncestor(androidx.test.uiautomator.BySelector);
+    method public androidx.test.uiautomator.BySelector hasAncestor(androidx.test.uiautomator.BySelector, @IntRange(from=1) int);
     method public androidx.test.uiautomator.BySelector hasChild(androidx.test.uiautomator.BySelector);
     method public androidx.test.uiautomator.BySelector hasDescendant(androidx.test.uiautomator.BySelector);
     method public androidx.test.uiautomator.BySelector hasDescendant(androidx.test.uiautomator.BySelector, int);
+    method public androidx.test.uiautomator.BySelector hasParent(androidx.test.uiautomator.BySelector);
     method public androidx.test.uiautomator.BySelector longClickable(boolean);
     method public androidx.test.uiautomator.BySelector maxDepth(int);
     method public androidx.test.uiautomator.BySelector minDepth(int);
@@ -196,8 +202,10 @@ package androidx.test.uiautomator {
     method public void runWatchers();
     method @Deprecated public void setCompressedLayoutHeirarchy(boolean);
     method public void setCompressedLayoutHierarchy(boolean);
+    method public void setOrientationLandscape() throws android.os.RemoteException;
     method public void setOrientationLeft() throws android.os.RemoteException;
     method public void setOrientationNatural() throws android.os.RemoteException;
+    method public void setOrientationPortrait() throws android.os.RemoteException;
     method public void setOrientationRight() throws android.os.RemoteException;
     method public void sleep() throws android.os.RemoteException;
     method public boolean swipe(int, int, int, int, int);
@@ -311,6 +319,8 @@ package androidx.test.uiautomator {
     method public <U> U! scrollUntil(androidx.test.uiautomator.Direction, androidx.test.uiautomator.Condition<? super androidx.test.uiautomator.UiObject2,U!>);
     method public <U> U! scrollUntil(androidx.test.uiautomator.Direction, androidx.test.uiautomator.EventCondition<U!>);
     method public void setGestureMargin(int);
+    method public void setGestureMarginPercent(@FloatRange(from=0.0f, to=0.5f) float);
+    method public void setGestureMarginPercent(@FloatRange(from=0.0f, to=1.0f) float, @FloatRange(from=0.0f, to=1.0f) float, @FloatRange(from=0.0f, to=1.0f) float, @FloatRange(from=0.0f, to=1.0f) float);
     method public void setGestureMargins(int, int, int, int);
     method public void setText(String?);
     method public void swipe(androidx.test.uiautomator.Direction, float);

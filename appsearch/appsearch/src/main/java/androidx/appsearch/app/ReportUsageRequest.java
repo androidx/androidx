@@ -17,6 +17,7 @@
 package androidx.appsearch.app;
 
 import androidx.annotation.NonNull;
+import androidx.appsearch.annotation.CanIgnoreReturnValue;
 import androidx.core.util.Preconditions;
 
 /**
@@ -70,9 +71,9 @@ public final class ReportUsageRequest {
         /**
          * Creates a new {@link ReportUsageRequest.Builder} instance.
          *
-         * @param namespace    The namespace of the document that was used (e.g. from
+         * @param namespace    The namespace of the document that was used (such as from
          *                     {@link GenericDocument#getNamespace}.
-         * @param documentId   The ID of document that was used (e.g. from
+         * @param documentId   The ID of document that was used (such as from
          *                     {@link GenericDocument#getId}.
          */
         public Builder(@NonNull String namespace, @NonNull String documentId) {
@@ -89,6 +90,7 @@ public final class ReportUsageRequest {
          * <p>If unset, this defaults to the current timestamp at the time that the
          * {@link ReportUsageRequest} is constructed.
          */
+        @CanIgnoreReturnValue
         @NonNull
         public ReportUsageRequest.Builder setUsageTimestampMillis(
                 /*@exportToFramework:CurrentTimeMillisLong*/ long usageTimestampMillis) {

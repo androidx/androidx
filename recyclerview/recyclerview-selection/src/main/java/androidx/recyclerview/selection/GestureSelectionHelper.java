@@ -96,7 +96,6 @@ final class GestureSelectionHelper implements OnItemTouchListener, Resettable {
     }
 
     @Override
-    /** @hide */
     public boolean onInterceptTouchEvent(@NonNull RecyclerView unused, @NonNull MotionEvent e) {
         // MotionEvents that aren't ACTION_DOWN are only ever passed to either onInterceptTouchEvent
         // or onTouchEvent; never to both, so events delivered to this method are effectively
@@ -120,7 +119,6 @@ final class GestureSelectionHelper implements OnItemTouchListener, Resettable {
     }
 
     @Override
-    /** @hide */
     public void onTouchEvent(@NonNull RecyclerView unused, @NonNull MotionEvent e) {
         if (!mStarted) {
             if (VERBOSE) Log.i(TAG, "Ignoring input event. Not started.");
@@ -147,7 +145,6 @@ final class GestureSelectionHelper implements OnItemTouchListener, Resettable {
     }
 
     @Override
-    /** @hide */
     public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
     }
 

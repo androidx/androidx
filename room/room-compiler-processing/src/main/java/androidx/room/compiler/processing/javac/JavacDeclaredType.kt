@@ -18,7 +18,6 @@ package androidx.room.compiler.processing.javac
 
 import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.javac.kotlin.KmTypeContainer
-import androidx.room.compiler.processing.javac.kotlin.nullability
 import javax.lang.model.type.DeclaredType
 
 /**

@@ -16,10 +16,8 @@
 package androidx.annotation
 
 /**
- * Denotes that the annotated element represents a packed color
- * int, `AARRGGBB`. If applied to an int array, every element
- * in the array represents a color integer.
- *
+ * Denotes that the annotated element represents a packed color int, `AARRGGBB`. If applied to an
+ * int array, every element in the array represents a color integer.
  *
  * Example:
  * ```

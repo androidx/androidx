@@ -21,8 +21,8 @@ import androidx.wear.watchface.editor.IEditorObserver;
 /**
  * Interface for the watchface editor service.
  *
- * @hide
  */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 interface IEditorService {
     // IMPORTANT NOTE: All methods must be given an explicit transaction id that must never change
     // in the future to remain binary backwards compatible.

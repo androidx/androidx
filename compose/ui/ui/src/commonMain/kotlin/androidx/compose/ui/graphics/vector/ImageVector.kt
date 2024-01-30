@@ -17,12 +17,14 @@
 package androidx.compose.ui.graphics.vector
 
 import androidx.compose.runtime.Immutable
+import androidx.compose.ui.SynchronizedObject
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathFillType
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.synchronized
 import androidx.compose.ui.unit.Dp
 
 /**
@@ -77,7 +79,13 @@ class ImageVector internal constructor(
     /**
      * Determines if the vector asset should automatically be mirrored for right to left locales
      */
-    val autoMirror: Boolean
+    val autoMirror: Boolean,
+
+    /**
+     * Identifier used to disambiguate between different ImageVector instances in a more efficient
+     * manner than equality. This can be used as a key for caching instances of ImageVectors.
+     */
+    internal val genId: Int = generateImageVectorId(),
 ) {
     /**
      * Builder used to construct a Vector graphic tree.
@@ -401,10 +409,17 @@ class ImageVector internal constructor(
         )
     }
 
-    /**
-     * Provide an empty companion object to hang platform-specific companion extensions onto.
-     */
-    companion object { } // ktlint-disable no-empty-class-body
+    companion object {
+        private var imageVectorCount = 0
+
+        private val lock = SynchronizedObject()
+
+        internal fun generateImageVectorId(): Int {
+            synchronized(lock) {
+                return imageVectorCount++
+            }
+        }
+    }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

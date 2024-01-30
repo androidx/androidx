@@ -21,8 +21,8 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 
@@ -181,7 +181,7 @@ public class TransitionManagerTest extends BaseTest {
         final Transition transition = new AutoTransition();
         // This transition is very long, but will be forced to end as soon as it starts
         transition.setDuration(30000);
-        final Transition.TransitionListener listener = mock(Transition.TransitionListener.class);
+        final Transition.TransitionListener listener = spy(new TransitionListenerAdapter());
         transition.addListener(listener);
         rule.runOnUiThread(new Runnable() {
             @Override
@@ -204,7 +204,7 @@ public class TransitionManagerTest extends BaseTest {
         final ViewGroup root = rule.getActivity().getRoot();
         final Transition transition = new AutoTransition();
         transition.setDuration(0);
-        final Transition.TransitionListener listener = mock(Transition.TransitionListener.class);
+        final Transition.TransitionListener listener = spy(new TransitionListenerAdapter());
         transition.addListener(listener);
         rule.runOnUiThread(new Runnable() {
             @Override

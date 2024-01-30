@@ -24,6 +24,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.WorkerThread;
+import androidx.work.Clock;
 import androidx.work.Logger;
 import androidx.work.impl.ExecutionListener;
 import androidx.work.impl.StartStopToken;
@@ -42,7 +43,6 @@ import java.util.Map;
 /**
  * The command handler used by {@link SystemAlarmDispatcher}.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class CommandHandler implements ExecutionListener {
@@ -129,10 +129,13 @@ public class CommandHandler implements ExecutionListener {
     private final Context mContext;
     private final Map<WorkGenerationalId, DelayMetCommandHandler> mPendingDelayMet;
     private final Object mLock;
+    private final Clock mClock;
     private final StartStopTokens mStartStopTokens;
 
-    CommandHandler(@NonNull Context context, @NonNull StartStopTokens startStopTokens) {
+    CommandHandler(@NonNull Context context, Clock clock,
+            @NonNull StartStopTokens startStopTokens) {
         mContext = context;
+        mClock = clock;
         mStartStopTokens = startStopTokens;
         mPendingDelayMet = new HashMap<>();
         mLock = new Object();
@@ -316,7 +319,7 @@ public class CommandHandler implements ExecutionListener {
         }
         for (StartStopToken token: tokens) {
             Logger.get().debug(TAG, "Handing stopWork work for " + workSpecId);
-            dispatcher.getWorkManager().stopWork(token);
+            dispatcher.getWorkerLauncher().stopWork(token);
             Alarms.cancelAlarm(mContext,
                     dispatcher.getWorkManager().getWorkDatabase(), token.getId());
 
@@ -333,7 +336,7 @@ public class CommandHandler implements ExecutionListener {
         // Constraints changed command handler is synchronous. No cleanup
         // is necessary.
         ConstraintsCommandHandler changedCommandHandler =
-                new ConstraintsCommandHandler(mContext, startId, dispatcher);
+                new ConstraintsCommandHandler(mContext, mClock, startId, dispatcher);
         changedCommandHandler.handleConstraintsChanged();
     }
 

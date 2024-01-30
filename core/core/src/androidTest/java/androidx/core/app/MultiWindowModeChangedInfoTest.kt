@@ -49,8 +49,10 @@ class MultiWindowModeChangedInfoTest {
         val info = MultiWindowModeChangedInfo(true)
         try {
             info.newConfig
-            fail("Calling newConfig without passing one into MultiWindowModeChangedInfo " +
-                "should throw an IllegalStateException")
+            fail(
+                "Calling newConfig without passing one into MultiWindowModeChangedInfo " +
+                    "should throw an IllegalStateException"
+            )
         } catch (e: IllegalStateException) {
             // Expected
         }

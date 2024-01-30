@@ -32,7 +32,7 @@ import kotlin.jvm.JvmName
  * @see androidx.compose.runtime.mutableStateListOf
  */
 @Stable
-class SnapshotStateList<T> : MutableList<T>, StateObject {
+class SnapshotStateList<T> : StateObject, MutableList<T>, RandomAccess {
     override var firstStateRecord: StateRecord =
         StateListStateRecord<T>(persistentListOf())
         private set
@@ -60,7 +60,7 @@ class SnapshotStateList<T> : MutableList<T>, StateObject {
      */
     fun toList(): List<T> = readable.list
 
-    internal val modification: Int get() = withCurrent { modification }
+    internal val structure: Int get() = withCurrent { structuralChange }
 
     @Suppress("UNCHECKED_CAST")
     internal val readable: StateListStateRecord<T> get() =
@@ -73,11 +73,13 @@ class SnapshotStateList<T> : MutableList<T>, StateObject {
         internal var list: PersistentList<T>
     ) : StateRecord() {
         internal var modification = 0
+        internal var structuralChange = 0
         override fun assign(value: StateRecord) {
             synchronized(sync) {
                 @Suppress("UNCHECKED_CAST")
                 list = (value as StateListStateRecord<T>).list
                 modification = value.modification
+                structuralChange = value.structuralChange
             }
         }
 
@@ -95,7 +97,9 @@ class SnapshotStateList<T> : MutableList<T>, StateObject {
     override fun listIterator(): MutableListIterator<T> = StateListIterator(this, 0)
     override fun listIterator(index: Int): MutableListIterator<T> = StateListIterator(this, index)
     override fun subList(fromIndex: Int, toIndex: Int): MutableList<T> {
-        require(fromIndex in 0..toIndex && toIndex <= size)
+        require(fromIndex in 0..toIndex && toIndex <= size) {
+            "fromIndex or toIndex are out of bounds"
+        }
         return SubList(this, fromIndex, toIndex)
     }
 
@@ -107,10 +111,11 @@ class SnapshotStateList<T> : MutableList<T>, StateObject {
 
     override fun addAll(elements: Collection<T>) = conditionalUpdate { it.addAll(elements) }
     override fun clear() {
-        synchronized(sync) {
-            writable {
+        writable {
+            synchronized(sync) {
                 list = persistentListOf()
                 modification++
+                structuralChange++
             }
         }
     }
@@ -119,7 +124,7 @@ class SnapshotStateList<T> : MutableList<T>, StateObject {
     override fun removeAt(index: Int): T = get(index).also { update { it.removeAt(index) } }
     override fun retainAll(elements: Collection<T>) = mutateBoolean { it.retainAll(elements) }
     override fun set(index: Int, element: T): T = get(index).also {
-        update { it.set(index, element) }
+        update(structural = false) { it.set(index, element) }
     }
 
     fun removeRange(fromIndex: Int, toIndex: Int) {
@@ -168,11 +173,12 @@ class SnapshotStateList<T> : MutableList<T>, StateObject {
             val builder = oldList!!.builder()
             result = block(builder)
             val newList = builder.build()
-            if (newList == oldList || synchronized(sync) {
-                writable {
+            if (newList == oldList || writable {
+                 synchronized(sync) {
                     if (modification == currentModification) {
                         list = newList
                         modification++
+                        structuralChange++
                         true
                     } else false
                 }
@@ -182,11 +188,17 @@ class SnapshotStateList<T> : MutableList<T>, StateObject {
         return result
     }
 
-    private inline fun update(block: (PersistentList<T>) -> PersistentList<T>) {
-        conditionalUpdate(block)
+    private inline fun update(
+        structural: Boolean = true,
+        block: (PersistentList<T>) -> PersistentList<T>
+    ) {
+        conditionalUpdate(structural, block)
     }
 
-    private inline fun conditionalUpdate(block: (PersistentList<T>) -> PersistentList<T>) =
+    private inline fun conditionalUpdate(
+        structural: Boolean = true,
+        block: (PersistentList<T>) -> PersistentList<T>
+    ) =
         run {
             val result: Boolean
             while (true) {
@@ -202,10 +214,11 @@ class SnapshotStateList<T> : MutableList<T>, StateObject {
                     result = false
                     break
                 }
-                if (synchronized(sync) {
-                    writable {
+                if (writable {
+                    synchronized(sync) {
                         if (modification == currentModification) {
                             list = newList
+                            if (structural) structuralChange++
                             modification++
                             true
                         } else false
@@ -243,12 +256,19 @@ private fun validateRange(index: Int, size: Int) {
     }
 }
 
+private fun invalidIteratorSet(): Nothing =
+    error(
+        "Cannot call set before the first call to next() or previous() " +
+            "or immediately after a call to add() or remove()"
+    )
+
 private class StateListIterator<T>(
     val list: SnapshotStateList<T>,
     offset: Int
 ) : MutableListIterator<T> {
     private var index = offset - 1
-    private var modification = list.modification
+    private var lastRequested = -1
+    private var structure = list.structure
 
     override fun hasPrevious() = index >= 0
 
@@ -257,6 +277,7 @@ private class StateListIterator<T>(
     override fun previous(): T {
         validateModification()
         validateRange(index, list.size)
+        lastRequested = index
         return list[index].also { index-- }
     }
 
@@ -265,8 +286,9 @@ private class StateListIterator<T>(
     override fun add(element: T) {
         validateModification()
         list.add(index + 1, element)
+        lastRequested = -1
         index++
-        modification = list.modification
+        structure = list.structure
     }
 
     override fun hasNext() = index < list.size - 1
@@ -274,6 +296,7 @@ private class StateListIterator<T>(
     override fun next(): T {
         validateModification()
         val newIndex = index + 1
+        lastRequested = newIndex
         validateRange(newIndex, list.size)
         return list[newIndex].also { index = newIndex }
     }
@@ -282,17 +305,19 @@ private class StateListIterator<T>(
         validateModification()
         list.removeAt(index)
         index--
-        modification = list.modification
+        lastRequested = -1
+        structure = list.structure
     }
 
     override fun set(element: T) {
         validateModification()
-        list.set(index, element)
-        modification = list.modification
+        if (lastRequested < 0) invalidIteratorSet()
+        list.set(lastRequested, element)
+        structure = list.structure
     }
 
     private fun validateModification() {
-        if (list.modification != modification) {
+        if (list.structure != structure) {
             throw ConcurrentModificationException()
         }
     }
@@ -304,7 +329,7 @@ private class SubList<T>(
     toIndex: Int
 ) : MutableList<T> {
     private val offset = fromIndex
-    private var modification = parentList.modification
+    private var structure = parentList.structure
     override var size = toIndex - fromIndex
         private set
 
@@ -342,7 +367,7 @@ private class SubList<T>(
         validateModification()
         parentList.add(offset + size, element)
         size++
-        modification = parentList.modification
+        structure = parentList.structure
         return true
     }
 
@@ -350,7 +375,7 @@ private class SubList<T>(
         validateModification()
         parentList.add(offset + index, element)
         size++
-        modification = parentList.modification
+        structure = parentList.structure
     }
 
     override fun addAll(index: Int, elements: Collection<T>): Boolean {
@@ -358,7 +383,7 @@ private class SubList<T>(
         val result = parentList.addAll(index + offset, elements)
         if (result) {
             size += elements.size
-            modification = parentList.modification
+            structure = parentList.structure
         }
         return result
     }
@@ -370,7 +395,7 @@ private class SubList<T>(
             validateModification()
             parentList.removeRange(offset, offset + size)
             size = 0
-            modification = parentList.modification
+            structure = parentList.structure
         }
     }
 
@@ -421,7 +446,7 @@ private class SubList<T>(
         validateModification()
         return parentList.removeAt(offset + index).also {
             size--
-            modification = parentList.modification
+            structure = parentList.structure
         }
     }
 
@@ -429,7 +454,7 @@ private class SubList<T>(
         validateModification()
         val removed = parentList.retainAllInRange(elements, offset, offset + size)
         if (removed > 0) {
-            modification = parentList.modification
+            structure = parentList.structure
             size -= removed
         }
         return removed > 0
@@ -439,18 +464,20 @@ private class SubList<T>(
         validateRange(index, size)
         validateModification()
         val result = parentList.set(index + offset, element)
-        modification = parentList.modification
+        structure = parentList.structure
         return result
     }
 
     override fun subList(fromIndex: Int, toIndex: Int): MutableList<T> {
-        require(fromIndex in 0..toIndex && toIndex <= size)
+        require(fromIndex in 0..toIndex && toIndex <= size) {
+            "fromIndex or toIndex are out of bounds"
+        }
         validateModification()
         return SubList(parentList, fromIndex + offset, toIndex + offset)
     }
 
     private fun validateModification() {
-        if (parentList.modification != modification) {
+        if (parentList.structure != structure) {
             throw ConcurrentModificationException()
         }
     }

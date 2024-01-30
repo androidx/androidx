@@ -24,12 +24,10 @@ import static org.junit.Assert.assertTrue;
 import android.graphics.Point;
 import android.graphics.Rect;
 
-import androidx.test.filters.FlakyTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.uiautomator.UiObject;
 import androidx.test.uiautomator.UiSelector;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class UiObjectTest extends BaseTest {
@@ -119,7 +117,6 @@ public class UiObjectTest extends BaseTest {
         assertTrue(expectedDragDest.waitForExists(TIMEOUT_MS));
     }
 
-    @Ignore // b/266617747
     @Test
     public void testSwipeUp() throws Exception {
         launchTestActivity(SwipeTestActivity.class);
@@ -141,7 +138,6 @@ public class UiObjectTest extends BaseTest {
         assertTrue(expectedSwipeRegion.waitForExists(TIMEOUT_MS));
     }
 
-    @Ignore // b/266617747
     @Test
     public void testSwipeDown() throws Exception {
         launchTestActivity(SwipeTestActivity.class);
@@ -161,7 +157,6 @@ public class UiObjectTest extends BaseTest {
         assertTrue(expectedSwipeRegion.waitForExists(TIMEOUT_MS));
     }
 
-    @FlakyTest(bugId = 242761733)
     @Test
     public void testSwipeLeft() throws Exception {
         launchTestActivity(SwipeTestActivity.class);
@@ -181,7 +176,6 @@ public class UiObjectTest extends BaseTest {
         assertTrue(expectedSwipeRegion.waitForExists(TIMEOUT_MS));
     }
 
-    @Ignore // b/266617747
     @Test
     public void testSwipeRight() throws Exception {
         launchTestActivity(SwipeTestActivity.class);
@@ -347,18 +341,6 @@ public class UiObjectTest extends BaseTest {
     }
 
     @Test
-    public void testLegacySetText() throws Exception {
-        launchTestActivity(ClearTextTestActivity.class);
-
-        UiObject editText = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id"
-                + "/edit_text"));
-
-        assertEquals("sample_text", editText.getText());
-        editText.legacySetText("new_text");
-        assertEquals("new_text", editText.getText());
-    }
-
-    @Test
     public void testSetText() throws Exception {
         launchTestActivity(ClearTextTestActivity.class);
 
@@ -391,7 +373,6 @@ public class UiObjectTest extends BaseTest {
         assertUiObjectNotFound(noNode::getText);
         assertUiObjectNotFound(noNode::getClassName);
         assertUiObjectNotFound(noNode::getContentDescription);
-        assertUiObjectNotFound(() -> noNode.legacySetText("new_text"));
         assertUiObjectNotFound(() -> noNode.setText("new_text"));
         assertUiObjectNotFound(noNode::clearTextField);
         assertUiObjectNotFound(noNode::getPackageName);
@@ -501,15 +482,15 @@ public class UiObjectTest extends BaseTest {
 
     @Test
     public void testIsLongClickable() throws Exception {
-        launchTestActivity(LongClickTestActivity.class);
+        launchTestActivity(IsLongClickableTestActivity.class);
 
-        UiObject button = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id/button"));
-        UiObject expectedButton = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id"
-                + "/button").text("I've been long clicked!"));
+        UiObject longClickableButton = mDevice.findObject(
+                new UiSelector().resourceId(TEST_APP + ":id/long_clickable_button"));
+        UiObject nonLongClickableButton = mDevice.findObject(
+                new UiSelector().resourceId(TEST_APP + ":id/non_long_clickable_button"));
 
-        assertEquals("Long Click Me!", button.getText());
-        button.longClick();
-        assertTrue(expectedButton.waitForExists(TIMEOUT_MS));
+        assertTrue(longClickableButton.isLongClickable());
+        assertFalse(nonLongClickableButton.isLongClickable());
     }
 
     @Test

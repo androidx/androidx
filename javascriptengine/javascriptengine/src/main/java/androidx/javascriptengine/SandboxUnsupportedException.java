@@ -20,7 +20,8 @@ import androidx.annotation.NonNull;
 
 /**
  * Exception thrown when attempting to create a {@link JavaScriptSandbox} via
- * {@link JavaScriptSandbox#createConnectedInstanceAsync(Context)} when doing so is not supported.
+ * {@link JavaScriptSandbox#createConnectedInstanceAsync(android.content.Context)} when doing so is
+ * not supported.
  * <p>
  * This can occur when the WebView package is too old to provide a sandbox implementation.
  */

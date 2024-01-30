@@ -27,7 +27,6 @@ import androidx.sqlite.db.SupportSQLiteStatement
  * given database.
  *
  * @param T The type parameter of the entity to be deleted
- * @suppress
 */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 abstract class EntityDeletionOrUpdateAdapter<T> (

@@ -16,18 +16,20 @@
 
 package androidx.compose.foundation.layout
 
-import androidx.compose.ui.layout.FirstBaseline
+import androidx.annotation.FloatRange
+import androidx.compose.foundation.layout.internal.JvmDefaultWithCompatibility
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.layout.HorizontalAlignmentLine
-import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.FirstBaseline
+import androidx.compose.ui.layout.HorizontalAlignmentLine
+import androidx.compose.ui.layout.LastBaseline
+import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.MeasurePolicy
 import androidx.compose.ui.layout.Measured
-import androidx.compose.ui.platform.debugInspectorInfo
-import androidx.compose.foundation.layout.internal.JvmDefaultWithCompatibility
 
 /**
  * A layout composable that places its children in a horizontal sequence. For a layout composable
@@ -62,6 +64,17 @@ import androidx.compose.foundation.layout.internal.JvmDefaultWithCompatibility
  *
  * @sample androidx.compose.foundation.layout.samples.SimpleRow
  *
+ * Note that if two or more Text components are placed in a [Row], normally they should be aligned
+ * by their first baselines. [Row] as a general purpose container does not do it automatically
+ * so developers need to handle this manually. This is achieved by adding a
+ * [RowScope.alignByBaseline] modifier to every such Text component. By default this modifier
+ * aligns by [FirstBaseline]. If, however, you need to align Texts by [LastBaseline] for example,
+ * use a more general [RowScope.alignBy] modifier.
+ *
+ * See example of using Texts inside the Row:
+ *
+ * @sample androidx.compose.foundation.layout.samples.SimpleAlignByInRow
+ *
  * @param modifier The modifier to be applied to the Row.
  * @param horizontalArrangement The horizontal arrangement of the layout's children.
  * @param verticalAlignment The vertical alignment of the layout's children.
@@ -88,11 +101,10 @@ inline fun Row(
  * MeasureBlocks to use when horizontalArrangement and verticalAlignment are not provided.
  */
 @PublishedApi
-internal val DefaultRowMeasurePolicy = rowColumnMeasurePolicy(
+internal val DefaultRowMeasurePolicy: MeasurePolicy = RowColumnMeasurePolicy(
     orientation = LayoutOrientation.Horizontal,
-    arrangement = { totalSize, size, layoutDirection, density, outPosition ->
-        with(Arrangement.Start) { density.arrange(totalSize, size, layoutDirection, outPosition) }
-    },
+    horizontalArrangement = Arrangement.Start,
+    verticalArrangement = null,
     arrangementSpacing = Arrangement.Start.spacing,
     crossAxisAlignment = CrossAxisAlignment.vertical(Alignment.Top),
     crossAxisSize = SizeMode.Wrap
@@ -103,17 +115,15 @@ internal val DefaultRowMeasurePolicy = rowColumnMeasurePolicy(
 internal fun rowMeasurePolicy(
     horizontalArrangement: Arrangement.Horizontal,
     verticalAlignment: Alignment.Vertical
-) = if (horizontalArrangement == Arrangement.Start && verticalAlignment == Alignment.Top) {
+): MeasurePolicy =
+    if (horizontalArrangement == Arrangement.Start && verticalAlignment == Alignment.Top) {
         DefaultRowMeasurePolicy
     } else {
         remember(horizontalArrangement, verticalAlignment) {
-            rowColumnMeasurePolicy(
+            RowColumnMeasurePolicy(
                 orientation = LayoutOrientation.Horizontal,
-                arrangement = { totalSize, size, layoutDirection, density, outPosition ->
-                    with(horizontalArrangement) {
-                        density.arrange(totalSize, size, layoutDirection, outPosition)
-                    }
-                },
+                horizontalArrangement = horizontalArrangement,
+                verticalArrangement = null,
                 arrangementSpacing = horizontalArrangement.spacing,
                 crossAxisAlignment = CrossAxisAlignment.vertical(verticalAlignment),
                 crossAxisSize = SizeMode.Wrap
@@ -142,7 +152,7 @@ interface RowScope {
      */
     @Stable
     fun Modifier.weight(
-        /*@FloatRange(from = 0.0, fromInclusive = false)*/
+        @FloatRange(from = 0.0, fromInclusive = false)
         weight: Float,
         fill: Boolean = true
     ): Modifier
@@ -221,38 +231,25 @@ internal object RowScopeInstance : RowScope {
     override fun Modifier.weight(weight: Float, fill: Boolean): Modifier {
         require(weight > 0.0) { "invalid weight $weight; must be greater than zero" }
         return this.then(
-            LayoutWeightImpl(
-                weight = weight,
-                fill = fill,
-                inspectorInfo = debugInspectorInfo {
-                    name = "weight"
-                    value = weight
-                    properties["weight"] = weight
-                    properties["fill"] = fill
-                }
+            LayoutWeightElement(
+                // Coerce Float.POSITIVE_INFINITY to Float.MAX_VALUE to avoid errors
+                weight = weight.coerceAtMost(Float.MAX_VALUE),
+                fill = fill
             )
         )
     }
 
     @Stable
     override fun Modifier.align(alignment: Alignment.Vertical) = this.then(
-        VerticalAlignModifier(
-            vertical = alignment,
-            inspectorInfo = debugInspectorInfo {
-                name = "align"
-                value = alignment
-            }
+        VerticalAlignElement(
+            alignment
         )
     )
 
     @Stable
     override fun Modifier.alignBy(alignmentLine: HorizontalAlignmentLine) = this.then(
-        SiblingsAlignedModifier.WithAlignmentLine(
-            alignmentLine = alignmentLine,
-            inspectorInfo = debugInspectorInfo {
-                name = "alignBy"
-                value = alignmentLine
-            }
+        WithAlignmentLineElement(
+            alignmentLine = alignmentLine
         )
     )
 
@@ -260,12 +257,8 @@ internal object RowScopeInstance : RowScope {
     override fun Modifier.alignByBaseline() = alignBy(FirstBaseline)
 
     override fun Modifier.alignBy(alignmentLineBlock: (Measured) -> Int) = this.then(
-        SiblingsAlignedModifier.WithAlignmentLineBlock(
-            block = alignmentLineBlock,
-            inspectorInfo = debugInspectorInfo {
-                name = "alignBy"
-                value = alignmentLineBlock
-            }
+        WithAlignmentLineBlockElement(
+            block = alignmentLineBlock
         )
     )
 }

@@ -17,87 +17,89 @@
 package androidx.compose.foundation.lazy
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.lazy.layout.DelegatingLazyLayoutItemProvider
-import androidx.compose.foundation.lazy.layout.IntervalList
 import androidx.compose.foundation.lazy.layout.LazyLayoutItemProvider
+import androidx.compose.foundation.lazy.layout.LazyLayoutKeyIndexMap
 import androidx.compose.foundation.lazy.layout.LazyLayoutPinnableItem
-import androidx.compose.foundation.lazy.layout.rememberLazyNearestItemsRangeState
+import androidx.compose.foundation.lazy.layout.NearestRangeKeyIndexMap
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.referentialEqualityPolicy
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 
 @ExperimentalFoundationApi
 internal interface LazyListItemProvider : LazyLayoutItemProvider {
+    val keyIndexMap: LazyLayoutKeyIndexMap
     /** The list of indexes of the sticky header items */
     val headerIndexes: List<Int>
     /** The scope used by the item content lambdas */
     val itemScope: LazyItemScopeImpl
 }
 
-@ExperimentalFoundationApi
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-internal fun rememberLazyListItemProvider(
+internal fun rememberLazyListItemProviderLambda(
     state: LazyListState,
     content: LazyListScope.() -> Unit
-): LazyListItemProvider {
+): () -> LazyListItemProvider {
     val latestContent = rememberUpdatedState(content)
-    val nearestItemsRangeState = rememberLazyNearestItemsRangeState(
-        firstVisibleItemIndex = { state.firstVisibleItemIndex },
-        slidingWindowSize = { NearestItemsSlidingWindowSize },
-        extraItemCount = { NearestItemsExtraItemCount }
-    )
-
-    return remember(nearestItemsRangeState, state) {
-        val itemScope = LazyItemScopeImpl()
-        val itemProviderState = derivedStateOf {
-            val listScope = LazyListScopeImpl().apply(latestContent.value)
+    return remember(state) {
+        val scope = LazyItemScopeImpl()
+        val intervalContentState = derivedStateOf(referentialEqualityPolicy()) {
+            LazyListIntervalContent(latestContent.value)
+        }
+        val itemProviderState = derivedStateOf(referentialEqualityPolicy()) {
+            val intervalContent = intervalContentState.value
+            val map = NearestRangeKeyIndexMap(state.nearestRange, intervalContent)
             LazyListItemProviderImpl(
-                listScope.intervals,
-                nearestItemsRangeState.value,
-                listScope.headerIndexes,
-                itemScope,
-                state
+                state = state,
+                intervalContent = intervalContent,
+                itemScope = scope,
+                keyIndexMap = map
             )
         }
-        object : LazyListItemProvider,
-            LazyLayoutItemProvider by DelegatingLazyLayoutItemProvider(itemProviderState) {
-            override val headerIndexes: List<Int> get() = itemProviderState.value.headerIndexes
-            override val itemScope: LazyItemScopeImpl get() = itemProviderState.value.itemScope
-        }
+        itemProviderState::value
     }
 }
 
 @ExperimentalFoundationApi
-private class LazyListItemProviderImpl(
-    intervals: IntervalList<LazyListIntervalContent>,
-    nearestItemsRange: IntRange,
-    override val headerIndexes: List<Int>,
+private class LazyListItemProviderImpl constructor(
+    private val state: LazyListState,
+    private val intervalContent: LazyListIntervalContent,
     override val itemScope: LazyItemScopeImpl,
-    state: LazyListState
-) : LazyListItemProvider,
-    LazyLayoutItemProvider by LazyLayoutItemProvider(
-        intervals = intervals,
-        nearestItemsRange = nearestItemsRange,
-        itemContent = { interval, index ->
-            val localIndex = index - interval.startIndex
-            LazyLayoutPinnableItem(
-                key = interval.value.key?.invoke(localIndex),
-                index = index,
-                pinnedItemList = state.pinnedItems
-            ) {
-                interval.value.item.invoke(itemScope, localIndex)
+    override val keyIndexMap: LazyLayoutKeyIndexMap,
+) : LazyListItemProvider {
+
+    override val itemCount: Int get() = intervalContent.itemCount
+
+    @Composable
+    override fun Item(index: Int, key: Any) {
+        LazyLayoutPinnableItem(key, index, state.pinnedItems) {
+            intervalContent.withInterval(index) { localIndex, content ->
+                content.item(itemScope, localIndex)
             }
         }
-    )
+    }
 
-/**
- * We use the idea of sliding window as an optimization, so user can scroll up to this number of
- * items until we have to regenerate the key to index map.
- */
-private const val NearestItemsSlidingWindowSize = 30
+    override fun getKey(index: Int): Any =
+        keyIndexMap.getKey(index) ?: intervalContent.getKey(index)
 
-/**
- * The minimum amount of items near the current first visible item we want to have mapping for.
- */
-private const val NearestItemsExtraItemCount = 100
+    override fun getContentType(index: Int): Any? = intervalContent.getContentType(index)
+
+    override val headerIndexes: List<Int> get() = intervalContent.headerIndexes
+
+    override fun getIndex(key: Any): Int = keyIndexMap.getIndex(key)
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is LazyListItemProviderImpl) return false
+
+        // the identity of this class is represented by intervalContent object.
+        // having equals() allows us to skip items recomposition when intervalContent didn't change
+        return intervalContent == other.intervalContent
+    }
+
+    override fun hashCode(): Int {
+        return intervalContent.hashCode()
+    }
+}

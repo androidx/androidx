@@ -41,7 +41,6 @@ import java.util.List;
  * to the wrapped instance as a base implementation. Call super.foo() to call into
  * the wrapped callback for any subclasses.
  *
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public class WindowCallbackWrapper implements Window.Callback {

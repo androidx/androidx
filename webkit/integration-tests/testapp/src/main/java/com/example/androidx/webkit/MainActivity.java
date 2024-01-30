@@ -87,6 +87,12 @@ public class MainActivity extends AppCompatActivity {
                 new MenuListView.MenuItem(
                         getResources().getString(R.string.image_drag_drop_activity_title),
                         new Intent(activityContext, ImageDragActivity.class)),
+                new MenuListView.MenuItem(
+                        getResources().getString(R.string.user_agent_metadata_activity_title),
+                        new Intent(activityContext, UserAgentMetadataActivity.class)),
+                new MenuListView.MenuItem(
+                        getResources().getString(R.string.multi_profile_activity_title),
+                        new Intent(activityContext, MultiProfileTestActivity.class)),
         };
         listView.setItems(menuItems);
     }

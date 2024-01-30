@@ -45,10 +45,11 @@ android {
 }
 
 androidx {
-    name = "AndroidX Security"
+    name = "Security"
     publish = Publish.SNAPSHOT_AND_RELEASE
     runApiTasks = new RunApiTasks.Yes("Need to track API surface before moving to publish")
     mavenVersion = LibraryVersions.SECURITY_IDENTITY_CREDENTIAL
     inceptionYear = "2019"
     description = "AndroidX Security"
+    metalavaK2UastEnabled = true
 }

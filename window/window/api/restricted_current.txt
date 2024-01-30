@@ -84,29 +84,16 @@ package androidx.window.embedding {
   }
 
   public final class SplitAttributes {
-    method public androidx.window.embedding.SplitAttributes.BackgroundColor getAnimationBackgroundColor();
     method public androidx.window.embedding.SplitAttributes.LayoutDirection getLayoutDirection();
     method public androidx.window.embedding.SplitAttributes.SplitType getSplitType();
-    property public final androidx.window.embedding.SplitAttributes.BackgroundColor animationBackgroundColor;
     property public final androidx.window.embedding.SplitAttributes.LayoutDirection layoutDirection;
     property public final androidx.window.embedding.SplitAttributes.SplitType splitType;
     field public static final androidx.window.embedding.SplitAttributes.Companion Companion;
   }
 
-  public static final class SplitAttributes.BackgroundColor {
-    method public static androidx.window.embedding.SplitAttributes.BackgroundColor color(@ColorInt @IntRange(from=android.graphics.Color.BLACK.toLong(), to=android.graphics.Color.WHITE.toLong()) int color);
-    field public static final androidx.window.embedding.SplitAttributes.BackgroundColor.Companion Companion;
-    field public static final androidx.window.embedding.SplitAttributes.BackgroundColor DEFAULT;
-  }
-
-  public static final class SplitAttributes.BackgroundColor.Companion {
-    method public androidx.window.embedding.SplitAttributes.BackgroundColor color(@ColorInt @IntRange(from=android.graphics.Color.BLACK.toLong(), to=android.graphics.Color.WHITE.toLong()) int color);
-  }
-
   public static final class SplitAttributes.Builder {
     ctor public SplitAttributes.Builder();
     method public androidx.window.embedding.SplitAttributes build();
-    method public androidx.window.embedding.SplitAttributes.Builder setAnimationBackgroundColor(androidx.window.embedding.SplitAttributes.BackgroundColor color);
     method public androidx.window.embedding.SplitAttributes.Builder setLayoutDirection(androidx.window.embedding.SplitAttributes.LayoutDirection layoutDirection);
     method public androidx.window.embedding.SplitAttributes.Builder setSplitType(androidx.window.embedding.SplitAttributes.SplitType type);
   }
@@ -315,6 +302,7 @@ package androidx.window.layout {
 
   public interface WindowInfoTracker {
     method public default static androidx.window.layout.WindowInfoTracker getOrCreate(android.content.Context context);
+    method public default kotlinx.coroutines.flow.Flow<androidx.window.layout.WindowLayoutInfo> windowLayoutInfo(@UiContext android.content.Context context);
     method public kotlinx.coroutines.flow.Flow<androidx.window.layout.WindowLayoutInfo> windowLayoutInfo(android.app.Activity activity);
     field public static final androidx.window.layout.WindowInfoTracker.Companion Companion;
   }

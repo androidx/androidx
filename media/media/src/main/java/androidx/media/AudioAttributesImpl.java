@@ -23,7 +23,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.versionedparcelable.VersionedParcelable;
 
-/** @hide */
 // It should be public to allow Parcelizers which never be de/jetified can access the interface.
 @RestrictTo(LIBRARY)
 public interface AudioAttributesImpl extends VersionedParcelable {

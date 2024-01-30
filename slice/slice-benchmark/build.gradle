@@ -40,11 +40,16 @@ dependencies {
 }
 
 androidx {
-    name = "Slices Benchmarks"
-    publish = Publish.NONE
+    name = "Slice Benchmarks"
+    publish = Publish.NONE // Library is deprecated pending removal.
     mavenVersion = LibraryVersions.SLICE_BENCHMARK
     inceptionYear = "2018"
     description = "RecyclerView Benchmarks"
+
+    deviceTests {
+        // Pending removal, don't run tests.
+        enabled = false
+    }
 }
 
 android {

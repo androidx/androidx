@@ -29,7 +29,6 @@ import androidx.car.app.activity.renderer.IProxyInputConnection;
  * Proxies the {@link android.view.View#onCreateInputConnection} method invocation events from
  * {@link TemplateSurfaceView} to the host renderer.
  *
- * @hide
  */
 @RestrictTo(LIBRARY)
 public interface OnCreateInputConnectionListener {

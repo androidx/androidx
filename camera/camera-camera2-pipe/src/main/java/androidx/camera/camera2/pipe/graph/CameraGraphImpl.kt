@@ -16,6 +16,7 @@
 
 package androidx.camera.camera2.pipe.graph
 
+import android.os.Build
 import android.view.Surface
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraBackend
@@ -96,6 +97,22 @@ constructor(
                 }
             }
         }
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            require(graphConfig.input == null) {
+                "Reprocessing not supported under Android M"
+            }
+        }
+        if (graphConfig.input != null) {
+            require(graphConfig.input.isNotEmpty()) {
+                "At least one InputConfiguration is required for reprocessing"
+            }
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
+                require(graphConfig.input.size <= 1) {
+                    "Multi resolution reprocessing not supported under Android S"
+                }
+            }
+        }
     }
 
     override val streams: StreamGraph
@@ -103,6 +120,14 @@ constructor(
 
     override val graphState: StateFlow<GraphState>
         get() = graphProcessor.graphState
+
+    private var _isForeground = false
+    override var isForeground: Boolean
+        get() = _isForeground
+        set(value) {
+            _isForeground = value
+            cameraController.isForeground = value
+        }
 
     override fun start() {
         Debug.traceStart { "$this#start" }
@@ -138,8 +163,8 @@ constructor(
 
     override fun setSurface(stream: StreamId, surface: Surface?) {
         Debug.traceStart { "$stream#setSurface" }
-        check(surface == null || surface.isValid) {
-            "Failed to set $surface to $stream: The surface was not valid."
+        if (surface != null && !surface.isValid) {
+            Log.warn { "$this#setSurface: $surface is invalid" }
         }
         surfaceGraph[stream] = surface
         Debug.traceStop()

@@ -27,43 +27,9 @@ import kotlin.time.DurationUnit
 import kotlin.time.ExperimentalTime
 import kotlin.time.toDuration
 
-internal actual fun getCurrentThreadId(): Long = 0
 
-internal actual class AtomicInt actual constructor(private var value: Int) {
-    actual fun get(): Int = value
-
-    actual fun set(value: Int) {
-        this.value = value
-    }
-    actual fun add(amount: Int): Int {
-        this.value += amount
-        return this.value
-    }
-}
-
-actual class AtomicReference<V> actual constructor(private var value: V) {
-    actual fun get(): V = value
-
-    actual fun set(value: V) {
-        this.value = value
-    }
-
-    actual fun getAndSet(value: V): V {
-        val oldValue = this.value
-        this.value = value
-        return oldValue
-    }
-
-    actual fun compareAndSet(expect: V, newValue: V): Boolean =
-        if (expect == value) {
-            value = newValue
-            true
-        } else {
-            false
-        }
-}
-
-internal actual fun identityHashCode(instance: Any?): Int {
+@InternalComposeApi
+actual fun identityHashCode(instance: Any?): Int {
     if (instance == null) {
         return 0
     }
@@ -118,11 +84,6 @@ private class MonotonicClockImpl : MonotonicFrameClock {
     }
 }
 
-internal actual fun <T> createSnapshotMutableState(
-    value: T,
-    policy: SnapshotMutationPolicy<T>
-): SnapshotMutableState<T> = SnapshotMutableStateImpl(value, policy)
-
 @ExperimentalComposeApi
 internal actual class SnapshotContextElementImpl actual constructor(
     private val snapshot: Snapshot
@@ -140,3 +101,7 @@ internal actual fun logError(message: String, e: Throwable) {
     println(message)
     e.printStackTrace()
 }
+
+internal actual fun currentThreadId(): Long = 0
+
+internal actual fun currentThreadName(): String = "main"

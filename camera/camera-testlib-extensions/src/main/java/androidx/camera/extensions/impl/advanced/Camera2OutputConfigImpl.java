@@ -16,15 +16,16 @@
 
 package androidx.camera.extensions.impl.advanced;
 
-import android.annotation.SuppressLint;
+import androidx.annotation.Nullable;
 
 import java.util.List;
 
 /**
  * A config representing a {@link android.hardware.camera2.params.OutputConfiguration} where
  * Surface will be created by the information in this config.
+ *
+ * @since 1.2
  */
-@SuppressLint("UnknownNullness")
 public interface Camera2OutputConfigImpl {
     /**
      * Gets thd id of this output config. The id can be used to identify the stream in vendor
@@ -41,11 +42,13 @@ public interface Camera2OutputConfigImpl {
     /**
      * Gets the physical camera id. Returns null if not specified.
      */
+    @Nullable
     String getPhysicalCameraId();
 
     /**
      * If non-null, enable surface sharing and add the surface constructed by the return
      * Camera2OutputConfig.
      */
+    @Nullable
     List<Camera2OutputConfigImpl> getSurfaceSharingOutputConfigs();
 }

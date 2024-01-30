@@ -58,7 +58,8 @@ class Camera2CameraFactoryTest {
                 CameraXExecutors.mainThreadExecutor(),
                 Handler(Looper.getMainLooper())
             ),
-            null)
+            null,
+            -1L)
 
         assertThat(camera2CameraFactory.availableCameraIds).containsExactly("0", "1", "2")
     }
@@ -77,7 +78,8 @@ class Camera2CameraFactoryTest {
                 CameraXExecutors.mainThreadExecutor(),
                 Handler(Looper.getMainLooper())
             ),
-            CameraSelector.DEFAULT_BACK_CAMERA)
+            CameraSelector.DEFAULT_BACK_CAMERA,
+            -1L)
 
         assertThat(camera2CameraFactory.availableCameraIds).containsExactly("0", "2")
     }
@@ -92,7 +94,8 @@ class Camera2CameraFactoryTest {
                 CameraXExecutors.mainThreadExecutor(),
                 Handler(Looper.getMainLooper())
             ),
-            null)
+            null,
+            -1L)
 
         assertThat(camera2CameraFactory.availableCameraIds).containsExactly("0", "1", "2", "3")
     }

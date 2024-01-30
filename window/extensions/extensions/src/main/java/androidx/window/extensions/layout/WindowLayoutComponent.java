@@ -61,22 +61,6 @@ public interface WindowLayoutComponent {
     void removeWindowLayoutInfoListener(
             @NonNull java.util.function.Consumer<WindowLayoutInfo> consumer);
 
-    // TODO(b/264546746): Remove addWindowLayoutInfoListener(Context, java.util.function.Consumer)
-    //  after apps update to the latest WM Jetpack library.
-
-    /**
-     * @deprecated Use {@link #addWindowLayoutInfoListener(Context, Consumer)} instead
-     * Since {@link WindowExtensions#VENDOR_API_LEVEL_2}
-     */
-    @SuppressWarnings("PairedRegistration")
-    // The paired method for unregistering is also removeWindowLayoutInfoListener.
-    @Deprecated
-    default void addWindowLayoutInfoListener(@NonNull @UiContext Context context,
-            @NonNull java.util.function.Consumer<WindowLayoutInfo> consumer) {
-        throw new UnsupportedOperationException("This method must not be called unless there is a"
-                + " corresponding override implementation on the device.");
-    }
-
     /**
      * Adds a listener interested in receiving updates to {@link WindowLayoutInfo}.
      * Use {@link WindowLayoutComponent#removeWindowLayoutInfoListener} to remove listener.

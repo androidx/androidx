@@ -25,9 +25,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 
 import android.graphics.Rect;
+import android.os.Build;
 
 import androidx.core.graphics.Insets;
-import androidx.core.os.BuildCompat;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 
@@ -90,7 +90,7 @@ public class DisplayCutoutCompatTest {
 
     @Test
     public void testWaterfallInsets() {
-        if (BuildCompat.isAtLeastR()) {
+        if (Build.VERSION.SDK_INT >= 30) {
             assertEquals(Insets.of(0, 20, 0, 20), mCutoutWaterfall.getWaterfallInsets());
         } else {
             assertEquals(Insets.NONE, mCutoutWaterfall.getWaterfallInsets());

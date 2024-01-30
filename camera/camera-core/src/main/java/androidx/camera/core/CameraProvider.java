@@ -18,7 +18,6 @@ package androidx.camera.core;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
-import androidx.annotation.RestrictTo;
 
 import java.util.List;
 
@@ -60,29 +59,4 @@ public interface CameraProvider {
      */
     @NonNull
     List<CameraInfo> getAvailableCameraInfos();
-
-    /**
-     * Returns list of {@link CameraInfo} instances of the available concurrent cameras.
-     *
-     * <p>The available concurrent cameras include all combinations of cameras which could
-     * operate concurrently on the device. Each list maps to one combination of these camera's
-     * {@link CameraInfo}.
-     *
-     * @return list of combinations of {@link CameraInfo}.
-     *
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @NonNull
-    List<List<CameraInfo>> getAvailableConcurrentCameraInfos();
-
-    /**
-     * Returns concurrent camera mode.
-     *
-     * @return true if concurrent mode is enabled, otherwise false.
-     *
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    boolean isConcurrentCameraModeOn();
 }

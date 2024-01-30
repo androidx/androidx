@@ -19,9 +19,9 @@ package androidx.room.compiler.processing.javac.kotlin
 import com.squareup.javapoet.ArrayTypeName
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.TypeName
+import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.Element
 import javax.lang.model.element.ExecutableElement
-import javax.lang.model.element.NestingKind
 import javax.lang.model.element.QualifiedNameable
 import javax.lang.model.element.TypeElement
 import javax.lang.model.element.VariableElement
@@ -45,16 +45,19 @@ import javax.lang.model.util.AbstractTypeVisitor8
  *
  * For reference, see the [JVM specification, section 4.3.2](https://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.3.2)
  */
-internal fun VariableElement.descriptor() = "$simpleName:${asType().descriptor()}"
+internal fun VariableElement.descriptor(env: ProcessingEnvironment) =
+    "$simpleName:${asType().descriptor(env)}"
 
 /**
  * Returns the method descriptor of this [ExecutableElement].
  *
  * For reference, see the [JVM specification, section 4.3.3](https://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.3.3)
  */
-internal fun ExecutableElement.descriptor() = "$simpleName${asType().descriptor()}"
+internal fun ExecutableElement.descriptor(env: ProcessingEnvironment) =
+    "$simpleName${asType().descriptor(env)}"
 
-private fun TypeMirror.descriptor() = JvmDescriptorTypeVisitor.visit(this)
+private fun TypeMirror.descriptor(env: ProcessingEnvironment) =
+    JvmDescriptorTypeVisitor.visit(this, env)
 
 // see https://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.3.2-200
 internal fun String.typeNameFromJvmSignature(): TypeName {
@@ -110,13 +113,14 @@ internal fun String.typeNameFromJvmSignature(): TypeName {
  *
  * For reference, see the [JVM specification, section 4.3](http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.3).
  */
-private object JvmDescriptorTypeVisitor : AbstractTypeVisitor8<String, Any?>() {
+private object JvmDescriptorTypeVisitor : AbstractTypeVisitor8<String, ProcessingEnvironment>() {
 
-    override fun visitNoType(t: NoType, u: Any?): String = "V"
+    override fun visitNoType(t: NoType, env: ProcessingEnvironment): String = "V"
 
-    override fun visitDeclared(t: DeclaredType, u: Any?): String = "L${t.asElement().internalName};"
+    override fun visitDeclared(t: DeclaredType, env: ProcessingEnvironment): String =
+        "L${t.asElement().internalName(env)};"
 
-    override fun visitPrimitive(t: PrimitiveType, u: Any?): String {
+    override fun visitPrimitive(t: PrimitiveType, env: ProcessingEnvironment): String {
         return when (t.kind) {
             TypeKind.BYTE -> "B"
             TypeKind.CHAR -> "C"
@@ -130,51 +134,46 @@ private object JvmDescriptorTypeVisitor : AbstractTypeVisitor8<String, Any?>() {
         }
     }
 
-    override fun visitArray(t: ArrayType, u: Any?): String = "[" + visit(t.componentType)
+    override fun visitArray(t: ArrayType, env: ProcessingEnvironment): String =
+        "[" + visit(t.componentType, env)
 
-    override fun visitWildcard(t: WildcardType, u: Any?): String = visitUnknown(t, u)
+    override fun visitWildcard(t: WildcardType, env: ProcessingEnvironment): String =
+        visitUnknown(t, env)
 
-    override fun visitExecutable(t: ExecutableType, u: Any?): String {
-        val parameterDescriptors = t.parameterTypes.joinToString("") { visit(it) }
-        val returnDescriptor = visit(t.returnType)
+    override fun visitExecutable(t: ExecutableType, env: ProcessingEnvironment): String {
+        val parameterDescriptors = t.parameterTypes.joinToString("") { visit(it, env) }
+        val returnDescriptor = visit(t.returnType, env)
         return "($parameterDescriptors)$returnDescriptor"
     }
 
-    override fun visitTypeVariable(t: TypeVariable, u: Any?): String = visit(t.upperBound)
+    override fun visitTypeVariable(t: TypeVariable, env: ProcessingEnvironment): String =
+        visit(t.upperBound, env)
 
-    override fun visitNull(t: NullType, u: Any?): String = visitUnknown(t, u)
+    override fun visitNull(t: NullType, env: ProcessingEnvironment): String = visitUnknown(t, env)
 
-    override fun visitError(t: ErrorType, u: Any?): String = visitDeclared(t, u)
+    override fun visitError(t: ErrorType, env: ProcessingEnvironment): String =
+        visitDeclared(t, env)
 
     // For a type variable with multiple bounds: "the erasure of a type variable is determined
     // by the first type in its bound" - JLS Sec 4.4
     // See https://docs.oracle.com/javase/specs/jls/se16/html/jls-4.html#jls-4.4
-    override fun visitIntersection(t: IntersectionType, u: Any?): String = visit(t.bounds[0])
+    override fun visitIntersection(t: IntersectionType, env: ProcessingEnvironment): String =
+        visit(t.bounds[0], env)
 
-    override fun visitUnion(t: UnionType, u: Any?): String = visitUnknown(t, u)
+    override fun visitUnion(t: UnionType, env: ProcessingEnvironment): String = visitUnknown(t, env)
 
-    override fun visitUnknown(t: TypeMirror, u: Any?): String = error("Unsupported type $t")
+    override fun visitUnknown(t: TypeMirror, env: ProcessingEnvironment): String =
+        error("Unsupported type $t")
 
     /**
      * Returns the name of this [TypeElement] in its "internal form".
      *
      * For reference, see the [JVM specification, section 4.2](https://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.2).
      */
-    private val Element.internalName: String
-        get() = when (this) {
-            is TypeElement ->
-                when (nestingKind) {
-                    NestingKind.TOP_LEVEL ->
-                        qualifiedName.toString().replace('.', '/')
-                    NestingKind.MEMBER, NestingKind.LOCAL ->
-                        enclosingElement.internalName + "$" + simpleName
-                    NestingKind.ANONYMOUS ->
-                        error("Unsupported nesting $nestingKind")
-                    else ->
-                        error("Unsupported, nestingKind == null")
-                }
-            is ExecutableElement -> enclosingElement.internalName
-            is QualifiedNameable -> qualifiedName.toString().replace('.', '/')
-            else -> simpleName.toString()
-        }
+    private fun Element.internalName(env: ProcessingEnvironment): String = when (this) {
+        is TypeElement -> env.elementUtils.getBinaryName(this).toString().replace('.', '/')
+        is ExecutableElement -> enclosingElement.internalName(env)
+        is QualifiedNameable -> qualifiedName.toString().replace('.', '/')
+        else -> simpleName.toString()
+    }
 }

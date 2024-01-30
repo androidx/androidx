@@ -20,7 +20,11 @@ import android.net.Uri;
 
 /**
  * Media constants for sharing constants between media provider and consumer apps
+ *
+ * @deprecated androidx.media2 is deprecated. Please migrate to <a
+ *     href="https://developer.android.com/guide/topics/media/media3">androidx.media3</a>.
  */
+@Deprecated
 public class MediaConstants {
     /**
      * A {@link android.net.Uri} scheme used in a media Uri.

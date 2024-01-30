@@ -29,9 +29,6 @@ internal abstract class JavacVariableElement(
 
     abstract val kotlinType: KmTypeContainer?
 
-    override val name: String
-        get() = element.simpleName.toString()
-
     override val type: JavacType by lazy {
         env.wrap(
             typeMirror = element.asType(),

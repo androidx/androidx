@@ -43,6 +43,7 @@ import androidx.wear.compose.foundation.CurvedModifier
 import androidx.wear.compose.foundation.CurvedTextStyle
 import androidx.wear.compose.foundation.angularGradientBackground
 import androidx.wear.compose.foundation.angularSize
+import androidx.wear.compose.foundation.angularSizeDp
 import androidx.wear.compose.foundation.background
 import androidx.wear.compose.foundation.basicCurvedText
 import androidx.wear.compose.foundation.curvedBox
@@ -51,6 +52,7 @@ import androidx.wear.compose.foundation.curvedComposable
 import androidx.wear.compose.foundation.curvedRow
 import androidx.wear.compose.foundation.padding
 import androidx.wear.compose.foundation.radialGradientBackground
+import androidx.wear.compose.foundation.radialSize
 import androidx.wear.compose.foundation.size
 import androidx.wear.compose.foundation.weight
 
@@ -181,7 +183,7 @@ fun CurvedAndNormalText() {
 fun CurvedFixedSize() {
     CurvedLayout(modifier = Modifier.fillMaxSize()) {
         basicCurvedText(
-            "Fixed Size",
+            "45 deg",
             style = {
                 CurvedTextStyle(
                     fontSize = 16.sp,
@@ -192,9 +194,19 @@ fun CurvedFixedSize() {
                 .background(Color.White)
                 .size(sweepDegrees = 45f, thickness = 40.dp),
         )
-        curvedRow(
-            modifier = CurvedModifier.size(sweepDegrees = 5f, thickness = 30.dp),
-        ) { }
+        basicCurvedText(
+            "40 dp",
+            style = {
+                CurvedTextStyle(
+                    fontSize = 16.sp,
+                    color = Color.Black
+                )
+            },
+            modifier = CurvedModifier
+                .background(Color.Yellow)
+                .radialSize(40.dp)
+                .angularSizeDp(40.dp),
+        )
     }
 }
 

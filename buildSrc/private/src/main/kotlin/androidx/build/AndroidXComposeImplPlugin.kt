@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -138,9 +138,19 @@ class AndroidXComposeImplPlugin : Plugin<Project> {
             }
 
             project.tasks.withType(KotlinJsCompile::class.java).configureEach { compile ->
+                // val isWasm = compile.kotlinOptions.freeCompilerArgs.contains("-Xwasm")
+
                 compile.kotlinOptions.freeCompilerArgs += listOf(
-                    "-P", "plugin:androidx.compose.compiler.plugins.kotlin:generateDecoys=true"
+                    "-P", "plugin:androidx.compose.compiler.plugins.kotlin:generateDecoys=false",
+                    "-Xklib-enable-signature-clash-checks=false",
                 )
+            }
+
+            project.tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinNativeCompile>().configureEach {
+                it.kotlinOptions {
+                    freeCompilerArgs += "-opt-in=kotlinx.cinterop.ExperimentalForeignApi"
+                    freeCompilerArgs += "-opt-in=kotlin.experimental.ExperimentalNativeApi"
+                }
             }
         }
 
@@ -170,6 +180,8 @@ class AndroidXComposeImplPlugin : Plugin<Project> {
                     error.add("ComposableLambdaParameterPosition")
                     error.add("CompositionLocalNaming")
                     error.add("ComposableModifierFactory")
+                    error.add("AutoboxingStateCreation")
+                    error.add("AutoboxingStateValueProperty")
                     error.add("InvalidColorHexValue")
                     error.add("MissingColorAlphaChannel")
                     error.add("ModifierFactoryReturnType")
@@ -177,6 +189,7 @@ class AndroidXComposeImplPlugin : Plugin<Project> {
                     error.add("ModifierNodeInspectableProperties")
                     error.add("ModifierParameter")
                     error.add("MutableCollectionMutableState")
+                    error.add("OpaqueUnitKey")
                     error.add("UnnecessaryComposedModifier")
                     error.add("FrequentlyChangedStateReadInComposition")
                     error.add("ReturnFromAwaitPointerEventScope")
@@ -302,6 +315,9 @@ class AndroidXComposeImplPlugin : Plugin<Project> {
                     "multiplatformExtension is null (multiplatform plugin not enabled?)"
             }
 
+            val androidXExtension = project.extensions.findByType(AndroidXExtension::class.java)
+                ?: throw Exception("You have applied AndroidXComposePlugin without AndroidXPlugin")
+
             /*
             The following configures source sets - note:
 
@@ -333,6 +349,10 @@ class AndroidXComposeImplPlugin : Plugin<Project> {
                 if (multiplatformExtension.targets.findByName("desktop") != null) {
                     tasks.named("desktopTestClasses").also(::addToBuildOnServer)
                 }
+
+                if (androidXExtension.type == LibraryType.PUBLISHED_LIBRARY) {
+                    project.apply(plugin = "org.jetbrains.kotlinx.binary-compatibility-validator")
+                }
             }
         }
     }
@@ -356,16 +376,10 @@ private fun configureComposeCompilerPlugin(
         val configuration = project.configurations.create(COMPILER_PLUGIN_CONFIGURATION)
         // Add Compose compiler plugin to kotlinPlugin configuration, making sure it works
         // for Playground builds as well
+        val compilerPluginVersion = project.properties["jetbrains.compose.compiler.version"] as String
         project.dependencies.add(
             COMPILER_PLUGIN_CONFIGURATION,
-            if (ProjectLayoutType.isPlayground(project)) {
-                AndroidXPlaygroundRootImplPlugin.projectOrArtifact(
-                    project.rootProject,
-                    ":compose:compiler:compiler"
-                )
-            } else {
-                project.rootProject.resolveProject(":compose:compiler:compiler")
-            }
+            "org.jetbrains.compose.compiler:compiler:$compilerPluginVersion"
         )
         val kotlinPlugin = configuration.incoming.artifactView { view ->
             view.attributes { attributes ->

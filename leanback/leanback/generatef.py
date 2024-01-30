@@ -18,14 +18,14 @@ import os
 import sys
 import re
 
-print "Generate framework fragment related code for leanback"
+print("Generate framework fragment related code for leanback")
 
 cls = ['Base', 'BaseRow', 'Browse', 'Details', 'Error', 'Headers',
       'Playback', 'Rows', 'Search', 'VerticalGrid', 'Branded',
       'GuidedStep', 'Onboarding', 'Video']
 
 for w in cls:
-    print "copy {}SupportFragment to {}Fragment".format(w, w)
+    print("copy {}SupportFragment to {}Fragment".format(w, w))
 
     file = open('src/main/java/androidx/leanback/app/{}SupportFragment.java'.format(w), 'r')
     content = "// CHECKSTYLE:OFF Generated code\n"
@@ -45,10 +45,22 @@ for w in cls:
         line = line.replace('setSharedElementEnterTransition(sharedElementTransition)', 'setSharedElementEnterTransition((android.transition.Transition) sharedElementTransition)');
         line = line.replace('setExitTransition(exitTransition)', 'setExitTransition((android.transition.Transition) exitTransition)');
         line = line.replace('requestPermissions(new', 'PermissionHelper.requestPermissions(SearchFragment.this, new');
+
         # replace getContext() with FragmentUtil.getContext(XXXFragment.this), but dont match the case "view.getContext()"
         line = re.sub(r'([^\.])getContext\(\)', r'\1FragmentUtil.getContext({}Fragment.this)'.format(w), line);
         content = content + line
     file.close()
+
+    # treat different Nullable for onCreateView
+    content = re.sub(
+        'View onCreateView\(@NonNull LayoutInflater ([a-zA-Z]+),\s*@Nullable ViewGroup ([a-zA-Z]+),\s*@Nullable Bundle ([a-zA-Z]+)',
+        r'View onCreateView(LayoutInflater \1, @Nullable ViewGroup \2, Bundle \3', content)
+
+    # treat different Nullable for onSaveInstance
+    content = re.sub(
+        'void onSaveInstanceState\(@NonNull Bundle ([a-zA-Z]+)\)',
+        r'void onSaveInstanceState(Bundle \1)', content)
+
     # add deprecated tag to fragment class and inner classes/interfaces
     content = re.sub(r'\*\/\n(@.*\n|)(public |abstract public |abstract |)class', '* @deprecated use {@link ' + w + 'SupportFragment}\n */\n@Deprecated\n\\1\\2class', content)
     content = re.sub(r'\*\/\n    public (static class|interface|final static class|abstract static class)', '* @deprecated use {@link ' + w + 'SupportFragment}\n     */\n    @Deprecated\n    public \\1', content)
@@ -58,7 +70,7 @@ for w in cls:
 
 
 
-print "copy VideoSupportFragmentGlueHost to VideoFragmentGlueHost"
+print("copy VideoSupportFragmentGlueHost to VideoFragmentGlueHost")
 file = open('src/main/java/androidx/leanback/app/VideoSupportFragmentGlueHost.java', 'r')
 content = "// CHECKSTYLE:OFF Generated code\n"
 content = content + "/* This file is auto-generated from VideoSupportFragmentGlueHost.java.  DO NOT MODIFY. */\n\n"
@@ -76,7 +88,7 @@ outfile.close()
 
 
 
-print "copy PlaybackSupportFragmentGlueHost to PlaybackFragmentGlueHost"
+print("copy PlaybackSupportFragmentGlueHost to PlaybackFragmentGlueHost")
 file = open('src/main/java/androidx/leanback/app/PlaybackSupportFragmentGlueHost.java', 'r')
 content = "// CHECKSTYLE:OFF Generated code\n"
 content = content + "/* This file is auto-generated from {}PlaybackSupportFragmentGlueHost.java.  DO NOT MODIFY. */\n\n"
@@ -94,7 +106,7 @@ outfile.close()
 
 
 
-print "copy DetailsSupportFragmentBackgroundController to DetailsFragmentBackgroundController"
+print("copy DetailsSupportFragmentBackgroundController to DetailsFragmentBackgroundController")
 file = open('src/main/java/androidx/leanback/app/DetailsSupportFragmentBackgroundController.java', 'r')
 content = "// CHECKSTYLE:OFF Generated code\n"
 content = content + "/* This file is auto-generated from {}DetailsSupportFragmentBackgroundController.java.  DO NOT MODIFY. */\n\n"

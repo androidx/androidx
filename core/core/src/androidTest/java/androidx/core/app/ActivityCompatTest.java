@@ -30,12 +30,11 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import android.Manifest;
 import android.app.Activity;
+import android.os.Build;
 import android.support.v4.BaseInstrumentationTestCase;
 import android.view.View;
 
-import androidx.annotation.OptIn;
 import androidx.core.app.ActivityCompat.PermissionCompatDelegate;
-import androidx.core.os.BuildCompat;
 import androidx.core.test.R;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -151,9 +150,8 @@ public class ActivityCompatTest extends BaseInstrumentationTestCase<TestActivity
     }
 
     @Test
-    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
     public void testShouldShowRequestPermissionRationaleForPostNotifications() throws Throwable {
-        if (!BuildCompat.isAtLeastT()) {
+        if (Build.VERSION.SDK_INT < 33) {
             // permission doesn't exist yet, so should return false
             assertFalse(ActivityCompat.shouldShowRequestPermissionRationale(getActivity(),
                     Manifest.permission.POST_NOTIFICATIONS));

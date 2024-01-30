@@ -13,6 +13,10 @@ ActionValue: androidx.browser.customtabs.CustomTabsIntent#EXTRA_ACTION_BUTTON_BU
     Inconsistent extra value; expected `androidx.browser.customtabs.extra.ACTION_BUTTON_BUNDLE`, was `android.support.customtabs.extra.ACTION_BUTTON_BUNDLE`
 ActionValue: androidx.browser.customtabs.CustomTabsIntent#EXTRA_CLOSE_BUTTON_ICON:
     Inconsistent extra value; expected `androidx.browser.customtabs.extra.CLOSE_BUTTON_ICON`, was `android.support.customtabs.extra.CLOSE_BUTTON_ICON`
+ActionValue: androidx.browser.customtabs.CustomTabsIntent#EXTRA_DISABLE_BOOKMARKS_BUTTON:
+    Inconsistent extra value; expected `androidx.browser.customtabs.extra.DISABLE_BOOKMARKS_BUTTON`, was `org.chromium.chrome.browser.customtabs.EXTRA_DISABLE_STAR_BUTTON`
+ActionValue: androidx.browser.customtabs.CustomTabsIntent#EXTRA_DISABLE_DOWNLOAD_BUTTON:
+    Inconsistent extra value; expected `androidx.browser.customtabs.extra.DISABLE_DOWNLOAD_BUTTON`, was `org.chromium.chrome.browser.customtabs.EXTRA_DISABLE_DOWNLOAD_BUTTON`
 ActionValue: androidx.browser.customtabs.CustomTabsIntent#EXTRA_ENABLE_INSTANT_APPS:
     Inconsistent extra value; expected `androidx.browser.customtabs.extra.ENABLE_INSTANT_APPS`, was `android.support.customtabs.extra.EXTRA_ENABLE_INSTANT_APPS`
 ActionValue: androidx.browser.customtabs.CustomTabsIntent#EXTRA_ENABLE_URLBAR_HIDING:
@@ -31,8 +35,12 @@ ActionValue: androidx.browser.customtabs.CustomTabsIntent#EXTRA_REMOTEVIEWS_VIEW
     Inconsistent extra value; expected `androidx.browser.customtabs.extra.REMOTEVIEWS_VIEW_IDS`, was `android.support.customtabs.extra.EXTRA_REMOTEVIEWS_VIEW_IDS`
 ActionValue: androidx.browser.customtabs.CustomTabsIntent#EXTRA_SECONDARY_TOOLBAR_COLOR:
     Inconsistent extra value; expected `androidx.browser.customtabs.extra.SECONDARY_TOOLBAR_COLOR`, was `android.support.customtabs.extra.SECONDARY_TOOLBAR_COLOR`
+ActionValue: androidx.browser.customtabs.CustomTabsIntent#EXTRA_SEND_TO_EXTERNAL_DEFAULT_HANDLER:
+    Inconsistent extra value; expected `androidx.browser.customtabs.extra.SEND_TO_EXTERNAL_DEFAULT_HANDLER`, was `android.support.customtabs.extra.SEND_TO_EXTERNAL_HANDLER`
 ActionValue: androidx.browser.customtabs.CustomTabsIntent#EXTRA_SESSION:
     Inconsistent extra value; expected `androidx.browser.customtabs.extra.SESSION`, was `android.support.customtabs.extra.SESSION`
+ActionValue: androidx.browser.customtabs.CustomTabsIntent#EXTRA_SHOW_ON_TOOLBAR:
+    Inconsistent extra value; expected `androidx.browser.customtabs.extra.SHOW_ON_TOOLBAR`, was `android.support.customtabs.customaction.SHOW_ON_TOOLBAR`
 ActionValue: androidx.browser.customtabs.CustomTabsIntent#EXTRA_TINT_ACTION_BUTTON:
     Inconsistent extra value; expected `androidx.browser.customtabs.extra.TINT_ACTION_BUTTON`, was `android.support.customtabs.extra.TINT_ACTION_BUTTON`
 ActionValue: androidx.browser.customtabs.CustomTabsIntent#EXTRA_TITLE_VISIBILITY_STATE:
@@ -149,6 +157,8 @@ MissingGetterMatchingBuilder: androidx.browser.customtabs.CustomTabsIntent.Build
     androidx.browser.customtabs.CustomTabsIntent does not declare a `getSecondaryToolbarViews()` method matching method androidx.browser.customtabs.CustomTabsIntent.Builder.setSecondaryToolbarViews(android.widget.RemoteViews,int[],android.app.PendingIntent)
 MissingGetterMatchingBuilder: androidx.browser.customtabs.CustomTabsIntent.Builder#setSession(androidx.browser.customtabs.CustomTabsSession):
     androidx.browser.customtabs.CustomTabsIntent does not declare a `getSession()` method matching method androidx.browser.customtabs.CustomTabsIntent.Builder.setSession(androidx.browser.customtabs.CustomTabsSession)
+MissingGetterMatchingBuilder: androidx.browser.customtabs.CustomTabsIntent.Builder#setShareIdentityEnabled(boolean):
+    androidx.browser.customtabs.CustomTabsIntent does not declare a `isShareIdentityEnabled()` method matching method androidx.browser.customtabs.CustomTabsIntent.Builder.setShareIdentityEnabled(boolean)
 MissingGetterMatchingBuilder: androidx.browser.customtabs.CustomTabsIntent.Builder#setShareState(int):
     androidx.browser.customtabs.CustomTabsIntent does not declare a `getShareState()` method matching method androidx.browser.customtabs.CustomTabsIntent.Builder.setShareState(int)
 MissingGetterMatchingBuilder: androidx.browser.customtabs.CustomTabsIntent.Builder#setShowTitle(boolean):

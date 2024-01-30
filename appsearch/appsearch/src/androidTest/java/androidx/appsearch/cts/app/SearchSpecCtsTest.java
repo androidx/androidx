@@ -71,10 +71,10 @@ public class SearchSpecCtsTest {
                 .setRankingStrategy(SearchSpec.RANKING_STRATEGY_RELEVANCE_SCORE)
                 .setResultGrouping(SearchSpec.GROUPING_TYPE_PER_NAMESPACE
                         | SearchSpec.GROUPING_TYPE_PER_PACKAGE, /*limit=*/ 37)
-                .addProjection("schemaType1", expectedPropertyPaths1)
-                .addProjection("schemaType2", expectedPropertyPaths2)
-                .setPropertyWeights("schemaType1", expectedPropertyWeights)
-                .setPropertyWeightPaths("schemaType2", expectedPropertyWeightPaths)
+                .addProjection("schemaTypes1", expectedPropertyPaths1)
+                .addProjection("schemaTypes2", expectedPropertyPaths2)
+                .setPropertyWeights("schemaTypes1", expectedPropertyWeights)
+                .setPropertyWeightPaths("schemaTypes2", expectedPropertyWeightPaths)
                 .setNumericSearchEnabled(true)
                 .setVerbatimSearchEnabled(true)
                 .setListFilterQueryLanguageEnabled(true)
@@ -98,19 +98,19 @@ public class SearchSpecCtsTest {
                 .isEqualTo(SearchSpec.GROUPING_TYPE_PER_NAMESPACE
                         | SearchSpec.GROUPING_TYPE_PER_PACKAGE);
         assertThat(searchSpec.getProjections())
-                .containsExactly("schemaType1", expectedPropertyPaths1, "schemaType2",
+                .containsExactly("schemaTypes1", expectedPropertyPaths1, "schemaTypes2",
                         expectedPropertyPaths2);
         assertThat(searchSpec.getResultGroupingLimit()).isEqualTo(37);
-        assertThat(searchSpec.getPropertyWeights().keySet()).containsExactly("schemaType1",
-                "schemaType2");
-        assertThat(searchSpec.getPropertyWeights().get("schemaType1"))
+        assertThat(searchSpec.getPropertyWeights().keySet()).containsExactly("schemaTypes1",
+                "schemaTypes2");
+        assertThat(searchSpec.getPropertyWeights().get("schemaTypes1"))
                 .containsExactly("property1", 1.0, "property2", 2.0);
-        assertThat(searchSpec.getPropertyWeights().get("schemaType2"))
+        assertThat(searchSpec.getPropertyWeights().get("schemaTypes2"))
                 .containsExactly("property1.nested", 1.0);
-        assertThat(searchSpec.getPropertyWeightPaths().get("schemaType1"))
+        assertThat(searchSpec.getPropertyWeightPaths().get("schemaTypes1"))
                 .containsExactly(new PropertyPath("property1"), 1.0,
                         new PropertyPath("property2"), 2.0);
-        assertThat(searchSpec.getPropertyWeightPaths().get("schemaType2"))
+        assertThat(searchSpec.getPropertyWeightPaths().get("schemaTypes2"))
                 .containsExactly(new PropertyPath("property1.nested"), 1.0);
         assertThat(searchSpec.isNumericSearchEnabled()).isTrue();
         assertThat(searchSpec.isVerbatimSearchEnabled()).isTrue();
@@ -199,6 +199,52 @@ public class SearchSpecCtsTest {
         assertThat(typePropertyWeightsMap.get("TypeB"))
                 .containsExactly(new PropertyPath("property1"), 1.0,
                              new PropertyPath("property2.nested"), 2.0);
+    }
+
+    @Test
+    public void testGetTypePropertyWeightsWithAdvancedRanking() {
+        SearchSpec searchSpec = new SearchSpec.Builder()
+                .setTermMatch(SearchSpec.TERM_MATCH_PREFIX)
+                .setRankingStrategy("sum(this.propertyWeights())")
+                .setPropertyWeights("TypeA", ImmutableMap.of("property1", 1.0, "property2", 2.0))
+                .setPropertyWeights("TypeB", ImmutableMap.of("property1", 1.0, "property2"
+                        + ".nested", 2.0))
+                .build();
+
+        Map<String, Map<String, Double>> typePropertyWeightsMap = searchSpec.getPropertyWeights();
+
+        assertThat(typePropertyWeightsMap.keySet())
+                .containsExactly("TypeA", "TypeB");
+        assertThat(typePropertyWeightsMap.get("TypeA")).containsExactly("property1", 1.0,
+                "property2", 2.0);
+        assertThat(typePropertyWeightsMap.get("TypeB")).containsExactly("property1", 1.0,
+                "property2.nested", 2.0);
+    }
+
+    @Test
+    public void testGetTypePropertyWeightPathsWithAdvancedRanking() {
+        SearchSpec searchSpec = new SearchSpec.Builder()
+                .setTermMatch(SearchSpec.TERM_MATCH_PREFIX)
+                .setRankingStrategy("sum(this.propertyWeights())")
+                .setPropertyWeightPaths("TypeA",
+                        ImmutableMap.of(new PropertyPath("property1"), 1.0,
+                                new PropertyPath("property2"), 2.0))
+                .setPropertyWeightPaths("TypeB",
+                        ImmutableMap.of(new PropertyPath("property1"), 1.0,
+                                new PropertyPath("property2.nested"), 2.0))
+                .build();
+
+        Map<String, Map<PropertyPath, Double>> typePropertyWeightsMap =
+                searchSpec.getPropertyWeightPaths();
+
+        assertThat(typePropertyWeightsMap.keySet())
+                .containsExactly("TypeA", "TypeB");
+        assertThat(typePropertyWeightsMap.get("TypeA"))
+                .containsExactly(new PropertyPath("property1"), 1.0,
+                        new PropertyPath("property2"), 2.0);
+        assertThat(typePropertyWeightsMap.get("TypeB"))
+                .containsExactly(new PropertyPath("property1"), 1.0,
+                        new PropertyPath("property2.nested"), 2.0);
     }
 
     @Test
@@ -417,6 +463,20 @@ public class SearchSpecCtsTest {
     }
 
     @Test
+    public void testProjections_withSchemaFilter() throws Exception {
+        SearchSpec.Builder searchSpecBuilder = new SearchSpec.Builder()
+                .setTermMatch(SearchSpec.TERM_MATCH_PREFIX)
+                .addFilterSchemas("Filter")
+                .addProjectionPathsForDocumentClass(King.class, ImmutableList.of(
+                        new PropertyPath("field1"), new PropertyPath("field2.subfield2")));
+
+        IllegalArgumentException exception =
+                assertThrows(IllegalArgumentException.class, searchSpecBuilder::build);
+        assertThat(exception.getMessage())
+                .isEqualTo("Projection requested for schema not in schemas filters: King");
+    }
+
+    @Test
     public void testTypePropertyWeightsForDocumentClass() throws Exception {
         SearchSpec searchSpec = new SearchSpec.Builder()
                 .setTermMatch(SearchSpec.TERM_MATCH_PREFIX)
@@ -479,12 +539,13 @@ public class SearchSpecCtsTest {
         assertThat(e.getMessage()).isEqualTo("Attempting to rank based on joined documents, but"
                 + " no JoinSpec provided");
 
+        JoinSpec joinSpec = new JoinSpec.Builder("childProp")
+                .setAggregationScoringStrategy(
+                        JoinSpec.AGGREGATION_SCORING_SUM_RANKING_SIGNAL)
+                .build();
         e = assertThrows(IllegalStateException.class, () -> new SearchSpec.Builder()
                 .setRankingStrategy(SearchSpec.RANKING_STRATEGY_CREATION_TIMESTAMP)
-                .setJoinSpec(new JoinSpec.Builder("childProp")
-                        .setAggregationScoringStrategy(
-                                JoinSpec.AGGREGATION_SCORING_SUM_RANKING_SIGNAL)
-                        .build())
+                .setJoinSpec(joinSpec)
                 .build());
         assertThat(e.getMessage()).isEqualTo("Aggregate scoring strategy has been set in the "
                 + "nested JoinSpec, but ranking strategy is not "

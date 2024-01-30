@@ -256,7 +256,6 @@ class AppCompatTextViewAutoSizeHelper {
      *
      * @see #getAutoSizeTextType()
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     void setAutoSizeTextTypeWithDefaults(@TextViewCompat.AutoSizeTextType int autoSizeTextType) {
@@ -319,7 +318,6 @@ class AppCompatTextViewAutoSizeHelper {
      * @see #getAutoSizeStepGranularity()
      * @see #getAutoSizeTextAvailableSizes()
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     void setAutoSizeTextTypeUniformWithConfiguration(
@@ -365,7 +363,6 @@ class AppCompatTextViewAutoSizeHelper {
      * @see #getAutoSizeMaxTextSize()
      * @see #getAutoSizeTextAvailableSizes()
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     void setAutoSizeTextTypeUniformWithPresetSizes(@NonNull int[] presetSizes, int unit)
@@ -415,7 +412,6 @@ class AppCompatTextViewAutoSizeHelper {
      * @see #setAutoSizeTextTypeUniformWithConfiguration(int, int, int, int)
      * @see #setAutoSizeTextTypeUniformWithPresetSizes(int[], int)
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @TextViewCompat.AutoSizeTextType
@@ -430,7 +426,6 @@ class AppCompatTextViewAutoSizeHelper {
      *
      * @see #setAutoSizeTextTypeUniformWithConfiguration(int, int, int, int)
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     int getAutoSizeStepGranularity() {
@@ -446,7 +441,6 @@ class AppCompatTextViewAutoSizeHelper {
      * @see #setAutoSizeTextTypeUniformWithConfiguration(int, int, int, int)
      * @see #setAutoSizeTextTypeUniformWithPresetSizes(int[], int)
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     int getAutoSizeMinTextSize() {
@@ -462,7 +456,6 @@ class AppCompatTextViewAutoSizeHelper {
      * @see #setAutoSizeTextTypeUniformWithConfiguration(int, int, int, int)
      * @see #setAutoSizeTextTypeUniformWithPresetSizes(int[], int)
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     int getAutoSizeMaxTextSize() {
@@ -475,7 +468,6 @@ class AppCompatTextViewAutoSizeHelper {
      * @see #setAutoSizeTextTypeUniformWithConfiguration(int, int, int, int)
      * @see #setAutoSizeTextTypeUniformWithPresetSizes(int[], int)
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     int[] getAutoSizeTextAvailableSizes() {
@@ -598,7 +590,6 @@ class AppCompatTextViewAutoSizeHelper {
     /**
      * Automatically computes and sets the text size.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     void autoSizeText() {
@@ -647,7 +638,6 @@ class AppCompatTextViewAutoSizeHelper {
         mNeedsAutoSizeText = false;
     }
 
-    /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     void setTextSizeInternal(int unit, float size) {
         Resources res = mContext == null
@@ -883,7 +873,6 @@ class AppCompatTextViewAutoSizeHelper {
      * @return {@code true} if this widget supports auto-sizing text and has been configured to
      * auto-size.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     boolean isAutoSizeEnabled() {

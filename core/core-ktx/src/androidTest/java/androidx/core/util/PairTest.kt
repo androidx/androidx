@@ -16,12 +16,12 @@
 
 package androidx.core.util
 
+import android.util.Pair as AndroidPair
 import androidx.test.filters.SmallTest
+import kotlin.Pair as KotlinPair
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertSame
 import org.junit.Test
-import android.util.Pair as AndroidPair
-import kotlin.Pair as KotlinPair
 
 @SmallTest
 class PairTest {

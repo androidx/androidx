@@ -17,9 +17,6 @@ package androidx.lifecycle
 
 import androidx.annotation.RestrictTo
 
-/**
- * @hide
- */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public interface GeneratedAdapter {
     /**

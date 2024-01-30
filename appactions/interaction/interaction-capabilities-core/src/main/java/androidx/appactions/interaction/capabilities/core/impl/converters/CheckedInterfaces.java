@@ -37,7 +37,7 @@ public final class CheckedInterfaces {
      * @param <R>
      */
     @FunctionalInterface
-    public interface Function<T, R> {
+    interface Function<T, R> {
         R apply(T t) throws StructConversionException;
     }
 

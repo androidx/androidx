@@ -1,0 +1,7 @@
+rerunDryRun {
+    tasks = ["bOS"]
+    gradle-args = ["--dry-run", "--rerun-tasks"]
+    daemon = cold
+    warm-ups = 1
+    clear-configuration-cache-state-before = BUILD
+}

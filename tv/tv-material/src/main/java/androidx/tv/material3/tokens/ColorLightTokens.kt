@@ -35,8 +35,8 @@ internal object ColorLightTokens {
     val OnSurfaceVariant = PaletteTokens.NeutralVariant30
     val OnTertiary = PaletteTokens.Tertiary100
     val OnTertiaryContainer = PaletteTokens.Tertiary10
-    val Outline = PaletteTokens.NeutralVariant50
-    val OutlineVariant = PaletteTokens.NeutralVariant80
+    val Border = PaletteTokens.NeutralVariant50
+    val BorderVariant = PaletteTokens.NeutralVariant80
     val Primary = PaletteTokens.Primary40
     val PrimaryContainer = PaletteTokens.Primary90
     val Scrim = PaletteTokens.Neutral0

@@ -24,3 +24,4 @@ import androidx.camera.core.impl.TagBundle
 
 /** Custom tags that can be passed used by CameraPipe */
 public val CAMERAX_TAG_BUNDLE = Metadata.Key.create<TagBundle>("camerax.tag_bundle")
+val USE_CASE_CAMERA_STATE_CUSTOM_TAG = Metadata.Key.create<Int>("use_case_camera_state.tag")

@@ -26,7 +26,7 @@ plugins {
 dependencies {
 
     api(project(":activity:activity"))
-    api("androidx.core:core-ktx:1.1.0") {
+    api("androidx.core:core-ktx:1.9.0") {
         because "Mirror activity dependency graph for -ktx artifacts"
     }
     api("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1") {
@@ -55,6 +55,7 @@ androidx {
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2018"
     description = "Kotlin extensions for 'activity' artifact"
+    metalavaK2UastEnabled = true
 }
 
 android {

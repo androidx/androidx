@@ -22,6 +22,7 @@ import androidx.annotation.IntRange
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.testapp.R
+import androidx.transition.Fade
 
 /**
  * Display details for a given kitten
@@ -45,6 +46,9 @@ class DetailsFragment : Fragment(R.layout.kitten_details_fragment) {
             5 -> image.setImageResource(R.drawable.placekitten_5)
             6 -> image.setImageResource(R.drawable.placekitten_6)
         }
+
+        enterTransition = Fade()
+        exitTransition = Fade()
     }
 
     companion object {

@@ -21,25 +21,28 @@ import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.TotalCaptureResult
 import android.hardware.camera2.params.InputConfiguration
 import android.os.Build
-import android.os.Handler
 import android.view.Surface
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.compat.Api23Compat
 import androidx.camera.camera2.pipe.compat.CameraCaptureSessionWrapper
 import androidx.camera.camera2.pipe.compat.CameraDeviceWrapper
+import androidx.camera.camera2.pipe.compat.CameraExtensionSessionWrapper
 import androidx.camera.camera2.pipe.compat.InputConfigData
 import androidx.camera.camera2.pipe.compat.OutputConfigurationWrapper
 import androidx.camera.camera2.pipe.compat.SessionConfigData
 import kotlin.reflect.KClass
 
 /** Fake implementation of [CameraDeviceWrapper] for tests. */
+@RequiresApi(21)
 internal class FakeCameraDeviceWrapper(val fakeCamera: RobolectricCameras.FakeCamera) :
     CameraDeviceWrapper {
     override val cameraId: CameraId
         get() = fakeCamera.cameraId
 
     var currentStateCallback: CameraCaptureSessionWrapper.StateCallback? = null
+    var currentExtensionStateCallback: CameraExtensionSessionWrapper.StateCallback? = null
     var currentSession: FakeCaptureSessionWrapper? = null
 
     override fun createCaptureRequest(template: RequestTemplate): CaptureRequest.Builder {
@@ -59,52 +62,59 @@ internal class FakeCameraDeviceWrapper(val fakeCamera: RobolectricCameras.FakeCa
 
     override fun createCaptureSession(
         outputs: List<Surface>,
-        stateCallback: CameraCaptureSessionWrapper.StateCallback,
-        handler: Handler?
-    ) {
+        stateCallback: CameraCaptureSessionWrapper.StateCallback
+    ): Boolean {
         createFakeCaptureSession(stateCallback)
+        return true
     }
 
-    override fun createCaptureSession(config: SessionConfigData) {
+    override fun createCaptureSession(config: SessionConfigData): Boolean {
         createFakeCaptureSession(config.stateCallback)
+        return true
     }
 
     override fun createReprocessableCaptureSession(
         input: InputConfiguration,
         outputs: List<Surface>,
-        stateCallback: CameraCaptureSessionWrapper.StateCallback,
-        handler: Handler?
-    ) {
+        stateCallback: CameraCaptureSessionWrapper.StateCallback
+    ): Boolean {
         createFakeCaptureSession(stateCallback)
+        return true
     }
 
     override fun createConstrainedHighSpeedCaptureSession(
         outputs: List<Surface>,
-        stateCallback: CameraCaptureSessionWrapper.StateCallback,
-        handler: Handler?
-    ) {
+        stateCallback: CameraCaptureSessionWrapper.StateCallback
+    ): Boolean {
         createFakeCaptureSession(stateCallback)
+        return true
     }
 
     override fun createCaptureSessionByOutputConfigurations(
         outputConfigurations: List<OutputConfigurationWrapper>,
-        stateCallback: CameraCaptureSessionWrapper.StateCallback,
-        handler: Handler?
-    ) {
+        stateCallback: CameraCaptureSessionWrapper.StateCallback
+    ): Boolean {
         createFakeCaptureSession(stateCallback)
+        return true
     }
 
     override fun createReprocessableCaptureSessionByConfigurations(
         inputConfig: InputConfigData,
         outputs: List<OutputConfigurationWrapper>,
-        stateCallback: CameraCaptureSessionWrapper.StateCallback,
-        handler: Handler?
-    ) {
+        stateCallback: CameraCaptureSessionWrapper.StateCallback
+    ): Boolean {
         createFakeCaptureSession(stateCallback)
+        return true
+    }
+
+    override fun createExtensionSession(config: SessionConfigData): Boolean {
+        createFakeExtensionSession(config.extensionStateCallback)
+        return true
     }
 
     override fun onDeviceClosed() {
         currentStateCallback?.onSessionFinalized()
+        currentExtensionStateCallback?.onSessionFinalized()
     }
 
     fun createFakeCaptureSession(
@@ -113,6 +123,15 @@ internal class FakeCameraDeviceWrapper(val fakeCamera: RobolectricCameras.FakeCa
         val nextSession = FakeCaptureSessionWrapper(this)
         currentSession = nextSession
         currentStateCallback = stateCallback
+        return nextSession
+    }
+
+    private fun createFakeExtensionSession(
+        stateCallback: CameraExtensionSessionWrapper.StateCallback? = null
+    ): FakeCaptureSessionWrapper {
+        val nextSession = FakeCaptureSessionWrapper(this)
+        currentSession = nextSession
+        currentExtensionStateCallback = stateCallback
         return nextSession
     }
 

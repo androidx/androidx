@@ -54,7 +54,7 @@ public final class StartScreen extends Screen {
 
         listBuilder.addItem(createRowForScreen(R.string.nav_demos_title,
                 createCarIconForImage(R.drawable.ic_map_white_48dp),
-                new NavigationDemosScreen(getCarContext())));
+                NavigationDemosScreen.createScreen(getCarContext())));
 
         return new ListTemplate.Builder()
                 .setSingleList(listBuilder.build())

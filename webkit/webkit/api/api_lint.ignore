@@ -1,6 +1,8 @@
 // Baseline format: 1.0
 ArrayReturn: androidx.webkit.WebMessageCompat#WebMessageCompat(String, androidx.webkit.WebMessagePortCompat[]) parameter #1:
     Method parameter should be Collection<WebMessagePortCompat> (or subclass) instead of raw array; was `androidx.webkit.WebMessagePortCompat[]`
+ArrayReturn: androidx.webkit.WebMessageCompat#WebMessageCompat(byte[], androidx.webkit.WebMessagePortCompat[]) parameter #1:
+    Method parameter should be Collection<WebMessagePortCompat> (or subclass) instead of raw array; was `androidx.webkit.WebMessagePortCompat[]`
 ArrayReturn: androidx.webkit.WebMessageCompat#getPorts():
     Method should return Collection<WebMessagePortCompat> (or subclass) instead of raw array; was `androidx.webkit.WebMessagePortCompat[]`
 ArrayReturn: androidx.webkit.WebViewCompat#createWebMessageChannel(android.webkit.WebView):

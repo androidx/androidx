@@ -16,7 +16,6 @@
 
 package androidx.room.compiler.processing.util
 
-import androidx.room.compiler.codegen.XTypeName
 import com.squareup.kotlinpoet.MUTABLE_COLLECTION
 import com.squareup.kotlinpoet.MUTABLE_ITERABLE
 import com.squareup.kotlinpoet.MUTABLE_LIST
@@ -71,14 +70,6 @@ fun KClass<*>.asMutableKClassName(): KClassName = when (this) {
     Map::class -> MUTABLE_MAP
     Map.Entry::class -> MUTABLE_MAP_ENTRY
     else -> this.asKClassName()
-}
-
-// Creates a simple XTypeName wrapping JTypeVariableName and KTypeVariableName without bounds.
-fun createXTypeVariableName(name: String): XTypeName {
-    return XTypeName(
-        java = JTypeVariableName.get(name),
-        kotlin = KTypeVariableName(name)
-    )
 }
 
 /**

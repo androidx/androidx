@@ -7,7 +7,6 @@ cd "$(dirname $0)"
 
 export USE_ANDROIDX_REMOTE_BUILD_CACHE=gcp
 
-impl/build.sh zipTestConfigsWithApks zipConstrainedTestConfigsWithApks \
-    zipOwnersFiles createModuleInfo "$@"
+impl/build.sh zipTestConfigsWithApks zipOwnersFiles createModuleInfo "$@"
 
 echo "Completing $0 at $(date)"

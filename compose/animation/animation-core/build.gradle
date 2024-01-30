@@ -23,6 +23,7 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXComposePlugin")
+    id("kotlinx-atomicfu")
 }
 
 AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project)
@@ -69,6 +70,7 @@ if (AndroidXComposePlugin.isMultiplatformEnabled(project)) {
         desktop()
         darwin()
         js()
+        wasm()
     }
 
     kotlin {
@@ -86,12 +88,14 @@ if (AndroidXComposePlugin.isMultiplatformEnabled(project)) {
             }
 
             commonMain.dependencies {
+                implementation(project(":collection:collection"))
                 implementation(project(":compose:runtime:runtime"))
                 implementation(project(":compose:ui:ui"))
                 implementation(project(":compose:ui:ui-unit"))
                 implementation(project(":compose:ui:ui-util"))
                 implementation(libs.kotlinStdlibCommon)
                 api(libs.kotlinCoroutinesCore)
+                implementation(project(":annotation:annotation"))
             }
 
             androidMain {
@@ -106,8 +110,29 @@ if (AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                 }
             }
             jsNativeMain.dependsOn(commonMain)
-            jsMain.dependsOn(jsNativeMain)
             nativeMain.dependsOn(jsNativeMain)
+            jsWasmMain.dependsOn(jsNativeMain)
+
+            jsMain {
+                dependsOn(jsWasmMain)
+            }
+
+            jbMain {
+                dependsOn(commonMain)
+                dependencies {
+                    implementation(libs.atomicFu)
+                }
+            }
+            desktopMain.dependsOn(jbMain)
+            jsNativeMain.dependsOn(jbMain)
+
+            if (project.kotlinWasmEnabled.toBoolean()) {
+                wasmJsMain {
+                    dependsOn(jsWasmMain)
+                }
+            }
+
+
 
             // TODO(b/214407011): These dependencies leak into instrumented tests as well. If you
             //  need to add Robolectric (which must be kept out of androidAndroidTest), use a top
@@ -147,4 +172,10 @@ androidx {
 
 android {
     namespace "androidx.compose.animation.core"
+}
+
+project.tasks.configureEach {
+    if (name == "compileJsWasmMainKotlinMetadata") {
+        enabled = false
+    }
 }

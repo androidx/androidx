@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.3.0-alpha02" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha02)" variant="all" version="8.3.0-alpha02">
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(1000);"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/wear/tiles/material/RunnerUtils.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(1000);"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/wear/tiles/material/RunnerUtils.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Modifiers.newBuilder can only be called from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
+        errorLine1="                    ModifiersProto.Modifiers.newBuilder(modifiers.toProto())"
+        errorLine2="                                             ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/tiles/material/Text.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.setMetadata can only be called from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
+        errorLine1="                            .setMetadata("
+        errorLine2="                             ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/tiles/material/Text.java"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="Failed to read `level` from `@androidx.wear.tiles.TilesExperimental` -- assuming `ERROR`. This declaration is opt-in and its usage should be marked with `@androidx.wear.tiles.TilesExperimental` or `@OptIn(markerClass = androidx.wear.tiles.TilesExperimental.class)`"
+        errorLine1="                .setVariant(variant)"
+        errorLine2="                 ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/tiles/material/Typography.java"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="Failed to read `level` from `@androidx.wear.tiles.TilesExperimental` -- assuming `ERROR`. This declaration is opt-in and its usage should be marked with `@androidx.wear.tiles.TilesExperimental` or `@OptIn(markerClass = androidx.wear.tiles.TilesExperimental.class)`"
+        errorLine1="                androidx.wear.tiles.LayoutElementBuilders.FONT_WEIGHT_MEDIUM,"
+        errorLine2="                                                          ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/tiles/material/Typography.java"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="Failed to read `level` from `@androidx.wear.tiles.TilesExperimental` -- assuming `ERROR`. This declaration is opt-in and its usage should be marked with `@androidx.wear.tiles.TilesExperimental` or `@OptIn(markerClass = androidx.wear.tiles.TilesExperimental.class)`"
+        errorLine1="                androidx.wear.tiles.LayoutElementBuilders.FONT_WEIGHT_MEDIUM,"
+        errorLine2="                                                          ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/tiles/material/Typography.java"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="Failed to read `level` from `@androidx.wear.tiles.TilesExperimental` -- assuming `ERROR`. This declaration is opt-in and its usage should be marked with `@androidx.wear.tiles.TilesExperimental` or `@OptIn(markerClass = androidx.wear.tiles.TilesExperimental.class)`"
+        errorLine1="                androidx.wear.tiles.LayoutElementBuilders.FONT_WEIGHT_MEDIUM,"
+        errorLine2="                                                          ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/tiles/material/Typography.java"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="Failed to read `level` from `@androidx.wear.tiles.TilesExperimental` -- assuming `ERROR`. This declaration is opt-in and its usage should be marked with `@androidx.wear.tiles.TilesExperimental` or `@OptIn(markerClass = androidx.wear.tiles.TilesExperimental.class)`"
+        errorLine1="                androidx.wear.tiles.LayoutElementBuilders.FONT_WEIGHT_MEDIUM,"
+        errorLine2="                                                          ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/tiles/material/Typography.java"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="Failed to read `level` from `@androidx.wear.tiles.TilesExperimental` -- assuming `ERROR`. This declaration is opt-in and its usage should be marked with `@androidx.wear.tiles.TilesExperimental` or `@OptIn(markerClass = androidx.wear.tiles.TilesExperimental.class)`"
+        errorLine1="                androidx.wear.tiles.LayoutElementBuilders.FONT_WEIGHT_MEDIUM,"
+        errorLine2="                                                          ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/tiles/material/Typography.java"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="Failed to read `level` from `@androidx.wear.tiles.TilesExperimental` -- assuming `ERROR`. This declaration is opt-in and its usage should be marked with `@androidx.wear.tiles.TilesExperimental` or `@OptIn(markerClass = androidx.wear.tiles.TilesExperimental.class)`"
+        errorLine1="                androidx.wear.tiles.LayoutElementBuilders.FONT_WEIGHT_MEDIUM,"
+        errorLine2="                                                          ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/tiles/material/Typography.java"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="Failed to read `level` from `@androidx.wear.tiles.TilesExperimental` -- assuming `ERROR`. This declaration is opt-in and its usage should be marked with `@androidx.wear.tiles.TilesExperimental` or `@OptIn(markerClass = androidx.wear.tiles.TilesExperimental.class)`"
+        errorLine1="                androidx.wear.tiles.LayoutElementBuilders.FONT_WEIGHT_MEDIUM,"
+        errorLine2="                                                          ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/tiles/material/Typography.java"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="Failed to read `level` from `@androidx.wear.tiles.TilesExperimental` -- assuming `ERROR`. This declaration is opt-in and its usage should be marked with `@androidx.wear.tiles.TilesExperimental` or `@OptIn(markerClass = androidx.wear.tiles.TilesExperimental.class)`"
+        errorLine1="                androidx.wear.tiles.LayoutElementBuilders.FONT_WEIGHT_MEDIUM,"
+        errorLine2="                                                          ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/tiles/material/Typography.java"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="Failed to read `level` from `@androidx.wear.tiles.TilesExperimental` -- assuming `ERROR`. This declaration is opt-in and its usage should be marked with `@androidx.wear.tiles.TilesExperimental` or `@OptIn(markerClass = androidx.wear.tiles.TilesExperimental.class)`"
+        errorLine1="                androidx.wear.tiles.LayoutElementBuilders.FONT_WEIGHT_MEDIUM,"
+        errorLine2="                                                          ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/tiles/material/Typography.java"/>
+    </issue>
+
+</issues>

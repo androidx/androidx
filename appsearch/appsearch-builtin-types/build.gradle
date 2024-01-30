@@ -23,7 +23,7 @@ plugins {
 
 dependencies {
     implementation project(":appsearch:appsearch")
-    implementation project(':core:core')
+    implementation("androidx.core:core:1.8.0")
 
     annotationProcessor project(':appsearch:appsearch-compiler')
 
@@ -41,13 +41,14 @@ dependencies {
 }
 
 androidx {
-    name = 'AppSearch Builtin Types'
+    name = "AppSearch Builtin Types"
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = '2021'
     description = 'Contains AppSearch Document classes and builders for a variety of common ' +
             'objects based on http://schema.org. Data interchange with the system, and other ' +
             'apps, as well as structured parameters for semantic intents should use these ' +
             'built-in types as appropriate.'
+    metalavaK2UastEnabled = true
 }
 
 android {

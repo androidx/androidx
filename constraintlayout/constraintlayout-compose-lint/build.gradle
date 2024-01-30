@@ -25,7 +25,7 @@ plugins {
 BundleInsideHelper.forInsideLintJar(project)
 
 dependencies {
-    compileOnly(libs.androidLintMinApi)
+    compileOnly(libs.androidLintApi)
     compileOnly(libs.kotlinStdlib)
     bundleInside(project(":compose:lint:common"))
 

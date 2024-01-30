@@ -31,6 +31,7 @@ import androidx.testutils.withUse
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import leakcanary.DetectLeaksAfterTestSuccess
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -43,6 +44,7 @@ class ComponentDialogTest {
     @get:Rule
     val rule = DetectLeaksAfterTestSuccess()
 
+    @Ignore("b/286303870")
     @Test
     fun testLifecycle() {
        withUse(ActivityScenario.launch(EmptyContentActivity::class.java)) {

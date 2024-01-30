@@ -16,8 +16,6 @@
 
 package androidx.media2.widget;
 
-import static androidx.media2.widget.VideoView.VIEW_TYPE_SURFACEVIEW;
-
 import android.content.Context;
 import android.graphics.Rect;
 import android.view.Surface;
@@ -26,8 +24,8 @@ import android.view.SurfaceView;
 
 import androidx.core.content.ContextCompat;
 
-class VideoSurfaceView extends SurfaceView
-        implements VideoViewInterface, SurfaceHolder.Callback {
+@SuppressWarnings("deprecation")
+class VideoSurfaceView extends SurfaceView implements VideoViewInterface, SurfaceHolder.Callback {
     private Surface mSurface = null;
     SurfaceListener mSurfaceListener = null;
     private PlayerWrapper mPlayer;
@@ -67,7 +65,7 @@ class VideoSurfaceView extends SurfaceView
 
     @Override
     public int getViewType() {
-        return VIEW_TYPE_SURFACEVIEW;
+        return androidx.media2.widget.VideoView.VIEW_TYPE_SURFACEVIEW;
     }
 
     @Override

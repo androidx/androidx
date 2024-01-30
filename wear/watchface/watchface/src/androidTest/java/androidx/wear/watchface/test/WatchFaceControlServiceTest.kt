@@ -29,6 +29,7 @@ import androidx.annotation.RequiresApi
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.test.screenshot.assertAgainstGolden
 import androidx.wear.watchface.CanvasType
@@ -49,6 +50,7 @@ import androidx.wear.watchface.complications.data.ShortTextComplicationData
 import androidx.wear.watchface.complications.data.WeightedElementsComplicationData
 import androidx.wear.watchface.control.IHeadlessWatchFace
 import androidx.wear.watchface.control.IWatchFaceControlService
+import androidx.wear.watchface.control.InteractiveInstanceManager
 import androidx.wear.watchface.control.WatchFaceControlService
 import androidx.wear.watchface.control.data.ComplicationRenderParams
 import androidx.wear.watchface.control.data.HeadlessWatchFaceInstanceParams
@@ -121,6 +123,7 @@ val DEVICE_CONFIG =
         /* digitalPreviewReferenceTimeMillis = */ 0
     )
 
+@SdkSuppress(maxSdkVersion = 32) // b/271922712
 @RunWith(AndroidJUnit4::class)
 @RequiresApi(Build.VERSION_CODES.O_MR1)
 @MediumTest
@@ -140,6 +143,7 @@ public class WatchFaceControlServiceTest {
         if (this::instance.isInitialized) {
             instance.release()
         }
+        InteractiveInstanceManager.setParameterlessEngine(null)
     }
 
     private fun createInstance(width: Int, height: Int) {
@@ -535,5 +539,19 @@ public class WatchFaceControlServiceTest {
             )
 
         assertThat(instance.userStyleSchema.mSchema).isEmpty()
+    }
+
+    @Test
+    public fun createWatchFaceService_throwsOnInvalidClass() {
+        assertThat(
+                WatchFaceControlService()
+                    .createWatchFaceService(
+                        ComponentName(
+                            ApplicationProvider.getApplicationContext(),
+                            WatchFaceControlServiceTest::class.java
+                        )
+                    )
+            )
+            .isNull()
     }
 }

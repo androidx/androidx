@@ -1,0 +1,5 @@
+// This project creates some version compat test artifacts
+// See TestSuiteConfiguration.kt
+plugins {
+    id("AndroidXPlugin")
+}

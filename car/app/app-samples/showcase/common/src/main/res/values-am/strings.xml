@@ -125,12 +125,12 @@
     <string name="package_not_found_error_msg" msgid="7525619456883627939">"ጥቅል አልተገኘም።"</string>
     <string name="permissions_granted_msg" msgid="2348556088141992714">"ሁሉም ፈቃዶች ተሰጥተዋል። እባክዎን ከቅንብሮች ፈቃዶችን ይሻሩ።"</string>
     <string name="needs_access_msg_prefix" msgid="2204136858798832382">"መተግበሪያው ለሚከተሉት ፈቃዶች መዳረሻ ያስፈልገዋል፦\n"</string>
-    <string name="phone_screen_permission_msg" msgid="3599815596923367256">"በስልኩ ማያ ገጽ ላይ ፈቃድ ይስጡ"</string>
+    <string name="phone_screen_permission_msg" msgid="3599815596923367256">"በስልኩ ማያ ገፅ ላይ ፈቃድ ይስጡ"</string>
     <string name="enable_location_permission_on_device_msg" msgid="472752487966156897">"በመሣሪያ ላይ የአካባቢ ፈቃዶችን አንቃ"</string>
-    <string name="enable_location_permission_on_phone_msg" msgid="5082615523959139121">"በስልኩ ማያ ገጽ ላይ አካባቢን አንቃ"</string>
+    <string name="enable_location_permission_on_phone_msg" msgid="5082615523959139121">"በስልኩ ማያ ገፅ ላይ አካባቢን አንቃ"</string>
     <string name="required_permissions_title" msgid="5351791879153568211">"የሚያስፈልጉ ፈቃዶች"</string>
     <string name="request_permissions_title" msgid="7456426341142412300">"የፈቃድ ቅንጭብ ማሳያን ጠይቅ"</string>
-    <string name="cancel_reservation_title" msgid="1374986823057959608">"የቦታ ማስያዣ ማይ ገጽ ይቅር"</string>
+    <string name="cancel_reservation_title" msgid="1374986823057959608">"የቦታ ማስያዣ ማይ ገፅ ይቅር"</string>
     <string name="reservation_cancelled_msg" msgid="6334213670275547875">"ቦታ ማስያዣ ተሰርዟል"</string>
     <string name="result_demo_title" msgid="3900525190662148290">"የውጤት ቅንጭብ ማሳያ"</string>
     <string name="not_started_for_result_msg" msgid="7498800528148447270">"ይህ መተግበሪያ ለውጤት አልተጀመረም"</string>
@@ -164,14 +164,14 @@
     <string name="take_520" msgid="3804796387195842741">"520 ውሰድ"</string>
     <string name="gas_station" msgid="1203313937444666161">"ነዳጅ ማደያ"</string>
     <string name="short_route" msgid="4831864276538141265">"አጭር መስመር"</string>
-    <string name="less_busy" msgid="310625272281710983">"ያነሰ ስራ የሚበዛበት"</string>
+    <string name="less_busy" msgid="310625272281710983">"ያነሰ ሥራ የሚበዛበት"</string>
     <string name="hov_friendly" msgid="6956152104754594971">"ለባለከፍተኛ መቀመጫ ተሽከርካሪ ምቹ"</string>
     <string name="long_route" msgid="4737969235741057506">"ረጅም መንገድ"</string>
     <string name="continue_start_nav" msgid="6231797535084469163">"ወደ አሰሳ ጀምር ቀጥል"</string>
     <string name="continue_route" msgid="5172258139245088080">"ወደ አቅጣጫ ቀጥል"</string>
     <string name="routes_title" msgid="7799772149932075357">"መንገዶች"</string>
     <string name="place_list_nav_template_demo_title" msgid="8019588508812955290">"የዝርዝር አሰሳ ቅንብር ደንብ ቅንጭብ ማሳያን ይመድቡ"</string>
-    <string name="route_preview_template_demo_title" msgid="7878704357953167555">"የመንገድ ቅድመ እይታ ቅንብር ደንብ ቅንጭብ ማሳያ"</string>
+    <string name="route_preview_template_demo_title" msgid="7878704357953167555">"የመንገድ ቅድመ ዕይታ ቅንብር ደንብ ቅንጭብ ማሳያ"</string>
     <string name="notification_template_demo_title" msgid="5076051497316030274">"የማሳወቂያ ቅንብር ደንብ ቅንጭብ ማሳያ"</string>
     <string name="nav_map_template_demo_title" msgid="344985380763975398">"የአሰሳ ቅንብር ደንብ በካርታ ብቻ ማሳያ"</string>
     <string name="nav_demos_title" msgid="72781206086461004">"የአሰሳ ቅንጭብ ማሳያዎች"</string>
@@ -264,6 +264,7 @@
     <string name="tab_title_list" msgid="5104962518489668123">"የዝርዝር ትር"</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"የፍርግርግ ትር ከረጅም ትር ርዕስ ጋር"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"የፍለጋ ትር"</string>
+    <string name="tab_title_loading" msgid="5385807479734490989">"የመጫኛ ትር"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"የትር ቅንብር ደንብ መጫኛ ቅንጭብ ማሳያ"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"የትር ቅንብር ደንብ ቁጥር ትሮች ቅንጭብ ማሳያ"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"ምስሎች ለማይታወቅ አስተናጋጅ ሊታዩ አይችሉም"</string>
@@ -298,7 +299,7 @@
     <string name="some_additional_text" msgid="4009872495806318260">"አንዳንድ ተጨማሪ ጽሁፍ"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"የናሙና ሊመረጥ የሚችል ዝርዝር"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"የተግባር ገደብ ቅንጭብ ማሳያ"</string>
-    <string name="task_limit_reached_msg" msgid="6038763366777119364">"የተግባር ገደብ ላይ ደርሷል\nወደፊት መሄድ መተግበሪያውን በኃይል ያስቆማል"</string>
+    <string name="task_limit_reached_msg" msgid="7162842196382260992">"ይህ የእርምጃ ቁጥር ፍሰቱ ከመጠን በላይ እንዲሆን ያደርገዋል እና ወደ አዲስ ማያ ገፅ ይመራዎታል።"</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"የተግባር እርምጃ %1$d ከ%2$d"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"ወደፊት ለመሄድ ጠቅ ያድርጉ"</string>
     <string name="task_content_allowed" msgid="545061986612431190">"እባክዎ የተለያዩ የቅንብር ደንቦችን ይጎብኙ እና መኪናው የማሽከርከር ሁነታ ላይ እንደሆነ ያረጋግጡ"</string>
@@ -323,11 +324,17 @@
     <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"እንዲሁም ረድፉ መመረጥ ይችላል"</string>
     <string name="secondary_action_toast" msgid="5076434693504006565">"ሁለተኛ እርምጃ ተመርጧል"</string>
     <string name="row_primary_action_toast" msgid="756516694751965204">"የረድፍ አንደኛ እርምጃ ተመርጧል"</string>
+    <string name="sectioned_item_list_demo_title" msgid="1236735461225007729">"የተከፈለ ንጥል ዝርዝር ቅንጭብ ማሳያ"</string>
+    <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"ዝርዝር 1"</string>
+    <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"ዝርዝር 2"</string>
+    <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"ከእያንዳንዱ ዝርዝር ስር የግርጌ ጽሁፍ"</string>
+    <string name="empty_list_demo_title" msgid="5989013634820902455">"ባዶ የዝርዝር ቅንጭብ ማሳያ"</string>
+    <string name="empty_list_message" msgid="5331395517560728138">"ዝርዝሩ ባዶ ነው"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"የተለያዩ ቅንብር ደንቦች ቅንጭብ ማሳያዎች"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"የመሳያ ቅንጭብ ማሳያ"</string>
     <string name="template_layouts_demo_title" msgid="788249269446087847">"የቅንብር ደንብ አቀማመጥ ቅንጭብ ማሳያዎች"</string>
     <string name="grid_template_menu_demo_title" msgid="7096285873490705119">"የፍርግርግ ቅንብር ደንብ ቅንጭብ ማሳያዎች"</string>
-    <string name="voice_access_demo_title" msgid="3825223890895361496">"የድምጽ መዳረሻ ቅንጭብ ማሳያ ማያ ገጽ"</string>
+    <string name="voice_access_demo_title" msgid="3825223890895361496">"የድምጽ መዳረሻ ቅንጭብ ማሳያ ማያ ገፅ"</string>
     <string name="user_interactions_demo_title" msgid="1356952319161314986">"የተጠቃሚ መስተጋብሮች"</string>
     <string name="request_permission_menu_demo_title" msgid="4796486779527427017">"የቅንጭብ ማሳያ ፈቃዶችን ይጠይቁ"</string>
     <string name="application_overflow_title" msgid="396427940886169325">"የመተግበሪያ ትርፍ አረጋጋጭ"</string>

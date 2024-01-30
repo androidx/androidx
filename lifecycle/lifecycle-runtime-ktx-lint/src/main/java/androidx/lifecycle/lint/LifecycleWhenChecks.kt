@@ -33,6 +33,7 @@ import com.intellij.psi.PsiClassType
 import com.intellij.psi.PsiMethod
 import com.intellij.psi.PsiWildcardType
 import com.intellij.psi.util.PsiTypesUtil
+import java.util.ArrayDeque
 import org.jetbrains.kotlin.asJava.elements.KtLightModifierList
 import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.uast.UCallExpression
@@ -49,7 +50,6 @@ import org.jetbrains.uast.toUElement
 import org.jetbrains.uast.tryResolve
 import org.jetbrains.uast.visitor.AbstractUastVisitor
 import org.jetbrains.uast.visitor.UastVisitor
-import java.util.ArrayDeque
 
 // both old and new ones
 private val CONTINUATION_NAMES = setOf(

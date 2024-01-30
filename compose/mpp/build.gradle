@@ -23,12 +23,10 @@ plugins {
 }
 
 AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project)
-dependencies {
-    kotlinNativeCompilerPluginClasspath(project(":compose:compiler:compiler-hosted"))
-}
 
 androidXComposeMultiplatform {
     desktop()
     js()
     darwin()
+    wasm()
 }

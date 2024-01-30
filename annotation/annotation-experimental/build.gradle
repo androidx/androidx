@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+
+import androidx.build.KotlinTarget
 import androidx.build.Publish
 
 plugins {
@@ -31,11 +33,12 @@ androidx {
     name = "Experimental annotation"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.ANNOTATION_EXPERIMENTAL
-    mavenMultiplatformVersion = LibraryVersions.ANNOTATION_EXPERIMENTAL_KMP
+    kotlinTarget = KotlinTarget.KOTLIN_1_7
     inceptionYear = "2019"
     description = "Java annotation for use on unstable Android API surfaces. When used in " +
             "conjunction with the Experimental annotation lint checks, this annotation provides " +
             "functional parity with Kotlin's Experimental annotation."
+    metalavaK2UastEnabled = true
 }
 
 android {

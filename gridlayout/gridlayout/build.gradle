@@ -17,11 +17,12 @@ dependencies {
 }
 
 androidx {
-    name = "Android Support Grid Layout"
+    name = "Grid Layout"
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2013"
     description = "Android Support Grid Layout"
     failOnDeprecationWarnings = false
+    metalavaK2UastEnabled = true
 }
 
 android {

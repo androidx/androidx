@@ -26,7 +26,6 @@ import androidx.annotation.RestrictTo;
  * Activity transition will change transitionVisibility multiple times even the view is not
  * running transition, which causes visual flickering during activity return transition.
  * This class disables setTransitionVisibility() to avoid the problem.
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class VideoSurfaceView extends SurfaceView {

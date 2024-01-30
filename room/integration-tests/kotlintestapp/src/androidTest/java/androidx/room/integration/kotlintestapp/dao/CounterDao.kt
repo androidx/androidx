@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package androidx.room.androidx.room.integration.kotlintestapp.dao
+package androidx.room.integration.kotlintestapp.dao
 
 import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Upsert
-import androidx.room.androidx.room.integration.kotlintestapp.vo.Counter
+import androidx.room.integration.kotlintestapp.vo.Counter
 
 @Dao
 interface CounterDao {

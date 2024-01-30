@@ -27,12 +27,14 @@ import android.util.Log;
 import androidx.test.core.app.ApplicationProvider;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class TestUtil {
     private Instrumentation mInstrumentation;
     private String mTag;
     // Used to get the package name. Copied over from com.android.adservices.AdServicesCommon
     private static final String TOPICS_SERVICE_NAME = "android.adservices.TOPICS_SERVICE";
+    private static final String EXT_SERVICES_PACKAGE_NAME = "ext.adservices";
     // The JobId of the Epoch Computation.
     private static final int EPOCH_JOB_ID = 2;
 
@@ -90,6 +92,7 @@ public class TestUtil {
     public void overrideAllowlists(boolean override) {
         String overrideStr = override ? "*" : "null";
         runShellCommand("device_config put adservices ppapi_app_allow_list " + overrideStr);
+        runShellCommand("device_config put adservices msmt_api_app_allow_list " + overrideStr);
         runShellCommand("device_config put adservices ppapi_app_signature_allow_list "
                 + overrideStr);
         runShellCommand(
@@ -110,6 +113,18 @@ public class TestUtil {
         } else {
             runShellCommand("setprop debug.adservices.appsetid_kill_switch " + null);
         }
+    }
+
+    public void enableBackCompat() {
+        runShellCommand("device_config put adservices enable_back_compat true");
+        runShellCommand("device_config put adservices consent_source_of_truth 3");
+        runShellCommand("device_config put adservices blocked_topics_source_of_truth 3");
+    }
+
+    public void disableBackCompat() {
+        runShellCommand("device_config put adservices enable_back_compat false");
+        runShellCommand("device_config put adservices consent_source_of_truth null");
+        runShellCommand("device_config put adservices blocked_topics_source_of_truth null");
     }
 
     // Override measurement related kill switch to ignore the effect of actual PH values.
@@ -220,9 +235,17 @@ public class TestUtil {
     // Used to get the package name. Copied over from com.android.adservices.AndroidServiceBinder
     public String getAdServicesPackageName() {
         final Intent intent = new Intent(TOPICS_SERVICE_NAME);
-        final List<ResolveInfo> resolveInfos = ApplicationProvider.getApplicationContext()
+        List<ResolveInfo> resolveInfos = ApplicationProvider.getApplicationContext()
                 .getPackageManager()
                 .queryIntentServices(intent, PackageManager.MATCH_SYSTEM_ONLY);
+
+        // TODO: b/271866693 avoid hardcoding package names
+        if (resolveInfos != null && Build.VERSION.SDK_INT >= 33) {
+            resolveInfos = resolveInfos.stream()
+                    .filter(info ->
+                            !info.serviceInfo.packageName.contains(EXT_SERVICES_PACKAGE_NAME))
+                    .collect(Collectors.toList());
+        }
 
         if (resolveInfos == null || resolveInfos.isEmpty()) {
             Log.e(mTag, "Failed to find resolveInfo for adServices service. Intent action: "

@@ -37,18 +37,21 @@ import androidx.camera.core.impl.utils.futures.Futures
 import androidx.camera.core.internal.CameraCaptureResultImageInfo
 import androidx.camera.core.internal.utils.ImageUtil.jpegImageToJpegByteArray
 import androidx.camera.core.processing.InternalImageProcessor
-import androidx.camera.testing.ExifUtil
-import androidx.camera.testing.TestImageUtil.createBitmap
-import androidx.camera.testing.TestImageUtil.createJpegBytes
-import androidx.camera.testing.TestImageUtil.createJpegFakeImageProxy
-import androidx.camera.testing.TestImageUtil.createYuvFakeImageProxy
-import androidx.camera.testing.TestImageUtil.getAverageDiff
-import androidx.camera.testing.fakes.GrayscaleImageEffect
+import androidx.camera.testing.impl.AndroidUtil
+import androidx.camera.testing.impl.ExifUtil
+import androidx.camera.testing.impl.TestImageUtil.createBitmap
+import androidx.camera.testing.impl.TestImageUtil.createJpegBytes
+import androidx.camera.testing.impl.TestImageUtil.createJpegFakeImageProxy
+import androidx.camera.testing.impl.TestImageUtil.createYuvFakeImageProxy
+import androidx.camera.testing.impl.TestImageUtil.getAverageDiff
+import androidx.camera.testing.impl.fakes.GrayscaleImageEffect
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.runBlocking
+import org.junit.Assume.assumeFalse
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -59,6 +62,12 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = 21)
 class ProcessingNodeDeviceTest {
+
+    @Before
+    fun setUp() {
+        assumeFalse(AndroidUtil.isEmulatorAndAPI21())
+    }
+
     @Test
     fun applyBitmapEffectInMemory_effectApplied() = runBlocking {
         processJpegAndVerifyEffectApplied(null)
@@ -97,7 +106,7 @@ class ProcessingNodeDeviceTest {
     private suspend fun processYuvAndVerifyOutputSize(outputFileOptions: OutputFileOptions?) {
         // Arrange: create node with JPEG input and grayscale effect.
         val node = ProcessingNode(mainThreadExecutor())
-        val nodeIn = ProcessingNode.In.of(ImageFormat.YUV_420_888)
+        val nodeIn = ProcessingNode.In.of(ImageFormat.YUV_420_888, ImageFormat.JPEG)
         val imageIn = createYuvFakeImageProxy(
             CameraCaptureResultImageInfo(CAMERA_CAPTURE_RESULT),
             WIDTH,
@@ -117,7 +126,7 @@ class ProcessingNodeDeviceTest {
             mainThreadExecutor(),
             InternalImageProcessor(GrayscaleImageEffect())
         )
-        val nodeIn = ProcessingNode.In.of(ImageFormat.JPEG)
+        val nodeIn = ProcessingNode.In.of(ImageFormat.JPEG, ImageFormat.JPEG)
         val imageIn = createJpegFakeImageProxy(
             CameraCaptureResultImageInfo(CAMERA_CAPTURE_RESULT),
             createJpegBytes(WIDTH, HEIGHT)
@@ -166,7 +175,7 @@ class ProcessingNodeDeviceTest {
     ) {
         // Arrange: create a request with no cropping
         val node = ProcessingNode(mainThreadExecutor())
-        val nodeIn = ProcessingNode.In.of(ImageFormat.JPEG)
+        val nodeIn = ProcessingNode.In.of(ImageFormat.JPEG, ImageFormat.JPEG)
         node.transform(nodeIn)
         val takePictureCallback = FakeTakePictureCallback()
 
@@ -204,7 +213,7 @@ class ProcessingNodeDeviceTest {
     private suspend fun inMemoryInputPacket_callbackInvoked(outputFileOptions: OutputFileOptions?) {
         // Arrange.
         val node = ProcessingNode(mainThreadExecutor())
-        val nodeIn = ProcessingNode.In.of(ImageFormat.JPEG)
+        val nodeIn = ProcessingNode.In.of(ImageFormat.JPEG, ImageFormat.JPEG)
         node.transform(nodeIn)
         val takePictureCallback = FakeTakePictureCallback()
 
@@ -237,7 +246,7 @@ class ProcessingNodeDeviceTest {
     private suspend fun saveJpegOnDisk_verifyOutput(outputFileOptions: OutputFileOptions?) {
         // Arrange: create a on-disk processing request.
         val node = ProcessingNode(mainThreadExecutor())
-        val nodeIn = ProcessingNode.In.of(ImageFormat.JPEG)
+        val nodeIn = ProcessingNode.In.of(ImageFormat.JPEG, ImageFormat.JPEG)
         node.transform(nodeIn)
         val takePictureCallback = FakeTakePictureCallback()
         val jpegBytes = ExifUtil.updateExif(createJpegBytes(640, 480)) {

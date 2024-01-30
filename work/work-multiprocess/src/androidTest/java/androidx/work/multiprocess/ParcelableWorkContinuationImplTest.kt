@@ -36,14 +36,14 @@ import androidx.work.impl.utils.taskexecutor.SerialExecutor
 import androidx.work.multiprocess.parcelable.ParcelConverters.marshall
 import androidx.work.multiprocess.parcelable.ParcelConverters.unmarshall
 import androidx.work.multiprocess.parcelable.ParcelableWorkContinuationImpl
+import java.util.concurrent.Executor
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.Mockito.`when`
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.spy
-import java.util.concurrent.Executor
+import org.mockito.Mockito.`when`
 
 @RunWith(AndroidJUnit4::class)
 public class ParcelableWorkContinuationImplTest {

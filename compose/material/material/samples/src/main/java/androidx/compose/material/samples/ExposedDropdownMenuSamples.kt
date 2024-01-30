@@ -39,9 +39,7 @@ fun ExposedDropdownMenuSample() {
     // We want to react on tap/press on TextField to show menu
     ExposedDropdownMenuBox(
         expanded = expanded,
-        onExpandedChange = {
-            expanded = !expanded
-        }
+        onExpandedChange = { expanded = it },
     ) {
         TextField(
             readOnly = true,
@@ -84,9 +82,7 @@ fun EditableExposedDropdownMenuSample() {
     var selectedOptionText by remember { mutableStateOf("") }
     ExposedDropdownMenuBox(
         expanded = expanded,
-        onExpandedChange = {
-            expanded = !expanded
-        }
+        onExpandedChange = { expanded = it },
     ) {
         TextField(
             value = selectedOptionText,

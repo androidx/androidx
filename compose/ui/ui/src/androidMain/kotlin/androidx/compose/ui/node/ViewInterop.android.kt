@@ -22,9 +22,6 @@ import androidx.annotation.RestrictTo
 import androidx.compose.ui.util.fastFirstOrNull
 import androidx.compose.ui.util.fastForEach
 
-/**
- * @suppress
- */
 // TODO(b/150806128): We should decide if we want to make this public API or not. Right now it is needed
 //  for convenient LayoutParams usage in compose with views.
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -35,9 +32,6 @@ interface ViewAdapter {
     fun didUpdate(view: View, parent: ViewGroup)
 }
 
-/**
- * @suppress
- */
 // TODO(b/150806128): We should decide if we want to make this public API or not. Right now it is needed
 //  for convenient LayoutParams usage in compose with views.
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

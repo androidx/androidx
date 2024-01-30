@@ -74,6 +74,7 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
         desktop()
         darwin()
         js()
+        wasm()
     }
 
     kotlin {
@@ -88,6 +89,7 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                 api(project(":compose:ui:ui"))
                 implementation(project(":compose:runtime:runtime"))
                 implementation(project(":compose:ui:ui-util"))
+                implementation(project(":annotation:annotation"))
             }
 
             androidMain.dependencies {
@@ -101,8 +103,31 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
             }
 
             jsNativeMain.dependsOn(commonMain)
-            jsMain.dependsOn(jsNativeMain)
             nativeMain.dependsOn(jsNativeMain)
+
+            jsWasmMain {
+                dependsOn(jsNativeMain)
+                dependencies {
+                    implementation(libs.kotlinStdlib)
+                }
+            }
+
+            skikoMain.dependsOn(commonMain)
+            uikitMain.dependsOn(skikoMain)
+            notMobileMain.dependsOn(skikoMain)
+            desktopMain.dependsOn(notMobileMain)
+            macosMain.dependsOn(notMobileMain)
+            jsWasmMain.dependsOn(notMobileMain)
+
+            jsMain {
+                dependsOn(jsWasmMain)
+            }
+
+            if (project.kotlinWasmEnabled.toBoolean()) {
+                wasmJsMain {
+                    dependsOn(jsWasmMain)
+                }
+            }
 
             // TODO(b/214407011): These dependencies leak into instrumented tests as well. If you
             //  need to add Robolectric (which must be kept out of androidAndroidTest), use a top

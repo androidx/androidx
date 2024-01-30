@@ -112,7 +112,6 @@ public final class PointerIconCompat {
     }
 
     /**
-     * @hide
      */
     @Nullable
     @RestrictTo(LIBRARY_GROUP_PREFIX)

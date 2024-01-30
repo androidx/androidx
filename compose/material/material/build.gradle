@@ -21,7 +21,8 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXComposePlugin")
-    id("AndroidXPaparazziPlugin")
+    id("kotlinx-atomicfu")
+    //id("AndroidXPaparazziPlugin") // isn't supported on Windows
 }
 
 AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project)
@@ -47,9 +48,9 @@ dependencies {
         implementation("androidx.compose.ui:ui-util:1.2.1")
 
         // TODO: remove next 3 dependencies when b/202810604 is fixed
-        implementation("androidx.savedstate:savedstate:1.2.1")
-        implementation("androidx.lifecycle:lifecycle-runtime:2.6.1")
-        implementation("androidx.lifecycle:lifecycle-viewmodel:2.6.1")
+        implementation("androidx.savedstate:savedstate:1.2.0")
+        implementation("androidx.lifecycle:lifecycle-runtime:2.6.0")
+        implementation("androidx.lifecycle:lifecycle-viewmodel:2.6.0")
 
         testImplementation(libs.testRules)
         testImplementation(libs.testRunner)
@@ -58,7 +59,7 @@ dependencies {
 
         androidTestImplementation(project(":compose:material:material:material-samples"))
         androidTestImplementation(project(":compose:test-utils"))
-        androidTestImplementation(project(":test:screenshot:screenshot"))
+        androidTestImplementation(androidxArtifact(":test:screenshot:screenshot"))
         androidTestImplementation(libs.testRules)
         androidTestImplementation(libs.testRunner)
         androidTestImplementation(libs.junit)
@@ -80,6 +81,7 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
         desktop()
         darwin()
         js()
+        wasm()
     }
 
     kotlin {
@@ -102,24 +104,42 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                 implementation(project(":compose:animation:animation"))
                 implementation(project(":compose:foundation:foundation-layout"))
                 implementation(project(":compose:ui:ui-util"))
+                implementation(project(":annotation:annotation"))
             }
 
             androidMain.dependencies {
                 api("androidx.annotation:annotation:1.1.0")
 
                 // TODO: remove next 3 dependencies when b/202810604 is fixed
-                implementation("androidx.savedstate:savedstate:1.2.1")
-                implementation("androidx.lifecycle:lifecycle-runtime:2.6.1")
-                implementation("androidx.lifecycle:lifecycle-viewmodel:2.6.1")
+                implementation("androidx.savedstate:savedstate:1.2.0")
+                implementation("androidx.lifecycle:lifecycle-runtime:2.6.0")
+                implementation("androidx.lifecycle:lifecycle-viewmodel:2.6.0")
+            }
+            skikoMain {
+                dependsOn(commonMain)
+                dependencies {
+                    implementation(libs.atomicFu)
+                }
             }
 
             desktopMain.dependencies {
                 implementation(libs.kotlinStdlib)
             }
 
-            jsNativeMain.dependsOn(commonMain)
-            jsMain.dependsOn(jsNativeMain)
+            desktopMain.dependsOn(skikoMain)
+            jsNativeMain.dependsOn(skikoMain)
             nativeMain.dependsOn(jsNativeMain)
+            jsWasmMain.dependsOn(jsNativeMain)
+
+            jsMain {
+                dependsOn(jsWasmMain)
+            }
+
+            if (project.kotlinWasmEnabled.toBoolean()) {
+                wasmJsMain {
+                    dependsOn(jsWasmMain)
+                }
+            }
 
             // TODO(b/214407011): These dependencies leak into instrumented tests as well. If you
             //  need to add Robolectric (which must be kept out of androidAndroidTest), use a top
@@ -135,7 +155,7 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
             androidAndroidTest.dependencies {
                 implementation(project(":compose:material:material:material-samples"))
                 implementation(project(":compose:test-utils"))
-                implementation(project(":test:screenshot:screenshot"))
+                implementation(androidxArtifact(":test:screenshot:screenshot"))
 
                 implementation(libs.testRules)
                 implementation(libs.testRunner)
@@ -147,11 +167,20 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                 implementation(libs.testUiautomator)
             }
 
+            commonTest.dependencies {
+                implementation(kotlin("test"))
+                implementation(project(":compose:ui:ui-test"))
+            }
+
             desktopTest.dependencies {
                 implementation(project(":compose:ui:ui-test-junit4"))
                 implementation(libs.truth)
                 implementation(libs.junit)
                 implementation(libs.skikoCurrentOs)
+            }
+
+            configureEach {
+                languageSettings.optIn("androidx.compose.material.ExperimentalMaterialApi")
             }
         }
     }
@@ -173,4 +202,10 @@ android {
     sourceSets.androidTest.assets.srcDirs +=
             project.rootDir.absolutePath + "/golden/compose/material/material"
     namespace "androidx.compose.material"
+}
+
+project.tasks.configureEach {
+    if (name == "compileJsWasmMainKotlinMetadata") {
+        enabled = false
+    }
 }

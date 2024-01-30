@@ -264,6 +264,7 @@
     <string name="tab_title_list" msgid="5104962518489668123">"Lysoortjie"</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"Roosteroortjie met lang oortjietitel"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"Soekoortjie"</string>
+    <string name="tab_title_loading" msgid="5385807479734490989">"Laai tans oortjie"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"Oortjietemplaat laai tans demonstrasie"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"Oortjietemplaatdemonstrasie sonder oortjies"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"Prente kan nie vir ’n onbekende gasheer gewys word nie"</string>
@@ -298,7 +299,7 @@
     <string name="some_additional_text" msgid="4009872495806318260">"Bykomende teks"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"Voorbeeld van kiesbare lys"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"Taakbeperkingdemonstrasie"</string>
-    <string name="task_limit_reached_msg" msgid="6038763366777119364">"Taaklimiet is bereik\nAs jy voortgaan, sal die program verplig word om te stop"</string>
+    <string name="task_limit_reached_msg" msgid="7162842196382260992">"Dit sal die aantal stappe oorskry en jou na ’n nuwe skerm neem."</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"Taak se stap %1$d van %2$d"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"Klik om aan te beweeg"</string>
     <string name="task_content_allowed" msgid="545061986612431190">"Besoek asseblief die verskillende template en maak seker die motor is in rymodus"</string>
@@ -323,6 +324,12 @@
     <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"Die ry kan ook gekies word"</string>
     <string name="secondary_action_toast" msgid="5076434693504006565">"Sekondêre handeling is gekies"</string>
     <string name="row_primary_action_toast" msgid="756516694751965204">"Primêre handeling vir ry is gekies"</string>
+    <string name="sectioned_item_list_demo_title" msgid="1236735461225007729">"Demonstrasie van verdeelde itemlys"</string>
+    <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"Lys 1"</string>
+    <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"Lys 2"</string>
+    <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"Subteks onder elke lys"</string>
+    <string name="empty_list_demo_title" msgid="5989013634820902455">"Demonstrasie van leë lys"</string>
+    <string name="empty_list_message" msgid="5331395517560728138">"Die lys is leeg"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"Demonstrasies oor diverse template"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"Stal demonstrasies uit"</string>
     <string name="template_layouts_demo_title" msgid="788249269446087847">"Demonstrasie van templaatuitlegte"</string>

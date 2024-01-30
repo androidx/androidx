@@ -80,4 +80,16 @@ internal object ReflectionUtils {
     internal fun Method.doesReturn(clazz: Class<*>): Boolean {
         return returnType.equals(clazz)
     }
+
+    internal fun validateImplementation(
+        implementation: Class<*>,
+        requirements: Class<*>,
+    ): Boolean {
+        return requirements.methods.all {
+            validateReflection("${implementation.name}#${it.name} is not valid") {
+                val implementedMethod = implementation.getMethod(it.name, *it.parameterTypes)
+                implementedMethod.isPublic && implementedMethod.doesReturn(it.returnType)
+            }
+        }
+    }
 }

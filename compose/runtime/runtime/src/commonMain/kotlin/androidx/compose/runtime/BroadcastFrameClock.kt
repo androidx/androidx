@@ -17,10 +17,10 @@
 package androidx.compose.runtime
 
 import androidx.compose.runtime.snapshots.fastForEach
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.resumeWithException
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.suspendCancellableCoroutine
 
 /**
  * A simple frame clock.

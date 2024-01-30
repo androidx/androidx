@@ -27,7 +27,6 @@ import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.XmlContext
 import com.android.xml.AndroidManifest.NODE_APPLICATION
-
 import org.w3c.dom.Element
 
 class MetadataTagInsideApplicationTagDetector : Detector(), Detector.XmlScanner {

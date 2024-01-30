@@ -26,12 +26,11 @@ plugins {
 
 dependencies {
 
-    androidTestImplementation project(":benchmark:benchmark-junit4")
+    androidTestImplementation androidxArtifact(":benchmark:benchmark-junit4")
     androidTestImplementation project(":compose:runtime:runtime")
     androidTestImplementation project(":compose:ui:ui-text:ui-text-benchmark")
     androidTestImplementation project(":compose:foundation:foundation-layout")
     androidTestImplementation project(":compose:foundation:foundation")
-    androidTestImplementation project(":compose:foundation:foundation-do-not-ship-newtext")
     androidTestImplementation project(":compose:material:material")
     androidTestImplementation project(":compose:benchmark-utils")
     androidTestImplementation(libs.testRules)

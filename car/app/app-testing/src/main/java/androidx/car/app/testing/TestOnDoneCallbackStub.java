@@ -26,7 +26,6 @@ import androidx.car.app.serialization.Bundleable;
 /**
  * A stub for use in API calls for the car app testing library.
  *
- * @hide
  */
 @RestrictTo(Scope.LIBRARY)
 public class TestOnDoneCallbackStub extends IOnDoneCallback.Stub {

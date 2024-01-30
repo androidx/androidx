@@ -25,7 +25,7 @@ import okio.IOException
 import okio.use
 
 class TestingOkioSerializer(
-    val config: TestingSerializerConfig
+    private val config: TestingSerializerConfig
 ) : OkioSerializer<Byte> {
 
     override suspend fun readFrom(source: BufferedSource): Byte {

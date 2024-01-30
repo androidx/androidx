@@ -24,8 +24,8 @@ import android.util.Size
 import androidx.camera.core.UseCase
 import androidx.camera.core.ViewPort
 import androidx.camera.core.internal.ViewPorts
-import androidx.camera.testing.ConstraintEnclosedTestRunner
-import androidx.camera.testing.fakes.FakeUseCaseConfig
+import androidx.camera.testing.impl.ConstraintEnclosedTestRunner
+import androidx.camera.testing.impl.fakes.FakeUseCaseConfig
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth

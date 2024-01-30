@@ -243,7 +243,7 @@
     <string name="sign_in_template_not_supported_text" msgid="7184733753948837646">"Votre hôte ne prend pas en charge le modèle de connexion"</string>
     <string name="sign_in_template_not_supported_title" msgid="4892883228898541764">"Hôte incompatible"</string>
     <string name="email_hint" msgid="7205549445477319606">"Courriel"</string>
-    <string name="sign_in_title" msgid="4551967308262681703">"Connexion"</string>
+    <string name="sign_in_title" msgid="4551967308262681703">"Se connecter"</string>
     <string name="sign_in_instructions" msgid="9044850228284294762">"Entrez vos authentifiants"</string>
     <string name="invalid_email_error_msg" msgid="5261362663718987167">"Le nom d\'utilisateur doit être une adresse de courriel valide"</string>
     <string name="invalid_length_error_msg" msgid="8238905276326976425">"Le nom d\'utilisateur doit comporter au moins %s caractères"</string>
@@ -264,6 +264,7 @@
     <string name="tab_title_list" msgid="5104962518489668123">"Onglet Liste"</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"Onglet de grille avec un titre d\'onglet long"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"Onglet Recherche"</string>
+    <string name="tab_title_loading" msgid="5385807479734490989">"Chargement de l\'onglet en cours…"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"Démo du chargement du modèle d\'onglet"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"Démo sans onglets du modèle d\'onglet"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"Impossible d\'afficher les images pour un hôte inconnu"</string>
@@ -298,7 +299,7 @@
     <string name="some_additional_text" msgid="4009872495806318260">"Du texte supplémentaire"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"Exemple de liste sélectionnable"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"Démo de la restriction des tâches"</string>
-    <string name="task_limit_reached_msg" msgid="6038763366777119364">"Limite de la tâche atteinte\nAller de l\'avant forcera l\'arrêt de l\'application"</string>
+    <string name="task_limit_reached_msg" msgid="7162842196382260992">"Le nombre d\'étapes sera ainsi dépassé, et un nouvel écran s\'affichera."</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"Étape %1$d de %2$d de la tâche"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"Cliquez pour avancer"</string>
     <string name="task_content_allowed" msgid="545061986612431190">"Veuillez consulter les différents modèles et vous assurer que la voiture est en mode Voiture"</string>
@@ -323,6 +324,12 @@
     <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"Cette ligne peut également être sélectionnée"</string>
     <string name="secondary_action_toast" msgid="5076434693504006565">"L\'action secondaire est sélectionnée"</string>
     <string name="row_primary_action_toast" msgid="756516694751965204">"L\'action primaire de la ligne est sélectionnée"</string>
+    <string name="sectioned_item_list_demo_title" msgid="1236735461225007729">"Démo de liste d\'éléments à sections"</string>
+    <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"Liste 1"</string>
+    <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"Liste 2"</string>
+    <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"Sous-titre de chaque liste"</string>
+    <string name="empty_list_demo_title" msgid="5989013634820902455">"Démo de liste vide"</string>
+    <string name="empty_list_message" msgid="5331395517560728138">"La liste est vide"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"Démos de divers modèles"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"Présenter les démos"</string>
     <string name="template_layouts_demo_title" msgid="788249269446087847">"Démos de mise en page du modèle"</string>

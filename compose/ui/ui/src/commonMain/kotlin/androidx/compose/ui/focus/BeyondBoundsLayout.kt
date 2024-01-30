@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.focus
 
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.layout.BeyondBoundsLayout.BeyondBoundsScope
 import androidx.compose.ui.layout.BeyondBoundsLayout.LayoutDirection.Companion.Above
 import androidx.compose.ui.layout.BeyondBoundsLayout.LayoutDirection.Companion.After
@@ -24,12 +23,25 @@ import androidx.compose.ui.layout.BeyondBoundsLayout.LayoutDirection.Companion.B
 import androidx.compose.ui.layout.BeyondBoundsLayout.LayoutDirection.Companion.Below
 import androidx.compose.ui.layout.BeyondBoundsLayout.LayoutDirection.Companion.Left
 import androidx.compose.ui.layout.BeyondBoundsLayout.LayoutDirection.Companion.Right
+import androidx.compose.ui.node.Nodes
+import androidx.compose.ui.node.nearestAncestor
 
-@ExperimentalComposeUiApi
-internal fun <T> FocusTargetModifierNode.searchBeyondBounds(
+internal fun <T> FocusTargetNode.searchBeyondBounds(
     direction: FocusDirection,
     block: BeyondBoundsScope.() -> T?
 ): T? {
+
+    // We only want the focus target of the LazyList to perform a beyond bounds search, and want to
+    // prevent intermediate focus targets (within a LazyList's item) from triggering a beyond-bounds
+    // layout. LazyLists add their own beyondBoundsLayoutParent, so if a focus target has the same
+    // beyondBoundsLayoutParent as its parent, that focusTarget is not a lazylist, and the beyond
+    // bounds search needs to be ignored.
+    nearestAncestor(Nodes.FocusTarget)?.let {
+        if (it.beyondBoundsLayoutParent == beyondBoundsLayoutParent) {
+            return null
+        }
+    }
+
     return beyondBoundsLayoutParent?.layout(
         direction = when (direction) {
             FocusDirection.Up -> Above

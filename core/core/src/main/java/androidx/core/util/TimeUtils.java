@@ -25,11 +25,9 @@ import java.io.PrintWriter;
 /**
  * Helper for accessing features in {@link android.util.TimeUtils}.
  *
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public final class TimeUtils {
-    /** @hide Field length that can hold 999 days of time */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static final int HUNDRED_DAY_FIELD_LEN = 19;
 
@@ -148,7 +146,6 @@ public final class TimeUtils {
         return pos + 1;
     }
 
-    /** @hide Just for debugging; not internationalized. */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static void formatDuration(long duration, StringBuilder builder) {
         synchronized (sFormatSync) {
@@ -157,7 +154,6 @@ public final class TimeUtils {
         }
     }
 
-    /** @hide Just for debugging; not internationalized. */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static void formatDuration(long duration, PrintWriter pw, int fieldLen) {
         synchronized (sFormatSync) {
@@ -166,13 +162,11 @@ public final class TimeUtils {
         }
     }
 
-    /** @hide Just for debugging; not internationalized. */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static void formatDuration(long duration, PrintWriter pw) {
         formatDuration(duration, pw, 0);
     }
 
-    /** @hide Just for debugging; not internationalized. */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static void formatDuration(long time, long now, PrintWriter pw) {
         if (time == 0) {

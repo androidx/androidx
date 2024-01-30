@@ -15,90 +15,41 @@
  */
 package androidx.compose.ui.text.platform
 
-import androidx.compose.ui.text.Cache
-import androidx.compose.ui.text.ExpireAfterAccessCache
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontListFontFamily
-import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.util.fastForEach
-import org.jetbrains.skia.Data
-import org.jetbrains.skia.Typeface as SkTypeface
 import kotlin.native.Platform as NativePlatform
-import kotlin.native.OsFamily as NativeOsFamily
+import org.jetbrains.skia.Typeface as SkTypeface
+import org.jetbrains.skia.FontStyle as SkFontStyle
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontStyle
+import org.jetbrains.skia.Data
+import org.jetbrains.skia.FontSlant
+import org.jetbrains.skia.FontWidth
 
-
-internal actual val GenericFontFamiliesMapping by lazy {
-    when (Platform.Current) {
-        Platform.Windows ->
-            mapOf(
-                FontFamily.SansSerif.name to listOf("Arial"),
-                FontFamily.Serif.name to listOf("Times New Roman"),
-                FontFamily.Monospace.name to listOf("Consolas"),
-                FontFamily.Cursive.name to listOf("Comic Sans MS")
-            )
-        Platform.MacOS ->
-            mapOf(
-                FontFamily.SansSerif.name to listOf(
-                    "Helvetica Neue",
-                    "Helvetica"
-                ),
-                FontFamily.Serif.name to listOf("Times"),
-                FontFamily.Monospace.name to listOf("Courier"),
-                FontFamily.Cursive.name to listOf("Apple Chancery")
-            )
-        Platform.Linux ->
-            mapOf(
-                FontFamily.SansSerif.name to listOf("Noto Sans", "DejaVu Sans"),
-                FontFamily.Serif.name to listOf("Noto Serif", "DejaVu Serif", "Times New Roman"),
-                FontFamily.Monospace.name to listOf("Noto Sans Mono", "DejaVu Sans Mono"),
-                // better alternative?
-                FontFamily.Cursive.name to listOf("Comic Sans MS")
-            )
-        Platform.Unknown ->
-            mapOf(
-                FontFamily.SansSerif.name to listOf("Arial"),
-                FontFamily.Serif.name to listOf("Times New Roman"),
-                FontFamily.Monospace.name to listOf("Consolas"),
-                FontFamily.Cursive.name to listOf("Comic Sans MS")
-            )
-    }
-}
-
-internal actual fun FontListFontFamily.makeAlias(): String {
-    TODO("implement native FontListFontFamily.makeAlias()")
-}
-
-internal actual fun loadFromTypefacesCache(font: Font): SkTypeface {
+internal actual fun loadTypeface(font: Font): SkTypeface {
     if (font !is PlatformFont) {
         throw IllegalArgumentException("Unsupported font type: $font")
     }
+    @Suppress("REDUNDANT_ELSE_IN_WHEN")
     return when (font) {
-        is LoadedFont -> SkTypeface.makeFromData(Data.makeFromBytes(font.data))
+        is LoadedFont -> SkTypeface.makeFromData(Data.makeFromBytes(font.getData()))
+        is SystemFont -> SkTypeface.makeFromName(font.identity, font.skFontStyle)
+        // TODO: compilation fails without `else` see https://youtrack.jetbrains.com/issue/KT-43875
         else -> throw IllegalArgumentException("Unsupported font type: $font")
     }
 }
 
-internal actual val typefacesCache = object : Cache<String, SkTypeface> {
-    // TODO: no cache, actually.
-    // override fun get(key: String, loader: (String) -> SkTypeface): SkTypeface = loader(key)
-    override fun get(key: String, loader: (String) -> SkTypeface): SkTypeface = 
-        TODO("implement native typefacesCache")
-}
+private val Font.skFontStyle: SkFontStyle
+    get() = SkFontStyle(
+        weight = weight.weight,
+        width = FontWidth.NORMAL,
+        slant = if (style == FontStyle.Italic) FontSlant.ITALIC else FontSlant.UPRIGHT
+    )
 
-private enum class Platform {
-    Linux,
-    Windows,
-    MacOS,
-    Unknown;
-
-    companion object {
-        val Current: Platform = when(NativePlatform.osFamily) {
-            NativeOsFamily.MACOSX -> MacOS
-            NativeOsFamily.LINUX -> Linux
-            NativeOsFamily.WINDOWS -> Windows
-            else -> Unknown
-        }
-    }
+internal actual fun currentPlatform(): Platform = when (NativePlatform.osFamily) {
+    OsFamily.MACOSX -> Platform.MacOS
+    OsFamily.IOS -> Platform.IOS
+    OsFamily.LINUX -> Platform.Linux
+    OsFamily.WINDOWS -> Platform.Windows
+    OsFamily.TVOS -> Platform.TvOS
+    OsFamily.WATCHOS -> Platform.WatchOS
+    else -> Platform.Unknown
 }

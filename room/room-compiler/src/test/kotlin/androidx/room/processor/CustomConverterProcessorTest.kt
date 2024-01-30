@@ -16,6 +16,7 @@
 
 package androidx.room.processor
 
+import androidx.kruth.assertThat
 import androidx.room.compiler.codegen.CodeLanguage
 import androidx.room.compiler.codegen.VisibilityModifier
 import androidx.room.compiler.codegen.XAnnotationSpec
@@ -38,7 +39,6 @@ import androidx.room.processor.ProcessorErrors.TYPE_CONVERTER_MUST_BE_PUBLIC
 import androidx.room.processor.ProcessorErrors.TYPE_CONVERTER_UNBOUND_GENERIC
 import androidx.room.testing.context
 import androidx.room.vo.CustomTypeConverter
-import com.google.common.truth.Truth.assertThat
 import com.squareup.javapoet.TypeVariableName
 import org.junit.Test
 import org.junit.runner.RunWith

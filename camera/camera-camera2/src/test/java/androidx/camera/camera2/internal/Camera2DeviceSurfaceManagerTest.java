@@ -17,8 +17,6 @@
 package androidx.camera.camera2.internal;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -43,16 +41,16 @@ import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraXConfig;
 import androidx.camera.core.InitializationException;
 import androidx.camera.core.impl.CameraDeviceSurfaceManager;
+import androidx.camera.core.impl.CameraMode;
 import androidx.camera.core.impl.ImageFormatConstants;
-import androidx.camera.core.impl.SurfaceCombination;
 import androidx.camera.core.impl.SurfaceConfig;
 import androidx.camera.core.impl.SurfaceConfig.ConfigSize;
 import androidx.camera.core.impl.SurfaceConfig.ConfigType;
 import androidx.camera.core.impl.UseCaseConfigFactory;
-import androidx.camera.testing.CameraUtil;
-import androidx.camera.testing.CameraXUtil;
 import androidx.camera.testing.fakes.FakeCamera;
-import androidx.camera.testing.fakes.FakeCameraFactory;
+import androidx.camera.testing.impl.CameraUtil;
+import androidx.camera.testing.impl.CameraXUtil;
+import androidx.camera.testing.impl.fakes.FakeCameraFactory;
 import androidx.test.core.app.ApplicationProvider;
 
 import org.codehaus.plexus.util.ReflectionUtils;
@@ -69,7 +67,6 @@ import org.robolectric.shadow.api.Shadow;
 import org.robolectric.shadows.ShadowCameraCharacteristics;
 import org.robolectric.shadows.ShadowCameraManager;
 
-import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -160,210 +157,9 @@ public final class Camera2DeviceSurfaceManagerTest {
     }
 
     @Test
-    public void checkLegacySurfaceCombinationSupportedInLegacyDevice()
-            throws Exception {
-        SupportedSurfaceCombination supportedSurfaceCombination =
-                new SupportedSurfaceCombination(
-                        mContext, LEGACY_CAMERA_ID, getCameraManagerCompat(),
-                        mMockCamcorderProfileHelper);
-
-        List<SurfaceCombination> combinationList =
-                GuaranteedConfigurationsUtil.getLegacySupportedCombinationList();
-
-        for (SurfaceCombination combination : combinationList) {
-            boolean isSupported =
-                    mSurfaceManager.checkSupported(
-                            /* isConcurrentCameraModeOn = */false,
-                            LEGACY_CAMERA_ID,
-                            combination.getSurfaceConfigList());
-            assertTrue(isSupported);
-        }
-    }
-
-    @Test
-    public void checkLimitedSurfaceCombinationNotSupportedInLegacyDevice()
-            throws Exception {
-        SupportedSurfaceCombination supportedSurfaceCombination =
-                new SupportedSurfaceCombination(
-                        mContext, LEGACY_CAMERA_ID, getCameraManagerCompat(),
-                        mMockCamcorderProfileHelper);
-
-        List<SurfaceCombination> combinationList =
-                GuaranteedConfigurationsUtil.getLimitedSupportedCombinationList();
-
-        for (SurfaceCombination combination : combinationList) {
-            boolean isSupported =
-                    mSurfaceManager.checkSupported(
-                            /* isConcurrentCameraModeOn = */false,
-                            LEGACY_CAMERA_ID, combination.getSurfaceConfigList());
-            assertFalse(isSupported);
-        }
-    }
-
-    @Test
-    public void checkFullSurfaceCombinationNotSupportedInLegacyDevice()
-            throws Exception {
-        SupportedSurfaceCombination supportedSurfaceCombination =
-                new SupportedSurfaceCombination(
-                        mContext, LEGACY_CAMERA_ID, getCameraManagerCompat(),
-                        mMockCamcorderProfileHelper);
-
-        List<SurfaceCombination> combinationList =
-                GuaranteedConfigurationsUtil.getFullSupportedCombinationList();
-
-        for (SurfaceCombination combination : combinationList) {
-            boolean isSupported =
-                    mSurfaceManager.checkSupported(
-                            /* isConcurrentCameraModeOn = */false,
-                            LEGACY_CAMERA_ID, combination.getSurfaceConfigList());
-            assertFalse(isSupported);
-        }
-    }
-
-    @Test
-    public void checkLevel3SurfaceCombinationNotSupportedInLegacyDevice()
-            throws Exception {
-        SupportedSurfaceCombination supportedSurfaceCombination =
-                new SupportedSurfaceCombination(
-                        mContext, LEGACY_CAMERA_ID, getCameraManagerCompat(),
-                        mMockCamcorderProfileHelper);
-
-        List<SurfaceCombination> combinationList =
-                GuaranteedConfigurationsUtil.getLevel3SupportedCombinationList();
-
-        for (SurfaceCombination combination : combinationList) {
-            boolean isSupported =
-                    mSurfaceManager.checkSupported(
-                            /* isConcurrentCameraModeOn = */false,
-                            LEGACY_CAMERA_ID, combination.getSurfaceConfigList());
-            assertFalse(isSupported);
-        }
-    }
-
-    @Test
-    public void checkLimitedSurfaceCombinationSupportedInLimitedDevice()
-            throws Exception {
-        SupportedSurfaceCombination supportedSurfaceCombination =
-                new SupportedSurfaceCombination(
-                        mContext, LIMITED_CAMERA_ID, getCameraManagerCompat(),
-                        mMockCamcorderProfileHelper);
-
-        List<SurfaceCombination> combinationList =
-                GuaranteedConfigurationsUtil.getLimitedSupportedCombinationList();
-
-        for (SurfaceCombination combination : combinationList) {
-            boolean isSupported =
-                    mSurfaceManager.checkSupported(
-                            /* isConcurrentCameraModeOn = */false,
-                            LIMITED_CAMERA_ID, combination.getSurfaceConfigList());
-            assertTrue(isSupported);
-        }
-    }
-
-    @Test
-    public void checkFullSurfaceCombinationNotSupportedInLimitedDevice()
-            throws Exception {
-        SupportedSurfaceCombination supportedSurfaceCombination =
-                new SupportedSurfaceCombination(
-                        mContext, LIMITED_CAMERA_ID, getCameraManagerCompat(),
-                        mMockCamcorderProfileHelper);
-
-        List<SurfaceCombination> combinationList =
-                GuaranteedConfigurationsUtil.getFullSupportedCombinationList();
-
-        for (SurfaceCombination combination : combinationList) {
-            boolean isSupported =
-                    mSurfaceManager.checkSupported(
-                            /* isConcurrentCameraModeOn = */false,
-                            LIMITED_CAMERA_ID, combination.getSurfaceConfigList());
-            assertFalse(isSupported);
-        }
-    }
-
-    @Test
-    public void checkLevel3SurfaceCombinationNotSupportedInLimitedDevice()
-            throws Exception {
-        SupportedSurfaceCombination supportedSurfaceCombination =
-                new SupportedSurfaceCombination(
-                        mContext, LIMITED_CAMERA_ID, getCameraManagerCompat(),
-                        mMockCamcorderProfileHelper);
-
-        List<SurfaceCombination> combinationList =
-                GuaranteedConfigurationsUtil.getLevel3SupportedCombinationList();
-
-        for (SurfaceCombination combination : combinationList) {
-            boolean isSupported =
-                    mSurfaceManager.checkSupported(
-                            /* isConcurrentCameraModeOn = */false,
-                            LIMITED_CAMERA_ID, combination.getSurfaceConfigList());
-            assertFalse(isSupported);
-        }
-    }
-
-    @Test
-    public void checkFullSurfaceCombinationSupportedInFullDevice()
-            throws Exception {
-        SupportedSurfaceCombination supportedSurfaceCombination =
-                new SupportedSurfaceCombination(
-                        mContext, FULL_CAMERA_ID, getCameraManagerCompat(),
-                        mMockCamcorderProfileHelper);
-
-        List<SurfaceCombination> combinationList =
-                GuaranteedConfigurationsUtil.getFullSupportedCombinationList();
-
-        for (SurfaceCombination combination : combinationList) {
-            boolean isSupported =
-                    mSurfaceManager.checkSupported(
-                            /* isConcurrentCameraModeOn = */false,
-                            FULL_CAMERA_ID, combination.getSurfaceConfigList());
-            assertTrue(isSupported);
-        }
-    }
-
-    @Test
-    public void checkLevel3SurfaceCombinationNotSupportedInFullDevice()
-            throws Exception {
-        SupportedSurfaceCombination supportedSurfaceCombination =
-                new SupportedSurfaceCombination(
-                        mContext, FULL_CAMERA_ID, getCameraManagerCompat(),
-                        mMockCamcorderProfileHelper);
-
-        List<SurfaceCombination> combinationList =
-                GuaranteedConfigurationsUtil.getLevel3SupportedCombinationList();
-
-        for (SurfaceCombination combination : combinationList) {
-            boolean isSupported =
-                    mSurfaceManager.checkSupported(
-                            /* isConcurrentCameraModeOn = */false,
-                            FULL_CAMERA_ID, combination.getSurfaceConfigList());
-            assertFalse(isSupported);
-        }
-    }
-
-    @Test
-    public void checkLevel3SurfaceCombinationSupportedInLevel3Device()
-            throws Exception {
-        SupportedSurfaceCombination supportedSurfaceCombination =
-                new SupportedSurfaceCombination(
-                        mContext, LEVEL3_CAMERA_ID, getCameraManagerCompat(),
-                        mMockCamcorderProfileHelper);
-
-        List<SurfaceCombination> combinationList =
-                GuaranteedConfigurationsUtil.getLevel3SupportedCombinationList();
-
-        for (SurfaceCombination combination : combinationList) {
-            boolean isSupported =
-                    mSurfaceManager.checkSupported(
-                            /* isConcurrentCameraModeOn = */false,
-                            LEVEL3_CAMERA_ID, combination.getSurfaceConfigList());
-            assertTrue(isSupported);
-        }
-    }
-
-    @Test
     public void transformSurfaceConfigWithYUVAnalysisSize() {
         SurfaceConfig surfaceConfig = mSurfaceManager.transformSurfaceConfig(
-                /* isConcurrentCameraModeOn = */false,
+                CameraMode.DEFAULT,
                 LEGACY_CAMERA_ID, ImageFormat.YUV_420_888, mAnalysisSize);
         SurfaceConfig expectedSurfaceConfig =
                 SurfaceConfig.create(ConfigType.YUV, ConfigSize.VGA);
@@ -373,7 +169,7 @@ public final class Camera2DeviceSurfaceManagerTest {
     @Test
     public void transformSurfaceConfigWithYUVPreviewSize() {
         SurfaceConfig surfaceConfig = mSurfaceManager.transformSurfaceConfig(
-                /* isConcurrentCameraModeOn = */false,
+                CameraMode.DEFAULT,
                 LEGACY_CAMERA_ID, ImageFormat.YUV_420_888, mPreviewSize);
         SurfaceConfig expectedSurfaceConfig =
                 SurfaceConfig.create(ConfigType.YUV, ConfigSize.PREVIEW);
@@ -383,7 +179,7 @@ public final class Camera2DeviceSurfaceManagerTest {
     @Test
     public void transformSurfaceConfigWithYUVRecordSize() {
         SurfaceConfig surfaceConfig = mSurfaceManager.transformSurfaceConfig(
-                /* isConcurrentCameraModeOn = */false,
+                CameraMode.DEFAULT,
                 LEGACY_CAMERA_ID, ImageFormat.YUV_420_888, mRecordSize);
         SurfaceConfig expectedSurfaceConfig =
                 SurfaceConfig.create(ConfigType.YUV, SurfaceConfig.ConfigSize.RECORD);
@@ -393,7 +189,7 @@ public final class Camera2DeviceSurfaceManagerTest {
     @Test
     public void transformSurfaceConfigWithYUVMaximumSize() {
         SurfaceConfig surfaceConfig = mSurfaceManager.transformSurfaceConfig(
-                /* isConcurrentCameraModeOn = */false,
+                CameraMode.DEFAULT,
                 LEGACY_CAMERA_ID, ImageFormat.YUV_420_888, mMaximumSize);
         SurfaceConfig expectedSurfaceConfig =
                 SurfaceConfig.create(SurfaceConfig.ConfigType.YUV, ConfigSize.MAXIMUM);
@@ -404,7 +200,7 @@ public final class Camera2DeviceSurfaceManagerTest {
     public void transformSurfaceConfigWithJPEGAnalysisSize() {
         SurfaceConfig surfaceConfig =
                 mSurfaceManager.transformSurfaceConfig(
-                        /* isConcurrentCameraModeOn = */false,
+                        CameraMode.DEFAULT,
                         LEGACY_CAMERA_ID, ImageFormat.JPEG, mAnalysisSize);
         SurfaceConfig expectedSurfaceConfig =
                 SurfaceConfig.create(SurfaceConfig.ConfigType.JPEG, ConfigSize.VGA);
@@ -415,7 +211,7 @@ public final class Camera2DeviceSurfaceManagerTest {
     public void transformSurfaceConfigWithJPEGPreviewSize() {
         SurfaceConfig surfaceConfig =
                 mSurfaceManager.transformSurfaceConfig(
-                        /* isConcurrentCameraModeOn = */false,
+                        CameraMode.DEFAULT,
                         LEGACY_CAMERA_ID, ImageFormat.JPEG, mPreviewSize);
         SurfaceConfig expectedSurfaceConfig =
                 SurfaceConfig.create(ConfigType.JPEG, ConfigSize.PREVIEW);
@@ -426,7 +222,7 @@ public final class Camera2DeviceSurfaceManagerTest {
     public void transformSurfaceConfigWithJPEGRecordSize() {
         SurfaceConfig surfaceConfig =
                 mSurfaceManager.transformSurfaceConfig(
-                        /* isConcurrentCameraModeOn = */false,
+                        CameraMode.DEFAULT,
                         LEGACY_CAMERA_ID, ImageFormat.JPEG, mRecordSize);
         SurfaceConfig expectedSurfaceConfig =
                 SurfaceConfig.create(ConfigType.JPEG, ConfigSize.RECORD);
@@ -437,7 +233,7 @@ public final class Camera2DeviceSurfaceManagerTest {
     public void transformSurfaceConfigWithJPEGMaximumSize() {
         SurfaceConfig surfaceConfig =
                 mSurfaceManager.transformSurfaceConfig(
-                        /* isConcurrentCameraModeOn = */false,
+                        CameraMode.DEFAULT,
                         LEGACY_CAMERA_ID, ImageFormat.JPEG, mMaximumSize);
         SurfaceConfig expectedSurfaceConfig =
                 SurfaceConfig.create(ConfigType.JPEG, ConfigSize.MAXIMUM);
@@ -538,7 +334,8 @@ public final class Camera2DeviceSurfaceManagerTest {
 
         CameraXConfig.Builder appConfigBuilder =
                 new CameraXConfig.Builder()
-                        .setCameraFactoryProvider((ignored0, ignored1, ignored2) -> mCameraFactory)
+                        .setCameraFactoryProvider(
+                                (ignored0, ignored1, ignored2, ignored3) -> mCameraFactory)
                         .setDeviceSurfaceManagerProvider(surfaceManagerProvider)
                         .setUseCaseConfigFactoryProvider(factoryProvider);
 

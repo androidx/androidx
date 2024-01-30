@@ -32,7 +32,6 @@ import androidx.appcompat.view.menu.MenuPresenter;
  * Implemented by the top-level decor layout for a window. DecorContentParent offers
  * entry points for a number of title/window decor features.
  *
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public interface DecorContentParent {

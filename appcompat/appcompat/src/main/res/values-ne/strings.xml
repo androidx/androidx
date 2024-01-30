@@ -21,7 +21,7 @@
     <string name="abc_action_bar_up_description" msgid="8388173803310557296">"माथि नेभिगेट गर्नुहोस्"</string>
     <string name="abc_action_menu_overflow_description" msgid="3937310113216875497">"थप विकल्पहरू"</string>
     <string name="abc_toolbar_collapse_description" msgid="1656852541809559762">"संक्षिप्त गर्नुहोस्"</string>
-    <string name="abc_searchview_description_search" msgid="3417662926640357176">"खोज"</string>
+    <string name="abc_searchview_description_search" msgid="3417662926640357176">"खोज्नुहोस्"</string>
     <string name="abc_search_hint" msgid="7208076849092622260">"खोज्नुहोस्…"</string>
     <string name="abc_searchview_description_query" msgid="693312494995508443">"खोज प्रश्न"</string>
     <string name="abc_searchview_description_clear" msgid="3741173234950517107">"क्वेरी खाली गर्नुहोस्"</string>

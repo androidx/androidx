@@ -18,7 +18,6 @@ package androidx.privacysandbox.ads.adservices.measurement
 
 import android.net.Uri
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth
 import org.junit.Test
@@ -26,7 +25,6 @@ import org.junit.runner.RunWith
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
-@SdkSuppress(minSdkVersion = 33)
 class WebTriggerParamsTest {
     @Test
     fun testToString() {

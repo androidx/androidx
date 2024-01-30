@@ -32,7 +32,7 @@
 // later when a module using the interface is updated, e.g., Mainline modules.
 
 package android.support.v4.app;
-/* @hide */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 interface INotificationSideChannel {
   oneway void notify(String packageName, int id, String tag, in android.app.Notification notification);
   oneway void cancel(String packageName, int id, String tag);

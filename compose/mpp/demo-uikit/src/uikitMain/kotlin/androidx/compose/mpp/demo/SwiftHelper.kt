@@ -19,5 +19,5 @@ package androidx.compose.mpp.demo
 import platform.UIKit.UIViewController
 
 class SwiftHelper {
-    fun getViewController(): UIViewController = getViewControllerWithCompose()
+    fun getViewController(makeHostingViewController: (Int) -> UIViewController): UIViewController = getViewControllerWithCompose(makeHostingViewController)
 }

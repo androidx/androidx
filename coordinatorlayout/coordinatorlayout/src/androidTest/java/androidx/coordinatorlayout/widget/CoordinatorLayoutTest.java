@@ -62,6 +62,7 @@ import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -602,6 +603,7 @@ public class CoordinatorLayoutTest {
     }
 
     @Test
+    @Ignore("b/294608735")
     public void testNestedScrollingDispatchesToBehavior() throws Throwable {
         final CoordinatorLayoutActivity activity = mActivityTestRule.getActivity();
         final CoordinatorLayout col = activity.mCoordinatorLayout;

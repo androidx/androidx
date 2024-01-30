@@ -94,8 +94,13 @@ import java.util.Set;
  *
  * @see Slice
  * @see SliceLiveData
+ *
+ * @deprecated Slice framework has been deprecated, it will not receive any updates moving
+ * forward. If you are looking for a framework that handles communication across apps,
+ * consider using {@link android.app.appsearch.AppSearchManager}.
  */
 @RequiresApi(19)
+@Deprecated
 public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClickListener {
 
     private static final String TAG = "SliceView";
@@ -104,7 +109,12 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
      * Implement this interface to be notified of interactions with the slice displayed
      * in this view.
      * @see EventInfo
+     *
+     * @deprecated Slice framework has been deprecated, it will not receive any updates moving
+     * forward. If you are looking for a framework that handles communication across apps,
+     * consider using {@link android.app.appsearch.AppSearchManager}.
      */
+    @Deprecated
     public interface OnSliceActionListener {
         /**
          * Called when an interaction has occurred with an element in this view.
@@ -115,7 +125,6 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef({
@@ -253,7 +262,6 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
 
     /**
      * Indicates whether this view reacts to click events or not.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public boolean isSliceViewClickable() {
@@ -263,7 +271,6 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
 
     /**
      * Sets the event info for logging a click.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public void setClickInfo(int[] info) {
@@ -629,7 +636,6 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public void setMode(@SliceMode int mode, boolean animate) {
@@ -714,7 +720,6 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
     }
 
     /**
-     * @hide
      *
      * Whether this view should show a row of actions with it.
      */
@@ -726,7 +731,6 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
 
     /**
      * @return whether this view is showing a row of actions.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public boolean isShowingActionRow() {
@@ -853,7 +857,6 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
 
     /**
      * @return String representation of the provided mode.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public static String modeToString(@SliceMode int mode) {
@@ -970,7 +973,6 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
     };
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public static final Comparator<SliceAction> SLICE_ACTION_PRIORITY_COMPARATOR =

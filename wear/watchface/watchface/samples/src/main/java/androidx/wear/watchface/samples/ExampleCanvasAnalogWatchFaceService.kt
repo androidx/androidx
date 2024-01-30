@@ -38,12 +38,12 @@ import androidx.wear.watchface.Renderer
 import androidx.wear.watchface.WatchFace
 import androidx.wear.watchface.WatchFaceColors
 import androidx.wear.watchface.WatchFaceExperimental
-import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.WatchFaceType
 import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.complications.ComplicationSlotBounds
 import androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy
 import androidx.wear.watchface.complications.SystemDataSources
+import androidx.wear.watchface.complications.data.ComplicationExperimental
 import androidx.wear.watchface.complications.data.ComplicationType
 import androidx.wear.watchface.complications.permission.dialogs.sample.ComplicationDeniedActivity
 import androidx.wear.watchface.complications.permission.dialogs.sample.ComplicationRationalActivity
@@ -73,7 +73,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 /** A simple example canvas based analog watch face. NB this is open for testing. */
-open class ExampleCanvasAnalogWatchFaceService : WatchFaceService() {
+open class ExampleCanvasAnalogWatchFaceService : SampleWatchFaceService() {
 
     // Lazy because the context isn't initialized til later.
     private val watchFaceStyle by lazy { WatchFaceColorStyle.create(this, RED_STYLE) }
@@ -266,6 +266,7 @@ open class ExampleCanvasAnalogWatchFaceService : WatchFaceService() {
         complicationSlotsManager: ComplicationSlotsManager
     ) = UserStyleFlavors(listOf(exampleFlavor))
 
+    @OptIn(ComplicationExperimental::class)
     public override fun createComplicationSlotsManager(
         currentUserStyleRepository: CurrentUserStyleRepository
     ): ComplicationSlotsManager {

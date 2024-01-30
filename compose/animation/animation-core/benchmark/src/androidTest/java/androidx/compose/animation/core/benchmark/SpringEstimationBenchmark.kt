@@ -21,10 +21,10 @@ import androidx.benchmark.junit4.measureRepeated
 import androidx.compose.animation.core.estimateAnimationDurationMillis
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import kotlin.math.sqrt
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import kotlin.math.sqrt
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)

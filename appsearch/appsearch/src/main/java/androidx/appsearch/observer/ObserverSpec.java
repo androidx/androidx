@@ -22,6 +22,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.CanIgnoreReturnValue;
 import androidx.appsearch.annotation.Document;
 import androidx.appsearch.app.DocumentClassFactory;
 import androidx.appsearch.app.DocumentClassFactoryRegistry;
@@ -49,7 +50,7 @@ public final class ObserverSpec {
     @Nullable
     private volatile Set<String> mFilterSchemas;
 
-    /** @hide */
+    /** @exportToFramework:hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public ObserverSpec(@NonNull Bundle bundle) {
         Preconditions.checkNotNull(bundle);
@@ -59,7 +60,7 @@ public final class ObserverSpec {
     /**
      * Returns the {@link Bundle} backing this spec.
      *
-     * @hide
+     * @exportToFramework:hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull
@@ -85,7 +86,7 @@ public final class ObserverSpec {
         return mFilterSchemas;
     }
 
-    /** Builder for ObserverSpec instances. */
+    /** Builder for {@link ObserverSpec} instances. */
     public static final class Builder {
         private ArrayList<String> mFilterSchemas = new ArrayList<>();
         private boolean mBuilt = false;
@@ -96,6 +97,7 @@ public final class ObserverSpec {
          *
          * <p>If unset, the observer will match documents of all types.
          */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder addFilterSchemas(@NonNull String... schemas) {
             Preconditions.checkNotNull(schemas);
@@ -109,6 +111,7 @@ public final class ObserverSpec {
          *
          * <p>If unset, the observer will match documents of all types.
          */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder addFilterSchemas(@NonNull Collection<String> schemas) {
             Preconditions.checkNotNull(schemas);
@@ -124,10 +127,12 @@ public final class ObserverSpec {
          *
          * <p>If unset, the observer will match documents of all types.
          *
+         * <p>Merged list available from {@link #getFilterSchemas()}.
+         *
          * @param documentClasses classes annotated with {@link Document}.
          */
-        // Merged list available from getFilterSchemas()
         @SuppressLint("MissingGetterMatchingBuilder")
+        @CanIgnoreReturnValue
         @NonNull
         public Builder addFilterDocumentClasses(@NonNull Class<?>... documentClasses)
                 throws AppSearchException {
@@ -142,10 +147,12 @@ public final class ObserverSpec {
          *
          * <p>If unset, the observer will match documents of all types.
          *
+         * <p>Merged list available from {@link #getFilterSchemas()}.
+         *
          * @param documentClasses classes annotated with {@link Document}.
          */
-        // Merged list available from getFilterSchemas
         @SuppressLint("MissingGetterMatchingBuilder")
+        @CanIgnoreReturnValue
         @NonNull
         public Builder addFilterDocumentClasses(
                 @NonNull Collection<? extends Class<?>> documentClasses) throws AppSearchException {

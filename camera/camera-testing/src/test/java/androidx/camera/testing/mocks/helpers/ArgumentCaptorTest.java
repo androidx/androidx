@@ -23,6 +23,8 @@ import static org.junit.Assert.assertNull;
 
 import android.os.Build;
 
+import androidx.camera.testing.impl.mocks.helpers.ArgumentCaptor;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.robolectric.annotation.Config;

@@ -63,6 +63,7 @@ dependencies {
     implementation(project(":camera:camera-core"))
     implementation(project(":camera:camera-lifecycle"))
     implementation(project(":camera:camera-mlkit-vision"))
+    implementation(project(":camera:camera-view"))
     implementation(project(":camera:camera-video"))
     // Needed because AGP enforces same version between main and androidTest classpaths
     implementation(project(":concurrent:concurrent-futures"))
@@ -72,17 +73,26 @@ dependencies {
     implementation(libs.guavaAndroid)
     implementation(libs.espressoIdlingResource)
     implementation("androidx.appcompat:appcompat:1.3.0")
+    implementation("androidx.lifecycle:lifecycle-service:2.2.0")
     // MLKit library: Barcode scanner
     implementation(libs.mlkitBarcode) {
         exclude group: "androidx.fragment"
         exclude group: "androidx.core"
         exclude group: "androidx.exifinterface"
     }
+    // camera-testing added as 'implementation' dependency to include camera-testing activity in APK
+    implementation(project(":camera:camera-testing")) {
+        // Ensure camera-testing does not pull in androidx.test dependencies
+        exclude(group:"androidx.test")
+    }
 
     // 3P library
     debugImplementation(libs.leakcanary)
     // Testing resource dependency for manifest
-    debugImplementation(project(":camera:camera-testing"))
+    debugImplementation(project(":camera:camera-testing")) {
+        // Ensure camera-testing does not pull in androidx.test dependencies
+        exclude(group:"androidx.test")
+    }
     debugImplementation(libs.testCore)
     // explicitly add runner here to force consistency with androidTestImplementation
     debugImplementation(libs.testRunner)
@@ -100,7 +110,10 @@ dependencies {
     androidTestImplementation(libs.leakcanaryInstrumentation)
     androidTestImplementation(libs.truth)
     androidTestImplementation(project(":camera:camera-camera2"))
-    androidTestImplementation(project(":camera:camera-testing"))
+    androidTestImplementation(project(":camera:camera-testing")) {
+        // Ensure camera-testing does not pull in androidx.test dependencies
+        exclude(group:"androidx.test")
+    }
     androidTestImplementation(project(":concurrent:concurrent-futures"))
     androidTestImplementation(project(":concurrent:concurrent-futures-ktx"))
     androidTestImplementation(project(":internal-testutils-runtime"))

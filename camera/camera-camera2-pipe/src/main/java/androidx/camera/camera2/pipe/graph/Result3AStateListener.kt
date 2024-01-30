@@ -44,13 +44,24 @@ import kotlinx.coroutines.Deferred
 internal interface Result3AStateListener {
     fun onRequestSequenceCreated(requestNumber: RequestNumber)
     fun update(requestNumber: RequestNumber, frameMetadata: FrameMetadata): Boolean
+    fun onRequestSequenceStopped()
 }
 
 internal class Result3AStateListenerImpl(
-    private val exitConditionForKeys: Map<CaptureResult.Key<*>, List<Any>>,
+    private val exitCondition: (FrameMetadata) -> Boolean,
     private val frameLimit: Int? = null,
     private val timeLimitNs: Long? = null
 ) : Result3AStateListener {
+
+    internal constructor(
+        exitConditionForKeys: Map<CaptureResult.Key<*>, List<Any>>,
+        frameLimit: Int? = null,
+        timeLimitNs: Long? = null
+    ) : this(
+        exitCondition = exitConditionForKeys.toConditionChecker(),
+        frameLimit = frameLimit,
+        timeLimitNs = timeLimitNs,
+    )
 
     private val _result = CompletableDeferred<Result3A>()
     val result: Deferred<Result3A>
@@ -117,17 +128,30 @@ internal class Result3AStateListenerImpl(
             return true
         }
 
-        for ((k, v) in exitConditionForKeys) {
-            val valueInCaptureResult = frameMetadata[k]
-            if (!v.contains(valueInCaptureResult)) {
-                return false
-            }
+        if (!exitCondition(frameMetadata)) {
+            return false
         }
         _result.complete(Result3A(Result3A.Status.OK, frameMetadata))
         return true
     }
 
+    override fun onRequestSequenceStopped() {
+        _result.complete(Result3A(Result3A.Status.SUBMIT_CANCELLED))
+    }
+
     fun getDeferredResult(): Deferred<Result3A> {
         return _result
+    }
+}
+
+internal fun Map<CaptureResult.Key<*>, List<Any>>.toConditionChecker(): (FrameMetadata) -> Boolean {
+    return conditionChecker@{ frameMetadata ->
+        for ((k, v) in this) {
+            val valueInCaptureResult = frameMetadata[k]
+            if (!v.contains(valueInCaptureResult)) {
+                return@conditionChecker false
+            }
+        }
+        return@conditionChecker true
     }
 }

@@ -1,0 +1,87 @@
+/*
+ * Copyright 2022 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+plugins {
+    id("AndroidXPlugin")
+    id("com.android.application")
+    id("kotlin-android")
+    id("androidx.baselineprofile")
+}
+
+android {
+    buildTypes {
+        release {
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile("proguard-android-optimize.txt")
+        }
+    }
+    productFlavors {
+        flavorDimensions = ["version", "color"]
+        free {
+            dimension "version"
+            applicationIdSuffix ".free"
+            versionNameSuffix "-free"
+        }
+        paid {
+            dimension "version"
+            applicationIdSuffix ".paid"
+            versionNameSuffix "-paid"
+        }
+        red {
+            dimension "color"
+        }
+        blue {
+            dimension "color"
+            // Note that the producer does not have a `red` flavor dimension to test matching
+            // fallbacks with baseline profiles.
+            matchingFallbacks += "red"
+        }
+    }
+    namespace "androidx.benchmark.integration.baselineprofile.flavors.consumer"
+}
+
+dependencies {
+
+    // Specifying build type dependencies is part of the test
+    debugImplementation(libs.kotlinStdlib)
+    debugImplementation(libs.constraintLayout)
+
+    releaseImplementation(libs.kotlinStdlib)
+    releaseImplementation(libs.constraintLayout)
+}
+
+baselineProfile {
+    filter {
+        include "androidx.benchmark.integration.baselineprofile.flavors.consumer.**"
+    }
+    variants {
+        free {
+            from(project(":benchmark:integration-tests:baselineprofile-flavors-producer"))
+        }
+        paid {
+            from(project(":benchmark:integration-tests:baselineprofile-flavors-producer"))
+        }
+    }
+
+    // Note that these are the default settings, just reported here to make it explicit.
+    // `automaticGenerationDuringBuild` has to be off otherwise assembling release on CI would
+    // trigger baseline profile generation and integration tests on device.
+    saveInSrc = true
+    automaticGenerationDuringBuild = false
+}
+
+apply(from: "../baselineprofile-test-utils/utils.gradle")

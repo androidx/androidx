@@ -264,6 +264,7 @@
     <string name="tab_title_list" msgid="5104962518489668123">"Tab Daftar"</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"Tab Petak dengan Judul Tab Panjang"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"Tab Penelusuran"</string>
+    <string name="tab_title_loading" msgid="5385807479734490989">"Memuat Tab"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"Demo Template Tab Memuat Konten"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"Demo Template Tab Tidak Ada Tab"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"Gambar tidak dapat ditampilkan untuk host yang tidak dikenal"</string>
@@ -298,7 +299,7 @@
     <string name="some_additional_text" msgid="4009872495806318260">"Beberapa teks tambahan"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"Contoh daftar yang dapat dipilih"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"Demo Batasan Tugas"</string>
-    <string name="task_limit_reached_msg" msgid="6038763366777119364">"Batas tugas tercapai\nJika dilanjutkan, aplikasi akan dipaksa berhenti"</string>
+    <string name="task_limit_reached_msg" msgid="7162842196382260992">"Tindakan ini menunjukkan bahwa batas jumlah langkah terlampaui, dan akan mengarahkan Anda ke layar baru."</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"Langkah tugas %1$d dari %2$d"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"Klik untuk melanjutkan"</string>
     <string name="task_content_allowed" msgid="545061986612431190">"Buka template lain dan pastikan mobil dalam mode mengemudi"</string>
@@ -323,6 +324,12 @@
     <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"Baris juga dapat dipilih"</string>
     <string name="secondary_action_toast" msgid="5076434693504006565">"Tindakan Sekunder dipilih"</string>
     <string name="row_primary_action_toast" msgid="756516694751965204">"Tindakan utama baris dipilih"</string>
+    <string name="sectioned_item_list_demo_title" msgid="1236735461225007729">"Demo Daftar Item dengan Bagian"</string>
+    <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"Daftar 1"</string>
+    <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"Daftar 2"</string>
+    <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"Subteks dalam setiap daftar"</string>
+    <string name="empty_list_demo_title" msgid="5989013634820902455">"Demo Daftar Kosong"</string>
+    <string name="empty_list_message" msgid="5331395517560728138">"Daftar ini kosong"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"Demo Template Lain-Lain"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"Demo Berita Pilihan"</string>
     <string name="template_layouts_demo_title" msgid="788249269446087847">"Demo Tata Letak Template"</string>

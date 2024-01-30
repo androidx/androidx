@@ -38,7 +38,7 @@ dependencies {
 }
 
 androidx {
-    name = "Android SQLite Inspector"
+    name = "SQLite Inspector"
     type = LibraryType.IDE_PLUGIN
     // Decouple SQLITE_INSPECTOR because it depends on
     // the inspection protocol, which is alpha

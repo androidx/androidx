@@ -103,20 +103,27 @@ public final class PlaceListNavigationTemplateDemoScreen extends Screen {
                 .setTitle(getCarContext().getString(R.string.place_list_nav_template_demo_title))
                 .build();
 
-        return new PlaceListNavigationTemplate.Builder()
-                .setItemList(mPlaces.getPlaceList(/* randomOrder =*/isAppDrivenRefreshEnabled))
-                .setHeader(header)
-                .setMapActionStrip(RoutingDemoModels.getMapActionStrip(getCarContext()))
-                .setActionStrip(
-                        new ActionStrip.Builder()
-                                .addAction(
-                                        new Action.Builder()
-                                                .setTitle(getCarContext().getString(
-                                                        R.string.search_action_title))
-                                                .setOnClickListener(() -> {
-                                                })
-                                                .build())
-                                .build())
-                .build();
+        PlaceListNavigationTemplate.Builder placeListNavigationTemplateBuilder =
+                new PlaceListNavigationTemplate.Builder()
+                        .setItemList(
+                                mPlaces.getPlaceList(/* randomOrder= */ true))
+                        .setHeader(header)
+                        .setMapActionStrip(RoutingDemoModels.getMapActionStrip(getCarContext()))
+                        .setActionStrip(
+                                new ActionStrip.Builder()
+                                        .addAction(
+                                                new Action.Builder()
+                                                        .setTitle(getCarContext().getString(
+                                                                R.string.search_action_title))
+                                                        .setOnClickListener(() -> {
+                                                        })
+                                                        .build())
+                                        .build());
+
+        if (!isAppDrivenRefreshEnabled) {
+            placeListNavigationTemplateBuilder.setOnContentRefreshListener(this::invalidate);
+        }
+
+        return placeListNavigationTemplateBuilder.build();
     }
 }

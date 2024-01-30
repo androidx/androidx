@@ -119,6 +119,10 @@ public final class DrawableCompat {
      * different from the drawable bounds.
      *
      * @param drawable The Drawable against which to invoke the method.
+     * @param left position in pixels of the left bound
+     * @param top position in pixels of the top bound
+     * @param right position in pixels of the right bound
+     * @param bottom position in pixels of the bottom bound
      */
     public static void setHotspotBounds(@NonNull Drawable drawable, int left, int top,
             int right, int bottom) {
@@ -262,6 +266,7 @@ public final class DrawableCompat {
     /**
      * Inflate this Drawable from an XML resource optionally styled by a theme.
      *
+     * @param drawable drawable to inflate.
      * @param res Resources used to resolve attribute values
      * @param parser XML parser from which to inflate this Drawable
      * @param attrs Base set of attribute values
@@ -351,6 +356,7 @@ public final class DrawableCompat {
      * layout direction, as the Drawable has no capacity to do the resolution on
      * its own.
      *
+     * @param drawable drawable for which to set the layout direction.
      * @param layoutDirection the resolved layout direction for the drawable,
      *                        either {@link ViewCompat#LAYOUT_DIRECTION_LTR}
      *                        or {@link ViewCompat#LAYOUT_DIRECTION_RTL}

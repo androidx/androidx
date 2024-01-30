@@ -41,10 +41,20 @@ object Names {
         val State = Name(PackageName, "State")
         val MutableState = Name(PackageName, "MutableState")
         val MutableStateOf = Name(PackageName, "mutableStateOf")
+        val MutableIntStateOf = Name(PackageName, "mutableIntStateOf")
+        val MutableLongStateOf = Name(PackageName, "mutableLongStateOf")
+        val MutableFloatStateOf = Name(PackageName, "mutableFloatStateOf")
+        val MutableDoubleStateOf = Name(PackageName, "mutableDoubleStateOf")
         val MutableStateListOf = Name(PackageName, "mutableStateListOf")
         val MutableStateMapOf = Name(PackageName, "mutableStateMapOf")
         val ProduceState = Name(PackageName, "produceState")
         val Remember = Name(PackageName, "remember")
+        val DisposableEffect = Name(PackageName, "DisposableEffect")
+        val RememberSaveable = Name(PackageName, "rememberSaveable")
+        val LaunchedEffect = Name(PackageName, "LaunchedEffect")
+        val ReusableContent = Name(PackageName, "ReusableContent")
+        val Key = Name(PackageName, "key")
+        val StructuralEqualityPolicy = Name(PackageName, "structuralEqualityPolicy")
     }
     object Ui {
         val PackageName = Package("androidx.compose.ui")
@@ -65,6 +75,11 @@ object Names {
         object Unit {
             val PackageName = Package("androidx.compose.ui.unit")
             val Dp = Name(PackageName, "Dp")
+        }
+
+        object Node {
+            val PackageName = Package(Ui.PackageName, "node")
+            val CurrentValueOf = Name(PackageName, "currentValueOf")
         }
     }
 
@@ -119,6 +134,11 @@ class Name internal constructor(
     val kmClassName: ClassName
         get() = pkg.segments.joinToString("/", postfix = "/") +
             nameSegments.joinToString(".")
+
+    /**
+     * The [PackageName] of this element.
+     */
+    val packageName: PackageName get() = pkg
 }
 
 /**

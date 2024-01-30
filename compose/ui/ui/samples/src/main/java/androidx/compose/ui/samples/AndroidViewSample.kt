@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.samples
 
+import android.content.Context
 import android.view.View
 import android.view.ViewGroup
 import android.webkit.WebView
@@ -43,8 +44,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import kotlin.math.roundToInt
 
 @Suppress("SetTextI18n")
@@ -61,6 +65,36 @@ fun AndroidViewSample() {
             .background(Color.Blue)) { view ->
         view.layoutParams = ViewGroup.LayoutParams(size, size)
     }
+}
+
+@Suppress("UNUSED_ANONYMOUS_PARAMETER")
+@Sampled
+@Composable
+fun AndroidViewWithReleaseSample() {
+    // Compose a View that needs to be cleaned up when removed from the UI
+    class LifecycleAwareView(context: Context) : View(context) {
+        var lifecycle: Lifecycle? = null
+            set(value) {
+                field?.removeObserver(observer)
+                value?.addObserver(observer)
+                field = value
+            }
+
+        private val observer = LifecycleEventObserver { source, event ->
+            // React to the event
+        }
+    }
+    val lifecycle = LocalLifecycleOwner.current.lifecycle
+    AndroidView(
+        factory = { context -> LifecycleAwareView(context) },
+        update = { view ->
+            view.lifecycle = lifecycle
+        },
+        onRelease = { view ->
+            // Need to release the lifecycle to prevent a memory leak
+            view.lifecycle = null
+        }
+    )
 }
 
 @OptIn(ExperimentalComposeUiApi::class)

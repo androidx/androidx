@@ -11,12 +11,12 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import app.cash.paparazzi.internal.ImageUtils
 import com.android.ide.common.rendering.api.SessionParams
-import org.junit.Test
-import org.junit.runner.Description
 import java.awt.image.BufferedImage
 import java.io.File
 import javax.imageio.ImageIO
 import org.junit.Ignore
+import org.junit.Test
+import org.junit.runner.Description
 
 class RenderingModeTest {
 

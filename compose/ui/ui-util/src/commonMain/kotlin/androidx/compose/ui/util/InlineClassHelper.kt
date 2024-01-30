@@ -22,8 +22,8 @@ package androidx.compose.ui.util
  * Packs two Float values into one Long value for use in inline classes.
  */
 inline fun packFloats(val1: Float, val2: Float): Long {
-    val v1 = val1.toBits().toLong()
-    val v2 = val2.toBits().toLong()
+    val v1 = val1.toRawBits().toLong()
+    val v2 = val2.toRawBits().toLong()
     return v1.shl(32) or (v2 and 0xFFFFFFFF)
 }
 

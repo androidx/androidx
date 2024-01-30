@@ -22,15 +22,14 @@ import android.media.Image
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
+import com.google.common.truth.Truth.assertThat
+import java.nio.ByteBuffer
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.Mockito.`when`
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
-import java.nio.ByteBuffer
-
-import com.google.common.truth.Truth.assertThat
+import org.mockito.Mockito.`when`
 
 /**
  * Unit tests for {@link AndroidImageProxy}.

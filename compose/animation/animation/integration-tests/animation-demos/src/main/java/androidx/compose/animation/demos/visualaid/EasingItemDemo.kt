@@ -17,6 +17,8 @@
 package androidx.compose.animation.demos.visualaid
 
 import androidx.compose.animation.core.Easing
+import androidx.compose.animation.core.PathEasing
+import androidx.compose.ui.graphics.Path
 
 enum class EasingItemDemo(val description: String, val function: Easing) {
 
@@ -139,4 +141,15 @@ enum class EasingItemDemo(val description: String, val function: Easing) {
     ),
 
     Linear("Linear", function = androidx.compose.animation.core.LinearEasing),
+
+    EmphasizedEasing("EmphasizedEasing", function = EmphasizedEasingCurve),
 }
+
+/**
+ * Emphasized Easing Curve (Material Spec)
+ */
+private val EmphasizedEasingCurve: Easing = PathEasing(Path().apply {
+    moveTo(0f, 0f)
+    cubicTo(0.05f, 0f, 0.133333f, 0.06f, 0.166666f, 0.4f)
+    cubicTo(0.208333f, 0.82f, 0.25f, 1f, 1f, 1f)
+})

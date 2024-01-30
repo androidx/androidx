@@ -37,7 +37,6 @@ import java.lang.annotation.RetentionPolicy;
 /**
  * Class responsible to animate and provide a fast scroller.
  */
-@VisibleForTesting
 class FastScroller extends RecyclerView.ItemDecoration implements RecyclerView.OnItemTouchListener {
     @IntDef({STATE_HIDDEN, STATE_VISIBLE, STATE_DRAGGING})
     @Retention(RetentionPolicy.SOURCE)

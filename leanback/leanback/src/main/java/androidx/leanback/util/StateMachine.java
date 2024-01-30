@@ -34,7 +34,6 @@ import java.util.ArrayList;
  * 2. Auto transition, transition will be triggered when {@link Transition#mFromState} is executed.
  * 3. Condiitonal Auto transition, transition will be triggered when {@link Transition#mFromState}
  * is executed and {@link Transition#mCondition} passes.
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public final class StateMachine {

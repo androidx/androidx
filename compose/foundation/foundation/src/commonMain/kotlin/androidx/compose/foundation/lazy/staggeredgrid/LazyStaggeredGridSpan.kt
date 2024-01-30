@@ -28,7 +28,6 @@ import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan.Comp
  *   - item all lanes in line ([FullLine]).
  * By default, staggered grid uses [SingleLane] for all items.
  */
-@ExperimentalFoundationApi
 class StaggeredGridItemSpan private constructor(internal val value: Int) {
     companion object {
         /**
@@ -45,7 +44,7 @@ class StaggeredGridItemSpan private constructor(internal val value: Int) {
 
 @OptIn(ExperimentalFoundationApi::class)
 internal class LazyStaggeredGridSpanProvider(
-    val intervals: IntervalList<LazyStaggeredGridIntervalContent>
+    val intervals: IntervalList<LazyStaggeredGridInterval>
 ) {
     fun isFullSpan(itemIndex: Int): Boolean {
         if (itemIndex !in 0 until intervals.size) return false

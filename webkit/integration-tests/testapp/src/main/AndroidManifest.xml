@@ -131,7 +131,7 @@
             android:process=":dataDirectorySuffixActivity"
             android:exported="true" />
         <activity
-            android:name=".DirectoryBasePathActivity"
+            android:name=".DirectoryBasePathsActivity"
             android:process=":directoryBasePathActivity"
             android:exported="true" />
         <activity
@@ -141,6 +141,12 @@
             android:exported="true" />
         <activity
             android:name=".ImageDragActivity"
+            android:exported="false" />
+        <activity
+            android:name=".UserAgentMetadataActivity"
+            android:exported="true" />
+        <activity
+            android:name=".MultiProfileTestActivity"
             android:exported="false" />
 
         <provider

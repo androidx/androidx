@@ -3,16 +3,78 @@ syntax = "proto3";
 
 package androidx.wear.protolayout.proto;
 
+import "dimension.proto";
 import "dynamic.proto";
+import "types.proto";
 
 option java_package = "androidx.wear.protolayout.proto";
 option java_outer_classname = "ColorProto";
 
 // A property defining a color.
 message ColorProp {
-  // The color value, in ARGB format.
-  optional uint32 argb = 1;
 
-  // The dynamic value.
+  oneof optional_argb {
+    // The static color value, in ARGB format. If a dynamic value is also set and the
+    // renderer supports dynamic values for the corresponding field, this static
+    // value will be ignored. If the static value is not specified, zero
+    // (equivalent to {@link Color#TRANSPARENT}) will be used instead.
+    uint32 argb = 1;
+  }
+
+  // The dynamic value. Note that when setting this value, the static value is
+  // still required to be set to support older renderers that only read the
+  // static value. If {@code dynamicValue} has an invalid result, the provided
+  // static value will be used instead.
   androidx.wear.protolayout.expression.proto.DynamicColor dynamic_value = 2;
+}
+
+// A color and an offset, determining a color position in a gradient.
+message ColorStop {
+  // The color for this stop.
+  ColorProp color = 1;
+
+  oneof optional_offset {
+    // The relative offset for this color, between 0 and 1. This determines
+    // where the color is positioned relative to a gradient space.
+    FloatProp offset = 2;
+  }
+}
+
+// A sweep gradient with the given colors dispersed around its center with
+// offsets defined in each color stop. The sweep begins at the parent's base
+// angle plus the given angular shift and continues clockwise until it reaches
+// the starting position again.
+//
+// The gradient center corresponds to center of the parent element.
+message SweepGradient {
+  // The color stops defining how the colors are distributed around the gradient
+  // center. The color sequence starts at the start angle and spans 360
+  // degrees clockwise, finishing at the same angle.
+  //
+  // A color stop is a pair of a color and its offset in the gradient.
+  // The offset is the relative position of the color, beginning with 0 from the
+  // start angle and ending with 1.0 after spanning 360 degrees clockwise.
+  //
+  // There must be at least 2 colors.
+  //
+  // If offset values are not set, the colors are evenly distributed in the
+  // gradient.
+  //
+  // If the offset values are not monotonic, the drawing may produce unexpected
+  // results.
+  repeated ColorStop color_stops = 1;
+
+  // The angular shift relative to the element's parent base angle. This is used
+  // to shift the start angle of the gradient.
+  //
+  // For ArcLine, the base angle is the angle where the line starts.
+  DegreesProp angular_shift = 2;
+}
+
+// A Brush describes how something is drawn on screen.
+// It determines the color(s) that are drawn in the drawing area.
+message Brush {
+  oneof inner {
+    SweepGradient sweep_gradient = 1;
+  }
 }

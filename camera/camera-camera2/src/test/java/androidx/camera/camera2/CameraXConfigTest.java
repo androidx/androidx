@@ -22,7 +22,7 @@ import android.os.Build;
 
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraXConfig;
-import androidx.camera.testing.CameraXUtil;
+import androidx.camera.testing.impl.CameraXUtil;
 import androidx.test.core.app.ApplicationProvider;
 
 import org.junit.Test;

@@ -29,15 +29,22 @@ class SleepSessionRecordTest {
     @Test
     fun validRecord_equals() {
         assertThat(
-                SleepSessionRecord(
-                    startTime = Instant.ofEpochMilli(1234L),
-                    startZoneOffset = null,
-                    endTime = Instant.ofEpochMilli(1236L),
-                    endZoneOffset = null,
-                    title = "title",
-                    notes = "note",
-                )
+            SleepSessionRecord(
+                startTime = Instant.ofEpochMilli(1234L),
+                startZoneOffset = null,
+                endTime = Instant.ofEpochMilli(1236L),
+                endZoneOffset = null,
+                title = "title",
+                notes = "note",
+                stages = listOf(
+                    SleepSessionRecord.Stage(
+                        startTime = Instant.ofEpochMilli(1234),
+                        endTime = Instant.ofEpochMilli(1236),
+                        stage = SleepSessionRecord.STAGE_TYPE_DEEP,
+                    ),
+                ),
             )
+        )
             .isEqualTo(
                 SleepSessionRecord(
                     startTime = Instant.ofEpochMilli(1234L),
@@ -46,12 +53,19 @@ class SleepSessionRecordTest {
                     endZoneOffset = null,
                     title = "title",
                     notes = "note",
+                    stages = listOf(
+                        SleepSessionRecord.Stage(
+                            startTime = Instant.ofEpochMilli(1234),
+                            endTime = Instant.ofEpochMilli(1236),
+                            stage = SleepSessionRecord.STAGE_TYPE_DEEP,
+                        ),
+                    ),
                 )
             )
     }
 
     @Test
-    fun invalidTimes_throws() {
+    fun record_invalidTimes_throws() {
         assertFailsWith<IllegalArgumentException> {
             SleepSessionRecord(
                 startTime = Instant.ofEpochMilli(1234L),
@@ -60,6 +74,100 @@ class SleepSessionRecordTest {
                 endZoneOffset = null,
                 title = "title",
                 notes = "note",
+            )
+        }
+    }
+
+    @Test
+    fun record_stageOutOfRange_throws() {
+        assertFailsWith<IllegalArgumentException> {
+            SleepSessionRecord(
+                startTime = Instant.ofEpochMilli(1234L),
+                startZoneOffset = null,
+                endTime = Instant.ofEpochMilli(1235L),
+                endZoneOffset = null,
+                title = "title",
+                notes = "note",
+                stages = listOf(
+                    SleepSessionRecord.Stage(
+                        startTime = Instant.ofEpochMilli(1233L),
+                        endTime = Instant.ofEpochMilli(1235L),
+                        stage = SleepSessionRecord.STAGE_TYPE_DEEP,
+                    )
+                )
+            )
+        }
+
+        assertFailsWith<IllegalArgumentException> {
+            SleepSessionRecord(
+                startTime = Instant.ofEpochMilli(1234L),
+                startZoneOffset = null,
+                endTime = Instant.ofEpochMilli(1235L),
+                endZoneOffset = null,
+                title = "title",
+                notes = "note",
+                stages = listOf(
+                    SleepSessionRecord.Stage(
+                        startTime = Instant.ofEpochMilli(1234L),
+                        endTime = Instant.ofEpochMilli(1236L),
+                        stage = SleepSessionRecord.STAGE_TYPE_DEEP,
+                    )
+                )
+            )
+        }
+    }
+
+    @Test
+    fun record_stagesOverlap_throws() {
+        assertFailsWith<IllegalArgumentException> {
+            SleepSessionRecord(
+                startTime = Instant.ofEpochMilli(1234L),
+                startZoneOffset = null,
+                endTime = Instant.ofEpochMilli(1236L),
+                endZoneOffset = null,
+                title = "title",
+                notes = "note",
+                stages = listOf(
+                    SleepSessionRecord.Stage(
+                        startTime = Instant.ofEpochMilli(1234L),
+                        endTime = Instant.ofEpochMilli(1236L),
+                        stage = SleepSessionRecord.STAGE_TYPE_DEEP,
+                    ),
+                    SleepSessionRecord.Stage(
+                        startTime = Instant.ofEpochMilli(1235L),
+                        endTime = Instant.ofEpochMilli(1236L),
+                        stage = SleepSessionRecord.STAGE_TYPE_DEEP,
+                    ),
+                )
+            )
+        }
+    }
+
+    @Test
+    fun stage_equals() {
+        assertThat(
+            SleepSessionRecord.Stage(
+                startTime = Instant.ofEpochMilli(1234),
+                endTime = Instant.ofEpochMilli(1236),
+                stage = SleepSessionRecord.STAGE_TYPE_DEEP,
+            )
+        )
+            .isEqualTo(
+                SleepSessionRecord.Stage(
+                    startTime = Instant.ofEpochMilli(1234),
+                    endTime = Instant.ofEpochMilli(1236),
+                    stage = SleepSessionRecord.STAGE_TYPE_DEEP,
+                )
+            )
+    }
+
+    @Test
+    fun stage_invalidTime_throws() {
+        assertFailsWith<IllegalArgumentException> {
+            SleepSessionRecord.Stage(
+                startTime = Instant.ofEpochMilli(1234L),
+                endTime = Instant.ofEpochMilli(1234L),
+                stage = SleepStageRecord.STAGE_TYPE_AWAKE
             )
         }
     }

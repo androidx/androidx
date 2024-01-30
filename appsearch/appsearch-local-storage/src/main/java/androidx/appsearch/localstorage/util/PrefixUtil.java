@@ -32,7 +32,7 @@ import com.google.android.icing.proto.SchemaTypeConfigProto;
 /**
  * Provides utility functions for working with package + database prefixes.
  *
- * @hide
+ * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class PrefixUtil {
@@ -91,14 +91,13 @@ public class PrefixUtil {
      */
     @NonNull
     public static String getDatabaseName(@NonNull String prefix) {
-        // TODO (b/184050178) Start database delimiter index search from after package delimiter
         int packageDelimiterIndex = prefix.indexOf(PACKAGE_DELIMITER);
-        int databaseDelimiterIndex = prefix.indexOf(DATABASE_DELIMITER);
         if (packageDelimiterIndex == -1) {
             // This should never happen if we construct our prefixes properly
             Log.e(TAG, "Malformed prefix doesn't contain package delimiter: " + prefix);
             return "";
         }
+        int databaseDelimiterIndex = prefix.indexOf(DATABASE_DELIMITER, packageDelimiterIndex + 1);
         if (databaseDelimiterIndex == -1) {
             // This should never happen if we construct our prefixes properly
             Log.e(TAG, "Malformed prefix doesn't contain database delimiter: " + prefix);
@@ -115,19 +114,18 @@ public class PrefixUtil {
      * @throws AppSearchException if the prefixed value does not contain a valid database name.
      */
     @NonNull
-    public static String removePrefix(@NonNull String prefixedString)
-            throws AppSearchException {
+    public static String removePrefix(@NonNull String prefixedString) throws AppSearchException {
         // The prefix is made up of the package, then the database. So we only need to find the
         // database cutoff.
-        int delimiterIndex;
-        if ((delimiterIndex = prefixedString.indexOf(DATABASE_DELIMITER)) != -1) {
-            // Add 1 to include the char size of the DATABASE_DELIMITER
-            return prefixedString.substring(delimiterIndex + 1);
+        int delimiterIndex = prefixedString.indexOf(DATABASE_DELIMITER);
+        if (delimiterIndex == -1) {
+            throw new AppSearchException(
+                    AppSearchResult.RESULT_INTERNAL_ERROR,
+                    "The prefixed value \"" + prefixedString + "\" doesn't contain a valid "
+                            + "database name");
         }
-        throw new AppSearchException(
-                AppSearchResult.RESULT_INTERNAL_ERROR,
-                "The prefixed value \"" + prefixedString + "\" doesn't contain a valid "
-                        + "database name");
+        // Add 1 to include the char size of the DATABASE_DELIMITER
+        return prefixedString.substring(delimiterIndex + 1);
     }
 
     /**
@@ -139,16 +137,15 @@ public class PrefixUtil {
      */
     @NonNull
     public static String getPrefix(@NonNull String prefixedString) throws AppSearchException {
-        int databaseDelimiterIndex = prefixedString.indexOf(DATABASE_DELIMITER);
-        if (databaseDelimiterIndex == -1) {
+        int delimiterIndex = prefixedString.indexOf(DATABASE_DELIMITER);
+        if (delimiterIndex == -1) {
             throw new AppSearchException(
                     AppSearchResult.RESULT_INTERNAL_ERROR,
                     "The prefixed value \"" + prefixedString + "\" doesn't contain a valid "
                             + "database name");
         }
-
         // Add 1 to include the char size of the DATABASE_DELIMITER
-        return prefixedString.substring(0, databaseDelimiterIndex + 1);
+        return prefixedString.substring(0, delimiterIndex + 1);
     }
 
     /**
@@ -266,6 +263,14 @@ public class PrefixUtil {
                 propertyConfigBuilder.setSchemaType(newPropertySchemaType);
                 typeConfigBuilder.setProperties(propertyIdx, propertyConfigBuilder);
             }
+        }
+
+        // Rewrite SchemaProto.types.parent_types
+        for (int parentTypeIdx = 0; parentTypeIdx < typeConfigBuilder.getParentTypesCount();
+                parentTypeIdx++) {
+            String newParentType = typeConfigBuilder.getParentTypes(parentTypeIdx).substring(
+                    typePrefix.length());
+            typeConfigBuilder.setParentTypes(parentTypeIdx, newParentType);
         }
         return typePrefix;
     }

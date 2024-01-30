@@ -25,7 +25,6 @@ import androidx.annotation.RestrictTo;
 /**
  * Defines the communication protocol for media browsers and media browser services.
  *
- * @hide
  */
 @RestrictTo(LIBRARY)
 public class MediaBrowserProtocol {

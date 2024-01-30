@@ -20,13 +20,14 @@ import androidx.datastore.OkioPath
 import androidx.datastore.OkioTestIO
 import androidx.datastore.core.CorruptionException
 import androidx.datastore.core.okio.OkioSerializer
-import kotlinx.coroutines.test.runTest
-import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
 import kotlin.test.BeforeTest
 import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.runTest
 import okio.FileSystem
 
 @kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -43,10 +44,9 @@ class PreferencesSerializerJavaTest {
     @BeforeTest
     fun setUp() {
         testFile = testIO.newTempFile()
-        fileSystem.createDirectories(testFile.path.parent!!)
     }
     fun doTest(test: suspend TestScope.() -> Unit) {
-        runTest(dispatchTimeoutMs = 10000) {
+        runTest(timeout = 10000.milliseconds) {
             test(this)
         }
     }

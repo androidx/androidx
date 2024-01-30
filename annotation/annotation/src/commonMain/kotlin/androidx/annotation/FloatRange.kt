@@ -18,7 +18,6 @@ package androidx.annotation
 /**
  * Denotes that the annotated element should be a float or double in the given range
  *
- *
  * Example:
  * ```
  * @FloatRange(from=0.0,to=1.0)
@@ -39,18 +38,12 @@ package androidx.annotation
     AnnotationTarget.ANNOTATION_CLASS
 )
 public annotation class FloatRange(
-    /**
-     * Smallest value. Whether it is inclusive or not is determined
-     * by [.fromInclusive]
-     */
+    /** Smallest value. Whether it is inclusive or not is determined by [.fromInclusive] */
     val from: Double = Double.NEGATIVE_INFINITY,
-    /**
-     * Largest value. Whether it is inclusive or not is determined
-     * by [.toInclusive]
-     */
+    /** Largest value. Whether it is inclusive or not is determined by [.toInclusive] */
     val to: Double = Double.POSITIVE_INFINITY,
-    /** Whether the from value is included in the range  */
+    /** Whether the from value is included in the range */
     val fromInclusive: Boolean = true,
-    /** Whether the to value is included in the range  */
+    /** Whether the to value is included in the range */
     val toInclusive: Boolean = true
 )

@@ -57,7 +57,6 @@ public final class PackageManagerCompat {
         /* Hide constructor */
     }
 
-    /** @hide */
     @RestrictTo(LIBRARY)
     public static final String LOG_TAG = "PackageManagerCompat";
 
@@ -71,7 +70,6 @@ public final class PackageManagerCompat {
 
     /**
      * The status of Unused App Restrictions for this app.
-     * @hide
      */
     @IntDef({ERROR, FEATURE_NOT_AVAILABLE, DISABLED, API_30_BACKPORT, API_30, API_31})
     @Retention(SOURCE)
@@ -194,7 +192,6 @@ public final class PackageManagerCompat {
     /**
      * Returns whether any Unused App Restrictions are available on the device.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public static boolean areUnusedAppRestrictionsAvailable(
@@ -213,7 +210,6 @@ public final class PackageManagerCompat {
      * permission revocation. If none exist, this will return {@code null}. Likewise, if multiple
      * Verifiers exist, this method will return the first Verifier's package name.
      *
-     * @hide
      */
     @Nullable
     @RestrictTo(LIBRARY)

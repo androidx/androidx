@@ -39,6 +39,12 @@ internal class OwnerSnapshotObserver(onChangedExecutor: (callback: () -> Unit) -
         }
     }
 
+    private val onCommitAffectingSemantics: (LayoutNode) -> Unit = { layoutNode ->
+        if (layoutNode.isValidOwnerScope) {
+            layoutNode.invalidateSemantics()
+        }
+    }
+
     private val onCommitAffectingLayout: (LayoutNode) -> Unit = { layoutNode ->
         if (layoutNode.isValidOwnerScope) {
             layoutNode.requestRelayout()
@@ -57,7 +63,7 @@ internal class OwnerSnapshotObserver(onChangedExecutor: (callback: () -> Unit) -
         }
     }
 
-    private val onCommitAffectingLookaheadLayout: (LayoutNode) -> Unit = { layoutNode ->
+    private val onCommitAffectingLookahead: (LayoutNode) -> Unit = { layoutNode ->
         if (layoutNode.isValidOwnerScope) {
             layoutNode.requestLookaheadRelayout()
         }
@@ -71,8 +77,8 @@ internal class OwnerSnapshotObserver(onChangedExecutor: (callback: () -> Unit) -
         affectsLookahead: Boolean = true,
         block: () -> Unit
     ) {
-        if (affectsLookahead && node.mLookaheadScope != null) {
-            observeReads(node, onCommitAffectingLookaheadLayout, block)
+        if (affectsLookahead && node.lookaheadRoot != null) {
+            observeReads(node, onCommitAffectingLookahead, block)
         } else {
             observeReads(node, onCommitAffectingLayout, block)
         }
@@ -86,7 +92,7 @@ internal class OwnerSnapshotObserver(onChangedExecutor: (callback: () -> Unit) -
         affectsLookahead: Boolean = true,
         block: () -> Unit
     ) {
-        if (affectsLookahead && node.mLookaheadScope != null) {
+        if (affectsLookahead && node.lookaheadRoot != null) {
             observeReads(node, onCommitAffectingLayoutModifierInLookahead, block)
         } else {
             observeReads(node, onCommitAffectingLayoutModifier, block)
@@ -101,11 +107,18 @@ internal class OwnerSnapshotObserver(onChangedExecutor: (callback: () -> Unit) -
         affectsLookahead: Boolean = true,
         block: () -> Unit
     ) {
-        if (affectsLookahead && node.mLookaheadScope != null) {
+        if (affectsLookahead && node.lookaheadRoot != null) {
             observeReads(node, onCommitAffectingLookaheadMeasure, block)
         } else {
             observeReads(node, onCommitAffectingMeasure, block)
         }
+    }
+
+    internal fun observeSemanticsReads(
+        node: LayoutNode,
+        block: () -> Unit
+    ) {
+        observeReads(node, onCommitAffectingSemantics, block)
     }
 
     /**

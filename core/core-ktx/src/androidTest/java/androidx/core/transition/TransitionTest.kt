@@ -25,17 +25,15 @@ import android.widget.ImageView
 import androidx.core.TestActivity
 import androidx.core.ktx.test.R
 import androidx.test.filters.MediumTest
-import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicBoolean
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
-import java.util.concurrent.atomic.AtomicBoolean
 
-@SdkSuppress(minSdkVersion = 19)
 @MediumTest
 class TransitionTest {
     @Suppress("DEPRECATION")

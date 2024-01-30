@@ -3,12 +3,6 @@ ConcreteCollection: androidx.drawerlayout.widget.DrawerLayout#addFocusables(java
     Parameter type is concrete collection (`java.util.ArrayList`); must be higher-level interface
 
 
-InvalidNullabilityOverride: androidx.drawerlayout.widget.DrawerLayout#drawChild(android.graphics.Canvas, android.view.View, long) parameter #0:
-    Invalid nullability on parameter `canvas` in method `drawChild`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
-InvalidNullabilityOverride: androidx.drawerlayout.widget.DrawerLayout#onDraw(android.graphics.Canvas) parameter #0:
-    Invalid nullability on parameter `c` in method `onDraw`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
-
-
 ListenerInterface: androidx.drawerlayout.widget.DrawerLayout.SimpleDrawerListener:
     Listeners should be an interface, or otherwise renamed Callback: SimpleDrawerListener
 
@@ -23,6 +17,8 @@ MissingNullability: androidx.drawerlayout.widget.DrawerLayout#checkLayoutParams(
     Missing nullability on parameter `p` in method `checkLayoutParams`
 MissingNullability: androidx.drawerlayout.widget.DrawerLayout#dispatchGenericMotionEvent(android.view.MotionEvent) parameter #0:
     Missing nullability on parameter `event` in method `dispatchGenericMotionEvent`
+MissingNullability: androidx.drawerlayout.widget.DrawerLayout#drawChild(android.graphics.Canvas, android.view.View, long) parameter #0:
+    Missing nullability on parameter `canvas` in method `drawChild`
 MissingNullability: androidx.drawerlayout.widget.DrawerLayout#drawChild(android.graphics.Canvas, android.view.View, long) parameter #1:
     Missing nullability on parameter `child` in method `drawChild`
 MissingNullability: androidx.drawerlayout.widget.DrawerLayout#generateDefaultLayoutParams():
@@ -35,6 +31,8 @@ MissingNullability: androidx.drawerlayout.widget.DrawerLayout#generateLayoutPara
     Missing nullability on method `generateLayoutParams` return
 MissingNullability: androidx.drawerlayout.widget.DrawerLayout#generateLayoutParams(android.view.ViewGroup.LayoutParams) parameter #0:
     Missing nullability on parameter `p` in method `generateLayoutParams`
+MissingNullability: androidx.drawerlayout.widget.DrawerLayout#onDraw(android.graphics.Canvas) parameter #0:
+    Missing nullability on parameter `c` in method `onDraw`
 MissingNullability: androidx.drawerlayout.widget.DrawerLayout#onInterceptTouchEvent(android.view.MotionEvent) parameter #0:
     Missing nullability on parameter `ev` in method `onInterceptTouchEvent`
 MissingNullability: androidx.drawerlayout.widget.DrawerLayout#onKeyDown(int, android.view.KeyEvent) parameter #1:

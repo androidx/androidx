@@ -16,8 +16,8 @@
 
 package androidx.room.solver
 
+import androidx.kruth.assertThat
 import androidx.room.solver.types.TypeConverter.Cost
-import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 
 class TypeConverterCostTest {

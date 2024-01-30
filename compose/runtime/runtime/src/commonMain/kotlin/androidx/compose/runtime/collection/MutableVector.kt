@@ -825,6 +825,32 @@ class MutableVector<T> @PublishedApi internal constructor(
         }
     }
 
+    // Workaround to allow setting size from inline functions
+    @PublishedApi
+    internal fun setSize(newSize: Int) {
+        size = newSize
+    }
+
+    /**
+     * Removes items that satisfy [predicate]
+     */
+    inline fun removeIf(predicate: (T) -> Boolean) {
+        var gap = 0
+        val size = size
+        for (i in 0 until size) {
+            if (predicate(content[i] as T)) {
+                gap++
+                continue
+            }
+
+            if (gap > 0) {
+                content[i - gap] = content[i]
+            }
+        }
+        content.fill(null, fromIndex = size - gap, toIndex = size)
+        setSize(size - gap)
+    }
+
     /**
      * Keeps only [elements] in the [MutableVector] and removes all other values.
      */

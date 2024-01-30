@@ -16,14 +16,14 @@ To enable compiler metrics for a build target include `-Pandroidx.enableComposeC
 prior to the build target such as:
 
 ```
-.gradlew -Pandroidx.enableComposeCompilerMetrics=true :compose:runtime:runtime:compileKotlin
+./gradlew -Pandroidx.enableComposeCompilerMetrics=true :compose:runtime:runtime:compileKotlin
 ```
 
 To enable compiler reports for a build target include `-Pandroidx.enableComposeCompilerReports=true`
 prior to the build target such as:
 
 ```
-.gradlew -Pandroidx.enableComposeCompilerReports=true :compose:runtime:runtime:compileKotlin
+./gradlew -Pandroidx.enableComposeCompilerReports=true :compose:runtime:runtime:compileKotlin
 ```
 
 ### Other Gradle projects
@@ -31,10 +31,10 @@ prior to the build target such as:
 To enable metrics for a gradle module, include:
 
 ```
-compileKotlin {
-    freeCompilerArgs += listOf(
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>() {
+    compilerOptions.freeCompilerArgs.addAll(
         "-P",
-        "plugin:androidx.compose.compiler.plugins.kotlin:metricsDestination=<directory>"
+        "plugin:androidx.compose.compiler.plugins.kotlin:metricsDestination=<directory>",
     )
 }
 ```
@@ -44,10 +44,10 @@ where `<directory>` is replaced with the location you wish the report written.
 To enabled reports for a gradle module, include:
 
 ```
-compileKotlin {
-    freeCompilerArgs += listOf(
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>() {
+    compilerOptions.freeCompilerArgs.addAll(
         "-P",
-        "plugin:androidx.compose.compiler.plugins.kotlin:reportsDestination=<directory>"
+        "plugin:androidx.compose.compiler.plugins.kotlin:reportsDestination=<directory>",
     )
 }
 ```

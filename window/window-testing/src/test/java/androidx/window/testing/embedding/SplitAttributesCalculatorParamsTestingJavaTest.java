@@ -48,7 +48,6 @@ import java.util.Collections;
 import java.util.List;
 
 /** Test class to verify {@link TestSplitAttributesCalculatorParams} in Java. */
-@OptIn(markerClass = ExperimentalWindowApi.class)
 @RunWith(RobolectricTestRunner.class)
 public class SplitAttributesCalculatorParamsTestingJavaTest {
     private static final Rect TEST_BOUNDS = new Rect(0, 0, 2000, 2000);

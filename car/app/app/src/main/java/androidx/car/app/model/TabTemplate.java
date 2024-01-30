@@ -21,14 +21,15 @@ import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONS
 import static java.util.Objects.requireNonNull;
 
 import android.annotation.SuppressLint;
+import android.os.Looper;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.car.app.Screen;
 import androidx.car.app.annotations.CarProtocol;
-import androidx.car.app.annotations.ExperimentalCarApi;
+import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.constraints.TabsConstraints;
-import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.utils.CollectionUtils;
 
 import java.util.ArrayList;
@@ -54,7 +55,6 @@ import java.util.Objects;
  * </ul>
  */
 @CarProtocol
-@ExperimentalCarApi
 @RequiresCarApi(6)
 @KeepFields
 public class TabTemplate implements Template {
@@ -81,6 +81,8 @@ public class TabTemplate implements Template {
     private final TabContents mTabContents;
     @Nullable
     private final List<Tab> mTabs;
+    @Nullable
+    private final String mActiveTabContentId;
 
     /**
      * Returns the {@link Action} that is set to be displayed in the header of the template, or
@@ -126,6 +128,14 @@ public class TabTemplate implements Template {
         return requireNonNull(mTabCallbackDelegate);
     }
 
+    /**
+     * Returns the {@link Tab#getContentId()} for the active tab.
+     */
+    @NonNull
+    public String getActiveTabContentId() {
+        return requireNonNull(mActiveTabContentId);
+    }
+
     @NonNull
     @Override
     public String toString() {
@@ -134,7 +144,7 @@ public class TabTemplate implements Template {
 
     @Override
     public int hashCode() {
-        return Objects.hash(mIsLoading, mHeaderAction, mTabs, mTabContents);
+        return Objects.hash(mIsLoading, mHeaderAction, mTabs, mTabContents, mActiveTabContentId);
     }
 
     @Override
@@ -150,7 +160,8 @@ public class TabTemplate implements Template {
         return mIsLoading == otherTemplate.mIsLoading
                 && Objects.equals(mHeaderAction, otherTemplate.mHeaderAction)
                 && Objects.equals(mTabs, otherTemplate.mTabs)
-                && Objects.equals(mTabContents, otherTemplate.mTabContents);
+                && Objects.equals(mTabContents, otherTemplate.mTabContents)
+                && Objects.equals(mActiveTabContentId, otherTemplate.getActiveTabContentId());
     }
 
     TabTemplate(TabTemplate.Builder builder) {
@@ -159,6 +170,7 @@ public class TabTemplate implements Template {
         mTabs = CollectionUtils.unmodifiableCopy(builder.mTabs);
         mTabContents = builder.mTabContents;
         mTabCallbackDelegate = builder.mTabCallbackDelegate;
+        mActiveTabContentId = builder.mActiveTabContentId;
     }
 
     /** Constructs an empty instance, used by serialization code. */
@@ -168,6 +180,7 @@ public class TabTemplate implements Template {
         mTabs = Collections.emptyList();
         mTabContents = null;
         mTabCallbackDelegate = null;
+        mActiveTabContentId = null;
     }
 
     /** A builder of {@link TabTemplate}. */
@@ -180,9 +193,12 @@ public class TabTemplate implements Template {
         @Nullable
         Action mHeaderAction;
 
-        final List<Tab> mTabs = new ArrayList<>();
+        final List<Tab> mTabs;
         @Nullable
         TabContents mTabContents;
+
+        @Nullable
+        String mActiveTabContentId;
 
         /**
          * Sets whether the template is in a loading state.
@@ -223,13 +239,28 @@ public class TabTemplate implements Template {
         }
 
         /**
-         * Sets the {@link TabContents} to show in the template.
+         * Sets the {@link TabContents} to show in the template. Note that only certain templates
+         * may be used as content. See {@link TabContents.Builder#Builder(Template)} for more
+         * details.
          *
          * @throws NullPointerException if {@code tabContents} is null
          */
         @NonNull
         public TabTemplate.Builder setTabContents(@NonNull TabContents tabContents) {
             mTabContents = requireNonNull(tabContents);
+            return this;
+        }
+
+        /**
+         * Stores the given {@code contentId} as the "active tab" to show on the screen. The given
+         * ID must match a tab that was added by {@link #addTab(Tab)}.
+         */
+        @NonNull
+        public TabTemplate.Builder setActiveTabContentId(@NonNull String contentId) {
+            if (requireNonNull(contentId).isEmpty()) {
+                throw new IllegalArgumentException("The content ID cannot be null or empty");
+            }
+            mActiveTabContentId = contentId;
             return this;
         }
 
@@ -274,8 +305,14 @@ public class TabTemplate implements Template {
                                 + "contents");
             }
 
-            if (hasTabs) {
-                TabsConstraints.DEFAULT.validateOrThrow(mTabs);
+            if (hasTabs && mActiveTabContentId == null) {
+                throw new IllegalStateException(
+                        "Template requires setting content ID for the active tab when not in "
+                                + "Loading state");
+            }
+
+            if (hasTabs && mActiveTabContentId != null) {
+                TabsConstraints.DEFAULT.validateOrThrow(mTabs, mActiveTabContentId);
             }
 
             if (!mIsLoading && mHeaderAction == null) {
@@ -288,10 +325,28 @@ public class TabTemplate implements Template {
             return new TabTemplate(this);
         }
 
-        /** Creates a {@link TabTemplate.Builder} instance using the given {@link TabCallback}. */
+        /**
+         * Creates a {@link TabTemplate.Builder} instance using the given {@link TabCallback}.
+         *
+         * <p>Note that the callback relates to UI events and will be executed on the main thread
+         * using {@link Looper#getMainLooper()}.
+         *
+         * @param callback the callback to be invoked when the user selects a new tab in the header
+         */
         @SuppressLint("ExecutorRegistration")
         public Builder(@NonNull TabCallback callback) {
             mTabCallbackDelegate = TabCallbackDelegateImpl.create(requireNonNull(callback));
+            mTabs = new ArrayList<>();
+        }
+
+        /** Creates a new {@link Builder}, populated from the input {@link TabTemplate} */
+        public Builder(@NonNull TabTemplate tabTemplate) {
+            mIsLoading = tabTemplate.isLoading();
+            mHeaderAction = tabTemplate.getHeaderAction();
+            mTabs = new ArrayList<>(tabTemplate.getTabs());
+            mTabContents = tabTemplate.getTabContents();
+            mTabCallbackDelegate = tabTemplate.getTabCallbackDelegate();
+            mActiveTabContentId = tabTemplate.getActiveTabContentId();
         }
     }
 }

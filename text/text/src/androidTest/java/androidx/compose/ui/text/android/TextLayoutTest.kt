@@ -26,6 +26,7 @@ import android.text.TextPaint
 import androidx.compose.ui.text.android.style.BaselineShiftSpan
 import androidx.compose.ui.text.android.style.LineHeightStyleSpan
 import androidx.core.content.res.ResourcesCompat
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.testutils.fonts.R
@@ -33,7 +34,6 @@ import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import androidx.test.ext.junit.runners.AndroidJUnit4
 
 @OptIn(InternalPlatformTextApi::class)
 @RunWith(AndroidJUnit4::class)
@@ -53,7 +53,7 @@ class TextLayoutTest {
 
     @Test
     fun constructor_default_values() {
-        val textLayout = TextLayout(charSequence = "", textPaint = TextPaint())
+        val textLayout = TextLayout(charSequence = "", textPaint = TextPaint(), width = 0f)
         val frameworkLayout = textLayout.layout
 
         assertThat(frameworkLayout.width).isEqualTo(0)

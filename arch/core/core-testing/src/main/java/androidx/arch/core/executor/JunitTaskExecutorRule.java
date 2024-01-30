@@ -31,7 +31,6 @@ import java.util.List;
  * A JUnit rule that swaps the task executor with a more controllable one.
  * Once we have the TaskExecutor API, we should consider making this public (via some test package).
  *
- * @hide
  */
 @SuppressWarnings("unused")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)

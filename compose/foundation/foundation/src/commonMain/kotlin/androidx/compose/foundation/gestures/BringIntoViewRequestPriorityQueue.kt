@@ -16,7 +16,7 @@
 
 package androidx.compose.foundation.gestures
 
-import androidx.compose.foundation.gestures.ContentInViewModifier.Request
+import androidx.compose.foundation.gestures.ContentInViewNode.Request
 import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.ui.geometry.Rect
 import kotlin.contracts.ExperimentalContracts
@@ -25,7 +25,7 @@ import kotlin.coroutines.resume
 import kotlinx.coroutines.CancellationException
 
 /**
- * Ongoing requests from [ContentInViewModifier.bringChildIntoView], with the invariant that it is
+ * Ongoing requests from [ContentInViewNode.bringChildIntoView], with the invariant that it is
  * always sorted by overlapping order: each item's bounds completely overlaps the next item.
  *
  * Requests are enqueued by calling [enqueue], which inserts the request at the correct position
@@ -132,6 +132,6 @@ internal class BringIntoViewRequestPriorityQueue {
         requests.map { it.continuation }.forEach {
             it.cancel(cause)
         }
-        check(requests.isEmpty())
+        check(requests.isEmpty()) { "uncancelled requests present" }
     }
 }

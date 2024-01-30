@@ -43,7 +43,6 @@ import androidx.core.view.OnReceiveContentListener;
  * Default implementation inserting content into editable {@link TextView} components. This class
  * handles insertion of text (plain text, styled text, HTML, etc) but not images or other content.
  *
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public final class TextViewOnReceiveContentListener implements OnReceiveContentListener {

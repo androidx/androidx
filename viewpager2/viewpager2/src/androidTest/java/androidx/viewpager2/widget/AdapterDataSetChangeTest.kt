@@ -27,14 +27,14 @@ import androidx.viewpager2.widget.AdapterDataSetChangeTest.Action.RemoveRange
 import androidx.viewpager2.widget.AdapterDataSetChangeTest.Action.ReplaceWith
 import androidx.viewpager2.widget.AdapterDataSetChangeTest.TestConfig
 import androidx.viewpager2.widget.swipe.ViewAdapter
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit.SECONDS
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.equalTo
 import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit.SECONDS
 
 @RunWith(Parameterized::class)
 @LargeTest

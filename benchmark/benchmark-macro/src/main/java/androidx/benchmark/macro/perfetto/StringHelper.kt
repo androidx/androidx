@@ -23,7 +23,7 @@ internal fun String.unquote(): String {
     return this.substring(1, length - 1)
 }
 internal fun String.camelCase(): String {
-    var words = this
+    val words = this
         .lowercase()
         .replace('_', '.')
         .replace("power", "")

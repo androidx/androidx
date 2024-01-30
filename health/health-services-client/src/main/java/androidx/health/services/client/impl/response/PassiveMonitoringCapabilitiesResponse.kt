@@ -25,7 +25,6 @@ import androidx.health.services.client.proto.ResponsesProto
 /**
  * Response containing the [PassiveMonitoringCapabilities] of the device.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class PassiveMonitoringCapabilitiesResponse(

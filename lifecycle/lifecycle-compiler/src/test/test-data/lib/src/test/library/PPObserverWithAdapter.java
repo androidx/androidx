@@ -24,6 +24,7 @@ import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.OnLifecycleEvent;
 
+@SuppressWarnings("deprecation")
 public class PPObserverWithAdapter implements LifecycleObserver {
     @OnLifecycleEvent(ON_START)
     protected void doOnStart() {

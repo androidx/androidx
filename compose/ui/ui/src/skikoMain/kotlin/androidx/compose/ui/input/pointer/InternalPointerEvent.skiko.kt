@@ -16,19 +16,18 @@
 
 package androidx.compose.ui.input.pointer
 
-import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.collection.LongSparseArray
 
-@OptIn(ExperimentalComposeUiApi::class)
-internal actual class InternalPointerEvent constructor(
+internal actual class InternalPointerEvent(
     val type: PointerEventType,
-    actual val changes: Map<PointerId, PointerInputChange>,
+    actual val changes: LongSparseArray<PointerInputChange>,
     val buttons: PointerButtons,
     val keyboardModifiers: PointerKeyboardModifiers,
     val nativeEvent: Any?,
     val button: PointerButton?
 ) {
     actual constructor(
-        changes: Map<PointerId, PointerInputChange>,
+        changes: LongSparseArray<PointerInputChange>,
         pointerInputEvent: PointerInputEvent
     ) : this(
         pointerInputEvent.eventType,
@@ -41,6 +40,6 @@ internal actual class InternalPointerEvent constructor(
 
     actual var suppressMovementConsumption: Boolean = false
 
-    // Assume that all changes are from mouse events for now
-    actual fun issuesEnterExitEvent(pointerId: PointerId): Boolean = true
+    actual fun issuesEnterExitEvent(pointerId: PointerId): Boolean =
+        changes[pointerId.value]?.type == PointerType.Mouse
 }

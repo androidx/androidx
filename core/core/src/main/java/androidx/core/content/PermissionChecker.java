@@ -67,7 +67,6 @@ public final class PermissionChecker {
     /** Permission result: The permission is denied because the app op is not allowed. */
     public static final int PERMISSION_DENIED_APP_OP =  PackageManager.PERMISSION_DENIED  - 1;
 
-    /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @IntDef({PERMISSION_GRANTED,
             PERMISSION_DENIED,

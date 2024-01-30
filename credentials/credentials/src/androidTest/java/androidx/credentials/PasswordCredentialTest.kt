@@ -28,6 +28,13 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @SmallTest
 class PasswordCredentialTest {
+
+    @Test
+    fun typeConstant() {
+        assertThat(PasswordCredential.TYPE_PASSWORD_CREDENTIAL)
+            .isEqualTo("android.credentials.TYPE_PASSWORD_CREDENTIAL")
+    }
+
     @Test
     fun constructor_emptyPassword_throws() {
         assertThrows<IllegalArgumentException> {
@@ -66,14 +73,26 @@ class PasswordCredentialTest {
     @Test
     fun frameworkConversion_success() {
         val credential = PasswordCredential("id", "password")
+        // Add additional data to the request data and candidate query data to make sure
+        // they persist after the conversion
+        // Add additional data to the request data and candidate query data to make sure
+        // they persist after the conversion
+        val data = credential.data
+        val customDataKey = "customRequestDataKey"
+        val customDataValue: CharSequence = "customRequestDataValue"
+        data.putCharSequence(customDataKey, customDataValue)
 
         val convertedCredential = createFrom(
-            credential.type, credential.data
+            credential.type, data
         )
 
-        assertThat(convertedCredential).isInstanceOf(PasswordCredential::class.java)
+        assertThat(convertedCredential).isInstanceOf(
+            PasswordCredential::class.java
+        )
         val convertedSubclassCredential = convertedCredential as PasswordCredential
         assertThat(convertedSubclassCredential.password).isEqualTo(credential.password)
         assertThat(convertedSubclassCredential.id).isEqualTo(credential.id)
+        assertThat(convertedCredential.data.getCharSequence(customDataKey))
+            .isEqualTo(customDataValue)
     }
 }

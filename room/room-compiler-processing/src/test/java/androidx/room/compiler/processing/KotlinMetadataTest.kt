@@ -16,13 +16,13 @@
 
 package androidx.room.compiler.processing
 
+import androidx.kruth.assertThat
 import androidx.room.compiler.processing.testcode.KotlinTestClass
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.asJTypeName
 import androidx.room.compiler.processing.util.getMethodByJvmName
 import androidx.room.compiler.processing.util.getParameter
 import androidx.room.compiler.processing.util.runProcessorTest
-import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 
 class KotlinMetadataTest {

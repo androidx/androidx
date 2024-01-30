@@ -42,7 +42,7 @@ dependencies {
 }
 
 androidx {
-    name = "AndroidX Compose Google Fonts integration"
+    name = "Compose Google Fonts integration"
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2022"
     description = "Compose Downloadable Fonts integration for Google Fonts"

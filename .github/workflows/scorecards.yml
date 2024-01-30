@@ -1,11 +1,6 @@
 name: Scorecards supply-chain security
 on:
-  # Only the default branch is supported.
-  branch_protection_rule:
-  schedule:
-    - cron: '24 14 * * 1'
-  push:
-    branches: [ androidx-main ]
+  workflow_dispatch:
 
 # Declare default permissions as read only.
 permissions: read-all

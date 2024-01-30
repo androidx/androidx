@@ -35,6 +35,22 @@ interface XFiler {
     fun write(fileSpec: FileSpec, mode: Mode = Mode.Isolating)
 
     /**
+     * Writes a source file that will be part of the output artifact (e.g. jar).
+     *
+     * Only source files should be written via this function, if the extension is not `.java` or
+     * `.kt` this function will throw an exception.
+     *
+     * @return the output stream to write the resource file.
+     */
+    fun writeSource(
+        packageName: String,
+        fileNameWithoutExtension: String,
+        extension: String,
+        originatingElements: List<XElement>,
+        mode: Mode = Mode.Isolating
+    ): OutputStream
+
+    /**
      * Writes a resource file that will be part of the output artifact (e.g. jar).
      *
      * Only non-source files should be written via this function, if the file path corresponds to a

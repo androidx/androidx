@@ -1,0 +1,5 @@
+// Baseline format: 1.0
+GetterSetterNames: field Preview.showBackground:
+    Invalid name for boolean property `showBackground`. Should start with one of `has`, `can`, `should`, `is`.
+GetterSetterNames: field Preview.showSystemUi:
+    Invalid name for boolean property `showSystemUi`. Should start with one of `has`, `can`, `should`, `is`.

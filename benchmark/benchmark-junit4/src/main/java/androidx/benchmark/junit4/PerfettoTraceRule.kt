@@ -18,7 +18,7 @@ package androidx.benchmark.junit4
 
 import android.os.Build
 import androidx.benchmark.InstrumentationResults
-import androidx.benchmark.Outputs
+import androidx.benchmark.Profiler
 import androidx.benchmark.perfetto.ExperimentalPerfettoCaptureApi
 import androidx.benchmark.perfetto.PerfettoTrace
 import androidx.test.platform.app.InstrumentationRegistry
@@ -87,22 +87,17 @@ class PerfettoTraceRule(
     ): Statement = object : Statement() {
         override fun evaluate() {
             val thisPackage = InstrumentationRegistry.getInstrumentation().context.packageName
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            if (Build.VERSION.SDK_INT >= 23) {
                 val label = "${description.className}_${description.methodName}"
                 PerfettoTrace.record(
                     fileLabel = label,
                     appTagPackages = if (enableAppTagTracing) listOf(thisPackage) else emptyList(),
                     userspaceTracingPackage = if (enableUserspaceTracing) thisPackage else null,
                     traceCallback = {
-                        val relativePath = Outputs.relativePathFor(it.path)
-                            .replace("(", "\\(")
-                            .replace(")", "\\)")
                         InstrumentationResults.instrumentationReport {
-                            ideSummaryRecord(
-                                // Can't link, simply print path
-                                summaryV1 = "Trace written to device at ${it.path}",
-                                // Link the trace within Studio
-                                summaryV2 = "[$label Trace](file://$relativePath)"
+                            reportSummaryToIde(
+                                testName = label,
+                                profilerResults = listOf(Profiler.ResultFile("Trace", it.path))
                             )
                         }
                         traceCallback?.invoke(it)

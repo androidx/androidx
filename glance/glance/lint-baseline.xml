@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.3.0-alpha02" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha02)" variant="all" version="8.3.0-alpha02">
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ListenableFutureKt.await can only be called from within the same library group (referenced groupId=`androidx.work` from groupId=`androidx.glance`)"
+        errorLine1="            .result.await()"
+        errorLine2="                    ~~~~~">
+        <location
+            file="src/main/java/androidx/glance/session/SessionManager.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ListenableFutureKt.await can only be called from within the same library group (referenced groupId=`androidx.work` from groupId=`androidx.glance`)"
+        errorLine1="        (WorkManager.getInstance(context).getWorkInfosForUniqueWork(key).await()"
+        errorLine2="                                                                         ~~~~~">
+        <location
+            file="src/main/java/androidx/glance/session/SessionManager.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        it.children.addAll(children.map { it.copy() })"
+        errorLine2="                                    ~~~">
+        <location
+            file="src/main/java/androidx/glance/layout/Box.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        it.children.addAll(children.map { it.copy() })"
+        errorLine2="                                    ~~~">
+        <location
+            file="src/main/java/androidx/glance/layout/Column.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        children.joinToString(&quot;,\n&quot;).prependIndent(&quot;  &quot;)"
+        errorLine2="                 ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/Emittables.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            events.forEach { addAction(it) }"
+        errorLine2="                   ~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/session/IdleEventBroadcastReceiver.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="    fold(0.dp) { acc, res ->"
+        errorLine2="    ~~~~">
+        <location
+            file="src/main/java/androidx/glance/layout/Padding.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        it.children.addAll(children.map { it.copy() })"
+        errorLine2="                                    ~~~">
+        <location
+            file="src/main/java/androidx/glance/layout/Row.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            .any { it.state == WorkInfo.State.RUNNING } &amp;&amp; synchronized(sessions) {"
+        errorLine2="             ~~~">
+        <location
+            file="src/main/java/androidx/glance/session/SessionManager.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            val mask = decorations.fold(0) { acc, decoration ->"
+        errorLine2="                                   ~~~~">
+        <location
+            file="src/main/java/androidx/glance/text/TextDecoration.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        return &quot;TextDecoration[${values.joinToString(separator = &quot;, &quot;)}]&quot;"
+        errorLine2="                                        ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/text/TextDecoration.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="return type List&lt;FontStyle> of values: replace with IntList"
+        errorLine1="        fun values(): List&lt;FontStyle> = listOf(Normal, Italic)"
+        errorLine2="                      ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/text/FontStyle.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method toDp has parameter $this$toDp with type List&lt;Integer>: replace with IntList"
+        errorLine1="private fun List&lt;Int>.toDp(resources: Resources) ="
+        errorLine2="            ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/layout/Padding.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="constructor PaddingDimension has parameter resourceIds with type List&lt;Integer>: replace with IntList"
+        errorLine1="    val resourceIds: List&lt;Int> = emptyList(),"
+        errorLine2="                     ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/layout/Padding.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field resourceIds with type List&lt;Integer>: replace with IntList"
+        errorLine1="    val resourceIds: List&lt;Int> = emptyList(),"
+        errorLine2="                     ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/layout/Padding.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="return type List&lt;Integer> of getResourceIds: replace with IntList"
+        errorLine1="    val resourceIds: List&lt;Int> = emptyList(),"
+        errorLine2="                     ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/layout/Padding.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="return type List&lt;TextAlign> of values: replace with IntList"
+        errorLine1="        fun values(): List&lt;TextAlign> = listOf(Left, Right, Center, Start, End)"
+        errorLine2="                      ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/text/TextAlign.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method combine has parameter decorations with type List&lt;TextDecoration>: replace with IntList"
+        errorLine1="        fun combine(decorations: List&lt;TextDecoration>): TextDecoration {"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/text/TextDecoration.kt"/>
+    </issue>
+
+</issues>

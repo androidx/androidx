@@ -132,7 +132,6 @@ public final class SessionConfigurationCompat {
         return outList;
     }
 
-    /** @hide */
     @NonNull
     @RequiresApi(24)
     @RestrictTo(Scope.LIBRARY)
@@ -269,7 +268,6 @@ public final class SessionConfigurationCompat {
         return mImpl.hashCode();
     }
 
-    /** @hide */
     @RestrictTo(Scope.LIBRARY)
     @Retention(RetentionPolicy.SOURCE)
     @IntDef(value =

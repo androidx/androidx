@@ -7,13 +7,14 @@ package androidx.work {
   }
 
   public enum BackoffPolicy {
-    method public static androidx.work.BackoffPolicy valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.work.BackoffPolicy valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
     method public static androidx.work.BackoffPolicy[] values();
     enum_constant public static final androidx.work.BackoffPolicy EXPONENTIAL;
     enum_constant public static final androidx.work.BackoffPolicy LINEAR;
   }
 
   public final class Configuration {
+    method public int getContentUriTriggerWorkersLimit();
     method public String? getDefaultProcessName();
     method public java.util.concurrent.Executor getExecutor();
     method public androidx.core.util.Consumer<java.lang.Throwable>? getInitializationExceptionHandler();
@@ -24,6 +25,7 @@ package androidx.work {
     method public androidx.core.util.Consumer<java.lang.Throwable>? getSchedulingExceptionHandler();
     method public java.util.concurrent.Executor getTaskExecutor();
     method public androidx.work.WorkerFactory getWorkerFactory();
+    property public final int contentUriTriggerWorkersLimit;
     property public final String? defaultProcessName;
     property public final java.util.concurrent.Executor executor;
     property public final androidx.core.util.Consumer<java.lang.Throwable>? initializationExceptionHandler;
@@ -41,6 +43,7 @@ package androidx.work {
   public static final class Configuration.Builder {
     ctor public Configuration.Builder();
     method public androidx.work.Configuration build();
+    method public androidx.work.Configuration.Builder setContentUriTriggerWorkersLimit(int contentUriTriggerWorkersLimit);
     method public androidx.work.Configuration.Builder setDefaultProcessName(String processName);
     method public androidx.work.Configuration.Builder setExecutor(java.util.concurrent.Executor executor);
     method public androidx.work.Configuration.Builder setInitializationExceptionHandler(androidx.core.util.Consumer<java.lang.Throwable> exceptionHandler);
@@ -63,19 +66,21 @@ package androidx.work {
   }
 
   public final class Constraints {
-    ctor public Constraints(optional @androidx.room.ColumnInfo(name="required_network_type") androidx.work.NetworkType requiredNetworkType, optional @androidx.room.ColumnInfo(name="requires_charging") boolean requiresCharging, optional @androidx.room.ColumnInfo(name="requires_device_idle") boolean requiresDeviceIdle, optional @androidx.room.ColumnInfo(name="requires_battery_not_low") boolean requiresBatteryNotLow, optional @androidx.room.ColumnInfo(name="requires_storage_not_low") boolean requiresStorageNotLow, optional @androidx.room.ColumnInfo(name="trigger_content_update_delay") long contentTriggerUpdateDelayMillis, optional @androidx.room.ColumnInfo(name="trigger_max_content_delay") long contentTriggerMaxDelayMillis, optional @androidx.room.ColumnInfo(name="content_uri_triggers") java.util.Set<androidx.work.Constraints.ContentUriTrigger> contentUriTriggers);
+    ctor @androidx.room.Ignore public Constraints(optional androidx.work.NetworkType requiredNetworkType, optional boolean requiresCharging, optional boolean requiresBatteryNotLow, optional boolean requiresStorageNotLow);
+    ctor @RequiresApi(23) @androidx.room.Ignore public Constraints(optional androidx.work.NetworkType requiredNetworkType, optional boolean requiresCharging, optional boolean requiresDeviceIdle, optional boolean requiresBatteryNotLow, optional boolean requiresStorageNotLow);
+    ctor @RequiresApi(24) public Constraints(optional androidx.work.NetworkType requiredNetworkType, optional boolean requiresCharging, optional boolean requiresDeviceIdle, optional boolean requiresBatteryNotLow, optional boolean requiresStorageNotLow, optional long contentTriggerUpdateDelayMillis, optional long contentTriggerMaxDelayMillis, optional java.util.Set<androidx.work.Constraints.ContentUriTrigger> contentUriTriggers);
     ctor public Constraints(androidx.work.Constraints other);
-    method public long getContentTriggerMaxDelayMillis();
-    method public long getContentTriggerUpdateDelayMillis();
-    method public java.util.Set<androidx.work.Constraints.ContentUriTrigger> getContentUriTriggers();
+    method @RequiresApi(24) public long getContentTriggerMaxDelayMillis();
+    method @RequiresApi(24) public long getContentTriggerUpdateDelayMillis();
+    method @RequiresApi(24) public java.util.Set<androidx.work.Constraints.ContentUriTrigger> getContentUriTriggers();
     method public androidx.work.NetworkType getRequiredNetworkType();
     method public boolean requiresBatteryNotLow();
     method public boolean requiresCharging();
     method @RequiresApi(23) public boolean requiresDeviceIdle();
     method public boolean requiresStorageNotLow();
-    property public final long contentTriggerMaxDelayMillis;
-    property public final long contentTriggerUpdateDelayMillis;
-    property public final java.util.Set<androidx.work.Constraints.ContentUriTrigger> contentUriTriggers;
+    property @RequiresApi(24) public final long contentTriggerMaxDelayMillis;
+    property @RequiresApi(24) public final long contentTriggerUpdateDelayMillis;
+    property @RequiresApi(24) public final java.util.Set<androidx.work.Constraints.ContentUriTrigger> contentUriTriggers;
     property public final androidx.work.NetworkType requiredNetworkType;
     field public static final androidx.work.Constraints.Companion Companion;
     field public static final androidx.work.Constraints NONE;
@@ -159,7 +164,7 @@ package androidx.work {
   }
 
   public enum ExistingPeriodicWorkPolicy {
-    method public static androidx.work.ExistingPeriodicWorkPolicy valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.work.ExistingPeriodicWorkPolicy valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
     method public static androidx.work.ExistingPeriodicWorkPolicy[] values();
     enum_constant public static final androidx.work.ExistingPeriodicWorkPolicy CANCEL_AND_REENQUEUE;
     enum_constant public static final androidx.work.ExistingPeriodicWorkPolicy KEEP;
@@ -168,7 +173,7 @@ package androidx.work {
   }
 
   public enum ExistingWorkPolicy {
-    method public static androidx.work.ExistingWorkPolicy valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.work.ExistingWorkPolicy valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
     method public static androidx.work.ExistingWorkPolicy[] values();
     enum_constant public static final androidx.work.ExistingWorkPolicy APPEND;
     enum_constant public static final androidx.work.ExistingWorkPolicy APPEND_OR_REPLACE;
@@ -226,7 +231,7 @@ package androidx.work {
   }
 
   public enum NetworkType {
-    method public static androidx.work.NetworkType valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.work.NetworkType valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
     method public static androidx.work.NetworkType[] values();
     enum_constant public static final androidx.work.NetworkType CONNECTED;
     enum_constant public static final androidx.work.NetworkType METERED;
@@ -277,7 +282,7 @@ package androidx.work {
   }
 
   public enum OutOfQuotaPolicy {
-    method public static androidx.work.OutOfQuotaPolicy valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.work.OutOfQuotaPolicy valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
     method public static androidx.work.OutOfQuotaPolicy[] values();
     enum_constant public static final androidx.work.OutOfQuotaPolicy DROP_WORK_REQUEST;
     enum_constant public static final androidx.work.OutOfQuotaPolicy RUN_AS_NON_EXPEDITED_WORK_REQUEST;
@@ -331,6 +336,9 @@ package androidx.work {
   }
 
   public final class WorkInfo {
+    ctor public WorkInfo(java.util.UUID id, androidx.work.WorkInfo.State state, java.util.Set<java.lang.String> tags, optional androidx.work.Data outputData, optional androidx.work.Data progress, optional int runAttemptCount, optional int generation, optional androidx.work.Constraints constraints, optional long initialDelayMillis, optional androidx.work.WorkInfo.PeriodicityInfo? periodicityInfo, optional long nextScheduleTimeMillis);
+    ctor public WorkInfo(java.util.UUID id, androidx.work.WorkInfo.State state, java.util.Set<java.lang.String> tags, optional androidx.work.Data outputData, optional androidx.work.Data progress, optional int runAttemptCount, optional int generation, optional androidx.work.Constraints constraints, optional long initialDelayMillis, optional androidx.work.WorkInfo.PeriodicityInfo? periodicityInfo);
+    ctor public WorkInfo(java.util.UUID id, androidx.work.WorkInfo.State state, java.util.Set<java.lang.String> tags, optional androidx.work.Data outputData, optional androidx.work.Data progress, optional int runAttemptCount, optional int generation, optional androidx.work.Constraints constraints, optional long initialDelayMillis);
     ctor public WorkInfo(java.util.UUID id, androidx.work.WorkInfo.State state, java.util.Set<java.lang.String> tags, optional androidx.work.Data outputData, optional androidx.work.Data progress, optional int runAttemptCount, optional int generation, optional androidx.work.Constraints constraints);
     ctor public WorkInfo(java.util.UUID id, androidx.work.WorkInfo.State state, java.util.Set<java.lang.String> tags, optional androidx.work.Data outputData, optional androidx.work.Data progress, optional int runAttemptCount, optional int generation);
     ctor public WorkInfo(java.util.UUID id, androidx.work.WorkInfo.State state, java.util.Set<java.lang.String> tags, optional androidx.work.Data outputData, optional androidx.work.Data progress, optional int runAttemptCount);
@@ -340,7 +348,10 @@ package androidx.work {
     method public androidx.work.Constraints getConstraints();
     method public int getGeneration();
     method public java.util.UUID getId();
+    method public long getInitialDelayMillis();
+    method public long getNextScheduleTimeMillis();
     method public androidx.work.Data getOutputData();
+    method public androidx.work.WorkInfo.PeriodicityInfo? getPeriodicityInfo();
     method public androidx.work.Data getProgress();
     method @IntRange(from=0L) public int getRunAttemptCount();
     method public androidx.work.WorkInfo.State getState();
@@ -348,16 +359,27 @@ package androidx.work {
     property public final androidx.work.Constraints constraints;
     property public final int generation;
     property public final java.util.UUID id;
+    property public final long initialDelayMillis;
+    property public final long nextScheduleTimeMillis;
     property public final androidx.work.Data outputData;
+    property public final androidx.work.WorkInfo.PeriodicityInfo? periodicityInfo;
     property public final androidx.work.Data progress;
     property @IntRange(from=0L) public final int runAttemptCount;
     property public final androidx.work.WorkInfo.State state;
     property public final java.util.Set<java.lang.String> tags;
   }
 
+  public static final class WorkInfo.PeriodicityInfo {
+    ctor public WorkInfo.PeriodicityInfo(long repeatIntervalMillis, long flexIntervalMillis);
+    method public long getFlexIntervalMillis();
+    method public long getRepeatIntervalMillis();
+    property public final long flexIntervalMillis;
+    property public final long repeatIntervalMillis;
+  }
+
   public enum WorkInfo.State {
     method public final boolean isFinished();
-    method public static androidx.work.WorkInfo.State valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.work.WorkInfo.State valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
     method public static androidx.work.WorkInfo.State[] values();
     property public final boolean isFinished;
     enum_constant public static final androidx.work.WorkInfo.State BLOCKED;
@@ -389,11 +411,15 @@ package androidx.work {
     method public abstract com.google.common.util.concurrent.ListenableFuture<java.lang.Long!> getLastCancelAllTimeMillis();
     method public abstract androidx.lifecycle.LiveData<java.lang.Long!> getLastCancelAllTimeMillisLiveData();
     method public abstract com.google.common.util.concurrent.ListenableFuture<androidx.work.WorkInfo!> getWorkInfoById(java.util.UUID);
+    method public abstract kotlinx.coroutines.flow.Flow<androidx.work.WorkInfo!> getWorkInfoByIdFlow(java.util.UUID);
     method public abstract androidx.lifecycle.LiveData<androidx.work.WorkInfo!> getWorkInfoByIdLiveData(java.util.UUID);
     method public abstract com.google.common.util.concurrent.ListenableFuture<java.util.List<androidx.work.WorkInfo!>!> getWorkInfos(androidx.work.WorkQuery);
     method public abstract com.google.common.util.concurrent.ListenableFuture<java.util.List<androidx.work.WorkInfo!>!> getWorkInfosByTag(String);
+    method public abstract kotlinx.coroutines.flow.Flow<java.util.List<androidx.work.WorkInfo!>!> getWorkInfosByTagFlow(String);
     method public abstract androidx.lifecycle.LiveData<java.util.List<androidx.work.WorkInfo!>!> getWorkInfosByTagLiveData(String);
+    method public abstract kotlinx.coroutines.flow.Flow<java.util.List<androidx.work.WorkInfo!>!> getWorkInfosFlow(androidx.work.WorkQuery);
     method public abstract com.google.common.util.concurrent.ListenableFuture<java.util.List<androidx.work.WorkInfo!>!> getWorkInfosForUniqueWork(String);
+    method public abstract kotlinx.coroutines.flow.Flow<java.util.List<androidx.work.WorkInfo!>!> getWorkInfosForUniqueWorkFlow(String);
     method public abstract androidx.lifecycle.LiveData<java.util.List<androidx.work.WorkInfo!>!> getWorkInfosForUniqueWorkLiveData(String);
     method public abstract androidx.lifecycle.LiveData<java.util.List<androidx.work.WorkInfo!>!> getWorkInfosLiveData(androidx.work.WorkQuery);
     method public static void initialize(android.content.Context, androidx.work.Configuration);

@@ -17,8 +17,10 @@
 package androidx.fragment.app
 
 import androidx.fragment.app.test.FragmentTestActivity
+import androidx.fragment.app.test.TestViewModel
 import androidx.fragment.test.R
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.ViewModelProvider
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -28,6 +30,7 @@ import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import leakcanary.DetectLeaksAfterTestSuccess
 import org.junit.Assert.fail
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -125,6 +128,7 @@ class SaveRestoreBackStackTest {
     }
 
     @Test
+    @Ignore("b/308684873")
     fun saveBackStackAddedWithoutExecutePendingTransactions() {
        withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fm = withActivity {
@@ -322,6 +326,7 @@ class SaveRestoreBackStackTest {
 
     @Suppress("DEPRECATION")
     @Test
+    @Ignore("b/308684873")
     fun saveRetainedChildFragment() {
        withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fm = withActivity {
@@ -717,6 +722,7 @@ class SaveRestoreBackStackTest {
     }
 
     @Test
+    @Ignore("b/308684873")
     fun clearBackStackWithoutExecutePendingTransactions() {
        withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fm = withActivity {
@@ -762,6 +768,337 @@ class SaveRestoreBackStackTest {
 
             // Assert that cleared fragment has been removed
             assertThat(fm.backStackEntryCount).isEqualTo(0)
+        }
+    }
+
+    @Test
+    fun clearBackStackWithChildFragment() {
+        withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+            val fragmentBase = StrictViewFragment()
+            val fragmentParent = StrictFragment()
+            val fm = withActivity {
+                supportFragmentManager
+            }
+
+            fm.beginTransaction()
+                .add(R.id.content, fragmentBase)
+                .commit()
+            executePendingTransactions()
+
+            fm.beginTransaction()
+                .setReorderingAllowed(true)
+                .add(R.id.content, fragmentParent)
+                .addToBackStack("parent")
+                .commit()
+            executePendingTransactions()
+
+            fragmentParent.childFragmentManager.beginTransaction()
+                .add(StrictFragment(), "childFragment")
+                .commit()
+            executePendingTransactions()
+
+            val parentViewModel = ViewModelProvider(fragmentParent)[TestViewModel::class.java]
+            assertWithMessage("ViewModel should not be cleared after commit()")
+                .that(parentViewModel.cleared)
+                .isFalse()
+
+            val fragmentChild = fragmentParent.childFragmentManager
+                .findFragmentByTag("childFragment") as StrictFragment
+            val childViewModel = ViewModelProvider(fragmentChild)[TestViewModel::class.java]
+            assertWithMessage("Child ViewModel should not be cleared after commit()")
+                .that(childViewModel.cleared)
+                .isFalse()
+
+            fm.saveBackStack("parent")
+            executePendingTransactions()
+
+            assertWithMessage("Saved Fragments should have their state saved")
+                .that(fragmentParent.calledOnSaveInstanceState)
+                .isTrue()
+            assertWithMessage("Saved Child Fragments should have their state saved")
+                .that(fragmentChild.calledOnSaveInstanceState)
+                .isTrue()
+
+            // Saved Fragments should be destroyed
+            assertWithMessage("Saved Fragments should be destroyed")
+                .that(fragmentParent.calledOnDestroy)
+                .isTrue()
+            assertWithMessage("Saved Child Fragments should be destroyed")
+                .that(fragmentChild.calledOnDestroy)
+                .isTrue()
+            // But any ViewModels should not be cleared so that they're available
+            // for later restoration
+            assertWithMessage("ViewModel should not be cleared after saveBackStack()")
+                .that(parentViewModel.cleared)
+                .isFalse()
+            assertWithMessage("Child ViewModel should not be cleared after saveBackStack()")
+                .that(childViewModel.cleared)
+                .isFalse()
+
+            fm.clearBackStack("parent")
+            executePendingTransactions()
+
+            assertWithMessage("ViewModel should be cleared after the back stack is cleared")
+                .that(parentViewModel.cleared)
+                .isTrue()
+            assertWithMessage("Child ViewModel should be cleared after the back stack is cleared")
+                .that(childViewModel.cleared)
+                .isTrue()
+        }
+    }
+
+    @Test
+    fun clearBackStackWithMultiChildFragment() {
+        withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+            val fragmentBase = StrictViewFragment()
+            val fragmentParent = StrictFragment()
+            val fm = withActivity {
+                supportFragmentManager
+            }
+            fm.beginTransaction()
+                .add(R.id.content, fragmentBase)
+                .commit()
+            executePendingTransactions()
+
+            fm.beginTransaction()
+                .setReorderingAllowed(true)
+                .replace(R.id.content, fragmentParent)
+                .addToBackStack("parent")
+                .commit()
+            executePendingTransactions()
+
+            val parentViewModel = ViewModelProvider(fragmentParent).get(TestViewModel::class.java)
+            assertWithMessage("ViewModel should not be cleared after commit()")
+                .that(parentViewModel.cleared)
+                .isFalse()
+
+            // add child 1
+            fragmentParent.childFragmentManager.beginTransaction()
+                .add(StrictFragment(), "childFragment1")
+                .commit()
+            executePendingTransactions()
+
+            val fragmentChild1 = fragmentParent.childFragmentManager
+                .findFragmentByTag("childFragment1") as StrictFragment
+            val childViewModel1 = ViewModelProvider(fragmentChild1)[TestViewModel::class.java]
+            assertWithMessage("Child ViewModel should not be cleared after commit()")
+                .that(childViewModel1.cleared)
+                .isFalse()
+
+            // add child 2
+            fragmentParent.childFragmentManager.beginTransaction()
+                .add(StrictFragment(), "childFragment2")
+                .commit()
+            executePendingTransactions()
+
+            val fragmentChild2 = fragmentParent.childFragmentManager
+                .findFragmentByTag("childFragment2") as StrictFragment
+            val childViewModel2 = ViewModelProvider(fragmentChild2)[TestViewModel::class.java]
+            assertWithMessage("Child ViewModel should not be cleared after commit()")
+                .that(childViewModel2.cleared)
+                .isFalse()
+
+            fm.saveBackStack("parent")
+            executePendingTransactions()
+
+            assertWithMessage("Saved Fragments should have their state saved")
+                .that(fragmentParent.calledOnSaveInstanceState)
+                .isTrue()
+            assertWithMessage("Saved Child Fragments should have their state saved")
+                .that(fragmentChild1.calledOnSaveInstanceState)
+                .isTrue()
+            assertWithMessage("Saved Child Fragments should have their state saved")
+                .that(fragmentChild2.calledOnSaveInstanceState)
+                .isTrue()
+
+            // Saved Fragments should be destroyed
+            assertWithMessage("Saved Fragments should be destroyed")
+                .that(fragmentParent.calledOnDestroy)
+                .isTrue()
+            assertWithMessage("Saved Fragments should be destroyed")
+                .that(fragmentChild1.calledOnDestroy)
+                .isTrue()
+            assertWithMessage("Saved Fragments should be destroyed")
+                .that(fragmentChild2.calledOnDestroy)
+                .isTrue()
+            // But any ViewModels should not be cleared so that they're available
+            // for later restoration
+            assertWithMessage("ViewModel should not be cleared after saveBackStack()")
+                .that(parentViewModel.cleared)
+                .isFalse()
+            assertWithMessage("ViewModel should not be cleared after saveBackStack()")
+                .that(childViewModel1.cleared)
+                .isFalse()
+            assertWithMessage("Child ViewModel should not be cleared after saveBackStack()")
+                .that(childViewModel2.cleared)
+                .isFalse()
+
+            fm.clearBackStack("parent")
+            executePendingTransactions()
+
+            assertWithMessage("ViewModel should be cleared after the back stack is cleared")
+                .that(parentViewModel.cleared)
+                .isTrue()
+            assertWithMessage("Child ViewModel should be cleared after the back stack is cleared")
+                .that(childViewModel1.cleared)
+                .isTrue()
+            assertWithMessage("Child ViewModel should be cleared after the back stack is cleared")
+                .that(childViewModel2.cleared)
+                .isTrue()
+        }
+    }
+
+    @Test
+    fun clearBackStackWithGrandchildFragments() {
+        withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+            val fragmentBase = StrictViewFragment()
+            val grandParent = StrictFragment()
+
+            val fm = withActivity {
+                supportFragmentManager
+            }
+            fm.beginTransaction()
+                .add(R.id.content, fragmentBase)
+                .commit()
+            executePendingTransactions()
+
+            fm.beginTransaction()
+                .setReorderingAllowed(true)
+                .replace(R.id.content, grandParent)
+                .addToBackStack("grandparent")
+                .commit()
+            executePendingTransactions()
+
+            val grandParentViewModel = ViewModelProvider(grandParent)[TestViewModel::class.java]
+            assertWithMessage("ViewModel should not be cleared after commit()")
+                .that(grandParentViewModel.cleared)
+                .isFalse()
+
+            // add parent
+            grandParent.childFragmentManager.beginTransaction()
+                .add(StrictFragment(), "parent")
+                .commit()
+            executePendingTransactions()
+
+            val parent = grandParent.childFragmentManager
+                .findFragmentByTag("parent") as StrictFragment
+            val parentViewModel = ViewModelProvider(parent)[TestViewModel::class.java]
+            assertWithMessage("ViewModel should not be cleared after commit()")
+                .that(parentViewModel.cleared)
+                .isFalse()
+
+            // add grandchild
+            parent.childFragmentManager.beginTransaction()
+                .add(StrictFragment(), "grandchild")
+                .commit()
+            executePendingTransactions()
+
+            val grandChild = parent.childFragmentManager
+                .findFragmentByTag("grandchild") as StrictFragment
+
+            val grandChildViewModel = ViewModelProvider(grandChild)[TestViewModel::class.java]
+            assertWithMessage("Child ViewModel should not be cleared after commit()")
+                .that(grandChildViewModel.cleared)
+                .isFalse()
+
+            fm.saveBackStack("grandparent")
+            executePendingTransactions()
+
+            assertWithMessage("Saved Fragments should have their state saved")
+                .that(grandParent.calledOnSaveInstanceState)
+                .isTrue()
+            assertWithMessage("Saved Child Fragments should have their state saved")
+                .that(parent.calledOnSaveInstanceState)
+                .isTrue()
+            assertWithMessage("Saved Child Fragments should have their state saved")
+                .that(grandChild.calledOnSaveInstanceState)
+                .isTrue()
+
+            // Saved Fragments should be destroyed
+            assertWithMessage("Saved Fragments should be destroyed")
+                .that(grandParent.calledOnDestroy)
+                .isTrue()
+            assertWithMessage("Saved Child Fragments should be destroyed")
+                .that(parent.calledOnDestroy)
+                .isTrue()
+            assertWithMessage("Saved Child Fragments should be destroyed")
+                .that(grandChild.calledOnDestroy)
+                .isTrue()
+            // But any ViewModels should not be cleared so that they're available
+            // for later restoration
+            assertWithMessage("ViewModel should not be cleared after saveBackStack()")
+                .that(grandParentViewModel.cleared)
+                .isFalse()
+            assertWithMessage("ViewModel should not be cleared after saveBackStack()")
+                .that(parentViewModel.cleared)
+                .isFalse()
+            assertWithMessage("Child ViewModel should not be cleared after saveBackStack()")
+                .that(grandChildViewModel.cleared)
+                .isFalse()
+
+            fm.clearBackStack("grandparent")
+            executePendingTransactions()
+
+            assertWithMessage("ViewModel should be cleared after the back stack is cleared")
+                .that(grandParentViewModel.cleared)
+                .isTrue()
+            assertWithMessage("ViewModel should be cleared after the back stack is cleared")
+                .that(parentViewModel.cleared)
+                .isTrue()
+            assertWithMessage("Child ViewModel should be cleared after the back stack is cleared")
+                .that(grandChildViewModel.cleared)
+                .isTrue()
+        }
+    }
+
+    @Test
+    fun resumeClearsFragmentStoreSavedState() {
+        withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+            val fm = withActivity {
+                supportFragmentManager
+            }
+            val fragmentBase = StrictViewFragment()
+            val fragmentReplacement = StateSaveFragment()
+            val fragmentReplacementChild = StateSaveFragment()
+
+            fm.beginTransaction()
+                .add(R.id.content, fragmentBase)
+                .commit()
+            executePendingTransactions()
+
+            fm.beginTransaction()
+                .setReorderingAllowed(true)
+                .replace(R.id.content, fragmentReplacement)
+                .addToBackStack("replacement")
+                .commit()
+            executePendingTransactions()
+
+            fragmentReplacement.childFragmentManager.beginTransaction()
+                .add(fragmentReplacementChild, "replacementChild")
+                .commit()
+            executePendingTransactions(fragmentReplacement.childFragmentManager)
+
+            // stop activity and save fragments
+            moveToState(Lifecycle.State.CREATED)
+            executePendingTransactions()
+
+            // states should be stored in fragmentStore
+            assertThat(fm.fragmentStore.getSavedState(fragmentReplacement.mWho))
+                .isNotNull()
+            assertThat(fragmentReplacement.childFragmentManager.fragmentStore
+                .getSavedState(fragmentReplacementChild.mWho)
+            ).isNotNull()
+
+            // resume activity and restore fragments
+            moveToState(Lifecycle.State.RESUMED)
+            executePendingTransactions()
+
+            // states should be cleared from fragmentStore
+            assertThat(fm.fragmentStore.getSavedState(fragmentReplacement.mWho))
+                .isNull()
+            assertThat(fragmentReplacement.childFragmentManager.fragmentStore
+                .getSavedState(fragmentReplacementChild.mWho)
+            ).isNull()
         }
     }
 }

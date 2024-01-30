@@ -20,27 +20,25 @@ import androidx.datastore.FileTestIO
 import androidx.datastore.JavaIOFile
 import androidx.kruth.assertThat
 import androidx.kruth.assertThrows
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.InternalCoroutinesApi
-import kotlinx.coroutines.ObsoleteCoroutinesApi
 import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
+import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.test.runTest
 import org.junit.Test
 
-@OptIn(ExperimentalCoroutinesApi::class, ObsoleteCoroutinesApi::class, FlowPreview::class)
 @InternalCoroutinesApi
 class DataMigrationInitializerTestFileTest :
     DataMigrationInitializerTest<JavaIOFile, IOException>(FileTestIO())
 
-@OptIn(ExperimentalCoroutinesApi::class)
+class CloseDownstreamOnCloseJavaTest : CloseDownstreamOnCloseTest<JavaIOFile>(FileTestIO())
+
 @InternalCoroutinesApi
-class SingleProcessDatastoreJavaTest : SingleProcessDataStoreTest<JavaIOFile>(FileTestIO()) {
+class SingleProcessDataStoreJavaTest : SingleProcessDataStoreTest<JavaIOFile>(FileTestIO()) {
 
     @Test
-    fun testMutatingDataStoreFails() = doTest {
+    fun testMutatingDataStoreFails() = runTest {
         val dataStore = DataStoreFactory.create(
             serializer = ByteWrapperSerializer(),
             scope = dataStoreScope
@@ -56,7 +54,7 @@ class SingleProcessDatastoreJavaTest : SingleProcessDataStoreTest<JavaIOFile>(Fi
     }
 
     @Test
-    fun testClosingOutputStreamDoesntCloseUnderlyingStream() = doTest {
+    fun testClosingOutputStreamDoesntCloseUnderlyingStream() = runTest {
         val delegate = TestingSerializer()
         val serializer = object : Serializer<Byte> by delegate {
             override suspend fun writeTo(t: Byte, output: OutputStream) {
@@ -77,7 +75,9 @@ class SingleProcessDatastoreJavaTest : SingleProcessDataStoreTest<JavaIOFile>(Fi
     }
 
     @Test
-    fun testReadUnreadableFile() = doTest {
+    fun testReadUnreadableFile() = runTest {
+        // ensure the file exists by writing into it
+        testFile.file.writeText("")
         testFile.file.setReadable(false)
         val result = runCatching {
             store.data.first()
@@ -88,7 +88,9 @@ class SingleProcessDatastoreJavaTest : SingleProcessDataStoreTest<JavaIOFile>(Fi
     }
 
     @Test
-    fun testReadAfterTransientBadRead() = doTest {
+    fun testReadAfterTransientBadRead() = runTest {
+        // ensure the file exists by writing into it
+        testFile.file.writeText("")
         testFile.file.setReadable(false)
 
         assertThrows<IOException> { store.data.first() }.hasMessageThat()

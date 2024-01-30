@@ -15,4 +15,4 @@
 
 package android.support.v4.media;
 
-parcelable RatingCompat;
+@JavaOnlyStableParcelable parcelable RatingCompat;

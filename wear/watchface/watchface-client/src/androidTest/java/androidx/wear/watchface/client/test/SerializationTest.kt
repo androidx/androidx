@@ -22,6 +22,7 @@ import android.graphics.Color
 import android.graphics.Rect
 import android.os.Build
 import android.os.Parcel
+import android.support.wearable.watchface.SharedMemoryImage
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -29,8 +30,8 @@ import androidx.wear.watchface.ComplicationSlotBoundsType
 import androidx.wear.watchface.DrawMode
 import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.client.ComplicationSlotState
+import androidx.wear.watchface.client.EditorState
 import androidx.wear.watchface.client.WatchFaceId
-import androidx.wear.watchface.client.asApiEditorState
 import androidx.wear.watchface.complications.SystemDataSources
 import androidx.wear.watchface.complications.data.ComplicationType
 import androidx.wear.watchface.complications.data.LongTextComplicationData
@@ -51,6 +52,26 @@ import org.junit.Assume
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+
+// FIXME: We shouldn't have to define this here, we should be able to import it.
+internal fun EditorStateWireFormat.asApiEditorState(): EditorState {
+    return EditorState(
+        WatchFaceId(watchFaceInstanceId ?: ""),
+        UserStyleData(userStyle.mUserStyle),
+        previewComplicationData.associateBy(
+            { it.id },
+            { it.complicationData.toApiComplicationData() }
+        ),
+        commitChanges,
+        previewImageBundle?.let {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+                SharedMemoryImage.ashmemReadImageBundle(it)
+            } else {
+                null
+            }
+        }
+    )
+}
 
 /** Tests that we can deserialize golden resources correctly to ensure backwards compatibility. */
 @RunWith(AndroidJUnit4::class)

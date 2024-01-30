@@ -41,14 +41,14 @@ import androidx.compose.material.Icon
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Send
+import androidx.compose.material.icons.automirrored.outlined.List
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.icons.outlined.Create
 import androidx.compose.material.icons.outlined.Email
-import androidx.compose.material.icons.outlined.List
 import androidx.compose.material.icons.outlined.Menu
 import androidx.compose.material.icons.outlined.Star
 import androidx.compose.runtime.Composable
@@ -57,6 +57,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
@@ -142,6 +143,7 @@ fun SceneScope.Details(modifier: Modifier) {
     }
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun Root(state: DisplayState) {
     SceneHost {
@@ -357,6 +359,7 @@ fun SceneScope.Message(messageData: MessageData) {
     }
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun SceneScope.NavRail(state: DisplayState) {
     Column(
@@ -416,8 +419,8 @@ fun SceneScope.NavRail(state: DisplayState) {
         }
         Spacer(modifier = Modifier.size(20.dp))
         Item(state, Icons.Outlined.Email, "Inbox", Color(0xffe8def8))
-        Item(state, Icons.Outlined.List, "Articles")
-        Item(state, Icons.Default.Send, "Direct Messages")
+        Item(state, Icons.AutoMirrored.Outlined.List, "Articles")
+        Item(state, Icons.AutoMirrored.Default.Send, "Direct Messages")
         Item(state, Icons.Filled.Notifications, "Video Chat")
     }
 }

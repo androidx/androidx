@@ -20,12 +20,12 @@ import android.app.Activity
 import android.content.ComponentName
 import android.content.Intent
 import com.google.common.truth.Truth.assertWithMessage
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.whenever
 
 /**
  * Integration test for [ActivityFilter] to test construction from [ComponentName].

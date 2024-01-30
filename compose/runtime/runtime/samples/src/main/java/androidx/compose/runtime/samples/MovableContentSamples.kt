@@ -31,7 +31,7 @@ typealias Item = Int
 @Sampled
 @Composable
 fun MovableContentColumnRowSample(content: @Composable () -> Unit, vertical: Boolean) {
-    val movableContent = remember(content as Any) { movableContentOf(content) }
+    val movableContent = remember(content) { movableContentOf(content) }
 
     if (vertical) {
         Column {

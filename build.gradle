@@ -20,8 +20,21 @@ import androidx.build.SdkHelperKt
 buildscript {
     SdkHelperKt.setSupportRootFolder(project, project.projectDir)
     SdkHelperKt.writeSdkPathToLocalPropertiesFile(project)
+
+    // Needed for atomicfu plugin
+    apply(from: "buildSrc/repos.gradle")
+    repos.addMavenRepositories(repositories)
+    dependencies {
+        classpath(libs.atomicFuPluginz)
+    }
 }
 
 apply from: "buildSrc/dependencies.gradle"
 
 apply plugin: AndroidXRootPlugin
+
+// workaround for https://github.com/gradle/gradle/issues/24822
+if (project.hasProperty("androidx.update.signatures")) {
+    apply plugin: "java-library"
+    apply from: "buildSrc/shared-dependencies.gradle"
+}

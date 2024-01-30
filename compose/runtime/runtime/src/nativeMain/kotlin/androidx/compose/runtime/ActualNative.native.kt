@@ -18,56 +18,28 @@ package androidx.compose.runtime
 
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.runtime.snapshots.SnapshotContextElement
-import androidx.compose.runtime.snapshots.SnapshotMutableState
 import kotlin.coroutines.CoroutineContext
-import kotlinx.coroutines.yield
+import kotlin.experimental.ExperimentalNativeApi
 import kotlin.native.identityHashCode
 import kotlin.system.getTimeNanos
 import kotlin.time.ExperimentalTime
-import kotlin.native.concurrent.isFrozen
-import kotlin.native.concurrent.freeze
-import kotlin.native.concurrent.ensureNeverFrozen
+import kotlinx.atomicfu.atomic
+import kotlinx.coroutines.yield
 
-private val threadCounter = kotlin.native.concurrent.AtomicLong(0)
+private val threadCounter = atomic(0L)
 
 @kotlin.native.concurrent.ThreadLocal
 private var threadId: Long = threadCounter.addAndGet(1)
 
-internal actual fun getCurrentThreadId(): Long = threadId
-
-/**
- * AtomicReference implementation suitable for both single and multi-threaded context.
- */
-actual class AtomicReference<V> actual constructor(value: V) {
-    private val delegate = kotlin.native.concurrent.AtomicReference(value)
-
-    actual fun get(): V = delegate.value
-
-    actual fun set(value: V) {
-        delegate.value = value
-    }
-
-    actual fun getAndSet(value: V): V {
-        var old = delegate.value
-        while (!delegate.compareAndSet(old, value)) { old = delegate.value }
-        return old
-    }
-
-    actual fun compareAndSet(expect: V, newValue: V): Boolean {
-        return delegate.compareAndSet(expect, newValue)
-    }
+@OptIn(ExperimentalNativeApi::class)
+internal actual class WeakReference<T : Any> actual constructor(reference: T) {
+    val kotlinNativeReference = kotlin.native.ref.WeakReference<T>(reference)
+    actual fun get(): T? = kotlinNativeReference.get()
 }
 
-internal actual class AtomicInt actual constructor(value: Int) {
-    private val delegate = kotlin.native.concurrent.AtomicInt(value)
-    actual fun get(): Int = delegate.value
-    actual fun set(value: Int) {
-        delegate.value = value
-    }
-    actual fun add(amount: Int): Int = delegate.addAndGet(amount)
-}
-
-internal actual fun identityHashCode(instance: Any?): Int =
+@OptIn(ExperimentalNativeApi::class)
+@InternalComposeApi
+actual fun identityHashCode(instance: Any?): Int =
     instance.identityHashCode()
 
 actual annotation class TestOnly
@@ -97,12 +69,6 @@ internal actual object Trace {
 
 actual annotation class CheckResult actual constructor(actual val suggest: String)
 
-internal actual fun <T> createSnapshotMutableState(
-    value: T,
-    policy: SnapshotMutationPolicy<T>
-): SnapshotMutableState<T> =
-    SnapshotMutableStateImpl(value, policy)
-
 @ExperimentalComposeApi
 internal actual class SnapshotContextElementImpl actual constructor(
     private val snapshot: Snapshot
@@ -120,3 +86,7 @@ internal actual fun logError(message: String, e: Throwable) {
     println(message)
     e.printStackTrace()
 }
+
+internal actual fun currentThreadId(): Long = threadId
+
+internal actual fun currentThreadName(): String = "thread@$threadId"

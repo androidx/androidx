@@ -44,7 +44,6 @@ import java.util.concurrent.Executor;
  * specific {@link Executor}, if, for instance, the Executor provides certain guarantees of which
  * thread the code will run on or guarantees of sequential (non-concurrent) execution.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Target(ElementType.METHOD)

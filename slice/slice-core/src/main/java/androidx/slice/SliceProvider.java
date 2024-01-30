@@ -130,7 +130,12 @@ import java.util.Set;
  * </pre>
  *
  * @see Slice
+ *
+ * @deprecated Slice framework has been deprecated, it will not receive any updates moving
+ * forward. If you are looking for a framework that handles communication across apps,
+ * consider using {@link android.app.appsearch.AppSearchManager}.
  */
+@Deprecated
 public abstract class SliceProvider extends ContentProvider implements
         CoreComponentFactory.CompatWrapped {
 
@@ -191,7 +196,6 @@ public abstract class SliceProvider extends ContentProvider implements
     public abstract boolean onCreateSliceProvider();
 
     /**
-     * @hide
      */
     @Nullable
     @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -224,7 +228,6 @@ public abstract class SliceProvider extends ContentProvider implements
     }
 
     /**
-     * @hide
      * @param autoGrantPermissions
      */
     @NonNull
@@ -326,7 +329,6 @@ public abstract class SliceProvider extends ContentProvider implements
 
     /**
      * Generate a slice that contains a permission request.
-     * @hide
      */
     @NonNull
     @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -448,7 +450,6 @@ public abstract class SliceProvider extends ContentProvider implements
     public void onSliceUnpinned(@NonNull Uri sliceUri) {}
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @RequiresApi(19)
@@ -460,7 +461,6 @@ public abstract class SliceProvider extends ContentProvider implements
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @RequiresApi(19)
@@ -520,7 +520,6 @@ public abstract class SliceProvider extends ContentProvider implements
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public void validateIncomingAuthority(@Nullable String authority) throws SecurityException {
@@ -603,7 +602,6 @@ public abstract class SliceProvider extends ContentProvider implements
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @RequiresApi(19)
@@ -612,7 +610,6 @@ public abstract class SliceProvider extends ContentProvider implements
     }
 
     /**
-     * @hide
      */
     @Nullable
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
@@ -622,7 +619,6 @@ public abstract class SliceProvider extends ContentProvider implements
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @RequiresApi(19)
@@ -631,7 +627,6 @@ public abstract class SliceProvider extends ContentProvider implements
     }
 
     /**
-     * @hide
      */
     @Nullable
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

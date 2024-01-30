@@ -46,6 +46,7 @@ import androidx.test.filters.LargeTest
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assume
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -82,6 +83,31 @@ class LazyListScrollingBenchmark(
     }
 
     @Test
+    fun scrollProgrammatically_noNewItems_withoutKeys() {
+        benchmarkRule.toggleStateBenchmark {
+            ListRemeasureTestCase(
+                addNewItemOnToggle = false,
+                content = testCase.content,
+                isVertical = testCase.isVertical,
+                useKeys = false
+            )
+        }
+    }
+
+    @Test
+    fun scrollProgrammatically_newItemComposed_withoutKeys() {
+        benchmarkRule.toggleStateBenchmark {
+            ListRemeasureTestCase(
+                addNewItemOnToggle = true,
+                content = testCase.content,
+                isVertical = testCase.isVertical,
+                useKeys = false
+            )
+        }
+    }
+
+    @Test
+    @Ignore("b/300472956")
     fun scrollViaPointerInput_noNewItems() {
         benchmarkRule.toggleStateBenchmark {
             ListRemeasureTestCase(
@@ -94,6 +120,7 @@ class LazyListScrollingBenchmark(
     }
 
     @Test
+    @Ignore("b/300472956")
     fun scrollViaPointerInput_newItemComposed() {
         benchmarkRule.toggleStateBenchmark {
             ListRemeasureTestCase(
@@ -152,7 +179,7 @@ class LazyListScrollingBenchmark(
 class LazyListScrollingTestCase(
     private val name: String,
     val isVertical: Boolean,
-    val content: @Composable ListRemeasureTestCase.(LazyListState) -> Unit
+    val content: @Composable ListRemeasureTestCase.(LazyListState, useKeys: Boolean) -> Unit
 ) {
     override fun toString(): String {
         return name
@@ -162,16 +189,23 @@ class LazyListScrollingTestCase(
 private val LazyColumn = LazyListScrollingTestCase(
     "LazyColumn",
     isVertical = true
-) { state ->
+) { state, useKeys ->
     LazyColumn(
         state = state,
-        modifier = Modifier.requiredHeight(400.dp).fillMaxWidth(),
+        modifier = Modifier
+            .requiredHeight(400.dp)
+            .fillMaxWidth(),
         flingBehavior = NoFlingBehavior
     ) {
-        item {
+        item(key = if (useKeys) "header" else null) {
             FirstLargeItem()
         }
-        items(items) {
+        items(
+            items, key = if (useKeys) {
+                { it.index }
+            } else {
+                null
+            }) {
             RegularItem()
         }
     }
@@ -180,16 +214,22 @@ private val LazyColumn = LazyListScrollingTestCase(
 private val LazyRow = LazyListScrollingTestCase(
     "LazyRow",
     isVertical = false
-) { state ->
+) { state, useKeys ->
     LazyRow(
         state = state,
-        modifier = Modifier.requiredWidth(400.dp).fillMaxHeight(),
+        modifier = Modifier
+            .requiredWidth(400.dp)
+            .fillMaxHeight(),
         flingBehavior = NoFlingBehavior
     ) {
-        item {
+        item(if (useKeys) "header" else null) {
             FirstLargeItem()
         }
-        items(items) {
+        items(items, key = if (useKeys) {
+            { it.index }
+        } else {
+            null
+        }) {
             RegularItem()
         }
     }
@@ -197,9 +237,10 @@ private val LazyRow = LazyListScrollingTestCase(
 
 class ListRemeasureTestCase(
     val addNewItemOnToggle: Boolean,
-    val content: @Composable ListRemeasureTestCase.(LazyListState) -> Unit,
+    val content: @Composable ListRemeasureTestCase.(LazyListState, useKeys: Boolean) -> Unit,
     val isVertical: Boolean,
-    val usePointerInput: Boolean = false
+    val usePointerInput: Boolean = false,
+    val useKeys: Boolean = true
 ) : LazyBenchmarkTestCase {
 
     val items = List(100) { LazyItem(it) }
@@ -226,12 +267,15 @@ class ListRemeasureTestCase(
         if (!::motionEventHelper.isInitialized) motionEventHelper = MotionEventHelper(view)
         touchSlop = LocalViewConfiguration.current.touchSlop
         listState = rememberLazyListState()
-        content(listState)
+        content(listState, useKeys)
     }
 
     @Composable
     fun RegularItem() {
-        Box(Modifier.requiredSize(20.dp).background(Color.Red, RoundedCornerShape(8.dp)))
+        Box(
+            Modifier
+                .requiredSize(20.dp)
+                .background(Color.Red, RoundedCornerShape(8.dp)))
     }
 
     override fun beforeToggle() {

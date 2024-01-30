@@ -72,6 +72,10 @@ internal class ExternalCameraGraphConfigModule(
             throwUnsupportedOperationException()
         }
 
+        override fun awaitConcurrentCameraIds(): Set<Set<CameraId>>? {
+            throwUnsupportedOperationException()
+        }
+
         override fun awaitCameraMetadata(cameraId: CameraId): CameraMetadata? {
             throwUnsupportedOperationException()
         }

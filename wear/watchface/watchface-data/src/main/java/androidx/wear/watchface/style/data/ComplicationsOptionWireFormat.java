@@ -30,7 +30,6 @@ import java.util.List;
  * Wire format for {@link
  * androidx.wear.watchface.style.ComplicationsUserStyleSetting.ComplicationsOption}.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @VersionedParcelize

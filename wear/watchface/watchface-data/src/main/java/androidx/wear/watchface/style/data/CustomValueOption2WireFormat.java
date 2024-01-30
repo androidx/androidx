@@ -23,7 +23,6 @@ import androidx.versionedparcelable.VersionedParcelize;
 /**
  * Wire format for {@link androidx.wear.watchface.style.CustomValueStyleSetting.CustomValueOption2}.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @VersionedParcelize

@@ -89,7 +89,8 @@ public class ForceStopRunnableTest {
                 .setExecutor(executor)
                 .setTaskExecutor(executor)
                 .build();
-        mWorkDatabase = WorkDatabase.create(mContext, mConfiguration.getTaskExecutor(), true);
+        mWorkDatabase = WorkDatabase.create(
+                mContext, mConfiguration.getTaskExecutor(), mConfiguration.getClock(), true);
         when(mWorkManager.getWorkDatabase()).thenReturn(mWorkDatabase);
         when(mWorkManager.getSchedulers()).thenReturn(Collections.singletonList(mScheduler));
         when(mWorkManager.getPreferenceUtils()).thenReturn(mPreferenceUtils);
@@ -210,7 +211,8 @@ public class ForceStopRunnableTest {
         mContext = mock(Context.class);
         when(mContext.getApplicationContext()).thenReturn(mContext);
         when(mContext.getSystemService(Context.ACTIVITY_SERVICE)).thenReturn(mActivityManager);
-        mWorkDatabase = WorkDatabase.create(mContext, mConfiguration.getTaskExecutor(), true);
+        mWorkDatabase = WorkDatabase.create(
+                mContext, mConfiguration.getTaskExecutor(), mConfiguration.getClock(), true);
         when(mWorkManager.getWorkDatabase()).thenReturn(mWorkDatabase);
         mRunnable = new ForceStopRunnable(mContext, mWorkManager);
 

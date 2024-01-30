@@ -50,6 +50,9 @@ public final class Exif {
 
     /** Timestamp value indicating a timestamp value that is either not set or not valid */
     public static final long INVALID_TIMESTAMP = -1;
+    // Forked from ExifInterface.TAG_THUMBNAIL_ORIENTATION. The value is library-internal so we
+    // can't depend on it directly.
+    public static final String TAG_THUMBNAIL_ORIENTATION = "ThumbnailOrientation";
 
     private static final String TAG = Exif.class.getSimpleName();
 
@@ -94,7 +97,7 @@ public final class Exif {
             ExifInterface.TAG_JPEG_INTERCHANGE_FORMAT_LENGTH,
             ExifInterface.TAG_THUMBNAIL_IMAGE_LENGTH,
             ExifInterface.TAG_THUMBNAIL_IMAGE_WIDTH,
-            ExifInterface.TAG_THUMBNAIL_ORIENTATION);
+            TAG_THUMBNAIL_ORIENTATION);
 
     private final ExifInterface mExifInterface;
 
@@ -863,7 +866,7 @@ public final class Exif {
                 ExifInterface.TAG_INTEROPERABILITY_INDEX,
                 ExifInterface.TAG_THUMBNAIL_IMAGE_LENGTH,
                 ExifInterface.TAG_THUMBNAIL_IMAGE_WIDTH,
-                ExifInterface.TAG_THUMBNAIL_ORIENTATION,
+                TAG_THUMBNAIL_ORIENTATION,
                 ExifInterface.TAG_DNG_VERSION,
                 ExifInterface.TAG_DEFAULT_CROP_SIZE,
                 ExifInterface.TAG_ORF_THUMBNAIL_IMAGE,

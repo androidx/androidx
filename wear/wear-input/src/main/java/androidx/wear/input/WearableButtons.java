@@ -54,12 +54,11 @@ public final class WearableButtons {
      *
      * @param provider The new {@link WearableButtonsProvider} to use.
      */
-    @VisibleForTesting(otherwise = VisibleForTesting.NONE)
+    @VisibleForTesting
     public static void setWearableButtonsProvider(@NonNull WearableButtonsProvider provider) {
         sButtonsProvider = provider;
     }
 
-    /** @hide */
     @Retention(RetentionPolicy.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef({
@@ -767,7 +766,6 @@ public final class WearableButtons {
             return mLocationZone;
         }
 
-        /** @hide */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @VisibleForTesting
         public ButtonInfo(int keycode, float x, float y, @ButtonLocation int locationZone) {

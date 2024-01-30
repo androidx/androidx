@@ -103,7 +103,6 @@ public class OvulationTestRecord(
 
     /**
      * The result of a user's ovulation test.
-     * @suppress
      */
     @Retention(AnnotationRetention.SOURCE)
     @IntDef(value = [RESULT_INCONCLUSIVE, RESULT_POSITIVE, RESULT_HIGH, RESULT_NEGATIVE])

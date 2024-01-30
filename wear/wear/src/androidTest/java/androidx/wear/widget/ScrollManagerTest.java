@@ -36,7 +36,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 
 @MediumTest
 @RunWith(AndroidJUnit4.class)
@@ -55,6 +56,8 @@ public class ScrollManagerTest {
     public final ActivityTestRule<WearableRecyclerViewTestActivity> mActivityRule =
             new ActivityTestRule<>(WearableRecyclerViewTestActivity.class, true, true);
 
+    @Rule public final MockitoRule mocks = MockitoJUnit.rule();
+
     @Mock
     WearableRecyclerView mMockWearableRecyclerView;
 
@@ -62,7 +65,6 @@ public class ScrollManagerTest {
 
     @Before
     public void setUp() throws Throwable {
-        MockitoAnnotations.initMocks(this);
         mScrollManagerUnderTest = new ScrollManager();
         mScrollManagerUnderTest.setRecyclerView(mMockWearableRecyclerView, TEST_WIDTH, TEST_HEIGHT);
     }

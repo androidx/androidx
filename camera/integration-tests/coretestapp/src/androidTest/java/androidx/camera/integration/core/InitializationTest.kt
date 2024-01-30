@@ -20,8 +20,8 @@ import android.content.Context
 import android.content.Intent
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.testing.CameraUtil
-import androidx.camera.testing.CoreAppTestUtil
+import androidx.camera.testing.impl.CameraUtil
+import androidx.camera.testing.impl.CoreAppTestUtil
 import androidx.concurrent.futures.await
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
@@ -82,7 +82,7 @@ class InitializationTest(private val config: TestConfig) {
         fun shutdownCameraX() {
             val context = ApplicationProvider.getApplicationContext<Context>()
             val cameraProvider = ProcessCameraProvider.getInstance(context)[10, TimeUnit.SECONDS]
-            cameraProvider.shutdown()[10, TimeUnit.SECONDS]
+            cameraProvider.shutdownAsync()[10, TimeUnit.SECONDS]
         }
     }
 
@@ -105,7 +105,7 @@ class InitializationTest(private val config: TestConfig) {
     fun tearDown() {
         runBlocking {
             if (providerResult?.hasProvider() == true) {
-                providerResult!!.provider!!.shutdown().await()
+                providerResult!!.provider!!.shutdownAsync().await()
                 providerResult = null
             }
         }

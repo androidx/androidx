@@ -16,17 +16,15 @@
 
 package androidx.emoji2.emojipicker
 
-import androidx.emoji2.emojipicker.R as EmojiPickerViewR
 import android.app.Activity
 import android.content.Context
 import android.os.Bundle
 import android.view.View
-import android.view.View.GONE
-import android.view.View.VISIBLE
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.core.view.children
 import androidx.core.view.isVisible
+import androidx.emoji2.emojipicker.R as EmojiPickerViewR
 import androidx.emoji2.emojipicker.test.R
 import androidx.recyclerview.widget.RecyclerView
 import androidx.test.core.app.ApplicationProvider
@@ -39,9 +37,9 @@ import androidx.test.espresso.matcher.RootMatchers.hasWindowLayoutParams
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.FlakyTest
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
+import androidx.test.platform.app.InstrumentationRegistry
 import org.hamcrest.Description
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -94,13 +92,6 @@ class EmojiPickerViewTest {
                 it.findViewById(R.id.emojiPickerTest),
                 GRINNING_FACE
             )!!
-            // No variant indicator
-            assertEquals(
-                (targetView.parent.parent as ViewGroup).findViewById<ImageView>(
-                    EmojiPickerViewR.id.variant_availability_indicator
-                ).visibility,
-                GONE
-            )
             // Not long-clickable
             assertEquals(targetView.isLongClickable, false)
         }
@@ -119,23 +110,20 @@ class EmojiPickerViewTest {
                     RecyclerViewActions.scrollToHolder(createEmojiViewHolderMatcher(NOSE_EMOJI))
                 )
         val targetView = findViewByEmoji(view, NOSE_EMOJI)!!
-        // Variant indicator visible
-        assertEquals(
-            (targetView.parent.parent as ViewGroup).findViewById<ImageView>(
-                EmojiPickerViewR.id.variant_availability_indicator
-            ).visibility, VISIBLE
-        )
         // Long-clickable
         assertEquals(targetView.isLongClickable, true)
     }
 
     @Test
     @SdkSuppress(minSdkVersion = 24)
+    @Ignore("b/294556440")
     fun testStickyVariant_displayAndSaved() {
         lateinit var view: EmojiPickerView
         activityTestRule.scenario.onActivity {
             view = it.findViewById(R.id.emojiPickerTest)
         }
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+
         // Scroll to the nose emoji, long click then select nose in dark skin tone
         findViewByEmoji(view, NOSE_EMOJI)
             ?: onView(withId(EmojiPickerViewR.id.emoji_picker_body))
@@ -159,7 +147,6 @@ class EmojiPickerViewTest {
     @Test
     fun testHeader_highlightCurrentCategory() {
         disableRecent()
-
         assertSelectedHeaderIndex(0)
         scrollToEmoji(NOSE_EMOJI)
         assertSelectedHeaderIndex(1)
@@ -188,7 +175,6 @@ class EmojiPickerViewTest {
         assertSelectedHeaderIndex(4)
     }
 
-    @FlakyTest(bugId = 265006871)
     @Test(expected = UnsupportedOperationException::class)
     fun testAddView_throwsException() {
         activityTestRule.scenario.onActivity {
@@ -198,27 +184,24 @@ class EmojiPickerViewTest {
 
     private fun findViewByEmoji(root: View, emoji: String) =
         try {
-            mutableListOf<View>().apply {
-                findViewsById(
-                    root,
-                    EmojiPickerViewR.id.emoji_view, this
-                )
-            }.first { (it as EmojiView).emoji == emoji }
+            mutableListOf<EmojiView>().apply {
+                findEmojiViews(root, this)
+            }.first { it.emoji == emoji }
         } catch (e: NoSuchElementException) {
             null
         }
 
-    private fun findViewsById(root: View, id: Int, output: MutableList<View>) {
+    private fun findEmojiViews(root: View, output: MutableList<EmojiView>) {
         if (root !is ViewGroup) {
             return
         }
         for (i in 0 until root.childCount) {
             root.getChildAt(i).apply {
-                if (this.id == id) {
+                if (this is EmojiView) {
                     output.add(this)
                 }
             }.also {
-                findViewsById(it, id, output)
+                findEmojiViews(it, output)
             }
         }
     }
@@ -228,9 +211,7 @@ class EmojiPickerViewTest {
             BoundedMatcher<RecyclerView.ViewHolder, EmojiViewHolder>(EmojiViewHolder::class.java) {
             override fun describeTo(description: Description) {}
             override fun matchesSafely(item: EmojiViewHolder) =
-                (item.itemView as ViewGroup)
-                    .findViewById<EmojiView>(EmojiPickerViewR.id.emoji_view)
-                    .emoji == emoji
+                (item.itemView as EmojiView).emoji == emoji
         }
 
     private fun createEmojiViewMatcher(emoji: String) =

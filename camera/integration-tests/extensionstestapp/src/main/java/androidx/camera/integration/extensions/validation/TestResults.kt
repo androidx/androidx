@@ -29,6 +29,7 @@ import androidx.camera.camera2.interop.Camera2CameraInfo
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop
 import androidx.camera.extensions.ExtensionsManager
 import androidx.camera.integration.extensions.ExtensionTestType.TEST_TYPE_CAMERA2_EXTENSION
+import androidx.camera.integration.extensions.ExtensionTestType.TEST_TYPE_CAMERA2_EXTENSION_STREAM_CONFIG_LATENCY
 import androidx.camera.integration.extensions.ExtensionTestType.TEST_TYPE_CAMERAX_EXTENSION
 import androidx.camera.integration.extensions.TestResultType.TEST_RESULT_FAILED
 import androidx.camera.integration.extensions.TestResultType.TEST_RESULT_NOT_SUPPORTED
@@ -63,6 +64,7 @@ private const val TEST_RESULT_INDEX_TEST_TYPE = 0
 private const val TEST_RESULT_INDEX_CAMERA_ID = 1
 private const val TEST_RESULT_INDEX_EXTENSION_MODE = 2
 private const val TEST_RESULT_INDEX_TEST_RESULT = 3
+private const val TEST_RESULT_INDEX_DETAILS = 4
 
 private const val TEST_RESULT_STRING_NOT_SUPPORTED = "NOT_SUPPORTED"
 private const val TEST_RESULT_STRING_NOT_TESTED = "NOT_TESTED"
@@ -83,7 +85,7 @@ class TestResults private constructor(val context: Context) {
      * Pair of <test type, camera id> to list of <extension mode, test result> map.
      */
     private val cameraExtensionResultMap =
-        linkedMapOf<Pair<String, String>, LinkedHashMap<Int, Int>>()
+        linkedMapOf<Pair<String, String>, LinkedHashMap<Int, Pair<Int, String>>>()
 
     fun loadTestResults(
         cameraProvider: ProcessCameraProvider,
@@ -104,13 +106,16 @@ class TestResults private constructor(val context: Context) {
         testType: String,
         cameraId: String,
         extensionMode: Int,
-        testResult: Int
+        testResult: Int,
+        testResultDetails: String = ""
     ) {
         Log.d(
             TAG, "updateTestResultAndSave: testType: $testType, cameraId: $cameraId" +
-                ", extensionMode: $extensionMode, testResult: $testResult"
+                ", extensionMode: $extensionMode, testResult: $testResult" +
+                ", testResultDetails: $testResultDetails"
         )
-        cameraExtensionResultMap[Pair(testType, cameraId)]!![extensionMode] = testResult
+        val results = cameraExtensionResultMap[Pair(testType, cameraId)] ?: linkedMapOf()
+        results[extensionMode] = Pair(testResult, testResultDetails)
         saveTestResults()
     }
 
@@ -124,7 +129,7 @@ class TestResults private constructor(val context: Context) {
         val testResultsFile = File(context.getExternalFilesDir(null), TEST_RESULTS_FILE_NAME)
         val outputStream = FileOutputStream(testResultsFile)
 
-        val headerString = "Test Type, Camera Id,Extension Mode,Test Result\n"
+        val headerString = "Test Type, Camera Id,Extension Mode,Test Result,Test Result Details\n"
         outputStream.write(headerString.toByteArray())
 
         cameraExtensionResultMap.forEach { entry ->
@@ -132,8 +137,9 @@ class TestResults private constructor(val context: Context) {
             entry.value.forEach {
                 val (extensionMode, testResult) = it
                 val extensionModeString = getExtensionModeStringFromId(testType, extensionMode)
-                val testResultString = getTestResultStringFromId(testResult)
-                val resultString = "$testType,$cameraId,$extensionModeString,$testResultString\n"
+                val testResultString = getTestResultStringFromId(testResult.first)
+                val resultString = "$testType,$cameraId,$extensionModeString,$testResultString" +
+                    ",${testResult.second}\n"
                 outputStream.write(resultString.toByteArray())
             }
         }
@@ -209,7 +215,7 @@ class TestResults private constructor(val context: Context) {
 
         // Generates CameraX extension test items
         availableCameraIds.forEach { cameraId ->
-            val testResultMap = linkedMapOf<Int, Int>()
+            val testResultMap = linkedMapOf<Int, Pair<Int, String>>()
 
             AVAILABLE_EXTENSION_MODES.forEach { mode ->
                 val isSupported = extensionsManager.isExtensionAvailable(
@@ -218,7 +224,10 @@ class TestResults private constructor(val context: Context) {
                 )
 
                 testResultMap[mode] =
-                    if (isSupported) TEST_RESULT_NOT_TESTED else TEST_RESULT_NOT_SUPPORTED
+                    if (isSupported) Pair(TEST_RESULT_NOT_TESTED, "") else Pair(
+                        TEST_RESULT_NOT_SUPPORTED,
+                        ""
+                    )
             }
 
             cameraExtensionResultMap[Pair(TEST_TYPE_CAMERAX_EXTENSION, cameraId)] = testResultMap
@@ -230,16 +239,24 @@ class TestResults private constructor(val context: Context) {
 
         // Generates Camera2 extension test items
         availableCameraIds.forEach { cameraId ->
-            val testResultMap = linkedMapOf<Int, Int>()
+            val testResultMap = linkedMapOf<Int, Pair<Int, String>>()
 
             AVAILABLE_CAMERA2_EXTENSION_MODES.forEach { mode ->
                 val isSupported = isCamera2ExtensionModeSupported(context, cameraId, mode)
 
                 testResultMap[mode] =
-                    if (isSupported) TEST_RESULT_NOT_TESTED else TEST_RESULT_NOT_SUPPORTED
+                    if (isSupported) Pair(TEST_RESULT_NOT_TESTED, "") else Pair(
+                        TEST_RESULT_NOT_SUPPORTED,
+                        ""
+                    )
             }
 
             cameraExtensionResultMap[Pair(TEST_TYPE_CAMERA2_EXTENSION, cameraId)] = testResultMap
+
+            // Generates Camera2 extension performance test items
+            cameraExtensionResultMap[
+                Pair(TEST_TYPE_CAMERA2_EXTENSION_STREAM_CONFIG_LATENCY, cameraId)
+            ] = LinkedHashMap(testResultMap)
         }
     }
 
@@ -263,7 +280,7 @@ class TestResults private constructor(val context: Context) {
             }
 
             val values = lineContent.split(",")
-            if (values.size != 4) {
+            if (values.size !in (4..5)) {
                 throw IllegalArgumentException("Extensions validation test results parsing error!")
             }
 
@@ -273,10 +290,10 @@ class TestResults private constructor(val context: Context) {
             val mode =
                 getExtensionModeIdFromString(testType, values[TEST_RESULT_INDEX_EXTENSION_MODE])
 
-            extensionResultMap?.set(
-                mode,
-                getTestResultIdFromString(values[TEST_RESULT_INDEX_TEST_RESULT])
-            )
+            val result = getTestResultIdFromString(values[TEST_RESULT_INDEX_TEST_RESULT])
+            val resultDetails = values.getOrElse(TEST_RESULT_INDEX_DETAILS) { "" }
+
+            extensionResultMap?.set(mode, Pair(result, resultDetails))
         }
 
         fileInputStream.close()
@@ -321,10 +338,14 @@ class TestResults private constructor(val context: Context) {
 
             return instance!!
         }
+
         fun getExtensionModeStringFromId(testType: String, extensionMode: Int) =
             if (testType == TEST_TYPE_CAMERAX_EXTENSION) {
                 getExtensionModeStringFromId(extensionMode)
             } else if (testType == TEST_TYPE_CAMERA2_EXTENSION && Build.VERSION.SDK_INT >= 31) {
+                getCamera2ExtensionModeStringFromId(extensionMode)
+            } else if (testType == TEST_TYPE_CAMERA2_EXTENSION_STREAM_CONFIG_LATENCY &&
+                Build.VERSION.SDK_INT >= 31) {
                 getCamera2ExtensionModeStringFromId(extensionMode)
             } else {
                 throw RuntimeException(
@@ -333,10 +354,13 @@ class TestResults private constructor(val context: Context) {
                 )
             }
 
-        fun getExtensionModeIdFromString(testType: String, extensionModeString: String) =
+        fun getExtensionModeIdFromString(testType: String, extensionModeString: String): Int =
             if (testType == TEST_TYPE_CAMERAX_EXTENSION) {
                 getExtensionModeIdFromString(extensionModeString)
             } else if (testType == TEST_TYPE_CAMERA2_EXTENSION && Build.VERSION.SDK_INT >= 31) {
+                getCamera2ExtensionModeIdFromString(extensionModeString)
+            } else if (testType == TEST_TYPE_CAMERA2_EXTENSION_STREAM_CONFIG_LATENCY &&
+                Build.VERSION.SDK_INT >= 31) {
                 getCamera2ExtensionModeIdFromString(extensionModeString)
             } else {
                 throw RuntimeException(

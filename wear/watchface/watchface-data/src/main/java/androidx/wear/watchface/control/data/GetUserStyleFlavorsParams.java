@@ -31,7 +31,6 @@ import androidx.versionedparcelable.VersionedParcelize;
 /**
  * Parameters for {@link IWatchFaceControlService#GetUserStyleFlavors}.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @VersionedParcelize

@@ -32,5 +32,5 @@ public class StartupFeatures {
 
     // ProcessGlobalConfig#setDirectoryBasePath(String)
     public static final String STARTUP_FEATURE_SET_DIRECTORY_BASE_PATH =
-            "STARTUP_FEATURE_SET_DIRECTORY_BASE_PATH:DEV";
+            "STARTUP_FEATURE_SET_DIRECTORY_BASE_PATH";
 }

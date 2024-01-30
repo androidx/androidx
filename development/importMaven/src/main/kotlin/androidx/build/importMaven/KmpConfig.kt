@@ -28,5 +28,9 @@ internal object KmpConfig {
         KonanTarget.IOS_ARM64,
         KonanTarget.IOS_SIMULATOR_ARM64,
         KonanTarget.IOS_X64,
+        KonanTarget.ANDROID_X86,
+        KonanTarget.ANDROID_X64,
+        KonanTarget.ANDROID_ARM32,
+        KonanTarget.ANDROID_ARM64,
     )
 }

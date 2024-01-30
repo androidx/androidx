@@ -43,11 +43,7 @@ open class CaptureRequestOptions private constructor(
 ) :
     ReadableConfig {
 
-    /**
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    constructor(config: Config) : this(config, false)
+    internal constructor(config: Config) : this(config, false)
 
     /**
      * Returns a value for the given [CaptureRequest.Key] or null if it hasn't been set.
@@ -72,11 +68,8 @@ open class CaptureRequestOptions private constructor(
      * @param ValueT         The type of the value.
      * @return The stored value or `valueIfMissing` if the value does not exist in this
      * configuration.
-     *
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    fun <ValueT> getCaptureRequestOption(
+    internal fun <ValueT> getCaptureRequestOption(
         key: CaptureRequest.Key<ValueT>,
         valueIfMissing: ValueT?
     ): ValueT? {
@@ -88,8 +81,6 @@ open class CaptureRequestOptions private constructor(
 
     /**
      * Returns the [Config] object associated with this [CaptureRequestOptions].
-     *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     override fun getConfig(): Config {
@@ -103,16 +94,12 @@ open class CaptureRequestOptions private constructor(
     class Builder : ExtendableBuilder<CaptureRequestOptions?> {
         private val mutableOptionsBundle = MutableOptionsBundle.create()
 
-        /**
-         * @hide
-         */
         companion object {
             /**
              * Generates a Builder from another Config object.
              *
              * @param config An immutable configuration to pre-populate this builder.
              * @return The new Builder.
-             * @hide
              */
             @JvmStatic
             @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -137,8 +124,6 @@ open class CaptureRequestOptions private constructor(
 
         /**
          * {@inheritDoc}
-         *
-         * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         override fun getMutableConfig(): MutableConfig {

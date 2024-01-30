@@ -57,6 +57,7 @@ public class AlarmTest {
                 .setShouldVibrate(true)
                 .setPreviousInstance(alarmInstance1)
                 .setNextInstance(alarmInstance2)
+                .setComputingDevice(Alarm.COMPUTING_DEVICE_SMART_WATCH)
                 .build();
 
         assertThat(alarm.getNamespace()).isEqualTo("namespace");
@@ -82,6 +83,7 @@ public class AlarmTest {
         assertThat(alarm.shouldVibrate()).isTrue();
         assertThat(alarm.getPreviousInstance()).isEqualTo(alarmInstance1);
         assertThat(alarm.getNextInstance()).isEqualTo(alarmInstance2);
+        assertThat(alarm.getComputingDevice()).isEqualTo(Alarm.COMPUTING_DEVICE_SMART_WATCH);
     }
 
     @Test
@@ -113,6 +115,7 @@ public class AlarmTest {
                 .setShouldVibrate(true)
                 .setPreviousInstance(alarmInstance1)
                 .setNextInstance(alarmInstance2)
+                .setComputingDevice(Alarm.COMPUTING_DEVICE_SMART_WATCH)
                 .build();
 
         Alarm alarm2 = new Alarm.Builder(alarm1).build();
@@ -140,6 +143,7 @@ public class AlarmTest {
         assertThat(alarm1.shouldVibrate()).isEqualTo(alarm2.shouldVibrate());
         assertThat(alarm1.getPreviousInstance()).isEqualTo(alarm2.getPreviousInstance());
         assertThat(alarm1.getNextInstance()).isEqualTo(alarm2.getNextInstance());
+        assertThat(alarm1.getComputingDevice()).isEqualTo(alarm2.getComputingDevice());
     }
 
     @Test
@@ -173,6 +177,7 @@ public class AlarmTest {
                 .setShouldVibrate(true)
                 .setPreviousInstance(alarmInstance1)
                 .setNextInstance(alarmInstance2)
+                .setComputingDevice(Alarm.COMPUTING_DEVICE_SMART_WATCH)
                 .build();
 
         GenericDocument genericDocument = GenericDocument.fromDocumentClass(alarm);
@@ -207,6 +212,13 @@ public class AlarmTest {
                 .isEqualTo(GenericDocument.fromDocumentClass(alarmInstance1));
         assertThat(genericDocument.getPropertyDocument("nextInstance"))
                 .isEqualTo(GenericDocument.fromDocumentClass(alarmInstance2));
+        assertThat(genericDocument.getPropertyLong("computingDevice"))
+                .isEqualTo(Alarm.COMPUTING_DEVICE_SMART_WATCH);
+
+        // Test that toDocumentClass doesn't lose information.
+        GenericDocument newGenericDocument = GenericDocument.fromDocumentClass(
+                genericDocument.toDocumentClass(Alarm.class));
+        assertThat(newGenericDocument).isEqualTo(genericDocument);
     }
 
     @Test
@@ -238,5 +250,10 @@ public class AlarmTest {
 
         assertThat(alarm.getDaysOfWeek()).isNull();
         assertThat(alarmGenericDocument.getPropertyLongArray("daysOfWeek")).isNull();
+
+        // Test that toDocumentClass doesn't lose information.
+        GenericDocument newGenericDocument = GenericDocument.fromDocumentClass(
+                alarmGenericDocument.toDocumentClass(Alarm.class));
+        assertThat(newGenericDocument).isEqualTo(alarmGenericDocument);
     }
 }

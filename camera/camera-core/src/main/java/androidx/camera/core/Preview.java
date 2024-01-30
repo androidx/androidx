@@ -17,10 +17,12 @@
 package androidx.camera.core;
 
 import static androidx.camera.core.CameraEffect.PREVIEW;
+import static androidx.camera.core.MirrorMode.MIRROR_MODE_ON_FRONT_ONLY;
 import static androidx.camera.core.impl.ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE;
 import static androidx.camera.core.impl.ImageInputConfig.OPTION_INPUT_FORMAT;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_APP_TARGET_ROTATION;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_CUSTOM_ORDERED_RESOLUTIONS;
+import static androidx.camera.core.impl.ImageOutputConfig.OPTION_MIRROR_MODE;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_RESOLUTION_SELECTOR;
 import static androidx.camera.core.impl.PreviewConfig.OPTION_BACKGROUND_EXECUTOR;
 import static androidx.camera.core.impl.PreviewConfig.OPTION_CAPTURE_CONFIG_UNPACKER;
@@ -37,7 +39,10 @@ import static androidx.camera.core.impl.PreviewConfig.OPTION_TARGET_NAME;
 import static androidx.camera.core.impl.PreviewConfig.OPTION_TARGET_ROTATION;
 import static androidx.camera.core.impl.PreviewConfig.OPTION_USE_CASE_EVENT_CALLBACK;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_CAMERA_SELECTOR;
+import static androidx.camera.core.impl.UseCaseConfig.OPTION_CAPTURE_TYPE;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_HIGH_RESOLUTION_DISABLED;
+import static androidx.camera.core.impl.UseCaseConfig.OPTION_PREVIEW_STABILIZATION_MODE;
+import static androidx.camera.core.impl.UseCaseConfig.OPTION_TARGET_FRAME_RATE;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_ZSL_DISABLED;
 import static androidx.camera.core.impl.utils.Threads.checkMainThread;
 import static androidx.core.util.Preconditions.checkNotNull;
@@ -46,18 +51,19 @@ import static androidx.core.util.Preconditions.checkState;
 import static java.util.Collections.singletonList;
 import static java.util.Objects.requireNonNull;
 
-import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
 import android.media.ImageReader;
 import android.media.MediaCodec;
 import android.util.Pair;
+import android.util.Range;
 import android.util.Size;
 import android.view.Display;
 import android.view.Surface;
 import android.view.SurfaceView;
 import android.view.TextureView;
 
+import androidx.annotation.IntRange;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -81,12 +87,17 @@ import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.StreamSpec;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.UseCaseConfigFactory;
+import androidx.camera.core.impl.capability.PreviewCapabilitiesImpl;
+import androidx.camera.core.impl.stabilization.StabilizationMode;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.internal.TargetConfig;
 import androidx.camera.core.internal.ThreadConfig;
 import androidx.camera.core.processing.Node;
 import androidx.camera.core.processing.SurfaceEdge;
 import androidx.camera.core.processing.SurfaceProcessorNode;
+import androidx.camera.core.resolutionselector.AspectRatioStrategy;
+import androidx.camera.core.resolutionselector.ResolutionSelector;
+import androidx.camera.core.resolutionselector.ResolutionStrategy;
 import androidx.core.util.Consumer;
 import androidx.lifecycle.LifecycleOwner;
 
@@ -149,8 +160,6 @@ public final class Preview extends UseCase {
 
     /**
      * Provides a static configuration with implementation-agnostic options.
-     *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static final Defaults DEFAULT_CONFIG = new Defaults();
@@ -173,6 +182,9 @@ public final class Preview extends UseCase {
     // [UseCase attached dynamic] - Can change but is only available when the UseCase is attached.
     ////////////////////////////////////////////////////////////////////////////////////////////
 
+    @SuppressWarnings("WeakerAccess") // Synthetic accessor
+    SessionConfig.Builder mSessionConfigBuilder;
+
     // TODO(b/259308680): remove mSessionDeferrableSurface and rely on mCameraEdge to get the
     //  DeferrableSurface
     private DeferrableSurface mSessionDeferrableSurface;
@@ -184,11 +196,6 @@ public final class Preview extends UseCase {
     @VisibleForTesting
     @Nullable
     SurfaceRequest mCurrentSurfaceRequest;
-
-    // The attached surface size. Same as getAttachedSurfaceResolution() but is available during
-    // createPipeline().
-    @Nullable
-    private Size mSurfaceSize;
 
     @Nullable
     private SurfaceProcessorNode mNode;
@@ -204,36 +211,6 @@ public final class Preview extends UseCase {
         super(config);
     }
 
-    @MainThread
-    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    SessionConfig.Builder createPipeline(@NonNull String cameraId, @NonNull PreviewConfig config,
-            @NonNull StreamSpec streamSpec) {
-        // Build pipeline with node if processor is set. Eventually we will move all the code to
-        // createPipelineWithNode.
-        if (getEffect() != null) {
-            return createPipelineWithNode(cameraId, config, streamSpec);
-        }
-
-        checkMainThread();
-        SessionConfig.Builder sessionConfigBuilder = SessionConfig.Builder.createFrom(config);
-
-        // Close previous session's deferrable surface before creating new one
-        clearPipeline();
-
-        final SurfaceRequest surfaceRequest = new SurfaceRequest(streamSpec.getResolution(),
-                getCamera(), this::notifyReset);
-        mCurrentSurfaceRequest = surfaceRequest;
-
-        if (mSurfaceProvider != null) {
-            // Only send surface request if the provider is set.
-            sendSurfaceRequest();
-        }
-
-        mSessionDeferrableSurface = surfaceRequest.getDeferrableSurface();
-        addCameraSurfaceAndErrorListener(sessionConfigBuilder, cameraId, config, streamSpec);
-        return sessionConfigBuilder;
-    }
-
     /**
      * Creates the post-processing pipeline with the {@link Node} pattern.
      *
@@ -242,48 +219,62 @@ public final class Preview extends UseCase {
      */
     @NonNull
     @MainThread
-    private SessionConfig.Builder createPipelineWithNode(
+    private SessionConfig.Builder createPipeline(
             @NonNull String cameraId,
             @NonNull PreviewConfig config,
             @NonNull StreamSpec streamSpec) {
         // Check arguments
         checkMainThread();
-        CameraEffect effect = requireNonNull(getEffect());
-        CameraInternal camera = requireNonNull(getCamera());
 
+        CameraInternal camera = requireNonNull(getCamera());
         clearPipeline();
 
-        // Create nodes and edges.
-        mNode = new SurfaceProcessorNode(camera, effect.createSurfaceProcessorInternal());
         // Make sure the previously created camera edge is cleared before creating a new one.
         checkState(mCameraEdge == null);
         mCameraEdge = new SurfaceEdge(
                 PREVIEW,
                 INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE,
                 streamSpec,
-                new Matrix(),
+                getSensorToBufferTransformMatrix(),
                 camera.getHasTransform(),
                 requireNonNull(getCropRect(streamSpec.getResolution())),
-                getRelativeRotation(camera, camera.isFrontFacing()),
+                getRelativeRotation(camera, isMirroringRequired(camera)),
+                getAppTargetRotation(),
                 shouldMirror(camera));
-        mCameraEdge.addOnInvalidatedListener(this::notifyReset);
-        SurfaceProcessorNode.OutConfig outConfig = SurfaceProcessorNode.OutConfig.of(mCameraEdge);
-        SurfaceProcessorNode.In nodeInput = SurfaceProcessorNode.In.of(mCameraEdge,
-                singletonList(outConfig));
-        SurfaceProcessorNode.Out nodeOutput = mNode.transform(nodeInput);
-        SurfaceEdge appEdge = requireNonNull(nodeOutput.get(outConfig));
-        appEdge.addOnInvalidatedListener(() -> onAppEdgeInvalidated(appEdge, camera));
 
-        // Send the app Surface to the app.
-        mSessionDeferrableSurface = mCameraEdge.getDeferrableSurface();
-        mCurrentSurfaceRequest = appEdge.createSurfaceRequest(camera);
+        CameraEffect effect = getEffect();
+        if (effect != null) {
+            // Create nodes and edges.
+            mNode = new SurfaceProcessorNode(camera, effect.createSurfaceProcessorInternal());
+            mCameraEdge.addOnInvalidatedListener(this::notifyReset);
+            SurfaceProcessorNode.OutConfig outConfig = SurfaceProcessorNode.OutConfig.of(
+                    mCameraEdge);
+            SurfaceProcessorNode.In nodeInput = SurfaceProcessorNode.In.of(mCameraEdge,
+                    singletonList(outConfig));
+            SurfaceProcessorNode.Out nodeOutput = mNode.transform(nodeInput);
+            SurfaceEdge appEdge = requireNonNull(nodeOutput.get(outConfig));
+            appEdge.addOnInvalidatedListener(() -> onAppEdgeInvalidated(appEdge, camera));
+            mCurrentSurfaceRequest = appEdge.createSurfaceRequest(camera);
+            mSessionDeferrableSurface = mCameraEdge.getDeferrableSurface();
+        } else {
+            mCameraEdge.addOnInvalidatedListener(this::notifyReset);
+            mCurrentSurfaceRequest = mCameraEdge.createSurfaceRequest(camera);
+            mSessionDeferrableSurface = mCurrentSurfaceRequest.getDeferrableSurface();
+        }
+
         if (mSurfaceProvider != null) {
             // Only send surface request if the provider is set.
             sendSurfaceRequest();
         }
 
         // Send the camera Surface to the camera2.
-        SessionConfig.Builder sessionConfigBuilder = SessionConfig.Builder.createFrom(config);
+        SessionConfig.Builder sessionConfigBuilder = SessionConfig.Builder.createFrom(config,
+                streamSpec.getResolution());
+        sessionConfigBuilder.setExpectedFrameRateRange(streamSpec.getExpectedFrameRateRange());
+        sessionConfigBuilder.setPreviewStabilization(config.getPreviewStabilizationMode());
+        if (streamSpec.getImplementationOptions() != null) {
+            sessionConfigBuilder.addImplementationOptions(streamSpec.getImplementationOptions());
+        }
         addCameraSurfaceAndErrorListener(sessionConfigBuilder, cameraId, config, streamSpec);
         return sessionConfigBuilder;
     }
@@ -298,11 +289,25 @@ public final class Preview extends UseCase {
         }
     }
 
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Override
+    @IntRange(from = 0, to = 359)
+    protected int getRelativeRotation(@NonNull CameraInternal cameraInternal,
+            boolean requireMirroring) {
+        if (cameraInternal.getHasTransform()) {
+            return super.getRelativeRotation(cameraInternal, requireMirroring);
+        } else {
+            // If there is a virtual parent camera, the buffer is already rotated because
+            // SurfaceView cannot handle additional rotation.
+            return 0;
+        }
+    }
+
     private boolean shouldMirror(@NonNull CameraInternal camera) {
         // Since PreviewView cannot mirror, we will always mirror preview stream during buffer
         // copy. If there has been a buffer copy, it means it's already mirrored. Otherwise,
         // mirror it for the front camera.
-        return camera.getHasTransform() && camera.isFrontFacing();
+        return camera.getHasTransform() && isMirroringRequired(camera);
     }
 
     /**
@@ -340,7 +345,8 @@ public final class Preview extends UseCase {
         // SurfaceProcessorNode and CaptureProcessor cases, since no surface provider also means no
         // output target for these two cases.
         if (mSurfaceProvider != null) {
-            sessionConfigBuilder.addSurface(mSessionDeferrableSurface);
+            sessionConfigBuilder.addSurface(mSessionDeferrableSurface,
+                    streamSpec.getDynamicRange());
         }
 
         sessionConfigBuilder.addErrorListener((sessionConfig, error) -> {
@@ -389,21 +395,11 @@ public final class Preview extends UseCase {
         // TODO(b/159659392): only send transformation after CameraCaptureCallback
         //  .onCaptureCompleted is called.
         CameraInternal cameraInternal = getCamera();
-        SurfaceProvider surfaceProvider = mSurfaceProvider;
-        Rect cropRect = getCropRect(mSurfaceSize);
-        SurfaceRequest surfaceRequest = mCurrentSurfaceRequest;
-        if (cameraInternal != null && surfaceProvider != null && cropRect != null
-                && surfaceRequest != null) {
-            if (mNode == null) {
-                surfaceRequest.updateTransformationInfo(SurfaceRequest.TransformationInfo.of(
-                        cropRect,
-                        getRelativeRotation(cameraInternal, cameraInternal.isFrontFacing()),
-                        getAppTargetRotation(),
-                        cameraInternal.getHasTransform()));
-            } else {
-                mCameraEdge.setRotationDegrees(
-                        getRelativeRotation(cameraInternal, cameraInternal.isFrontFacing()));
-            }
+        SurfaceEdge cameraEdge = mCameraEdge;
+        if (cameraInternal != null && cameraEdge != null) {
+            cameraEdge.updateTransformation(
+                    getRelativeRotation(cameraInternal, isMirroringRequired(cameraInternal)),
+                    getAppTargetRotation());
         }
     }
 
@@ -447,7 +443,6 @@ public final class Preview extends UseCase {
         } else {
             mSurfaceProvider = surfaceProvider;
             mSurfaceProviderExecutor = executor;
-            notifyActive();
 
             // It could be a previous request has already been sent, which means the caller wants
             // to replace the Surface. Or, it could be the pipeline has not started. Or the use
@@ -458,15 +453,19 @@ public final class Preview extends UseCase {
                         getAttachedStreamSpec());
                 notifyReset();
             }
+            notifyActive();
         }
     }
 
     private void sendSurfaceRequest() {
+        // App receives TransformationInfo when 1) the listener is set or 2) the info is sent. We
+        // should send the info before the listen is set so the app only receives once.
+        sendTransformationInfoIfReady();
+
+        // Send the SurfaceRequest.
         final SurfaceProvider surfaceProvider = checkNotNull(mSurfaceProvider);
         final SurfaceRequest surfaceRequest = checkNotNull(mCurrentSurfaceRequest);
-
         mSurfaceProviderExecutor.execute(() -> surfaceProvider.onSurfaceRequested(surfaceRequest));
-        sendTransformationInfoIfReady();
     }
 
     /**
@@ -488,7 +487,8 @@ public final class Preview extends UseCase {
 
     private void updateConfigAndOutput(@NonNull String cameraId, @NonNull PreviewConfig config,
             @NonNull StreamSpec streamSpec) {
-        updateSessionConfig(createPipeline(cameraId, config, streamSpec).build());
+        mSessionConfigBuilder = createPipeline(cameraId, config, streamSpec);
+        updateSessionConfig(mSessionConfigBuilder.build());
     }
 
     /**
@@ -525,9 +525,19 @@ public final class Preview extends UseCase {
      * CameraSelector, UseCase...)} API, or null if the use case is not bound yet.
      */
     @Nullable
-    @Override
     public ResolutionInfo getResolutionInfo() {
-        return super.getResolutionInfo();
+        return getResolutionInfoInternal();
+    }
+
+    /**
+     * Returns the resolution selector setting.
+     *
+     * <p>This setting is set when constructing an ImageCapture using
+     * {@link Builder#setResolutionSelector(ResolutionSelector)}.
+     */
+    @Nullable
+    public ResolutionSelector getResolutionSelector() {
+        return ((ImageOutputConfig) getCurrentConfig()).getResolutionSelector(null);
     }
 
     @NonNull
@@ -538,8 +548,6 @@ public final class Preview extends UseCase {
 
     /**
      * {@inheritDoc}
-     *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
@@ -547,7 +555,7 @@ public final class Preview extends UseCase {
     public UseCaseConfig<?> getDefaultConfig(boolean applyDefaultConfig,
             @NonNull UseCaseConfigFactory factory) {
         Config captureConfig = factory.getConfig(
-                UseCaseConfigFactory.CaptureType.PREVIEW,
+                DEFAULT_CONFIG.getConfig().getCaptureType(),
                 ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY);
 
         if (applyDefaultConfig) {
@@ -560,8 +568,6 @@ public final class Preview extends UseCase {
 
     /**
      * {@inheritDoc}
-     *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -571,27 +577,11 @@ public final class Preview extends UseCase {
         builder.getMutableConfig().insertOption(OPTION_INPUT_FORMAT,
                 INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE);
 
-        // Merges Preview's default max resolution setting when resolution selector is used
-        ResolutionSelector resolutionSelector =
-                builder.getMutableConfig().retrieveOption(OPTION_RESOLUTION_SELECTOR, null);
-        if (resolutionSelector != null && resolutionSelector.getMaxResolution() == null) {
-            Size maxResolution = builder.getMutableConfig().retrieveOption(OPTION_MAX_RESOLUTION);
-            if (maxResolution != null) {
-                ResolutionSelector.Builder resolutionSelectorBuilder =
-                        ResolutionSelector.Builder.fromSelector(resolutionSelector);
-                resolutionSelectorBuilder.setMaxResolution(maxResolution);
-                builder.getMutableConfig().insertOption(OPTION_RESOLUTION_SELECTOR,
-                        resolutionSelectorBuilder.build());
-            }
-        }
-
         return builder.getUseCaseConfig();
     }
 
     /**
      * {@inheritDoc}
-     *
-     * @hide
      */
     @NonNull
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -602,8 +592,6 @@ public final class Preview extends UseCase {
 
     /**
      * {@inheritDoc}
-     *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
@@ -613,14 +601,11 @@ public final class Preview extends UseCase {
 
     /**
      * {@inheritDoc}
-     *
-     * @hide
      */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     protected StreamSpec onSuggestedStreamSpecUpdated(@NonNull StreamSpec suggestedStreamSpec) {
-        mSurfaceSize = suggestedStreamSpec.getResolution();
         updateConfigAndOutput(getCameraId(), (PreviewConfig) getCurrentConfig(),
                 suggestedStreamSpec);
         return suggestedStreamSpec;
@@ -628,8 +613,18 @@ public final class Preview extends UseCase {
 
     /**
      * {@inheritDoc}
-     *
-     * @hide
+     */
+    @NonNull
+    @Override
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    protected StreamSpec onSuggestedStreamSpecImplementationOptionsUpdated(@NonNull Config config) {
+        mSessionConfigBuilder.addImplementationOptions(config);
+        updateSessionConfig(mSessionConfigBuilder.build());
+        return getAttachedStreamSpec().toBuilder().setImplementationOptions(config).build();
+    }
+
+    /**
+     * {@inheritDoc}
      */
     @Override
     @RestrictTo(Scope.LIBRARY)
@@ -639,7 +634,7 @@ public final class Preview extends UseCase {
     }
 
     /**
-     * @hide
+     *
      */
     @VisibleForTesting
     @NonNull
@@ -650,7 +645,6 @@ public final class Preview extends UseCase {
 
     /**
      * @inheritDoc
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -659,6 +653,41 @@ public final class Preview extends UseCase {
         Set<Integer> targets = new HashSet<>();
         targets.add(PREVIEW);
         return targets;
+    }
+
+    /**
+     * Returns the target frame rate range, in frames per second, for the associated Preview use
+     * case.
+     * <p>The target frame rate can be set prior to constructing a Preview using
+     * {@link Preview.Builder#setTargetFrameRate(Range)}.
+     * If not set, the target frame rate defaults to the value of
+     * {@link StreamSpec#FRAME_RATE_RANGE_UNSPECIFIED}.
+     *
+     * <p>This is just the frame rate range requested by the user, and may not necessarily be
+     * equal to the range the camera is actually operating at.
+     *
+     * @return the target frame rate range of this Preview.
+     */
+    @NonNull
+    public Range<Integer> getTargetFrameRate() {
+        return getTargetFrameRateInternal();
+    }
+
+    /**
+     * Returns {@link PreviewCapabilities} to query preview stream related device capability.
+     *
+     * @return {@link PreviewCapabilities}
+     */
+    @NonNull
+    public static PreviewCapabilities getPreviewCapabilities(@NonNull CameraInfo cameraInfo) {
+        return PreviewCapabilitiesImpl.from(cameraInfo);
+    }
+
+    /**
+     * Returns whether video stabilization is enabled for preview stream.
+     */
+    public boolean isPreviewStabilizationEnabled() {
+        return getCurrentConfig().getPreviewStabilizationMode() == StabilizationMode.ON;
     }
 
     /**
@@ -734,19 +763,25 @@ public final class Preview extends UseCase {
      *
      * <p>These values may be overridden by the implementation. They only provide a minimum set of
      * defaults that are implementation independent.
-     *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static final class Defaults implements ConfigProvider<PreviewConfig> {
         private static final int DEFAULT_SURFACE_OCCUPANCY_PRIORITY = 2;
         private static final int DEFAULT_ASPECT_RATIO = AspectRatio.RATIO_4_3;
+        private static final int DEFAULT_MIRROR_MODE = MIRROR_MODE_ON_FRONT_ONLY;
+
+        private static final ResolutionSelector DEFAULT_RESOLUTION_SELECTOR =
+                new ResolutionSelector.Builder().setAspectRatioStrategy(
+                        AspectRatioStrategy.RATIO_4_3_FALLBACK_AUTO_STRATEGY).setResolutionStrategy(
+                        ResolutionStrategy.HIGHEST_AVAILABLE_STRATEGY).build();
 
         private static final PreviewConfig DEFAULT_CONFIG;
 
         static {
-            Builder builder = new Builder().setSurfaceOccupancyPriority(
-                    DEFAULT_SURFACE_OCCUPANCY_PRIORITY).setTargetAspectRatio(DEFAULT_ASPECT_RATIO);
+            Builder builder = new Builder()
+                    .setSurfaceOccupancyPriority(DEFAULT_SURFACE_OCCUPANCY_PRIORITY)
+                    .setTargetAspectRatio(DEFAULT_ASPECT_RATIO)
+                    .setResolutionSelector(DEFAULT_RESOLUTION_SELECTOR);
             DEFAULT_CONFIG = builder.getUseCaseConfig();
         }
 
@@ -784,13 +819,13 @@ public final class Preview extends UseCase {
                                 + oldConfigClass);
             }
 
+            setCaptureType(UseCaseConfigFactory.CaptureType.PREVIEW);
             setTargetClass(Preview.class);
+            mutableConfig.insertOption(OPTION_MIRROR_MODE, Defaults.DEFAULT_MIRROR_MODE);
         }
 
         /**
          * Generates a Builder from another Config object
-         *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -803,7 +838,6 @@ public final class Preview extends UseCase {
          *
          * @param configuration An immutable configuration to pre-populate this builder.
          * @return The new Builder.
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -813,8 +847,6 @@ public final class Preview extends UseCase {
 
         /**
          * {@inheritDoc}
-         *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
@@ -823,7 +855,6 @@ public final class Preview extends UseCase {
             return mMutableConfig;
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         @Override
@@ -848,7 +879,6 @@ public final class Preview extends UseCase {
 
         // Implementations of TargetConfig.Builder default methods
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
@@ -916,9 +946,12 @@ public final class Preview extends UseCase {
          *
          * @param aspectRatio The desired Preview {@link AspectRatio}
          * @return The current Builder.
+         * @deprecated use {@link ResolutionSelector} with {@link AspectRatioStrategy} to specify
+         * the preferred aspect ratio settings instead.
          */
         @NonNull
         @Override
+        @Deprecated
         public Builder setTargetAspectRatio(@AspectRatio.Ratio int aspectRatio) {
             if (aspectRatio == AspectRatio.RATIO_DEFAULT) {
                 aspectRatio = Defaults.DEFAULT_ASPECT_RATIO;
@@ -966,6 +999,16 @@ public final class Preview extends UseCase {
         }
 
         /**
+         * setMirrorMode is not supported on Preview.
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        @Override
+        public Builder setMirrorMode(@MirrorMode.Mirror int mirrorMode) {
+            throw new UnsupportedOperationException("setMirrorMode is not supported.");
+        }
+
+        /**
          * Sets the resolution of the intended target from this configuration.
          *
          * <p>The target resolution attempts to establish a minimum bound for the preview
@@ -1003,9 +1046,12 @@ public final class Preview extends UseCase {
          *
          * @param resolution The target resolution to choose from supported output sizes list.
          * @return The current Builder.
+         * @deprecated use {@link ResolutionSelector} with {@link ResolutionStrategy} to specify
+         * the preferred resolution settings instead.
          */
         @NonNull
         @Override
+        @Deprecated
         public Builder setTargetResolution(@NonNull Size resolution) {
             getMutableConfig()
                     .insertOption(ImageOutputConfig.OPTION_TARGET_RESOLUTION, resolution);
@@ -1017,7 +1063,6 @@ public final class Preview extends UseCase {
          *
          * @param resolution The default resolution to choose from supported output sizes list.
          * @return The current Builder.
-         * @hide
          */
         @NonNull
         @RestrictTo(Scope.LIBRARY_GROUP)
@@ -1027,7 +1072,6 @@ public final class Preview extends UseCase {
             return this;
         }
 
-        /** @hide */
         @NonNull
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
@@ -1036,7 +1080,6 @@ public final class Preview extends UseCase {
             return this;
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
@@ -1045,7 +1088,6 @@ public final class Preview extends UseCase {
             return this;
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         @Override
@@ -1062,23 +1104,21 @@ public final class Preview extends UseCase {
          * size match to the device's screen resolution, or to 1080p (1920x1080), whichever is
          * smaller. See the
          * <a href="https://developer.android.com/reference/android/hardware/camera2/CameraDevice#regular-capture">Regular capture</a>
-         * section in {@link android.hardware.camera2.CameraDevice}'. If the
-         * {@link ResolutionSelector} contains the max resolution setting larger than the {@code
-         * PREVIEW} size, a size larger than the device's screen resolution or 1080p can be
-         * selected to use for {@link Preview}.
+         * section in {@link android.hardware.camera2.CameraDevice}'. Applications can set any
+         * {@link ResolutionStrategy} to override it.
          *
          * <p>Note that due to compatibility reasons, CameraX may select a resolution that is
          * larger than the default screen resolution on certain devices.
          *
          * <p>The existing {@link #setTargetResolution(Size)} and
          * {@link #setTargetAspectRatio(int)} APIs are deprecated and are not compatible with
-         * {@link ResolutionSelector}. Calling any of these APIs together with
-         * {@link ResolutionSelector} will throw an {@link IllegalArgumentException} while
-         * {@link #build()} is called to create the {@link Preview} instance.
+         * {@link #setResolutionSelector(ResolutionSelector)}. Calling either of these APIs
+         * together with {@link #setResolutionSelector(ResolutionSelector)} will result in an
+         * {@link IllegalArgumentException} being thrown when you attempt to build the
+         * {@link Preview} instance.
          *
-         * @hide
-         **/
-        @RestrictTo(Scope.LIBRARY_GROUP)
+         * @return The current Builder.
+         */
         @Override
         @NonNull
         public Builder setResolutionSelector(@NonNull ResolutionSelector resolutionSelector) {
@@ -1096,7 +1136,6 @@ public final class Preview extends UseCase {
          *
          * @param executor The executor which will be used for background tasks.
          * @return the current Builder.
-         * @hide Background executor not used in {@link Preview}.
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
@@ -1106,9 +1145,83 @@ public final class Preview extends UseCase {
             return this;
         }
 
+        /**
+         * Sets the target frame rate range in frames per second for the associated Preview use
+         * case.
+         *
+         * <p>
+         * Device will try to get as close as possible to the target frame rate. This may affect
+         * the selected resolutions of the surfaces, resulting in better frame rates at the
+         * potential reduction of resolution.
+         *
+         * <p>
+         * Achieving target frame rate is dependent on device capabilities, as well as other
+         * concurrently attached use cases and their target frame rates.
+         * Because of this, the frame rate that is ultimately selected is not guaranteed to be a
+         * perfect match to the requested target.
+         *
+         * @param targetFrameRate a desired frame rate range.
+         * @return the current Builder.
+         */
+        @NonNull
+        public Builder setTargetFrameRate(@NonNull Range<Integer> targetFrameRate) {
+            getMutableConfig().insertOption(OPTION_TARGET_FRAME_RATE, targetFrameRate);
+            return this;
+        }
+
+        /**
+         * Enable preview stabilization. It will enable stabilization for both the preview and
+         * video capture use cases.
+         *
+         * <p>Devices running Android 13 or higher can provide support for video stabilization.
+         * This feature lets apps provide a what you see is what you get (WYSIWYG) experience
+         * when comparing between the camera preview and the recording.
+         *
+         * <p>It is recommended to query the device capability via
+         * {@link PreviewCapabilities#isStabilizationSupported()} before enabling this feature,
+         * otherwise HAL error might be thrown.
+         *
+         * <p> If both preview stabilization and video stabilization are enabled or disabled, the
+         * final result will be
+         *
+         * <p>
+         * <table>
+         * <tr> <th id="rb">Preview</th> <th id="rb">VideoCapture</th>   <th id="rb">Result</th>
+         * </tr>
+         * <tr> <td>ON</td> <td>ON</td> <td>Both Preview and VideoCapture will be stabilized,
+         * VideoCapture quality might be worse than only VideoCapture stabilized</td>
+         * </tr>
+         * <tr> <td>ON</td> <td>OFF</td> <td>None of Preview and VideoCapture will be
+         * stabilized</td>  </tr>
+         * <tr> <td>ON</td> <td>NOT SPECIFIED</td> <td>Both Preview and VideoCapture will be
+         * stabilized</td>  </tr>
+         * <tr> <td>OFF</td> <td>ON</td> <td>None of Preview and VideoCapture will be
+         * stabilized</td>  </tr>
+         * <tr> <td>OFF</td> <td>OFF</td> <td>None of Preview and VideoCapture will be
+         * stabilized</td>  </tr>
+         * <tr> <td>OFF</td> <td>NOT SPECIFIED</td> <td>None of Preview and VideoCapture will be
+         * stabilized</td>  </tr>
+         * <tr> <td>NOT SPECIFIED</td> <td>ON</td> <td>Only VideoCapture will be stabilized,
+         * Preview might be stabilized depending on devices</td>
+         * </tr>
+         * <tr> <td>NOT SPECIFIED</td> <td>OFF</td> <td>None of Preview and VideoCapture will be
+         * stabilized</td>  </tr>
+         * </table><br>
+         *
+         * @param enabled True if enable, otherwise false.
+         * @return the current Builder.
+         *
+         * @see PreviewCapabilities#isStabilizationSupported()
+         */
+        @NonNull
+        public Builder setPreviewStabilizationEnabled(boolean enabled) {
+            getMutableConfig().insertOption(OPTION_PREVIEW_STABILIZATION_MODE,
+                    enabled ? StabilizationMode.ON : StabilizationMode.OFF);
+            return this;
+        }
+
         // Implementations of UseCaseConfig.Builder default methods
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
@@ -1117,7 +1230,6 @@ public final class Preview extends UseCase {
             return this;
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
@@ -1126,7 +1238,6 @@ public final class Preview extends UseCase {
             return this;
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
@@ -1136,7 +1247,6 @@ public final class Preview extends UseCase {
             return this;
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
@@ -1146,7 +1256,6 @@ public final class Preview extends UseCase {
             return this;
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
@@ -1155,7 +1264,6 @@ public final class Preview extends UseCase {
             return this;
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
@@ -1164,7 +1272,6 @@ public final class Preview extends UseCase {
             return this;
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
@@ -1174,7 +1281,6 @@ public final class Preview extends UseCase {
             return this;
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         @Override
@@ -1183,12 +1289,19 @@ public final class Preview extends UseCase {
             return this;
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         @Override
         public Builder setHighResolutionDisabled(boolean disabled) {
             getMutableConfig().insertOption(OPTION_HIGH_RESOLUTION_DISABLED, disabled);
+            return this;
+        }
+
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        @Override
+        public Builder setCaptureType(@NonNull UseCaseConfigFactory.CaptureType captureType) {
+            getMutableConfig().insertOption(OPTION_CAPTURE_TYPE, captureType);
             return this;
         }
     }

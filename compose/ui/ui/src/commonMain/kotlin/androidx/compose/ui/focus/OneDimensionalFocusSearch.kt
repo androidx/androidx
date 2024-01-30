@@ -18,7 +18,6 @@ package androidx.compose.ui.focus
 
 import androidx.compose.runtime.collection.MutableVector
 import androidx.compose.runtime.collection.mutableVectorOf
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.focus.FocusDirection.Companion.Next
 import androidx.compose.ui.focus.FocusDirection.Companion.Previous
 import androidx.compose.ui.focus.FocusStateImpl.Active
@@ -28,27 +27,28 @@ import androidx.compose.ui.focus.FocusStateImpl.Inactive
 import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.node.Nodes
 import androidx.compose.ui.node.nearestAncestor
+import androidx.compose.ui.node.requireLayoutNode
 import androidx.compose.ui.node.visitChildren
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 
+@Suppress("ConstPropertyName")
 private const val InvalidFocusDirection = "This function should only be used for 1-D focus search"
+@Suppress("ConstPropertyName")
 private const val NoActiveChild = "ActiveParent must have a focusedChild"
 
-@ExperimentalComposeUiApi
-internal fun FocusTargetModifierNode.oneDimensionalFocusSearch(
+internal fun FocusTargetNode.oneDimensionalFocusSearch(
     direction: FocusDirection,
-    onFound: (FocusTargetModifierNode) -> Boolean
+    onFound: (FocusTargetNode) -> Boolean
 ): Boolean = when (direction) {
     Next -> forwardFocusSearch(onFound)
     Previous -> backwardFocusSearch(onFound)
     else -> error(InvalidFocusDirection)
 }
 
-@ExperimentalComposeUiApi
-private fun FocusTargetModifierNode.forwardFocusSearch(
-    onFound: (FocusTargetModifierNode) -> Boolean
-): Boolean = when (focusStateImpl) {
+private fun FocusTargetNode.forwardFocusSearch(
+    onFound: (FocusTargetNode) -> Boolean
+): Boolean = when (focusState) {
     ActiveParent -> {
         val focusedChild = activeChild ?: error(NoActiveChild)
         focusedChild.forwardFocusSearch(onFound) ||
@@ -62,19 +62,17 @@ private fun FocusTargetModifierNode.forwardFocusSearch(
     }
 }
 
-@ExperimentalComposeUiApi
-private fun FocusTargetModifierNode.backwardFocusSearch(
-    onFound: (FocusTargetModifierNode) -> Boolean
-): Boolean = when (focusStateImpl) {
+private fun FocusTargetNode.backwardFocusSearch(
+    onFound: (FocusTargetNode) -> Boolean
+): Boolean = when (focusState) {
     ActiveParent -> {
         val focusedChild = activeChild ?: error(NoActiveChild)
 
         // Unlike forwardFocusSearch, backwardFocusSearch visits the children before the parent.
-        when (focusedChild.focusStateImpl) {
-            ActiveParent ->
-                focusedChild.backwardFocusSearch(onFound) ||
+        when (focusedChild.focusState) {
+            ActiveParent -> focusedChild.backwardFocusSearch(onFound) ||
                 generateAndSearchChildren(focusedChild, Previous, onFound) ||
-                (fetchFocusProperties().canFocus && onFound.invoke(focusedChild))
+                (focusedChild.fetchFocusProperties().canFocus && onFound.invoke(focusedChild))
 
             // Since this item "is focused", it means we already visited all its children.
             // So just search among its siblings.
@@ -98,11 +96,10 @@ private fun FocusTargetModifierNode.backwardFocusSearch(
 
 // Search among your children for the next child.
 // If the next child is not found, generate more children by requesting a beyondBoundsLayout.
-@ExperimentalComposeUiApi
-private fun FocusTargetModifierNode.generateAndSearchChildren(
-    focusedItem: FocusTargetModifierNode,
+private fun FocusTargetNode.generateAndSearchChildren(
+    focusedItem: FocusTargetNode,
     direction: FocusDirection,
-    onFound: (FocusTargetModifierNode) -> Boolean
+    onFound: (FocusTargetNode) -> Boolean
 ): Boolean {
     // Search among the currently available children.
     if (searchChildren(focusedItem, direction, onFound)) {
@@ -120,16 +117,15 @@ private fun FocusTargetModifierNode.generateAndSearchChildren(
 }
 
 // Search for the next sibling that should be granted focus.
-@ExperimentalComposeUiApi
-private fun FocusTargetModifierNode.searchChildren(
-    focusedItem: FocusTargetModifierNode,
+private fun FocusTargetNode.searchChildren(
+    focusedItem: FocusTargetNode,
     direction: FocusDirection,
-    onFound: (FocusTargetModifierNode) -> Boolean
+    onFound: (FocusTargetNode) -> Boolean
 ): Boolean {
-    check(focusStateImpl == ActiveParent) {
+    check(focusState == ActiveParent) {
         "This function should only be used within a parent that has focus."
     }
-    val children = MutableVector<FocusTargetModifierNode>().apply {
+    val children = MutableVector<FocusTargetNode>().apply {
         visitChildren(Nodes.FocusTarget) { add(it) }
     }
     children.sortWith(FocusableChildrenComparator)
@@ -152,22 +148,20 @@ private fun FocusTargetModifierNode.searchChildren(
     return onFound.invoke(this)
 }
 
-@ExperimentalComposeUiApi
-private fun FocusTargetModifierNode.pickChildForForwardSearch(
-    onFound: (FocusTargetModifierNode) -> Boolean
+private fun FocusTargetNode.pickChildForForwardSearch(
+    onFound: (FocusTargetNode) -> Boolean
 ): Boolean {
-    val children = MutableVector<FocusTargetModifierNode>().apply {
+    val children = MutableVector<FocusTargetNode>().apply {
         visitChildren(Nodes.FocusTarget) { add(it) }
     }
     children.sortWith(FocusableChildrenComparator)
     return children.any { it.isEligibleForFocusSearch && it.forwardFocusSearch(onFound) }
 }
 
-@ExperimentalComposeUiApi
-private fun FocusTargetModifierNode.pickChildForBackwardSearch(
-    onFound: (FocusTargetModifierNode) -> Boolean
+private fun FocusTargetNode.pickChildForBackwardSearch(
+    onFound: (FocusTargetNode) -> Boolean
 ): Boolean {
-    val children = MutableVector<FocusTargetModifierNode>().apply {
+    val children = MutableVector<FocusTargetNode>().apply {
         visitChildren(Nodes.FocusTarget) { add(it) }
     }
     children.sortWith(FocusableChildrenComparator)
@@ -179,8 +173,7 @@ private fun FocusTargetModifierNode.pickChildForBackwardSearch(
     return false
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
-private fun FocusTargetModifierNode.isRoot() = nearestAncestor(Nodes.FocusTarget) == null
+private fun FocusTargetNode.isRoot() = nearestAncestor(Nodes.FocusTarget) == null
 
 @Suppress("BanInlineOptIn")
 @OptIn(ExperimentalContracts::class)
@@ -225,15 +218,11 @@ private inline fun <T> MutableVector<T>.forEachItemBefore(item: T, action: (T) -
  * order index. This would be more expensive than sorting the items. In addition to this, sorting
  * the items makes the next focus search more efficient.
  */
-@OptIn(ExperimentalComposeUiApi::class)
-private object FocusableChildrenComparator : Comparator<FocusTargetModifierNode> {
+private object FocusableChildrenComparator : Comparator<FocusTargetNode> {
     override fun compare(
-        focusTarget1: FocusTargetModifierNode,
-        focusTarget2: FocusTargetModifierNode
+        focusTarget1: FocusTargetNode,
+        focusTarget2: FocusTargetNode
     ): Int {
-        requireNotNull(focusTarget1)
-        requireNotNull(focusTarget2)
-
         // Ignore focus modifiers that won't be considered during focus search.
         if (!focusTarget1.isEligibleForFocusSearch || !focusTarget2.isEligibleForFocusSearch) {
             if (focusTarget1.isEligibleForFocusSearch) return -1
@@ -241,8 +230,8 @@ private object FocusableChildrenComparator : Comparator<FocusTargetModifierNode>
             return 0
         }
 
-        val layoutNode1 = checkNotNull(focusTarget1.coordinator?.layoutNode)
-        val layoutNode2 = checkNotNull(focusTarget2.coordinator?.layoutNode)
+        val layoutNode1 = focusTarget1.requireLayoutNode()
+        val layoutNode2 = focusTarget2.requireLayoutNode()
 
         // Use natural order for focus modifiers within the same layout node.
         if (layoutNode1 == layoutNode2) return 0

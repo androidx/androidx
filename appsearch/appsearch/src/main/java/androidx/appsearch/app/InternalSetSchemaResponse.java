@@ -31,7 +31,7 @@ import androidx.core.util.Preconditions;
  * incompatible changes form other call flows. This class adds a {@link #isSuccess()} to indicate
  * if the call fails because of incompatible change.
  *
- * @hide
+ * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class InternalSetSchemaResponse {
@@ -58,7 +58,7 @@ public class InternalSetSchemaResponse {
 
     /**
      * Returns the {@link Bundle} populated by this builder.
-     * @hide
+     * @exportToFramework:hide
      */
     @NonNull
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

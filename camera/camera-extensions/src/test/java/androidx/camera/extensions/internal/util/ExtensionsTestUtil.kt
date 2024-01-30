@@ -16,6 +16,7 @@
 
 package androidx.camera.extensions.internal.util
 
+import androidx.annotation.RequiresApi
 import androidx.camera.extensions.impl.ExtensionVersionImpl
 import androidx.camera.extensions.internal.ExtensionVersion
 import java.lang.reflect.Field
@@ -25,6 +26,7 @@ import org.mockito.Mockito
 /**
  * Util functions for extensions related robolectric test
  */
+@RequiresApi(21)
 object ExtensionsTestUtil {
 
     /**

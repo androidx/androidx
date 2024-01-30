@@ -29,7 +29,6 @@ import androidx.annotation.RestrictTo;
 /**
  * {@link BroadcastReceiver} used to detect host updates, and trigger automatic re-connection.
  *
- * @hide
  */
 @RestrictTo(LIBRARY)
 public class HostUpdateReceiver extends BroadcastReceiver {

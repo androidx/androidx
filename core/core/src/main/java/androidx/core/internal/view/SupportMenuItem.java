@@ -36,7 +36,6 @@ import androidx.core.view.ActionProvider;
  * elements added in later versions of the framework, are available for all platforms.
  *
  * @see android.view.MenuItem
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public interface SupportMenuItem extends android.view.MenuItem {

@@ -8,7 +8,7 @@ internal class TransportCancellationCallback internal constructor(
 ) : ICancellationSignal.Stub() {
   private val hasCancelled: AtomicBoolean = AtomicBoolean(false)
 
-  public override fun cancel(): Unit {
+  public override fun cancel() {
     if (hasCancelled.compareAndSet(false, true)) {
       onCancel()
     }

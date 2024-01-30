@@ -22,7 +22,7 @@ dependencies {
     implementation 'androidx.viewpager2:viewpager2:1.0.0'
 
     implementation(libs.kotlinStdlib)
-    implementation(project(":activity:activity-compose"))
+    implementation(androidxArtifact(":activity:activity-compose"))
     implementation("androidx.appcompat:appcompat:1.4.1")
     implementation("androidx.cardview:cardview:1.0.0")
     // old version of common-java8 conflicts with newer version, because both have
@@ -34,11 +34,13 @@ dependencies {
     implementation(project(":compose:foundation:foundation-layout"))
     implementation(project(":compose:foundation:foundation"))
     implementation(project(":compose:material:material"))
+    implementation(project(":compose:material3:material3"))
     implementation(project(":compose:runtime:runtime"))
     implementation(project(":compose:runtime:runtime-tracing"))
     implementation(project(":compose:ui:ui"))
     implementation(project(":compose:ui:ui-tooling"))
-    implementation(project(":profileinstaller:profileinstaller"))
+    // TODO: artifact is not found, so commented out
+//    implementation(androidxArtifact(":profileinstaller:profileinstaller"))
 }
 
 android.defaultConfig.minSdkVersion 21

@@ -22,10 +22,8 @@ import android.util.Size;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.ImageCapture;
-import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.ConfigProvider;
 import androidx.camera.core.impl.ImageCaptureConfig;
-import androidx.camera.extensions.ExtensionMode;
 
 import java.util.List;
 
@@ -34,18 +32,10 @@ import java.util.List;
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class ImageCaptureConfigProvider implements ConfigProvider<ImageCaptureConfig> {
-    static final Config.Option<Integer> OPTION_IMAGE_CAPTURE_CONFIG_PROVIDER_MODE =
-            Config.Option.create("camerax.extensions.imageCaptureConfigProvider.mode",
-                    Integer.class);
 
     private final VendorExtender mVendorExtender;
-    @ExtensionMode.Mode
-    private final int mEffectMode;
 
-    public ImageCaptureConfigProvider(
-            @ExtensionMode.Mode int mode,
-            @NonNull VendorExtender vendorExtender) {
-        mEffectMode = mode;
+    public ImageCaptureConfigProvider(@NonNull VendorExtender vendorExtender) {
         mVendorExtender = vendorExtender;
     }
 
@@ -53,7 +43,7 @@ public class ImageCaptureConfigProvider implements ConfigProvider<ImageCaptureCo
     @Override
     public ImageCaptureConfig getConfig() {
         ImageCapture.Builder builder = new ImageCapture.Builder();
-        updateBuilderConfig(builder, mEffectMode, mVendorExtender);
+        updateBuilderConfig(builder, mVendorExtender);
 
         return builder.getUseCaseConfig();
     }
@@ -62,10 +52,7 @@ public class ImageCaptureConfigProvider implements ConfigProvider<ImageCaptureCo
      * Update extension related configs to the builder.
      */
     void updateBuilderConfig(@NonNull ImageCapture.Builder builder,
-            @ExtensionMode.Mode int effectMode,
             @NonNull VendorExtender vendorExtender) {
-        builder.getMutableConfig().insertOption(OPTION_IMAGE_CAPTURE_CONFIG_PROVIDER_MODE,
-                effectMode);
         List<Pair<Integer, Size[]>> supportedResolutions =
                 vendorExtender.getSupportedCaptureOutputResolutions();
         builder.setSupportedResolutions(supportedResolutions);

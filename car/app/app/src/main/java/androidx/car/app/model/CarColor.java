@@ -92,7 +92,6 @@ public final class CarColor {
     /**
      * The type of color represented by the {@link CarColor} instance.
      *
-     * @hide
      */
     @IntDef(
             value = {

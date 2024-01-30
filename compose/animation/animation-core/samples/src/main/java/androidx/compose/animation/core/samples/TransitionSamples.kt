@@ -17,23 +17,32 @@
 package androidx.compose.animation.core.samples
 
 import androidx.annotation.Sampled
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.animateColor
 import androidx.compose.animation.core.ExperimentalTransitionApi
+import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.MutableTransitionState
+import androidx.compose.animation.core.SeekableTransitionState
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.Transition
 import androidx.compose.animation.core.animateDp
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.createChildTransition
 import androidx.compose.animation.core.keyframes
+import androidx.compose.animation.core.rememberTransition
 import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
@@ -46,6 +55,7 @@ import androidx.compose.material.Button
 import androidx.compose.material.Card
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Slider
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
@@ -53,6 +63,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -62,6 +73,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.launch
 
 @Sampled
 @Composable
@@ -80,8 +92,7 @@ fun GestureAnimationSample() {
     }
 
     // Defines a transition of `ComponentState`, and updates the transition when the provided
-    // [targetState] changes. The tran
-    // sition will run all of the child animations towards the new
+    // [targetState] changes. The transition will run all of the child animations towards the new
     // [targetState] in response to the [targetState] change.
     val transition: Transition<ComponentState> = updateTransition(targetState = toState)
     // Defines a float animation as a child animation the transition. The current animation value
@@ -122,18 +133,24 @@ fun GestureAnimationSample() {
     }
     Column {
         Button(
-            modifier = Modifier.padding(10.dp).align(Alignment.CenterHorizontally),
+            modifier = Modifier
+                .padding(10.dp)
+                .align(Alignment.CenterHorizontally),
             onClick = { useRed = !useRed }
         ) {
             Text("Change Color")
         }
         Box(
-            modifier.fillMaxSize().wrapContentSize(Alignment.Center)
-                .size((100 * scale).dp).background(color)
+            modifier
+                .fillMaxSize()
+                .wrapContentSize(Alignment.Center)
+                .size((100 * scale).dp)
+                .background(color)
         )
     }
 }
 
+private enum class SquareSize { Small, Large }
 private enum class ComponentState { Pressed, Released }
 private enum class ButtonStatus { Initial, Pressed, Released }
 
@@ -187,6 +204,7 @@ fun AnimateFloatSample() {
     }
 }
 
+@OptIn(ExperimentalTransitionApi::class)
 @Sampled
 fun InitialStateSample() {
     // This composable enters the composition with a custom enter transition. This is achieved by
@@ -200,7 +218,7 @@ fun InitialStateSample() {
         visibleState.targetState = true
 
         // Creates a transition with the transition state created above.
-        val transition = updateTransition(visibleState)
+        val transition = rememberTransition(visibleState)
         // Adds a scale animation to the transition to scale the card up when transitioning in.
         val scale by transition.animateFloat(
             // Uses a custom spring for the transition.
@@ -225,8 +243,10 @@ fun InitialStateSample() {
         }
 
         Card(
-            Modifier.graphicsLayer(scaleX = scale, scaleY = scale)
-                .size(200.dp, 100.dp).fillMaxWidth(),
+            Modifier
+                .graphicsLayer(scaleX = scale, scaleY = scale)
+                .size(200.dp, 100.dp)
+                .fillMaxWidth(),
             elevation = elevation
         ) {}
     }
@@ -250,19 +270,21 @@ fun DoubleTapToLikeSample() {
         }
 
         Box(
-            Modifier.fillMaxSize().pointerInput(Unit) {
-                detectTapGestures(
-                    onDoubleTap = {
-                        // This creates a new `MutableTransitionState` object. When a new
-                        // `MutableTransitionState` object gets passed to `updateTransition`, a
-                        // new transition will be created. All existing values, velocities will
-                        // be lost as a result. Hence, in most cases, this is not recommended.
-                        // The exception is when it's more important to respond immediately to
-                        // user interaction than preserving continuity.
-                        transitionState = MutableTransitionState(LikedStates.Initial)
-                    }
-                )
-            }
+            Modifier
+                .fillMaxSize()
+                .pointerInput(Unit) {
+                    detectTapGestures(
+                        onDoubleTap = {
+                            // This creates a new `MutableTransitionState` object. When a new
+                            // `MutableTransitionState` object gets passed to `updateTransition`, a
+                            // new transition will be created. All existing values, velocities will
+                            // be lost as a result. Hence, in most cases, this is not recommended.
+                            // The exception is when it's more important to respond immediately to
+                            // user interaction than preserving continuity.
+                            transitionState = MutableTransitionState(LikedStates.Initial)
+                        }
+                    )
+                }
         ) {
             // This ensures sequential states: Initial -> Liked -> Disappeared
             if (transitionState.currentState == LikedStates.Initial) {
@@ -320,7 +342,8 @@ fun DoubleTapToLikeSample() {
             Icon(
                 Icons.Filled.Favorite,
                 "Like",
-                Modifier.align(Alignment.Center)
+                Modifier
+                    .align(Alignment.Center)
                     .graphicsLayer(
                         alpha = alpha,
                         scaleX = scale,
@@ -343,7 +366,10 @@ fun CreateChildTransitionSample() {
         val scale by visibilityTransition.animateFloat { visible ->
             if (visible) 1f else 2f
         }
-        Box(modifier.scale(scale).background(Color.Black)) {
+        Box(
+            modifier
+                .scale(scale)
+                .background(Color.Black)) {
             // Content goes here
         }
     }
@@ -366,7 +392,10 @@ fun CreateChildTransitionSample() {
             }
 
             Box(
-                Modifier.align(Alignment.BottomCenter).widthIn(50.dp).heightIn(50.dp)
+                Modifier
+                    .align(Alignment.BottomCenter)
+                    .widthIn(50.dp)
+                    .heightIn(50.dp)
                     .clip(RoundedCornerShape(cornerRadius))
             ) {
                 NumberPad(
@@ -445,5 +474,73 @@ fun TransitionStateIsIdleSample() {
                 }
             }
         }
+    }
+}
+
+@OptIn(ExperimentalTransitionApi::class, ExperimentalAnimationApi::class)
+@Sampled
+@Composable
+fun SeekingAnimationSample() {
+    Column {
+        val seekingState = remember { SeekableTransitionState(SquareSize.Small, SquareSize.Large) }
+        val scope = rememberCoroutineScope()
+        Row {
+            Button(onClick = {
+                scope.launch {
+                    seekingState.animateToCurrentState()
+                }
+            }) {
+                Text("Small")
+            }
+            Slider(
+                value = seekingState.fraction,
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(horizontal = 10.dp),
+                onValueChange = { value ->
+                    scope.launch {
+                        seekingState.snapToFraction(value)
+                    }
+                }
+            )
+            Button(onClick = {
+                scope.launch {
+                    seekingState.animateToTargetState()
+                }
+            }) {
+                Text("Large")
+            }
+        }
+        // enum class SquareSize { Small, Large }
+        val transition = rememberTransition(seekingState)
+
+        // Defines a float animation as a child animation the transition. The current animation value
+        // can be read from the returned State<Float>.
+        val scale: Float by transition.animateFloat(
+            // Defines a transition spec that uses the same low-stiffness spring for *all*
+            // transitions of this float, no matter what the target is.
+            transitionSpec = { tween(easing = LinearEasing) },
+            label = "Scale"
+        ) { state ->
+            // This code block declares a mapping from state to value.
+            if (state == SquareSize.Large) 3f else 1f
+        }
+
+        transition.AnimatedContent(transitionSpec = {
+            fadeIn(tween(easing = LinearEasing)) togetherWith fadeOut(tween(easing = LinearEasing))
+        }) { state ->
+            if (state == SquareSize.Large) {
+                Box(Modifier.size(50.dp).background(Color.Magenta))
+            } else {
+                Box(Modifier.size(50.dp))
+            }
+        }
+        Box(
+            Modifier
+                .fillMaxSize()
+                .wrapContentSize(Alignment.Center)
+                .size((100 * scale).dp)
+                .background(Color.Blue)
+        )
     }
 }

@@ -15,6 +15,5 @@
  */
 
 /**
- * @hide
  */
 package androidx.wear.internal.widget.drawer;

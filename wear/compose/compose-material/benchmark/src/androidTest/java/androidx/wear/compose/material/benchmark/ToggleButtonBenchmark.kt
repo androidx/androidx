@@ -25,6 +25,7 @@ import androidx.compose.testutils.benchmark.benchmarkFirstDraw
 import androidx.compose.testutils.benchmark.benchmarkFirstLayout
 import androidx.compose.testutils.benchmark.benchmarkFirstMeasure
 import androidx.compose.testutils.benchmark.benchmarkLayoutPerf
+import androidx.compose.testutils.benchmark.benchmarkToFirstPixel
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.wear.compose.material.MaterialTheme
@@ -44,6 +45,11 @@ class ToggleButtonBenchmark {
     val benchmarkRule = ComposeBenchmarkRule()
 
     private val caseFactory = { ToggleButtonTestCase() }
+
+    @Test
+    fun first_pixel() {
+        benchmarkRule.benchmarkToFirstPixel(caseFactory)
+    }
 
     @Test
     fun first_compose() {

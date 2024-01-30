@@ -37,6 +37,6 @@ internal abstract class FrameworkAidlInputs : CommandLineArgumentProvider {
         if (!frameworkAidlFile.exists()) {
             throw FileNotFoundException("framework.aidl not found at $frameworkAidlPath")
         }
-        return listOf("framework_aidl=$frameworkAidlPath")
+        return listOf("framework_aidl_path=$frameworkAidlPath")
     }
 }

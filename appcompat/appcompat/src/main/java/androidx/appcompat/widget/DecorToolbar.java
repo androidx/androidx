@@ -40,7 +40,6 @@ import androidx.core.view.ViewPropertyAnimatorCompat;
  * Layouts that control window decor use this as a point of interaction with different
  * bar implementations.
  *
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public interface DecorToolbar {

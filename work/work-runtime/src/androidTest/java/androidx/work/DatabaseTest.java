@@ -42,6 +42,7 @@ public abstract class DatabaseTest extends WorkManagerTest {
         mDatabase = WorkDatabase.create(
                 ApplicationProvider.getApplicationContext(),
                 mQueryExecutor,
+                new SystemClock(), // only used for the pruning task
                 true);
     }
 

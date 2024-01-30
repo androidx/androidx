@@ -26,7 +26,7 @@ import androidx.compose.ui.util.fastForEach
  */
 internal class LayoutTreeConsistencyChecker(
     private val root: LayoutNode,
-    private val relayoutNodes: DepthSortedSet,
+    private val relayoutNodes: DepthSortedSetsForDifferentPasses,
     private val postponedMeasureRequests: List<MeasureAndLayoutDelegate.PostponedRequest>
 ) {
     fun assertConsistent() {
@@ -65,7 +65,9 @@ internal class LayoutTreeConsistencyChecker(
             // remeasure or relayout is scheduled
             if (measurePending) {
                 return relayoutNodes.contains(this) ||
+                    layoutState == LayoutNode.LayoutState.LookaheadMeasuring ||
                     parent?.measurePending == true ||
+                    parent?.lookaheadMeasurePending == true ||
                     parentLayoutState == LayoutNode.LayoutState.Measuring
             }
             if (layoutPending) {
@@ -87,19 +89,19 @@ internal class LayoutTreeConsistencyChecker(
                 return true
             }
             if (lookaheadMeasurePending) {
-                return relayoutNodes.contains(this) ||
+                return relayoutNodes.contains(this, true) ||
                     parent?.lookaheadMeasurePending == true ||
                     parentLayoutState == LayoutNode.LayoutState.LookaheadMeasuring ||
-                    (parent?.measurePending == true && mLookaheadScope!!.root == this)
+                    (parent?.measurePending == true && lookaheadRoot == this)
             }
             if (lookaheadLayoutPending) {
-                return relayoutNodes.contains(this) ||
+                return relayoutNodes.contains(this, true) ||
                     parent == null ||
                     parent.lookaheadMeasurePending ||
                     parent.lookaheadLayoutPending ||
                     parentLayoutState == LayoutNode.LayoutState.LookaheadMeasuring ||
                     parentLayoutState == LayoutNode.LayoutState.LookaheadLayingOut ||
-                    (parent.layoutPending && mLookaheadScope!!.root == this)
+                    (parent.layoutPending && lookaheadRoot == this)
             }
         }
         return true

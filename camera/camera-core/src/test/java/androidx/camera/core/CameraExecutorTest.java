@@ -24,8 +24,8 @@ import android.os.Build;
 
 import androidx.annotation.GuardedBy;
 import androidx.camera.testing.fakes.FakeCamera;
-import androidx.camera.testing.fakes.FakeCameraFactory;
 import androidx.camera.testing.fakes.FakeCameraInfoInternal;
+import androidx.camera.testing.impl.fakes.FakeCameraFactory;
 
 import org.junit.After;
 import org.junit.Before;

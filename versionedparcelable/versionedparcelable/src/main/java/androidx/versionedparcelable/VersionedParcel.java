@@ -19,7 +19,6 @@ package androidx.versionedparcelable;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.os.BadParcelableException;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.IInterface;
@@ -55,7 +54,6 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public abstract class VersionedParcel {

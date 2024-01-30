@@ -58,6 +58,10 @@ public final class CameraCaptureCallbacks {
 
     static final class NoOpCameraCaptureCallback extends CameraCaptureCallback {
         @Override
+        public void onCaptureStarted() {
+        }
+
+        @Override
         public void onCaptureCompleted(@NonNull CameraCaptureResult cameraCaptureResult) {
         }
 
@@ -79,6 +83,13 @@ public final class CameraCaptureCallbacks {
                 if (!(callback instanceof NoOpCameraCaptureCallback)) {
                     mCallbacks.add(callback);
                 }
+            }
+        }
+
+        @Override
+        public void onCaptureStarted() {
+            for (CameraCaptureCallback callback : mCallbacks) {
+                callback.onCaptureStarted();
             }
         }
 

@@ -18,6 +18,8 @@ package androidx.privacysandbox.tools.apicompiler.generator
 
 import androidx.privacysandbox.tools.core.generator.SpecNames.bundleClass
 import androidx.privacysandbox.tools.core.generator.SpecNames.contextPropertyName
+import androidx.privacysandbox.tools.core.generator.addCode
+import androidx.privacysandbox.tools.core.generator.addControlFlow
 import androidx.privacysandbox.tools.core.generator.build
 import androidx.privacysandbox.tools.core.generator.stubDelegateNameSpec
 import androidx.privacysandbox.tools.core.model.ParsedApi
@@ -38,19 +40,26 @@ internal class CompatSdkProviderGenerator(parsedApi: ParsedApi) :
         ClassName("androidx.privacysandbox.sdkruntime.core", "SandboxedSdkProviderCompat")
 
     override fun generateOnLoadSdkFunction() = FunSpec.builder("onLoadSdk").build {
-        addModifiers(KModifier.OVERRIDE)
+        addModifiers(KModifier.PUBLIC, KModifier.OVERRIDE)
         addParameter("params", bundleClass)
         returns(sandboxedSdkCompatClass)
 
-        // TODO: Throw early with a helpful message if context is null
+        addStatement("val ctx = %N", contextPropertyName)
+        addCode {
+            addControlFlow("if (ctx == null)") {
+                addStatement(
+                    "throw IllegalStateException(\"Context must not be null. " +
+                        "Do you need to call attachContext()?\")"
+                )
+            }
+        }
         addStatement(
-            "val sdk = ${createServiceFunctionName(api.getOnlyService())}(context!!)"
+            "val sdk = ${createServiceFunctionName(api.getOnlyService())}(ctx)"
         )
         addStatement(
-            "return %T(%T(sdk, %N!!))",
+            "return %T(%T(sdk, ctx))",
             sandboxedSdkCompatClass,
             api.getOnlyService().stubDelegateNameSpec(),
-            contextPropertyName,
         )
     }
 }

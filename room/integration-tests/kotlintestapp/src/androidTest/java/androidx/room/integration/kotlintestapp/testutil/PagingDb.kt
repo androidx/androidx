@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.room.androidx.room.integration.kotlintestapp.testutil
+package androidx.room.integration.kotlintestapp.testutil
 
 import androidx.room.Database
 import androidx.room.RoomDatabase

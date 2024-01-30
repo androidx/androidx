@@ -263,7 +263,7 @@
                 android:padding="4dp">
 
                 <Switch
-                    android:id="@+id/cam_disconnect_switch"
+                    android:id="@+id/can_disconnect_switch"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_alignParentEnd="true"
@@ -278,6 +278,31 @@
                     android:layout_centerVertical="true"
                     android:gravity="center"
                     android:text="Can disconnect" />
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_margin="12dp"
+                android:padding="4dp">
+
+                <Switch
+                    android:id="@+id/is_sender_driven_switch"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentStart="true"
+                    android:layout_centerVertical="true"
+                    android:gravity="center"
+                    android:text="@string/is_sender_driven_switch_label" />
 
             </RelativeLayout>
 

@@ -265,4 +265,15 @@ class ReportDrawnTest {
         }
         assertThat(localValue).isSameInstanceAs(fullyDrawnReporterOwner)
     }
+
+    @Test
+    fun testDisposingBeforeReporting() {
+        rule.setContent {
+            // Reporting never finishes
+            ReportDrawnWhen { false }
+            // Report that finishes immediatelly
+            ReportDrawn()
+        }
+        // By going out of the scope, both reporters call onDismiss
+    }
 }

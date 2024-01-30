@@ -73,6 +73,32 @@ public class ActionTest {
     }
 
     @Test
+    public void createComposeMessage_throws_hasListener() {
+        assertThrows(
+                IllegalStateException.class,
+                () -> new Action.Builder(Action.COMPOSE_MESSAGE).setOnClickListener(() -> {
+                }).build());
+    }
+
+    @Test
+    public void createComposeMessage_throws_hasTitle() {
+        assertThrows(
+                IllegalStateException.class,
+                () -> new Action.Builder(Action.COMPOSE_MESSAGE).setTitle("foo").build());
+    }
+
+    @Test
+    public void createComposeMessage_setCustomizedIcon() {
+        Context context = ApplicationProvider.getApplicationContext();
+        IconCompat icon = IconCompat.createWithResource(
+                context, TestUtils.getTestDrawableResId(context, "ic_test_1"));
+        Action action = new Action.Builder()
+                .setIcon(new CarIcon.Builder(icon).build())
+                .build();
+        assertThat(icon).isEqualTo(action.getIcon().getIcon());
+    }
+
+    @Test
     public void create_noTitleDefault() {
         OnClickListener onClickListener = mock(OnClickListener.class);
         Action action = new Action.Builder()

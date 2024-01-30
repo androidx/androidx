@@ -17,8 +17,8 @@
 package androidx.glance.wear.tiles
 
 import com.google.common.truth.Truth.assertThat
-import org.junit.Test
 import java.time.Instant
+import org.junit.Test
 
 class TimelineModeTest {
 

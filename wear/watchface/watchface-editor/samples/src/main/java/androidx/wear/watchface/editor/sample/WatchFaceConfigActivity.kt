@@ -16,7 +16,6 @@
 
 package androidx.wear.watchface.editor.sample
 
-import android.annotation.SuppressLint
 import android.view.View
 import android.view.accessibility.AccessibilityEvent
 import androidx.annotation.RestrictTo
@@ -31,7 +30,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-/** @hide */
 @RestrictTo(LIBRARY)
 internal interface FragmentController {
     /** Show the [ConfigFragment] which lets the user select what they want to configure. */
@@ -82,7 +80,6 @@ class WatchFaceConfigActivity : FragmentActivity() {
             init(
                 editorSession,
                 object : FragmentController {
-                    @SuppressLint("SyntheticAccessor")
                     override fun showConfigFragment() {
                         showFragment(
                             ConfigFragment.newInstance(
@@ -95,12 +92,10 @@ class WatchFaceConfigActivity : FragmentActivity() {
                         )
                     }
 
-                    @SuppressLint("SyntheticAccessor")
                     override fun showComplicationConfigSelectionFragment() {
                         showFragment(ComplicationConfigFragment())
                     }
 
-                    @SuppressLint("SyntheticAccessor")
                     override fun showStyleConfigFragment(
                         settingId: String,
                         styleSchema: UserStyleSchema,

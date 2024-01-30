@@ -31,11 +31,11 @@
     <string name="generic_error_no_keyguard" msgid="1807436368654974044">"Пристрій не підтримує PIN-код, ключ або пароль."</string>
     <string name="fingerprint_dialog_icon_description" msgid="5462024216548165325">"Значок відбитка пальця"</string>
     <string name="use_fingerprint_label" msgid="6961788485681412417">"Використовувати відбиток пальця"</string>
-    <string name="use_face_label" msgid="6533512708069459542">"Використовувати фейсконтроль"</string>
+    <string name="use_face_label" msgid="6533512708069459542">"Використовувати фейс-контроль"</string>
     <string name="use_biometric_label" msgid="6524145989441579428">"Використовувати біометрію"</string>
     <string name="use_screen_lock_label" msgid="5459869335976243512">"Використовувати дані для розблокування екрана"</string>
     <string name="use_fingerprint_or_screen_lock_label" msgid="7577690399303139443">"Використовувати відбиток пальця або дані для розблокування екрана"</string>
-    <string name="use_face_or_screen_lock_label" msgid="2116180187159450292">"Використовувати фейсконтроль або дані для розблокування екрана"</string>
+    <string name="use_face_or_screen_lock_label" msgid="2116180187159450292">"Використовувати фейс-контроль або дані для розблокування екрана"</string>
     <string name="use_biometric_or_screen_lock_label" msgid="5385448280139639016">"Використовувати біометрію або дані для розблокування екрана"</string>
     <string name="fingerprint_prompt_message" msgid="7449360011861769080">"Щоб продовжити, скористайтеся відбитком пальця"</string>
     <string name="face_prompt_message" msgid="2282389249605674226">"Щоб продовжити, скористайтеся фейсконтролем"</string>

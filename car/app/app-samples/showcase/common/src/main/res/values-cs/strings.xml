@@ -264,6 +264,7 @@
     <string name="tab_title_list" msgid="5104962518489668123">"Karta se seznamem"</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"Karta s mřížkou s dlouhým názvem karty"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"Karta vyhledávání"</string>
+    <string name="tab_title_loading" msgid="5385807479734490989">"Načítání karty"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"Ukázka načítání šablony karty"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"Ukázka šablony karty bez karet"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"Obrázky nelze zobrazit neznámému hostiteli"</string>
@@ -298,7 +299,7 @@
     <string name="some_additional_text" msgid="4009872495806318260">"Nějaký další text"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"Vzor seznamu s výběrem"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"Ukázka omezení úkolů"</string>
-    <string name="task_limit_reached_msg" msgid="6038763366777119364">"Byl dosažen limit úkolů\nPokračováním vynutíte ukončení aplikace"</string>
+    <string name="task_limit_reached_msg" msgid="7162842196382260992">"Tímto překročíte limit počtu kroků a přejdete na novou obrazovku."</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"Krok úkolu %1$d z %2$d"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"Kliknutím přejdete vpřed"</string>
     <string name="task_content_allowed" msgid="545061986612431190">"Navštivte různé šablony a ujistěte se, že je auto v režimu jízdy"</string>
@@ -323,6 +324,12 @@
     <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"Řádek lze také vybrat"</string>
     <string name="secondary_action_toast" msgid="5076434693504006565">"Je vybrána sekundární akce"</string>
     <string name="row_primary_action_toast" msgid="756516694751965204">"Je vybrána primární akce řádku"</string>
+    <string name="sectioned_item_list_demo_title" msgid="1236735461225007729">"Ukázka seznamu položek s oddíly"</string>
+    <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"Seznam 1"</string>
+    <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"Seznam 2"</string>
+    <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"Popis pod každým seznamem"</string>
+    <string name="empty_list_demo_title" msgid="5989013634820902455">"Ukázka prázdného seznamu"</string>
+    <string name="empty_list_message" msgid="5331395517560728138">"Seznam je prázdný"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"Ukázky různých šablon"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"Ukázky Výběru"</string>
     <string name="template_layouts_demo_title" msgid="788249269446087847">"Ukázky šablon rozvržení"</string>

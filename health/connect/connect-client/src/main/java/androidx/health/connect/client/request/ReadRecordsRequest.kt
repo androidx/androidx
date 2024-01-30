@@ -21,6 +21,27 @@ import androidx.health.connect.client.time.TimeRangeFilter
 import kotlin.reflect.KClass
 
 /**
+ * A convenience factory function for [ReadRecordsRequest] with `reified` record type [T].
+ *
+ * @see [ReadRecordsRequest] for more information.
+ */
+inline fun <reified T : Record> ReadRecordsRequest(
+    timeRangeFilter: TimeRangeFilter,
+    dataOriginFilter: Set<DataOrigin> = emptySet(),
+    ascendingOrder: Boolean = true,
+    pageSize: Int = 1000,
+    pageToken: String? = null,
+): ReadRecordsRequest<T> =
+    ReadRecordsRequest(
+        recordType = T::class,
+        timeRangeFilter = timeRangeFilter,
+        dataOriginFilter = dataOriginFilter,
+        ascendingOrder = ascendingOrder,
+        pageSize = pageSize,
+        pageToken = pageToken,
+    )
+
+/**
  * Request object to read [Record]s in Android Health Platform determined by time range and other
  * filters.
  *

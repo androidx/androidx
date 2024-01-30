@@ -16,8 +16,8 @@
 package androidx.annotation
 
 /**
- * Denotes that an integer parameter, field or method return value is expected
- * to be a style resource reference (e.g. `android.R.style.TextAppearance`).
+ * Denotes that an integer parameter, field or method return value is expected to be a style
+ * resource reference (e.g. `android.R.style.TextAppearance`).
  */
 @MustBeDocumented
 @kotlin.annotation.Retention(AnnotationRetention.BINARY)

@@ -31,7 +31,6 @@ import java.lang.annotation.RetentionPolicy;
  * Compatibility version of {@link WebResourceError}.
  */
 public abstract class WebResourceErrorCompat {
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef(value = {
             WebViewClient.ERROR_UNKNOWN,
@@ -87,7 +86,6 @@ public abstract class WebResourceErrorCompat {
 
     /**
      * This class cannot be created by applications.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public WebResourceErrorCompat() {

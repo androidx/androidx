@@ -34,7 +34,6 @@ import androidx.recyclerview.widget.RecyclerViewAccessibilityDelegate;
  *
  * Used by Leanback.
  *
- * @hide
  * @deprecated This class is used to set AccessibilityNodeInfo for {@link Preference}. Preference
  * class deprecated the API onInitializeAccessibilityNodeInfo.
  */

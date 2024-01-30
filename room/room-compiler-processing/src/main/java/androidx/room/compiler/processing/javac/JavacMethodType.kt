@@ -42,10 +42,21 @@ internal sealed class JavacMethodType(
         )
     }
 
-    override val typeVariableNames by lazy {
-        executableType.typeVariables.map {
-            TypeVariableName.get(it)
+    override val typeVariables: List<JavacTypeVariableType> by lazy {
+        executableType.typeVariables.mapIndexed { index, typeVariable ->
+            env.wrap(typeVariable, element.kotlinMetadata?.typeParameters?.get(index))
         }
+    }
+
+    @Deprecated(
+        "Use typeVariables property and convert to JavaPoet names.",
+        replaceWith = ReplaceWith(
+            "typeVariables.map { it.asTypeName().toJavaPoet() }",
+            "androidx.room.compiler.codegen.toJavaPoet"
+        )
+    )
+    override val typeVariableNames by lazy {
+        typeVariables.map { it.asTypeName().java as TypeVariableName }
     }
 
     private class NormalMethodType(

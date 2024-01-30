@@ -23,7 +23,7 @@ import android.widget.ImageView
 import androidx.compose.ui.graphics.Color
 import androidx.glance.GlanceModifier
 import androidx.glance.appwidget.CheckBox
-import androidx.glance.appwidget.checkBoxColors
+import androidx.glance.appwidget.CheckboxDefaults
 import androidx.glance.appwidget.ImageViewSubject.Companion.assertThat
 import androidx.glance.appwidget.action.ActionCallback
 import androidx.glance.appwidget.action.actionRunCallback
@@ -69,7 +69,10 @@ class CheckBoxBackportTranslatorTest {
                 checked = false,
                 onCheckedChange = null,
                 text = "Check",
-                colors = checkBoxColors(checkedColor = Color.Red, uncheckedColor = Color.Blue)
+                colors = CheckboxDefaults.colors(
+                    checkedColor = Color.Red,
+                    uncheckedColor = Color.Blue
+                )
             )
         }
 
@@ -85,7 +88,10 @@ class CheckBoxBackportTranslatorTest {
                 checked = true,
                 onCheckedChange = null,
                 text = "Check",
-                colors = checkBoxColors(checkedColor = Color.Red, uncheckedColor = Color.Blue)
+                colors = CheckboxDefaults.colors(
+                    checkedColor = Color.Red,
+                    uncheckedColor = Color.Blue
+                )
             )
         }
 
@@ -101,7 +107,7 @@ class CheckBoxBackportTranslatorTest {
                 checked = false,
                 onCheckedChange = null,
                 text = "Check",
-                colors = checkBoxColors(
+                colors = CheckboxDefaults.colors(
                     checkedColor = ColorProvider(day = Color.Red, night = Color.Blue),
                     uncheckedColor = ColorProvider(day = Color.Yellow, night = Color.Green)
                 )
@@ -120,7 +126,7 @@ class CheckBoxBackportTranslatorTest {
                 checked = false,
                 onCheckedChange = null,
                 text = "Check",
-                colors = checkBoxColors(
+                colors = CheckboxDefaults.colors(
                     checkedColor = ColorProvider(day = Color.Red, night = Color.Blue),
                     uncheckedColor = ColorProvider(day = Color.Yellow, night = Color.Green)
                 )
@@ -139,7 +145,7 @@ class CheckBoxBackportTranslatorTest {
                 checked = true,
                 onCheckedChange = null,
                 text = "Check",
-                colors = checkBoxColors(
+                colors = CheckboxDefaults.colors(
                     checkedColor = ColorProvider(day = Color.Red, night = Color.Blue),
                     uncheckedColor = ColorProvider(day = Color.Yellow, night = Color.Green)
                 )
@@ -158,7 +164,7 @@ class CheckBoxBackportTranslatorTest {
                 checked = true,
                 onCheckedChange = null,
                 text = "Check",
-                colors = checkBoxColors(
+                colors = CheckboxDefaults.colors(
                     checkedColor = ColorProvider(day = Color.Red, night = Color.Blue),
                     uncheckedColor = ColorProvider(day = Color.Yellow, night = Color.Green)
                 )
@@ -177,7 +183,7 @@ class CheckBoxBackportTranslatorTest {
                 checked = true,
                 onCheckedChange = null,
                 text = "Check",
-                colors = checkBoxColors(
+                colors = CheckboxDefaults.colors(
                     checkedColor = FixedColorProvider(Color.Red),
                     uncheckedColor = FixedColorProvider(Color.Blue)
                 )

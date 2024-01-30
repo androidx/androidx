@@ -49,7 +49,6 @@ import androidx.work.impl.utils.unregisterNetworkCallbackCompat
  *
  * Based on [android.app.job.JobScheduler]'s ConnectivityController on API 26.
  * {@see https://android.googlesource.com/platform/frameworks/base/+/oreo-release/services/core/java/com/android/server/job/controllers/ConnectivityController.java}
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 fun NetworkStateTracker(
@@ -108,8 +107,8 @@ internal class NetworkStateTrackerPre24(context: Context, taskExecutor: TaskExec
     @Suppress("DEPRECATION")
     override val intentFilter: IntentFilter
         get() = IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION)
-    override val initialState: NetworkState
-        get() = connectivityManager.activeNetworkState
+
+    override fun readSystemState(): NetworkState = connectivityManager.activeNetworkState
 }
 
 @RequiresApi(24)
@@ -118,8 +117,8 @@ internal class NetworkStateTracker24(context: Context, taskExecutor: TaskExecuto
 
     private val connectivityManager: ConnectivityManager =
         appContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-    override val initialState: NetworkState
-        get() = connectivityManager.activeNetworkState
+
+    override fun readSystemState(): NetworkState = connectivityManager.activeNetworkState
 
     private val networkCallback = object : NetworkCallback() {
         override fun onCapabilitiesChanged(network: Network, capabilities: NetworkCapabilities) {

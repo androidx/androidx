@@ -37,10 +37,10 @@ import androidx.slice.core.SliceQuery;
 import java.util.List;
 
 /**
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @RequiresApi(19)
+@Deprecated
 public class MessageView extends SliceChildView {
 
     private TextView mDetails;

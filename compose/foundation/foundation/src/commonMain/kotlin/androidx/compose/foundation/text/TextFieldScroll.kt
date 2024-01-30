@@ -16,15 +16,20 @@
 
 package androidx.compose.foundation.text
 
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.OverscrollEffect
+import androidx.compose.foundation.clipScrollableContainer
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.foundation.gestures.rememberScrollableState
 import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.offset
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.listSaver
@@ -51,11 +56,16 @@ import androidx.compose.ui.unit.LayoutDirection
 import kotlin.math.min
 import kotlin.math.roundToInt
 
+@ExperimentalFoundationApi
+@Composable
+internal expect fun rememberTextFieldOverscrollEffect(): OverscrollEffect?
+
 // Scrollable
 internal fun Modifier.textFieldScrollable(
     scrollerPosition: TextFieldScrollerPosition,
     interactionSource: MutableInteractionSource? = null,
-    enabled: Boolean = true
+    enabled: Boolean = true,
+    overscrollEffect: OverscrollEffect? = null
 ) = composed(
     inspectorInfo = debugInspectorInfo {
         name = "textFieldScrollable"
@@ -83,14 +93,18 @@ internal fun Modifier.textFieldScrollable(
     val wrappedScrollableState = remember(scrollableState, scrollerPosition) {
         createScrollableState(scrollableState, scrollerPosition)
     }
+
     val scroll = Modifier.scrollable(
         orientation = scrollerPosition.orientation,
         reverseDirection = reverseDirection,
+        overscrollEffect = overscrollEffect,
         state = wrappedScrollableState,
         interactionSource = interactionSource,
         enabled = enabled && scrollerPosition.maximum != 0f
     )
+
     scroll
+
 }
 
 // Workaround for K/JS
@@ -107,7 +121,14 @@ private inline fun createScrollableState(
 }
 
 // Layout
-internal fun Modifier.textFieldScroll(
+internal expect fun Modifier.textFieldScroll(
+    scrollerPosition: TextFieldScrollerPosition,
+    textFieldValue: TextFieldValue,
+    visualTransformation: VisualTransformation,
+    textLayoutResultProvider: () -> TextLayoutResultProxy?
+): Modifier
+
+internal fun Modifier.defaultTextFieldScroll(
     scrollerPosition: TextFieldScrollerPosition,
     textFieldValue: TextFieldValue,
     visualTransformation: VisualTransformation,
@@ -258,13 +279,13 @@ internal class TextFieldScrollerPosition(
      * Taken with the opposite sign defines the x or y position of the text field in the
      * horizontal or vertical scroller container correspondingly.
      */
-    var offset by mutableStateOf(initial)
+    var offset by mutableFloatStateOf(initial)
 
     /**
      * Maximum length by which the text field can be scrolled. Defined as a difference in
      * size between the scroller container and the text field.
      */
-    var maximum by mutableStateOf(0f)
+    var maximum by mutableFloatStateOf(0f)
         private set
 
     /**

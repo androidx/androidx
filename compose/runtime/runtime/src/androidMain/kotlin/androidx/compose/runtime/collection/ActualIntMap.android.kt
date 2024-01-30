@@ -21,7 +21,8 @@ import android.util.SparseArray
 internal actual class IntMap<E> private constructor(
     private val sparseArray: android.util.SparseArray<E>
 ) {
-    constructor(initialCapacity: Int = 10) : this(SparseArray(initialCapacity))
+
+    actual constructor(initialCapacity: Int) : this(SparseArray(initialCapacity))
 
     /**
      * True if this map contains key

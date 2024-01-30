@@ -29,7 +29,6 @@ import java.util.TreeMap
  *
  * Because it is relatively a big object, they are pooled and must be released after each use.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 class RoomSQLiteQuery private constructor(

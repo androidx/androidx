@@ -16,6 +16,7 @@
 
 package androidx.benchmark.macro.perfetto.server
 
+import android.annotation.SuppressLint
 import android.os.Build
 import android.security.NetworkSecurityPolicy
 import android.util.Log
@@ -23,8 +24,8 @@ import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.benchmark.Shell
 import androidx.benchmark.ShellScript
-import androidx.benchmark.macro.perfetto.PerfettoTraceProcessor
-import androidx.benchmark.userspaceTrace
+import androidx.benchmark.inMemoryTrace
+import androidx.benchmark.perfetto.PerfettoTraceProcessor
 import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
@@ -35,7 +36,6 @@ import perfetto.protos.AppendTraceDataResult
 import perfetto.protos.ComputeMetricArgs
 import perfetto.protos.ComputeMetricResult
 import perfetto.protos.QueryArgs
-import perfetto.protos.QueryResult
 import perfetto.protos.StatusResult
 
 /**
@@ -60,6 +60,10 @@ internal class PerfettoHttpServer {
         private const val SERVER_START_TIMEOUT_MS = 5000
         private const val READ_TIMEOUT_SECONDS = 300000
         private const val SERVER_PROCESS_NAME = "trace_processor_shell"
+
+        // Note that trace processor http server has a hard limit of 64Mb for payload size.
+        // https://cs.android.com/android/platform/superproject/+/master:external/perfetto/src/base/http/http_server.cc;l=33
+        private const val PARSE_PAYLOAD_SIZE = 16 * 1024 * 1024 // 16Mb
 
         private var shellScript: ShellScript? = null
 
@@ -96,10 +100,11 @@ internal class PerfettoHttpServer {
      *
      * @throws IllegalStateException if the server is not running by the end of the timeout.
      */
-    fun startServer() = userspaceTrace("PerfettoHttpServer#startServer") {
+    @SuppressLint("BanThreadSleep")
+    fun startServer() = inMemoryTrace("PerfettoHttpServer#startServer") {
         if (processId != null) {
             Log.w(TAG, "Tried to start a trace shell processor that is already running.")
-            return@userspaceTrace
+            return@inMemoryTrace
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N &&
@@ -163,10 +168,10 @@ internal class PerfettoHttpServer {
     /**
      * Stops the server killing the associated process
      */
-    fun stopServer() = userspaceTrace("PerfettoHttpServer#stopServer") {
+    fun stopServer() = inMemoryTrace("PerfettoHttpServer#stopServer") {
         if (processId == null) {
             Log.w(TAG, "Tried to stop trace shell processor http server without starting it.")
-            return@userspaceTrace
+            return@inMemoryTrace
         }
         Shell.executeScriptSilent("kill -TERM $processId")
         Log.i(TAG, "Perfetto trace processor shell server stopped (pid=$processId).")
@@ -175,27 +180,27 @@ internal class PerfettoHttpServer {
     /**
      * Returns true whether the server is running, false otherwise.
      */
-    fun isRunning(): Boolean = userspaceTrace("PerfettoHttpServer#isRunning") {
-        return@userspaceTrace try {
+    fun isRunning(): Boolean = inMemoryTrace("PerfettoHttpServer#isRunning") {
+        return@inMemoryTrace try {
             val statusResult = status()
-            return@userspaceTrace statusResult.api_version != null && statusResult.api_version > 0
+            return@inMemoryTrace statusResult.api_version != null && statusResult.api_version > 0
         } catch (e: ConnectException) {
             false
         }
     }
 
     /**
-     * Executes the given [sqlQuery] on a previously parsed trace and returns the result as a
-     * query result iterator.
+     * Executes the given [sqlQuery] on a previously parsed trace with custom decoding.
+     *
+     * Note that this does not decode the query result, so it's the caller's responsibility to check
+     * for errors in the result.
      */
-    fun query(sqlQuery: String): QueryResultIterator =
-        QueryResultIterator(
-            httpRequest(
-                method = METHOD_POST,
-                url = PATH_QUERY,
-                encodeBlock = { QueryArgs.ADAPTER.encode(it, QueryArgs(sqlQuery)) },
-                decodeBlock = { QueryResult.ADAPTER.decode(it) }
-            )
+    fun <T> rawQuery(sqlQuery: String, decodeBlock: (InputStream) -> T): T =
+        httpRequest(
+            method = METHOD_POST,
+            url = PATH_QUERY,
+            encodeBlock = { QueryArgs.ADAPTER.encode(it, QueryArgs(sqlQuery)) },
+            decodeBlock = decodeBlock
         )
 
     /**
@@ -213,13 +218,21 @@ internal class PerfettoHttpServer {
      * Parses the trace file in chunks. Note that [notifyEof] should be called at the end to let
      * the processor know that no more chunks will be sent.
      */
-    fun parse(bytes: ByteArray): AppendTraceDataResult =
-        httpRequest(
-            method = METHOD_POST,
-            url = PATH_PARSE,
-            encodeBlock = { it.write(bytes) },
-            decodeBlock = { AppendTraceDataResult.ADAPTER.decode(it) }
-        )
+    fun parse(inputStream: InputStream): List<AppendTraceDataResult> {
+        val responses = mutableListOf<AppendTraceDataResult>()
+        while (true) {
+            val buffer = ByteArray(PARSE_PAYLOAD_SIZE)
+            val read = inputStream.read(buffer)
+            if (read <= 0) break
+            responses.add(httpRequest(
+                method = METHOD_POST,
+                url = PATH_PARSE,
+                encodeBlock = { it.write(buffer, 0, read) },
+                decodeBlock = { AppendTraceDataResult.ADAPTER.decode(it) }
+            ))
+        }
+        return responses
+    }
 
     /**
      * Notifies that the entire trace has been uploaded and no more chunks will be sent.

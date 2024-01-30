@@ -22,6 +22,7 @@ import androidx.activity.result.ActivityResultCaller
 import androidx.annotation.Sampled
 import androidx.health.connect.client.PermissionController
 import androidx.health.connect.client.permission.HealthPermission
+import androidx.health.connect.client.permission.HealthPermission.Companion.PERMISSION_READ_HEALTH_DATA_IN_BACKGROUND
 import androidx.health.connect.client.records.StepsRecord
 
 @Sampled
@@ -39,6 +40,22 @@ fun RequestPermission(activity: ActivityResultCaller) {
             }
         }
     requestPermission.launch(setOf(HealthPermission.getReadPermission(StepsRecord::class)))
+}
+
+@Sampled
+fun RequestBackgroundReadPermission(activity: ActivityResultCaller) {
+    val requestPermission =
+        activity.registerForActivityResult(
+            PermissionController.createRequestPermissionResultContract()
+        ) { grantedPermissions: Set<String> ->
+            if (PERMISSION_READ_HEALTH_DATA_IN_BACKGROUND in grantedPermissions) {
+                // It will be possible to read data in background from now on
+            } else {
+                // Permission denied, it won't be possible to read data in background
+            }
+        }
+
+    requestPermission.launch(setOf(PERMISSION_READ_HEALTH_DATA_IN_BACKGROUND))
 }
 
 @Sampled

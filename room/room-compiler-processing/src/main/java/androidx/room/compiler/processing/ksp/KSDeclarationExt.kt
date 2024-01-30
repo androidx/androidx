@@ -70,7 +70,7 @@ internal fun KSDeclaration.findEnclosingMemberContainer(
     }
     // When a top level function/property is compiled, its containing class does not exist in KSP,
     // neither the file. So instead, we synthesize one
-    return KspSyntheticFileMemberContainer(ownerJvmClassName)
+    return KspSyntheticFileMemberContainer(env, ownerJvmClassName)
 }
 
 private fun KSDeclaration.findEnclosingAncestorClassDeclaration(): KSClassDeclaration? {
@@ -97,3 +97,8 @@ internal fun KSDeclaration.isStatic(): Boolean {
 internal fun KSDeclaration.isTransient(): Boolean {
     return modifiers.contains(Modifier.JAVA_TRANSIENT) || hasJvmTransientAnnotation()
 }
+
+// The inline modifier for inline classes is deprecated in Kotlin but we still include it
+// in this check.
+internal fun KSDeclaration.isValueClass(): Boolean =
+  this is KSClassDeclaration && modifiers.any { it == Modifier.VALUE || it == Modifier.INLINE }

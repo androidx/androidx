@@ -150,9 +150,6 @@ public class AnnotationProcessorKtTest {
         @Document.BytesProperty
         val arrUnboxByteArr: Array<ByteArray>,
 
-        @Document.BytesProperty
-        val boxByteArr: Array<Byte>,
-
         @Document.StringProperty
         val arrString: Array<String>,
 
@@ -227,7 +224,6 @@ public class AnnotationProcessorKtTest {
             if (!arrBoxBoolean.contentEquals(other.arrBoxBoolean)) return false
             if (!arrUnboxBoolean.contentEquals(other.arrUnboxBoolean)) return false
             if (!arrUnboxByteArr.contentDeepEquals(other.arrUnboxByteArr)) return false
-            if (!boxByteArr.contentEquals(other.boxByteArr)) return false
             if (!arrString.contentEquals(other.arrString)) return false
             if (!arrCard.contentEquals(other.arrCard)) return false
             if (string != other.string) return false
@@ -297,7 +293,6 @@ public class AnnotationProcessorKtTest {
             arrBoxInteger = arrayOf(4, 5),
             arrBoxLong = arrayOf(6L, 7L),
             arrString = arrayOf("cat", "dog"),
-            boxByteArr = arrayOf(8, 9),
             arrUnboxBoolean = booleanArrayOf(false, true),
             arrUnboxByteArr = arrayOf(byteArrayOf(0, 1), byteArrayOf(2, 3)),
             arrUnboxDouble = doubleArrayOf(1.0, 0.0),

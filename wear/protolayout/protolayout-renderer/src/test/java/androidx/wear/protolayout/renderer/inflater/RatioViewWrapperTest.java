@@ -24,6 +24,7 @@ import android.view.View.MeasureSpec;
 import android.widget.ImageView;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.wear.protolayout.renderer.test.R;
 
 import com.google.common.truth.Expect;
 
@@ -31,7 +32,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import androidx.wear.protolayout.renderer.test.R;
 
 @RunWith(AndroidJUnit4.class)
 public class RatioViewWrapperTest {

@@ -24,9 +24,6 @@ import com.android.SdkConstants.SPINNER
 import com.android.SdkConstants.TOOLS_URI
 import com.android.ide.common.rendering.api.ILayoutPullParser
 import com.android.ide.common.rendering.api.ResourceNamespace
-import okio.buffer
-import okio.source
-import org.xmlpull.v1.XmlPullParserException
 import java.io.ByteArrayInputStream
 import java.io.File
 import java.io.FileInputStream
@@ -34,6 +31,9 @@ import java.io.FileNotFoundException
 import java.io.IOError
 import java.io.InputStream
 import java.nio.charset.Charset
+import okio.buffer
+import okio.source
+import org.xmlpull.v1.XmlPullParserException
 
 /**
  * A layout parser that holds an in-memory tree of a given resource for subsequent traversal

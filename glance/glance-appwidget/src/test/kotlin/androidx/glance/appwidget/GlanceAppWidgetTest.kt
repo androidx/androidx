@@ -21,14 +21,12 @@ import android.appwidget.AppWidgetProviderInfo
 import android.content.Context
 import android.content.res.Configuration
 import android.os.Build
-import android.os.Bundle
 import android.util.SizeF
 import android.widget.FrameLayout
+import android.widget.RemoteViews
 import android.widget.TextView
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.max
-import androidx.compose.ui.unit.min
 import androidx.core.os.bundleOf
 import androidx.glance.GlanceId
 import androidx.glance.LocalGlanceId
@@ -43,7 +41,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectIndexed
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -59,10 +56,13 @@ class GlanceAppWidgetTest {
     private val context = ApplicationProvider.getApplicationContext<Context>()
     private val displayMetrics = context.resources.displayMetrics
     private val glanceId = AppWidgetId(1)
+    // Use for tests that do not add bound widget information to AppWidgetManager, so that the
+    // underlying AppWidgetSession does not attempt to use AppWidgetManager.
+    private val fakeId = createFakeAppWidgetId()
 
     @Test
     fun createEmptyUi() = runTest {
-        val rv = TestWidget { }.compose(context, glanceId)
+        val rv: RemoteViews = TestWidget { }.compose(context, fakeId)
         val view = context.applyRemoteViews(rv)
         assertIs<FrameLayout>(view)
         assertThat(view.childCount).isEqualTo(0)
@@ -75,7 +75,7 @@ class GlanceAppWidgetTest {
             Text("${size.width} x ${size.height}")
         }.compose(
             context,
-            glanceId,
+            fakeId,
             size = DpSize(40.dp, 50.dp),
         )
 
@@ -92,7 +92,7 @@ class GlanceAppWidgetTest {
             Text(options.getString("StringKey", "<NOT FOUND>"))
         }.compose(
             context,
-            glanceId,
+            fakeId,
             bundleOf("StringKey" to "FOUND"),
         )
 
@@ -104,18 +104,16 @@ class GlanceAppWidgetTest {
     @Test
     fun createUiFromGlanceId() = runTest {
         val rv = TestWidget {
-            val glanceId = LocalGlanceId.current
-
-            Text(glanceId.toString())
-        }.compose(context, glanceId)
+            Text(LocalGlanceId.current.toString())
+        }.compose(context, fakeId)
 
         val view = context.applyRemoteViews(rv)
         assertIs<TextView>(view)
-        assertThat(view.text.toString()).isEqualTo("AppWidgetId(appWidgetId=1)")
+        assertThat(view.text.toString()).isEqualTo(fakeId.toString())
     }
 
     @Test
-    fun createUiWithUniqueMode() = runTest {
+    fun createUiWithSingleMode() = runTest {
         val appWidgetManager = Shadows.shadowOf(
             context.getSystemService(Context.APPWIDGET_SERVICE) as AppWidgetManager
         )
@@ -143,7 +141,7 @@ class GlanceAppWidgetTest {
         val rv = TestWidget(SizeMode.Exact) {
             val size = LocalSize.current
             Text("${size.width} x ${size.height}")
-        }.compose(context, glanceId, options)
+        }.compose(context, fakeId, options)
 
         val portraitView = createPortraitContext().applyRemoteViews(rv)
         assertIs<TextView>(portraitView)
@@ -168,7 +166,7 @@ class GlanceAppWidgetTest {
         val rv = TestWidget(SizeMode.Responsive(sizes)) {
             val size = LocalSize.current
             Text("${size.width} x ${size.height}")
-        }.compose(context, glanceId, options)
+        }.compose(context, fakeId, options)
 
         val portraitView = createPortraitContext().applyRemoteViews(rv)
         assertIs<TextView>(portraitView)
@@ -180,31 +178,29 @@ class GlanceAppWidgetTest {
     }
 
     @Test
-    fun createUiWithExactMode_noSizeFallsBackToUnique() {
-        runBlocking {
-            val appWidgetManager = Shadows.shadowOf(
-                context.getSystemService(Context.APPWIDGET_SERVICE) as AppWidgetManager
-            )
-            appWidgetManager.addBoundWidget(glanceId.appWidgetId, appWidgetProviderInfo {
-                minWidth = 50
-                minHeight = 50
-                minResizeWidth = 40
-                minResizeHeight = 60
-                resizeMode = AppWidgetProviderInfo.RESIZE_BOTH
-            })
-            val rv = TestWidget(SizeMode.Exact) {
-                val size = LocalSize.current
-                Text("${size.width} x ${size.height}")
-            }.compose(context, glanceId)
+    fun createUiWithExactMode_noSizeFallsBackToUnique() = runTest {
+        val appWidgetManager = Shadows.shadowOf(
+            context.getSystemService(Context.APPWIDGET_SERVICE) as AppWidgetManager
+        )
+        appWidgetManager.addBoundWidget(glanceId.appWidgetId, appWidgetProviderInfo {
+            minWidth = 50
+            minHeight = 50
+            minResizeWidth = 40
+            minResizeHeight = 60
+            resizeMode = AppWidgetProviderInfo.RESIZE_BOTH
+        })
+        val rv = TestWidget(SizeMode.Exact) {
+            val size = LocalSize.current
+            Text("${size.width} x ${size.height}")
+        }.compose(context, glanceId)
 
-            val portraitView = createPortraitContext().applyRemoteViews(rv)
-            assertIs<TextView>(portraitView)
-            assertThat(portraitView.text.toString()).isEqualTo("40.0.dp x 50.0.dp")
+        val portraitView = createPortraitContext().applyRemoteViews(rv)
+        assertIs<TextView>(portraitView)
+        assertThat(portraitView.text.toString()).isEqualTo("40.0.dp x 50.0.dp")
 
-            val landscapeView = createLandscapeContext().applyRemoteViews(rv)
-            assertIs<TextView>(landscapeView)
-            assertThat(landscapeView.text.toString()).isEqualTo("40.0.dp x 50.0.dp")
-        }
+        val landscapeView = createLandscapeContext().applyRemoteViews(rv)
+        assertIs<TextView>(landscapeView)
+        assertThat(landscapeView.text.toString()).isEqualTo("40.0.dp x 50.0.dp")
     }
 
     @Config(sdk = [30])
@@ -218,7 +214,7 @@ class GlanceAppWidgetTest {
         val rv = TestWidget(SizeMode.Responsive(sizes)) {
             val size = LocalSize.current
             Text("${size.width} x ${size.height}")
-        }.compose(context, glanceId)
+        }.compose(context, fakeId)
 
         val portraitView = createPortraitContext().applyRemoteViews(rv)
         assertIs<TextView>(portraitView)
@@ -364,7 +360,7 @@ class GlanceAppWidgetTest {
     }
 
     @Test
-    fun cancellingProvideContentEmitsNullContent() = runBlocking {
+    fun cancellingProvideContentEmitsNullContent() = runTest {
         val widget = object : GlanceAppWidget() {
             override suspend fun provideGlance(context: Context, id: GlanceId) {
                 coroutineScope {
@@ -395,29 +391,5 @@ class GlanceAppWidgetTest {
         val config = context.resources.configuration
         config.orientation = orientation
         return context.createConfigurationContext(config)
-    }
-}
-
-internal fun optionsBundleOf(sizes: List<DpSize>): Bundle {
-    require(sizes.isNotEmpty()) { "There must be at least one size" }
-    val (minSize, maxSize) = sizes.fold(sizes[0] to sizes[0]) { acc, s ->
-        DpSize(min(acc.first.width, s.width), min(acc.first.height, s.height)) to
-            DpSize(max(acc.second.width, s.width), max(acc.second.height, s.height))
-    }
-    return Bundle().apply {
-        putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, minSize.width.value.toInt())
-        putInt(
-            AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT,
-            minSize.height.value.toInt()
-        )
-        putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH, maxSize.width.value.toInt())
-        putInt(
-            AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT,
-            maxSize.height.value.toInt()
-        )
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            val sizeList = sizes.map { it.toSizeF() }.toArrayList()
-            putParcelableArrayList(AppWidgetManager.OPTION_APPWIDGET_SIZES, sizeList)
-        }
     }
 }

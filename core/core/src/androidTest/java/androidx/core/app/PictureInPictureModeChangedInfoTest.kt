@@ -49,8 +49,10 @@ class PictureInPictureModeChangedInfoTest {
         val info = PictureInPictureModeChangedInfo(true)
         try {
             info.newConfig
-            fail("Calling newConfig without passing one into PictureInPictureModeChangedInfo " +
-                "should throw an IllegalStateException")
+            fail(
+                "Calling newConfig without passing one into PictureInPictureModeChangedInfo " +
+                    "should throw an IllegalStateException"
+            )
         } catch (e: IllegalStateException) {
             // Expected
         }

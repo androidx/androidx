@@ -14,13 +14,8 @@ android {
 }
 
 dependencies {
-    // Atomic group
-    constraints {
-        implementation(project(":savedstate:savedstate-ktx"))
-    }
-
     api("androidx.annotation:annotation:1.1.0")
-    implementation("androidx.arch.core:core-common:2.1.0")
+    implementation("androidx.arch.core:core-common:2.2.0")
     implementation("androidx.lifecycle:lifecycle-common:2.6.1")
     api(libs.kotlinStdlib)
 
@@ -37,4 +32,5 @@ androidx {
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2018"
     description = "Android Lifecycle Saved State"
+    metalavaK2UastEnabled = true
 }

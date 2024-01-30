@@ -56,7 +56,6 @@ object FragmentStrictMode {
     }
 
     /**
-     * @hide
      */
     @JvmStatic
     @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -72,7 +71,6 @@ object FragmentStrictMode {
     }
 
     /**
-     * @hide
      */
     @JvmStatic
     @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -91,7 +89,6 @@ object FragmentStrictMode {
     }
 
     /**
-     * @hide
      */
     @JvmStatic
     @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -112,7 +109,6 @@ object FragmentStrictMode {
     }
 
     /**
-     * @hide
      */
     @JvmStatic
     @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -128,7 +124,6 @@ object FragmentStrictMode {
     }
 
     /**
-     * @hide
      */
     @JvmStatic
     @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -144,7 +139,6 @@ object FragmentStrictMode {
     }
 
     /**
-     * @hide
      */
     @JvmStatic
     @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -160,7 +154,6 @@ object FragmentStrictMode {
     }
 
     /**
-     * @hide
      */
     @JvmStatic
     @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -182,7 +175,6 @@ object FragmentStrictMode {
     }
 
     /**
-     * @hide
      */
     @JvmStatic
     @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -198,7 +190,6 @@ object FragmentStrictMode {
     }
 
     /**
-     * @hide
      */
     @JvmStatic
     @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -214,7 +205,6 @@ object FragmentStrictMode {
     }
 
     /**
-     * @hide
      */
     @JvmStatic
     @RestrictTo(RestrictTo.Scope.LIBRARY)

@@ -16,6 +16,7 @@
 
 package androidx.room.util
 
+import androidx.kruth.assertThat
 import androidx.room.migration.bundle.DatabaseBundle
 import androidx.room.migration.bundle.EntityBundle
 import androidx.room.migration.bundle.FieldBundle
@@ -26,7 +27,6 @@ import androidx.room.migration.bundle.SchemaBundle
 import androidx.room.migration.bundle.TABLE_NAME_PLACEHOLDER
 import androidx.room.processor.ProcessorErrors
 import androidx.room.vo.AutoMigration
-import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.fail
 import org.junit.Test
 

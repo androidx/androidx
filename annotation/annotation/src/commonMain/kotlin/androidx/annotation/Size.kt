@@ -16,9 +16,8 @@
 package androidx.annotation
 
 /**
- * Denotes that the annotated element should have a given size or length.
- * Note that "-1" means "unset". Typically used with a parameter or
- * return value of type array or collection.
+ * Denotes that the annotated element should have a given size or length. Note that "-1" means
+ * "unset". Typically used with a parameter or return value of type array or collection.
  *
  * Example:
  * ```
@@ -39,12 +38,12 @@ package androidx.annotation
     AnnotationTarget.ANNOTATION_CLASS
 )
 public annotation class Size(
-    /** An exact size (or -1 if not specified)  */
+    /** An exact size (or -1 if not specified) */
     val value: Long = -1,
-    /** A minimum size, inclusive  */
+    /** A minimum size, inclusive */
     val min: Long = Long.MIN_VALUE,
-    /** A maximum size, inclusive  */
+    /** A maximum size, inclusive */
     val max: Long = Long.MAX_VALUE,
-    /** The size must be a multiple of this factor  */
+    /** The size must be a multiple of this factor */
     val multiple: Long = 1
 )

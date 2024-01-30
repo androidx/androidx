@@ -32,7 +32,7 @@ dependencies {
 }
 
 androidx {
-    name = "AndroidX WatchFace Style Old Api Test Stub"
+    name = "WatchFace Style Old Api Test Stub"
     type = LibraryType.INTERNAL_TEST_LIBRARY
     inceptionYear = "2022"
     description = "Test stub built with v1.0.0 of the API, used to check for binary AIDL compat"

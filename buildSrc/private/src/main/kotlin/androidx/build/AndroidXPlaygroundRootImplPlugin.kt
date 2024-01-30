@@ -18,12 +18,12 @@ package androidx.build
 
 import androidx.build.gradle.isRoot
 import groovy.xml.DOMBuilder
+import java.net.URI
+import java.net.URL
 import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.dsl.RepositoryHandler
-import java.net.URI
-import java.net.URL
 
 /**
  * This plugin is used in Playground projects and adds functionality like resolving to snapshot

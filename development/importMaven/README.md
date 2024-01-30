@@ -41,3 +41,6 @@ For full list of options, please execute one of the commands with `--help`
 ./importMaven.sh import-konan-prebuilts --help
 ./importMaven.sh import-toml --help
 ```
+
+# Next steps:
+Gradle may not trust artifacts that are not signed with a trusted key. To ask Gradle to trust these artifacts, run `development/update-verification-metadata.sh`

@@ -16,13 +16,13 @@
 package androidx.compose.ui.text.android.selection
 
 import androidx.compose.ui.text.android.InternalPlatformTextApi
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
-import org.junit.Test
-import org.junit.runner.RunWith
-import androidx.test.ext.junit.runners.AndroidJUnit4
 import java.text.BreakIterator
 import java.util.Locale
+import org.junit.Test
+import org.junit.runner.RunWith
 
 @OptIn(InternalPlatformTextApi::class)
 @SmallTest

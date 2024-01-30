@@ -16,19 +16,30 @@
 
 package androidx.camera.core.processing
 
+import android.graphics.BitmapFactory
+import android.graphics.ImageFormat
+import android.graphics.Matrix
 import android.graphics.Rect
 import android.graphics.SurfaceTexture
 import android.hardware.camera2.CameraDevice.TEMPLATE_PREVIEW
 import android.util.Size
 import android.view.Surface
 import androidx.camera.core.CameraEffect
+import androidx.camera.core.DynamicRange
+import androidx.camera.core.ImageProxy
+import androidx.camera.core.ImageReaderProxys
 import androidx.camera.core.SurfaceRequest
 import androidx.camera.core.impl.DeferrableSurface
 import androidx.camera.core.impl.ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE
+import androidx.camera.core.impl.ImageReaderProxy
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
-import androidx.camera.testing.CameraUtil
-import androidx.camera.testing.HandlerUtil
+import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
 import androidx.camera.testing.fakes.FakeCamera
+import androidx.camera.testing.impl.CameraUtil
+import androidx.camera.testing.impl.HandlerUtil
+import androidx.camera.testing.impl.TestImageUtil.createBitmap
+import androidx.camera.testing.impl.TestImageUtil.getAverageDiff
+import androidx.camera.testing.impl.TestImageUtil.rotateBitmap
 import androidx.concurrent.futures.await
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -37,8 +48,13 @@ import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
 import java.util.Locale
 import java.util.concurrent.ExecutionException
+import kotlin.coroutines.resumeWithException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
 import org.junit.After
 import org.junit.Assert.fail
@@ -47,12 +63,16 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
+/**
+ * Unit tests for [DefaultSurfaceProcessor].
+ */
 @RunWith(AndroidJUnit4::class)
 @LargeTest
 @SdkSuppress(minSdkVersion = 21)
 class DefaultSurfaceProcessorTest {
 
     companion object {
+        private const val JPEG_QUALITY = 100
         private const val WIDTH = 640
         private const val HEIGHT = 480
         private const val CUSTOM_SHADER_FORMAT = """
@@ -115,6 +135,88 @@ class DefaultSurfaceProcessorTest {
         }
         for (surfaceRequest in inputSurfaceRequestsToClose) {
             surfaceRequest.deferrableSurface.close()
+        }
+    }
+
+    @Test
+    fun snapshotAndRelease_futureReceivesException(): Unit = runBlocking {
+        // Arrange: create DefaultSurfaceProcessor and setup input/output Surface.
+        createSurfaceProcessor()
+
+        // Act: take a snapshot and then release the processor.
+        val snapshotFuture = surfaceProcessor.snapshot(JPEG_QUALITY, 0)
+        surfaceProcessor.release()
+
+        // Assert: the snapshot future should receive an exception.
+        withContext(Dispatchers.IO) {
+            var exception: Throwable? = null
+            try {
+                snapshotFuture.get()
+            } catch (e: ExecutionException) {
+                exception = e.cause
+            }
+            assertThat(exception).isInstanceOf(Exception::class.java)
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = 23)
+    @Test
+    fun snapshot_JpegWrittenToSurface(): Unit = runBlocking {
+        // Arrange: create DefaultSurfaceProcessor and setup input/output Surface.
+        createSurfaceProcessor()
+        val surfaceRequest = createInputSurfaceRequest()
+        surfaceProcessor.onInputSurface(surfaceRequest)
+        val jpegImageReader = ImageReaderProxys.createIsolatedReader(
+            WIDTH, HEIGHT, ImageFormat.JPEG, 2
+        )
+        val surfaceOutput = createSurfaceOutput(
+            surface = jpegImageReader.surface!!,
+            target = CameraEffect.IMAGE_CAPTURE,
+            format = ImageFormat.JPEG
+        )
+        surfaceProcessor.onOutputSurface(surfaceOutput)
+        val rotationDegrees = 90
+
+        // Act: draw a Bitmap to the input Surface and take a snapshot with 90 degrees rotation.
+        surfaceProcessor.snapshot(JPEG_QUALITY, rotationDegrees)
+        val inputImage = createBitmap(WIDTH, HEIGHT)
+        val inputSurface = surfaceRequest.deferrableSurface.surface.get()
+        val canvas = inputSurface.lockHardwareCanvas()
+        canvas.drawBitmap(inputImage, 0f, 0f, null)
+        inputSurface.unlockCanvasAndPost(canvas)
+
+        // Assert: the output image is the same as the input.
+        val image = jpegImageReader.awaitNextImage()
+        val byteBuffer = image.image!!.planes[0].buffer
+        val bytes = ByteArray(byteBuffer.remaining())
+        byteBuffer.get(bytes)
+        val outputImage = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+        val expectedImage = rotateBitmap(inputImage, rotationDegrees)
+        assertThat(getAverageDiff(outputImage, expectedImage)).isEqualTo(0)
+
+        // Cleanup.
+        surfaceRequest.deferrableSurface.close()
+        image.close()
+        jpegImageReader.close()
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private suspend fun ImageReaderProxy.awaitNextImage(): ImageProxy {
+        return suspendCancellableCoroutine { continuation ->
+            setOnImageAvailableListener({ reader ->
+                try {
+                    val image = reader.acquireNextImage()
+                    if (image != null) {
+                        continuation.resume(image, null)
+                    } else {
+                        continuation.resumeWithException(
+                            IllegalStateException("Image is null")
+                        )
+                    }
+                } catch (e: Exception) {
+                    continuation.resumeWithException(e)
+                }
+            }, mainThreadExecutor())
         }
     }
 
@@ -232,7 +334,7 @@ class DefaultSurfaceProcessorTest {
     fun createByInvalidShaderString_throwException() {
         val shaderProvider = createCustomShaderProvider(shaderString = "Invalid shader")
         assertThrows(IllegalArgumentException::class.java) {
-            createSurfaceProcessor(shaderProvider)
+            createSurfaceProcessor(shaderProvider = shaderProvider)
         }
     }
 
@@ -241,7 +343,7 @@ class DefaultSurfaceProcessorTest {
         val shaderProvider =
             createCustomShaderProvider(exceptionToThrow = RuntimeException("Failed Shader"))
         assertThrows(IllegalArgumentException::class.java) {
-            createSurfaceProcessor(shaderProvider)
+            createSurfaceProcessor(shaderProvider = shaderProvider)
         }
     }
 
@@ -249,7 +351,7 @@ class DefaultSurfaceProcessorTest {
     fun createByIncorrectSamplerName_throwException() {
         val shaderProvider = createCustomShaderProvider(samplerVarName = "_mySampler_")
         assertThrows(IllegalArgumentException::class.java) {
-            createSurfaceProcessor(shaderProvider)
+            createSurfaceProcessor(shaderProvider = shaderProvider)
         }
     }
 
@@ -257,7 +359,7 @@ class DefaultSurfaceProcessorTest {
     fun createByIncorrectFragCoordsName_throwException() {
         val shaderProvider = createCustomShaderProvider(fragCoordsVarName = "_myFragCoords_")
         assertThrows(IllegalArgumentException::class.java) {
-            createSurfaceProcessor(shaderProvider)
+            createSurfaceProcessor(shaderProvider = shaderProvider)
         }
     }
 
@@ -265,7 +367,7 @@ class DefaultSurfaceProcessorTest {
         outputType: OutputType,
         shaderProvider: ShaderProvider = ShaderProvider.DEFAULT
     ) {
-        createSurfaceProcessor(shaderProvider)
+        createSurfaceProcessor(shaderProvider = shaderProvider)
         // Prepare input
         val inputSurfaceRequest = createInputSurfaceRequest()
         surfaceProcessor.onInputSurface(inputSurfaceRequest)
@@ -296,8 +398,12 @@ class DefaultSurfaceProcessorTest {
         )
     }
 
-    private fun createSurfaceProcessor(shaderProvider: ShaderProvider = ShaderProvider.DEFAULT) {
+    private fun createSurfaceProcessor(
+        dynamicRange: DynamicRange = DynamicRange.SDR,
+        shaderProvider: ShaderProvider = ShaderProvider.DEFAULT
+    ) {
         surfaceProcessor = DefaultSurfaceProcessor(
+            dynamicRange,
             shaderProvider
         )
     }
@@ -308,16 +414,22 @@ class DefaultSurfaceProcessorTest {
         }
     }
 
-    private fun createSurfaceOutput(surface: Surface = createAutoReleaseSurface()) =
+    private fun createSurfaceOutput(
+        surface: Surface = createAutoReleaseSurface(),
+        target: Int = CameraEffect.PREVIEW,
+        format: Int = INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE,
+    ) =
         SurfaceOutputImpl(
             surface,
-            CameraEffect.PREVIEW,
-            INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE,
+            target,
+            format,
             Size(WIDTH, HEIGHT),
             Size(WIDTH, HEIGHT),
             Rect(0, 0, WIDTH, HEIGHT),
             /*rotationDegrees=*/0,
-            /*mirroring=*/false
+            /*mirroring=*/false,
+            FakeCamera(),
+            Matrix()
         )
 
     private fun createCustomShaderProvider(

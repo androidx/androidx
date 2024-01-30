@@ -30,7 +30,6 @@ import java.util.List;
 /**
  * Different implementations of {@link CaptureBundle}.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java

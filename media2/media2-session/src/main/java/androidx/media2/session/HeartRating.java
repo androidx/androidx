@@ -22,9 +22,13 @@ import androidx.versionedparcelable.ParcelField;
 import androidx.versionedparcelable.VersionedParcelize;
 
 /**
- * A class for rating with a single degree of rating, "heart" vs "no heart".
- * This can be used to indicate the content referred to is a favorite (or not).
+ * A class for rating with a single degree of rating, "heart" vs "no heart". This can be used to
+ * indicate the content referred to is a favorite (or not).
+ *
+ * @deprecated androidx.media2 is deprecated. Please migrate to <a
+ *     href="https://developer.android.com/guide/topics/media/media3">androidx.media3</a>.
  */
+@Deprecated
 @VersionedParcelize
 public final class HeartRating implements Rating {
     @ParcelField(1)

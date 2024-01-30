@@ -21,12 +21,15 @@ import androidx.compose.runtime.CompositionContext
 import androidx.compose.runtime.CompositionLocalContext
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.ReusableComposition
 import androidx.compose.runtime.remember
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.node.LayoutNode
+import androidx.compose.ui.node.Owner
+import androidx.compose.ui.node.RootNodeOwner
 
 /**
- * Composes the given composable into [SkiaBasedOwner]
+ * Composes the given composable into [RootNodeOwner]
  *
  * @param parent The parent composition reference to coordinate scheduling of composition updates
  *        If null then default root composition will be used.
@@ -35,13 +38,12 @@ import androidx.compose.ui.node.LayoutNode
  * @param content A `@Composable` function declaring the UI contents
  */
 @OptIn(ExperimentalComposeUiApi::class)
-internal fun SkiaBasedOwner.setContent(
+internal fun RootNodeOwner.setContent(
     parent: CompositionContext,
     getCompositionLocalContext: () -> CompositionLocalContext? = { null },
     content: @Composable () -> Unit
 ): Composition {
-    val composition = Composition(DefaultUiApplier(root), parent)
-    val owner = this
+    val composition = Composition(DefaultUiApplier(owner.root), parent)
     composition.setContent {
         getCompositionLocalContext().provide {
             ProvideCommonCompositionLocals(
@@ -49,7 +51,6 @@ internal fun SkiaBasedOwner.setContent(
                 uriHandler = remember { PlatformUriHandler() },
                 content = content
             )
-            LaunchedEffect(owner) { accessibilityController.syncLoop() }
         }
     }
     return composition
@@ -67,7 +68,7 @@ private fun CompositionLocalContext?.provide(content: @Composable () -> Unit) {
 internal actual fun createSubcomposition(
     container: LayoutNode,
     parent: CompositionContext
-): Composition = Composition(
+): ReusableComposition = ReusableComposition(
     DefaultUiApplier(container),
     parent
 )

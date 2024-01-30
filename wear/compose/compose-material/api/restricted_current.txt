@@ -184,30 +184,6 @@ package androidx.wear.compose.material {
     method @Deprecated public static void curvedText(androidx.wear.compose.foundation.CurvedScope, String text, optional androidx.wear.compose.foundation.CurvedModifier modifier, optional long background, optional long color, optional long fontSize, optional androidx.wear.compose.foundation.CurvedTextStyle? style, optional androidx.wear.compose.foundation.CurvedDirection.Angular? angularDirection, optional int overflow);
   }
 
-  public final class ExpandableItemsDefaults {
-    method @androidx.compose.runtime.Composable public void Chevron(float progress, optional androidx.compose.ui.Modifier modifier, optional long color, optional float strokeWidth);
-    method public androidx.compose.animation.core.AnimationSpec<java.lang.Float> getCollapseAnimationSpec();
-    method public androidx.compose.animation.core.AnimationSpec<java.lang.Float> getExpandAnimationSpec();
-    property public final androidx.compose.animation.core.AnimationSpec<java.lang.Float> collapseAnimationSpec;
-    property public final androidx.compose.animation.core.AnimationSpec<java.lang.Float> expandAnimationSpec;
-    field public static final androidx.wear.compose.material.ExpandableItemsDefaults INSTANCE;
-  }
-
-  public final class ExpandableItemsState {
-    method public float getExpandProgress();
-    method public boolean isExpanded();
-    method public void setExpanded(boolean);
-    method public void toggle();
-    property public final float expandProgress;
-    property public final boolean expanded;
-  }
-
-  public final class ExpandableKt {
-    method public static void expandableItem(androidx.wear.compose.foundation.lazy.ScalingLazyListScope, androidx.wear.compose.material.ExpandableItemsState state, optional Object? key, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit> content);
-    method public static void expandableItems(androidx.wear.compose.foundation.lazy.ScalingLazyListScope, androidx.wear.compose.material.ExpandableItemsState state, int count, optional kotlin.jvm.functions.Function1<? super java.lang.Integer,?>? key, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.layout.BoxScope,? super java.lang.Integer,kotlin.Unit> itemContent);
-    method @androidx.compose.runtime.Composable public static androidx.wear.compose.material.ExpandableItemsState rememberExpandableItemsState(optional boolean initiallyExpanded, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> expandAnimationSpec, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> collapseAnimationSpec);
-  }
-
   public final class HorizontalPageIndicatorKt {
     method @androidx.compose.runtime.Composable public static void HorizontalPageIndicator(androidx.wear.compose.material.PageIndicatorState pageIndicatorState, optional androidx.compose.ui.Modifier modifier, optional int indicatorStyle, optional long selectedColor, optional long unselectedColor, optional float indicatorSize, optional float spacing, optional androidx.compose.ui.graphics.Shape indicatorShape);
   }
@@ -451,8 +427,8 @@ package androidx.wear.compose.material {
   @Deprecated public static final class ScalingLazyListAnchorType.Companion {
     method @Deprecated public int getItemCenter();
     method @Deprecated public int getItemStart();
-    property public final int ItemCenter;
-    property public final int ItemStart;
+    property @Deprecated public final int ItemCenter;
+    property @Deprecated public final int ItemStart;
   }
 
   @Deprecated public sealed interface ScalingLazyListItemInfo {
@@ -464,14 +440,14 @@ package androidx.wear.compose.material {
     method @Deprecated public int getSize();
     method @Deprecated public int getUnadjustedOffset();
     method @Deprecated public int getUnadjustedSize();
-    property public abstract float alpha;
-    property public abstract int index;
-    property public abstract Object key;
-    property public abstract int offset;
-    property public abstract float scale;
-    property public abstract int size;
-    property public abstract int unadjustedOffset;
-    property public abstract int unadjustedSize;
+    property @Deprecated public abstract float alpha;
+    property @Deprecated public abstract int index;
+    property @Deprecated public abstract Object key;
+    property @Deprecated public abstract int offset;
+    property @Deprecated public abstract float scale;
+    property @Deprecated public abstract int size;
+    property @Deprecated public abstract int unadjustedOffset;
+    property @Deprecated public abstract int unadjustedSize;
   }
 
   @Deprecated @androidx.compose.runtime.Stable @androidx.wear.compose.material.ScalingLazyScopeMarker public sealed interface ScalingLazyListItemScope {
@@ -492,17 +468,17 @@ package androidx.wear.compose.material {
     method @Deprecated public long getViewportSize();
     method @Deprecated public int getViewportStartOffset();
     method @Deprecated public java.util.List<androidx.wear.compose.material.ScalingLazyListItemInfo> getVisibleItemsInfo();
-    property public abstract int afterAutoCenteringPadding;
-    property public abstract int afterContentPadding;
-    property public abstract int beforeAutoCenteringPadding;
-    property public abstract int beforeContentPadding;
-    property public abstract androidx.compose.foundation.gestures.Orientation orientation;
-    property public abstract boolean reverseLayout;
-    property public abstract int totalItemsCount;
-    property public abstract int viewportEndOffset;
-    property public abstract long viewportSize;
-    property public abstract int viewportStartOffset;
-    property public abstract java.util.List<androidx.wear.compose.material.ScalingLazyListItemInfo> visibleItemsInfo;
+    property @Deprecated public abstract int afterAutoCenteringPadding;
+    property @Deprecated public abstract int afterContentPadding;
+    property @Deprecated public abstract int beforeAutoCenteringPadding;
+    property @Deprecated public abstract int beforeContentPadding;
+    property @Deprecated public abstract androidx.compose.foundation.gestures.Orientation orientation;
+    property @Deprecated public abstract boolean reverseLayout;
+    property @Deprecated public abstract int totalItemsCount;
+    property @Deprecated public abstract int viewportEndOffset;
+    property @Deprecated public abstract long viewportSize;
+    property @Deprecated public abstract int viewportStartOffset;
+    property @Deprecated public abstract java.util.List<androidx.wear.compose.material.ScalingLazyListItemInfo> visibleItemsInfo;
   }
 
   @Deprecated @androidx.wear.compose.material.ScalingLazyScopeMarker public sealed interface ScalingLazyListScope {
@@ -520,18 +496,18 @@ package androidx.wear.compose.material {
     method @Deprecated public boolean isScrollInProgress();
     method @Deprecated public suspend Object? scroll(androidx.compose.foundation.MutatePriority scrollPriority, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.gestures.ScrollScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method @Deprecated public suspend Object? scrollToItem(int index, optional int scrollOffset, optional kotlin.coroutines.Continuation<? super kotlin.Unit>);
-    property public boolean canScrollBackward;
-    property public boolean canScrollForward;
-    property public final int centerItemIndex;
-    property public final int centerItemScrollOffset;
-    property public boolean isScrollInProgress;
-    property public final androidx.wear.compose.material.ScalingLazyListLayoutInfo layoutInfo;
+    property @Deprecated public boolean canScrollBackward;
+    property @Deprecated public boolean canScrollForward;
+    property @Deprecated public final int centerItemIndex;
+    property @Deprecated public final int centerItemScrollOffset;
+    property @Deprecated public boolean isScrollInProgress;
+    property @Deprecated public final androidx.wear.compose.material.ScalingLazyListLayoutInfo layoutInfo;
     field @Deprecated public static final androidx.wear.compose.material.ScalingLazyListState.Companion Companion;
   }
 
   @Deprecated public static final class ScalingLazyListState.Companion {
     method @Deprecated public androidx.compose.runtime.saveable.Saver<androidx.wear.compose.material.ScalingLazyListState,java.lang.Object> getSaver();
-    property public final androidx.compose.runtime.saveable.Saver<androidx.wear.compose.material.ScalingLazyListState,java.lang.Object> Saver;
+    property @Deprecated public final androidx.compose.runtime.saveable.Saver<androidx.wear.compose.material.ScalingLazyListState,java.lang.Object> Saver;
   }
 
   public final class ScalingLazyListStateKt {
@@ -550,13 +526,13 @@ package androidx.wear.compose.material {
     method @Deprecated public float getMinTransitionArea();
     method @Deprecated public androidx.compose.animation.core.Easing getScaleInterpolator();
     method @Deprecated public int resolveViewportVerticalOffset(long viewportConstraints);
-    property public abstract float edgeAlpha;
-    property public abstract float edgeScale;
-    property public abstract float maxElementHeight;
-    property public abstract float maxTransitionArea;
-    property public abstract float minElementHeight;
-    property public abstract float minTransitionArea;
-    property public abstract androidx.compose.animation.core.Easing scaleInterpolator;
+    property @Deprecated public abstract float edgeAlpha;
+    property @Deprecated public abstract float edgeScale;
+    property @Deprecated public abstract float maxElementHeight;
+    property @Deprecated public abstract float maxTransitionArea;
+    property @Deprecated public abstract float minElementHeight;
+    property @Deprecated public abstract float minTransitionArea;
+    property @Deprecated public abstract androidx.compose.animation.core.Easing scaleInterpolator;
   }
 
   public final class ScrollAwayKt {
@@ -632,14 +608,14 @@ package androidx.wear.compose.material {
   }
 
   public enum SwipeToDismissKeys {
-    method public static androidx.wear.compose.material.SwipeToDismissKeys valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.wear.compose.material.SwipeToDismissKeys valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
     method public static androidx.wear.compose.material.SwipeToDismissKeys[] values();
     enum_constant public static final androidx.wear.compose.material.SwipeToDismissKeys Background;
     enum_constant public static final androidx.wear.compose.material.SwipeToDismissKeys Content;
   }
 
   public enum SwipeToDismissValue {
-    method public static androidx.wear.compose.material.SwipeToDismissValue valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.wear.compose.material.SwipeToDismissValue valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
     method public static androidx.wear.compose.material.SwipeToDismissValue[] values();
     enum_constant public static final androidx.wear.compose.material.SwipeToDismissValue Default;
     enum_constant public static final androidx.wear.compose.material.SwipeToDismissValue Dismissed;

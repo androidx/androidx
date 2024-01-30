@@ -41,6 +41,7 @@ public class TransitionActivity extends FragmentActivity {
         overridePendingTransition(0, 0);
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public void finish() {
         super.finish();

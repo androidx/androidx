@@ -227,6 +227,12 @@ public class BaseRecyclerViewAnimationsTest extends BaseRecyclerViewInstrumentat
 
         int mLayoutCount = 0;
 
+        /**
+         * A set of adapter positions, for calling addDisappearingView instead of addView in the
+         * post layout pass.
+         */
+        HashSet<Integer> mDisappearingPositionsInPostLayout;
+
         void setExpectedItemCounts(int preLayout, int postLayout) {
             expectedPreLayoutItemCount = preLayout;
             expectedPostLayoutItemCount = postLayout;
@@ -260,7 +266,8 @@ public class BaseRecyclerViewAnimationsTest extends BaseRecyclerViewInstrumentat
             final int start = mLayoutMin == Integer.MIN_VALUE ? 0 : mLayoutMin;
             final int count = mLayoutItemCount
                     == Integer.MAX_VALUE ? state.getItemCount() : mLayoutItemCount;
-            lm.layoutRange(recycler, start, start + count);
+            lm.layoutRange(recycler, start, start + count,
+                    state.isPreLayout() ? null : mDisappearingPositionsInPostLayout);
             assertEquals("correct # of children should be laid out",
                     count, lm.getChildCount());
             lm.assertVisibleItemPositions();

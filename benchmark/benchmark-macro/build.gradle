@@ -15,7 +15,7 @@
  */
 
 import androidx.build.Publish
-import androidx.build.SupportConfigKt
+import androidx.build.AndroidXConfig
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -31,11 +31,11 @@ android {
     }
     sourceSets {
         main.assets.srcDirs += new File(
-                SupportConfigKt.getPrebuiltsRoot(project),
+                AndroidXConfig.getPrebuiltsRoot(project),
                 "androidx/traceprocessor/trace_processor_shell"
         )
         androidTest.assets.srcDirs += new File(
-                SupportConfigKt.getPrebuiltsRoot(project),
+                AndroidXConfig.getPrebuiltsRoot(project),
                 "androidx/traceprocessor/testdata"
         )
         // PerfettoHandshake supports both AAR and APK as libtracing_perfetto.so sources:
@@ -44,7 +44,7 @@ android {
         //
         // Adding the AAR as a test asset below allows us to test the AAR scenario
         androidTest.assets.srcDirs += new File(
-                SupportConfigKt.getPrebuiltsRoot(project),
+                AndroidXConfig.getPrebuiltsRoot(project),
                 "androidx/internal/androidx/tracing/tracing-perfetto-binary/" +
                         "${androidx.LibraryVersions.TRACING_PERFETTO}"
         )
@@ -60,18 +60,19 @@ dependencies {
 
     implementation(project(":benchmark:benchmark-common"))
     implementation("androidx.core:core:1.9.0")
-    implementation("androidx.profileinstaller:profileinstaller:1.0.3")
+    implementation("androidx.profileinstaller:profileinstaller:1.3.0")
     implementation("androidx.tracing:tracing-ktx:1.1.0-rc01")
-    implementation(libs.testCore)
+    implementation("androidx.test:core:1.5.0")
     implementation(libs.testUiautomator)
     implementation(libs.wireRuntime)
 
-    androidTestImplementation(project(":benchmark:benchmark-junit4"))
-    androidTestImplementation(project(":internal-testutils-ktx"))
+    androidTestImplementation(androidxArtifact(":benchmark:benchmark-junit4"))
+    androidTestImplementation(androidxArtifact(":internal-testutils-ktx"))
     androidTestImplementation("androidx.activity:activity-ktx:1.3.1")
-    androidTestImplementation(project(":tracing:tracing-perfetto"))
-    androidTestImplementation(project(":tracing:tracing-perfetto-common"))
-    androidTestImplementation(project(":tracing:tracing-perfetto-binary"))
+    androidTestImplementation(androidxArtifact(":tracing:tracing-perfetto"))
+    implementation(androidxArtifact(":tracing:tracing-perfetto"))
+    implementation(androidxArtifact(":tracing:tracing-perfetto-binary"))
+    implementation(androidxArtifact(":tracing:tracing-perfetto-handshake"))
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.testRunner)
@@ -80,16 +81,21 @@ dependencies {
 }
 
 androidx {
-    name = "Android Benchmark - Macrobenchmark"
+    name = "Benchmark - Macrobenchmark"
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2020"
     description = "Android Benchmark - Macrobenchmark"
+    metalavaK2UastEnabled = true
 }
 
-// Allow usage of Kotlin's @OptIn.
 tasks.withType(KotlinCompile).configureEach {
     kotlinOptions {
-        freeCompilerArgs += ['-opt-in=kotlin.RequiresOptIn']
+        // Enable using experimental APIs from within same version group
+        freeCompilerArgs += [
+                "-opt-in=androidx.benchmark.macro.ExperimentalMetricApi",
+                "-opt-in=androidx.benchmark.perfetto.ExperimentalPerfettoTraceProcessorApi",
+                "-opt-in=androidx.benchmark.perfetto.ExperimentalPerfettoCaptureApi"
+        ]
     }
 }
 
@@ -143,17 +149,6 @@ wire {
     prune 'perfetto.protos.UnsymbolizedFrames'
 }
 
-// https://github.com/square/wire/issues/1947
-// Remove when we upgrade to fixed wire library
-afterEvaluate {
-    tasks.named("compileReleaseKotlin").configure {
-        it.dependsOn("generateDebugProtos")
-    }
-    tasks.named("compileDebugKotlin").configure {
-        it.dependsOn("generateReleaseProtos")
-    }
-}
-
 // Define a task dependency so the app is installed before we run macro benchmarks.
 afterEvaluate {
     // `:benchmark:integration-tests:macrobenchmark-target:installRelease` is not in the compose
@@ -163,5 +158,12 @@ afterEvaluate {
     if (installTask != null) {
         tasks.getByPath(":benchmark:benchmark-macro:connectedDebugAndroidTest")
                 .dependsOn(installTask)
+    }
+}
+
+androidx {
+    deviceTests {
+        targetAppProject = project(":benchmark:integration-tests:macrobenchmark-target")
+        targetAppVariant = "release"
     }
 }

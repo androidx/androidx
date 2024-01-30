@@ -18,7 +18,6 @@ package androidx.compose.foundation.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -45,7 +44,6 @@ fun CanvasSample() {
 }
 
 @Sampled
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun CanvasPieChartSample() {
     Canvas(

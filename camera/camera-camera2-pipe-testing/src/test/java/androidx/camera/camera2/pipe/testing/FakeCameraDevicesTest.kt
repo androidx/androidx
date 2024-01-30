@@ -51,6 +51,10 @@ public class FakeCameraDevicesTest {
     fun getCameraIdsReturnsDefaultCameraIdList() = runTest {
         val cameraDevices = FakeCameraDevices(
             defaultCameraBackendId = FAKE_CAMERA_BACKEND_ID,
+            concurrentCameraBackendIds = setOf(
+                setOf(CameraBackendId("0"), CameraBackendId("1")),
+                setOf(CameraBackendId("0"), CameraBackendId("2"))
+            ),
             cameraMetadataMap = cameraMetadataMap
         )
         val devices = cameraDevices.getCameraIds()
@@ -69,6 +73,10 @@ public class FakeCameraDevicesTest {
     fun getCameraIdsWithBackendReturnsCustomCameraIdList() = runTest {
         val cameraDevices = FakeCameraDevices(
             defaultCameraBackendId = FAKE_CAMERA_BACKEND_ID,
+            concurrentCameraBackendIds = setOf(
+                setOf(CameraBackendId("0"), CameraBackendId("1")),
+                setOf(CameraBackendId("0"), CameraBackendId("2"))
+            ),
             cameraMetadataMap = cameraMetadataMap
         )
         val devices = cameraDevices.getCameraIds(EXTERNAL_BACKEND_ID)

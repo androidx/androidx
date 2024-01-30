@@ -219,7 +219,6 @@ public abstract class ObjectAdapter {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public final boolean hasObserver() {

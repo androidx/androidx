@@ -37,7 +37,7 @@ import java.util.concurrent.Future;
 /**
  * Class with helper functions for testing for AppSearch.
  *
- * @hide
+ * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class AppSearchTestUtils {

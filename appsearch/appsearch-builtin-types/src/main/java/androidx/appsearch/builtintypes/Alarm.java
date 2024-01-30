@@ -16,13 +16,17 @@
 
 package androidx.appsearch.builtintypes;
 
+import androidx.annotation.IntDef;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.Document;
 import androidx.appsearch.utils.DateTimeFormatValidator;
 import androidx.core.util.Preconditions;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.Calendar;
 import java.util.List;
 
@@ -31,6 +35,18 @@ import java.util.List;
  */
 @Document(name = "builtin:Alarm")
 public class Alarm extends Thing {
+    /** The device that this {@link Alarm} belongs to. */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @IntDef({COMPUTING_DEVICE_UNKNOWN, COMPUTING_DEVICE_SMART_PHONE, COMPUTING_DEVICE_SMART_WATCH})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface ComputingDevice {}
+    /** The {@link Alarm} belongs to an unknown device. */
+    public static final int COMPUTING_DEVICE_UNKNOWN = 0;
+    /** The {@link Alarm} belongs to a smart phone device. */
+    public static final int COMPUTING_DEVICE_SMART_PHONE = 1;
+    /** The {@link Alarm} belongs to a smart watch device. */
+    public static final int COMPUTING_DEVICE_SMART_WATCH = 2;
+
     @Document.BooleanProperty
     private final boolean mEnabled;
 
@@ -61,16 +77,21 @@ public class Alarm extends Thing {
     @Document.DocumentProperty
     private final AlarmInstance mNextInstance;
 
+    @Document.LongProperty
+    private final int mComputingDevice;
+
     Alarm(@NonNull String namespace, @NonNull String id, int documentScore,
             long creationTimestampMillis, long documentTtlMillis, @Nullable String name,
             @Nullable List<String> alternateNames, @Nullable String description,
             @Nullable String image, @Nullable String url,
+            @NonNull List<PotentialAction> potentialActions,
             boolean enabled, @Nullable int[] daysOfWeek, int hour, int minute,
             @Nullable String blackoutPeriodStartDate, @Nullable String blackoutPeriodEndDate,
             @Nullable String ringtone, boolean shouldVibrate,
-            @Nullable AlarmInstance previousInstance, @Nullable AlarmInstance nextInstance) {
+            @Nullable AlarmInstance previousInstance, @Nullable AlarmInstance nextInstance,
+            int computingDevice) {
         super(namespace, id, documentScore, creationTimestampMillis, documentTtlMillis, name,
-                alternateNames, description, image, url);
+                alternateNames, description, image, url, potentialActions);
         mEnabled = enabled;
         mDaysOfWeek = daysOfWeek;
         mHour = hour;
@@ -81,6 +102,7 @@ public class Alarm extends Thing {
         mShouldVibrate = shouldVibrate;
         mPreviousInstance = previousInstance;
         mNextInstance = nextInstance;
+        mComputingDevice = computingDevice;
     }
 
     /** Returns whether or not the {@link Alarm} is active. */
@@ -195,7 +217,14 @@ public class Alarm extends Thing {
         return mNextInstance;
     }
 
+    /** Returns the {@link ComputingDevice} this alarm belongs to. */
+    @ComputingDevice
+    public int getComputingDevice() {
+        return mComputingDevice;
+    }
+
     /** Builder for {@link Alarm}. */
+    @Document.BuilderProducer
     public static final class Builder extends BuilderImpl<Builder> {
         /**
          * Constructor for {@link Alarm.Builder}.
@@ -228,6 +257,7 @@ public class Alarm extends Thing {
         protected boolean mShouldVibrate;
         protected AlarmInstance mPreviousInstance;
         protected AlarmInstance mNextInstance;
+        protected int mComputingDevice;
 
         BuilderImpl(@NonNull String namespace, @NonNull String id) {
             super(namespace, id);
@@ -245,6 +275,7 @@ public class Alarm extends Thing {
             mShouldVibrate = alarm.shouldVibrate();
             mPreviousInstance = alarm.getPreviousInstance();
             mNextInstance = alarm.getNextInstance();
+            mComputingDevice = alarm.getComputingDevice();
         }
 
         /** Sets whether or not the {@link Alarm} is active. */
@@ -390,15 +421,23 @@ public class Alarm extends Thing {
             return (T) this;
         }
 
+        /** Sets the {@link ComputingDevice} this alarm belongs to. */
+        @NonNull
+        public T setComputingDevice(@ComputingDevice int computingDevice) {
+            mComputingDevice = computingDevice;
+            return (T) this;
+        }
+
         /** Builds the {@link Alarm}. */
         @NonNull
         @Override
         public Alarm build() {
             return new Alarm(mNamespace, mId, mDocumentScore, mCreationTimestampMillis,
                     mDocumentTtlMillis, mName, mAlternateNames, mDescription, mImage, mUrl,
+                    mPotentialActions,
                     mEnabled, mDaysOfWeek, mHour, mMinute, mBlackoutPeriodStartDate,
                     mBlackoutPeriodEndDate, mRingtone, mShouldVibrate, mPreviousInstance,
-                    mNextInstance);
+                    mNextInstance, mComputingDevice);
         }
     }
 }

@@ -26,9 +26,7 @@ package androidx.credentials.exceptions
 class CreateCredentialInterruptedException @JvmOverloads constructor(
     errorMessage: CharSequence? = null
 ) : CreateCredentialException(TYPE_CREATE_CREDENTIAL_INTERRUPTED_EXCEPTION, errorMessage) {
-
-    /** @hide */
-    companion object {
+    internal companion object {
         internal const val TYPE_CREATE_CREDENTIAL_INTERRUPTED_EXCEPTION =
             "android.credentials.CreateCredentialException.TYPE_INTERRUPTED"
     }

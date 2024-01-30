@@ -54,29 +54,24 @@ import androidx.versionedparcelable.VersionedParcelize;
 
 import java.util.Arrays;
 
-/** @hide */
 @VersionedParcelize(jetifyAs = "android.support.v4.media.AudioAttributesImplBase")
 @RestrictTo(LIBRARY)
 public class AudioAttributesImplBase implements AudioAttributesImpl {
-    /** @hide */
     // It should be public to allow Parcelizers which never be de/jetified can access the field.
     @RestrictTo(LIBRARY)
     @ParcelField(1)
     public int mUsage = USAGE_UNKNOWN;
 
-    /** @hide */
     // It should be public to allow Parcelizers which never be de/jetified can access the field.
     @RestrictTo(LIBRARY)
     @ParcelField(2)
     public int mContentType = CONTENT_TYPE_UNKNOWN;
 
-    /** @hide */
     // It should be public to allow Parcelizers which never be de/jetified can access the field.
     @RestrictTo(LIBRARY)
     @ParcelField(3)
     public int mFlags = 0x0;
 
-    /** @hide */
     // It should be public to allow Parcelizers which never be de/jetified can access the field.
     @RestrictTo(LIBRARY)
     @ParcelField(4)
@@ -84,7 +79,6 @@ public class AudioAttributesImplBase implements AudioAttributesImpl {
 
     // WARNING: Adding a new ParcelField may break old library users (b/152830728)
 
-    /** @hide */
     // It should be public to allow Parcelizers which never be de/jetified can access the
     // constructor.
     @RestrictTo(LIBRARY)

@@ -221,7 +221,7 @@ class PrivacySandboxApiPackagerTest {
             generateSequence { input.nextEntry }
                 .forEach {
                     val file: File = outputDir.resolve(it.name)
-                    file.parentFile.mkdirs()
+                    file.parentFile?.mkdirs()
                     file.createNewFile()
                     input.copyTo(file.outputStream())
                 }

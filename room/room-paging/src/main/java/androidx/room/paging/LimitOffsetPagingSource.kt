@@ -32,8 +32,8 @@ import androidx.room.paging.util.queryDatabase
 import androidx.room.paging.util.queryItemCount
 import androidx.room.withTransaction
 import androidx.sqlite.db.SupportSQLiteQuery
-import kotlinx.coroutines.withContext
 import java.util.concurrent.atomic.AtomicInteger
+import kotlinx.coroutines.withContext
 
 /**
  * An implementation of [PagingSource] to perform a LIMIT OFFSET query
@@ -71,10 +71,14 @@ abstract class LimitOffsetPagingSource<Value : Any>(
             observer.registerIfNecessary(db)
             val tempCount = itemCount.get()
             // if itemCount is < 0, then it is initial load
-            if (tempCount == INITIAL_ITEM_COUNT) {
-                initialLoad(params)
-            } else {
-                nonInitialLoad(params, tempCount)
+            try {
+                if (tempCount == INITIAL_ITEM_COUNT) {
+                    initialLoad(params)
+                } else {
+                    nonInitialLoad(params, tempCount)
+                }
+            } catch (e: Exception) {
+                LoadResult.Error(e)
             }
         }
     }

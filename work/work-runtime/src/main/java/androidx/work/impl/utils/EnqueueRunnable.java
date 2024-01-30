@@ -25,6 +25,7 @@ import static androidx.work.WorkInfo.State.ENQUEUED;
 import static androidx.work.WorkInfo.State.FAILED;
 import static androidx.work.WorkInfo.State.RUNNING;
 import static androidx.work.WorkInfo.State.SUCCEEDED;
+import static androidx.work.impl.utils.EnqueueUtilsKt.checkContentUriTriggerWorkerLimits;
 import static androidx.work.impl.utils.EnqueueUtilsKt.wrapInConstraintTrackingWorkerIfNeeded;
 
 import android.content.Context;
@@ -58,7 +59,6 @@ import java.util.Set;
 /**
  * Manages the enqueuing of a {@link WorkContinuationImpl}.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class EnqueueRunnable implements Runnable {
@@ -118,6 +118,8 @@ public class EnqueueRunnable implements Runnable {
         WorkDatabase workDatabase = workManagerImpl.getWorkDatabase();
         workDatabase.beginTransaction();
         try {
+            checkContentUriTriggerWorkerLimits(workDatabase,
+                    workManagerImpl.getConfiguration(), mWorkContinuation);
             boolean needsScheduling = processContinuation(mWorkContinuation);
             workDatabase.setTransactionSuccessful();
             return needsScheduling;
@@ -186,7 +188,7 @@ public class EnqueueRunnable implements Runnable {
 
         boolean needsScheduling = false;
 
-        long currentTimeMillis = System.currentTimeMillis();
+        long currentTimeMillis = workManagerImpl.getConfiguration().getClock().currentTimeMillis();
         WorkDatabase workDatabase = workManagerImpl.getWorkDatabase();
 
         boolean hasPrerequisite = (prerequisiteIds != null && prerequisiteIds.length > 0);
@@ -274,7 +276,7 @@ public class EnqueueRunnable implements Runnable {
                     // the current transaction.  We want it to happen separately to avoid race
                     // conditions (see ag/4502245, which tries to avoid work trying to run before
                     // it's actually been committed to the database).
-                    CancelWorkRunnable.forName(name, workManagerImpl, false).run();
+                    CancelWorkRunnable.forNameInline(name, workManagerImpl);
                     // Because we cancelled some work but didn't allow rescheduling inside
                     // CancelWorkRunnable, we need to make sure we do schedule work at the end of
                     // this runnable.

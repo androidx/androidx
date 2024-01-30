@@ -53,7 +53,6 @@ public final class LocationRequestCompat {
      */
     public static final long PASSIVE_INTERVAL = LocationRequest.PASSIVE_INTERVAL;
 
-    /** @hide */
     @RestrictTo(LIBRARY)
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({QUALITY_LOW_POWER, QUALITY_BALANCED_POWER_ACCURACY, QUALITY_HIGH_ACCURACY})

@@ -97,7 +97,7 @@ public class CircularArray<E> @JvmOverloads public constructor(minCapacity: Int 
      * Remove first element from front of the [CircularArray] and return it.
      *
      * @return The element removed.
-     * @throws [ArrayIndexOutOfBoundsException] if [CircularArray] is empty (on jvm)
+     * @throws [IndexOutOfBoundsException] if [CircularArray] is empty (on jvm)
      */
     public fun popFirst(): E {
         if (head == tail) {
@@ -115,7 +115,7 @@ public class CircularArray<E> @JvmOverloads public constructor(minCapacity: Int 
      * Remove last element from end of the [CircularArray] and return it.
      *
      * @return The element removed.
-     * @throws [ArrayIndexOutOfBoundsException] if [CircularArray] is empty
+     * @throws [IndexOutOfBoundsException] if [CircularArray] is empty
      */
     public fun popLast(): E {
         if (head == tail) {
@@ -142,7 +142,7 @@ public class CircularArray<E> @JvmOverloads public constructor(minCapacity: Int 
      * is less than or equal to 0.
      *
      * @param count Number of elements to remove.
-     * @throws [ArrayIndexOutOfBoundsException] if [count] is larger than [size]
+     * @throws [IndexOutOfBoundsException] if [count] is larger than [size]
      */
     public fun removeFromStart(count: Int) {
         if (count <= 0) {
@@ -177,7 +177,7 @@ public class CircularArray<E> @JvmOverloads public constructor(minCapacity: Int 
      * is less than or equals to 0.
      *
      * @param count Number of elements to remove.
-     * @throws [ArrayIndexOutOfBoundsException] if [count] is larger than [size]
+     * @throws [IndexOutOfBoundsException] if [count] is larger than [size]
      */
     public fun removeFromEnd(count: Int) {
         if (count <= 0) {
@@ -213,7 +213,7 @@ public class CircularArray<E> @JvmOverloads public constructor(minCapacity: Int 
      * Get first element of the [CircularArray].
      *
      * @return The first element.
-     * @throws [ArrayIndexOutOfBoundsException] if [CircularArray] is empty
+     * @throws [IndexOutOfBoundsException] if [CircularArray] is empty
      */
     public val first: E
         get() {
@@ -227,7 +227,7 @@ public class CircularArray<E> @JvmOverloads public constructor(minCapacity: Int 
      * Get last element of the [CircularArray].
      *
      * @return The last element.
-     * @throws [ArrayIndexOutOfBoundsException] if [CircularArray] is empty
+     * @throws [IndexOutOfBoundsException] if [CircularArray] is empty
      */
     public val last: E
         get() {
@@ -242,7 +242,7 @@ public class CircularArray<E> @JvmOverloads public constructor(minCapacity: Int 
      *
      * @param index The zero based element index in the [CircularArray].
      * @return The nth element.
-     * @throws [ArrayIndexOutOfBoundsException] if n < 0 or n >= size()
+     * @throws [IndexOutOfBoundsException] if n < 0 or n >= size()
      */
     public operator fun get(index: Int): E {
         if (index < 0 || index >= size()) {

@@ -17,6 +17,7 @@
 package androidx.build.resources
 
 import androidx.build.checkapi.ApiLocation
+import java.io.File
 import org.gradle.api.DefaultTask
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
@@ -28,7 +29,6 @@ import org.gradle.api.tasks.OutputFiles
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
-import java.io.File
 
 /**
  * Task for updating the public Android resource surface, e.g. `public.xml`.

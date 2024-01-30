@@ -34,12 +34,11 @@ import androidx.annotation.VisibleForTesting
 import androidx.core.view.WindowInsetsCompat
 import androidx.window.core.Bounds
 import androidx.window.layout.util.ActivityCompatHelperApi24.isInMultiWindowMode
+import androidx.window.layout.util.ContextCompatHelper.unwrapUiContext
 import androidx.window.layout.util.ContextCompatHelperApi30.currentWindowBounds
 import androidx.window.layout.util.ContextCompatHelperApi30.currentWindowInsets
 import androidx.window.layout.util.ContextCompatHelperApi30.currentWindowMetrics
 import androidx.window.layout.util.ContextCompatHelperApi30.maximumWindowBounds
-import androidx.window.layout.util.ContextUtils.unwrapUiContext
-import androidx.window.layout.util.DisplayCompatHelperApi17.getRealSize
 import androidx.window.layout.util.DisplayCompatHelperApi28.safeInsetBottom
 import androidx.window.layout.util.DisplayCompatHelperApi28.safeInsetLeft
 import androidx.window.layout.util.DisplayCompatHelperApi28.safeInsetRight
@@ -230,10 +229,9 @@ internal object WindowMetricsCalculatorCompat : WindowMetricsCalculator {
         @Suppress("DEPRECATION")
         val currentDisplay = platformWindowManager.defaultDisplay
         val realDisplaySize = Point()
-        // [Display#getRealSize] is deprecated but we have this for
-        // compatibility with older versions
         @Suppress("DEPRECATION")
-        getRealSize(display = currentDisplay, point = realDisplaySize)
+        currentDisplay.getRealSize(realDisplaySize)
+
         if (!isInMultiWindowMode(activity)) {
             // The activity is not in multi-window mode. Check if the addition of the
             // navigation bar size to mAppBounds results in the real display size and if so
@@ -364,26 +362,10 @@ internal object WindowMetricsCalculatorCompat : WindowMetricsCalculator {
      * @see Display.getRealSize
      */
     @VisibleForTesting
+    @Suppress("DEPRECATION")
     internal fun getRealSizeForDisplay(display: Display): Point {
         val size = Point()
-        if (Build.VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN_MR1) {
-            getRealSize(display, size)
-        } else {
-            try {
-                val getRealSizeMethod = Display::class.java.getDeclaredMethod(
-                    "getRealSize",
-                    Point::class.java
-                )
-                getRealSizeMethod.isAccessible = true
-                getRealSizeMethod.invoke(display, size)
-            } catch (e: NoSuchMethodException) {
-                Log.w(TAG, e)
-            } catch (e: IllegalAccessException) {
-                Log.w(TAG, e)
-            } catch (e: InvocationTargetException) {
-                Log.w(TAG, e)
-            }
-        }
+        display.getRealSize(size)
         return size
     }
 

@@ -26,7 +26,6 @@ import androidx.wear.widget.drawer.WearableNavigationDrawerView.WearableNavigati
  * Provides a {@link WearableNavigationDrawerPresenter} implementation that is designed for the
  * multi-page navigation drawer.
  *
- * @hide
  */
 @RestrictTo(Scope.LIBRARY)
 public class MultiPagePresenter extends WearableNavigationDrawerPresenter {

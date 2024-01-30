@@ -50,9 +50,10 @@ dependencies {
 }
 
 androidx {
-    name = "WindowManager RxJava 2"
+    name = "WindowManager RxJava2"
     publish = Publish.SNAPSHOT_AND_RELEASE
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2021"
     description = "WindowManager RxJava 2"
+    metalavaK2UastEnabled = true
 }

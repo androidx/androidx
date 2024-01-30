@@ -19,8 +19,8 @@ package androidx.camera.integration.avsync.model
 import android.content.Context
 import android.media.AudioTrack
 import androidx.test.core.app.ApplicationProvider
-import androidx.test.filters.LargeTest
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking

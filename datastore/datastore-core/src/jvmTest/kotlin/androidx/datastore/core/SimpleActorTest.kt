@@ -22,16 +22,19 @@ import java.util.concurrent.CancellationException
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
-import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.coroutines.AbstractCoroutineContextElement
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.coroutineContext
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
@@ -40,15 +43,18 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
-import org.junit.Ignore
+import kotlinx.coroutines.withTimeout
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.Timeout
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class SimpleActorTest {
+    /**
+     * This test runs on API 17 as well. Please don't reduce this timeout too much.
+     */
     @get:Rule
-    val timeout = Timeout(10, TimeUnit.SECONDS)
+    val timeout = Timeout(3, TimeUnit.MINUTES)
 
     @Test
     fun testSimpleActor() = runTest(UnconfinedTestDispatcher()) {
@@ -73,12 +79,12 @@ class SimpleActorTest {
     @Test
     fun testOnCompleteIsCalledWhenScopeIsCancelled() = runBlocking<Unit> {
         val scope = CoroutineScope(Job())
-        val called = AtomicBoolean(false)
+        val called = CompletableDeferred<Unit>()
 
         val actor = SimpleActor<Int>(
             scope,
             onComplete = {
-                assertThat(called.compareAndSet(false, true)).isTrue()
+                called.complete(Unit)
             },
             onUndeliveredElement = { _, _ -> }
         ) {
@@ -89,7 +95,13 @@ class SimpleActorTest {
 
         scope.coroutineContext.job.cancelAndJoin()
 
-        assertThat(called.get()).isTrue()
+        try {
+            withTimeout(5.seconds) {
+                called.await()
+            }
+        } catch (timeout: TimeoutCancellationException) {
+            throw AssertionError("on complete has not been called")
+        }
     }
 
     @Test
@@ -240,11 +252,9 @@ class SimpleActorTest {
         sender.await()
     }
 
-    @Ignore // b/250077079
     @Test
     fun testAllMessagesAreRespondedTo() = runBlocking<Unit> {
-        val myScope =
-            CoroutineScope(Job() + Executors.newFixedThreadPool(4).asCoroutineDispatcher())
+        val myScope = CoroutineScope(Job() + Dispatchers.IO)
 
         val actorScope = CoroutineScope(Job())
         val actor = SimpleActor<CompletableDeferred<Unit?>>(
@@ -257,23 +267,20 @@ class SimpleActorTest {
             it.complete(Unit)
         }
 
-        val waiters = myScope.async {
-            repeat(100_000) { _ ->
-                launch {
-                    try {
-                        CompletableDeferred<Unit?>().also {
-                            actor.offer(it)
-                        }.await()
-                    } catch (cancelled: CancellationException) {
-                        // This is OK
-                    }
+        val waiters = (0 until 10_000).map {
+            myScope.async {
+                try {
+                    CompletableDeferred<Unit?>().also {
+                        actor.offer(it)
+                    }.await()
+                } catch (cancelled: CancellationException) {
+                    // This is OK
                 }
             }
         }
-
         delay(100)
         actorScope.coroutineContext.job.cancelAndJoin()
-        waiters.await()
+        waiters.awaitAll()
     }
 
     class TestElement(val name: String) : AbstractCoroutineContextElement(Key) {

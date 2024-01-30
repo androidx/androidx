@@ -146,4 +146,9 @@
         <item name="android:colorForeground">@color/color_state_list_lilac</item>
     </style>
 
+    <!-- Tests line height 3x the text size -->
+    <style name="TextAppearance.FontScaling">
+        <item name="android:textSize">@dimen/textview_fontScaling_textSize</item>
+        <item name="android:lineHeight">@dimen/textview_fontScaling_lineHeight</item>
+    </style>
 </resources>

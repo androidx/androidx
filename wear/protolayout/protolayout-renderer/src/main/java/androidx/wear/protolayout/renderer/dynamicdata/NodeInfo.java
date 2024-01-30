@@ -27,6 +27,7 @@ import androidx.annotation.VisibleForTesting;
 import androidx.collection.ArraySet;
 import androidx.vectordrawable.graphics.drawable.SeekableAnimatedVectorDrawable;
 import androidx.wear.protolayout.expression.pipeline.BoundDynamicType;
+import androidx.wear.protolayout.expression.pipeline.DynamicTypeBindingRequest;
 import androidx.wear.protolayout.expression.pipeline.QuotaManager;
 import androidx.wear.protolayout.expression.proto.DynamicProto.DynamicFloat;
 import androidx.wear.protolayout.proto.ModifiersProto.AnimatedVisibility;
@@ -53,7 +54,11 @@ class NodeInfo implements TreeNode {
     /** List of bound dynamic types that need to be evaluated. */
     @NonNull private List<BoundDynamicType> mPendingBoundTypes = Collections.emptyList();
 
-    @NonNull private final QuotaManager mQuotaManager;
+    /** List of binding requests that failed to bind. */
+    @NonNull
+    private final List<DynamicTypeBindingRequest> mFailedBindingRequests = new ArrayList<>();
+
+    @NonNull private final QuotaManager mAnimationQuotaManager;
 
     /** Set of animated image resources after they are resolved during inflation. */
     @NonNull private Set<ResolvedAvd> mResolvedAvds = Collections.emptySet();
@@ -64,9 +69,9 @@ class NodeInfo implements TreeNode {
 
     @NonNull private final String mPosId;
 
-    NodeInfo(@NonNull String posId, @NonNull QuotaManager quotaManager) {
+    NodeInfo(@NonNull String posId, @NonNull QuotaManager animationQuotaManager) {
         this.mPosId = posId;
-        this.mQuotaManager = quotaManager;
+        this.mAnimationQuotaManager = animationQuotaManager;
     }
 
     /**
@@ -87,6 +92,16 @@ class NodeInfo implements TreeNode {
     }
 
     /**
+     * Adds {@link DynamicTypeBindingRequest} that {@link
+     * androidx.wear.protolayout.expression.pipeline.DynamicTypeEvaluator} failed to bind. Failed
+     * requests will be removed once a binding retry initiated by {@link
+     * ProtoLayoutDynamicDataPipeline} succeed.
+     */
+    void addFailedBindingRequest(@NonNull DynamicTypeBindingRequest request) {
+        mFailedBindingRequests.add(request);
+    }
+
+    /**
      * Initializes evaluation on all pending bound types, i.e. those added after the last {@link
      * #initPendingBoundTypes} call.
      */
@@ -96,6 +111,10 @@ class NodeInfo implements TreeNode {
         mPendingBoundTypes.clear();
     }
 
+    List<DynamicTypeBindingRequest> getFailedBindingRequest() {
+        return mFailedBindingRequests;
+    }
+
     @NonNull
     ResolvedAvd addResolvedAvd(@NonNull AnimatedVectorDrawable drawable, @NonNull Trigger trigger) {
         if (mResolvedAvds.isEmpty()) {
@@ -103,7 +122,9 @@ class NodeInfo implements TreeNode {
         }
         ResolvedAvd avd =
                 new NodeInfo.ResolvedAvd(
-                        drawable, trigger, new QuotaReleasingAnimationCallback(mQuotaManager));
+                        drawable,
+                        trigger,
+                        new QuotaReleasingAnimationCallback(mAnimationQuotaManager));
         mResolvedAvds.add(avd);
 
         return avd;
@@ -120,21 +141,17 @@ class NodeInfo implements TreeNode {
     @Override
     public void destroy() {
         mActiveBoundTypes.forEach(BoundDynamicType::close);
-        mResolvedAvds.forEach(ResolvedAvd::unregisterCallback);
+        stopAvdAnimations();
     }
 
-    /**
-     * Returns the number of active bound dynamic types.
-     *
-     * @hide
-     */
-    @VisibleForTesting(otherwise = VisibleForTesting.NONE)
+    /** Returns the number of active bound dynamic types. */
+    @VisibleForTesting
     @SuppressWarnings("RestrictTo")
     int size() {
         return mActiveBoundTypes.stream().mapToInt(BoundDynamicType::getDynamicNodeCount).sum();
     }
 
-    /** Play the animation with the given trigger type */
+    /** Play the animation with the given trigger type. */
     @UiThread
     void playAvdAnimations(@NonNull InnerCase triggerCase) {
         for (ResolvedAvd entry : mResolvedAvds) {
@@ -148,7 +165,7 @@ class NodeInfo implements TreeNode {
                     && entry.mPlayedAtLeastOnce) {
                 continue;
             }
-            if (!mQuotaManager.tryAcquireQuota(1)) {
+            if (!mAnimationQuotaManager.tryAcquireQuota(1)) {
                 continue;
             }
             entry.startAnimation();
@@ -168,7 +185,7 @@ class NodeInfo implements TreeNode {
         mActiveBoundTypes.forEach(n -> n.setAnimationVisibility(visible));
     }
 
-    /** Reset the avd animations with the given trigger type */
+    /** Reset the avd animations with the given trigger type. */
     @UiThread
     void resetAvdAnimations(@NonNull InnerCase triggerCase) {
         for (ResolvedAvd entry : mResolvedAvds) {
@@ -178,16 +195,24 @@ class NodeInfo implements TreeNode {
         }
     }
 
-    /** Reset the avd animations with the given trigger type */
+    /** Stop the avd animations with the given trigger type. */
     @UiThread
-    void stopAvdAnimations() {
+    void stopAvdAnimations(@NonNull InnerCase triggerCase) {
         for (ResolvedAvd entry : mResolvedAvds) {
-            if (entry.mDrawable.isRunning()) {
+            if (entry.mDrawable.isRunning() && entry.mTrigger.getInnerCase() == triggerCase) {
                 entry.mDrawable.stop();
                 // We need to manually call the callback, as per Javadoc, callback is called later,
                 // on a different thread, meaning that quota won't be released in time.
                 entry.mCallback.onAnimationEnd(entry.mDrawable);
             }
+        }
+    }
+
+    /** Stop all running avd animations. */
+    @UiThread
+    void stopAvdAnimations() {
+        for (InnerCase triggerCase : InnerCase.values()) {
+            stopAvdAnimations(triggerCase);
         }
     }
 
@@ -205,12 +230,8 @@ class NodeInfo implements TreeNode {
         return null;
     }
 
-    /**
-     * Returns how many animations are running.
-     *
-     * @hide
-     */
-    @VisibleForTesting(otherwise = VisibleForTesting.NONE)
+    /** Returns how many animations are running. */
+    @VisibleForTesting
     @SuppressWarnings("RestrictTo")
     int getRunningAnimationCount() {
         return (int)
@@ -218,6 +239,12 @@ class NodeInfo implements TreeNode {
                                 .mapToInt(BoundDynamicType::getRunningAnimationCount)
                                 .sum()
                         + mResolvedAvds.stream().filter(avd -> avd.mDrawable.isRunning()).count());
+    }
+
+    /** Returns how many expression nodes evaluated. */
+    @VisibleForTesting
+    public int getExpressionNodesCount() {
+        return mActiveBoundTypes.stream().mapToInt(BoundDynamicType::getDynamicNodeCount).sum();
     }
 
     /** Stores the {@link AnimatedVisibility} associated with this node. */
@@ -255,10 +282,6 @@ class NodeInfo implements TreeNode {
             this.mTrigger = trigger;
             mPlayedAtLeastOnce = false;
             this.mDrawable.registerAnimationCallback(callback);
-        }
-
-        void unregisterCallback() {
-            mDrawable.unregisterAnimationCallback(mCallback);
         }
 
         void startAnimation() {

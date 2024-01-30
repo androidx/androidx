@@ -28,11 +28,6 @@ android {
 }
 
 dependencies {
-    // Atomic group
-    constraints {
-        implementation(project(":biometric:biometric-ktx"))
-    }
-
     // Public API dependencies
     api("androidx.annotation:annotation:1.1.0")
     api("androidx.core:core:1.3.2")
@@ -81,4 +76,5 @@ androidx {
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2018"
     description = "The Biometric library is a static library that you can add to your Android application. It invokes BiometricPrompt on devices running P and greater, and on older devices will show a compat dialog. Compatible on devices running API 14 or later."
+    metalavaK2UastEnabled = true
 }

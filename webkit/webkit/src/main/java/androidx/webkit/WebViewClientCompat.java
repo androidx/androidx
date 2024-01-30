@@ -59,7 +59,6 @@ public class WebViewClientCompat extends WebViewClient implements WebViewClientB
         Features.SAFE_BROWSING_HIT,
     };
 
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef(value = {
             WebViewClient.SAFE_BROWSING_THREAT_UNKNOWN,
@@ -75,7 +74,6 @@ public class WebViewClientCompat extends WebViewClient implements WebViewClientB
      * Returns the list of features this client supports. This feature list should always be a
      * subset of the Features declared in WebViewFeature.
      *
-     * @hide
      */
     @Override
     @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -125,7 +123,6 @@ public class WebViewClientCompat extends WebViewClient implements WebViewClientB
      * Applications are not meant to override this, and should instead override the non-final {@link
      * #onReceivedError(WebView, WebResourceRequest, WebResourceErrorCompat)} method.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
@@ -209,7 +206,6 @@ public class WebViewClientCompat extends WebViewClient implements WebViewClientB
      * Applications are not meant to override this, and should instead override the non-final {@link
      * #onSafeBrowsingHit(WebView, WebResourceRequest, int, SafeBrowsingResponseCompat)} method.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
@@ -300,7 +296,6 @@ public class WebViewClientCompat extends WebViewClient implements WebViewClientB
     }
 
     /**
-     * @hide
      */
     // TODO(crbug.com/1284805): Replace the missing override suppression annotation with @Override
     // After the boundary interface is rolled.

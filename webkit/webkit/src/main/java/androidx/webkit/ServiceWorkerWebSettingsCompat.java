@@ -36,12 +36,10 @@ import java.util.Set;
  */
 public abstract class ServiceWorkerWebSettingsCompat {
     /**
-     * @hide Don't allow apps to sub-class this class.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public ServiceWorkerWebSettingsCompat() {}
 
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef(value = {
             WebSettings.LOAD_DEFAULT,

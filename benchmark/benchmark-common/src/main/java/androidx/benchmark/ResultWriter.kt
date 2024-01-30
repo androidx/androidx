@@ -25,7 +25,6 @@ import androidx.test.platform.app.InstrumentationRegistry
 import java.io.File
 import java.io.IOException
 
-/** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public object ResultWriter {
 
@@ -44,7 +43,6 @@ public object ResultWriter {
 
             Outputs.writeFile(
                 fileName = "$packageName-benchmarkData.json",
-                reportKey = "results_json",
                 reportOnRunEndOnly = true
             ) {
                 Log.d(

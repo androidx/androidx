@@ -264,6 +264,7 @@
     <string name="tab_title_list" msgid="5104962518489668123">"लिस्ट ट्याब"</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"ट्याबको लामो शीर्षक भएको ग्रिड ट्याब"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"सर्च ट्याब"</string>
+    <string name="tab_title_loading" msgid="5385807479734490989">"ट्याब लोड गरिँदै छ"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"ट्याब टेम्प्लेट लोड गर्ने डेमो"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"कुनै पनि ट्याब नभएको ट्याब टेम्प्लेटको डेमो"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"अज्ञात होस्टका हकमा फोटोहरू देखाउन मिल्दैन"</string>
@@ -298,7 +299,7 @@
     <string name="some_additional_text" msgid="4009872495806318260">"केही अतिरिक्त टेक्स्ट"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"चयन गर्न मिल्ने सूचीको नमुना"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"कार्यमा लगाइने प्रतिबन्धको डेमो"</string>
-    <string name="task_limit_reached_msg" msgid="6038763366777119364">"कार्यको सीमा सकियो\nतपाईं अगाडि बढ्नुभयो भने एप जबरजस्ती रोकिने छ"</string>
+    <string name="task_limit_reached_msg" msgid="7162842196382260992">"तपाईंले यो बटनमा क्लिक गर्नुभयो भने चरणको सङ्ख्याका सम्बन्धमा तोकिएको सीमा नाघ्छ र तपाईंलाई नयाँ स्क्रिनमा लगिन्छ।"</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"%2$d कार्यको %1$d औँ चरण"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"अगाडि बढ्न क्लिक गर्नुहोस्"</string>
     <string name="task_content_allowed" msgid="545061986612431190">"कृपया फरक-फरक टेम्प्लेट प्रयोग गर्नुहोस् र कार ड्राइभिङ मोडमा छ भन्ने कुरा सुनिश्चित गर्नुहोस्"</string>
@@ -323,6 +324,12 @@
     <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"रो पनि चयन गर्न सकिन्छ"</string>
     <string name="secondary_action_toast" msgid="5076434693504006565">"सेकेन्डरी एक्सन चयन गरिएको छ"</string>
     <string name="row_primary_action_toast" msgid="756516694751965204">"रोको प्राइमरी एक्सन चयन गरिएको छ"</string>
+    <string name="sectioned_item_list_demo_title" msgid="1236735461225007729">"खण्डमा भएको सामग्रीको सूचीको डेमो"</string>
+    <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"सूची १"</string>
+    <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"सूची २"</string>
+    <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"प्रत्येक सूचीको मुनि रहेको सबटेक्स्ट"</string>
+    <string name="empty_list_demo_title" msgid="5989013634820902455">"खाली सूचीको डेमो"</string>
+    <string name="empty_list_message" msgid="5331395517560728138">"यो सूची खाली छ"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"टेम्प्लेटका विविध डेमोहरू"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"सोकेसहरूको डेमो"</string>
     <string name="template_layouts_demo_title" msgid="788249269446087847">"टेम्प्लेट लेआउटका डेमोहरू"</string>

@@ -17,11 +17,13 @@
 package androidx.compose.material
 
 import androidx.compose.animation.core.MutableTransitionState
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -32,6 +34,33 @@ import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
+
+@Deprecated(
+    level = DeprecationLevel.HIDDEN,
+    replaceWith = ReplaceWith(
+        expression = "DropdownMenu(expanded,onDismissRequest, modifier, offset, " +
+            "rememberScrollState(), properties, content)",
+        "androidx.compose.foundation.rememberScrollState"
+    ),
+    message = "Replaced by a DropdownMenu function with a ScrollState parameter"
+)
+@Composable
+fun DropdownMenu(
+    expanded: Boolean,
+    onDismissRequest: () -> Unit,
+    modifier: Modifier = Modifier,
+    offset: DpOffset = DpOffset(0.dp, 0.dp),
+    properties: PopupProperties = PopupProperties(focusable = true),
+    content: @Composable ColumnScope.() -> Unit
+) = DropdownMenu(
+    expanded = expanded,
+    onDismissRequest = onDismissRequest,
+    modifier = modifier,
+    offset = offset,
+    scrollState = rememberScrollState(),
+    properties = properties,
+    content = content
+)
 
 /**
  * <a href="https://material.io/components/menus#dropdown-menu" class="external" target="_blank">Material Design dropdown menu</a>.
@@ -55,28 +84,38 @@ import androidx.compose.ui.window.PopupProperties
  * tap outside the menu, or when the back key is pressed.
  *
  * [DropdownMenu] changes its positioning depending on the available space, always trying to be
- * fully visible. It will try to expand horizontally, depending on layout direction, to the end of
- * its parent, then to the start of its parent, and then screen end-aligned. Vertically, it will
- * try to expand to the bottom of its parent, then from the top of its parent, and then screen
- * top-aligned. An [offset] can be provided to adjust the positioning of the menu for cases when
- * the layout bounds of its parent do not coincide with its visual bounds. Note the offset will
- * be applied in the direction in which the menu will decide to expand.
+ * fully visible. Depending on layout direction, first it will try to align its start to the start
+ * of its parent, then its end to the end of its parent, and then to the edge of the window.
+ * Vertically, it will try to align its top to the bottom of its parent, then its bottom to top of
+ * its parent, and then to the edge of the window.
+ *
+ * An [offset] can be provided to adjust the positioning of the menu for cases when the layout
+ * bounds of its parent do not coincide with its visual bounds.
  *
  * Example usage:
  * @sample androidx.compose.material.samples.MenuSample
  *
- * @param expanded Whether the menu is currently open and visible to the user
- * @param onDismissRequest Called when the user requests to dismiss the menu, such as by
- * tapping outside the menu's bounds
- * @param offset [DpOffset] to be added to the position of the menu
+ * Example usage with a [ScrollState] to control the menu items scroll position:
+ * @sample androidx.compose.material.samples.MenuWithScrollStateSample
+ *
+ * @param expanded whether the menu is expanded or not
+ * @param onDismissRequest called when the user requests to dismiss the menu, such as by tapping
+ * outside the menu's bounds
+ * @param modifier [Modifier] to be applied to the menu's content
+ * @param offset [DpOffset] from the original position of the menu. The offset respects the
+ * [LayoutDirection], so the offset's x position will be added in LTR and subtracted in RTL.
+ * @param scrollState a [ScrollState] to used by the menu's content for items vertical scrolling
+ * @param properties [PopupProperties] for further customization of this popup's behavior
+ * @param content the content of this dropdown menu, typically a [DropdownMenuItem]
  */
 @Composable
-fun DropdownMenu(
+actual fun DropdownMenu(
     expanded: Boolean,
     onDismissRequest: () -> Unit,
-    modifier: Modifier = Modifier,
-    offset: DpOffset = DpOffset(0.dp, 0.dp),
-    properties: PopupProperties = PopupProperties(focusable = true),
+    modifier: Modifier,
+    offset: DpOffset,
+    scrollState: ScrollState,
+    properties: PopupProperties,
     content: @Composable ColumnScope.() -> Unit
 ) {
     val expandedStates = remember { MutableTransitionState(false) }
@@ -100,6 +139,7 @@ fun DropdownMenu(
             DropdownMenuContent(
                 expandedStates = expandedStates,
                 transformOriginState = transformOriginState,
+                scrollState = scrollState,
                 modifier = modifier,
                 content = content
             )
@@ -125,12 +165,12 @@ fun DropdownMenu(
  * appearance / behavior of this DropdownMenuItem in different [Interaction]s.
  */
 @Composable
-fun DropdownMenuItem(
+actual fun DropdownMenuItem(
     onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    contentPadding: PaddingValues = MenuDefaults.DropdownMenuItemContentPadding,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    modifier: Modifier,
+    enabled: Boolean,
+    contentPadding: PaddingValues,
+    interactionSource: MutableInteractionSource,
     content: @Composable RowScope.() -> Unit
 ) {
     DropdownMenuItemContent(

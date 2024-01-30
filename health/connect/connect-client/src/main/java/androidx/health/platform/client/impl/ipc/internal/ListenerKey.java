@@ -23,7 +23,6 @@ import androidx.annotation.RestrictTo.Scope;
 /**
  * Unique key to hold listener reference.
  *
- * @hide
  */
 @RestrictTo(Scope.LIBRARY)
 public final class ListenerKey {

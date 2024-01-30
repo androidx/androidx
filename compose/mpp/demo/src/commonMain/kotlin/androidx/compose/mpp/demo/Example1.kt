@@ -18,18 +18,17 @@ import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.runtime.Applier
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.input.pointer.PointerIcon
+import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.unit.dp
 import kotlinx.serialization.Serializable
 
 @Serializable // Not used at the moment, but added here to test compose with kotlinx.serialization compilation
@@ -64,7 +63,7 @@ fun Example1() {
                 .width(100.dp).height(100.dp)
                 .clickable {
                     println("Red box: clicked")
-                }
+                }.pointerHoverIcon(PointerIcon.Text)
         ) {
             Box(
                 modifier = Modifier
@@ -73,7 +72,7 @@ fun Example1() {
                     .width(20.dp).height(20.dp)
                     .clickable {
                         println("Small box: clicked")
-                    }
+                    }.pointerHoverIcon(PointerIcon.Hand)
             )
         }
         Spacer(

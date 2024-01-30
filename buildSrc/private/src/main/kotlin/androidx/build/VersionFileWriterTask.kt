@@ -17,6 +17,8 @@
 package androidx.build
 
 import com.android.build.gradle.LibraryExtension
+import java.io.File
+import java.io.PrintWriter
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.file.DirectoryProperty
@@ -25,8 +27,6 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
 import org.gradle.work.DisableCachingByDefault
-import java.io.File
-import java.io.PrintWriter
 
 /**
  * Task that allows to write a version to a given output file.

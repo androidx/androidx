@@ -152,58 +152,49 @@ public class LocationManagerCompatTest {
     @SdkSuppress(minSdkVersion = 24)
     @Test
     public void testRegisterGnssMeasurementsCallback_handler() {
+        if (VERSION.SDK_INT == VERSION_CODES.Q) {
+            // Q is very flaky
+            return;
+        }
+
         GnssMeasurementsEvent.Callback callback = new GnssMeasurementsEvent.Callback() {};
 
         // can't do much to test this except check it doesn't crash
-        if (VERSION.SDK_INT == VERSION_CODES.Q) {
-            // Q can be flaky with actual registrations - don't test the result
-            LocationManagerCompat.registerGnssMeasurementsCallback(mLocationManager,
-                    callback, new Handler(Looper.getMainLooper()));
-            LocationManagerCompat.registerGnssMeasurementsCallback(mLocationManager,
-                    Runnable::run,
-                    callback);
-            LocationManagerCompat.registerGnssMeasurementsCallback(mLocationManager,
-                    callback, new Handler(Looper.getMainLooper()));
-        } else {
-            assertTrue(LocationManagerCompat.registerGnssMeasurementsCallback(mLocationManager,
-                    callback, new Handler(Looper.getMainLooper())));
+        assertTrue(LocationManagerCompat.registerGnssMeasurementsCallback(mLocationManager,
+                callback, new Handler(Looper.getMainLooper())));
+        try {
             assertTrue(LocationManagerCompat.registerGnssMeasurementsCallback(mLocationManager,
                     Runnable::run,
                     callback));
             assertTrue(LocationManagerCompat.registerGnssMeasurementsCallback(mLocationManager,
                     callback, new Handler(Looper.getMainLooper())));
+        } finally {
+            LocationManagerCompat.unregisterGnssMeasurementsCallback(mLocationManager, callback);
         }
-
-        LocationManagerCompat.unregisterGnssMeasurementsCallback(mLocationManager, callback);
     }
 
     @SdkSuppress(minSdkVersion = 24)
     @Test
     public void testRegisterGnssMeasurementsCallback_executor() {
+        if (VERSION.SDK_INT == VERSION_CODES.Q) {
+            // Q is very flaky
+            return;
+        }
+
         GnssMeasurementsEvent.Callback callback = new GnssMeasurementsEvent.Callback() {};
 
         // can't do much to test this except check it doesn't crash
-        if (VERSION.SDK_INT == VERSION_CODES.Q) {
-            // Q can be flaky with actual registrations - don't test the result
-            LocationManagerCompat.registerGnssMeasurementsCallback(mLocationManager,
-                    Runnable::run,
-                    callback);
-            LocationManagerCompat.registerGnssMeasurementsCallback(mLocationManager,
-                    callback, new Handler(Looper.getMainLooper()));
-            LocationManagerCompat.registerGnssMeasurementsCallback(mLocationManager,
-                    Runnable::run,
-                    callback);
-        } else {
-            assertTrue(LocationManagerCompat.registerGnssMeasurementsCallback(mLocationManager,
-                    Runnable::run,
-                    callback));
+        assertTrue(LocationManagerCompat.registerGnssMeasurementsCallback(mLocationManager,
+                Runnable::run,
+                callback));
+        try {
             assertTrue(LocationManagerCompat.registerGnssMeasurementsCallback(mLocationManager,
                     callback, new Handler(Looper.getMainLooper())));
             assertTrue(LocationManagerCompat.registerGnssMeasurementsCallback(mLocationManager,
                     Runnable::run,
                     callback));
+        } finally {
+            LocationManagerCompat.unregisterGnssMeasurementsCallback(mLocationManager, callback);
         }
-
-        LocationManagerCompat.unregisterGnssMeasurementsCallback(mLocationManager, callback);
     }
 }

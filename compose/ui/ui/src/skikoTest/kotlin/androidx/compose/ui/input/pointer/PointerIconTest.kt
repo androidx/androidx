@@ -17,32 +17,52 @@
 package androidx.compose.ui.input.pointer
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.ComposeScene
-import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.ImageComposeScene
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.assertThat
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.asComposeCanvas
 import androidx.compose.ui.isEqualTo
 import androidx.compose.ui.platform.LocalPointerIconService
-import androidx.compose.ui.platform.Platform
-import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.platform.PlatformContext
+import androidx.compose.ui.scene.ComposeScene
+import androidx.compose.ui.scene.ComposeSceneContext
+import androidx.compose.ui.scene.SingleLayerComposeScene
+import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.runSkikoComposeUiTest
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntRect
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.use
+import kotlin.coroutines.CoroutineContext
 import kotlin.test.Test
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.jetbrains.skia.Surface
+import org.jetbrains.skiko.FrameDispatcher
 
-@OptIn(ExperimentalComposeUiApi::class)
 class PointerIconTest {
     private val iconService = object : PointerIconService {
-        override var current: PointerIcon = PointerIcon.Default
+        private var current: PointerIcon = PointerIcon.Default
+
+        override fun getIcon(): PointerIcon {
+            return current
+        }
+
+        override fun setIcon(value: PointerIcon?) {
+            current = value ?: PointerIcon.Default
+        }
     }
 
     @Test
@@ -67,17 +87,19 @@ class PointerIconTest {
         }
 
         scene.sendPointerEvent(PointerEventType.Move, Offset(5f, 5f))
-        assertThat(iconService.current).isEqualTo(PointerIcon.Text)
+        assertThat(iconService.getIcon()).isEqualTo(PointerIcon.Text)
     }
 
     @Test
     fun commitsToComponent() {
-        val component = IconPlatform()
+        val iconContext = IconPlatformContext()
         val surface = Surface.makeRasterN32Premul(100, 100)
-        val scene = ComposeScene(platform = component)
+        val scene = SingleLayerComposeScene(
+            platformContext = iconContext,
+        )
 
         try {
-            scene.constraints = Constraints(maxWidth = surface.width, maxHeight = surface.height)
+            scene.boundsInWindow = IntRect(0, 0, surface.width, surface.height)
             scene.setContent {
                 Box(
                     modifier = Modifier
@@ -92,7 +114,7 @@ class PointerIconTest {
             }
 
             scene.sendPointerEvent(PointerEventType.Move, Offset(5f, 5f))
-            assertThat(component._pointerIcon).isEqualTo(PointerIcon.Text)
+            assertThat(iconContext._pointerIcon).isEqualTo(PointerIcon.Text)
         } finally {
             scene.close()
         }
@@ -100,12 +122,14 @@ class PointerIconTest {
 
     @Test
     fun preservedIfSameEventDispatchedTwice() {
-        val component = IconPlatform()
+        val iconContext = IconPlatformContext()
         val surface = Surface.makeRasterN32Premul(100, 100)
-        val scene = ComposeScene(platform = component)
+        val scene = SingleLayerComposeScene(
+            platformContext = iconContext,
+        )
 
         try {
-            scene.constraints = Constraints(maxWidth = surface.width, maxHeight = surface.height)
+            scene.boundsInWindow = IntRect(0, 0, surface.width, surface.height)
             scene.setContent {
                 Box(
                     modifier = Modifier
@@ -121,7 +145,7 @@ class PointerIconTest {
 
             scene.sendPointerEvent(PointerEventType.Move, Offset(5f, 5f))
             scene.sendPointerEvent(PointerEventType.Move, Offset(5f, 5f))
-            assertThat(component._pointerIcon).isEqualTo(PointerIcon.Text)
+            assertThat(iconContext._pointerIcon).isEqualTo(PointerIcon.Text)
         } finally {
             scene.close()
         }
@@ -149,11 +173,14 @@ class PointerIconTest {
             }
         }
 
+        // skip one frame, so Compose will properly calculate Boxes hierarchy
+        // and detect overrideDescendants
+        scene.render()
         scene.sendPointerEvent(PointerEventType.Move, Offset(5f, 5f))
-        assertThat(iconService.current).isEqualTo(PointerIcon.Hand)
+        assertThat(iconService.getIcon()).isEqualTo(PointerIcon.Hand)
 
         scene.sendPointerEvent(PointerEventType.Move, Offset(15f, 15f))
-        assertThat(iconService.current).isEqualTo(PointerIcon.Hand)
+        assertThat(iconService.getIcon()).isEqualTo(PointerIcon.Hand)
     }
 
     @Test
@@ -179,29 +206,35 @@ class PointerIconTest {
         }
 
         scene.sendPointerEvent(PointerEventType.Move, Offset(5f, 5f))
-        assertThat(iconService.current).isEqualTo(PointerIcon.Text)
+        assertThat(iconService.getIcon()).isEqualTo(PointerIcon.Text)
 
         scene.sendPointerEvent(PointerEventType.Move, Offset(15f, 15f))
-        assertThat(iconService.current).isEqualTo(PointerIcon.Hand)
+        assertThat(iconService.getIcon()).isEqualTo(PointerIcon.Hand)
     }
 
     @Test
     @OptIn(ExperimentalCoroutinesApi::class)
-    fun whenHoveredShouldCommitWithoutMoveWhenIconChanges() = runTest(UnconfinedTestDispatcher()) {
-        val component = IconPlatform()
+    fun whenHoveredShouldCommitWithoutMoveWhenIconChanges() = runTest(StandardTestDispatcher()) {
+        val iconContext = IconPlatformContext()
         val surface = Surface.makeRasterN32Premul(100, 100)
-        var scene: ComposeScene? = null
+        lateinit var scene: ComposeScene
 
-        scene = ComposeScene(platform = component, invalidate = {
-            scene?.render(surface.canvas, 1)
-        }, coroutineContext = coroutineContext)
-
+        val frameDispatcher = FrameDispatcher(coroutineContext) {
+            scene.render(surface.canvas.asComposeCanvas(), 1)
+        }
+        scene = SingleLayerComposeScene(
+            coroutineContext = coroutineContext,
+            platformContext = iconContext,
+            invalidate = {
+                frameDispatcher.scheduleFrame()
+            }
+        )
         val iconState = mutableStateOf(PointerIcon.Text)
 
         val recomposeChannel = Channel<Int>(Channel.CONFLATED) // helps with waiting for recomposition
         var count = 0
         try {
-            scene.constraints = Constraints(maxWidth = surface.width, maxHeight = surface.height)
+            scene.boundsInWindow = IntRect(0, 0, surface.width, surface.height)
             scene.setContent {
                 Box(
                     modifier = Modifier.pointerHoverIcon(iconState.value).size(30.dp, 30.dp)
@@ -210,36 +243,46 @@ class PointerIconTest {
             }
             scene.sendPointerEvent(PointerEventType.Move, Offset(5f, 5f))
             assertThat(recomposeChannel.receive()).isEqualTo(1)
-            assertThat(component._pointerIcon).isEqualTo(PointerIcon.Text)
+            assertThat(iconContext._pointerIcon).isEqualTo(PointerIcon.Text)
 
             // No move, but change should be applied anyway
             iconState.value = PointerIcon.Crosshair
             assertThat(recomposeChannel.receive()).isEqualTo(2)
-            assertThat(component._pointerIcon).isEqualTo(PointerIcon.Crosshair)
+            assertThat(iconContext._pointerIcon).isEqualTo(PointerIcon.Crosshair)
         } finally {
             scene.close()
+            frameDispatcher.cancel()
         }
     }
 
     @Test
     @OptIn(ExperimentalCoroutinesApi::class)
-    fun whenNotHoveredShouldNeverCommit() = runTest(UnconfinedTestDispatcher()) {
-        val component = IconPlatform()
+    fun whenNotHoveredShouldNeverCommit() = runTest(StandardTestDispatcher()) {
+        val iconContext = IconPlatformContext()
         val surface = Surface.makeRasterN32Premul(100, 100)
-        var scene: ComposeScene? = null
+        lateinit var scene: ComposeScene
 
-        scene = ComposeScene(platform = component, invalidate = {
-            scene?.render(surface.canvas, 1)
-        }, coroutineContext = coroutineContext)
+        val frameDispatcher = FrameDispatcher(coroutineContext) {
+            scene.render(surface.canvas.asComposeCanvas(), 1)
+        }
+        scene = SingleLayerComposeScene(
+            coroutineContext = coroutineContext,
+            platformContext = iconContext,
+            invalidate = {
+                frameDispatcher.scheduleFrame()
+            }
+        )
 
         val iconState = mutableStateOf(PointerIcon.Text)
 
         val recomposeChannel = Channel<Int>(Channel.CONFLATED) // helps with waiting for recomposition
         var count = 0
         try {
-            scene.constraints = Constraints(maxWidth = surface.width, maxHeight = surface.height)
+            scene.boundsInWindow = IntRect(0, 0, surface.width, surface.height)
             scene.setContent {
-                Box(modifier = Modifier.size(100.dp, 100.dp).pointerInput(Unit) { }) {
+                Box(
+                    modifier = Modifier.size(100.dp, 100.dp).pointerHoverIcon(PointerIcon.Default)
+                ) {
                     Box(
                         modifier = Modifier.pointerHoverIcon(iconState.value).size(30.dp, 30.dp)
                     )
@@ -247,24 +290,53 @@ class PointerIconTest {
                 recomposeChannel.trySend(++count)
             }
             assertThat(recomposeChannel.receive()).isEqualTo(1)
-            assertThat(component._pointerIcon).isEqualTo(null)
+            assertThat(iconContext._pointerIcon).isEqualTo(null)
 
             // No move, not hovered. No pointer icon change expected
             iconState.value = PointerIcon.Crosshair
             assertThat(recomposeChannel.receive()).isEqualTo(2)
-            assertThat(component._pointerIcon).isEqualTo(null)
+            assertThat(iconContext._pointerIcon).isEqualTo(null)
 
             // Move, but not hovered. Pointer Icon should be Default
             scene.sendPointerEvent(PointerEventType.Move, Offset(90f, 95f))
-            assertThat(component._pointerIcon).isEqualTo(PointerIcon.Default)
+            assertThat(iconContext._pointerIcon).isEqualTo(PointerIcon.Default)
         } finally {
-            val toClose = scene
-            scene = null // otherwise, invalidate (scene?.render...) crashes
-            toClose.close()
+            scene.close()
+            frameDispatcher.cancel()
         }
     }
 
-    private class IconPlatform : Platform by Platform.Empty {
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun resetsToDefault() = runSkikoComposeUiTest(Size(width = 100f, height = 100f)) {
+        var show by mutableStateOf(true)
+        setContent {
+            CompositionLocalProvider(LocalPointerIconService provides iconService) {
+                Box(Modifier.fillMaxSize()) {
+                    if (show) {
+                        Box(
+                            modifier = Modifier
+                                .pointerHoverIcon(PointerIcon.Text)
+                                .size(10.dp, 10.dp)
+                        )
+                    }
+                }
+            }
+        }
+
+        assertThat(iconService.getIcon()).isEqualTo(PointerIcon.Default)
+
+        scene.sendPointerEvent(PointerEventType.Move, Offset(5f, 5f))
+        assertThat(iconService.getIcon()).isEqualTo(PointerIcon.Text)
+
+        show = false
+        waitForIdle()
+        assertThat(iconService.getIcon()).isEqualTo(PointerIcon.Default)
+    }
+
+
+    private class IconPlatformContext : PlatformContext by PlatformContext.Empty {
+        @Suppress("PropertyName")
         var _pointerIcon: PointerIcon? = null
 
         override fun setPointerIcon(pointerIcon: PointerIcon) {
@@ -272,3 +344,15 @@ class PointerIconTest {
         }
     }
 }
+
+private fun SingleLayerComposeScene(
+    coroutineContext: CoroutineContext = Dispatchers.Unconfined,
+    platformContext: PlatformContext,
+    invalidate: () -> Unit = {},
+) = SingleLayerComposeScene(
+    coroutineContext = coroutineContext,
+    composeSceneContext = object : ComposeSceneContext {
+        override val platformContext get() = platformContext
+    },
+    invalidate = invalidate
+)

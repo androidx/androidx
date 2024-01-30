@@ -23,7 +23,12 @@ import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.protolayout.expression.Fingerprint;
 import androidx.wear.protolayout.proto.StateProto;
 
-/** Builders for state of a tile. */
+/**
+ * Builders for state of a tile.
+ *
+ * @deprecated Use {@link androidx.wear.protolayout.StateBuilders} instead.
+ */
+@Deprecated
 public final class StateBuilders {
     private StateBuilders() {}
 
@@ -43,25 +48,19 @@ public final class StateBuilders {
             return mImpl.getLastClickableId();
         }
 
-        /**
-         * Get the fingerprint for this object, or null if unknown.
-         *
-         * @hide
-         */
+        /** Get the fingerprint for this object, or null if unknown. */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Nullable
         public Fingerprint getFingerprint() {
             return mFingerprint;
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static State fromProto(@NonNull StateProto.State proto) {
             return new State(proto, null);
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public StateProto.State toProto() {

@@ -100,26 +100,31 @@ open class ComponentDialog @JvmOverloads constructor(
     }
 
     override fun setContentView(layoutResID: Int) {
-        initViewTreeOwners()
+        initializeViewTreeOwners()
         super.setContentView(layoutResID)
     }
 
     override fun setContentView(view: View) {
-        initViewTreeOwners()
+        initializeViewTreeOwners()
         super.setContentView(view)
     }
 
     override fun setContentView(view: View, params: ViewGroup.LayoutParams?) {
-        initViewTreeOwners()
+        initializeViewTreeOwners()
         super.setContentView(view, params)
     }
 
     override fun addContentView(view: View, params: ViewGroup.LayoutParams?) {
-        initViewTreeOwners()
+        initializeViewTreeOwners()
         super.addContentView(view, params)
     }
 
-    private fun initViewTreeOwners() {
+    /**
+     * Sets the view tree owners before setting the content view so that the
+     * inflation process and attach listeners will see them already present.
+     */
+    @CallSuper
+    open fun initializeViewTreeOwners() {
         window!!.decorView.setViewTreeLifecycleOwner(this)
         window!!.decorView.setViewTreeOnBackPressedDispatcherOwner(this)
         window!!.decorView.setViewTreeSavedStateRegistryOwner(this)

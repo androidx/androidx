@@ -70,7 +70,6 @@ public final class TvContractCompat {
     /**
      * Permission to read TV listings. This is required to read all the TV channel and program
      * information available on the system.
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static final String PERMISSION_READ_TV_LISTINGS = "android.permission.READ_TV_LISTINGS";
@@ -93,7 +92,6 @@ public final class TvContractCompat {
      *     integer.</li>
      *     <li>{@link #EXTRA_PACKAGE_NAME}: the package name of the requesting application.</li>
      * </ul>
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static final String ACTION_CHANNEL_BROWSABLE_REQUESTED =
@@ -179,7 +177,6 @@ public final class TvContractCompat {
 
     /**
      * The key for a bundle parameter containing a package name as a string.
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static final String EXTRA_PACKAGE_NAME = "android.media.tv.extra.PACKAGE_NAME";
@@ -206,7 +203,6 @@ public final class TvContractCompat {
      *
      * @see ContentResolver#call(Uri, String, String, Bundle)
      * @see #EXTRA_EXISTING_COLUMN_NAMES
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static final String METHOD_GET_COLUMNS = "get_columns";
@@ -236,7 +232,6 @@ public final class TvContractCompat {
      * @see #EXTRA_DATA_TYPE
      * @see #EXTRA_DEFAULT_VALUE
      * @see #EXTRA_EXISTING_COLUMN_NAMES
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static final String METHOD_ADD_COLUMN = "add_column";
@@ -247,7 +242,6 @@ public final class TvContractCompat {
      *
      * @see #METHOD_GET_COLUMNS
      * @see #METHOD_ADD_COLUMN
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static final String EXTRA_EXISTING_COLUMN_NAMES =
@@ -258,7 +252,6 @@ public final class TvContractCompat {
      * given table as a non-empty {@link CharSequence}.
      *
      * @see #METHOD_ADD_COLUMN
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static final String EXTRA_COLUMN_NAME = "android.media.tv.extra.COLUMN_NAME";
@@ -269,7 +262,6 @@ public final class TvContractCompat {
      * values: {@code "TEXT"}, {@code "INTEGER"}, {@code "REAL"}, or {@code "BLOB"}.
      *
      * @see #METHOD_ADD_COLUMN
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static final String EXTRA_DATA_TYPE = "android.media.tv.extra.DATA_TYPE";
@@ -280,7 +272,6 @@ public final class TvContractCompat {
      * according to the data type provided with {@link #EXTRA_DATA_TYPE}.
      *
      * @see #METHOD_ADD_COLUMN
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static final String EXTRA_DEFAULT_VALUE = "android.media.tv.extra.DEFAULT_VALUE";
@@ -288,7 +279,6 @@ public final class TvContractCompat {
     /**
      * An optional query, update or delete URI parameter that allows the caller to specify TV input
      * ID to filter channels.
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static final String PARAM_INPUT = "input";
@@ -296,7 +286,6 @@ public final class TvContractCompat {
     /**
      * An optional query, update or delete URI parameter that allows the caller to specify channel
      * ID to filter programs.
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static final String PARAM_CHANNEL = "channel";
@@ -304,7 +293,6 @@ public final class TvContractCompat {
     /**
      * An optional query, update or delete URI parameter that allows the caller to specify start
      * time (in milliseconds since the epoch) to filter programs.
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static final String PARAM_START_TIME = "start_time";
@@ -312,7 +300,6 @@ public final class TvContractCompat {
     /**
      * An optional query, update or delete URI parameter that allows the caller to specify end time
      * (in milliseconds since the epoch) to filter programs.
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static final String PARAM_END_TIME = "end_time";
@@ -321,7 +308,6 @@ public final class TvContractCompat {
      * A query, update or delete URI parameter that allows the caller to operate on all or
      * browsable-only channels. If set to "true", the rows that contain non-browsable channels are
      * not affected.
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static final String PARAM_BROWSABLE_ONLY = "browsable_only";
@@ -329,7 +315,6 @@ public final class TvContractCompat {
     /**
      * A optional query, update or delete URI parameter that allows the caller to specify canonical
      * genre to filter programs.
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static final String PARAM_CANONICAL_GENRE = "canonical_genre";
@@ -600,7 +585,6 @@ public final class TvContractCompat {
 
     /**
      * Common columns for the tables of TV programs.
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     interface ProgramColumns {
@@ -929,9 +913,7 @@ public final class TvContractCompat {
 
     /**
      * Common columns for the tables of preview programs.
-     * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public interface PreviewProgramColumns {
         /**
          * The program type for movie.
@@ -1564,7 +1546,6 @@ public final class TvContractCompat {
         /** The MIME type of a single TV channel. */
         public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/channel";
 
-        /** @hide */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         @StringDef({
                 TYPE_OTHER,
@@ -1778,7 +1759,6 @@ public final class TvContractCompat {
          */
         public static final String TYPE_PREVIEW = "TYPE_PREVIEW";
 
-        /** @hide */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         @StringDef({
                 SERVICE_TYPE_OTHER,
@@ -1797,7 +1777,6 @@ public final class TvContractCompat {
         /** The service type for radio channels that have audio only. */
         public static final String SERVICE_TYPE_AUDIO = "SERVICE_TYPE_AUDIO";
 
-        /** @hide */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         @StringDef({
                 VIDEO_FORMAT_240P,
@@ -1847,7 +1826,6 @@ public final class TvContractCompat {
         /** The video format for 4320p. */
         public static final String VIDEO_FORMAT_4320P = "VIDEO_FORMAT_4320P";
 
-        /** @hide */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         @StringDef({
                 VIDEO_RESOLUTION_SD,
@@ -2310,7 +2288,6 @@ public final class TvContractCompat {
          * is set to 0 (not approved) by default.
          *
          * <p>Type: INTEGER (boolean)
-         * @hide
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         public static final String COLUMN_SYSTEM_APPROVED = "system_approved";
@@ -2548,7 +2525,6 @@ public final class TvContractCompat {
 
         /** Canonical genres for TV programs. */
         public static final class Genres {
-            /** @hide */
             @RestrictTo(RestrictTo.Scope.LIBRARY)
             @StringDef({
                     FAMILY_KIDS,

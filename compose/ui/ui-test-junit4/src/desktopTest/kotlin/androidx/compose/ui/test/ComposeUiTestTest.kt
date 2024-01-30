@@ -16,12 +16,19 @@
 
 package androidx.compose.ui.test
 
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.withFrameMillis
 import androidx.compose.ui.MotionDurationScale
 import androidx.compose.ui.test.junit4.createComposeRule
 import com.google.common.truth.Truth.assertThat
 import kotlin.coroutines.CoroutineContext
+import kotlin.test.fail
 import kotlinx.coroutines.CoroutineScope
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestWatcher
@@ -47,7 +54,10 @@ class ComposeUiTestTest {
         }
     }
 
+    // TODO why this test passed before the check for effectContext was added?
+    //  effectContext didn't passed anywhere.
     @Test
+    @Ignore("effectContext isn't implemented https://github.com/JetBrains/compose-multiplatform/issues/2960")
     fun effectContextPropagatedToComposition_runComposeUiTest() {
         val testElement = TestCoroutineContextElement()
         runComposeUiTest(effectContext = testElement) {
@@ -64,7 +74,10 @@ class ComposeUiTestTest {
         }
     }
 
+    // TODO why this test passed before the check for effectContext was added?
+    //  effectContext didn't passed anywhere.
     @Test
+    @Ignore("effectContext isn't implemented https://github.com/JetBrains/compose-multiplatform/issues/2960")
     fun effectContextPropagatedToComposition_createComposeRule() {
         val testElement = TestCoroutineContextElement()
         lateinit var compositionScope: CoroutineScope
@@ -98,7 +111,10 @@ class ComposeUiTestTest {
         }
     }
 
+    // TODO why this test passed before the check for effectContext was added?
+    //  effectContext didn't passed anywhere.
     @Test
+    @Ignore("effectContext isn't implemented https://github.com/JetBrains/compose-multiplatform/issues/2960")
     fun motionDurationScale_propagatedToCoroutines() {
         val motionDurationScale = object : MotionDurationScale {
             override val scaleFactor: Float get() = 0f
@@ -112,6 +128,32 @@ class ComposeUiTestTest {
 
             runOnIdle {
                 assertThat(lastRecordedMotionDurationScale).isEqualTo(0f)
+            }
+        }
+    }
+
+    @Test
+    fun effectShouldBeCancelledImmediately() {
+        runComposeUiTest {
+            var runEffect by mutableStateOf(false)
+
+            setContent {
+                if (runEffect) {
+                    LaunchedEffect(Unit) {
+                        repeat(5) {
+                            withFrameMillis {}
+                        }
+                        runEffect = false
+                        withFrameMillis {
+                            fail("Effect should have stopped running")
+                        }
+                    }
+                }
+            }
+
+            repeat(2000) {
+                runEffect = true
+                waitForIdle()
             }
         }
     }

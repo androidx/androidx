@@ -19,10 +19,7 @@ package androidx.compose.foundation
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.focus.FocusRequester
@@ -97,6 +94,7 @@ fun Modifier.onClick(
  * @param onDoubleClick will be called when user double clicks on the element
  * @param onClick will be called when user clicks on the element
  */
+// TODO(https://youtrack.jetbrains.com/issue/COMPOSE-156) rewrite to Modifier.Node
 @ExperimentalFoundationApi
 fun Modifier.onClick(
     enabled: Boolean = true,
@@ -120,7 +118,7 @@ fun Modifier.onClick(
     factory = {
 
         val gestureModifier = if (enabled) {
-            val pressedInteraction = remember { mutableStateOf<PressInteraction.Press?>(null) }
+            val interactionData = remember { AbstractClickableNode.InteractionData() }
             val onClickState = rememberUpdatedState(onClick)
             val on2xClickState = rememberUpdatedState(onDoubleClick)
             val onLongClickState = rememberUpdatedState(onLongClick)
@@ -133,18 +131,26 @@ fun Modifier.onClick(
 
             DisposableEffect(hasLongClick) {
                 onDispose {
-                    pressedInteraction.value?.let { oldValue ->
+                    interactionData.pressInteraction?.let { oldValue ->
                         val interaction = PressInteraction.Cancel(oldValue)
                         interactionSource.tryEmit(interaction)
-                        pressedInteraction.value = null
+                        interactionData.pressInteraction = null
                     }
                 }
             }
-            PressedInteractionSourceDisposableEffect(
-                interactionSource = interactionSource,
-                pressedInteraction = pressedInteraction,
-                currentKeyPressInteractions = currentKeyPressInteractions
-            )
+            DisposableEffect(interactionSource) {
+                onDispose {
+                    interactionData.pressInteraction?.let { oldValue ->
+                        val interaction = PressInteraction.Cancel(oldValue)
+                        interactionSource.tryEmit(interaction)
+                        interactionData.pressInteraction = null
+                    }
+                    currentKeyPressInteractions.values.forEach {
+                        interactionSource.tryEmit(PressInteraction.Cancel(it))
+                    }
+                    currentKeyPressInteractions.clear()
+                }
+            }
 
             val matcherState = rememberUpdatedState(matcher)
 
@@ -156,7 +162,9 @@ fun Modifier.onClick(
                     },
                     onDoubleTap = if (hasDoubleClick) {
                         {
-                            focusRequester.requestFocus()
+                            if (isMouseInputWorkaround()) {
+                                focusRequester.requestFocus()
+                            }
                             on2xClickState.value!!.invoke()
                         }
                     } else {
@@ -164,22 +172,26 @@ fun Modifier.onClick(
                     },
                     onLongPress = if (hasLongClick) {
                         {
-                            focusRequester.requestFocus()
+                            if (isMouseInputWorkaround()) {
+                                focusRequester.requestFocus()
+                            }
                             onLongClickState.value!!.invoke()
                         }
                     } else {
                         null
                     },
                     onTap = {
-                        focusRequester.requestFocus()
+                        if (isMouseInputWorkaround()) {
+                            focusRequester.requestFocus()
+                        }
                         onClickState.value()
                     },
                     onPress = {
                         handlePressInteraction(
                             pressPoint = it,
                             interactionSource = interactionSource,
-                            pressedInteraction = pressedInteraction,
-                            delayPressInteraction = mutableStateOf({ false })
+                            interactionData = interactionData,
+                            delayPressInteraction = { false }
                         )
                     }
                 )

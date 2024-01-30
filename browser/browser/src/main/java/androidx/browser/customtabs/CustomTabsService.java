@@ -20,6 +20,7 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.IBinder.DeathRecipient;
@@ -148,7 +149,6 @@ public abstract class CustomTabsService extends Service {
     /**
      * Enumerates the possible purposes of files received in {@link #receiveFile}.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Retention(RetentionPolicy.SOURCE)
@@ -162,6 +162,8 @@ public abstract class CustomTabsService extends Service {
      * are loading.
      */
     public static final int FILE_PURPOSE_TRUSTED_WEB_ACTIVITY_SPLASH_IMAGE = 1;
+
+    private static final String TAG = "CustomTabsService";
 
     final SimpleArrayMap<IBinder, DeathRecipient> mDeathRecipientMap = new SimpleArrayMap<>();
 
@@ -224,7 +226,8 @@ public abstract class CustomTabsService extends Service {
         public boolean requestPostMessageChannel(@NonNull ICustomTabsCallback callback,
                 @NonNull Uri postMessageOrigin) {
             return CustomTabsService.this.requestPostMessageChannel(
-                    new CustomTabsSessionToken(callback, null), postMessageOrigin);
+                    new CustomTabsSessionToken(callback, null), postMessageOrigin,
+                    null, new Bundle());
         }
 
         @Override
@@ -232,7 +235,7 @@ public abstract class CustomTabsService extends Service {
                 @NonNull Uri postMessageOrigin, @NonNull Bundle extras) {
             return CustomTabsService.this.requestPostMessageChannel(
                     new CustomTabsSessionToken(callback, getSessionIdFromBundle(extras)),
-                    postMessageOrigin);
+                    postMessageOrigin, getTargetOriginFromBundle(extras), extras);
         }
 
         @Override
@@ -260,6 +263,25 @@ public abstract class CustomTabsService extends Service {
                     uri, purpose, extras);
         }
 
+        @Override
+        public boolean isEngagementSignalsApiAvailable(ICustomTabsCallback customTabsCallback,
+                @NonNull Bundle extras) {
+            return CustomTabsService.this.isEngagementSignalsApiAvailable(
+                    new CustomTabsSessionToken(customTabsCallback, getSessionIdFromBundle(extras)),
+                    extras);
+        }
+
+        @Override
+        public boolean setEngagementSignalsCallback(
+                @NonNull ICustomTabsCallback customTabsCallback, @NonNull IBinder callback,
+                @NonNull Bundle extras) {
+            EngagementSignalsCallback remote = EngagementSignalsCallbackRemote.fromBinder(
+                    callback);
+            return CustomTabsService.this.setEngagementSignalsCallback(
+                    new CustomTabsSessionToken(customTabsCallback, getSessionIdFromBundle(extras)),
+                    remote, extras);
+        }
+
         @SuppressWarnings("deprecation")
         private @Nullable PendingIntent getSessionIdFromBundle(@Nullable Bundle bundle) {
             if (bundle == null) return null;
@@ -267,6 +289,17 @@ public abstract class CustomTabsService extends Service {
             PendingIntent sessionId = bundle.getParcelable(CustomTabsIntent.EXTRA_SESSION_ID);
             bundle.remove(CustomTabsIntent.EXTRA_SESSION_ID);
             return sessionId;
+        }
+
+        @SuppressWarnings("deprecation")
+        private @Nullable Uri getTargetOriginFromBundle(@Nullable Bundle bundle) {
+            if (bundle == null) return null;
+            if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                return Api33Impl.getParcelable(bundle, CustomTabsSession.TARGET_ORIGIN_KEY,
+                        Uri.class);
+            } else {
+                return bundle.getParcelable(CustomTabsSession.TARGET_ORIGIN_KEY);
+            }
         }
     };
 
@@ -406,6 +439,25 @@ public abstract class CustomTabsService extends Service {
             @NonNull CustomTabsSessionToken sessionToken, @NonNull Uri postMessageOrigin);
 
     /**
+     * Same as above method with specifying the target origin to establish communication with.
+     *
+     * @param sessionToken      The unique identifier for the session. Can not be null.
+     * @param postMessageOrigin A origin that the client is requesting to be identified as
+     *                          during the postMessage communication.
+     * @param postMessageTargetOrigin The target Origin to establish PostMessageChannel with and
+     *                                 send messages to.
+     * @param extras  Reserved for future use.
+     * @return Whether the implementation accepted the request. Note that returning true
+     * here doesn't mean an origin has already been assigned as the validation is
+     * asynchronous.
+     */
+    protected boolean requestPostMessageChannel(
+            @NonNull CustomTabsSessionToken sessionToken, @NonNull Uri postMessageOrigin,
+            @Nullable Uri postMessageTargetOrigin, @NonNull Bundle extras) {
+        return requestPostMessageChannel(sessionToken, postMessageOrigin);
+    }
+
+    /**
      * Sends a postMessage request using the origin communicated via
      * {@link CustomTabsService#requestPostMessageChannel(
      *CustomTabsSessionToken, Uri)}. Fails when called before
@@ -458,4 +510,39 @@ public abstract class CustomTabsService extends Service {
      */
     protected abstract boolean receiveFile(@NonNull CustomTabsSessionToken sessionToken,
             @NonNull Uri uri, @FilePurpose int purpose, @Nullable Bundle extras);
+
+    /**
+     * Returns whether the Engagement Signals API is available. The availability of the Engagement
+     * Signals API may change at runtime. If an {@link EngagementSignalsCallback} has been set, an
+     * {@link EngagementSignalsCallback#onSessionEnded} signal will be sent if the API becomes
+     * unavailable later.
+     *
+     * @param sessionToken The unique identifier for the session.
+     * @param extras Reserved for future use.
+     * @return Whether the Engagement Signals API is available. A false value means
+     *         {@link #setEngagementSignalsCallback} will return false and not set the callback.
+     */
+    protected boolean isEngagementSignalsApiAvailable(@NonNull CustomTabsSessionToken sessionToken,
+            @NonNull Bundle extras) {
+        return false;
+    }
+
+    /**
+     * Sets an {@link EngagementSignalsCallback} to execute callbacks for events related to
+     * the user's engagement with the webpage within the tab.
+     *
+     * @param sessionToken The unique identifier for the session.
+     * @param callback The {@link EngagementSignalsCallback} to execute the callbacks.
+     * @param extras Reserved for future use.
+     * @return Whether the callback connection is allowed. If false, no callbacks will be called for
+     *         this session.
+     */
+    // This is called by the implementation which already has the ability to decide on which
+    // thread to run the callbacks.
+    @SuppressWarnings("ExecutorRegistration")
+    protected boolean setEngagementSignalsCallback(
+            @NonNull CustomTabsSessionToken sessionToken,
+            @NonNull EngagementSignalsCallback callback, @NonNull Bundle extras) {
+        return false;
+    }
 }

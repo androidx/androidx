@@ -19,6 +19,7 @@ package androidx.wear.protolayout.expression.pipeline;
 import android.util.Log;
 
 import androidx.annotation.UiThread;
+import androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool;
 import androidx.wear.protolayout.expression.proto.DynamicProto;
 import androidx.wear.protolayout.expression.proto.DynamicProto.ComparisonFloatOp;
 import androidx.wear.protolayout.expression.proto.DynamicProto.ComparisonInt32Op;
@@ -32,9 +33,10 @@ class BoolNodes {
     /** Dynamic boolean node that has a fixed value. */
     static class FixedBoolNode implements DynamicDataSourceNode<Boolean> {
         private final boolean mValue;
-        private final DynamicTypeValueReceiver<Boolean> mDownstream;
+        private final DynamicTypeValueReceiverWithPreUpdate<Boolean> mDownstream;
 
-        FixedBoolNode(FixedBool protoNode, DynamicTypeValueReceiver<Boolean> downstream) {
+        FixedBoolNode(
+                FixedBool protoNode, DynamicTypeValueReceiverWithPreUpdate<Boolean> downstream) {
             mValue = protoNode.getValue();
             mDownstream = downstream;
         }
@@ -59,12 +61,13 @@ class BoolNodes {
     /** Dynamic boolean node that gets value from the state. */
     static class StateBoolNode extends StateSourceNode<Boolean> {
         StateBoolNode(
-                ObservableStateStore stateStore,
+                DataStore dataStore,
                 StateBoolSource protoNode,
-                DynamicTypeValueReceiver<Boolean> downstream) {
+                DynamicTypeValueReceiverWithPreUpdate<Boolean> downstream) {
             super(
-                    stateStore,
-                    protoNode.getSourceKey(),
+                    dataStore,
+                    StateSourceNode.<DynamicBool>createKey(
+                            protoNode.getSourceNamespace(), protoNode.getSourceKey()),
                     se -> se.getBoolVal().getValue(),
                     downstream);
         }
@@ -75,7 +78,8 @@ class BoolNodes {
         private static final String TAG = "ComparisonInt32Node";
 
         ComparisonInt32Node(
-                ComparisonInt32Op protoNode, DynamicTypeValueReceiver<Boolean> downstream) {
+                ComparisonInt32Op protoNode,
+                DynamicTypeValueReceiverWithPreUpdate<Boolean> downstream) {
             super(
                     downstream,
                     (lhs, rhs) -> {
@@ -109,7 +113,8 @@ class BoolNodes {
         public static final float EPSILON = 1e-6f;
 
         ComparisonFloatNode(
-                ComparisonFloatOp protoNode, DynamicTypeValueReceiver<Boolean> downstream) {
+                ComparisonFloatOp protoNode,
+                DynamicTypeValueReceiverWithPreUpdate<Boolean> downstream) {
             super(
                     downstream,
                     (lhs, rhs) -> {
@@ -147,7 +152,7 @@ class BoolNodes {
 
     /** Dynamic boolean node that gets opposite value from another boolean node. */
     static class NotBoolOp extends DynamicDataTransformNode<Boolean, Boolean> {
-        NotBoolOp(DynamicTypeValueReceiver<Boolean> downstream) {
+        NotBoolOp(DynamicTypeValueReceiverWithPreUpdate<Boolean> downstream) {
             super(downstream, b -> !b);
         }
     }
@@ -158,7 +163,7 @@ class BoolNodes {
 
         LogicalBoolOp(
                 DynamicProto.LogicalBoolOp protoNode,
-                DynamicTypeValueReceiver<Boolean> downstream) {
+                DynamicTypeValueReceiverWithPreUpdate<Boolean> downstream) {
             super(
                     downstream,
                     (a, b) -> {
@@ -167,6 +172,10 @@ class BoolNodes {
                                 return a && b;
                             case LOGICAL_OP_TYPE_OR:
                                 return a || b;
+                            case LOGICAL_OP_TYPE_EQUAL:
+                                return a.equals(b);
+                            case LOGICAL_OP_TYPE_NOT_EQUAL:
+                                return !a.equals(b);
                             default:
                                 Log.e(TAG, "Unknown operation type in LogicalBoolOp");
                                 return false;

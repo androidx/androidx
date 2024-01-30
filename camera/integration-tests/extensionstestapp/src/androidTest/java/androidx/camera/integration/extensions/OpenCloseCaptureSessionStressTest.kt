@@ -28,17 +28,16 @@ import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
 import androidx.camera.core.UseCase
-import androidx.camera.extensions.ExtensionMode
 import androidx.camera.extensions.ExtensionsManager
 import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil
 import androidx.camera.integration.extensions.utils.CameraIdExtensionModePair
 import androidx.camera.integration.extensions.utils.CameraSelectorUtil
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.testing.CameraUtil
-import androidx.camera.testing.CameraUtil.PreTestCameraIdList
-import androidx.camera.testing.StressTestRule
-import androidx.camera.testing.SurfaceTextureProvider
-import androidx.camera.testing.fakes.FakeLifecycleOwner
+import androidx.camera.testing.impl.CameraUtil
+import androidx.camera.testing.impl.CameraUtil.PreTestCameraIdList
+import androidx.camera.testing.impl.StressTestRule
+import androidx.camera.testing.impl.SurfaceTextureProvider
+import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
@@ -166,7 +165,7 @@ class OpenCloseCaptureSessionStressTest(private val config: CameraIdExtensionMod
     fun cleanUp(): Unit = runBlocking {
         if (::cameraProvider.isInitialized) {
             withContext(Dispatchers.Main) {
-                cameraProvider.shutdown()[10000, TimeUnit.MILLISECONDS]
+                cameraProvider.shutdownAsync()[10000, TimeUnit.MILLISECONDS]
             }
         }
 
@@ -177,7 +176,7 @@ class OpenCloseCaptureSessionStressTest(private val config: CameraIdExtensionMod
 
     @Test
     fun openCloseCaptureSessionStressTest_withPreviewImageCapture(): Unit = runBlocking {
-        bindUseCase_unbindAll_toCheckCameraEvent_repeatedly(preview, imageCapture)
+        bindUseCase_unbindAll_toCheckCameraSession_repeatedly(preview, imageCapture)
     }
 
     @Test
@@ -185,7 +184,7 @@ class OpenCloseCaptureSessionStressTest(private val config: CameraIdExtensionMod
         runBlocking {
             val imageAnalysis = ImageAnalysis.Builder().build()
             assumeTrue(camera.isUseCasesCombinationSupported(preview, imageCapture, imageAnalysis))
-            bindUseCase_unbindAll_toCheckCameraEvent_repeatedly(
+            bindUseCase_unbindAll_toCheckCameraSession_repeatedly(
                 preview,
                 imageCapture,
                 imageAnalysis
@@ -196,12 +195,12 @@ class OpenCloseCaptureSessionStressTest(private val config: CameraIdExtensionMod
      * Repeatedly binds use cases, unbind all to check whether the capture session can be opened
      * and closed successfully by monitoring the camera session state.
      */
-    private fun bindUseCase_unbindAll_toCheckCameraEvent_repeatedly(
+    private fun bindUseCase_unbindAll_toCheckCameraSession_repeatedly(
         vararg useCases: UseCase,
         repeatCount: Int = CameraXExtensionsTestUtil.getStressTestRepeatingCount()
     ): Unit = runBlocking {
         for (i in 1..repeatCount) {
-            // Arrange: resets the camera event monitor
+            // Arrange: resets the camera session monitor
             cameraSessionMonitor.reset()
 
             withContext(Dispatchers.Main) {
@@ -234,32 +233,10 @@ class OpenCloseCaptureSessionStressTest(private val config: CameraIdExtensionMod
         @get:Parameterized.Parameters(name = "config = {0}")
         val parameters: Collection<CameraIdExtensionModePair>
             get() = CameraXExtensionsTestUtil.getAllCameraIdExtensionModeCombinations()
-
-        /**
-         * Retrieves the default extended camera config provider id string
-         */
-        private fun getExtendedCameraConfigProviderId(@ExtensionMode.Mode mode: Int): String =
-            when (mode) {
-                ExtensionMode.BOKEH -> "EXTENSION_MODE_BOKEH"
-                ExtensionMode.HDR -> "EXTENSION_MODE_HDR"
-                ExtensionMode.NIGHT -> "EXTENSION_MODE_NIGHT"
-                ExtensionMode.FACE_RETOUCH -> "EXTENSION_MODE_FACE_RETOUCH"
-                ExtensionMode.AUTO -> "EXTENSION_MODE_AUTO"
-                else -> throw IllegalArgumentException("Invalid extension mode!")
-            }.let {
-                return ":camera:camera-extensions-$it"
-            }
-
-        /**
-         * Retrieves the camera event monitor extended camera config provider id string
-         */
-        private fun getCameraEventMonitorCameraConfigProviderId(
-            @ExtensionMode.Mode mode: Int
-        ): String = "${getExtendedCameraConfigProviderId(mode)}-camera-event-monitor"
     }
 
     /**
-     * An implementation of CameraEventCallback to monitor whether the camera is closed or opened.
+     * To monitor whether the camera is closed or opened.
      */
     private class CameraSessionMonitor {
         private var sessionEnabledLatch = CountDownLatch(1)

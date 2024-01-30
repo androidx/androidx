@@ -31,6 +31,8 @@ import android.view.ViewGroup;
 import android.view.Window;
 
 import androidx.annotation.CallSuper;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import android.app.Fragment;
 import android.app.Activity;
 import android.app.FragmentTransaction;
@@ -477,8 +479,8 @@ public class DetailsFragment extends BaseFragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
+    @Nullable
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         mRootView = (BrowseFrameLayout) inflater.inflate(
                 R.layout.lb_details_fragment, container, false);
         mBackgroundView = mRootView.findViewById(R.id.details_background_view);
@@ -539,7 +541,7 @@ public class DetailsFragment extends BaseFragment {
     }
 
     /**
-     * @deprecated override {@link #onInflateTitleView(LayoutInflater,ViewGroup,Bundle)} instead.
+     * @deprecated override {@link BrandedFragment#onInflateTitleView(LayoutInflater, ViewGroup, Bundle)} instead.
      */
     @Deprecated
     protected View inflateTitle(LayoutInflater inflater, ViewGroup parent,
@@ -548,8 +550,11 @@ public class DetailsFragment extends BaseFragment {
     }
 
     @Override
-    public View onInflateTitleView(LayoutInflater inflater, ViewGroup parent,
-                                   Bundle savedInstanceState) {
+    public @NonNull View onInflateTitleView(
+            @NonNull LayoutInflater inflater,
+            @Nullable ViewGroup parent,
+            @Nullable Bundle savedInstanceState
+    ) {
         return inflateTitle(inflater, parent, savedInstanceState);
     }
 

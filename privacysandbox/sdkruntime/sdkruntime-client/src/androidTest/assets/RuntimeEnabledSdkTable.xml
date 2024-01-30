@@ -1,0 +1,42 @@
+<!--
+  Copyright 2022 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+<runtime-enabled-sdk-table>
+    <runtime-enabled-sdk>
+        <compat-config-path>RuntimeEnabledSdks/current.xml</compat-config-path>
+        <package-name>androidx.privacysandbox.sdkruntime.testsdk.current</package-name>
+        <version-major>42</version-major>
+    </runtime-enabled-sdk>
+    <runtime-enabled-sdk>
+        <compat-config-path>RuntimeEnabledSdks/currentWithResources.xml</compat-config-path>
+        <package-name>androidx.privacysandbox.sdkruntime.testsdk.currentWithResources</package-name>
+    </runtime-enabled-sdk>
+    <runtime-enabled-sdk>
+        <compat-config-path>RuntimeEnabledSdks/invalidEntryPoint.xml</compat-config-path>
+        <package-name>androidx.privacysandbox.sdkruntime.testsdk.invalidEntryPoint</package-name>
+    </runtime-enabled-sdk>
+    <runtime-enabled-sdk>
+        <compat-config-path>RuntimeEnabledSdks/v1.xml</compat-config-path>
+        <package-name>androidx.privacysandbox.sdkruntime.testsdk.v1</package-name>
+    </runtime-enabled-sdk>
+    <runtime-enabled-sdk>
+        <compat-config-path>RuntimeEnabledSdks/v2.xml</compat-config-path>
+        <package-name>androidx.privacysandbox.sdkruntime.testsdk.v2</package-name>
+    </runtime-enabled-sdk>
+    <runtime-enabled-sdk>
+        <compat-config-path>RuntimeEnabledSdks/v4.xml</compat-config-path>
+        <package-name>androidx.privacysandbox.sdkruntime.testsdk.v4</package-name>
+    </runtime-enabled-sdk>
+</runtime-enabled-sdk-table>

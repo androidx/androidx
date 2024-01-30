@@ -16,30 +16,28 @@
 
 package androidx.appsearch.compiler;
 
-import static androidx.appsearch.compiler.IntrospectionHelper.getDocumentAnnotation;
+import static androidx.appsearch.compiler.CodegenUtils.createNewArrayExpr;
+import static androidx.appsearch.compiler.IntrospectionHelper.APPSEARCH_EXCEPTION_CLASS;
+import static androidx.appsearch.compiler.IntrospectionHelper.GENERIC_DOCUMENT_CLASS;
 
 import androidx.annotation.NonNull;
+import androidx.appsearch.compiler.AnnotatedGetterOrField.ElementTypeCategory;
+import androidx.appsearch.compiler.annotationwrapper.DataPropertyAnnotation;
+import androidx.appsearch.compiler.annotationwrapper.DocumentPropertyAnnotation;
+import androidx.appsearch.compiler.annotationwrapper.MetadataPropertyAnnotation;
+import androidx.appsearch.compiler.annotationwrapper.PropertyAnnotation;
 
+import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
-import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import com.squareup.javapoet.WildcardTypeName;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-
 import javax.annotation.processing.ProcessingEnvironment;
-import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
-import javax.lang.model.element.VariableElement;
-import javax.lang.model.type.ArrayType;
-import javax.lang.model.type.DeclaredType;
-import javax.lang.model.type.TypeKind;
+import javax.lang.model.type.PrimitiveType;
 import javax.lang.model.type.TypeMirror;
-import javax.lang.model.util.Types;
 
 /**
  * Generates java code for a translator from an instance of a class annotated with
@@ -61,40 +59,54 @@ class ToGenericDocumentCodeGenerator {
     public static void generate(
             @NonNull ProcessingEnvironment env,
             @NonNull DocumentModel model,
-            @NonNull TypeSpec.Builder classBuilder) throws ProcessingException {
+            @NonNull TypeSpec.Builder classBuilder) {
         new ToGenericDocumentCodeGenerator(env, model).generate(classBuilder);
     }
 
-    private void generate(TypeSpec.Builder classBuilder) throws ProcessingException {
+    private void generate(TypeSpec.Builder classBuilder) {
         classBuilder.addMethod(createToGenericDocumentMethod());
     }
 
-    private MethodSpec createToGenericDocumentMethod() throws ProcessingException {
+    private MethodSpec createToGenericDocumentMethod() {
         // Method header
-        TypeName classType = TypeName.get(mModel.getClassElement().asType());
         MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder("toGenericDocument")
                 .addModifiers(Modifier.PUBLIC)
-                .returns(mHelper.getAppSearchClass("GenericDocument"))
+                .returns(GENERIC_DOCUMENT_CLASS)
                 .addAnnotation(Override.class)
-                .addParameter(classType, "document")
-                .addException(mHelper.getAppSearchExceptionClass());
+                .addParameter(ClassName.get(mModel.getClassElement()), "document")
+                .addException(APPSEARCH_EXCEPTION_CLASS);
 
         // Construct a new GenericDocument.Builder with the namespace, id, and schema type
         methodBuilder.addStatement("$T builder =\nnew $T<>($L, $L, SCHEMA_NAME)",
                 ParameterizedTypeName.get(
-                        mHelper.getAppSearchClass("GenericDocument", "Builder"),
+                        GENERIC_DOCUMENT_CLASS.nestedClass("Builder"),
                         WildcardTypeName.subtypeOf(Object.class)),
-                mHelper.getAppSearchClass("GenericDocument", "Builder"),
-                createAppSearchFieldRead(
-                        mModel.getSpecialFieldName(DocumentModel.SpecialField.NAMESPACE)),
-                createAppSearchFieldRead(
-                        mModel.getSpecialFieldName(DocumentModel.SpecialField.ID)));
+                GENERIC_DOCUMENT_CLASS.nestedClass("Builder"),
+                createReadExpr(mModel.getNamespaceAnnotatedGetterOrField()),
+                createReadExpr(mModel.getIdAnnotatedGetterOrField()));
 
-        setSpecialFields(methodBuilder);
+        // Set metadata properties
+        for (AnnotatedGetterOrField getterOrField : mModel.getAnnotatedGettersAndFields()) {
+            PropertyAnnotation annotation = getterOrField.getAnnotation();
+            if (annotation.getPropertyKind() != PropertyAnnotation.Kind.METADATA_PROPERTY
+                    // Already set in the generated constructor above
+                    || annotation == MetadataPropertyAnnotation.ID
+                    || annotation == MetadataPropertyAnnotation.NAMESPACE) {
+                continue;
+            }
 
-        // Set properties
-        for (Map.Entry<String, VariableElement> entry : mModel.getPropertyFields().entrySet()) {
-            fieldToGenericDoc(methodBuilder, entry.getKey(), entry.getValue());
+            methodBuilder.addCode(codeToCopyIntoGenericDoc(
+                    (MetadataPropertyAnnotation) annotation, getterOrField));
+        }
+
+        // Set data properties
+        for (AnnotatedGetterOrField getterOrField : mModel.getAnnotatedGettersAndFields()) {
+            PropertyAnnotation annotation = getterOrField.getAnnotation();
+            if (annotation.getPropertyKind() != PropertyAnnotation.Kind.DATA_PROPERTY) {
+                continue;
+            }
+            methodBuilder.addCode(codeToCopyIntoGenericDoc(
+                    (DataPropertyAnnotation) annotation, getterOrField));
         }
 
         methodBuilder.addStatement("return builder.build()");
@@ -102,19 +114,52 @@ class ToGenericDocumentCodeGenerator {
     }
 
     /**
-     * Converts a field from a document class into a format suitable for one of the
-     * {@link androidx.appsearch.app.GenericDocument.Builder#setProperty} methods.
+     * Returns code that copies the getter/field annotated with a {@link MetadataPropertyAnnotation}
+     * from a document class into a {@code GenericDocument.Builder}.
+     *
+     * <p>Assumes:
+     * <ol>
+     *     <li>There is a document class var in-scope called {@code document}.</li>
+     *     <li>There is {@code GenericDocument.Builder} var in-scope called {@code builder}.</li>
+     *     <li>
+     *         The annotation is not {@link MetadataPropertyAnnotation#ID} or
+     *         {@link MetadataPropertyAnnotation#NAMESPACE}.
+     *     </li>
+     * </ol>
      */
-    private void fieldToGenericDoc(
-            @NonNull MethodSpec.Builder method,
-            @NonNull String fieldName,
-            @NonNull VariableElement property) throws ProcessingException {
+    private CodeBlock codeToCopyIntoGenericDoc(
+            @NonNull MetadataPropertyAnnotation annotation,
+            @NonNull AnnotatedGetterOrField getterOrField) {
+        if (getterOrField.getJvmType() instanceof PrimitiveType) {
+            // Directly set it
+            return CodeBlock.builder()
+                    .addStatement("builder.$N($L)",
+                            annotation.getGenericDocSetterName(), createReadExpr(getterOrField))
+                    .build();
+        }
+        // Boxed type. Need to guard against the case where the value is null at runtime.
+        return fieldUseDirectlyWithNullCheck(annotation, getterOrField);
+    }
+
+    /**
+     * Returns code that copies the getter/field annotated with a {@link DataPropertyAnnotation}
+     * from a document class into a {@code GenericDocument.Builder}.
+     *
+     * <p>Assumes:
+     * <ol>
+     *     <li>There is a document class var in-scope called {@code document}.</li>
+     *     <li>There is {@code GenericDocument.Builder} var in-scope called {@code builder}.</li>
+     * </ol>
+     */
+    private CodeBlock codeToCopyIntoGenericDoc(
+            @NonNull DataPropertyAnnotation annotation,
+            @NonNull AnnotatedGetterOrField getterOrField) {
         // Scenario 1: field is a Collection
         //   1a: CollectionForLoopAssign
-        //       Collection contains boxed Long, Integer, Double, Float, Boolean or byte[].
-        //       We have to pack it into a primitive array of type long[], double[], boolean[],
-        //       or byte[][] by reading each element one-by-one and assigning it. The compiler takes
-        //       care of unboxing.
+        //       Collection contains boxed Long, Integer, Double, Float, Boolean, byte[].
+        //       We have to pack it into a primitive array of type long[], double[], boolean[] or
+        //       byte[][] by reading each element one-by-one and assigning it. The compiler takes
+        //       care of unboxing and widening where necessary.
         //
         //   1b: CollectionCallToArray
         //       Collection contains String or GenericDocument.
@@ -126,20 +171,13 @@ class ToGenericDocumentCodeGenerator {
         //       Collection contains a class which is annotated with @Document.
         //       We have to convert this into an array of GenericDocument[], by reading each element
         //       one-by-one and converting it through the standard conversion machinery.
-        //
-        //   1x: Collection contains any other kind of class. This unsupported and compilation
-        //       fails.
-        //       Note: Set<Byte[]>, Set<Byte>, and Set<Set<Byte>> are in this category. We don't
-        //       support such conversions currently, but in principle they are possible and could
-        //       be implemented.
 
         // Scenario 2: field is an Array
         //   2a: ArrayForLoopAssign
-        //       Array is of type Long[], Integer[], int[], Double[], Float[], float[], Boolean[],
-        //       or Byte[].
-        //       We have to pack it into a primitive array of type long[], double[], boolean[] or
-        //       byte[] by reading each element one-by-one and assigning it. The compiler takes care
-        //       of unboxing.
+        //       Array is of type Long[], Integer[], int[], Double[], Float[], float[], Boolean[].
+        //       We have to pack it into a primitive array of type long[], double[], boolean[]
+        //       by reading each element one-by-one and assigning it. The compiler takes care of
+        //       unboxing and widening where necessary.
         //
         //   2b: ArrayUseDirectly
         //       Array is of type String[], long[], double[], boolean[], byte[][] or
@@ -153,15 +191,10 @@ class ToGenericDocumentCodeGenerator {
         //
         //   2d: Array is of class byte[]. This is actually a single-valued field as byte arrays are
         //       natively supported by Icing, and is handled as Scenario 3a.
-        //
-        //   2x: Array is of any other kind of class. This unsupported and compilation fails.
-        //       Note: Byte[][] is in this category. We don't support such conversions
-        //       currently, but in principle they are possible and could be implemented.
 
         // Scenario 3: Single valued fields
         //   3a: FieldUseDirectlyWithNullCheck
-        //       Field is of type String, Long, Integer, Double, Float, Boolean, byte[] or
-        //       GenericDocument.
+        //       Field is of type String, Long, Integer, Double, Float, Boolean.
         //       We can use this field directly, after testing for null. The java compiler will box
         //       or unbox as needed.
         //
@@ -173,529 +206,390 @@ class ToGenericDocumentCodeGenerator {
         //       Field is of a class which is annotated with @Document.
         //       We have to convert this into a GenericDocument through the standard conversion
         //       machinery.
-        String propertyName = mModel.getPropertyName(property);
-        if (tryConvertFromCollection(method, fieldName, propertyName, property)) {
-            return;
+        ElementTypeCategory typeCategory = getterOrField.getElementTypeCategory();
+        switch (annotation.getDataPropertyKind()) {
+            case STRING_PROPERTY:
+                switch (typeCategory) {
+                    case COLLECTION: // List<String>: 1b
+                        return collectionCallToArray(annotation, getterOrField);
+                    case ARRAY: // String[]: 2b
+                        return arrayUseDirectly(annotation, getterOrField);
+                    case SINGLE: // String: 3a
+                        return fieldUseDirectlyWithNullCheck(annotation, getterOrField);
+                    default:
+                        throw new IllegalStateException("Unhandled type-category: " + typeCategory);
+                }
+            case DOCUMENT_PROPERTY:
+                DocumentPropertyAnnotation docPropAnnotation =
+                        (DocumentPropertyAnnotation) annotation;
+                switch (typeCategory) {
+                    case COLLECTION: // List<Person>: 1c
+                        return collectionForLoopCallToGenericDocument(
+                                docPropAnnotation, getterOrField);
+                    case ARRAY: // Person[]: 2c
+                        return arrayForLoopCallToGenericDocument(docPropAnnotation, getterOrField);
+                    case SINGLE: // Person: 3c
+                        return fieldCallToGenericDocument(docPropAnnotation, getterOrField);
+                    default:
+                        throw new IllegalStateException("Unhandled type-category: " + typeCategory);
+                }
+            case LONG_PROPERTY:
+                switch (typeCategory) {
+                    case COLLECTION: // List<Long>|List<Integer>: 1a
+                        return collectionForLoopAssign(
+                                annotation,
+                                getterOrField,
+                                /* targetArrayComponentType= */mHelper.mLongPrimitiveType);
+                    case ARRAY:
+                        if (mHelper.isPrimitiveLongArray(getterOrField.getJvmType())) {
+                            return arrayUseDirectly(annotation, getterOrField); // long[]: 2b
+                        } else {
+                            // Long[]|Integer[]|int[]: 2a
+                            return arrayForLoopAssign(
+                                    annotation,
+                                    getterOrField,
+                                    /* targetArrayComponentType= */mHelper.mLongPrimitiveType);
+                        }
+                    case SINGLE:
+                        if (getterOrField.getJvmType() instanceof PrimitiveType) {
+                            // long|int: 3b
+                            return fieldUseDirectlyWithoutNullCheck(annotation, getterOrField);
+                        } else {
+                            // Long|Integer: 3a
+                            return fieldUseDirectlyWithNullCheck(annotation, getterOrField);
+                        }
+                    default:
+                        throw new IllegalStateException("Unhandled type-category: " + typeCategory);
+                }
+            case DOUBLE_PROPERTY:
+                switch (typeCategory) {
+                    case COLLECTION: // List<Double>|List<Float>: 1a
+                        return collectionForLoopAssign(
+                                annotation,
+                                getterOrField,
+                                /* targetArrayComponentType= */mHelper.mDoublePrimitiveType);
+                    case ARRAY:
+                        if (mHelper.isPrimitiveDoubleArray(getterOrField.getJvmType())) {
+                            return arrayUseDirectly(annotation, getterOrField); // double[]: 2b
+                        } else {
+                            // Double[]|Float[]|float[]: 2a
+                            return arrayForLoopAssign(
+                                    annotation,
+                                    getterOrField,
+                                    /* targetArrayComponentType= */mHelper.mDoublePrimitiveType);
+                        }
+                    case SINGLE:
+                        if (getterOrField.getJvmType() instanceof PrimitiveType) {
+                            // double|float: 3b
+                            return fieldUseDirectlyWithoutNullCheck(annotation, getterOrField);
+                        } else {
+                            // Double|Float: 3b
+                            return fieldUseDirectlyWithNullCheck(annotation, getterOrField);
+                        }
+                    default:
+                        throw new IllegalStateException("Unhandled type-category: " + typeCategory);
+                }
+            case BOOLEAN_PROPERTY:
+                switch (typeCategory) {
+                    case COLLECTION: // List<Boolean>: 1a
+                        return collectionForLoopAssign(
+                                annotation,
+                                getterOrField,
+                                /* targetArrayComponentType= */mHelper.mBooleanPrimitiveType);
+                    case ARRAY:
+                        if (mHelper.isPrimitiveBooleanArray(getterOrField.getJvmType())) {
+                            return arrayUseDirectly(annotation, getterOrField); // boolean[]: 2b
+                        } else {
+                            // Boolean[]: 2a
+                            return arrayForLoopAssign(
+                                    annotation,
+                                    getterOrField,
+                                    /* targetArrayComponentType= */mHelper.mBooleanPrimitiveType);
+                        }
+                    case SINGLE:
+                        if (getterOrField.getJvmType() instanceof PrimitiveType) {
+                            // boolean: 3b
+                            return fieldUseDirectlyWithoutNullCheck(annotation, getterOrField);
+                        } else {
+                            // Boolean: 3a
+                            return fieldUseDirectlyWithNullCheck(annotation, getterOrField);
+                        }
+                    default:
+                        throw new IllegalStateException("Unhandled type-category: " + typeCategory);
+                }
+            case BYTES_PROPERTY:
+                switch (typeCategory) {
+                    case COLLECTION: // List<byte[]>: 1a
+                        return collectionForLoopAssign(
+                                annotation,
+                                getterOrField,
+                                /* targetArrayComponentType= */mHelper.mBytePrimitiveArrayType);
+                    case ARRAY: // byte[][]: 2b
+                        return arrayUseDirectly(annotation, getterOrField);
+                    case SINGLE: // byte[]: 2d
+                        return fieldUseDirectlyWithNullCheck(annotation, getterOrField);
+                    default:
+                        throw new IllegalStateException("Unhandled type-category: " + typeCategory);
+                }
+            default:
+                throw new IllegalStateException("Unhandled annotation: " + annotation);
         }
-        if (tryConvertFromArray(method, fieldName, propertyName, property)) {
-            return;
+    }
+
+    // 1a: CollectionForLoopAssign
+    //     Collection contains boxed Long, Integer, Double, Float, Boolean, byte[].
+    //     We have to pack it into a primitive array of type long[], double[], boolean[] or
+    //     byte[][] by reading each element one-by-one and assigning it. The compiler takes
+    //     care of unboxing and widening where necessary.
+    @NonNull
+    private CodeBlock collectionForLoopAssign(
+            @NonNull DataPropertyAnnotation annotation,
+            @NonNull AnnotatedGetterOrField getterOrField,
+            @NonNull TypeMirror targetArrayComponentType) {
+        TypeMirror jvmType = getterOrField.getJvmType(); // e.g. List<Long>
+        TypeMirror componentType = getterOrField.getComponentType(); // e.g. Long
+        String jvmName = getterOrField.getJvmName(); // e.g. mProp|getProp
+        return CodeBlock.builder()
+                .addStatement("$T $NCopy = $L",
+                        jvmType, jvmName, createReadExpr(getterOrField))
+                .beginControlFlow("if ($NCopy != null)", jvmName)
+                .addStatement("$T[] $NConv = $L",
+                        targetArrayComponentType,
+                        jvmName,
+                        createNewArrayExpr(
+                                targetArrayComponentType,
+                                /* size= */CodeBlock.of("$NCopy.size()", jvmName),
+                                mEnv))
+                .addStatement("int i = 0")
+                .beginControlFlow("for ($T item : $NCopy)", componentType, jvmName)
+                .addStatement("$NConv[i++] = item", jvmName)
+                .endControlFlow() // for (...) {
+                .addStatement("builder.$N($S, $NConv)",
+                        getterOrField.getAnnotation().getGenericDocSetterName(),
+                        annotation.getName(),
+                        jvmName)
+                .endControlFlow() //  if ($NCopy != null) {
+                .build();
+    }
+
+    // 1b: CollectionCallToArray
+    //     Collection contains String or GenericDocument.
+    //     We have to convert this into an array of String[] or GenericDocument[], but no
+    //     conversion of the collection elements is needed. We can use Collection#toArray for
+    //     this.
+    @NonNull
+    private CodeBlock collectionCallToArray(
+            @NonNull DataPropertyAnnotation annotation,
+            @NonNull AnnotatedGetterOrField getterOrField) {
+        TypeMirror collectionType = getterOrField.getJvmType(); // e.g. List<String>
+        TypeMirror componentType = getterOrField.getComponentType(); // e.g. String
+        String jvmName = getterOrField.getJvmName(); // e.g. mProp|getProp
+        return CodeBlock.builder()
+                .addStatement("$T $NCopy = $L",
+                        collectionType, jvmName, createReadExpr(getterOrField))
+                .beginControlFlow("if ($NCopy != null)", jvmName)
+                .addStatement("$T[] $NConv = $NCopy.toArray(new $T[0])",
+                        componentType, jvmName, jvmName, componentType)
+                .addStatement("builder.$N($S, $NConv)",
+                        getterOrField.getAnnotation().getGenericDocSetterName(),
+                        annotation.getName(),
+                        jvmName)
+                .endControlFlow() //  if ($NCopy != null) {
+                .build();
+    }
+
+    // 1c: CollectionForLoopCallToGenericDocument
+    //     Collection contains a class which is annotated with @Document.
+    //     We have to convert this into an array of GenericDocument[], by reading each element
+    //     one-by-one and converting it through the standard conversion machinery.
+    @NonNull
+    private CodeBlock collectionForLoopCallToGenericDocument(
+            @NonNull DocumentPropertyAnnotation annotation,
+            @NonNull AnnotatedGetterOrField getterOrField) {
+        TypeMirror collectionType = getterOrField.getJvmType(); // e.g. List<Person>
+        TypeMirror documentClass = getterOrField.getComponentType(); // e.g. Person
+        String jvmName = getterOrField.getJvmName(); // e.g. mProp|getProp
+        return CodeBlock.builder()
+                .addStatement("$T $NCopy = $L",
+                        collectionType, jvmName, createReadExpr(getterOrField))
+                .beginControlFlow("if ($NCopy != null)", jvmName)
+                .addStatement("$T[] $NConv = new $T[$NCopy.size()]",
+                        GENERIC_DOCUMENT_CLASS, jvmName, GENERIC_DOCUMENT_CLASS, jvmName)
+                .addStatement("int i = 0")
+                .beginControlFlow("for ($T item : $NCopy)", documentClass, jvmName)
+                .addStatement("$NConv[i++] = $T.fromDocumentClass(item)",
+                        jvmName, GENERIC_DOCUMENT_CLASS)
+                .endControlFlow() // for (...) {
+                .addStatement("builder.setPropertyDocument($S, $NConv)",
+                        annotation.getName(), jvmName)
+                .endControlFlow() //  if ($NCopy != null) {
+                .build();
+    }
+
+    // 2a: ArrayForLoopAssign
+    //     Array is of type Long[], Integer[], int[], Double[], Float[], float[], Boolean[].
+    //     We have to pack it into a primitive array of type long[], double[], boolean[]
+    //     by reading each element one-by-one and assigning it. The compiler takes care of
+    //     unboxing and widening where necessary.
+    @NonNull
+    private CodeBlock arrayForLoopAssign(
+            @NonNull DataPropertyAnnotation annotation,
+            @NonNull AnnotatedGetterOrField getterOrField,
+            @NonNull TypeMirror targetArrayComponentType) {
+        TypeMirror jvmType = getterOrField.getJvmType(); // e.g. Long[]
+        String jvmName = getterOrField.getJvmName(); // e.g. mProp|getProp
+        return CodeBlock.builder()
+                .addStatement("$T $NCopy = $L",
+                        jvmType, jvmName, createReadExpr(getterOrField))
+                .beginControlFlow("if ($NCopy != null)", jvmName)
+                .addStatement("$T[] $NConv = $L",
+                        targetArrayComponentType,
+                        jvmName,
+                        createNewArrayExpr(
+                                targetArrayComponentType,
+                                /* size= */CodeBlock.of("$NCopy.length", jvmName),
+                                mEnv))
+                .beginControlFlow("for (int i = 0; i < $NCopy.length; i++)", jvmName)
+                .addStatement("$NConv[i] = $NCopy[i]", jvmName, jvmName)
+                .endControlFlow() // for (...) {
+                .addStatement("builder.$N($S, $NConv)",
+                        getterOrField.getAnnotation().getGenericDocSetterName(),
+                        annotation.getName(),
+                        jvmName)
+                .endControlFlow() // if ($NCopy != null)
+                .build();
+    }
+
+    // 2b: ArrayUseDirectly
+    //     Array is of type String[], long[], double[], boolean[], byte[][] or
+    //     GenericDocument[].
+    //     We can directly use this field with no conversion.
+    @NonNull
+    private CodeBlock arrayUseDirectly(
+            @NonNull DataPropertyAnnotation annotation,
+            @NonNull AnnotatedGetterOrField getterOrField) {
+        TypeMirror jvmType = getterOrField.getJvmType(); // e.g. String[]
+        String jvmName = getterOrField.getJvmName(); // e.g. mProp|getProp
+        return CodeBlock.builder()
+                .addStatement("$T $NCopy = $L",
+                        jvmType, jvmName, createReadExpr(getterOrField))
+                .beginControlFlow("if ($NCopy != null)", jvmName)
+                .addStatement("builder.$N($S, $NCopy)",
+                        getterOrField.getAnnotation().getGenericDocSetterName(),
+                        annotation.getName(),
+                        jvmName)
+                .endControlFlow() // if ($NCopy != null)
+                .build();
+    }
+
+    // 2c: ArrayForLoopCallToGenericDocument
+    //     Array is of a class which is annotated with @Document.
+    //     We have to convert this into an array of GenericDocument[], by reading each element
+    //     one-by-one and converting it through the standard conversion machinery.
+    @NonNull
+    private CodeBlock arrayForLoopCallToGenericDocument(
+            @NonNull DocumentPropertyAnnotation annotation,
+            @NonNull AnnotatedGetterOrField getterOrField) {
+        TypeMirror jvmType = getterOrField.getJvmType(); // e.g. Person[]
+        String jvmName = getterOrField.getJvmName(); // e.g. mProp|getProp
+        return CodeBlock.builder()
+                .addStatement("$T $NCopy = $L",
+                        jvmType, jvmName, createReadExpr(getterOrField))
+                .beginControlFlow("if ($NCopy != null)", jvmName)
+                .addStatement("$T[] $NConv = new $T[$NCopy.length]",
+                        GENERIC_DOCUMENT_CLASS, jvmName, GENERIC_DOCUMENT_CLASS, jvmName)
+                .beginControlFlow("for (int i = 0; i < $NConv.length; i++)", jvmName)
+                .addStatement("$NConv[i] = $T.fromDocumentClass($NCopy[i])",
+                        jvmName, GENERIC_DOCUMENT_CLASS, jvmName)
+                .endControlFlow() // for (...) {
+                .addStatement("builder.setPropertyDocument($S, $NConv)",
+                        annotation.getName(), jvmName)
+                .endControlFlow() //  if ($NCopy != null) {
+                .build();
+    }
+
+    // 3a: FieldUseDirectlyWithNullCheck
+    //     Field is of type String, Long, Integer, Double, Float, Boolean.
+    //     We can use this field directly, after testing for null. The java compiler will box
+    //     or unbox as needed.
+    @NonNull
+    private CodeBlock fieldUseDirectlyWithNullCheck(
+            @NonNull PropertyAnnotation annotation,
+            @NonNull AnnotatedGetterOrField getterOrField) {
+        TypeMirror jvmType = getterOrField.getJvmType();
+        String jvmName = getterOrField.getJvmName(); // e.g. mProp|getProp
+        CodeBlock.Builder codeBlock = CodeBlock.builder()
+                .addStatement("$T $NCopy = $L",
+                        jvmType, jvmName, createReadExpr(getterOrField))
+                .beginControlFlow("if ($NCopy != null)", jvmName);
+
+        switch (annotation.getPropertyKind()) {
+            case METADATA_PROPERTY:
+                codeBlock.addStatement("builder.$N($NCopy)",
+                        getterOrField.getAnnotation().getGenericDocSetterName(), jvmName);
+                break;
+            case DATA_PROPERTY:
+                codeBlock.addStatement("builder.$N($S, $NCopy)",
+                        getterOrField.getAnnotation().getGenericDocSetterName(),
+                        ((DataPropertyAnnotation) annotation).getName(),
+                        jvmName);
+                break;
+            default:
+                throw new IllegalStateException("Unhandled annotation: " + annotation);
         }
-        convertFromField(method, fieldName, propertyName, property);
+
+        return codeBlock.endControlFlow() // if ($NCopy != null)
+                .build();
+    }
+
+    // 3b: FieldUseDirectlyWithoutNullCheck
+    //     Field is of type long, int, double, float, or boolean.
+    //     We can use this field directly without testing for null.
+    @NonNull
+    private CodeBlock fieldUseDirectlyWithoutNullCheck(
+            @NonNull DataPropertyAnnotation annotation,
+            @NonNull AnnotatedGetterOrField getterOrField) {
+        return CodeBlock.builder()
+                .addStatement("builder.$N($S, $L)",
+                        getterOrField.getAnnotation().getGenericDocSetterName(),
+                        annotation.getName(),
+                        createReadExpr(getterOrField))
+                .build();
+    }
+
+    // 3c: FieldCallToGenericDocument
+    //     Field is of a class which is annotated with @Document.
+    //     We have to convert this into a GenericDocument through the standard conversion
+    //     machinery.
+    @NonNull
+    private CodeBlock fieldCallToGenericDocument(
+            @NonNull DocumentPropertyAnnotation annotation,
+            @NonNull AnnotatedGetterOrField getterOrField) {
+        TypeMirror documentClass = getterOrField.getJvmType(); // Person
+        String jvmName = getterOrField.getJvmName(); // e.g. mProp|getProp
+        return CodeBlock.builder()
+                .addStatement("$T $NCopy = $L",
+                        documentClass, jvmName, createReadExpr(getterOrField))
+                .beginControlFlow("if ($NCopy != null)", jvmName)
+                .addStatement("$T $NConv = $T.fromDocumentClass($NCopy)",
+                        GENERIC_DOCUMENT_CLASS, jvmName, GENERIC_DOCUMENT_CLASS, jvmName)
+                .addStatement("builder.setPropertyDocument($S, $NConv)",
+                        annotation.getName(), jvmName)
+                .endControlFlow() // if ($NCopy != null) {
+                .build();
     }
 
     /**
-     * If the given field is a Collection, generates code to read it and convert it into a form
-     * suitable for GenericDocument and returns true. If the field is not a Collection, returns
-     * false.
+     * Returns an expr that reading the annotated getter/fields from a document class var.
+     *
+     * <p>Assumes there is a document class var in-scope called {@code document}.
      */
-    private boolean tryConvertFromCollection(
-            @NonNull MethodSpec.Builder method,
-            @NonNull String fieldName,
-            @NonNull String propertyName,
-            @NonNull VariableElement property) throws ProcessingException {
-        Types typeUtil = mEnv.getTypeUtils();
-        if (!typeUtil.isAssignable(typeUtil.erasure(property.asType()), mHelper.mCollectionType)) {
-            return false;  // This is not a scenario 1 collection
+    private CodeBlock createReadExpr(@NonNull AnnotatedGetterOrField annotatedGetterOrField) {
+        PropertyAccessor accessor = mModel.getAccessor(annotatedGetterOrField);
+        if (accessor.isField()) {
+            return CodeBlock.of("document.$N", accessor.getElement().getSimpleName().toString());
+        } else { // getter
+            return CodeBlock.of("document.$N()", accessor.getElement().getSimpleName().toString());
         }
-
-        // Copy the field into a local variable to make it easier to refer to it repeatedly.
-        CodeBlock.Builder body = CodeBlock.builder()
-                .addStatement(
-                        "$T $NCopy = $L",
-                        property.asType(),
-                        fieldName,
-                        createAppSearchFieldRead(fieldName));
-
-        List<? extends TypeMirror> genericTypes =
-                ((DeclaredType) property.asType()).getTypeArguments();
-        TypeMirror propertyType = genericTypes.get(0);
-
-        if (!tryCollectionForLoopAssign(body, fieldName, propertyName, propertyType)           // 1a
-                && !tryCollectionCallToArray(body, fieldName, propertyName, propertyType)      // 1b
-                && !tryCollectionForLoopCallToGenericDocument(
-                body, fieldName, propertyName, propertyType)) {                        // 1c
-            // Scenario 1x
-            throw new ProcessingException(
-                    "Unhandled out property type (1x): " + property.asType().toString(), property);
-        }
-
-        method.addCode(body.build());
-        return true;
-    }
-
-    //   1a: CollectionForLoopAssign
-    //       Collection contains boxed Long, Integer, Double, Float, Boolean or byte[].
-    //       We have to pack it into a primitive array of type long[], double[], boolean[],
-    //       or byte[][] by reading each element one-by-one and assigning it. The compiler takes
-    //       care of unboxing.
-    private boolean tryCollectionForLoopAssign(
-            @NonNull CodeBlock.Builder method,
-            @NonNull String fieldName,
-            @NonNull String propertyName,
-            @NonNull TypeMirror propertyType) {
-        Types typeUtil = mEnv.getTypeUtils();
-        CodeBlock.Builder body = CodeBlock.builder()
-                .add("if ($NCopy != null) {\n", fieldName).indent();
-
-        String setPropertyMethod;
-        if (typeUtil.isSameType(propertyType, mHelper.mLongBoxType)
-                || typeUtil.isSameType(propertyType, mHelper.mIntegerBoxType)) {
-            setPropertyMethod = "setPropertyLong";
-            body.addStatement(
-                    "long[] $NConv = new long[$NCopy.size()]", fieldName, fieldName);
-
-        } else if (typeUtil.isSameType(propertyType, mHelper.mDoubleBoxType)
-                || typeUtil.isSameType(propertyType, mHelper.mFloatBoxType)) {
-            setPropertyMethod = "setPropertyDouble";
-            body.addStatement(
-                    "double[] $NConv = new double[$NCopy.size()]", fieldName, fieldName);
-
-        } else if (typeUtil.isSameType(propertyType, mHelper.mBooleanBoxType)) {
-            setPropertyMethod = "setPropertyBoolean";
-            body.addStatement(
-                    "boolean[] $NConv = new boolean[$NCopy.size()]", fieldName, fieldName);
-
-        } else if (typeUtil.isSameType(propertyType, mHelper.mBytePrimitiveArrayType)) {
-            setPropertyMethod = "setPropertyBytes";
-            body.addStatement(
-                    "byte[][] $NConv = new byte[$NCopy.size()][]", fieldName, fieldName);
-
-        } else {
-            // This is not a type 1a collection.
-            return false;
-        }
-
-        // Iterate over each element of the collection, assigning it to the output array.
-        body.addStatement("int i = 0")
-                .add("for ($T item : $NCopy) {\n", propertyType, fieldName).indent()
-                .addStatement("$NConv[i++] = item", fieldName)
-                .unindent().add("}\n")
-                .addStatement("builder.$N($S, $NConv)", setPropertyMethod, propertyName, fieldName)
-                .unindent().add("}\n");
-
-        method.add(body.build());
-        return true;
-    }
-
-    //   1b: CollectionCallToArray
-    //       Collection contains String. We have to convert this into an array of String[] or but no
-    //       conversion of the collection elements is needed. We can use Collection#toArray for
-    //       this.
-    private boolean tryCollectionCallToArray(
-            @NonNull CodeBlock.Builder method,
-            @NonNull String fieldName,
-            @NonNull String propertyName,
-            @NonNull TypeMirror propertyType) {
-        Types typeUtil = mEnv.getTypeUtils();
-        CodeBlock.Builder body = CodeBlock.builder()
-                .add("if ($NCopy != null) {\n", fieldName).indent();
-
-        if (typeUtil.isSameType(propertyType, mHelper.mStringType)) {
-            body.addStatement(
-                    "String[] $NConv = $NCopy.toArray(new String[0])", fieldName, fieldName);
-
-        } else {
-            // This is not a type 1b collection.
-            return false;
-        }
-
-        body.addStatement(
-                "builder.setPropertyString($S, $NConv)", propertyName, fieldName)
-                .unindent().add("}\n");
-
-        method.add(body.build());
-        return true;
-    }
-
-    //   1c: CollectionForLoopCallToGenericDocument
-    //       Collection contains a class which is annotated with @Document.
-    //       We have to convert this into an array of GenericDocument[], by reading each element
-    //       one-by-one and converting it through the standard conversion machinery.
-    private boolean tryCollectionForLoopCallToGenericDocument(
-            @NonNull CodeBlock.Builder method,
-            @NonNull String fieldName,
-            @NonNull String propertyName,
-            @NonNull TypeMirror propertyType) {
-        Types typeUtil = mEnv.getTypeUtils();
-        CodeBlock.Builder body = CodeBlock.builder()
-                .add("if ($NCopy != null) {\n", fieldName).indent();
-
-        Element element = typeUtil.asElement(propertyType);
-        if (element == null) {
-            // The propertyType is not an element, this is not a type 1c list.
-            return false;
-        }
-        if (getDocumentAnnotation(element) == null) {
-            // The propertyType doesn't have @Document annotation, this is not a type 1c
-            // list.
-            return false;
-        }
-
-        body.addStatement(
-                "GenericDocument[] $NConv = new GenericDocument[$NCopy.size()]",
-                fieldName, fieldName);
-        body.addStatement("int i = 0");
-        body
-                .add("for ($T item : $NCopy) {\n", propertyType, fieldName).indent()
-                .addStatement(
-                        "$NConv[i++] = $T.fromDocumentClass(item)",
-                        fieldName, mHelper.getAppSearchClass("GenericDocument"))
-                .unindent().add("}\n");
-
-        body
-                .addStatement("builder.setPropertyDocument($S, $NConv)", propertyName, fieldName)
-                .unindent()
-                .add("}\n");   //  if ($NCopy != null) {
-
-        method.add(body.build());
-        return true;
-    }
-
-    /**
-     * If the given field is an array, generates code to read it and convert it into a form suitable
-     * for GenericDocument and returns true. If the field is not an array, returns false.
-     */
-    private boolean tryConvertFromArray(
-            @NonNull MethodSpec.Builder method,
-            @NonNull String fieldName,
-            @NonNull String propertyName,
-            @NonNull VariableElement property) throws ProcessingException {
-        Types typeUtil = mEnv.getTypeUtils();
-        if (property.asType().getKind() != TypeKind.ARRAY
-                // Byte arrays have a native representation in Icing, so they are not considered a
-                // "repeated" type
-                || typeUtil.isSameType(property.asType(), mHelper.mBytePrimitiveArrayType)) {
-            return false;  // This is not a scenario 2 array
-        }
-
-        // Copy the field into a local variable to make it easier to refer to it repeatedly.
-        CodeBlock.Builder body = CodeBlock.builder()
-                .addStatement(
-                        "$T $NCopy = $L",
-                        property.asType(),
-                        fieldName,
-                        createAppSearchFieldRead(fieldName));
-
-        TypeMirror propertyType = ((ArrayType) property.asType()).getComponentType();
-
-        if (!tryArrayForLoopAssign(body, fieldName, propertyName, propertyType)                // 2a
-                && !tryArrayUseDirectly(body, fieldName, propertyName, propertyType)           // 2b
-                && !tryArrayForLoopCallToGenericDocument(
-                body, fieldName, propertyName, propertyType)) {                        // 2c
-            // Scenario 2x
-            throw new ProcessingException(
-                    "Unhandled out property type (2x): " + property.asType().toString(), property);
-        }
-
-        method.addCode(body.build());
-        return true;
-    }
-
-    //   2a: ArrayForLoopAssign
-    //       Array is of type Long[], Integer[], int[], Double[], Float[], float[], Boolean[],
-    //       or Byte[].
-    //       We have to pack it into a primitive array of type long[], double[], boolean[] or
-    //       byte[] by reading each element one-by-one and assigning it. The compiler takes care
-    //       of unboxing.
-    private boolean tryArrayForLoopAssign(
-            @NonNull CodeBlock.Builder method,
-            @NonNull String fieldName,
-            @NonNull String propertyName,
-            @NonNull TypeMirror propertyType) {
-        Types typeUtil = mEnv.getTypeUtils();
-        CodeBlock.Builder body = CodeBlock.builder()
-                .add("if ($NCopy != null) {\n", fieldName).indent();
-
-        String setPropertyMethod;
-        if (typeUtil.isSameType(propertyType, mHelper.mLongBoxType)
-                || typeUtil.isSameType(propertyType, mHelper.mIntegerBoxType)
-                || typeUtil.isSameType(propertyType, mHelper.mIntPrimitiveType)) {
-            setPropertyMethod = "setPropertyLong";
-            body.addStatement(
-                    "long[] $NConv = new long[$NCopy.length]", fieldName, fieldName);
-
-        } else if (typeUtil.isSameType(propertyType, mHelper.mDoubleBoxType)
-                || typeUtil.isSameType(propertyType, mHelper.mFloatBoxType)
-                || typeUtil.isSameType(propertyType, mHelper.mFloatPrimitiveType)) {
-            setPropertyMethod = "setPropertyDouble";
-            body.addStatement(
-                    "double[] $NConv = new double[$NCopy.length]", fieldName, fieldName);
-
-        } else if (typeUtil.isSameType(propertyType, mHelper.mBooleanBoxType)) {
-            setPropertyMethod = "setPropertyBoolean";
-            body.addStatement(
-                    "boolean[] $NConv = new boolean[$NCopy.length]", fieldName, fieldName);
-
-        } else if (typeUtil.isSameType(propertyType, mHelper.mByteBoxType)) {
-            setPropertyMethod = "setPropertyBytes";
-            body.addStatement(
-                    "byte[] $NConv = new byte[$NCopy.length]", fieldName, fieldName);
-
-        } else {
-            // This is not a type 2a array.
-            return false;
-        }
-
-        // Iterate over each element of the array, assigning it to the output array.
-        body.add("for (int i = 0 ; i < $NCopy.length ; i++) {\n", fieldName)
-                .indent()
-                .addStatement("$NConv[i] = $NCopy[i]", fieldName, fieldName)
-                .unindent().add("}\n")
-                .addStatement("builder.$N($S, $NConv)", setPropertyMethod, propertyName, fieldName)
-                .unindent().add("}\n");
-
-        method.add(body.build());
-        return true;
-    }
-
-    //   2b: ArrayUseDirectly
-    //       Array is of type String[], long[], double[], boolean[], byte[][].
-    //       We can directly use this field with no conversion.
-    private boolean tryArrayUseDirectly(
-            @NonNull CodeBlock.Builder method,
-            @NonNull String fieldName,
-            @NonNull String propertyName,
-            @NonNull TypeMirror propertyType) {
-        Types typeUtil = mEnv.getTypeUtils();
-        CodeBlock.Builder body = CodeBlock.builder()
-                .add("if ($NCopy != null) {\n", fieldName).indent();
-
-        String setPropertyMethod;
-        if (typeUtil.isSameType(propertyType, mHelper.mStringType)) {
-            setPropertyMethod = "setPropertyString";
-        } else if (typeUtil.isSameType(propertyType, mHelper.mLongPrimitiveType)) {
-            setPropertyMethod = "setPropertyLong";
-        } else if (typeUtil.isSameType(propertyType, mHelper.mDoublePrimitiveType)) {
-            setPropertyMethod = "setPropertyDouble";
-        } else if (typeUtil.isSameType(propertyType, mHelper.mBooleanPrimitiveType)) {
-            setPropertyMethod = "setPropertyBoolean";
-        } else if (typeUtil.isSameType(propertyType, mHelper.mBytePrimitiveArrayType)) {
-            setPropertyMethod = "setPropertyBytes";
-        } else {
-            // This is not a type 2b array.
-            return false;
-        }
-
-        body.addStatement(
-                        "builder.$N($S, $NCopy)", setPropertyMethod, propertyName, fieldName)
-                .unindent().add("}\n");
-
-        method.add(body.build());
-        return true;
-    }
-
-    //   2c: ArrayForLoopCallToGenericDocument
-    //       Array is of a class which is annotated with @Document.
-    //       We have to convert this into an array of GenericDocument[], by reading each element
-    //       one-by-one and converting it through the standard conversion machinery.
-    private boolean tryArrayForLoopCallToGenericDocument(
-            @NonNull CodeBlock.Builder method,
-            @NonNull String fieldName,
-            @NonNull String propertyName,
-            @NonNull TypeMirror propertyType) {
-        Types typeUtil = mEnv.getTypeUtils();
-        CodeBlock.Builder body = CodeBlock.builder()
-                .add("if ($NCopy != null) {\n", fieldName).indent();
-
-        Element element = typeUtil.asElement(propertyType);
-        if (element == null) {
-            // The propertyType is not an element, this is not a type 1c list.
-            return false;
-        }
-        if (getDocumentAnnotation(element) == null)  {
-            // The propertyType doesn't have @Document annotation, this is not a type 1c
-            // list.
-            return false;
-        }
-
-        body.addStatement(
-                "GenericDocument[] $NConv = new GenericDocument[$NCopy.length]",
-                fieldName, fieldName);
-        body
-                .add("for (int i = 0; i < $NConv.length; i++) {\n", fieldName).indent()
-                .addStatement(
-                        "$NConv[i] = $T.fromDocumentClass($NCopy[i])",
-                        fieldName, mHelper.getAppSearchClass("GenericDocument"), fieldName)
-                .unindent().add("}\n");
-
-        body.addStatement("builder.setPropertyDocument($S, $NConv)", propertyName, fieldName)
-                .unindent().add("}\n");    //  if ($NCopy != null) {
-
-        method.add(body.build());
-        return true;
-    }
-
-    /**
-     * Given a field which is a single element (non-collection), generates code to read it and
-     * convert it into a form suitable for GenericDocument.
-     */
-    private void convertFromField(
-            @NonNull MethodSpec.Builder method,
-            @NonNull String fieldName,
-            @NonNull String propertyName,
-            @NonNull VariableElement property) throws ProcessingException {
-        // TODO(b/156296904): Handle scenario 3c (FieldCallToGenericDocument)
-        CodeBlock.Builder body = CodeBlock.builder();
-        if (!tryFieldUseDirectlyWithNullCheck(
-                body, fieldName, propertyName, property.asType())  // 3a
-                && !tryFieldUseDirectlyWithoutNullCheck(
-                body, fieldName, propertyName, property.asType())  // 3b
-                && !tryFieldCallToGenericDocument(
-                body, fieldName, propertyName, property.asType())) {  // 3c
-            throw new ProcessingException("Unhandled property type.", property);
-        }
-        method.addCode(body.build());
-    }
-
-    //   3a: FieldUseDirectlyWithNullCheck
-    //       Field is of type String, Long, Integer, Double, Float, Boolean, byte[].
-    //       We can use this field directly, after testing for null. The java compiler will box
-    //       or unbox as needed.
-    private boolean tryFieldUseDirectlyWithNullCheck(
-            @NonNull CodeBlock.Builder method,
-            @NonNull String fieldName,
-            @NonNull String propertyName,
-            @NonNull TypeMirror propertyType) {
-        Types typeUtil = mEnv.getTypeUtils();
-        // Copy the field into a local variable to make it easier to refer to it repeatedly.
-        CodeBlock.Builder body = CodeBlock.builder()
-                .addStatement(
-                        "$T $NCopy = $L",
-                        propertyType,
-                        fieldName,
-                        createAppSearchFieldRead(fieldName))
-                .add("if ($NCopy != null) {\n", fieldName).indent();
-
-        String setPropertyMethod;
-        if (typeUtil.isSameType(propertyType, mHelper.mStringType)) {
-            setPropertyMethod = "setPropertyString";
-        } else if (typeUtil.isSameType(propertyType, mHelper.mLongBoxType)
-                || typeUtil.isSameType(propertyType, mHelper.mIntegerBoxType)) {
-            setPropertyMethod = "setPropertyLong";
-        } else if (typeUtil.isSameType(propertyType, mHelper.mDoubleBoxType)
-                || typeUtil.isSameType(propertyType, mHelper.mFloatBoxType)) {
-            setPropertyMethod = "setPropertyDouble";
-        } else if (typeUtil.isSameType(propertyType, mHelper.mBooleanBoxType)) {
-            setPropertyMethod = "setPropertyBoolean";
-        } else if (typeUtil.isSameType(propertyType, mHelper.mBytePrimitiveArrayType)) {
-            setPropertyMethod = "setPropertyBytes";
-        } else {
-            // This is not a type 3a field
-            return false;
-        }
-
-        body.addStatement(
-                        "builder.$N($S, $NCopy)", setPropertyMethod, propertyName, fieldName)
-                .unindent().add("}\n");
-
-        method.add(body.build());
-        return true;
-    }
-
-    //   3b: FieldUseDirectlyWithoutNullCheck
-    //       Field is of type long, int, double, float, or boolean.
-    //       We can use this field directly without testing for null.
-    private boolean tryFieldUseDirectlyWithoutNullCheck(
-            @NonNull CodeBlock.Builder method,
-            @NonNull String fieldName,
-            @NonNull String propertyName,
-            @NonNull TypeMirror propertyType) {
-        Types typeUtil = mEnv.getTypeUtils();
-        String setPropertyMethod;
-        if (typeUtil.isSameType(propertyType, mHelper.mLongPrimitiveType)
-                || typeUtil.isSameType(propertyType, mHelper.mIntPrimitiveType)) {
-            setPropertyMethod = "setPropertyLong";
-        } else if (typeUtil.isSameType(propertyType, mHelper.mDoublePrimitiveType)
-                || typeUtil.isSameType(propertyType, mHelper.mFloatPrimitiveType)) {
-            setPropertyMethod = "setPropertyDouble";
-        } else if (typeUtil.isSameType(propertyType, mHelper.mBooleanPrimitiveType)) {
-            setPropertyMethod = "setPropertyBoolean";
-        } else {
-            // This is not a type 3b field
-            return false;
-        }
-
-        method.addStatement(
-                "builder.$N($S, $L)",
-                setPropertyMethod,
-                propertyName,
-                createAppSearchFieldRead(fieldName));
-        return true;
-    }
-
-    //   3c: FieldCallToGenericDocument
-    //       Field is of a class which is annotated with @Document.
-    //       We have to convert this into a GenericDocument through the standard conversion
-    //       machinery.
-    private boolean tryFieldCallToGenericDocument(
-            @NonNull CodeBlock.Builder method,
-            @NonNull String fieldName,
-            @NonNull String propertyName,
-            @NonNull TypeMirror propertyType) {
-        Types typeUtil = mEnv.getTypeUtils();
-
-        Element element = typeUtil.asElement(propertyType);
-        if (element == null) {
-            // The propertyType is not an element, this is not a type 3c field.
-            return false;
-        }
-        if (getDocumentAnnotation(element) == null) {
-            // The propertyType doesn't have @Document annotation, this is not a type 3c
-            // field.
-            return false;
-        }
-        method.addStatement(
-                "$T $NCopy = $L", propertyType, fieldName, createAppSearchFieldRead(fieldName));
-
-        method.add("if ($NCopy != null) {\n", fieldName).indent();
-
-        method
-                .addStatement(
-                        "GenericDocument $NConv = $T.fromDocumentClass($NCopy)",
-                        fieldName, mHelper.getAppSearchClass("GenericDocument"), fieldName)
-                .addStatement("builder.setPropertyDocument($S, $NConv)", propertyName, fieldName);
-
-        method.unindent().add("}\n");
-        return true;
-    }
-
-    private void setSpecialFields(MethodSpec.Builder method) {
-        for (DocumentModel.SpecialField specialField :
-                DocumentModel.SpecialField.values()) {
-            String fieldName = mModel.getSpecialFieldName(specialField);
-            if (fieldName == null) {
-                continue;  // The document class doesn't have this field, so no need to set it.
-            }
-            switch (specialField) {
-                case ID:
-                    break;  // Always provided to builder constructor; cannot be set separately.
-                case NAMESPACE:
-                    break;  // Always provided to builder constructor; cannot be set separately.
-                case CREATION_TIMESTAMP_MILLIS:
-                    method.addStatement(
-                            "builder.setCreationTimestampMillis($L)",
-                            createAppSearchFieldRead(fieldName));
-                    break;
-                case TTL_MILLIS:
-                    method.addStatement(
-                            "builder.setTtlMillis($L)", createAppSearchFieldRead(fieldName));
-                    break;
-                case SCORE:
-                    method.addStatement(
-                            "builder.setScore($L)", createAppSearchFieldRead(fieldName));
-                    break;
-            }
-        }
-    }
-
-    private CodeBlock createAppSearchFieldRead(@NonNull String fieldName) {
-        switch (Objects.requireNonNull(mModel.getFieldReadKind(fieldName))) {
-            case FIELD:
-                return CodeBlock.of("document.$N", fieldName);
-            case GETTER:
-                String getter = mModel.getGetterForField(fieldName).getSimpleName().toString();
-                return CodeBlock.of("document.$N()", getter);
-        }
-        return null;
     }
 }

@@ -39,7 +39,7 @@ dependencies {
     api projectOrArtifact(":hilt:hilt-navigation")
     api("androidx.compose.runtime:runtime:1.0.1")
     api("androidx.compose.ui:ui:1.0.1")
-    api(project(":lifecycle:lifecycle-viewmodel-compose"))
+    api("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1")
     api("androidx.navigation:navigation-compose:2.5.1")
 
     androidTestImplementation(libs.testExtJunit)
@@ -51,7 +51,7 @@ dependencies {
     androidTestImplementation(libs.hiltAndroidTesting)
     kaptAndroidTest(libs.hiltCompiler)
     androidTestImplementation(projectOrArtifact(":compose:material:material"))
-    androidTestImplementation(projectOrArtifact(":compose:test-utils"))
+    androidTestImplementation(project(":compose:test-utils"))
     androidTestImplementation(projectOrArtifact(":lifecycle:lifecycle-common"))
     androidTestImplementation(projectOrArtifact(":lifecycle:lifecycle-common-java8"))
     androidTestImplementation(projectOrArtifact(":lifecycle:lifecycle-livedata-core"))
@@ -73,4 +73,5 @@ androidx {
     description = "Navigation Compose Hilt Integration"
     runApiTasks = new RunApiTasks.Yes()
     legacyDisableKotlinStrictApiMode = true
+    metalavaK2UastEnabled = true
 }

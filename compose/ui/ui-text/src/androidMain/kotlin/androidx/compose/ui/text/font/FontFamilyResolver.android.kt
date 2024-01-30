@@ -19,7 +19,6 @@ package androidx.compose.ui.text.font
 import android.content.Context
 import android.graphics.Typeface
 import androidx.compose.runtime.State
-import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.InternalTextApi
 import kotlin.coroutines.CoroutineContext
 
@@ -87,9 +86,7 @@ fun createFontFamilyResolver(
  *
  * This is primarily useful for testing or benchmarking.
  *
- * @suppress
  */
-@OptIn(ExperimentalTextApi::class)
 @InternalTextApi // exposed for benchmarking, not a stable API.
 fun emptyCacheFontFamilyResolver(context: Context): FontFamily.Resolver {
     return FontFamilyResolverImpl(

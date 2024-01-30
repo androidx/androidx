@@ -1,0 +1,52 @@
+public final class androidx/compose/runtime/saveable/ListSaverKt {
+	public static final fun listSaver (Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function1;)Landroidx/compose/runtime/saveable/Saver;
+}
+
+public final class androidx/compose/runtime/saveable/MapSaverKt {
+	public static final fun mapSaver (Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function1;)Landroidx/compose/runtime/saveable/Saver;
+}
+
+public final class androidx/compose/runtime/saveable/RememberSaveableKt {
+	public static final fun rememberSaveable ([Ljava/lang/Object;Landroidx/compose/runtime/saveable/Saver;Ljava/lang/String;Lkotlin/jvm/functions/Function0;Landroidx/compose/runtime/Composer;II)Landroidx/compose/runtime/MutableState;
+	public static final fun rememberSaveable ([Ljava/lang/Object;Landroidx/compose/runtime/saveable/Saver;Ljava/lang/String;Lkotlin/jvm/functions/Function0;Landroidx/compose/runtime/Composer;II)Ljava/lang/Object;
+}
+
+public abstract interface class androidx/compose/runtime/saveable/SaveableStateHolder {
+	public abstract fun SaveableStateProvider (Ljava/lang/Object;Lkotlin/jvm/functions/Function2;Landroidx/compose/runtime/Composer;I)V
+	public abstract fun removeState (Ljava/lang/Object;)V
+}
+
+public final class androidx/compose/runtime/saveable/SaveableStateHolderKt {
+	public static final fun rememberSaveableStateHolder (Landroidx/compose/runtime/Composer;I)Landroidx/compose/runtime/saveable/SaveableStateHolder;
+}
+
+public abstract interface class androidx/compose/runtime/saveable/SaveableStateRegistry {
+	public abstract fun canBeSaved (Ljava/lang/Object;)Z
+	public abstract fun consumeRestored (Ljava/lang/String;)Ljava/lang/Object;
+	public abstract fun performSave ()Ljava/util/Map;
+	public abstract fun registerProvider (Ljava/lang/String;Lkotlin/jvm/functions/Function0;)Landroidx/compose/runtime/saveable/SaveableStateRegistry$Entry;
+}
+
+public abstract interface class androidx/compose/runtime/saveable/SaveableStateRegistry$Entry {
+	public abstract fun unregister ()V
+}
+
+public final class androidx/compose/runtime/saveable/SaveableStateRegistryKt {
+	public static final fun SaveableStateRegistry (Ljava/util/Map;Lkotlin/jvm/functions/Function1;)Landroidx/compose/runtime/saveable/SaveableStateRegistry;
+	public static final fun getLocalSaveableStateRegistry ()Landroidx/compose/runtime/ProvidableCompositionLocal;
+}
+
+public abstract interface class androidx/compose/runtime/saveable/Saver {
+	public abstract fun restore (Ljava/lang/Object;)Ljava/lang/Object;
+	public abstract fun save (Landroidx/compose/runtime/saveable/SaverScope;Ljava/lang/Object;)Ljava/lang/Object;
+}
+
+public final class androidx/compose/runtime/saveable/SaverKt {
+	public static final fun Saver (Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function1;)Landroidx/compose/runtime/saveable/Saver;
+	public static final fun autoSaver ()Landroidx/compose/runtime/saveable/Saver;
+}
+
+public abstract interface class androidx/compose/runtime/saveable/SaverScope {
+	public abstract fun canBeSaved (Ljava/lang/Object;)Z
+}
+

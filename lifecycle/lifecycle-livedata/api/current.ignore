@@ -1,7 +1,0 @@
-// Baseline format: 1.0
-ChangedType: androidx.lifecycle.Transformations#distinctUntilChanged(androidx.lifecycle.LiveData<X>):
-    Method androidx.lifecycle.Transformations.distinctUntilChanged has changed return type from androidx.lifecycle.LiveData<X!> to androidx.lifecycle.LiveData<X>
-ChangedType: androidx.lifecycle.Transformations#map(androidx.lifecycle.LiveData<X>, androidx.arch.core.util.Function<X,Y>):
-    Method androidx.lifecycle.Transformations.map has changed return type from androidx.lifecycle.LiveData<Y!> to androidx.lifecycle.LiveData<Y>
-ChangedType: androidx.lifecycle.Transformations#switchMap(androidx.lifecycle.LiveData<X>, androidx.arch.core.util.Function<X,androidx.lifecycle.LiveData<Y>>):
-    Method androidx.lifecycle.Transformations.switchMap has changed return type from androidx.lifecycle.LiveData<Y!> to androidx.lifecycle.LiveData<Y>

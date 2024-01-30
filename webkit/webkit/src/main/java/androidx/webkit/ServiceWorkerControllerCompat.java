@@ -41,7 +41,6 @@ import androidx.webkit.internal.ServiceWorkerControllerImpl;
 public abstract class ServiceWorkerControllerCompat {
     /**
      *
-     * @hide Don't allow apps to sub-class this class.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public ServiceWorkerControllerCompat() {}

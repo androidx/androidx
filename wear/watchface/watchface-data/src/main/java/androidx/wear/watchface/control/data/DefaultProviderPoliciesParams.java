@@ -31,7 +31,6 @@ import androidx.versionedparcelable.VersionedParcelize;
 /**
  * Parameters for {@link IWatchFaceControlService#getDefaultProviderPolicies}.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @VersionedParcelize

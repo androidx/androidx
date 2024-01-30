@@ -17,12 +17,9 @@
 package androidx.compose.foundation.layout.samples
 
 import androidx.annotation.Sampled
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -42,26 +39,23 @@ import androidx.compose.ui.unit.sp
 @Sampled
 @Composable
 fun SimpleFlowRow() {
-    Column() {
-        FlowRow(
-            Modifier
-                .fillMaxWidth(1f)
-                .wrapContentHeight(align = Alignment.Top)
-                .border(BorderStroke(2.dp, Color.Gray)),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Start,
-            maxItemsInEachRow = 3
-        ) {
-            repeat(10) {
-                Box(
-                    Modifier
-                        .padding(10.dp)
-                        .width(50.dp)
-                        .height(50.dp)
-                        .background(Color.Green)
-                ) {
-                    Text(text = it.toString(), fontSize = 18.sp, modifier = Modifier.padding(3.dp))
-                }
+    FlowRow(
+        Modifier
+            .fillMaxWidth(1f)
+            .wrapContentHeight(align = Alignment.Top),
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
+        verticalArrangement = Arrangement.spacedBy(20.dp),
+        maxItemsInEachRow = 3
+    ) {
+        repeat(10) {
+            Box(
+                Modifier
+                    .align(Alignment.CenterVertically)
+                    .width(50.dp)
+                    .height(50.dp)
+                    .background(Color.Green)
+            ) {
+                Text(text = it.toString(), fontSize = 18.sp, modifier = Modifier.padding(3.dp))
             }
         }
     }
@@ -71,25 +65,23 @@ fun SimpleFlowRow() {
 @Sampled
 @Composable
 fun SimpleFlowRowWithWeights() {
-    Column() {
-        FlowRow(
-            Modifier
-                .wrapContentHeight()
-                .fillMaxWidth(1f),
-            horizontalArrangement = Arrangement.Start,
-            verticalAlignment = Alignment.CenterVertically,
-            maxItemsInEachRow = 3
-        ) {
-            repeat(6) { index ->
-                Box(
-                    Modifier
-                        .padding(10.dp)
-                        .width(50.dp)
-                        .height(50.dp)
-                        .background(Color.Green)
-                        .weight(if (index % 3 == 0) 1f else 2f, fill = true)
-                )
-            }
+    FlowRow(
+        Modifier
+            .wrapContentHeight()
+            .fillMaxWidth(1f),
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
+        verticalArrangement = Arrangement.spacedBy(20.dp),
+        maxItemsInEachRow = 3
+    ) {
+        repeat(6) { index ->
+            Box(
+                Modifier
+                    .align(Alignment.CenterVertically)
+                    .width(50.dp)
+                    .height(50.dp)
+                    .background(Color.Green)
+                    .weight(if (index % 2 == 0) 1f else 2f, fill = true)
+            )
         }
     }
 }

@@ -42,7 +42,7 @@ import java.util.List;
  */
 @Document(name = "builtin:AlarmInstance")
 public class AlarmInstance extends Thing {
-    /** @hide */
+    /** @exportToFramework:hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef({STATUS_UNKNOWN, STATUS_SCHEDULED, STATUS_FIRING, STATUS_DISMISSED, STATUS_SNOOZED,
             STATUS_MISSED})
@@ -74,10 +74,11 @@ public class AlarmInstance extends Thing {
     AlarmInstance(@NonNull String namespace, @NonNull String id, int documentScore,
             long creationTimestampMillis, long documentTtlMillis, @Nullable String name,
             @Nullable List<String> alternateNames, @Nullable String description,
-            @Nullable String image, @Nullable String url, @NonNull String scheduledTime,
+            @Nullable String image, @Nullable String url,
+            @NonNull List<PotentialAction> potentialActions, @NonNull String scheduledTime,
             int status, long snoozeDurationMillis) {
         super(namespace, id, documentScore, creationTimestampMillis, documentTtlMillis, name,
-                alternateNames, description, image, url);
+                alternateNames, description, image, url, potentialActions);
         mScheduledTime = Preconditions.checkNotNull(scheduledTime);
         mStatus = status;
         mSnoozeDurationMillis = snoozeDurationMillis;
@@ -116,6 +117,7 @@ public class AlarmInstance extends Thing {
     }
 
     /** Builder for {@link AlarmInstance}. */
+    @Document.BuilderProducer
     public static final class Builder extends BuilderImpl<Builder> {
         /**
          * Constructor for {@link AlarmInstance.Builder}.
@@ -197,6 +199,7 @@ public class AlarmInstance extends Thing {
         public AlarmInstance build() {
             return new AlarmInstance(mNamespace, mId, mDocumentScore, mCreationTimestampMillis,
                     mDocumentTtlMillis, mName, mAlternateNames, mDescription, mImage, mUrl,
+                    mPotentialActions,
                     mScheduledTime, mStatus, mSnoozeDurationMillis);
         }
     }

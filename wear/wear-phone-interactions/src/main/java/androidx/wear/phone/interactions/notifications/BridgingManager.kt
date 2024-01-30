@@ -16,7 +16,6 @@
 
 package androidx.wear.phone.interactions.notifications
 
-import android.annotation.SuppressLint
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -86,7 +85,6 @@ public class BridgingManager private constructor(private val context: Context) {
      *
      * @throws RuntimeException if the service binding is failed.
      */
-    @SuppressLint("SyntheticAccessor")
     public fun setConfig(bridgingConfig: BridgingConfig) {
         require(isWearableDevice(context)) { "API only supported on wearable devices" }
         val connection = BridgingConfigServiceConnection(context, bridgingConfig)

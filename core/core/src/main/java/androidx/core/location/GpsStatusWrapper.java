@@ -29,7 +29,6 @@ import androidx.core.util.Preconditions;
 
 import java.util.Iterator;
 
-/** @hide */
 @RestrictTo(LIBRARY)
 class GpsStatusWrapper extends GnssStatusCompat {
 

@@ -26,7 +26,6 @@ import androidx.annotation.RestrictTo;
  * Minimal interface for a menu view.  {@link #initialize(MenuBuilder)} must be called for the
  * menu to be functional.
  *
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public interface MenuView {

@@ -18,6 +18,7 @@ package androidx.wear.protolayout;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import androidx.wear.protolayout.expression.AppDataKey;
 import androidx.wear.protolayout.expression.DynamicBuilders;
 
 import org.junit.Test;
@@ -29,22 +30,20 @@ public class TriggerBuildersTest {
 
     @Test
     public void onLoadTrigger() {
-        TriggerBuilders.OnLoadTrigger onLoadTrigger = TriggerBuilders.createOnLoadTrigger();
+        TriggerBuilders.Trigger onLoadTrigger = TriggerBuilders.createOnLoadTrigger();
 
         assertThat(onLoadTrigger.toTriggerProto().hasOnLoadTrigger()).isTrue();
     }
 
-
     @Test
     public void onConditionTrigger() {
-        DynamicBuilders.DynamicBool condition = DynamicBuilders.DynamicBool.fromState("state");
+        DynamicBuilders.DynamicBool condition =
+                DynamicBuilders.DynamicBool.from(new AppDataKey<>("state"));
 
-        TriggerBuilders.OnConditionMetTrigger onConditionMetTrigger =
-                TriggerBuilders.createOnConditionMetTrigger(
-                condition);
+        TriggerBuilders.Trigger onConditionMetTrigger =
+                TriggerBuilders.createOnConditionMetTrigger(condition);
 
-        assertThat(
-                onConditionMetTrigger.toTriggerProto().getOnConditionMetTrigger().getTrigger())
+        assertThat(onConditionMetTrigger.toTriggerProto().getOnConditionMetTrigger().getCondition())
                 .isEqualTo(condition.toDynamicBoolProto());
     }
 }

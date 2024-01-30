@@ -24,6 +24,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.impl.CameraStateRegistry;
 
@@ -38,7 +39,6 @@ import java.util.List;
  * All camera devices intended to be operated concurrently, must be opened before configuring
  * sessions on any of the camera devices.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresApi(21)
@@ -71,27 +71,27 @@ public interface CameraCoordinator {
     List<List<CameraSelector>> getConcurrentCameraSelectors();
 
     /**
-     * Gets active concurrent camera selectors.
+     * Gets active concurrent camera infos.
      *
-     * @return list of active concurrent camera selectors.
+     * @return list of active concurrent camera infos.
      */
     @NonNull
-    List<CameraSelector> getActiveConcurrentCameraSelectors();
+    List<CameraInfo> getActiveConcurrentCameraInfos();
 
     /**
-     * Sets active concurrent camera selectors.
+     * Sets active concurrent camera infos.
      *
-     * @param cameraSelectors list of active concurrent camera selectors.
+     * @param cameraInfos list of active concurrent camera infos.
      */
-    void setActiveConcurrentCameraSelectors(@NonNull List<CameraSelector> cameraSelectors);
+    void setActiveConcurrentCameraInfos(@NonNull List<CameraInfo> cameraInfos);
 
     /**
      * Returns paired camera id in concurrent mode.
      *
-     * <p>The paired camera id dictionary is constructed when {@link CameraCoordinator#init()} is
-     * called. This internal API is used to look up paired camera id when coordinating device
-     * open and session config in {@link CameraStateRegistry}. Currently only dual cameras will
-     * be supported in concurrent mode.
+     * <p>The paired camera id dictionary is constructed when constructor is called. This
+     * internal API is used to look up paired camera id when coordinating device open and session
+     * config in {@link CameraStateRegistry}. Currently only dual cameras will be supported in
+     * concurrent mode.
      *
      * @param cameraId camera id.
      * @return The paired camera id if exists or null if paired camera not exists.
@@ -130,14 +130,20 @@ public interface CameraCoordinator {
     void removeListener(@NonNull ConcurrentCameraModeListener listener);
 
     /**
+     * Clean up all the resources when CameraX shutdown.
+     */
+    void shutdown();
+
+    /**
      * Interface for concurrent camera mode update.
      *
-     * <p>Everytime user sets concurrent mode, the observer will be notified and update related
-     * states or parameters accordingly. E.g. in
-     * {@link CameraStateRegistry}, we will update the number of max
-     * allowed cameras if concurrent mode is set.
+     * <p>Everytime user changes {@link CameraOperatingMode}, the observer will be notified and
+     * update related states or parameters accordingly. E.g. in {@link CameraStateRegistry}, we
+     * will update the number of max allowed cameras.
      */
     interface ConcurrentCameraModeListener {
-        void notifyConcurrentCameraModeUpdated(@CameraOperatingMode int cameraOperatingMode);
+        void onCameraOperatingModeUpdated(
+                @CameraOperatingMode int prevMode,
+                @CameraOperatingMode int currMode);
     }
 }

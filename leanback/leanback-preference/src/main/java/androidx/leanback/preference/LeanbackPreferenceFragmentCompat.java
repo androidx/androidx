@@ -31,12 +31,12 @@ import androidx.annotation.NonNull;
  * <p>The following sample code shows a simple leanback preference fragment that is
  * populated from a resource.  The resource it loads is:</p>
  *
- * {@sample frameworks/support/samples/SupportPreferenceDemos/src/main/res/xml/preferences.xml preferences}
+ * {@sample samples/SupportPreferenceDemos/src/main/res/xml/preferences.xml preferences}
  *
  * <p>The fragment needs only to implement {@link #onCreatePreferences(Bundle, String)} to populate
  * the list of preference objects:</p>
  *
- * {@sample frameworks/support/samples/SupportPreferenceDemos/src/main/java/com/example/androidx/preference/LeanbackPreferences.java leanback_preferences}
+ * {@sample samples/SupportPreferenceDemos/src/main/java/com/example/androidx/preference/LeanbackPreferences.java leanback_preferences}
  */
 public abstract class LeanbackPreferenceFragmentCompat extends
         BaseLeanbackPreferenceFragmentCompat {

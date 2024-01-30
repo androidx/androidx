@@ -1,7 +1,7 @@
 # Module root
 
-<GROUPID> <ARTIFACTID>
+Core Performance Usage
 
 # Package androidx.core.performance.samples
 
-Insert package level documentation here
+Sample application for using androidx.core.performance functionality.

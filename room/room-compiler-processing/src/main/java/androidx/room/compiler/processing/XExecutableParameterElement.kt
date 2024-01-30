@@ -22,6 +22,35 @@ package androidx.room.compiler.processing
 interface XExecutableParameterElement : XVariableElement {
 
     /**
+     * The name of the parameter in JVM.
+     *
+     * Use this property when you need to generate Java code accessing this parameter. Unlike
+     * [name], the [jvmName] is guaranteed to be a valid Java name.
+     */
+    val jvmName: String
+
+    /**
+     * Returns `true` if this parameter is a synthetic Continuation parameter of a suspend function.
+     */
+    fun isContinuationParam(): Boolean
+
+    /**
+     * Returns `true` if this parameter represents the receiver of an extension function.
+     */
+    fun isReceiverParam(): Boolean
+
+    /**
+     * Returns `true` if this parameter represents the single parameter of a Kotlin property setter
+     * method.
+     */
+    fun isKotlinPropertyParam(): Boolean
+
+    /**
+     * Returns `true` if this parameter is a vararg.
+     */
+    fun isVarArgs(): Boolean
+
+    /**
      * The enclosing [XExecutableElement] this parameter belongs to.
      */
     override val enclosingElement: XExecutableElement

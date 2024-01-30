@@ -38,7 +38,6 @@ public final class CarUnit {
     /**
      * Defines the possible distance units from car hardware.
      *
-     * @hide
      */
     @IntDef({
             MILLIMETER,
@@ -71,7 +70,6 @@ public final class CarUnit {
     /**
      * Defines the possible volume units from car hardware.
      *
-     * @hide
      */
     // TODO(b/202303614): Remove this annotation once FuelVolumeDisplayUnit is ready.
     @ExperimentalCarApi
@@ -114,7 +112,6 @@ public final class CarUnit {
     /**
      * Defines the possible distance units from car hardware.
      *
-     * @hide
      */
     @IntDef({
             METERS_PER_SEC,

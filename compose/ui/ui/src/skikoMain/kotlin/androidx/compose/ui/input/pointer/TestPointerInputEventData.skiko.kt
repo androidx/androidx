@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.input.pointer
 
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.geometry.Offset
 
@@ -30,7 +31,9 @@ class TestPointerInputEventData(
     val position: Offset,
     val down: Boolean
 ) {
+    @OptIn(ExperimentalComposeUiApi::class)
     internal fun toPointerInputEventData() =
+        @OptIn(ExperimentalComposeUiApi::class)
         PointerInputEventData(
             id,
             uptime,
@@ -38,6 +41,7 @@ class TestPointerInputEventData(
             position,
             down,
             pressure = 1.0f,
-            PointerType.Mouse
+            PointerType.Mouse,
+            historical = listOf()
         )
 }

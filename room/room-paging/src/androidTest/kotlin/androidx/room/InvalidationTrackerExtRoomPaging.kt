@@ -15,9 +15,9 @@
  */
 package androidx.room
 
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withTimeout
-import java.util.concurrent.TimeUnit
 
 /**
  * True if invalidation tracker is pending a refresh event to get database changes.

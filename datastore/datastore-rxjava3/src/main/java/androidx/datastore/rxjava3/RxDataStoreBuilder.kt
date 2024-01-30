@@ -25,12 +25,12 @@ import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
 import androidx.datastore.dataStoreFile
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.schedulers.Schedulers
+import java.io.File
+import java.util.concurrent.Callable
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.rx3.asCoroutineDispatcher
 import kotlinx.coroutines.rx3.await
-import java.io.File
-import java.util.concurrent.Callable
 
 /**
  * Builder class for an RxDataStore that works on a single process.

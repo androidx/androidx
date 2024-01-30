@@ -29,7 +29,7 @@ import androidx.versionedparcelable.VersionedParcelize;
 import androidx.wear.watchface.complications.data.ComplicationExperimental;
 
 /** Wire format for BoundingArc. */
-// TODO(b/230364881): Mark as @hide RestrictTo when BoundingArc is no longer experimental.
+// TODO(b/230364881): Mark as @RestrictTo when BoundingArc is no longer experimental.
 @VersionedParcelize
 @SuppressLint("BanParcelableUsage")
 @ComplicationExperimental

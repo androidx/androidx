@@ -15,4 +15,4 @@
 
 package android.support.v4.media.session;
 
-parcelable PlaybackStateCompat;
+@JavaOnlyStableParcelable parcelable PlaybackStateCompat;

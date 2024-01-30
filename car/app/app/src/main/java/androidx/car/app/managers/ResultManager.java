@@ -34,7 +34,6 @@ import androidx.car.app.CarContext;
  * <p>This is used internally by the library and its functionality is exposed through
  * {@link androidx.car.app.CarContext}
  *
- * @hide
  */
 @MainThread
 @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -61,7 +60,6 @@ public interface ResultManager extends Manager {
      *
      * @throws IllegalStateException if none of the supported classes are found or if a supported
      *                               class was found but the constructor was mismatched
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull

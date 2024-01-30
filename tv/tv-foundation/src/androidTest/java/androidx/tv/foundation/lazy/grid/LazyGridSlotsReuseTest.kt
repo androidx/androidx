@@ -21,13 +21,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -73,8 +73,7 @@ class LazyGridSlotsReuseTest {
         }
 
         rule.onNodeWithTag("0")
-            .assertExists()
-            .assertIsNotDisplayed()
+            .assertIsDeactivated()
         rule.onNodeWithTag("1")
             .assertIsDisplayed()
     }
@@ -107,11 +106,9 @@ class LazyGridSlotsReuseTest {
         }
 
         rule.onNodeWithTag("0")
-            .assertExists()
-            .assertIsNotDisplayed()
+            .assertIsDeactivated()
         rule.onNodeWithTag("1")
-            .assertExists()
-            .assertIsNotDisplayed()
+            .assertIsDeactivated()
         rule.onNodeWithTag("2")
             .assertIsDisplayed()
     }
@@ -140,8 +137,7 @@ class LazyGridSlotsReuseTest {
 
         repeat(DefaultMaxItemsToRetain) {
             rule.onNodeWithTag("$it")
-                .assertExists()
-                .assertIsNotDisplayed()
+                .assertIsDeactivated()
         }
         rule.onNodeWithTag("$DefaultMaxItemsToRetain")
             .assertDoesNotExist()
@@ -187,11 +183,9 @@ class LazyGridSlotsReuseTest {
 
         // in buffer
         rule.onNodeWithTag("0")
-            .assertExists()
-            .assertIsNotDisplayed()
+            .assertIsDeactivated()
         rule.onNodeWithTag("2")
-            .assertExists()
-            .assertIsNotDisplayed()
+            .assertIsDeactivated()
 
         // visible
         rule.onNodeWithTag("3")
@@ -234,8 +228,7 @@ class LazyGridSlotsReuseTest {
 
         // in buffer
         rule.onNodeWithTag("3")
-            .assertExists()
-            .assertIsNotDisplayed()
+            .assertIsDeactivated()
 
         // visible
         rule.onNodeWithTag("4")
@@ -267,11 +260,9 @@ class LazyGridSlotsReuseTest {
 
         // in buffer
         rule.onNodeWithTag("10")
-            .assertExists()
-            .assertIsNotDisplayed()
+            .assertIsDeactivated()
         rule.onNodeWithTag("11")
-            .assertExists()
-            .assertIsNotDisplayed()
+            .assertIsDeactivated()
 
         // visible
         rule.onNodeWithTag("8")
@@ -305,8 +296,7 @@ class LazyGridSlotsReuseTest {
 
         // in buffer
         rule.onNodeWithTag("8")
-            .assertExists()
-            .assertIsNotDisplayed()
+            .assertIsDeactivated()
 
         // visible
         rule.onNodeWithTag("6")
@@ -319,9 +309,24 @@ class LazyGridSlotsReuseTest {
     fun scrollingBackReusesTheSameSlot() {
         lateinit var state: TvLazyGridState
         var counter0 = 0
-        var counter1 = 10
-        var rememberedValue0 = -1
-        var rememberedValue1 = -1
+        var counter1 = 0
+
+        val measureCountModifier0 = Modifier.layout { measurable, constraints ->
+            counter0++
+            val placeable = measurable.measure(constraints)
+            layout(placeable.width, placeable.height) {
+                placeable.place(IntOffset.Zero)
+            }
+        }
+
+        val measureCountModifier1 = Modifier.layout { measurable, constraints ->
+            counter1++
+            val placeable = measurable.measure(constraints)
+            layout(placeable.width, placeable.height) {
+                placeable.place(IntOffset.Zero)
+            }
+        }
+
         rule.setContent {
             state = rememberTvLazyGridState()
             TvLazyVerticalGrid(
@@ -330,28 +335,34 @@ class LazyGridSlotsReuseTest {
                 state
             ) {
                 items(100) {
-                    if (it == 0) {
-                        rememberedValue0 = remember { counter0++ }
+                    val modifier = when (it) {
+                        0 -> measureCountModifier0
+                        1 -> measureCountModifier1
+                        else -> Modifier
                     }
-                    if (it == 1) {
-                        rememberedValue1 = remember { counter1++ }
-                    }
-                    Spacer(Modifier.height(itemsSizeDp).fillMaxWidth().testTag("$it"))
+                    Spacer(
+                        Modifier
+                            .height(itemsSizeDp)
+                            .testTag("$it")
+                            .then(modifier)
+                    )
                 }
             }
         }
         rule.runOnIdle {
             runBlocking {
                 state.scrollToItem(2) // buffer is [0, 1]
+                counter0 = 0
+                counter1 = 0
                 state.scrollToItem(0) // scrolled back, 0 and 1 are reused back. buffer: [2, 3]
             }
         }
 
         rule.runOnIdle {
-            Truth.assertWithMessage("Item 0 restored remembered value is $rememberedValue0")
-                .that(rememberedValue0).isEqualTo(0)
-            Truth.assertWithMessage("Item 1 restored remembered value is $rememberedValue1")
-                .that(rememberedValue1).isEqualTo(10)
+            Truth.assertWithMessage("Item 0 measured $counter0 times, expected 0.")
+                .that(counter0).isEqualTo(0)
+            Truth.assertWithMessage("Item 1 measured $counter1 times, expected 0.")
+                .that(counter1).isEqualTo(0)
         }
 
         rule.onNodeWithTag("0")
@@ -360,11 +371,9 @@ class LazyGridSlotsReuseTest {
             .assertIsDisplayed()
 
         rule.onNodeWithTag("2")
-            .assertExists()
-            .assertIsNotDisplayed()
+            .assertIsDeactivated()
         rule.onNodeWithTag("3")
-            .assertExists()
-            .assertIsNotDisplayed()
+            .assertIsDeactivated()
     }
 
     @Test
@@ -405,8 +414,7 @@ class LazyGridSlotsReuseTest {
         // [DefaultMaxItemsToRetain] items of type 0 are left for reuse
         for (i in 0 until DefaultMaxItemsToRetain) {
             rule.onNodeWithTag("$i")
-                .assertExists()
-                .assertIsNotDisplayed()
+                .assertIsDeactivated()
         }
         rule.onNodeWithTag("$DefaultMaxItemsToRetain")
             .assertDoesNotExist()
@@ -414,8 +422,7 @@ class LazyGridSlotsReuseTest {
         // and 7 items of type 1
         for (i in startOfType1 until startOfType1 + DefaultMaxItemsToRetain) {
             rule.onNodeWithTag("$i")
-                .assertExists()
-                .assertIsNotDisplayed()
+                .assertIsDeactivated()
         }
         rule.onNodeWithTag("${startOfType1 + DefaultMaxItemsToRetain}")
             .assertDoesNotExist()
@@ -456,11 +463,9 @@ class LazyGridSlotsReuseTest {
         }
 
         rule.onNodeWithTag("0")
-            .assertExists()
-            .assertIsNotDisplayed()
+            .assertIsDeactivated()
         rule.onNodeWithTag("1")
-            .assertExists()
-            .assertIsNotDisplayed()
+            .assertIsDeactivated()
 
         rule.runOnIdle {
             runBlocking {
@@ -470,8 +475,7 @@ class LazyGridSlotsReuseTest {
         }
 
         rule.onNodeWithTag("0")
-            .assertExists()
-            .assertIsNotDisplayed()
+            .assertIsDeactivated()
         rule.onNodeWithTag("1")
             .assertDoesNotExist()
         rule.onNodeWithTag("9")

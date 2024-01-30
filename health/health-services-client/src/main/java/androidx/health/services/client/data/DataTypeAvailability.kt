@@ -39,7 +39,6 @@ public class DataTypeAvailability private constructor(
 
     override fun hashCode(): Int = id
 
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public override fun toProto(): DataProto.Availability =
         DataProto.Availability.newBuilder()

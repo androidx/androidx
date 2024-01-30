@@ -36,7 +36,6 @@ public final class PermissionInfoCompat {
     private PermissionInfoCompat() {
     }
 
-    /** @hide */
     @IntDef(value = {
             PermissionInfo.PROTECTION_NORMAL,
             PermissionInfo.PROTECTION_DANGEROUS,
@@ -47,7 +46,6 @@ public final class PermissionInfoCompat {
     @Retention(RetentionPolicy.SOURCE)
     public @interface Protection {}
 
-    /** @hide */
     @SuppressLint("UniqueConstants") // because _SYSTEM and _PRIVILEGED are aliases.
     @IntDef(flag = true, value = {
             PermissionInfo.PROTECTION_FLAG_PRIVILEGED,

@@ -19,7 +19,7 @@ package androidx.camera.core;
 import static androidx.camera.core.ImageProcessingUtil.convertJpegBytesToImage;
 import static androidx.camera.core.ImageProcessingUtil.rotateYUV;
 import static androidx.camera.core.ImageProcessingUtil.writeJpegBytesToSurface;
-import static androidx.camera.testing.ImageProxyUtil.createYUV420ImagePlanes;
+import static androidx.camera.testing.impl.ImageProxyUtil.createYUV420ImagePlanes;
 
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
@@ -35,8 +35,8 @@ import android.media.ImageWriter;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.camera.core.impl.utils.Exif;
-import androidx.camera.testing.fakes.FakeImageInfo;
-import androidx.camera.testing.fakes.FakeImageProxy;
+import androidx.camera.testing.impl.fakes.FakeImageInfo;
+import androidx.camera.testing.impl.fakes.FakeImageProxy;
 import androidx.core.math.MathUtils;
 import androidx.core.util.Preconditions;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -134,6 +134,7 @@ public class ImageProcessingUtilTest {
     public void tearDown() {
         mRGBImageReaderProxy.safeClose();
         mRotatedRGBImageReaderProxy.safeClose();
+        mJpegImageReaderProxy.safeClose();
     }
 
     @Test
@@ -154,6 +155,7 @@ public class ImageProcessingUtilTest {
         assertThat(bitmap.getWidth()).isEqualTo(WIDTH);
         assertThat(bitmap.getHeight()).isEqualTo(HEIGHT);
         assertBitmapColor(bitmap, Color.RED, JPEG_ENCODE_ERROR_TOLERANCE);
+        imageProxy.close();
     }
 
     @Test
@@ -176,6 +178,7 @@ public class ImageProcessingUtilTest {
         assertThat(bitmap.getWidth()).isEqualTo(WIDTH);
         assertThat(bitmap.getHeight()).isEqualTo(HEIGHT);
         assertBitmapColor(bitmap, Color.RED, JPEG_ENCODE_ERROR_TOLERANCE);
+        imageProxy.close();
     }
 
     @Test
@@ -209,6 +212,7 @@ public class ImageProcessingUtilTest {
         assertThat(bitmap.getHeight()).isEqualTo(HEIGHT);
         Exif exif = Exif.createFromImageProxy(imageProxy);
         assertThat(exif.getRotation()).isEqualTo(expectedRotation);
+        imageProxy.close();
     }
 
     /**
@@ -247,6 +251,7 @@ public class ImageProcessingUtilTest {
         // Assert.
         assertThat(rgbImageProxy.getFormat()).isEqualTo(PixelFormat.RGBA_8888);
         assertThat(rgbImageProxy.getPlanes().length).isEqualTo(1);
+        rgbImageProxy.close();
     }
 
     @Test
@@ -271,6 +276,7 @@ public class ImageProcessingUtilTest {
         // Assert.
         assertThat(rgbImageProxy.getFormat()).isEqualTo(PixelFormat.RGBA_8888);
         assertThat(rgbImageProxy.getPlanes().length).isEqualTo(1);
+        rgbImageProxy.close();
     }
 
     @Test
@@ -295,6 +301,7 @@ public class ImageProcessingUtilTest {
         // Assert.
         assertThat(rgbImageProxy.getFormat()).isEqualTo(PixelFormat.RGBA_8888);
         assertThat(rgbImageProxy.getPlanes().length).isEqualTo(1);
+        rgbImageProxy.close();
     }
 
     @Test
@@ -376,6 +383,7 @@ public class ImageProcessingUtilTest {
         assertThat(rgbImageProxy.getPlanes().length).isEqualTo(1);
         assertThat(rgbImageProxy.getWidth()).isEqualTo(HEIGHT);
         assertThat(rgbImageProxy.getHeight()).isEqualTo(WIDTH);
+        rgbImageProxy.close();
     }
 
     @SdkSuppress(minSdkVersion = 23)
@@ -408,6 +416,7 @@ public class ImageProcessingUtilTest {
         assertThat(yuvImageProxy.getPlanes().length).isEqualTo(3);
         assertThat(yuvImageProxy.getWidth()).isEqualTo(HEIGHT);
         assertThat(yuvImageProxy.getHeight()).isEqualTo(WIDTH);
+        yuvImageProxy.close();
     }
 
     @Test

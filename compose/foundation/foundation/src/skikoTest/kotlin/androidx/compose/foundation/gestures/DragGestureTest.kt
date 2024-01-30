@@ -20,31 +20,36 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.PointerMatcher
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
-import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.ImageComposeScene
+import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.PointerButton
 import androidx.compose.ui.input.pointer.PointerButtons
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.PointerType
-import androidx.compose.ui.platform.DefaultViewConfiguration
+import androidx.compose.ui.platform.PlatformContext
+import androidx.compose.ui.platform.ViewConfiguration
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.MouseButton
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performMouseInput
+import androidx.compose.ui.test.runComposeUiTest
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.use
 import kotlin.math.ceil
-import kotlin.test.Ignore
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertFalse
-import kotlin.test.assertTrue
+import kotlin.test.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 
-@Suppress("DEPRECATION")
-@OptIn(ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class)
 class DragGestureTest {
 
     @Test
@@ -128,6 +133,7 @@ class DragGestureTest {
         }
     }
 
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     @Test
     fun draggable_by_mouse_secondary_button_ignores_primary_button() {
         val density = Density(1f)
@@ -178,6 +184,69 @@ class DragGestureTest {
             )
             assertEquals(Offset(5f, 5f), dragStartResult)
         }
+    }
+
+    private fun assertDragSucceeds(
+        density: Density,
+        startOffset: Offset,
+        endOffset: Offset
+    ){
+        ImageComposeScene(
+            width = 100,
+            height = 100,
+            density = density
+        ).use { scene ->
+
+            var dragStarted = false
+            var dragged = false
+            var dragEnded = false
+
+            scene.setContent {
+                Box(
+                    modifier = Modifier
+                        .size(40.dp, 40.dp)
+                        .onDrag(
+                            enabled = true,
+                            onDragStart = { dragStarted = true },
+                            onDragEnd = { dragEnded = true },
+                            onDrag = { dragged = true }
+                        )
+                )
+            }
+
+            scene.sendPointerEvent(PointerEventType.Move, startOffset)
+            scene.sendPointerEvent(PointerEventType.Press, startOffset, button = PointerButton.Primary)
+            scene.sendPointerEvent(PointerEventType.Move, endOffset)
+            scene.sendPointerEvent(PointerEventType.Release,endOffset, button = PointerButton.Primary)
+
+            assertTrue(dragStarted)
+            assertTrue(dragged)
+            assertTrue(dragEnded)
+        }
+    }
+
+    @Test
+    fun vertical_drag_passes_slop() {
+        val density = Density(1f)
+        val viewConfiguration = DefaultViewConfiguration(density)
+        val startOffset = Offset(5f, 5f)
+        assertDragSucceeds(
+            density = density,
+            startOffset = startOffset,
+            endOffset = startOffset + Offset(0f, viewConfiguration.touchSlop + 1f)
+        )
+    }
+
+    @Test
+    fun horizontal_drag_passes_slop() {
+        val density = Density(1f)
+        val viewConfiguration = DefaultViewConfiguration(density)
+        val startOffset = Offset(5f, 5f)
+        assertDragSucceeds(
+            density = density,
+            startOffset = startOffset,
+            endOffset = startOffset + Offset(viewConfiguration.touchSlop + 1f, 0f)
+        )
     }
 
     @Test
@@ -255,6 +324,11 @@ class DragGestureTest {
             assertFalse(dragEnded)
 
             scene.sendPointerEvent(
+                eventType = PointerEventType.Move,
+                position = Offset(5f + viewConfiguration.touchSlop, 15f),
+                type = PointerType.Touch
+            )
+            scene.sendPointerEvent(
                 eventType = PointerEventType.Release,
                 position = Offset(5f + viewConfiguration.touchSlop, 15f),
                 type = PointerType.Touch
@@ -267,6 +341,7 @@ class DragGestureTest {
         }
     }
 
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     @Test
     fun draggable_by_touch_ignores_mouse() {
         val density = Density(1f)
@@ -396,4 +471,41 @@ class DragGestureTest {
             assertEquals(3, onDragCounter)
         }
     }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun dragGestureDoesNotRestartOnMatcherChange() = runComposeUiTest {
+        var matcher by mutableStateOf(PointerMatcher.Primary)
+        var dragCount = 0
+        setContent {
+            Box(Modifier
+                .testTag("box")
+                .size(100.dp)
+                .onDrag(matcher = matcher) {
+                    dragCount += 1
+                }
+            )
+        }
+
+        onNodeWithTag("box").performMouseInput {
+            moveTo(Offset(10f, 10f))
+            press(MouseButton.Primary)
+            moveTo(Offset(20f, 20f))
+        }
+        assertEquals(expected = 1, actual = dragCount)
+
+        dragCount = 0
+        matcher = PointerMatcher.Primary + PointerMatcher.mouse(PointerButton.Secondary)
+        onNodeWithTag("box").performMouseInput {
+            moveTo(Offset(30f, 30f))
+            release(MouseButton.Primary)
+        }
+        assertEquals(expected = 1, actual = dragCount)
+    }
+}
+
+@OptIn(InternalComposeUiApi::class)
+private class DefaultViewConfiguration(private val density: Density) : ViewConfiguration by PlatformContext.Empty.viewConfiguration {
+    override val touchSlop: Float
+        get() = with(density) { PlatformContext.Empty.viewConfiguration.touchSlop.dp.toPx() }
 }

@@ -24,6 +24,9 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assume.assumeTrue;
 
 import android.content.Context;
+import android.content.pm.ModuleInfo;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
@@ -37,7 +40,6 @@ import androidx.appsearch.app.PutDocumentsRequest;
 import androidx.appsearch.app.SetSchemaRequest;
 import androidx.appsearch.platformstorage.PlatformStorage;
 import androidx.appsearch.testutil.AppSearchEmail;
-import androidx.core.os.BuildCompat;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.SdkSuppress;
 
@@ -50,6 +52,8 @@ import java.util.concurrent.ExecutorService;
 
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
 public class AppSearchSessionPlatformCtsTest extends AppSearchSessionCtsTestBase {
+    static final String APPSEARCH_MAINLINE_MODULE_NAME = "com.google.android.appsearch";
+
     @Override
     protected ListenableFuture<AppSearchSession> createSearchSessionAsync(@NonNull String dbName) {
         Context context = ApplicationProvider.getApplicationContext();
@@ -73,19 +77,19 @@ public class AppSearchSessionPlatformCtsTest extends AppSearchSessionCtsTestBase
                 new PlatformStorage.SearchContext.Builder(context, DB_NAME_2).build()).get();
         assertThat(db2.getFeatures().isFeatureSupported(
                 Features.SEARCH_RESULT_MATCH_INFO_SUBMATCH))
-                .isEqualTo(BuildCompat.isAtLeastT());
+                .isEqualTo(Build.VERSION.SDK_INT >= 33);
         assertThat(db2.getFeatures().isFeatureSupported(
                 Features.GLOBAL_SEARCH_SESSION_REGISTER_OBSERVER_CALLBACK))
-                .isEqualTo(BuildCompat.isAtLeastT());
+                .isEqualTo(Build.VERSION.SDK_INT >= 33);
         assertThat(db2.getFeatures().isFeatureSupported(
                 Features.GLOBAL_SEARCH_SESSION_GET_SCHEMA))
-                .isEqualTo(BuildCompat.isAtLeastT());
+                .isEqualTo(Build.VERSION.SDK_INT >= 33);
         assertThat(db2.getFeatures().isFeatureSupported(
                 Features.GLOBAL_SEARCH_SESSION_GET_BY_ID))
-                .isEqualTo(BuildCompat.isAtLeastT());
+                .isEqualTo(Build.VERSION.SDK_INT >= 33);
         assertThat(db2.getFeatures().isFeatureSupported(
                 Features.ADD_PERMISSIONS_AND_GET_VISIBILITY))
-                .isEqualTo(BuildCompat.isAtLeastT());
+                .isEqualTo(Build.VERSION.SDK_INT >= 33);
     }
 
     @Test
@@ -138,9 +142,28 @@ public class AppSearchSessionPlatformCtsTest extends AppSearchSessionCtsTestBase
 
     @Override
     @Test
+    public void testSetSchema_addIndexedNestedDocumentProperty() throws Exception {
+        long appsearchVersionCode = 0;
+        PackageManager pm = ApplicationProvider.getApplicationContext().getPackageManager();
+        List<ModuleInfo> modules = pm.getInstalledModules(0);
+        for (int i = 0; i < modules.size(); ++i) {
+            String packageName = modules.get(i).getPackageName();
+            if (packageName.equals(APPSEARCH_MAINLINE_MODULE_NAME)) {
+                PackageInfo pInfo = pm.getPackageInfo(packageName, PackageManager.MATCH_APEX);
+                appsearchVersionCode = pInfo.getLongVersionCode();
+            }
+        }
+        // This is a test for b/291019114. The bug was only fixed in mainline module
+        // 'aml_ase_340913000', so this test will fail on any versions below that.
+        assumeTrue(appsearchVersionCode >= 340913000);
+        super.testSetSchema_addIndexedNestedDocumentProperty();
+    }
+
+    @Override
+    @Test
     public void testPutLargeDocumentBatch() throws Exception {
         // b/185441119 was fixed in Android T, this test will fail on S_V2 devices and below.
-        assumeTrue(BuildCompat.isAtLeastT());
+        assumeTrue(Build.VERSION.SDK_INT >= 33);
         super.testPutLargeDocumentBatch();
     }
 
@@ -150,7 +173,7 @@ public class AppSearchSessionPlatformCtsTest extends AppSearchSessionCtsTestBase
         // TODO(b/230879098) This bug was fixed in Android T, but will currently fail on S_V2
         // devices and below. However, we could implement a workaround in platform-storage.
         // Implement that workaround and enable on S and S_V2.
-        assumeTrue(BuildCompat.isAtLeastT());
+        assumeTrue(Build.VERSION.SDK_INT >= 33);
         super.testSetSchemaWithIncompatibleNestedSchema();
     }
 
@@ -158,65 +181,26 @@ public class AppSearchSessionPlatformCtsTest extends AppSearchSessionCtsTestBase
     @Test
     public void testEmojiSnippet() throws Exception {
         // b/229770338 was fixed in Android T, this test will fail on S_V2 devices and below.
-        assumeTrue(BuildCompat.isAtLeastT());
+        assumeTrue(Build.VERSION.SDK_INT >= 33);
         super.testEmojiSnippet();
-    }@Override
-    @Test
-    public void testSearchSuggestion() throws Exception {
-        // TODO(b/227356108) enable the test when suggestion is ready in platform.
     }
 
+    // TODO(b/256022027) Remove this overridden test once the change to setMaxJoinedResultCount
+    // is synced over into framework.
     @Override
     @Test
-    public void testSearchSuggestion_namespaceFilter() throws Exception {
-        // TODO(b/227356108) enable the test when suggestion is ready in platform.
-    }
+    public void testSimpleJoin() throws Exception { }
 
+    // TODO(b/256022027) Remove this overridden test once the change to rename
+    //  `this.childrenScores()` to `this.childrenRankingSignals()` is synced to udc-dev.
     @Override
     @Test
-    public void testSearchSuggestion_documentIdFilter() throws Exception {
-        // TODO(b/227356108) enable the test when suggestion is ready in platform.
-    }
+    public void testQuery_invalidAdvancedRankingWithChildrenRankingSignals() throws Exception { }
 
+    // TODO(b/256022027) Remove this overridden test once the change to rename
+    //  `this.childrenScores()` to `this.childrenRankingSignals()` is synced to udc-dev.
     @Override
     @Test
-    public void testSearchSuggestion_differentPrefix() throws Exception {
-        // TODO(b/227356108) enable the test when suggestion is ready in platform.
-    }
+    public void testQuery_advancedRankingWithJoin() throws Exception { }
 
-    @Override
-    @Test
-    public void testSearchSuggestion_differentRankingStrategy() throws Exception {
-        // TODO(b/227356108) enable the test when suggestion is ready in platform.
-    }
-
-    @Override
-    @Test
-    public void testSearchSuggestion_removeDocument() throws Exception {
-        // TODO(b/227356108) enable the test when suggestion is ready in platform.
-    }
-
-    @Override
-    @Test
-    public void testSearchSuggestion_replacementDocument() throws Exception {
-        // TODO(b/227356108) enable the test when suggestion is ready in platform.
-    }
-
-    @Override
-    @Test
-    public void testSearchSuggestion_ignoreOperators() throws Exception {
-        // TODO(b/227356108) enable the test when suggestion is ready in platform.
-    }
-
-    @Override
-    @Test
-    public void testSearchSuggestion_schemaFilter() throws Exception {
-        // TODO(b/227356108) enable the test when suggestion is ready in platform.
-    }
-
-    @Override
-    @Test
-    public void testSearchSuggestion_twoInstances() throws Exception {
-        // TODO(b/227356108) enable the test when suggestion is ready in platform.
-    }
 }

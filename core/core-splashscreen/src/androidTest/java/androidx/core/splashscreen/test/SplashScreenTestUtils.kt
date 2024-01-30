@@ -26,15 +26,15 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.Until
-import org.hamcrest.core.IsNull
-import org.hamcrest.MatcherAssert.assertThat
-import org.junit.Assert
 import kotlin.reflect.KClass
+import org.hamcrest.MatcherAssert.assertThat
+import org.hamcrest.core.IsNull
+import org.junit.Assert
 
 private const val SPLASH_SCREEN_STYLE_ICON = 1
 private const val KEY_SPLASH_SCREEN_STYLE: String = "android.activity.splashScreenStyle"
 private const val BASIC_SAMPLE_PACKAGE: String = "androidx.core.splashscreen.test"
-private const val LAUNCH_TIMEOUT: Long = 5000
+private const val LAUNCH_TIMEOUT: Long = 10000
 
 /**
  * Start an activity simulating a launch from the launcher
@@ -46,7 +46,8 @@ fun startActivityWithSplashScreen(
     intentModifier: ((Intent) -> Unit)? = null
 ): SplashScreenTestController {
     // Start from the home screen
-    device.pressHome()
+    InstrumentationRegistry.getInstrumentation().getUiAutomation().executeShellCommand(
+            "am start -a android.intent.action.MAIN -c android.intent.category.HOME")
 
     // Wait for launcher
     val launcherPackage: String = device.launcherPackageName

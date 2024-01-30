@@ -73,7 +73,7 @@ class SwitchUsageXmlDetectorTest {
             .run()
             .expect(
                 """
-res/layout/switch.xml:6: Warning: Use SwitchCompat from AppCompat or SwitchMaterial from Material library [UseSwitchCompatOrMaterialXml]
+res/layout/switch.xml:6: Warning: Use SwitchCompat from AppCompat or MaterialSwitch from Material library [UseSwitchCompatOrMaterialXml]
     <Switch
     ^
 0 errors, 1 warnings

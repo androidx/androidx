@@ -21,16 +21,53 @@ import androidx.work.Logger
 import androidx.work.NetworkType
 import androidx.work.NetworkType.TEMPORARILY_UNMETERED
 import androidx.work.NetworkType.UNMETERED
+import androidx.work.StopReason
+import androidx.work.WorkInfo
+import androidx.work.impl.constraints.ConstraintListener
+import androidx.work.impl.constraints.ConstraintsState
+import androidx.work.impl.constraints.ConstraintsState.ConstraintsMet
+import androidx.work.impl.constraints.ConstraintsState.ConstraintsNotMet
 import androidx.work.impl.constraints.NetworkState
 import androidx.work.impl.constraints.trackers.BatteryNotLowTracker
 import androidx.work.impl.constraints.trackers.ConstraintTracker
 import androidx.work.impl.model.WorkSpec
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
+
+abstract class ConstraintController<T>(
+    private val tracker: ConstraintTracker<T>
+) {
+    @StopReason
+    abstract val reason: Int
+    abstract fun hasConstraint(workSpec: WorkSpec): Boolean
+    abstract fun isConstrained(value: T): Boolean
+
+    fun track(): Flow<ConstraintsState> = callbackFlow {
+        val listener = object : ConstraintListener<T> {
+            override fun onConstraintChanged(newValue: T) {
+                val value = if (isConstrained(newValue))
+                    ConstraintsNotMet(reason) else ConstraintsMet
+                channel.trySend(value)
+            }
+        }
+        tracker.addListener(listener)
+        awaitClose {
+            tracker.removeListener(listener)
+        }
+    }
+
+    fun isConstrained(workSpec: WorkSpec): Boolean {
+        return hasConstraint(workSpec) && isConstrained(tracker.readSystemState())
+    }
+}
 
 /**
  * A [ConstraintController] for battery charging events.
  */
 class BatteryChargingController(tracker: ConstraintTracker<Boolean>) :
     ConstraintController<Boolean>(tracker) {
+    override val reason = WorkInfo.STOP_REASON_CONSTRAINT_CHARGING
     override fun hasConstraint(workSpec: WorkSpec) = workSpec.constraints.requiresCharging()
 
     override fun isConstrained(value: Boolean) = !value
@@ -41,6 +78,7 @@ class BatteryChargingController(tracker: ConstraintTracker<Boolean>) :
  */
 class BatteryNotLowController(tracker: BatteryNotLowTracker) :
     ConstraintController<Boolean>(tracker) {
+    override val reason = WorkInfo.STOP_REASON_CONSTRAINT_BATTERY_NOT_LOW
     override fun hasConstraint(workSpec: WorkSpec) = workSpec.constraints.requiresBatteryNotLow()
 
     override fun isConstrained(value: Boolean) = !value
@@ -51,6 +89,7 @@ class BatteryNotLowController(tracker: BatteryNotLowTracker) :
  */
 class NetworkUnmeteredController(tracker: ConstraintTracker<NetworkState>) :
     ConstraintController<NetworkState>(tracker) {
+    override val reason = WorkInfo.STOP_REASON_CONSTRAINT_CONNECTIVITY
     override fun hasConstraint(workSpec: WorkSpec): Boolean {
         val requiredNetworkType = workSpec.constraints.requiredNetworkType
         return requiredNetworkType == UNMETERED ||
@@ -65,7 +104,7 @@ class NetworkUnmeteredController(tracker: ConstraintTracker<NetworkState>) :
  */
 class StorageNotLowController(tracker: ConstraintTracker<Boolean>) :
     ConstraintController<Boolean>(tracker) {
-
+    override val reason = WorkInfo.STOP_REASON_CONSTRAINT_STORAGE_NOT_LOW
     override fun hasConstraint(workSpec: WorkSpec) = workSpec.constraints.requiresStorageNotLow()
 
     override fun isConstrained(value: Boolean) = !value
@@ -76,6 +115,7 @@ class StorageNotLowController(tracker: ConstraintTracker<Boolean>) :
  */
 class NetworkNotRoamingController(tracker: ConstraintTracker<NetworkState>) :
     ConstraintController<NetworkState>(tracker) {
+    override val reason = WorkInfo.STOP_REASON_CONSTRAINT_CONNECTIVITY
     override fun hasConstraint(workSpec: WorkSpec): Boolean {
         return workSpec.constraints.requiredNetworkType == NetworkType.NOT_ROAMING
     }
@@ -111,6 +151,7 @@ class NetworkNotRoamingController(tracker: ConstraintTracker<NetworkState>) :
  */
 class NetworkConnectedController(tracker: ConstraintTracker<NetworkState>) :
     ConstraintController<NetworkState>(tracker) {
+    override val reason = WorkInfo.STOP_REASON_CONSTRAINT_CONNECTIVITY
     override fun hasConstraint(workSpec: WorkSpec) =
         workSpec.constraints.requiredNetworkType == NetworkType.CONNECTED
 
@@ -127,6 +168,7 @@ class NetworkConnectedController(tracker: ConstraintTracker<NetworkState>) :
  */
 class NetworkMeteredController(tracker: ConstraintTracker<NetworkState>) :
     ConstraintController<NetworkState>(tracker) {
+    override val reason = WorkInfo.STOP_REASON_CONSTRAINT_CONNECTIVITY
     override fun hasConstraint(workSpec: WorkSpec) =
         workSpec.constraints.requiredNetworkType == NetworkType.METERED
 

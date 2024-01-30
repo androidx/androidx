@@ -23,7 +23,6 @@ import androidx.work.lint.Stubs.WORK_MANAGER_CONFIGURATION_PROVIDER
 import com.android.tools.lint.checks.infrastructure.LintDetectorTest.kotlin
 import com.android.tools.lint.checks.infrastructure.TestFiles.manifest
 import com.android.tools.lint.checks.infrastructure.TestLintTask.lint
-import org.junit.Ignore
 import org.junit.Test
 
 class RemoveWorkManagerInitializerDetectorTest {
@@ -120,7 +119,6 @@ class RemoveWorkManagerInitializerDetectorTest {
             .expectClean()
     }
 
-    @Ignore("b/187541663")
     @Test
     fun failWhenUsingDefaultManifestMergeStrategy() {
         val customApplication = kotlin(
@@ -163,7 +161,9 @@ class RemoveWorkManagerInitializerDetectorTest {
             .run()
             .expect(
                 """
-                project0: Error: Remove androidx.work.WorkManagerInitializer from your AndroidManifest.xml when using on-demand initialization. [RemoveWorkManagerInitializer]
+                AndroidManifest.xml:4: Error: Remove androidx.work.WorkManagerInitializer from your AndroidManifest.xml when using on-demand initialization. [RemoveWorkManagerInitializer]
+                   <application />
+                   ~~~~~~~~~~~~~~~
                 1 errors, 0 warnings
                 """.trimIndent()
             )

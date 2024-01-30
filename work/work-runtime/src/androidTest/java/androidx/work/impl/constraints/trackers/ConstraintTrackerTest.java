@@ -67,17 +67,17 @@ public class ConstraintTrackerTest {
 
         assertThat(mTracker.mIsTracking, is(false));
         assertThat(mTracker.mStartTrackingCount, is(0));
-        assertThat(mTracker.mGetInitialStateCount, is(0));
+        assertThat(mTracker.mReadSystemStateCount, is(0));
 
         mTracker.addListener(constraintListener1);
         assertThat(mTracker.mIsTracking, is(true));
         assertThat(mTracker.mStartTrackingCount, is(1));
-        assertThat(mTracker.mGetInitialStateCount, is(1));
+        assertThat(mTracker.mReadSystemStateCount, is(1));
 
         mTracker.addListener(constraintListener2);
         assertThat(mTracker.mIsTracking, is(true));
         assertThat(mTracker.mStartTrackingCount, is(1));
-        assertThat(mTracker.mGetInitialStateCount, is(1));
+        assertThat(mTracker.mReadSystemStateCount, is(1));
     }
 
     @SuppressWarnings("unchecked")
@@ -87,17 +87,17 @@ public class ConstraintTrackerTest {
 
         assertThat(mTracker.mIsTracking, is(false));
         assertThat(mTracker.mStartTrackingCount, is(0));
-        assertThat(mTracker.mGetInitialStateCount, is(0));
+        assertThat(mTracker.mReadSystemStateCount, is(0));
 
         mTracker.addListener(constraintListener);
         assertThat(mTracker.mIsTracking, is(true));
         assertThat(mTracker.mStartTrackingCount, is(1));
-        assertThat(mTracker.mGetInitialStateCount, is(1));
+        assertThat(mTracker.mReadSystemStateCount, is(1));
 
         mTracker.addListener(constraintListener);
         assertThat(mTracker.mIsTracking, is(true));
         assertThat(mTracker.mStartTrackingCount, is(1));
-        assertThat(mTracker.mGetInitialStateCount, is(1));
+        assertThat(mTracker.mReadSystemStateCount, is(1));
     }
 
     @Test
@@ -174,7 +174,7 @@ public class ConstraintTrackerTest {
 
     private static class TestConstraintTracker extends ConstraintTracker<Boolean> {
         boolean mIsTracking;
-        int mGetInitialStateCount;
+        int mReadSystemStateCount;
         int mStartTrackingCount;
         int mStopTrackingCount;
         boolean mInitialState = false;
@@ -184,8 +184,8 @@ public class ConstraintTrackerTest {
         }
 
         @Override
-        public Boolean getInitialState() {
-            mGetInitialStateCount++;
+        public Boolean readSystemState() {
+            mReadSystemStateCount++;
             return mInitialState;
         }
 

@@ -19,12 +19,12 @@ package androidx.compose.ui.layout
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Matrix
+import androidx.compose.ui.internal.JvmDefaultWithCompatibility
 import androidx.compose.ui.node.NodeCoordinator
 import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.internal.JvmDefaultWithCompatibility
 
 /**
- * A holder of the measured bounds for the layout (MeasureBox).
+ * A holder of the measured bounds for the [Layout].
  */
 @JvmDefaultWithCompatibility
 interface LayoutCoordinates {

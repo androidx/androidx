@@ -37,8 +37,8 @@ import androidx.core.graphics.ColorUtils;
 import androidx.core.widget.TextViewCompat;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.filters.LargeTest;
-import androidx.test.filters.SdkSuppress;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -113,7 +113,6 @@ public class AppCompatMultiAutoCompleteTextViewTest
                 TextViewCompat.getCompoundDrawableTintList(textView));
     }
 
-    @SdkSuppress(minSdkVersion = 17)
     @Test
     public void testCompoundDrawableRelativeTint() {
         // Given an ACTV with a white drawableStartCompat set and a #f0f drawableTint
@@ -136,6 +135,7 @@ public class AppCompatMultiAutoCompleteTextViewTest
                 TextViewCompat.getCompoundDrawableTintList(textView));
     }
 
+    @Ignore("b/268534721")
     @Test
     public void testCompoundDrawablesTintList() {
         // Given an ACTV with a white drawableLeftCompat and a ColorStateList drawableTint set

@@ -26,7 +26,6 @@ import androidx.annotation.RestrictTo.Scope;
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class CameraThreads {
-    /** @hide */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static final String TAG = "CameraX-";
 

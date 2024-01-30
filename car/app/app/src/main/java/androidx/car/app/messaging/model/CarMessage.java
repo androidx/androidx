@@ -16,8 +16,9 @@
 
 package androidx.car.app.messaging.model;
 
-import static java.util.Objects.requireNonNull;
+import static androidx.car.app.messaging.model.ConversationItem.validateSender;
 
+import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -34,20 +35,24 @@ import java.util.Objects;
 /** Represents a single message in a {@link ConversationItem} */
 @ExperimentalCarApi
 @CarProtocol
-@RequiresCarApi(6)
+@RequiresCarApi(7)
 @KeepFields
 public class CarMessage {
-    @NonNull
+    @Nullable
     private final Bundle mSender;
-    @NonNull
+    @Nullable
     private final CarText mBody;
+    @Nullable
+    private final String mMultimediaMimeType;
+    @Nullable
+    private final Uri mMultimediaUri;
     private final long mReceivedTimeEpochMillis;
     private final boolean mIsRead;
 
     @Override
     public int hashCode() {
         return Objects.hash(
-                getPersonHashCode(getSender()),
+                PersonsEqualityHelper.getPersonHashCode(getSender()),
                 mBody,
                 mReceivedTimeEpochMillis,
                 mIsRead
@@ -65,77 +70,92 @@ public class CarMessage {
         CarMessage otherCarMessage = (CarMessage) other;
 
         return
-                arePeopleEqual(getSender(), otherCarMessage.getSender())
+                PersonsEqualityHelper.arePersonsEqual(getSender(), otherCarMessage.getSender())
                         && Objects.equals(mBody, otherCarMessage.mBody)
                         && mReceivedTimeEpochMillis == otherCarMessage.mReceivedTimeEpochMillis
-                        && mIsRead == otherCarMessage.mIsRead
-                ;
-    }
-
-    // TODO(b/266877597): Move to androidx.core.app.Person
-    private static boolean arePeopleEqual(Person person1, Person person2) {
-        // If a unique ID was provided, use it
-        String key1 = person1.getKey();
-        String key2 = person2.getKey();
-        if (key1 != null || key2 != null) {
-            return Objects.equals(key1, key2);
-        }
-
-        // CharSequence doesn't have well-defined "equals" behavior -- convert to String instead
-        String name1 = Objects.toString(person1.getName());
-        String name2 = Objects.toString(person2.getName());
-
-        // Fallback: Compare field-by-field
-        return
-                Objects.equals(name1, name2)
-                        && Objects.equals(person1.getUri(), person2.getUri())
-                        && Objects.equals(person1.isBot(), person2.isBot())
-                        && Objects.equals(person1.isImportant(), person2.isImportant());
-    }
-
-    // TODO(b/266877597): Move to androidx.core.app.Person
-    private static int getPersonHashCode(Person person) {
-        // If a unique ID was provided, use it
-        String key = person.getKey();
-        if (key != null) {
-            return key.hashCode();
-        }
-
-        // Fallback: Use hash code for individual fields
-        return Objects.hash(
-                person.getName(),
-                person.getUri(),
-                person.isBot(),
-                person.isImportant()
-        );
+                        && mIsRead == otherCarMessage.mIsRead;
     }
 
     CarMessage(@NonNull Builder builder) {
-        this.mSender = requireNonNull(builder.mSender).toBundle();
-        this.mBody = requireNonNull(builder.mBody);
+        this.mSender = builder.mSender == null ? null : validateSender(builder.mSender).toBundle();
+        this.mBody = builder.mBody;
+        this.mMultimediaMimeType = builder.mMultimediaMimeType;
+        this.mMultimediaUri = builder.mMultimediaUri;
         this.mReceivedTimeEpochMillis = builder.mReceivedTimeEpochMillis;
         this.mIsRead = builder.mIsRead;
     }
 
     /** Default constructor for serialization. */
     private CarMessage() {
-        this.mSender = new Person.Builder().setName("").build().toBundle();
-        this.mBody = new CarText.Builder("").build();
+        this.mSender = null;
+        this.mBody = null;
+        this.mMultimediaMimeType = null;
+        this.mMultimediaUri = null;
         this.mReceivedTimeEpochMillis = 0;
         this.mIsRead = false;
     }
 
 
-    /** Returns a {@link Person} representing the message sender */
-    @NonNull
+    /**
+     * Returns a {@link Person} representing the message sender.
+     *
+     * <p> For self-sent messages, this method will return {@code null} or
+     * {@link ConversationItem#getSelf()}.
+     */
+    @Nullable
     public Person getSender() {
-        return Person.fromBundle(mSender);
+        return mSender == null ? null : Person.fromBundle(mSender);
     }
 
-    /** Returns a {@link CarText} representing the message body */
-    @NonNull
+    /**
+     * Returns a {@link CarText} representing the message body
+     *
+     * <p> Messages must have one or both of the following:
+     * <ul>
+     *     <li> A message body (text)
+     *     <li> A MIME type + URI (image, audio, etc.)
+     * </ul>
+     *
+     * @see #getMultimediaMimeType()
+     * @see #getMultimediaUri()
+     */
+    @Nullable
     public CarText getBody() {
         return mBody;
+    }
+
+    /**
+     * Returns a {@link String} representing the MIME type of a multimedia message
+     *
+     * <p> Messages must have one or both of the following:
+     * <ul>
+     *     <li> A message body (text)
+     *     <li> A MIME type + URI (image, audio, etc.)
+     * </ul>
+     *
+     * @see #getBody()
+     * @see #getMultimediaUri()
+     */
+    @Nullable
+    public String getMultimediaMimeType() {
+        return mMultimediaMimeType;
+    }
+
+    /**
+     * Returns a {@link Uri} pointing to the contents of a multimedia message.
+     *
+     * <p> Messages must have one or both of the following:
+     * <ul>
+     *     <li> A message body (text)
+     *     <li> A MIME type + URI (image, audio, etc.)
+     * </ul>
+     *
+     * @see #getBody()
+     * @see #getMultimediaMimeType()
+     */
+    @Nullable
+    public Uri getMultimediaUri() {
+        return mMultimediaUri;
     }
 
     /** Returns a {@code long} representing the message timestamp (in epoch millis) */
@@ -154,18 +174,73 @@ public class CarMessage {
         Person mSender;
         @Nullable
         CarText mBody;
+        @Nullable
+        String mMultimediaMimeType;
+        @Nullable
+        Uri mMultimediaUri;
         long mReceivedTimeEpochMillis;
         boolean mIsRead;
 
-        /** Sets a {@link Person} representing the message sender */
-        public @NonNull Builder setSender(@NonNull Person sender) {
+        /**
+         * Sets a {@link Person} representing the message sender
+         *
+         * <p> The {@link Person} must specify a non-null
+         * {@link Person.Builder#setName(CharSequence)} and
+         * {@link Person.Builder#setKey(String)}.
+         */
+        public @NonNull Builder setSender(@Nullable Person sender) {
             mSender = sender;
             return this;
         }
 
-        /** Sets a {@link CarText} representing the message body */
-        public @NonNull Builder setBody(@NonNull CarText body) {
+        /**
+         * Sets a {@link CarText} representing the message body
+         *
+         * <p> Messages must have one or both of the following:
+         * <ul>
+         *     <li> A message body (text)
+         *     <li> A MIME type + URI (image, audio, etc.)
+         * </ul>
+         *
+         * @see #setMultimediaMimeType(String)
+         * @see #setMultimediaUri(Uri)
+         */
+        public @NonNull Builder setBody(@Nullable CarText body) {
             mBody = body;
+            return this;
+        }
+
+        /**
+         * Sets a {@link String} representing the MIME type of a multimedia message
+         *
+         * <p> Messages must have one or both of the following:
+         * <ul>
+         *     <li> A message body (text)
+         *     <li> A MIME type + URI (image, audio, etc.)
+         * </ul>
+         *
+         * @see #setBody(CarText)
+         * @see #setMultimediaUri(Uri)
+         */
+        public @NonNull Builder setMultimediaMimeType(@Nullable String multimediaMimeType) {
+            this.mMultimediaMimeType = multimediaMimeType;
+            return this;
+        }
+
+        /**
+         * Sets a {@link Uri} pointing to the contents of a multimedia message.
+         *
+         * <p> Messages must have one or both of the following:
+         * <ul>
+         *     <li> A message body (text)
+         *     <li> A MIME type + URI (image, audio, etc.)
+         * </ul>
+         *
+         * @see #setBody(CarText)
+         * @see #setMultimediaMimeType(String)
+         */
+        public @NonNull Builder setMultimediaUri(@Nullable Uri multimediaUri) {
+            this.mMultimediaUri = multimediaUri;
             return this;
         }
 
@@ -183,6 +258,20 @@ public class CarMessage {
 
         /** Returns a new {@link CarMessage} instance defined by this builder */
         public @NonNull CarMessage build() {
+            if (mMultimediaMimeType == null ^ mMultimediaUri == null) {
+                throw new IllegalStateException("Incomplete multimedia data detected in "
+                        + "CarMessage. Please be sure to provide both MIME type and URI for "
+                        + "multimedia messages.");
+            }
+
+            // Conceptually, we're checking that body text and multimedia data (mime type or URI)
+            // are null.
+            // The compiler complains if I check both mime type and URI, due to previous validation.
+            if (mBody == null && mMultimediaMimeType == null) {
+                throw new IllegalStateException("Message must have content. Please provide body "
+                        + "text, multimedia data (URI + MIME type), or both.");
+            }
+
             return new CarMessage(this);
         }
     }

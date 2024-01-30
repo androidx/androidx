@@ -15,3 +15,6 @@
 # Needs to keep the classes implementing the vendor library interfaces in the extensions module.
 # Otherwise, it will cause AbstractMethodError if proguard is enabled.
 -keep class androidx.camera.extensions.ExtensionsManager$** {*;}
+-keep class androidx.camera.extensions.internal.sessionprocessor.AdvancedSessionProcessor$** {*;}
+-keep class androidx.camera.extensions.internal.sessionprocessor.StillCaptureProcessor** {*;}
+-keep class androidx.camera.extensions.internal.sessionprocessor.PreviewProcessor** {*;}

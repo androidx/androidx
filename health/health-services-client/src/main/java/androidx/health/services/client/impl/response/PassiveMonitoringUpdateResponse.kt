@@ -17,6 +17,7 @@
 package androidx.health.services.client.impl.response
 
 import android.os.Parcelable
+import androidx.annotation.RestrictTo
 import androidx.health.services.client.data.PassiveMonitoringUpdate
 import androidx.health.services.client.data.ProtoParcelable
 import androidx.health.services.client.proto.ResponsesProto
@@ -24,13 +25,12 @@ import androidx.health.services.client.proto.ResponsesProto
 /**
  * Response containing [PassiveMonitoringUpdate].
  *
- * @hide
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class PassiveMonitoringUpdateResponse(
     public val passiveMonitoringUpdate: PassiveMonitoringUpdate
 ) : ProtoParcelable<ResponsesProto.PassiveMonitoringUpdateResponse>() {
 
-    /** @hide */
     public constructor(
         proto: ResponsesProto.PassiveMonitoringUpdateResponse
     ) : this(PassiveMonitoringUpdate(proto.update))

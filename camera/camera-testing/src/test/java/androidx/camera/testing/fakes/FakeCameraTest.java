@@ -19,13 +19,20 @@ package androidx.camera.testing.fakes;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static java.util.Collections.singletonList;
+
 import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.camera.core.UseCase;
+import androidx.camera.core.impl.CameraConfig;
 import androidx.camera.core.impl.CameraInternal;
+import androidx.camera.core.impl.Identifier;
+import androidx.camera.core.impl.MutableOptionsBundle;
 import androidx.camera.core.impl.Observable;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
+import androidx.camera.testing.impl.fakes.FakeUseCase;
 
 import org.junit.After;
 import org.junit.Before;
@@ -130,5 +137,106 @@ public final class FakeCameraTest {
     public void canSetAndRetrieveAvailableCameraCount() {
         mCamera.setAvailableCameraCount(400);
         assertThat(mCamera.getAvailableCameraCount()).isEqualTo(400);
+    }
+
+    @Test
+    public void canAttachUseCase() {
+        mCamera.open();
+
+        UseCase useCase = new FakeUseCase();
+        mCamera.attachUseCases(singletonList(useCase));
+
+        assertThat(mCamera.getAttachedUseCases()).containsExactly(useCase);
+    }
+
+    @Test
+    public void canDetachUseCase() {
+        mCamera.open();
+        UseCase useCase = new FakeUseCase();
+        mCamera.attachUseCases(singletonList(useCase));
+
+        mCamera.detachUseCases(singletonList(useCase));
+
+        assertThat(mCamera.getAttachedUseCases()).isEmpty();
+    }
+
+    @Test
+    public void canProvideUseCaseActiveHistory() {
+        mCamera.open();
+
+        UseCase useCase1 = new FakeUseCase();
+        UseCase useCase2 = new FakeUseCase();
+        mCamera.onUseCaseActive(useCase1);
+        mCamera.onUseCaseActive(useCase2);
+
+        assertThat(mCamera.getUseCaseActiveHistory()).containsExactly(useCase1, useCase2).inOrder();
+    }
+
+    @Test
+    public void canProvideUseCaseInactiveHistory() {
+        mCamera.open();
+
+        UseCase useCase1 = new FakeUseCase();
+        UseCase useCase2 = new FakeUseCase();
+        mCamera.onUseCaseInactive(useCase1);
+        mCamera.onUseCaseInactive(useCase2);
+
+        assertThat(mCamera.getUseCaseInactiveHistory()).containsExactly(useCase1,
+                useCase2).inOrder();
+    }
+
+    @Test
+    public void canProvideUseCaseUpdateHistory() {
+        mCamera.open();
+
+        UseCase useCase1 = new FakeUseCase();
+        UseCase useCase2 = new FakeUseCase();
+        mCamera.onUseCaseUpdated(useCase1);
+        mCamera.onUseCaseUpdated(useCase2);
+
+        assertThat(mCamera.getUseCaseUpdateHistory()).containsExactly(useCase1, useCase2).inOrder();
+    }
+
+    @Test
+    public void canProvideUseCaseResetHistory() {
+        mCamera.open();
+
+        UseCase useCase1 = new FakeUseCase();
+        UseCase useCase2 = new FakeUseCase();
+        mCamera.onUseCaseReset(useCase1);
+        mCamera.onUseCaseReset(useCase2);
+
+        assertThat(mCamera.getUseCaseResetHistory()).containsExactly(useCase1, useCase2).inOrder();
+    }
+
+    @Test
+    public void hasTransformByDefault() {
+        assertThat(mCamera.getHasTransform()).isTrue();
+    }
+
+    @Test
+    public void canDisableHasTransform() {
+        mCamera.setHasTransform(false);
+        assertThat(mCamera.getHasTransform()).isFalse();
+    }
+
+    @Test
+    public void canUpdateExtendedConfig() {
+        CameraConfig config = new CameraConfig() {
+            @NonNull
+            @Override
+            public androidx.camera.core.impl.Config getConfig() {
+                return MutableOptionsBundle.create();
+            }
+
+            @NonNull
+            @Override
+            public Identifier getCompatibilityId() {
+                return Identifier.create(0);
+            }
+        };
+        mCamera.setExtendedConfig(config);
+
+        assertThat(mCamera.getExtendedConfig()).isSameInstanceAs(config);
     }
 }

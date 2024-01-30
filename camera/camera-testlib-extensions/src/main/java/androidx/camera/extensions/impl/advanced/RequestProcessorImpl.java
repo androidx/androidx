@@ -16,45 +16,47 @@
 
 package androidx.camera.extensions.impl.advanced;
 
-import android.annotation.SuppressLint;
 import android.hardware.camera2.CaptureFailure;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.CaptureResult;
 import android.hardware.camera2.TotalCaptureResult;
+
+import androidx.annotation.NonNull;
 
 import java.util.List;
 import java.util.Map;
 
 /**
  * An Interface to execute Camera2 capture requests.
+ *
+ * @since 1.2
  */
-@SuppressLint("UnknownNullness")
 public interface RequestProcessorImpl {
     /**
      * Sets a {@link ImageProcessorImpl} to receive {@link ImageReferenceImpl} to process.
      */
-    void setImageProcessor(int outputconfigId, ImageProcessorImpl imageProcessor);
+    void setImageProcessor(int outputconfigId, @NonNull ImageProcessorImpl imageProcessor);
 
     /**
      * Submits a request.
      * @return the id of the capture sequence or -1 in case the processor encounters a fatal error
      *         or receives an invalid argument.
      */
-    int submit(Request request, Callback callback);
+    int submit(@NonNull Request request, @NonNull Callback callback);
 
     /**
      * Submits a list of requests.
      * @return the id of the capture sequence or -1 in case the processor encounters a fatal error
      *         or receives an invalid argument.
      */
-    int submit(List<Request> requests, Callback callback);
+    int submit(@NonNull List<Request> requests, @NonNull Callback callback);
 
     /**
      * Set repeating requests.
      * @return the id of the capture sequence or -1 in case the processor encounters a fatal error
      *         or receives an invalid argument.
      */
-    int setRepeating(Request request, Callback callback);
+    int setRepeating(@NonNull Request request, @NonNull Callback callback);
 
 
     /**
@@ -76,16 +78,19 @@ public interface RequestProcessorImpl {
          * Gets the target ids of {@link Camera2OutputConfigImpl} which identifies corresponding
          * Surface to be the targeted for the request.
          */
+        @NonNull
         List<Integer> getTargetOutputConfigIds();
 
         /**
          * Gets all the parameters.
          */
+        @NonNull
         Map<CaptureRequest.Key<?>, Object> getParameters();
 
         /**
          * Gets the template id.
          */
+        @NonNull
         Integer getTemplateId();
     }
 
@@ -94,24 +99,24 @@ public interface RequestProcessorImpl {
      */
     interface Callback {
         void onCaptureStarted(
-                Request request,
+                @NonNull Request request,
                 long frameNumber,
                 long timestamp);
 
         void onCaptureProgressed(
-                Request request,
-                CaptureResult partialResult);
+                @NonNull Request request,
+                @NonNull CaptureResult partialResult);
 
         void onCaptureCompleted(
-                Request request,
-                TotalCaptureResult totalCaptureResult);
+                @NonNull Request request,
+                @NonNull TotalCaptureResult totalCaptureResult);
 
         void onCaptureFailed(
-                Request request,
-                CaptureFailure captureFailure);
+                @NonNull Request request,
+                @NonNull CaptureFailure captureFailure);
 
         void onCaptureBufferLost(
-                Request request,
+                @NonNull Request request,
                 long frameNumber,
                 int outputStreamId);
 

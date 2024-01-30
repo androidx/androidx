@@ -30,6 +30,11 @@ import java.util.List;
 
 /**
  * Helper for accessing {@link android.view.accessibility.AccessibilityNodeProvider}.
+ * <p>
+ * <aside class="note">
+ * <b>Note:</b> Consider using a {@link androidx.customview.widget.ExploreByTouchHelper}, a utility
+ * extension of AccessibilityNodeProvider, to simplify many aspects of providing information to
+ * accessibility services and managing accessibility focus. </aside>
  */
 public class AccessibilityNodeProviderCompat {
     @RequiresApi(16)

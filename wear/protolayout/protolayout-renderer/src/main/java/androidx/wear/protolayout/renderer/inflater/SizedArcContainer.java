@@ -51,7 +51,6 @@ class SizedArcContainer extends ViewGroup implements ArcLayout.Widget {
         public static final int ANGULAR_ALIGNMENT_CENTER = 1;
         public static final int ANGULAR_ALIGNMENT_END = 2;
 
-        /** @hide */
         @IntDef({ANGULAR_ALIGNMENT_START, ANGULAR_ALIGNMENT_CENTER, ANGULAR_ALIGNMENT_END})
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Retention(RetentionPolicy.SOURCE)
@@ -94,8 +93,7 @@ class SizedArcContainer extends ViewGroup implements ArcLayout.Widget {
         this(context, attrs, 0);
     }
 
-    SizedArcContainer(
-            @NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+    SizedArcContainer(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         this(context, attrs, defStyleAttr, 0);
     }
 

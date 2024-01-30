@@ -19,7 +19,8 @@ package androidx.room.compiler.processing.javac
 import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.javac.kotlin.KmTypeContainer
-import androidx.room.compiler.processing.javac.kotlin.nullability
+import com.google.auto.common.MoreTypes
+import javax.lang.model.type.TypeKind
 import javax.lang.model.type.TypeMirror
 
 /**
@@ -75,6 +76,30 @@ internal class DefaultJavacType private constructor(
          * JavacDeclaredType.
          */
         get() = emptyList()
+
+    override fun boxed(): JavacType {
+        return when {
+            typeMirror.kind.isPrimitive -> {
+                env.wrap(
+                    typeMirror =
+                    env.typeUtils.boxedClass(MoreTypes.asPrimitiveType(typeMirror)).asType(),
+                    kotlinType = kotlinType,
+                    elementNullability = XNullability.NULLABLE
+                )
+            }
+            typeMirror.kind == TypeKind.VOID -> {
+                env.wrap(
+                    typeMirror =
+                    env.elementUtils.getTypeElement("java.lang.Void").asType(),
+                    kotlinType = kotlinType,
+                    elementNullability = XNullability.NULLABLE
+                )
+            }
+            else -> {
+                this
+            }
+        }
+    }
 
     override fun copyWithNullability(nullability: XNullability): JavacType {
         return DefaultJavacType(

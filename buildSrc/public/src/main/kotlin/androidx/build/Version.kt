@@ -16,11 +16,11 @@
 
 package androidx.build
 
-import org.gradle.api.Project
 import java.io.File
 import java.util.Locale
 import java.util.regex.Matcher
 import java.util.regex.Pattern
+import org.gradle.api.Project
 
 /**
  * Utility class which represents a version
@@ -92,7 +92,14 @@ data class Version(
          */
         fun parseOrNull(file: File): Version? {
             if (!file.isFile) return null
-            val matcher = VERSION_FILE_REGEX.matcher(file.name)
+            return parseFilenameOrNull(file.name)
+        }
+
+        /**
+         * @return Version or null, if a name of the given file doesn't match
+         */
+        fun parseFilenameOrNull(filename: String): Version? {
+            val matcher = VERSION_FILE_REGEX.matcher(filename)
             return if (matcher.matches()) parseOrNull(matcher.group(2)) else null
         }
 

@@ -18,9 +18,7 @@ package androidx.annotation
 import kotlin.annotation.AnnotationTarget.CLASS
 import kotlin.annotation.AnnotationTarget.FUNCTION
 
-/**
- * Denotes that any overriding methods should `return this`.
- */
+/** Denotes that any overriding methods should `return this`. */
 @MustBeDocumented
 @Retention(AnnotationRetention.BINARY)
 @Target(FUNCTION, CLASS)

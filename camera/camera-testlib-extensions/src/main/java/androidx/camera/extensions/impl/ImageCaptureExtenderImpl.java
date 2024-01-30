@@ -20,14 +20,12 @@ import android.graphics.ImageFormat;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.CaptureResult;
-import android.hardware.camera2.params.StreamConfigurationMap;
 import android.util.Pair;
 import android.util.Range;
 import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 
 import java.util.List;
 
@@ -36,7 +34,6 @@ import java.util.List;
  *
  * @since 1.0
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface ImageCaptureExtenderImpl extends ExtenderStateListener {
     /**
      * Indicates whether the extension is supported on the device.
@@ -66,7 +63,7 @@ public interface ImageCaptureExtenderImpl extends ExtenderStateListener {
     CaptureProcessorImpl getCaptureProcessor();
 
     /** The set of captures that are needed to create an image with the effect. */
-    @Nullable
+    @NonNull
     List<CaptureStageImpl> getCaptureStages();
 
     /**
@@ -81,16 +78,29 @@ public interface ImageCaptureExtenderImpl extends ExtenderStateListener {
      * <p>Pair list composed with {@link ImageFormat} and {@link Size} array will be returned.
      *
      * <p>The returned resolutions should be subset of the supported sizes retrieved from
-     * {@link StreamConfigurationMap} for the camera device. If the
+     * {@link android.hardware.camera2.params.StreamConfigurationMap} for the camera device. If the
      * returned list is not null, it will be used to find the best resolutions combination for
      * the bound use cases.
      *
      * @return the customized supported resolutions, or null to support all sizes retrieved from
-     * {@link StreamConfigurationMap}.
+     *         {@link android.hardware.camera2.params.StreamConfigurationMap}.
      * @since 1.1
      */
     @Nullable
     List<Pair<Integer, Size[]>> getSupportedResolutions();
+
+    /**
+     * Returns supported output format/size map for postview image. OEM is required to support
+     * both JPEG and YUV_420_888 format output.
+     *
+     * <p>Pair list composed with {@link ImageFormat} and {@link Size} array will be returned.
+     * The sizes must be smaller than or equal to the provided capture size and have the same
+     * aspect ratio as the given capture size.
+     *
+     * @since 1.4
+     */
+    @Nullable
+    List<Pair<Integer, Size[]>> getSupportedPostviewResolutions(@NonNull Size captureSize);
 
     /**
      * Returns the estimated capture latency range in milliseconds for the target capture
@@ -170,4 +180,45 @@ public interface ImageCaptureExtenderImpl extends ExtenderStateListener {
      */
     @NonNull
     List<CaptureResult.Key> getAvailableCaptureResultKeys();
+
+    /**
+     * Advertise support for {@link ProcessResultImpl#onCaptureProcessProgressed}.
+     *
+     * @return {@code true} in case the process progress callback is supported and is expected to
+     * be triggered, {@code false} otherwise.
+     * @since 1.4
+     */
+    boolean isCaptureProcessProgressAvailable();
+
+    /**
+     * Returns the dynamically calculated capture latency pair in milliseconds.
+     *
+     * <p>In contrast to {@link #getEstimatedCaptureLatencyRange} this method is guaranteed to be
+     * called after the camera capture session is initialized and camera preview is enabled.
+     * The measurement is expected to take in to account dynamic parameters such as the current
+     * scene, the state of 3A algorithms, the state of internal HW modules and return a more
+     * accurate assessment of the still capture latency.</p>
+     *
+     * @return pair that includes the estimated input frame/frames camera capture latency as the
+     * first field and the estimated post-processing latency {@link CaptureProcessorImpl#process}
+     * as the second pair field. Both first and second fields will be in milliseconds. The total
+     * still capture latency will be the sum of both the first and second values.
+     * The pair is expected to be null if the dynamic latency estimation is not supported.
+     * If clients have not configured a still capture output, then this method can also return a
+     * null pair.
+     * @since 1.4
+     */
+    @Nullable
+    Pair<Long, Long> getRealtimeCaptureLatency();
+
+    /**
+     * Indicates whether the extension supports the postview for still capture feature.
+     * If the extension is using HAL processing, false should be returned since the
+     * postview feature is not currently supported for this case.
+     *
+     * @return {@code true} in case postview for still capture is supported
+     * {@code false} otherwise.
+     * @since 1.4
+     */
+    boolean isPostviewAvailable();
 }

@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation
 
+import androidx.annotation.IntRange
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
@@ -41,7 +42,7 @@ import androidx.compose.ui.semantics.semantics
 fun Modifier.progressSemantics(
     value: Float,
     valueRange: ClosedFloatingPointRange<Float> = 0f..1f,
-    /*@IntRange(from = 0)*/
+    @IntRange(from = 0)
     steps: Int = 0
 ): Modifier {
     // Older versions of Talkback will ignore nodes with range info which aren't focusable or

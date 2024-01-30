@@ -94,7 +94,7 @@
     <string name="no_energy_profile_permission" msgid="4662285713731308888">"Нема дозвола за енергетски профил."</string>
     <string name="fuel_types" msgid="6811375173343218212">"Типови гориво"</string>
     <string name="unavailable" msgid="3636401138255192934">"Недостапно"</string>
-    <string name="ev_connector_types" msgid="735458637011996125">"Типови конектори за ЕВ"</string>
+    <string name="ev_connector_types" msgid="735458637011996125">"Типови конектори за EV"</string>
     <string name="example_title" msgid="530257630320010494">"Пример %d"</string>
     <string name="example_1_text" msgid="8456567953748293512">"Текстов има црвена боја"</string>
     <string name="example_2_text" msgid="718820705318661440">"Текстов има зелена боја"</string>
@@ -181,7 +181,7 @@
     <string name="no_energy_level_permission" msgid="1684773185095107825">"Нема дозвола за EnergyLevel."</string>
     <string name="no_speed_permission" msgid="5812532480922675390">"Нема дозвола за брзина."</string>
     <string name="no_mileage_permission" msgid="4074779840599589847">"Нема дозвола за километража."</string>
-    <string name="no_ev_status_permission" msgid="933075402821938973">"Нема дозвола за статусот на ЕВ."</string>
+    <string name="no_ev_status_permission" msgid="933075402821938973">"Нема дозвола за статусот на EV."</string>
     <string name="no_accelerometer_permission" msgid="896914448469117234">"Нема дозвола за акцелерометар."</string>
     <string name="no_gyroscope_permission" msgid="665293140266771569">"Нема дозвола за жироскоп."</string>
     <string name="no_compass_permission" msgid="5162304489577567125">"Нема дозвола за компас."</string>
@@ -190,7 +190,7 @@
     <string name="fetch_energy_level" msgid="1773415471137542832">"Се презема ниво на енергија."</string>
     <string name="fetch_speed" msgid="7333830984597189627">"Се презема брзина."</string>
     <string name="fetch_mileage" msgid="7490131687788025123">"Се презема километража."</string>
-    <string name="fetch_ev_status" msgid="2798910410830567052">"Се презема статус на ЕВ."</string>
+    <string name="fetch_ev_status" msgid="2798910410830567052">"Се презема статус на EV."</string>
     <string name="fetch_accelerometer" msgid="697750041126810911">"Се презема акцелерометар."</string>
     <string name="fetch_gyroscope" msgid="7153155318827188539">"Се презема жироскоп."</string>
     <string name="fetch_compass" msgid="7316188117590056717">"Се презема компас."</string>
@@ -204,8 +204,8 @@
     <string name="raw_speed" msgid="7295910214088983967">"Брзина на RAW"</string>
     <string name="unit" msgid="7697521583928135171">"Единица"</string>
     <string name="odometer" msgid="3925174645651546591">"Броило"</string>
-    <string name="ev_connected" msgid="2277845607662494696">"Поврзана е порта за полнење ЕВ"</string>
-    <string name="ev_open" msgid="4916704450914519643">"Отворена е порта за полнење ЕВ"</string>
+    <string name="ev_connected" msgid="2277845607662494696">"Поврзана е порта за полнење EV"</string>
+    <string name="ev_open" msgid="4916704450914519643">"Отворена е порта за полнење EV"</string>
     <string name="accelerometer" msgid="2084026313768299185">"Акцелерометар"</string>
     <string name="gyroscope" msgid="3428075828014504651">"Жироскоп"</string>
     <string name="compass" msgid="7037367764762441245">"Компас"</string>
@@ -264,6 +264,7 @@
     <string name="tab_title_list" msgid="5104962518489668123">"Картичка во вид на список"</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"Картичка во вид на решетка со долг наслов на картичката"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"Картичка за пребарување"</string>
+    <string name="tab_title_loading" msgid="5385807479734490989">"Картичката се вчитува"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"Демо за вчитување шаблон за картичка"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"Демо за немање картички за шаблон за картичка"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"Сликите не може да се прикажат за непознат хост"</string>
@@ -298,7 +299,7 @@
     <string name="some_additional_text" msgid="4009872495806318260">"Дополнителен текст"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"Пример за текст што може да се избере"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"Демо за ограничување за задачи"</string>
-    <string name="task_limit_reached_msg" msgid="6038763366777119364">"Достигнато е ограничувањето за задачи\nАко продолжите, апликацијата ќе се исклучи присилно"</string>
+    <string name="task_limit_reached_msg" msgid="7162842196382260992">"Ова ќе го преполни бројот на чекори и ќе ве доведе до нов екран."</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"Преземете чекор %1$d од %2$d"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"Кликнете за да одите нанапред"</string>
     <string name="task_content_allowed" msgid="545061986612431190">"Одете на различните шаблони и погрижете се автомобилот да е во режим на возење"</string>
@@ -323,6 +324,12 @@
     <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"Редот исто така може да се избере"</string>
     <string name="secondary_action_toast" msgid="5076434693504006565">"Избрано е секундарно дејство"</string>
     <string name="row_primary_action_toast" msgid="756516694751965204">"Избрано е примарно дејство на ред"</string>
+    <string name="sectioned_item_list_demo_title" msgid="1236735461225007729">"Демо на поделен список со ставки"</string>
+    <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"Список 1"</string>
+    <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"Список 2"</string>
+    <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"Поттекст под секој список"</string>
+    <string name="empty_list_demo_title" msgid="5989013634820902455">"Демо со празен список"</string>
+    <string name="empty_list_message" msgid="5331395517560728138">"Списокот е празен"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"Разни демоа за шаблони"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"Демоа за прикажување"</string>
     <string name="template_layouts_demo_title" msgid="788249269446087847">"Демоа за распоред на шаблони"</string>

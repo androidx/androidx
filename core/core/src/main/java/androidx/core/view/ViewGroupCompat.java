@@ -124,6 +124,7 @@ public final class ViewGroupCompat {
      * Valid values are either {@link #LAYOUT_MODE_CLIP_BOUNDS} or
      * {@link #LAYOUT_MODE_OPTICAL_BOUNDS}.
      *
+     * @param group ViewGroup for which to set the mode.
      * @param mode the layout mode to use during layout operations
      *
      * @see #getLayoutMode(ViewGroup)
@@ -137,6 +138,7 @@ public final class ViewGroupCompat {
     /**
      * Changes whether or not this ViewGroup should be treated as a single entity during
      * Activity Transitions.
+     * @param group ViewGroup for which to set the mode.
      * @param isTransitionGroup Whether or not the ViewGroup should be treated as a unit
      *                          in Activity transitions. If false, the ViewGroup won't transition,
      *                          only its children. If true, the entire ViewGroup will transition

@@ -57,11 +57,9 @@ import java.lang.ref.WeakReference;
 import java.util.WeakHashMap;
 
 /**
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public final class ResourceManagerInternal {
-    /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public interface ResourceManagerHooks {
         @Nullable

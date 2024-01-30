@@ -17,6 +17,7 @@
 package androidx.compose.ui.text.style
 
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.Stable
 import kotlin.jvm.JvmInline
 
 @Immutable
@@ -30,5 +31,7 @@ actual value class LineBreak private constructor(
         actual val Heading: LineBreak = LineBreak(2)
 
         actual val Paragraph: LineBreak = LineBreak(3)
+
+        actual val Unspecified: LineBreak = LineBreak(4)
     }
 }

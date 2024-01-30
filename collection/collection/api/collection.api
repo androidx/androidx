@@ -1,0 +1,2303 @@
+public final class androidx/collection/ArraySet : java/util/Collection, java/util/Set, kotlin/jvm/internal/markers/KMutableCollection, kotlin/jvm/internal/markers/KMutableSet {
+	public fun <init> ()V
+	public fun <init> (I)V
+	public synthetic fun <init> (IILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Landroidx/collection/ArraySet;)V
+	public fun <init> (Ljava/util/Collection;)V
+	public fun <init> ([Ljava/lang/Object;)V
+	public fun add (Ljava/lang/Object;)Z
+	public final fun addAll (Landroidx/collection/ArraySet;)V
+	public fun addAll (Ljava/util/Collection;)Z
+	public fun clear ()V
+	public fun contains (Ljava/lang/Object;)Z
+	public fun containsAll (Ljava/util/Collection;)Z
+	public final fun ensureCapacity (I)V
+	public fun equals (Ljava/lang/Object;)Z
+	public fun getSize ()I
+	public fun hashCode ()I
+	public final fun indexOf (Ljava/lang/Object;)I
+	public fun isEmpty ()Z
+	public fun iterator ()Ljava/util/Iterator;
+	public fun remove (Ljava/lang/Object;)Z
+	public final fun removeAll (Landroidx/collection/ArraySet;)Z
+	public fun removeAll (Ljava/util/Collection;)Z
+	public final fun removeAt (I)Ljava/lang/Object;
+	public fun retainAll (Ljava/util/Collection;)Z
+	public final fun size ()I
+	public fun toArray ()[Ljava/lang/Object;
+	public fun toArray ([Ljava/lang/Object;)[Ljava/lang/Object;
+	public fun toString ()Ljava/lang/String;
+	public final fun valueAt (I)Ljava/lang/Object;
+}
+
+public final class androidx/collection/ArraySetKt {
+	public static final fun arraySetOf ()Landroidx/collection/ArraySet;
+	public static final fun arraySetOf ([Ljava/lang/Object;)Landroidx/collection/ArraySet;
+}
+
+public final class androidx/collection/CircularArray {
+	public fun <init> ()V
+	public fun <init> (I)V
+	public synthetic fun <init> (IILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun addFirst (Ljava/lang/Object;)V
+	public final fun addLast (Ljava/lang/Object;)V
+	public final fun clear ()V
+	public final fun get (I)Ljava/lang/Object;
+	public final fun getFirst ()Ljava/lang/Object;
+	public final fun getLast ()Ljava/lang/Object;
+	public final fun isEmpty ()Z
+	public final fun popFirst ()Ljava/lang/Object;
+	public final fun popLast ()Ljava/lang/Object;
+	public final fun removeFromEnd (I)V
+	public final fun removeFromStart (I)V
+	public final fun size ()I
+}
+
+public final class androidx/collection/CircularIntArray {
+	public fun <init> ()V
+	public fun <init> (I)V
+	public synthetic fun <init> (IILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun addFirst (I)V
+	public final fun addLast (I)V
+	public final fun clear ()V
+	public final fun get (I)I
+	public final fun getFirst ()I
+	public final fun getLast ()I
+	public final fun isEmpty ()Z
+	public final fun popFirst ()I
+	public final fun popLast ()I
+	public final fun removeFromEnd (I)V
+	public final fun removeFromStart (I)V
+	public final fun size ()I
+}
+
+public abstract class androidx/collection/FloatFloatMap {
+	public field keys [F
+	public field metadata [J
+	public field values [F
+	public final fun all (Lkotlin/jvm/functions/Function2;)Z
+	public final fun any ()Z
+	public final fun any (Lkotlin/jvm/functions/Function2;)Z
+	public final fun contains (F)Z
+	public final fun containsKey (F)Z
+	public final fun containsValue (F)Z
+	public final fun count ()I
+	public final fun count (Lkotlin/jvm/functions/Function2;)I
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun findKeyIndex (F)I
+	public final fun forEach (Lkotlin/jvm/functions/Function2;)V
+	public final fun forEachIndexed (Lkotlin/jvm/functions/Function1;)V
+	public final fun forEachKey (Lkotlin/jvm/functions/Function1;)V
+	public final fun forEachValue (Lkotlin/jvm/functions/Function1;)V
+	public final fun get (F)F
+	public final fun getCapacity ()I
+	public final fun getOrDefault (FF)F
+	public final fun getOrElse (FLkotlin/jvm/functions/Function0;)F
+	public final fun getSize ()I
+	public fun hashCode ()I
+	public final fun isEmpty ()Z
+	public final fun isNotEmpty ()Z
+	public final fun joinToString ()Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;I)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILjava/lang/CharSequence;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILjava/lang/CharSequence;Lkotlin/jvm/functions/Function2;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILkotlin/jvm/functions/Function2;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;Lkotlin/jvm/functions/Function2;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Lkotlin/jvm/functions/Function2;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Lkotlin/jvm/functions/Function2;)Ljava/lang/String;
+	public final fun joinToString (Lkotlin/jvm/functions/Function2;)Ljava/lang/String;
+	public static synthetic fun joinToString$default (Landroidx/collection/FloatFloatMap;Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILjava/lang/CharSequence;ILjava/lang/Object;)Ljava/lang/String;
+	public static synthetic fun joinToString$default (Landroidx/collection/FloatFloatMap;Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILjava/lang/CharSequence;Lkotlin/jvm/functions/Function2;ILjava/lang/Object;)Ljava/lang/String;
+	public final fun none ()Z
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class androidx/collection/FloatFloatMapKt {
+	public static final fun emptyFloatFloatMap ()Landroidx/collection/FloatFloatMap;
+	public static final fun floatFloatMapOf ()Landroidx/collection/FloatFloatMap;
+	public static final fun floatFloatMapOf (FF)Landroidx/collection/FloatFloatMap;
+	public static final fun floatFloatMapOf (FFFF)Landroidx/collection/FloatFloatMap;
+	public static final fun floatFloatMapOf (FFFFFF)Landroidx/collection/FloatFloatMap;
+	public static final fun floatFloatMapOf (FFFFFFFF)Landroidx/collection/FloatFloatMap;
+	public static final fun floatFloatMapOf (FFFFFFFFFF)Landroidx/collection/FloatFloatMap;
+	public static final fun mutableFloatFloatMapOf ()Landroidx/collection/MutableFloatFloatMap;
+	public static final fun mutableFloatFloatMapOf (FF)Landroidx/collection/MutableFloatFloatMap;
+	public static final fun mutableFloatFloatMapOf (FFFF)Landroidx/collection/MutableFloatFloatMap;
+	public static final fun mutableFloatFloatMapOf (FFFFFF)Landroidx/collection/MutableFloatFloatMap;
+	public static final fun mutableFloatFloatMapOf (FFFFFFFF)Landroidx/collection/MutableFloatFloatMap;
+	public static final fun mutableFloatFloatMapOf (FFFFFFFFFF)Landroidx/collection/MutableFloatFloatMap;
+}
+
+public final class androidx/collection/FloatFloatPair {
+	public final field packedValue J
+	public static final synthetic fun box-impl (J)Landroidx/collection/FloatFloatPair;
+	public static final fun component1-impl (J)F
+	public static final fun component2-impl (J)F
+	public static fun constructor-impl (FF)J
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (JLjava/lang/Object;)Z
+	public static final fun equals-impl0 (JJ)Z
+	public static final fun getFirst-impl (J)F
+	public static final fun getSecond-impl (J)F
+	public fun hashCode ()I
+	public static fun hashCode-impl (J)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (J)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()J
+}
+
+public abstract class androidx/collection/FloatIntMap {
+	public field keys [F
+	public field metadata [J
+	public field values [I
+	public final fun all (Lkotlin/jvm/functions/Function2;)Z
+	public final fun any ()Z
+	public final fun any (Lkotlin/jvm/functions/Function2;)Z
+	public final fun contains (F)Z
+	public final fun containsKey (F)Z
+	public final fun containsValue (I)Z
+	public final fun count ()I
+	public final fun count (Lkotlin/jvm/functions/Function2;)I
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun findKeyIndex (F)I
+	public final fun forEach (Lkotlin/jvm/functions/Function2;)V
+	public final fun forEachIndexed (Lkotlin/jvm/functions/Function1;)V
+	public final fun forEachKey (Lkotlin/jvm/functions/Function1;)V
+	public final fun forEachValue (Lkotlin/jvm/functions/Function1;)V
+	public final fun get (F)I
+	public final fun getCapacity ()I
+	public final fun getOrDefault (FI)I
+	public final fun getOrElse (FLkotlin/jvm/functions/Function0;)I
+	public final fun getSize ()I
+	public fun hashCode ()I
+	public final fun isEmpty ()Z
+	public final fun isNotEmpty ()Z
+	public final fun joinToString ()Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;I)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILjava/lang/CharSequence;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILjava/lang/CharSequence;Lkotlin/jvm/functions/Function2;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILkotlin/jvm/functions/Function2;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;Lkotlin/jvm/functions/Function2;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Lkotlin/jvm/functions/Function2;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Lkotlin/jvm/functions/Function2;)Ljava/lang/String;
+	public final fun joinToString (Lkotlin/jvm/functions/Function2;)Ljava/lang/String;
+	public static synthetic fun joinToString$default (Landroidx/collection/FloatIntMap;Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILjava/lang/CharSequence;ILjava/lang/Object;)Ljava/lang/String;
+	public static synthetic fun joinToString$default (Landroidx/collection/FloatIntMap;Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILjava/lang/CharSequence;Lkotlin/jvm/functions/Function2;ILjava/lang/Object;)Ljava/lang/String;
+	public final fun none ()Z
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class androidx/collection/FloatIntMapKt {
+	public static final fun emptyFloatIntMap ()Landroidx/collection/FloatIntMap;
+	public static final fun floatIntMapOf ()Landroidx/collection/FloatIntMap;
+	public static final fun floatIntMapOf (FI)Landroidx/collection/FloatIntMap;
+	public static final fun floatIntMapOf (FIFI)Landroidx/collection/FloatIntMap;
+	public static final fun floatIntMapOf (FIFIFI)Landroidx/collection/FloatIntMap;
+	public static final fun floatIntMapOf (FIFIFIFI)Landroidx/collection/FloatIntMap;
+	public static final fun floatIntMapOf (FIFIFIFIFI)Landroidx/collection/FloatIntMap;
+	public static final fun mutableFloatIntMapOf ()Landroidx/collection/MutableFloatIntMap;
+	public static final fun mutableFloatIntMapOf (FI)Landroidx/collection/MutableFloatIntMap;
+	public static final fun mutableFloatIntMapOf (FIFI)Landroidx/collection/MutableFloatIntMap;
+	public static final fun mutableFloatIntMapOf (FIFIFI)Landroidx/collection/MutableFloatIntMap;
+	public static final fun mutableFloatIntMapOf (FIFIFIFI)Landroidx/collection/MutableFloatIntMap;
+	public static final fun mutableFloatIntMapOf (FIFIFIFIFI)Landroidx/collection/MutableFloatIntMap;
+}
+
+public abstract class androidx/collection/FloatList {
+	public field _size I
+	public field content [F
+	public synthetic fun <init> (ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun any ()Z
+	public final fun any (Lkotlin/jvm/functions/Function1;)Z
+	public final fun contains (F)Z
+	public final fun containsAll (Landroidx/collection/FloatList;)Z
+	public final fun count ()I
+	public final fun count (Lkotlin/jvm/functions/Function1;)I
+	public final fun elementAt (I)F
+	public final fun elementAtOrElse (ILkotlin/jvm/functions/Function1;)F
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun first ()F
+	public final fun first (Lkotlin/jvm/functions/Function1;)F
+	public final fun fold (Ljava/lang/Object;Lkotlin/jvm/functions/Function2;)Ljava/lang/Object;
+	public final fun foldIndexed (Ljava/lang/Object;Lkotlin/jvm/functions/Function3;)Ljava/lang/Object;
+	public final fun foldRight (Ljava/lang/Object;Lkotlin/jvm/functions/Function2;)Ljava/lang/Object;
+	public final fun foldRightIndexed (Ljava/lang/Object;Lkotlin/jvm/functions/Function3;)Ljava/lang/Object;
+	public final fun forEach (Lkotlin/jvm/functions/Function1;)V
+	public final fun forEachIndexed (Lkotlin/jvm/functions/Function2;)V
+	public final fun forEachReversed (Lkotlin/jvm/functions/Function1;)V
+	public final fun forEachReversedIndexed (Lkotlin/jvm/functions/Function2;)V
+	public final fun get (I)F
+	public final fun getIndices ()Lkotlin/ranges/IntRange;
+	public final fun getLastIndex ()I
+	public final fun getSize ()I
+	public fun hashCode ()I
+	public final fun indexOf (F)I
+	public final fun indexOfFirst (Lkotlin/jvm/functions/Function1;)I
+	public final fun indexOfLast (Lkotlin/jvm/functions/Function1;)I
+	public final fun isEmpty ()Z
+	public final fun isNotEmpty ()Z
+	public final fun joinToString ()Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;I)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILjava/lang/CharSequence;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILjava/lang/CharSequence;Lkotlin/jvm/functions/Function1;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILkotlin/jvm/functions/Function1;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;Lkotlin/jvm/functions/Function1;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Lkotlin/jvm/functions/Function1;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Lkotlin/jvm/functions/Function1;)Ljava/lang/String;
+	public final fun joinToString (Lkotlin/jvm/functions/Function1;)Ljava/lang/String;
+	public static synthetic fun joinToString$default (Landroidx/collection/FloatList;Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILjava/lang/CharSequence;ILjava/lang/Object;)Ljava/lang/String;
+	public static synthetic fun joinToString$default (Landroidx/collection/FloatList;Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILjava/lang/CharSequence;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Ljava/lang/String;
+	public final fun last ()F
+	public final fun last (Lkotlin/jvm/functions/Function1;)F
+	public final fun lastIndexOf (F)I
+	public final fun none ()Z
+	public final fun reversedAny (Lkotlin/jvm/functions/Function1;)Z
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class androidx/collection/FloatListKt {
+	public static final fun emptyFloatList ()Landroidx/collection/FloatList;
+	public static final fun floatListOf ()Landroidx/collection/FloatList;
+	public static final fun floatListOf (F)Landroidx/collection/FloatList;
+	public static final fun floatListOf (FF)Landroidx/collection/FloatList;
+	public static final fun floatListOf (FFF)Landroidx/collection/FloatList;
+	public static final fun floatListOf ([F)Landroidx/collection/FloatList;
+	public static final fun mutableFloatListOf ()Landroidx/collection/MutableFloatList;
+	public static final fun mutableFloatListOf (F)Landroidx/collection/MutableFloatList;
+	public static final fun mutableFloatListOf (FF)Landroidx/collection/MutableFloatList;
+	public static final fun mutableFloatListOf (FFF)Landroidx/collection/MutableFloatList;
+	public static final fun mutableFloatListOf ([F)Landroidx/collection/MutableFloatList;
+}
+
+public abstract class androidx/collection/FloatLongMap {
+	public field keys [F
+	public field metadata [J
+	public field values [J
+	public final fun all (Lkotlin/jvm/functions/Function2;)Z
+	public final fun any ()Z
+	public final fun any (Lkotlin/jvm/functions/Function2;)Z
+	public final fun contains (F)Z
+	public final fun containsKey (F)Z
+	public final fun containsValue (J)Z
+	public final fun count ()I
+	public final fun count (Lkotlin/jvm/functions/Function2;)I
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun findKeyIndex (F)I
+	public final fun forEach (Lkotlin/jvm/functions/Function2;)V
+	public final fun forEachIndexed (Lkotlin/jvm/functions/Function1;)V
+	public final fun forEachKey (Lkotlin/jvm/functions/Function1;)V
+	public final fun forEachValue (Lkotlin/jvm/functions/Function1;)V
+	public final fun get (F)J
+	public final fun getCapacity ()I
+	public final fun getOrDefault (FJ)J
+	public final fun getOrElse (FLkotlin/jvm/functions/Function0;)J
+	public final fun getSize ()I
+	public fun hashCode ()I
+	public final fun isEmpty ()Z
+	public final fun isNotEmpty ()Z
+	public final fun joinToString ()Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;I)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILjava/lang/CharSequence;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILjava/lang/CharSequence;Lkotlin/jvm/functions/Function2;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILkotlin/jvm/functions/Function2;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;Lkotlin/jvm/functions/Function2;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Lkotlin/jvm/functions/Function2;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Lkotlin/jvm/functions/Function2;)Ljava/lang/String;
+	public final fun joinToString (Lkotlin/jvm/functions/Function2;)Ljava/lang/String;
+	public static synthetic fun joinToString$default (Landroidx/collection/FloatLongMap;Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILjava/lang/CharSequence;ILjava/lang/Object;)Ljava/lang/String;
+	public static synthetic fun joinToString$default (Landroidx/collection/FloatLongMap;Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILjava/lang/CharSequence;Lkotlin/jvm/functions/Function2;ILjava/lang/Object;)Ljava/lang/String;
+	public final fun none ()Z
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class androidx/collection/FloatLongMapKt {
+	public static final fun emptyFloatLongMap ()Landroidx/collection/FloatLongMap;
+	public static final fun floatLongMapOf ()Landroidx/collection/FloatLongMap;
+	public static final fun floatLongMapOf (FJ)Landroidx/collection/FloatLongMap;
+	public static final fun floatLongMapOf (FJFJ)Landroidx/collection/FloatLongMap;
+	public static final fun floatLongMapOf (FJFJFJ)Landroidx/collection/FloatLongMap;
+	public static final fun floatLongMapOf (FJFJFJFJ)Landroidx/collection/FloatLongMap;
+	public static final fun floatLongMapOf (FJFJFJFJFJ)Landroidx/collection/FloatLongMap;
+	public static final fun mutableFloatLongMapOf ()Landroidx/collection/MutableFloatLongMap;
+	public static final fun mutableFloatLongMapOf (FJ)Landroidx/collection/MutableFloatLongMap;
+	public static final fun mutableFloatLongMapOf (FJFJ)Landroidx/collection/MutableFloatLongMap;
+	public static final fun mutableFloatLongMapOf (FJFJFJ)Landroidx/collection/MutableFloatLongMap;
+	public static final fun mutableFloatLongMapOf (FJFJFJFJ)Landroidx/collection/MutableFloatLongMap;
+	public static final fun mutableFloatLongMapOf (FJFJFJFJFJ)Landroidx/collection/MutableFloatLongMap;
+}
+
+public abstract class androidx/collection/FloatObjectMap {
+	public field keys [F
+	public field metadata [J
+	public field values [Ljava/lang/Object;
+	public final fun all (Lkotlin/jvm/functions/Function2;)Z
+	public final fun any ()Z
+	public final fun any (Lkotlin/jvm/functions/Function2;)Z
+	public final fun contains (F)Z
+	public final fun containsKey (F)Z
+	public final fun containsValue (Ljava/lang/Object;)Z
+	public final fun count ()I
+	public final fun count (Lkotlin/jvm/functions/Function2;)I
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun forEach (Lkotlin/jvm/functions/Function2;)V
+	public final fun forEachIndexed (Lkotlin/jvm/functions/Function1;)V
+	public final fun forEachKey (Lkotlin/jvm/functions/Function1;)V
+	public final fun forEachValue (Lkotlin/jvm/functions/Function1;)V
+	public final fun get (F)Ljava/lang/Object;
+	public final fun getCapacity ()I
+	public final fun getOrDefault (FLjava/lang/Object;)Ljava/lang/Object;
+	public final fun getOrElse (FLkotlin/jvm/functions/Function0;)Ljava/lang/Object;
+	public final fun getSize ()I
+	public fun hashCode ()I
+	public final fun isEmpty ()Z
+	public final fun isNotEmpty ()Z
+	public final fun joinToString ()Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;I)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILjava/lang/CharSequence;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILjava/lang/CharSequence;Lkotlin/jvm/functions/Function2;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILkotlin/jvm/functions/Function2;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;Lkotlin/jvm/functions/Function2;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Lkotlin/jvm/functions/Function2;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Lkotlin/jvm/functions/Function2;)Ljava/lang/String;
+	public final fun joinToString (Lkotlin/jvm/functions/Function2;)Ljava/lang/String;
+	public static synthetic fun joinToString$default (Landroidx/collection/FloatObjectMap;Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILjava/lang/CharSequence;ILjava/lang/Object;)Ljava/lang/String;
+	public static synthetic fun joinToString$default (Landroidx/collection/FloatObjectMap;Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILjava/lang/CharSequence;Lkotlin/jvm/functions/Function2;ILjava/lang/Object;)Ljava/lang/String;
+	public final fun none ()Z
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class androidx/collection/FloatObjectMapKt {
+	public static final fun emptyFloatObjectMap ()Landroidx/collection/FloatObjectMap;
+	public static final fun floatObjectMapOf ()Landroidx/collection/FloatObjectMap;
+	public static final fun floatObjectMapOf (FLjava/lang/Object;)Landroidx/collection/FloatObjectMap;
+	public static final fun floatObjectMapOf (FLjava/lang/Object;FLjava/lang/Object;)Landroidx/collection/FloatObjectMap;
+	public static final fun floatObjectMapOf (FLjava/lang/Object;FLjava/lang/Object;FLjava/lang/Object;)Landroidx/collection/FloatObjectMap;
+	public static final fun floatObjectMapOf (FLjava/lang/Object;FLjava/lang/Object;FLjava/lang/Object;FLjava/lang/Object;)Landroidx/collection/FloatObjectMap;
+	public static final fun floatObjectMapOf (FLjava/lang/Object;FLjava/lang/Object;FLjava/lang/Object;FLjava/lang/Object;FLjava/lang/Object;)Landroidx/collection/FloatObjectMap;
+	public static final fun mutableFloatObjectMapOf ()Landroidx/collection/MutableFloatObjectMap;
+	public static final fun mutableFloatObjectMapOf (FLjava/lang/Object;)Landroidx/collection/MutableFloatObjectMap;
+	public static final fun mutableFloatObjectMapOf (FLjava/lang/Object;FLjava/lang/Object;)Landroidx/collection/MutableFloatObjectMap;
+	public static final fun mutableFloatObjectMapOf (FLjava/lang/Object;FLjava/lang/Object;FLjava/lang/Object;)Landroidx/collection/MutableFloatObjectMap;
+	public static final fun mutableFloatObjectMapOf (FLjava/lang/Object;FLjava/lang/Object;FLjava/lang/Object;FLjava/lang/Object;)Landroidx/collection/MutableFloatObjectMap;
+	public static final fun mutableFloatObjectMapOf (FLjava/lang/Object;FLjava/lang/Object;FLjava/lang/Object;FLjava/lang/Object;FLjava/lang/Object;)Landroidx/collection/MutableFloatObjectMap;
+}
+
+public abstract class androidx/collection/FloatSet {
+	public field elements [F
+	public field metadata [J
+	public final fun all (Lkotlin/jvm/functions/Function1;)Z
+	public final fun any ()Z
+	public final fun any (Lkotlin/jvm/functions/Function1;)Z
+	public final fun contains (F)Z
+	public final fun count ()I
+	public final fun count (Lkotlin/jvm/functions/Function1;)I
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun first ()F
+	public final fun first (Lkotlin/jvm/functions/Function1;)F
+	public final fun forEach (Lkotlin/jvm/functions/Function1;)V
+	public final fun forEachIndex (Lkotlin/jvm/functions/Function1;)V
+	public final fun getCapacity ()I
+	public final fun getSize ()I
+	public fun hashCode ()I
+	public final fun isEmpty ()Z
+	public final fun isNotEmpty ()Z
+	public final fun joinToString ()Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;I)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILjava/lang/CharSequence;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILjava/lang/CharSequence;Lkotlin/jvm/functions/Function1;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILkotlin/jvm/functions/Function1;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;Lkotlin/jvm/functions/Function1;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Lkotlin/jvm/functions/Function1;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Lkotlin/jvm/functions/Function1;)Ljava/lang/String;
+	public final fun joinToString (Lkotlin/jvm/functions/Function1;)Ljava/lang/String;
+	public static synthetic fun joinToString$default (Landroidx/collection/FloatSet;Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILjava/lang/CharSequence;ILjava/lang/Object;)Ljava/lang/String;
+	public static synthetic fun joinToString$default (Landroidx/collection/FloatSet;Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILjava/lang/CharSequence;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Ljava/lang/String;
+	public final fun none ()Z
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class androidx/collection/FloatSetKt {
+	public static final fun emptyFloatSet ()Landroidx/collection/FloatSet;
+	public static final fun floatSetOf ()Landroidx/collection/FloatSet;
+	public static final fun floatSetOf (F)Landroidx/collection/FloatSet;
+	public static final fun floatSetOf (FF)Landroidx/collection/FloatSet;
+	public static final fun floatSetOf (FFF)Landroidx/collection/FloatSet;
+	public static final fun floatSetOf ([F)Landroidx/collection/FloatSet;
+	public static final fun mutableFloatSetOf ()Landroidx/collection/MutableFloatSet;
+	public static final fun mutableFloatSetOf (F)Landroidx/collection/MutableFloatSet;
+	public static final fun mutableFloatSetOf (FF)Landroidx/collection/MutableFloatSet;
+	public static final fun mutableFloatSetOf (FFF)Landroidx/collection/MutableFloatSet;
+	public static final fun mutableFloatSetOf ([F)Landroidx/collection/MutableFloatSet;
+}
+
+public abstract class androidx/collection/IntFloatMap {
+	public field keys [I
+	public field metadata [J
+	public field values [F
+	public final fun all (Lkotlin/jvm/functions/Function2;)Z
+	public final fun any ()Z
+	public final fun any (Lkotlin/jvm/functions/Function2;)Z
+	public final fun contains (I)Z
+	public final fun containsKey (I)Z
+	public final fun containsValue (F)Z
+	public final fun count ()I
+	public final fun count (Lkotlin/jvm/functions/Function2;)I
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun findKeyIndex (I)I
+	public final fun forEach (Lkotlin/jvm/functions/Function2;)V
+	public final fun forEachIndexed (Lkotlin/jvm/functions/Function1;)V
+	public final fun forEachKey (Lkotlin/jvm/functions/Function1;)V
+	public final fun forEachValue (Lkotlin/jvm/functions/Function1;)V
+	public final fun get (I)F
+	public final fun getCapacity ()I
+	public final fun getOrDefault (IF)F
+	public final fun getOrElse (ILkotlin/jvm/functions/Function0;)F
+	public final fun getSize ()I
+	public fun hashCode ()I
+	public final fun isEmpty ()Z
+	public final fun isNotEmpty ()Z
+	public final fun joinToString ()Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;I)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILjava/lang/CharSequence;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILjava/lang/CharSequence;Lkotlin/jvm/functions/Function2;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILkotlin/jvm/functions/Function2;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;Lkotlin/jvm/functions/Function2;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Lkotlin/jvm/functions/Function2;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Lkotlin/jvm/functions/Function2;)Ljava/lang/String;
+	public final fun joinToString (Lkotlin/jvm/functions/Function2;)Ljava/lang/String;
+	public static synthetic fun joinToString$default (Landroidx/collection/IntFloatMap;Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILjava/lang/CharSequence;ILjava/lang/Object;)Ljava/lang/String;
+	public static synthetic fun joinToString$default (Landroidx/collection/IntFloatMap;Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILjava/lang/CharSequence;Lkotlin/jvm/functions/Function2;ILjava/lang/Object;)Ljava/lang/String;
+	public final fun none ()Z
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class androidx/collection/IntFloatMapKt {
+	public static final fun emptyIntFloatMap ()Landroidx/collection/IntFloatMap;
+	public static final fun intFloatMapOf ()Landroidx/collection/IntFloatMap;
+	public static final fun intFloatMapOf (IF)Landroidx/collection/IntFloatMap;
+	public static final fun intFloatMapOf (IFIF)Landroidx/collection/IntFloatMap;
+	public static final fun intFloatMapOf (IFIFIF)Landroidx/collection/IntFloatMap;
+	public static final fun intFloatMapOf (IFIFIFIF)Landroidx/collection/IntFloatMap;
+	public static final fun intFloatMapOf (IFIFIFIFIF)Landroidx/collection/IntFloatMap;
+	public static final fun mutableIntFloatMapOf ()Landroidx/collection/MutableIntFloatMap;
+	public static final fun mutableIntFloatMapOf (IF)Landroidx/collection/MutableIntFloatMap;
+	public static final fun mutableIntFloatMapOf (IFIF)Landroidx/collection/MutableIntFloatMap;
+	public static final fun mutableIntFloatMapOf (IFIFIF)Landroidx/collection/MutableIntFloatMap;
+	public static final fun mutableIntFloatMapOf (IFIFIFIF)Landroidx/collection/MutableIntFloatMap;
+	public static final fun mutableIntFloatMapOf (IFIFIFIFIF)Landroidx/collection/MutableIntFloatMap;
+}
+
+public abstract class androidx/collection/IntIntMap {
+	public field keys [I
+	public field metadata [J
+	public field values [I
+	public final fun all (Lkotlin/jvm/functions/Function2;)Z
+	public final fun any ()Z
+	public final fun any (Lkotlin/jvm/functions/Function2;)Z
+	public final fun contains (I)Z
+	public final fun containsKey (I)Z
+	public final fun containsValue (I)Z
+	public final fun count ()I
+	public final fun count (Lkotlin/jvm/functions/Function2;)I
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun findKeyIndex (I)I
+	public final fun forEach (Lkotlin/jvm/functions/Function2;)V
+	public final fun forEachIndexed (Lkotlin/jvm/functions/Function1;)V
+	public final fun forEachKey (Lkotlin/jvm/functions/Function1;)V
+	public final fun forEachValue (Lkotlin/jvm/functions/Function1;)V
+	public final fun get (I)I
+	public final fun getCapacity ()I
+	public final fun getOrDefault (II)I
+	public final fun getOrElse (ILkotlin/jvm/functions/Function0;)I
+	public final fun getSize ()I
+	public fun hashCode ()I
+	public final fun isEmpty ()Z
+	public final fun isNotEmpty ()Z
+	public final fun joinToString ()Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;I)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILjava/lang/CharSequence;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILjava/lang/CharSequence;Lkotlin/jvm/functions/Function2;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILkotlin/jvm/functions/Function2;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;Lkotlin/jvm/functions/Function2;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Lkotlin/jvm/functions/Function2;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Lkotlin/jvm/functions/Function2;)Ljava/lang/String;
+	public final fun joinToString (Lkotlin/jvm/functions/Function2;)Ljava/lang/String;
+	public static synthetic fun joinToString$default (Landroidx/collection/IntIntMap;Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILjava/lang/CharSequence;ILjava/lang/Object;)Ljava/lang/String;
+	public static synthetic fun joinToString$default (Landroidx/collection/IntIntMap;Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILjava/lang/CharSequence;Lkotlin/jvm/functions/Function2;ILjava/lang/Object;)Ljava/lang/String;
+	public final fun none ()Z
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class androidx/collection/IntIntMapKt {
+	public static final fun emptyIntIntMap ()Landroidx/collection/IntIntMap;
+	public static final fun intIntMapOf ()Landroidx/collection/IntIntMap;
+	public static final fun intIntMapOf (II)Landroidx/collection/IntIntMap;
+	public static final fun intIntMapOf (IIII)Landroidx/collection/IntIntMap;
+	public static final fun intIntMapOf (IIIIII)Landroidx/collection/IntIntMap;
+	public static final fun intIntMapOf (IIIIIIII)Landroidx/collection/IntIntMap;
+	public static final fun intIntMapOf (IIIIIIIIII)Landroidx/collection/IntIntMap;
+	public static final fun mutableIntIntMapOf ()Landroidx/collection/MutableIntIntMap;
+	public static final fun mutableIntIntMapOf (II)Landroidx/collection/MutableIntIntMap;
+	public static final fun mutableIntIntMapOf (IIII)Landroidx/collection/MutableIntIntMap;
+	public static final fun mutableIntIntMapOf (IIIIII)Landroidx/collection/MutableIntIntMap;
+	public static final fun mutableIntIntMapOf (IIIIIIII)Landroidx/collection/MutableIntIntMap;
+	public static final fun mutableIntIntMapOf (IIIIIIIIII)Landroidx/collection/MutableIntIntMap;
+}
+
+public final class androidx/collection/IntIntPair {
+	public final field packedValue J
+	public static final synthetic fun box-impl (J)Landroidx/collection/IntIntPair;
+	public static final fun component1-impl (J)I
+	public static final fun component2-impl (J)I
+	public static fun constructor-impl (II)J
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (JLjava/lang/Object;)Z
+	public static final fun equals-impl0 (JJ)Z
+	public static final fun getFirst-impl (J)I
+	public static final fun getSecond-impl (J)I
+	public fun hashCode ()I
+	public static fun hashCode-impl (J)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (J)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()J
+}
+
+public abstract class androidx/collection/IntList {
+	public field _size I
+	public field content [I
+	public synthetic fun <init> (ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun any ()Z
+	public final fun any (Lkotlin/jvm/functions/Function1;)Z
+	public final fun contains (I)Z
+	public final fun containsAll (Landroidx/collection/IntList;)Z
+	public final fun count ()I
+	public final fun count (Lkotlin/jvm/functions/Function1;)I
+	public final fun elementAt (I)I
+	public final fun elementAtOrElse (ILkotlin/jvm/functions/Function1;)I
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun first ()I
+	public final fun first (Lkotlin/jvm/functions/Function1;)I
+	public final fun fold (Ljava/lang/Object;Lkotlin/jvm/functions/Function2;)Ljava/lang/Object;
+	public final fun foldIndexed (Ljava/lang/Object;Lkotlin/jvm/functions/Function3;)Ljava/lang/Object;
+	public final fun foldRight (Ljava/lang/Object;Lkotlin/jvm/functions/Function2;)Ljava/lang/Object;
+	public final fun foldRightIndexed (Ljava/lang/Object;Lkotlin/jvm/functions/Function3;)Ljava/lang/Object;
+	public final fun forEach (Lkotlin/jvm/functions/Function1;)V
+	public final fun forEachIndexed (Lkotlin/jvm/functions/Function2;)V
+	public final fun forEachReversed (Lkotlin/jvm/functions/Function1;)V
+	public final fun forEachReversedIndexed (Lkotlin/jvm/functions/Function2;)V
+	public final fun get (I)I
+	public final fun getIndices ()Lkotlin/ranges/IntRange;
+	public final fun getLastIndex ()I
+	public final fun getSize ()I
+	public fun hashCode ()I
+	public final fun indexOf (I)I
+	public final fun indexOfFirst (Lkotlin/jvm/functions/Function1;)I
+	public final fun indexOfLast (Lkotlin/jvm/functions/Function1;)I
+	public final fun isEmpty ()Z
+	public final fun isNotEmpty ()Z
+	public final fun joinToString ()Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;I)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILjava/lang/CharSequence;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILjava/lang/CharSequence;Lkotlin/jvm/functions/Function1;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILkotlin/jvm/functions/Function1;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;Lkotlin/jvm/functions/Function1;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Lkotlin/jvm/functions/Function1;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Lkotlin/jvm/functions/Function1;)Ljava/lang/String;
+	public final fun joinToString (Lkotlin/jvm/functions/Function1;)Ljava/lang/String;
+	public static synthetic fun joinToString$default (Landroidx/collection/IntList;Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILjava/lang/CharSequence;ILjava/lang/Object;)Ljava/lang/String;
+	public static synthetic fun joinToString$default (Landroidx/collection/IntList;Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILjava/lang/CharSequence;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Ljava/lang/String;
+	public final fun last ()I
+	public final fun last (Lkotlin/jvm/functions/Function1;)I
+	public final fun lastIndexOf (I)I
+	public final fun none ()Z
+	public final fun reversedAny (Lkotlin/jvm/functions/Function1;)Z
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class androidx/collection/IntListKt {
+	public static final fun emptyIntList ()Landroidx/collection/IntList;
+	public static final fun intListOf ()Landroidx/collection/IntList;
+	public static final fun intListOf (I)Landroidx/collection/IntList;
+	public static final fun intListOf (II)Landroidx/collection/IntList;
+	public static final fun intListOf (III)Landroidx/collection/IntList;
+	public static final fun intListOf ([I)Landroidx/collection/IntList;
+	public static final fun mutableIntListOf ()Landroidx/collection/MutableIntList;
+	public static final fun mutableIntListOf (I)Landroidx/collection/MutableIntList;
+	public static final fun mutableIntListOf (II)Landroidx/collection/MutableIntList;
+	public static final fun mutableIntListOf (III)Landroidx/collection/MutableIntList;
+	public static final fun mutableIntListOf ([I)Landroidx/collection/MutableIntList;
+}
+
+public abstract class androidx/collection/IntLongMap {
+	public field keys [I
+	public field metadata [J
+	public field values [J
+	public final fun all (Lkotlin/jvm/functions/Function2;)Z
+	public final fun any ()Z
+	public final fun any (Lkotlin/jvm/functions/Function2;)Z
+	public final fun contains (I)Z
+	public final fun containsKey (I)Z
+	public final fun containsValue (J)Z
+	public final fun count ()I
+	public final fun count (Lkotlin/jvm/functions/Function2;)I
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun findKeyIndex (I)I
+	public final fun forEach (Lkotlin/jvm/functions/Function2;)V
+	public final fun forEachIndexed (Lkotlin/jvm/functions/Function1;)V
+	public final fun forEachKey (Lkotlin/jvm/functions/Function1;)V
+	public final fun forEachValue (Lkotlin/jvm/functions/Function1;)V
+	public final fun get (I)J
+	public final fun getCapacity ()I
+	public final fun getOrDefault (IJ)J
+	public final fun getOrElse (ILkotlin/jvm/functions/Function0;)J
+	public final fun getSize ()I
+	public fun hashCode ()I
+	public final fun isEmpty ()Z
+	public final fun isNotEmpty ()Z
+	public final fun joinToString ()Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;I)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILjava/lang/CharSequence;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILjava/lang/CharSequence;Lkotlin/jvm/functions/Function2;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILkotlin/jvm/functions/Function2;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;Lkotlin/jvm/functions/Function2;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Lkotlin/jvm/functions/Function2;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Lkotlin/jvm/functions/Function2;)Ljava/lang/String;
+	public final fun joinToString (Lkotlin/jvm/functions/Function2;)Ljava/lang/String;
+	public static synthetic fun joinToString$default (Landroidx/collection/IntLongMap;Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILjava/lang/CharSequence;ILjava/lang/Object;)Ljava/lang/String;
+	public static synthetic fun joinToString$default (Landroidx/collection/IntLongMap;Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILjava/lang/CharSequence;Lkotlin/jvm/functions/Function2;ILjava/lang/Object;)Ljava/lang/String;
+	public final fun none ()Z
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class androidx/collection/IntLongMapKt {
+	public static final fun emptyIntLongMap ()Landroidx/collection/IntLongMap;
+	public static final fun intLongMapOf ()Landroidx/collection/IntLongMap;
+	public static final fun intLongMapOf (IJ)Landroidx/collection/IntLongMap;
+	public static final fun intLongMapOf (IJIJ)Landroidx/collection/IntLongMap;
+	public static final fun intLongMapOf (IJIJIJ)Landroidx/collection/IntLongMap;
+	public static final fun intLongMapOf (IJIJIJIJ)Landroidx/collection/IntLongMap;
+	public static final fun intLongMapOf (IJIJIJIJIJ)Landroidx/collection/IntLongMap;
+	public static final fun mutableIntLongMapOf ()Landroidx/collection/MutableIntLongMap;
+	public static final fun mutableIntLongMapOf (IJ)Landroidx/collection/MutableIntLongMap;
+	public static final fun mutableIntLongMapOf (IJIJ)Landroidx/collection/MutableIntLongMap;
+	public static final fun mutableIntLongMapOf (IJIJIJ)Landroidx/collection/MutableIntLongMap;
+	public static final fun mutableIntLongMapOf (IJIJIJIJ)Landroidx/collection/MutableIntLongMap;
+	public static final fun mutableIntLongMapOf (IJIJIJIJIJ)Landroidx/collection/MutableIntLongMap;
+}
+
+public abstract class androidx/collection/IntObjectMap {
+	public field keys [I
+	public field metadata [J
+	public field values [Ljava/lang/Object;
+	public final fun all (Lkotlin/jvm/functions/Function2;)Z
+	public final fun any ()Z
+	public final fun any (Lkotlin/jvm/functions/Function2;)Z
+	public final fun contains (I)Z
+	public final fun containsKey (I)Z
+	public final fun containsValue (Ljava/lang/Object;)Z
+	public final fun count ()I
+	public final fun count (Lkotlin/jvm/functions/Function2;)I
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun forEach (Lkotlin/jvm/functions/Function2;)V
+	public final fun forEachIndexed (Lkotlin/jvm/functions/Function1;)V
+	public final fun forEachKey (Lkotlin/jvm/functions/Function1;)V
+	public final fun forEachValue (Lkotlin/jvm/functions/Function1;)V
+	public final fun get (I)Ljava/lang/Object;
+	public final fun getCapacity ()I
+	public final fun getOrDefault (ILjava/lang/Object;)Ljava/lang/Object;
+	public final fun getOrElse (ILkotlin/jvm/functions/Function0;)Ljava/lang/Object;
+	public final fun getSize ()I
+	public fun hashCode ()I
+	public final fun isEmpty ()Z
+	public final fun isNotEmpty ()Z
+	public final fun joinToString ()Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;I)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILjava/lang/CharSequence;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILjava/lang/CharSequence;Lkotlin/jvm/functions/Function2;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILkotlin/jvm/functions/Function2;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;Lkotlin/jvm/functions/Function2;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Lkotlin/jvm/functions/Function2;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Lkotlin/jvm/functions/Function2;)Ljava/lang/String;
+	public final fun joinToString (Lkotlin/jvm/functions/Function2;)Ljava/lang/String;
+	public static synthetic fun joinToString$default (Landroidx/collection/IntObjectMap;Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILjava/lang/CharSequence;ILjava/lang/Object;)Ljava/lang/String;
+	public static synthetic fun joinToString$default (Landroidx/collection/IntObjectMap;Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILjava/lang/CharSequence;Lkotlin/jvm/functions/Function2;ILjava/lang/Object;)Ljava/lang/String;
+	public final fun none ()Z
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class androidx/collection/IntObjectMapKt {
+	public static final fun emptyIntObjectMap ()Landroidx/collection/IntObjectMap;
+	public static final fun intObjectMapOf ()Landroidx/collection/IntObjectMap;
+	public static final fun intObjectMapOf (ILjava/lang/Object;)Landroidx/collection/IntObjectMap;
+	public static final fun intObjectMapOf (ILjava/lang/Object;ILjava/lang/Object;)Landroidx/collection/IntObjectMap;
+	public static final fun intObjectMapOf (ILjava/lang/Object;ILjava/lang/Object;ILjava/lang/Object;)Landroidx/collection/IntObjectMap;
+	public static final fun intObjectMapOf (ILjava/lang/Object;ILjava/lang/Object;ILjava/lang/Object;ILjava/lang/Object;)Landroidx/collection/IntObjectMap;
+	public static final fun intObjectMapOf (ILjava/lang/Object;ILjava/lang/Object;ILjava/lang/Object;ILjava/lang/Object;ILjava/lang/Object;)Landroidx/collection/IntObjectMap;
+	public static final fun mutableIntObjectMapOf ()Landroidx/collection/MutableIntObjectMap;
+	public static final fun mutableIntObjectMapOf (ILjava/lang/Object;)Landroidx/collection/MutableIntObjectMap;
+	public static final fun mutableIntObjectMapOf (ILjava/lang/Object;ILjava/lang/Object;)Landroidx/collection/MutableIntObjectMap;
+	public static final fun mutableIntObjectMapOf (ILjava/lang/Object;ILjava/lang/Object;ILjava/lang/Object;)Landroidx/collection/MutableIntObjectMap;
+	public static final fun mutableIntObjectMapOf (ILjava/lang/Object;ILjava/lang/Object;ILjava/lang/Object;ILjava/lang/Object;)Landroidx/collection/MutableIntObjectMap;
+	public static final fun mutableIntObjectMapOf (ILjava/lang/Object;ILjava/lang/Object;ILjava/lang/Object;ILjava/lang/Object;ILjava/lang/Object;)Landroidx/collection/MutableIntObjectMap;
+}
+
+public abstract class androidx/collection/IntSet {
+	public field elements [I
+	public field metadata [J
+	public final fun all (Lkotlin/jvm/functions/Function1;)Z
+	public final fun any ()Z
+	public final fun any (Lkotlin/jvm/functions/Function1;)Z
+	public final fun contains (I)Z
+	public final fun count ()I
+	public final fun count (Lkotlin/jvm/functions/Function1;)I
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun first ()I
+	public final fun first (Lkotlin/jvm/functions/Function1;)I
+	public final fun forEach (Lkotlin/jvm/functions/Function1;)V
+	public final fun forEachIndex (Lkotlin/jvm/functions/Function1;)V
+	public final fun getCapacity ()I
+	public final fun getSize ()I
+	public fun hashCode ()I
+	public final fun isEmpty ()Z
+	public final fun isNotEmpty ()Z
+	public final fun joinToString ()Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;I)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILjava/lang/CharSequence;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILjava/lang/CharSequence;Lkotlin/jvm/functions/Function1;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILkotlin/jvm/functions/Function1;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;Lkotlin/jvm/functions/Function1;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Lkotlin/jvm/functions/Function1;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Lkotlin/jvm/functions/Function1;)Ljava/lang/String;
+	public final fun joinToString (Lkotlin/jvm/functions/Function1;)Ljava/lang/String;
+	public static synthetic fun joinToString$default (Landroidx/collection/IntSet;Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILjava/lang/CharSequence;ILjava/lang/Object;)Ljava/lang/String;
+	public static synthetic fun joinToString$default (Landroidx/collection/IntSet;Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILjava/lang/CharSequence;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Ljava/lang/String;
+	public final fun none ()Z
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class androidx/collection/IntSetKt {
+	public static final fun emptyIntSet ()Landroidx/collection/IntSet;
+	public static final fun intSetOf ()Landroidx/collection/IntSet;
+	public static final fun intSetOf (I)Landroidx/collection/IntSet;
+	public static final fun intSetOf (II)Landroidx/collection/IntSet;
+	public static final fun intSetOf (III)Landroidx/collection/IntSet;
+	public static final fun intSetOf ([I)Landroidx/collection/IntSet;
+	public static final fun mutableIntSetOf ()Landroidx/collection/MutableIntSet;
+	public static final fun mutableIntSetOf (I)Landroidx/collection/MutableIntSet;
+	public static final fun mutableIntSetOf (II)Landroidx/collection/MutableIntSet;
+	public static final fun mutableIntSetOf (III)Landroidx/collection/MutableIntSet;
+	public static final fun mutableIntSetOf ([I)Landroidx/collection/MutableIntSet;
+}
+
+public abstract class androidx/collection/LongFloatMap {
+	public field keys [J
+	public field metadata [J
+	public field values [F
+	public final fun all (Lkotlin/jvm/functions/Function2;)Z
+	public final fun any ()Z
+	public final fun any (Lkotlin/jvm/functions/Function2;)Z
+	public final fun contains (J)Z
+	public final fun containsKey (J)Z
+	public final fun containsValue (F)Z
+	public final fun count ()I
+	public final fun count (Lkotlin/jvm/functions/Function2;)I
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun findKeyIndex (J)I
+	public final fun forEach (Lkotlin/jvm/functions/Function2;)V
+	public final fun forEachIndexed (Lkotlin/jvm/functions/Function1;)V
+	public final fun forEachKey (Lkotlin/jvm/functions/Function1;)V
+	public final fun forEachValue (Lkotlin/jvm/functions/Function1;)V
+	public final fun get (J)F
+	public final fun getCapacity ()I
+	public final fun getOrDefault (JF)F
+	public final fun getOrElse (JLkotlin/jvm/functions/Function0;)F
+	public final fun getSize ()I
+	public fun hashCode ()I
+	public final fun isEmpty ()Z
+	public final fun isNotEmpty ()Z
+	public final fun joinToString ()Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;I)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILjava/lang/CharSequence;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILjava/lang/CharSequence;Lkotlin/jvm/functions/Function2;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILkotlin/jvm/functions/Function2;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;Lkotlin/jvm/functions/Function2;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Lkotlin/jvm/functions/Function2;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Lkotlin/jvm/functions/Function2;)Ljava/lang/String;
+	public final fun joinToString (Lkotlin/jvm/functions/Function2;)Ljava/lang/String;
+	public static synthetic fun joinToString$default (Landroidx/collection/LongFloatMap;Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILjava/lang/CharSequence;ILjava/lang/Object;)Ljava/lang/String;
+	public static synthetic fun joinToString$default (Landroidx/collection/LongFloatMap;Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILjava/lang/CharSequence;Lkotlin/jvm/functions/Function2;ILjava/lang/Object;)Ljava/lang/String;
+	public final fun none ()Z
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class androidx/collection/LongFloatMapKt {
+	public static final fun emptyLongFloatMap ()Landroidx/collection/LongFloatMap;
+	public static final fun longFloatMapOf ()Landroidx/collection/LongFloatMap;
+	public static final fun longFloatMapOf (JF)Landroidx/collection/LongFloatMap;
+	public static final fun longFloatMapOf (JFJF)Landroidx/collection/LongFloatMap;
+	public static final fun longFloatMapOf (JFJFJF)Landroidx/collection/LongFloatMap;
+	public static final fun longFloatMapOf (JFJFJFJF)Landroidx/collection/LongFloatMap;
+	public static final fun longFloatMapOf (JFJFJFJFJF)Landroidx/collection/LongFloatMap;
+	public static final fun mutableLongFloatMapOf ()Landroidx/collection/MutableLongFloatMap;
+	public static final fun mutableLongFloatMapOf (JF)Landroidx/collection/MutableLongFloatMap;
+	public static final fun mutableLongFloatMapOf (JFJF)Landroidx/collection/MutableLongFloatMap;
+	public static final fun mutableLongFloatMapOf (JFJFJF)Landroidx/collection/MutableLongFloatMap;
+	public static final fun mutableLongFloatMapOf (JFJFJFJF)Landroidx/collection/MutableLongFloatMap;
+	public static final fun mutableLongFloatMapOf (JFJFJFJFJF)Landroidx/collection/MutableLongFloatMap;
+}
+
+public abstract class androidx/collection/LongIntMap {
+	public field keys [J
+	public field metadata [J
+	public field values [I
+	public final fun all (Lkotlin/jvm/functions/Function2;)Z
+	public final fun any ()Z
+	public final fun any (Lkotlin/jvm/functions/Function2;)Z
+	public final fun contains (J)Z
+	public final fun containsKey (J)Z
+	public final fun containsValue (I)Z
+	public final fun count ()I
+	public final fun count (Lkotlin/jvm/functions/Function2;)I
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun findKeyIndex (J)I
+	public final fun forEach (Lkotlin/jvm/functions/Function2;)V
+	public final fun forEachIndexed (Lkotlin/jvm/functions/Function1;)V
+	public final fun forEachKey (Lkotlin/jvm/functions/Function1;)V
+	public final fun forEachValue (Lkotlin/jvm/functions/Function1;)V
+	public final fun get (J)I
+	public final fun getCapacity ()I
+	public final fun getOrDefault (JI)I
+	public final fun getOrElse (JLkotlin/jvm/functions/Function0;)I
+	public final fun getSize ()I
+	public fun hashCode ()I
+	public final fun isEmpty ()Z
+	public final fun isNotEmpty ()Z
+	public final fun joinToString ()Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;I)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILjava/lang/CharSequence;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILjava/lang/CharSequence;Lkotlin/jvm/functions/Function2;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILkotlin/jvm/functions/Function2;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;Lkotlin/jvm/functions/Function2;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Lkotlin/jvm/functions/Function2;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Lkotlin/jvm/functions/Function2;)Ljava/lang/String;
+	public final fun joinToString (Lkotlin/jvm/functions/Function2;)Ljava/lang/String;
+	public static synthetic fun joinToString$default (Landroidx/collection/LongIntMap;Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILjava/lang/CharSequence;ILjava/lang/Object;)Ljava/lang/String;
+	public static synthetic fun joinToString$default (Landroidx/collection/LongIntMap;Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILjava/lang/CharSequence;Lkotlin/jvm/functions/Function2;ILjava/lang/Object;)Ljava/lang/String;
+	public final fun none ()Z
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class androidx/collection/LongIntMapKt {
+	public static final fun emptyLongIntMap ()Landroidx/collection/LongIntMap;
+	public static final fun longIntMapOf ()Landroidx/collection/LongIntMap;
+	public static final fun longIntMapOf (JI)Landroidx/collection/LongIntMap;
+	public static final fun longIntMapOf (JIJI)Landroidx/collection/LongIntMap;
+	public static final fun longIntMapOf (JIJIJI)Landroidx/collection/LongIntMap;
+	public static final fun longIntMapOf (JIJIJIJI)Landroidx/collection/LongIntMap;
+	public static final fun longIntMapOf (JIJIJIJIJI)Landroidx/collection/LongIntMap;
+	public static final fun mutableLongIntMapOf ()Landroidx/collection/MutableLongIntMap;
+	public static final fun mutableLongIntMapOf (JI)Landroidx/collection/MutableLongIntMap;
+	public static final fun mutableLongIntMapOf (JIJI)Landroidx/collection/MutableLongIntMap;
+	public static final fun mutableLongIntMapOf (JIJIJI)Landroidx/collection/MutableLongIntMap;
+	public static final fun mutableLongIntMapOf (JIJIJIJI)Landroidx/collection/MutableLongIntMap;
+	public static final fun mutableLongIntMapOf (JIJIJIJIJI)Landroidx/collection/MutableLongIntMap;
+}
+
+public abstract class androidx/collection/LongList {
+	public field _size I
+	public field content [J
+	public synthetic fun <init> (ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun any ()Z
+	public final fun any (Lkotlin/jvm/functions/Function1;)Z
+	public final fun contains (J)Z
+	public final fun containsAll (Landroidx/collection/LongList;)Z
+	public final fun count ()I
+	public final fun count (Lkotlin/jvm/functions/Function1;)I
+	public final fun elementAt (I)J
+	public final fun elementAtOrElse (ILkotlin/jvm/functions/Function1;)J
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun first ()J
+	public final fun first (Lkotlin/jvm/functions/Function1;)J
+	public final fun fold (Ljava/lang/Object;Lkotlin/jvm/functions/Function2;)Ljava/lang/Object;
+	public final fun foldIndexed (Ljava/lang/Object;Lkotlin/jvm/functions/Function3;)Ljava/lang/Object;
+	public final fun foldRight (Ljava/lang/Object;Lkotlin/jvm/functions/Function2;)Ljava/lang/Object;
+	public final fun foldRightIndexed (Ljava/lang/Object;Lkotlin/jvm/functions/Function3;)Ljava/lang/Object;
+	public final fun forEach (Lkotlin/jvm/functions/Function1;)V
+	public final fun forEachIndexed (Lkotlin/jvm/functions/Function2;)V
+	public final fun forEachReversed (Lkotlin/jvm/functions/Function1;)V
+	public final fun forEachReversedIndexed (Lkotlin/jvm/functions/Function2;)V
+	public final fun get (I)J
+	public final fun getIndices ()Lkotlin/ranges/IntRange;
+	public final fun getLastIndex ()I
+	public final fun getSize ()I
+	public fun hashCode ()I
+	public final fun indexOf (J)I
+	public final fun indexOfFirst (Lkotlin/jvm/functions/Function1;)I
+	public final fun indexOfLast (Lkotlin/jvm/functions/Function1;)I
+	public final fun isEmpty ()Z
+	public final fun isNotEmpty ()Z
+	public final fun joinToString ()Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;I)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILjava/lang/CharSequence;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILjava/lang/CharSequence;Lkotlin/jvm/functions/Function1;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILkotlin/jvm/functions/Function1;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;Lkotlin/jvm/functions/Function1;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Lkotlin/jvm/functions/Function1;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Lkotlin/jvm/functions/Function1;)Ljava/lang/String;
+	public final fun joinToString (Lkotlin/jvm/functions/Function1;)Ljava/lang/String;
+	public static synthetic fun joinToString$default (Landroidx/collection/LongList;Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILjava/lang/CharSequence;ILjava/lang/Object;)Ljava/lang/String;
+	public static synthetic fun joinToString$default (Landroidx/collection/LongList;Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILjava/lang/CharSequence;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Ljava/lang/String;
+	public final fun last ()J
+	public final fun last (Lkotlin/jvm/functions/Function1;)J
+	public final fun lastIndexOf (J)I
+	public final fun none ()Z
+	public final fun reversedAny (Lkotlin/jvm/functions/Function1;)Z
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class androidx/collection/LongListKt {
+	public static final fun emptyLongList ()Landroidx/collection/LongList;
+	public static final fun longListOf ()Landroidx/collection/LongList;
+	public static final fun longListOf (J)Landroidx/collection/LongList;
+	public static final fun longListOf (JJ)Landroidx/collection/LongList;
+	public static final fun longListOf (JJJ)Landroidx/collection/LongList;
+	public static final fun longListOf ([J)Landroidx/collection/LongList;
+	public static final fun mutableLongListOf ()Landroidx/collection/MutableLongList;
+	public static final fun mutableLongListOf (J)Landroidx/collection/MutableLongList;
+	public static final fun mutableLongListOf (JJ)Landroidx/collection/MutableLongList;
+	public static final fun mutableLongListOf (JJJ)Landroidx/collection/MutableLongList;
+	public static final fun mutableLongListOf ([J)Landroidx/collection/MutableLongList;
+}
+
+public abstract class androidx/collection/LongLongMap {
+	public field keys [J
+	public field metadata [J
+	public field values [J
+	public final fun all (Lkotlin/jvm/functions/Function2;)Z
+	public final fun any ()Z
+	public final fun any (Lkotlin/jvm/functions/Function2;)Z
+	public final fun contains (J)Z
+	public final fun containsKey (J)Z
+	public final fun containsValue (J)Z
+	public final fun count ()I
+	public final fun count (Lkotlin/jvm/functions/Function2;)I
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun findKeyIndex (J)I
+	public final fun forEach (Lkotlin/jvm/functions/Function2;)V
+	public final fun forEachIndexed (Lkotlin/jvm/functions/Function1;)V
+	public final fun forEachKey (Lkotlin/jvm/functions/Function1;)V
+	public final fun forEachValue (Lkotlin/jvm/functions/Function1;)V
+	public final fun get (J)J
+	public final fun getCapacity ()I
+	public final fun getOrDefault (JJ)J
+	public final fun getOrElse (JLkotlin/jvm/functions/Function0;)J
+	public final fun getSize ()I
+	public fun hashCode ()I
+	public final fun isEmpty ()Z
+	public final fun isNotEmpty ()Z
+	public final fun joinToString ()Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;I)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILjava/lang/CharSequence;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILjava/lang/CharSequence;Lkotlin/jvm/functions/Function2;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILkotlin/jvm/functions/Function2;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;Lkotlin/jvm/functions/Function2;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Lkotlin/jvm/functions/Function2;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Lkotlin/jvm/functions/Function2;)Ljava/lang/String;
+	public final fun joinToString (Lkotlin/jvm/functions/Function2;)Ljava/lang/String;
+	public static synthetic fun joinToString$default (Landroidx/collection/LongLongMap;Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILjava/lang/CharSequence;ILjava/lang/Object;)Ljava/lang/String;
+	public static synthetic fun joinToString$default (Landroidx/collection/LongLongMap;Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILjava/lang/CharSequence;Lkotlin/jvm/functions/Function2;ILjava/lang/Object;)Ljava/lang/String;
+	public final fun none ()Z
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class androidx/collection/LongLongMapKt {
+	public static final fun emptyLongLongMap ()Landroidx/collection/LongLongMap;
+	public static final fun longLongMapOf ()Landroidx/collection/LongLongMap;
+	public static final fun longLongMapOf (JJ)Landroidx/collection/LongLongMap;
+	public static final fun longLongMapOf (JJJJ)Landroidx/collection/LongLongMap;
+	public static final fun longLongMapOf (JJJJJJ)Landroidx/collection/LongLongMap;
+	public static final fun longLongMapOf (JJJJJJJJ)Landroidx/collection/LongLongMap;
+	public static final fun longLongMapOf (JJJJJJJJJJ)Landroidx/collection/LongLongMap;
+	public static final fun mutableLongLongMapOf ()Landroidx/collection/MutableLongLongMap;
+	public static final fun mutableLongLongMapOf (JJ)Landroidx/collection/MutableLongLongMap;
+	public static final fun mutableLongLongMapOf (JJJJ)Landroidx/collection/MutableLongLongMap;
+	public static final fun mutableLongLongMapOf (JJJJJJ)Landroidx/collection/MutableLongLongMap;
+	public static final fun mutableLongLongMapOf (JJJJJJJJ)Landroidx/collection/MutableLongLongMap;
+	public static final fun mutableLongLongMapOf (JJJJJJJJJJ)Landroidx/collection/MutableLongLongMap;
+}
+
+public final class androidx/collection/LongLongPair {
+	public fun <init> (JJ)V
+	public final fun component1 ()J
+	public final fun component2 ()J
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getFirst ()J
+	public final fun getSecond ()J
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract class androidx/collection/LongObjectMap {
+	public field keys [J
+	public field metadata [J
+	public field values [Ljava/lang/Object;
+	public final fun all (Lkotlin/jvm/functions/Function2;)Z
+	public final fun any ()Z
+	public final fun any (Lkotlin/jvm/functions/Function2;)Z
+	public final fun contains (J)Z
+	public final fun containsKey (J)Z
+	public final fun containsValue (Ljava/lang/Object;)Z
+	public final fun count ()I
+	public final fun count (Lkotlin/jvm/functions/Function2;)I
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun forEach (Lkotlin/jvm/functions/Function2;)V
+	public final fun forEachIndexed (Lkotlin/jvm/functions/Function1;)V
+	public final fun forEachKey (Lkotlin/jvm/functions/Function1;)V
+	public final fun forEachValue (Lkotlin/jvm/functions/Function1;)V
+	public final fun get (J)Ljava/lang/Object;
+	public final fun getCapacity ()I
+	public final fun getOrDefault (JLjava/lang/Object;)Ljava/lang/Object;
+	public final fun getOrElse (JLkotlin/jvm/functions/Function0;)Ljava/lang/Object;
+	public final fun getSize ()I
+	public fun hashCode ()I
+	public final fun isEmpty ()Z
+	public final fun isNotEmpty ()Z
+	public final fun joinToString ()Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;I)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILjava/lang/CharSequence;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILjava/lang/CharSequence;Lkotlin/jvm/functions/Function2;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILkotlin/jvm/functions/Function2;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;Lkotlin/jvm/functions/Function2;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Lkotlin/jvm/functions/Function2;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Lkotlin/jvm/functions/Function2;)Ljava/lang/String;
+	public final fun joinToString (Lkotlin/jvm/functions/Function2;)Ljava/lang/String;
+	public static synthetic fun joinToString$default (Landroidx/collection/LongObjectMap;Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILjava/lang/CharSequence;ILjava/lang/Object;)Ljava/lang/String;
+	public static synthetic fun joinToString$default (Landroidx/collection/LongObjectMap;Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILjava/lang/CharSequence;Lkotlin/jvm/functions/Function2;ILjava/lang/Object;)Ljava/lang/String;
+	public final fun none ()Z
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class androidx/collection/LongObjectMapKt {
+	public static final fun emptyLongObjectMap ()Landroidx/collection/LongObjectMap;
+	public static final fun longObjectMapOf ()Landroidx/collection/LongObjectMap;
+	public static final fun longObjectMapOf (JLjava/lang/Object;)Landroidx/collection/LongObjectMap;
+	public static final fun longObjectMapOf (JLjava/lang/Object;JLjava/lang/Object;)Landroidx/collection/LongObjectMap;
+	public static final fun longObjectMapOf (JLjava/lang/Object;JLjava/lang/Object;JLjava/lang/Object;)Landroidx/collection/LongObjectMap;
+	public static final fun longObjectMapOf (JLjava/lang/Object;JLjava/lang/Object;JLjava/lang/Object;JLjava/lang/Object;)Landroidx/collection/LongObjectMap;
+	public static final fun longObjectMapOf (JLjava/lang/Object;JLjava/lang/Object;JLjava/lang/Object;JLjava/lang/Object;JLjava/lang/Object;)Landroidx/collection/LongObjectMap;
+	public static final fun mutableLongObjectMapOf ()Landroidx/collection/MutableLongObjectMap;
+	public static final fun mutableLongObjectMapOf (JLjava/lang/Object;)Landroidx/collection/MutableLongObjectMap;
+	public static final fun mutableLongObjectMapOf (JLjava/lang/Object;JLjava/lang/Object;)Landroidx/collection/MutableLongObjectMap;
+	public static final fun mutableLongObjectMapOf (JLjava/lang/Object;JLjava/lang/Object;JLjava/lang/Object;)Landroidx/collection/MutableLongObjectMap;
+	public static final fun mutableLongObjectMapOf (JLjava/lang/Object;JLjava/lang/Object;JLjava/lang/Object;JLjava/lang/Object;)Landroidx/collection/MutableLongObjectMap;
+	public static final fun mutableLongObjectMapOf (JLjava/lang/Object;JLjava/lang/Object;JLjava/lang/Object;JLjava/lang/Object;JLjava/lang/Object;)Landroidx/collection/MutableLongObjectMap;
+}
+
+public abstract class androidx/collection/LongSet {
+	public field elements [J
+	public field metadata [J
+	public final fun all (Lkotlin/jvm/functions/Function1;)Z
+	public final fun any ()Z
+	public final fun any (Lkotlin/jvm/functions/Function1;)Z
+	public final fun contains (J)Z
+	public final fun count ()I
+	public final fun count (Lkotlin/jvm/functions/Function1;)I
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun first ()J
+	public final fun first (Lkotlin/jvm/functions/Function1;)J
+	public final fun forEach (Lkotlin/jvm/functions/Function1;)V
+	public final fun forEachIndex (Lkotlin/jvm/functions/Function1;)V
+	public final fun getCapacity ()I
+	public final fun getSize ()I
+	public fun hashCode ()I
+	public final fun isEmpty ()Z
+	public final fun isNotEmpty ()Z
+	public final fun joinToString ()Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;I)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILjava/lang/CharSequence;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILjava/lang/CharSequence;Lkotlin/jvm/functions/Function1;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILkotlin/jvm/functions/Function1;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;Lkotlin/jvm/functions/Function1;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Lkotlin/jvm/functions/Function1;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Lkotlin/jvm/functions/Function1;)Ljava/lang/String;
+	public final fun joinToString (Lkotlin/jvm/functions/Function1;)Ljava/lang/String;
+	public static synthetic fun joinToString$default (Landroidx/collection/LongSet;Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILjava/lang/CharSequence;ILjava/lang/Object;)Ljava/lang/String;
+	public static synthetic fun joinToString$default (Landroidx/collection/LongSet;Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILjava/lang/CharSequence;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Ljava/lang/String;
+	public final fun none ()Z
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class androidx/collection/LongSetKt {
+	public static final fun emptyLongSet ()Landroidx/collection/LongSet;
+	public static final fun longSetOf ()Landroidx/collection/LongSet;
+	public static final fun longSetOf (J)Landroidx/collection/LongSet;
+	public static final fun longSetOf (JJ)Landroidx/collection/LongSet;
+	public static final fun longSetOf (JJJ)Landroidx/collection/LongSet;
+	public static final fun longSetOf ([J)Landroidx/collection/LongSet;
+	public static final fun mutableLongSetOf ()Landroidx/collection/MutableLongSet;
+	public static final fun mutableLongSetOf (J)Landroidx/collection/MutableLongSet;
+	public static final fun mutableLongSetOf (JJ)Landroidx/collection/MutableLongSet;
+	public static final fun mutableLongSetOf (JJJ)Landroidx/collection/MutableLongSet;
+	public static final fun mutableLongSetOf ([J)Landroidx/collection/MutableLongSet;
+}
+
+public class androidx/collection/LongSparseArray {
+	public fun <init> ()V
+	public fun <init> (I)V
+	public synthetic fun <init> (IILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun append (JLjava/lang/Object;)V
+	public fun clear ()V
+	public fun containsKey (J)Z
+	public fun containsValue (Ljava/lang/Object;)Z
+	public fun delete (J)V
+	public fun get (J)Ljava/lang/Object;
+	public fun get (JLjava/lang/Object;)Ljava/lang/Object;
+	public fun indexOfKey (J)I
+	public fun indexOfValue (Ljava/lang/Object;)I
+	public fun isEmpty ()Z
+	public fun keyAt (I)J
+	public fun put (JLjava/lang/Object;)V
+	public fun putAll (Landroidx/collection/LongSparseArray;)V
+	public fun putIfAbsent (JLjava/lang/Object;)Ljava/lang/Object;
+	public fun remove (J)V
+	public fun remove (JLjava/lang/Object;)Z
+	public fun removeAt (I)V
+	public fun replace (JLjava/lang/Object;)Ljava/lang/Object;
+	public fun replace (JLjava/lang/Object;Ljava/lang/Object;)Z
+	public fun setValueAt (ILjava/lang/Object;)V
+	public fun size ()I
+	public fun toString ()Ljava/lang/String;
+	public fun valueAt (I)Ljava/lang/Object;
+}
+
+public final class androidx/collection/LongSparseArrayKt {
+	public static final fun contains (Landroidx/collection/LongSparseArray;J)Z
+	public static final fun forEach (Landroidx/collection/LongSparseArray;Lkotlin/jvm/functions/Function2;)V
+	public static final fun getOrDefault (Landroidx/collection/LongSparseArray;JLjava/lang/Object;)Ljava/lang/Object;
+	public static final fun getOrElse (Landroidx/collection/LongSparseArray;JLkotlin/jvm/functions/Function0;)Ljava/lang/Object;
+	public static final fun getSize (Landroidx/collection/LongSparseArray;)I
+	public static final fun isNotEmpty (Landroidx/collection/LongSparseArray;)Z
+	public static final fun keyIterator (Landroidx/collection/LongSparseArray;)Lkotlin/collections/LongIterator;
+	public static final fun plus (Landroidx/collection/LongSparseArray;Landroidx/collection/LongSparseArray;)Landroidx/collection/LongSparseArray;
+	public static final synthetic fun remove (Landroidx/collection/LongSparseArray;JLjava/lang/Object;)Z
+	public static final fun set (Landroidx/collection/LongSparseArray;JLjava/lang/Object;)V
+	public static final fun valueIterator (Landroidx/collection/LongSparseArray;)Ljava/util/Iterator;
+}
+
+public class androidx/collection/LruCache {
+	public fun <init> (I)V
+	protected fun create (Ljava/lang/Object;)Ljava/lang/Object;
+	public final fun createCount ()I
+	protected fun entryRemoved (ZLjava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)V
+	public final fun evictAll ()V
+	public final fun evictionCount ()I
+	public final fun get (Ljava/lang/Object;)Ljava/lang/Object;
+	public final fun hitCount ()I
+	public final fun maxSize ()I
+	public final fun missCount ()I
+	public final fun put (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+	public final fun putCount ()I
+	public final fun remove (Ljava/lang/Object;)Ljava/lang/Object;
+	public fun resize (I)V
+	public final fun size ()I
+	protected fun sizeOf (Ljava/lang/Object;Ljava/lang/Object;)I
+	public final fun snapshot ()Ljava/util/Map;
+	public fun toString ()Ljava/lang/String;
+	public fun trimToSize (I)V
+}
+
+public final class androidx/collection/LruCacheKt {
+	public static final fun lruCache (ILkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function4;)Landroidx/collection/LruCache;
+	public static synthetic fun lruCache$default (ILkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function4;ILjava/lang/Object;)Landroidx/collection/LruCache;
+}
+
+public final class androidx/collection/MutableFloatFloatMap : androidx/collection/FloatFloatMap {
+	public fun <init> ()V
+	public fun <init> (I)V
+	public synthetic fun <init> (IILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun clear ()V
+	public final fun getOrPut (FLkotlin/jvm/functions/Function0;)F
+	public final fun minusAssign (F)V
+	public final fun minusAssign (Landroidx/collection/FloatList;)V
+	public final fun minusAssign (Landroidx/collection/FloatSet;)V
+	public final fun minusAssign ([F)V
+	public final fun plusAssign (Landroidx/collection/FloatFloatMap;)V
+	public final fun put (FF)V
+	public final fun put (FFF)F
+	public final fun putAll (Landroidx/collection/FloatFloatMap;)V
+	public final fun remove (F)V
+	public final fun remove (FF)Z
+	public final fun removeIf (Lkotlin/jvm/functions/Function2;)V
+	public final fun removeValueAt (I)V
+	public final fun set (FF)V
+	public final fun trim ()I
+}
+
+public final class androidx/collection/MutableFloatIntMap : androidx/collection/FloatIntMap {
+	public fun <init> ()V
+	public fun <init> (I)V
+	public synthetic fun <init> (IILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun clear ()V
+	public final fun getOrPut (FLkotlin/jvm/functions/Function0;)I
+	public final fun minusAssign (F)V
+	public final fun minusAssign (Landroidx/collection/FloatList;)V
+	public final fun minusAssign (Landroidx/collection/FloatSet;)V
+	public final fun minusAssign ([F)V
+	public final fun plusAssign (Landroidx/collection/FloatIntMap;)V
+	public final fun put (FI)V
+	public final fun put (FII)I
+	public final fun putAll (Landroidx/collection/FloatIntMap;)V
+	public final fun remove (F)V
+	public final fun remove (FI)Z
+	public final fun removeIf (Lkotlin/jvm/functions/Function2;)V
+	public final fun removeValueAt (I)V
+	public final fun set (FI)V
+	public final fun trim ()I
+}
+
+public final class androidx/collection/MutableFloatList : androidx/collection/FloatList {
+	public fun <init> ()V
+	public fun <init> (I)V
+	public synthetic fun <init> (IILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun add (F)Z
+	public final fun add (IF)V
+	public final fun addAll (ILandroidx/collection/FloatList;)Z
+	public final fun addAll (I[F)Z
+	public final fun addAll (Landroidx/collection/FloatList;)Z
+	public final fun addAll ([F)Z
+	public final fun clear ()V
+	public final fun ensureCapacity (I)V
+	public final fun getCapacity ()I
+	public final fun minusAssign (F)V
+	public final fun minusAssign (Landroidx/collection/FloatList;)V
+	public final fun minusAssign ([F)V
+	public final fun plusAssign (F)V
+	public final fun plusAssign (Landroidx/collection/FloatList;)V
+	public final fun plusAssign ([F)V
+	public final fun remove (F)Z
+	public final fun removeAll (Landroidx/collection/FloatList;)Z
+	public final fun removeAll ([F)Z
+	public final fun removeAt (I)F
+	public final fun removeRange (II)V
+	public final fun retainAll (Landroidx/collection/FloatList;)Z
+	public final fun retainAll ([F)Z
+	public final fun set (IF)F
+	public final fun sort ()V
+	public final fun sortDescending ()V
+	public final fun trim (I)V
+	public static synthetic fun trim$default (Landroidx/collection/MutableFloatList;IILjava/lang/Object;)V
+}
+
+public final class androidx/collection/MutableFloatLongMap : androidx/collection/FloatLongMap {
+	public fun <init> ()V
+	public fun <init> (I)V
+	public synthetic fun <init> (IILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun clear ()V
+	public final fun getOrPut (FLkotlin/jvm/functions/Function0;)J
+	public final fun minusAssign (F)V
+	public final fun minusAssign (Landroidx/collection/FloatList;)V
+	public final fun minusAssign (Landroidx/collection/FloatSet;)V
+	public final fun minusAssign ([F)V
+	public final fun plusAssign (Landroidx/collection/FloatLongMap;)V
+	public final fun put (FJ)V
+	public final fun put (FJJ)J
+	public final fun putAll (Landroidx/collection/FloatLongMap;)V
+	public final fun remove (F)V
+	public final fun remove (FJ)Z
+	public final fun removeIf (Lkotlin/jvm/functions/Function2;)V
+	public final fun removeValueAt (I)V
+	public final fun set (FJ)V
+	public final fun trim ()I
+}
+
+public final class androidx/collection/MutableFloatObjectMap : androidx/collection/FloatObjectMap {
+	public fun <init> ()V
+	public fun <init> (I)V
+	public synthetic fun <init> (IILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun clear ()V
+	public final fun getOrPut (FLkotlin/jvm/functions/Function0;)Ljava/lang/Object;
+	public final fun minusAssign (F)V
+	public final fun minusAssign (Landroidx/collection/FloatList;)V
+	public final fun minusAssign (Landroidx/collection/FloatSet;)V
+	public final fun minusAssign ([F)V
+	public final fun plusAssign (Landroidx/collection/FloatObjectMap;)V
+	public final fun put (FLjava/lang/Object;)Ljava/lang/Object;
+	public final fun putAll (Landroidx/collection/FloatObjectMap;)V
+	public final fun remove (F)Ljava/lang/Object;
+	public final fun remove (FLjava/lang/Object;)Z
+	public final fun removeIf (Lkotlin/jvm/functions/Function2;)V
+	public final fun removeValueAt (I)Ljava/lang/Object;
+	public final fun set (FLjava/lang/Object;)V
+	public final fun trim ()I
+}
+
+public final class androidx/collection/MutableFloatSet : androidx/collection/FloatSet {
+	public fun <init> ()V
+	public fun <init> (I)V
+	public synthetic fun <init> (IILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun add (F)Z
+	public final fun addAll (Landroidx/collection/FloatSet;)Z
+	public final fun addAll ([F)Z
+	public final fun clear ()V
+	public final fun minusAssign (F)V
+	public final fun minusAssign (Landroidx/collection/FloatSet;)V
+	public final fun minusAssign ([F)V
+	public final fun plusAssign (F)V
+	public final fun plusAssign (Landroidx/collection/FloatSet;)V
+	public final fun plusAssign ([F)V
+	public final fun remove (F)Z
+	public final fun removeAll (Landroidx/collection/FloatSet;)Z
+	public final fun removeAll ([F)Z
+	public final fun trim ()I
+}
+
+public final class androidx/collection/MutableIntFloatMap : androidx/collection/IntFloatMap {
+	public fun <init> ()V
+	public fun <init> (I)V
+	public synthetic fun <init> (IILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun clear ()V
+	public final fun getOrPut (ILkotlin/jvm/functions/Function0;)F
+	public final fun minusAssign (I)V
+	public final fun minusAssign (Landroidx/collection/IntList;)V
+	public final fun minusAssign (Landroidx/collection/IntSet;)V
+	public final fun minusAssign ([I)V
+	public final fun plusAssign (Landroidx/collection/IntFloatMap;)V
+	public final fun put (IF)V
+	public final fun put (IFF)F
+	public final fun putAll (Landroidx/collection/IntFloatMap;)V
+	public final fun remove (I)V
+	public final fun remove (IF)Z
+	public final fun removeIf (Lkotlin/jvm/functions/Function2;)V
+	public final fun removeValueAt (I)V
+	public final fun set (IF)V
+	public final fun trim ()I
+}
+
+public final class androidx/collection/MutableIntIntMap : androidx/collection/IntIntMap {
+	public fun <init> ()V
+	public fun <init> (I)V
+	public synthetic fun <init> (IILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun clear ()V
+	public final fun getOrPut (ILkotlin/jvm/functions/Function0;)I
+	public final fun minusAssign (I)V
+	public final fun minusAssign (Landroidx/collection/IntList;)V
+	public final fun minusAssign (Landroidx/collection/IntSet;)V
+	public final fun minusAssign ([I)V
+	public final fun plusAssign (Landroidx/collection/IntIntMap;)V
+	public final fun put (II)V
+	public final fun put (III)I
+	public final fun putAll (Landroidx/collection/IntIntMap;)V
+	public final fun remove (I)V
+	public final fun remove (II)Z
+	public final fun removeIf (Lkotlin/jvm/functions/Function2;)V
+	public final fun removeValueAt (I)V
+	public final fun set (II)V
+	public final fun trim ()I
+}
+
+public final class androidx/collection/MutableIntList : androidx/collection/IntList {
+	public fun <init> ()V
+	public fun <init> (I)V
+	public synthetic fun <init> (IILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun add (I)Z
+	public final fun add (II)V
+	public final fun addAll (ILandroidx/collection/IntList;)Z
+	public final fun addAll (I[I)Z
+	public final fun addAll (Landroidx/collection/IntList;)Z
+	public final fun addAll ([I)Z
+	public final fun clear ()V
+	public final fun ensureCapacity (I)V
+	public final fun getCapacity ()I
+	public final fun minusAssign (I)V
+	public final fun minusAssign (Landroidx/collection/IntList;)V
+	public final fun minusAssign ([I)V
+	public final fun plusAssign (I)V
+	public final fun plusAssign (Landroidx/collection/IntList;)V
+	public final fun plusAssign ([I)V
+	public final fun remove (I)Z
+	public final fun removeAll (Landroidx/collection/IntList;)Z
+	public final fun removeAll ([I)Z
+	public final fun removeAt (I)I
+	public final fun removeRange (II)V
+	public final fun retainAll (Landroidx/collection/IntList;)Z
+	public final fun retainAll ([I)Z
+	public final fun set (II)I
+	public final fun sort ()V
+	public final fun sortDescending ()V
+	public final fun trim (I)V
+	public static synthetic fun trim$default (Landroidx/collection/MutableIntList;IILjava/lang/Object;)V
+}
+
+public final class androidx/collection/MutableIntLongMap : androidx/collection/IntLongMap {
+	public fun <init> ()V
+	public fun <init> (I)V
+	public synthetic fun <init> (IILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun clear ()V
+	public final fun getOrPut (ILkotlin/jvm/functions/Function0;)J
+	public final fun minusAssign (I)V
+	public final fun minusAssign (Landroidx/collection/IntList;)V
+	public final fun minusAssign (Landroidx/collection/IntSet;)V
+	public final fun minusAssign ([I)V
+	public final fun plusAssign (Landroidx/collection/IntLongMap;)V
+	public final fun put (IJ)V
+	public final fun put (IJJ)J
+	public final fun putAll (Landroidx/collection/IntLongMap;)V
+	public final fun remove (I)V
+	public final fun remove (IJ)Z
+	public final fun removeIf (Lkotlin/jvm/functions/Function2;)V
+	public final fun removeValueAt (I)V
+	public final fun set (IJ)V
+	public final fun trim ()I
+}
+
+public final class androidx/collection/MutableIntObjectMap : androidx/collection/IntObjectMap {
+	public fun <init> ()V
+	public fun <init> (I)V
+	public synthetic fun <init> (IILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun clear ()V
+	public final fun getOrPut (ILkotlin/jvm/functions/Function0;)Ljava/lang/Object;
+	public final fun minusAssign (I)V
+	public final fun minusAssign (Landroidx/collection/IntList;)V
+	public final fun minusAssign (Landroidx/collection/IntSet;)V
+	public final fun minusAssign ([I)V
+	public final fun plusAssign (Landroidx/collection/IntObjectMap;)V
+	public final fun put (ILjava/lang/Object;)Ljava/lang/Object;
+	public final fun putAll (Landroidx/collection/IntObjectMap;)V
+	public final fun remove (I)Ljava/lang/Object;
+	public final fun remove (ILjava/lang/Object;)Z
+	public final fun removeIf (Lkotlin/jvm/functions/Function2;)V
+	public final fun removeValueAt (I)Ljava/lang/Object;
+	public final fun set (ILjava/lang/Object;)V
+	public final fun trim ()I
+}
+
+public final class androidx/collection/MutableIntSet : androidx/collection/IntSet {
+	public fun <init> ()V
+	public fun <init> (I)V
+	public synthetic fun <init> (IILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun add (I)Z
+	public final fun addAll (Landroidx/collection/IntSet;)Z
+	public final fun addAll ([I)Z
+	public final fun clear ()V
+	public final fun minusAssign (I)V
+	public final fun minusAssign (Landroidx/collection/IntSet;)V
+	public final fun minusAssign ([I)V
+	public final fun plusAssign (I)V
+	public final fun plusAssign (Landroidx/collection/IntSet;)V
+	public final fun plusAssign ([I)V
+	public final fun remove (I)Z
+	public final fun removeAll (Landroidx/collection/IntSet;)Z
+	public final fun removeAll ([I)Z
+	public final fun trim ()I
+}
+
+public final class androidx/collection/MutableLongFloatMap : androidx/collection/LongFloatMap {
+	public fun <init> ()V
+	public fun <init> (I)V
+	public synthetic fun <init> (IILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun clear ()V
+	public final fun getOrPut (JLkotlin/jvm/functions/Function0;)F
+	public final fun minusAssign (J)V
+	public final fun minusAssign (Landroidx/collection/LongList;)V
+	public final fun minusAssign (Landroidx/collection/LongSet;)V
+	public final fun minusAssign ([J)V
+	public final fun plusAssign (Landroidx/collection/LongFloatMap;)V
+	public final fun put (JF)V
+	public final fun put (JFF)F
+	public final fun putAll (Landroidx/collection/LongFloatMap;)V
+	public final fun remove (J)V
+	public final fun remove (JF)Z
+	public final fun removeIf (Lkotlin/jvm/functions/Function2;)V
+	public final fun removeValueAt (I)V
+	public final fun set (JF)V
+	public final fun trim ()I
+}
+
+public final class androidx/collection/MutableLongIntMap : androidx/collection/LongIntMap {
+	public fun <init> ()V
+	public fun <init> (I)V
+	public synthetic fun <init> (IILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun clear ()V
+	public final fun getOrPut (JLkotlin/jvm/functions/Function0;)I
+	public final fun minusAssign (J)V
+	public final fun minusAssign (Landroidx/collection/LongList;)V
+	public final fun minusAssign (Landroidx/collection/LongSet;)V
+	public final fun minusAssign ([J)V
+	public final fun plusAssign (Landroidx/collection/LongIntMap;)V
+	public final fun put (JI)V
+	public final fun put (JII)I
+	public final fun putAll (Landroidx/collection/LongIntMap;)V
+	public final fun remove (J)V
+	public final fun remove (JI)Z
+	public final fun removeIf (Lkotlin/jvm/functions/Function2;)V
+	public final fun removeValueAt (I)V
+	public final fun set (JI)V
+	public final fun trim ()I
+}
+
+public final class androidx/collection/MutableLongList : androidx/collection/LongList {
+	public fun <init> ()V
+	public fun <init> (I)V
+	public synthetic fun <init> (IILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun add (IJ)V
+	public final fun add (J)Z
+	public final fun addAll (ILandroidx/collection/LongList;)Z
+	public final fun addAll (I[J)Z
+	public final fun addAll (Landroidx/collection/LongList;)Z
+	public final fun addAll ([J)Z
+	public final fun clear ()V
+	public final fun ensureCapacity (I)V
+	public final fun getCapacity ()I
+	public final fun minusAssign (J)V
+	public final fun minusAssign (Landroidx/collection/LongList;)V
+	public final fun minusAssign ([J)V
+	public final fun plusAssign (J)V
+	public final fun plusAssign (Landroidx/collection/LongList;)V
+	public final fun plusAssign ([J)V
+	public final fun remove (J)Z
+	public final fun removeAll (Landroidx/collection/LongList;)Z
+	public final fun removeAll ([J)Z
+	public final fun removeAt (I)J
+	public final fun removeRange (II)V
+	public final fun retainAll (Landroidx/collection/LongList;)Z
+	public final fun retainAll ([J)Z
+	public final fun set (IJ)J
+	public final fun sort ()V
+	public final fun sortDescending ()V
+	public final fun trim (I)V
+	public static synthetic fun trim$default (Landroidx/collection/MutableLongList;IILjava/lang/Object;)V
+}
+
+public final class androidx/collection/MutableLongLongMap : androidx/collection/LongLongMap {
+	public fun <init> ()V
+	public fun <init> (I)V
+	public synthetic fun <init> (IILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun clear ()V
+	public final fun getOrPut (JLkotlin/jvm/functions/Function0;)J
+	public final fun minusAssign (J)V
+	public final fun minusAssign (Landroidx/collection/LongList;)V
+	public final fun minusAssign (Landroidx/collection/LongSet;)V
+	public final fun minusAssign ([J)V
+	public final fun plusAssign (Landroidx/collection/LongLongMap;)V
+	public final fun put (JJ)V
+	public final fun put (JJJ)J
+	public final fun putAll (Landroidx/collection/LongLongMap;)V
+	public final fun remove (J)V
+	public final fun remove (JJ)Z
+	public final fun removeIf (Lkotlin/jvm/functions/Function2;)V
+	public final fun removeValueAt (I)V
+	public final fun set (JJ)V
+	public final fun trim ()I
+}
+
+public final class androidx/collection/MutableLongObjectMap : androidx/collection/LongObjectMap {
+	public fun <init> ()V
+	public fun <init> (I)V
+	public synthetic fun <init> (IILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun clear ()V
+	public final fun getOrPut (JLkotlin/jvm/functions/Function0;)Ljava/lang/Object;
+	public final fun minusAssign (J)V
+	public final fun minusAssign (Landroidx/collection/LongList;)V
+	public final fun minusAssign (Landroidx/collection/LongSet;)V
+	public final fun minusAssign ([J)V
+	public final fun plusAssign (Landroidx/collection/LongObjectMap;)V
+	public final fun put (JLjava/lang/Object;)Ljava/lang/Object;
+	public final fun putAll (Landroidx/collection/LongObjectMap;)V
+	public final fun remove (J)Ljava/lang/Object;
+	public final fun remove (JLjava/lang/Object;)Z
+	public final fun removeIf (Lkotlin/jvm/functions/Function2;)V
+	public final fun removeValueAt (I)Ljava/lang/Object;
+	public final fun set (JLjava/lang/Object;)V
+	public final fun trim ()I
+}
+
+public final class androidx/collection/MutableLongSet : androidx/collection/LongSet {
+	public fun <init> ()V
+	public fun <init> (I)V
+	public synthetic fun <init> (IILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun add (J)Z
+	public final fun addAll (Landroidx/collection/LongSet;)Z
+	public final fun addAll ([J)Z
+	public final fun clear ()V
+	public final fun minusAssign (J)V
+	public final fun minusAssign (Landroidx/collection/LongSet;)V
+	public final fun minusAssign ([J)V
+	public final fun plusAssign (J)V
+	public final fun plusAssign (Landroidx/collection/LongSet;)V
+	public final fun plusAssign ([J)V
+	public final fun remove (J)Z
+	public final fun removeAll (Landroidx/collection/LongSet;)Z
+	public final fun removeAll ([J)Z
+	public final fun trim ()I
+}
+
+public final class androidx/collection/MutableObjectFloatMap : androidx/collection/ObjectFloatMap {
+	public fun <init> ()V
+	public fun <init> (I)V
+	public synthetic fun <init> (IILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun clear ()V
+	public final fun getOrPut (Ljava/lang/Object;Lkotlin/jvm/functions/Function0;)F
+	public final fun minusAssign (Landroidx/collection/ScatterSet;)V
+	public final fun minusAssign (Ljava/lang/Iterable;)V
+	public final fun minusAssign (Ljava/lang/Object;)V
+	public final fun minusAssign (Lkotlin/sequences/Sequence;)V
+	public final fun minusAssign ([Ljava/lang/Object;)V
+	public final fun plusAssign (Landroidx/collection/ObjectFloatMap;)V
+	public final fun put (Ljava/lang/Object;F)V
+	public final fun put (Ljava/lang/Object;FF)F
+	public final fun putAll (Landroidx/collection/ObjectFloatMap;)V
+	public final fun remove (Ljava/lang/Object;)V
+	public final fun remove (Ljava/lang/Object;F)Z
+	public final fun removeIf (Lkotlin/jvm/functions/Function2;)V
+	public final fun removeValueAt (I)V
+	public final fun set (Ljava/lang/Object;F)V
+	public final fun trim ()I
+}
+
+public final class androidx/collection/MutableObjectIntMap : androidx/collection/ObjectIntMap {
+	public fun <init> ()V
+	public fun <init> (I)V
+	public synthetic fun <init> (IILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun clear ()V
+	public final fun getOrPut (Ljava/lang/Object;Lkotlin/jvm/functions/Function0;)I
+	public final fun minusAssign (Landroidx/collection/ScatterSet;)V
+	public final fun minusAssign (Ljava/lang/Iterable;)V
+	public final fun minusAssign (Ljava/lang/Object;)V
+	public final fun minusAssign (Lkotlin/sequences/Sequence;)V
+	public final fun minusAssign ([Ljava/lang/Object;)V
+	public final fun plusAssign (Landroidx/collection/ObjectIntMap;)V
+	public final fun put (Ljava/lang/Object;I)V
+	public final fun put (Ljava/lang/Object;II)I
+	public final fun putAll (Landroidx/collection/ObjectIntMap;)V
+	public final fun remove (Ljava/lang/Object;)V
+	public final fun remove (Ljava/lang/Object;I)Z
+	public final fun removeIf (Lkotlin/jvm/functions/Function2;)V
+	public final fun removeValueAt (I)V
+	public final fun set (Ljava/lang/Object;I)V
+	public final fun trim ()I
+}
+
+public final class androidx/collection/MutableObjectList : androidx/collection/ObjectList {
+	public fun <init> ()V
+	public fun <init> (I)V
+	public synthetic fun <init> (IILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun add (ILjava/lang/Object;)V
+	public final fun add (Ljava/lang/Object;)Z
+	public final fun addAll (ILandroidx/collection/ObjectList;)Z
+	public final fun addAll (ILjava/util/Collection;)Z
+	public final fun addAll (I[Ljava/lang/Object;)Z
+	public final fun addAll (Landroidx/collection/ObjectList;)Z
+	public final fun addAll (Landroidx/collection/ScatterSet;)Z
+	public final fun addAll (Ljava/lang/Iterable;)Z
+	public final fun addAll (Ljava/util/List;)Z
+	public final fun addAll (Lkotlin/sequences/Sequence;)Z
+	public final fun addAll ([Ljava/lang/Object;)Z
+	public fun asList ()Ljava/util/List;
+	public final fun asMutableList ()Ljava/util/List;
+	public final fun clear ()V
+	public final fun ensureCapacity (I)V
+	public final fun getCapacity ()I
+	public final fun minusAssign (Landroidx/collection/ObjectList;)V
+	public final fun minusAssign (Landroidx/collection/ScatterSet;)V
+	public final fun minusAssign (Ljava/lang/Iterable;)V
+	public final fun minusAssign (Ljava/lang/Object;)V
+	public final fun minusAssign (Ljava/util/List;)V
+	public final fun minusAssign (Lkotlin/sequences/Sequence;)V
+	public final fun minusAssign ([Ljava/lang/Object;)V
+	public final fun plusAssign (Landroidx/collection/ObjectList;)V
+	public final fun plusAssign (Landroidx/collection/ScatterSet;)V
+	public final fun plusAssign (Ljava/lang/Iterable;)V
+	public final fun plusAssign (Ljava/lang/Object;)V
+	public final fun plusAssign (Ljava/util/List;)V
+	public final fun plusAssign (Lkotlin/sequences/Sequence;)V
+	public final fun plusAssign ([Ljava/lang/Object;)V
+	public final fun remove (Ljava/lang/Object;)Z
+	public final fun removeAll (Landroidx/collection/ObjectList;)Z
+	public final fun removeAll (Landroidx/collection/ScatterSet;)Z
+	public final fun removeAll (Ljava/lang/Iterable;)Z
+	public final fun removeAll (Ljava/util/List;)Z
+	public final fun removeAll (Lkotlin/sequences/Sequence;)Z
+	public final fun removeAll ([Ljava/lang/Object;)Z
+	public final fun removeAt (I)Ljava/lang/Object;
+	public final fun removeIf (Lkotlin/jvm/functions/Function1;)V
+	public final fun removeRange (II)V
+	public final fun retainAll (Landroidx/collection/ObjectList;)Z
+	public final fun retainAll (Ljava/lang/Iterable;)Z
+	public final fun retainAll (Ljava/util/Collection;)Z
+	public final fun retainAll (Lkotlin/sequences/Sequence;)Z
+	public final fun retainAll ([Ljava/lang/Object;)Z
+	public final fun set (ILjava/lang/Object;)Ljava/lang/Object;
+	public final fun trim (I)V
+	public static synthetic fun trim$default (Landroidx/collection/MutableObjectList;IILjava/lang/Object;)V
+}
+
+public final class androidx/collection/MutableObjectLongMap : androidx/collection/ObjectLongMap {
+	public fun <init> ()V
+	public fun <init> (I)V
+	public synthetic fun <init> (IILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun clear ()V
+	public final fun getOrPut (Ljava/lang/Object;Lkotlin/jvm/functions/Function0;)J
+	public final fun minusAssign (Landroidx/collection/ScatterSet;)V
+	public final fun minusAssign (Ljava/lang/Iterable;)V
+	public final fun minusAssign (Ljava/lang/Object;)V
+	public final fun minusAssign (Lkotlin/sequences/Sequence;)V
+	public final fun minusAssign ([Ljava/lang/Object;)V
+	public final fun plusAssign (Landroidx/collection/ObjectLongMap;)V
+	public final fun put (Ljava/lang/Object;J)V
+	public final fun put (Ljava/lang/Object;JJ)J
+	public final fun putAll (Landroidx/collection/ObjectLongMap;)V
+	public final fun remove (Ljava/lang/Object;)V
+	public final fun remove (Ljava/lang/Object;J)Z
+	public final fun removeIf (Lkotlin/jvm/functions/Function2;)V
+	public final fun removeValueAt (I)V
+	public final fun set (Ljava/lang/Object;J)V
+	public final fun trim ()I
+}
+
+public final class androidx/collection/MutableScatterMap : androidx/collection/ScatterMap {
+	public fun <init> ()V
+	public fun <init> (I)V
+	public synthetic fun <init> (IILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun asMutableMap ()Ljava/util/Map;
+	public final fun clear ()V
+	public final fun compute (Ljava/lang/Object;Lkotlin/jvm/functions/Function2;)Ljava/lang/Object;
+	public final fun findInsertIndex (Ljava/lang/Object;)I
+	public final fun getOrPut (Ljava/lang/Object;Lkotlin/jvm/functions/Function0;)Ljava/lang/Object;
+	public final fun minusAssign (Landroidx/collection/ObjectList;)V
+	public final fun minusAssign (Landroidx/collection/ScatterSet;)V
+	public final fun minusAssign (Ljava/lang/Iterable;)V
+	public final fun minusAssign (Ljava/lang/Object;)V
+	public final fun minusAssign (Lkotlin/sequences/Sequence;)V
+	public final fun minusAssign ([Ljava/lang/Object;)V
+	public final fun plusAssign (Landroidx/collection/ScatterMap;)V
+	public final fun plusAssign (Ljava/lang/Iterable;)V
+	public final fun plusAssign (Ljava/util/Map;)V
+	public final fun plusAssign (Lkotlin/Pair;)V
+	public final fun plusAssign (Lkotlin/sequences/Sequence;)V
+	public final fun plusAssign ([Lkotlin/Pair;)V
+	public final fun put (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+	public final fun putAll (Landroidx/collection/ScatterMap;)V
+	public final fun putAll (Ljava/lang/Iterable;)V
+	public final fun putAll (Ljava/util/Map;)V
+	public final fun putAll (Lkotlin/sequences/Sequence;)V
+	public final fun putAll ([Lkotlin/Pair;)V
+	public final fun remove (Ljava/lang/Object;)Ljava/lang/Object;
+	public final fun remove (Ljava/lang/Object;Ljava/lang/Object;)Z
+	public final fun removeIf (Lkotlin/jvm/functions/Function2;)V
+	public final fun removeValueAt (I)Ljava/lang/Object;
+	public final fun set (Ljava/lang/Object;Ljava/lang/Object;)V
+	public final fun trim ()I
+}
+
+public final class androidx/collection/MutableScatterSet : androidx/collection/ScatterSet {
+	public fun <init> ()V
+	public fun <init> (I)V
+	public synthetic fun <init> (IILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun add (Ljava/lang/Object;)Z
+	public final fun addAll (Landroidx/collection/ObjectList;)Z
+	public final fun addAll (Landroidx/collection/ScatterSet;)Z
+	public final fun addAll (Ljava/lang/Iterable;)Z
+	public final fun addAll (Lkotlin/sequences/Sequence;)Z
+	public final fun addAll ([Ljava/lang/Object;)Z
+	public final fun asMutableSet ()Ljava/util/Set;
+	public final fun clear ()V
+	public final fun minusAssign (Landroidx/collection/ObjectList;)V
+	public final fun minusAssign (Landroidx/collection/ScatterSet;)V
+	public final fun minusAssign (Ljava/lang/Iterable;)V
+	public final fun minusAssign (Ljava/lang/Object;)V
+	public final fun minusAssign (Lkotlin/sequences/Sequence;)V
+	public final fun minusAssign ([Ljava/lang/Object;)V
+	public final fun plusAssign (Landroidx/collection/ObjectList;)V
+	public final fun plusAssign (Landroidx/collection/ScatterSet;)V
+	public final fun plusAssign (Ljava/lang/Iterable;)V
+	public final fun plusAssign (Ljava/lang/Object;)V
+	public final fun plusAssign (Lkotlin/sequences/Sequence;)V
+	public final fun plusAssign ([Ljava/lang/Object;)V
+	public final fun remove (Ljava/lang/Object;)Z
+	public final fun removeAll (Landroidx/collection/ObjectList;)Z
+	public final fun removeAll (Landroidx/collection/ScatterSet;)Z
+	public final fun removeAll (Ljava/lang/Iterable;)Z
+	public final fun removeAll (Lkotlin/sequences/Sequence;)Z
+	public final fun removeAll ([Ljava/lang/Object;)Z
+	public final fun removeElementAt (I)V
+	public final fun removeIf (Lkotlin/jvm/functions/Function1;)V
+	public final fun trim ()I
+}
+
+public abstract class androidx/collection/ObjectFloatMap {
+	public field keys [Ljava/lang/Object;
+	public field metadata [J
+	public field values [F
+	public final fun all (Lkotlin/jvm/functions/Function2;)Z
+	public final fun any ()Z
+	public final fun any (Lkotlin/jvm/functions/Function2;)Z
+	public final fun contains (Ljava/lang/Object;)Z
+	public final fun containsKey (Ljava/lang/Object;)Z
+	public final fun containsValue (F)Z
+	public final fun count ()I
+	public final fun count (Lkotlin/jvm/functions/Function2;)I
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun findKeyIndex (Ljava/lang/Object;)I
+	public final fun forEach (Lkotlin/jvm/functions/Function2;)V
+	public final fun forEachIndexed (Lkotlin/jvm/functions/Function1;)V
+	public final fun forEachKey (Lkotlin/jvm/functions/Function1;)V
+	public final fun forEachValue (Lkotlin/jvm/functions/Function1;)V
+	public final fun get (Ljava/lang/Object;)F
+	public final fun getCapacity ()I
+	public final fun getOrDefault (Ljava/lang/Object;F)F
+	public final fun getOrElse (Ljava/lang/Object;Lkotlin/jvm/functions/Function0;)F
+	public final fun getSize ()I
+	public fun hashCode ()I
+	public final fun isEmpty ()Z
+	public final fun isNotEmpty ()Z
+	public final fun joinToString ()Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;I)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILjava/lang/CharSequence;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILjava/lang/CharSequence;Lkotlin/jvm/functions/Function2;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILkotlin/jvm/functions/Function2;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;Lkotlin/jvm/functions/Function2;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Lkotlin/jvm/functions/Function2;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Lkotlin/jvm/functions/Function2;)Ljava/lang/String;
+	public final fun joinToString (Lkotlin/jvm/functions/Function2;)Ljava/lang/String;
+	public static synthetic fun joinToString$default (Landroidx/collection/ObjectFloatMap;Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILjava/lang/CharSequence;ILjava/lang/Object;)Ljava/lang/String;
+	public static synthetic fun joinToString$default (Landroidx/collection/ObjectFloatMap;Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILjava/lang/CharSequence;Lkotlin/jvm/functions/Function2;ILjava/lang/Object;)Ljava/lang/String;
+	public final fun none ()Z
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class androidx/collection/ObjectFloatMapKt {
+	public static final fun emptyObjectFloatMap ()Landroidx/collection/ObjectFloatMap;
+	public static final fun mutableObjectFloatMapOf ()Landroidx/collection/MutableObjectFloatMap;
+	public static final fun mutableObjectFloatMapOf (Ljava/lang/Object;F)Landroidx/collection/MutableObjectFloatMap;
+	public static final fun mutableObjectFloatMapOf (Ljava/lang/Object;FLjava/lang/Object;F)Landroidx/collection/MutableObjectFloatMap;
+	public static final fun mutableObjectFloatMapOf (Ljava/lang/Object;FLjava/lang/Object;FLjava/lang/Object;F)Landroidx/collection/MutableObjectFloatMap;
+	public static final fun mutableObjectFloatMapOf (Ljava/lang/Object;FLjava/lang/Object;FLjava/lang/Object;FLjava/lang/Object;F)Landroidx/collection/MutableObjectFloatMap;
+	public static final fun mutableObjectFloatMapOf (Ljava/lang/Object;FLjava/lang/Object;FLjava/lang/Object;FLjava/lang/Object;FLjava/lang/Object;F)Landroidx/collection/MutableObjectFloatMap;
+	public static final fun objectFloatMap ()Landroidx/collection/ObjectFloatMap;
+	public static final fun objectFloatMapOf (Ljava/lang/Object;F)Landroidx/collection/ObjectFloatMap;
+	public static final fun objectFloatMapOf (Ljava/lang/Object;FLjava/lang/Object;F)Landroidx/collection/ObjectFloatMap;
+	public static final fun objectFloatMapOf (Ljava/lang/Object;FLjava/lang/Object;FLjava/lang/Object;F)Landroidx/collection/ObjectFloatMap;
+	public static final fun objectFloatMapOf (Ljava/lang/Object;FLjava/lang/Object;FLjava/lang/Object;FLjava/lang/Object;F)Landroidx/collection/ObjectFloatMap;
+	public static final fun objectFloatMapOf (Ljava/lang/Object;FLjava/lang/Object;FLjava/lang/Object;FLjava/lang/Object;FLjava/lang/Object;F)Landroidx/collection/ObjectFloatMap;
+}
+
+public abstract class androidx/collection/ObjectIntMap {
+	public field keys [Ljava/lang/Object;
+	public field metadata [J
+	public field values [I
+	public final fun all (Lkotlin/jvm/functions/Function2;)Z
+	public final fun any ()Z
+	public final fun any (Lkotlin/jvm/functions/Function2;)Z
+	public final fun contains (Ljava/lang/Object;)Z
+	public final fun containsKey (Ljava/lang/Object;)Z
+	public final fun containsValue (I)Z
+	public final fun count ()I
+	public final fun count (Lkotlin/jvm/functions/Function2;)I
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun findKeyIndex (Ljava/lang/Object;)I
+	public final fun forEach (Lkotlin/jvm/functions/Function2;)V
+	public final fun forEachIndexed (Lkotlin/jvm/functions/Function1;)V
+	public final fun forEachKey (Lkotlin/jvm/functions/Function1;)V
+	public final fun forEachValue (Lkotlin/jvm/functions/Function1;)V
+	public final fun get (Ljava/lang/Object;)I
+	public final fun getCapacity ()I
+	public final fun getOrDefault (Ljava/lang/Object;I)I
+	public final fun getOrElse (Ljava/lang/Object;Lkotlin/jvm/functions/Function0;)I
+	public final fun getSize ()I
+	public fun hashCode ()I
+	public final fun isEmpty ()Z
+	public final fun isNotEmpty ()Z
+	public final fun joinToString ()Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;I)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILjava/lang/CharSequence;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILjava/lang/CharSequence;Lkotlin/jvm/functions/Function2;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILkotlin/jvm/functions/Function2;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;Lkotlin/jvm/functions/Function2;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Lkotlin/jvm/functions/Function2;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Lkotlin/jvm/functions/Function2;)Ljava/lang/String;
+	public final fun joinToString (Lkotlin/jvm/functions/Function2;)Ljava/lang/String;
+	public static synthetic fun joinToString$default (Landroidx/collection/ObjectIntMap;Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILjava/lang/CharSequence;ILjava/lang/Object;)Ljava/lang/String;
+	public static synthetic fun joinToString$default (Landroidx/collection/ObjectIntMap;Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILjava/lang/CharSequence;Lkotlin/jvm/functions/Function2;ILjava/lang/Object;)Ljava/lang/String;
+	public final fun none ()Z
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class androidx/collection/ObjectIntMapKt {
+	public static final fun emptyObjectIntMap ()Landroidx/collection/ObjectIntMap;
+	public static final fun mutableObjectIntMapOf ()Landroidx/collection/MutableObjectIntMap;
+	public static final fun mutableObjectIntMapOf (Ljava/lang/Object;I)Landroidx/collection/MutableObjectIntMap;
+	public static final fun mutableObjectIntMapOf (Ljava/lang/Object;ILjava/lang/Object;I)Landroidx/collection/MutableObjectIntMap;
+	public static final fun mutableObjectIntMapOf (Ljava/lang/Object;ILjava/lang/Object;ILjava/lang/Object;I)Landroidx/collection/MutableObjectIntMap;
+	public static final fun mutableObjectIntMapOf (Ljava/lang/Object;ILjava/lang/Object;ILjava/lang/Object;ILjava/lang/Object;I)Landroidx/collection/MutableObjectIntMap;
+	public static final fun mutableObjectIntMapOf (Ljava/lang/Object;ILjava/lang/Object;ILjava/lang/Object;ILjava/lang/Object;ILjava/lang/Object;I)Landroidx/collection/MutableObjectIntMap;
+	public static final fun objectIntMap ()Landroidx/collection/ObjectIntMap;
+	public static final fun objectIntMapOf (Ljava/lang/Object;I)Landroidx/collection/ObjectIntMap;
+	public static final fun objectIntMapOf (Ljava/lang/Object;ILjava/lang/Object;I)Landroidx/collection/ObjectIntMap;
+	public static final fun objectIntMapOf (Ljava/lang/Object;ILjava/lang/Object;ILjava/lang/Object;I)Landroidx/collection/ObjectIntMap;
+	public static final fun objectIntMapOf (Ljava/lang/Object;ILjava/lang/Object;ILjava/lang/Object;ILjava/lang/Object;I)Landroidx/collection/ObjectIntMap;
+	public static final fun objectIntMapOf (Ljava/lang/Object;ILjava/lang/Object;ILjava/lang/Object;ILjava/lang/Object;ILjava/lang/Object;I)Landroidx/collection/ObjectIntMap;
+}
+
+public abstract class androidx/collection/ObjectList {
+	public field _size I
+	public field content [Ljava/lang/Object;
+	public synthetic fun <init> (ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun any ()Z
+	public final fun any (Lkotlin/jvm/functions/Function1;)Z
+	public abstract fun asList ()Ljava/util/List;
+	public final fun contains (Ljava/lang/Object;)Z
+	public final fun containsAll (Landroidx/collection/ObjectList;)Z
+	public final fun containsAll (Ljava/lang/Iterable;)Z
+	public final fun containsAll (Ljava/util/List;)Z
+	public final fun containsAll ([Ljava/lang/Object;)Z
+	public final fun count ()I
+	public final fun count (Lkotlin/jvm/functions/Function1;)I
+	public final fun elementAt (I)Ljava/lang/Object;
+	public final fun elementAtOrElse (ILkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun first ()Ljava/lang/Object;
+	public final fun first (Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+	public final fun firstOrNull ()Ljava/lang/Object;
+	public final fun firstOrNull (Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+	public final fun fold (Ljava/lang/Object;Lkotlin/jvm/functions/Function2;)Ljava/lang/Object;
+	public final fun foldIndexed (Ljava/lang/Object;Lkotlin/jvm/functions/Function3;)Ljava/lang/Object;
+	public final fun foldRight (Ljava/lang/Object;Lkotlin/jvm/functions/Function2;)Ljava/lang/Object;
+	public final fun foldRightIndexed (Ljava/lang/Object;Lkotlin/jvm/functions/Function3;)Ljava/lang/Object;
+	public final fun forEach (Lkotlin/jvm/functions/Function1;)V
+	public final fun forEachIndexed (Lkotlin/jvm/functions/Function2;)V
+	public final fun forEachReversed (Lkotlin/jvm/functions/Function1;)V
+	public final fun forEachReversedIndexed (Lkotlin/jvm/functions/Function2;)V
+	public final fun get (I)Ljava/lang/Object;
+	public final fun getIndices ()Lkotlin/ranges/IntRange;
+	public final fun getLastIndex ()I
+	public final fun getSize ()I
+	public fun hashCode ()I
+	public final fun indexOf (Ljava/lang/Object;)I
+	public final fun indexOfFirst (Lkotlin/jvm/functions/Function1;)I
+	public final fun indexOfLast (Lkotlin/jvm/functions/Function1;)I
+	public final fun isEmpty ()Z
+	public final fun isNotEmpty ()Z
+	public final fun joinToString ()Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;I)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILjava/lang/CharSequence;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILjava/lang/CharSequence;Lkotlin/jvm/functions/Function1;)Ljava/lang/String;
+	public static synthetic fun joinToString$default (Landroidx/collection/ObjectList;Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILjava/lang/CharSequence;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Ljava/lang/String;
+	public final fun last ()Ljava/lang/Object;
+	public final fun last (Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+	public final fun lastIndexOf (Ljava/lang/Object;)I
+	public final fun lastOrNull ()Ljava/lang/Object;
+	public final fun lastOrNull (Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+	public final fun none ()Z
+	public final fun reversedAny (Lkotlin/jvm/functions/Function1;)Z
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class androidx/collection/ObjectListKt {
+	public static final fun emptyObjectList ()Landroidx/collection/ObjectList;
+	public static final fun mutableObjectListOf ()Landroidx/collection/MutableObjectList;
+	public static final fun mutableObjectListOf (Ljava/lang/Object;)Landroidx/collection/MutableObjectList;
+	public static final fun mutableObjectListOf (Ljava/lang/Object;Ljava/lang/Object;)Landroidx/collection/MutableObjectList;
+	public static final fun mutableObjectListOf (Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)Landroidx/collection/MutableObjectList;
+	public static final fun mutableObjectListOf ([Ljava/lang/Object;)Landroidx/collection/MutableObjectList;
+	public static final fun objectListOf ()Landroidx/collection/ObjectList;
+	public static final fun objectListOf (Ljava/lang/Object;)Landroidx/collection/ObjectList;
+	public static final fun objectListOf (Ljava/lang/Object;Ljava/lang/Object;)Landroidx/collection/ObjectList;
+	public static final fun objectListOf (Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)Landroidx/collection/ObjectList;
+	public static final fun objectListOf ([Ljava/lang/Object;)Landroidx/collection/ObjectList;
+}
+
+public abstract class androidx/collection/ObjectLongMap {
+	public field keys [Ljava/lang/Object;
+	public field metadata [J
+	public field values [J
+	public final fun all (Lkotlin/jvm/functions/Function2;)Z
+	public final fun any ()Z
+	public final fun any (Lkotlin/jvm/functions/Function2;)Z
+	public final fun contains (Ljava/lang/Object;)Z
+	public final fun containsKey (Ljava/lang/Object;)Z
+	public final fun containsValue (J)Z
+	public final fun count ()I
+	public final fun count (Lkotlin/jvm/functions/Function2;)I
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun findKeyIndex (Ljava/lang/Object;)I
+	public final fun forEach (Lkotlin/jvm/functions/Function2;)V
+	public final fun forEachIndexed (Lkotlin/jvm/functions/Function1;)V
+	public final fun forEachKey (Lkotlin/jvm/functions/Function1;)V
+	public final fun forEachValue (Lkotlin/jvm/functions/Function1;)V
+	public final fun get (Ljava/lang/Object;)J
+	public final fun getCapacity ()I
+	public final fun getOrDefault (Ljava/lang/Object;J)J
+	public final fun getOrElse (Ljava/lang/Object;Lkotlin/jvm/functions/Function0;)J
+	public final fun getSize ()I
+	public fun hashCode ()I
+	public final fun isEmpty ()Z
+	public final fun isNotEmpty ()Z
+	public final fun joinToString ()Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;I)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILjava/lang/CharSequence;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILjava/lang/CharSequence;Lkotlin/jvm/functions/Function2;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILkotlin/jvm/functions/Function2;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;Lkotlin/jvm/functions/Function2;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Lkotlin/jvm/functions/Function2;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Lkotlin/jvm/functions/Function2;)Ljava/lang/String;
+	public final fun joinToString (Lkotlin/jvm/functions/Function2;)Ljava/lang/String;
+	public static synthetic fun joinToString$default (Landroidx/collection/ObjectLongMap;Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILjava/lang/CharSequence;ILjava/lang/Object;)Ljava/lang/String;
+	public static synthetic fun joinToString$default (Landroidx/collection/ObjectLongMap;Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILjava/lang/CharSequence;Lkotlin/jvm/functions/Function2;ILjava/lang/Object;)Ljava/lang/String;
+	public final fun none ()Z
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class androidx/collection/ObjectLongMapKt {
+	public static final fun emptyObjectLongMap ()Landroidx/collection/ObjectLongMap;
+	public static final fun mutableObjectLongMapOf ()Landroidx/collection/MutableObjectLongMap;
+	public static final fun mutableObjectLongMapOf (Ljava/lang/Object;J)Landroidx/collection/MutableObjectLongMap;
+	public static final fun mutableObjectLongMapOf (Ljava/lang/Object;JLjava/lang/Object;J)Landroidx/collection/MutableObjectLongMap;
+	public static final fun mutableObjectLongMapOf (Ljava/lang/Object;JLjava/lang/Object;JLjava/lang/Object;J)Landroidx/collection/MutableObjectLongMap;
+	public static final fun mutableObjectLongMapOf (Ljava/lang/Object;JLjava/lang/Object;JLjava/lang/Object;JLjava/lang/Object;J)Landroidx/collection/MutableObjectLongMap;
+	public static final fun mutableObjectLongMapOf (Ljava/lang/Object;JLjava/lang/Object;JLjava/lang/Object;JLjava/lang/Object;JLjava/lang/Object;J)Landroidx/collection/MutableObjectLongMap;
+	public static final fun objectLongMap ()Landroidx/collection/ObjectLongMap;
+	public static final fun objectLongMapOf (Ljava/lang/Object;J)Landroidx/collection/ObjectLongMap;
+	public static final fun objectLongMapOf (Ljava/lang/Object;JLjava/lang/Object;J)Landroidx/collection/ObjectLongMap;
+	public static final fun objectLongMapOf (Ljava/lang/Object;JLjava/lang/Object;JLjava/lang/Object;J)Landroidx/collection/ObjectLongMap;
+	public static final fun objectLongMapOf (Ljava/lang/Object;JLjava/lang/Object;JLjava/lang/Object;JLjava/lang/Object;J)Landroidx/collection/ObjectLongMap;
+	public static final fun objectLongMapOf (Ljava/lang/Object;JLjava/lang/Object;JLjava/lang/Object;JLjava/lang/Object;JLjava/lang/Object;J)Landroidx/collection/ObjectLongMap;
+}
+
+public abstract class androidx/collection/ScatterMap {
+	public field keys [Ljava/lang/Object;
+	public field metadata [J
+	public field values [Ljava/lang/Object;
+	public final fun all (Lkotlin/jvm/functions/Function2;)Z
+	public final fun any ()Z
+	public final fun any (Lkotlin/jvm/functions/Function2;)Z
+	public final fun asMap ()Ljava/util/Map;
+	public final fun contains (Ljava/lang/Object;)Z
+	public final fun containsKey (Ljava/lang/Object;)Z
+	public final fun containsValue (Ljava/lang/Object;)Z
+	public final fun count ()I
+	public final fun count (Lkotlin/jvm/functions/Function2;)I
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun forEach (Lkotlin/jvm/functions/Function2;)V
+	public final fun forEachIndexed (Lkotlin/jvm/functions/Function1;)V
+	public final fun forEachKey (Lkotlin/jvm/functions/Function1;)V
+	public final fun forEachValue (Lkotlin/jvm/functions/Function1;)V
+	public final fun get (Ljava/lang/Object;)Ljava/lang/Object;
+	public final fun getCapacity ()I
+	public final fun getOrDefault (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+	public final fun getOrElse (Ljava/lang/Object;Lkotlin/jvm/functions/Function0;)Ljava/lang/Object;
+	public final fun getSize ()I
+	public fun hashCode ()I
+	public final fun isEmpty ()Z
+	public final fun isNotEmpty ()Z
+	public final fun joinToString ()Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;I)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILjava/lang/CharSequence;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILjava/lang/CharSequence;Lkotlin/jvm/functions/Function2;)Ljava/lang/String;
+	public static synthetic fun joinToString$default (Landroidx/collection/ScatterMap;Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILjava/lang/CharSequence;Lkotlin/jvm/functions/Function2;ILjava/lang/Object;)Ljava/lang/String;
+	public final fun none ()Z
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class androidx/collection/ScatterMapKt {
+	public static final field BitmaskLsb J
+	public static final field BitmaskMsb J
+	public static final field Sentinel J
+	public static final fun emptyScatterMap ()Landroidx/collection/ScatterMap;
+	public static final fun isFull (J)Z
+	public static final fun lowestBitSet (J)I
+	public static final fun maskEmptyOrDeleted (J)J
+	public static final fun match (JI)J
+	public static final fun mutableScatterMapOf ()Landroidx/collection/MutableScatterMap;
+	public static final fun mutableScatterMapOf ([Lkotlin/Pair;)Landroidx/collection/MutableScatterMap;
+	public static final fun readRawMetadata ([JI)J
+}
+
+public abstract class androidx/collection/ScatterSet {
+	public field elements [Ljava/lang/Object;
+	public field metadata [J
+	public final fun all (Lkotlin/jvm/functions/Function1;)Z
+	public final fun any ()Z
+	public final fun any (Lkotlin/jvm/functions/Function1;)Z
+	public final fun asSet ()Ljava/util/Set;
+	public final fun contains (Ljava/lang/Object;)Z
+	public final fun count ()I
+	public final fun count (Lkotlin/jvm/functions/Function1;)I
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun first ()Ljava/lang/Object;
+	public final fun first (Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+	public final fun firstOrNull (Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+	public final fun forEach (Lkotlin/jvm/functions/Function1;)V
+	public final fun forEachIndex (Lkotlin/jvm/functions/Function1;)V
+	public final fun getCapacity ()I
+	public final fun getSize ()I
+	public fun hashCode ()I
+	public final fun isEmpty ()Z
+	public final fun isNotEmpty ()Z
+	public final fun joinToString ()Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;I)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILjava/lang/CharSequence;)Ljava/lang/String;
+	public final fun joinToString (Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILjava/lang/CharSequence;Lkotlin/jvm/functions/Function1;)Ljava/lang/String;
+	public static synthetic fun joinToString$default (Landroidx/collection/ScatterSet;Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;ILjava/lang/CharSequence;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Ljava/lang/String;
+	public final fun none ()Z
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class androidx/collection/ScatterSetKt {
+	public static final fun emptyScatterSet ()Landroidx/collection/ScatterSet;
+	public static final fun mutableScatterSetOf ()Landroidx/collection/MutableScatterSet;
+	public static final fun mutableScatterSetOf (Ljava/lang/Object;)Landroidx/collection/MutableScatterSet;
+	public static final fun mutableScatterSetOf (Ljava/lang/Object;Ljava/lang/Object;)Landroidx/collection/MutableScatterSet;
+	public static final fun mutableScatterSetOf (Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)Landroidx/collection/MutableScatterSet;
+	public static final fun mutableScatterSetOf ([Ljava/lang/Object;)Landroidx/collection/MutableScatterSet;
+	public static final fun scatterSetOf ()Landroidx/collection/ScatterSet;
+	public static final fun scatterSetOf (Ljava/lang/Object;)Landroidx/collection/ScatterSet;
+	public static final fun scatterSetOf (Ljava/lang/Object;Ljava/lang/Object;)Landroidx/collection/ScatterSet;
+	public static final fun scatterSetOf (Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)Landroidx/collection/ScatterSet;
+	public static final fun scatterSetOf ([Ljava/lang/Object;)Landroidx/collection/ScatterSet;
+}
+
+public class androidx/collection/SimpleArrayMap {
+	public fun <init> ()V
+	public fun <init> (I)V
+	public synthetic fun <init> (IILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Landroidx/collection/SimpleArrayMap;)V
+	public fun clear ()V
+	public fun containsKey (Ljava/lang/Object;)Z
+	public fun containsValue (Ljava/lang/Object;)Z
+	public fun ensureCapacity (I)V
+	public fun equals (Ljava/lang/Object;)Z
+	public fun get (Ljava/lang/Object;)Ljava/lang/Object;
+	public fun getOrDefault (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+	public fun hashCode ()I
+	public fun indexOfKey (Ljava/lang/Object;)I
+	public fun isEmpty ()Z
+	public fun keyAt (I)Ljava/lang/Object;
+	public fun put (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+	public fun putAll (Landroidx/collection/SimpleArrayMap;)V
+	public fun putIfAbsent (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+	public fun remove (Ljava/lang/Object;)Ljava/lang/Object;
+	public fun remove (Ljava/lang/Object;Ljava/lang/Object;)Z
+	public fun removeAt (I)Ljava/lang/Object;
+	public fun replace (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+	public fun replace (Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)Z
+	public fun setValueAt (ILjava/lang/Object;)Ljava/lang/Object;
+	public fun size ()I
+	public fun toString ()Ljava/lang/String;
+	public fun valueAt (I)Ljava/lang/Object;
+}
+
+public class androidx/collection/SparseArrayCompat {
+	public fun <init> ()V
+	public fun <init> (I)V
+	public synthetic fun <init> (IILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun append (ILjava/lang/Object;)V
+	public fun clear ()V
+	public fun containsKey (I)Z
+	public fun containsValue (Ljava/lang/Object;)Z
+	public fun get (I)Ljava/lang/Object;
+	public fun get (ILjava/lang/Object;)Ljava/lang/Object;
+	public fun indexOfKey (I)I
+	public fun indexOfValue (Ljava/lang/Object;)I
+	public fun isEmpty ()Z
+	public fun keyAt (I)I
+	public fun put (ILjava/lang/Object;)V
+	public fun putAll (Landroidx/collection/SparseArrayCompat;)V
+	public fun putIfAbsent (ILjava/lang/Object;)Ljava/lang/Object;
+	public fun remove (I)V
+	public fun remove (ILjava/lang/Object;)Z
+	public fun removeAt (I)V
+	public fun removeAtRange (II)V
+	public fun replace (ILjava/lang/Object;)Ljava/lang/Object;
+	public fun replace (ILjava/lang/Object;Ljava/lang/Object;)Z
+	public fun setValueAt (ILjava/lang/Object;)V
+	public fun size ()I
+	public fun toString ()Ljava/lang/String;
+	public fun valueAt (I)Ljava/lang/Object;
+}
+
+public final class androidx/collection/SparseArrayKt {
+	public static final fun contains (Landroidx/collection/SparseArrayCompat;I)Z
+	public static final fun forEach (Landroidx/collection/SparseArrayCompat;Lkotlin/jvm/functions/Function2;)V
+	public static final fun getOrDefault (Landroidx/collection/SparseArrayCompat;ILjava/lang/Object;)Ljava/lang/Object;
+	public static final fun getOrElse (Landroidx/collection/SparseArrayCompat;ILkotlin/jvm/functions/Function0;)Ljava/lang/Object;
+	public static final fun getSize (Landroidx/collection/SparseArrayCompat;)I
+	public static final fun isNotEmpty (Landroidx/collection/SparseArrayCompat;)Z
+	public static final fun keyIterator (Landroidx/collection/SparseArrayCompat;)Lkotlin/collections/IntIterator;
+	public static final fun plus (Landroidx/collection/SparseArrayCompat;Landroidx/collection/SparseArrayCompat;)Landroidx/collection/SparseArrayCompat;
+	public static final synthetic fun remove (Landroidx/collection/SparseArrayCompat;ILjava/lang/Object;)Z
+	public static final fun set (Landroidx/collection/SparseArrayCompat;ILjava/lang/Object;)V
+	public static final fun valueIterator (Landroidx/collection/SparseArrayCompat;)Ljava/util/Iterator;
+}
+

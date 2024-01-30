@@ -129,7 +129,6 @@ public class EmojiCompat {
     public static final int LOAD_STATE_FAILED = 2;
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @IntDef({LOAD_STATE_DEFAULT, LOAD_STATE_LOADING, LOAD_STATE_SUCCEEDED, LOAD_STATE_FAILED})
@@ -157,7 +156,6 @@ public class EmojiCompat {
     public static final int REPLACE_STRATEGY_NON_EXISTENT = 2;
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @IntDef({REPLACE_STRATEGY_DEFAULT, REPLACE_STRATEGY_NON_EXISTENT, REPLACE_STRATEGY_ALL})
@@ -181,7 +179,6 @@ public class EmojiCompat {
     public static final int LOAD_STRATEGY_MANUAL = 1;
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @IntDef({LOAD_STRATEGY_DEFAULT, LOAD_STRATEGY_MANUAL})
@@ -190,7 +187,6 @@ public class EmojiCompat {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     static final int EMOJI_COUNT_UNLIMITED = Integer.MAX_VALUE;
@@ -315,7 +311,6 @@ public class EmojiCompat {
      * Used by the tests to reset EmojiCompat with a new configuration. Every time it is called a
      * new instance is created with the new configuration.
      *
-     * @hide
      */
     @SuppressWarnings("GuardedBy")
     @RestrictTo(LIBRARY_GROUP_PREFIX)
@@ -330,7 +325,6 @@ public class EmojiCompat {
     /**
      * Used by the tests to reset EmojiCompat with a new singleton instance.
      *
-     * @hide
      */
     @SuppressWarnings("GuardedBy")
     @RestrictTo(LIBRARY_GROUP_PREFIX)
@@ -502,7 +496,6 @@ public class EmojiCompat {
 
     /**
      * @return whether a background should be drawn for the emoji.
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     boolean isEmojiSpanIndicatorEnabled() {
@@ -511,7 +504,6 @@ public class EmojiCompat {
 
     /**
      * @return whether a background should be drawn for the emoji.
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @ColorInt int getEmojiSpanIndicatorColor() {
@@ -805,7 +797,6 @@ public class EmojiCompat {
      * @see #EDITOR_INFO_METAVERSION_KEY
      * @see #EDITOR_INFO_REPLACE_ALL_KEY
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public void updateEditorInfoAttrs(@NonNull final EditorInfo outAttrs) {
@@ -822,7 +813,6 @@ public class EmojiCompat {
     /**
      * Factory class that creates the EmojiSpans. By default it creates {@link TypefaceEmojiSpan}.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @RequiresApi(19)
@@ -907,7 +897,7 @@ public class EmojiCompat {
          * information, and some predefined OEMs, it is possible to write the following code
          * snippet.
          *
-         * {@sample frameworks/support/samples/SupportEmojiDemos/src/main/java/com/example/android/support/text/emoji/sample/GlyphCheckerSample.java glyphchecker}
+         * {@sample samples/SupportEmojiDemos/src/main/java/com/example/android/support/text/emoji/sample/GlyphCheckerSample.java glyphchecker}
          *
          * @param charSequence the CharSequence that is being processed
          * @param start the inclusive starting offset for the emoji in the {@code charSequence}
@@ -1290,7 +1280,6 @@ public class EmojiCompat {
             }
         }
 
-        @SuppressWarnings("SyntheticAccessor")
         void onMetadataLoadSuccess(@NonNull final MetadataRepo metadataRepo) {
             //noinspection ConstantConditions
             if (metadataRepo == null) {

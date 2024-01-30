@@ -49,7 +49,6 @@ import java.util.List;
 public final class PlaybackStateCompat implements Parcelable {
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX) // used by media2-session
     @LongDef(flag=true, value={ACTION_STOP, ACTION_PAUSE, ACTION_PLAY, ACTION_REWIND,
@@ -63,7 +62,6 @@ public final class PlaybackStateCompat implements Parcelable {
     public @interface Actions {}
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @LongDef({ACTION_STOP, ACTION_PAUSE, ACTION_PLAY, ACTION_REWIND, ACTION_SKIP_TO_PREVIOUS,
@@ -235,7 +233,6 @@ public final class PlaybackStateCompat implements Parcelable {
     public static final long ACTION_SET_PLAYBACK_SPEED = 1 << 22;
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX) // used by media2-session
     @IntDef({STATE_NONE, STATE_STOPPED, STATE_PAUSED, STATE_PLAYING, STATE_FAST_FORWARDING,
@@ -348,7 +345,6 @@ public final class PlaybackStateCompat implements Parcelable {
     public final static long PLAYBACK_POSITION_UNKNOWN = -1;
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX) // used by media2-session
     @IntDef({REPEAT_MODE_INVALID, REPEAT_MODE_NONE, REPEAT_MODE_ONE, REPEAT_MODE_ALL,
@@ -389,7 +385,6 @@ public final class PlaybackStateCompat implements Parcelable {
     public static final int REPEAT_MODE_GROUP = 3;
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX) // used by media2-session
     @IntDef({SHUFFLE_MODE_INVALID, SHUFFLE_MODE_NONE, SHUFFLE_MODE_ALL, SHUFFLE_MODE_GROUP})
@@ -673,7 +668,6 @@ public final class PlaybackStateCompat implements Parcelable {
      *
      * @param timeDiff Only used for testing, otherwise it should be null.
      * @return The current playback position in ms
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX) // accessed by media2-session
     public long getCurrentPosition(Long timeDiff) {

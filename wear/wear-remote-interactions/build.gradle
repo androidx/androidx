@@ -26,8 +26,8 @@ dependencies {
     api("androidx.annotation:annotation:1.1.0")
     api(libs.kotlinStdlib)
     api(libs.guavaListenableFuture)
-    api(libs.kotlinCoroutinesGuava)
-    implementation("androidx.concurrent:concurrent-futures:1.0.0")
+    api("androidx.concurrent:concurrent-futures-ktx:1.1.0")
+    api(libs.kotlinCoroutinesCore)
 
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
@@ -65,4 +65,5 @@ androidx {
     mavenVersion = LibraryVersions.WEAR_REMOTE_INTERACTIONS
     inceptionYear = "2020"
     description = "Android Wear Remote Interactions"
+    metalavaK2UastEnabled = true
 }

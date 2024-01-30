@@ -60,10 +60,6 @@ class TranslationAnimationCreator {
             startX = startPosition[0] - viewPosX + terminalX;
             startY = startPosition[1] - viewPosY + terminalY;
         }
-        // Initial position is at translation startX, startY, so position is offset by that amount
-        int startPosX = viewPosX + Math.round(startX - terminalX);
-        int startPosY = viewPosY + Math.round(startY - terminalY);
-
         view.setTranslationX(startX);
         view.setTranslationY(startY);
         if (startX == endX && startY == endY) {
@@ -74,10 +70,9 @@ class TranslationAnimationCreator {
                 PropertyValuesHolder.ofFloat(View.TRANSLATION_Y, startY, endY));
 
         TransitionPositionListener listener = new TransitionPositionListener(view, values.view,
-                startPosX, startPosY, terminalX, terminalY);
+                terminalX, terminalY);
         transition.addListener(listener);
         anim.addListener(listener);
-        AnimatorUtils.addPauseListener(anim, listener);
         anim.setInterpolator(interpolator);
         return anim;
     }
@@ -87,20 +82,17 @@ class TranslationAnimationCreator {
 
         private final View mViewInHierarchy;
         private final View mMovingView;
-        private final int mStartX;
-        private final int mStartY;
         private int[] mTransitionPosition;
         private float mPausedX;
         private float mPausedY;
         private final float mTerminalX;
         private final float mTerminalY;
+        private boolean mIsTransitionCanceled;
 
         TransitionPositionListener(View movingView, View viewInHierarchy,
-                int startX, int startY, float terminalX, float terminalY) {
+                float terminalX, float terminalY) {
             mMovingView = movingView;
             mViewInHierarchy = viewInHierarchy;
-            mStartX = startX - Math.round(mMovingView.getTranslationX());
-            mStartY = startY - Math.round(mMovingView.getTranslationY());
             mTerminalX = terminalX;
             mTerminalY = terminalY;
             mTransitionPosition = (int[]) mViewInHierarchy.getTag(R.id.transition_position);
@@ -111,26 +103,9 @@ class TranslationAnimationCreator {
 
         @Override
         public void onAnimationCancel(Animator animation) {
-            if (mTransitionPosition == null) {
-                mTransitionPosition = new int[2];
-            }
-            mTransitionPosition[0] = Math.round(mStartX + mMovingView.getTranslationX());
-            mTransitionPosition[1] = Math.round(mStartY + mMovingView.getTranslationY());
-            mViewInHierarchy.setTag(R.id.transition_position, mTransitionPosition);
-        }
-
-        @Override
-        public void onAnimationPause(Animator animator) {
-            mPausedX = mMovingView.getTranslationX();
-            mPausedY = mMovingView.getTranslationY();
+            mIsTransitionCanceled = true;
             mMovingView.setTranslationX(mTerminalX);
             mMovingView.setTranslationY(mTerminalY);
-        }
-
-        @Override
-        public void onAnimationResume(Animator animator) {
-            mMovingView.setTranslationX(mPausedX);
-            mMovingView.setTranslationY(mPausedY);
         }
 
         @Override
@@ -138,22 +113,49 @@ class TranslationAnimationCreator {
         }
 
         @Override
+        public void onTransitionEnd(@NonNull Transition transition, boolean isReverse) {
+            if (!mIsTransitionCanceled) {
+                mViewInHierarchy.setTag(R.id.transition_position, null);
+            }
+            if (!isReverse) {
+                mMovingView.setTranslationX(mTerminalX);
+                mMovingView.setTranslationY(mTerminalY);
+            }
+        }
+
+        @Override
         public void onTransitionEnd(@NonNull Transition transition) {
-            mMovingView.setTranslationX(mTerminalX);
-            mMovingView.setTranslationY(mTerminalY);
-            transition.removeListener(this);
+            onTransitionEnd(transition, false);
         }
 
         @Override
         public void onTransitionCancel(@NonNull Transition transition) {
+            mIsTransitionCanceled = true;
+            mMovingView.setTranslationX(mTerminalX);
+            mMovingView.setTranslationY(mTerminalY);
         }
 
         @Override
         public void onTransitionPause(@NonNull Transition transition) {
+            setInterruptedPosition();
+            mPausedX = mMovingView.getTranslationX();
+            mPausedY = mMovingView.getTranslationY();
+            mMovingView.setTranslationX(mTerminalX);
+            mMovingView.setTranslationY(mTerminalY);
         }
 
         @Override
         public void onTransitionResume(@NonNull Transition transition) {
+            mMovingView.setTranslationX(mPausedX);
+            mMovingView.setTranslationY(mPausedY);
+        }
+
+        private void setInterruptedPosition() {
+            if (mTransitionPosition == null) {
+                mTransitionPosition = new int[2];
+            }
+            mMovingView.getLocationOnScreen(mTransitionPosition);
+            mViewInHierarchy.setTag(R.id.transition_position, mTransitionPosition);
         }
     }
 

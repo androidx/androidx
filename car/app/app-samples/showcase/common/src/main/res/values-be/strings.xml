@@ -264,6 +264,7 @@
     <string name="tab_title_list" msgid="5104962518489668123">"Укладка \"Спіс\""</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"Укладка з доўгай назвай і змесцівам у выглядзе сеткі"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"Укладка \"Пошук\""</string>
+    <string name="tab_title_loading" msgid="5385807479734490989">"Ідзе загрузка ўкладкі"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"Дэмаверсія загрузкі шаблона ўкладкі"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"Дэмаверсія шаблона без укладак"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"Відарысы нельга адлюстроўваць для невядомага хоста"</string>
@@ -298,7 +299,7 @@
     <string name="some_additional_text" msgid="4009872495806318260">"Дадатковы тэкст"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"Узор спіса выбару"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"Дэманстрацыя абмежавання колькасці задач"</string>
-    <string name="task_limit_reached_msg" msgid="6038763366777119364">"Дасягнута максімальная колькасць задач\nДалейшы рух прывядзе да прымусовага спынення праграмы"</string>
+    <string name="task_limit_reached_msg" msgid="7162842196382260992">"Гэта перавысіць колькасць крокаў і пераключыць на новы экран."</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"Крок задачы %1$d з %2$d"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"Націсніце, каб рухацца далей"</string>
     <string name="task_content_allowed" msgid="545061986612431190">"Праглядзіце розныя шаблоны і пераканайцеся, што аўтамабіль знаходзіцца ў рэжыме \"За рулём\""</string>
@@ -323,6 +324,12 @@
     <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"Таксама можна выбраць радок"</string>
     <string name="secondary_action_toast" msgid="5076434693504006565">"Выбрана другаснае дзеянне"</string>
     <string name="row_primary_action_toast" msgid="756516694751965204">"Выбрана галоўнае дзеянне для радка"</string>
+    <string name="sectioned_item_list_demo_title" msgid="1236735461225007729">"Дэмаверсія спіса элементаў з раздзеламі"</string>
+    <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"Спіс 1"</string>
+    <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"Спіс 2"</string>
+    <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"Тэкст пад кожным спісам"</string>
+    <string name="empty_list_demo_title" msgid="5989013634820902455">"Дэмаверсія пустога спіса"</string>
+    <string name="empty_list_message" msgid="5331395517560728138">"Спіс пусты"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"Дэманстрацыі розных шаблонаў"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"Дэманстрацыі выбранага"</string>
     <string name="template_layouts_demo_title" msgid="788249269446087847">"Дэманстрацыі макета шаблона"</string>

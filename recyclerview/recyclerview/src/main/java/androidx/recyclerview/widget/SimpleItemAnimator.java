@@ -230,6 +230,10 @@ public abstract class SimpleItemAnimator extends RecyclerView.ItemAnimator {
      * then start the animations together in the later call to {@link #runPendingAnimations()}.
      *
      * @param holder The item that is being moved.
+     * @param fromX x coordinate from which to start animation.
+     * @param fromY y coordinate from which to start animation.
+     * @param toX x coordinate at which to end animation.
+     * @param toY y coordinate at which to end animation.
      * @return true if a later call to {@link #runPendingAnimations()} is requested,
      * false otherwise.
      */

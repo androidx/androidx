@@ -41,7 +41,6 @@ import java.lang.reflect.Method;
 
 /**
  * Wraps a support {@link SupportMenuItem} as a framework {@link android.view.MenuItem}
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public class MenuItemWrapperICS extends BaseMenuWrapper implements MenuItem {

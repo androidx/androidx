@@ -14,11 +14,14 @@
  * limitations under the License.
  */
 
+@file:RequiresApi(21)
+
 package androidx.camera.video.internal
 
 import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.camera.core.impl.EncoderProfilesProxy.VideoProfileProxy
-import androidx.camera.testing.EncoderProfilesUtil
+import androidx.camera.testing.impl.EncoderProfilesUtil
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -28,19 +31,21 @@ import org.robolectric.annotation.internal.DoNotInstrument
 
 private const val DEFAULT_WIDTH = 1920
 private const val DEFAULT_HEIGHT = 1080
-private val DEFAULT_VIDEO_PROFILE = VideoProfileProxy.create(
-    EncoderProfilesUtil.DEFAULT_VIDEO_CODEC,
-    EncoderProfilesUtil.DEFAULT_VIDEO_MEDIA_TYPE,
-    EncoderProfilesUtil.DEFAULT_VIDEO_BITRATE,
-    EncoderProfilesUtil.DEFAULT_VIDEO_FRAME_RATE,
-    DEFAULT_WIDTH,
-    DEFAULT_HEIGHT,
-    EncoderProfilesUtil.DEFAULT_VIDEO_PROFILE,
-    EncoderProfilesUtil.DEFAULT_VIDEO_BIT_DEPTH,
-    EncoderProfilesUtil.DEFAULT_VIDEO_CHROMA_SUBSAMPLING,
-    EncoderProfilesUtil.DEFAULT_VIDEO_HDR_FORMAT
-)
 
+private val DEFAULT_VIDEO_PROFILE by lazy {
+    VideoProfileProxy.create(
+        EncoderProfilesUtil.DEFAULT_VIDEO_CODEC,
+        EncoderProfilesUtil.DEFAULT_VIDEO_MEDIA_TYPE,
+        EncoderProfilesUtil.DEFAULT_VIDEO_BITRATE,
+        EncoderProfilesUtil.DEFAULT_VIDEO_FRAME_RATE,
+        DEFAULT_WIDTH,
+        DEFAULT_HEIGHT,
+        EncoderProfilesUtil.DEFAULT_VIDEO_PROFILE,
+        EncoderProfilesUtil.DEFAULT_VIDEO_BIT_DEPTH,
+        EncoderProfilesUtil.DEFAULT_VIDEO_CHROMA_SUBSAMPLING,
+        EncoderProfilesUtil.DEFAULT_VIDEO_HDR_FORMAT
+    )
+}
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)

@@ -43,7 +43,6 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
-import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.jetbrains.annotations.NotNull;
@@ -113,16 +112,12 @@ public class NestedScrollViewNestedScrollingA11yScrollTest extends
         testContentView.awaitLayouts(2);
     }
 
-    // minSdkVersion = 16 because View.performAccessibilityAction wasn't available till then.
     @Test
-    @SdkSuppress(minSdkVersion = 16)
     public void a11yActionScrollForward_fullyParticipatesInNestedScrolling() throws Throwable {
         a11yScroll_fullyParticipatesInNestedScrolling(true, /* startY= */ 0, TOTAL_SCROLL_OFFSET);
     }
 
-    // minSdkVersion = 16 because View.performAccessibilityAction wasn't available till then.
     @Test
-    @SdkSuppress(minSdkVersion = 16)
     public void a11yActionScrollForward_halfVisibleSize_fullyParticipatesInNestedScrollingHalf()
             throws Throwable {
         mActivityTestRule.runOnUiThread(
@@ -134,17 +129,13 @@ public class NestedScrollViewNestedScrollingA11yScrollTest extends
                 TOTAL_SCROLL_OFFSET_HALF);
     }
 
-    // minSdkVersion = 16 because View.performAccessibilityAction wasn't available till then.
     @Test
-    @SdkSuppress(minSdkVersion = 16)
     public void a11yActionScrollBackward_fullyParticipatesInNestedScrolling() throws Throwable {
         a11yScroll_fullyParticipatesInNestedScrolling(false, /* startY= */ 200,
                 -TOTAL_SCROLL_OFFSET);
     }
 
-    // minSdkVersion = 16 because View.performAccessibilityAction wasn't available till then.
     @Test
-    @SdkSuppress(minSdkVersion = 16)
     public void a11yActionScrollBackward_halfVisibleSize_fullyParticipatesInNestedScrollingHalf()
             throws Throwable {
         mActivityTestRule.runOnUiThread(

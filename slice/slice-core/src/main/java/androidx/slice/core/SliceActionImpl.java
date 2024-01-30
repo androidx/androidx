@@ -31,6 +31,7 @@ import static android.app.slice.SliceItem.FORMAT_INT;
 import static android.app.slice.SliceItem.FORMAT_LONG;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 import static androidx.slice.core.SliceHints.ACTION_WITH_LABEL;
@@ -60,10 +61,10 @@ import androidx.slice.SliceItem;
 
 /**
  * Class representing an action, supports tappable icons, custom toggle icons, and default toggles.
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 @RequiresApi(19)
+@Deprecated
 public class SliceActionImpl implements SliceAction {
 
     // Either mAction or mActionItem must be non-null.
@@ -119,8 +120,8 @@ public class SliceActionImpl implements SliceAction {
      * @param actionTitle    the timestamp title for this picker.
      * @param dateTimeMillis the default state of the date or time picker.
      * @param isDatePicker   if it is a date picker, as opposed to a time picker.
-     * @hide
      */
+    @RestrictTo(LIBRARY)
     public SliceActionImpl(@NonNull PendingIntent action, @NonNull CharSequence actionTitle,
             long dateTimeMillis, boolean isDatePicker) {
         mAction = action;
@@ -194,7 +195,6 @@ public class SliceActionImpl implements SliceAction {
      *
      * @param slice the slice item to construct the action out of.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
     @SuppressLint("InlinedApi")
@@ -314,7 +314,6 @@ public class SliceActionImpl implements SliceAction {
     }
 
     /**
-     * @hide
      */
     @Nullable
     @RestrictTo(LIBRARY_GROUP_PREFIX)
@@ -498,7 +497,6 @@ public class SliceActionImpl implements SliceAction {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static int parseImageMode(@NonNull SliceItem iconItem) {

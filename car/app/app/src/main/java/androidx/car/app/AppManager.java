@@ -193,7 +193,6 @@ public class AppManager implements Manager {
         );
     }
 
-    /** @hide */
     @Nullable
     @RestrictTo(LIBRARY_GROUP)
     public OpenMicrophoneResponse openMicrophone(@NonNull OpenMicrophoneRequest request) {
@@ -266,7 +265,6 @@ public class AppManager implements Manager {
         return new AppManager(carContext, hostDispatcher, lifecycle);
     }
 
-    /** @hide */
     @RestrictTo(LIBRARY_GROUP) // Restrict to testing library
     protected AppManager(@NonNull CarContext carContext, @NonNull HostDispatcher hostDispatcher,
             @NonNull Lifecycle lifecycle) {

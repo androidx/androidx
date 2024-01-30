@@ -38,6 +38,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.util.Consumer;
+import androidx.window.WindowSdkExtensions;
 import androidx.window.demo.R;
 import androidx.window.demo.databinding.ActivitySplitActivityLayoutBinding;
 import androidx.window.embedding.ActivityEmbeddingController;
@@ -96,8 +97,13 @@ public class SplitActivityBase extends AppCompatActivity
             bStartIntent.putExtra(EXTRA_LAUNCH_C_TO_SIDE, true);
             startActivity(bStartIntent);
         });
-        mViewBinding.launchE.setOnClickListener((View v) ->
-                startActivity(new Intent(this, SplitActivityE.class)));
+        mViewBinding.launchE.setOnClickListener((View v) -> {
+            Bundle bundle = null;
+            startActivity(new Intent(this, SplitActivityE.class), bundle);
+        });
+        if (WindowSdkExtensions.getInstance().getExtensionVersion() < 3) {
+            mViewBinding.setLaunchingEInActivityStack.setEnabled(false);
+        }
         mViewBinding.launchF.setOnClickListener((View v) ->
                 startActivity(new Intent(this, SplitActivityF.class)));
         mViewBinding.launchFPendingIntent.setOnClickListener((View v) -> {

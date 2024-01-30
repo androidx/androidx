@@ -31,6 +31,10 @@ import kotlinx.coroutines.test.TestDispatcher
  * interceptors used in tests, with one of the [TestDispatcher]s, propagate delay like this in order
  * to work with the delay skipping that those dispatchers perform.
  */
+// TODO(b/263369561): avoid InternalCoroutinesApi - it is not expected that Delay gain a method but
+// if it ever did this would have potential runtime crashes for tests. Medium term we will leave
+// this dependency as the chance of this faulting is low, and it should only effect tests until next
+// recompile if it did fault.
 @OptIn(InternalCoroutinesApi::class)
 @InternalTestApi
 abstract class DelayPropagatingContinuationInterceptorWrapper(

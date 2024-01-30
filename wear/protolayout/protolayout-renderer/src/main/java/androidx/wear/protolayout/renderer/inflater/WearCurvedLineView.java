@@ -242,7 +242,8 @@ public class WearCurvedLineView extends View implements ArcLayout.Widget {
     }
 
     /** Returns the stockCap of this arc. */
-    @NonNull public Cap getStrokeCap() {
+    @NonNull
+    public Cap getStrokeCap() {
         return mCap;
     }
 

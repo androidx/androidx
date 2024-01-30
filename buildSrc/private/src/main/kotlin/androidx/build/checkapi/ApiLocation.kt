@@ -16,12 +16,11 @@
 
 package androidx.build.checkapi
 
-import java.io.File
-
 import androidx.build.Version
 import androidx.build.version
-import org.gradle.api.Project
+import java.io.File
 import java.io.Serializable
+import org.gradle.api.Project
 
 /**
  * Contains information about the files used to record a library's API surfaces. This class may
@@ -56,7 +55,9 @@ data class ApiLocation(
     // File where the library's public resources are recorded
     val resourceFile: File,
     // Directory where native API files are stored
-    val nativeApiDirectory: File
+    val nativeApiDirectory: File,
+    // Directory where the library's stable AIDL surface is recorded
+    val aidlApiDirectory: File
 ) : Serializable {
 
     /**
@@ -84,8 +85,8 @@ data class ApiLocation(
             return fromBaseName(apiFileDir, CURRENT)
         }
 
-        fun isResourceApiFile(apiFile: File): Boolean {
-            return apiFile.name.startsWith(PREFIX_RESOURCE)
+        fun isResourceApiFilename(filename: String): Boolean {
+            return filename.startsWith(PREFIX_RESOURCE)
         }
 
         private fun fromBaseName(apiFileDir: File, baseName: String): ApiLocation {
@@ -96,7 +97,8 @@ data class ApiLocation(
                 restrictedApiFile = File(apiFileDir, "$PREFIX_RESTRICTED$baseName$EXTENSION"),
                 experimentalApiFile = File(apiFileDir, "$PREFIX_EXPERIMENTAL$baseName$EXTENSION"),
                 resourceFile = File(apiFileDir, "$PREFIX_RESOURCE$baseName$EXTENSION"),
-                nativeApiDirectory = File(apiFileDir, NATIVE_API_DIRECTORY_NAME).resolve(baseName)
+                nativeApiDirectory = File(apiFileDir, NATIVE_API_DIRECTORY_NAME).resolve(baseName),
+                aidlApiDirectory = File(apiFileDir, AIDL_API_DIRECTORY_NAME).resolve(baseName)
             )
         }
 
@@ -134,6 +136,11 @@ data class ApiLocation(
          * Directory name for location of native API files
          */
         private const val NATIVE_API_DIRECTORY_NAME = "native"
+
+        /**
+         * Directory name for location of AIDL API files
+         */
+        private const val AIDL_API_DIRECTORY_NAME = "aidl"
     }
 }
 

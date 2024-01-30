@@ -1,0 +1,33 @@
+# Baseline profile rules for androidx.tv.tv-material
+# ===================================================
+
+HSPLandroidx/tv/material3/Border;->**(**)**
+Landroidx/tv/material3/BorderIndication;
+HSPLandroidx/tv/material3/ColorScheme;->**(**)**
+HSPLandroidx/tv/material3/ColorSchemeKt**->**(**)**
+HSPLandroidx/tv/material3/ContentColorKt**->**(**)**
+HSPLandroidx/tv/material3/Glow;->**(**)**
+HSPLandroidx/tv/material3/GlowIndication;->**(**)**
+HSPLandroidx/tv/material3/GlowIndicationInstance;->**(**)**
+HSPLandroidx/tv/material3/ScaleIndication;->**(**)**
+HSPLandroidx/tv/material3/ScaleIndicationInstance;->**(**)**
+HSPLandroidx/tv/material3/ScaleIndicationTokens;->**(**)**
+HSPLandroidx/tv/material3/ShapesKt**->**(**)**
+HSPLandroidx/tv/material3/SurfaceKt**->**(**)**
+HSPLandroidx/tv/material3/TabColors;->**(**)**
+HSPLandroidx/tv/material3/TabKt**->**(**)**
+HSPLandroidx/tv/material3/TabRowDefaults;->**(**)**
+HSPLandroidx/tv/material3/TabRowKt**->**(**)**
+HSPLandroidx/tv/material3/TabRowScopeImpl;->**(**)**
+HSPLandroidx/tv/material3/TabRowSlots;->**(**)**
+HSPLandroidx/tv/material3/TextKt**->**(**)**
+HSPLandroidx/tv/material3/ToggleableSurfaceBorder;->**(**)**
+HSPLandroidx/tv/material3/ToggleableSurfaceColors;->**(**)**
+HSPLandroidx/tv/material3/ToggleableSurfaceGlow;->**(**)**
+HSPLandroidx/tv/material3/ToggleableSurfaceScale;->**(**)**
+HSPLandroidx/tv/material3/ToggleableSurfaceShape;->**(**)**
+HSPLandroidx/tv/material3/tokens/ColorLightTokens;->**(**)**
+HSPLandroidx/tv/material3/tokens/Elevation;->**(**)**
+HSPLandroidx/tv/material3/tokens/PaletteTokens;->**(**)**
+HSPLandroidx/tv/material3/tokens/ShapeTokens;->**(**)**
+HSPLandroidx/tv/material3/tokens/TypographyTokensKt**->**(**)**

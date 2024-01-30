@@ -29,10 +29,10 @@ import com.google.common.util.concurrent.AsyncFunction
 import com.google.common.util.concurrent.Futures
 import io.reactivex.Maybe
 import io.reactivex.schedulers.Schedulers
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
 import java.util.concurrent.Callable
 import java.util.concurrent.Executors
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 class Item(
     @JvmField

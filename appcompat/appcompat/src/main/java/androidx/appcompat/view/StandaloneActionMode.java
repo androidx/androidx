@@ -33,7 +33,6 @@ import androidx.appcompat.widget.ActionBarContextView;
 import java.lang.ref.WeakReference;
 
 /**
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public class StandaloneActionMode extends ActionMode implements MenuBuilder.Callback {

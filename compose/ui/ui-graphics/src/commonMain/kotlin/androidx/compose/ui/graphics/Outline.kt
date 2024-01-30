@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.graphics
 
+import androidx.annotation.FloatRange
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
@@ -147,8 +148,7 @@ fun Path.addOutline(outline: Outline) = when (outline) {
 fun DrawScope.drawOutline(
     outline: Outline,
     color: Color,
-    /*@FloatRange(from = 0.0, to = 1.0)*/
-    alpha: Float = 1.0f,
+    @FloatRange(from = 0.0, to = 1.0) alpha: Float = 1.0f,
     style: DrawStyle = Fill,
     colorFilter: ColorFilter? = null,
     blendMode: BlendMode = DrawScope.DefaultBlendMode
@@ -187,8 +187,7 @@ fun DrawScope.drawOutline(
 fun DrawScope.drawOutline(
     outline: Outline,
     brush: Brush,
-    /*@FloatRange(from = 0.0, to = 1.0)*/
-    alpha: Float = 1.0f,
+    @FloatRange(from = 0.0, to = 1.0) alpha: Float = 1.0f,
     style: DrawStyle = Fill,
     colorFilter: ColorFilter? = null,
     blendMode: BlendMode = DrawScope.DefaultBlendMode

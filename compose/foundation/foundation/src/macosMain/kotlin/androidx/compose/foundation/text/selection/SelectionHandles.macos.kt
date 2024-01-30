@@ -23,13 +23,12 @@ import androidx.compose.ui.text.style.ResolvedTextDirection
 
 @Composable
 internal actual fun SelectionHandle(
-    position: Offset,
+    offsetProvider: OffsetProvider,
     isStartHandle: Boolean,
     direction: ResolvedTextDirection,
     handlesCrossed: Boolean,
     lineHeight: Float,
     modifier: Modifier,
-    content: (@Composable () -> Unit)?
 ) {
     // not need on MacOS
 }

@@ -16,10 +16,10 @@
 
 package androidx.health.services.client.data
 
-import androidx.health.services.client.proto.DataProto.PassiveGoal as PassiveGoalProto
 import androidx.annotation.IntDef
 import androidx.annotation.RestrictTo
 import androidx.health.services.client.data.PassiveGoal.TriggerFrequency.Companion.toProto
+import androidx.health.services.client.proto.DataProto.PassiveGoal as PassiveGoalProto
 
 /**
  * Defines a passive goal that will be triggered when the specified condition is met which will
@@ -74,7 +74,6 @@ class PassiveGoal private constructor(
     /**
      * The frequency at which passive goals should be triggered.
      *
-     * @hide
      */
     @Retention(AnnotationRetention.SOURCE)
     @IntDef(
@@ -96,14 +95,12 @@ class PassiveGoal private constructor(
              */
             const val REPEATED: Int = 2
 
-            /** @hide */
             @RestrictTo(RestrictTo.Scope.LIBRARY)
             internal fun @receiver:TriggerFrequency
             Int.toProto(): PassiveGoalProto.TriggerFrequency =
                 PassiveGoalProto.TriggerFrequency.forNumber(this)
                     ?: PassiveGoalProto.TriggerFrequency.TRIGGER_FREQUENCY_UNKNOWN
 
-            /** @hide */
             @RestrictTo(RestrictTo.Scope.LIBRARY)
             @TriggerFrequency
             @Suppress("WrongConstant")

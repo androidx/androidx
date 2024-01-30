@@ -28,8 +28,6 @@ import androidx.health.platform.client.proto.ResponseProto
 
 /**
  * Converts proto response to public API object.
- *
- * @suppress
  */
 fun toChangesResponse(proto: ResponseProto.GetChangesResponse): ChangesResponse {
     return ChangesResponse(

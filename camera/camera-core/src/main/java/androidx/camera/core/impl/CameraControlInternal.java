@@ -21,6 +21,7 @@ import static androidx.camera.core.ImageCapture.FLASH_MODE_OFF;
 import android.graphics.Rect;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.CameraControl;
 import androidx.camera.core.FocusMeteringAction;
@@ -29,6 +30,7 @@ import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCapture.CaptureMode;
 import androidx.camera.core.ImageCapture.FlashMode;
 import androidx.camera.core.ImageCapture.FlashType;
+import androidx.camera.core.ImageCapture.ScreenFlashUiControl;
 import androidx.camera.core.impl.utils.futures.Futures;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -39,9 +41,13 @@ import java.util.List;
 /**
  * The CameraControlInternal Interface.
  *
+ *
  * <p>CameraControlInternal is used for global camera operations like zoom, focus, flash and
- * triggering
- * AF/AE.
+ * triggering AF/AE as well as some internal operations.
+ *
+ * <p>{@link #getImplementation()} returns a {@link CameraControlInternal} instance
+ * that contains the actual implementation and can be cast to an implementation specific class.
+ * If the instance itself is the implementation instance, then it should return <code>this</code>.
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface CameraControlInternal extends CameraControl {
@@ -56,6 +62,14 @@ public interface CameraControlInternal extends CameraControl {
      * @param flashMode the {@link FlashMode}.
      */
     void setFlashMode(@FlashMode int flashMode);
+
+    /**
+     * Sets screen flash UI control.
+     *
+     * @param screenFlashUiControl An {@link ScreenFlashUiControl} used to notify API
+     *                             users when UI side changes need to be done.
+     */
+    default void setScreenFlashUiControl(@Nullable ScreenFlashUiControl screenFlashUiControl) {}
 
     /**
      * Adds zero-shutter lag config to {@link SessionConfig}.
@@ -136,6 +150,17 @@ public interface CameraControlInternal extends CameraControl {
     @NonNull
     Config getInteropConfig();
 
+    /**
+     * Gets the underlying implementation instance which could be cast into an implementation
+     * specific class for further use in implementation module. Returns <code>this</code> if this
+     * instance is the implementation instance.
+     */
+    @NonNull
+    default CameraControlInternal getImplementation() {
+        return this;
+    }
+
+    @NonNull
     CameraControlInternal DEFAULT_EMPTY_INSTANCE = new CameraControlInternal() {
         @FlashMode
         @Override

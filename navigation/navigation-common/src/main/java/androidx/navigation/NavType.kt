@@ -88,7 +88,6 @@ public abstract class NavType<T>(
      * @param key    bundle key under which to put the value
      * @param value  string representation of a value of this type
      * @return parsed value of the type represented by this NavType
-     * @suppress
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun parseAndPut(bundle: Bundle, key: String, value: String): T {
@@ -107,7 +106,6 @@ public abstract class NavType<T>(
      * @param value  string representation of a value of this type
      * @param previousValue previously parsed value of this type
      * @return combined parsed value of the type represented by this NavType
-     * @suppress
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun parseAndPut(bundle: Bundle, key: String, value: String?, previousValue: T): T {
@@ -222,7 +220,6 @@ public abstract class NavType<T>(
             return StringType
         }
 
-        /** @suppress */
         @Suppress("UNCHECKED_CAST") // needed for cast to NavType<Any>
         @JvmStatic
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -259,7 +256,6 @@ public abstract class NavType<T>(
         /**
          * @param value nothing
          * @throws IllegalArgumentException not real
-         * @suppress
          */
         @Suppress("UNCHECKED_CAST") // needed for cast to NavType<Any>
         @JvmStatic

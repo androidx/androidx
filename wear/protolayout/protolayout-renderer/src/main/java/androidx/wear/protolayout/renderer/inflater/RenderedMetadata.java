@@ -43,7 +43,7 @@ public final class RenderedMetadata {
     }
 
     @NonNull
-    TreeFingerprint getTreeFingerprint() {
+    public TreeFingerprint getTreeFingerprint() {
         return mTreeFingerprint;
     }
 
@@ -128,10 +128,10 @@ public final class RenderedMetadata {
     }
 
     /** Additional pending layout params for layout elements inside a {@link FrameLayout}. */
-    static final class PendingFrameLayoutParams implements PendingLayoutParams {
+    public static final class PendingFrameLayoutParams implements PendingLayoutParams {
         private final int mGravity;
 
-        PendingFrameLayoutParams(int gravity) {
+        public PendingFrameLayoutParams(int gravity) {
             this.mGravity = gravity;
         }
 
@@ -154,15 +154,16 @@ public final class RenderedMetadata {
     }
 
     /** Holds properties of any container that are needed for background rendering. */
-    static class ViewProperties {
-        @NonNull static final ViewProperties EMPTY = new ViewProperties();
+    public static class ViewProperties {
+        @NonNull public static final ViewProperties EMPTY = new ViewProperties();
+
         /**
          * Creates a {@link ViewProperties} from any {@link ViewGroup} container. Note that {@code
          * rawLayoutParams} doesn't need to be a container-specific variant. But the {@code
          * childLayoutParams} should be of a container specific instance (if provided).
          */
         @NonNull
-        static ViewProperties fromViewGroup(
+        public static ViewProperties fromViewGroup(
                 @NonNull ViewGroup viewGroup,
                 @NonNull LayoutParams rawLayoutParams,
                 @NonNull PendingLayoutParams childLayoutParams) {

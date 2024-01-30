@@ -16,15 +16,10 @@
 
 package androidx.compose.ui.text.android.animation
 
-import androidx.compose.ui.text.android.InternalPlatformTextApi
-
 /**
  * Defines a segmentation rule for text animation
- *
- * @suppress
  */
-@InternalPlatformTextApi
-enum class SegmentType {
+internal enum class SegmentType {
     /**
      * Don't break text and treat whole text as the segment.
      */

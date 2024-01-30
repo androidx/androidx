@@ -72,14 +72,17 @@ internal data class Selection(
         if (!this.handlesCrossed && other.handlesCrossed) return other.copy(end = this.start)
         val handlesCrossed = if (start == end) other.handlesCrossed else this.handlesCrossed
 
-        var selection = this
-        selection = if (handlesCrossed) {
-            selection.copy(start = other.start)
+        val selection = this
+
+        return if (handlesCrossed || other.handlesCrossed) {
+            Selection(
+                start = if (other.handlesCrossed) other.start else other.end,
+                end = if (handlesCrossed) end else start,
+                handlesCrossed = true
+            )
         } else {
             selection.copy(end = other.end)
         }
-
-        return selection
     }
 
     /**

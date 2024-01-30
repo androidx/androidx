@@ -23,7 +23,6 @@ import androidx.versionedparcelable.VersionedParcelize;
 /**
  * Wire format for {@link androidx.wear.watchface.style.BooleanUserStyleSetting.BooleanOption}.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @VersionedParcelize

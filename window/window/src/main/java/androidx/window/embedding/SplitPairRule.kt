@@ -31,14 +31,14 @@ import androidx.window.embedding.SplitRule.FinishBehavior.Companion.NEVER
  * applied only to activities that will be started from the activity fills the whole parent task
  * container or activity in the primary split after the rules were set.
  */
-class SplitPairRule : SplitRule {
-
+class SplitPairRule internal constructor(
     /**
      * Filters used to choose when to apply this rule. The rule may be used if any one of the
      * provided filters matches.
      */
-    val filters: Set<SplitPairFilter>
-
+    val filters: Set<SplitPairFilter>,
+    defaultSplitAttributes: SplitAttributes,
+    tag: String? = null,
     /**
      * Determines what happens with the primary container when all activities are finished in the
      * associated secondary container.
@@ -47,8 +47,7 @@ class SplitPairRule : SplitRule {
      * @see SplitRule.FinishBehavior.ALWAYS
      * @see SplitRule.FinishBehavior.ADJACENT
      */
-    val finishPrimaryWithSecondary: FinishBehavior
-
+    val finishPrimaryWithSecondary: FinishBehavior = NEVER,
     /**
      * Determines what happens with the secondary container when all activities are finished in the
      * associated primary container.
@@ -57,34 +56,22 @@ class SplitPairRule : SplitRule {
      * @see SplitRule.FinishBehavior.ALWAYS
      * @see SplitRule.FinishBehavior.ADJACENT
      */
-    val finishSecondaryWithPrimary: FinishBehavior
-
+    val finishSecondaryWithPrimary: FinishBehavior = ALWAYS,
     /**
      * If there is an existing split with the same primary container, indicates whether the
      * existing secondary container on top and all activities in it should be destroyed when a new
      * split is created using this rule. Otherwise the new secondary will appear on top by default.
      */
-    val clearTop: Boolean
-
-    internal constructor(
-        tag: String? = null,
-        filters: Set<SplitPairFilter>,
-        finishPrimaryWithSecondary: FinishBehavior = NEVER,
-        finishSecondaryWithPrimary: FinishBehavior = ALWAYS,
-        clearTop: Boolean = false,
-        @IntRange(from = 0) minWidthDp: Int = SPLIT_MIN_DIMENSION_DP_DEFAULT,
-        @IntRange(from = 0) minHeightDp: Int = SPLIT_MIN_DIMENSION_DP_DEFAULT,
-        @IntRange(from = 0) minSmallestWidthDp: Int = SPLIT_MIN_DIMENSION_DP_DEFAULT,
-        maxAspectRatioInPortrait: EmbeddingAspectRatio = SPLIT_MAX_ASPECT_RATIO_PORTRAIT_DEFAULT,
-        maxAspectRatioInLandscape: EmbeddingAspectRatio = SPLIT_MAX_ASPECT_RATIO_LANDSCAPE_DEFAULT,
-        defaultSplitAttributes: SplitAttributes,
-    ) : super(tag, minWidthDp, minHeightDp, minSmallestWidthDp, maxAspectRatioInPortrait,
-        maxAspectRatioInLandscape, defaultSplitAttributes) {
-        this.filters = filters.toSet()
-        this.clearTop = clearTop
-        this.finishPrimaryWithSecondary = finishPrimaryWithSecondary
-        this.finishSecondaryWithPrimary = finishSecondaryWithPrimary
-    }
+    val clearTop: Boolean = false,
+    @IntRange(from = 0) minWidthDp: Int = SPLIT_MIN_DIMENSION_DP_DEFAULT,
+    @IntRange(from = 0) minHeightDp: Int = SPLIT_MIN_DIMENSION_DP_DEFAULT,
+    @IntRange(from = 0) minSmallestWidthDp: Int = SPLIT_MIN_DIMENSION_DP_DEFAULT,
+    maxAspectRatioInPortrait: EmbeddingAspectRatio = SPLIT_MAX_ASPECT_RATIO_PORTRAIT_DEFAULT,
+    maxAspectRatioInLandscape: EmbeddingAspectRatio = SPLIT_MAX_ASPECT_RATIO_LANDSCAPE_DEFAULT
+) : SplitRule(
+    tag, minWidthDp, minHeightDp, minSmallestWidthDp, maxAspectRatioInPortrait,
+    maxAspectRatioInLandscape, defaultSplitAttributes
+) {
 
     /**
      * Builder for [SplitPairRule].
@@ -275,8 +262,9 @@ class SplitPairRule : SplitRule {
          * @return The new `SplitPairRule` instance.
          */
         fun build() = SplitPairRule(
-            tag,
             filters,
+            defaultSplitAttributes,
+            tag,
             finishPrimaryWithSecondary,
             finishSecondaryWithPrimary,
             clearTop,
@@ -285,7 +273,6 @@ class SplitPairRule : SplitRule {
             minSmallestWidthDp,
             maxAspectRatioInPortrait,
             maxAspectRatioInLandscape,
-            defaultSplitAttributes,
         )
     }
 

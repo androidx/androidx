@@ -116,7 +116,6 @@ internal constructor(
     }
 }
 
-/** @hide */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun EditorStateWireFormat.asApiEditorState(): EditorState {
     return EditorState(

@@ -38,7 +38,7 @@
     <string name="settings_action_title" msgid="8616900063253887861">"ସେଟିଂସ"</string>
     <string name="accept_action_title" msgid="4899660585470647578">"ଗ୍ରହଣ କରନ୍ତୁ"</string>
     <string name="reject_action_title" msgid="6730366705938402668">"ଅଗ୍ରାହ୍ୟ କରନ୍ତୁ"</string>
-    <string name="ok_action_title" msgid="7128494973966098611">"ଠିକ୍ ଅଛି"</string>
+    <string name="ok_action_title" msgid="7128494973966098611">"ଠିକ ଅଛି"</string>
     <string name="throw_action_title" msgid="7163710562670220163">"ଥ୍ରୋ କରନ୍ତୁ"</string>
     <string name="commute_action_title" msgid="2585755255290185096">"ଯାତାୟାତ"</string>
     <string name="sign_out_action_title" msgid="1653943000866713010">"ସାଇନ ଆଉଟ କରନ୍ତୁ"</string>
@@ -122,7 +122,7 @@
     <string name="push_stack" msgid="2433062141810168976">"ଷ୍ଟାକକୁ ଆହୁରି ପୁସ କରନ୍ତୁ"</string>
     <string name="pop_to_prefix" msgid="4288884615669751608">"ଏଥିରେ ପପ କରନ୍ତୁ"</string>
     <string name="pop_to_title" msgid="3924696281273379455">"ଡେମୋ ପପ କରନ୍ତୁ"</string>
-    <string name="package_not_found_error_msg" msgid="7525619456883627939">"ପ୍ୟାକେଜ ମିଳିଲା ନାହିଁ।"</string>
+    <string name="package_not_found_error_msg" msgid="7525619456883627939">"ପେକେଜ ମିଳିଲା ନାହିଁ।"</string>
     <string name="permissions_granted_msg" msgid="2348556088141992714">"ସମସ୍ତ ଅନୁମତି ଦିଆଯାଇଛି। ଦୟାକରି ସେଟିଂସରୁ ଅନୁମତିଗୁଡ଼ିକୁ ପ୍ରତ୍ୟାହାର କରନ୍ତୁ।"</string>
     <string name="needs_access_msg_prefix" msgid="2204136858798832382">"ଏହି ଆପ ନିମ୍ନୋକ୍ତ ଅନୁମତିଗୁଡ଼ିକୁ ଆକ୍ସେସ ଆବଶ୍ୟକ କରେ:\n"</string>
     <string name="phone_screen_permission_msg" msgid="3599815596923367256">"ଫୋନର ସ୍କ୍ରିନରେ ଅନୁମତି ଦିଅନ୍ତୁ"</string>
@@ -131,7 +131,7 @@
     <string name="required_permissions_title" msgid="5351791879153568211">"ଅନୁମତି ଆବଶ୍ୟକ"</string>
     <string name="request_permissions_title" msgid="7456426341142412300">"ଅନୁମତି ଅନୁରୋଧର ଡେମୋ"</string>
     <string name="cancel_reservation_title" msgid="1374986823057959608">"ରିଜର୍ଭେସନ ସ୍କ୍ରିନକୁ ବାତିଲ କରନ୍ତୁ"</string>
-    <string name="reservation_cancelled_msg" msgid="6334213670275547875">"ରିଜର୍ଭେସନ ବାତିଲ୍ କରାଯାଇଛି"</string>
+    <string name="reservation_cancelled_msg" msgid="6334213670275547875">"ରିଜର୍ଭେସନ ବାତିଲ କରାଯାଇଛି"</string>
     <string name="result_demo_title" msgid="3900525190662148290">"ଫଳାଫଳର ଡେମୋ"</string>
     <string name="not_started_for_result_msg" msgid="7498800528148447270">"ଏହି ଆପକୁ ଫଳାଫଳ ପାଇଁ ଆରମ୍ଭ କରାଯାଇନଥିଲା"</string>
     <string name="started_for_result_msg" msgid="4225260243713833974">"ଏହି ଆପକୁ %sରୁ ଫଳାଫଳ ପାଇଁ କଲ କରାଯାଇଥିଲା। କଲରଙ୍କ ପାଖକୁ ପୁଣି ପଠାଇବା ପାଇଁ ଦୟାକରି ଫଳାଫଳକୁ ଚୟନ କରନ୍ତୁ"</string>
@@ -199,7 +199,7 @@
     <string name="low_energy" msgid="3462774027012877028">"କମ୍ ଏନର୍ଜି"</string>
     <string name="range" msgid="8744960568263400641">"ରେଞ୍ଜ"</string>
     <string name="fuel" msgid="4253578650127250651">"ଫୁଏଲ"</string>
-    <string name="battery" msgid="2183623637331546820">"ବ୍ୟାଟେରୀ"</string>
+    <string name="battery" msgid="2183623637331546820">"ବେଟେରୀ"</string>
     <string name="display_speed" msgid="9161318805331348165">"ସ୍ପିଡ ଡିସପ୍ଲେ କରନ୍ତୁ"</string>
     <string name="raw_speed" msgid="7295910214088983967">"ର ସ୍ପିଡ"</string>
     <string name="unit" msgid="7697521583928135171">"ୟୁନିଟ"</string>
@@ -245,8 +245,8 @@
     <string name="email_hint" msgid="7205549445477319606">"ଇମେଲ"</string>
     <string name="sign_in_title" msgid="4551967308262681703">"ସାଇନ ଇନ କରନ୍ତୁ"</string>
     <string name="sign_in_instructions" msgid="9044850228284294762">"ଆପଣଙ୍କ କ୍ରେଡେନ୍ସିଆଲ ଲେଖନ୍ତୁ"</string>
-    <string name="invalid_email_error_msg" msgid="5261362663718987167">"ଉପଯୋଗକର୍ତ୍ତା ନାମ ଏକ ବୈଧ ଇମେଲ ଠିକଣା ହୋଇଥିବା ଆବଶ୍ୟକ"</string>
-    <string name="invalid_length_error_msg" msgid="8238905276326976425">"ଉପଯୋଗକର୍ତ୍ତା ନାମରେ ଅତି କମରେ %sଟି କେରେକ୍ଟର ରହିବା ଆବଶ୍ୟକ"</string>
+    <string name="invalid_email_error_msg" msgid="5261362663718987167">"ୟୁଜର ନେମ ଏକ ବୈଧ ଇମେଲ ଠିକଣା ହୋଇଥିବା ଆବଶ୍ୟକ"</string>
+    <string name="invalid_length_error_msg" msgid="8238905276326976425">"ୟୁଜର ନେମରେ ଅତି କମରେ %sଟି କେରେକ୍ଟର ରହିବା ଆବଶ୍ୟକ"</string>
     <string name="invalid_password_error_msg" msgid="1090359893902674610">"ଅବୈଧ ପାସୱାର୍ଡ"</string>
     <string name="password_hint" msgid="2869107073860012864">"ପାସୱାର୍ଡ"</string>
     <string name="password_sign_in_instruction_prefix" msgid="9105788349198243508">"ଉପଯୋଗକର୍ତ୍ତାନାମ"</string>
@@ -264,6 +264,7 @@
     <string name="tab_title_list" msgid="5104962518489668123">"ଲିଷ୍ଟ ଟାବ"</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"ଲମ୍ବା ଟାବ ଟାଇଟେଲ ସହ ଗ୍ରୀଡ ଟାବ"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"ସର୍ଚ୍ଚ ଟାବ"</string>
+    <string name="tab_title_loading" msgid="5385807479734490989">"ଟାବ ଲୋଡ ହେଉଛି"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"ଟାବ ଟେମ୍ପଲେଟର ଲୋଡିଂ ଡେମୋ"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"ଟାବ ଟେମ୍ପଲେଟ କୌଣସି ଟାବ ବିନା ଡେମୋ"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"ଏକ ଅଜଣା ହୋଷ୍ଟ ପାଇଁ ଇମେଜଗୁଡ଼ିକୁ ଡିସପ୍ଲେ କରାଯାଇପାରିବ ନାହିଁ"</string>
@@ -298,7 +299,7 @@
     <string name="some_additional_text" msgid="4009872495806318260">"କିଛି ଅତିରିକ୍ତ ଟେକ୍ସଟ"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"ଚୟନ କରାଯାଇପାରୁଥିବା ନମୁନାର ତାଲିକା"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"ଟାସ୍କ ପ୍ରତିବନ୍ଧିତ କରିବାର ଡେମୋ"</string>
-    <string name="task_limit_reached_msg" msgid="6038763366777119364">"ଟାସ୍କର ସୀମାରେ ପହଞ୍ଚିଯାଇଛି\nଆଗକୁ ଗଲେ ଆପଟି ବାଧ୍ୟତାର ସହ ବନ୍ଦ ହୋଇଯିବ"</string>
+    <string name="task_limit_reached_msg" msgid="7162842196382260992">"ଏହା ଷ୍ଟେପ ଗଣନାକୁ ଓଭରଫ୍ଲୋ କରିବ ଏବଂ ଆପଣଙ୍କୁ ଏକ ନୂଆ ସ୍କ୍ରିନକୁ ନେଇଯିବ।"</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"%2$dଟିରୁ %1$d ନମ୍ବର ଟାସ୍କର ଷ୍ଟେପ"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"ଆଗକୁ ଯିବା ପାଇଁ କ୍ଲିକ କରନ୍ତୁ"</string>
     <string name="task_content_allowed" msgid="545061986612431190">"ଦୟାକରି ବିଭିନ୍ନ ଟେମ୍ପଲେଟକୁ ଭିଜିଟ କରନ୍ତୁ ଏବଂ କାରଟି ଡ୍ରାଇଭିଂ ମୋଡରେ ଥିବା ସୁନିଶ୍ଚିତ କରନ୍ତୁ"</string>
@@ -323,6 +324,12 @@
     <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"ଏହି ଧାଡ଼ିଟିକୁ ମଧ୍ୟ ଚୟନ କରାଯାଇପାରିବ"</string>
     <string name="secondary_action_toast" msgid="5076434693504006565">"ଦ୍ୱିତୀୟ କାର୍ଯ୍ୟ ଚୟନ କରାଯାଇଛି"</string>
     <string name="row_primary_action_toast" msgid="756516694751965204">"ଧାଡ଼ିର ପ୍ରାଥମିକ କାର୍ଯ୍ୟ ଚୟନ କରାଯାଇଛି"</string>
+    <string name="sectioned_item_list_demo_title" msgid="1236735461225007729">"ବିଭାଗୀକୃତ ଆଇଟମ ତାଲିକା ଡେମୋ"</string>
+    <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"ତାଲିକା 1"</string>
+    <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"ତାଲିକା 2"</string>
+    <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"ପ୍ରତ୍ୟେକ ତାଲିକା ତଳେ ସବଟେକ୍ସଟ"</string>
+    <string name="empty_list_demo_title" msgid="5989013634820902455">"ଖାଲି ତାଲିକାର ଡେମୋ"</string>
+    <string name="empty_list_message" msgid="5331395517560728138">"ତାଲିକା ଖାଲି ଅଛି"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"ବିବିଧ ଟେମ୍ପଲେଟର ଡେମୋ"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"Showcase ଡେମୋ"</string>
     <string name="template_layouts_demo_title" msgid="788249269446087847">"ଟେମ୍ପଲେଟ ଲେଆଉଟର ଡେମୋଗୁଡ଼ିକ"</string>

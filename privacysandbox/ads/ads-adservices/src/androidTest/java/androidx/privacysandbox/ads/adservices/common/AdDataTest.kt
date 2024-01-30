@@ -28,6 +28,7 @@ import org.junit.runner.RunWith
 class AdDataTest {
     private val uri: Uri = Uri.parse("abc.com")
     private val metadata = "metadata"
+
     @Test
     fun testToString() {
         val result = "AdData: renderUri=$uri, metadata='$metadata'"

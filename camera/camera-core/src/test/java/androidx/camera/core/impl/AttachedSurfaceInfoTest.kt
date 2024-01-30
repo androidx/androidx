@@ -16,32 +16,56 @@
 package androidx.camera.core.impl
 
 import android.graphics.ImageFormat
+import android.os.Build
 import android.util.Range
 import android.util.Size
+import androidx.camera.core.DynamicRange
+import androidx.camera.core.impl.UseCaseConfigFactory.CaptureType
+import androidx.camera.testing.impl.fakes.FakeUseCaseConfig
 import com.google.common.truth.Truth
 import org.junit.Before
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
+import org.robolectric.annotation.internal.DoNotInstrument
 
+@RunWith(RobolectricTestRunner::class)
+@DoNotInstrument
+@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 class AttachedSurfaceInfoTest {
-    private var mAttachedSurfaceInfo: AttachedSurfaceInfo? = null
-    private val mSurfaceConfig = SurfaceConfig.create(
+    private var attachedSurfaceInfo: AttachedSurfaceInfo? = null
+    private val surfaceConfig = SurfaceConfig.create(
         SurfaceConfig.ConfigType.JPEG,
         SurfaceConfig.ConfigSize.PREVIEW
     )
-    private val mImageFormat = ImageFormat.JPEG
-    private val mSize = Size(1920, 1080)
-    private val mTargetFramerate = Range(10, 20)
+    private val imageFormat = ImageFormat.JPEG
+    private val size = Size(1920, 1080)
+    private val dynamicRange = DynamicRange.SDR
+    private val captureTypes = listOf(CaptureType.PREVIEW)
+    private val inputFormat = ImageFormat.PRIVATE
+    private val targetFramerate = Range(10, 20)
+    private val config = FakeUseCaseConfig.Builder(
+        CaptureType.PREVIEW,
+        inputFormat
+    ).useCaseConfig.config
+
     @Before
     fun setup() {
-        mAttachedSurfaceInfo = AttachedSurfaceInfo.create(
-            mSurfaceConfig, mImageFormat, mSize,
-            mTargetFramerate
+        attachedSurfaceInfo = AttachedSurfaceInfo.create(
+            surfaceConfig,
+            imageFormat,
+            size,
+            dynamicRange,
+            captureTypes,
+            config,
+            targetFramerate
         )
     }
 
     @Test
     fun canGetSurfaceConfig() {
-        Truth.assertThat(mAttachedSurfaceInfo!!.surfaceConfig).isEqualTo(
+        Truth.assertThat(attachedSurfaceInfo!!.surfaceConfig).isEqualTo(
             SurfaceConfig.create(
                 SurfaceConfig.ConfigType.JPEG, SurfaceConfig.ConfigSize.PREVIEW
             )
@@ -50,24 +74,56 @@ class AttachedSurfaceInfoTest {
 
     @Test
     fun canGetImageFormat() {
-        Truth.assertThat(mAttachedSurfaceInfo!!.imageFormat).isEqualTo(ImageFormat.JPEG)
+        Truth.assertThat(attachedSurfaceInfo!!.imageFormat).isEqualTo(ImageFormat.JPEG)
     }
 
     @Test
     fun canGetSize() {
-        Truth.assertThat(mAttachedSurfaceInfo!!.size).isEqualTo(mSize)
+        Truth.assertThat(attachedSurfaceInfo!!.size).isEqualTo(size)
+    }
+
+    @Test
+    fun canGetDynamicRange() {
+        Truth.assertThat(attachedSurfaceInfo!!.dynamicRange).isEqualTo(dynamicRange)
+    }
+
+    @Test
+    fun canGetCaptureTypes() {
+        Truth.assertThat(attachedSurfaceInfo!!.captureTypes.size).isEqualTo(captureTypes.size)
+        for ((index, value) in captureTypes.withIndex()) {
+            Truth.assertThat(attachedSurfaceInfo!!.captureTypes[index]).isEqualTo(value)
+        }
+    }
+
+    @Test
+    fun canGetImplementationOption() {
+        Truth.assertThat(
+            attachedSurfaceInfo!!.implementationOptions!!
+                .containsOption(ImageInputConfig.OPTION_INPUT_FORMAT)
+        )
+            .isTrue()
+        Truth.assertThat(
+            attachedSurfaceInfo!!.implementationOptions!!
+                .retrieveOption(ImageInputConfig.OPTION_INPUT_FORMAT)
+        )
+            .isEqualTo(inputFormat)
     }
 
     @Test
     fun canGetTargetFrameRate() {
-        Truth.assertThat(mAttachedSurfaceInfo!!.targetFrameRate).isEqualTo(mTargetFramerate)
+        Truth.assertThat(attachedSurfaceInfo!!.targetFrameRate).isEqualTo(targetFramerate)
     }
 
     @Test
     fun nullGetTargetFrameRateReturnsNull() {
         val attachedSurfaceInfo2 = AttachedSurfaceInfo.create(
-            mSurfaceConfig,
-            mImageFormat, mSize, null
+            surfaceConfig,
+            imageFormat,
+            size,
+            dynamicRange,
+            listOf(CaptureType.PREVIEW),
+            config,
+            null
         )
         Truth.assertThat(attachedSurfaceInfo2.targetFrameRate).isNull()
     }

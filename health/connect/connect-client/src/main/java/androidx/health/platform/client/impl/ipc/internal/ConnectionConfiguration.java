@@ -24,7 +24,6 @@ import androidx.annotation.RestrictTo.Scope;
 /**
  * Internal representation of configuration of IPC service connection.
  *
- * @hide
  */
 @RestrictTo(Scope.LIBRARY)
 public final class ConnectionConfiguration {

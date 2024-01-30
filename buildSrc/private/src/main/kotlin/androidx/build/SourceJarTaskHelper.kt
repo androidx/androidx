@@ -17,9 +17,13 @@
 package androidx.build
 
 import androidx.build.dokka.kmpDocs.DokkaAnalysisPlatform
+import androidx.build.dokka.kmpDocs.docsPlatform
 import com.android.build.gradle.LibraryExtension
 import com.google.gson.GsonBuilder
 import java.io.File
+import java.util.Locale
+import org.gradle.api.DefaultTask
+import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.attributes.Bundling
@@ -29,22 +33,18 @@ import org.gradle.api.attributes.Usage
 import org.gradle.api.component.AdhocComponentWithVariants
 import org.gradle.api.file.DuplicatesStrategy
 import org.gradle.api.plugins.JavaPluginExtension
+import org.gradle.api.tasks.CacheableTask
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.OutputFile
+import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.api.tasks.bundling.Jar
 import org.gradle.kotlin.dsl.extra
 import org.gradle.kotlin.dsl.named
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
-import java.util.Locale
-import org.jetbrains.kotlin.gradle.plugin.KotlinTarget
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation.Companion.MAIN_COMPILATION_NAME
-import androidx.build.dokka.kmpDocs.docsPlatform
-import org.gradle.api.DefaultTask
-import org.gradle.api.GradleException
-import org.gradle.api.tasks.CacheableTask
-import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.OutputFile
-import org.gradle.api.tasks.TaskAction
+import org.jetbrains.kotlin.gradle.plugin.KotlinTarget
 
 /**
  * Sets up a source jar task for an Android library project.
@@ -63,6 +63,18 @@ fun Project.configureSourceJarForAndroid(extension: LibraryExtension) {
             it.duplicatesStrategy = DuplicatesStrategy.FAIL
         }
         registerSourcesVariant(sourceJar)
+
+        // b/272214715
+        configurations.whenObjectAdded {
+            if (it.name == "debugSourcesElements" || it.name == "releaseSourcesElements") {
+                it.artifacts.whenObjectAdded { _ ->
+                    it.attributes.attribute(
+                        DocsType.DOCS_TYPE_ATTRIBUTE,
+                        project.objects.named(DocsType::class.java, "fake-sources")
+                    )
+                }
+            }
+        }
     }
     project.afterEvaluate {
         // we can only tell if a project is multiplatform after it is configured

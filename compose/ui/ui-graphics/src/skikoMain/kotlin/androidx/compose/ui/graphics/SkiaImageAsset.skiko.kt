@@ -18,13 +18,13 @@ package androidx.compose.ui.graphics
 
 import androidx.compose.ui.graphics.colorspace.ColorSpace
 import androidx.compose.ui.graphics.colorspace.ColorSpaces
+import kotlin.math.abs
 import org.jetbrains.skia.Bitmap
 import org.jetbrains.skia.ColorAlphaType
 import org.jetbrains.skia.ColorInfo
 import org.jetbrains.skia.ColorType
 import org.jetbrains.skia.Image
 import org.jetbrains.skia.ImageInfo
-import kotlin.math.abs
 
 /**
  * Create an [ImageBitmap] from the given [Bitmap]. Note this does
@@ -38,14 +38,9 @@ fun Bitmap.asComposeImageBitmap(): ImageBitmap = SkiaBackedImageBitmap(this)
  */
 fun Image.toComposeImageBitmap(): ImageBitmap = SkiaBackedImageBitmap(toBitmap())
 
-private fun Image.toBitmap(): Bitmap {
-    val bitmap = Bitmap()
-    bitmap.allocPixels(ImageInfo.makeN32(width, height, ColorAlphaType.PREMUL))
-    val canvas = org.jetbrains.skia.Canvas(bitmap)
-    canvas.drawImage(this, 0f, 0f)
-    bitmap.setImmutable()
-    return bitmap
-}
+// Split into expect/actual to use a faster implementation for web
+// See web implementation for details and the reason.
+internal expect fun Image.toBitmap(): Bitmap
 
 internal actual fun ActualImageBitmap(
     width: Int,

@@ -22,7 +22,7 @@
             android:configChanges=
                 "orientation|screenSize|screenLayout|screenSize|layoutDirection|smallestScreenSize"
             android:knownActivityEmbeddingCerts=
-                "6a8b96e278e58f62cfe3584022cec1d0527fcb85a9e5d2e1694eb0405be5b599">
+                "dd90860fc4b334495a654707e666772fce8154c14191ab76f9b229c8c7b9e6de">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

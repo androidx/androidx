@@ -16,38 +16,74 @@
 
 package androidx.compose.ui.platform
 
-import androidx.compose.ui.text.input.BackspaceCommand
-import androidx.compose.ui.text.input.CommitTextCommand
-import androidx.compose.ui.text.input.EditCommand
-import androidx.compose.ui.text.input.FinishComposingTextCommand
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.ImeOptions
-import androidx.compose.ui.text.input.PlatformTextInputService
-import androidx.compose.ui.text.input.SetComposingRegionCommand
-import androidx.compose.ui.text.input.SetComposingTextCommand
-import androidx.compose.ui.text.input.SetSelectionCommand
-import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.input.key.NativeKeyEvent
+import androidx.compose.ui.text.input.*
+import androidx.compose.ui.window.FocusStack
+import androidx.compose.ui.window.IntermediateTextInputUIView
+import androidx.compose.ui.window.KeyboardEventHandler
+import androidx.compose.ui.scene.getConstraintsToFillParent
+import androidx.compose.ui.unit.Density
+import kotlin.math.absoluteValue
 import kotlin.math.min
-import org.jetbrains.skiko.SkikoInput
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.launch
+import org.jetbrains.skia.BreakIterator
+import org.jetbrains.skiko.SkikoKey
+import org.jetbrains.skiko.SkikoKeyboardEventKind
+import platform.UIKit.*
 
 internal class UIKitTextInputService(
-    showSoftwareKeyboard: () -> Unit,
-    hideSoftwareKeyboard: () -> Unit,
     private val updateView: () -> Unit,
-    private val textWillChange: () -> Unit,
-    private val textDidChange: () -> Unit,
-    private val selectionWillChange: () -> Unit,
-    private val selectionDidChange: () -> Unit,
-) : PlatformTextInputService {
+    private val rootViewProvider: () -> UIView,
+    private val densityProvider: () -> Density,
+    private val focusStack: FocusStack<UIView>?,
+    private val keyboardEventHandler: KeyboardEventHandler,
+) : PlatformTextInputService, TextToolbar {
 
-    data class CurrentInput(
-        var value: TextFieldValue,
-        val onEditCommand: (List<EditCommand>) -> Unit
-    )
-
-    private val _showSoftwareKeyboard: () -> Unit = showSoftwareKeyboard
-    private val _hideSoftwareKeyboard: () -> Unit = hideSoftwareKeyboard
+    private val rootView get() = rootViewProvider()
     private var currentInput: CurrentInput? = null
+    private var currentImeOptions: ImeOptions? = null
+    private var currentImeActionHandler: ((ImeAction) -> Unit)? = null
+    private var textUIView: IntermediateTextInputUIView? = null
+
+    /**
+     * Workaround to prevent calling textWillChange, textDidChange, selectionWillChange, and
+     * selectionDidChange when the value of the current input is changed by the system (i.e., by the user
+     * input) not by the state change of the Compose side. These 4 functions call methods of
+     * UITextInputDelegateProtocol, which notifies the system that the text or the selection of the
+     * current input has changed.
+     *
+     * This is to properly handle multi-stage input methods that depend on text selection, required by
+     * languages such as Korean (Chinese and Japanese input methods depend on text marking). The writing
+     * system of these languages contains letters that can be broken into multiple parts, and each keyboard
+     * key corresponds to those parts. Therefore, the input system holds an internal state to combine these
+     * parts correctly. However, the methods of UITextInputDelegateProtocol reset this state, resulting in
+     * incorrect input. (e.g., 컴포즈 becomes ㅋㅓㅁㅍㅗㅈㅡ when not handled properly)
+     *
+     * @see _tempCurrentInputSession holds the same text and selection of the current input. It is used
+     * instead of the old value passed to updateState. When the current value change is due to the
+     * user input, updateState is not effective because _tempCurrentInputSession holds the same value.
+     * However, when the current value change is due to the change of the user selection or to the
+     * state change in the Compose side, updateState calls the 4 methods because the new value holds
+     * these changes.
+     */
+    private var _tempCurrentInputSession: EditProcessor? = null
+
+    /**
+     * Workaround to prevent IME action from being called multiple times with hardware keyboards.
+     * When the hardware return key is held down, iOS sends multiple newline characters to the application,
+     * which makes UIKitTextInputService call the current IME action multiple times without an additional
+     * debouncing logic.
+     *
+     * @see _tempHardwareReturnKeyPressed is set to true when the return key is pressed with a
+     * hardware keyboard.
+     * @see _tempImeActionIsCalledWithHardwareReturnKey is set to true when the
+     * current IME action has been called within the current hardware return key press.
+     */
+    private var _tempHardwareReturnKeyPressed: Boolean = false
+    private var _tempImeActionIsCalledWithHardwareReturnKey: Boolean = false
 
     /**
      * Workaround to fix voice dictation.
@@ -58,6 +94,7 @@ internal class UIKitTextInputService(
      * And after clear in updateState function.
      */
     private var _tempCursorPos: Int? = null
+    private val mainScope = MainScope()
 
     override fun startInput(
         value: TextFieldValue,
@@ -66,46 +103,208 @@ internal class UIKitTextInputService(
         onImeActionPerformed: (ImeAction) -> Unit
     ) {
         currentInput = CurrentInput(value, onEditCommand)
+        _tempCurrentInputSession = EditProcessor().apply {
+            reset(value, null)
+        }
+        currentImeOptions = imeOptions
+        currentImeActionHandler = onImeActionPerformed
+
+        textUIView?.removeFromSuperview()
+        textUIView = IntermediateTextInputUIView(
+            keyboardEventHandler = keyboardEventHandler,
+        ).also {
+            rootView.addSubview(it)
+            it.translatesAutoresizingMaskIntoConstraints = false
+            NSLayoutConstraint.activateConstraints(
+                getConstraintsToFillParent(it, rootView)
+            )
+        }
+        textUIView?.input = createSkikoInput(value)
+        textUIView?.inputTraits = getUITextInputTraits(imeOptions)
+
         showSoftwareKeyboard()
     }
 
     override fun stopInput() {
         currentInput = null
+        _tempCurrentInputSession = null
+        currentImeOptions = null
+        currentImeActionHandler = null
         hideSoftwareKeyboard()
+
+        textUIView?.input = null
+        textUIView?.let { view ->
+            mainScope.launch {
+                view.removeFromSuperview()
+            }
+        }
+        textUIView = null
     }
 
     override fun showSoftwareKeyboard() {
-        _showSoftwareKeyboard()
+        textUIView?.let {
+            focusStack?.pushAndFocus(it)
+        }
     }
 
     override fun hideSoftwareKeyboard() {
-        _hideSoftwareKeyboard()
+        textUIView?.let {
+            focusStack?.popUntilNext(it)
+        }
     }
 
     override fun updateState(oldValue: TextFieldValue?, newValue: TextFieldValue) {
-        val textChanged = oldValue == null || oldValue.text != newValue.text
-        val selectionChanged = textChanged || oldValue == null || oldValue.selection != newValue.selection
+        val internalOldValue = _tempCurrentInputSession?.toTextFieldValue()
+        val textChanged = internalOldValue == null || internalOldValue.text != newValue.text
+        val selectionChanged =
+            textChanged || internalOldValue == null || internalOldValue.selection != newValue.selection
         if (textChanged) {
-            textWillChange()
+            textUIView?.textWillChange()
         }
         if (selectionChanged) {
-            selectionWillChange()
+            textUIView?.selectionWillChange()
         }
+        _tempCurrentInputSession?.reset(newValue, null)
         currentInput?.let { input ->
             input.value = newValue
             _tempCursorPos = null
         }
         if (textChanged) {
-            textDidChange()
+            textUIView?.textDidChange()
         }
         if (selectionChanged) {
-            selectionDidChange()
+            textUIView?.selectionDidChange()
         }
-        updateView()
+        if (textChanged || selectionChanged) {
+            updateView()
+            textUIView?.reloadInputViews()
+        }
     }
 
-    val skikoInput = object : SkikoInput {
+    fun onPreviewKeyEvent(event: KeyEvent): Boolean {
+        val nativeKeyEvent = event.nativeKeyEvent
+        return when (nativeKeyEvent.key) {
+            SkikoKey.KEY_ENTER -> handleEnterKey(nativeKeyEvent)
+            SkikoKey.KEY_BACKSPACE -> handleBackspace(nativeKeyEvent)
+            else -> false
+        }
+    }
 
+    private fun handleEnterKey(event: NativeKeyEvent): Boolean {
+        _tempImeActionIsCalledWithHardwareReturnKey = false
+        return when (event.kind) {
+            SkikoKeyboardEventKind.UP -> {
+                _tempHardwareReturnKeyPressed = false
+                false
+            }
+
+            SkikoKeyboardEventKind.DOWN -> {
+                _tempHardwareReturnKeyPressed = true
+                // This prevents two new line characters from being added for one hardware return key press.
+                true
+            }
+
+            else -> false
+        }
+    }
+
+    private fun handleBackspace(event: NativeKeyEvent): Boolean {
+        // This prevents two characters from being removed for one hardware backspace key press.
+        return event.kind == SkikoKeyboardEventKind.DOWN
+    }
+
+    private fun sendEditCommand(vararg commands: EditCommand) {
+        val commandList = commands.toList()
+        _tempCurrentInputSession?.apply(commandList)
+        currentInput?.let { input ->
+            input.onEditCommand(commandList)
+        }
+    }
+
+    private fun getCursorPos(): Int? {
+        if (_tempCursorPos != null) {
+            return _tempCursorPos
+        }
+        val selection = getState()?.selection
+        if (selection != null && selection.start == selection.end) {
+            return selection.start
+        }
+        return null
+    }
+
+    private fun imeActionRequired(): Boolean =
+        currentImeOptions?.run {
+            singleLine || (
+                imeAction != ImeAction.None
+                    && imeAction != ImeAction.Default
+                    && !(imeAction == ImeAction.Search && _tempHardwareReturnKeyPressed)
+                )
+        } ?: false
+
+    private fun runImeActionIfRequired(): Boolean {
+        val imeAction = currentImeOptions?.imeAction ?: return false
+        val imeActionHandler = currentImeActionHandler ?: return false
+        if (!imeActionRequired()) {
+            return false
+        }
+        if (!_tempImeActionIsCalledWithHardwareReturnKey) {
+            if (imeAction == ImeAction.Default) {
+                imeActionHandler(ImeAction.Done)
+            } else {
+                imeActionHandler(imeAction)
+            }
+        }
+        if (_tempHardwareReturnKeyPressed) {
+            _tempImeActionIsCalledWithHardwareReturnKey = true
+        }
+        return true
+    }
+
+    private fun getState(): TextFieldValue? = currentInput?.value
+
+    override fun showMenu(
+        rect: Rect,
+        onCopyRequested: (() -> Unit)?,
+        onPasteRequested: (() -> Unit)?,
+        onCutRequested: (() -> Unit)?,
+        onSelectAllRequested: (() -> Unit)?
+    ) {
+        textUIView?.let {
+            val skiaRect = with(densityProvider()) {
+                org.jetbrains.skia.Rect.makeLTRB(
+                    l = rect.left / density,
+                    t = rect.top / density,
+                    r = rect.right / density,
+                    b = rect.bottom / density,
+                )
+            }
+            it.showTextMenu(
+                targetRect = skiaRect,
+                textActions = object : TextActions {
+                    override val copy: (() -> Unit)? = onCopyRequested
+                    override val cut: (() -> Unit)? = onCutRequested
+                    override val paste: (() -> Unit)? = onPasteRequested
+                    override val selectAll: (() -> Unit)? = onSelectAllRequested
+                }
+            )
+        }
+    }
+
+    /**
+     * TODO on UIKit native behaviour is hide text menu, when touch outside
+     */
+    override fun hide() {
+        textUIView?.hideTextMenu()
+    }
+
+    override val status: TextToolbarStatus
+        get() = if (textUIView?.isTextMenuShown() == true)
+            TextToolbarStatus.Shown
+        else
+            TextToolbarStatus.Hidden
+
+
+    private fun createSkikoInput(value: TextFieldValue) = object : IOSSkikoInput {
         /**
          * A Boolean value that indicates whether the text-entry object has any text.
          * https://developer.apple.com/documentation/uikit/uikeyinput/1614457-hastext
@@ -119,6 +318,11 @@ internal class UIKitTextInputService(
          * @param text A string object representing the character typed on the system keyboard.
          */
         override fun insertText(text: String) {
+            if (text == "\n") {
+                if (runImeActionIfRequired()) {
+                    return
+                }
+            }
             getCursorPos()?.let {
                 _tempCursorPos = it + text.length
             }
@@ -131,8 +335,10 @@ internal class UIKitTextInputService(
          * https://developer.apple.com/documentation/uikit/uikeyinput/1614572-deletebackward
          */
         override fun deleteBackward() {
+            // Before this function calls, iOS changes selection in setSelectedTextRange.
+            // All needed characters should be allready selected, and we can just remove them.
             sendEditCommand(
-                BackspaceCommand()
+                CommitTextCommand("", 0)
             )
         }
 
@@ -248,25 +454,168 @@ internal class UIKitTextInputService(
             sendEditCommand(FinishComposingTextCommand())
         }
 
-    }
+        /**
+         * Returns the text position at a specified offset from another text position.
+         */
+        override fun positionFromPosition(position: Long, offset: Long): Long {
+            val text = getState()?.text ?: return 0
 
-    private fun sendEditCommand(vararg commands: EditCommand) {
-        currentInput?.let { input ->
-            input.onEditCommand(commands.toList())
+            if (position + offset >= text.lastIndex + 1) {
+                return (text.lastIndex + 1).toLong()
+            }
+            if (position + offset <= 0) {
+                return 0
+            }
+            var resultPosition = position.toInt()
+            val iterator = BreakIterator.makeCharacterInstance()
+            iterator.setText(text)
+
+            repeat(offset.absoluteValue.toInt()) {
+                resultPosition = if (offset > 0) {
+                    iterator.following(resultPosition)
+                } else {
+                    iterator.preceding(resultPosition)
+                }
+            }
+
+            return resultPosition.toLong()
+        }
+
+        /**
+         * Return the range for the text enclosing a text position in a text unit of a given granularity in a given direction.
+         * https://developer.apple.com/documentation/uikit/uitextinputtokenizer/1614464-rangeenclosingposition?language=objc
+         * @param position
+         * A text-position object that represents a location in a document.
+         * @param withGranularity
+         * A constant that indicates a certain granularity of text unit.
+         * @param inDirection
+         * A constant that indicates a direction relative to position. The constant can be of type UITextStorageDirection or UITextLayoutDirection.
+         * @return
+         * A text-range representing a text unit of the given granularity in the given direction, or nil if there is no such enclosing unit.
+         * Whether a boundary position is enclosed depends on the given direction, using the same rule as the isPosition:withinTextUnit:inDirection: method.
+         */
+        override fun rangeEnclosingPosition(
+            position: Int,
+            withGranularity: UITextGranularity,
+            inDirection: UITextDirection
+        ): IntRange? {
+            val text = getState()?.text ?: return null
+            assert(position >= 0) { "rangeEnclosingPosition position >= 0" }
+
+            fun String.isMeaningless(): Boolean {
+                return when (withGranularity) {
+                    UITextGranularity.UITextGranularityWord -> {
+                        this.all { it in arrayOf(' ', ',') }
+                    }
+
+                    else -> false
+                }
+            }
+
+            val iterator: BreakIterator = withGranularity.toTextIterator()
+            iterator.setText(text)
+
+            if (inDirection == UITextStorageDirectionForward) {
+                return null
+            } else if (inDirection == UITextStorageDirectionBackward) {
+                var current: Int = position
+
+                fun currentRange() = IntRange(current, position)
+                fun nextAddition() =
+                    IntRange(iterator.preceding(current).coerceAtLeast(0), current)
+
+                fun IntRange.text() = text.substring(start, endInclusive)
+
+                while (
+                    current == position
+                    || currentRange().text().isMeaningless()
+                    || nextAddition().text().isMeaningless()
+                ) {
+                    current = iterator.preceding(current)
+                    if (current <= 0) {
+                        current = 0
+                        break
+                    }
+                }
+
+                return IntRange(current, position)
+            } else {
+                error("Unknown inDirection: $inDirection")
+            }
+        }
+
+        /**
+         * Return whether a text position is at a boundary of a text unit of a specified granularity in a specified direction.
+         * https://developer.apple.com/documentation/uikit/uitextinputtokenizer/1614553-isposition?language=objc
+         * @param position
+         * A text-position object that represents a location in a document.
+         * @param atBoundary
+         * A constant that indicates a certain granularity of text unit.
+         * @param inDirection
+         * A constant that indicates a direction relative to position. The constant can be of type UITextStorageDirection or UITextLayoutDirection.
+         * @return
+         * TRUE if the text position is at the given text-unit boundary in the given direction; FALSE if it is not at the boundary.
+         */
+        override fun isPositionAtBoundary(
+            position: Int,
+            atBoundary: UITextGranularity,
+            inDirection: UITextDirection
+        ): Boolean {
+            val text = getState()?.text ?: return false
+            assert(position >= 0) { "isPositionAtBoundary position >= 0" }
+
+            val iterator = atBoundary.toTextIterator()
+            iterator.setText(text)
+            return iterator.isBoundary(position)
+        }
+
+        /**
+         * Return whether a text position is within a text unit of a specified granularity in a specified direction.
+         * https://developer.apple.com/documentation/uikit/uitextinputtokenizer/1614491-isposition?language=objc
+         * @param position
+         * A text-position object that represents a location in a document.
+         * @param withinTextUnit
+         * A constant that indicates a certain granularity of text unit.
+         * @param inDirection
+         * A constant that indicates a direction relative to position. The constant can be of type UITextStorageDirection or UITextLayoutDirection.
+         * @return
+         * TRUE if the text position is within a text unit of the specified granularity in the specified direction; otherwise, return FALSE.
+         * If the text position is at a boundary, return TRUE only if the boundary is part of the text unit in the given direction.
+         */
+        override fun isPositionWithingTextUnit(
+            position: Int,
+            withinTextUnit: UITextGranularity,
+            inDirection: UITextDirection
+        ): Boolean {
+            val text = getState()?.text ?: return false
+            assert(position >= 0) { "isPositionWithingTextUnit position >= 0" }
+
+            val iterator = withinTextUnit.toTextIterator()
+            iterator.setText(text)
+
+            if (inDirection == UITextStorageDirectionForward) {
+
+            } else if (inDirection == UITextStorageDirectionBackward) {
+
+            }
+            return false // TODO: Write implementation
         }
     }
-
-    private fun getCursorPos(): Int? {
-        if (_tempCursorPos != null) {
-            return _tempCursorPos
-        }
-        val selection = getState()?.selection
-        if (selection != null && selection.start == selection.end) {
-            return selection.start
-        }
-        return null
-    }
-
-    private fun getState(): TextFieldValue? = currentInput?.value
 
 }
+
+private fun UITextGranularity.toTextIterator() =
+    when (this) {
+        UITextGranularity.UITextGranularitySentence -> BreakIterator.makeSentenceInstance()
+        UITextGranularity.UITextGranularityLine -> BreakIterator.makeLineInstance()
+        UITextGranularity.UITextGranularityWord -> BreakIterator.makeWordInstance()
+        UITextGranularity.UITextGranularityCharacter -> BreakIterator.makeCharacterInstance()
+        UITextGranularity.UITextGranularityParagraph -> TODO("UITextGranularityParagraph iterator")
+        UITextGranularity.UITextGranularityDocument -> TODO("UITextGranularityDocument iterator")
+        else -> error("Unknown granularity")
+    }
+
+private data class CurrentInput(
+    var value: TextFieldValue,
+    val onEditCommand: (List<EditCommand>) -> Unit
+)

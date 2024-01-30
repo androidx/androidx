@@ -38,7 +38,7 @@
     <string name="use_face_or_screen_lock_label" msgid="2116180187159450292">"使用面孔或螢幕鎖定"</string>
     <string name="use_biometric_or_screen_lock_label" msgid="5385448280139639016">"使用生物識別或螢幕鎖定"</string>
     <string name="fingerprint_prompt_message" msgid="7449360011861769080">"請使用指紋驗證身分，才能繼續操作"</string>
-    <string name="face_prompt_message" msgid="2282389249605674226">"請使用您的面孔驗證身分，才能繼續操作"</string>
+    <string name="face_prompt_message" msgid="2282389249605674226">"請使用你的面孔驗證身分，才能繼續操作"</string>
     <string name="biometric_prompt_message" msgid="1160635338192065472">"請使用使用生物識別驗證身分，才能繼續操作"</string>
     <string name="screen_lock_prompt_message" msgid="5659570757430909869">"請輸入螢幕鎖定解鎖憑證，才能繼續操作"</string>
     <string name="fingerprint_or_screen_lock_prompt_message" msgid="8382576858490514495">"請使用指紋解鎖或螢幕鎖定功能驗證身分，才能繼續操作"</string>

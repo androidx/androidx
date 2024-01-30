@@ -31,7 +31,6 @@ import androidx.versionedparcelable.VersionedParcelize;
 /**
  * Parameters for {@link IWatchFaceControlService#getComplicationSlotMetadata}.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @VersionedParcelize

@@ -29,17 +29,20 @@ import android.util.Log
 import androidx.annotation.MainThread
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
-import androidx.camera.testing.AndroidUtil.skipVideoRecordingTestIfNotSupportedByEmulator
-import androidx.camera.testing.CameraUtil
-import androidx.camera.testing.CoreAppTestUtil
-import androidx.camera.testing.CoreAppTestUtil.ForegroundOccupiedError
-import androidx.camera.testing.fakes.FakeActivity
-import androidx.camera.testing.fakes.FakeLifecycleOwner
+import androidx.camera.testing.impl.AndroidUtil.skipVideoRecordingTestIfNotSupportedByEmulator
+import androidx.camera.testing.impl.CameraUtil
+import androidx.camera.testing.impl.CoreAppTestUtil
+import androidx.camera.testing.impl.CoreAppTestUtil.ForegroundOccupiedError
+import androidx.camera.testing.impl.fakes.FakeActivity
+import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
+import androidx.camera.video.FallbackStrategy
 import androidx.camera.video.FileDescriptorOutputOptions
 import androidx.camera.video.FileOutputOptions
 import androidx.camera.video.MediaStoreOutputOptions
 import androidx.camera.video.OutputOptions
 import androidx.camera.video.Quality
+import androidx.camera.video.QualitySelector
+import androidx.camera.video.Recorder
 import androidx.camera.video.Recording
 import androidx.camera.video.VideoRecordEvent
 import androidx.camera.video.VideoRecordEvent.Finalize.ERROR_SOURCE_INACTIVE
@@ -83,17 +86,25 @@ class VideoCaptureDeviceTest(
      * in Parameterized tests, ref: b/37086576
      */
     enum class TargetQuality {
-        None, FHD, HD, HIGHEST, LOWEST, SD, UHD;
+        NOT_SPECIFIED, FHD, HD, HIGHEST, LOWEST, SD, UHD;
 
-        fun get(): Quality? {
+        fun getSelector(): QualitySelector {
             return when (this) {
-                None -> null
-                FHD -> Quality.FHD
-                HD -> Quality.HD
-                HIGHEST -> Quality.HIGHEST
-                LOWEST -> Quality.LOWEST
-                SD -> Quality.SD
-                UHD -> Quality.UHD
+                NOT_SPECIFIED -> toQualitySelector(null)
+                FHD -> toQualitySelector(Quality.FHD)
+                HD -> toQualitySelector(Quality.HD)
+                HIGHEST -> toQualitySelector(Quality.HIGHEST)
+                LOWEST -> toQualitySelector(Quality.LOWEST)
+                SD -> toQualitySelector(Quality.SD)
+                UHD -> toQualitySelector(Quality.UHD)
+            }
+        }
+
+        private fun toQualitySelector(quality: Quality?): QualitySelector {
+            return if (quality == null) {
+                Recorder.DEFAULT_QUALITY_SELECTOR
+            } else {
+                QualitySelector.from(quality, FallbackStrategy.lowerQualityOrHigherThan(quality))
             }
         }
     }
@@ -115,13 +126,13 @@ class VideoCaptureDeviceTest(
         @JvmStatic
         @Parameterized.Parameters(name = "initialQuality={0}, nextQuality={1}")
         fun data() = mutableListOf<Array<TargetQuality>>().apply {
-            add(arrayOf(TargetQuality.None, TargetQuality.FHD))
+            add(arrayOf(TargetQuality.NOT_SPECIFIED, TargetQuality.FHD))
             add(arrayOf(TargetQuality.FHD, TargetQuality.HD))
             add(arrayOf(TargetQuality.HD, TargetQuality.HIGHEST))
             add(arrayOf(TargetQuality.HIGHEST, TargetQuality.LOWEST))
             add(arrayOf(TargetQuality.LOWEST, TargetQuality.SD))
             add(arrayOf(TargetQuality.SD, TargetQuality.UHD))
-            add(arrayOf(TargetQuality.UHD, TargetQuality.None))
+            add(arrayOf(TargetQuality.UHD, TargetQuality.NOT_SPECIFIED))
         }
     }
 
@@ -315,7 +326,7 @@ class VideoCaptureDeviceTest(
         // Act.
         recordVideoWithInterruptAction(outputOptions, audioEnabled) {
             instrumentation.runOnMainSync {
-                cameraController.videoCaptureTargetQuality = nextQuality.get()
+                cameraController.videoCaptureQualitySelector = nextQuality.getSelector()
             }
         }
 
@@ -519,8 +530,8 @@ class VideoCaptureDeviceTest(
         cameraController = LifecycleCameraController(context)
         cameraController.initializationFuture.get()
         instrumentation.runOnMainSync {
-            if (initialQuality != TargetQuality.None) {
-                cameraController.videoCaptureTargetQuality = initialQuality.get()
+            if (initialQuality != TargetQuality.NOT_SPECIFIED) {
+                cameraController.videoCaptureQualitySelector = initialQuality.getSelector()
             }
 
             //  If the PreviewView is not attached, the enabled use cases will not be applied.

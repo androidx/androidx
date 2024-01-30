@@ -19,37 +19,47 @@ package androidx.camera.camera2.internal;
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraCaptureSession.CaptureCallback;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CaptureRequest;
 import android.os.Build;
+import android.util.Size;
 
 import androidx.annotation.OptIn;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
-import androidx.camera.camera2.impl.CameraEventCallbacks;
 import androidx.camera.camera2.interop.Camera2Interop;
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.ImageCapture;
+import androidx.camera.core.Preview;
 import androidx.camera.core.impl.CameraCaptureCallback;
+import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.Config.OptionPriority;
 import androidx.camera.core.impl.ImageCaptureConfig;
+import androidx.camera.core.impl.PreviewConfig;
 import androidx.camera.core.impl.SessionConfig;
+import androidx.camera.core.impl.stabilization.StabilizationMode;
+import androidx.camera.video.Recorder;
+import androidx.camera.video.VideoCapture;
+import androidx.camera.video.impl.VideoCaptureConfig;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.internal.DoNotInstrument;
+import org.robolectric.util.ReflectionHelpers;
 
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 @org.robolectric.annotation.Config(minSdk = Build.VERSION_CODES.LOLLIPOP,
         instrumentedPackages = { "androidx.camera.camera2.impl" })
 public final class Camera2SessionOptionUnpackerTest {
+
+    private static final Size RESOLUTION_HD = new Size(1280, 720);
+    private static final Size RESOLUTION_VGA = new Size(640, 480);
 
     private Camera2SessionOptionUnpacker mUnpacker;
 
@@ -66,18 +76,12 @@ public final class Camera2SessionOptionUnpackerTest {
         CameraDevice.StateCallback deviceCallback = mock(CameraDevice.StateCallback.class);
         CameraCaptureSession.StateCallback sessionStateCallback =
                 mock(CameraCaptureSession.StateCallback.class);
-        CameraEventCallbacks cameraEventCallbacks = mock(CameraEventCallbacks.class);
-        when(cameraEventCallbacks.clone()).thenReturn(cameraEventCallbacks);
-
         new Camera2Interop.Extender<>(imageCaptureBuilder)
                 .setSessionCaptureCallback(captureCallback)
                 .setDeviceStateCallback(deviceCallback)
                 .setSessionStateCallback(sessionStateCallback);
-        new Camera2ImplConfig.Extender<>(imageCaptureBuilder)
-                .setCameraEventCallback(cameraEventCallbacks);
-
         SessionConfig.Builder sessionBuilder = new SessionConfig.Builder();
-        mUnpacker.unpack(imageCaptureBuilder.getUseCaseConfig(), sessionBuilder);
+        mUnpacker.unpack(RESOLUTION_VGA, imageCaptureBuilder.getUseCaseConfig(), sessionBuilder);
         SessionConfig sessionConfig = sessionBuilder.build();
 
         CameraCaptureCallback interopCallback =
@@ -91,10 +95,6 @@ public final class Camera2SessionOptionUnpackerTest {
         assertThat(sessionConfig.getDeviceStateCallbacks()).containsExactly(deviceCallback);
         assertThat(sessionConfig.getSessionStateCallbacks())
                 .containsExactly(sessionStateCallback);
-        assertThat(
-                new Camera2ImplConfig(
-                        sessionConfig.getImplementationOptions()).getCameraEventCallback(
-                        null)).isEqualTo(cameraEventCallbacks);
     }
 
     @Test
@@ -116,7 +116,7 @@ public final class Camera2SessionOptionUnpackerTest {
                 CaptureRequest.FLASH_MODE);
 
         SessionConfig.Builder sessionBuilder = new SessionConfig.Builder();
-        mUnpacker.unpack(useCaseConfig, sessionBuilder);
+        mUnpacker.unpack(RESOLUTION_VGA, useCaseConfig, sessionBuilder);
         SessionConfig sessionConfig = sessionBuilder.build();
 
         Camera2ImplConfig config = new Camera2ImplConfig(sessionConfig.getImplementationOptions());
@@ -133,6 +133,122 @@ public final class Camera2SessionOptionUnpackerTest {
                 .isEqualTo(priorityAfMode);
         assertThat(getCaptureRequestOptionPriority(config, CaptureRequest.CONTROL_AF_MODE))
                 .isEqualTo(priorityFlashMode);
+
+        assertThat(config.getCaptureRequestOption(CaptureRequest.TONEMAP_MODE)).isNull();
+    }
+
+    @Test
+    public void unpackerExtractsOptionsForPreviewResolution16x9() {
+        ReflectionHelpers.setStaticField(Build.class, "MANUFACTURER", "Google");
+        ReflectionHelpers.setStaticField(Build.class, "DEVICE", "sunfish");
+
+        Preview.Builder previewConfigBuilder = new Preview.Builder();
+
+        PreviewConfig useCaseConfig = previewConfigBuilder.getUseCaseConfig();
+
+        SessionConfig.Builder sessionBuilder = new SessionConfig.Builder();
+        mUnpacker.unpack(RESOLUTION_HD, useCaseConfig, sessionBuilder);
+        SessionConfig sessionConfig = sessionBuilder.build();
+
+        Camera2ImplConfig config = new Camera2ImplConfig(sessionConfig.getImplementationOptions());
+
+        assertThat(config.getCaptureRequestOption(CaptureRequest.TONEMAP_MODE)).isNull();
+    }
+
+    @Test
+    public void unpackerExtractsOptionsForPreviewResolution4x3() {
+        ReflectionHelpers.setStaticField(Build.class, "MANUFACTURER", "Google");
+        ReflectionHelpers.setStaticField(Build.class, "DEVICE", "sunfish");
+
+        Preview.Builder previewConfigBuilder = new Preview.Builder();
+
+        PreviewConfig useCaseConfig = previewConfigBuilder.getUseCaseConfig();
+
+        SessionConfig.Builder sessionBuilder = new SessionConfig.Builder();
+        mUnpacker.unpack(RESOLUTION_VGA, useCaseConfig, sessionBuilder);
+        SessionConfig sessionConfig = sessionBuilder.build();
+
+        Camera2ImplConfig config = new Camera2ImplConfig(sessionConfig.getImplementationOptions());
+
+        assertThat(config.getCaptureRequestOption(CaptureRequest.TONEMAP_MODE))
+                .isEqualTo(CaptureRequest.TONEMAP_MODE_HIGH_QUALITY);
+    }
+
+    @Test
+    public void unpackerExtractsPreviewStabilizationMode() {
+        ReflectionHelpers.setStaticField(Build.class, "MANUFACTURER", "Google");
+        ReflectionHelpers.setStaticField(Build.class, "DEVICE", "sunfish");
+
+        Preview.Builder previewConfigBuilder =
+                new Preview.Builder().setPreviewStabilizationEnabled(true);
+
+        PreviewConfig useCaseConfig = previewConfigBuilder.getUseCaseConfig();
+
+        SessionConfig.Builder sessionBuilder = new SessionConfig.Builder();
+        mUnpacker.unpack(RESOLUTION_VGA, useCaseConfig, sessionBuilder);
+        SessionConfig sessionConfig = sessionBuilder.build();
+
+        CaptureConfig captureConfig = sessionConfig.getRepeatingCaptureConfig();
+
+        assertThat(captureConfig.getVideoStabilizationMode())
+                .isEqualTo(StabilizationMode.UNSPECIFIED);
+        assertThat(captureConfig.getPreviewStabilizationMode())
+                .isEqualTo(StabilizationMode.ON);
+    }
+
+    @Test
+    public void unpackerExtractsVideoStabilizationMode() {
+        ReflectionHelpers.setStaticField(Build.class, "MANUFACTURER", "Google");
+        ReflectionHelpers.setStaticField(Build.class, "DEVICE", "sunfish");
+
+        VideoCapture.Builder<Recorder> videoCaptureConfigBuilder =
+                new VideoCapture.Builder<>(new Recorder.Builder().build())
+                        .setVideoStabilizationEnabled(true);
+
+        VideoCaptureConfig<Recorder> useCaseConfig = videoCaptureConfigBuilder.getUseCaseConfig();
+
+        SessionConfig.Builder sessionBuilder = new SessionConfig.Builder();
+        mUnpacker.unpack(RESOLUTION_VGA, useCaseConfig, sessionBuilder);
+        SessionConfig sessionConfig = sessionBuilder.build();
+
+        CaptureConfig captureConfig = sessionConfig.getRepeatingCaptureConfig();
+
+        assertThat(captureConfig.getVideoStabilizationMode())
+                .isEqualTo(StabilizationMode.ON);
+        assertThat(captureConfig.getPreviewStabilizationMode())
+                .isEqualTo(StabilizationMode.UNSPECIFIED);
+    }
+
+    @Test
+    public void unpackerExtractsBothPreviewAndVideoStabilizationMode() {
+        ReflectionHelpers.setStaticField(Build.class, "MANUFACTURER", "Google");
+        ReflectionHelpers.setStaticField(Build.class, "DEVICE", "sunfish");
+
+        // unpack for preview
+        Preview.Builder previewConfigBuilder =
+                new Preview.Builder().setPreviewStabilizationEnabled(true);
+
+        PreviewConfig previewConfig = previewConfigBuilder.getUseCaseConfig();
+
+        SessionConfig.Builder sessionBuilder = new SessionConfig.Builder();
+        mUnpacker.unpack(RESOLUTION_VGA, previewConfig, sessionBuilder);
+
+        // unpack for preview
+        VideoCapture.Builder<Recorder> videoCaptureConfigBuilder =
+                new VideoCapture.Builder<>(new Recorder.Builder().build())
+                        .setVideoStabilizationEnabled(true);
+
+        VideoCaptureConfig<Recorder> videoCaptureConfig =
+                videoCaptureConfigBuilder.getUseCaseConfig();
+
+        mUnpacker.unpack(RESOLUTION_VGA, videoCaptureConfig, sessionBuilder);
+        SessionConfig sessionConfig = sessionBuilder.build();
+        CaptureConfig captureConfig = sessionConfig.getRepeatingCaptureConfig();
+
+        assertThat(captureConfig.getVideoStabilizationMode())
+                .isEqualTo(StabilizationMode.ON);
+        assertThat(captureConfig.getPreviewStabilizationMode())
+                .isEqualTo(StabilizationMode.ON);
     }
 
     private OptionPriority getCaptureRequestOptionPriority(Config config,

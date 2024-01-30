@@ -18,11 +18,10 @@
 @file:JvmMultifileClass
 package androidx.compose.runtime
 
-import androidx.compose.runtime.snapshots.MutableSnapshot
-// Explicit imports for these needed in common source sets.
-import kotlin.jvm.JvmName
-import kotlin.jvm.JvmMultifileClass
 import androidx.compose.runtime.internal.JvmDefaultWithCompatibility
+import androidx.compose.runtime.snapshots.MutableSnapshot
+import kotlin.jvm.JvmMultifileClass
+import kotlin.jvm.JvmName
 
 /**
  * A policy to control how the result of [mutableStateOf] report and merge changes to

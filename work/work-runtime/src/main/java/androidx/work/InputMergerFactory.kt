@@ -46,7 +46,6 @@ abstract class InputMergerFactory {
      * @param className The fully qualified class name for the [InputMerger]
      * @return an instance of [InputMerger]
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     fun createInputMergerWithDefaultFallback(className: String): InputMerger? {

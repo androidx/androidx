@@ -31,6 +31,21 @@
             android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation"
             android:exported="true"
             android:supportsPictureInPicture="true" />
+        <activity
+            android:name="androidx.activity.integration.testapp.EdgeToEdgeActivity"
+            android:exported="true"
+            android:label="EdgeToEdgeActivity"
+            android:theme="@style/Theme.EdgeToEdge.SplashScreen"
+            android:windowSoftInputMode="adjustResize">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="androidx.activity.integration.testapp.EDGE_TO_EDGE_ACTIVITY" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
 
         <provider
             android:name="androidx.core.content.FileProvider"
@@ -45,5 +60,7 @@
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
+    <uses-sdk tools:overrideLibrary="androidx.core.splashscreen" />
 
 </manifest>

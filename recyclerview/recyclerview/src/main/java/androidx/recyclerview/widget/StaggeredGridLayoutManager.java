@@ -2051,6 +2051,11 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
     }
 
     @Override
+    public boolean isLayoutReversed() {
+        return mReverseLayout;
+    }
+
+    @Override
     public int scrollHorizontallyBy(int dx, RecyclerView.Recycler recycler,
             RecyclerView.State state) {
         return scrollBy(dx, recycler, state);
@@ -2127,7 +2132,6 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
         requestLayout();
     }
 
-    /** @hide */
     @Override
     @RestrictTo(LIBRARY)
     public void collectAdjacentPrefetchPositions(int dx, int dy, RecyclerView.State state,
@@ -3167,7 +3171,6 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @SuppressLint("BanParcelableUsage")

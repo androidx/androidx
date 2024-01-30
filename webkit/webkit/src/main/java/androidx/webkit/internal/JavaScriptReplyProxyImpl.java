@@ -23,6 +23,7 @@ import org.chromium.support_lib_boundary.JsReplyProxyBoundaryInterface;
 import org.chromium.support_lib_boundary.util.BoundaryInterfaceReflectionUtil;
 
 import java.lang.reflect.InvocationHandler;
+import java.util.Objects;
 import java.util.concurrent.Callable;
 
 /**
@@ -58,6 +59,19 @@ public class JavaScriptReplyProxyImpl extends JavaScriptReplyProxy {
         final ApiFeature.NoFramework feature = WebViewFeatureInternal.WEB_MESSAGE_LISTENER;
         if (feature.isSupportedByWebView()) {
             mBoundaryInterface.postMessage(message);
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
+    }
+
+    @Override
+    public void postMessage(@NonNull byte[] arrayBuffer) {
+        // WebView cannot handle null ArrayBuffer as WebMessage.
+        Objects.requireNonNull(arrayBuffer, "ArrayBuffer must be non-null");
+        final ApiFeature.NoFramework feature = WebViewFeatureInternal.WEB_MESSAGE_ARRAY_BUFFER;
+        if (feature.isSupportedByWebView()) {
+            mBoundaryInterface.postMessageWithPayload(BoundaryInterfaceReflectionUtil
+                    .createInvocationHandlerFor(new WebMessagePayloadAdapter(arrayBuffer)));
         } else {
             throw WebViewFeatureInternal.getUnsupportedOperationException();
         }

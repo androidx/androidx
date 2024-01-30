@@ -18,17 +18,15 @@ package androidx.lifecycle
 
 import androidx.testutils.gradle.ProjectSetupRule
 import com.google.common.truth.Truth.assertThat
-import org.gradle.tooling.GradleConnector
-import org.gradle.tooling.ProjectConnection
-import org.junit.After
+import java.io.File
+import java.nio.file.Files
+import java.nio.file.Path
+import org.gradle.testkit.runner.GradleRunner
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import java.io.File
-import java.nio.file.Files
-import java.nio.file.Path
 
 @RunWith(JUnit4::class)
 class IncrementalAnnotationProcessingTest {
@@ -39,7 +37,9 @@ class IncrementalAnnotationProcessingTest {
         private const val SOURCE_DIR = "$MAIN_DIR/java/androidx/lifecycle/incap"
         private const val GENERATED_SOURCE_DIR = BUILD_DIR +
             "/generated/ap_generated_sources/debug/out/androidx/lifecycle/incap"
-        private const val CLASSES_DIR = "$BUILD_DIR/intermediates/javac/debug/classes"
+        private const val COMPILE_TASK_NAME = "compileDebugJavaWithJavac"
+        private const val CLASSES_DIR =
+            "$BUILD_DIR/intermediates/javac/debug/$COMPILE_TASK_NAME/classes"
         private const val GENERATED_PROGUARD_DIR = "$CLASSES_DIR/META-INF/proguard"
         private const val APP_CLASS_DIR = "$CLASSES_DIR/androidx/lifecycle/incap"
     }
@@ -58,7 +58,6 @@ class IncrementalAnnotationProcessingTest {
     private lateinit var barObserverClass: File
     private lateinit var genFooAdapterClass: File
     private lateinit var genBarAdapterClass: File
-    private lateinit var projectConnection: ProjectConnection
 
     @Before
     fun setup() {
@@ -103,17 +102,18 @@ class IncrementalAnnotationProcessingTest {
         setupSettingsGradle()
         setupAndroidManifest()
         addSource()
+    }
 
-        projectConnection = GradleConnector.newConnector()
-            .forProjectDirectory(projectRoot).connect()
+    fun gradleRunner(): GradleRunner {
+        return GradleRunner.create()
+            .withProjectDir(projectRoot)
     }
 
     @Test
     fun checkModifySource() {
-        projectConnection
-            .newBuild()
-            .forTasks("clean", "compileDebugJavaWithJavac")
-            .run()
+        gradleRunner()
+            .withArguments("clean", COMPILE_TASK_NAME)
+            .build()
 
         val fooAdapterFirstBuild = Files.getLastModifiedTime(genFooAdapter.toPath()).toMillis()
         val barAdapterFirstBuild = Files.getLastModifiedTime(genBarAdapter.toPath()).toMillis()
@@ -130,10 +130,9 @@ class IncrementalAnnotationProcessingTest {
 
         searchAndReplace(fooObserver.toPath(), "FooObserver_Log", "Modified_FooObserver_Log")
 
-        projectConnection
-            .newBuild()
-            .forTasks("compileDebugJavaWithJavac")
-            .run()
+        gradleRunner()
+            .withArguments(COMPILE_TASK_NAME)
+            .build()
 
         val fooAdapterSecondBuild = Files.getLastModifiedTime(genFooAdapter.toPath()).toMillis()
         val barAdapterSecondBuild = Files.getLastModifiedTime(genBarAdapter.toPath()).toMillis()
@@ -164,11 +163,9 @@ class IncrementalAnnotationProcessingTest {
 
     @Test
     fun checkDeleteOneSource() {
-        projectConnection
-            .newBuild()
-            .forTasks("clean", "compileDebugJavaWithJavac")
-            .run()
-
+        gradleRunner()
+            .withArguments("clean", COMPILE_TASK_NAME)
+            .build()
         val barAdapterFirstBuild = Files.getLastModifiedTime(genBarAdapter.toPath()).toMillis()
         val barProguardFirstBuild = Files.getLastModifiedTime(genBarProguard.toPath()).toMillis()
         val barObserverClassFirstBuild =
@@ -181,10 +178,9 @@ class IncrementalAnnotationProcessingTest {
 
         fooObserver.delete()
 
-        projectConnection
-            .newBuild()
-            .forTasks("compileDebugJavaWithJavac")
-            .run()
+        gradleRunner()
+            .withArguments(COMPILE_TASK_NAME)
+            .build()
 
         val barAdapterSecondBuild = Files.getLastModifiedTime(genBarAdapter.toPath()).toMillis()
         val barProguardSecondBuild = Files.getLastModifiedTime(genBarProguard.toPath()).toMillis()
@@ -202,11 +198,6 @@ class IncrementalAnnotationProcessingTest {
         assertThat(barProguardFirstBuild).isEqualTo(barProguardSecondBuild)
         assertThat(barObserverClassFirstBuild).isEqualTo(barObserverClassSecondBuild)
         assertThat(barAdapterClassFirstBuild).isEqualTo(barAdapterClassSecondBuild)
-    }
-
-    @After
-    fun closeProjectConnection() {
-        projectConnection.close()
     }
 
     private fun setupProjectBuildGradle() {

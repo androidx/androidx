@@ -25,8 +25,6 @@ import kotlin.reflect.KClass
 
 /**
  * Converts public API object into internal proto for ipc.
- *
- * @suppress
  */
 fun toReadDataRequestProto(
     dataTypeKC: KClass<out Record>,

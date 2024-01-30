@@ -81,6 +81,7 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
         desktop()
         darwin()
         js()
+        wasm()
 
         configureDarwinFlags()
     }
@@ -99,7 +100,7 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                 api(libs.kotlinStdlib)
                 api(libs.kotlinStdlibCommon)
 
-                compileOnly("androidx.annotation:annotation:1.1.0")
+                implementation(project(":annotation:annotation"))
             }
 
             androidMain.dependencies {
@@ -141,13 +142,7 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                 implementation(libs.mockitoKotlin)
             }
 
-            skikoMain {
-                dependsOn(commonMain)
-            }
-
             desktopMain.dependsOn(skikoMain)
-            nativeMain.dependsOn(skikoMain)
-            jsMain.dependsOn(skikoMain)
 
             desktopMain.dependencies {
                 implementation(libs.truth)
@@ -158,11 +153,10 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                 implementation(project(":compose:material:material"))
                 implementation(libs.skikoCommon)
                 implementation(libs.kotlinTest)
+                implementation(libs.atomicFu)
             }
 
             desktopTest.dependsOn(skikoTest)
-            jsTest.dependsOn(skikoTest)
-            nativeTest.dependsOn(skikoTest)
 
             desktopTest.dependencies {
                 implementation(libs.truth)

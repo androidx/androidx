@@ -264,6 +264,7 @@
     <string name="tab_title_list" msgid="5104962518489668123">"แท็บรายการ"</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"แท็บตารางกริดที่มีชื่อแท็บยาว"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"แท็บค้นหา"</string>
+    <string name="tab_title_loading" msgid="5385807479734490989">"กำลังโหลดแท็บ"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"เดโมการโหลดเทมเพลตแท็บ"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"เดโมเทมเพลตแท็บที่ไม่มีแท็บ"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"ไม่สามารถแสดงรูปภาพสำหรับโฮสต์ที่ไม่รู้จัก"</string>
@@ -298,7 +299,7 @@
     <string name="some_additional_text" msgid="4009872495806318260">"ข้อความเพิ่มเติมบางส่วน"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"ตัวอย่างรายการที่เลือกได้"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"การสาธิตข้อจำกัดงาน"</string>
-    <string name="task_limit_reached_msg" msgid="6038763366777119364">"ถึงขีดจำกัดงานแล้ว\nการดำเนินการต่อจะบังคับให้แอปหยุด"</string>
+    <string name="task_limit_reached_msg" msgid="7162842196382260992">"การดำเนินการนี้จะทำให้มีขั้นตอนการทำงานเกินขีดจำกัดที่กำหนดไว้และจะนำคุณไปยังหน้าจอใหม่"</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"งานขั้นตอนที่ %1$d จาก %2$d"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"คลิกเพื่อดำเนินการต่อ"</string>
     <string name="task_content_allowed" msgid="545061986612431190">"โปรดไปที่เทมเพลตอื่นและตรวจสอบว่ารถอยู่ในโหมดขับรถ"</string>
@@ -323,6 +324,12 @@
     <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"เลือกแถวได้ด้วย"</string>
     <string name="secondary_action_toast" msgid="5076434693504006565">"เลือกการดำเนินการสำรองแล้ว"</string>
     <string name="row_primary_action_toast" msgid="756516694751965204">"เลือกการดำเนินการหลักของแถวแล้ว"</string>
+    <string name="sectioned_item_list_demo_title" msgid="1236735461225007729">"หน้าจอสาธิตชุดรายการแบบแยกเป็นส่วน"</string>
+    <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"รายการที่ 1"</string>
+    <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"รายการที่ 2"</string>
+    <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"ข้อความย่อยข้างใต้แต่ละรายการ"</string>
+    <string name="empty_list_demo_title" msgid="5989013634820902455">"การสาธิตรายการที่ว่างเปล่า"</string>
+    <string name="empty_list_message" msgid="5331395517560728138">"รายการว่างเปล่า"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"การสาธิตเทมเพลตเบ็ดเตล็ด"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"การสาธิต Showcase"</string>
     <string name="template_layouts_demo_title" msgid="788249269446087847">"การสาธิตเลย์เอาต์เทมเพลต"</string>

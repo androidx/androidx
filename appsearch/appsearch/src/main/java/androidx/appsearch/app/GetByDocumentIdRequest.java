@@ -18,6 +18,7 @@ package androidx.appsearch.app;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.CanIgnoreReturnValue;
 import androidx.collection.ArrayMap;
 import androidx.collection.ArraySet;
 import androidx.core.util.Preconditions;
@@ -113,7 +114,7 @@ public final class GetByDocumentIdRequest {
      * <p>A more efficient version of {@link #getProjections}, but it returns a modifiable map.
      * This is not meant to be unhidden and should only be used by internal classes.
      *
-     * @hide
+     * @exportToFramework:hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull
@@ -134,6 +135,7 @@ public final class GetByDocumentIdRequest {
         }
 
         /** Adds one or more document IDs to the request. */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder addIds(@NonNull String... ids) {
             Preconditions.checkNotNull(ids);
@@ -142,6 +144,7 @@ public final class GetByDocumentIdRequest {
         }
 
         /** Adds a collection of IDs to the request. */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder addIds(@NonNull Collection<String> ids) {
             Preconditions.checkNotNull(ids);
@@ -166,6 +169,7 @@ public final class GetByDocumentIdRequest {
          *
          * @see SearchSpec.Builder#addProjectionPaths
          */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder addProjection(
                 @NonNull String schemaType, @NonNull Collection<String> propertyPaths) {
@@ -197,6 +201,7 @@ public final class GetByDocumentIdRequest {
          *
          * @see SearchSpec.Builder#addProjectionPaths
          */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder addProjectionPaths(
                 @NonNull String schemaType, @NonNull Collection<PropertyPath> propertyPaths) {

@@ -1,31 +1,265 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.4.0-alpha08" type="baseline" client="gradle" dependencies="false" name="AGP (7.4.0-alpha08)" variant="all" version="7.4.0-alpha08">
+<issues format="6" by="lint 8.3.0-alpha04" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha04)" variant="all" version="8.3.0-alpha04">
 
     <issue
-        id="NewApi"
-        message="Call requires API level 16 (current min is 14): `android.view.View#getMinimumWidth`"
-        errorLine1="                            getMinimumWidth()),"
-        errorLine2="                            ~~~~~~~~~~~~~~~">
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(500);  // Wait for possible spurious messages."
+        errorLine2="               ~~~~~">
         <location
-            file="src/androidTest/java/androidx/recyclerview/widget/TestedFrameLayout.java"/>
+            file="src/androidTest/java/androidx/recyclerview/widget/AsyncListUtilLayoutTest.java"/>
     </issue>
 
     <issue
-        id="NewApi"
-        message="Call requires API level 16 (current min is 14): `android.view.View#getMinimumHeight`"
-        errorLine1="                            getMinimumHeight()));"
-        errorLine2="                            ~~~~~~~~~~~~~~~~">
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="                Thread.sleep(100);"
+        errorLine2="                       ~~~~~">
         <location
-            file="src/androidTest/java/androidx/recyclerview/widget/TestedFrameLayout.java"/>
+            file="src/androidTest/java/androidx/recyclerview/widget/AsyncListUtilLayoutTest.java"/>
     </issue>
 
     <issue
-        id="NewApi"
-        message="Call requires API level 19 (current min is 14): `new android.widget.FrameLayout.LayoutParams`"
-        errorLine1="            super(source);"
-        errorLine2="            ~~~~~">
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(100);"
+        errorLine2="                   ~~~~~">
         <location
-            file="src/androidTest/java/androidx/recyclerview/widget/TestedFrameLayout.java"/>
+            file="src/androidTest/java/androidx/recyclerview/widget/ItemTouchHelperTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(400);"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/recyclerview/widget/LinearLayoutManagerBaseConfigSetTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(100);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/recyclerview/widget/LinearLayoutManagerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(15);"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/recyclerview/widget/LinearLayoutManagerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(25);"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/recyclerview/widget/LinearLayoutManagerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(250);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/recyclerview/widget/RecyclerViewAccessibilityTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(50);"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/recyclerview/widget/RecyclerViewAnimationsTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(100);"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/recyclerview/widget/RecyclerViewAnimationsTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(100);"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/recyclerview/widget/RecyclerViewAnimationsTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(100);"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/recyclerview/widget/RecyclerViewAnimationsTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(0, 1);"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/recyclerview/widget/RecyclerViewBasicTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(250);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/recyclerview/widget/RecyclerViewLayoutTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(100);"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/recyclerview/widget/RecyclerViewLayoutTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(5000);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/recyclerview/widget/RecyclerViewLayoutTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(1000); //wait for other layouts."
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/recyclerview/widget/RecyclerViewLayoutTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(200);"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/recyclerview/widget/RecyclerViewLayoutTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(400);"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/recyclerview/widget/StaggeredGridLayoutManagerBaseConfigSetTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(500);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/recyclerview/widget/StaggeredGridLayoutManagerGapTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(500);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/recyclerview/widget/StaggeredGridLayoutManagerGapTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(1000);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/recyclerview/widget/StaggeredGridLayoutManagerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(500);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/recyclerview/widget/StaggeredGridLayoutManagerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(200);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/recyclerview/widget/StaggeredGridLayoutManagerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(200);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/recyclerview/widget/StaggeredGridLayoutManagerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(1000);"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/recyclerview/widget/TouchUtils.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep((long) (longPressTime / 2));"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/recyclerview/widget/TouchUtils.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep((long) (longPressTime / 2));"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/recyclerview/widget/TouchUtils.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="                Thread.sleep(100);"
+        errorLine2="                       ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/recyclerview/widget/WrappedRecyclerView.java"/>
     </issue>
 
     <issue

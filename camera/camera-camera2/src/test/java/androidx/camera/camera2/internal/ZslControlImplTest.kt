@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:RequiresApi(21)
+
 package androidx.camera.camera2.internal
 
 import android.graphics.ImageFormat.JPEG
@@ -24,6 +26,7 @@ import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.params.StreamConfigurationMap
 import android.os.Build
 import android.util.Size
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.internal.ZslControlImpl.MAX_IMAGES
 import androidx.camera.camera2.internal.ZslControlImpl.RING_BUFFER_CAPACITY
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat

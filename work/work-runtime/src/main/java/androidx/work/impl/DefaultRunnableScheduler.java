@@ -28,7 +28,6 @@ import androidx.work.RunnableScheduler;
  * The default implementation of the {@link androidx.work.RunnableScheduler} used by
  * {@link  androidx.work.impl.background.greedy.GreedyScheduler}.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class DefaultRunnableScheduler implements RunnableScheduler {

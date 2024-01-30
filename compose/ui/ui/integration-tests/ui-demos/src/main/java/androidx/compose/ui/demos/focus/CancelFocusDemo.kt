@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.demos.focus
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.border
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement.SpaceEvenly
@@ -76,7 +75,6 @@ fun CancelFocusDemo() {
     }
 }
 
-@SuppressLint("ModifierInspectorInfo")
 private fun Modifier.focusableWithBorder() = composed {
     var color by remember { mutableStateOf(Black) }
     Modifier

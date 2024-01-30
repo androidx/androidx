@@ -20,6 +20,7 @@ import android.graphics.Rect;
 import android.util.Size;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.ImageOutputConfig;
 
@@ -35,15 +36,33 @@ import com.google.auto.value.AutoValue;
  * {@link ImageAnalysis.Analyzer}.
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-@AutoValue
-public abstract class ResolutionInfo {
+public class ResolutionInfo {
+
+    private final ResolutionInfoInternal mResolutionInfoInternal;
+
     /**
-     * Creates a new instance of {@link ResolutionInfo} with the given parameters.
+     * Creates a new instance of {@link ResolutionInfo} with the given parameters. This
+     * constructor is not normally needed outside of testing cases.
+     *
+     * @param resolution The resolution used for the {@link UseCase} expressed in the coordinates
+     *                  of the camera sensor.
+     * @param cropRect The crop rectangle specifies the region of valid pixels in the buffer.
+     * @param rotationDegrees The clockwise rotation in degrees that needs to be applied to the
+     *                       output buffer so the image appears upright at the target rotation
+     *                        setting.
+     *
+     * @see #getResolution()
+     * @see #getCropRect()
+     * @see #getRotationDegrees()
      */
-    @NonNull
-    static ResolutionInfo create(@NonNull Size resolution, @NonNull Rect cropRect,
+    public ResolutionInfo(@NonNull Size resolution, @NonNull Rect cropRect,
             @ImageOutputConfig.RotationDegreesValue int rotationDegrees) {
-        return new AutoValue_ResolutionInfo(resolution, cropRect, rotationDegrees);
+        mResolutionInfoInternal =
+                new AutoValue_ResolutionInfo_ResolutionInfoInternal.Builder()
+                        .setResolution(resolution)
+                        .setCropRect(cropRect)
+                        .setRotationDegrees(rotationDegrees)
+                        .build();
     }
 
     /**
@@ -54,7 +73,9 @@ public abstract class ResolutionInfo {
      * {@link #getRotationDegrees()} to match the target rotation setting.
      */
     @NonNull
-    public abstract Size getResolution();
+    public Size getResolution() {
+        return mResolutionInfoInternal.getResolution();
+    }
 
     /**
      * Returns the crop rectangle.
@@ -69,7 +90,9 @@ public abstract class ResolutionInfo {
      * which the dimensions will be the same as the value obtained from {@link #getResolution}.
      */
     @NonNull
-    public abstract Rect getCropRect();
+    public Rect getCropRect() {
+        return mResolutionInfoInternal.getCropRect();
+    }
 
     /**
      * Returns the rotation degrees needed to transform the output resolution to the target
@@ -82,8 +105,51 @@ public abstract class ResolutionInfo {
      * @return The rotation in degrees which will be a value in {0, 90, 180, 270}.
      */
     @ImageOutputConfig.RotationDegreesValue
-    public abstract int getRotationDegrees();
+    public int getRotationDegrees() {
+        return mResolutionInfoInternal.getRotationDegrees();
+    }
 
-    ResolutionInfo() {
+    @Override
+    public int hashCode() {
+        return mResolutionInfoInternal.hashCode();
+    }
+
+    @Override
+    public boolean equals(@Nullable Object obj) {
+        return mResolutionInfoInternal.equals(obj);
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return mResolutionInfoInternal.toString();
+    }
+
+    @AutoValue
+    abstract static class ResolutionInfoInternal {
+        @NonNull
+        abstract Size getResolution();
+
+        @NonNull
+        abstract Rect getCropRect();
+
+        @ImageOutputConfig.RotationDegreesValue
+        abstract int getRotationDegrees();
+
+        @AutoValue.Builder
+        abstract static class Builder {
+            @NonNull
+            abstract Builder setResolution(@NonNull Size resolution);
+
+            @NonNull
+            abstract Builder setCropRect(@NonNull Rect cropRect);
+
+            @NonNull
+            abstract Builder setRotationDegrees(
+                    @ImageOutputConfig.RotationDegreesValue int rotationDegrees);
+
+            @NonNull
+            abstract ResolutionInfoInternal build();
+        }
     }
 }

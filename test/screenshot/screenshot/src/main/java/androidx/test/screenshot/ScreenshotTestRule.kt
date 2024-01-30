@@ -16,7 +16,6 @@
 
 package androidx.test.screenshot
 
-import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Build
@@ -28,15 +27,15 @@ import androidx.test.screenshot.matchers.MSSIMMatcher
 import androidx.test.screenshot.matchers.PixelPerfectMatcher
 import androidx.test.screenshot.proto.ScreenshotResultProto
 import androidx.test.screenshot.proto.ScreenshotResultProto.ScreenshotResult.Status
+import java.io.File
+import java.io.FileNotFoundException
+import java.io.FileOutputStream
+import java.io.IOException
 import org.junit.Assume
 import org.junit.rules.TestRule
 import org.junit.rules.TestWatcher
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
-import java.io.File
-import java.io.FileNotFoundException
-import java.io.FileOutputStream
-import java.io.IOException
 
 /**
  * Config for [ScreenshotTestRule].
@@ -76,7 +75,6 @@ internal enum class OutputFileType {
  *
  * @see Bitmap.assertAgainstGolden
  */
-@SuppressLint("SyntheticAccessor")
 open class ScreenshotTestRule(
     config: ScreenshotTestRuleConfig = ScreenshotTestRuleConfig()
 ) : TestRule {
@@ -119,12 +117,15 @@ open class ScreenshotTestRule(
 
     class ScreenshotTestStatement(private val base: Statement) : Statement() {
         override fun evaluate() {
-            // We currently only support Cuttlefish API 29 because of the storage access.
-            Assume.assumeTrue("Requires Cuttlefish", Build.MODEL.contains("Cuttlefish"))
-            Assume.assumeTrue(
-                "Requires SDK 29.",
-                Build.VERSION.SDK_INT == 29
-            )
+            if (Build.MODEL.contains("gphone")) {
+                // We support emulators with API 33
+                Assume.assumeTrue(
+                    "Requires SDK 33.",
+                    Build.VERSION.SDK_INT == 33
+                )
+            } else {
+                Assume.assumeTrue("Requires API 33 emulator", false)
+            }
             base.evaluate()
         }
     }
@@ -339,7 +340,8 @@ open class ScreenshotTestRule(
 
     private fun getDeviceModel(): String {
         var model = Build.MODEL.lowercase()
-        arrayOf("phone", "x86_64", "x86", "x64", "gms").forEach {
+        model = model.replace("sdk_gphone64_", "emulator")
+        arrayOf("phone", "x86_64", "x86", "x64", "gms", "arm64").forEach {
             model = model.replace(it, "")
         }
         return model.trim().replace(" ", "_")

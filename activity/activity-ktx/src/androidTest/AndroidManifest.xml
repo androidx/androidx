@@ -18,8 +18,5 @@
         <activity
             android:name="androidx.activity.ActivityViewModelLazyTest$TestActivity"
             android:exported="true" />
-        <activity
-            android:name="androidx.activity.result.EmptyContentActivity"
-            android:exported="true" />
     </application>
 </manifest>

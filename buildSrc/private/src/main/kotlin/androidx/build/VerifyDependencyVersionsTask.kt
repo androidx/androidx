@@ -24,11 +24,11 @@ import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.Dependency
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
+import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.kotlin.dsl.setProperty
-import org.gradle.api.tasks.CacheableTask
 
 /**
  * Task for verifying the androidx dependency-stability-suffix rule
@@ -206,6 +206,11 @@ private fun shouldVerifyConfiguration(configuration: Configuration): Boolean {
 
     // Don't check Hilt compile-only configurations
     if (name.startsWith("hiltCompileOnly")) return false
+
+    // Don't check Desktop configurations since we don't publish them anyway
+    if (name.startsWith("desktop")) return false
+    if (name.startsWith("skiko")) return false
+
     return true
 }
 

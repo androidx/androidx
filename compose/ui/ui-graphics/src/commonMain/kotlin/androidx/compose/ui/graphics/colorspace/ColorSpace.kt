@@ -15,6 +15,8 @@
  */
 package androidx.compose.ui.graphics.colorspace
 
+import androidx.annotation.IntRange
+import androidx.annotation.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.util.packFloats
 import kotlin.math.abs
@@ -150,7 +152,7 @@ abstract class ColorSpace internal constructor(
      * @see model
      */
     val componentCount: Int
-        /*@IntRange(from = 1, to = 4)*/
+        @IntRange(from = 1, to = 4)
         get() = model.componentCount
 
     /**
@@ -219,7 +221,7 @@ abstract class ColorSpace internal constructor(
      * @see getMaxValue
      * @see ColorModel.componentCount
      */
-    abstract fun getMinValue(/*@IntRange(from = 0, to = 3)*/ component: Int): Float
+    abstract fun getMinValue(@IntRange(from = 0, to = 3) component: Int): Float
 
     /**
      * Returns the maximum valid value for the specified component of this
@@ -231,7 +233,7 @@ abstract class ColorSpace internal constructor(
      * @see getMinValue
      * @see ColorModel.componentCount
      */
-    abstract fun getMaxValue(/*@IntRange(from = 0, to = 3)*/ component: Int): Float
+    abstract fun getMaxValue(@IntRange(from = 0, to = 3) component: Int): Float
 
     /**
      * Converts a color value from this color space's model to
@@ -253,7 +255,7 @@ abstract class ColorSpace internal constructor(
      * @see toXyz
      * @see fromXyz
      */
-    /*@Size(3)*/
+    @Size(3)
     fun toXyz(r: Float, g: Float, b: Float): FloatArray {
         return toXyz(floatArrayOf(r, g, b))
     }
@@ -277,8 +279,8 @@ abstract class ColorSpace internal constructor(
      * @see toXyz
      * @see fromXyz
      */
-    /*@Size(min = 3)*/
-    abstract fun toXyz(/*@Size(min = 3)*/ v: FloatArray): FloatArray
+    @Size(min = 3)
+    abstract fun toXyz(@Size(min = 3) v: FloatArray): FloatArray
 
     /**
      * Same as [toXyz], but returns only the x and y components packed into a long.
@@ -325,7 +327,7 @@ abstract class ColorSpace internal constructor(
      * @see fromXyz
      * @see toXyz
      */
-    /*@Size(min = 3)*/
+    @Size(min = 3)
     fun fromXyz(x: Float, y: Float, z: Float): FloatArray {
         val xyz = FloatArray(model.componentCount)
         xyz[0] = x
@@ -353,8 +355,8 @@ abstract class ColorSpace internal constructor(
      * @see fromXyz
      * @see toXyz
      */
-    /*@Size(min = 3)*/
-    abstract fun fromXyz(/*@Size(min = 3)*/ v: FloatArray): FloatArray
+    @Size(min = 3)
+    abstract fun fromXyz(@Size(min = 3) v: FloatArray): FloatArray
 
     /**
      * Returns a string representation of the object. This method returns

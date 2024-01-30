@@ -49,7 +49,7 @@ import java.util.Collections;
 /**
  * A fragment for displaying a list of {@link GenericDocument} objects.
  *
- * @hide
+ * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class DocumentListFragment extends Fragment {

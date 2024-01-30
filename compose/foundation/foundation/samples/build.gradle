@@ -36,12 +36,12 @@ dependencies {
     implementation("androidx.compose.runtime:runtime:1.2.1")
     implementation("androidx.compose.ui:ui:1.2.1")
     implementation("androidx.compose.ui:ui-text:1.2.1")
-    implementation(project(":compose:ui:ui-tooling-preview"))
+    implementation("androidx.compose.ui:ui-tooling-preview:1.4.0-beta02")
     debugImplementation(project(":compose:ui:ui-tooling"))
 }
 
 androidx {
-    name = "AndroidX Compose UI Foundational Component Samples"
+    name = "Compose UI Foundational Component Samples"
     type = LibraryType.SAMPLES
     inceptionYear = "2019"
     description = "Contains the sample code for the Androidx Compose UI Foundational Components"
@@ -52,17 +52,18 @@ android {
 }
 
 // Workaround for https://github.com/gradle/gradle/issues/19882
-configurations.all {
-    resolutionStrategy.dependencySubstitution {
-        substitute(module("androidx.lifecycle:lifecycle-common:")).
-                using project(":lifecycle:lifecycle-common")
-        substitute(module("androidx.lifecycle:lifecycle-runtime:")).
-                using project(":lifecycle:lifecycle-runtime")
-        substitute(module("androidx.lifecycle:lifecycle-runtime-ktx:")).
-                using project(":lifecycle:lifecycle-runtime-ktx")
-        substitute(module("androidx.lifecycle:lifecycle-viewmodel:")).
-                using project(":lifecycle:lifecycle-viewmodel")
-        substitute(module("androidx.lifecycle:lifecycle-viewmodel-ktx:")).
-                using project(":lifecycle:lifecycle-viewmodel-ktx")
-    }
-}
+// TODO: how to use artifacts here?
+//configurations.all {
+//    resolutionStrategy.dependencySubstitution {
+//        substitute(module("androidx.lifecycle:lifecycle-common:")).
+//                using project(":lifecycle:lifecycle-common")
+//        substitute(module("androidx.lifecycle:lifecycle-runtime:")).
+//                using project(":lifecycle:lifecycle-runtime")
+//        substitute(module("androidx.lifecycle:lifecycle-runtime-ktx:")).
+//                using project(":lifecycle:lifecycle-runtime-ktx")
+//        substitute(module("androidx.lifecycle:lifecycle-viewmodel:")).
+//                using project(":lifecycle:lifecycle-viewmodel")
+//        substitute(module("androidx.lifecycle:lifecycle-viewmodel-ktx:")).
+//                using project(":lifecycle:lifecycle-viewmodel-ktx")
+//    }
+//}

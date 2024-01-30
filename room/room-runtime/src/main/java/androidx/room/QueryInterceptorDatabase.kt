@@ -19,7 +19,6 @@ package androidx.room
 import android.database.Cursor
 import android.database.sqlite.SQLiteTransactionListener
 import android.os.CancellationSignal
-
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.db.SupportSQLiteQuery
 import androidx.sqlite.db.SupportSQLiteStatement
@@ -137,11 +136,10 @@ internal class QueryInterceptorDatabase(
     // and it can't be renamed.
     @Suppress("AcronymName")
     override fun execSQL(sql: String, bindArgs: Array<out Any?>) {
-        val inputArguments = mutableListOf<Any>()
-        inputArguments.addAll(listOf(bindArgs))
+        val inputArguments = buildList { addAll(bindArgs) }
         queryCallbackExecutor.execute {
             queryCallback.onQuery(sql, inputArguments)
         }
-        delegate.execSQL(sql, arrayOf(inputArguments))
+        delegate.execSQL(sql, inputArguments.toTypedArray())
     }
 }

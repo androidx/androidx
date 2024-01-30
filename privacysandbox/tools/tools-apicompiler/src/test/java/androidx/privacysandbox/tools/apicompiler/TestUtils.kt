@@ -16,8 +16,8 @@
 
 package androidx.privacysandbox.tools.apicompiler
 
-import androidx.privacysandbox.tools.testing.allTestLibraryStubs
 import androidx.privacysandbox.tools.testing.CompilationTestHelper
+import androidx.privacysandbox.tools.testing.TestEnvironment
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.compiler.TestCompilationResult
 
@@ -29,21 +29,18 @@ import androidx.room.compiler.processing.util.compiler.TestCompilationResult
  */
 fun compileWithPrivacySandboxKspCompiler(
     sources: List<Source>,
-    addLibraryStubs: Boolean = true,
     extraProcessorOptions: Map<String, String> = mapOf(),
 ): TestCompilationResult {
     val provider = PrivacySandboxKspCompiler.Provider()
 
     val processorOptions = buildMap {
-        val aidlPath = (System.getProperty("aidl_compiler_path")
-            ?: throw IllegalArgumentException("aidl_compiler_path flag not set."))
-        put("aidl_compiler_path", aidlPath)
+        put("aidl_compiler_path", TestEnvironment.aidlCompilerPath.toString())
+        put("framework_aidl_path", TestEnvironment.frameworkAidlPath.toString())
         putAll(extraProcessorOptions)
     }
 
     return CompilationTestHelper.compileAll(
-        if (addLibraryStubs) sources + allTestLibraryStubs
-        else sources,
+        sources,
         symbolProcessorProviders = listOf(provider),
         processorOptions = processorOptions,
     )

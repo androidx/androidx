@@ -24,18 +24,25 @@ import androidx.annotation.Nullable
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.integration.compat.quirk.DeviceQuirks
 import androidx.camera.camera2.pipe.integration.compat.quirk.InvalidVideoProfilesQuirk
+import androidx.camera.camera2.pipe.integration.config.CameraScope
 import androidx.camera.core.Logger
 import androidx.camera.core.impl.EncoderProfilesProvider
 import androidx.camera.core.impl.EncoderProfilesProxy
 import androidx.camera.core.impl.compat.EncoderProfilesProxyCompat
+import javax.inject.Inject
+import javax.inject.Named
 
 /**
  * Adapt the [EncoderProfilesProvider] interface to [CameraPipe].
  */
 @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-class EncoderProfilesProviderAdapter(private val cameraIdString: String) : EncoderProfilesProvider {
+@CameraScope
+class EncoderProfilesProviderAdapter @Inject constructor(
+    @Named("CameraId") private val cameraIdString: String,
+) : EncoderProfilesProvider {
     private val hasValidCameraId: Boolean
     private val cameraId: Int
+    private val mEncoderProfilesCache: MutableMap<Int, EncoderProfilesProxy?> = mutableMapOf()
 
     init {
         var hasValidCameraId = false
@@ -51,15 +58,17 @@ class EncoderProfilesProviderAdapter(private val cameraIdString: String) : Encod
         }
         this.hasValidCameraId = hasValidCameraId
         cameraId = intCameraId
-
-        // TODO(b/241296464): CamcorderProfileResolutionQuirk
     }
 
     override fun hasProfile(quality: Int): Boolean {
         if (!hasValidCameraId) {
             return false
         }
-        return CamcorderProfile.hasProfile(cameraId, quality)
+
+        if (!CamcorderProfile.hasProfile(cameraId, quality)) {
+            return false
+        }
+        return true
     }
 
     override fun getAll(quality: Int): EncoderProfilesProxy? {
@@ -67,9 +76,17 @@ class EncoderProfilesProviderAdapter(private val cameraIdString: String) : Encod
             return null
         }
         if (!CamcorderProfile.hasProfile(cameraId, quality)) {
-             return null
+            return null
         }
-        return getProfilesInternal(quality)
+
+        // Cache the value on first query, and reuse the result in subsequent queries.
+        return if (mEncoderProfilesCache.containsKey(quality)) {
+            mEncoderProfilesCache[quality]
+        } else {
+            val profiles = getProfilesInternal(quality)
+            mEncoderProfilesCache[quality] = profiles
+            profiles
+        }
     }
 
     @Nullable

@@ -33,12 +33,12 @@ import androidx.test.annotation.UiThreadTest
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
+import java.util.LinkedHashMap
+import java.util.UUID
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
-import java.util.LinkedHashMap
-import java.util.UUID
 
 @RunWith(Parameterized::class)
 @SmallTest

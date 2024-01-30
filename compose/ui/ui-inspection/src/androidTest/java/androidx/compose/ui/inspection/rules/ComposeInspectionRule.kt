@@ -30,15 +30,15 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.ViewRootForTest
 import androidx.inspection.testing.InspectorTester
 import androidx.test.core.app.ActivityScenario
-import kotlinx.coroutines.runBlocking
-import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.Command
-import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.Response
-import org.junit.rules.ExternalResource
 import java.util.Collections
 import java.util.WeakHashMap
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlin.reflect.KClass
+import kotlinx.coroutines.runBlocking
+import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.Command
+import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.Response
+import org.junit.rules.ExternalResource
 
 /**
  * Test rule with common setup for compose inspector's tests:

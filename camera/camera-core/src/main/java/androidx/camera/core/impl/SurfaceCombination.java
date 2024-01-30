@@ -17,9 +17,11 @@
 package androidx.camera.core.impl;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -79,29 +81,31 @@ public final class SurfaceCombination {
 
     /**
      * Check whether the input surface configuration list is under the capability of the combination
-     * of this object.
+     * of this object. If so, return the supporting combination ordered such that the
+     * SurfaceConfig at each position of the returned list is the one that supports the
+     * SurfaceConfig at the same position of the input list.
      *
      * @param configList the surface configuration list to be compared
-     * @return the check result that whether it could be supported
+     * @return the ordered surface configuration list or {@code null} if the configuration list
+     * is not supported by this combination.
      */
-    public boolean isSupported(@NonNull List<SurfaceConfig> configList) {
+    @Nullable
+    public List<SurfaceConfig> getOrderedSupportedSurfaceConfigList(
+            @NonNull List<SurfaceConfig> configList) {
         boolean isSupported = false;
 
         if (configList.isEmpty()) {
-            return true;
+            return new ArrayList<>();
         }
 
-        /**
-         * Sublist of this surfaceConfig may be able to support the desired configuration.
-         * For example, (PRIV, PREVIEW) + (PRIV, ANALYSIS) + (JPEG, MAXIMUM) can supported by the
-         * following level3 camera device combination - (PRIV, PREVIEW) + (PRIV, ANALYSIS) + (JPEG,
-         * MAXIMUM) + (RAW, MAXIMUM).
-         */
-        if (configList.size() > mSurfaceConfigList.size()) {
-            return false;
+        // Subsets of guaranteed supported configurations are not guaranteed to be supported.
+        // Directly returns null if the list size is not the same.
+        if (configList.size() != mSurfaceConfigList.size()) {
+            return null;
         }
 
         List<int[]> elementsArrangements = getElementsArrangements(mSurfaceConfigList.size());
+        SurfaceConfig[] surfaceConfigArray = new SurfaceConfig[configList.size()];
 
         for (int[] elementsArrangement : elementsArrangements) {
             boolean checkResult = true;
@@ -115,6 +119,9 @@ public final class SurfaceCombination {
 
                     if (!checkResult) {
                         break;
+                    } else {
+                        surfaceConfigArray[elementsArrangement[index]] =
+                                mSurfaceConfigList.get(index);
                     }
                 }
             }
@@ -125,7 +132,7 @@ public final class SurfaceCombination {
             }
         }
 
-        return isSupported;
+        return isSupported ? Arrays.asList(surfaceConfigArray) : null;
     }
 
     private List<int[]> getElementsArrangements(int n) {

@@ -30,8 +30,10 @@ import androidx.work.impl.utils.WorkForegroundRunnable
 import androidx.work.impl.utils.taskexecutor.InstantWorkTaskExecutor
 import androidx.work.impl.utils.taskexecutor.TaskExecutor
 import androidx.work.worker.TestWorker
-import org.hamcrest.CoreMatchers.`is`
+import java.util.UUID
+import java.util.concurrent.Executor
 import org.hamcrest.CoreMatchers.equalTo
+import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Assert.fail
 import org.junit.Before
@@ -42,8 +44,6 @@ import org.mockito.Mockito.mock
 import org.mockito.Mockito.spy
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.verifyNoMoreInteractions
-import java.util.UUID
-import java.util.concurrent.Executor
 
 @RunWith(AndroidJUnit4::class)
 public class WorkForegroundRunnableTest : DatabaseTest() {
@@ -108,10 +108,10 @@ public class WorkForegroundRunnableTest : DatabaseTest() {
         insertWork(work)
         val worker = getWorkerSpy(work)
         val foregroundInfo = getForegroundInfo()
-        doReturn(foregroundInfo).`when`(worker).foregroundInfo
+        doReturn(foregroundInfo).`when`(worker).getForegroundInfo()
         val runnable = getWorkForegroundRunnable(work, worker)
         runnable.run()
-        verify(worker).foregroundInfo
+        verify(worker).getForegroundInfo()
         verify(worker).foregroundInfoAsync
         verify(foregroundUpdater).setForegroundAsync(context, work.id, foregroundInfo)
         assertThat(runnable.future.isDone, `is`(equalTo(true)))
@@ -134,7 +134,7 @@ public class WorkForegroundRunnableTest : DatabaseTest() {
         val worker = getWorkerSpy(work)
 
         try {
-         worker.foregroundInfo // should throw expected exception here
+         worker.getForegroundInfo() // should throw expected exception here
         } catch (ise: IllegalStateException) {
             // Nothing to do here. Test succeeded.
             return

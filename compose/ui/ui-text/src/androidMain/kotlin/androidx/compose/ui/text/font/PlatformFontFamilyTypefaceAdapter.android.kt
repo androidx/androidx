@@ -23,7 +23,7 @@ internal actual class PlatformFontFamilyTypefaceAdapter : FontFamilyTypefaceAdap
 
     private val platformTypefaceResolver = PlatformTypefaces()
 
-    override fun resolve(
+    actual override fun resolve(
         typefaceRequest: TypefaceRequest,
         platformFontLoader: PlatformFontLoader,
         onAsyncCompletion: (TypefaceResult.Immutable) -> Unit,

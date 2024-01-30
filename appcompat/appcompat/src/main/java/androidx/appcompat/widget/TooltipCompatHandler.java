@@ -36,7 +36,6 @@ import androidx.core.view.ViewConfigurationCompat;
  * Event handler used used to emulate the behavior of {@link View#setTooltipText(CharSequence)}
  * prior to API level 26.
  *
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 class TooltipCompatHandler implements View.OnLongClickListener, View.OnHoverListener,

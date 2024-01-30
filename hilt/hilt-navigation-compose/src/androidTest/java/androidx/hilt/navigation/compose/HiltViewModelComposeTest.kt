@@ -25,14 +25,17 @@ import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentContainerView
+import androidx.hilt.navigation.HiltViewModelFactory
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -45,10 +48,10 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
+import javax.inject.Inject
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import javax.inject.Inject
 
 @LargeTest
 @HiltAndroidTest
@@ -223,6 +226,28 @@ class HiltViewModelComposeTest {
         assertThat(anotherActivityScopedVM.handle).isNotNull()
         assertThat(anotherActivityScopedVM.logger).isNotNull()
         assertThat(anotherActivityScopedVM).isSameInstanceAs(activityScopedVM)
+    }
+
+    @Test
+    fun hiltViewModelFactory() {
+        lateinit var firstFactory: ViewModelProvider.Factory
+        lateinit var secondFactory: ViewModelProvider.Factory
+        composeTestRule.setContent {
+            val navController = rememberNavController()
+            NavHost(navController, startDestination = "Main") {
+                composable("Main") { navBackStackEntry ->
+                    firstFactory = HiltViewModelFactory(LocalContext.current,
+                        navBackStackEntry)
+                    secondFactory = HiltViewModelFactory(LocalContext.current,
+                        navBackStackEntry.defaultViewModelProviderFactory)
+                }
+            }
+        }
+        composeTestRule.waitForIdle()
+
+        assertThat(firstFactory).isNotNull()
+        assertThat(secondFactory).isNotNull()
+        assertThat(firstFactory).isNotSameInstanceAs(secondFactory)
     }
 
     @Composable

@@ -53,7 +53,6 @@ import java.util.concurrent.Executor;
  * The implementation of a subset of WorkManager APIs that are safe to be supported across
  * processes.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RemoteWorkManagerImpl extends IWorkManagerImpl.Stub {

@@ -18,7 +18,7 @@ package androidx.compose.foundation.copyPasteAndroidTests
 
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.assertThat
-import androidx.compose.foundation.containsExactly
+import androidx.compose.foundation.containsExactlyInOrder
 import androidx.compose.foundation.gestures.TransformableState
 import androidx.compose.foundation.gestures.animateZoomBy
 import androidx.compose.foundation.gestures.rememberTransformableState
@@ -610,7 +610,7 @@ class TransformableTest {
             val modifier = Modifier.transformable(state) as InspectableValue
             assertThat(modifier.nameFallback).isEqualTo("transformable")
             assertThat(modifier.valueOverride).isNull()
-            assertThat(modifier.inspectableElements.map { it.name }.asIterable()).containsExactly(
+            assertThat(modifier.inspectableElements.map { it.name }.asIterable()).containsExactlyInOrder(
                 "state",
                 "lockRotationOnZoomPan",
                 "enabled"

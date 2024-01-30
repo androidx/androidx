@@ -228,6 +228,7 @@ public final class EdgeEffectCompat {
      *     }
      * </pre>
      *
+     * @param edgeEffect EdgeEffect to use.
      * @param deltaDistance Change in distance since the last call. Values may be 0 (no change) to
      *                      1.f (full length of the view) or negative values to express change
      *                      back toward the edge reached to initiate the effect.

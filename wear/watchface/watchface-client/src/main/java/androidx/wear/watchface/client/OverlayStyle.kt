@@ -19,10 +19,12 @@ package androidx.wear.watchface.client
 import android.graphics.Color
 
 /**
- * This class reflects a snapshot of [androidx.wear.watchface.WatchFace.OverlayStyle], which is used
- * to configure the status overlay rendered by the system on top of the watch face. These settings
- * are applicable from Wear 3.0 and will be ignored on earlier devices.
+ * This class reflects a snapshot of [androidx.wear.watchface.WatchFace.OverlayStyle].
+ *
+ * Note while this plumbing got built, it was never used by the system ui on any platform
+ * and it will be removed.
  */
+@Deprecated("OverlayStyle will be removed in a future release.")
 public class OverlayStyle(
     /**
      * The background color of the status indicator tray. This can be any color, including
@@ -43,6 +45,7 @@ public class OverlayStyle(
      */
     public constructor() : this(null, null)
 
+    @Suppress("Deprecation")
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false

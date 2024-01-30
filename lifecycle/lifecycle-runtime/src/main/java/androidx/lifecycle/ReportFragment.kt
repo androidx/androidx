@@ -24,8 +24,6 @@ import androidx.annotation.RestrictTo
 
 /**
  * Internal class that dispatches initialization events.
- *
- * @hide
  */
 @Suppress("DEPRECATION")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)

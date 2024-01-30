@@ -27,7 +27,6 @@ import java.util.concurrent.Executor;
 /**
  * Manages access to vehicle specific sensor communication.
  *
- * @hide
  */
 @RestrictTo(LIBRARY)
 public class AutomotiveCarSensors implements CarSensors {

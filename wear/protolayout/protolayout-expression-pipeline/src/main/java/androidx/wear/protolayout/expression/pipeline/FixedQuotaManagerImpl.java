@@ -16,23 +16,27 @@
 
 package androidx.wear.protolayout.expression.pipeline;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.annotation.VisibleForTesting;
 
-/**
- * Quota manager with fixed quota cap. This class is not thread safe.
- *
- * @hide
- */
+/** Quota manager with fixed quota cap. This class is not thread safe. */
 @RestrictTo(Scope.LIBRARY_GROUP)
 public class FixedQuotaManagerImpl implements QuotaManager {
     private final int mQuotaCap;
+    @NonNull private final String mQuotaName;
 
     private int mQuotaCounter = 0;
 
     /** Creates a {@link FixedQuotaManagerImpl} with the given quota cap. */
     public FixedQuotaManagerImpl(int quotaCap) {
+        this(quotaCap, /* quotaName= */ "");
+    }
+
+    /** Creates a {@link FixedQuotaManagerImpl} with the given quota cap and quota name. */
+    public FixedQuotaManagerImpl(int quotaCap, @NonNull String quotaName) {
+        this.mQuotaName = quotaName;
         this.mQuotaCap = quotaCap;
     }
 
@@ -58,19 +62,22 @@ public class FixedQuotaManagerImpl implements QuotaManager {
     public void releaseQuota(int quota) {
         if (mQuotaCounter - quota < 0) {
             throw new IllegalArgumentException(
-                    "Trying to release more quota than it was acquired!");
+                    "Trying to release more quota"
+                            + (mQuotaName.isEmpty() ? "" : " for " + mQuotaName)
+                            + " than it was acquired!");
         }
         mQuotaCounter -= quota;
     }
 
-    /**
-     * Returns true if all quota has been released.
-     *
-     * @hide
-     */
-    @VisibleForTesting(otherwise = VisibleForTesting.NONE)
-    @RestrictTo(Scope.TESTS)
+    /** Returns true if all quota has been released. */
+    @VisibleForTesting
     public boolean isAllQuotaReleased() {
         return mQuotaCounter == 0;
+    }
+
+    /** Returns the remaining quota. */
+    @VisibleForTesting
+    public int getRemainingQuota() {
+        return mQuotaCap - mQuotaCounter;
     }
 }

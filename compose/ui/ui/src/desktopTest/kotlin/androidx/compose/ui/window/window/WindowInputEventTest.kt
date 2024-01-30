@@ -16,14 +16,12 @@
 
 package androidx.compose.ui.window.window
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.Slider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.ExperimentalComposeUiApi
-import androidx.compose.ui.Modifier
+import androidx.compose.ui.*
 import androidx.compose.ui.awt.ComposeWindow
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -40,9 +38,6 @@ import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.PointerKeyboardModifiers
 import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.sendKeyEvent
-import androidx.compose.ui.sendMouseEvent
-import androidx.compose.ui.sendMouseWheelEvent
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.density
@@ -53,6 +48,7 @@ import java.awt.Dimension
 import java.awt.Toolkit
 import java.awt.event.KeyEvent
 import java.awt.event.MouseEvent
+import java.awt.event.MouseEvent.BUTTON1
 import java.awt.event.MouseEvent.BUTTON1_DOWN_MASK
 import java.awt.event.MouseEvent.BUTTON3_DOWN_MASK
 import java.awt.event.MouseEvent.CTRL_DOWN_MASK
@@ -64,8 +60,102 @@ import java.awt.event.MouseWheelEvent.WHEEL_UNIT_SCROLL
 import org.jetbrains.skiko.hostOs
 import org.junit.Test
 
+sealed class SliderValueEvent {
+    object Change: SliderValueEvent()
+    object ChangeFinished: SliderValueEvent()
+}
+
 @OptIn(ExperimentalComposeUiApi::class)
 class WindowInputEventTest {
+    @Test
+    fun `key strokes call onValueChangeFinished on Slider`()
+        = runApplicationTest {
+        var window: ComposeWindow? = null
+
+
+        val sliderValueEvents = mutableListOf<SliderValueEvent>()
+
+        launchTestApplication {
+            Window(
+                onCloseRequest = ::exitApplication,
+                state = rememberWindowState(width = 200.dp, height = 100.dp)
+            ) {
+                window = this.window
+
+                val float = remember { mutableStateOf(5f) }
+
+                Column {
+                    Slider(
+                        float.value,
+                        onValueChange = {
+                            float.value = it
+                            print(sliderValueEvents)
+                            sliderValueEvents.add(SliderValueEvent.Change)
+                        },
+                        onValueChangeFinished = {
+                            print(sliderValueEvents)
+                            sliderValueEvents.add(SliderValueEvent.ChangeFinished)
+                        },
+                        valueRange = 0f..10f,
+                        steps = 9
+                    )
+
+                    Slider(
+                        float.value,
+                        onValueChange = {},
+                        onValueChangeFinished = {},
+                        valueRange = 0f..10f,
+                        steps = 9
+                    )
+                }
+            }
+        }
+
+        awaitIdle()
+
+        val sendKeyPressEvent = { code: Int ->
+            window!!.sendKeyEvent(code, id = KeyEvent.KEY_PRESSED)
+
+            Unit
+        }
+
+        val sendKeyReleaseEvent = { code: Int ->
+            window!!.sendKeyEvent(code, id = KeyEvent.KEY_RELEASED)
+
+            Unit
+        }
+
+        val sendKeyStrokeEvent = { code: Int ->
+            sendKeyPressEvent(code)
+            sendKeyReleaseEvent(code)
+        }
+
+        // Focus on slider
+        sendKeyStrokeEvent(KeyEvent.VK_TAB)
+
+        sendKeyStrokeEvent(KeyEvent.VK_UP)
+        sendKeyStrokeEvent(KeyEvent.VK_DOWN)
+        sendKeyStrokeEvent(KeyEvent.VK_LEFT)
+        sendKeyStrokeEvent(KeyEvent.VK_RIGHT)
+        sendKeyStrokeEvent(KeyEvent.VK_PAGE_UP)
+        sendKeyStrokeEvent(KeyEvent.VK_PAGE_DOWN)
+        sendKeyStrokeEvent(KeyEvent.VK_HOME)
+        sendKeyStrokeEvent(KeyEvent.VK_END)
+
+        awaitIdle()
+
+        val createExpected = { size: Int ->
+            List(size) {
+                listOf(
+                    SliderValueEvent.Change,
+                    SliderValueEvent.ChangeFinished
+                )
+            }.flatten()
+        }
+
+        assertThat(sliderValueEvents).isEqualTo(createExpected(8))
+    }
+
     @Test
     fun `catch key handlers`() = runApplicationTest {
         var window: ComposeWindow? = null
@@ -240,7 +330,7 @@ class WindowInputEventTest {
         assertThat(events.last().pressed).isEqualTo(false)
         assertThat(events.last().position).isEqualTo(Offset(100 * density, 50 * density))
 
-        window.sendMouseEvent(MOUSE_PRESSED, 100, 50, modifiers = BUTTON1_DOWN_MASK)
+        window.sendMousePress(BUTTON1, 100, 50)
         awaitIdle()
         assertThat(events.size).isEqualTo(2)
         assertThat(events.last().pressed).isEqualTo(true)
@@ -252,7 +342,7 @@ class WindowInputEventTest {
         assertThat(events.last().pressed).isEqualTo(true)
         assertThat(events.last().position).isEqualTo(Offset(90 * density, 40 * density))
 
-        window.sendMouseEvent(MOUSE_RELEASED, 80, 30)
+        window.sendMouseRelease(BUTTON1, 80, 30)
         awaitIdle()
         // Synthetic move, because position of the Release isn't the same as in the previous event
         assertThat(events.size).isEqualTo(5)
@@ -310,9 +400,9 @@ class WindowInputEventTest {
         assertThat(onEnters).isEqualTo(1)
         assertThat(onExits).isEqualTo(0)
 
-        window.sendMouseEvent(MOUSE_PRESSED, x = 90, y = 50, modifiers = BUTTON1_DOWN_MASK)
+        window.sendMousePress(BUTTON1, x = 90, y = 50)
         window.sendMouseEvent(MOUSE_DRAGGED, x = 80, y = 50, modifiers = BUTTON1_DOWN_MASK)
-        window.sendMouseEvent(MOUSE_RELEASED, x = 80, y = 50)
+        window.sendMouseRelease(BUTTON1, x = 80, y = 50)
         awaitIdle()
         assertThat(onMoves.size).isEqualTo(2)
         assertThat(onMoves.last()).isEqualTo(Offset(80 * density, 50 * density))
@@ -468,11 +558,12 @@ class WindowInputEventTest {
         awaitIdle()
 
         window.sendMouseEvent(
-            MOUSE_PRESSED,
+            id = MOUSE_PRESSED,
             x = 100,
             y = 50,
             modifiers = SHIFT_DOWN_MASK or CTRL_DOWN_MASK or
-                BUTTON1_DOWN_MASK or BUTTON3_DOWN_MASK
+                BUTTON1_DOWN_MASK or BUTTON3_DOWN_MASK,
+            button = BUTTON1
         )
 
         awaitIdle()
@@ -563,7 +654,7 @@ class WindowInputEventTest {
     }
 
     @Test
-    fun `send release into two boxes without intermediate move`() = runApplicationTest {
+    fun `send release into first box without intermediate move`() = runApplicationTest {
         var box1ReleaseCount = 0
         var box2ReleaseCount = 0
 
@@ -592,11 +683,11 @@ class WindowInputEventTest {
         }
         awaitIdle()
 
-        window.sendMouseEvent(id = MOUSE_PRESSED, x = 1, y = 1)
-        window.sendMouseEvent(id = MOUSE_RELEASED, x = 21, y = 1)
+        window.sendMousePress(BUTTON1, x = 1, y = 1)
+        window.sendMouseRelease(BUTTON1, x = 21, y = 1)
 
-        assertThat(box1ReleaseCount).isEqualTo(0)
-        assertThat(box2ReleaseCount).isEqualTo(1)
+        assertThat(box1ReleaseCount).isEqualTo(1)
+        assertThat(box2ReleaseCount).isEqualTo(0)
 
         window.dispose()
     }

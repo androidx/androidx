@@ -64,10 +64,10 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * @hide
  */
 @RestrictTo(Scope.LIBRARY_GROUP)
 @RequiresApi(19)
+@Deprecated
 public class SliceProviderCompat {
     public static final String PERMS_PREFIX = "slice_perms_";
     private static final String TAG = "SliceProviderCompat";

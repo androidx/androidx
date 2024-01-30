@@ -173,7 +173,6 @@ public abstract class CarAudioRecord {
         }
     }
 
-    /** @hide */
     @RestrictTo(LIBRARY)
     protected CarAudioRecord(@NonNull CarContext carContext) {
         this.mCarContext = carContext;
@@ -262,7 +261,6 @@ public abstract class CarAudioRecord {
      * Performs internal platform specific start recording behavior.
      *
      * @param openMicrophoneResponse the response from the host for opening the microphone
-     * @hide
      */
     @RestrictTo(LIBRARY)
     protected abstract void startRecordingInternal(
@@ -271,7 +269,6 @@ public abstract class CarAudioRecord {
     /**
      * Performs internal platform specific stop recording behavior.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY)
     protected abstract void stopRecordingInternal();
@@ -285,7 +282,6 @@ public abstract class CarAudioRecord {
      * @return the number of bytes that were read, or {@code -1} if there isn't any more
      * microphone data to read.  The number of bytes will be a multiple of the frame size in
      * bytes not to exceed {@code sizeInBytes}
-     * @hide
      */
     @RestrictTo(LIBRARY)
     protected abstract int readInternal(@NonNull byte[] audioData, int offsetInBytes,

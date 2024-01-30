@@ -219,7 +219,6 @@ public abstract class TwoStatePreference extends Preference {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     protected void syncSummaryView(@NonNull View view) {

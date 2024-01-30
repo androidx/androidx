@@ -83,7 +83,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.collection.ArrayMap;
-import androidx.core.app.BundleCompat;
 import androidx.media.MediaBrowserCompatUtils;
 import androidx.media.MediaBrowserServiceCompat;
 
@@ -457,7 +456,6 @@ public final class MediaBrowserCompat {
      *
      * @return A bundle which is passed to {@link MediaBrowserServiceCompat#notifyChildrenChanged(
      *         String, Bundle)}
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX) // accessed by media2-session
     @Nullable
@@ -1929,7 +1927,7 @@ public final class MediaBrowserCompat {
                 return;
             }
             mServiceVersion = extras.getInt(EXTRA_SERVICE_VERSION, 0);
-            IBinder serviceBinder = BundleCompat.getBinder(extras, EXTRA_MESSENGER_BINDER);
+            IBinder serviceBinder = extras.getBinder(EXTRA_MESSENGER_BINDER);
             if (serviceBinder != null) {
                 mServiceBinderWrapper = new ServiceBinderWrapper(serviceBinder, mRootHints);
                 mCallbacksMessenger = new Messenger(mHandler);
@@ -1941,7 +1939,7 @@ public final class MediaBrowserCompat {
                 }
             }
             IMediaSession sessionToken = IMediaSession.Stub.asInterface(
-                    BundleCompat.getBinder(extras, EXTRA_SESSION_BINDER));
+                    extras.getBinder(EXTRA_SESSION_BINDER));
             if (sessionToken != null) {
                 mMediaSessionToken = MediaSessionCompat.Token.fromToken(
                         mBrowserFwk.getSessionToken(), sessionToken);
@@ -2212,7 +2210,7 @@ public final class MediaBrowserCompat {
                 throws RemoteException {
             Bundle data = new Bundle();
             data.putString(DATA_MEDIA_ITEM_ID, parentId);
-            BundleCompat.putBinder(data, DATA_CALLBACK_TOKEN, callbackToken);
+            data.putBinder(DATA_CALLBACK_TOKEN, callbackToken);
             data.putBundle(DATA_OPTIONS, options);
             sendRequest(CLIENT_MSG_ADD_SUBSCRIPTION, data, callbacksMessenger);
         }
@@ -2222,7 +2220,7 @@ public final class MediaBrowserCompat {
                 throws RemoteException {
             Bundle data = new Bundle();
             data.putString(DATA_MEDIA_ITEM_ID, parentId);
-            BundleCompat.putBinder(data, DATA_CALLBACK_TOKEN, callbackToken);
+            data.putBinder(DATA_CALLBACK_TOKEN, callbackToken);
             sendRequest(CLIENT_MSG_REMOVE_SUBSCRIPTION, data, callbacksMessenger);
         }
 

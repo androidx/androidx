@@ -19,6 +19,7 @@
 package androidx.camera.camera2.pipe
 
 import androidx.annotation.RequiresApi
+import androidx.annotation.RestrictTo
 
 /**
  * A map-like interface used to describe or interact with metadata from CameraPipe and Camera2.
@@ -28,11 +29,13 @@ import androidx.annotation.RequiresApi
  *
  * These interfaces are read-only.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 interface Metadata {
     operator fun <T> get(key: Key<T>): T?
     fun <T> getOrDefault(key: Key<T>, default: T): T
 
     /** Metadata keys provide values or controls that are provided or computed by CameraPipe. */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     class Key<T> private constructor(private val name: String) {
         companion object {
             @JvmStatic

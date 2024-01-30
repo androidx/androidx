@@ -23,6 +23,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 
 import android.content.Context;
+import android.graphics.drawable.Icon;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
@@ -77,6 +78,42 @@ public class CreateCredentialRequestDisplayInfoJavaTest {
         assertThat(displayInfo.getUserId()).isEqualTo(expectedUserId);
         assertThat(displayInfo.getUserDisplayName()).isEqualTo(expectedDisplayName);
         assertThat(displayInfo.getCredentialTypeIcon()).isNull();
+        assertThat(displayInfo.getPreferDefaultProvider()).isNull();
+    }
+
+    @SdkSuppress(minSdkVersion = 34, codeName = "UpsideDownCake")
+    @Test
+    public void constructWithUserIdAndDisplayNameAndDefaultProvider_success() {
+        CharSequence expectedUserId = "userId";
+        CharSequence expectedDisplayName = "displayName";
+        String expectedDefaultProvider = "com.test/com.test.TestProviderComponent";
+
+        CreateCredentialRequest.DisplayInfo displayInfo =
+                new CreateCredentialRequest.DisplayInfo(expectedUserId,
+                        expectedDisplayName, expectedDefaultProvider);
+
+        assertThat(displayInfo.getUserId()).isEqualTo(expectedUserId);
+        assertThat(displayInfo.getUserDisplayName()).isEqualTo(expectedDisplayName);
+        assertThat(displayInfo.getCredentialTypeIcon()).isNull();
+        assertThat(displayInfo.getPreferDefaultProvider()).isEqualTo(expectedDefaultProvider);
+    }
+
+    @SdkSuppress(minSdkVersion = 28)
+    @Test
+    public void constructWithOptionalParameters_success() {
+        CharSequence expectedUserId = "userId";
+        CharSequence expectedDisplayName = "displayName";
+        Icon expectedIcon = Icon.createWithResource(mContext, R.drawable.ic_passkey);
+        String expectedDefaultProvider = "defaultProvider";
+
+        CreateCredentialRequest.DisplayInfo displayInfo =
+                new CreateCredentialRequest.DisplayInfo(expectedUserId,
+                        expectedDisplayName, expectedIcon, expectedDefaultProvider);
+
+        assertThat(displayInfo.getUserId()).isEqualTo(expectedUserId);
+        assertThat(displayInfo.getUserDisplayName()).isEqualTo(expectedDisplayName);
+        assertThat(displayInfo.getCredentialTypeIcon()).isEqualTo(expectedIcon);
+        assertThat(displayInfo.getPreferDefaultProvider()).isEqualTo(expectedDefaultProvider);
     }
 
     @SdkSuppress(minSdkVersion = 28)
@@ -95,5 +132,6 @@ public class CreateCredentialRequestDisplayInfoJavaTest {
         assertThat(displayInfo.getUserDisplayName()).isNull();
         assertThat(displayInfo.getCredentialTypeIcon().getResId()).isEqualTo(
                 R.drawable.ic_password);
+        assertThat(displayInfo.getPreferDefaultProvider()).isNull();
     }
 }

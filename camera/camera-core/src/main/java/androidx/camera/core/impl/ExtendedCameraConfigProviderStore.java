@@ -66,4 +66,13 @@ public final class ExtendedCameraConfigProviderStore {
         }
         return provider;
     }
+
+    /**
+     * Clear all {@link CameraConfigProvider} instances.
+     */
+    public static void clear() {
+        synchronized (LOCK) {
+            CAMERA_CONFIG_PROVIDERS.clear();
+        }
+    }
 }

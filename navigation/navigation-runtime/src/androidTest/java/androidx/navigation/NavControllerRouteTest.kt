@@ -68,7 +68,10 @@ class NavControllerRouteTest {
                 argument("defaultArg") { defaultValue = true }
             }
             test("second_test/{arg2}") {
-                argument("arg2") { type = NavType.StringType }
+                argument("arg2") {
+                    type = NavType.StringType
+                    nullable = true
+                }
                 argument("defaultArg") {
                     type = NavType.StringType
                     defaultValue = "defaultValue"
@@ -80,6 +83,17 @@ class NavControllerRouteTest {
                 }
                 deepLink {
                     uriPattern = "android-app://androidx.navigation.test/test/{arg1}/{arg2}"
+                }
+            }
+            test("nonNullableArg_test/{arg3}") {
+                argument("arg3") {
+                    type = NavType.StringType
+                    nullable = false
+                }
+                deepLink {
+                    uriPattern = "android-app://androidx.navigation.test/test/test{arg3}"
+                    action = "test.action2"
+                    mimeType = "type/test2"
                 }
             }
         }
@@ -359,6 +373,76 @@ class NavControllerRouteTest {
             NavController.KEY_DEEP_LINK_INTENT
         )
         assertThat(intent?.data).isEqualTo(deepLink)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testNavigateWithPopUpToFurthestRoute() {
+        val navController = createNavController()
+        navController.graph = nav_singleArg_graph
+
+        // series of alternate navigation between two destinations
+        val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+        assertThat(navController.currentDestination?.route).isEqualTo("start_test")
+        assertThat(navigator.backStack.size).isEqualTo(1)
+
+        navController.navigate("second_test/arg1")
+        assertThat(navController.currentDestination?.route).isEqualTo("second_test/{arg}")
+        assertThat(navigator.backStack.size).isEqualTo(2)
+
+        navController.navigate("start_test")
+        assertThat(navController.currentDestination?.route).isEqualTo("start_test")
+        assertThat(navigator.backStack.size).isEqualTo(3)
+
+        navController.navigate("second_test/arg2")
+        assertThat(navController.currentDestination?.route).isEqualTo("second_test/{arg}")
+        assertThat(navigator.backStack.size).isEqualTo(4)
+
+        // now popUpTo the first time we navigated to second_test with args
+        val navOptions = navOptions {
+            popUpTo("second_test/arg1") { inclusive = true }
+        }
+        navController.navigate("start_test", navOptions)
+        assertThat(navController.currentDestination?.route).isEqualTo("start_test")
+        assertThat(navigator.backStack.size).isEqualTo(2)
+        assertThat(navigator.backStack.map { it.destination.route }).containsExactly(
+            "start_test", "start_test"
+        )
+    }
+
+    @UiThreadTest
+    @Test
+    fun testNavigateWithPopUpToClosestRoute() {
+        val navController = createNavController()
+        navController.graph = nav_singleArg_graph
+
+        // series of alternate navigation between two destinations
+        val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+        assertThat(navController.currentDestination?.route).isEqualTo("start_test")
+        assertThat(navigator.backStack.size).isEqualTo(1)
+
+        navController.navigate("second_test/arg1")
+        assertThat(navController.currentDestination?.route).isEqualTo("second_test/{arg}")
+        assertThat(navigator.backStack.size).isEqualTo(2)
+
+        navController.navigate("start_test")
+        assertThat(navController.currentDestination?.route).isEqualTo("start_test")
+        assertThat(navigator.backStack.size).isEqualTo(3)
+
+        navController.navigate("second_test/arg2")
+        assertThat(navController.currentDestination?.route).isEqualTo("second_test/{arg}")
+        assertThat(navigator.backStack.size).isEqualTo(4)
+
+        // now popUpTo the second time we navigated to second_test with args
+        val navOptions = navOptions {
+            popUpTo("second_test/arg2") { inclusive = true }
+        }
+        navController.navigate("start_test", navOptions)
+        assertThat(navController.currentDestination?.route).isEqualTo("start_test")
+        assertThat(navigator.backStack.size).isEqualTo(4)
+        assertThat(navigator.backStack.map { it.destination.route }).containsExactly(
+            "start_test", "second_test/{arg}", "start_test", "start_test"
+        ).inOrder()
     }
 
     @UiThreadTest
@@ -1308,6 +1392,24 @@ class NavControllerRouteTest {
 
     @UiThreadTest
     @Test
+    fun testNavigateViaDeepLinkActionDifferentURI_nonNullableArg() {
+        val navController = createNavController()
+        navController.graph = nav_simple_route_graph
+        val deepLink = NavDeepLinkRequest(Uri.parse("invalidDeepLink.com"), "test.action2", null)
+
+        val expected = assertFailsWith<IllegalArgumentException> {
+            navController.navigate(deepLink)
+        }
+        assertThat(expected.message).isEqualTo(
+            "Navigation destination that matches request " +
+                "NavDeepLinkRequest{ uri=invalidDeepLink.com action=test.action2 } cannot be " +
+                "found in the navigation graph NavGraph(0xc017d10b) route=nav_root " +
+                "startDestination={Destination(0x4a13399c) route=start_test}"
+        )
+    }
+
+    @UiThreadTest
+    @Test
     fun testNavigateViaDeepLinkMimeTypeDifferentUri() {
         val navController = createNavController()
         navController.graph = nav_simple_route_graph
@@ -1317,6 +1419,24 @@ class NavControllerRouteTest {
         navController.navigate(deepLink)
         assertThat(navController.currentDestination?.route).isEqualTo("second_test/{arg2}")
         assertThat(navigator.backStack.size).isEqualTo(2)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testNavigateViaDeepLinkMimeTypeDifferentUri_nonNullableArg() {
+        val navController = createNavController()
+        navController.graph = nav_simple_route_graph
+        val deepLink = NavDeepLinkRequest(Uri.parse("invalidDeepLink.com"), null, "type/test2")
+
+        val expected = assertFailsWith<IllegalArgumentException> {
+            navController.navigate(deepLink)
+        }
+        assertThat(expected.message).isEqualTo(
+            "Navigation destination that matches request " +
+                "NavDeepLinkRequest{ uri=invalidDeepLink.com mimetype=type/test2 } cannot be " +
+                "found in the navigation graph NavGraph(0xc017d10b) route=nav_root " +
+                "startDestination={Destination(0x4a13399c) route=start_test}"
+        )
     }
 
     @UiThreadTest

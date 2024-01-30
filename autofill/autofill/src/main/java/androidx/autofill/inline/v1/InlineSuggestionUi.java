@@ -220,7 +220,6 @@ public final class InlineSuggestionUi {
     /**
      * @param contentSlice the content slice for V1
      * @return the V1 content created from the slice, or null if the slice is invalid
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @Nullable
@@ -236,7 +235,6 @@ public final class InlineSuggestionUi {
     /**
      * @param styleBundle the style bundle for V1
      * @return the V1 style created from the bundle, or null if the bundle is invalid
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @Nullable
@@ -252,7 +250,6 @@ public final class InlineSuggestionUi {
     /**
      * Renders the V1 inline suggestion view with the provided content and style.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @NonNull
@@ -309,7 +306,6 @@ public final class InlineSuggestionUi {
     }
 
     /**
-     * @hide
      * @see androidx.autofill.inline.Renderer#getAttributionIntent(Slice)
      * @see Content#getAttributionIntent()
      */
@@ -351,7 +347,6 @@ public final class InlineSuggestionUi {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @NonNull
@@ -361,7 +356,6 @@ public final class InlineSuggestionUi {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         public void applyStyle(@NonNull View singleIconChipView,
@@ -394,7 +388,6 @@ public final class InlineSuggestionUi {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         public void applyStyle(@NonNull View chipView, @NonNull ImageView startIconView,
@@ -443,7 +436,6 @@ public final class InlineSuggestionUi {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @NonNull
@@ -760,7 +752,6 @@ public final class InlineSuggestionUi {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         @Override

@@ -19,10 +19,13 @@ package androidx.camera.camera2.pipe.integration.impl
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CaptureRequest
+import android.util.Range
 import androidx.annotation.GuardedBy
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.integration.adapter.SessionConfigAdapter
 import androidx.camera.camera2.pipe.integration.adapter.propagateTo
+import androidx.camera.camera2.pipe.integration.compat.workaround.AeFpsRange
+import androidx.camera.camera2.pipe.integration.compat.workaround.AutoFlashAEModeDisabler
 import androidx.camera.camera2.pipe.integration.config.CameraScope
 import androidx.camera.core.CameraControl
 import androidx.camera.core.ImageCapture
@@ -41,6 +44,8 @@ import kotlinx.coroutines.Deferred
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class State3AControl @Inject constructor(
     val cameraProperties: CameraProperties,
+    private val aeModeDisabler: AutoFlashAEModeDisabler,
+    private val aeFpsRange: AeFpsRange
 ) : UseCaseCameraControl, UseCaseCamera.RunningUseCasesChangeListener {
     private var _useCaseCamera: UseCaseCamera? = null
     override var useCaseCamera: UseCaseCamera?
@@ -92,10 +97,12 @@ class State3AControl @Inject constructor(
     var template by updateOnPropertyChange(DEFAULT_REQUEST_TEMPLATE)
     var preferredAeMode: Int? by updateOnPropertyChange(null)
     var preferredFocusMode: Int? by updateOnPropertyChange(null)
+    var preferredAeFpsRange: Range<Int>? by updateOnPropertyChange(aeFpsRange.getTargetAeFpsRange())
 
     override fun reset() {
         synchronized(lock) { updateSignals.toList() }.cancelAll()
         preferredAeMode = null
+        preferredAeFpsRange = null
         preferredFocusMode = null
         flashMode = DEFAULT_FLASH_MODE
         template = DEFAULT_REQUEST_TEMPLATE
@@ -112,27 +119,31 @@ class State3AControl @Inject constructor(
     }
 
     fun invalidate() {
+        // TODO(b/276779600): Refactor and move the setting of these parameter to
+        //  CameraGraph.Config(requiredParameters = mapOf(....)).
         val preferAeMode = preferredAeMode ?: when (flashMode) {
             ImageCapture.FLASH_MODE_OFF -> CaptureRequest.CONTROL_AE_MODE_ON
             ImageCapture.FLASH_MODE_ON -> CaptureRequest.CONTROL_AE_MODE_ON_ALWAYS_FLASH
-            ImageCapture.FLASH_MODE_AUTO -> CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH
-            // TODO(b/209383160): porting the Quirk for AEModeDisabler
-            //      mAutoFlashAEModeDisabler.getCorrectedAeMode(
-            //      CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH
-            //    )
+            ImageCapture.FLASH_MODE_AUTO -> aeModeDisabler.getCorrectedAeMode(
+                CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH
+            )
             else -> CaptureRequest.CONTROL_AE_MODE_ON
         }
 
         val preferAfMode = preferredFocusMode ?: getDefaultAfMode()
 
+        val parameters: MutableMap<CaptureRequest.Key<*>, Any> = mutableMapOf(
+            CaptureRequest.CONTROL_AE_MODE to getSupportedAeMode(preferAeMode),
+            CaptureRequest.CONTROL_AF_MODE to getSupportedAfMode(preferAfMode),
+            CaptureRequest.CONTROL_AWB_MODE to getSupportedAwbMode(
+                CaptureRequest.CONTROL_AWB_MODE_AUTO))
+
+        preferredAeFpsRange?.let {
+            parameters[CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE] = it
+        }
+
         useCaseCamera?.requestControl?.addParametersAsync(
-            values = mapOf(
-                CaptureRequest.CONTROL_AE_MODE to getSupportedAeMode(preferAeMode),
-                CaptureRequest.CONTROL_AF_MODE to getSupportedAfMode(preferAfMode),
-                CaptureRequest.CONTROL_AWB_MODE to getSupportedAwbMode(
-                    CaptureRequest.CONTROL_AWB_MODE_AUTO
-                ),
-            )
+            values = parameters
         )?.apply {
             toCompletableDeferred().also { signal ->
                 synchronized(lock) {
@@ -146,7 +157,7 @@ class State3AControl @Inject constructor(
                 }
             }
         } ?: run {
-            synchronized(lock) { updateSignal = CompletableDeferred(null) }
+            synchronized(lock) { updateSignal = CompletableDeferred(Unit) }
         }
     }
 

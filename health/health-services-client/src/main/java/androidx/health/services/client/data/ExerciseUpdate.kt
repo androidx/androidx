@@ -16,13 +16,13 @@
 
 package androidx.health.services.client.data
 
-import androidx.health.services.client.proto.DataProto.ExerciseUpdate.LatestMetricsEntry as LatestMetricsEntryProto
 import androidx.annotation.RestrictTo
 import androidx.annotation.RestrictTo.Scope
 import androidx.health.services.client.data.ExerciseEndReason.Companion.toProto
 import androidx.health.services.client.data.ExerciseUpdate.ActiveDurationCheckpoint
 import androidx.health.services.client.proto.DataProto
 import androidx.health.services.client.proto.DataProto.AchievedExerciseGoal
+import androidx.health.services.client.proto.DataProto.ExerciseUpdate.LatestMetricsEntry as LatestMetricsEntryProto
 import java.time.Duration
 import java.time.Instant
 
@@ -70,8 +70,9 @@ public class ExerciseUpdate internal constructor(
      * phase and hasn't started yet.
      */
     public val startTime: Instant? = null,
+
+    internal val activeDurationLegacy: Duration,
 ) {
-    /** @hide */
     @RestrictTo(Scope.LIBRARY)
     public constructor(
         proto: DataProto.ExerciseUpdate
@@ -96,6 +97,7 @@ public class ExerciseUpdate internal constructor(
             null
         },
         if (proto.hasStartTimeEpochMs()) Instant.ofEpochMilli(proto.startTimeEpochMs) else null,
+        Duration.ofMillis(proto.activeDurationMs),
     )
 
     /**
@@ -123,7 +125,6 @@ public class ExerciseUpdate internal constructor(
         public val activeDuration: Duration,
     ) {
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY)
         internal fun toProto(): DataProto.ExerciseUpdate.ActiveDurationCheckpoint =
             DataProto.ExerciseUpdate.ActiveDurationCheckpoint.newBuilder()
@@ -153,7 +154,6 @@ public class ExerciseUpdate internal constructor(
         }
 
         internal companion object {
-            /** @hide */
             @RestrictTo(Scope.LIBRARY)
             internal fun fromProto(
                 proto: DataProto.ExerciseUpdate.ActiveDurationCheckpoint
@@ -171,6 +171,7 @@ public class ExerciseUpdate internal constructor(
         val builder =
             DataProto.ExerciseUpdate.newBuilder()
                 .setState(exerciseStateInfo.state.toProto())
+                .setActiveDurationMs(activeDurationLegacy.toMillis())
                 .addAllLatestMetrics(
                     latestMetrics.sampleDataPoints
                         .groupBy { it.dataType }
@@ -216,7 +217,6 @@ public class ExerciseUpdate internal constructor(
         exerciseConfig?.let { builder.setExerciseConfig(exerciseConfig.toProto()) }
         activeDurationCheckpoint?.let {
             builder.setActiveDurationCheckpoint(activeDurationCheckpoint.toProto())
-            builder.setActiveDurationMs(activeDurationCheckpoint.activeDuration.toMillis())
         }
 
         return builder.build()
@@ -280,7 +280,7 @@ public class ExerciseUpdate internal constructor(
         // by working backwards.
         // First find time since this point was generated.
         val durationSinceProvidedTime = getUpdateDurationFromBoot().minus(durationFromBoot)
-        return activeDurationCheckpoint.activeDuration.minus(durationSinceProvidedTime)
+        return activeDurationLegacy.minus(durationSinceProvidedTime)
     }
 
     override fun toString(): String =

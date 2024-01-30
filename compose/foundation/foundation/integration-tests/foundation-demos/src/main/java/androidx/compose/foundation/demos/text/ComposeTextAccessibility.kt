@@ -16,8 +16,8 @@
 
 package androidx.compose.foundation.demos.text
 
-import androidx.compose.material.Text
 import androidx.compose.foundation.layout.Column
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.SpanStyle
@@ -76,9 +76,9 @@ fun TextAccessibilityDemo() {
             text = buildAnnotatedString {
                 append("This word is a link: ")
                 withAnnotation(UrlAnnotation("https://google.com")) {
-                    append("Google\n")
+                    append("Google")
                 }
-                append("This word is not a link: google.com")
+                append("\nThis word is not a link: google.com")
             },
             style = TextStyle(fontSize = fontSize8)
         )

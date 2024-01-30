@@ -56,9 +56,10 @@ hilt {
 }
 
 androidx {
-    name = "Android Navigation Fragment Hilt Extension"
+    name = "Navigation Fragment Hilt Extension"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenVersion = LibraryVersions.HILT
+    mavenVersion = LibraryVersions.HILT_NAVIGATION
     inceptionYear = "2021"
     description = "Android Navigation Fragment Hilt Extension"
+    metalavaK2UastEnabled = true
 }

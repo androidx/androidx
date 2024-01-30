@@ -16,8 +16,6 @@
 
 package androidx.arch.core.executor;
 
-import android.annotation.SuppressLint;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 
@@ -33,10 +31,8 @@ import java.util.concurrent.atomic.AtomicReference;
 /**
  * A TaskExecutor that has a real thread for main thread operations and can wait for execution etc.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-@SuppressLint("SyntheticAccessor")
 public class TaskExecutorWithFakeMainThread extends TaskExecutor {
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     List<Throwable> mCaughtExceptions = Collections.synchronizedList(new ArrayList<>());

@@ -22,6 +22,7 @@ import android.content.Intent
 import android.os.Looper
 import android.os.RemoteException
 import androidx.health.services.client.data.Availability
+import androidx.health.services.client.data.BatchingMode
 import androidx.health.services.client.data.ComparisonType
 import androidx.health.services.client.data.DataType
 import androidx.health.services.client.data.DataTypeAvailability
@@ -62,7 +63,6 @@ import com.google.common.collect.ImmutableMap
 import com.google.common.collect.ImmutableSet
 import com.google.common.truth.Truth
 import java.util.concurrent.CancellationException
-import kotlin.test.assertFailsWith
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope
@@ -741,31 +741,65 @@ class ExerciseClientTest {
 
     @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
     @Test
-    fun updateExerciseTypeConfigForActiveExercise() = runTest {
-        service.exerciseConfig = ExerciseConfig.builder(ExerciseType.GOLF).build()
+    fun updateExerciseTypeConfigForActiveExerciseSynchronously() = runTest {
+        val exerciseConfig = ExerciseConfig.builder(ExerciseType.GOLF).build()
         val exerciseTypeConfig =
-            GolfExerciseTypeConfig(GolfExerciseTypeConfig
-                .GolfShotTrackingPlaceInfo.GOLF_SHOT_TRACKING_PLACE_INFO_FAIRWAY)
-        val request =
-            UpdateExerciseTypeConfigRequest(
-                CLIENT_CONFIGURATION.servicePackageName, exerciseTypeConfig
+            GolfExerciseTypeConfig(
+                GolfExerciseTypeConfig
+                    .GolfShotTrackingPlaceInfo.GOLF_SHOT_TRACKING_PLACE_INFO_FAIRWAY
             )
-        val statusCallback = IStatusCallback.Default()
 
-        service.updateExerciseTypeConfigForActiveExercise(request, statusCallback)
+        client.setUpdateCallback(callback)
+        var deferred = async { client.startExercise(exerciseConfig) }
+        advanceMainLooperIdle()
+        deferred.await()
+        deferred = async {
+            client.updateExerciseTypeConfig(exerciseTypeConfig)
+        }
+        advanceMainLooperIdle()
+        deferred.await()
 
         Truth.assertThat(service.exerciseConfig?.exerciseTypeConfig).isEqualTo(exerciseTypeConfig)
     }
 
     @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
     @Test
-    fun overrideBatchingModesForActiveExercise_notImplementedError() = runTest {
-        var request: BatchingModeConfigRequest?
-        request = null
-        assertFailsWith(
-            exceptionClass = NotImplementedError::class,
-            block = { service.overrideBatchingModesForActiveExercise(request, null) }
-        )
+    fun overrideBatchingModesForActiveExerciseSynchronously() = runTest {
+        val batchingMode = HashSet<BatchingMode>()
+        batchingMode.add(BatchingMode.HEART_RATE_5_SECONDS)
+        client.setUpdateCallback(callback)
+
+        var deferred = async {
+            client.overrideBatchingModesForActiveExercise(batchingMode)
+        }
+        advanceMainLooperIdle()
+        deferred.await()
+
+        Truth.assertThat(service.batchingModeOverrides?.size).isEqualTo(1)
+    }
+
+    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+    @Test
+    fun clearBatchingModesForActiveExerciseSynchronously() = runTest {
+        val batchingMode = HashSet<BatchingMode>()
+        batchingMode.add(BatchingMode.HEART_RATE_5_SECONDS)
+        val emptyBatchingMode = HashSet<BatchingMode>()
+        client.setUpdateCallback(callback)
+        var deferred = async {
+            // override batching mode with HEART_RATE_5_SECONDS
+            client.overrideBatchingModesForActiveExercise(batchingMode)
+        }
+        advanceMainLooperIdle()
+        deferred.await()
+
+        deferred = async {
+            // Clear existing batching modes with empty set
+            client.overrideBatchingModesForActiveExercise(emptyBatchingMode)
+        }
+        advanceMainLooperIdle()
+        deferred.await()
+
+        Truth.assertThat(service.batchingModeOverrides?.size).isEqualTo(0)
     }
 
     class FakeExerciseUpdateCallback : ExerciseUpdateCallback {
@@ -808,6 +842,7 @@ class ExerciseClientTest {
         var throwException = false
         var callingAppHasPermissions = true
         val registerGetCapabilitiesRequests = mutableListOf<CapabilitiesRequest>()
+        var batchingModeOverrides: Set<BatchingMode>? = null
 
         override fun prepareExercise(
             prepareExerciseRequest: PrepareExerciseRequest?,
@@ -934,7 +969,8 @@ class ExerciseClientTest {
             batchingModeConfigRequest: BatchingModeConfigRequest?,
             statuscallback: IStatusCallback?
         ) {
-            throw NotImplementedError()
+            batchingModeOverrides = batchingModeConfigRequest?.batchingModeOverrides
+            statusCallbackAction.invoke(statuscallback)
         }
 
         override fun getCapabilities(request: CapabilitiesRequest): ExerciseCapabilitiesResponse {
@@ -995,7 +1031,7 @@ class ExerciseClientTest {
 
         override fun updateExerciseTypeConfigForActiveExercise(
             updateExerciseTypeConfigRequest: UpdateExerciseTypeConfigRequest,
-            statuscallback: IStatusCallback
+            statusCallback: IStatusCallback,
         ) {
             val newExerciseTypeConfig = updateExerciseTypeConfigRequest.exerciseTypeConfig
             val newExerciseConfig =
@@ -1003,6 +1039,7 @@ class ExerciseClientTest {
                     exerciseConfig!!.exerciseType
                 ).setExerciseTypeConfig(newExerciseTypeConfig).build()
             this.exerciseConfig = newExerciseConfig
+            statusCallbackAction.invoke(statusCallback)
         }
 
         fun setException() {

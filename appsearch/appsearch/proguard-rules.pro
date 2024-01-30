@@ -12,5 +12,6 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 -keep class ** implements androidx.appsearch.app.DocumentClassFactory { *; }
+-keep class ** implements androidx.appsearch.app.AppSearchDocumentClassMap { *; }
 
 -keep @androidx.appsearch.annotation.Document class *

@@ -22,11 +22,9 @@ import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-/* ktlint-disable no-unused-imports */ // https://github.com/pinterest/ktlint/issues/937
-import org.mockito.Mockito.`when` as mockWhen
-/* ktlint-enable unused-imports */
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.spy
+import org.mockito.Mockito.`when` as mockWhen
 
 @RunWith(JUnit4::class)
 public class DynamicInstallManagerTest {

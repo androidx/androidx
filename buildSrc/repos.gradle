@@ -59,8 +59,9 @@ def addMavenRepositories(RepositoryHandler handler) {
     }
     def isJBFork = true
     if (isJBFork) {
-        handler.mavenLocal()
         handler.mavenCentral()
+        // Keep mavenLocal() repository below mavenCentral to avoid issues with stdlib imports
+        handler.mavenLocal()
         handler.google()
         handler.gradlePluginPortal()
         handler.maven {
@@ -68,6 +69,13 @@ def addMavenRepositories(RepositoryHandler handler) {
         }
         handler.maven {
                url("https://maven.pkg.jetbrains.space/public/p/kotlinx-coroutines/maven")
+        }
+        // TODO(b/280646217): Remove after official release to gmaven.
+        handler.maven {
+            url("https://storage.googleapis.com/r8-releases/raw")
+            content {
+                includeModule("com.android.tools", "r8")
+            }
         }
     }
     // Ordering appears to be important: b/229733266

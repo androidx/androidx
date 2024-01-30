@@ -21,7 +21,6 @@ import androidx.annotation.RestrictTo;
 /**
  * Defaults for emojicompat
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class EmojiDefaults {

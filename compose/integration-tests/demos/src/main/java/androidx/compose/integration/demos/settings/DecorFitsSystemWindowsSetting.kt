@@ -39,9 +39,9 @@ internal object DecorFitsSystemWindowsSetting : DemoSetting<Boolean> {
         key = Key
         summaryOff =
             "The framework will not fit the content view to the insets and will just pass through" +
-                " the WindowInsetsCompat to the content view."
-        summaryOn = "The framework will fit the content view to the insets. WindowInsets APIs " +
-            "must be used to add necessary padding. Insets will be animated."
+                " the WindowInsetsCompat to the content view.  WindowInsets APIs must be used to" +
+                " add necessary padding. Insets will be animated."
+        summaryOn = "The framework will fit the content view to the insets."
         setDefaultValue(DefaultValue)
     }
 

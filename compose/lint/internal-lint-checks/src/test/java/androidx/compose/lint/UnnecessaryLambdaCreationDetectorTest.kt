@@ -20,15 +20,15 @@ package androidx.compose.lint
 
 import androidx.compose.lint.test.Stubs
 import androidx.compose.lint.test.kotlinAndBytecodeStub
-import com.android.tools.lint.checks.infrastructure.TestLintResult
-import org.junit.Test
-import org.junit.runner.RunWith
 import com.android.tools.lint.checks.infrastructure.LintDetectorTest
 import com.android.tools.lint.checks.infrastructure.TestFile
+import com.android.tools.lint.checks.infrastructure.TestLintResult
 import com.android.tools.lint.checks.infrastructure.TestMode
 import com.android.tools.lint.detector.api.Detector
 import com.android.tools.lint.detector.api.Issue
 import org.intellij.lang.annotations.Language
+import org.junit.Test
+import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
 /* ktlint-disable max-line-length */

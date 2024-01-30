@@ -23,7 +23,11 @@ import androidx.versionedparcelable.VersionedParcelize;
 
 /**
  * A class for rating with a single degree of rating, "thumb up" vs "thumb down".
+ *
+ * @deprecated androidx.media2 is deprecated. Please migrate to <a
+ *     href="https://developer.android.com/guide/topics/media/media3">androidx.media3</a>.
  */
+@Deprecated
 @VersionedParcelize
 public final class ThumbRating implements Rating {
     @ParcelField(1)

@@ -16,13 +16,16 @@
 
 package androidx.camera.video.internal.audio
 
-import androidx.camera.testing.mocks.MockConsumer
-import androidx.camera.testing.mocks.helpers.CallTimes
+import androidx.annotation.RequiresApi
+import androidx.camera.testing.impl.mocks.MockConsumer
+import androidx.camera.testing.impl.mocks.helpers.CallTimes
 import androidx.camera.video.internal.audio.AudioStream.PacketInfo
 import androidx.core.util.Preconditions.checkArgument
 import java.nio.ByteBuffer
 import java.util.concurrent.Executor
+import kotlin.math.min
 
+@RequiresApi(21)
 class FakeAudioStream(
     private val audioDataProvider: (index: Int) -> AudioData,
     isSilenced: Boolean = false,
@@ -40,6 +43,7 @@ class FakeAudioStream(
     private val startCalls = MockConsumer<Unit>()
     private val stopCalls = MockConsumer<Unit>()
     private val releaseCalls = MockConsumer<Unit>()
+    private val readCalls = MockConsumer<Unit>()
     private var bufferIndex = 0
     private var isReleased = false
     private var isStarted = false
@@ -72,6 +76,7 @@ class FakeAudioStream(
         isStarted = false
         exceptionOnStartTimes = 0
         stopCalls.accept(Unit)
+        readCalls.clearAcceptCalls()
     }
 
     override fun release() {
@@ -88,13 +93,19 @@ class FakeAudioStream(
         }
         val audioData = audioDataProvider.invoke(bufferIndex++)
         _audioDataList.add(audioData)
-        val packet = PacketInfo.of(audioData.byteBuffer.remaining(), audioData.timestampNs)
+        val readSizeInByte = min(audioData.byteBuffer.remaining(), byteBuffer.remaining())
+        val packet = PacketInfo.of(readSizeInByte, audioData.timestampNs)
         if (packet.sizeInBytes > 0) {
+            // Duplicate and limit source size to prevent BufferOverflowException.
+            val sourceByteBuffer = audioData.byteBuffer.duplicate()
+            sourceByteBuffer.limit(readSizeInByte)
+
             val originalPosition = byteBuffer.position()
-            byteBuffer.put(audioData.byteBuffer)
+            byteBuffer.put(sourceByteBuffer)
             byteBuffer.limit(byteBuffer.position())
             byteBuffer.position(originalPosition)
         }
+        readCalls.accept(Unit)
         return packet
     }
 
@@ -139,6 +150,17 @@ class FakeAudioStream(
         timeoutMs: Long = MockConsumer.NO_TIMEOUT,
         inOder: Boolean = false
     ) = releaseCalls.verifyAcceptCall(
+        Unit::class.java,
+        inOder,
+        timeoutMs,
+        callTimes,
+    )
+
+    fun verifyReadCall(
+        callTimes: CallTimes,
+        timeoutMs: Long = MockConsumer.NO_TIMEOUT,
+        inOder: Boolean = false
+    ) = readCalls.verifyAcceptCall(
         Unit::class.java,
         inOder,
         timeoutMs,

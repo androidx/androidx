@@ -17,10 +17,10 @@
 package androidx.room.vo
 
 import androidx.room.compiler.processing.XType
-import androidx.room.migration.bundle.FtsEntityBundle
-import androidx.room.parser.FtsVersion
 import androidx.room.compiler.processing.XTypeElement
+import androidx.room.migration.bundle.FtsEntityBundle
 import androidx.room.migration.bundle.TABLE_NAME_PLACEHOLDER
+import androidx.room.parser.FtsVersion
 
 /**
  * An Entity with a mapping FTS table.

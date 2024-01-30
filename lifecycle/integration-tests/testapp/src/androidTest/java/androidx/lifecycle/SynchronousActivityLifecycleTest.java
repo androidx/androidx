@@ -16,6 +16,8 @@
 
 package androidx.lifecycle;
 
+import static android.os.Build.VERSION.SDK_INT;
+
 import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentation;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -27,7 +29,6 @@ import android.app.Instrumentation;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
-import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.Lifecycle.Event;
@@ -152,7 +153,7 @@ public class SynchronousActivityLifecycleTest {
 
     private static void performStop(Activity activity) {
         try {
-            if (Build.VERSION.SDK_INT >= 24) {
+            if (SDK_INT >= 24) {
                 Method m = Activity.class.getDeclaredMethod("performStop", boolean.class);
                 m.setAccessible(true);
                 m.invoke(activity, false);

@@ -23,9 +23,11 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.requiredSize
+import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.lazy.staggeredgrid.LazyHorizontalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
@@ -46,6 +48,7 @@ import androidx.test.filters.LargeTest
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assume
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -97,6 +100,7 @@ class LazyStaggeredGridScrollingBenchmark(
     }
 
     @Test
+    @Ignore("b/300472956")
     fun scrollViaPointerInput_noNewItems() {
         benchmarkRule.toggleStateBenchmark {
             StaggeredGridRemeasureTestCase(
@@ -109,6 +113,7 @@ class LazyStaggeredGridScrollingBenchmark(
     }
 
     @Test
+    @Ignore("b/300472956")
     fun scrollViaPointerInput_newItemComposed_up() {
         benchmarkRule.toggleStateBenchmark {
             StaggeredGridRemeasureTestCase(
@@ -123,6 +128,7 @@ class LazyStaggeredGridScrollingBenchmark(
     }
 
     @Test
+    @Ignore("b/300472956")
     fun scrollViaPointerInput_newItemComposed() {
         benchmarkRule.toggleStateBenchmark {
             StaggeredGridRemeasureTestCase(
@@ -217,7 +223,7 @@ private val Horizontal = LazyStaggeredGridScrollingTestCase(
     LazyHorizontalStaggeredGrid(
         rows = StaggeredGridCells.Fixed(2),
         state = state,
-        modifier = Modifier.requiredHeight(400.dp).fillMaxWidth(),
+        modifier = Modifier.requiredWidth(400.dp).fillMaxHeight(),
         flingBehavior = NoFlingBehavior
     ) {
         items(2) {

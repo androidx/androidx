@@ -62,6 +62,10 @@ sealed class KspHasModifiers(
             }
     }
 
+    override fun isKtPrivate(): Boolean {
+      return isPrivate()
+    }
+
     override fun isPrivate(): Boolean {
         return declaration.isPrivate()
     }

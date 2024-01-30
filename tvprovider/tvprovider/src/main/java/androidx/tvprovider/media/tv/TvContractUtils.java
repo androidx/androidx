@@ -28,7 +28,6 @@ import java.util.List;
 
 /**
  * Static helper methods for working with {@link android.media.tv.TvContract}.
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public class TvContractUtils {

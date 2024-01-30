@@ -32,7 +32,6 @@ import androidx.car.app.serialization.BundlerException;
 /**
  * {@link IRendererService} messages dispatcher, responsible for IPC error handling.
  *
- * @hide
  */
 @RestrictTo(LIBRARY)
 public class ServiceDispatcher {

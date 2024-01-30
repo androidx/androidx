@@ -18,14 +18,13 @@ package androidx.compose.foundation.layout
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
-import androidx.compose.ui.layout.LayoutModifier
-import androidx.compose.ui.layout.Measurable
-import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
+import androidx.compose.ui.layout.MeasureScope
+import androidx.compose.ui.node.LayoutModifierNode
+import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.platform.InspectorInfo
-import androidx.compose.ui.platform.InspectorValueInfo
-import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
@@ -52,21 +51,19 @@ fun Modifier.padding(
     top: Dp = 0.dp,
     end: Dp = 0.dp,
     bottom: Dp = 0.dp
-) = this.then(
-    PaddingModifier(
-        start = start,
-        top = top,
-        end = end,
-        bottom = bottom,
-        rtlAware = true,
-        inspectorInfo = debugInspectorInfo {
-            name = "padding"
-            properties["start"] = start
-            properties["top"] = top
-            properties["end"] = end
-            properties["bottom"] = bottom
-        }
-    )
+) = this then PaddingElement(
+    start = start,
+    top = top,
+    end = end,
+    bottom = bottom,
+    rtlAware = true,
+    inspectorInfo = {
+        name = "padding"
+        properties["start"] = start
+        properties["top"] = top
+        properties["end"] = end
+        properties["bottom"] = bottom
+    }
 )
 
 /**
@@ -85,19 +82,17 @@ fun Modifier.padding(
 fun Modifier.padding(
     horizontal: Dp = 0.dp,
     vertical: Dp = 0.dp
-) = this.then(
-    PaddingModifier(
-        start = horizontal,
-        top = vertical,
-        end = horizontal,
-        bottom = vertical,
-        rtlAware = true,
-        inspectorInfo = debugInspectorInfo {
-            name = "padding"
-            properties["horizontal"] = horizontal
-            properties["vertical"] = vertical
-        }
-    )
+) = this then PaddingElement(
+    start = horizontal,
+    top = vertical,
+    end = horizontal,
+    bottom = vertical,
+    rtlAware = true,
+    inspectorInfo = {
+        name = "padding"
+        properties["horizontal"] = horizontal
+        properties["vertical"] = vertical
+    }
 )
 
 /**
@@ -112,20 +107,17 @@ fun Modifier.padding(
  * @sample androidx.compose.foundation.layout.samples.PaddingAllModifier
  */
 @Stable
-fun Modifier.padding(all: Dp) =
-    this.then(
-        PaddingModifier(
-            start = all,
-            top = all,
-            end = all,
-            bottom = all,
-            rtlAware = true,
-            inspectorInfo = debugInspectorInfo {
-                name = "padding"
-                value = all
-            }
-        )
-    )
+fun Modifier.padding(all: Dp) = this then PaddingElement(
+    start = all,
+    top = all,
+    end = all,
+    bottom = all,
+    rtlAware = true,
+    inspectorInfo = {
+        name = "padding"
+        value = all
+    }
+)
 
 /**
  * Apply [PaddingValues] to the component as additional space along each edge of the content's left,
@@ -139,16 +131,13 @@ fun Modifier.padding(all: Dp) =
  * @sample androidx.compose.foundation.layout.samples.PaddingValuesModifier
  */
 @Stable
-fun Modifier.padding(paddingValues: PaddingValues) =
-    this.then(
-        PaddingValuesModifier(
-            paddingValues = paddingValues,
-            inspectorInfo = debugInspectorInfo {
-                name = "padding"
-                properties["paddingValues"] = paddingValues
-            }
-        )
-    )
+fun Modifier.padding(paddingValues: PaddingValues) = this then PaddingValuesElement(
+    paddingValues = paddingValues,
+    inspectorInfo = {
+        name = "padding"
+        properties["paddingValues"] = paddingValues
+    }
+)
 
 /**
  * Apply additional space along each edge of the content in [Dp]: [left], [top], [right] and
@@ -168,14 +157,14 @@ fun Modifier.absolutePadding(
     top: Dp = 0.dp,
     right: Dp = 0.dp,
     bottom: Dp = 0.dp
-) = this.then(
-    PaddingModifier(
+) = this then(
+    PaddingElement(
         start = left,
         top = top,
         end = right,
         bottom = bottom,
         rtlAware = false,
-        inspectorInfo = debugInspectorInfo {
+        inspectorInfo = {
             name = "absolutePadding"
             properties["left"] = left
             properties["top"] = top
@@ -334,14 +323,15 @@ internal class PaddingValuesImpl(
     override fun toString() = "PaddingValues(start=$start, top=$top, end=$end, bottom=$bottom)"
 }
 
-private class PaddingModifier(
-    val start: Dp = 0.dp,
-    val top: Dp = 0.dp,
-    val end: Dp = 0.dp,
-    val bottom: Dp = 0.dp,
-    val rtlAware: Boolean,
-    inspectorInfo: InspectorInfo.() -> Unit
-) : LayoutModifier, InspectorValueInfo(inspectorInfo) {
+private class PaddingElement(
+    var start: Dp = 0.dp,
+    var top: Dp = 0.dp,
+    var end: Dp = 0.dp,
+    var bottom: Dp = 0.dp,
+    var rtlAware: Boolean,
+    val inspectorInfo: InspectorInfo.() -> Unit
+) : ModifierNodeElement<PaddingNode>() {
+
     init {
         require(
             (start.value >= 0f || start == Dp.Unspecified) &&
@@ -352,6 +342,49 @@ private class PaddingModifier(
             "Padding must be non-negative"
         }
     }
+
+    override fun create(): PaddingNode {
+        return PaddingNode(start, top, end, bottom, rtlAware)
+    }
+
+    override fun update(node: PaddingNode) {
+        node.start = start
+        node.top = top
+        node.end = end
+        node.bottom = bottom
+        node.rtlAware = rtlAware
+    }
+
+    override fun hashCode(): Int {
+        var result = start.hashCode()
+        result = 31 * result + top.hashCode()
+        result = 31 * result + end.hashCode()
+        result = 31 * result + bottom.hashCode()
+        result = 31 * result + rtlAware.hashCode()
+        return result
+    }
+
+    override fun equals(other: Any?): Boolean {
+        val otherModifierElement = other as? PaddingElement ?: return false
+        return start == otherModifierElement.start &&
+            top == otherModifierElement.top &&
+            end == otherModifierElement.end &&
+            bottom == otherModifierElement.bottom &&
+            rtlAware == otherModifierElement.rtlAware
+    }
+
+    override fun InspectorInfo.inspectableProperties() {
+        inspectorInfo()
+    }
+}
+
+private class PaddingNode(
+    var start: Dp = 0.dp,
+    var top: Dp = 0.dp,
+    var end: Dp = 0.dp,
+    var bottom: Dp = 0.dp,
+    var rtlAware: Boolean
+) : LayoutModifierNode, Modifier.Node() {
 
     override fun MeasureScope.measure(
         measurable: Measurable,
@@ -373,30 +406,35 @@ private class PaddingModifier(
             }
         }
     }
+}
 
-    override fun hashCode(): Int {
-        var result = start.hashCode()
-        result = 31 * result + top.hashCode()
-        result = 31 * result + end.hashCode()
-        result = 31 * result + bottom.hashCode()
-        result = 31 * result + rtlAware.hashCode()
-        return result
+private class PaddingValuesElement(
+    val paddingValues: PaddingValues,
+    val inspectorInfo: InspectorInfo.() -> Unit
+) : ModifierNodeElement<PaddingValuesModifier>() {
+    override fun create(): PaddingValuesModifier {
+        return PaddingValuesModifier(paddingValues)
     }
 
+    override fun update(node: PaddingValuesModifier) {
+        node.paddingValues = paddingValues
+    }
+
+    override fun hashCode(): Int = paddingValues.hashCode()
+
     override fun equals(other: Any?): Boolean {
-        val otherModifier = other as? PaddingModifier ?: return false
-        return start == otherModifier.start &&
-            top == otherModifier.top &&
-            end == otherModifier.end &&
-            bottom == otherModifier.bottom &&
-            rtlAware == otherModifier.rtlAware
+        val otherElement = other as? PaddingValuesElement ?: return false
+        return paddingValues == otherElement.paddingValues
+    }
+
+    override fun InspectorInfo.inspectableProperties() {
+        inspectorInfo()
     }
 }
 
 private class PaddingValuesModifier(
-    val paddingValues: PaddingValues,
-    inspectorInfo: InspectorInfo.() -> Unit
-) : LayoutModifier, InspectorValueInfo(inspectorInfo) {
+    var paddingValues: PaddingValues
+) : LayoutModifierNode, Modifier.Node() {
     override fun MeasureScope.measure(
         measurable: Measurable,
         constraints: Constraints
@@ -424,12 +462,5 @@ private class PaddingValuesModifier(
                 paddingValues.calculateTopPadding().roundToPx()
             )
         }
-    }
-
-    override fun hashCode() = paddingValues.hashCode()
-
-    override fun equals(other: Any?): Boolean {
-        val otherModifier = other as? PaddingValuesModifier ?: return false
-        return paddingValues == otherModifier.paddingValues
     }
 }

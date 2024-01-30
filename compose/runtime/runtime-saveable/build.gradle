@@ -46,7 +46,7 @@ dependencies {
         androidTestImplementation projectOrArtifact(":compose:ui:ui-test-junit4")
         androidTestImplementation projectOrArtifact(":compose:test-utils")
         androidTestImplementation "androidx.fragment:fragment:1.3.0"
-        androidTestImplementation projectOrArtifact(":activity:activity-compose")
+        androidTestImplementation androidxArtifact(":activity:activity-compose")
         androidTestImplementation(libs.testUiautomator)
         androidTestImplementation(libs.testCore)
         androidTestImplementation(libs.testRules)
@@ -69,9 +69,25 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
         desktop()
         darwin()
         js()
+        wasm()
     }
 
     kotlin {
+        // Not all modules can have these targets, so declare them here instead of androidXComposeMultiplatform.
+        // We can support the kotlin-native targets supported by kotlin coroutines:
+        // https://github.com/Kotlin/kotlinx.coroutines/blob/master/buildSrc/src/main/kotlin/kotlin-multiplatform-conventions.gradle.kts
+        // NOTE: Keep this list in sync with runtime's targets.
+        watchosArm64()
+        watchosArm32()
+        watchosX64()
+        watchosSimulatorArm64()
+        tvosArm64()
+        tvosX64()
+        tvosSimulatorArm64()
+        mingwX64()
+        linuxArm64()
+        linuxX64()
+
         /* When updating dependencies, make sure to make the an an analogous update in the
             corresponding block above */
         sourceSets {
@@ -84,6 +100,16 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
             androidMain.dependencies {
                 implementation(libs.kotlinStdlib)
                 api "androidx.annotation:annotation:1.1.0"
+            }
+
+            jsMain {}
+
+            if (project.kotlinWasmEnabled.toBoolean()) {
+                wasmJsMain {
+                    dependencies {
+                        implementation(libs.kotlinStdlib)
+                    }
+                }
             }
 
             // TODO(b/214407011): These dependencies leak into instrumented tests as well. If you

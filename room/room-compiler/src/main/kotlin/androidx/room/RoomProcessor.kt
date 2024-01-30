@@ -16,7 +16,6 @@
 
 package androidx.room
 
-import androidx.room.DatabaseProcessingStep.Companion.ENV_CONFIG
 import androidx.room.compiler.processing.XProcessingEnv
 import androidx.room.compiler.processing.XRoundEnv
 import androidx.room.compiler.processing.javac.JavacBasicAnnotationProcessor
@@ -36,9 +35,11 @@ private const val ISOLATING_ANNOTATION_PROCESSORS_INDICATOR =
 /**
  * The annotation processor for Room.
  */
-class RoomProcessor : JavacBasicAnnotationProcessor({
-    ENV_CONFIG
-}) {
+class RoomProcessor : JavacBasicAnnotationProcessor(
+    configureEnv = { options ->
+        DatabaseProcessingStep.getEnvConfig(options)
+    }
+) {
 
     /** Helper variable to avoid reporting the warning twice. */
     private var jdkVersionHasBugReported = false

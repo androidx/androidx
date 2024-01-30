@@ -27,7 +27,6 @@ import androidx.versionedparcelable.VersionedParcelize;
 /**
  * Wire format for {@link androidx.wear.watchface.style.ListUserStyleSetting.ListOption}.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @VersionedParcelize

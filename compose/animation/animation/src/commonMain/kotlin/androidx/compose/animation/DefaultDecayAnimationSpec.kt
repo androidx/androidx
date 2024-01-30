@@ -25,4 +25,5 @@ import androidx.compose.runtime.Composable
 @Composable
 @Deprecated("Replace with rememberSplineBasedDecay<Float>")
 expect fun defaultDecayAnimationSpec(): DecayAnimationSpec<Float>
+@Composable
 expect fun <T> rememberSplineBasedDecay(): DecayAnimationSpec<T>

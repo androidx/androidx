@@ -21,6 +21,8 @@ import android.util.Range;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.arch.core.util.Function;
+import androidx.camera.core.Logger;
 
 import java.util.Objects;
 
@@ -33,6 +35,23 @@ import java.util.Objects;
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class VideoEncoderInfoImpl extends EncoderInfoImpl implements VideoEncoderInfo {
+    private static final String TAG = "VideoEncoderInfoImpl";
+
+    /**
+     * A default implementation of the VideoEncoderInfoImpl finder.
+     *
+     * <p>The function will return {@code null} if it can't find a VideoEncoderInfoImpl.
+     */
+    @NonNull
+    public static final Function<VideoEncoderConfig, VideoEncoderInfo> FINDER =
+            videoEncoderConfig -> {
+                try {
+                    return from(videoEncoderConfig);
+                } catch (InvalidConfigException e) {
+                    Logger.w(TAG, "Unable to find a VideoEncoderInfoImpl", e);
+                    return null;
+                }
+            };
 
     private final MediaCodecInfo.VideoCapabilities mVideoCapabilities;
     /**

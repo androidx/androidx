@@ -27,7 +27,6 @@ import androidx.core.graphics.drawable.IconCompat;
 /**
  * Encapsulates the constraints to apply when rendering a {@link CarIcon} on a template.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public final class CarIconConstraints {

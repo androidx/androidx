@@ -37,7 +37,6 @@ import java.lang.annotation.RetentionPolicy;
 public class RemoteCallback {
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public static final String EXTRA_METHOD = "remotecallback.method";
@@ -53,7 +52,6 @@ public class RemoteCallback {
     public static final int TYPE_PROVIDER = 1;
 
     /**
-     * @hide
      */
     @Retention(RetentionPolicy.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -68,7 +66,6 @@ public class RemoteCallback {
     private final String mReceiverClass;
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public RemoteCallback(@NonNull Context context,

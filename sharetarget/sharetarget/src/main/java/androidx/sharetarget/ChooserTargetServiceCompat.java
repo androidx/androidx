@@ -42,7 +42,6 @@ import java.util.List;
  * ShortcutManagerCompat and share target definitions from a Xml resource. Used for backward
  * compatibility to push share targets to shortcut manager on older SDKs.
  *
- * @hide
  */
 @RequiresApi(23)
 @RestrictTo(LIBRARY_GROUP_PREFIX)

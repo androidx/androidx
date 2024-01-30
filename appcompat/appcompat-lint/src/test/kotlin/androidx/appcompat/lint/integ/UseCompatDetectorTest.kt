@@ -33,7 +33,7 @@ class UseCompatDetectorTest {
 
         /* ktlint-disable max-line-length */
         val expected = """
-src/com/example/android/appcompat/AppCompatLintDemo.java:68: Warning: Use SwitchCompat from AppCompat or SwitchMaterial from Material library [UseSwitchCompatOrMaterialCode]
+src/com/example/android/appcompat/AppCompatLintDemo.java:68: Warning: Use SwitchCompat from AppCompat or MaterialSwitch from Material library [UseSwitchCompatOrMaterialCode]
         Switch mySwitch = new Switch(this);
         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 src/com/example/android/appcompat/AppCompatLintDemo.java:63: Warning: Use TextViewCompat.setCompoundDrawableTintList() [UseCompatTextViewDrawableApis]
@@ -57,7 +57,7 @@ src/com/example/android/appcompat/AppCompatLintDemo.java:64: Warning: Use TextVi
 
         /* ktlint-disable max-line-length */
         val expected = """
-src/com/example/android/appcompat/CustomSwitch.java:27: Warning: Use SwitchCompat from AppCompat or SwitchMaterial from Material library [UseSwitchCompatOrMaterialCode]
+src/com/example/android/appcompat/CustomSwitch.java:27: Warning: Use SwitchCompat from AppCompat or MaterialSwitch from Material library [UseSwitchCompatOrMaterialCode]
 public class CustomSwitch extends Switch {
                                   ~~~~~~
 0 errors, 1 warnings

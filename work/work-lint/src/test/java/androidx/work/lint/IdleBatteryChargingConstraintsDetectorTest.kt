@@ -19,7 +19,6 @@ package androidx.work.lint
 import androidx.work.lint.Stubs.CONSTRAINTS
 import com.android.tools.lint.checks.infrastructure.LintDetectorTest.kotlin
 import com.android.tools.lint.checks.infrastructure.TestLintTask.lint
-import org.junit.Ignore
 import org.junit.Test
 
 class IdleBatteryChargingConstraintsDetectorTest {
@@ -147,7 +146,6 @@ class IdleBatteryChargingConstraintsDetectorTest {
             .expectClean()
     }
 
-    @Ignore("b/196831196")
     @Test
     fun noWarningsWhenSeparateConstraints() {
         val customApplication = kotlin(

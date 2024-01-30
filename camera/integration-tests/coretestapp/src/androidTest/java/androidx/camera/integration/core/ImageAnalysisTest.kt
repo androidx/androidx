@@ -32,15 +32,21 @@ import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageAnalysis.BackpressureStrategy
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageProxy
-import androidx.camera.core.ResolutionSelector
 import androidx.camera.core.impl.ImageOutputConfig
+import androidx.camera.core.impl.ImageOutputConfig.OPTION_RESOLUTION_SELECTOR
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
+import androidx.camera.core.internal.utils.SizeUtil
+import androidx.camera.core.resolutionselector.AspectRatioStrategy
+import androidx.camera.core.resolutionselector.ResolutionFilter
+import androidx.camera.core.resolutionselector.ResolutionSelector
+import androidx.camera.core.resolutionselector.ResolutionSelector.PREFER_HIGHER_RESOLUTION_OVER_CAPTURE_RATE
+import androidx.camera.core.resolutionselector.ResolutionStrategy
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.testing.CameraPipeConfigTestRule
-import androidx.camera.testing.CameraUtil
-import androidx.camera.testing.CameraUtil.PreTestCameraIdList
-import androidx.camera.testing.LabTestRule
-import androidx.camera.testing.fakes.FakeLifecycleOwner
+import androidx.camera.testing.impl.CameraPipeConfigTestRule
+import androidx.camera.testing.impl.CameraUtil
+import androidx.camera.testing.impl.CameraUtil.PreTestCameraIdList
+import androidx.camera.testing.impl.LabTestRule
+import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
@@ -128,7 +134,7 @@ internal class ImageAnalysisTest(
     fun tearDown(): Unit = runBlocking {
         if (::cameraProvider.isInitialized) {
             withContext(Dispatchers.Main) {
-                cameraProvider.shutdown()[10, TimeUnit.SECONDS]
+                cameraProvider.shutdownAsync()[10, TimeUnit.SECONDS]
             }
         }
 
@@ -139,6 +145,8 @@ internal class ImageAnalysisTest(
 
     @Test
     fun exceedMaxImagesWithoutClosing_doNotCrash() = runBlocking {
+        assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_FRONT))
+
         // Arrange.
         val queueDepth = 3
         val semaphore = Semaphore(0)
@@ -256,6 +264,7 @@ internal class ImageAnalysisTest(
         assertThat(config.targetAspectRatio).isEqualTo(AspectRatio.RATIO_4_3)
     }
 
+    @Suppress("DEPRECATION") // test for legacy resolution API
     @Test
     fun defaultAspectRatioWillBeSet_whenRatioDefaultIsSet() = runBlocking {
         val useCase = ImageAnalysis.Builder()
@@ -268,6 +277,7 @@ internal class ImageAnalysisTest(
         assertThat(config.targetAspectRatio).isEqualTo(AspectRatio.RATIO_4_3)
     }
 
+    @Suppress("DEPRECATION") // legacy resolution API
     @Test
     fun defaultAspectRatioWontBeSet_whenTargetResolutionIsSet() = runBlocking {
         assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK))
@@ -297,6 +307,7 @@ internal class ImageAnalysisTest(
         assertThat(imageAnalysis.targetRotation).isEqualTo(Surface.ROTATION_90)
     }
 
+    @Suppress("DEPRECATION") // test for legacy resolution API
     @Test
     fun targetResolutionIsUpdatedAfterTargetRotationIsUpdated() = runBlocking {
         val imageAnalysis = ImageAnalysis.Builder()
@@ -428,9 +439,11 @@ internal class ImageAnalysisTest(
         assumeTrue(maxHighResolutionOutputSize != null)
 
         val resolutionSelector = ResolutionSelector.Builder()
-                .setPreferredResolution(maxHighResolutionOutputSize!!)
-                .setHighResolutionEnabled(true)
-                .build()
+            .setAllowedResolutionMode(PREFER_HIGHER_RESOLUTION_OVER_CAPTURE_RATE)
+            .setResolutionFilter { _, _ ->
+                listOf(maxHighResolutionOutputSize)
+            }
+            .build()
 
         val imageAnalysis = ImageAnalysis.Builder()
             .setResolutionSelector(resolutionSelector)
@@ -451,6 +464,36 @@ internal class ImageAnalysisTest(
                 maxHighResolutionOutputSize
             )
         }
+    }
+
+    @Test
+    fun resolutionSelectorConfigCorrectlyMerged_afterBindToLifecycle() = runBlocking {
+        val resolutionFilter = ResolutionFilter { supportedSizes, _ -> supportedSizes }
+        val useCase = ImageAnalysis.Builder().setResolutionSelector(
+            ResolutionSelector.Builder().setResolutionFilter(resolutionFilter)
+                .setAllowedResolutionMode(PREFER_HIGHER_RESOLUTION_OVER_CAPTURE_RATE).build()
+        ).build()
+        withContext(Dispatchers.Main) {
+            cameraProvider.bindToLifecycle(fakeLifecycleOwner, DEFAULT_CAMERA_SELECTOR, useCase)
+        }
+        val resolutionSelector = useCase.currentConfig.retrieveOption(OPTION_RESOLUTION_SELECTOR)
+        // The default 4:3 AspectRatioStrategy is kept
+        assertThat(resolutionSelector!!.aspectRatioStrategy).isEqualTo(
+            AspectRatioStrategy.RATIO_4_3_FALLBACK_AUTO_STRATEGY
+        )
+        // The default ResolutionStrategy with VGA bound size is kept
+        assertThat(resolutionSelector.resolutionStrategy!!.boundSize).isEqualTo(
+            SizeUtil.RESOLUTION_VGA
+        )
+        assertThat(resolutionSelector.resolutionStrategy!!.fallbackRule).isEqualTo(
+            ResolutionStrategy.FALLBACK_RULE_CLOSEST_HIGHER_THEN_LOWER
+        )
+        // The set resolutionFilter is kept
+        assertThat(resolutionSelector.resolutionFilter).isEqualTo(resolutionFilter)
+        // The set allowedResolutionMode is kept
+        assertThat(resolutionSelector.allowedResolutionMode).isEqualTo(
+            PREFER_HIGHER_RESOLUTION_OVER_CAPTURE_RATE
+        )
     }
 
     private data class ImageProperties(

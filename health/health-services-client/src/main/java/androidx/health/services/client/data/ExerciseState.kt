@@ -66,7 +66,6 @@ public class ExerciseState private constructor(public val id: Int, public val na
 
     override fun hashCode(): Int = id
 
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     internal fun toProto(): DataProto.ExerciseState =
         DataProto.ExerciseState.forNumber(id) ?: DataProto.ExerciseState.EXERCISE_STATE_UNKNOWN
@@ -255,7 +254,6 @@ public class ExerciseState private constructor(public val id: Int, public val na
         @JvmStatic
         public fun fromId(id: Int): ExerciseState? = VALUES.firstOrNull { it.id == id }
 
-        /** @hide */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @JvmStatic
         public fun fromProto(proto: DataProto.ExerciseState): ExerciseState? = fromId(proto.number)

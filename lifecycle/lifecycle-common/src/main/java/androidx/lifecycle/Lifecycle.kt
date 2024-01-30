@@ -25,6 +25,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 
 /**
@@ -49,9 +56,11 @@ public abstract class Lifecycle {
     /**
      * Lifecycle coroutines extensions stashes the CoroutineScope into this field.
      *
-     * @hide used by lifecycle-common-ktx
+     * RestrictTo as it is used by lifecycle-common-ktx
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public var internalScopeRef: AtomicReference<Any> = AtomicReference<Any>()
 
     /**
@@ -90,6 +99,22 @@ public abstract class Lifecycle {
      */
     @get:MainThread
     public abstract val currentState: State
+
+    /**
+     * Returns a [StateFlow] where the [StateFlow.value] represents
+     * the current [State] of this Lifecycle.
+     *
+     * @return [StateFlow] where the [StateFlow.value] represents
+     * the current [State] of this Lifecycle.
+     */
+    public open val currentStateFlow: StateFlow<Lifecycle.State>
+        get() {
+            val mutableStateFlow = MutableStateFlow(currentState)
+            LifecycleEventObserver { _, event ->
+                mutableStateFlow.value = event.targetState
+            }.also { addObserver(it) }
+            return mutableStateFlow.asStateFlow()
+        }
 
     public enum class Event {
         /**
@@ -406,3 +431,15 @@ internal class LifecycleCoroutineScopeImpl(
         }
     }
 }
+
+/**
+ * Creates a [Flow] of [Event]s containing values dispatched by this [Lifecycle].
+ */
+public val Lifecycle.eventFlow: Flow<Event>
+    get() = callbackFlow {
+        val observer = LifecycleEventObserver { _, event ->
+            trySend(event)
+        }.also { addObserver(it) }
+
+        awaitClose { removeObserver(observer) }
+    }.flowOn(Dispatchers.Main.immediate)

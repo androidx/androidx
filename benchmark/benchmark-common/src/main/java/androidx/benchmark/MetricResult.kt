@@ -24,8 +24,6 @@ import kotlin.math.sqrt
 /**
  * Results for a given metric from a benchmark, including each measurement made and general stats
  * for those measurements (min/median/max).
- *
- * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class MetricResult(
