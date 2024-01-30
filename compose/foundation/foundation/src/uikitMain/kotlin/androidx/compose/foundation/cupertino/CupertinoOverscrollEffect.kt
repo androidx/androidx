@@ -315,7 +315,7 @@ class CupertinoOverscrollEffect(
         val velocity = initialVelocity.toFloat()
         val overscroll = overscrollOffset.toFloat()
 
-        return if ((velocity < 0f && overscroll > 0f) || (velocity > 0f && overscroll < 0f)) {
+        return if ((velocity <= 0f && overscroll > 0f) || (velocity >= 0f && overscroll < 0f)) {
             playSpringAnimation(
                 unconsumedDelta = 0f,
                 velocity,
@@ -342,14 +342,13 @@ class CupertinoOverscrollEffect(
         val spec = when (reason) {
             CupertinoSpringAnimationReason.FLING_FROM_OVERSCROLL -> {
                 spring(
-                    dampingRatio = Spring.DampingRatioLowBouncy,
-                    stiffness = 400f,
+                    stiffness = 300f,
                     visibilityThreshold = visibilityThreshold
                 )
             }
             CupertinoSpringAnimationReason.POSSIBLE_SPRING_IN_THE_END -> {
                 spring(
-                    stiffness = 200f,
+                    stiffness = 120f,
                     visibilityThreshold = visibilityThreshold
                 )
             }
