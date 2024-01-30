@@ -37,13 +37,11 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.internal.checkPreconditionNotNull
 import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.platform.AndroidComposeView
-import androidx.compose.ui.platform.ScrollObservationScope
 import androidx.compose.ui.platform.SemanticsNodeCopy
 import androidx.compose.ui.platform.SemanticsNodeWithAdjustedBounds
 import androidx.compose.ui.platform.coreshims.ContentCaptureSessionCompat
 import androidx.compose.ui.platform.coreshims.ViewCompatShims
 import androidx.compose.ui.platform.coreshims.ViewStructureCompat
-import androidx.compose.ui.platform.findById
 import androidx.compose.ui.platform.getAllUncoveredSemanticsNodesToIntObjectMap
 import androidx.compose.ui.platform.getTextLayoutResult
 import androidx.compose.ui.platform.toLegacyClassName
@@ -56,7 +54,6 @@ import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastJoinToString
 import androidx.compose.ui.util.fastMap
 import androidx.core.util.keyIterator
-import androidx.core.view.accessibility.AccessibilityNodeProviderCompat
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import java.util.function.Consumer
@@ -292,11 +289,6 @@ internal class AndroidContentCaptureManager(
         }
     }
 
-    private val scrollObservationScopes = mutableListOf<ScrollObservationScope>()
-    private val scheduleScrollEventIfNeededLambda: (ScrollObservationScope) -> Unit = {
-        this.scheduleScrollEventIfNeeded(it)
-    }
-
     // Analogous to `sendSemanticsPropertyChangeEvents`
     private fun checkForContentCapturePropertyChanges(
         newSemanticsNodes: IntObjectMap<SemanticsNodeWithAdjustedBounds>
@@ -331,79 +323,9 @@ internal class AndroidContentCaptureManager(
                             sendContentCaptureTextUpdateEvent(newNode.id, newText.toString())
                         }
                     }
-                    SemanticsProperties.VerticalScrollAxisRange -> {
-                        notifySubtreeStateChangeIfNeeded(newNode.layoutNode)
-                        val scope = checkPreconditionNotNull(scrollObservationScopes.findById(id)) {
-                            "scroll observation scope does not exist"
-                        }
-                        scope.horizontalScrollAxisRange = newNode.unmergedConfig.getOrNull(
-                            SemanticsProperties.HorizontalScrollAxisRange
-                        )
-                        scope.verticalScrollAxisRange = newNode.unmergedConfig.getOrNull(
-                            SemanticsProperties.VerticalScrollAxisRange
-                        )
-                        scheduleScrollEventIfNeeded(scope)
-                    }
                 }
             }
         }
-    }
-
-    // TODO(mnuzen): this code is copied over from a11y delegate, we want to centralize some
-    // of it into `SemanticsManager` to keep the code cleaner.
-    private fun scheduleScrollEventIfNeeded(scrollObservationScope: ScrollObservationScope) {
-        if (!scrollObservationScope.isValidOwnerScope) {
-            return
-        }
-        view.snapshotObserver.observeReads(
-            scrollObservationScope,
-            scheduleScrollEventIfNeededLambda
-        ) {
-            val newXState = scrollObservationScope.horizontalScrollAxisRange
-            val newYState = scrollObservationScope.verticalScrollAxisRange
-            val oldXValue = scrollObservationScope.oldXValue
-            val oldYValue = scrollObservationScope.oldYValue
-
-            val deltaX = if (newXState != null && oldXValue != null) {
-                newXState.value() - oldXValue
-            } else {
-                0f
-            }
-            val deltaY = if (newYState != null && oldYValue != null) {
-                newYState.value() - oldYValue
-            } else {
-                0f
-            }
-
-            if (deltaX != 0f || deltaY != 0f) {
-                val scrollerId = semanticsNodeIdToAccessibilityVirtualNodeId(
-                    scrollObservationScope.semanticsNodeId
-                )
-
-                view.invalidate()
-
-                currentSemanticsNodes[scrollerId]?.semanticsNode?.layoutNode?.let { layoutNode ->
-                    // Schedule a content subtree change event for the scroller. As side effects
-                    // this will also schedule a TYPE_VIEW_SCROLLED event, and suppress separate
-                    // events from being sent for each child whose bounds moved.
-                    notifySubtreeStateChangeIfNeeded(layoutNode)
-                }
-            }
-
-            if (newXState != null) {
-                scrollObservationScope.oldXValue = newXState.value()
-            }
-            if (newYState != null) {
-                scrollObservationScope.oldYValue = newYState.value()
-            }
-        }
-    }
-
-    private fun semanticsNodeIdToAccessibilityVirtualNodeId(id: Int): Int {
-        if (id == view.semanticsOwner.unmergedRootSemanticsNode.id) {
-            return AccessibilityNodeProviderCompat.HOST_VIEW_ID
-        }
-        return id
     }
 
     private fun sendContentCaptureTextUpdateEvent(id: Int, newText: String) {
