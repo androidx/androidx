@@ -62,7 +62,10 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipe
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -577,6 +580,78 @@ class ExposedDropdownMenuTest {
 
         rule.onNodeWithText("Label")
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.DropdownList))
+    }
+
+    @Test
+    fun edm_positionProvider() {
+        val topWindowInsets = 50
+        val density = Density(1f)
+        val anchorSize = IntSize(width = 200, height = 100)
+        val popupSize = IntSize(width = 200, height = 340)
+        val windowSize = IntSize(width = 500, height = 500)
+        val verticalMargin = with(density) { MenuVerticalMargin.roundToPx() }
+        val layoutDirection = LayoutDirection.Ltr
+
+        val edmPositionProvider = ExposedDropdownMenuPositionProvider(
+            density = density,
+            topWindowInsets = topWindowInsets,
+        )
+
+        // typical case
+        assertThat(
+            edmPositionProvider.calculatePosition(
+                anchorBounds = IntRect(
+                    size = anchorSize,
+                    offset = IntOffset(0, 0),
+                ),
+                windowSize = windowSize,
+                popupContentSize = popupSize,
+                layoutDirection = layoutDirection,
+            )
+        ).isEqualTo(IntOffset(0, anchorSize.height))
+
+        // off-screen (above)
+        assertThat(
+            edmPositionProvider.calculatePosition(
+                anchorBounds = IntRect(
+                    size = anchorSize,
+                    offset = IntOffset(0, -150),
+                ),
+                windowSize = windowSize,
+                popupContentSize = popupSize,
+                layoutDirection = layoutDirection,
+            )
+        ).isEqualTo(IntOffset(0, verticalMargin))
+
+        // interacting with window insets
+        assertThat(
+            edmPositionProvider.calculatePosition(
+                anchorBounds = IntRect(
+                    size = anchorSize,
+                    // If it weren't for topWindowInsets allowance,
+                    // the menu would be considered "off-screen"
+                    offset = IntOffset(0, 100),
+                ),
+                windowSize = windowSize,
+                popupContentSize = popupSize,
+                layoutDirection = layoutDirection,
+            )
+        ).isEqualTo(IntOffset(0, 100 + anchorSize.height))
+
+        // off-screen (below)
+        assertThat(
+            edmPositionProvider.calculatePosition(
+                anchorBounds = IntRect(
+                    size = anchorSize,
+                    offset = IntOffset(0, windowSize.height + 100),
+                ),
+                windowSize = windowSize,
+                popupContentSize = popupSize,
+                layoutDirection = layoutDirection,
+            )
+        ).isEqualTo(
+            IntOffset(0, windowSize.height + topWindowInsets - verticalMargin - popupSize.height)
+        )
     }
 
     @Composable
