@@ -24,12 +24,14 @@ import androidx.camera.camera2.pipe.AeMode
 import androidx.camera.camera2.pipe.AfMode
 import androidx.camera.camera2.pipe.AwbMode
 import androidx.camera.camera2.pipe.CameraGraph
+import androidx.camera.camera2.pipe.FrameCapture
 import androidx.camera.camera2.pipe.FrameMetadata
 import androidx.camera.camera2.pipe.Lock3ABehavior
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.Result3A
 import androidx.camera.camera2.pipe.TorchState
 import androidx.camera.camera2.pipe.core.TokenLock
+import androidx.camera.camera2.pipe.internal.FrameCaptureQueue
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.Deferred
 
@@ -38,7 +40,8 @@ internal val cameraGraphSessionIds = atomic(0)
 internal class CameraGraphSessionImpl(
     private val token: TokenLock.Token,
     private val graphProcessor: GraphProcessor,
-    private val controller3A: Controller3A
+    private val controller3A: Controller3A,
+    private val frameCaptureQueue: FrameCaptureQueue,
 ) : CameraGraph.Session {
     private val debugId = cameraGraphSessionIds.incrementAndGet()
     private val closed = atomic(false)
@@ -52,6 +55,18 @@ internal class CameraGraphSessionImpl(
         check(!closed.value) { "Cannot call submit on $this after close." }
         check(requests.isNotEmpty()) { "Cannot call submit with an empty list of Requests!" }
         graphProcessor.submit(requests)
+    }
+
+    override fun capture(request: Request): FrameCapture {
+        val frameCapture = frameCaptureQueue.enqueue(request)
+        submit(request)
+        return frameCapture
+    }
+
+    override fun capture(requests: List<Request>): List<FrameCapture> {
+        val frameCaptures = frameCaptureQueue.enqueue(requests)
+        submit(requests)
+        return frameCaptures
     }
 
     override fun startRepeating(request: Request) {

@@ -330,16 +330,37 @@ interface CameraGraph : AutoCloseable {
         fun stopRepeating()
 
         /**
-         * Add the [Request] into an in-flight request queue. Requests will be issued to the Camera
-         * exactly once.
+         * Submit the [Request] to the camera. Requests are issued to the Camera, in order, on a
+         * background queue. Each call to submit will issue the [Request] to the camera exactly
+         * once unless the request is invalid, or unless the requests are aborted via [abort].
+         * The same request can be submitted multiple times.
          */
         fun submit(request: Request)
 
         /**
-         * Add the [Request] into an in-flight request queue. Requests will be issued to the Camera
-         * exactly once. The list of [Request]s is guaranteed to be submitted together.
+         * Submit the [Request]s to the camera. [Request]s are issued to the Camera, in order, on a
+         * background queue. Each call to submit will issue the List of [Request]s to the camera
+         * exactly once unless the one or more of the requests are invalid, or unless the requests
+         * are aborted via [abort]. The same list of [Request]s may be submitted multiple times.
          */
         fun submit(requests: List<Request>)
+
+        /**
+         * Submit the [Request] to the camera, and aggregate the results into a [FrameCapture],
+         * which can be used to wait for the [Frame] to start using [FrameCapture.awaitFrame].
+         *
+         * The [FrameCapture] **must** be closed, or it will result in a memory leak.
+         */
+        fun capture(request: Request): FrameCapture
+
+        /**
+         * Submit the [Request]s to the camera, and aggregate the results into a list of
+         * [FrameCapture]s, which can be used to wait for the associated [Frame]
+         * using [FrameCapture.awaitFrame].
+         *
+         * Each [FrameCapture] **must** be closed, or it will result in a memory leak.
+         */
+        fun capture(requests: List<Request>): List<FrameCapture>
 
         /**
          * Abort in-flight requests. This will abort *all* requests in the current

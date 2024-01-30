@@ -23,9 +23,8 @@ import androidx.camera.camera2.pipe.CameraController
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraSurfaceManager
 import androidx.camera.camera2.pipe.StreamId
-import androidx.camera.camera2.pipe.config.CameraGraphScope
 import androidx.camera.camera2.pipe.core.Log
-import javax.inject.Inject
+import androidx.camera.camera2.pipe.media.ImageSource
 
 /**
  * A SurfaceGraph tracks the current stream-to-surface mapping state for a [CameraGraph] instance.
@@ -34,18 +33,16 @@ import javax.inject.Inject
  * most up to date version to the [CameraController] instance.
  */
 @RequiresApi(21)
-@CameraGraphScope
-internal class SurfaceGraph
-@Inject
-constructor(
+internal class SurfaceGraph(
     private val streamGraph: StreamGraphImpl,
     private val cameraController: CameraController,
-    private val surfaceManager: CameraSurfaceManager
+    private val surfaceManager: CameraSurfaceManager,
+    private val imageSources: Map<StreamId, ImageSource>
 ) {
     private val lock = Any()
 
     @GuardedBy("lock")
-    private val surfaceMap: MutableMap<StreamId, Surface> = mutableMapOf()
+    private val surfaceMap = imageSources.mapValuesTo(mutableMapOf()) { it.value.surface }
 
     @GuardedBy("lock")
     private val surfaceUsageMap: MutableMap<Surface, AutoCloseable> = mutableMapOf()
@@ -54,6 +51,10 @@ constructor(
     private var closed: Boolean = false
 
     operator fun set(streamId: StreamId, surface: Surface?) {
+        check(!imageSources.keys.contains(streamId)) {
+            "Cannot configure surface for $streamId, it is permanently assigned to " +
+                "${imageSources[streamId]}"
+        }
         val closeable =
             synchronized(lock) {
                 if (closed) {
