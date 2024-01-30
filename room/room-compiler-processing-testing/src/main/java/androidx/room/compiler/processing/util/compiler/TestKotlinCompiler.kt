@@ -29,6 +29,8 @@ import com.google.devtools.ksp.processing.SymbolProcessorProvider
 import java.io.File
 import javax.annotation.processing.Processor
 import javax.tools.Diagnostic
+import org.jetbrains.kotlin.compiler.plugin.CompilerPluginRegistrar
+import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
 
 /** Compilation runner for kotlin using kotlin CLI tool */
 data class TestCompilationArguments(
@@ -68,6 +70,13 @@ data class TestCompilationResult(
     val outputClasspath: List<File>,
     /** List of generated resource files by the compilation. */
     val generatedResources: List<Resource>,
+)
+
+@OptIn(ExperimentalCompilerApi::class)
+internal class PluginRegistrarArguments(
+    @Suppress("DEPRECATION")
+    val k1Registrars: List<org.jetbrains.kotlin.compiler.plugin.ComponentRegistrar>,
+    val k2Registrars: List<CompilerPluginRegistrar>
 )
 
 /** Ensures the list of sources has at least 1 kotlin file, if not, adds one. */

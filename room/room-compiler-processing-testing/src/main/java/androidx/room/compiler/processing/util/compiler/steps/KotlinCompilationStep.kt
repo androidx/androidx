@@ -25,8 +25,11 @@ import java.io.File
 import javax.tools.Diagnostic
 
 /**
- * Kotlin compilation is run in multiple steps: process KSP process KAPT compile kotlin sources
- * compile java sources
+ * Kotlin compilation is run in multiple steps:
+ * * process KSP
+ * * process KAPT
+ * * compile kotlin sources
+ * * compile java sources
  *
  * Each step implements the [KotlinCompilationStep] interfaces and provides the arguments for the
  * following step.

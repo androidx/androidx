@@ -105,3 +105,9 @@ internal fun File.toSourceSet() =
     } else {
         null
     }
+
+internal fun List<SourceSet>.existingRoots() =
+    this.asSequence().map { it.root }.filter { it.exists() }.distinct()
+
+internal fun List<SourceSet>.existingRootPaths() =
+    this.asSequence().map { it.root }.filter { it.exists() }.map { it.canonicalPath }.distinct()

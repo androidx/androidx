@@ -16,98 +16,151 @@
 
 package androidx.room.compiler.processing.util.compiler
 
-import androidx.room.compiler.processing.util.compiler.DelegatingTestRegistrar.Companion.runCompilation
+import androidx.room.compiler.processing.util.compiler.DelegatingTestRegistrar.runCompilation
 import java.net.URI
-import java.nio.file.Paths
+import kotlin.io.path.absolute
+import kotlin.io.path.toPath
 import org.jetbrains.kotlin.cli.common.ExitCode
 import org.jetbrains.kotlin.cli.common.arguments.K2JVMCompilerArguments
 import org.jetbrains.kotlin.cli.common.messages.MessageCollector
 import org.jetbrains.kotlin.cli.jvm.K2JVMCompiler
 import org.jetbrains.kotlin.com.intellij.mock.MockProject
+import org.jetbrains.kotlin.compiler.plugin.CompilerPluginRegistrar
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
 import org.jetbrains.kotlin.config.CompilerConfiguration
 import org.jetbrains.kotlin.config.Services
 import org.jetbrains.kotlin.util.ServiceLoaderLite
 
 /**
- * A component registrar for Kotlin Compiler that delegates to a list of thread local delegates.
+ * A utility object for setting up Kotlin Compiler plugins that delegate to a list of thread local
+ * plugins.
  *
  * see [runCompilation] for usages.
  */
-@Suppress("DEPRECATION") // TODO: Migrate ComponentRegistrar to CompilerPluginRegistrar
 @OptIn(ExperimentalCompilerApi::class)
-internal class DelegatingTestRegistrar :
-    @Suppress("DEPRECATION") org.jetbrains.kotlin.compiler.plugin.ComponentRegistrar {
-    override fun registerProjectComponents(
-        project: MockProject,
-        configuration: CompilerConfiguration
-    ) {
-        delegates.get()?.let { it.forEach { it.registerProjectComponents(project, configuration) } }
+object DelegatingTestRegistrar {
+
+    @Suppress("DEPRECATION")
+    private val k1Delegates =
+        ThreadLocal<List<org.jetbrains.kotlin.compiler.plugin.ComponentRegistrar>>()
+
+    private val k2Delegates = ThreadLocal<List<CompilerPluginRegistrar>>()
+
+    class K1Registrar :
+        @Suppress("DEPRECATION") org.jetbrains.kotlin.compiler.plugin.ComponentRegistrar {
+        override fun registerProjectComponents(
+            project: MockProject,
+            configuration: CompilerConfiguration
+        ) {
+            k1Delegates.get()?.forEach { it.registerProjectComponents(project, configuration) }
+        }
+
+        // FirKotlinToJvmBytecodeCompiler throws an error when it sees an incompatible plugin.
+        override val supportsK2: Boolean
+            get() = true
     }
 
-    companion object {
-        private const val REGISTRAR_CLASSPATH =
-            "META-INF/services/org.jetbrains.kotlin.compiler.plugin.ComponentRegistrar"
+    class K2Registrar : CompilerPluginRegistrar() {
+        override fun ExtensionStorage.registerExtensions(configuration: CompilerConfiguration) {
+            k2Delegates.get()?.forEach { with(it) { registerExtensions(configuration) } }
+        }
 
-        private val resourcePathForSelfClassLoader by lazy {
+        override val supportsK2: Boolean
+            get() = true
+    }
+
+    private const val K1_SERVICES_REGISTRAR_PATH =
+        "META-INF/services/org.jetbrains.kotlin.compiler.plugin.ComponentRegistrar"
+
+    private const val K2_SERVICES_REGISTRAR_PATH =
+        "META-INF/services/org.jetbrains.kotlin.compiler.plugin.CompilerPluginRegistrar"
+
+    private val k1ResourcePathForSelfClassLoader by lazy {
+        getResourcePathForClassLoader(K1_SERVICES_REGISTRAR_PATH)
+    }
+
+    private val k2ResourcePathForSelfClassLoader by lazy {
+        getResourcePathForClassLoader(K2_SERVICES_REGISTRAR_PATH)
+    }
+
+    private fun getResourcePathForClassLoader(servicesRegistrarPath: String): String {
+        val registrarClassToLoad =
+            when (servicesRegistrarPath) {
+                K1_SERVICES_REGISTRAR_PATH ->
+                    @Suppress("DEPRECATION")
+                    org.jetbrains.kotlin.compiler.plugin.ComponentRegistrar::class
+                K2_SERVICES_REGISTRAR_PATH -> CompilerPluginRegistrar::class
+                else -> error("Unknown services registrar path: $servicesRegistrarPath")
+            }
+        val expectedRegistrarClass =
+            when (servicesRegistrarPath) {
+                K1_SERVICES_REGISTRAR_PATH -> K1Registrar::class
+                K2_SERVICES_REGISTRAR_PATH -> K2Registrar::class
+                else -> error("Unknown services registrar path: $servicesRegistrarPath")
+            }
+        val classpath =
             this::class
                 .java
                 .classLoader
-                .getResources(REGISTRAR_CLASSPATH)
+                .getResources(servicesRegistrarPath)
                 .asSequence()
                 .mapNotNull { url ->
-                    val uri = URI.create(url.toString().removeSuffix("/$REGISTRAR_CLASSPATH"))
+                    val uri = URI.create(url.toString().removeSuffix("/$servicesRegistrarPath"))
                     when (uri.scheme) {
-                        "jar" -> Paths.get(URI.create(uri.schemeSpecificPart.removeSuffix("!")))
-                        "file" -> Paths.get(uri)
+                        "jar" -> URI.create(uri.schemeSpecificPart.removeSuffix("!")).toPath()
+                        "file" -> uri.toPath()
                         else -> return@mapNotNull null
-                    }.toAbsolutePath()
+                    }.absolute()
                 }
                 .find { resourcesPath ->
                     ServiceLoaderLite.findImplementations(
-                            @Suppress("DEPRECATION")
-                            org.jetbrains.kotlin.compiler.plugin.ComponentRegistrar::class.java,
+                            registrarClassToLoad.java,
                             listOf(resourcesPath.toFile())
                         )
                         .any { implementation ->
-                            implementation == DelegatingTestRegistrar::class.java.name
+                            implementation == expectedRegistrarClass.java.name
                         }
                 }
-                ?.toString()
-                ?: throw AssertionError(
-                    """
-                    Could not find the ComponentRegistrar class loader that should load
-                    ${DelegatingTestRegistrar::class.qualifiedName}
-                    """
-                        .trimIndent()
-                )
+        if (classpath == null) {
+            throw AssertionError(
+                """
+                Could not find the $registrarClassToLoad class loader that should load
+                $expectedRegistrarClass
+                """
+                    .trimIndent()
+            )
         }
-        @Suppress("DEPRECATION")
-        private val delegates =
-            ThreadLocal<List<org.jetbrains.kotlin.compiler.plugin.ComponentRegistrar>>()
+        return classpath.toString()
+    }
 
-        fun runCompilation(
-            compiler: K2JVMCompiler,
-            messageCollector: MessageCollector,
-            arguments: K2JVMCompilerArguments,
-            @Suppress("DEPRECATION")
-            pluginRegistrars: List<org.jetbrains.kotlin.compiler.plugin.ComponentRegistrar>
-        ): ExitCode {
-            try {
-                arguments.addDelegatingTestRegistrar()
-                delegates.set(pluginRegistrars)
-                return compiler.exec(
-                    messageCollector = messageCollector,
-                    services = Services.EMPTY,
-                    arguments = arguments
-                )
-            } finally {
-                delegates.remove()
-            }
+    internal fun runCompilation(
+        compiler: K2JVMCompiler,
+        messageCollector: MessageCollector,
+        arguments: K2JVMCompilerArguments,
+        registrars: PluginRegistrarArguments
+    ): ExitCode {
+        try {
+            k1Delegates.set(registrars.k1Registrars)
+            k2Delegates.set(registrars.k2Registrars)
+            arguments.addDelegatingTestRegistrars()
+            return compiler.exec(
+                messageCollector = messageCollector,
+                services = Services.EMPTY,
+                arguments = arguments
+            )
+        } finally {
+            k1Delegates.remove()
+            k2Delegates.remove()
         }
+    }
 
-        private fun K2JVMCompilerArguments.addDelegatingTestRegistrar() {
-            pluginClasspaths = (pluginClasspaths ?: arrayOf()) + resourcePathForSelfClassLoader
-        }
+    private fun K2JVMCompilerArguments.addDelegatingTestRegistrars() {
+        pluginClasspaths =
+            buildList {
+                    pluginClasspaths?.let { addAll(it) }
+                    add(k1ResourcePathForSelfClassLoader)
+                    add(k2ResourcePathForSelfClassLoader)
+                }
+                .toTypedArray()
     }
 }

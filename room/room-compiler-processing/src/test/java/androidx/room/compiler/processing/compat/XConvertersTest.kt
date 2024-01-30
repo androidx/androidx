@@ -34,7 +34,6 @@ import androidx.room.compiler.processing.util.runKaptTest
 import androidx.room.compiler.processing.util.runProcessorTest
 import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
-import com.google.devtools.ksp.common.impl.KSNameImpl
 import com.google.devtools.ksp.getDeclaredFunctions
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.JavaFile
@@ -720,7 +719,7 @@ class XConvertersTest {
         var runCount = 0
         runKaptTest(sources = listOf(kotlinSrc, javaSrc)) { invocation ->
             val className = ClassName.get("foo.bar", "ToBeGenerated")
-            if (invocation.processingEnv.findTypeElement(className.toString()) == null) {
+            if (invocation.processingEnv.findTypeElement(className) == null) {
                 // Assert that this is only run only on the first round
                 assertThat(++runCount).isEqualTo(1)
 
@@ -734,8 +733,7 @@ class XConvertersTest {
             } else {
                 // Asserts that the class was generated in the second round
                 assertThat(++runCount).isEqualTo(2)
-                assertThat(invocation.processingEnv.findTypeElement(className.toString()))
-                    .isNotNull()
+                assertThat(invocation.processingEnv.findTypeElement(className)).isNotNull()
             }
         }
     }
@@ -858,7 +856,7 @@ class XConvertersTest {
         (this.processingEnv as JavacProcessingEnv).delegate.elementUtils.getTypeElement(fqn)
 
     private fun XTestInvocation.getKspTypeElement(fqn: String) =
-        (this.processingEnv as KspProcessingEnv)
-            .resolver
-            .getClassDeclarationByName(KSNameImpl.getCached(fqn))!!
+        (this.processingEnv as KspProcessingEnv).resolver.let { resolver ->
+            resolver.getClassDeclarationByName(resolver.getKSNameFromString(fqn))
+        }!!
 }

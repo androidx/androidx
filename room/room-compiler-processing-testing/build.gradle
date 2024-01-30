@@ -32,13 +32,14 @@ plugins {
 
 dependencies {
     api(project(":room:room-compiler-processing"))
-    implementation(libs.kotlinStdlib)
-    implementation(libs.kspApi)
-    implementation(libs.kotlinStdlibJdk8) // KSP defines older version as dependency, force update.
-    implementation(libs.ksp)
+    implementation(libs.kotlinStdlibJdk8)
+    // For Java source compilation
     implementation(libs.googleCompileTesting)
-    // specify these to match the kotlin compiler version in AndroidX rather than what KSP or KCT
-    // uses
+    // For KSP processing
+    implementation(libs.kspApi)
+    implementation(libs.kspCommon)
+    implementation(libs.kspEmbeddable)
+    // For Kotlin source compilation and KAPT
     implementation(libs.kotlinCompilerEmbeddable)
     implementation(libs.kotlinDaemonEmbeddable)
     implementation(libs.kotlinAnnotationProcessingEmbeddable)
