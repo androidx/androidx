@@ -137,15 +137,29 @@ public class SurfaceProcessorNode implements
         // Calculate sensorToBufferTransform
         android.graphics.Matrix sensorToBufferTransform =
                 new android.graphics.Matrix(input.getSensorToBufferTransform());
-        android.graphics.Matrix imageTransform = getRectToRect(
+        android.graphics.Matrix newTransform = getRectToRect(
                 new RectF(cropRect),
                 sizeToRectF(outConfig.getSize()), rotationDegrees, mirroring);
-        sensorToBufferTransform.postConcat(imageTransform);
+        sensorToBufferTransform.postConcat(newTransform);
 
         // The aspect ratio of the output must match the aspect ratio of the crop rect. Otherwise
         // the output will be stretched.
         Size rotatedCropSize = getRotatedSize(cropRect, rotationDegrees);
         checkArgument(isAspectRatioMatchingWithRoundingError(rotatedCropSize, outConfig.getSize()));
+
+        // Calculate the transformed crop rect.
+        Rect newCropRect;
+        if (outConfig.shouldRespectInputCropRect()) {
+            checkArgument(outConfig.getCropRect().contains(input.getCropRect()),
+                    String.format("Output crop rect %s must contain input crop rect %s",
+                            outConfig.getCropRect(), input.getCropRect()));
+            newCropRect = new Rect();
+            RectF newCropRectF = new RectF(input.getCropRect());
+            newTransform.mapRect(newCropRectF);
+            newCropRectF.round(newCropRect);
+        } else {
+            newCropRect = sizeToRect(outConfig.getSize());
+        }
 
         // Copy the stream spec from the input to the output, except for the resolution.
         StreamSpec streamSpec = input.getStreamSpec().toBuilder().setResolution(
@@ -158,8 +172,7 @@ public class SurfaceProcessorNode implements
                 sensorToBufferTransform,
                 // The Surface transform cannot be carried over during buffer copy.
                 /*hasCameraTransform=*/false,
-                // Crop rect is always the full size.
-                sizeToRect(outConfig.getSize()),
+                newCropRect,
                 /*rotationDegrees=*/input.getRotationDegrees() - rotationDegrees,
                 // Once copied, the target rotation is no longer useful.
                 /*targetRotation*/ ROTATION_NOT_SPECIFIED,
@@ -402,9 +415,26 @@ public class SurfaceProcessorNode implements
         public abstract int getRotationDegrees();
 
         /**
-         * The whether the stream should be mirrored.
+         * Whether the stream should be mirrored.
          */
         public abstract boolean isMirroring();
+
+        /**
+         * Whether the node should respect the input's crop rect.
+         *
+         * <p>If true, the output's crop rect will be calculated based
+         * {@link OutConfig#getCropRect()} AND the input's crop rect. In this case, the
+         * {@link OutConfig#getCropRect()} must contain the input's crop rect. This applies to
+         * the scenario where the input crop rect is valid but the current node cannot apply crop
+         * rect. For example, when
+         * {@link CameraEffect#TRANSFORMATION_CAMERA_AND_SURFACE_ROTATION} option is used.
+         *
+         * <p>If false, then the node will override input's crop rect with
+         * {@link OutConfig#getCropRect()}. This mostly applies to the sharing node. For example,
+         * the children want to crop the input stream to different sizes, in which case, the
+         * input crop rect is invalid.
+         */
+        public abstract boolean shouldRespectInputCropRect();
 
         /**
          * Creates an {@link OutConfig} instance from the input edge.
@@ -423,6 +453,8 @@ public class SurfaceProcessorNode implements
 
         /**
          * Creates an {@link OutConfig} instance with custom transformations.
+         *
+         * // TODO: remove this method and make the shouldRespectInputCropRect bit explicit.
          */
         @NonNull
         public static OutConfig of(@CameraEffect.Targets int targets,
@@ -431,8 +463,23 @@ public class SurfaceProcessorNode implements
                 @NonNull Size size,
                 int rotationDegrees,
                 boolean mirroring) {
+            return of(targets, format, cropRect, size, rotationDegrees, mirroring,
+                    /*shouldRespectInputCropRect=*/false);
+        }
+
+        /**
+         * Creates an {@link OutConfig} instance with custom transformations.
+         */
+        @NonNull
+        public static OutConfig of(@CameraEffect.Targets int targets,
+                @CameraEffect.Formats int format,
+                @NonNull Rect cropRect,
+                @NonNull Size size,
+                int rotationDegrees,
+                boolean mirroring,
+                boolean shouldRespectInputCropRect) {
             return new AutoValue_SurfaceProcessorNode_OutConfig(randomUUID(), targets, format,
-                    cropRect, size, rotationDegrees, mirroring);
+                    cropRect, size, rotationDegrees, mirroring, shouldRespectInputCropRect);
         }
     }
 }

@@ -26,6 +26,7 @@ import static androidx.camera.core.impl.UseCaseConfig.OPTION_SURFACE_OCCUPANCY_P
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_VIDEO_STABILIZATION_MODE;
 import static androidx.camera.core.impl.utils.Threads.checkMainThread;
 import static androidx.camera.core.impl.utils.TransformUtils.getRotationDegrees;
+import static androidx.camera.core.impl.utils.TransformUtils.isMirrored;
 import static androidx.camera.core.impl.utils.TransformUtils.rotateSize;
 import static androidx.camera.core.impl.utils.TransformUtils.within360;
 import static androidx.camera.core.streamsharing.DynamicRangeUtils.resolveDynamicRange;
@@ -211,8 +212,11 @@ class VirtualCameraAdapter implements UseCase.StateChangeCallback {
     Map<UseCase, OutConfig> getChildrenOutConfigs(@NonNull SurfaceEdge sharingInputEdge,
             @ImageOutputConfig.RotationValue int parentTargetRotation, boolean isViewportSet) {
         Map<UseCase, OutConfig> outConfigs = new HashMap<>();
+        // TODO: we might be able to extract parent rotation degrees from the input edge's
+        //  sensor-to-buffer matrix and the mirroring bit.
         int parentRotationDegrees = mParentCamera.getCameraInfo().getSensorRotationDegrees(
                 parentTargetRotation);
+        boolean parentIsMirrored = isMirrored(sharingInputEdge.getSensorToBufferTransform());
         for (UseCase useCase : mChildren) {
             Pair<Rect, Size> preferredSizePair = mResolutionsMerger.getPreferredChildSizePair(
                     requireNonNull(mChildrenConfigsMap.get(useCase)),
@@ -234,7 +238,8 @@ class VirtualCameraAdapter implements UseCase.StateChangeCallback {
                     cropRectBeforeScaling,
                     rotateSize(childSizeToScale, childParentDelta),
                     childParentDelta,
-                    useCase.isMirroringRequired(mParentCamera)));
+                    // Only mirror if the parent and the child disagrees.
+                    useCase.isMirroringRequired(mParentCamera) ^ parentIsMirrored));
         }
         return outConfigs;
     }
