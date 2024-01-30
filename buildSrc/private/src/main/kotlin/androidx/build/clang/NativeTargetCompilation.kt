@@ -16,6 +16,7 @@
 
 package androidx.build.clang
 
+import androidx.build.ProjectLayoutType
 import java.io.File
 import org.gradle.api.Named
 import org.gradle.api.Project
@@ -98,7 +99,9 @@ class NativeTargetCompilation internal constructor(
         // jni_md.h -> Includes machine dependant definitions.
         // Internal Devs: You can read more about it here:  http://go/androidx-jni-cross-compilation
         val javaHome = File(System.getProperty("java.home"))
-
+        if (ProjectLayoutType.isPlayground(project)) {
+            return findJniHeadersInPlayground(javaHome)
+        }
         // for jni_md, we need to find the prebuilts because each jdk ships with jni_md only for
         // its own target family.
         val jdkPrebuiltsRoot = javaHome.parentFile
@@ -136,5 +139,26 @@ class NativeTargetCompilation internal constructor(
                 "Cannot find header directory (${it.name}) in ${it.canonicalPath}"
             }
         }
+    }
+
+    /**
+     * JDK ships with JNI headers only for the current platform. As a result, we don't have access
+     * to cross-platform jni headers. They are mostly the same and we don't ship cross compiled code
+     * from GitHub so it is acceptable to use local JNI headers for cross platform compilation on
+     * GitHub.
+     */
+    private fun findJniHeadersInPlayground(
+        javaHome: File
+    ): List<File> {
+        val include = File(javaHome, "include")
+        if (!include.exists()) {
+            error("Cannot find header directory in $javaHome")
+        }
+        return listOf(
+            include,
+            File(include, "darwin"),
+            File(include, "linux"),
+            File(include, "win32"),
+        ).filter { it.exists() }
     }
 }

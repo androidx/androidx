@@ -24,7 +24,6 @@
 import androidx.build.KmpPlatformsKt
 import androidx.build.PlatformIdentifier
 import androidx.build.Publish
-import androidx.build.SdkHelperKt
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.konan.target.KonanTarget
 
@@ -42,6 +41,14 @@ configurations {
         canBeResolved = true
         attributes {
             attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage, Usage.NATIVE_LINK))
+        }
+    }
+    // Configuration for resolving SQLite sources from sqlite-bundled.
+    sqliteSources {
+        canBeConsumed = false
+        canBeResolved = true
+        attributes {
+            attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage, "sqlite-amalgamation"))
         }
     }
 }
@@ -103,12 +110,12 @@ androidXMultiplatform {
                 // See: https://kotlinlang.org/docs/whatsnew19.html#explicit-c-interoperability-stability-guarantees
                 main.compilerOptions.options.optIn.add("kotlinx.cinterop.ExperimentalForeignApi")
                 main.cinterops {
-                    sqlite3 {
-                        def externalSQLiteDir = new File(
-                            SdkHelperKt.getCheckoutRoot(project),
-                            "/external/sqlite/dist/orig/"
-                        )
-                        includeDirs(externalSQLiteDir)
+                    sqlite3 { cInteropSettings ->
+                        includeDirs(configurations.sqliteSources.incoming.files)
+                        // TODO KT-62795 We shouldn't need this dependency once that issue is fixed.
+                        tasks.named(cInteropSettings.interopProcessingTaskName).configure {
+                            it.dependsOn(configurations.sqliteSources)
+                        }
                     }
                 }
 
@@ -136,6 +143,7 @@ androidXMultiplatform {
 
 dependencies {
     sqliteSharedArchive(project(":sqlite:sqlite-bundled"))
+    sqliteSources(project(":sqlite:sqlite-bundled"))
 }
 
 androidx {
