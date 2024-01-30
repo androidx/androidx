@@ -117,7 +117,7 @@ public class CircularProgressIndicator implements LayoutElement {
         @NonNull private DegreesProp mStartAngle = degrees(DEFAULT_START_ANGLE);
         @NonNull private DegreesProp mEndAngle = degrees(DEFAULT_END_ANGLE);
         @NonNull private FloatProp mProgress = staticFloat(0f);
-        private boolean mIsMarginEnabled = true;
+        private boolean mIsMarginApplied = true;
 
         /** Creates a builder for the {@link CircularProgressIndicator}. */
         public Builder() {}
@@ -244,8 +244,8 @@ public class CircularProgressIndicator implements LayoutElement {
          * <p>If not set, defaults to true.
          */
         @NonNull
-        public Builder setOuterMarginApplied(boolean isUsed) {
-            this.mIsMarginEnabled = isUsed;
+        public Builder setOuterMarginApplied(boolean isApplied) {
+            this.mIsMarginApplied = isApplied;
             return this;
         }
 
@@ -266,7 +266,7 @@ public class CircularProgressIndicator implements LayoutElement {
                                             .setTagData(getTagBytes(METADATA_TAG))
                                             .build());
 
-            if (mIsMarginEnabled) {
+            if (mIsMarginApplied) {
                 modifiers.setPadding(
                         new Padding.Builder().setRtlAware(true).setAll(DEFAULT_PADDING).build());
             }
