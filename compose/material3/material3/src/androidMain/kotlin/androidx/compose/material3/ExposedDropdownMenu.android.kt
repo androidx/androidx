@@ -27,6 +27,8 @@ import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.foundation.text.selection.TextSelectionColors
@@ -37,6 +39,7 @@ import androidx.compose.material3.tokens.FilledAutocompleteTokens
 import androidx.compose.material3.tokens.OutlinedAutocompleteTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -66,11 +69,15 @@ import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.DpOffset
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntRect
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.constrainWidth
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
+import androidx.compose.ui.window.PopupPositionProvider
 import kotlin.math.max
 import kotlin.math.roundToInt
 
@@ -282,10 +289,11 @@ abstract class ExposedDropdownMenuBoxScope {
         if (expandedState.currentState || expandedState.targetState) {
             val transformOriginState = remember { mutableStateOf(TransformOrigin.Center) }
             val density = LocalDensity.current
-            val popupPositionProvider = remember(density) {
-                DropdownMenuPositionProvider(
-                    DpOffset.Zero,
-                    density,
+            val topWindowInsets = WindowInsets.statusBars.getTop(density)
+            val popupPositionProvider = remember(density, topWindowInsets) {
+                ExposedDropdownMenuPositionProvider(
+                    density = density,
+                    topWindowInsets = topWindowInsets,
                 ) { anchorBounds, menuBounds ->
                     transformOriginState.value = calculateTransformOrigin(anchorBounds, menuBounds)
                 }
@@ -1035,6 +1043,91 @@ object ExposedDropdownMenuDefaults {
             .copy(alpha = OutlinedAutocompleteTokens.FieldDisabledSupportingTextOpacity),
         errorSuffixColor = OutlinedAutocompleteTokens.FieldSupportingTextColor.value,
     )
+}
+
+@Immutable
+internal data class ExposedDropdownMenuPositionProvider(
+    val density: Density,
+    val topWindowInsets: Int,
+    val verticalMargin: Int = with(density) { MenuVerticalMargin.roundToPx() },
+    val onPositionCalculated: (anchorBounds: IntRect, menuBounds: IntRect) -> Unit = { _, _ -> }
+) : PopupPositionProvider {
+    // Horizontal position
+    private val startToAnchorStart = MenuPosition.startToAnchorStart()
+    private val endToAnchorEnd = MenuPosition.endToAnchorEnd()
+    private val leftToWindowLeft = MenuPosition.leftToWindowLeft()
+    private val rightToWindowRight = MenuPosition.rightToWindowRight()
+
+    // Vertical position
+    private val topToAnchorBottom = MenuPosition.topToAnchorBottom()
+    private val bottomToAnchorTop = MenuPosition.bottomToAnchorTop()
+    private val topToWindowTop = MenuPosition.topToWindowTop(margin = verticalMargin)
+    private val bottomToWindowBottom = MenuPosition.bottomToWindowBottom(margin = verticalMargin)
+
+    override fun calculatePosition(
+        anchorBounds: IntRect,
+        windowSize: IntSize,
+        layoutDirection: LayoutDirection,
+        popupContentSize: IntSize
+    ): IntOffset {
+        // TODO(b/256233441): Popup fails to account for window insets so we do it here instead
+        @Suppress("NAME_SHADOWING")
+        val windowSize = IntSize(windowSize.width, windowSize.height + topWindowInsets)
+
+        val xCandidates = listOf(
+            startToAnchorStart,
+            endToAnchorEnd,
+            if (anchorBounds.center.x < windowSize.width / 2) {
+                leftToWindowLeft
+            } else {
+                rightToWindowRight
+            }
+        )
+        var x = 0
+        for (index in xCandidates.indices) {
+            val xCandidate = xCandidates[index].position(
+                anchorBounds = anchorBounds,
+                windowSize = windowSize,
+                menuWidth = popupContentSize.width,
+                layoutDirection = layoutDirection
+            )
+            if (index == xCandidates.lastIndex ||
+                (xCandidate >= 0 && xCandidate + popupContentSize.width <= windowSize.width)) {
+                x = xCandidate
+                break
+            }
+        }
+
+        val yCandidates = listOf(
+            topToAnchorBottom,
+            bottomToAnchorTop,
+            if (anchorBounds.center.y < windowSize.height / 2) {
+                topToWindowTop
+            } else {
+                bottomToWindowBottom
+            }
+        )
+        var y = 0
+        for (index in yCandidates.indices) {
+            val yCandidate = yCandidates[index].position(
+                anchorBounds = anchorBounds,
+                windowSize = windowSize,
+                menuHeight = popupContentSize.height
+            )
+            if (index == yCandidates.lastIndex ||
+                (yCandidate >= 0 && yCandidate + popupContentSize.height <= windowSize.height)) {
+                y = yCandidate
+                break
+            }
+        }
+
+        val menuOffset = IntOffset(x, y)
+        onPositionCalculated(
+            /* anchorBounds = */anchorBounds,
+            /* menuBounds = */IntRect(offset = menuOffset, size = popupContentSize)
+        )
+        return menuOffset
+    }
 }
 
 private fun Modifier.expandable(
