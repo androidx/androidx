@@ -67,6 +67,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.TestCoroutineScheduler
+import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
 
@@ -3094,7 +3095,8 @@ class CompositionTests {
                 assertEquals(listOf(false), composedResults)
                 rootState = true
                 Snapshot.sendApplyNotifications()
-                testScheduler.advanceUntilIdle()
+                // expect lambda to invalidate on the same frame (regression test for b/320385076)
+                testScheduler.advanceTimeByFrame(coroutineContext)
                 assertEquals(listOf(false, true), composedResults)
             } finally {
                 composition.dispose()
@@ -4499,7 +4501,7 @@ fun testDeferredSubcomposition(block: @Composable () -> Unit): () -> Unit {
 }
 
 @OptIn(ExperimentalCoroutinesApi::class)
-internal suspend fun <R> localRecomposerTest(
+internal suspend fun <R> TestScope.localRecomposerTest(
     block: CoroutineScope.(Recomposer) -> R
 ) = coroutineScope {
     withContext(TestMonotonicFrameClock(this)) {
@@ -4507,6 +4509,8 @@ internal suspend fun <R> localRecomposerTest(
         launch {
             recomposer.runRecomposeAndApplyChanges()
         }
+        // ensure recomposition runner has started
+        testScheduler.advanceUntilIdle()
         block(recomposer)
         // This call doesn't need to be in a finally; everything it does will be torn down
         // in exceptional cases by the coroutineScope failure
