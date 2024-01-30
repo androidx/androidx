@@ -235,6 +235,7 @@ includeProject(":lint-checks:integration-tests")
 includeProject(":lifecycle:lifecycle-common")
 includeProject(":lifecycle:lifecycle-runtime")
 includeProject(":lifecycle:lifecycle-runtime-lint")
+includeProject(":savedstate:savedstate")
 
 includeProject(":internal-testutils-common", "testutils/testutils-common",)
 includeProject(":internal-testutils-runtime", "testutils/testutils-runtime")

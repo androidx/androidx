@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:JvmName("ViewKt")
+
 package androidx.savedstate
 
 import android.view.View

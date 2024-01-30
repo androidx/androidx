@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,11 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package androidx.savedstate
 
-import android.os.Bundle
 import androidx.annotation.MainThread
-import androidx.arch.core.internal.SafeIterableMap
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 
@@ -28,8 +27,8 @@ import androidx.lifecycle.LifecycleEventObserver
  * This objects lifetime is bound to the lifecycle of owning component: when activity or
  * fragment is recreated, new instance of the object is created as well.
  */
-class SavedStateRegistry internal constructor() {
-    private val components = SafeIterableMap<String, SavedStateProvider>()
+actual class SavedStateRegistry internal actual constructor() {
+    private val components = linkedMapOf<String, SavedStateProvider>()
     private var attached = false
     private var restoredState: Bundle? = null
 
@@ -40,10 +39,9 @@ class SavedStateRegistry internal constructor() {
      * [isRestored] == true if state was restored
      */
     @get: MainThread
-    var isRestored = false
+    actual var isRestored = false
         private set
-    private var recreatorProvider: Recreator.SavedStateProvider? = null
-    internal var isAllowingSavingState = true
+    private var isAllowingSavingState = true
 
     /**
      * Consumes saved state previously supplied by [SavedStateProvider] registered
@@ -66,7 +64,7 @@ class SavedStateRegistry internal constructor() {
      * @return `S` with the previously saved state or {@code null}
      */
     @MainThread
-    fun consumeRestoredStateForKey(key: String): Bundle? {
+    actual fun consumeRestoredStateForKey(key: String): Bundle? {
         check(isRestored) {
             ("You can consumeRestoredStateForKey " +
                 "only after super.onCreate of corresponding component")
@@ -74,7 +72,7 @@ class SavedStateRegistry internal constructor() {
         if (restoredState != null) {
             val result = restoredState?.getBundle(key)
             restoredState?.remove(key)
-            if (restoredState?.isEmpty != false) {
+            if (restoredState?.isEmpty() != false) {
                 restoredState = null
             }
             return result
@@ -100,11 +98,11 @@ class SavedStateRegistry internal constructor() {
      * @param provider savedStateProvider to get saved state.
      */
     @MainThread
-    fun registerSavedStateProvider(
+    actual fun registerSavedStateProvider(
         key: String,
         provider: SavedStateProvider
     ) {
-        val previous = components.putIfAbsent(key, provider)
+        val previous = components.put(key, provider)
         require(previous == null) {
             ("SavedStateProvider with the given key is" +
                 " already registered")
@@ -121,7 +119,7 @@ class SavedStateRegistry internal constructor() {
      * [registerSavedStateProvider] or null if no provider
      * has been registered with the given key.
      */
-    fun getSavedStateProvider(key: String): SavedStateProvider? {
+    actual fun getSavedStateProvider(key: String): SavedStateProvider? {
         var provider: SavedStateProvider? = null
         for ((k, value) in components) {
             if (k == key) {
@@ -138,54 +136,8 @@ class SavedStateRegistry internal constructor() {
      * @param key a key with which a component was previously registered.
      */
     @MainThread
-    fun unregisterSavedStateProvider(key: String) {
+    actual fun unregisterSavedStateProvider(key: String) {
         components.remove(key)
-    }
-
-    /**
-     * Subclasses of this interface will be automatically recreated if they were previously
-     * registered via [runOnNextRecreation].
-     *
-     *
-     * Subclasses must have a default constructor
-     */
-    interface AutoRecreated {
-        /**
-         * This method will be called during
-         * dispatching of [androidx.lifecycle.Lifecycle.Event.ON_CREATE] of owning component
-         * which was restarted
-         *
-         * @param owner a component that was restarted
-         */
-        fun onRecreated(owner: SavedStateRegistryOwner)
-    }
-
-    /**
-     * Executes the given class when the owning component restarted.
-     *
-     *
-     * The given class will be automatically instantiated via default constructor and method
-     * [AutoRecreated.onRecreated] will be called.
-     * It is called as part of dispatching of [androidx.lifecycle.Lifecycle.Event.ON_CREATE]
-     * event.
-     *
-     * @param clazz that will need to be instantiated on the next component recreation
-     * @throws IllegalArgumentException if you try to call if after [Lifecycle.Event.ON_STOP]
-     *                               was dispatched
-     */
-    @MainThread
-    fun runOnNextRecreation(clazz: Class<out AutoRecreated>) {
-        check(isAllowingSavingState) { "Can not perform this action after onSaveInstanceState" }
-        recreatorProvider = recreatorProvider ?: Recreator.SavedStateProvider(this)
-        try {
-            clazz.getDeclaredConstructor()
-        } catch (e: NoSuchMethodException) {
-            throw IllegalArgumentException(
-                "Class ${clazz.simpleName} must have " +
-                    "default constructor in order to be automatically recreated", e
-            )
-        }
-        recreatorProvider?.add(clazz.name)
     }
 
     /**
@@ -193,7 +145,7 @@ class SavedStateRegistry internal constructor() {
      * to a [Lifecycle].
      */
     @MainThread
-    internal fun performAttach(lifecycle: Lifecycle) {
+    internal actual fun performAttach(lifecycle: Lifecycle) {
         check(!attached) { "SavedStateRegistry was already attached." }
 
         lifecycle.addObserver(LifecycleEventObserver { _, event ->
@@ -211,7 +163,7 @@ class SavedStateRegistry internal constructor() {
      *
      */
     @MainThread
-    internal fun performRestore(savedState: Bundle?) {
+    internal actual fun performRestore(savedState: Bundle?) {
         check(attached) {
             ("You must call performAttach() before calling " +
                 "performRestore(Bundle).")
@@ -230,33 +182,47 @@ class SavedStateRegistry internal constructor() {
      * @param outBundle Bundle in which to place a saved state
      */
     @MainThread
-    internal fun performSave(outBundle: Bundle) {
+    internal actual fun performSave(outBundle: Bundle) {
         val components = Bundle()
-        if (restoredState != null) {
-            components.putAll(restoredState)
+        restoredState?.let {
+            components.putAll(it)
         }
-        val it: Iterator<Map.Entry<String, SavedStateProvider>> =
-            this.components.iteratorWithAdditions()
-        while (it.hasNext()) {
-            val (key, value) = it.next()
+        forEachObserverWithAdditions { key, value ->
             components.putBundle(key, value.saveState())
         }
-        if (!components.isEmpty) {
+        if (!components.isEmpty()) {
             outBundle.putBundle(SAVED_COMPONENTS_KEY, components)
+        }
+    }
+
+    private inline fun forEachObserverWithAdditions(
+        block: (String, SavedStateProvider) -> Unit
+    ) {
+        val visited = mutableSetOf<String>()
+        while (true) {
+            val keys = components.keys.filter { it !in visited }
+            if (keys.isEmpty()) {
+                break
+            }
+            for (key in keys) {
+                val value = components[key] ?: continue
+                block(key, value)
+                visited.add(key)
+            }
         }
     }
 
     /**
      * This interface marks a component that contributes to saved state.
      */
-    fun interface SavedStateProvider {
+    actual fun interface SavedStateProvider {
         /**
          * Called to retrieve a state from a component before being killed
          * so later the state can be received from [consumeRestoredStateForKey]
          *
          * Returns `S` with your saved state.
          */
-        fun saveState(): Bundle
+        actual fun saveState(): Bundle
     }
 
     private companion object {
