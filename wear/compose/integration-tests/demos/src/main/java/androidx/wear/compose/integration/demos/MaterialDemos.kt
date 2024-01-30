@@ -30,6 +30,9 @@ import androidx.compose.ui.unit.dp
 import androidx.wear.compose.integration.demos.common.Centralize
 import androidx.wear.compose.integration.demos.common.ComposableDemo
 import androidx.wear.compose.integration.demos.common.DemoCategory
+import androidx.wear.compose.material.ListHeader
+import androidx.wear.compose.material.MaterialTheme
+import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.samples.AlertDialogSample
 import androidx.wear.compose.material.samples.AlertWithButtons
 import androidx.wear.compose.material.samples.AlertWithChips
@@ -675,5 +678,28 @@ val WearMaterialDemos = DemoCategory(
             )
         ),
         ComposableDemo("Settings Demo") { SettingsDemo() },
+        DemoCategory(
+            "ListHeader",
+            listOf(
+                ComposableDemo("Sample") {
+                    Centralize {
+                        ListHeader {
+                            Text("Header", maxLines = 3)
+                        }
+                    }
+                },
+                ComposableDemo("MultiLine Sample") {
+                    Centralize {
+                        ListHeader {
+                            Text(
+                                text = "ListHeader that spans multiple lines in a large " +
+                                    "font and should expand to fit the contents",
+                                style = MaterialTheme.typography.title3
+                            )
+                        }
+                    }
+                }
+            )
+        )
     ),
 )
