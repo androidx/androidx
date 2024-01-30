@@ -26,6 +26,7 @@ fun check(vararg testFiles: TestFile): TestLintResult {
     return TestLintTask.lint()
         .files(
             ANDROIDX_REPLACE_WITH_KT,
+            ANDROIDX_ANY_THREAD_KT,
             *testFiles
         )
         .issues(ReplaceWithDetector.ISSUE)
@@ -55,7 +56,7 @@ fun ktSample(className: String): TestFile {
 }
 
 /**
- * [TestFile] containing ReplaceWith.kt from the ReplaceWith annotation library.
+ * [TestFile] containing ReplaceWith.kt from the Annotation library.
  *
  * This is a workaround for IntelliJ failing to recognize source files if they are also
  * included as resources.
@@ -85,5 +86,27 @@ val ANDROIDX_REPLACE_WITH_KT: TestFile = TestFiles.kotlin(
                 val expression: String,
                 vararg val imports: String
             )
+            """.trimIndent()
+)
+
+/**
+ * [TestFile] containing AnyThread.kt from the Annotation library.
+ */
+val ANDROIDX_ANY_THREAD_KT: TestFile = TestFiles.kotlin(
+    """
+            package androidx.annotation
+            
+            @MustBeDocumented
+            @Retention(AnnotationRetention.BINARY)
+            @Target(
+                AnnotationTarget.FUNCTION,
+                AnnotationTarget.PROPERTY_GETTER,
+                AnnotationTarget.PROPERTY_SETTER,
+                AnnotationTarget.CONSTRUCTOR,
+                AnnotationTarget.ANNOTATION_CLASS,
+                AnnotationTarget.CLASS,
+                AnnotationTarget.VALUE_PARAMETER
+            )
+            annotation class AnyThread
             """.trimIndent()
 )

@@ -32,14 +32,19 @@ import com.android.tools.lint.detector.api.Location
 import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
+import com.android.tools.lint.detector.api.isKotlin
 import com.intellij.psi.PsiField
+import com.intellij.psi.PsiJavaFile
 import com.intellij.psi.PsiMethod
 import com.intellij.psi.impl.source.tree.TreeElement
 import org.jetbrains.kotlin.lexer.KtTokens
+import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.psi.KtLiteralStringTemplateEntry
 import org.jetbrains.kotlin.psi.psiUtil.endOffset
+import org.jetbrains.uast.UAnnotation
 import org.jetbrains.uast.UCallExpression
 import org.jetbrains.uast.UElement
+import org.jetbrains.uast.ULiteralExpression
 import org.jetbrains.uast.UQualifiedReferenceExpression
 import org.jetbrains.uast.USimpleNameReferenceExpression
 import org.jetbrains.uast.java.JavaConstructorUCallExpression
@@ -72,16 +77,16 @@ class ReplaceWithDetector : Detector(), SourceCodeScanner {
                 var expression = annotation.findAttributeValue("expression") ?.let { expr ->
                     ConstantEvaluator.evaluate(context, expr)
                 } as? String ?: return
-
                 val includeReceiver = Regex("^\\w+\\.\\w+.*\$").matches(expression)
                 val includeArguments = Regex("^.*\\w+\\(.*\\)$").matches(expression)
+                val imports = annotation.getAttributeValueVarargLiteral("imports")
 
                 if (referenced is PsiMethod && usage is UCallExpression) {
                     // Per Kotlin documentation for ReplaceWith: For function calls, the replacement
                     // expression may contain argument names of the deprecated function, which will
                     // be substituted with actual parameters used in the call being updated.
                     val argsToParams = referenced.parameters.mapIndexed { index, param ->
-                        param.name to usage.getArgumentForParameter(index)?.sourcePsi?.text
+                        param.name to usage.getArgumentForParameter(index)?.asSourceString()
                     }.associate { it }
 
                     // Tokenize the replacement expression using a regex, replacing as we go. This
@@ -126,7 +131,7 @@ class ReplaceWithDetector : Detector(), SourceCodeScanner {
                     }
                 }
 
-                reportLintFix(context, usage, location, expression)
+                reportLintFix(context, usage, location, expression, imports)
             }
         }
     }
@@ -136,13 +141,71 @@ class ReplaceWithDetector : Detector(), SourceCodeScanner {
         usage: UElement,
         location: Location,
         expression: String,
+        imports: List<String>,
     ) {
         context.report(ISSUE, usage, location, "Replacement available",
-            createLintFix(location, expression))
+            createLintFix(context, location, expression, imports))
     }
 
-    private fun createLintFix(location: Location, expression: String): LintFix =
-        fix().replace().range(location).name("Replace with `$expression`").with(expression).build()
+    private fun createLintFix(
+        context: JavaContext,
+        location: Location,
+        expression: String,
+        imports: List<String>
+    ): LintFix {
+        val lintFixBuilder = fix().composite()
+        lintFixBuilder.add(
+            fix()
+                .replace()
+                .range(location)
+                .name("Replace with `$expression`")
+                .with(expression)
+                .build()
+        )
+        if (imports.isNotEmpty()) {
+            lintFixBuilder.add(fix().import(context, add = imports).build())
+        }
+        return lintFixBuilder.build()
+    }
+
+    /**
+     * Add imports.
+     *
+     * @return a string replace builder
+     */
+    fun LintFix.Builder.import(
+        context: JavaContext,
+        add: List<String>
+    ): LintFix.ReplaceStringBuilder {
+        val isKotlin = isKotlin(context.uastFile!!.lang)
+        val lastImport = context.uastFile?.imports?.lastOrNull()
+        val packageElem = when (val psiFile = context.psiFile) {
+            is PsiJavaFile -> psiFile.packageStatement
+            is KtFile -> psiFile.packageDirective?.psiOrParent
+            else -> null
+        }
+
+        // Build the imports block. Leave any ordering or formatting up to the client.
+        val prependImports = when {
+            lastImport != null -> "\n"
+            packageElem != null -> "\n\n"
+            else -> ""
+        }
+        val appendImports = when {
+            lastImport != null -> ""
+            packageElem != null -> ""
+            else -> "\n"
+        }
+        val formattedImports = add.joinToString("\n") { "import " + if (isKotlin) it else "$it;" }
+        val importsText = prependImports + formattedImports + appendImports
+
+        // Append after any existing imports, after the package declaration, or at the beginning of
+        // the file if there are no imports and no package declaration.
+        val appendLocation = (lastImport ?: packageElem) ?.let { context.getLocation(it) }
+            ?: Location.create(context.file, context.getContents(), 0, 0)
+        val replaceBuilder = replace().range(appendLocation).end().with(importsText)
+        return replaceBuilder.autoFix()
+    }
 
     companion object {
         private val IMPLEMENTATION = Implementation(
@@ -230,3 +293,16 @@ fun JavaContext.getConstructorLocation(
 
     return getLocation(call)
 }
+
+/**
+ * @return the value of the specified vararg attribute as a list of String literals, or an empty
+ * list if not specified
+ */
+fun UAnnotation.getAttributeValueVarargLiteral(name: String): List<String> =
+    when (val attributeValue = findDeclaredAttributeValue(name)) {
+        is ULiteralExpression -> listOf(attributeValue.value.toString())
+        is UCallExpression -> attributeValue.valueArguments.mapNotNull { argument ->
+            (argument as? ULiteralExpression)?.value?.toString()
+        }
+        else -> emptyList()
+    }
