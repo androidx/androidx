@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.list.assertIsPlaced
 import androidx.compose.foundation.lazy.list.setContentWithTestViewConfiguration
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.DisposableEffect
@@ -50,6 +51,7 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertTrue
@@ -2169,5 +2171,54 @@ class LazyStaggeredGridTest(
         rule.runOnIdle {
             assertThat(composedItems).isEqualTo(setOf(0, 1, 2, 3))
         }
+    }
+
+    @Test
+    fun zeroSizeItemIsPlacedWhenItIsAtTheTop() {
+        lateinit var state: LazyStaggeredGridState
+
+        rule.setContent {
+            state = rememberLazyStaggeredGridState(initialFirstVisibleItemIndex = 0)
+            LazyStaggeredGrid(
+                lanes = 2,
+                state = state,
+                modifier = Modifier
+                    .mainAxisSize(itemSizeDp * 2)
+                    .crossAxisSize(itemSizeDp * 2)
+            ) {
+                repeat(10) { index ->
+                    items(2) {
+                        Spacer(Modifier.testTag("${index * 10 + it}"))
+                    }
+                    items(8) {
+                        Spacer(Modifier.mainAxisSize(itemSizeDp))
+                    }
+                }
+            }
+        }
+
+        rule.onNodeWithTag("0")
+            .assertIsPlaced()
+            .assertMainAxisStartPositionInRootIsEqualTo(0.dp)
+            .assertMainAxisSizeIsEqualTo(0.dp)
+
+        rule.onNodeWithTag("1")
+            .assertIsPlaced()
+            .assertMainAxisStartPositionInRootIsEqualTo(0.dp)
+            .assertMainAxisSizeIsEqualTo(0.dp)
+
+        runBlocking(Dispatchers.Main + AutoTestFrameClock()) {
+            state.scrollToItem(10, 0)
+        }
+
+        rule.onNodeWithTag("10")
+            .assertIsPlaced()
+            .assertMainAxisStartPositionInRootIsEqualTo(0.dp)
+            .assertMainAxisSizeIsEqualTo(0.dp)
+
+        rule.onNodeWithTag("11")
+            .assertIsPlaced()
+            .assertMainAxisStartPositionInRootIsEqualTo(0.dp)
+            .assertMainAxisSizeIsEqualTo(0.dp)
     }
 }
