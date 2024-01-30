@@ -35,11 +35,12 @@ import java.io.File
 import java.io.FileNotFoundException
 import org.jetbrains.uast.UAnnotated
 import org.jetbrains.uast.UAnnotation
+import org.jetbrains.uast.UCallExpression
 import org.jetbrains.uast.UClass
 import org.jetbrains.uast.UClassLiteralExpression
 import org.jetbrains.uast.UElement
 import org.jetbrains.uast.UExpression
-import org.jetbrains.uast.kotlin.KotlinUVarargExpression
+import org.jetbrains.uast.UastCallKind
 import org.jetbrains.uast.resolveToUElement
 import org.jetbrains.uast.toUElement
 
@@ -113,11 +114,14 @@ class BanInappropriateExperimentalUsage : Detector(), Detector.UastScanner {
         private fun getUElementsFromOptInMarkerClass(markerClass: UExpression): List<UElement> {
             val elements = ArrayList<UElement?>()
 
-            when (markerClass) {
-                is UClassLiteralExpression -> { // opting in to single annotation
+            when {
+                markerClass is UClassLiteralExpression -> {
+                    // opting in to single annotation
                     elements.add(markerClass.toUElement())
                 }
-                is KotlinUVarargExpression -> { // opting in to multiple annotations
+                markerClass is UCallExpression &&
+                    markerClass.kind == UastCallKind.NESTED_ARRAY_INITIALIZER -> {
+                    // opting in to multiple annotations
                     val expressions: List<UExpression> = markerClass.valueArguments
                     for (expression in expressions) {
                         val uElement = (expression as UClassLiteralExpression).toUElement()

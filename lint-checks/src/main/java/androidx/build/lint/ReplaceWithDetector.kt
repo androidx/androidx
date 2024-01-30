@@ -34,6 +34,7 @@ import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
 import com.intellij.psi.PsiField
 import com.intellij.psi.PsiMethod
+import com.intellij.psi.PsiNewExpression
 import com.intellij.psi.impl.source.tree.TreeElement
 import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.psi.KtLiteralStringTemplateEntry
@@ -42,7 +43,6 @@ import org.jetbrains.uast.UCallExpression
 import org.jetbrains.uast.UElement
 import org.jetbrains.uast.UQualifiedReferenceExpression
 import org.jetbrains.uast.USimpleNameReferenceExpression
-import org.jetbrains.uast.java.JavaConstructorUCallExpression
 
 class ReplaceWithDetector : Detector(), SourceCodeScanner {
 
@@ -99,13 +99,13 @@ class ReplaceWithDetector : Detector(), SourceCodeScanner {
                         }
                     } while (index < expression.length)
 
-                    location = when (usage) {
-                        is JavaConstructorUCallExpression -> {
+                    location = when (val sourcePsi = usage.sourcePsi) {
+                        is PsiNewExpression -> {
                             // The expression should never specify "new", but if it specifies a
                             // receiver then we should replace the call to "new". For example, if
                             // we're replacing `new Clazz("arg")` with `ClazzCompat.create("arg")`.
                             context.getConstructorLocation(
-                                usage, includeReceiver, includeArguments
+                                usage, sourcePsi, includeReceiver, includeArguments
                             )
                         }
                         else -> {
@@ -170,14 +170,15 @@ class ReplaceWithDetector : Detector(), SourceCodeScanner {
  * `receiver` to handle trimming the `new` keyword from the start of a Java constructor call.
  */
 fun JavaContext.getConstructorLocation(
-    call: JavaConstructorUCallExpression,
+    call: UCallExpression,
+    newExpression: PsiNewExpression,
     includeNew: Boolean,
     includeArguments: Boolean
 ): Location {
     if (includeArguments) {
         call.valueArguments.lastOrNull()?.let { lastArgument ->
             val argumentsEnd = lastArgument.sourcePsi?.endOffset
-            val callEnds = call.sourcePsi.endOffset
+            val callEnds = newExpression.endOffset
             if (argumentsEnd != null && argumentsEnd > callEnds) {
                 // The call element has arguments that are outside of its own range.
                 // This typically means users are making a function call using

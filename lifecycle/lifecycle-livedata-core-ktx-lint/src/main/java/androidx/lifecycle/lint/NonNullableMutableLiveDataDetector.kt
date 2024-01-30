@@ -41,11 +41,11 @@ import org.jetbrains.uast.UAnnotated
 import org.jetbrains.uast.UCallExpression
 import org.jetbrains.uast.UClass
 import org.jetbrains.uast.UElement
+import org.jetbrains.uast.UField
 import org.jetbrains.uast.UReferenceExpression
+import org.jetbrains.uast.USimpleNameReferenceExpression
 import org.jetbrains.uast.getUastParentOfType
 import org.jetbrains.uast.isNullLiteral
-import org.jetbrains.uast.kotlin.KotlinUField
-import org.jetbrains.uast.kotlin.KotlinUSimpleReferenceExpression
 import org.jetbrains.uast.resolveToUElement
 import org.jetbrains.uast.toUElement
 
@@ -81,24 +81,21 @@ class NonNullableMutableLiveDataDetector : Detector(), UastScanner {
 
     val methods = listOf("setValue", "postValue")
 
-    override fun getApplicableUastTypes(): List<Class<out UElement>>? {
-        return listOf(UCallExpression::class.java, UClass::class.java)
+    override fun getApplicableUastTypes(): List<Class<out UElement>> {
+        return listOf(UCallExpression::class.java, UField::class.java)
     }
 
-    override fun createUastHandler(context: JavaContext): UElementHandler? {
+    override fun createUastHandler(context: JavaContext): UElementHandler {
         return object : UElementHandler() {
-            override fun visitClass(node: UClass) {
-                for (element in node.uastDeclarations) {
-                    if (element is KotlinUField) {
-                        getFieldTypeReference(element)?.let {
-                            // map the variable name to the type reference of its expression.
-                            typesMap.put(element.name, it)
-                        }
-                    }
+            override fun visitField(node: UField) {
+                if (!isKotlin(node.lang)) return
+                getFieldTypeReference(node)?.let {
+                    // map the variable name to the type reference of its expression.
+                    typesMap.put(node.name, it)
                 }
             }
 
-            private fun getFieldTypeReference(element: KotlinUField): KtTypeReference? {
+            private fun getFieldTypeReference(element: UField): KtTypeReference? {
                 // If field has type reference, we need to use type reference
                 // Given the field `val liveDataField: MutableLiveData<Boolean> = MutableLiveData()`
                 // reference: `MutableLiveData<Boolean>`
@@ -132,7 +129,7 @@ class NonNullableMutableLiveDataDetector : Detector(), UastScanner {
                 var liveDataType =
                     if (receiverType != null && receiverType.hasParameters()) {
                         val receiver =
-                            (node.receiver as? KotlinUSimpleReferenceExpression)?.resolve()
+                            (node.receiver as? USimpleNameReferenceExpression)?.resolve()
                         val variable = (receiver as? PsiVariable)
                         val assignment = variable?.let {
                             UastLintUtils.findLastAssignment(it, node)

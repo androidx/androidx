@@ -34,6 +34,7 @@ import com.intellij.psi.PsiModifier
 import com.intellij.psi.impl.source.PsiClassReferenceType
 import org.jetbrains.kotlin.idea.KotlinFileType
 import org.jetbrains.uast.UAnonymousClass
+import org.jetbrains.uast.UBlockExpression
 import org.jetbrains.uast.UCallExpression
 import org.jetbrains.uast.UClass
 import org.jetbrains.uast.UExpression
@@ -43,7 +44,6 @@ import org.jetbrains.uast.UResolvable
 import org.jetbrains.uast.UReturnExpression
 import org.jetbrains.uast.USimpleNameReferenceExpression
 import org.jetbrains.uast.getContainingUClass
-import org.jetbrains.uast.java.JavaUCodeBlockExpression
 import org.jetbrains.uast.skipParenthesizedExprDown
 
 class ObsoleteCompatDetector : Detector(), SourceCodeScanner {
@@ -67,7 +67,6 @@ class ObsoleteCompatDetector : Detector(), SourceCodeScanner {
 
 private class CompatMethodHandler(val context: JavaContext) : UElementHandler() {
 
-    @Suppress("UnstableApiUsage", "UnstableApiUsage") // UMethod.parameters
     override fun visitMethod(node: UMethod) {
         // If this method probably a compat method?
         if (!node.isMaybeJetpackUtilityMethod()) return
@@ -84,10 +83,10 @@ private class CompatMethodHandler(val context: JavaContext) : UElementHandler() 
         if (hasDeprecated && hasReplaceWith && hasDeprecatedDoc) return
 
         // Compat methods take the wrapped class as the first parameter.
-        val firstParameter = node.parameters.firstOrNull() ?: return
+        val firstParameter = node.javaPsi.parameterList.parameters.firstOrNull() ?: return
 
         // Ensure that we're dealing with a single-line method that operates on the wrapped class.
-        val expression = (node.uastBody as? JavaUCodeBlockExpression)
+        val expression = (node.uastBody as? UBlockExpression)
             ?.expressions
             ?.singleOrNull()
             ?.unwrapReturnExpression()
