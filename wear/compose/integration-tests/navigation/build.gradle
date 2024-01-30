@@ -53,7 +53,7 @@ dependencies {
     implementation(project(":wear:compose:compose-material-samples"))
     implementation(project(':wear:compose:compose-navigation'))
 
-    androidTestImplementation(project(":lifecycle:lifecycle-common"))
+    androidTestImplementation("androidx.lifecycle:lifecycle-common:2.7.0")
     // Uses project dependency to match collections/compose-runtime
     androidTestImplementation api("androidx.annotation:annotation:1.7.0")
 }
