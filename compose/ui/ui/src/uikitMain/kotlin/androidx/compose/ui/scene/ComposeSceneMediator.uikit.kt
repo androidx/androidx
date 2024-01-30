@@ -326,6 +326,10 @@ internal class ComposeSceneMediator(
             focusStack?.pushAndFocus(interactionView)
         }
         container.addSubview(interopViewContainer)
+        interopViewContainer.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activateConstraints(
+            getConstraintsToFillParent(interopViewContainer, container)
+        )
         container.addSubview(interactionView)
         interactionView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activateConstraints(
