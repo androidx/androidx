@@ -335,6 +335,7 @@ dependencies {
     docs(project(":security:security-crypto"))
     docs(project(":security:security-crypto-ktx"))
     docs(project(":security:security-identity-credential"))
+    docs(project(":security:security-mls"))
     docs(project(":sharetarget:sharetarget"))
     docs(project(":slice:slice-builders"))
     docs(project(":slice:slice-builders-ktx"))
