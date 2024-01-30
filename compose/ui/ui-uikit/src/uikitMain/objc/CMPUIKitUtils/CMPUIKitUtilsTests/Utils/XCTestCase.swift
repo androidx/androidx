@@ -17,31 +17,23 @@
 import XCTest
 
 extension XCTestCase {
-    /// Non UI Thread blocking delay for at least given time interval.
-    func delay(_ delay: TimeInterval) {
-        let baseExpectation = expectation(description: name)
-        DispatchQueue.global(qos: .userInitiated).asyncAfter(deadline: .now() + delay) {
-            DispatchQueue.main.async {
-                baseExpectation.fulfill()
-            }
-        }
-        wait(for: [baseExpectation], timeout: delay + 5)
-    }
-
     /// Awaits for expectation without blocking UI thread.
-    func wait(for expectation: @escaping () -> Bool,
-              timeout: TimeInterval = 1.0,
-              file: String = #file,
-              function: String = #function,
-              line: Int = #line) {
+    @MainActor
+    func expect(        
+        timeout: TimeInterval,
+        line: Int,
+        expectation: @escaping () -> Bool
+    ) async {
         let start = Date()
-        var isExpected = expectation()
-        while !isExpected && Date().timeIntervalSince(start) < timeout {
-            delay(0.001)
-            isExpected = expectation()
+        var isExpectationMet = expectation()
+        
+        while !isExpectationMet && Date().timeIntervalSince(start) < timeout {
+            try? await Task.sleep(nanoseconds: 100_000) // 100ms
+            isExpectationMet = expectation()            
         }
-        if !isExpected {
-            XCTFail("Timeout reached for expectation at \(file) - \(function) line \(line)")
+        
+        if !isExpectationMet {
+            XCTFail("Timeout at line \(line)")
         }
     }
 }
