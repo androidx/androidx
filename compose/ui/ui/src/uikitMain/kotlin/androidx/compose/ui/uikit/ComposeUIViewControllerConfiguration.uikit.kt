@@ -34,7 +34,7 @@ class ComposeUIViewControllerConfiguration {
     var delegate = object : ComposeUIViewControllerDelegate {}
 
     @ExperimentalComposeApi
-    var platformLayers: Boolean = false
+    var platformLayers: Boolean = true
 }
 
 /**
