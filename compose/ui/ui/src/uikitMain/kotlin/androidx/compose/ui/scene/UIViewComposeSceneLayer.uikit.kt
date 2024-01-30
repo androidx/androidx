@@ -22,7 +22,7 @@ import androidx.compose.runtime.CompositionLocalContext
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.platform.PlatformContext
-import androidx.compose.ui.platform.WindowInfo
+import androidx.compose.ui.platform.PlatformWindowContext
 import androidx.compose.ui.uikit.ComposeUIViewControllerConfiguration
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
@@ -50,7 +50,7 @@ internal class UIViewComposeSceneLayer(
     private val initLayoutDirection: LayoutDirection,
     configuration: ComposeUIViewControllerConfiguration,
     focusStack: FocusStack<UIView>?,
-    windowInfo: WindowInfo,
+    windowContext: PlatformWindowContext,
     compositionContext: CompositionContext,
     compositionLocalContext: CompositionLocalContext?,
 ) : ComposeSceneLayer {
@@ -83,7 +83,7 @@ internal class UIViewComposeSceneLayer(
             container = rootView,
             configuration = configuration,
             focusStack = focusStack,
-            windowInfo = windowInfo,
+            windowContext = windowContext,
             coroutineContext = compositionContext.effectCoroutineContext,
             renderingUIViewFactory = ::createSkikoUIView,
             composeSceneFactory = ::createComposeScene,

@@ -38,14 +38,14 @@ import androidx.compose.ui.platform.LocalLayoutMargins
 import androidx.compose.ui.platform.LocalSafeArea
 import androidx.compose.ui.platform.PlatformContext
 import androidx.compose.ui.platform.PlatformInsets
+import androidx.compose.ui.platform.PlatformWindowContext
 import androidx.compose.ui.platform.UIKitTextInputService
-import androidx.compose.ui.platform.WindowInfo
 import androidx.compose.ui.semantics.SemanticsOwner
+import androidx.compose.ui.uikit.systemDensity
 import androidx.compose.ui.toDpOffset
 import androidx.compose.ui.toDpRect
 import androidx.compose.ui.uikit.ComposeUIViewControllerConfiguration
 import androidx.compose.ui.uikit.LocalKeyboardOverlapHeight
-import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.DpRect
 import androidx.compose.ui.unit.IntRect
@@ -59,7 +59,6 @@ import androidx.compose.ui.window.KeyboardEventHandler
 import androidx.compose.ui.window.KeyboardVisibilityListenerImpl
 import androidx.compose.ui.window.RenderingUIView
 import androidx.compose.ui.window.UITouchesEventPhase
-import androidx.compose.ui.window.uiContentSizeCategoryToFontScaleMap
 import kotlin.coroutines.CoroutineContext
 import kotlin.math.floor
 import kotlin.math.roundToLong
@@ -81,11 +80,9 @@ import platform.Foundation.NSSelectorFromString
 import platform.Foundation.NSTimeInterval
 import platform.QuartzCore.CATransaction
 import platform.UIKit.NSLayoutConstraint
-import platform.UIKit.UIContentSizeCategoryUnspecified
 import platform.UIKit.UIEvent
 import platform.UIKit.UIKeyboardWillHideNotification
 import platform.UIKit.UIKeyboardWillShowNotification
-import platform.UIKit.UIScreen
 import platform.UIKit.UITouch
 import platform.UIKit.UITouchPhase
 import platform.UIKit.UIView
@@ -108,7 +105,7 @@ internal class ComposeSceneMediator(
     private val container: UIView,
     configuration: ComposeUIViewControllerConfiguration,
     private val focusStack: FocusStack<UIView>?,
-    private val windowInfo: WindowInfo,
+    private val windowContext: PlatformWindowContext,
     val coroutineContext: CoroutineContext,
     private val renderingUIViewFactory: (RenderingUIView.Delegate) -> RenderingUIView,
     composeSceneFactory: (
@@ -161,18 +158,9 @@ internal class ComposeSceneMediator(
                 renderingView.redrawer.needsProactiveDisplayLink = needHighFrequencyPolling
             },
             checkBounds = { dpPoint: DpOffset ->
-                val point = dpPoint.toOffset(getSystemDensity())
+                val point = dpPoint.toOffset(container.systemDensity)
                 getBoundsInPx().contains(point.round())
             }
-        )
-    }
-
-    private fun getSystemDensity(): Density {
-        val contentSizeCategory = container.traitCollection.preferredContentSizeCategory
-            ?: UIContentSizeCategoryUnspecified
-        return Density(
-            density = UIScreen.mainScreen.scale.toFloat(),
-            fontScale = uiContentSizeCategoryToFontScaleMap[contentSizeCategory] ?: 1.0f
         )
     }
 
@@ -227,8 +215,8 @@ internal class ComposeSceneMediator(
         IOSPlatformContextImpl(
             inputServices = uiKitTextInputService,
             textToolbar = uiKitTextInputService,
-            windowInfo = windowInfo,
-            density = getSystemDensity(),
+            windowInfo = windowContext.windowInfo,
+            density = container.systemDensity,
             semanticsOwnerListener = semanticsOwnerListener
         )
     }
@@ -238,7 +226,7 @@ internal class ComposeSceneMediator(
             configuration = configuration,
             keyboardOverlapHeightState = keyboardOverlapHeightState,
             viewProvider = { container },
-            densityProvider = ::getSystemDensity,
+            densityProvider = { container.systemDensity },
             composeSceneMediatorProvider = { this },
             focusManager = focusManager,
         )
@@ -262,7 +250,7 @@ internal class ComposeSceneMediator(
                 CATransaction.flush() // clear all animations
             },
             rootViewProvider = { container },
-            densityProvider = ::getSystemDensity,
+            densityProvider = { container.systemDensity },
             focusStack = focusStack,
             keyboardEventHandler = keyboardEventHandler
         )
@@ -424,7 +412,7 @@ internal class ComposeSceneMediator(
             }
 
             is SceneLayout.Bounds -> {
-                val density = getSystemDensity().density
+                val density = container.systemDensity.density
                 renderingView.translatesAutoresizingMaskIntoConstraints = true
                 renderingView.setFrame(
                     with(value.rect) {
@@ -444,18 +432,11 @@ internal class ComposeSceneMediator(
     }
 
     fun viewWillLayoutSubviews() {
-        val density = getSystemDensity()
+        val density = container.systemDensity
         //TODO: Current code updates layout based on rootViewController size.
         // Maybe we need to rewrite it for SingleLayerComposeScene.
 
-        val boundsInWindow = container.convertRect(
-            rect = container.bounds,
-            toView = null
-        ).useContents {
-            with(density) {
-                toDpRect().toRect().roundToIntRect()
-            }
-        }
+        val boundsInWindow = windowContext.boundsInWindow(container)
         scene.density = density // TODO: Maybe it is wrong to set density to scene here?
         scene.boundsInWindow = boundsInWindow
         onComposeSceneInvalidate()
@@ -483,7 +464,7 @@ internal class ComposeSceneMediator(
 
     fun getBoundsInDp(): DpRect = renderingView.frame.useContents { this.toDpRect() }
 
-    fun getBoundsInPx(): IntRect = with(getSystemDensity()) {
+    fun getBoundsInPx(): IntRect = with(container.systemDensity) {
         getBoundsInDp().toRect().roundToIntRect()
     }
 
