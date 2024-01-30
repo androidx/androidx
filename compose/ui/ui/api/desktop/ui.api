@@ -1913,7 +1913,7 @@ public final class androidx/compose/ui/input/pointer/PointerEvent {
 	public final fun component2-ry648PA ()I
 	public final fun component3-k7X9c1A ()I
 	public final fun component5 ()Ljava/lang/Object;
-	public final fun copy-jTTBaPM (Ljava/util/List;IIILjava/lang/Object;Landroidx/compose/ui/input/pointer/PointerButton;)Landroidx/compose/ui/input/pointer/PointerEvent;
+	public final synthetic fun copy-jTTBaPM (Ljava/util/List;IIILjava/lang/Object;Landroidx/compose/ui/input/pointer/PointerButton;)Landroidx/compose/ui/input/pointer/PointerEvent;
 	public static synthetic fun copy-jTTBaPM$default (Landroidx/compose/ui/input/pointer/PointerEvent;Ljava/util/List;IIILjava/lang/Object;Landroidx/compose/ui/input/pointer/PointerButton;ILjava/lang/Object;)Landroidx/compose/ui/input/pointer/PointerEvent;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getButton-RaE_XpY ()Landroidx/compose/ui/input/pointer/PointerButton;

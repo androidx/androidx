@@ -178,7 +178,10 @@ actual class PointerEvent internal constructor(
 
     // _button was internal, so no need for a component6
 
-    @Deprecated("Will be removed in 1.5")
+    @Deprecated(
+        message = "Removed in 1.6",
+        level = DeprecationLevel.HIDDEN
+    )
     @Suppress("LocalVariableName")
     fun copy(
         changes: List<PointerInputChange> = this.changes,
