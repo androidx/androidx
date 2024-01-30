@@ -73,7 +73,6 @@ import org.jetbrains.uast.UVariable
 import org.jetbrains.uast.UastFacade
 import org.jetbrains.uast.getContainingUClass
 import org.jetbrains.uast.getContainingUMethod
-import org.jetbrains.uast.java.JavaUAnnotation
 import org.jetbrains.uast.toUElement
 import org.jetbrains.uast.toUElementOfType
 import org.jetbrains.uast.tryResolve
@@ -376,7 +375,7 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
             }
 
             if (relevantAnnotations.contains(signature)) {
-                val uAnnotation = JavaUAnnotation.wrap(annotation)
+                val uAnnotation = annotation.toUElementOfType<UAnnotation>() ?: continue
 
                 // Common case: there's just one annotation; no need to create a list copy
                 if (length == 1) {
@@ -888,7 +887,7 @@ private fun PsiPackage.isAnnotatedWithOptInOf(
 ): Boolean = optInFqNames.any { optInFqName ->
     annotations.any { annotation ->
         annotation.hasQualifiedName(optInFqName) &&
-            ((annotation.toUElement() as? UAnnotation)?.hasMatchingAttributeValueClass(
+            ((annotation.toUElementOfType<UAnnotation>())?.hasMatchingAttributeValueClass(
                 "markerClass",
                 annotationFqName,
             ) ?: false)

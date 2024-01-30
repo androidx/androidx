@@ -80,6 +80,16 @@ tasks.named("compileTestKotlin", KotlinCompile.class).configure {
     }
 }
 
+afterEvaluate {
+    lint {
+        lintOptions {
+            // Until fully switch to K2, existing FE1.0 usages are legitimate
+            // TODO(b/314151707)
+            disable("KotlincFE10")
+        }
+    }
+}
+
 androidx {
     name = "Room XProcessor Testing"
     type = LibraryType.ANNOTATION_PROCESSOR_UTILS

@@ -40,7 +40,7 @@ import org.jetbrains.kotlin.psi.KtTypeArgumentList
 import org.jetbrains.kotlin.psi.KtValueArgumentList
 import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstanceOrNull
 import org.jetbrains.uast.UCallExpression
-import org.jetbrains.uast.java.JavaUCallExpression
+import org.jetbrains.uast.kotlin.isKotlin
 import org.jetbrains.uast.skipParenthesizedExprDown
 
 /**
@@ -71,7 +71,7 @@ class AutoboxingStateCreationDetector : Detector(), SourceCodeScanner {
     override fun getApplicableMethodNames() = listOf(Names.Runtime.MutableStateOf.shortName)
 
     override fun visitMethodCall(context: JavaContext, node: UCallExpression, method: PsiMethod) {
-        if (node is JavaUCallExpression) return
+        if (!isKotlin(node.lang)) return
         if (!method.isInPackageName(Names.Runtime.PackageName)) return
 
         val replacement = getSuggestedReplacementName(node) ?: return
