@@ -178,7 +178,7 @@ class OutlinedTextFieldScreenshotTest {
                 onValueChange = {},
                 modifier = Modifier.testTag(TextFieldTag).requiredWidth(280.dp),
                 colors =
-                    TextFieldDefaults.outlinedTextFieldColors(unfocusedTextColor = Color.Magenta),
+                    OutlinedTextFieldDefaults.colors(unfocusedTextColor = Color.Magenta),
             )
         }
 
@@ -193,7 +193,7 @@ class OutlinedTextFieldScreenshotTest {
                 value = TextFieldValue(text = text, selection = TextRange(0, text.length)),
                 onValueChange = {},
                 modifier = Modifier.requiredWidth(280.dp).testTag(TextFieldTag),
-                colors = TextFieldDefaults.outlinedTextFieldColors(
+                colors = OutlinedTextFieldDefaults.colors(
                     // We can only test the background color because popups, which includes the
                     // selection handles, do not appear in screenshots
                     selectionColors = TextSelectionColors(

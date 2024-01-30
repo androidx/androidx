@@ -56,6 +56,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.channels.Channel
@@ -304,6 +305,47 @@ fun ScaffoldWithCoroutinesSnackbar() {
         content = { innerPadding ->
             Text(
                 "Snackbar demo",
+                modifier = Modifier
+                    .padding(innerPadding)
+                    .fillMaxSize()
+                    .wrapContentSize()
+            )
+        }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Preview
+@Sampled
+@Composable
+fun ScaffoldWithMultilineSnackbar() {
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+    Scaffold(
+        snackbarHost = {
+            SnackbarHost(snackbarHostState) { data ->
+                Snackbar {
+                    // The Material spec recommends a maximum of 2 lines of text.
+                    Text(data.visuals.message, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                }
+            }
+        },
+        floatingActionButton = {
+            ExtendedFloatingActionButton(
+                onClick = {
+                    scope.launch {
+                        val longMessage =
+                            "Very very very very very very very very very very very very very " +
+                                "very very very very very very very very very very very very " +
+                                "very very very very very very very very very very long message"
+                        snackbarHostState.showSnackbar(longMessage)
+                    }
+                }
+            ) { Text("Show snackbar") }
+        },
+        content = { innerPadding ->
+            Text(
+                text = "Multiline Snackbar Demo",
                 modifier = Modifier
                     .padding(innerPadding)
                     .fillMaxSize()

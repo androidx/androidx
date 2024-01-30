@@ -306,7 +306,7 @@ package androidx.compose.material3 {
   }
 
   public enum DrawerValue {
-    method public static androidx.compose.material3.DrawerValue valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.compose.material3.DrawerValue valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
     method public static androidx.compose.material3.DrawerValue[] values();
     enum_constant public static final androidx.compose.material3.DrawerValue Closed;
     enum_constant public static final androidx.compose.material3.DrawerValue Open;
@@ -518,6 +518,22 @@ package androidx.compose.material3 {
     method @androidx.compose.runtime.Composable public static void NavigationRailItem(boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit> onClick, kotlin.jvm.functions.Function0<kotlin.Unit> icon, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional kotlin.jvm.functions.Function0<kotlin.Unit>? label, optional boolean alwaysShowLabel, optional androidx.compose.material3.NavigationRailItemColors colors, optional androidx.compose.foundation.interaction.MutableInteractionSource interactionSource);
   }
 
+  @androidx.compose.runtime.Immutable public final class OutlinedTextFieldDefaults {
+    method @androidx.compose.runtime.Composable public androidx.compose.material3.TextFieldColors colors(optional long focusedTextColor, optional long unfocusedTextColor, optional long disabledTextColor, optional long errorTextColor, optional long focusedContainerColor, optional long unfocusedContainerColor, optional long disabledContainerColor, optional long errorContainerColor, optional long cursorColor, optional long errorCursorColor, optional androidx.compose.foundation.text.selection.TextSelectionColors selectionColors, optional long focusedBorderColor, optional long unfocusedBorderColor, optional long disabledBorderColor, optional long errorBorderColor, optional long focusedLeadingIconColor, optional long unfocusedLeadingIconColor, optional long disabledLeadingIconColor, optional long errorLeadingIconColor, optional long focusedTrailingIconColor, optional long unfocusedTrailingIconColor, optional long disabledTrailingIconColor, optional long errorTrailingIconColor, optional long focusedLabelColor, optional long unfocusedLabelColor, optional long disabledLabelColor, optional long errorLabelColor, optional long focusedPlaceholderColor, optional long unfocusedPlaceholderColor, optional long disabledPlaceholderColor, optional long errorPlaceholderColor, optional long focusedSupportingTextColor, optional long unfocusedSupportingTextColor, optional long disabledSupportingTextColor, optional long errorSupportingTextColor, optional long focusedPrefixColor, optional long unfocusedPrefixColor, optional long disabledPrefixColor, optional long errorPrefixColor, optional long focusedSuffixColor, optional long unfocusedSuffixColor, optional long disabledSuffixColor, optional long errorSuffixColor);
+    method public androidx.compose.foundation.layout.PaddingValues contentPadding(optional float start, optional float top, optional float end, optional float bottom);
+    method public float getFocusedBorderThickness();
+    method public float getMinHeight();
+    method public float getMinWidth();
+    method @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getShape();
+    method public float getUnfocusedBorderThickness();
+    property public final float FocusedBorderThickness;
+    property public final float MinHeight;
+    property public final float MinWidth;
+    property public final float UnfocusedBorderThickness;
+    property @androidx.compose.runtime.Composable public final androidx.compose.ui.graphics.Shape shape;
+    field public static final androidx.compose.material3.OutlinedTextFieldDefaults INSTANCE;
+  }
+
   public final class OutlinedTextFieldKt {
     method @androidx.compose.runtime.Composable public static void OutlinedTextField(String value, kotlin.jvm.functions.Function1<? super java.lang.String,kotlin.Unit> onValueChange, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional boolean readOnly, optional androidx.compose.ui.text.TextStyle textStyle, optional kotlin.jvm.functions.Function0<kotlin.Unit>? label, optional kotlin.jvm.functions.Function0<kotlin.Unit>? placeholder, optional kotlin.jvm.functions.Function0<kotlin.Unit>? leadingIcon, optional kotlin.jvm.functions.Function0<kotlin.Unit>? trailingIcon, optional kotlin.jvm.functions.Function0<kotlin.Unit>? prefix, optional kotlin.jvm.functions.Function0<kotlin.Unit>? suffix, optional kotlin.jvm.functions.Function0<kotlin.Unit>? supportingText, optional boolean isError, optional androidx.compose.ui.text.input.VisualTransformation visualTransformation, optional androidx.compose.foundation.text.KeyboardOptions keyboardOptions, optional androidx.compose.foundation.text.KeyboardActions keyboardActions, optional boolean singleLine, optional int maxLines, optional int minLines, optional androidx.compose.foundation.interaction.MutableInteractionSource interactionSource, optional androidx.compose.ui.graphics.Shape shape, optional androidx.compose.material3.TextFieldColors colors);
     method @androidx.compose.runtime.Composable public static void OutlinedTextField(androidx.compose.ui.text.input.TextFieldValue value, kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.input.TextFieldValue,kotlin.Unit> onValueChange, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional boolean readOnly, optional androidx.compose.ui.text.TextStyle textStyle, optional kotlin.jvm.functions.Function0<kotlin.Unit>? label, optional kotlin.jvm.functions.Function0<kotlin.Unit>? placeholder, optional kotlin.jvm.functions.Function0<kotlin.Unit>? leadingIcon, optional kotlin.jvm.functions.Function0<kotlin.Unit>? trailingIcon, optional kotlin.jvm.functions.Function0<kotlin.Unit>? prefix, optional kotlin.jvm.functions.Function0<kotlin.Unit>? suffix, optional kotlin.jvm.functions.Function0<kotlin.Unit>? supportingText, optional boolean isError, optional androidx.compose.ui.text.input.VisualTransformation visualTransformation, optional androidx.compose.foundation.text.KeyboardOptions keyboardOptions, optional androidx.compose.foundation.text.KeyboardActions keyboardActions, optional boolean singleLine, optional int maxLines, optional int minLines, optional androidx.compose.foundation.interaction.MutableInteractionSource interactionSource, optional androidx.compose.ui.graphics.Shape shape, optional androidx.compose.material3.TextFieldColors colors);
@@ -576,22 +592,6 @@ package androidx.compose.material3 {
 
   public final class ScaffoldKt {
     method @androidx.compose.runtime.Composable public static void Scaffold(optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function0<kotlin.Unit> topBar, optional kotlin.jvm.functions.Function0<kotlin.Unit> bottomBar, optional kotlin.jvm.functions.Function0<kotlin.Unit> snackbarHost, optional kotlin.jvm.functions.Function0<kotlin.Unit> floatingActionButton, optional int floatingActionButtonPosition, optional long containerColor, optional long contentColor, optional androidx.compose.foundation.layout.WindowInsets contentWindowInsets, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.PaddingValues,kotlin.Unit> content);
-  }
-
-  public final class SearchBarDefaults {
-    method @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getDockedShape();
-    method public float getElevation();
-    method @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getFullScreenShape();
-    method public float getInputFieldHeight();
-    method @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getInputFieldShape();
-    method @androidx.compose.runtime.Composable public androidx.compose.foundation.layout.WindowInsets getWindowInsets();
-    property public final float Elevation;
-    property public final float InputFieldHeight;
-    property @androidx.compose.runtime.Composable public final androidx.compose.ui.graphics.Shape dockedShape;
-    property @androidx.compose.runtime.Composable public final androidx.compose.ui.graphics.Shape fullScreenShape;
-    property @androidx.compose.runtime.Composable public final androidx.compose.ui.graphics.Shape inputFieldShape;
-    property @androidx.compose.runtime.Composable public final androidx.compose.foundation.layout.WindowInsets windowInsets;
-    field public static final androidx.compose.material3.SearchBarDefaults INSTANCE;
   }
 
   public final class ShapeDefaults {
@@ -670,7 +670,7 @@ package androidx.compose.material3 {
   }
 
   public enum SnackbarDuration {
-    method public static androidx.compose.material3.SnackbarDuration valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.compose.material3.SnackbarDuration valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
     method public static androidx.compose.material3.SnackbarDuration[] values();
     enum_constant public static final androidx.compose.material3.SnackbarDuration Indefinite;
     enum_constant public static final androidx.compose.material3.SnackbarDuration Long;
@@ -695,7 +695,7 @@ package androidx.compose.material3 {
   }
 
   public enum SnackbarResult {
-    method public static androidx.compose.material3.SnackbarResult valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.compose.material3.SnackbarResult valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
     method public static androidx.compose.material3.SnackbarResult[] values();
     enum_constant public static final androidx.compose.material3.SnackbarResult ActionPerformed;
     enum_constant public static final androidx.compose.material3.SnackbarResult Dismissed;
@@ -784,21 +784,30 @@ package androidx.compose.material3 {
   }
 
   @androidx.compose.runtime.Immutable public final class TextFieldDefaults {
-    method @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getFilledShape();
-    method public float getFocusedBorderThickness();
+    method @androidx.compose.runtime.Composable public androidx.compose.material3.TextFieldColors colors(optional long focusedTextColor, optional long unfocusedTextColor, optional long disabledTextColor, optional long errorTextColor, optional long focusedContainerColor, optional long unfocusedContainerColor, optional long disabledContainerColor, optional long errorContainerColor, optional long cursorColor, optional long errorCursorColor, optional androidx.compose.foundation.text.selection.TextSelectionColors selectionColors, optional long focusedIndicatorColor, optional long unfocusedIndicatorColor, optional long disabledIndicatorColor, optional long errorIndicatorColor, optional long focusedLeadingIconColor, optional long unfocusedLeadingIconColor, optional long disabledLeadingIconColor, optional long errorLeadingIconColor, optional long focusedTrailingIconColor, optional long unfocusedTrailingIconColor, optional long disabledTrailingIconColor, optional long errorTrailingIconColor, optional long focusedLabelColor, optional long unfocusedLabelColor, optional long disabledLabelColor, optional long errorLabelColor, optional long focusedPlaceholderColor, optional long unfocusedPlaceholderColor, optional long disabledPlaceholderColor, optional long errorPlaceholderColor, optional long focusedSupportingTextColor, optional long unfocusedSupportingTextColor, optional long disabledSupportingTextColor, optional long errorSupportingTextColor, optional long focusedPrefixColor, optional long unfocusedPrefixColor, optional long disabledPrefixColor, optional long errorPrefixColor, optional long focusedSuffixColor, optional long unfocusedSuffixColor, optional long disabledSuffixColor, optional long errorSuffixColor);
+    method public androidx.compose.foundation.layout.PaddingValues contentPaddingWithLabel(optional float start, optional float end, optional float top, optional float bottom);
+    method public androidx.compose.foundation.layout.PaddingValues contentPaddingWithoutLabel(optional float start, optional float top, optional float end, optional float bottom);
+    method @Deprecated @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getFilledShape();
+    method @Deprecated public float getFocusedBorderThickness();
+    method public float getFocusedIndicatorThickness();
     method public float getMinHeight();
     method public float getMinWidth();
-    method @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getOutlinedShape();
-    method public float getUnfocusedBorderThickness();
-    method public androidx.compose.foundation.layout.PaddingValues outlinedTextFieldPadding(optional float start, optional float top, optional float end, optional float bottom);
-    method public androidx.compose.foundation.layout.PaddingValues textFieldWithLabelPadding(optional float start, optional float end, optional float top, optional float bottom);
-    method public androidx.compose.foundation.layout.PaddingValues textFieldWithoutLabelPadding(optional float start, optional float top, optional float end, optional float bottom);
-    property public final float FocusedBorderThickness;
+    method @Deprecated @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getOutlinedShape();
+    method @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getShape();
+    method @Deprecated public float getUnfocusedBorderThickness();
+    method public float getUnfocusedIndicatorThickness();
+    method @Deprecated public androidx.compose.foundation.layout.PaddingValues outlinedTextFieldPadding(optional float start, optional float top, optional float end, optional float bottom);
+    method @Deprecated public androidx.compose.foundation.layout.PaddingValues textFieldWithLabelPadding(optional float start, optional float end, optional float top, optional float bottom);
+    method @Deprecated public androidx.compose.foundation.layout.PaddingValues textFieldWithoutLabelPadding(optional float start, optional float top, optional float end, optional float bottom);
+    property @Deprecated public final float FocusedBorderThickness;
+    property public final float FocusedIndicatorThickness;
     property public final float MinHeight;
     property public final float MinWidth;
-    property public final float UnfocusedBorderThickness;
-    property @androidx.compose.runtime.Composable public final androidx.compose.ui.graphics.Shape filledShape;
-    property @androidx.compose.runtime.Composable public final androidx.compose.ui.graphics.Shape outlinedShape;
+    property @Deprecated public final float UnfocusedBorderThickness;
+    property public final float UnfocusedIndicatorThickness;
+    property @Deprecated @androidx.compose.runtime.Composable public final androidx.compose.ui.graphics.Shape filledShape;
+    property @Deprecated @androidx.compose.runtime.Composable public final androidx.compose.ui.graphics.Shape outlinedShape;
+    property @androidx.compose.runtime.Composable public final androidx.compose.ui.graphics.Shape shape;
     field public static final androidx.compose.material3.TextFieldDefaults INSTANCE;
   }
 
@@ -815,22 +824,6 @@ package androidx.compose.material3 {
     method @Deprecated @androidx.compose.runtime.Composable public static void Text(androidx.compose.ui.text.AnnotatedString text, optional androidx.compose.ui.Modifier modifier, optional long color, optional long fontSize, optional androidx.compose.ui.text.font.FontStyle? fontStyle, optional androidx.compose.ui.text.font.FontWeight? fontWeight, optional androidx.compose.ui.text.font.FontFamily? fontFamily, optional long letterSpacing, optional androidx.compose.ui.text.style.TextDecoration? textDecoration, optional androidx.compose.ui.text.style.TextAlign? textAlign, optional long lineHeight, optional int overflow, optional boolean softWrap, optional int maxLines, optional java.util.Map<java.lang.String,? extends androidx.compose.foundation.text.InlineTextContent> inlineContent, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.TextLayoutResult,? extends kotlin.Unit> onTextLayout, optional androidx.compose.ui.text.TextStyle style);
     method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.text.TextStyle> getLocalTextStyle();
     property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.text.TextStyle> LocalTextStyle;
-  }
-
-  @androidx.compose.runtime.Stable public final class TimePickerState {
-    ctor public TimePickerState(int initialHour, int initialMinute, boolean is24Hour);
-    method public int getHour();
-    method public int getMinute();
-    method public boolean is24hour();
-    method public suspend Object? settle(kotlin.coroutines.Continuation<? super kotlin.Unit>);
-    property public final int hour;
-    property public final boolean is24hour;
-    property public final int minute;
-    field public static final androidx.compose.material3.TimePickerState.Companion Companion;
-  }
-
-  public static final class TimePickerState.Companion {
-    method public androidx.compose.runtime.saveable.Saver<androidx.compose.material3.TimePickerState,?> Saver();
   }
 
   @androidx.compose.runtime.Immutable public final class Typography {

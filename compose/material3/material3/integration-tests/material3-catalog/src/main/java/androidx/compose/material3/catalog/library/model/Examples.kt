@@ -29,12 +29,12 @@ import androidx.compose.material3.samples.AnimatedExtendedFloatingActionButtonSa
 import androidx.compose.material3.samples.AssistChipSample
 import androidx.compose.material3.samples.BottomAppBarWithFAB
 import androidx.compose.material3.samples.BottomSheetScaffoldNestedScrollSample
-import androidx.compose.material3.samples.ModalBottomSheetSample
 import androidx.compose.material3.samples.ButtonSample
 import androidx.compose.material3.samples.ButtonWithIconSample
 import androidx.compose.material3.samples.CardSample
 import androidx.compose.material3.samples.CheckboxSample
 import androidx.compose.material3.samples.CheckboxWithTextSample
+import androidx.compose.material3.samples.ChipGroupReflowSample
 import androidx.compose.material3.samples.ChipGroupSingleLineSample
 import androidx.compose.material3.samples.CircularProgressIndicatorSample
 import androidx.compose.material3.samples.ClickableCardSample
@@ -81,6 +81,7 @@ import androidx.compose.material3.samples.LargeFloatingActionButtonSample
 import androidx.compose.material3.samples.LeadingIconTabs
 import androidx.compose.material3.samples.LinearProgressIndicatorSample
 import androidx.compose.material3.samples.MenuSample
+import androidx.compose.material3.samples.ModalBottomSheetSample
 import androidx.compose.material3.samples.ModalNavigationDrawerSample
 import androidx.compose.material3.samples.NavigationBarItemWithBadge
 import androidx.compose.material3.samples.NavigationBarSample
@@ -108,6 +109,7 @@ import androidx.compose.material3.samples.RichTooltipWithManualInvocationSample
 import androidx.compose.material3.samples.ScaffoldWithCoroutinesSnackbar
 import androidx.compose.material3.samples.ScaffoldWithCustomSnackbar
 import androidx.compose.material3.samples.ScaffoldWithIndefiniteSnackbar
+import androidx.compose.material3.samples.ScaffoldWithMultilineSnackbar
 import androidx.compose.material3.samples.ScaffoldWithSimpleSnackbar
 import androidx.compose.material3.samples.ScrollingFancyIndicatorContainerTabs
 import androidx.compose.material3.samples.ScrollingTextTabs
@@ -368,6 +370,13 @@ val ChipsExamples = listOf(
         sourceUrl = ChipsExampleSourceUrl
     ) {
         ChipGroupSingleLineSample()
+    },
+    Example(
+        name = ::ChipGroupReflowSample.name,
+        description = ChipsExampleDescription,
+        sourceUrl = ChipsExampleSourceUrl
+    ) {
+        ChipGroupReflowSample()
     }
 )
 
@@ -843,6 +852,13 @@ val SnackbarsExamples = listOf(
         sourceUrl = SnackbarsExampleSourceUrl
     ) {
         ScaffoldWithCoroutinesSnackbar()
+    },
+    Example(
+        name = ::ScaffoldWithMultilineSnackbar.name,
+        description = SnackbarsExampleDescription,
+        sourceUrl = SnackbarsExampleSourceUrl
+    ) {
+        ScaffoldWithMultilineSnackbar()
     }
 )
 
