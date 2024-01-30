@@ -29,6 +29,10 @@ internal fun throwIllegalArgumentException(message: String) {
     throw IllegalArgumentException(message)
 }
 
+internal fun throwIllegalArgumentExceptionNoReturn(message: String): Nothing {
+    throw IllegalArgumentException(message)
+}
+
 // Like Kotlin's require() but without the .toString() call
 @Suppress("BanInlineOptIn") // same opt-in as using Kotlin's require()
 @OptIn(ExperimentalContracts::class)
