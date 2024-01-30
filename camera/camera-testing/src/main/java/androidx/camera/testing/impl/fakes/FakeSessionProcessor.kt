@@ -39,8 +39,6 @@ import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.SessionProcessor
 import androidx.camera.core.impl.SessionProcessorSurface
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
@@ -54,8 +52,6 @@ class FakeSessionProcessor(
     val inputFormatPreview: Int? = null,
     val inputFormatCapture: Int? = null,
     val postviewSupportedSizes: Map<Int, List<Size>>? = null,
-    val inputExtensionType: LiveData<Int> = MutableLiveData(
-        SessionProcessor.EXTENSION_TYPE_UNKNOWN)
 ) : SessionProcessor {
     private lateinit var previewProcessorSurface: DeferrableSurface
     private lateinit var captureProcessorSurface: DeferrableSurface
@@ -428,8 +424,6 @@ class FakeSessionProcessor(
             await()
         }
     }
-
-    override fun getCurrentExtensionType() = inputExtensionType
 }
 
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java

@@ -40,6 +40,8 @@ import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.SessionProcessor;
 import androidx.camera.core.impl.SessionProcessorSurface;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
+import androidx.camera.extensions.CameraExtensionsControl;
+import androidx.camera.extensions.CameraExtensionsInfo;
 import androidx.camera.extensions.internal.ExtensionsUtils;
 import androidx.camera.extensions.internal.RequestOptionConfig;
 
@@ -56,7 +58,8 @@ import java.util.Set;
  * maintaining the {@link ImageProcessor} associated with the image reader.
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-abstract class SessionProcessorBase implements SessionProcessor {
+abstract class SessionProcessorBase implements SessionProcessor, CameraExtensionsInfo,
+        CameraExtensionsControl {
     private static final String TAG = "SessionProcessorBase";
     /**
      * Unknown extension strength.

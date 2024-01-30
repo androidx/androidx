@@ -347,7 +347,7 @@ class AdvancedSessionProcessorTest {
             // Verifies the new strength value is updated to the strength LiveData
             val expectedStrengthLatch = CountDownLatch(1)
             withContext(Dispatchers.Main) {
-                advancedSessionProcessor.currentExtensionStrength.observeForever {
+                advancedSessionProcessor.extensionStrength.observeForever {
                     if (it == newExtensionStrength) {
                         expectedStrengthLatch.countDown()
                     }

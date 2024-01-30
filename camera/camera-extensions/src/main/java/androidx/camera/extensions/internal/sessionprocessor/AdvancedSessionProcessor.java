@@ -22,6 +22,7 @@ import static android.hardware.camera2.CameraExtensionCharacteristics.EXTENSION_
 import static android.hardware.camera2.CameraExtensionCharacteristics.EXTENSION_HDR;
 import static android.hardware.camera2.CameraExtensionCharacteristics.EXTENSION_NIGHT;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CaptureFailure;
@@ -250,9 +251,10 @@ public class AdvancedSessionProcessor extends SessionProcessorBase {
         }
     }
 
+    @SuppressLint("KotlinPropertyAccess")
     @NonNull
     @Override
-    public LiveData<Integer> getCurrentExtensionStrength() {
+    public LiveData<Integer> getExtensionStrength() {
         return mExtensionStrengthLiveData;
     }
 

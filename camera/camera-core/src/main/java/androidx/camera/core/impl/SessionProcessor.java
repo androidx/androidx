@@ -25,8 +25,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.CameraInfo;
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
 
 import java.util.Collections;
 import java.util.List;
@@ -50,10 +48,6 @@ import java.util.Set;
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface SessionProcessor {
-    /**
-     * Unknown extension type.
-     */
-    int EXTENSION_TYPE_UNKNOWN = -1;
 
     /**
      * Initializes the session and returns a transformed {@link SessionConfig} which should be
@@ -172,39 +166,6 @@ public interface SessionProcessor {
     @Nullable
     default Pair<Long, Long> getRealtimeCaptureLatency() {
         return null;
-    }
-
-    /**
-     * Returns the current extension type associated with the session processor.
-     *
-     * <p>The current extension type may change over time. For example, when the extension mode
-     * is AUTO, the current extension type may change to the NIGHT or HDR processor depending on
-     * the current lighting conditions or environment.
-     */
-    @NonNull
-    default LiveData<Integer> getCurrentExtensionType() {
-        return new MutableLiveData<>(EXTENSION_TYPE_UNKNOWN);
-    }
-
-    /**
-     * Returns if extension strength function is supported by the session processor or not.
-     */
-    default boolean isExtensionStrengthAvailable() {
-        return false;
-    }
-
-    /**
-     * Sets the new extension strength value for the session processor.
-     */
-    default void setExtensionStrength(int strength) {
-    }
-
-    /**
-     * Returns a LiveData to monitor current extension strength value.
-     */
-    @NonNull
-    default LiveData<Integer> getCurrentExtensionStrength() {
-        return new MutableLiveData<>(100);
     }
 
     /**

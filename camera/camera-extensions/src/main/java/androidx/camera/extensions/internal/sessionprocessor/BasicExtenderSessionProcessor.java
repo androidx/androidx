@@ -277,7 +277,7 @@ public class BasicExtenderSessionProcessor extends SessionProcessorBase {
 
     @NonNull
     @Override
-    public LiveData<Integer> getCurrentExtensionStrength() {
+    public LiveData<Integer> getExtensionStrength() {
         // Extension strength is only supported in advanced extender implementation. Returns a
         // LiveData which the value is always 100.
         return new MutableLiveData<>(100);

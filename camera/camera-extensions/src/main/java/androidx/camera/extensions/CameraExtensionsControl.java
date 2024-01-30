@@ -54,5 +54,6 @@ public interface CameraExtensionsControl {
      *
      * @param strength the new extension strength value
      */
-    void setExtensionStrength(@IntRange(from = 0, to = 100) int strength);
+    default void setExtensionStrength(@IntRange(from = 0, to = 100) int strength){
+    }
 }

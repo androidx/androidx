@@ -20,6 +20,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.camera.core.CameraInfo;
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 
 /**
  * A camera extensions info instance that allows to observe or monitor capture request settings
@@ -42,7 +43,9 @@ public interface CameraExtensionsInfo {
      *
      * @return {@code true} if extension strength is supported. Otherwise, returns {@code false}.
      */
-    boolean isExtensionStrengthAvailable();
+    default boolean isExtensionStrengthAvailable() {
+        return false;
+    }
 
     /**
      * Returns a {@link LiveData} which is allowed to observe the extension strength changes for
@@ -62,7 +65,9 @@ public interface CameraExtensionsInfo {
      * @return a {@link LiveData} of {@link Integer} type to observe the extension strength changes.
      */
     @NonNull
-    LiveData<Integer> getExtensionStrength();
+    default LiveData<Integer> getExtensionStrength() {
+        return new MutableLiveData<>(100);
+    }
 
     /**
      * Returns a {@link LiveData} which is allowed to observe the extension type changes for
@@ -77,5 +82,7 @@ public interface CameraExtensionsInfo {
      * @return a {@link LiveData} of {@link Integer} type to observe the extension type changes.
      */
     @NonNull
-    LiveData<Integer> getCurrentExtensionType();
+    default LiveData<Integer> getCurrentExtensionType() {
+        return new MutableLiveData<>(ExtensionMode.NONE);
+    }
 }

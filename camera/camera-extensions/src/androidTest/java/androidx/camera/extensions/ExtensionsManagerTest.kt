@@ -649,7 +649,8 @@ class ExtensionsManagerTest(
             cameraProvider.bindToLifecycle(FakeLifecycleOwner(), extensionCameraSelector)
         }
 
-        val currentType = camera.extendedConfig.sessionProcessor.currentExtensionType
+        val sessionProcessor = camera.extendedConfig.sessionProcessor
+        val currentType = (sessionProcessor as CameraExtensionsInfo).currentExtensionType
         assertThat(currentType.value).isEqualTo(extensionMode)
     }
 

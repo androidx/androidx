@@ -38,19 +38,14 @@ import androidx.camera.core.ImageCapture;
 import androidx.camera.core.Logger;
 import androidx.camera.core.Preview;
 import androidx.camera.core.impl.ExtendedCameraConfigProviderStore;
-import androidx.camera.core.impl.RestrictedCameraControl;
-import androidx.camera.core.impl.RestrictedCameraInfo;
 import androidx.camera.core.impl.utils.ContextUtil;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.extensions.impl.InitializerImpl;
-import androidx.camera.extensions.internal.CameraExtensionsControlImpl;
-import androidx.camera.extensions.internal.CameraExtensionsInfoImpl;
 import androidx.camera.extensions.internal.ClientVersion;
 import androidx.camera.extensions.internal.ExtensionVersion;
 import androidx.camera.extensions.internal.Version;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
-import androidx.core.util.Preconditions;
 import androidx.lifecycle.LifecycleOwner;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -534,11 +529,7 @@ public final class ExtensionsManager {
     @NonNull
     public CameraExtensionsControl getCameraExtensionsControl(
             @NonNull CameraControl cameraControl) {
-        Preconditions.checkArgument(cameraControl instanceof RestrictedCameraControl, "The input "
-                + "camera control must be an instance retrieved from the camera that is returned "
-                + "by invoking CameraProvider#bindToLifecycle() with an extension enabled camera "
-                + "selector.");
-        return new CameraExtensionsControlImpl((RestrictedCameraControl) cameraControl);
+        return CameraExtensionsControls.from(cameraControl);
     }
 
     /**
@@ -556,11 +547,7 @@ public final class ExtensionsManager {
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @NonNull
     public CameraExtensionsInfo getCameraExtensionsInfo(@NonNull CameraInfo cameraInfo) {
-        Preconditions.checkArgument(cameraInfo instanceof RestrictedCameraInfo, "The input camera"
-                + " info must be an instance retrieved from the camera that is returned "
-                + "by invoking CameraProvider#bindToLifecycle() with an extension enabled camera "
-                + "selector.");
-        return new CameraExtensionsInfoImpl((RestrictedCameraInfo) cameraInfo);
+        return CameraExtensionsInfos.from(cameraInfo);
     }
 
     @VisibleForTesting
