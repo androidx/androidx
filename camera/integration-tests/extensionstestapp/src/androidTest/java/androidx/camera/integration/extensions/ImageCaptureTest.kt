@@ -31,7 +31,7 @@ import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil.ass
 import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil.launchCameraExtensionsActivity
 import androidx.camera.integration.extensions.util.HOME_TIMEOUT_MS
 import androidx.camera.integration.extensions.util.takePictureAndWaitForImageSavedIdle
-import androidx.camera.integration.extensions.util.waitForPreviewViewIdle
+import androidx.camera.integration.extensions.util.waitForPreviewViewStreaming
 import androidx.camera.integration.extensions.utils.CameraIdExtensionModePair
 import androidx.camera.integration.extensions.utils.CameraSelectorUtil
 import androidx.camera.lifecycle.ProcessCameraProvider
@@ -160,7 +160,7 @@ class ImageCaptureTest(private val config: CameraIdExtensionModePair) {
 
         with(activityScenario) {
             use {
-                waitForPreviewViewIdle()
+                waitForPreviewViewStreaming()
                 val camera = withActivity { mCamera }
                 // Retrieves the session processor from the camera's extended config
                 val sessionProcessor = camera.extendedConfig.sessionProcessor
