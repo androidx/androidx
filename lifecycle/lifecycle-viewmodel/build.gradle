@@ -21,13 +21,64 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
+import androidx.build.PlatformIdentifier
 import androidx.build.Publish
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("kotlin-android")
+}
+
+androidXMultiplatform {
+    android()
+
+    defaultPlatform(PlatformIdentifier.ANDROID)
+
+    sourceSets {
+        commonMain {
+            dependencies {
+                // TODO(b/214568825): migrate from `androidMain` to here.
+            }
+        }
+
+        commonTest {
+            dependencies {
+                // TODO(b/214568825): migrate from `androidUnitTest` to here.
+            }
+        }
+
+        androidMain {
+            dependsOn(commonMain)
+            dependencies {
+                api(project(":annotation:annotation"))
+                api(libs.kotlinStdlib)
+                api(libs.kotlinCoroutinesAndroid)
+            }
+        }
+
+        androidUnitTest {
+            dependsOn(commonTest)
+            dependencies {
+                implementation(libs.junit)
+                implementation(libs.mockitoCore4)
+                implementation(libs.kotlinTest)
+                implementation(libs.truth)
+            }
+        }
+
+        androidInstrumentedTest {
+            dependsOn(commonTest)
+            dependencies {
+                implementation("androidx.core:core-ktx:1.2.0")
+                implementation(libs.truth)
+                implementation(libs.kotlinStdlib)
+                implementation(libs.junit)
+                implementation(libs.testExtJunit)
+                implementation(libs.testCore)
+                implementation(libs.testRunner)
+            }
+        }
+    }
 }
 
 android {
@@ -35,23 +86,6 @@ android {
         consumerProguardFiles "proguard-rules.pro"
     }
     namespace "androidx.lifecycle.viewmodel"
-}
-
-dependencies {
-    api("androidx.annotation:annotation:1.1.0")
-    api(libs.kotlinStdlib)
-    api(libs.kotlinCoroutinesAndroid)
-    testImplementation(libs.junit)
-    testImplementation(libs.mockitoCore4)
-    testImplementation(libs.truth)
-
-    androidTestImplementation("androidx.core:core-ktx:1.2.0")
-    androidTestImplementation(libs.truth)
-    androidTestImplementation(libs.kotlinStdlib)
-    androidTestImplementation(libs.junit)
-    androidTestImplementation(libs.testExtJunit)
-    androidTestImplementation(libs.testCore)
-    androidTestImplementation(libs.testRunner)
 }
 
 androidx {
