@@ -17,10 +17,10 @@
 package androidx.compose.material3
 
 import android.os.Build
+import android.os.Build.VERSION.SDK_INT
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -33,6 +33,8 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.AndroidXScreenshotTestRule
+import org.junit.Assume
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -47,6 +49,13 @@ class TooltipScreenshotTest {
 
     @get:Rule
     val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_MATERIAL3)
+
+    @Before
+    fun before() {
+        // Disable tests for API 33 until a solution can be found
+        // to make these tests stable for Firebase API 33 tests.
+        Assume.assumeTrue(SDK_INT != 33)
+    }
 
     @Test
     fun plainTooltip_lightTheme() {
@@ -124,7 +133,7 @@ class TooltipScreenshotTest {
 
     @Composable
     private fun PlainTooltipTest() {
-        val tooltipState = remember { PlainTooltipState() }
+        val tooltipState = rememberPlainTooltipState()
         PlainTooltipBox(
             tooltip = { Text("Tooltip Description") },
             modifier = Modifier.testTag(TooltipTestTag),
@@ -135,14 +144,14 @@ class TooltipScreenshotTest {
                 contentDescription = null,
                 modifier = Modifier
                     .testTag(AnchorTestTag)
-                    .tooltipAnchor()
+                    .tooltipTrigger()
             )
         }
     }
 
     @Composable
     private fun RichTooltipTest() {
-        val tooltipState = remember { RichTooltipState() }
+        val tooltipState = rememberRichTooltipState(isPersistent = true)
         RichTooltipBox(
             title = { Text("Title") },
             text = {
@@ -160,7 +169,7 @@ class TooltipScreenshotTest {
                 contentDescription = null,
                 modifier = Modifier
                     .testTag(AnchorTestTag)
-                    .tooltipAnchor()
+                    .tooltipTrigger()
             )
         }
     }

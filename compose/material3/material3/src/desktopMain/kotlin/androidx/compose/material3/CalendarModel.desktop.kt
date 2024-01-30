@@ -34,7 +34,7 @@ internal actual fun CalendarModel(): CalendarModel = LegacyCalendarModelImpl()
  * @param locale the [Locale] to use when formatting the given timestamp
  */
 @ExperimentalMaterial3Api
-internal actual fun formatWithSkeleton(
+actual fun formatWithSkeleton(
     utcTimeMillis: Long,
     skeleton: String,
     locale: Locale

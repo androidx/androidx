@@ -29,13 +29,12 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.PlainTooltipBox
-import androidx.compose.material3.PlainTooltipState
 import androidx.compose.material3.RichTooltipBox
-import androidx.compose.material3.RichTooltipState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberPlainTooltipState
+import androidx.compose.material3.rememberRichTooltipState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -53,7 +52,7 @@ fun PlainTooltipSample() {
     ) {
         IconButton(
             onClick = { /* Icon button's click event */ },
-            modifier = Modifier.tooltipAnchor()
+            modifier = Modifier.tooltipTrigger()
         ) {
             Icon(
                 imageVector = Icons.Filled.Favorite,
@@ -68,7 +67,7 @@ fun PlainTooltipSample() {
 @Sampled
 @Composable
 fun PlainTooltipWithManualInvocationSample() {
-    val tooltipState = remember { PlainTooltipState() }
+    val tooltipState = rememberPlainTooltipState()
     val scope = rememberCoroutineScope()
     Column(
         horizontalAlignment = Alignment.CenterHorizontally
@@ -95,7 +94,7 @@ fun PlainTooltipWithManualInvocationSample() {
 @Sampled
 @Composable
 fun RichTooltipSample() {
-    val tooltipState = remember { RichTooltipState() }
+    val tooltipState = rememberRichTooltipState(isPersistent = true)
     val scope = rememberCoroutineScope()
     RichTooltipBox(
         title = { Text(richTooltipSubheadText) },
@@ -109,7 +108,7 @@ fun RichTooltipSample() {
     ) {
         IconButton(
             onClick = { /* Icon button's click event */ },
-            modifier = Modifier.tooltipAnchor()
+            modifier = Modifier.tooltipTrigger()
         ) {
             Icon(
                 imageVector = Icons.Filled.Info,
@@ -122,7 +121,7 @@ fun RichTooltipSample() {
 @Sampled
 @Composable
 fun RichTooltipWithManualInvocationSample() {
-    val tooltipState = remember { RichTooltipState() }
+    val tooltipState = rememberRichTooltipState(isPersistent = true)
     val scope = rememberCoroutineScope()
     Column(
         horizontalAlignment = Alignment.CenterHorizontally

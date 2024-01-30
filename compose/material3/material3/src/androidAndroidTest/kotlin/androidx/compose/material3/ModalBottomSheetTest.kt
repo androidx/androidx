@@ -24,7 +24,6 @@ import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -71,6 +70,7 @@ import androidx.compose.ui.unit.coerceAtMost
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.height
 import androidx.compose.ui.unit.width
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
@@ -84,12 +84,11 @@ import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.runners.Parameterized
 
 @MediumTest
-@RunWith(Parameterized::class)
+@RunWith(AndroidJUnit4::class)
 @OptIn(ExperimentalMaterial3Api::class)
-class ModalBottomSheetTest(private val edgeToEdgeWrapper: EdgeToEdgeWrapper) {
+class ModalBottomSheetTest {
 
     @get:Rule
     val rule = createAndroidComposeRule<ComponentActivity>()
@@ -107,14 +106,10 @@ class ModalBottomSheetTest(private val edgeToEdgeWrapper: EdgeToEdgeWrapper) {
         val sheetState = SheetState(skipPartiallyExpanded = false)
 
         rule.setContent {
-            val windowInsets = if (edgeToEdgeWrapper.edgeToEdgeEnabled)
-                WindowInsets(0) else BottomSheetDefaults.windowInsets
-
             if (showBottomSheet) {
                 ModalBottomSheet(
                     sheetState = sheetState,
-                    onDismissRequest = { showBottomSheet = false },
-                    windowInsets = windowInsets
+                    onDismissRequest = { showBottomSheet = false }
                 ) {
                     Box(
                         Modifier
@@ -148,13 +143,8 @@ class ModalBottomSheetTest(private val edgeToEdgeWrapper: EdgeToEdgeWrapper) {
             val density = LocalDensity.current
             val resScreenWidth = context.resources.configuration.screenWidthDp
             with(density) { screenWidth = resScreenWidth.dp.roundToPx() }
-            val windowInsets = if (edgeToEdgeWrapper.edgeToEdgeEnabled)
-                WindowInsets(0) else BottomSheetDefaults.windowInsets
 
-            ModalBottomSheet(
-                onDismissRequest = {},
-                windowInsets = windowInsets
-            ) {
+            ModalBottomSheet(onDismissRequest = {}) {
                 Box(
                     Modifier
                         .fillMaxWidth()
@@ -188,12 +178,7 @@ class ModalBottomSheetTest(private val edgeToEdgeWrapper: EdgeToEdgeWrapper) {
         try {
             latch.await(1500, TimeUnit.MILLISECONDS)
             rule.setContent {
-                val windowInsets = if (edgeToEdgeWrapper.edgeToEdgeEnabled)
-                    WindowInsets(0) else BottomSheetDefaults.windowInsets
-                ModalBottomSheet(
-                    onDismissRequest = {},
-                    windowInsets = windowInsets
-                ) {
+                ModalBottomSheet(onDismissRequest = {}) {
                     Box(
                         Modifier
                             .testTag(sheetTag)
@@ -228,21 +213,10 @@ class ModalBottomSheetTest(private val edgeToEdgeWrapper: EdgeToEdgeWrapper) {
     @Test
     fun modalBottomSheet_defaultStateForSmallContentIsFullExpanded() {
         lateinit var sheetState: SheetState
-        var height by mutableStateOf(0.dp)
 
         rule.setContent {
-            val config = LocalContext.current.resources.configuration
-            height = config.screenHeightDp.dp
             sheetState = rememberModalBottomSheetState()
-            val windowInsets = if (edgeToEdgeWrapper.edgeToEdgeEnabled)
-                WindowInsets(0) else BottomSheetDefaults.windowInsets
-
-            ModalBottomSheet(
-                onDismissRequest = {},
-                sheetState = sheetState,
-                dragHandle = null,
-                windowInsets = windowInsets
-            ) {
+            ModalBottomSheet(onDismissRequest = {}, sheetState = sheetState, dragHandle = null) {
                 Box(
                     Modifier
                         .fillMaxWidth()
@@ -252,7 +226,7 @@ class ModalBottomSheetTest(private val edgeToEdgeWrapper: EdgeToEdgeWrapper) {
             }
         }
 
-        height = rule.onNode(isPopup()).getUnclippedBoundsInRoot().height
+        val height = rule.onNode(isPopup()).getUnclippedBoundsInRoot().height
         assertThat(sheetState.currentValue).isEqualTo(SheetValue.Expanded)
         rule.onNodeWithTag(sheetTag).assertTopPositionInRootIsEqualTo(height - sheetHeight)
     }
@@ -264,13 +238,13 @@ class ModalBottomSheetTest(private val edgeToEdgeWrapper: EdgeToEdgeWrapper) {
 
         rule.setContent {
             sheetState = rememberModalBottomSheetState()
-            val windowInsets = if (edgeToEdgeWrapper.edgeToEdgeEnabled)
-                WindowInsets(0) else BottomSheetDefaults.windowInsets
-            ModalBottomSheet(
-                onDismissRequest = {},
-                sheetState = sheetState,
-                windowInsets = windowInsets
-                ) {
+            val context = LocalContext.current
+            val density = LocalDensity.current
+            val resScreenHeight = context.resources.configuration.screenHeightDp
+            with(density) {
+                screenHeightPx = resScreenHeight.dp.roundToPx().toFloat()
+            }
+            ModalBottomSheet(onDismissRequest = {}, sheetState = sheetState) {
                 Box(
                     Modifier
                         // Deliberately use fraction != 1f
@@ -279,9 +253,6 @@ class ModalBottomSheetTest(private val edgeToEdgeWrapper: EdgeToEdgeWrapper) {
             }
         }
 
-        screenHeightPx = with(rule.density) {
-            rule.onNode(isPopup()).getUnclippedBoundsInRoot().height.toPx()
-        }
         assertThat(sheetState.currentValue).isEqualTo(SheetValue.PartiallyExpanded)
         assertThat(sheetState.requireOffset())
             .isWithin(1f)
@@ -295,13 +266,10 @@ class ModalBottomSheetTest(private val edgeToEdgeWrapper: EdgeToEdgeWrapper) {
 
         rule.setContent {
             val dispatcher = LocalOnBackPressedDispatcherOwner.current!!.onBackPressedDispatcher
-            val windowInsets = if (edgeToEdgeWrapper.edgeToEdgeEnabled)
-                WindowInsets(0) else BottomSheetDefaults.windowInsets
             if (showBottomSheet) {
                 ModalBottomSheet(
                     sheetState = sheetState,
-                    onDismissRequest = { showBottomSheet = false },
-                    windowInsets = windowInsets
+                    onDismissRequest = { showBottomSheet = false }
                 ) {
                     Box(
                         Modifier
@@ -334,13 +302,10 @@ class ModalBottomSheetTest(private val edgeToEdgeWrapper: EdgeToEdgeWrapper) {
 
         rule.setContent {
             val dispatcher = LocalOnBackPressedDispatcherOwner.current!!.onBackPressedDispatcher
-            val windowInsets = if (edgeToEdgeWrapper.edgeToEdgeEnabled)
-                WindowInsets(0) else BottomSheetDefaults.windowInsets
             if (showBottomSheet) {
                 ModalBottomSheet(
                     sheetState = sheetState,
-                    onDismissRequest = { showBottomSheet = false },
-                    windowInsets = windowInsets
+                    onDismissRequest = { showBottomSheet = false }
                 ) {
                     Box(
                         Modifier
@@ -379,13 +344,10 @@ class ModalBottomSheetTest(private val edgeToEdgeWrapper: EdgeToEdgeWrapper) {
             val context = LocalContext.current
             screenHeight = context.resources.configuration.screenHeightDp.dp
             state = rememberModalBottomSheetState()
-            val windowInsets = if (edgeToEdgeWrapper.edgeToEdgeEnabled)
-                WindowInsets(0) else BottomSheetDefaults.windowInsets
             ModalBottomSheet(
                 onDismissRequest = {},
                 sheetState = state,
-                dragHandle = null,
-                windowInsets = windowInsets
+                dragHandle = null
             ) {
                 Box(
                     Modifier
@@ -394,16 +356,15 @@ class ModalBottomSheetTest(private val edgeToEdgeWrapper: EdgeToEdgeWrapper) {
                 )
             }
         }
-        screenHeight = rule.onNode(isPopup()).getUnclippedBoundsInRoot().height
-        assertThat(state.requireOffset()).isWithin(1f).of(expectedExpandedAnchor)
+        assertThat(state.requireOffset()).isWithin(0.5f).of(expectedExpandedAnchor)
 
         size = 100.dp
         rule.waitForIdle()
-        assertThat(state.requireOffset()).isWithin(1f).of(expectedExpandedAnchor)
+        assertThat(state.requireOffset()).isWithin(0.5f).of(expectedExpandedAnchor)
 
         size = 30.dp
         rule.waitForIdle()
-        assertThat(state.requireOffset()).isWithin(1f).of(expectedExpandedAnchor)
+        assertThat(state.requireOffset()).isWithin(0.5f).of(expectedExpandedAnchor)
     }
 
     @Test
@@ -413,15 +374,8 @@ class ModalBottomSheetTest(private val edgeToEdgeWrapper: EdgeToEdgeWrapper) {
         rule.setContent {
             state = rememberModalBottomSheetState()
             scope = rememberCoroutineScope()
-            val windowInsets = if (edgeToEdgeWrapper.edgeToEdgeEnabled)
-                WindowInsets(0) else BottomSheetDefaults.windowInsets
 
-            ModalBottomSheet(
-                onDismissRequest = {},
-                sheetState = state,
-                dragHandle = null,
-                windowInsets = windowInsets
-                ) {}
+            ModalBottomSheet(onDismissRequest = {}, sheetState = state, dragHandle = null) {}
         }
         assertThat(state.swipeableState.currentValue).isEqualTo(SheetValue.Hidden)
         val hiddenOffset = state.requireOffset()
@@ -441,14 +395,10 @@ class ModalBottomSheetTest(private val edgeToEdgeWrapper: EdgeToEdgeWrapper) {
         lateinit var scope: CoroutineScope
         rule.setContent {
             state = rememberModalBottomSheetState()
-            val windowInsets = if (edgeToEdgeWrapper.edgeToEdgeEnabled)
-                WindowInsets(0) else BottomSheetDefaults.windowInsets
-
             ModalBottomSheet(
                 onDismissRequest = {},
                 sheetState = state,
                 dragHandle = null,
-                windowInsets = windowInsets
             ) {
                 scope = rememberCoroutineScope()
                 LazyColumn {
@@ -497,7 +447,7 @@ class ModalBottomSheetTest(private val edgeToEdgeWrapper: EdgeToEdgeWrapper) {
             sheetState = rememberModalBottomSheetState()
             ModalBottomSheet(
                 onDismissRequest = {},
-                sheetState = sheetState
+                sheetState = sheetState,
             ) {
                 scrollState = rememberScrollState()
                 Column(
@@ -567,14 +517,10 @@ class ModalBottomSheetTest(private val edgeToEdgeWrapper: EdgeToEdgeWrapper) {
 
         rule.setContent {
             scope = rememberCoroutineScope()
-            val windowInsets = if (edgeToEdgeWrapper.edgeToEdgeEnabled)
-                WindowInsets(0) else BottomSheetDefaults.windowInsets
-
             ModalBottomSheet(
                 onDismissRequest = {},
                 modifier = Modifier.testTag(topTag),
                 sheetState = sheetState,
-                windowInsets = windowInsets
             ) {
                 if (showShortContent) {
                     Box(
@@ -615,13 +561,7 @@ class ModalBottomSheetTest(private val edgeToEdgeWrapper: EdgeToEdgeWrapper) {
         lateinit var sheetState: SheetState
         rule.setContent {
             sheetState = rememberModalBottomSheetState()
-            val windowInsets = if (edgeToEdgeWrapper.edgeToEdgeEnabled)
-                WindowInsets(0) else BottomSheetDefaults.windowInsets
-            ModalBottomSheet(
-                onDismissRequest = {},
-                sheetState = sheetState,
-                windowInsets = windowInsets
-            ) {
+            ModalBottomSheet(onDismissRequest = {}, sheetState = sheetState) {
                 Box(
                     Modifier
                         .fillMaxSize()
@@ -651,17 +591,13 @@ class ModalBottomSheetTest(private val edgeToEdgeWrapper: EdgeToEdgeWrapper) {
                     newState != SheetValue.Hidden
                 }
             )
-            val windowInsets = if (edgeToEdgeWrapper.edgeToEdgeEnabled)
-                WindowInsets(0) else BottomSheetDefaults.windowInsets
-
             ModalBottomSheet(
                 onDismissRequest = {},
                 sheetState = sheetState,
                 dragHandle = { Box(
                     Modifier
                         .testTag(dragHandleTag)
-                        .size(dragHandleSize)) },
-                windowInsets = windowInsets
+                        .size(dragHandleSize)) }
             ) {
                 Box(
                     Modifier
@@ -707,13 +643,7 @@ class ModalBottomSheetTest(private val edgeToEdgeWrapper: EdgeToEdgeWrapper) {
         rule.setContent {
             sheetState = rememberModalBottomSheetState()
             scope = rememberCoroutineScope()
-            val windowInsets = if (edgeToEdgeWrapper.edgeToEdgeEnabled)
-                WindowInsets(0) else BottomSheetDefaults.windowInsets
-            ModalBottomSheet(
-                onDismissRequest = {},
-                sheetState = sheetState,
-                windowInsets = windowInsets
-            ) {
+            ModalBottomSheet(onDismissRequest = {}, sheetState = sheetState) {
                 Box(
                     Modifier
                         .fillMaxSize()
@@ -744,14 +674,7 @@ class ModalBottomSheetTest(private val edgeToEdgeWrapper: EdgeToEdgeWrapper) {
         lateinit var sheetState: SheetState
         rule.setContent {
             sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-            val windowInsets = if (edgeToEdgeWrapper.edgeToEdgeEnabled)
-                WindowInsets(0) else BottomSheetDefaults.windowInsets
-
-            ModalBottomSheet(
-                onDismissRequest = {},
-                sheetState = sheetState,
-                windowInsets = windowInsets
-            ) {
+            ModalBottomSheet(onDismissRequest = {}, sheetState = sheetState) {
                 Box(
                     Modifier
                         .fillMaxWidth()
@@ -780,13 +703,7 @@ class ModalBottomSheetTest(private val edgeToEdgeWrapper: EdgeToEdgeWrapper) {
         lateinit var sheetState: SheetState
         rule.setContent {
             sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-            val windowInsets = if (edgeToEdgeWrapper.edgeToEdgeEnabled)
-                WindowInsets(0) else BottomSheetDefaults.windowInsets
-            ModalBottomSheet(
-                onDismissRequest = {},
-                sheetState = sheetState,
-                windowInsets = windowInsets
-            ) {
+            ModalBottomSheet(onDismissRequest = {}, sheetState = sheetState) {
                 Box(
                     Modifier
                         .fillMaxSize()
@@ -809,14 +726,7 @@ class ModalBottomSheetTest(private val edgeToEdgeWrapper: EdgeToEdgeWrapper) {
         )
         rule.setContent {
             scope = rememberCoroutineScope()
-            val windowInsets = if (edgeToEdgeWrapper.edgeToEdgeEnabled)
-                WindowInsets(0) else BottomSheetDefaults.windowInsets
-
-            ModalBottomSheet(
-                onDismissRequest = {},
-                sheetState = bottomSheetState,
-                windowInsets = windowInsets
-            ) {
+            ModalBottomSheet(onDismissRequest = {}, sheetState = bottomSheetState) {
                 Box(
                     Modifier
                         .fillMaxSize()
@@ -839,15 +749,12 @@ class ModalBottomSheetTest(private val edgeToEdgeWrapper: EdgeToEdgeWrapper) {
     @Test
     fun modalBottomSheet_testDismissAction_tallBottomSheet_whenPartiallyExpanded() {
         rule.setContent {
-            val windowInsets = if (edgeToEdgeWrapper.edgeToEdgeEnabled)
-                WindowInsets(0) else BottomSheetDefaults.windowInsets
             ModalBottomSheet(
                 onDismissRequest = {},
                 dragHandle = { Box(
                     Modifier
                         .testTag(dragHandleTag)
-                        .size(dragHandleSize)) },
-                windowInsets = windowInsets
+                        .size(dragHandleSize)) }
             ) {
                 Box(
                     Modifier
@@ -869,16 +776,13 @@ class ModalBottomSheetTest(private val edgeToEdgeWrapper: EdgeToEdgeWrapper) {
         lateinit var sheetState: SheetState
         rule.setContent {
             sheetState = rememberModalBottomSheetState()
-            val windowInsets = if (edgeToEdgeWrapper.edgeToEdgeEnabled)
-                WindowInsets(0) else BottomSheetDefaults.windowInsets
             ModalBottomSheet(
                 onDismissRequest = {},
                 sheetState = sheetState,
                 dragHandle = { Box(
                     Modifier
                         .testTag(dragHandleTag)
-                        .size(dragHandleSize)) },
-                windowInsets = windowInsets
+                        .size(dragHandleSize)) }
             ) {
                 Box(
                     Modifier
@@ -909,8 +813,12 @@ class ModalBottomSheetTest(private val edgeToEdgeWrapper: EdgeToEdgeWrapper) {
         rule.setContent {
             sheetState = rememberModalBottomSheetState()
             scope = rememberCoroutineScope()
-            val windowInsets = if (edgeToEdgeWrapper.edgeToEdgeEnabled)
-                WindowInsets(0) else BottomSheetDefaults.windowInsets
+            val context = LocalContext.current
+            val density = LocalDensity.current
+            val resScreenHeight = context.resources.configuration.screenHeightDp
+            with(density) {
+                screenHeightPx = resScreenHeight.dp.roundToPx().toFloat()
+            }
 
             ModalBottomSheet(
                 onDismissRequest = {},
@@ -918,8 +826,7 @@ class ModalBottomSheetTest(private val edgeToEdgeWrapper: EdgeToEdgeWrapper) {
                 dragHandle = { Box(
                     Modifier
                         .testTag(dragHandleTag)
-                        .size(dragHandleSize)) },
-                windowInsets = windowInsets
+                        .size(dragHandleSize)) }
             ) {
                 Box(
                     Modifier
@@ -927,9 +834,6 @@ class ModalBottomSheetTest(private val edgeToEdgeWrapper: EdgeToEdgeWrapper) {
                         .testTag(sheetTag)
                 )
             }
-        }
-        screenHeightPx = with(rule.density) {
-            rule.onNode(isPopup()).getUnclippedBoundsInRoot().height.toPx()
         }
         scope.launch {
             sheetState.expand()
@@ -957,8 +861,12 @@ class ModalBottomSheetTest(private val edgeToEdgeWrapper: EdgeToEdgeWrapper) {
         rule.setContent {
             sheetState = rememberModalBottomSheetState()
             scope = rememberCoroutineScope()
-            val windowInsets = if (edgeToEdgeWrapper.edgeToEdgeEnabled)
-                WindowInsets(0) else BottomSheetDefaults.windowInsets
+            val context = LocalContext.current
+            val density = LocalDensity.current
+            val resScreenHeight = context.resources.configuration.screenHeightDp
+            with(density) {
+                screenHeightPx = resScreenHeight.dp.roundToPx().toFloat()
+            }
 
             ModalBottomSheet(
                 onDismissRequest = {},
@@ -966,8 +874,7 @@ class ModalBottomSheetTest(private val edgeToEdgeWrapper: EdgeToEdgeWrapper) {
                 dragHandle = { Box(
                     Modifier
                         .testTag(dragHandleTag)
-                        .size(dragHandleSize)) },
-                windowInsets = windowInsets
+                        .size(dragHandleSize)) }
             ) {
                 Box(
                     Modifier
@@ -975,9 +882,6 @@ class ModalBottomSheetTest(private val edgeToEdgeWrapper: EdgeToEdgeWrapper) {
                         .testTag(sheetTag)
                 )
             }
-        }
-        screenHeightPx = with(rule.density) {
-            rule.onNode(isPopup()).getUnclippedBoundsInRoot().height.toPx()
         }
         scope.launch {
             sheetState.expand()
@@ -1002,14 +906,10 @@ class ModalBottomSheetTest(private val edgeToEdgeWrapper: EdgeToEdgeWrapper) {
         lateinit var scope: CoroutineScope
         rule.setContent {
             scope = rememberCoroutineScope()
-            val windowInsets = if (edgeToEdgeWrapper.edgeToEdgeEnabled)
-                WindowInsets(0) else BottomSheetDefaults.windowInsets
-
             ModalBottomSheet(
                 onDismissRequest = {},
                 sheetState = sheetState,
                 dragHandle = null,
-                windowInsets = windowInsets
             ) {
                 if (hasSheetContent) {
                     Box(Modifier.fillMaxHeight(0.4f))
@@ -1041,14 +941,10 @@ class ModalBottomSheetTest(private val edgeToEdgeWrapper: EdgeToEdgeWrapper) {
         lateinit var scope: CoroutineScope
         rule.setContent {
             scope = rememberCoroutineScope()
-            val windowInsets = if (edgeToEdgeWrapper.edgeToEdgeEnabled)
-                WindowInsets(0) else BottomSheetDefaults.windowInsets
-
             ModalBottomSheet(
                 onDismissRequest = {},
                 sheetState = sheetState,
                 dragHandle = null,
-                windowInsets = windowInsets
             ) {
                 if (hasSheetContent) {
                     Box(Modifier.fillMaxHeight(0.6f))
@@ -1087,14 +983,7 @@ class ModalBottomSheetTest(private val edgeToEdgeWrapper: EdgeToEdgeWrapper) {
 
         rule.setContent {
             scope = rememberCoroutineScope()
-            val windowInsets = if (edgeToEdgeWrapper.edgeToEdgeEnabled)
-                WindowInsets(0) else BottomSheetDefaults.windowInsets
-
-            ModalBottomSheet(
-                onDismissRequest = { callCount += 1 },
-                sheetState = sheetState,
-                windowInsets = windowInsets
-            ) {
+            ModalBottomSheet(onDismissRequest = { callCount += 1 }, sheetState = sheetState) {
                 Column(
                     Modifier
                         .testTag(sheetTag)
@@ -1125,20 +1014,5 @@ class ModalBottomSheetTest(private val edgeToEdgeWrapper: EdgeToEdgeWrapper) {
         rule.waitForIdle()
         assertThat(sheetState.isVisible).isFalse()
         assertThat(callCount).isEqualTo(expectedCallCount)
-    }
-
-    companion object {
-        @Parameterized.Parameters(name = "{0}")
-        @JvmStatic
-        fun parameters() = arrayOf(
-            EdgeToEdgeWrapper("EdgeToEdge", true),
-            EdgeToEdgeWrapper("NonEdgeToEdge", false)
-        )
-    }
-
-    class EdgeToEdgeWrapper(val name: String, val edgeToEdgeEnabled: Boolean) {
-        override fun toString(): String {
-            return name
-        }
     }
 }

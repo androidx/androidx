@@ -32,6 +32,7 @@ import androidx.compose.material3.DateRangePicker
 import androidx.compose.material3.DisplayMode
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -125,25 +126,32 @@ fun DatePickerDialogSample() {
 @Preview
 @Sampled
 @Composable
-fun DatePickerWithDateValidatorSample() {
-    val datePickerState = rememberDatePickerState()
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        DatePicker(
-            state = datePickerState,
+fun DatePickerWithDateSelectableDatesSample() {
+    val datePickerState = rememberDatePickerState(
+        selectableDates = object : SelectableDates {
             // Blocks Sunday and Saturday from being selected.
-            dateValidator = { utcDateInMills ->
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    val dayOfWeek = Instant.ofEpochMilli(utcDateInMills).atZone(ZoneId.of("UTC"))
+            override fun isSelectableDate(utcTimeMillis: Long): Boolean {
+                return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    val dayOfWeek = Instant.ofEpochMilli(utcTimeMillis).atZone(ZoneId.of("UTC"))
                         .toLocalDate().dayOfWeek
                     dayOfWeek != DayOfWeek.SUNDAY && dayOfWeek != DayOfWeek.SATURDAY
                 } else {
                     val calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
-                    calendar.timeInMillis = utcDateInMills
+                    calendar.timeInMillis = utcTimeMillis
                     calendar[Calendar.DAY_OF_WEEK] != Calendar.SUNDAY &&
                         calendar[Calendar.DAY_OF_WEEK] != Calendar.SATURDAY
                 }
             }
-        )
+
+            // Allow selecting dates from year 2023 forward.
+            override fun isSelectableYear(year: Int): Boolean {
+                return year > 2022
+            }
+        }
+    )
+
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        DatePicker(state = datePickerState)
         Text("Selected date timestamp: ${datePickerState.selectedDateMillis ?: "no selection"}")
     }
 }

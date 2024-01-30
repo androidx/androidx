@@ -73,7 +73,6 @@ internal value class Strings private constructor(
         val DateRangePickerDayInRange = Strings()
         val DateRangeInputTitle = Strings()
         val DateRangeInputInvalidRangeInput = Strings()
-        val BottomSheetPaneTitle = Strings()
         val BottomSheetDragHandleDescription = Strings()
         val BottomSheetPartialExpandDescription = Strings()
         val BottomSheetDismissDescription = Strings()

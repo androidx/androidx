@@ -43,7 +43,7 @@ import androidx.compose.material3.samples.ClickableOutlinedCardSample
 import androidx.compose.material3.samples.DateInputSample
 import androidx.compose.material3.samples.DatePickerDialogSample
 import androidx.compose.material3.samples.DatePickerSample
-import androidx.compose.material3.samples.DatePickerWithDateValidatorSample
+import androidx.compose.material3.samples.DatePickerWithDateSelectableDatesSample
 import androidx.compose.material3.samples.DateRangePickerSample
 import androidx.compose.material3.samples.DismissibleNavigationDrawerSample
 import androidx.compose.material3.samples.DockedSearchBarSample
@@ -398,11 +398,11 @@ val DatePickerExamples = listOf(
         DatePickerDialogSample()
     },
     Example(
-        name = ::DatePickerWithDateValidatorSample.name,
+        name = ::DatePickerWithDateSelectableDatesSample.name,
         description = DatePickerExampleDescription,
         sourceUrl = DatePickerExampleSourceUrl
     ) {
-        DatePickerWithDateValidatorSample()
+        DatePickerWithDateSelectableDatesSample()
     },
     Example(
         name = ::DateInputSample.name,
