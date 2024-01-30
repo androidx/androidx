@@ -2,16 +2,24 @@
 package androidx.camera.video {
 
   @RequiresApi(21) @com.google.auto.value.AutoValue public abstract class AudioStats {
+    method public double getAudioAmplitude();
     method public abstract int getAudioState();
     method public abstract Throwable? getErrorCause();
     method public boolean hasAudio();
     method public boolean hasError();
+    field public static final double AUDIO_AMPLITUDE_NONE = 0.0;
     field public static final int AUDIO_STATE_ACTIVE = 0; // 0x0
     field public static final int AUDIO_STATE_DISABLED = 1; // 0x1
     field public static final int AUDIO_STATE_ENCODER_ERROR = 3; // 0x3
     field public static final int AUDIO_STATE_MUTED = 5; // 0x5
     field public static final int AUDIO_STATE_SOURCE_ERROR = 4; // 0x4
     field public static final int AUDIO_STATE_SOURCE_SILENCED = 2; // 0x2
+  }
+
+  @SuppressCompatibility @RequiresOptIn @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalAudioApi {
+  }
+
+  @SuppressCompatibility @RequiresOptIn @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalPersistentRecording {
   }
 
   @RequiresApi(21) public class FallbackStrategy {
@@ -75,6 +83,7 @@ package androidx.camera.video {
   }
 
   @RequiresApi(21) public final class PendingRecording {
+    method @SuppressCompatibility @androidx.camera.video.ExperimentalPersistentRecording public androidx.camera.video.PendingRecording asPersistentRecording();
     method @CheckResult public androidx.camera.video.Recording start(java.util.concurrent.Executor, androidx.core.util.Consumer<androidx.camera.video.VideoRecordEvent!>);
     method @RequiresPermission(android.Manifest.permission.RECORD_AUDIO) public androidx.camera.video.PendingRecording withAudioEnabled();
   }
@@ -94,8 +103,8 @@ package androidx.camera.video {
     method public static androidx.camera.video.QualitySelector fromOrderedList(java.util.List<androidx.camera.video.Quality!>);
     method public static androidx.camera.video.QualitySelector fromOrderedList(java.util.List<androidx.camera.video.Quality!>, androidx.camera.video.FallbackStrategy);
     method public static android.util.Size? getResolution(androidx.camera.core.CameraInfo, androidx.camera.video.Quality);
-    method public static java.util.List<androidx.camera.video.Quality!> getSupportedQualities(androidx.camera.core.CameraInfo);
-    method public static boolean isQualitySupported(androidx.camera.core.CameraInfo, androidx.camera.video.Quality);
+    method @Deprecated public static java.util.List<androidx.camera.video.Quality!> getSupportedQualities(androidx.camera.core.CameraInfo);
+    method @Deprecated public static boolean isQualitySupported(androidx.camera.core.CameraInfo, androidx.camera.video.Quality);
   }
 
   @RequiresApi(21) public final class Recorder implements androidx.camera.video.VideoOutput {
@@ -103,11 +112,16 @@ package androidx.camera.video {
     method public java.util.concurrent.Executor? getExecutor();
     method public androidx.camera.video.QualitySelector getQualitySelector();
     method public int getTargetVideoEncodingBitRate();
+    method public static androidx.camera.video.VideoCapabilities getVideoCapabilities(androidx.camera.core.CameraInfo);
+    method public static androidx.camera.video.VideoCapabilities getVideoCapabilities(androidx.camera.core.CameraInfo, int);
+    method public int getVideoCapabilitiesSource();
     method public void onSurfaceRequested(androidx.camera.core.SurfaceRequest);
-    method public androidx.camera.video.PendingRecording prepareRecording(android.content.Context, androidx.camera.video.FileOutputOptions);
     method @RequiresApi(26) public androidx.camera.video.PendingRecording prepareRecording(android.content.Context, androidx.camera.video.FileDescriptorOutputOptions);
+    method public androidx.camera.video.PendingRecording prepareRecording(android.content.Context, androidx.camera.video.FileOutputOptions);
     method public androidx.camera.video.PendingRecording prepareRecording(android.content.Context, androidx.camera.video.MediaStoreOutputOptions);
     field public static final androidx.camera.video.QualitySelector DEFAULT_QUALITY_SELECTOR;
+    field public static final int VIDEO_CAPABILITIES_SOURCE_CAMCORDER_PROFILE = 0; // 0x0
+    field public static final int VIDEO_CAPABILITIES_SOURCE_CODEC_CAPABILITIES = 1; // 0x1
   }
 
   @RequiresApi(21) public static final class Recorder.Builder {
@@ -117,10 +131,12 @@ package androidx.camera.video {
     method public androidx.camera.video.Recorder.Builder setExecutor(java.util.concurrent.Executor);
     method public androidx.camera.video.Recorder.Builder setQualitySelector(androidx.camera.video.QualitySelector);
     method public androidx.camera.video.Recorder.Builder setTargetVideoEncodingBitRate(@IntRange(from=1) int);
+    method public androidx.camera.video.Recorder.Builder setVideoCapabilitiesSource(int);
   }
 
   @RequiresApi(21) public final class Recording implements java.lang.AutoCloseable {
     method public void close();
+    method @SuppressCompatibility @androidx.camera.video.ExperimentalPersistentRecording public boolean isPersistent();
     method public void mute(boolean);
     method public void pause();
     method public void resume();
@@ -133,22 +149,32 @@ package androidx.camera.video {
     method public abstract long getRecordedDurationNanos();
   }
 
+  @RequiresApi(21) public interface VideoCapabilities {
+    method public java.util.Set<androidx.camera.core.DynamicRange!> getSupportedDynamicRanges();
+    method public java.util.List<androidx.camera.video.Quality!> getSupportedQualities(androidx.camera.core.DynamicRange);
+    method public boolean isQualitySupported(androidx.camera.video.Quality, androidx.camera.core.DynamicRange);
+    method public default boolean isStabilizationSupported();
+  }
+
   @RequiresApi(21) public final class VideoCapture<T extends androidx.camera.video.VideoOutput> extends androidx.camera.core.UseCase {
+    method public androidx.camera.core.DynamicRange getDynamicRange();
     method public int getMirrorMode();
     method public T getOutput();
     method public android.util.Range<java.lang.Integer!> getTargetFrameRate();
     method public int getTargetRotation();
+    method public boolean isVideoStabilizationEnabled();
     method public void setTargetRotation(int);
-    method @Deprecated public void setTargetRotationDegrees(int);
     method public static <T extends androidx.camera.video.VideoOutput> androidx.camera.video.VideoCapture<T!> withOutput(T);
   }
 
   @RequiresApi(21) public static final class VideoCapture.Builder<T extends androidx.camera.video.VideoOutput> implements androidx.camera.core.ExtendableBuilder<androidx.camera.video.VideoCapture> {
     ctor public VideoCapture.Builder(T);
     method public androidx.camera.video.VideoCapture<T!> build();
+    method public androidx.camera.video.VideoCapture.Builder<T!> setDynamicRange(androidx.camera.core.DynamicRange);
     method public androidx.camera.video.VideoCapture.Builder<T!> setMirrorMode(int);
     method public androidx.camera.video.VideoCapture.Builder<T!> setTargetFrameRate(android.util.Range<java.lang.Integer!>);
     method public androidx.camera.video.VideoCapture.Builder<T!> setTargetRotation(int);
+    method public androidx.camera.video.VideoCapture.Builder<T!> setVideoStabilizationEnabled(boolean);
   }
 
   @RequiresApi(21) public interface VideoOutput {

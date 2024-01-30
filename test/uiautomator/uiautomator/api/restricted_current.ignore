@@ -1,0 +1,7 @@
+// Baseline format: 1.0
+AddedAbstractMethod: androidx.test.uiautomator.EventCondition#getResult():
+    Added method androidx.test.uiautomator.EventCondition.getResult()
+
+
+RemovedMethod: androidx.test.uiautomator.Until#Until():
+    Removed constructor androidx.test.uiautomator.Until()

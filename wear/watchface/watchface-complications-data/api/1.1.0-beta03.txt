@@ -17,6 +17,9 @@ package androidx.wear.watchface.complications.data {
     property public final androidx.wear.watchface.complications.data.TimeRange validTimeRange;
   }
 
+  @kotlin.RequiresOptIn(message="This is an experimental API that may change or be removed without warning.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ComplicationExperimental {
+  }
+
   public interface ComplicationText {
     method public java.time.Instant getNextChangeTime(java.time.Instant afterInstant);
     method public CharSequence getTextAt(android.content.res.Resources resources, java.time.Instant instant);
@@ -32,12 +35,14 @@ package androidx.wear.watchface.complications.data {
 
   public enum ComplicationType {
     enum_constant public static final androidx.wear.watchface.complications.data.ComplicationType EMPTY;
+    enum_constant @androidx.wear.watchface.complications.data.ComplicationExperimental public static final androidx.wear.watchface.complications.data.ComplicationType LIST;
     enum_constant public static final androidx.wear.watchface.complications.data.ComplicationType LONG_TEXT;
     enum_constant public static final androidx.wear.watchface.complications.data.ComplicationType MONOCHROMATIC_IMAGE;
     enum_constant public static final androidx.wear.watchface.complications.data.ComplicationType NOT_CONFIGURED;
     enum_constant public static final androidx.wear.watchface.complications.data.ComplicationType NO_DATA;
     enum_constant public static final androidx.wear.watchface.complications.data.ComplicationType NO_PERMISSION;
     enum_constant public static final androidx.wear.watchface.complications.data.ComplicationType PHOTO_IMAGE;
+    enum_constant @androidx.wear.watchface.complications.data.ComplicationExperimental public static final androidx.wear.watchface.complications.data.ComplicationType PROTO_LAYOUT;
     enum_constant public static final androidx.wear.watchface.complications.data.ComplicationType RANGED_VALUE;
     enum_constant public static final androidx.wear.watchface.complications.data.ComplicationType SHORT_TEXT;
     enum_constant public static final androidx.wear.watchface.complications.data.ComplicationType SMALL_IMAGE;
@@ -64,6 +69,30 @@ package androidx.wear.watchface.complications.data {
   }
 
   public final class ImageKt {
+  }
+
+  @androidx.wear.watchface.complications.data.ComplicationExperimental public final class ListComplicationData extends androidx.wear.watchface.complications.data.ComplicationData {
+    method public java.util.List<androidx.wear.watchface.complications.data.ComplicationData> getComplicationList();
+    method public androidx.wear.watchface.complications.data.ComplicationText? getContentDescription();
+    method public androidx.wear.watchface.complications.data.ListComplicationData.StyleHint getStyleHint();
+    property public final java.util.List<androidx.wear.watchface.complications.data.ComplicationData> complicationList;
+    property public final androidx.wear.watchface.complications.data.ComplicationText? contentDescription;
+    property public final androidx.wear.watchface.complications.data.ListComplicationData.StyleHint styleHint;
+    field public static final int MAX_ITEMS = 5; // 0x5
+    field public static final androidx.wear.watchface.complications.data.ComplicationType TYPE;
+  }
+
+  public static final class ListComplicationData.Builder {
+    ctor public ListComplicationData.Builder(java.util.List<? extends androidx.wear.watchface.complications.data.ComplicationData> complicationList, androidx.wear.watchface.complications.data.ListComplicationData.StyleHint styleHint, androidx.wear.watchface.complications.data.ComplicationText contentDescription);
+    method public androidx.wear.watchface.complications.data.ListComplicationData build();
+    method public androidx.wear.watchface.complications.data.ListComplicationData.Builder setDataSource(android.content.ComponentName? dataSource);
+    method public androidx.wear.watchface.complications.data.ListComplicationData.Builder setTapAction(android.app.PendingIntent? tapAction);
+    method public androidx.wear.watchface.complications.data.ListComplicationData.Builder setValidTimeRange(androidx.wear.watchface.complications.data.TimeRange? validTimeRange);
+  }
+
+  @androidx.wear.watchface.complications.data.ComplicationExperimental public enum ListComplicationData.StyleHint {
+    enum_constant public static final androidx.wear.watchface.complications.data.ListComplicationData.StyleHint ColumnOfRows;
+    enum_constant public static final androidx.wear.watchface.complications.data.ListComplicationData.StyleHint RowOfColumns;
   }
 
   public final class LongTextComplicationData extends androidx.wear.watchface.complications.data.ComplicationData {
@@ -182,6 +211,27 @@ package androidx.wear.watchface.complications.data {
   public static final class PlainComplicationText.Builder {
     ctor public PlainComplicationText.Builder(CharSequence text);
     method public androidx.wear.watchface.complications.data.PlainComplicationText build();
+  }
+
+  @androidx.wear.watchface.complications.data.ComplicationExperimental public final class ProtoLayoutComplicationData extends androidx.wear.watchface.complications.data.ComplicationData {
+    method public androidx.wear.tiles.LayoutElementBuilders.Layout getAmbientLayout();
+    method public androidx.wear.watchface.complications.data.ComplicationText? getContentDescription();
+    method public androidx.wear.tiles.LayoutElementBuilders.Layout getInteractiveLayout();
+    method public androidx.wear.tiles.ResourceBuilders.Resources getLayoutResources();
+    property public final androidx.wear.tiles.LayoutElementBuilders.Layout ambientLayout;
+    property public final androidx.wear.watchface.complications.data.ComplicationText? contentDescription;
+    property public final androidx.wear.tiles.LayoutElementBuilders.Layout interactiveLayout;
+    property public final androidx.wear.tiles.ResourceBuilders.Resources layoutResources;
+    field public static final androidx.wear.watchface.complications.data.ComplicationType TYPE;
+  }
+
+  public static final class ProtoLayoutComplicationData.Builder {
+    ctor public ProtoLayoutComplicationData.Builder(byte[] ambientLayout, byte[] interactiveLayout, byte[] layoutResources, androidx.wear.watchface.complications.data.ComplicationText contentDescription);
+    ctor public ProtoLayoutComplicationData.Builder(androidx.wear.tiles.LayoutElementBuilders.Layout ambientLayout, androidx.wear.tiles.LayoutElementBuilders.Layout interactiveLayout, androidx.wear.tiles.ResourceBuilders.Resources resources, androidx.wear.watchface.complications.data.ComplicationText contentDescription);
+    method public androidx.wear.watchface.complications.data.ProtoLayoutComplicationData build();
+    method public androidx.wear.watchface.complications.data.ProtoLayoutComplicationData.Builder setDataSource(android.content.ComponentName? dataSource);
+    method public androidx.wear.watchface.complications.data.ProtoLayoutComplicationData.Builder setTapAction(android.app.PendingIntent? tapAction);
+    method public androidx.wear.watchface.complications.data.ProtoLayoutComplicationData.Builder setValidTimeRange(androidx.wear.watchface.complications.data.TimeRange? validTimeRange);
   }
 
   public final class RangedValueComplicationData extends androidx.wear.watchface.complications.data.ComplicationData {

@@ -4,10 +4,14 @@ package androidx.privacysandbox.sdkruntime.client {
   public final class SdkSandboxManagerCompat {
     method public void addSdkSandboxProcessDeathCallback(java.util.concurrent.Executor callbackExecutor, androidx.privacysandbox.sdkruntime.client.SdkSandboxProcessDeathCallbackCompat callback);
     method public static androidx.privacysandbox.sdkruntime.client.SdkSandboxManagerCompat from(android.content.Context context);
+    method public java.util.List<androidx.privacysandbox.sdkruntime.core.AppOwnedSdkSandboxInterfaceCompat> getAppOwnedSdkSandboxInterfaces();
     method public java.util.List<androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat> getSandboxedSdks();
     method @kotlin.jvm.Throws(exceptionClasses=LoadSdkCompatException::class) public suspend Object? loadSdk(String sdkName, android.os.Bundle params, kotlin.coroutines.Continuation<? super androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat>) throws androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException;
+    method public void registerAppOwnedSdkSandboxInterface(androidx.privacysandbox.sdkruntime.core.AppOwnedSdkSandboxInterfaceCompat appOwnedSdk);
     method public void removeSdkSandboxProcessDeathCallback(androidx.privacysandbox.sdkruntime.client.SdkSandboxProcessDeathCallbackCompat callback);
+    method public void startSdkSandboxActivity(android.app.Activity fromActivity, android.os.IBinder sdkActivityToken);
     method public void unloadSdk(String sdkName);
+    method public void unregisterAppOwnedSdkSandboxInterface(String sdkName);
     field public static final androidx.privacysandbox.sdkruntime.client.SdkSandboxManagerCompat.Companion Companion;
   }
 
@@ -17,6 +21,14 @@ package androidx.privacysandbox.sdkruntime.client {
 
   public interface SdkSandboxProcessDeathCallbackCompat {
     method public void onSdkSandboxDied();
+  }
+
+}
+
+package androidx.privacysandbox.sdkruntime.client.activity {
+
+  public final class SdkActivity extends androidx.activity.ComponentActivity {
+    ctor public SdkActivity();
   }
 
 }

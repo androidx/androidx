@@ -1,9 +1,0 @@
-// Signature format: 4.0
-package androidx.privacysandbox.ui.provider {
-
-  @RequiresApi(33) public final class SandboxedUiAdapterProxy {
-    method @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public static android.os.Bundle toCoreLibInfo(androidx.privacysandbox.ui.core.SandboxedUiAdapter, android.content.Context context);
-  }
-
-}
-

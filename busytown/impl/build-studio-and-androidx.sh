@@ -26,14 +26,6 @@ if [ -z "$DIST_DIR" ]; then
 fi
 mkdir -p "$DIST_DIR"
 
-export DIST_DIR="$DIST_DIR"
-if [ "$CHANGE_INFO" != "" ]; then
-  cp "$CHANGE_INFO" "$DIST_DIR/"
-fi
-if [ "$MANIFEST" == "" ]; then
-  export MANIFEST="$DIST_DIR/manifest_${BUILD_NUMBER}.xml"
-fi
-
 # resolve GRADLE_USER_HOME
 export GRADLE_USER_HOME="$OUT_DIR/gradle"
 mkdir -p "$GRADLE_USER_HOME"
@@ -103,33 +95,9 @@ echo "GRADLE_PLUGIN_VERSION=$GRADLE_PLUGIN_VERSION"
 export LINT_VERSION=$(perl -nle'print $& while m{(?<=baseVersion=).*}g' "$versionProperties")
 echo "LINT_VERSION=$LINT_VERSION"
 export GRADLE_PLUGIN_REPO="$STUDIO_DIR/out/repo:$STUDIO_DIR/prebuilts/tools/common/m2/repository"
-export JAVA_HOME="$(pwd)/prebuilts/jdk/jdk17/$PREBUILT_JDK/"
-export JAVA_TOOLS_JAR="$(pwd)/prebuilts/jdk/jdk8/$PREBUILT_JDK/lib/tools.jar"
-export LINT_PRINT_STACKTRACE=true
 if [ "$USE_ANDROIDX_REMOTE_BUILD_CACHE" == "" ]; then
   export USE_ANDROIDX_REMOTE_BUILD_CACHE=gcp
 fi
 
-function buildAndroidx() {
-  RETURN_CODE=0
-  LOG_PROCESSOR="$SCRIPTS_DIR/../development/build_log_processor.sh"
-  # Remove -Pandroid.overrideVersionCheck=true once we upgrade to Gradle 8.1
-  if "$LOG_PROCESSOR" frameworks/support/gradlew -p frameworks/support $androidxArguments --profile \
-    --dependency-verification=off -Pandroid.overrideVersionCheck=true -Pandroidx.highMemory=true; then
-    echo build passed
-  else
-    RETURN_CODE=1
-  fi
-  $SCRIPTS_DIR/impl/parse_profile_data.sh
-
-  # zip build scan
-  scanZip="$DIST_DIR/scan.zip"
-  rm -f "$scanZip"
-  cd "$OUT_DIR/.gradle/build-scan-data"
-  zip -q -r "$scanZip" .
-  cd -
-  return $RETURN_CODE
-}
-
-buildAndroidx
+$SCRIPTS_DIR/impl/build.sh $androidxArguments --profile --dependency-verification=off -Pandroidx.validateNoUnrecognizedMessages=false
 echo "Completing $0 at $(date)"

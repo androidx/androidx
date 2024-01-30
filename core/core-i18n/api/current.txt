@@ -2,13 +2,13 @@
 package androidx.core.i18n {
 
   public final class DateTimeFormatter {
-    ctor public DateTimeFormatter(android.content.Context context, androidx.core.i18n.DateTimeFormatterSkeletonOptions options, optional java.util.Locale locale);
     ctor public DateTimeFormatter(android.content.Context context, androidx.core.i18n.DateTimeFormatterSkeletonOptions options);
-    ctor public DateTimeFormatter(androidx.core.i18n.DateTimeFormatterJdkStyleOptions options, optional java.util.Locale locale);
+    ctor public DateTimeFormatter(android.content.Context context, androidx.core.i18n.DateTimeFormatterSkeletonOptions options, optional java.util.Locale locale);
     ctor public DateTimeFormatter(androidx.core.i18n.DateTimeFormatterJdkStyleOptions options);
-    method public String format(long milliseconds);
-    method public String format(java.util.Date date);
+    ctor public DateTimeFormatter(androidx.core.i18n.DateTimeFormatterJdkStyleOptions options, optional java.util.Locale locale);
     method public String format(java.util.Calendar calendar);
+    method public String format(java.util.Date date);
+    method public String format(long milliseconds);
   }
 
   public final class DateTimeFormatterCommonOptions {
@@ -264,16 +264,16 @@ package androidx.core.i18n {
   }
 
   public final class MessageFormat {
-    method public static String format(android.content.Context context, optional java.util.Locale locale, String msg, java.util.Map<java.lang.String,?> namedArguments);
-    method public static String format(android.content.Context context, String msg, java.util.Map<java.lang.String,?> namedArguments);
     method public static String format(android.content.Context context, int id, java.util.Map<java.lang.String,?> namedArguments);
+    method public static String format(android.content.Context context, String msg, java.util.Map<java.lang.String,?> namedArguments);
+    method public static String format(android.content.Context context, optional java.util.Locale locale, String msg, java.util.Map<java.lang.String,?> namedArguments);
     field public static final androidx.core.i18n.MessageFormat.Companion Companion;
   }
 
   public static final class MessageFormat.Companion {
-    method public String format(android.content.Context context, optional java.util.Locale locale, String msg, java.util.Map<java.lang.String,?> namedArguments);
-    method public String format(android.content.Context context, String msg, java.util.Map<java.lang.String,?> namedArguments);
     method public String format(android.content.Context context, int id, java.util.Map<java.lang.String,?> namedArguments);
+    method public String format(android.content.Context context, String msg, java.util.Map<java.lang.String,?> namedArguments);
+    method public String format(android.content.Context context, optional java.util.Locale locale, String msg, java.util.Map<java.lang.String,?> namedArguments);
   }
 
 }

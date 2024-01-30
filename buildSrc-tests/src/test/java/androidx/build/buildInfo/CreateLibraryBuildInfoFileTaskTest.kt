@@ -58,9 +58,11 @@ class CreateLibraryBuildInfoFileTaskTest {
 
     @Test
     fun suffix() {
-        computeTaskSuffix("cubane").check { it == "" }
-        computeTaskSuffix("cubane-jvm").check { it == "Jvm" }
-        computeTaskSuffix("cubane-jvm-linux-x64").check { it == "JvmLinuxX64" }
+        computeTaskSuffix(projectName = "cubane", artifactId = "cubane").check { it == "" }
+        computeTaskSuffix(projectName = "cubane", artifactId = "cubane-jvm").check { it == "Jvm" }
+        computeTaskSuffix(projectName = "cubane", artifactId = "cubane-jvm-linux-x64").check {
+            it == "JvmLinuxX64"
+        }
     }
 
     @Test

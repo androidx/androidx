@@ -1,9 +1,0 @@
-// Baseline format: 1.0
-ChangedThrows: androidx.room.testing.MigrationTestHelper#runMigrationsAndValidate(String, int, boolean, androidx.room.migration.Migration...):
-    Method androidx.room.testing.MigrationTestHelper.runMigrationsAndValidate no longer throws exception java.io.IOException
-
-
-RemovedMethod: androidx.room.testing.MigrationTestHelper#MigrationTestHelper(android.app.Instrumentation, Class<? extends androidx.room.RoomDatabase>, java.util.List<androidx.room.migration.AutoMigrationSpec>):
-    Removed constructor androidx.room.testing.MigrationTestHelper(android.app.Instrumentation,Class<? extends androidx.room.RoomDatabase>,java.util.List<androidx.room.migration.AutoMigrationSpec>)
-RemovedMethod: androidx.room.testing.MigrationTestHelper#MigrationTestHelper(android.app.Instrumentation, Class<? extends androidx.room.RoomDatabase>, java.util.List<androidx.room.migration.AutoMigrationSpec>, androidx.sqlite.db.SupportSQLiteOpenHelper.Factory):
-    Removed constructor androidx.room.testing.MigrationTestHelper(android.app.Instrumentation,Class<? extends androidx.room.RoomDatabase>,java.util.List<androidx.room.migration.AutoMigrationSpec>,androidx.sqlite.db.SupportSQLiteOpenHelper.Factory)

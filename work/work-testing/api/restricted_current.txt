@@ -29,7 +29,7 @@ package androidx.work.testing {
   }
 
   public final class TestListenableWorkerBuilderKt {
-    method public static inline <reified W extends androidx.work.ListenableWorker> androidx.work.testing.TestListenableWorkerBuilder<W> TestListenableWorkerBuilder(android.content.Context context, optional androidx.work.Data inputData, optional java.util.List<? extends java.lang.String> tags, optional int runAttemptCount, optional java.util.List<? extends android.net.Uri> triggeredContentUris, optional java.util.List<? extends java.lang.String> triggeredContentAuthorities);
+    method public static inline <reified W extends androidx.work.ListenableWorker> androidx.work.testing.TestListenableWorkerBuilder<W> TestListenableWorkerBuilder(android.content.Context context, optional androidx.work.Data inputData, optional java.util.List<java.lang.String> tags, optional int runAttemptCount, optional java.util.List<? extends android.net.Uri> triggeredContentUris, optional java.util.List<java.lang.String> triggeredContentAuthorities);
   }
 
   public class TestWorkerBuilder<W extends androidx.work.Worker> extends androidx.work.testing.TestListenableWorkerBuilder<W> {
@@ -38,16 +38,23 @@ package androidx.work.testing {
   }
 
   public final class TestWorkerBuilderKt {
-    method public static inline <reified W extends androidx.work.Worker> androidx.work.testing.TestWorkerBuilder<W> TestWorkerBuilder(android.content.Context context, java.util.concurrent.Executor executor, optional androidx.work.Data inputData, optional java.util.List<? extends java.lang.String> tags, optional int runAttemptCount, optional java.util.List<? extends android.net.Uri> triggeredContentUris, optional java.util.List<? extends java.lang.String> triggeredContentAuthorities);
+    method public static inline <reified W extends androidx.work.Worker> androidx.work.testing.TestWorkerBuilder<W> TestWorkerBuilder(android.content.Context context, java.util.concurrent.Executor executor, optional androidx.work.Data inputData, optional java.util.List<java.lang.String> tags, optional int runAttemptCount, optional java.util.List<? extends android.net.Uri> triggeredContentUris, optional java.util.List<java.lang.String> triggeredContentAuthorities);
   }
 
   public final class WorkManagerTestInitHelper {
+    method public static void closeWorkDatabase();
     method @Deprecated public static androidx.work.testing.TestDriver? getTestDriver();
     method public static androidx.work.testing.TestDriver? getTestDriver(android.content.Context);
     method public static void initializeTestWorkManager(android.content.Context);
     method public static void initializeTestWorkManager(android.content.Context, androidx.work.Configuration);
-    method public static void initializeTestWorkManagerWithRealExecutors(android.content.Context);
-    method public static void initializeTestWorkManagerWithRealExecutors(android.content.Context, androidx.work.Configuration);
+    method public static void initializeTestWorkManager(android.content.Context, androidx.work.Configuration, androidx.work.testing.WorkManagerTestInitHelper.ExecutorsMode);
+    method public static void initializeTestWorkManager(android.content.Context, androidx.work.testing.WorkManagerTestInitHelper.ExecutorsMode);
+  }
+
+  public enum WorkManagerTestInitHelper.ExecutorsMode {
+    enum_constant public static final androidx.work.testing.WorkManagerTestInitHelper.ExecutorsMode LEGACY_OVERRIDE_WITH_SYNCHRONOUS_EXECUTORS;
+    enum_constant public static final androidx.work.testing.WorkManagerTestInitHelper.ExecutorsMode PRESERVE_EXECUTORS;
+    enum_constant public static final androidx.work.testing.WorkManagerTestInitHelper.ExecutorsMode USE_TIME_BASED_SCHEDULING;
   }
 
 }

@@ -1,0 +1,47 @@
+// Baseline format: 1.0
+AddedMethod: androidx.compose.ui.text.ParagraphStyle#getHyphens-EaSxIns():
+    Added method androidx.compose.ui.text.ParagraphStyle.getHyphens-EaSxIns()
+AddedMethod: androidx.compose.ui.text.ParagraphStyle#getLineBreak-LgCVezo():
+    Added method androidx.compose.ui.text.ParagraphStyle.getLineBreak-LgCVezo()
+AddedMethod: androidx.compose.ui.text.ParagraphStyle#getTextAlign-buA522U():
+    Added method androidx.compose.ui.text.ParagraphStyle.getTextAlign-buA522U()
+AddedMethod: androidx.compose.ui.text.ParagraphStyle#getTextDirection-mmuk1to():
+    Added method androidx.compose.ui.text.ParagraphStyle.getTextDirection-mmuk1to()
+AddedMethod: androidx.compose.ui.text.TextStyle#getHyphens-EaSxIns():
+    Added method androidx.compose.ui.text.TextStyle.getHyphens-EaSxIns()
+AddedMethod: androidx.compose.ui.text.TextStyle#getLineBreak-LgCVezo():
+    Added method androidx.compose.ui.text.TextStyle.getLineBreak-LgCVezo()
+AddedMethod: androidx.compose.ui.text.TextStyle#getTextAlign-buA522U():
+    Added method androidx.compose.ui.text.TextStyle.getTextAlign-buA522U()
+AddedMethod: androidx.compose.ui.text.TextStyle#getTextDirection-mmuk1to():
+    Added method androidx.compose.ui.text.TextStyle.getTextDirection-mmuk1to()
+
+
+ChangedDeprecated: androidx.compose.ui.text.ParagraphStyle#getHyphens():
+    Method androidx.compose.ui.text.ParagraphStyle.getHyphens has changed deprecation state true --> false
+ChangedDeprecated: androidx.compose.ui.text.ParagraphStyle#getLineBreak():
+    Method androidx.compose.ui.text.ParagraphStyle.getLineBreak has changed deprecation state true --> false
+ChangedDeprecated: androidx.compose.ui.text.ParagraphStyle#getTextAlign():
+    Method androidx.compose.ui.text.ParagraphStyle.getTextAlign has changed deprecation state true --> false
+ChangedDeprecated: androidx.compose.ui.text.ParagraphStyle#getTextDirection():
+    Method androidx.compose.ui.text.ParagraphStyle.getTextDirection has changed deprecation state true --> false
+
+
+ChangedType: androidx.compose.ui.text.ParagraphStyle#getHyphens():
+    Method androidx.compose.ui.text.ParagraphStyle.getHyphens has changed return type from androidx.compose.ui.text.style.Hyphens to int
+ChangedType: androidx.compose.ui.text.ParagraphStyle#getLineBreak():
+    Method androidx.compose.ui.text.ParagraphStyle.getLineBreak has changed return type from androidx.compose.ui.text.style.LineBreak to int
+ChangedType: androidx.compose.ui.text.ParagraphStyle#getTextAlign():
+    Method androidx.compose.ui.text.ParagraphStyle.getTextAlign has changed return type from androidx.compose.ui.text.style.TextAlign to int
+ChangedType: androidx.compose.ui.text.ParagraphStyle#getTextDirection():
+    Method androidx.compose.ui.text.ParagraphStyle.getTextDirection has changed return type from androidx.compose.ui.text.style.TextDirection to int
+
+
+InvalidNullConversion: androidx.compose.ui.text.ParagraphStyle#getHyphens():
+    Attempted to remove @Nullable annotation from method androidx.compose.ui.text.ParagraphStyle.getHyphens()
+InvalidNullConversion: androidx.compose.ui.text.ParagraphStyle#getLineBreak():
+    Attempted to remove @Nullable annotation from method androidx.compose.ui.text.ParagraphStyle.getLineBreak()
+InvalidNullConversion: androidx.compose.ui.text.ParagraphStyle#getTextAlign():
+    Attempted to remove @Nullable annotation from method androidx.compose.ui.text.ParagraphStyle.getTextAlign()
+InvalidNullConversion: androidx.compose.ui.text.ParagraphStyle#getTextDirection():
+    Attempted to remove @Nullable annotation from method androidx.compose.ui.text.ParagraphStyle.getTextDirection()

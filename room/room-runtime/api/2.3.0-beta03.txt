@@ -23,6 +23,9 @@ package androidx.room {
     field public final java.util.List<java.lang.Object!> typeConverters;
   }
 
+  @RequiresOptIn @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD}) public @interface ExperimentalRoomApi {
+  }
+
   public class InvalidationTracker {
     method @WorkerThread public void addObserver(androidx.room.InvalidationTracker.Observer);
     method public void refreshVersionsAsync();
@@ -54,6 +57,7 @@ package androidx.room {
     method public androidx.room.InvalidationTracker getInvalidationTracker();
     method public androidx.sqlite.db.SupportSQLiteOpenHelper getOpenHelper();
     method public java.util.concurrent.Executor getQueryExecutor();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) protected java.util.Map<java.lang.Class<?>!,java.util.List<java.lang.Class<?>!>!> getRequiredTypeConverters();
     method public java.util.concurrent.Executor getTransactionExecutor();
     method public <T> T? getTypeConverter(Class<T!>);
     method public boolean inTransaction();
@@ -86,6 +90,7 @@ package androidx.room {
     method public androidx.room.RoomDatabase.Builder<T!> fallbackToDestructiveMigrationFrom(int...);
     method public androidx.room.RoomDatabase.Builder<T!> fallbackToDestructiveMigrationOnDowngrade();
     method public androidx.room.RoomDatabase.Builder<T!> openHelperFactory(androidx.sqlite.db.SupportSQLiteOpenHelper.Factory?);
+    method @androidx.room.ExperimentalRoomApi public androidx.room.RoomDatabase.Builder<T!> setAutoCloseTimeout(@IntRange(from=0) long, java.util.concurrent.TimeUnit);
     method public androidx.room.RoomDatabase.Builder<T!> setJournalMode(androidx.room.RoomDatabase.JournalMode);
     method public androidx.room.RoomDatabase.Builder<T!> setQueryCallback(androidx.room.RoomDatabase.QueryCallback, java.util.concurrent.Executor);
     method public androidx.room.RoomDatabase.Builder<T!> setQueryExecutor(java.util.concurrent.Executor);

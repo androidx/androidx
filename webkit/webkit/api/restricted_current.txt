@@ -16,6 +16,7 @@ package androidx.webkit {
   }
 
   public abstract class JavaScriptReplyProxy {
+    method @RequiresFeature(name=androidx.webkit.WebViewFeature.WEB_MESSAGE_ARRAY_BUFFER, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public abstract void postMessage(byte[]);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.WEB_MESSAGE_LISTENER, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public abstract void postMessage(String);
   }
 
@@ -24,6 +25,23 @@ package androidx.webkit {
     method public static void apply(androidx.webkit.ProcessGlobalConfig);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.STARTUP_FEATURE_SET_DATA_DIRECTORY_SUFFIX, enforcement="androidx.webkit.WebViewFeature#isConfigFeatureSupported(String, Context)") public androidx.webkit.ProcessGlobalConfig setDataDirectorySuffix(android.content.Context, String);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.STARTUP_FEATURE_SET_DIRECTORY_BASE_PATHS, enforcement="androidx.webkit.WebViewFeature#isConfigFeatureSupported(String, Context)") public androidx.webkit.ProcessGlobalConfig setDirectoryBasePaths(android.content.Context, java.io.File, java.io.File);
+  }
+
+  public interface Profile {
+    method @RequiresFeature(name=androidx.webkit.WebViewFeature.MULTI_PROFILE, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public android.webkit.CookieManager getCookieManager();
+    method @RequiresFeature(name=androidx.webkit.WebViewFeature.MULTI_PROFILE, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public android.webkit.GeolocationPermissions getGeolocationPermissions();
+    method @RequiresFeature(name=androidx.webkit.WebViewFeature.MULTI_PROFILE, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public String getName();
+    method @RequiresFeature(name=androidx.webkit.WebViewFeature.MULTI_PROFILE, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public android.webkit.ServiceWorkerController getServiceWorkerController();
+    method @RequiresFeature(name=androidx.webkit.WebViewFeature.MULTI_PROFILE, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public android.webkit.WebStorage getWebStorage();
+    field public static final String DEFAULT_PROFILE_NAME = "Default";
+  }
+
+  @UiThread public interface ProfileStore {
+    method @RequiresFeature(name=androidx.webkit.WebViewFeature.MULTI_PROFILE, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public boolean deleteProfile(String);
+    method @RequiresFeature(name=androidx.webkit.WebViewFeature.MULTI_PROFILE, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public java.util.List<java.lang.String!> getAllProfileNames();
+    method @RequiresFeature(name=androidx.webkit.WebViewFeature.MULTI_PROFILE, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static androidx.webkit.ProfileStore getInstance();
+    method @RequiresFeature(name=androidx.webkit.WebViewFeature.MULTI_PROFILE, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public androidx.webkit.Profile getOrCreateProfile(String);
+    method @RequiresFeature(name=androidx.webkit.WebViewFeature.MULTI_PROFILE, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public androidx.webkit.Profile? getProfile(String);
   }
 
   public final class ProxyConfig {
@@ -39,8 +57,8 @@ package androidx.webkit {
     ctor public ProxyConfig.Builder();
     ctor public ProxyConfig.Builder(androidx.webkit.ProxyConfig);
     method public androidx.webkit.ProxyConfig.Builder addBypassRule(String);
-    method public androidx.webkit.ProxyConfig.Builder addDirect(String);
     method public androidx.webkit.ProxyConfig.Builder addDirect();
+    method public androidx.webkit.ProxyConfig.Builder addDirect(String);
     method public androidx.webkit.ProxyConfig.Builder addProxyRule(String);
     method public androidx.webkit.ProxyConfig.Builder addProxyRule(String, String);
     method public androidx.webkit.ProxyConfig build();
@@ -64,6 +82,10 @@ package androidx.webkit {
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.SAFE_BROWSING_RESPONSE_BACK_TO_SAFETY, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public abstract void backToSafety(boolean);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.SAFE_BROWSING_RESPONSE_PROCEED, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public abstract void proceed(boolean);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.SAFE_BROWSING_RESPONSE_SHOW_INTERSTITIAL, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public abstract void showInterstitial(boolean);
+  }
+
+  public interface ScriptHandler {
+    method @RequiresFeature(name=androidx.webkit.WebViewFeature.DOCUMENT_START_SCRIPT, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public void remove();
   }
 
   public abstract class ServiceWorkerClientCompat {
@@ -122,18 +144,67 @@ package androidx.webkit {
     method public abstract boolean stop(java.io.OutputStream?, java.util.concurrent.Executor);
   }
 
+  public final class UserAgentMetadata {
+    method public String? getArchitecture();
+    method public int getBitness();
+    method public java.util.List<androidx.webkit.UserAgentMetadata.BrandVersion!> getBrandVersionList();
+    method public String? getFullVersion();
+    method public String? getModel();
+    method public String? getPlatform();
+    method public String? getPlatformVersion();
+    method public boolean isMobile();
+    method public boolean isWow64();
+    field public static final int BITNESS_DEFAULT = 0; // 0x0
+  }
+
+  public static final class UserAgentMetadata.BrandVersion {
+    method public String getBrand();
+    method public String getFullVersion();
+    method public String getMajorVersion();
+  }
+
+  public static final class UserAgentMetadata.BrandVersion.Builder {
+    ctor public UserAgentMetadata.BrandVersion.Builder();
+    ctor public UserAgentMetadata.BrandVersion.Builder(androidx.webkit.UserAgentMetadata.BrandVersion);
+    method public androidx.webkit.UserAgentMetadata.BrandVersion build();
+    method public androidx.webkit.UserAgentMetadata.BrandVersion.Builder setBrand(String);
+    method public androidx.webkit.UserAgentMetadata.BrandVersion.Builder setFullVersion(String);
+    method public androidx.webkit.UserAgentMetadata.BrandVersion.Builder setMajorVersion(String);
+  }
+
+  public static final class UserAgentMetadata.Builder {
+    ctor public UserAgentMetadata.Builder();
+    ctor public UserAgentMetadata.Builder(androidx.webkit.UserAgentMetadata);
+    method public androidx.webkit.UserAgentMetadata build();
+    method public androidx.webkit.UserAgentMetadata.Builder setArchitecture(String?);
+    method public androidx.webkit.UserAgentMetadata.Builder setBitness(int);
+    method public androidx.webkit.UserAgentMetadata.Builder setBrandVersionList(java.util.List<androidx.webkit.UserAgentMetadata.BrandVersion!>);
+    method public androidx.webkit.UserAgentMetadata.Builder setFullVersion(String?);
+    method public androidx.webkit.UserAgentMetadata.Builder setMobile(boolean);
+    method public androidx.webkit.UserAgentMetadata.Builder setModel(String?);
+    method public androidx.webkit.UserAgentMetadata.Builder setPlatform(String?);
+    method public androidx.webkit.UserAgentMetadata.Builder setPlatformVersion(String?);
+    method public androidx.webkit.UserAgentMetadata.Builder setWow64(boolean);
+  }
+
   public class WebMessageCompat {
+    ctor @RequiresFeature(name=androidx.webkit.WebViewFeature.WEB_MESSAGE_ARRAY_BUFFER, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public WebMessageCompat(byte[]);
+    ctor @RequiresFeature(name=androidx.webkit.WebViewFeature.WEB_MESSAGE_ARRAY_BUFFER, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public WebMessageCompat(byte[], androidx.webkit.WebMessagePortCompat![]?);
     ctor public WebMessageCompat(String?);
     ctor public WebMessageCompat(String?, androidx.webkit.WebMessagePortCompat![]?);
+    method public byte[] getArrayBuffer();
     method public String? getData();
     method public androidx.webkit.WebMessagePortCompat![]? getPorts();
+    method public int getType();
+    field public static final int TYPE_ARRAY_BUFFER = 1; // 0x1
+    field public static final int TYPE_STRING = 0; // 0x0
   }
 
   public abstract class WebMessagePortCompat {
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.WEB_MESSAGE_PORT_CLOSE, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public abstract void close();
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.WEB_MESSAGE_PORT_POST_MESSAGE, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public abstract void postMessage(androidx.webkit.WebMessageCompat);
-    method @RequiresFeature(name=androidx.webkit.WebViewFeature.WEB_MESSAGE_PORT_SET_MESSAGE_CALLBACK, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public abstract void setWebMessageCallback(androidx.webkit.WebMessagePortCompat.WebMessageCallbackCompat);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.WEB_MESSAGE_PORT_SET_MESSAGE_CALLBACK, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public abstract void setWebMessageCallback(android.os.Handler?, androidx.webkit.WebMessagePortCompat.WebMessageCallbackCompat);
+    method @RequiresFeature(name=androidx.webkit.WebViewFeature.WEB_MESSAGE_PORT_SET_MESSAGE_CALLBACK, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public abstract void setWebMessageCallback(androidx.webkit.WebMessagePortCompat.WebMessageCallbackCompat);
   }
 
   public abstract static class WebMessagePortCompat.WebMessageCallbackCompat {
@@ -151,6 +222,7 @@ package androidx.webkit {
   }
 
   public class WebSettingsCompat {
+    method @RequiresFeature(name=androidx.webkit.WebViewFeature.ATTRIBUTION_REGISTRATION_BEHAVIOR, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static int getAttributionRegistrationBehavior(android.webkit.WebSettings);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.DISABLED_ACTION_MODE_MENU_ITEMS, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static int getDisabledActionModeMenuItems(android.webkit.WebSettings);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.ENTERPRISE_AUTHENTICATION_APP_LINK_POLICY, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static boolean getEnterpriseAuthenticationAppLinkPolicyEnabled(android.webkit.WebSettings);
     method @Deprecated @RequiresFeature(name=androidx.webkit.WebViewFeature.FORCE_DARK, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static int getForceDark(android.webkit.WebSettings);
@@ -158,8 +230,10 @@ package androidx.webkit {
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.OFF_SCREEN_PRERASTER, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static boolean getOffscreenPreRaster(android.webkit.WebSettings);
     method @RequiresFeature(name="REQUESTED_WITH_HEADER_ALLOW_LIST", enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static java.util.Set<java.lang.String!> getRequestedWithHeaderOriginAllowList(android.webkit.WebSettings);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.SAFE_BROWSING_ENABLE, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static boolean getSafeBrowsingEnabled(android.webkit.WebSettings);
+    method @RequiresFeature(name=androidx.webkit.WebViewFeature.USER_AGENT_METADATA, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static androidx.webkit.UserAgentMetadata getUserAgentMetadata(android.webkit.WebSettings);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.ALGORITHMIC_DARKENING, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static boolean isAlgorithmicDarkeningAllowed(android.webkit.WebSettings);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.ALGORITHMIC_DARKENING, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static void setAlgorithmicDarkeningAllowed(android.webkit.WebSettings, boolean);
+    method @RequiresFeature(name=androidx.webkit.WebViewFeature.ATTRIBUTION_REGISTRATION_BEHAVIOR, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static void setAttributionRegistrationBehavior(android.webkit.WebSettings, int);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.DISABLED_ACTION_MODE_MENU_ITEMS, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static void setDisabledActionModeMenuItems(android.webkit.WebSettings, int);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.ENTERPRISE_AUTHENTICATION_APP_LINK_POLICY, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static void setEnterpriseAuthenticationAppLinkPolicyEnabled(android.webkit.WebSettings, boolean);
     method @Deprecated @RequiresFeature(name=androidx.webkit.WebViewFeature.FORCE_DARK, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static void setForceDark(android.webkit.WebSettings, int);
@@ -167,6 +241,11 @@ package androidx.webkit {
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.OFF_SCREEN_PRERASTER, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static void setOffscreenPreRaster(android.webkit.WebSettings, boolean);
     method @RequiresFeature(name="REQUESTED_WITH_HEADER_ALLOW_LIST", enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static void setRequestedWithHeaderOriginAllowList(android.webkit.WebSettings, java.util.Set<java.lang.String!>);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.SAFE_BROWSING_ENABLE, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static void setSafeBrowsingEnabled(android.webkit.WebSettings, boolean);
+    method @RequiresFeature(name=androidx.webkit.WebViewFeature.USER_AGENT_METADATA, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static void setUserAgentMetadata(android.webkit.WebSettings, androidx.webkit.UserAgentMetadata);
+    field public static final int ATTRIBUTION_BEHAVIOR_APP_SOURCE_AND_APP_TRIGGER = 3; // 0x3
+    field public static final int ATTRIBUTION_BEHAVIOR_APP_SOURCE_AND_WEB_TRIGGER = 1; // 0x1
+    field public static final int ATTRIBUTION_BEHAVIOR_DISABLED = 0; // 0x0
+    field public static final int ATTRIBUTION_BEHAVIOR_WEB_SOURCE_AND_WEB_TRIGGER = 2; // 0x2
     field @Deprecated public static final int DARK_STRATEGY_PREFER_WEB_THEME_OVER_USER_AGENT_DARKENING = 2; // 0x2
     field @Deprecated public static final int DARK_STRATEGY_USER_AGENT_DARKENING_ONLY = 0; // 0x0
     field @Deprecated public static final int DARK_STRATEGY_WEB_THEME_DARKENING_ONLY = 1; // 0x1
@@ -216,9 +295,11 @@ package androidx.webkit {
   }
 
   public class WebViewCompat {
+    method @RequiresFeature(name=androidx.webkit.WebViewFeature.DOCUMENT_START_SCRIPT, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static androidx.webkit.ScriptHandler addDocumentStartJavaScript(android.webkit.WebView, String, java.util.Set<java.lang.String!>);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.WEB_MESSAGE_LISTENER, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static void addWebMessageListener(android.webkit.WebView, String, java.util.Set<java.lang.String!>, androidx.webkit.WebViewCompat.WebMessageListener);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.CREATE_WEB_MESSAGE_CHANNEL, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static androidx.webkit.WebMessagePortCompat![] createWebMessageChannel(android.webkit.WebView);
     method public static android.content.pm.PackageInfo? getCurrentWebViewPackage(android.content.Context);
+    method @RequiresFeature(name=androidx.webkit.WebViewFeature.MULTI_PROFILE, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") @UiThread public static androidx.webkit.Profile getProfile(android.webkit.WebView);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.SAFE_BROWSING_PRIVACY_POLICY_URL, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static android.net.Uri getSafeBrowsingPrivacyPolicyUrl();
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.GET_VARIATIONS_HEADER, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static String getVariationsHeader();
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.GET_WEB_CHROME_CLIENT, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static android.webkit.WebChromeClient? getWebChromeClient(android.webkit.WebView);
@@ -229,10 +310,11 @@ package androidx.webkit {
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.VISUAL_STATE_CALLBACK, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static void postVisualStateCallback(android.webkit.WebView, long, androidx.webkit.WebViewCompat.VisualStateCallback);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.POST_WEB_MESSAGE, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static void postWebMessage(android.webkit.WebView, androidx.webkit.WebMessageCompat, android.net.Uri);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.WEB_MESSAGE_LISTENER, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static void removeWebMessageListener(android.webkit.WebView, String);
+    method @RequiresFeature(name=androidx.webkit.WebViewFeature.MULTI_PROFILE, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") @UiThread public static void setProfile(android.webkit.WebView, String);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.SAFE_BROWSING_ALLOWLIST, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static void setSafeBrowsingAllowlist(java.util.Set<java.lang.String!>, android.webkit.ValueCallback<java.lang.Boolean!>?);
     method @Deprecated @RequiresFeature(name=androidx.webkit.WebViewFeature.SAFE_BROWSING_WHITELIST, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static void setSafeBrowsingWhitelist(java.util.List<java.lang.String!>, android.webkit.ValueCallback<java.lang.Boolean!>?);
-    method @RequiresFeature(name=androidx.webkit.WebViewFeature.WEB_VIEW_RENDERER_CLIENT_BASIC_USAGE, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static void setWebViewRenderProcessClient(android.webkit.WebView, java.util.concurrent.Executor, androidx.webkit.WebViewRenderProcessClient);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.WEB_VIEW_RENDERER_CLIENT_BASIC_USAGE, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static void setWebViewRenderProcessClient(android.webkit.WebView, androidx.webkit.WebViewRenderProcessClient?);
+    method @RequiresFeature(name=androidx.webkit.WebViewFeature.WEB_VIEW_RENDERER_CLIENT_BASIC_USAGE, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static void setWebViewRenderProcessClient(android.webkit.WebView, java.util.concurrent.Executor, androidx.webkit.WebViewRenderProcessClient);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.START_SAFE_BROWSING, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static void startSafeBrowsing(android.content.Context, android.webkit.ValueCallback<java.lang.Boolean!>?);
   }
 
@@ -248,8 +330,10 @@ package androidx.webkit {
     method public static boolean isFeatureSupported(String);
     method public static boolean isStartupFeatureSupported(android.content.Context, String);
     field public static final String ALGORITHMIC_DARKENING = "ALGORITHMIC_DARKENING";
+    field public static final String ATTRIBUTION_REGISTRATION_BEHAVIOR = "ATTRIBUTION_REGISTRATION_BEHAVIOR";
     field public static final String CREATE_WEB_MESSAGE_CHANNEL = "CREATE_WEB_MESSAGE_CHANNEL";
     field public static final String DISABLED_ACTION_MODE_MENU_ITEMS = "DISABLED_ACTION_MODE_MENU_ITEMS";
+    field public static final String DOCUMENT_START_SCRIPT = "DOCUMENT_START_SCRIPT";
     field public static final String ENTERPRISE_AUTHENTICATION_APP_LINK_POLICY = "ENTERPRISE_AUTHENTICATION_APP_LINK_POLICY";
     field public static final String FORCE_DARK = "FORCE_DARK";
     field public static final String FORCE_DARK_STRATEGY = "FORCE_DARK_STRATEGY";
@@ -259,6 +343,7 @@ package androidx.webkit {
     field public static final String GET_WEB_VIEW_CLIENT = "GET_WEB_VIEW_CLIENT";
     field public static final String GET_WEB_VIEW_RENDERER = "GET_WEB_VIEW_RENDERER";
     field public static final String MULTI_PROCESS = "MULTI_PROCESS";
+    field public static final String MULTI_PROFILE = "MULTI_PROFILE";
     field public static final String OFF_SCREEN_PRERASTER = "OFF_SCREEN_PRERASTER";
     field public static final String POST_WEB_MESSAGE = "POST_WEB_MESSAGE";
     field public static final String PROXY_OVERRIDE = "PROXY_OVERRIDE";
@@ -284,7 +369,9 @@ package androidx.webkit {
     field public static final String STARTUP_FEATURE_SET_DIRECTORY_BASE_PATHS = "STARTUP_FEATURE_SET_DIRECTORY_BASE_PATHS";
     field public static final String START_SAFE_BROWSING = "START_SAFE_BROWSING";
     field public static final String TRACING_CONTROLLER_BASIC_USAGE = "TRACING_CONTROLLER_BASIC_USAGE";
+    field public static final String USER_AGENT_METADATA = "USER_AGENT_METADATA";
     field public static final String VISUAL_STATE_CALLBACK = "VISUAL_STATE_CALLBACK";
+    field public static final String WEB_MESSAGE_ARRAY_BUFFER = "WEB_MESSAGE_ARRAY_BUFFER";
     field public static final String WEB_MESSAGE_CALLBACK_ON_MESSAGE = "WEB_MESSAGE_CALLBACK_ON_MESSAGE";
     field public static final String WEB_MESSAGE_LISTENER = "WEB_MESSAGE_LISTENER";
     field public static final String WEB_MESSAGE_PORT_CLOSE = "WEB_MESSAGE_PORT_CLOSE";

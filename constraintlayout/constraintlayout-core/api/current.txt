@@ -33,8 +33,8 @@ package androidx.constraintlayout.core {
     method public androidx.constraintlayout.core.ArrayRow! createRowDimensionRatio(androidx.constraintlayout.core.SolverVariable!, androidx.constraintlayout.core.SolverVariable!, androidx.constraintlayout.core.SolverVariable!, androidx.constraintlayout.core.SolverVariable!, float);
     method public androidx.constraintlayout.core.ArrayRow! createRowEqualDimension(float, float, float, androidx.constraintlayout.core.SolverVariable!, int, androidx.constraintlayout.core.SolverVariable!, int, androidx.constraintlayout.core.SolverVariable!, int, androidx.constraintlayout.core.SolverVariable!, int);
     method public androidx.constraintlayout.core.ArrayRow! createRowEqualMatchDimensions(float, float, float, androidx.constraintlayout.core.SolverVariable!, androidx.constraintlayout.core.SolverVariable!, androidx.constraintlayout.core.SolverVariable!, androidx.constraintlayout.core.SolverVariable!);
-    method public androidx.constraintlayout.core.ArrayRow! createRowEquals(androidx.constraintlayout.core.SolverVariable!, int);
     method public androidx.constraintlayout.core.ArrayRow! createRowEquals(androidx.constraintlayout.core.SolverVariable!, androidx.constraintlayout.core.SolverVariable!, int);
+    method public androidx.constraintlayout.core.ArrayRow! createRowEquals(androidx.constraintlayout.core.SolverVariable!, int);
     method public androidx.constraintlayout.core.ArrayRow! createRowGreaterThan(androidx.constraintlayout.core.SolverVariable!, androidx.constraintlayout.core.SolverVariable!, androidx.constraintlayout.core.SolverVariable!, int);
     method public androidx.constraintlayout.core.ArrayRow! createRowGreaterThan(androidx.constraintlayout.core.SolverVariable!, int, androidx.constraintlayout.core.SolverVariable!);
     method public androidx.constraintlayout.core.ArrayRow! createRowLowerThan(androidx.constraintlayout.core.SolverVariable!, androidx.constraintlayout.core.SolverVariable!, androidx.constraintlayout.core.SolverVariable!, int);
@@ -183,8 +183,8 @@ package androidx.constraintlayout.core {
   }
 
   public class SolverVariable implements java.lang.Comparable<androidx.constraintlayout.core.SolverVariable> {
-    ctor public SolverVariable(String!, androidx.constraintlayout.core.SolverVariable.Type!);
     ctor public SolverVariable(androidx.constraintlayout.core.SolverVariable.Type!, String!);
+    ctor public SolverVariable(String!, androidx.constraintlayout.core.SolverVariable.Type!);
     method public final void addToRow(androidx.constraintlayout.core.ArrayRow!);
     method public int compareTo(androidx.constraintlayout.core.SolverVariable!);
     method public String! getName();
@@ -673,11 +673,11 @@ package androidx.constraintlayout.core.dsl {
 
   public class Keys {
     ctor public Keys();
+    method protected void append(StringBuilder!, String!, float);
+    method protected void append(StringBuilder!, String!, float[]!);
     method protected void append(StringBuilder!, String!, int);
     method protected void append(StringBuilder!, String!, String!);
-    method protected void append(StringBuilder!, String!, float);
     method protected void append(StringBuilder!, String!, String![]!);
-    method protected void append(StringBuilder!, String!, float[]!);
     method protected String! unpack(String![]!);
   }
 
@@ -827,9 +827,9 @@ package androidx.constraintlayout.core.dsl {
 package androidx.constraintlayout.core.motion {
 
   public class CustomAttribute {
+    ctor public CustomAttribute(androidx.constraintlayout.core.motion.CustomAttribute!, Object!);
     ctor public CustomAttribute(String!, androidx.constraintlayout.core.motion.CustomAttribute.AttributeType!);
     ctor public CustomAttribute(String!, androidx.constraintlayout.core.motion.CustomAttribute.AttributeType!, Object!, boolean);
-    ctor public CustomAttribute(androidx.constraintlayout.core.motion.CustomAttribute!, Object!);
     method public boolean diff(androidx.constraintlayout.core.motion.CustomAttribute!);
     method public androidx.constraintlayout.core.motion.CustomAttribute.AttributeType! getType();
     method public float getValueToInterpolate();
@@ -858,13 +858,13 @@ package androidx.constraintlayout.core.motion {
 
   public class CustomVariable {
     ctor public CustomVariable(androidx.constraintlayout.core.motion.CustomVariable!);
-    ctor public CustomVariable(String!, int, String!);
-    ctor public CustomVariable(String!, int, int);
-    ctor public CustomVariable(String!, int, float);
-    ctor public CustomVariable(String!, int, boolean);
-    ctor public CustomVariable(String!, int);
-    ctor public CustomVariable(String!, int, Object!);
     ctor public CustomVariable(androidx.constraintlayout.core.motion.CustomVariable!, Object!);
+    ctor public CustomVariable(String!, int);
+    ctor public CustomVariable(String!, int, boolean);
+    ctor public CustomVariable(String!, int, float);
+    ctor public CustomVariable(String!, int, int);
+    ctor public CustomVariable(String!, int, Object!);
+    ctor public CustomVariable(String!, int, String!);
     method public void applyToWidget(androidx.constraintlayout.core.motion.MotionWidget!);
     method public static String! colorString(int);
     method public androidx.constraintlayout.core.motion.CustomVariable! copy();
@@ -929,10 +929,10 @@ package androidx.constraintlayout.core.motion {
     method public void setStart(androidx.constraintlayout.core.motion.MotionWidget!);
     method public void setStartState(androidx.constraintlayout.core.motion.utils.ViewState!, androidx.constraintlayout.core.motion.MotionWidget!, int, int, int);
     method public void setTransformPivotTarget(int);
-    method public boolean setValue(int, int);
-    method public boolean setValue(int, float);
-    method public boolean setValue(int, String!);
     method public boolean setValue(int, boolean);
+    method public boolean setValue(int, float);
+    method public boolean setValue(int, int);
+    method public boolean setValue(int, String!);
     method public void setView(androidx.constraintlayout.core.motion.MotionWidget!);
     method public void setup(int, int, float, long);
     method public void setupRelative(androidx.constraintlayout.core.motion.Motion!);
@@ -1003,9 +1003,9 @@ package androidx.constraintlayout.core.motion {
     method public int getY();
     method public void layout(int, int, int, int);
     method public void setBounds(int, int, int, int);
+    method public void setCustomAttribute(String!, int, boolean);
     method public void setCustomAttribute(String!, int, float);
     method public void setCustomAttribute(String!, int, int);
-    method public void setCustomAttribute(String!, int, boolean);
     method public void setCustomAttribute(String!, int, String!);
     method public void setInterpolatedValue(androidx.constraintlayout.core.motion.CustomAttribute!, float[]!);
     method public void setPivotX(float);
@@ -1018,14 +1018,14 @@ package androidx.constraintlayout.core.motion {
     method public void setTranslationX(float);
     method public void setTranslationY(float);
     method public void setTranslationZ(float);
-    method public boolean setValue(int, int);
-    method public boolean setValue(int, float);
-    method public boolean setValue(int, String!);
     method public boolean setValue(int, boolean);
+    method public boolean setValue(int, float);
+    method public boolean setValue(int, int);
+    method public boolean setValue(int, String!);
     method public boolean setValueAttributes(int, float);
+    method public boolean setValueMotion(int, float);
     method public boolean setValueMotion(int, int);
     method public boolean setValueMotion(int, String!);
-    method public boolean setValueMotion(int, float);
     method public void setVisibility(int);
     method public void updateMotion(androidx.constraintlayout.core.motion.utils.TypedValues!);
     field public static final int FILL_PARENT = -1; // 0xffffffff
@@ -1094,16 +1094,16 @@ package androidx.constraintlayout.core.motion.key {
     method public androidx.constraintlayout.core.motion.key.MotionKey! copy(androidx.constraintlayout.core.motion.key.MotionKey!);
     method public abstract void getAttributeNames(java.util.HashSet<java.lang.String!>!);
     method public int getFramePosition();
+    method public void setCustomAttribute(String!, int, boolean);
     method public void setCustomAttribute(String!, int, float);
     method public void setCustomAttribute(String!, int, int);
-    method public void setCustomAttribute(String!, int, boolean);
     method public void setCustomAttribute(String!, int, String!);
     method public void setFramePosition(int);
     method public void setInterpolation(java.util.HashMap<java.lang.String!,java.lang.Integer!>!);
-    method public boolean setValue(int, int);
-    method public boolean setValue(int, float);
-    method public boolean setValue(int, String!);
     method public boolean setValue(int, boolean);
+    method public boolean setValue(int, float);
+    method public boolean setValue(int, int);
+    method public boolean setValue(int, String!);
     method public androidx.constraintlayout.core.motion.key.MotionKey! setViewId(int);
     field public static final String ALPHA = "alpha";
     field public static final String CUSTOM = "CUSTOM";
@@ -1297,8 +1297,8 @@ package androidx.constraintlayout.core.motion.utils {
   }
 
   public class HyperSpline {
-    ctor public HyperSpline(double[]![]!);
     ctor public HyperSpline();
+    ctor public HyperSpline(double[]![]!);
     method public double approxLength(androidx.constraintlayout.core.motion.utils.HyperSpline.Cubic![]!);
     method public void getPos(double, double[]!);
     method public void getPos(double, float[]!);
@@ -1326,8 +1326,8 @@ package androidx.constraintlayout.core.motion.utils {
     method public float getSlope(float);
     method public static androidx.constraintlayout.core.motion.utils.KeyCycleOscillator! makeWidgetCycle(String!);
     method protected void setCustom(Object!);
-    method public void setPoint(int, int, String!, int, float, float, float, float, Object!);
     method public void setPoint(int, int, String!, int, float, float, float, float);
+    method public void setPoint(int, int, String!, int, float, float, float, float, Object!);
     method public void setProperty(androidx.constraintlayout.core.motion.MotionWidget!, float);
     method public void setType(String!);
     method public void setup(float);
@@ -1452,8 +1452,8 @@ package androidx.constraintlayout.core.motion.utils {
     method public String! debug(String!, float);
     method public float getAcceleration();
     method public float getInterpolation(float);
-    method public float getVelocity(float);
     method public float getVelocity();
+    method public float getVelocity(float);
     method public boolean isStopped();
     method public void springConfig(float, float, float, float, float, float, float, int);
   }
@@ -1464,8 +1464,8 @@ package androidx.constraintlayout.core.motion.utils {
   public interface StopEngine {
     method public String! debug(String!, float);
     method public float getInterpolation(float);
-    method public float getVelocity(float);
     method public float getVelocity();
+    method public float getVelocity(float);
     method public boolean isStopped();
   }
 
@@ -1474,8 +1474,8 @@ package androidx.constraintlayout.core.motion.utils {
     method public void config(float, float, float, float, float, float);
     method public String! debug(String!, float);
     method public float getInterpolation(float);
-    method public float getVelocity(float);
     method public float getVelocity();
+    method public float getVelocity(float);
     method public boolean isStopped();
   }
 
@@ -1484,8 +1484,8 @@ package androidx.constraintlayout.core.motion.utils {
     method public void config(float, float, float);
     method public String! debug(String!, float);
     method public float getInterpolation(float);
-    method public float getVelocity(float);
     method public float getVelocity();
+    method public float getVelocity(float);
     method public boolean isStopped();
   }
 
@@ -1531,23 +1531,23 @@ package androidx.constraintlayout.core.motion.utils {
 
   public class TypedBundle {
     ctor public TypedBundle();
-    method public void add(int, int);
-    method public void add(int, float);
-    method public void add(int, String!);
     method public void add(int, boolean);
+    method public void add(int, float);
+    method public void add(int, int);
+    method public void add(int, String!);
     method public void addIfNotNull(int, String!);
-    method public void applyDelta(androidx.constraintlayout.core.motion.utils.TypedValues!);
     method public void applyDelta(androidx.constraintlayout.core.motion.utils.TypedBundle!);
+    method public void applyDelta(androidx.constraintlayout.core.motion.utils.TypedValues!);
     method public void clear();
     method public int getInteger(int);
   }
 
   public interface TypedValues {
     method public int getId(String!);
-    method public boolean setValue(int, int);
-    method public boolean setValue(int, float);
-    method public boolean setValue(int, String!);
     method public boolean setValue(int, boolean);
+    method public boolean setValue(int, float);
+    method public boolean setValue(int, int);
+    method public boolean setValue(int, String!);
     field public static final int BOOLEAN_MASK = 1; // 0x1
     field public static final int FLOAT_MASK = 4; // 0x4
     field public static final int INT_MASK = 2; // 0x2
@@ -1823,8 +1823,8 @@ package androidx.constraintlayout.core.motion.utils {
   public class Utils {
     ctor public Utils();
     method public int getInterpolatedColor(float[]!);
-    method public static void log(String!, String!);
     method public static void log(String!);
+    method public static void log(String!, String!);
     method public static void logStack(String!, int);
     method public static void loge(String!, String!);
     method public static int rgbaTocColor(float, float, float, float);
@@ -1840,12 +1840,12 @@ package androidx.constraintlayout.core.motion.utils {
     ctor public VelocityMatrix();
     method public void applyTransform(float, float, int, int, float[]!);
     method public void clear();
-    method public void setRotationVelocity(androidx.constraintlayout.core.motion.utils.SplineSet!, float);
     method public void setRotationVelocity(androidx.constraintlayout.core.motion.utils.KeyCycleOscillator!, float);
-    method public void setScaleVelocity(androidx.constraintlayout.core.motion.utils.SplineSet!, androidx.constraintlayout.core.motion.utils.SplineSet!, float);
+    method public void setRotationVelocity(androidx.constraintlayout.core.motion.utils.SplineSet!, float);
     method public void setScaleVelocity(androidx.constraintlayout.core.motion.utils.KeyCycleOscillator!, androidx.constraintlayout.core.motion.utils.KeyCycleOscillator!, float);
-    method public void setTranslationVelocity(androidx.constraintlayout.core.motion.utils.SplineSet!, androidx.constraintlayout.core.motion.utils.SplineSet!, float);
+    method public void setScaleVelocity(androidx.constraintlayout.core.motion.utils.SplineSet!, androidx.constraintlayout.core.motion.utils.SplineSet!, float);
     method public void setTranslationVelocity(androidx.constraintlayout.core.motion.utils.KeyCycleOscillator!, androidx.constraintlayout.core.motion.utils.KeyCycleOscillator!, float);
+    method public void setTranslationVelocity(androidx.constraintlayout.core.motion.utils.SplineSet!, androidx.constraintlayout.core.motion.utils.SplineSet!, float);
   }
 
   public class ViewState {
@@ -1875,28 +1875,28 @@ package androidx.constraintlayout.core.parser {
     method public static androidx.constraintlayout.core.parser.CLElement! allocate(char[]!);
     method public void clear();
     method public androidx.constraintlayout.core.parser.CLContainer clone();
-    method public androidx.constraintlayout.core.parser.CLElement! get(String!) throws androidx.constraintlayout.core.parser.CLParsingException;
     method public androidx.constraintlayout.core.parser.CLElement! get(int) throws androidx.constraintlayout.core.parser.CLParsingException;
-    method public androidx.constraintlayout.core.parser.CLArray! getArray(String!) throws androidx.constraintlayout.core.parser.CLParsingException;
+    method public androidx.constraintlayout.core.parser.CLElement! get(String!) throws androidx.constraintlayout.core.parser.CLParsingException;
     method public androidx.constraintlayout.core.parser.CLArray! getArray(int) throws androidx.constraintlayout.core.parser.CLParsingException;
+    method public androidx.constraintlayout.core.parser.CLArray! getArray(String!) throws androidx.constraintlayout.core.parser.CLParsingException;
     method public androidx.constraintlayout.core.parser.CLArray! getArrayOrCreate(String!);
     method public androidx.constraintlayout.core.parser.CLArray! getArrayOrNull(String!);
-    method public boolean getBoolean(String!) throws androidx.constraintlayout.core.parser.CLParsingException;
     method public boolean getBoolean(int) throws androidx.constraintlayout.core.parser.CLParsingException;
-    method public float getFloat(String!) throws androidx.constraintlayout.core.parser.CLParsingException;
+    method public boolean getBoolean(String!) throws androidx.constraintlayout.core.parser.CLParsingException;
     method public float getFloat(int) throws androidx.constraintlayout.core.parser.CLParsingException;
+    method public float getFloat(String!) throws androidx.constraintlayout.core.parser.CLParsingException;
     method public float getFloatOrNaN(String!);
-    method public int getInt(String!) throws androidx.constraintlayout.core.parser.CLParsingException;
     method public int getInt(int) throws androidx.constraintlayout.core.parser.CLParsingException;
-    method public androidx.constraintlayout.core.parser.CLObject! getObject(String!) throws androidx.constraintlayout.core.parser.CLParsingException;
+    method public int getInt(String!) throws androidx.constraintlayout.core.parser.CLParsingException;
     method public androidx.constraintlayout.core.parser.CLObject! getObject(int) throws androidx.constraintlayout.core.parser.CLParsingException;
+    method public androidx.constraintlayout.core.parser.CLObject! getObject(String!) throws androidx.constraintlayout.core.parser.CLParsingException;
     method public androidx.constraintlayout.core.parser.CLObject! getObjectOrNull(String!);
-    method public androidx.constraintlayout.core.parser.CLElement! getOrNull(String!);
     method public androidx.constraintlayout.core.parser.CLElement! getOrNull(int);
-    method public String! getString(String!) throws androidx.constraintlayout.core.parser.CLParsingException;
+    method public androidx.constraintlayout.core.parser.CLElement! getOrNull(String!);
     method public String! getString(int) throws androidx.constraintlayout.core.parser.CLParsingException;
-    method public String! getStringOrNull(String!);
+    method public String! getString(String!) throws androidx.constraintlayout.core.parser.CLParsingException;
     method public String! getStringOrNull(int);
+    method public String! getStringOrNull(String!);
     method public boolean has(String!);
     method public java.util.ArrayList<java.lang.String!>! names();
     method public void put(String!, androidx.constraintlayout.core.parser.CLElement!);
@@ -1965,8 +1965,8 @@ package androidx.constraintlayout.core.parser {
 
   public class CLParser {
     ctor public CLParser(String!);
-    method public static androidx.constraintlayout.core.parser.CLObject! parse(String!) throws androidx.constraintlayout.core.parser.CLParsingException;
     method public androidx.constraintlayout.core.parser.CLObject! parse() throws androidx.constraintlayout.core.parser.CLParsingException;
+    method public static androidx.constraintlayout.core.parser.CLObject! parse(String!) throws androidx.constraintlayout.core.parser.CLParsingException;
   }
 
   public class CLParsingException extends java.lang.Exception {
@@ -2046,10 +2046,10 @@ package androidx.constraintlayout.core.state {
     method public androidx.constraintlayout.core.state.ConstraintReference! left();
     method public androidx.constraintlayout.core.state.ConstraintReference! leftToLeft(Object!);
     method public androidx.constraintlayout.core.state.ConstraintReference! leftToRight(Object!);
-    method public androidx.constraintlayout.core.state.ConstraintReference! margin(Object!);
     method public androidx.constraintlayout.core.state.ConstraintReference! margin(int);
-    method public androidx.constraintlayout.core.state.ConstraintReference! marginGone(Object!);
+    method public androidx.constraintlayout.core.state.ConstraintReference! margin(Object!);
     method public androidx.constraintlayout.core.state.ConstraintReference! marginGone(int);
+    method public androidx.constraintlayout.core.state.ConstraintReference! marginGone(Object!);
     method public androidx.constraintlayout.core.state.ConstraintReference! pivotX(float);
     method public androidx.constraintlayout.core.state.ConstraintReference! pivotY(float);
     method public androidx.constraintlayout.core.state.ConstraintReference! right();
@@ -2119,8 +2119,8 @@ package androidx.constraintlayout.core.state {
   public class ConstraintSetParser {
     ctor public ConstraintSetParser();
     method public static void parseDesignElementsJSON(String!, java.util.ArrayList<androidx.constraintlayout.core.state.ConstraintSetParser.DesignElement!>!) throws androidx.constraintlayout.core.parser.CLParsingException;
-    method public static void parseJSON(String!, androidx.constraintlayout.core.state.Transition!, int);
     method public static void parseJSON(String!, androidx.constraintlayout.core.state.State!, androidx.constraintlayout.core.state.ConstraintSetParser.LayoutVariables!) throws androidx.constraintlayout.core.parser.CLParsingException;
+    method public static void parseJSON(String!, androidx.constraintlayout.core.state.Transition!, int);
     method public static void parseMotionSceneJSON(androidx.constraintlayout.core.state.CoreMotionScene!, String!);
   }
 
@@ -2142,8 +2142,8 @@ package androidx.constraintlayout.core.state {
   }
 
   public interface CoreMotionScene {
-    method public String! getConstraintSet(String!);
     method public String! getConstraintSet(int);
+    method public String! getConstraintSet(String!);
     method public String! getTransition(String!);
     method public void setConstraintSetContent(String!, String!);
     method public void setDebugName(String!);
@@ -2166,8 +2166,8 @@ package androidx.constraintlayout.core.state {
     method public static androidx.constraintlayout.core.state.Dimension! createSuggested(Object!);
     method public static androidx.constraintlayout.core.state.Dimension! createWrap();
     method public boolean equalsFixedValue(int);
-    method public androidx.constraintlayout.core.state.Dimension! fixed(Object!);
     method public androidx.constraintlayout.core.state.Dimension! fixed(int);
+    method public androidx.constraintlayout.core.state.Dimension! fixed(Object!);
     method public androidx.constraintlayout.core.state.Dimension! max(int);
     method public androidx.constraintlayout.core.state.Dimension! max(Object!);
     method public androidx.constraintlayout.core.state.Dimension! min(int);
@@ -2373,21 +2373,21 @@ package androidx.constraintlayout.core.state {
     method public androidx.constraintlayout.core.state.Transition.KeyPosition! findNextPosition(String!, int);
     method public androidx.constraintlayout.core.state.Transition.KeyPosition! findPreviousPosition(String!, int);
     method public int getAutoTransition();
-    method public androidx.constraintlayout.core.state.WidgetFrame! getEnd(String!);
     method public androidx.constraintlayout.core.state.WidgetFrame! getEnd(androidx.constraintlayout.core.widgets.ConstraintWidget!);
+    method public androidx.constraintlayout.core.state.WidgetFrame! getEnd(String!);
     method public int getId(String!);
-    method public androidx.constraintlayout.core.state.WidgetFrame! getInterpolated(String!);
     method public androidx.constraintlayout.core.state.WidgetFrame! getInterpolated(androidx.constraintlayout.core.widgets.ConstraintWidget!);
+    method public androidx.constraintlayout.core.state.WidgetFrame! getInterpolated(String!);
     method public int getInterpolatedHeight();
     method public int getInterpolatedWidth();
-    method public static androidx.constraintlayout.core.state.Interpolator! getInterpolator(int, String!);
     method public androidx.constraintlayout.core.state.Interpolator! getInterpolator();
+    method public static androidx.constraintlayout.core.state.Interpolator! getInterpolator(int, String!);
     method public int getKeyFrames(String!, float[]!, int[]!, int[]!);
     method public androidx.constraintlayout.core.motion.Motion! getMotion(String!);
     method public int getNumberKeyPositions(androidx.constraintlayout.core.state.WidgetFrame!);
     method public float[]! getPath(String!);
-    method public androidx.constraintlayout.core.state.WidgetFrame! getStart(String!);
     method public androidx.constraintlayout.core.state.WidgetFrame! getStart(androidx.constraintlayout.core.widgets.ConstraintWidget!);
+    method public androidx.constraintlayout.core.state.WidgetFrame! getStart(String!);
     method public float getTouchUpProgress(long);
     method public androidx.constraintlayout.core.state.Transition.WidgetState! getWidgetState(String!, androidx.constraintlayout.core.widgets.ConstraintWidget!, int);
     method public boolean hasOnSwipe();
@@ -2397,10 +2397,10 @@ package androidx.constraintlayout.core.state {
     method public boolean isTouchNotDone(float);
     method public void setTouchUp(float, long, float, float);
     method public void setTransitionProperties(androidx.constraintlayout.core.motion.utils.TypedBundle!);
-    method public boolean setValue(int, int);
-    method public boolean setValue(int, float);
-    method public boolean setValue(int, String!);
     method public boolean setValue(int, boolean);
+    method public boolean setValue(int, float);
+    method public boolean setValue(int, int);
+    method public boolean setValue(int, String!);
     method public void updateFrom(androidx.constraintlayout.core.widgets.ConstraintWidgetContainer!, int);
     field public static final int END = 1; // 0x1
     field public static final int INTERPOLATED = 2; // 0x2
@@ -2427,8 +2427,8 @@ package androidx.constraintlayout.core.state {
 
   public class WidgetFrame {
     ctor public WidgetFrame();
-    ctor public WidgetFrame(androidx.constraintlayout.core.widgets.ConstraintWidget!);
     ctor public WidgetFrame(androidx.constraintlayout.core.state.WidgetFrame!);
+    ctor public WidgetFrame(androidx.constraintlayout.core.widgets.ConstraintWidget!);
     method public void addCustomColor(String!, int);
     method public void addCustomFloat(String!, float);
     method public float centerX();
@@ -2445,9 +2445,9 @@ package androidx.constraintlayout.core.state {
     method public boolean isDefaultTransform();
     method public StringBuilder! serialize(StringBuilder!);
     method public StringBuilder! serialize(StringBuilder!, boolean);
+    method public void setCustomAttribute(String!, int, boolean);
     method public void setCustomAttribute(String!, int, float);
     method public void setCustomAttribute(String!, int, int);
-    method public void setCustomAttribute(String!, int, boolean);
     method public void setCustomAttribute(String!, int, String!);
     method public void setCustomValue(androidx.constraintlayout.core.motion.CustomAttribute!, float[]!);
     method public boolean setValue(String!, androidx.constraintlayout.core.parser.CLElement!) throws androidx.constraintlayout.core.parser.CLParsingException;
@@ -2758,8 +2758,8 @@ package androidx.constraintlayout.core.widgets {
 
   public class ConstraintAnchor {
     ctor public ConstraintAnchor(androidx.constraintlayout.core.widgets.ConstraintWidget!, androidx.constraintlayout.core.widgets.ConstraintAnchor.Type!);
-    method public boolean connect(androidx.constraintlayout.core.widgets.ConstraintAnchor!, int, int, boolean);
     method public boolean connect(androidx.constraintlayout.core.widgets.ConstraintAnchor!, int);
+    method public boolean connect(androidx.constraintlayout.core.widgets.ConstraintAnchor!, int, int, boolean);
     method public void copyFrom(androidx.constraintlayout.core.widgets.ConstraintAnchor!, java.util.HashMap<androidx.constraintlayout.core.widgets.ConstraintWidget!,androidx.constraintlayout.core.widgets.ConstraintWidget!>!);
     method public void findDependents(int, java.util.ArrayList<androidx.constraintlayout.core.widgets.analyzer.WidgetGroup!>!, androidx.constraintlayout.core.widgets.analyzer.WidgetGroup!);
     method public java.util.HashSet<androidx.constraintlayout.core.widgets.ConstraintAnchor!>! getDependents();
@@ -2774,8 +2774,8 @@ package androidx.constraintlayout.core.widgets {
     method public boolean hasDependents();
     method public boolean hasFinalValue();
     method public boolean isConnected();
-    method public boolean isConnectionAllowed(androidx.constraintlayout.core.widgets.ConstraintWidget!, androidx.constraintlayout.core.widgets.ConstraintAnchor!);
     method public boolean isConnectionAllowed(androidx.constraintlayout.core.widgets.ConstraintWidget!);
+    method public boolean isConnectionAllowed(androidx.constraintlayout.core.widgets.ConstraintWidget!, androidx.constraintlayout.core.widgets.ConstraintAnchor!);
     method public boolean isSideAnchor();
     method public boolean isSimilarDimensionConnection(androidx.constraintlayout.core.widgets.ConstraintAnchor!);
     method public boolean isValidConnection(androidx.constraintlayout.core.widgets.ConstraintAnchor!);
@@ -2806,11 +2806,11 @@ package androidx.constraintlayout.core.widgets {
 
   public class ConstraintWidget {
     ctor public ConstraintWidget();
-    ctor public ConstraintWidget(String!);
-    ctor public ConstraintWidget(int, int, int, int);
-    ctor public ConstraintWidget(String!, int, int, int, int);
     ctor public ConstraintWidget(int, int);
+    ctor public ConstraintWidget(int, int, int, int);
+    ctor public ConstraintWidget(String!);
     ctor public ConstraintWidget(String!, int, int);
+    ctor public ConstraintWidget(String!, int, int, int, int);
     method public void addChildrenToSolverByDependency(androidx.constraintlayout.core.widgets.ConstraintWidgetContainer!, androidx.constraintlayout.core.LinearSystem!, java.util.HashSet<androidx.constraintlayout.core.widgets.ConstraintWidget!>!, int, boolean);
     method public void addToSolver(androidx.constraintlayout.core.LinearSystem!, boolean);
     method public boolean allowedInBarrier();
@@ -2911,16 +2911,16 @@ package androidx.constraintlayout.core.widgets {
     method public void setDebugName(String!);
     method public void setDebugSolverName(androidx.constraintlayout.core.LinearSystem!, String!);
     method public void setDimension(int, int);
-    method public void setDimensionRatio(String!);
     method public void setDimensionRatio(float, int);
+    method public void setDimensionRatio(String!);
     method public void setFinalBaseline(int);
     method public void setFinalFrame(int, int, int, int, int, int);
     method public void setFinalHorizontal(int, int);
     method public void setFinalLeft(int);
     method public void setFinalTop(int);
     method public void setFinalVertical(int, int);
-    method public void setFrame(int, int, int, int);
     method public void setFrame(int, int, int);
+    method public void setFrame(int, int, int, int);
     method public void setGoneMargin(androidx.constraintlayout.core.widgets.ConstraintAnchor.Type!, int);
     method public void setHasBaseline(boolean);
     method public void setHeight(int);
@@ -3044,8 +3044,8 @@ package androidx.constraintlayout.core.widgets {
 
   public class ConstraintWidgetContainer extends androidx.constraintlayout.core.widgets.WidgetContainer {
     ctor public ConstraintWidgetContainer();
-    ctor public ConstraintWidgetContainer(int, int, int, int);
     ctor public ConstraintWidgetContainer(int, int);
+    ctor public ConstraintWidgetContainer(int, int, int, int);
     ctor public ConstraintWidgetContainer(String!, int, int);
     method public boolean addChildrenToSolver(androidx.constraintlayout.core.LinearSystem!);
     method public void addHorizontalWrapMaxVariable(androidx.constraintlayout.core.widgets.ConstraintAnchor!);
@@ -3066,8 +3066,8 @@ package androidx.constraintlayout.core.widgets {
     method public boolean isHeightMeasuredTooSmall();
     method public boolean isRtl();
     method public boolean isWidthMeasuredTooSmall();
-    method public long measure(int, int, int, int, int, int, int, int, int);
     method public static boolean measure(int, androidx.constraintlayout.core.widgets.ConstraintWidget!, androidx.constraintlayout.core.widgets.analyzer.BasicMeasure.Measurer!, androidx.constraintlayout.core.widgets.analyzer.BasicMeasure.Measure!, int);
+    method public long measure(int, int, int, int, int, int, int, int, int);
     method public boolean optimizeFor(int);
     method public void setMeasurer(androidx.constraintlayout.core.widgets.analyzer.BasicMeasure.Measurer!);
     method public void setOptimizationLevel(int);
@@ -3140,8 +3140,8 @@ package androidx.constraintlayout.core.widgets {
     method public void setFinalValue(int);
     method public void setGuideBegin(int);
     method public void setGuideEnd(int);
-    method public void setGuidePercent(int);
     method public void setGuidePercent(float);
+    method public void setGuidePercent(int);
     method public void setMinimumPosition(int);
     method public void setOrientation(int);
     field public static final int HORIZONTAL = 0; // 0x0
@@ -3218,8 +3218,8 @@ package androidx.constraintlayout.core.widgets {
     method public int getPaddingLeft();
     method public int getPaddingRight();
     method public int getPaddingTop();
-    method public void measure(int, int, int, int);
     method protected void measure(androidx.constraintlayout.core.widgets.ConstraintWidget!, androidx.constraintlayout.core.widgets.ConstraintWidget.DimensionBehaviour!, int, androidx.constraintlayout.core.widgets.ConstraintWidget.DimensionBehaviour!, int);
+    method public void measure(int, int, int, int);
     method protected boolean measureChildren();
     method public boolean needSolverPass();
     method protected void needsCallbackFromSolver(boolean);
@@ -3236,8 +3236,8 @@ package androidx.constraintlayout.core.widgets {
 
   public class WidgetContainer extends androidx.constraintlayout.core.widgets.ConstraintWidget {
     ctor public WidgetContainer();
-    ctor public WidgetContainer(int, int, int, int);
     ctor public WidgetContainer(int, int);
+    ctor public WidgetContainer(int, int, int, int);
     method public void add(androidx.constraintlayout.core.widgets.ConstraintWidget!);
     method public void add(androidx.constraintlayout.core.widgets.ConstraintWidget!...);
     method public java.util.ArrayList<androidx.constraintlayout.core.widgets.ConstraintWidget!>! getChildren();

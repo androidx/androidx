@@ -1,19 +1,11 @@
 // Baseline format: 1.0
-ChangedType: androidx.work.Configuration#getInitializationExceptionHandler():
-    Method androidx.work.Configuration.getInitializationExceptionHandler has changed return type from androidx.core.util.Consumer<java.lang.Throwable!> to androidx.core.util.Consumer<java.lang.Throwable>
-ChangedType: androidx.work.Configuration#getSchedulingExceptionHandler():
-    Method androidx.work.Configuration.getSchedulingExceptionHandler has changed return type from androidx.core.util.Consumer<java.lang.Throwable!> to androidx.core.util.Consumer<java.lang.Throwable>
-ChangedType: androidx.work.WorkInfo#getTags():
-    Method androidx.work.WorkInfo.getTags has changed return type from java.util.Set<java.lang.String!> to java.util.Set<java.lang.String>
-
-
-ParameterNameChange: androidx.work.BackoffPolicy#valueOf(String) parameter #0:
-    Attempted to change parameter name from name to value in method androidx.work.BackoffPolicy.valueOf
-ParameterNameChange: androidx.work.ExistingPeriodicWorkPolicy#valueOf(String) parameter #0:
-    Attempted to change parameter name from name to value in method androidx.work.ExistingPeriodicWorkPolicy.valueOf
-ParameterNameChange: androidx.work.ExistingWorkPolicy#valueOf(String) parameter #0:
-    Attempted to change parameter name from name to value in method androidx.work.ExistingWorkPolicy.valueOf
-ParameterNameChange: androidx.work.NetworkType#valueOf(String) parameter #0:
-    Attempted to change parameter name from name to value in method androidx.work.NetworkType.valueOf
-ParameterNameChange: androidx.work.OutOfQuotaPolicy#valueOf(String) parameter #0:
-    Attempted to change parameter name from name to value in method androidx.work.OutOfQuotaPolicy.valueOf
+ChangedType: androidx.work.WorkQuery#getIds():
+    Method androidx.work.WorkQuery.getIds has changed return type from java.util.List<java.util.UUID!> to java.util.List<java.util.UUID>
+ChangedType: androidx.work.WorkQuery#getStates():
+    Method androidx.work.WorkQuery.getStates has changed return type from java.util.List<androidx.work.WorkInfo.State!> to java.util.List<androidx.work.WorkInfo.State>
+ChangedType: androidx.work.WorkQuery#getTags():
+    Method androidx.work.WorkQuery.getTags has changed return type from java.util.List<java.lang.String!> to java.util.List<java.lang.String>
+ChangedType: androidx.work.WorkQuery#getUniqueWorkNames():
+    Method androidx.work.WorkQuery.getUniqueWorkNames has changed return type from java.util.List<java.lang.String!> to java.util.List<java.lang.String>
+ChangedType: androidx.work.Worker#startWork():
+    Method androidx.work.Worker.startWork has changed return type from com.google.common.util.concurrent.ListenableFuture<androidx.work.ListenableWorker.Result> to com.google.common.util.concurrent.ListenableFuture<androidx.work.ListenableWorker.Result>

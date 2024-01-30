@@ -19,8 +19,8 @@ package androidx.wear.tiles.material {
     method @Deprecated public androidx.wear.tiles.material.Button.Builder setButtonColors(androidx.wear.tiles.material.ButtonColors);
     method @Deprecated public androidx.wear.tiles.material.Button.Builder setContentDescription(CharSequence);
     method @Deprecated public androidx.wear.tiles.material.Button.Builder setCustomContent(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
-    method @Deprecated public androidx.wear.tiles.material.Button.Builder setIconContent(String, androidx.wear.tiles.DimensionBuilders.DpProp);
     method @Deprecated public androidx.wear.tiles.material.Button.Builder setIconContent(String);
+    method @Deprecated public androidx.wear.tiles.material.Button.Builder setIconContent(String, androidx.wear.tiles.DimensionBuilders.DpProp);
     method @Deprecated public androidx.wear.tiles.material.Button.Builder setImageContent(String);
     method @Deprecated public androidx.wear.tiles.material.Button.Builder setSize(androidx.wear.tiles.DimensionBuilders.DpProp);
     method @Deprecated public androidx.wear.tiles.material.Button.Builder setSize(@Dimension(unit=androidx.annotation.Dimension.DP) float);
@@ -29,8 +29,8 @@ package androidx.wear.tiles.material {
   }
 
   @Deprecated public class ButtonColors {
-    ctor @Deprecated public ButtonColors(@ColorInt int, @ColorInt int);
     ctor @Deprecated public ButtonColors(androidx.wear.tiles.ColorBuilders.ColorProp, androidx.wear.tiles.ColorBuilders.ColorProp);
+    ctor @Deprecated public ButtonColors(@ColorInt int, @ColorInt int);
     method @Deprecated public androidx.wear.tiles.ColorBuilders.ColorProp getBackgroundColor();
     method @Deprecated public androidx.wear.tiles.ColorBuilders.ColorProp getContentColor();
     method @Deprecated public static androidx.wear.tiles.material.ButtonColors primaryButtonColors(androidx.wear.tiles.material.Colors);
@@ -76,10 +76,10 @@ package androidx.wear.tiles.material {
   }
 
   @Deprecated public class ChipColors {
-    ctor @Deprecated public ChipColors(@ColorInt int, @ColorInt int, @ColorInt int, @ColorInt int);
-    ctor @Deprecated public ChipColors(@ColorInt int, @ColorInt int);
-    ctor @Deprecated public ChipColors(androidx.wear.tiles.ColorBuilders.ColorProp, androidx.wear.tiles.ColorBuilders.ColorProp, androidx.wear.tiles.ColorBuilders.ColorProp, androidx.wear.tiles.ColorBuilders.ColorProp);
     ctor @Deprecated public ChipColors(androidx.wear.tiles.ColorBuilders.ColorProp, androidx.wear.tiles.ColorBuilders.ColorProp);
+    ctor @Deprecated public ChipColors(androidx.wear.tiles.ColorBuilders.ColorProp, androidx.wear.tiles.ColorBuilders.ColorProp, androidx.wear.tiles.ColorBuilders.ColorProp, androidx.wear.tiles.ColorBuilders.ColorProp);
+    ctor @Deprecated public ChipColors(@ColorInt int, @ColorInt int);
+    ctor @Deprecated public ChipColors(@ColorInt int, @ColorInt int, @ColorInt int, @ColorInt int);
     method @Deprecated public androidx.wear.tiles.ColorBuilders.ColorProp getBackgroundColor();
     method @Deprecated public androidx.wear.tiles.ColorBuilders.ColorProp getContentColor();
     method @Deprecated public androidx.wear.tiles.ColorBuilders.ColorProp getIconColor();

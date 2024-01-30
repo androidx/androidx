@@ -53,8 +53,8 @@ package androidx.security.identity {
     method public abstract void setAvailableAuthenticationKeys(int, int);
     method public abstract void setReaderEphemeralPublicKey(java.security.PublicKey) throws java.security.InvalidKeyException;
     method public abstract void setSessionTranscript(byte[]);
-    method @Deprecated public abstract void storeStaticAuthenticationData(java.security.cert.X509Certificate, byte[]) throws androidx.security.identity.UnknownAuthenticationKeyException;
     method public void storeStaticAuthenticationData(java.security.cert.X509Certificate, android.icu.util.Calendar, byte[]) throws androidx.security.identity.UnknownAuthenticationKeyException;
+    method @Deprecated public abstract void storeStaticAuthenticationData(java.security.cert.X509Certificate, byte[]) throws androidx.security.identity.UnknownAuthenticationKeyException;
     method public byte[] update(androidx.security.identity.PersonalizationData);
   }
 

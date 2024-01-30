@@ -53,6 +53,7 @@ package androidx.camera.core {
     method public androidx.camera.core.CameraXConfig build();
     method public static androidx.camera.core.CameraXConfig.Builder fromConfig(androidx.camera.core.CameraXConfig);
     method public androidx.camera.core.CameraXConfig.Builder setCameraExecutor(java.util.concurrent.Executor);
+    method @androidx.camera.core.ExperimentalCustomizableThreads public androidx.camera.core.CameraXConfig.Builder setSchedulerHandler(android.os.Handler);
   }
 
   public static interface CameraXConfig.Provider {
@@ -61,6 +62,12 @@ package androidx.camera.core {
 
   public final class DisplayOrientedMeteringPointFactory extends androidx.camera.core.MeteringPointFactory {
     ctor public DisplayOrientedMeteringPointFactory(android.view.Display, androidx.camera.core.CameraSelector, float, float);
+  }
+
+  @experimental.Experimental @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalCustomizableThreads {
+  }
+
+  @experimental.Experimental @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalGetImage {
   }
 
   public interface ExtendableBuilder<T> {
@@ -203,6 +210,7 @@ package androidx.camera.core {
     method public android.graphics.Rect getCropRect();
     method public int getFormat();
     method public int getHeight();
+    method @androidx.camera.core.ExperimentalGetImage public android.media.Image? getImage();
     method public androidx.camera.core.ImageInfo getImageInfo();
     method public androidx.camera.core.ImageProxy.PlaneProxy![] getPlanes();
     method public int getWidth();

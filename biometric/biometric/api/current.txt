@@ -28,12 +28,12 @@ package androidx.biometric {
   }
 
   public class BiometricPrompt {
-    ctor public BiometricPrompt(androidx.fragment.app.FragmentActivity, androidx.biometric.BiometricPrompt.AuthenticationCallback);
     ctor public BiometricPrompt(androidx.fragment.app.Fragment, androidx.biometric.BiometricPrompt.AuthenticationCallback);
-    ctor public BiometricPrompt(androidx.fragment.app.FragmentActivity, java.util.concurrent.Executor, androidx.biometric.BiometricPrompt.AuthenticationCallback);
     ctor public BiometricPrompt(androidx.fragment.app.Fragment, java.util.concurrent.Executor, androidx.biometric.BiometricPrompt.AuthenticationCallback);
-    method public void authenticate(androidx.biometric.BiometricPrompt.PromptInfo, androidx.biometric.BiometricPrompt.CryptoObject);
+    ctor public BiometricPrompt(androidx.fragment.app.FragmentActivity, androidx.biometric.BiometricPrompt.AuthenticationCallback);
+    ctor public BiometricPrompt(androidx.fragment.app.FragmentActivity, java.util.concurrent.Executor, androidx.biometric.BiometricPrompt.AuthenticationCallback);
     method public void authenticate(androidx.biometric.BiometricPrompt.PromptInfo);
+    method public void authenticate(androidx.biometric.BiometricPrompt.PromptInfo, androidx.biometric.BiometricPrompt.CryptoObject);
     method public void cancelAuthentication();
     field public static final int AUTHENTICATION_RESULT_TYPE_BIOMETRIC = 2; // 0x2
     field public static final int AUTHENTICATION_RESULT_TYPE_DEVICE_CREDENTIAL = 1; // 0x1
@@ -67,11 +67,11 @@ package androidx.biometric {
   }
 
   public static class BiometricPrompt.CryptoObject {
+    ctor @RequiresApi(android.os.Build.VERSION_CODES.R) public BiometricPrompt.CryptoObject(android.security.identity.IdentityCredential);
+    ctor @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public BiometricPrompt.CryptoObject(android.security.identity.PresentationSession);
     ctor public BiometricPrompt.CryptoObject(java.security.Signature);
     ctor public BiometricPrompt.CryptoObject(javax.crypto.Cipher);
     ctor public BiometricPrompt.CryptoObject(javax.crypto.Mac);
-    ctor @RequiresApi(android.os.Build.VERSION_CODES.R) public BiometricPrompt.CryptoObject(android.security.identity.IdentityCredential);
-    ctor @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public BiometricPrompt.CryptoObject(android.security.identity.PresentationSession);
     method public javax.crypto.Cipher? getCipher();
     method @RequiresApi(android.os.Build.VERSION_CODES.R) public android.security.identity.IdentityCredential? getIdentityCredential();
     method public javax.crypto.Mac? getMac();
@@ -117,8 +117,8 @@ package androidx.biometric.auth {
   }
 
   public class AuthPromptHost {
-    ctor public AuthPromptHost(androidx.fragment.app.FragmentActivity);
     ctor public AuthPromptHost(androidx.fragment.app.Fragment);
+    ctor public AuthPromptHost(androidx.fragment.app.FragmentActivity);
     method public androidx.fragment.app.FragmentActivity? getActivity();
     method public androidx.fragment.app.Fragment? getFragment();
   }

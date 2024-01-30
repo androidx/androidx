@@ -79,42 +79,6 @@ MissingBuildMethod: androidx.sqlite.db.SupportSQLiteQueryBuilder:
     androidx.sqlite.db.SupportSQLiteQueryBuilder does not declare a `build()` method, but builder classes are expected to
 
 
-MissingNullability: androidx.sqlite.db.SupportSQLiteQueryBuilder#builder(String):
-    Missing nullability on method `builder` return
-MissingNullability: androidx.sqlite.db.SupportSQLiteQueryBuilder#builder(String) parameter #0:
-    Missing nullability on parameter `tableName` in method `builder`
-MissingNullability: androidx.sqlite.db.SupportSQLiteQueryBuilder#columns(String[]):
-    Missing nullability on method `columns` return
-MissingNullability: androidx.sqlite.db.SupportSQLiteQueryBuilder#columns(String[]) parameter #0:
-    Missing nullability on parameter `columns` in method `columns`
-MissingNullability: androidx.sqlite.db.SupportSQLiteQueryBuilder#create():
-    Missing nullability on method `create` return
-MissingNullability: androidx.sqlite.db.SupportSQLiteQueryBuilder#distinct():
-    Missing nullability on method `distinct` return
-MissingNullability: androidx.sqlite.db.SupportSQLiteQueryBuilder#groupBy(String):
-    Missing nullability on method `groupBy` return
-MissingNullability: androidx.sqlite.db.SupportSQLiteQueryBuilder#groupBy(String) parameter #0:
-    Missing nullability on parameter `groupBy` in method `groupBy`
-MissingNullability: androidx.sqlite.db.SupportSQLiteQueryBuilder#having(String):
-    Missing nullability on method `having` return
-MissingNullability: androidx.sqlite.db.SupportSQLiteQueryBuilder#having(String) parameter #0:
-    Missing nullability on parameter `having` in method `having`
-MissingNullability: androidx.sqlite.db.SupportSQLiteQueryBuilder#limit(String):
-    Missing nullability on method `limit` return
-MissingNullability: androidx.sqlite.db.SupportSQLiteQueryBuilder#limit(String) parameter #0:
-    Missing nullability on parameter `limit` in method `limit`
-MissingNullability: androidx.sqlite.db.SupportSQLiteQueryBuilder#orderBy(String):
-    Missing nullability on method `orderBy` return
-MissingNullability: androidx.sqlite.db.SupportSQLiteQueryBuilder#orderBy(String) parameter #0:
-    Missing nullability on parameter `orderBy` in method `orderBy`
-MissingNullability: androidx.sqlite.db.SupportSQLiteQueryBuilder#selection(String, Object[]):
-    Missing nullability on method `selection` return
-MissingNullability: androidx.sqlite.db.SupportSQLiteQueryBuilder#selection(String, Object[]) parameter #0:
-    Missing nullability on parameter `selection` in method `selection`
-MissingNullability: androidx.sqlite.db.SupportSQLiteQueryBuilder#selection(String, Object[]) parameter #1:
-    Missing nullability on parameter `bindArgs` in method `selection`
-
-
 StaticFinalBuilder: androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration.Builder:
     Builder must be final: androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration.Builder
 

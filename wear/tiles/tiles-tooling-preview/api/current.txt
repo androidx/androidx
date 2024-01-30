@@ -1,0 +1,37 @@
+// Signature format: 4.0
+package androidx.wear.tiles.tooling.preview {
+
+  @kotlin.annotation.MustBeDocumented @kotlin.annotation.Repeatable @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.ANNOTATION_CLASS, kotlin.annotation.AnnotationTarget.FUNCTION}) public @interface TilePreview {
+    method public abstract String device() default androidx.wear.tooling.preview.devices.WearDevices.SMALL_ROUND;
+    method public abstract float fontScale() default 1.0;
+    method public abstract String group() default "";
+    method public abstract String locale() default "";
+    method public abstract String name() default "";
+    property public abstract String device;
+    property public abstract float fontScale;
+    property public abstract String group;
+    property public abstract String locale;
+    property public abstract String name;
+  }
+
+  @kotlin.annotation.MustBeDocumented @kotlin.annotation.Repeatable @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.ANNOTATION_CLASS, kotlin.annotation.AnnotationTarget.FUNCTION}) public static @interface TilePreview.Container {
+    method public abstract androidx.wear.tiles.tooling.preview.TilePreview[] value();
+  }
+
+  public final class TilePreviewData {
+    ctor public TilePreviewData(optional kotlin.jvm.functions.Function1<? super androidx.wear.tiles.RequestBuilders.ResourcesRequest,androidx.wear.protolayout.ResourceBuilders.Resources> onTileResourceRequest, kotlin.jvm.functions.Function1<? super androidx.wear.tiles.RequestBuilders.TileRequest,androidx.wear.tiles.TileBuilders.Tile> onTileRequest);
+    ctor public TilePreviewData(kotlin.jvm.functions.Function1<? super androidx.wear.tiles.RequestBuilders.TileRequest,androidx.wear.tiles.TileBuilders.Tile> onTileRequest);
+    method public kotlin.jvm.functions.Function1<androidx.wear.tiles.RequestBuilders.TileRequest,androidx.wear.tiles.TileBuilders.Tile> getOnTileRequest();
+    method public kotlin.jvm.functions.Function1<androidx.wear.tiles.RequestBuilders.ResourcesRequest,androidx.wear.protolayout.ResourceBuilders.Resources> getOnTileResourceRequest();
+    property public final kotlin.jvm.functions.Function1<androidx.wear.tiles.RequestBuilders.TileRequest,androidx.wear.tiles.TileBuilders.Tile> onTileRequest;
+    property public final kotlin.jvm.functions.Function1<androidx.wear.tiles.RequestBuilders.ResourcesRequest,androidx.wear.protolayout.ResourceBuilders.Resources> onTileResourceRequest;
+  }
+
+  public final class TilePreviewHelper {
+    method public static androidx.wear.tiles.TileBuilders.Tile.Builder singleTimelineEntryTileBuilder(androidx.wear.protolayout.LayoutElementBuilders.Layout layout);
+    method public static androidx.wear.tiles.TileBuilders.Tile.Builder singleTimelineEntryTileBuilder(androidx.wear.protolayout.LayoutElementBuilders.LayoutElement layoutElement);
+    field public static final androidx.wear.tiles.tooling.preview.TilePreviewHelper INSTANCE;
+  }
+
+}
+

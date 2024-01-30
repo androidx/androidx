@@ -15,7 +15,7 @@ export USE_ANDROIDX_REMOTE_BUILD_CACHE=false
 # Setup simulators
 impl/androidx-native-mac-simulator-setup.sh
 
-impl/build.sh buildOnServer --no-configuration-cache createAllArchives -Pandroidx.constraints=true
+impl/build.sh buildOnServer listTaskOutputs --no-configuration-cache createAllArchives -Pandroidx.constraints=true
 
 # run a separate createAllArchives task to prepare a repository
 # folder in DIST.

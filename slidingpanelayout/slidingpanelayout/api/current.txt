@@ -2,12 +2,12 @@
 package androidx.slidingpanelayout.widget {
 
   public class SlidingPaneLayout extends android.view.ViewGroup implements androidx.customview.widget.Openable {
-    ctor public SlidingPaneLayout(android.content.Context);
-    ctor public SlidingPaneLayout(android.content.Context, android.util.AttributeSet?);
-    ctor public SlidingPaneLayout(android.content.Context, android.util.AttributeSet?, int);
-    method public void addPanelSlideListener(androidx.slidingpanelayout.widget.SlidingPaneLayout.PanelSlideListener);
-    method public void addSlideableStateListener(androidx.slidingpanelayout.widget.SlidingPaneLayout.SlideableStateListener);
-    method protected boolean canScroll(android.view.View, boolean, int, int, int);
+    ctor public SlidingPaneLayout(android.content.Context context);
+    ctor public SlidingPaneLayout(android.content.Context context, optional android.util.AttributeSet? attrs);
+    ctor public SlidingPaneLayout(android.content.Context context, optional android.util.AttributeSet? attrs, optional int defStyle);
+    method public void addPanelSlideListener(androidx.slidingpanelayout.widget.SlidingPaneLayout.PanelSlideListener listener);
+    method public void addSlideableStateListener(androidx.slidingpanelayout.widget.SlidingPaneLayout.SlideableStateListener listener);
+    method protected boolean canScroll(android.view.View v, boolean checkV, int dx, int x, int y);
     method @Deprecated public boolean canSlide();
     method public void close();
     method public boolean closePane();
@@ -16,55 +16,73 @@ package androidx.slidingpanelayout.widget {
     method @Px public int getParallaxDistance();
     method @Deprecated @ColorInt public int getSliderFadeColor();
     method public boolean isOpen();
+    method public final boolean isOverlappingEnabled();
     method public boolean isSlideable();
+    method public final boolean isUserResizable();
+    method public final boolean isUserResizingEnabled();
     method public void open();
     method public boolean openPane();
-    method public void removePanelSlideListener(androidx.slidingpanelayout.widget.SlidingPaneLayout.PanelSlideListener);
-    method public void removeSlideableStateListener(androidx.slidingpanelayout.widget.SlidingPaneLayout.SlideableStateListener);
-    method @Deprecated public void setCoveredFadeColor(@ColorInt int);
+    method public void removePanelSlideListener(androidx.slidingpanelayout.widget.SlidingPaneLayout.PanelSlideListener listener);
+    method public void removeSlideableStateListener(androidx.slidingpanelayout.widget.SlidingPaneLayout.SlideableStateListener listener);
+    method @Deprecated public void setCoveredFadeColor(int);
     method public final void setLockMode(int);
-    method @Deprecated public void setPanelSlideListener(androidx.slidingpanelayout.widget.SlidingPaneLayout.PanelSlideListener?);
+    method public final void setOverlappingEnabled(boolean);
+    method @Deprecated public void setPanelSlideListener(androidx.slidingpanelayout.widget.SlidingPaneLayout.PanelSlideListener? listener);
     method public void setParallaxDistance(@Px int);
-    method @Deprecated public void setShadowDrawable(android.graphics.drawable.Drawable!);
-    method public void setShadowDrawableLeft(android.graphics.drawable.Drawable?);
-    method public void setShadowDrawableRight(android.graphics.drawable.Drawable?);
-    method @Deprecated public void setShadowResource(@DrawableRes int);
-    method public void setShadowResourceLeft(int);
-    method public void setShadowResourceRight(int);
-    method @Deprecated public void setSliderFadeColor(@ColorInt int);
+    method @Deprecated public void setShadowDrawable(android.graphics.drawable.Drawable? drawable);
+    method public void setShadowDrawableLeft(android.graphics.drawable.Drawable? drawable);
+    method public void setShadowDrawableRight(android.graphics.drawable.Drawable? drawable);
+    method @Deprecated public void setShadowResource(@DrawableRes int resId);
+    method public void setShadowResourceLeft(@DrawableRes int resId);
+    method public void setShadowResourceRight(@DrawableRes int resId);
+    method @Deprecated public void setSliderFadeColor(int);
+    method public final void setUserResizingDividerDrawable(android.graphics.drawable.Drawable? drawable);
+    method public final void setUserResizingEnabled(boolean);
     method @Deprecated public void smoothSlideClosed();
     method @Deprecated public void smoothSlideOpen();
+    property @Deprecated @ColorInt public int coveredFadeColor;
+    property public final boolean isOverlappingEnabled;
+    property public boolean isSlideable;
+    property public final boolean isUserResizable;
+    property public final boolean isUserResizingEnabled;
+    property public final int lockMode;
+    property @Px public int parallaxDistance;
+    property @Deprecated @ColorInt public int sliderFadeColor;
+    field public static final androidx.slidingpanelayout.widget.SlidingPaneLayout.Companion Companion;
     field public static final int LOCK_MODE_LOCKED = 3; // 0x3
     field public static final int LOCK_MODE_LOCKED_CLOSED = 2; // 0x2
     field public static final int LOCK_MODE_LOCKED_OPEN = 1; // 0x1
     field public static final int LOCK_MODE_UNLOCKED = 0; // 0x0
   }
 
+  public static final class SlidingPaneLayout.Companion {
+  }
+
   public static class SlidingPaneLayout.LayoutParams extends android.view.ViewGroup.MarginLayoutParams {
     ctor public SlidingPaneLayout.LayoutParams();
-    ctor public SlidingPaneLayout.LayoutParams(int, int);
-    ctor public SlidingPaneLayout.LayoutParams(android.view.ViewGroup.LayoutParams);
-    ctor public SlidingPaneLayout.LayoutParams(android.view.ViewGroup.MarginLayoutParams);
-    ctor public SlidingPaneLayout.LayoutParams(androidx.slidingpanelayout.widget.SlidingPaneLayout.LayoutParams);
-    ctor public SlidingPaneLayout.LayoutParams(android.content.Context, android.util.AttributeSet?);
+    ctor public SlidingPaneLayout.LayoutParams(android.content.Context context, android.util.AttributeSet? attrs);
+    ctor public SlidingPaneLayout.LayoutParams(android.view.ViewGroup.LayoutParams source);
+    ctor public SlidingPaneLayout.LayoutParams(android.view.ViewGroup.MarginLayoutParams source);
+    ctor public SlidingPaneLayout.LayoutParams(androidx.slidingpanelayout.widget.SlidingPaneLayout.LayoutParams source);
+    ctor public SlidingPaneLayout.LayoutParams(int width, int height);
     field public float weight;
   }
 
   public static interface SlidingPaneLayout.PanelSlideListener {
-    method public void onPanelClosed(android.view.View);
-    method public void onPanelOpened(android.view.View);
-    method public void onPanelSlide(android.view.View, float);
+    method public void onPanelClosed(android.view.View panel);
+    method public void onPanelOpened(android.view.View panel);
+    method public void onPanelSlide(android.view.View panel, float slideOffset);
   }
 
   public static class SlidingPaneLayout.SimplePanelSlideListener implements androidx.slidingpanelayout.widget.SlidingPaneLayout.PanelSlideListener {
     ctor public SlidingPaneLayout.SimplePanelSlideListener();
-    method public void onPanelClosed(android.view.View);
-    method public void onPanelOpened(android.view.View);
-    method public void onPanelSlide(android.view.View, float);
+    method public void onPanelClosed(android.view.View panel);
+    method public void onPanelOpened(android.view.View panel);
+    method public void onPanelSlide(android.view.View panel, float slideOffset);
   }
 
-  public static interface SlidingPaneLayout.SlideableStateListener {
-    method public void onSlideableStateChanged(boolean);
+  public static fun interface SlidingPaneLayout.SlideableStateListener {
+    method public void onSlideableStateChanged(boolean isSlideable);
   }
 
 }

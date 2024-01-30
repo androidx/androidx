@@ -1,0 +1,10 @@
+// Signature format: 4.0
+package androidx.privacysandbox.activity.provider {
+
+  public final class SdkActivityLauncherFactory {
+    method public static androidx.privacysandbox.activity.core.SdkActivityLauncher fromLauncherInfo(android.os.Bundle launcherInfo);
+    field public static final androidx.privacysandbox.activity.provider.SdkActivityLauncherFactory INSTANCE;
+  }
+
+}
+

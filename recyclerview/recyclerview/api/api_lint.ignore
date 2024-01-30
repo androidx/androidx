@@ -161,36 +161,6 @@ InternalField: androidx.recyclerview.widget.OrientationHelper#mLayoutManager:
     Internal field mLayoutManager must not be exposed
 
 
-InvalidNullabilityOverride: androidx.recyclerview.widget.RecyclerViewAccessibilityDelegate.ItemDelegate#dispatchPopulateAccessibilityEvent(android.view.View, android.view.accessibility.AccessibilityEvent) parameter #0:
-    Invalid nullability on parameter `host` in method `dispatchPopulateAccessibilityEvent`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
-InvalidNullabilityOverride: androidx.recyclerview.widget.RecyclerViewAccessibilityDelegate.ItemDelegate#dispatchPopulateAccessibilityEvent(android.view.View, android.view.accessibility.AccessibilityEvent) parameter #1:
-    Invalid nullability on parameter `event` in method `dispatchPopulateAccessibilityEvent`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
-InvalidNullabilityOverride: androidx.recyclerview.widget.RecyclerViewAccessibilityDelegate.ItemDelegate#getAccessibilityNodeProvider(android.view.View):
-    Invalid nullability on method `getAccessibilityNodeProvider` return. Overrides of unannotated super method cannot be Nullable.
-InvalidNullabilityOverride: androidx.recyclerview.widget.RecyclerViewAccessibilityDelegate.ItemDelegate#getAccessibilityNodeProvider(android.view.View) parameter #0:
-    Invalid nullability on parameter `host` in method `getAccessibilityNodeProvider`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
-InvalidNullabilityOverride: androidx.recyclerview.widget.RecyclerViewAccessibilityDelegate.ItemDelegate#onInitializeAccessibilityEvent(android.view.View, android.view.accessibility.AccessibilityEvent) parameter #0:
-    Invalid nullability on parameter `host` in method `onInitializeAccessibilityEvent`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
-InvalidNullabilityOverride: androidx.recyclerview.widget.RecyclerViewAccessibilityDelegate.ItemDelegate#onInitializeAccessibilityEvent(android.view.View, android.view.accessibility.AccessibilityEvent) parameter #1:
-    Invalid nullability on parameter `event` in method `onInitializeAccessibilityEvent`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
-InvalidNullabilityOverride: androidx.recyclerview.widget.RecyclerViewAccessibilityDelegate.ItemDelegate#onPopulateAccessibilityEvent(android.view.View, android.view.accessibility.AccessibilityEvent) parameter #0:
-    Invalid nullability on parameter `host` in method `onPopulateAccessibilityEvent`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
-InvalidNullabilityOverride: androidx.recyclerview.widget.RecyclerViewAccessibilityDelegate.ItemDelegate#onPopulateAccessibilityEvent(android.view.View, android.view.accessibility.AccessibilityEvent) parameter #1:
-    Invalid nullability on parameter `event` in method `onPopulateAccessibilityEvent`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
-InvalidNullabilityOverride: androidx.recyclerview.widget.RecyclerViewAccessibilityDelegate.ItemDelegate#onRequestSendAccessibilityEvent(android.view.ViewGroup, android.view.View, android.view.accessibility.AccessibilityEvent) parameter #0:
-    Invalid nullability on parameter `host` in method `onRequestSendAccessibilityEvent`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
-InvalidNullabilityOverride: androidx.recyclerview.widget.RecyclerViewAccessibilityDelegate.ItemDelegate#onRequestSendAccessibilityEvent(android.view.ViewGroup, android.view.View, android.view.accessibility.AccessibilityEvent) parameter #1:
-    Invalid nullability on parameter `child` in method `onRequestSendAccessibilityEvent`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
-InvalidNullabilityOverride: androidx.recyclerview.widget.RecyclerViewAccessibilityDelegate.ItemDelegate#onRequestSendAccessibilityEvent(android.view.ViewGroup, android.view.View, android.view.accessibility.AccessibilityEvent) parameter #2:
-    Invalid nullability on parameter `event` in method `onRequestSendAccessibilityEvent`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
-InvalidNullabilityOverride: androidx.recyclerview.widget.RecyclerViewAccessibilityDelegate.ItemDelegate#sendAccessibilityEvent(android.view.View, int) parameter #0:
-    Invalid nullability on parameter `host` in method `sendAccessibilityEvent`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
-InvalidNullabilityOverride: androidx.recyclerview.widget.RecyclerViewAccessibilityDelegate.ItemDelegate#sendAccessibilityEventUnchecked(android.view.View, android.view.accessibility.AccessibilityEvent) parameter #0:
-    Invalid nullability on parameter `host` in method `sendAccessibilityEventUnchecked`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
-InvalidNullabilityOverride: androidx.recyclerview.widget.RecyclerViewAccessibilityDelegate.ItemDelegate#sendAccessibilityEventUnchecked(android.view.View, android.view.accessibility.AccessibilityEvent) parameter #1:
-    Invalid nullability on parameter `event` in method `sendAccessibilityEventUnchecked`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
-
-
 KotlinOperator: androidx.recyclerview.widget.RecyclerView.State#get(int):
     Method can be invoked with an indexing operator from Kotlin: `get` (this is usually desirable; just make sure it makes sense for this type of object)
 KotlinOperator: androidx.recyclerview.widget.SortedList#get(int):
@@ -545,10 +515,6 @@ MissingNullability: androidx.recyclerview.widget.RecyclerView#dispatchRestoreIns
     Missing nullability on parameter `container` in method `dispatchRestoreInstanceState`
 MissingNullability: androidx.recyclerview.widget.RecyclerView#dispatchSaveInstanceState(android.util.SparseArray<android.os.Parcelable>) parameter #0:
     Missing nullability on parameter `container` in method `dispatchSaveInstanceState`
-MissingNullability: androidx.recyclerview.widget.RecyclerView#draw(android.graphics.Canvas) parameter #0:
-    Missing nullability on parameter `c` in method `draw`
-MissingNullability: androidx.recyclerview.widget.RecyclerView#drawChild(android.graphics.Canvas, android.view.View, long) parameter #0:
-    Missing nullability on parameter `canvas` in method `drawChild`
 MissingNullability: androidx.recyclerview.widget.RecyclerView#drawChild(android.graphics.Canvas, android.view.View, long) parameter #1:
     Missing nullability on parameter `child` in method `drawChild`
 MissingNullability: androidx.recyclerview.widget.RecyclerView#findViewHolderForItemId(long):
@@ -571,8 +537,6 @@ MissingNullability: androidx.recyclerview.widget.RecyclerView#getAccessibilityCl
     Missing nullability on method `getAccessibilityClassName` return
 MissingNullability: androidx.recyclerview.widget.RecyclerView#getChildViewHolder(android.view.View):
     Missing nullability on method `getChildViewHolder` return
-MissingNullability: androidx.recyclerview.widget.RecyclerView#onDraw(android.graphics.Canvas) parameter #0:
-    Missing nullability on parameter `c` in method `onDraw`
 MissingNullability: androidx.recyclerview.widget.RecyclerView#onGenericMotionEvent(android.view.MotionEvent) parameter #0:
     Missing nullability on parameter `event` in method `onGenericMotionEvent`
 MissingNullability: androidx.recyclerview.widget.RecyclerView#onInterceptTouchEvent(android.view.MotionEvent) parameter #0:
@@ -889,6 +853,10 @@ MutableBareField: androidx.recyclerview.widget.RecyclerView.LayoutManager.Proper
     Bare field spanCount must be marked final, or moved behind accessors if mutable
 MutableBareField: androidx.recyclerview.widget.RecyclerView.LayoutManager.Properties#stackFromEnd:
     Bare field stackFromEnd must be marked final, or moved behind accessors if mutable
+
+
+NotCloseable: androidx.recyclerview.widget.RecyclerView.SmoothScroller:
+    Classes that release resources (stop()) should implement AutoCloseable and CloseGuard: class androidx.recyclerview.widget.RecyclerView.SmoothScroller
 
 
 PublicTypedef: androidx.recyclerview.widget.RecyclerView.EdgeEffectFactory.EdgeDirection:

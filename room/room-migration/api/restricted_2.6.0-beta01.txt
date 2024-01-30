@@ -1,0 +1,194 @@
+// Signature format: 4.0
+package androidx.room.migration.bundle {
+
+  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public final class BundleUtil {
+    method public static String replaceTableName(String contents, String tableName);
+    method public static String replaceViewName(String contents, String viewName);
+    field public static final String TABLE_NAME_PLACEHOLDER = "${TABLE_NAME}";
+    field public static final String VIEW_NAME_PLACEHOLDER = "${VIEW_NAME}";
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class DatabaseBundle implements androidx.room.migration.bundle.SchemaEquality<androidx.room.migration.bundle.DatabaseBundle> {
+    ctor @Deprecated public DatabaseBundle();
+    ctor public DatabaseBundle(int version, String identityHash, java.util.List<? extends androidx.room.migration.bundle.EntityBundle> entities, java.util.List<? extends androidx.room.migration.bundle.DatabaseViewBundle> views, java.util.List<java.lang.String> setupQueries);
+    method public java.util.List<java.lang.String> buildCreateQueries();
+    method public java.util.List<androidx.room.migration.bundle.EntityBundle> getEntities();
+    method public java.util.Map<java.lang.String,androidx.room.migration.bundle.EntityBundle> getEntitiesByTableName();
+    method public String getIdentityHash();
+    method public int getVersion();
+    method public java.util.List<androidx.room.migration.bundle.DatabaseViewBundle> getViews();
+    method public final java.util.Map<java.lang.String,androidx.room.migration.bundle.DatabaseViewBundle> getViewsByName();
+    method public boolean isSchemaEqual(androidx.room.migration.bundle.DatabaseBundle other);
+    property public java.util.List<androidx.room.migration.bundle.EntityBundle> entities;
+    property public java.util.Map<java.lang.String,androidx.room.migration.bundle.EntityBundle> entitiesByTableName;
+    property public String identityHash;
+    property public int version;
+    property public java.util.List<androidx.room.migration.bundle.DatabaseViewBundle> views;
+    property public final java.util.Map<java.lang.String,androidx.room.migration.bundle.DatabaseViewBundle> viewsByName;
+  }
+
+  public static final class DatabaseBundle.FtsEntityCreateComparator implements java.util.Comparator<androidx.room.migration.bundle.EntityBundle> {
+    ctor public DatabaseBundle.FtsEntityCreateComparator();
+    method public int compare(androidx.room.migration.bundle.EntityBundle firstEntity, androidx.room.migration.bundle.EntityBundle secondEntity);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class DatabaseViewBundle implements androidx.room.migration.bundle.SchemaEquality<androidx.room.migration.bundle.DatabaseViewBundle> {
+    ctor public DatabaseViewBundle(@com.google.gson.annotations.SerializedName("viewName") String viewName, @com.google.gson.annotations.SerializedName("createSql") String createSql);
+    method public String createView();
+    method public String getCreateSql();
+    method public String getViewName();
+    method public boolean isSchemaEqual(androidx.room.migration.bundle.DatabaseViewBundle other);
+    property public String createSql;
+    property public String viewName;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class EntityBundle implements androidx.room.migration.bundle.SchemaEquality<androidx.room.migration.bundle.EntityBundle> {
+    ctor public EntityBundle(@com.google.gson.annotations.SerializedName("tableName") String tableName, @com.google.gson.annotations.SerializedName("createSql") String createSql, @com.google.gson.annotations.SerializedName("fields") java.util.List<? extends androidx.room.migration.bundle.FieldBundle> fields, @com.google.gson.annotations.SerializedName("primaryKey") androidx.room.migration.bundle.PrimaryKeyBundle primaryKey, @com.google.gson.annotations.SerializedName("indices") java.util.List<? extends androidx.room.migration.bundle.IndexBundle> indices, @com.google.gson.annotations.SerializedName("foreignKeys") java.util.List<? extends androidx.room.migration.bundle.ForeignKeyBundle> foreignKeys);
+    method public java.util.Collection<java.lang.String> buildCreateQueries();
+    method public String createNewTable();
+    method public String createTable();
+    method public String getCreateSql();
+    method public java.util.List<androidx.room.migration.bundle.FieldBundle> getFields();
+    method public java.util.Map<java.lang.String,androidx.room.migration.bundle.FieldBundle> getFieldsByColumnName();
+    method public java.util.List<androidx.room.migration.bundle.ForeignKeyBundle> getForeignKeys();
+    method public java.util.List<androidx.room.migration.bundle.IndexBundle> getIndices();
+    method public String getNewTableName();
+    method public androidx.room.migration.bundle.PrimaryKeyBundle getPrimaryKey();
+    method public String getTableName();
+    method public boolean isSchemaEqual(androidx.room.migration.bundle.EntityBundle other);
+    method public String renameToOriginal();
+    property public String createSql;
+    property public java.util.List<androidx.room.migration.bundle.FieldBundle> fields;
+    property public java.util.Map<java.lang.String,androidx.room.migration.bundle.FieldBundle> fieldsByColumnName;
+    property public java.util.List<androidx.room.migration.bundle.ForeignKeyBundle> foreignKeys;
+    property public java.util.List<androidx.room.migration.bundle.IndexBundle> indices;
+    property public String newTableName;
+    property public androidx.room.migration.bundle.PrimaryKeyBundle primaryKey;
+    property public String tableName;
+    field public static final androidx.room.migration.bundle.EntityBundle.Companion Companion;
+    field public static final String NEW_TABLE_PREFIX = "_new_";
+  }
+
+  public static final class EntityBundle.Companion {
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class FieldBundle implements androidx.room.migration.bundle.SchemaEquality<androidx.room.migration.bundle.FieldBundle> {
+    ctor @Deprecated public FieldBundle(String fieldPath, String columnName, String affinity, boolean nonNull);
+    ctor public FieldBundle(@com.google.gson.annotations.SerializedName("fieldPath") String fieldPath, @com.google.gson.annotations.SerializedName("columnName") String columnName, @com.google.gson.annotations.SerializedName("affinity") String affinity, @com.google.gson.annotations.SerializedName("notNull") boolean isNonNull, @com.google.gson.annotations.SerializedName("defaultValue") String? defaultValue);
+    method public String getAffinity();
+    method public String getColumnName();
+    method public String? getDefaultValue();
+    method public String getFieldPath();
+    method public boolean isNonNull();
+    method public boolean isSchemaEqual(androidx.room.migration.bundle.FieldBundle other);
+    property public String affinity;
+    property public String columnName;
+    property public String? defaultValue;
+    property public String fieldPath;
+    property public boolean isNonNull;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class ForeignKeyBundle implements androidx.room.migration.bundle.SchemaEquality<androidx.room.migration.bundle.ForeignKeyBundle> {
+    ctor public ForeignKeyBundle(String table, String onDelete, String onUpdate, java.util.List<java.lang.String> columns, java.util.List<java.lang.String> referencedColumns);
+    method public java.util.List<java.lang.String> getColumns();
+    method public String getOnDelete();
+    method public String getOnUpdate();
+    method public java.util.List<java.lang.String> getReferencedColumns();
+    method public String getTable();
+    method public boolean isSchemaEqual(androidx.room.migration.bundle.ForeignKeyBundle other);
+    property public java.util.List<java.lang.String> columns;
+    property public String onDelete;
+    property public String onUpdate;
+    property public java.util.List<java.lang.String> referencedColumns;
+    property public String table;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class FtsEntityBundle extends androidx.room.migration.bundle.EntityBundle {
+    ctor public FtsEntityBundle(String tableName, String createSql, java.util.List<? extends androidx.room.migration.bundle.FieldBundle> fields, androidx.room.migration.bundle.PrimaryKeyBundle primaryKey, String ftsVersion, androidx.room.migration.bundle.FtsOptionsBundle ftsOptions, @com.google.gson.annotations.SerializedName("contentSyncTriggers") java.util.List<java.lang.String> contentSyncSqlTriggers);
+    method public java.util.List<java.lang.String> getContentSyncSqlTriggers();
+    method public androidx.room.migration.bundle.FtsOptionsBundle getFtsOptions();
+    method public String getFtsVersion();
+    method public java.util.List<java.lang.String> getShadowTableNames();
+    property public java.util.List<java.lang.String> contentSyncSqlTriggers;
+    property public androidx.room.migration.bundle.FtsOptionsBundle ftsOptions;
+    property public String ftsVersion;
+    property public java.util.List<java.lang.String> shadowTableNames;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class FtsOptionsBundle implements androidx.room.migration.bundle.SchemaEquality<androidx.room.migration.bundle.FtsOptionsBundle> {
+    ctor public FtsOptionsBundle(@com.google.gson.annotations.SerializedName("tokenizer") String tokenizer, @com.google.gson.annotations.SerializedName("tokenizerArgs") java.util.List<java.lang.String> tokenizerArgs, @com.google.gson.annotations.SerializedName("contentTable") String contentTable, @com.google.gson.annotations.SerializedName("languageIdColumnName") String languageIdColumnName, @com.google.gson.annotations.SerializedName("matchInfo") String matchInfo, @com.google.gson.annotations.SerializedName("notIndexedColumns") java.util.List<java.lang.String> notIndexedColumns, @com.google.gson.annotations.SerializedName("prefixSizes") java.util.List<java.lang.Integer> prefixSizes, @com.google.gson.annotations.SerializedName("preferredOrder") String preferredOrder);
+    method public String getContentTable();
+    method public String getLanguageIdColumnName();
+    method public String getMatchInfo();
+    method public java.util.List<java.lang.String> getNotIndexedColumns();
+    method public String getPreferredOrder();
+    method public java.util.List<java.lang.Integer> getPrefixSizes();
+    method public java.util.List<java.lang.String> getTokenizerArgs();
+    method public boolean isSchemaEqual(androidx.room.migration.bundle.FtsOptionsBundle other);
+    property public String contentTable;
+    property public String languageIdColumnName;
+    property public String matchInfo;
+    property public java.util.List<java.lang.String> notIndexedColumns;
+    property public String preferredOrder;
+    property public java.util.List<java.lang.Integer> prefixSizes;
+    property public java.util.List<java.lang.String> tokenizerArgs;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class IndexBundle implements androidx.room.migration.bundle.SchemaEquality<androidx.room.migration.bundle.IndexBundle> {
+    ctor @Deprecated public IndexBundle(String name, boolean unique, java.util.List<java.lang.String> columnNames, String createSql);
+    ctor public IndexBundle(@com.google.gson.annotations.SerializedName("name") String name, @com.google.gson.annotations.SerializedName("unique") boolean isUnique, @com.google.gson.annotations.SerializedName("columnNames") java.util.List<java.lang.String>? columnNames, @com.google.gson.annotations.SerializedName("orders") java.util.List<java.lang.String>? orders, @com.google.gson.annotations.SerializedName("createSql") String createSql);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public String create(String tableName);
+    method public java.util.List<java.lang.String>? getColumnNames();
+    method public String getCreateSql();
+    method public String getCreateSql(String tableName);
+    method public String getName();
+    method public java.util.List<java.lang.String>? getOrders();
+    method public boolean isSchemaEqual(androidx.room.migration.bundle.IndexBundle other);
+    method public boolean isUnique();
+    property public java.util.List<java.lang.String>? columnNames;
+    property public String createSql;
+    property public boolean isUnique;
+    property public String name;
+    property public java.util.List<java.lang.String>? orders;
+    field public static final androidx.room.migration.bundle.IndexBundle.Companion Companion;
+    field public static final String DEFAULT_PREFIX = "index_";
+  }
+
+  public static final class IndexBundle.Companion {
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class PrimaryKeyBundle implements androidx.room.migration.bundle.SchemaEquality<androidx.room.migration.bundle.PrimaryKeyBundle> {
+    ctor public PrimaryKeyBundle(@com.google.gson.annotations.SerializedName("autoGenerate") boolean isAutoGenerate, @com.google.gson.annotations.SerializedName("columnNames") java.util.List<java.lang.String> columnNames);
+    method public java.util.List<java.lang.String> getColumnNames();
+    method public boolean isAutoGenerate();
+    method public boolean isSchemaEqual(androidx.room.migration.bundle.PrimaryKeyBundle other);
+    property public java.util.List<java.lang.String> columnNames;
+    property public boolean isAutoGenerate;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class SchemaBundle implements androidx.room.migration.bundle.SchemaEquality<androidx.room.migration.bundle.SchemaBundle> {
+    ctor public SchemaBundle(@com.google.gson.annotations.SerializedName("formatVersion") int formatVersion, @com.google.gson.annotations.SerializedName("database") androidx.room.migration.bundle.DatabaseBundle database);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @kotlin.jvm.Throws(exceptionClasses=UnsupportedEncodingException::class) public static final androidx.room.migration.bundle.SchemaBundle deserialize(java.io.InputStream fis) throws java.io.UnsupportedEncodingException;
+    method public androidx.room.migration.bundle.DatabaseBundle getDatabase();
+    method public int getFormatVersion();
+    method public boolean isSchemaEqual(androidx.room.migration.bundle.SchemaBundle other);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @kotlin.jvm.Throws(exceptionClasses=IOException::class) public static final void serialize(androidx.room.migration.bundle.SchemaBundle bundle, java.io.File file) throws java.io.IOException;
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @kotlin.jvm.Throws(exceptionClasses=IOException::class) public static final void serialize(androidx.room.migration.bundle.SchemaBundle bundle, java.io.OutputStream outputStream) throws java.io.IOException;
+    property public androidx.room.migration.bundle.DatabaseBundle database;
+    property public int formatVersion;
+    field public static final androidx.room.migration.bundle.SchemaBundle.Companion Companion;
+    field public static final int LATEST_FORMAT = 1; // 0x1
+  }
+
+  public static final class SchemaBundle.Companion {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @kotlin.jvm.Throws(exceptionClasses=UnsupportedEncodingException::class) public androidx.room.migration.bundle.SchemaBundle deserialize(java.io.InputStream fis) throws java.io.UnsupportedEncodingException;
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @kotlin.jvm.Throws(exceptionClasses=IOException::class) public void serialize(androidx.room.migration.bundle.SchemaBundle bundle, java.io.File file) throws java.io.IOException;
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @kotlin.jvm.Throws(exceptionClasses=IOException::class) public void serialize(androidx.room.migration.bundle.SchemaBundle bundle, java.io.OutputStream outputStream) throws java.io.IOException;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface SchemaEquality<T> {
+    method public boolean isSchemaEqual(T other);
+  }
+
+}
+

@@ -19,12 +19,15 @@ package androidx.camera.view {
     method @MainThread public androidx.camera.view.CameraController.OutputSize? getPreviewTargetSize();
     method @MainThread public androidx.lifecycle.LiveData<java.lang.Integer!> getTapToFocusState();
     method @MainThread public androidx.lifecycle.LiveData<java.lang.Integer!> getTorchState();
+    method @MainThread @androidx.camera.view.video.ExperimentalVideo public androidx.camera.view.CameraController.OutputSize? getVideoCaptureTargetSize();
     method @MainThread public androidx.lifecycle.LiveData<androidx.camera.core.ZoomState!> getZoomState();
     method @MainThread public boolean hasCamera(androidx.camera.core.CameraSelector);
     method @MainThread public boolean isImageAnalysisEnabled();
     method @MainThread public boolean isImageCaptureEnabled();
     method @MainThread public boolean isPinchToZoomEnabled();
+    method @MainThread @androidx.camera.view.video.ExperimentalVideo public boolean isRecording();
     method @MainThread public boolean isTapToFocusEnabled();
+    method @MainThread @androidx.camera.view.video.ExperimentalVideo public boolean isVideoCaptureEnabled();
     method @MainThread public void setCameraSelector(androidx.camera.core.CameraSelector);
     method @MainThread public void setEnabledUseCases(int);
     method @MainThread public void setImageAnalysisAnalyzer(java.util.concurrent.Executor, androidx.camera.core.ImageAnalysis.Analyzer);
@@ -40,7 +43,10 @@ package androidx.camera.view {
     method @MainThread public void setPinchToZoomEnabled(boolean);
     method @MainThread public void setPreviewTargetSize(androidx.camera.view.CameraController.OutputSize?);
     method @MainThread public void setTapToFocusEnabled(boolean);
+    method @MainThread @androidx.camera.view.video.ExperimentalVideo public void setVideoCaptureTargetSize(androidx.camera.view.CameraController.OutputSize?);
     method @MainThread public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> setZoomRatio(float);
+    method @MainThread @androidx.camera.view.video.ExperimentalVideo public void startRecording(androidx.camera.view.video.OutputFileOptions, java.util.concurrent.Executor, androidx.camera.view.video.OnVideoSavedCallback);
+    method @MainThread @androidx.camera.view.video.ExperimentalVideo public void stopRecording();
     method @MainThread public void takePicture(androidx.camera.core.ImageCapture.OutputFileOptions, java.util.concurrent.Executor, androidx.camera.core.ImageCapture.OnImageSavedCallback);
     method @MainThread public void takePicture(java.util.concurrent.Executor, androidx.camera.core.ImageCapture.OnImageCapturedCallback);
     field public static final int IMAGE_ANALYSIS = 2; // 0x2
@@ -50,6 +56,7 @@ package androidx.camera.view {
     field public static final int TAP_TO_FOCUS_NOT_FOCUSED = 3; // 0x3
     field public static final int TAP_TO_FOCUS_NOT_STARTED = 0; // 0x0
     field public static final int TAP_TO_FOCUS_STARTED = 1; // 0x1
+    field @androidx.camera.view.video.ExperimentalVideo public static final int VIDEO_CAPTURE = 4; // 0x4
   }
 
   @RequiresApi(21) public static final class CameraController.OutputSize {
@@ -75,6 +82,7 @@ package androidx.camera.view {
     method @UiThread public androidx.camera.view.CameraController? getController();
     method @UiThread public androidx.camera.view.PreviewView.ImplementationMode getImplementationMode();
     method @UiThread public androidx.camera.core.MeteringPointFactory getMeteringPointFactory();
+    method public androidx.camera.view.transform.OutputTransform? getOutputTransform();
     method public androidx.lifecycle.LiveData<androidx.camera.view.PreviewView.StreamState!> getPreviewStreamState();
     method @UiThread public androidx.camera.view.PreviewView.ScaleType getScaleType();
     method @UiThread public androidx.camera.core.Preview.SurfaceProvider getSurfaceProvider();
@@ -112,6 +120,83 @@ package androidx.camera.view {
 
   public static interface RotationProvider.Listener {
     method public void onRotationChanged(int);
+  }
+
+}
+
+package androidx.camera.view.transform {
+
+  @RequiresApi(21) public final class CoordinateTransform {
+    ctor public CoordinateTransform(androidx.camera.view.transform.OutputTransform, androidx.camera.view.transform.OutputTransform);
+    method public void mapPoint(android.graphics.PointF);
+    method public void mapPoints(float[]);
+    method public void mapRect(android.graphics.RectF);
+    method public void transform(android.graphics.Matrix);
+  }
+
+  @RequiresApi(21) public final class FileTransformFactory {
+    ctor public FileTransformFactory();
+    method public androidx.camera.view.transform.OutputTransform getOutputTransform(android.content.ContentResolver, android.net.Uri) throws java.io.IOException;
+    method public androidx.camera.view.transform.OutputTransform getOutputTransform(java.io.File) throws java.io.IOException;
+    method public androidx.camera.view.transform.OutputTransform getOutputTransform(java.io.InputStream) throws java.io.IOException;
+    method public boolean isUsingExifOrientation();
+    method public void setUsingExifOrientation(boolean);
+  }
+
+  @RequiresApi(21) public final class ImageProxyTransformFactory {
+    ctor public ImageProxyTransformFactory();
+    method public androidx.camera.view.transform.OutputTransform getOutputTransform(androidx.camera.core.ImageProxy);
+    method public boolean isUsingCropRect();
+    method public boolean isUsingRotationDegrees();
+    method public void setUsingCropRect(boolean);
+    method public void setUsingRotationDegrees(boolean);
+  }
+
+  @RequiresApi(21) public final class OutputTransform {
+  }
+
+}
+
+package androidx.camera.view.video {
+
+  @RequiresOptIn @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalVideo {
+  }
+
+  @RequiresApi(21) @androidx.camera.view.video.ExperimentalVideo @com.google.auto.value.AutoValue public abstract class Metadata {
+    method public static androidx.camera.view.video.Metadata.Builder builder();
+    method public abstract android.location.Location? getLocation();
+  }
+
+  @com.google.auto.value.AutoValue.Builder public abstract static class Metadata.Builder {
+    method public abstract androidx.camera.view.video.Metadata build();
+    method public abstract androidx.camera.view.video.Metadata.Builder setLocation(android.location.Location?);
+  }
+
+  @RequiresApi(21) @androidx.camera.view.video.ExperimentalVideo public interface OnVideoSavedCallback {
+    method public void onError(int, String, Throwable?);
+    method public void onVideoSaved(androidx.camera.view.video.OutputFileResults);
+    field public static final int ERROR_ENCODER = 1; // 0x1
+    field public static final int ERROR_FILE_IO = 4; // 0x4
+    field public static final int ERROR_INVALID_CAMERA = 5; // 0x5
+    field public static final int ERROR_MUXER = 2; // 0x2
+    field public static final int ERROR_RECORDING_IN_PROGRESS = 3; // 0x3
+    field public static final int ERROR_UNKNOWN = 0; // 0x0
+  }
+
+  @RequiresApi(21) @androidx.camera.view.video.ExperimentalVideo @com.google.auto.value.AutoValue public abstract class OutputFileOptions {
+    method public static androidx.camera.view.video.OutputFileOptions.Builder builder(java.io.File);
+    method public static androidx.camera.view.video.OutputFileOptions.Builder builder(android.os.ParcelFileDescriptor);
+    method public static androidx.camera.view.video.OutputFileOptions.Builder builder(android.content.ContentResolver, android.net.Uri, android.content.ContentValues);
+    method public abstract androidx.camera.view.video.Metadata getMetadata();
+  }
+
+  @com.google.auto.value.AutoValue.Builder public abstract static class OutputFileOptions.Builder {
+    method public abstract androidx.camera.view.video.OutputFileOptions build();
+    method public abstract androidx.camera.view.video.OutputFileOptions.Builder setMetadata(androidx.camera.view.video.Metadata);
+  }
+
+  @RequiresApi(21) @androidx.camera.view.video.ExperimentalVideo @com.google.auto.value.AutoValue public abstract class OutputFileResults {
+    method public abstract android.net.Uri? getSavedUri();
   }
 
 }

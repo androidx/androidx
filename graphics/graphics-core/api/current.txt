@@ -13,19 +13,23 @@ package androidx.graphics.lowlatency {
   @RequiresApi(android.os.Build.VERSION_CODES.Q) public final class CanvasFrontBufferedRenderer<T> {
     ctor public CanvasFrontBufferedRenderer(android.view.SurfaceView surfaceView, androidx.graphics.lowlatency.CanvasFrontBufferedRenderer.Callback<T> callback);
     method public void cancel();
+    method public void clear();
     method public void commit();
+    method public android.graphics.ColorSpace getColorSpace();
     method public boolean isValid();
-    method public void release(boolean cancelPending, optional kotlin.jvm.functions.Function0<kotlin.Unit>? onReleaseComplete);
     method public void release(boolean cancelPending);
+    method public void release(boolean cancelPending, optional kotlin.jvm.functions.Function0<kotlin.Unit>? onReleaseComplete);
     method public void renderFrontBufferedLayer(T param);
     method public void renderMultiBufferedLayer(java.util.Collection<? extends T> params);
+    method public void setColorSpace(android.graphics.ColorSpace);
+    property public final android.graphics.ColorSpace colorSpace;
   }
 
   @kotlin.jvm.JvmDefaultWithCompatibility public static interface CanvasFrontBufferedRenderer.Callback<T> {
     method @WorkerThread public void onDrawFrontBufferedLayer(android.graphics.Canvas canvas, int bufferWidth, int bufferHeight, T param);
     method @WorkerThread public void onDrawMultiBufferedLayer(android.graphics.Canvas canvas, int bufferWidth, int bufferHeight, java.util.Collection<? extends T> params);
     method @WorkerThread public default void onFrontBufferedLayerRenderComplete(androidx.graphics.surface.SurfaceControlCompat frontBufferedLayerSurfaceControl, androidx.graphics.surface.SurfaceControlCompat.Transaction transaction);
-    method @WorkerThread public default void onMultiBufferedLayerRenderComplete(androidx.graphics.surface.SurfaceControlCompat frontBufferedLayerSurfaceControl, androidx.graphics.surface.SurfaceControlCompat.Transaction transaction);
+    method @WorkerThread public default void onMultiBufferedLayerRenderComplete(androidx.graphics.surface.SurfaceControlCompat frontBufferedLayerSurfaceControl, androidx.graphics.surface.SurfaceControlCompat multiBufferedLayerSurfaceControl, androidx.graphics.surface.SurfaceControlCompat.Transaction transaction);
   }
 
   public final class FrontBufferSyncStrategy implements androidx.graphics.opengl.SyncStrategy {
@@ -37,24 +41,45 @@ package androidx.graphics.lowlatency {
   }
 
   @RequiresApi(android.os.Build.VERSION_CODES.Q) public final class GLFrontBufferedRenderer<T> {
-    ctor public GLFrontBufferedRenderer(android.view.SurfaceView surfaceView, androidx.graphics.lowlatency.GLFrontBufferedRenderer.Callback<T> callback, optional androidx.graphics.opengl.GLRenderer? glRenderer);
     ctor public GLFrontBufferedRenderer(android.view.SurfaceView surfaceView, androidx.graphics.lowlatency.GLFrontBufferedRenderer.Callback<T> callback);
+    ctor public GLFrontBufferedRenderer(android.view.SurfaceView surfaceView, androidx.graphics.lowlatency.GLFrontBufferedRenderer.Callback<T> callback, optional androidx.graphics.opengl.GLRenderer? glRenderer);
+    ctor public GLFrontBufferedRenderer(android.view.SurfaceView surfaceView, androidx.graphics.lowlatency.GLFrontBufferedRenderer.Callback<T> callback, optional androidx.graphics.opengl.GLRenderer? glRenderer, optional int bufferFormat);
     method public void cancel();
     method public void clear();
     method public void commit();
     method public void execute(Runnable runnable);
+    method public int getBufferFormat();
     method public boolean isValid();
-    method public void release(boolean cancelPending, optional kotlin.jvm.functions.Function0<kotlin.Unit>? onReleaseComplete);
     method public void release(boolean cancelPending);
+    method public void release(boolean cancelPending, optional kotlin.jvm.functions.Function0<kotlin.Unit>? onReleaseComplete);
     method public void renderFrontBufferedLayer(T param);
     method public void renderMultiBufferedLayer(java.util.Collection<? extends T> params);
+    property public final int bufferFormat;
   }
 
   @kotlin.jvm.JvmDefaultWithCompatibility public static interface GLFrontBufferedRenderer.Callback<T> {
-    method @WorkerThread public void onDrawFrontBufferedLayer(androidx.graphics.opengl.egl.EGLManager eglManager, androidx.graphics.lowlatency.BufferInfo bufferInfo, float[] transform, T param);
-    method @WorkerThread public void onDrawMultiBufferedLayer(androidx.graphics.opengl.egl.EGLManager eglManager, androidx.graphics.lowlatency.BufferInfo bufferInfo, float[] transform, java.util.Collection<? extends T> params);
+    method @WorkerThread public void onDrawFrontBufferedLayer(androidx.graphics.opengl.egl.EGLManager eglManager, int width, int height, androidx.graphics.lowlatency.BufferInfo bufferInfo, float[] transform, T param);
+    method @WorkerThread public void onDrawMultiBufferedLayer(androidx.graphics.opengl.egl.EGLManager eglManager, int width, int height, androidx.graphics.lowlatency.BufferInfo bufferInfo, float[] transform, java.util.Collection<? extends T> params);
     method @WorkerThread public default void onFrontBufferedLayerRenderComplete(androidx.graphics.surface.SurfaceControlCompat frontBufferedLayerSurfaceControl, androidx.graphics.surface.SurfaceControlCompat.Transaction transaction);
-    method @WorkerThread public default void onMultiBufferedLayerRenderComplete(androidx.graphics.surface.SurfaceControlCompat frontBufferedLayerSurfaceControl, androidx.graphics.surface.SurfaceControlCompat.Transaction transaction);
+    method @WorkerThread public default void onMultiBufferedLayerRenderComplete(androidx.graphics.surface.SurfaceControlCompat frontBufferedLayerSurfaceControl, androidx.graphics.surface.SurfaceControlCompat multiBufferedLayerSurfaceControl, androidx.graphics.surface.SurfaceControlCompat.Transaction transaction);
+  }
+
+  @RequiresApi(android.os.Build.VERSION_CODES.Q) public final class LowLatencyCanvasView extends android.view.ViewGroup {
+    ctor public LowLatencyCanvasView(android.content.Context context);
+    ctor public LowLatencyCanvasView(android.content.Context context, optional android.util.AttributeSet? attrs);
+    ctor public LowLatencyCanvasView(android.content.Context context, optional android.util.AttributeSet? attrs, optional int defStyle);
+    method public void cancel();
+    method public void clear();
+    method public void commit();
+    method public void execute(Runnable runnable);
+    method public void renderFrontBufferedLayer();
+    method public void setRenderCallback(androidx.graphics.lowlatency.LowLatencyCanvasView.Callback? callback);
+  }
+
+  @kotlin.jvm.JvmDefaultWithCompatibility public static interface LowLatencyCanvasView.Callback {
+    method @WorkerThread public void onDrawFrontBufferedLayer(android.graphics.Canvas canvas, int width, int height);
+    method @WorkerThread public default void onFrontBufferedLayerRenderComplete(androidx.graphics.surface.SurfaceControlCompat frontBufferedLayerSurfaceControl, androidx.graphics.surface.SurfaceControlCompat.Transaction transaction);
+    method @WorkerThread public void onRedrawRequested(android.graphics.Canvas canvas, int width, int height);
   }
 
 }
@@ -83,25 +108,59 @@ package androidx.graphics.opengl {
     method public void onDrawComplete(androidx.graphics.opengl.FrameBuffer frameBuffer, androidx.hardware.SyncFenceCompat? syncFenceCompat);
   }
 
+  @RequiresApi(android.os.Build.VERSION_CODES.Q) public final class GLFrameBufferRenderer {
+    method public void execute(Runnable runnable);
+    method public int getBufferFormat();
+    method public androidx.graphics.opengl.GLRenderer getGLRenderer();
+    method public int getMaxBuffers();
+    method public androidx.graphics.opengl.SyncStrategy getSyncStrategy();
+    method public long getUsageFlags();
+    method public boolean isValid();
+    method public void release(boolean cancelPending);
+    method public void release(boolean cancelPending, optional kotlin.jvm.functions.Function0<kotlin.Unit>? onReleaseCallback);
+    method public void render();
+    property public final int bufferFormat;
+    property public final androidx.graphics.opengl.GLRenderer glRenderer;
+    property public final int maxBuffers;
+    property public final androidx.graphics.opengl.SyncStrategy syncStrategy;
+    property public final long usageFlags;
+  }
+
+  public static final class GLFrameBufferRenderer.Builder {
+    ctor public GLFrameBufferRenderer.Builder(android.view.SurfaceView surfaceView, androidx.graphics.opengl.GLFrameBufferRenderer.Callback callback);
+    method public androidx.graphics.opengl.GLFrameBufferRenderer build();
+    method public androidx.graphics.opengl.GLFrameBufferRenderer.Builder setBufferFormat(int format);
+    method public androidx.graphics.opengl.GLFrameBufferRenderer.Builder setGLRenderer(androidx.graphics.opengl.GLRenderer? glRenderer);
+    method public androidx.graphics.opengl.GLFrameBufferRenderer.Builder setMaxBuffers(@IntRange(from=1L, to=64L) int numBuffers);
+    method public androidx.graphics.opengl.GLFrameBufferRenderer.Builder setSyncStrategy(androidx.graphics.opengl.SyncStrategy syncStrategy);
+    method public androidx.graphics.opengl.GLFrameBufferRenderer.Builder setUsageFlags(long usageFlags);
+  }
+
+  public static interface GLFrameBufferRenderer.Callback {
+    method @WorkerThread public default void onBufferReleased(androidx.graphics.opengl.FrameBuffer frameBuffer, androidx.hardware.SyncFenceCompat? releaseFence);
+    method @WorkerThread public default void onDrawComplete(androidx.graphics.surface.SurfaceControlCompat targetSurfaceControl, androidx.graphics.surface.SurfaceControlCompat.Transaction transaction, androidx.graphics.opengl.FrameBuffer frameBuffer, androidx.hardware.SyncFenceCompat? syncFence);
+    method @WorkerThread public void onDrawFrame(androidx.graphics.opengl.egl.EGLManager eglManager, int width, int height, androidx.graphics.lowlatency.BufferInfo bufferInfo, float[] transform);
+  }
+
   public final class GLRenderer {
     ctor public GLRenderer(optional kotlin.jvm.functions.Function0<? extends androidx.graphics.opengl.egl.EGLSpec> eglSpecFactory, optional kotlin.jvm.functions.Function1<? super androidx.graphics.opengl.egl.EGLManager,? extends android.opengl.EGLConfig> eglConfigFactory);
     method public androidx.graphics.opengl.GLRenderer.RenderTarget attach(android.view.Surface surface, int width, int height, androidx.graphics.opengl.GLRenderer.RenderCallback renderer);
     method public androidx.graphics.opengl.GLRenderer.RenderTarget attach(android.view.SurfaceView surfaceView, androidx.graphics.opengl.GLRenderer.RenderCallback renderer);
     method public androidx.graphics.opengl.GLRenderer.RenderTarget attach(android.view.TextureView textureView, androidx.graphics.opengl.GLRenderer.RenderCallback renderer);
     method public androidx.graphics.opengl.GLRenderer.RenderTarget createRenderTarget(int width, int height, androidx.graphics.opengl.GLRenderer.RenderCallback renderer);
-    method public void detach(androidx.graphics.opengl.GLRenderer.RenderTarget target, boolean cancelPending, optional @WorkerThread kotlin.jvm.functions.Function1<? super androidx.graphics.opengl.GLRenderer.RenderTarget,kotlin.Unit>? onDetachComplete);
     method public void detach(androidx.graphics.opengl.GLRenderer.RenderTarget target, boolean cancelPending);
+    method public void detach(androidx.graphics.opengl.GLRenderer.RenderTarget target, boolean cancelPending, optional @WorkerThread kotlin.jvm.functions.Function1<? super androidx.graphics.opengl.GLRenderer.RenderTarget,kotlin.Unit>? onDetachComplete);
     method public void execute(Runnable runnable);
     method public boolean isRunning();
     method public void registerEGLContextCallback(androidx.graphics.opengl.GLRenderer.EGLContextCallback callback);
-    method public void requestRender(androidx.graphics.opengl.GLRenderer.RenderTarget target, optional kotlin.jvm.functions.Function1<? super androidx.graphics.opengl.GLRenderer.RenderTarget,kotlin.Unit>? onRenderComplete);
     method public void requestRender(androidx.graphics.opengl.GLRenderer.RenderTarget target);
-    method public void resize(androidx.graphics.opengl.GLRenderer.RenderTarget target, int width, int height, optional kotlin.jvm.functions.Function1<? super androidx.graphics.opengl.GLRenderer.RenderTarget,kotlin.Unit>? onResizeComplete);
+    method public void requestRender(androidx.graphics.opengl.GLRenderer.RenderTarget target, optional kotlin.jvm.functions.Function1<? super androidx.graphics.opengl.GLRenderer.RenderTarget,kotlin.Unit>? onRenderComplete);
     method public void resize(androidx.graphics.opengl.GLRenderer.RenderTarget target, int width, int height);
-    method public void start(optional String name);
+    method public void resize(androidx.graphics.opengl.GLRenderer.RenderTarget target, int width, int height, optional kotlin.jvm.functions.Function1<? super androidx.graphics.opengl.GLRenderer.RenderTarget,kotlin.Unit>? onResizeComplete);
     method public void start();
-    method public void stop(boolean cancelPending, optional kotlin.jvm.functions.Function1<? super androidx.graphics.opengl.GLRenderer,kotlin.Unit>? onStop);
+    method public void start(optional String name);
     method public void stop(boolean cancelPending);
+    method public void stop(boolean cancelPending, optional kotlin.jvm.functions.Function1<? super androidx.graphics.opengl.GLRenderer,kotlin.Unit>? onStop);
     method public void unregisterEGLContextCallback(androidx.graphics.opengl.GLRenderer.EGLContextCallback callback);
     field public static final androidx.graphics.opengl.GLRenderer.Companion Companion;
   }
@@ -120,13 +179,13 @@ package androidx.graphics.opengl {
   }
 
   public static final class GLRenderer.RenderTarget {
-    method public void detach(boolean cancelPending, optional kotlin.jvm.functions.Function1<? super androidx.graphics.opengl.GLRenderer.RenderTarget,kotlin.Unit>? onDetachComplete);
     method public void detach(boolean cancelPending);
+    method public void detach(boolean cancelPending, optional kotlin.jvm.functions.Function1<? super androidx.graphics.opengl.GLRenderer.RenderTarget,kotlin.Unit>? onDetachComplete);
     method public boolean isAttached();
-    method public void requestRender(optional @WorkerThread kotlin.jvm.functions.Function1<? super androidx.graphics.opengl.GLRenderer.RenderTarget,kotlin.Unit>? onRenderComplete);
     method public void requestRender();
-    method public void resize(int width, int height, optional @WorkerThread kotlin.jvm.functions.Function1<? super androidx.graphics.opengl.GLRenderer.RenderTarget,kotlin.Unit>? onResizeComplete);
+    method public void requestRender(optional @WorkerThread kotlin.jvm.functions.Function1<? super androidx.graphics.opengl.GLRenderer.RenderTarget,kotlin.Unit>? onRenderComplete);
     method public void resize(int width, int height);
+    method public void resize(int width, int height, optional @WorkerThread kotlin.jvm.functions.Function1<? super androidx.graphics.opengl.GLRenderer.RenderTarget,kotlin.Unit>? onResizeComplete);
   }
 
   public interface SyncStrategy {
@@ -164,7 +223,7 @@ package androidx.graphics.opengl.egl {
   }
 
   public final class EGLConfigAttributesKt {
-    method @kotlin.jvm.JvmSynthetic public static inline androidx.graphics.opengl.egl.EGLConfigAttributes EGLConfigAttributes(kotlin.jvm.functions.Function1<? super androidx.graphics.opengl.egl.EGLConfigAttributes.Builder,? extends kotlin.Unit> block);
+    method @kotlin.jvm.JvmSynthetic public static inline androidx.graphics.opengl.egl.EGLConfigAttributes EGLConfigAttributes(kotlin.jvm.functions.Function1<? super androidx.graphics.opengl.egl.EGLConfigAttributes.Builder,kotlin.Unit> block);
   }
 
   public final class EGLException extends java.lang.RuntimeException {
@@ -189,8 +248,8 @@ package androidx.graphics.opengl.egl {
     method public void initialize();
     method public boolean isExtensionSupported(String extensionName);
     method public android.opengl.EGLConfig? loadConfig(androidx.graphics.opengl.egl.EGLConfigAttributes configAttributes);
-    method public boolean makeCurrent(android.opengl.EGLSurface drawSurface, optional android.opengl.EGLSurface readSurface);
     method public boolean makeCurrent(android.opengl.EGLSurface drawSurface);
+    method public boolean makeCurrent(android.opengl.EGLSurface drawSurface, optional android.opengl.EGLSurface readSurface);
     method public void release();
     method public void swapAndFlushBuffers();
     property public final android.opengl.EGLSurface currentDrawSurface;
@@ -227,7 +286,7 @@ package androidx.graphics.opengl.egl {
     method public boolean eglQuerySurface(android.opengl.EGLSurface surface, int attribute, int[] result, int offset);
     method public boolean eglSwapBuffers(android.opengl.EGLSurface surface);
     method public default String getErrorMessage();
-    method public default static String getStatusString(int error);
+    method public static String getStatusString(int error);
     method public android.opengl.EGLConfig? loadConfig(androidx.graphics.opengl.egl.EGLConfigAttributes configAttributes);
     field public static final androidx.graphics.opengl.egl.EGLSpec.Companion Companion;
     field public static final androidx.graphics.opengl.egl.EGLSpec V14;
@@ -268,7 +327,11 @@ package androidx.graphics.surface {
     field public static final int BUFFER_TRANSFORM_ROTATE_180 = 3; // 0x3
     field public static final int BUFFER_TRANSFORM_ROTATE_270 = 7; // 0x7
     field public static final int BUFFER_TRANSFORM_ROTATE_90 = 4; // 0x4
+    field public static final int CHANGE_FRAME_RATE_ALWAYS = 1; // 0x1
+    field public static final int CHANGE_FRAME_RATE_ONLY_IF_SEAMLESS = 0; // 0x0
     field public static final androidx.graphics.surface.SurfaceControlCompat.Companion Companion;
+    field public static final int FRAME_RATE_COMPATIBILITY_DEFAULT = 0; // 0x0
+    field public static final int FRAME_RATE_COMPATIBILITY_FIXED_SOURCE = 1; // 0x1
   }
 
   public static final class SurfaceControlCompat.Builder {
@@ -282,21 +345,25 @@ package androidx.graphics.surface {
   public static final class SurfaceControlCompat.Companion {
   }
 
-  public static final class SurfaceControlCompat.Transaction implements java.lang.AutoCloseable {
+  @RequiresApi(android.os.Build.VERSION_CODES.Q) public static final class SurfaceControlCompat.Transaction implements java.lang.AutoCloseable {
     ctor public SurfaceControlCompat.Transaction();
     method @RequiresApi(android.os.Build.VERSION_CODES.S) public androidx.graphics.surface.SurfaceControlCompat.Transaction addTransactionCommittedListener(java.util.concurrent.Executor executor, androidx.graphics.surface.SurfaceControlCompat.TransactionCommittedListener listener);
+    method public androidx.graphics.surface.SurfaceControlCompat.Transaction clearFrameRate(androidx.graphics.surface.SurfaceControlCompat surfaceControl);
     method public void close();
     method public void commit();
     method @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public void commitTransactionOnDraw(android.view.AttachedSurfaceControl attachedSurfaceControl);
-    method public androidx.graphics.surface.SurfaceControlCompat.Transaction reparent(androidx.graphics.surface.SurfaceControlCompat surfaceControl, androidx.graphics.surface.SurfaceControlCompat? newParent);
     method @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public androidx.graphics.surface.SurfaceControlCompat.Transaction reparent(androidx.graphics.surface.SurfaceControlCompat surfaceControl, android.view.AttachedSurfaceControl attachedSurfaceControl);
+    method public androidx.graphics.surface.SurfaceControlCompat.Transaction reparent(androidx.graphics.surface.SurfaceControlCompat surfaceControl, androidx.graphics.surface.SurfaceControlCompat? newParent);
     method public androidx.graphics.surface.SurfaceControlCompat.Transaction setAlpha(androidx.graphics.surface.SurfaceControlCompat surfaceControl, float alpha);
-    method public androidx.graphics.surface.SurfaceControlCompat.Transaction setBuffer(androidx.graphics.surface.SurfaceControlCompat surfaceControl, android.hardware.HardwareBuffer? buffer, optional androidx.hardware.SyncFenceCompat? fence, optional kotlin.jvm.functions.Function0<kotlin.Unit>? releaseCallback);
-    method public androidx.graphics.surface.SurfaceControlCompat.Transaction setBuffer(androidx.graphics.surface.SurfaceControlCompat surfaceControl, android.hardware.HardwareBuffer? buffer, optional androidx.hardware.SyncFenceCompat? fence);
     method public androidx.graphics.surface.SurfaceControlCompat.Transaction setBuffer(androidx.graphics.surface.SurfaceControlCompat surfaceControl, android.hardware.HardwareBuffer? buffer);
+    method public androidx.graphics.surface.SurfaceControlCompat.Transaction setBuffer(androidx.graphics.surface.SurfaceControlCompat surfaceControl, android.hardware.HardwareBuffer? buffer, optional androidx.hardware.SyncFenceCompat? fence);
+    method public androidx.graphics.surface.SurfaceControlCompat.Transaction setBuffer(androidx.graphics.surface.SurfaceControlCompat surfaceControl, android.hardware.HardwareBuffer? buffer, optional androidx.hardware.SyncFenceCompat? fence, optional kotlin.jvm.functions.Function1<? super androidx.hardware.SyncFenceCompat,kotlin.Unit>? releaseCallback);
     method public androidx.graphics.surface.SurfaceControlCompat.Transaction setBufferTransform(androidx.graphics.surface.SurfaceControlCompat surfaceControl, int transformation);
     method public androidx.graphics.surface.SurfaceControlCompat.Transaction setCrop(androidx.graphics.surface.SurfaceControlCompat surfaceControl, android.graphics.Rect? crop);
     method public androidx.graphics.surface.SurfaceControlCompat.Transaction setDamageRegion(androidx.graphics.surface.SurfaceControlCompat surfaceControl, android.graphics.Region? region);
+    method public androidx.graphics.surface.SurfaceControlCompat.Transaction setDataSpace(androidx.graphics.surface.SurfaceControlCompat surfaceControl, int dataSpace);
+    method @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) public androidx.graphics.surface.SurfaceControlCompat.Transaction setExtendedRangeBrightness(androidx.graphics.surface.SurfaceControlCompat surfaceControl, @FloatRange(from=1.0, fromInclusive=true) float currentBufferRatio, @FloatRange(from=1.0, fromInclusive=true) float desiredRatio);
+    method public androidx.graphics.surface.SurfaceControlCompat.Transaction setFrameRate(androidx.graphics.surface.SurfaceControlCompat surfaceControl, float frameRate, int compatibility, int changeFrameRateStrategy);
     method public androidx.graphics.surface.SurfaceControlCompat.Transaction setLayer(androidx.graphics.surface.SurfaceControlCompat surfaceControl, int z);
     method public androidx.graphics.surface.SurfaceControlCompat.Transaction setOpaque(androidx.graphics.surface.SurfaceControlCompat surfaceControl, boolean isOpaque);
     method public androidx.graphics.surface.SurfaceControlCompat.Transaction setPosition(androidx.graphics.surface.SurfaceControlCompat surfaceControl, float x, float y);
@@ -311,6 +378,36 @@ package androidx.graphics.surface {
 }
 
 package androidx.hardware {
+
+  public final class DataSpace {
+    field public static final androidx.hardware.DataSpace.Companion Companion;
+    field public static final int DATASPACE_ADOBE_RGB = 151715840; // 0x90b0000
+    field public static final int DATASPACE_BT2020 = 147193856; // 0x8c60000
+    field public static final int DATASPACE_BT2020_HLG = 168165376; // 0xa060000
+    field public static final int DATASPACE_BT2020_PQ = 163971072; // 0x9c60000
+    field public static final int DATASPACE_BT601_525 = 281280512; // 0x10c40000
+    field public static final int DATASPACE_BT601_625 = 281149440; // 0x10c20000
+    field public static final int DATASPACE_BT709 = 281083904; // 0x10c10000
+    field public static final int DATASPACE_DCI_P3 = 155844608; // 0x94a0000
+    field public static final int DATASPACE_DEPTH = 4096; // 0x1000
+    field public static final int DATASPACE_DISPLAY_P3 = 143261696; // 0x88a0000
+    field public static final int DATASPACE_DYNAMIC_DEPTH = 4098; // 0x1002
+    field public static final int DATASPACE_HEIF = 4100; // 0x1004
+    field public static final int DATASPACE_JFIF = 146931712; // 0x8c20000
+    field public static final int DATASPACE_JPEG_R = 4101; // 0x1005
+    field public static final int DATASPACE_SCRGB = 411107328; // 0x18810000
+    field public static final int DATASPACE_SCRGB_LINEAR = 406913024; // 0x18410000
+    field public static final int DATASPACE_SRGB = 142671872; // 0x8810000
+    field public static final int DATASPACE_SRGB_LINEAR = 138477568; // 0x8410000
+    field public static final int DATASPACE_UNKNOWN = 0; // 0x0
+    field public static final int RANGE_EXTENDED = 402653184; // 0x18000000
+    field public static final int RANGE_FULL = 134217728; // 0x8000000
+    field public static final int RANGE_LIMITED = 268435456; // 0x10000000
+    field public static final int RANGE_UNSPECIFIED = 0; // 0x0
+  }
+
+  public static final class DataSpace.Companion {
+  }
 
   @RequiresApi(android.os.Build.VERSION_CODES.KITKAT) public final class SyncFenceCompat implements java.lang.AutoCloseable {
     method public boolean await(long timeoutNanos);

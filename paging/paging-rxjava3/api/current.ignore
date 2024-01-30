@@ -1,7 +1,37 @@
 // Baseline format: 1.0
-ParameterNameChange: androidx.paging.rxjava3.RxPagingSource#load(androidx.paging.PagingSource.LoadParams<Key>, kotlin.coroutines.Continuation<? super androidx.paging.PagingSource.LoadResult<Key,Value>>) parameter #1:
-    Attempted to remove parameter name from parameter arg2 in androidx.paging.rxjava3.RxPagingSource.load
-
-
-RemovedClass: androidx.paging.rxjava3.PagingRx:
-    Removed class androidx.paging.rxjava3.PagingRx
+BecameUnchecked: androidx.paging.rxjava3.PagingRx#cachedIn(io.reactivex.rxjava3.core.Flowable<androidx.paging.PagingData<T>>, kotlinx.coroutines.CoroutineScope):
+    Removed method androidx.paging.rxjava3.PagingRx.cachedIn(io.reactivex.rxjava3.core.Flowable<androidx.paging.PagingData<T>>,kotlinx.coroutines.CoroutineScope) from compatibility checked API surface
+BecameUnchecked: androidx.paging.rxjava3.PagingRx#cachedIn(io.reactivex.rxjava3.core.Flowable<androidx.paging.PagingData<T>>, kotlinx.coroutines.CoroutineScope) parameter #0:
+    Removed parameter arg1 in androidx.paging.rxjava3.PagingRx.cachedIn(io.reactivex.rxjava3.core.Flowable<androidx.paging.PagingData<T>> arg1, kotlinx.coroutines.CoroutineScope scope) from compatibility checked API surface
+BecameUnchecked: androidx.paging.rxjava3.PagingRx#cachedIn(io.reactivex.rxjava3.core.Flowable<androidx.paging.PagingData<T>>, kotlinx.coroutines.CoroutineScope) parameter #1:
+    Removed parameter scope in androidx.paging.rxjava3.PagingRx.cachedIn(io.reactivex.rxjava3.core.Flowable<androidx.paging.PagingData<T>> arg1, kotlinx.coroutines.CoroutineScope scope) from compatibility checked API surface
+BecameUnchecked: androidx.paging.rxjava3.PagingRx#cachedIn(io.reactivex.rxjava3.core.Observable<androidx.paging.PagingData<T>>, kotlinx.coroutines.CoroutineScope):
+    Removed method androidx.paging.rxjava3.PagingRx.cachedIn(io.reactivex.rxjava3.core.Observable<androidx.paging.PagingData<T>>,kotlinx.coroutines.CoroutineScope) from compatibility checked API surface
+BecameUnchecked: androidx.paging.rxjava3.PagingRx#cachedIn(io.reactivex.rxjava3.core.Observable<androidx.paging.PagingData<T>>, kotlinx.coroutines.CoroutineScope) parameter #0:
+    Removed parameter arg1 in androidx.paging.rxjava3.PagingRx.cachedIn(io.reactivex.rxjava3.core.Observable<androidx.paging.PagingData<T>> arg1, kotlinx.coroutines.CoroutineScope scope) from compatibility checked API surface
+BecameUnchecked: androidx.paging.rxjava3.PagingRx#cachedIn(io.reactivex.rxjava3.core.Observable<androidx.paging.PagingData<T>>, kotlinx.coroutines.CoroutineScope) parameter #1:
+    Removed parameter scope in androidx.paging.rxjava3.PagingRx.cachedIn(io.reactivex.rxjava3.core.Observable<androidx.paging.PagingData<T>> arg1, kotlinx.coroutines.CoroutineScope scope) from compatibility checked API surface
+BecameUnchecked: androidx.paging.rxjava3.RxRemoteMediator:
+    Removed class androidx.paging.rxjava3.RxRemoteMediator from compatibility checked API surface
+BecameUnchecked: androidx.paging.rxjava3.RxRemoteMediator#RxRemoteMediator():
+    Removed constructor androidx.paging.rxjava3.RxRemoteMediator() from compatibility checked API surface
+BecameUnchecked: androidx.paging.rxjava3.RxRemoteMediator#initialize(kotlin.coroutines.Continuation<? super androidx.paging.RemoteMediator.InitializeAction>):
+    Removed method androidx.paging.rxjava3.RxRemoteMediator.initialize(kotlin.coroutines.Continuation<? super androidx.paging.RemoteMediator.InitializeAction>) from compatibility checked API surface
+BecameUnchecked: androidx.paging.rxjava3.RxRemoteMediator#initialize(kotlin.coroutines.Continuation<? super androidx.paging.RemoteMediator.InitializeAction>) parameter #0:
+    Removed parameter arg1 in androidx.paging.rxjava3.RxRemoteMediator.initialize(kotlin.coroutines.Continuation<? super androidx.paging.RemoteMediator.InitializeAction> arg1) from compatibility checked API surface
+BecameUnchecked: androidx.paging.rxjava3.RxRemoteMediator#initializeSingle():
+    Removed method androidx.paging.rxjava3.RxRemoteMediator.initializeSingle() from compatibility checked API surface
+BecameUnchecked: androidx.paging.rxjava3.RxRemoteMediator#load(androidx.paging.LoadType, androidx.paging.PagingState<Key,Value>, kotlin.coroutines.Continuation<? super androidx.paging.RemoteMediator.MediatorResult>):
+    Removed method androidx.paging.rxjava3.RxRemoteMediator.load(androidx.paging.LoadType,androidx.paging.PagingState<Key,Value>,kotlin.coroutines.Continuation<? super androidx.paging.RemoteMediator.MediatorResult>) from compatibility checked API surface
+BecameUnchecked: androidx.paging.rxjava3.RxRemoteMediator#load(androidx.paging.LoadType, androidx.paging.PagingState<Key,Value>, kotlin.coroutines.Continuation<? super androidx.paging.RemoteMediator.MediatorResult>) parameter #0:
+    Removed parameter loadType in androidx.paging.rxjava3.RxRemoteMediator.load(androidx.paging.LoadType loadType, androidx.paging.PagingState<Key,Value> state, kotlin.coroutines.Continuation<? super androidx.paging.RemoteMediator.MediatorResult> arg3) from compatibility checked API surface
+BecameUnchecked: androidx.paging.rxjava3.RxRemoteMediator#load(androidx.paging.LoadType, androidx.paging.PagingState<Key,Value>, kotlin.coroutines.Continuation<? super androidx.paging.RemoteMediator.MediatorResult>) parameter #1:
+    Removed parameter state in androidx.paging.rxjava3.RxRemoteMediator.load(androidx.paging.LoadType loadType, androidx.paging.PagingState<Key,Value> state, kotlin.coroutines.Continuation<? super androidx.paging.RemoteMediator.MediatorResult> arg3) from compatibility checked API surface
+BecameUnchecked: androidx.paging.rxjava3.RxRemoteMediator#load(androidx.paging.LoadType, androidx.paging.PagingState<Key,Value>, kotlin.coroutines.Continuation<? super androidx.paging.RemoteMediator.MediatorResult>) parameter #2:
+    Removed parameter arg3 in androidx.paging.rxjava3.RxRemoteMediator.load(androidx.paging.LoadType loadType, androidx.paging.PagingState<Key,Value> state, kotlin.coroutines.Continuation<? super androidx.paging.RemoteMediator.MediatorResult> arg3) from compatibility checked API surface
+BecameUnchecked: androidx.paging.rxjava3.RxRemoteMediator#loadSingle(androidx.paging.LoadType, androidx.paging.PagingState<Key,Value>):
+    Removed method androidx.paging.rxjava3.RxRemoteMediator.loadSingle(androidx.paging.LoadType,androidx.paging.PagingState<Key,Value>) from compatibility checked API surface
+BecameUnchecked: androidx.paging.rxjava3.RxRemoteMediator#loadSingle(androidx.paging.LoadType, androidx.paging.PagingState<Key,Value>) parameter #0:
+    Removed parameter loadType in androidx.paging.rxjava3.RxRemoteMediator.loadSingle(androidx.paging.LoadType loadType, androidx.paging.PagingState<Key,Value> state) from compatibility checked API surface
+BecameUnchecked: androidx.paging.rxjava3.RxRemoteMediator#loadSingle(androidx.paging.LoadType, androidx.paging.PagingState<Key,Value>) parameter #1:
+    Removed parameter state in androidx.paging.rxjava3.RxRemoteMediator.loadSingle(androidx.paging.LoadType loadType, androidx.paging.PagingState<Key,Value> state) from compatibility checked API surface

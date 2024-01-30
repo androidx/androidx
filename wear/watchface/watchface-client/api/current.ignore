@@ -1,31 +1,19 @@
 // Baseline format: 1.0
-AddedAbstractMethod: androidx.wear.watchface.client.WatchFaceMetadataClient#getUserStyleFlavors():
-    Added method androidx.wear.watchface.client.WatchFaceMetadataClient.getUserStyleFlavors()
+AddedMethod: androidx.wear.watchface.client.DeviceConfig#hasBurnInProtection():
+    Added method androidx.wear.watchface.client.DeviceConfig.hasBurnInProtection()
+AddedMethod: androidx.wear.watchface.client.DeviceConfig#hasLowBitAmbient():
+    Added method androidx.wear.watchface.client.DeviceConfig.hasLowBitAmbient()
+AddedMethod: androidx.wear.watchface.client.EditorState#shouldCommitChanges():
+    Added method androidx.wear.watchface.client.EditorState.shouldCommitChanges()
+AddedMethod: androidx.wear.watchface.client.WatchUiState#inAmbientMode():
+    Added method androidx.wear.watchface.client.WatchUiState.inAmbientMode()
 
 
-ChangedThrows: androidx.wear.watchface.client.HeadlessWatchFaceClient#getComplicationSlotsState():
-    Method androidx.wear.watchface.client.HeadlessWatchFaceClient.getComplicationSlotsState added thrown exception android.os.RemoteException
-ChangedThrows: androidx.wear.watchface.client.HeadlessWatchFaceClient#getPreviewReferenceInstant():
-    Method androidx.wear.watchface.client.HeadlessWatchFaceClient.getPreviewReferenceInstant added thrown exception android.os.RemoteException
-ChangedThrows: androidx.wear.watchface.client.HeadlessWatchFaceClient#getUserStyleSchema():
-    Method androidx.wear.watchface.client.HeadlessWatchFaceClient.getUserStyleSchema added thrown exception android.os.RemoteException
-ChangedThrows: androidx.wear.watchface.client.InteractiveWatchFaceClient#getComplicationSlotsState():
-    Method androidx.wear.watchface.client.InteractiveWatchFaceClient.getComplicationSlotsState added thrown exception android.os.RemoteException
-ChangedThrows: androidx.wear.watchface.client.InteractiveWatchFaceClient#getContentDescriptionLabels():
-    Method androidx.wear.watchface.client.InteractiveWatchFaceClient.getContentDescriptionLabels added thrown exception android.os.RemoteException
-ChangedThrows: androidx.wear.watchface.client.InteractiveWatchFaceClient#getInstanceId():
-    Method androidx.wear.watchface.client.InteractiveWatchFaceClient.getInstanceId added thrown exception android.os.RemoteException
-ChangedThrows: androidx.wear.watchface.client.InteractiveWatchFaceClient#getOverlayStyle():
-    Method androidx.wear.watchface.client.InteractiveWatchFaceClient.getOverlayStyle added thrown exception android.os.RemoteException
-ChangedThrows: androidx.wear.watchface.client.InteractiveWatchFaceClient#getPreviewReferenceInstant():
-    Method androidx.wear.watchface.client.InteractiveWatchFaceClient.getPreviewReferenceInstant added thrown exception android.os.RemoteException
-ChangedThrows: androidx.wear.watchface.client.InteractiveWatchFaceClient#getUserStyleSchema():
-    Method androidx.wear.watchface.client.InteractiveWatchFaceClient.getUserStyleSchema added thrown exception android.os.RemoteException
-
-
-RemovedClass: androidx.wear.watchface.client.DeviceConfigKt:
-    Removed class androidx.wear.watchface.client.DeviceConfigKt
-RemovedClass: androidx.wear.watchface.client.EditorStateKt:
-    Removed class androidx.wear.watchface.client.EditorStateKt
-RemovedClass: androidx.wear.watchface.client.WatchFaceExceptionKt:
-    Removed class androidx.wear.watchface.client.WatchFaceExceptionKt
+RemovedMethod: androidx.wear.watchface.client.DeviceConfig#getHasBurnInProtection():
+    Removed method androidx.wear.watchface.client.DeviceConfig.getHasBurnInProtection()
+RemovedMethod: androidx.wear.watchface.client.DeviceConfig#getHasLowBitAmbient():
+    Removed method androidx.wear.watchface.client.DeviceConfig.getHasLowBitAmbient()
+RemovedMethod: androidx.wear.watchface.client.EditorState#getShouldCommitChanges():
+    Removed method androidx.wear.watchface.client.EditorState.getShouldCommitChanges()
+RemovedMethod: androidx.wear.watchface.client.WatchUiState#getInAmbientMode():
+    Removed method androidx.wear.watchface.client.WatchUiState.getInAmbientMode()

@@ -26,6 +26,11 @@ package androidx.wear.compose.foundation {
     method public static void basicCurvedText(androidx.wear.compose.foundation.CurvedScope, String text, androidx.wear.compose.foundation.CurvedTextStyle style, optional androidx.wear.compose.foundation.CurvedModifier modifier, optional androidx.wear.compose.foundation.CurvedDirection.Angular? angularDirection, optional int overflow);
   }
 
+  public final class CompositionLocalsKt {
+    method @androidx.wear.compose.foundation.ExperimentalWearFoundationApi public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.wear.compose.foundation.ReduceMotion> getLocalReduceMotion();
+    property @androidx.wear.compose.foundation.ExperimentalWearFoundationApi public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.wear.compose.foundation.ReduceMotion> LocalReduceMotion;
+  }
+
   public interface CurvedAlignment {
   }
 
@@ -99,11 +104,11 @@ package androidx.wear.compose.foundation {
   }
 
   public final class CurvedDrawKt {
-    method public static androidx.wear.compose.foundation.CurvedModifier angularGradientBackground(androidx.wear.compose.foundation.CurvedModifier, kotlin.Pair<java.lang.Float,androidx.compose.ui.graphics.Color>![] colorStops, optional int cap);
     method public static androidx.wear.compose.foundation.CurvedModifier angularGradientBackground(androidx.wear.compose.foundation.CurvedModifier, java.util.List<androidx.compose.ui.graphics.Color> colors, optional int cap);
+    method public static androidx.wear.compose.foundation.CurvedModifier angularGradientBackground(androidx.wear.compose.foundation.CurvedModifier, kotlin.Pair<java.lang.Float,androidx.compose.ui.graphics.Color>![] colorStops, optional int cap);
     method public static androidx.wear.compose.foundation.CurvedModifier background(androidx.wear.compose.foundation.CurvedModifier, long color, optional int cap);
-    method public static androidx.wear.compose.foundation.CurvedModifier radialGradientBackground(androidx.wear.compose.foundation.CurvedModifier, kotlin.Pair<java.lang.Float,androidx.compose.ui.graphics.Color>![] colorStops, optional int cap);
     method public static androidx.wear.compose.foundation.CurvedModifier radialGradientBackground(androidx.wear.compose.foundation.CurvedModifier, java.util.List<androidx.compose.ui.graphics.Color> colors, optional int cap);
+    method public static androidx.wear.compose.foundation.CurvedModifier radialGradientBackground(androidx.wear.compose.foundation.CurvedModifier, kotlin.Pair<java.lang.Float,androidx.compose.ui.graphics.Color>![] colorStops, optional int cap);
   }
 
   public final class CurvedLayoutKt {
@@ -119,13 +124,13 @@ package androidx.wear.compose.foundation {
   }
 
   public final class CurvedPaddingKt {
-    method public static androidx.wear.compose.foundation.ArcPaddingValues ArcPaddingValues(optional float outer, optional float inner, optional float before, optional float after);
     method public static androidx.wear.compose.foundation.ArcPaddingValues ArcPaddingValues(float all);
     method public static androidx.wear.compose.foundation.ArcPaddingValues ArcPaddingValues(optional float radial, optional float angular);
+    method public static androidx.wear.compose.foundation.ArcPaddingValues ArcPaddingValues(optional float outer, optional float inner, optional float before, optional float after);
     method public static androidx.wear.compose.foundation.CurvedModifier padding(androidx.wear.compose.foundation.CurvedModifier, androidx.wear.compose.foundation.ArcPaddingValues paddingValues);
-    method public static androidx.wear.compose.foundation.CurvedModifier padding(androidx.wear.compose.foundation.CurvedModifier, float outer, float inner, float before, float after);
-    method public static androidx.wear.compose.foundation.CurvedModifier padding(androidx.wear.compose.foundation.CurvedModifier, optional float radial, optional float angular);
     method public static androidx.wear.compose.foundation.CurvedModifier padding(androidx.wear.compose.foundation.CurvedModifier, optional float all);
+    method public static androidx.wear.compose.foundation.CurvedModifier padding(androidx.wear.compose.foundation.CurvedModifier, optional float radial, optional float angular);
+    method public static androidx.wear.compose.foundation.CurvedModifier padding(androidx.wear.compose.foundation.CurvedModifier, float outer, float inner, float before, float after);
   }
 
   public final class CurvedParentDataKt {
@@ -149,9 +154,9 @@ package androidx.wear.compose.foundation {
   }
 
   public final class CurvedTextStyle {
-    ctor public CurvedTextStyle(optional long background, optional long color, optional long fontSize, optional androidx.compose.ui.text.font.FontFamily? fontFamily, optional androidx.compose.ui.text.font.FontWeight? fontWeight, optional androidx.compose.ui.text.font.FontStyle? fontStyle, optional androidx.compose.ui.text.font.FontSynthesis? fontSynthesis);
     ctor public CurvedTextStyle(androidx.compose.ui.text.TextStyle style);
     ctor @Deprecated public CurvedTextStyle(optional long background, optional long color, optional long fontSize);
+    ctor public CurvedTextStyle(optional long background, optional long color, optional long fontSize, optional androidx.compose.ui.text.font.FontFamily? fontFamily, optional androidx.compose.ui.text.font.FontWeight? fontWeight, optional androidx.compose.ui.text.font.FontStyle? fontStyle, optional androidx.compose.ui.text.font.FontSynthesis? fontSynthesis);
     method @Deprecated public androidx.wear.compose.foundation.CurvedTextStyle copy(optional long background, optional long color, optional long fontSize);
     method public androidx.wear.compose.foundation.CurvedTextStyle copy(optional long background, optional long color, optional long fontSize, optional androidx.compose.ui.text.font.FontFamily? fontFamily, optional androidx.compose.ui.text.font.FontWeight? fontWeight, optional androidx.compose.ui.text.font.FontStyle? fontStyle, optional androidx.compose.ui.text.font.FontSynthesis? fontSynthesis);
     method public long getBackground();
@@ -193,6 +198,61 @@ package androidx.wear.compose.foundation {
     method public void setExpanded(boolean);
     property public final float expandProgress;
     property public final boolean expanded;
+  }
+
+  @kotlin.RequiresOptIn(message="This Wear Foundation API is experimental and is likely to change or to be removed in" + " the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalWearFoundationApi {
+  }
+
+  public final class HierarchicalFocusCoordinatorKt {
+    method @androidx.compose.runtime.Composable @androidx.wear.compose.foundation.ExperimentalWearFoundationApi public static void HierarchicalFocusCoordinator(kotlin.jvm.functions.Function0<java.lang.Boolean> requiresFocus, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method @androidx.compose.runtime.Composable @androidx.wear.compose.foundation.ExperimentalWearFoundationApi public static void OnFocusChange(kotlin.jvm.functions.Function2<? super kotlinx.coroutines.CoroutineScope,? super java.lang.Boolean,kotlin.Unit> onFocusChanged);
+    method @androidx.compose.runtime.Composable @androidx.wear.compose.foundation.ExperimentalWearFoundationApi public static void RequestFocusWhenActive(androidx.compose.ui.focus.FocusRequester focusRequester);
+    method @androidx.compose.runtime.Composable @androidx.wear.compose.foundation.ExperimentalWearFoundationApi public static androidx.compose.ui.focus.FocusRequester rememberActiveFocusRequester();
+  }
+
+  @androidx.wear.compose.foundation.ExperimentalWearFoundationApi public fun interface ReduceMotion {
+    method @androidx.compose.runtime.Composable public boolean enabled();
+  }
+
+  @androidx.wear.compose.foundation.ExperimentalWearFoundationApi public interface RevealScope {
+    method public float getRevealOffset();
+    property public abstract float revealOffset;
+  }
+
+  @androidx.wear.compose.foundation.ExperimentalWearFoundationApi public final class RevealState {
+    method public suspend Object? animateTo(int targetValue, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public int getCurrentValue();
+    method public float getOffset();
+    method public java.util.Map<androidx.wear.compose.foundation.RevealValue,java.lang.Float> getSwipeAnchors();
+    method public int getTargetValue();
+    method public boolean isAnimationRunning();
+    method public suspend Object? snapTo(int targetValue, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    property public final int currentValue;
+    property public final boolean isAnimationRunning;
+    property public final float offset;
+    property public final java.util.Map<androidx.wear.compose.foundation.RevealValue,java.lang.Float> swipeAnchors;
+    property public final int targetValue;
+  }
+
+  @androidx.wear.compose.foundation.ExperimentalWearFoundationApi @kotlin.jvm.JvmInline public final value class RevealValue {
+    method public int getValue();
+    property public final int value;
+    field public static final androidx.wear.compose.foundation.RevealValue.Companion Companion;
+  }
+
+  public static final class RevealValue.Companion {
+    method public int getCovered();
+    method public int getRevealed();
+    method public int getRevealing();
+    property public final int Covered;
+    property public final int Revealed;
+    property public final int Revealing;
+  }
+
+  public final class SwipeToRevealKt {
+    method @androidx.compose.runtime.Composable @androidx.wear.compose.foundation.ExperimentalWearFoundationApi public static void SwipeToReveal(kotlin.jvm.functions.Function1<? super androidx.wear.compose.foundation.RevealScope,kotlin.Unit> action, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function0<kotlin.Unit> onFullSwipe, optional androidx.wear.compose.foundation.RevealState state, optional kotlin.jvm.functions.Function1<? super androidx.wear.compose.foundation.RevealScope,kotlin.Unit>? additionalAction, optional kotlin.jvm.functions.Function1<? super androidx.wear.compose.foundation.RevealScope,kotlin.Unit>? undoAction, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method @androidx.wear.compose.foundation.ExperimentalWearFoundationApi public static java.util.Map<androidx.wear.compose.foundation.RevealValue,java.lang.Float> createAnchors(optional float coveredAnchor, optional float revealingAnchor, optional float revealedAnchor);
+    method @androidx.compose.runtime.Composable @androidx.wear.compose.foundation.ExperimentalWearFoundationApi public static androidx.wear.compose.foundation.RevealState rememberRevealState(optional int initialValue, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, optional kotlin.jvm.functions.Function1<? super androidx.wear.compose.foundation.RevealValue,java.lang.Boolean> confirmValueChange, optional kotlin.jvm.functions.Function2<? super androidx.compose.ui.unit.Density,? super java.lang.Float,java.lang.Float> positionalThreshold, optional java.util.Map<androidx.wear.compose.foundation.RevealValue,java.lang.Float> anchors);
   }
 
 }

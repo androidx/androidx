@@ -1,5 +1,0 @@
-// Baseline format: 1.0
-RemovedClass: androidx.wear.watchface.editor.EditorSessionKt:
-    Removed class androidx.wear.watchface.editor.EditorSessionKt
-RemovedClass: androidx.wear.watchface.editor.WatchFaceEditorContractKt:
-    Removed class androidx.wear.watchface.editor.WatchFaceEditorContractKt

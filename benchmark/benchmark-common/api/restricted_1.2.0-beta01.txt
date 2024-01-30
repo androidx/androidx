@@ -1,0 +1,119 @@
+// Signature format: 4.0
+package androidx.benchmark {
+
+  public final class BenchmarkState {
+    ctor @SuppressCompatibility @androidx.benchmark.ExperimentalBenchmarkStateApi public BenchmarkState(optional Integer? warmupCount, optional Integer? repeatCount);
+    method @SuppressCompatibility @androidx.benchmark.ExperimentalBenchmarkStateApi public java.util.List<java.lang.Double> getMeasurementTimeNs();
+    method public boolean keepRunning();
+    method @kotlin.PublishedApi internal boolean keepRunningInternal();
+    method public void pauseTiming();
+    method @SuppressCompatibility @androidx.benchmark.BenchmarkState.Companion.ExperimentalExternalReport public static void reportData(String className, String testName, @IntRange(from=0L) long totalRunTimeNs, java.util.List<java.lang.Long> dataNs, @IntRange(from=0L) int warmupIterations, @IntRange(from=0L) long thermalThrottleSleepSeconds, @IntRange(from=1L) int repeatIterations);
+    method public void resumeTiming();
+    field public static final androidx.benchmark.BenchmarkState.Companion Companion;
+    field @kotlin.PublishedApi internal int iterationsRemaining;
+  }
+
+  public static final class BenchmarkState.Companion {
+    method @SuppressCompatibility @androidx.benchmark.BenchmarkState.Companion.ExperimentalExternalReport public void reportData(String className, String testName, @IntRange(from=0L) long totalRunTimeNs, java.util.List<java.lang.Long> dataNs, @IntRange(from=0L) int warmupIterations, @IntRange(from=0L) long thermalThrottleSleepSeconds, @IntRange(from=1L) int repeatIterations);
+  }
+
+  @SuppressCompatibility @kotlin.RequiresOptIn @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.FUNCTION) public static @interface BenchmarkState.Companion.ExperimentalExternalReport {
+  }
+
+  @SuppressCompatibility @kotlin.RequiresOptIn @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalBenchmarkConfigApi {
+  }
+
+  @SuppressCompatibility @kotlin.RequiresOptIn @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalBenchmarkStateApi {
+  }
+
+  @SuppressCompatibility @androidx.benchmark.ExperimentalBenchmarkConfigApi public abstract class MetricCapture {
+    ctor public MetricCapture(java.util.List<java.lang.String> names);
+    method public abstract void capturePaused();
+    method public abstract void captureResumed();
+    method public abstract void captureStart(long timeNs);
+    method public abstract void captureStop(long timeNs, long[] output, int offset);
+    method public final java.util.List<java.lang.String> getNames();
+    property public final java.util.List<java.lang.String> names;
+  }
+
+  @SuppressCompatibility @androidx.benchmark.ExperimentalBenchmarkConfigApi public final class MicrobenchmarkConfig {
+    ctor public MicrobenchmarkConfig(optional java.util.List<? extends androidx.benchmark.MetricCapture> metrics, optional boolean shouldEnableTraceAppTag, optional boolean shouldEnablePerfettoSdkTracing, optional androidx.benchmark.ProfilerConfig? profiler);
+    method public java.util.List<androidx.benchmark.MetricCapture> getMetrics();
+    method public androidx.benchmark.ProfilerConfig? getProfiler();
+    method public boolean getShouldEnablePerfettoSdkTracing();
+    method public boolean getShouldEnableTraceAppTag();
+    property public final java.util.List<androidx.benchmark.MetricCapture> metrics;
+    property public final androidx.benchmark.ProfilerConfig? profiler;
+    property public final boolean shouldEnablePerfettoSdkTracing;
+    property public final boolean shouldEnableTraceAppTag;
+  }
+
+  @SuppressCompatibility @androidx.benchmark.ExperimentalBenchmarkConfigApi public abstract sealed class ProfilerConfig {
+  }
+
+  public static final class ProfilerConfig.MethodTracing extends androidx.benchmark.ProfilerConfig {
+    ctor public ProfilerConfig.MethodTracing();
+  }
+
+  public static final class ProfilerConfig.StackSampling extends androidx.benchmark.ProfilerConfig {
+    ctor public ProfilerConfig.StackSampling();
+  }
+
+  @SuppressCompatibility @androidx.benchmark.ExperimentalBenchmarkConfigApi public final class TimeCapture extends androidx.benchmark.MetricCapture {
+    ctor public TimeCapture();
+    method public void capturePaused();
+    method public void captureResumed();
+    method public void captureStart(long timeNs);
+    method public void captureStop(long timeNs, long[] output, int offset);
+  }
+
+}
+
+package androidx.benchmark.perfetto {
+
+  @SuppressCompatibility @kotlin.RequiresOptIn @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION}) public @interface ExperimentalPerfettoCaptureApi {
+  }
+
+  @SuppressCompatibility @androidx.benchmark.perfetto.ExperimentalPerfettoCaptureApi public abstract sealed class PerfettoConfig {
+  }
+
+  public static final class PerfettoConfig.Binary extends androidx.benchmark.perfetto.PerfettoConfig {
+    ctor public PerfettoConfig.Binary(byte[] bytes);
+    method public byte[] getBytes();
+    property public final byte[] bytes;
+  }
+
+  public static final class PerfettoConfig.Text extends androidx.benchmark.perfetto.PerfettoConfig {
+    ctor public PerfettoConfig.Text(String text);
+    method public String getText();
+    property public final String text;
+  }
+
+  @SuppressCompatibility @RequiresApi(23) @androidx.benchmark.perfetto.ExperimentalPerfettoCaptureApi public final class PerfettoTrace {
+    ctor public PerfettoTrace(String path);
+    method public String getPath();
+    method public static void record(String fileLabel, androidx.benchmark.perfetto.PerfettoConfig config, optional String highlightPackage, optional String? userspaceTracingPackage, kotlin.jvm.functions.Function0<kotlin.Unit> block);
+    method public static void record(String fileLabel, androidx.benchmark.perfetto.PerfettoConfig config, optional String highlightPackage, optional String? userspaceTracingPackage, optional kotlin.jvm.functions.Function1<? super androidx.benchmark.perfetto.PerfettoTrace,kotlin.Unit>? traceCallback, kotlin.jvm.functions.Function0<kotlin.Unit> block);
+    method public static void record(String fileLabel, androidx.benchmark.perfetto.PerfettoConfig config, optional String highlightPackage, kotlin.jvm.functions.Function0<kotlin.Unit> block);
+    method public static void record(String fileLabel, androidx.benchmark.perfetto.PerfettoConfig config, kotlin.jvm.functions.Function0<kotlin.Unit> block);
+    method public static void record(String fileLabel, optional java.util.List<java.lang.String> appTagPackages, optional String? userspaceTracingPackage, kotlin.jvm.functions.Function0<kotlin.Unit> block);
+    method public static void record(String fileLabel, optional java.util.List<java.lang.String> appTagPackages, optional String? userspaceTracingPackage, optional kotlin.jvm.functions.Function1<? super androidx.benchmark.perfetto.PerfettoTrace,kotlin.Unit>? traceCallback, kotlin.jvm.functions.Function0<kotlin.Unit> block);
+    method public static void record(String fileLabel, optional java.util.List<java.lang.String> appTagPackages, kotlin.jvm.functions.Function0<kotlin.Unit> block);
+    method public static void record(String fileLabel, kotlin.jvm.functions.Function0<kotlin.Unit> block);
+    property public final String path;
+    field public static final androidx.benchmark.perfetto.PerfettoTrace.Companion Companion;
+  }
+
+  public static final class PerfettoTrace.Companion {
+    method public void record(String fileLabel, androidx.benchmark.perfetto.PerfettoConfig config, optional String highlightPackage, optional String? userspaceTracingPackage, kotlin.jvm.functions.Function0<kotlin.Unit> block);
+    method public void record(String fileLabel, androidx.benchmark.perfetto.PerfettoConfig config, optional String highlightPackage, optional String? userspaceTracingPackage, optional kotlin.jvm.functions.Function1<? super androidx.benchmark.perfetto.PerfettoTrace,kotlin.Unit>? traceCallback, kotlin.jvm.functions.Function0<kotlin.Unit> block);
+    method public void record(String fileLabel, androidx.benchmark.perfetto.PerfettoConfig config, optional String highlightPackage, kotlin.jvm.functions.Function0<kotlin.Unit> block);
+    method public void record(String fileLabel, androidx.benchmark.perfetto.PerfettoConfig config, kotlin.jvm.functions.Function0<kotlin.Unit> block);
+    method public void record(String fileLabel, optional java.util.List<java.lang.String> appTagPackages, optional String? userspaceTracingPackage, kotlin.jvm.functions.Function0<kotlin.Unit> block);
+    method public void record(String fileLabel, optional java.util.List<java.lang.String> appTagPackages, optional String? userspaceTracingPackage, optional kotlin.jvm.functions.Function1<? super androidx.benchmark.perfetto.PerfettoTrace,kotlin.Unit>? traceCallback, kotlin.jvm.functions.Function0<kotlin.Unit> block);
+    method public void record(String fileLabel, optional java.util.List<java.lang.String> appTagPackages, kotlin.jvm.functions.Function0<kotlin.Unit> block);
+    method public void record(String fileLabel, kotlin.jvm.functions.Function0<kotlin.Unit> block);
+  }
+
+}
+

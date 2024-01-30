@@ -1,7 +1,7 @@
 // Signature format: 4.0
 package androidx.slice.widget {
 
-  @RequiresApi(19) public class SliceView extends android.view.ViewGroup implements androidx.lifecycle.Observer<androidx.slice.Slice> android.view.View.OnClickListener {
+  @Deprecated @RequiresApi(19) public class SliceView extends android.view.ViewGroup implements androidx.lifecycle.Observer<androidx.slice.Slice> android.view.View.OnClickListener {
     method @Deprecated public void showActionDividers(boolean);
     method @Deprecated public void showHeaderDivider(boolean);
     method @Deprecated public void showTitleItems(boolean);

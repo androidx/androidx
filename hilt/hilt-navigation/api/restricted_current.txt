@@ -2,8 +2,8 @@
 package androidx.hilt.navigation {
 
   public final class HiltViewModelFactory {
-    method public static androidx.lifecycle.ViewModelProvider.Factory create(android.content.Context context, androidx.navigation.NavBackStackEntry navBackStackEntry);
     method public static androidx.lifecycle.ViewModelProvider.Factory create(android.content.Context context, androidx.lifecycle.ViewModelProvider.Factory delegateFactory);
+    method public static androidx.lifecycle.ViewModelProvider.Factory create(android.content.Context context, androidx.navigation.NavBackStackEntry navBackStackEntry);
   }
 
 }

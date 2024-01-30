@@ -15,6 +15,7 @@ package androidx.camera.extensions {
     method public androidx.camera.core.CameraSelector getExtensionEnabledCameraSelector(androidx.camera.core.CameraSelector, int);
     method public static com.google.common.util.concurrent.ListenableFuture<androidx.camera.extensions.ExtensionsManager!> getInstanceAsync(android.content.Context, androidx.camera.core.CameraProvider);
     method public boolean isExtensionAvailable(androidx.camera.core.CameraSelector, int);
+    method public boolean isImageAnalysisSupported(androidx.camera.core.CameraSelector, int);
   }
 
 }

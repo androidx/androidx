@@ -293,6 +293,7 @@ package androidx.wear.tiles {
     field public static final int FONT_VARIANT_TITLE = 1; // 0x1
     field public static final int FONT_VARIANT_UNDEFINED = 0; // 0x0
     field public static final int FONT_WEIGHT_BOLD = 700; // 0x2bc
+    field @androidx.wear.tiles.TilesExperimental public static final int FONT_WEIGHT_MEDIUM = 500; // 0x1f4
     field public static final int FONT_WEIGHT_NORMAL = 400; // 0x190
     field public static final int FONT_WEIGHT_UNDEFINED = 0; // 0x0
     field public static final int HORIZONTAL_ALIGN_CENTER = 2; // 0x2
@@ -479,6 +480,7 @@ package androidx.wear.tiles {
     method public androidx.wear.tiles.DimensionBuilders.EmProp? getLetterSpacing();
     method public androidx.wear.tiles.DimensionBuilders.SpProp? getSize();
     method public androidx.wear.tiles.TypeBuilders.BoolProp? getUnderline();
+    method @androidx.wear.tiles.TilesExperimental public androidx.wear.tiles.LayoutElementBuilders.FontVariantProp? getVariant();
     method public androidx.wear.tiles.LayoutElementBuilders.FontWeightProp? getWeight();
   }
 
@@ -492,6 +494,8 @@ package androidx.wear.tiles {
     method public androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder setSize(androidx.wear.tiles.DimensionBuilders.SpProp);
     method public androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder setUnderline(androidx.wear.tiles.TypeBuilders.BoolProp);
     method public androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder setUnderline(boolean);
+    method @androidx.wear.tiles.TilesExperimental public androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder setVariant(androidx.wear.tiles.LayoutElementBuilders.FontVariantProp);
+    method @androidx.wear.tiles.TilesExperimental public androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder setVariant(int);
     method public androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder setWeight(androidx.wear.tiles.LayoutElementBuilders.FontWeightProp);
     method public androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder setWeight(int);
   }
@@ -508,6 +512,16 @@ package androidx.wear.tiles {
     method public static androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder title1(androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters);
     method public static androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder title2(androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters);
     method public static androidx.wear.tiles.LayoutElementBuilders.FontStyle.Builder title3(androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters);
+  }
+
+  @androidx.wear.tiles.TilesExperimental public static final class LayoutElementBuilders.FontVariantProp {
+    method public int getValue();
+  }
+
+  public static final class LayoutElementBuilders.FontVariantProp.Builder {
+    ctor public LayoutElementBuilders.FontVariantProp.Builder();
+    method public androidx.wear.tiles.LayoutElementBuilders.FontVariantProp build();
+    method public androidx.wear.tiles.LayoutElementBuilders.FontVariantProp.Builder setValue(int);
   }
 
   public static final class LayoutElementBuilders.FontWeightProp {
@@ -532,6 +546,7 @@ package androidx.wear.tiles {
 
   public static final class LayoutElementBuilders.Image implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement {
     method public androidx.wear.tiles.LayoutElementBuilders.ContentScaleModeProp? getContentScaleMode();
+    method @androidx.wear.tiles.TilesExperimental public androidx.wear.tiles.LayoutElementBuilders.ColorFilter? getFilter();
     method public androidx.wear.tiles.DimensionBuilders.ImageDimension? getHeight();
     method public androidx.wear.tiles.ModifiersBuilders.Modifiers? getModifiers();
     method public androidx.wear.tiles.TypeBuilders.StringProp? getResourceId();
@@ -543,6 +558,7 @@ package androidx.wear.tiles {
     method public androidx.wear.tiles.LayoutElementBuilders.Image build();
     method public androidx.wear.tiles.LayoutElementBuilders.Image.Builder setContentScaleMode(androidx.wear.tiles.LayoutElementBuilders.ContentScaleModeProp);
     method public androidx.wear.tiles.LayoutElementBuilders.Image.Builder setContentScaleMode(int);
+    method @androidx.wear.tiles.TilesExperimental public androidx.wear.tiles.LayoutElementBuilders.Image.Builder setFilter(androidx.wear.tiles.LayoutElementBuilders.ColorFilter);
     method public androidx.wear.tiles.LayoutElementBuilders.Image.Builder setHeight(androidx.wear.tiles.DimensionBuilders.ImageDimension);
     method public androidx.wear.tiles.LayoutElementBuilders.Image.Builder setModifiers(androidx.wear.tiles.ModifiersBuilders.Modifiers);
     method public androidx.wear.tiles.LayoutElementBuilders.Image.Builder setResourceId(androidx.wear.tiles.TypeBuilders.StringProp);
@@ -980,6 +996,9 @@ package androidx.wear.tiles {
 
   public interface TileUpdateRequester {
     method public void requestUpdate(Class<? extends androidx.wear.tiles.TileService>);
+  }
+
+  @RequiresOptIn(level=androidx.annotation.RequiresOptIn.Level.ERROR) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.TYPE, java.lang.annotation.ElementType.FIELD}) public @interface TilesExperimental {
   }
 
   public final class TimelineBuilders {

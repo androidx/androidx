@@ -71,9 +71,9 @@ package androidx.transition {
   }
 
   public class Fade extends androidx.transition.Visibility {
-    ctor public Fade(@androidx.transition.Visibility.Mode int);
     ctor public Fade();
     ctor public Fade(android.content.Context, android.util.AttributeSet);
+    ctor public Fade(@androidx.transition.Visibility.Mode int);
     field public static final int IN = 1; // 0x1
     field public static final int OUT = 2; // 0x2
   }
@@ -91,8 +91,8 @@ package androidx.transition {
     method public void replaceTargets(Object, java.util.ArrayList<android.view.View!>!, java.util.ArrayList<android.view.View!>!);
     method public void scheduleHideFragmentView(Object, android.view.View, java.util.ArrayList<android.view.View!>);
     method public void scheduleRemoveTargets(Object, Object?, java.util.ArrayList<android.view.View!>?, Object?, java.util.ArrayList<android.view.View!>?, Object?, java.util.ArrayList<android.view.View!>?);
-    method public void setEpicenter(Object, android.view.View?);
     method public void setEpicenter(Object, android.graphics.Rect);
+    method public void setEpicenter(Object, android.view.View?);
     method public void setSharedElementTargets(Object, android.view.View, java.util.ArrayList<android.view.View!>);
     method public void swapSharedElementTargets(Object?, java.util.ArrayList<android.view.View!>?, java.util.ArrayList<android.view.View!>?);
     method public Object? wrapTransitionInSet(Object?);
@@ -134,8 +134,8 @@ package androidx.transition {
 
   public class Slide extends androidx.transition.Visibility {
     ctor public Slide();
-    ctor public Slide(@androidx.transition.Slide.GravityFlag int);
     ctor public Slide(android.content.Context, android.util.AttributeSet);
+    ctor public Slide(@androidx.transition.Slide.GravityFlag int);
     method @androidx.transition.Slide.GravityFlag public int getSlideEdge();
     method public void setSlideEdge(@androidx.transition.Slide.GravityFlag int);
   }
@@ -149,8 +149,8 @@ package androidx.transition {
     method public androidx.transition.Transition addListener(androidx.transition.Transition.TransitionListener);
     method public androidx.transition.Transition addTarget(android.view.View);
     method public androidx.transition.Transition addTarget(@IdRes int);
-    method public androidx.transition.Transition addTarget(String);
     method public androidx.transition.Transition addTarget(Class<?>);
+    method public androidx.transition.Transition addTarget(String);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) protected void animate(android.animation.Animator?);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) protected void cancel();
     method public abstract void captureEndValues(androidx.transition.TransitionValues);
@@ -163,8 +163,8 @@ package androidx.transition {
     method public androidx.transition.Transition excludeChildren(Class<?>, boolean);
     method public androidx.transition.Transition excludeTarget(android.view.View, boolean);
     method public androidx.transition.Transition excludeTarget(@IdRes int, boolean);
-    method public androidx.transition.Transition excludeTarget(String, boolean);
     method public androidx.transition.Transition excludeTarget(Class<?>, boolean);
+    method public androidx.transition.Transition excludeTarget(String, boolean);
     method public long getDuration();
     method public android.graphics.Rect? getEpicenter();
     method public androidx.transition.Transition.EpicenterCallback? getEpicenterCallback();
@@ -172,6 +172,7 @@ package androidx.transition {
     method public String getName();
     method public androidx.transition.PathMotion getPathMotion();
     method public androidx.transition.TransitionPropagation? getPropagation();
+    method public final androidx.transition.Transition getRootTransition();
     method public long getStartDelay();
     method public java.util.List<java.lang.Integer!> getTargetIds();
     method public java.util.List<java.lang.String!>? getTargetNames();
@@ -179,13 +180,14 @@ package androidx.transition {
     method public java.util.List<android.view.View!> getTargets();
     method public String![]? getTransitionProperties();
     method public androidx.transition.TransitionValues? getTransitionValues(android.view.View, boolean);
+    method public boolean isSeekingSupported();
     method public boolean isTransitionRequired(androidx.transition.TransitionValues?, androidx.transition.TransitionValues?);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void pause(android.view.View?);
     method public androidx.transition.Transition removeListener(androidx.transition.Transition.TransitionListener);
     method public androidx.transition.Transition removeTarget(android.view.View);
     method public androidx.transition.Transition removeTarget(@IdRes int);
-    method public androidx.transition.Transition removeTarget(String);
     method public androidx.transition.Transition removeTarget(Class<?>);
+    method public androidx.transition.Transition removeTarget(String);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void resume(android.view.View?);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) protected void runAnimators();
     method public androidx.transition.Transition setDuration(long);
@@ -213,9 +215,11 @@ package androidx.transition {
   public static interface Transition.TransitionListener {
     method public void onTransitionCancel(androidx.transition.Transition);
     method public void onTransitionEnd(androidx.transition.Transition);
+    method public default void onTransitionEnd(androidx.transition.Transition, boolean);
     method public void onTransitionPause(androidx.transition.Transition);
     method public void onTransitionResume(androidx.transition.Transition);
     method public void onTransitionStart(androidx.transition.Transition);
+    method public default void onTransitionStart(androidx.transition.Transition, boolean);
   }
 
   public class TransitionInflater {
@@ -237,11 +241,13 @@ package androidx.transition {
     ctor public TransitionManager();
     method public static void beginDelayedTransition(android.view.ViewGroup);
     method public static void beginDelayedTransition(android.view.ViewGroup, androidx.transition.Transition?);
+    method public static androidx.transition.TransitionSeekController? controlDelayedTransition(android.view.ViewGroup, androidx.transition.Transition);
+    method public static androidx.transition.TransitionSeekController? createSeekController(androidx.transition.Scene, androidx.transition.Transition);
     method public static void endTransitions(android.view.ViewGroup?);
     method public static void go(androidx.transition.Scene);
     method public static void go(androidx.transition.Scene, androidx.transition.Transition?);
-    method public void setTransition(androidx.transition.Scene, androidx.transition.Transition?);
     method public void setTransition(androidx.transition.Scene, androidx.transition.Scene, androidx.transition.Transition?);
+    method public void setTransition(androidx.transition.Scene, androidx.transition.Transition?);
     method public void transitionTo(androidx.transition.Scene);
   }
 
@@ -252,14 +258,29 @@ package androidx.transition {
     method public abstract long getStartDelay(android.view.ViewGroup, androidx.transition.Transition, androidx.transition.TransitionValues?, androidx.transition.TransitionValues?);
   }
 
+  public interface TransitionSeekController {
+    method public void addOnProgressChangedListener(androidx.core.util.Consumer<androidx.transition.TransitionSeekController!>);
+    method public void addOnReadyListener(androidx.core.util.Consumer<androidx.transition.TransitionSeekController!>);
+    method public void animateToEnd();
+    method public void animateToStart(Runnable);
+    method @FloatRange(from=0.0, to=1.0) public float getCurrentFraction();
+    method @IntRange(from=0) public long getCurrentPlayTimeMillis();
+    method @IntRange(from=0) public long getDurationMillis();
+    method public boolean isReady();
+    method public void removeOnProgressChangedListener(androidx.core.util.Consumer<androidx.transition.TransitionSeekController!>);
+    method public void removeOnReadyListener(androidx.core.util.Consumer<androidx.transition.TransitionSeekController!>);
+    method public void setCurrentFraction(@FloatRange(from=0.0, to=1.0) float);
+    method public void setCurrentPlayTimeMillis(@IntRange(from=0) long);
+  }
+
   public class TransitionSet extends androidx.transition.Transition {
     ctor public TransitionSet();
     ctor public TransitionSet(android.content.Context, android.util.AttributeSet);
     method public androidx.transition.TransitionSet addListener(androidx.transition.Transition.TransitionListener);
     method public androidx.transition.TransitionSet addTarget(android.view.View);
     method public androidx.transition.TransitionSet addTarget(@IdRes int);
-    method public androidx.transition.TransitionSet addTarget(String);
     method public androidx.transition.TransitionSet addTarget(Class<?>);
+    method public androidx.transition.TransitionSet addTarget(String);
     method public androidx.transition.TransitionSet addTransition(androidx.transition.Transition);
     method public void captureEndValues(androidx.transition.TransitionValues);
     method public void captureStartValues(androidx.transition.TransitionValues);
@@ -267,8 +288,8 @@ package androidx.transition {
     method public androidx.transition.Transition? getTransitionAt(int);
     method public int getTransitionCount();
     method public androidx.transition.TransitionSet removeListener(androidx.transition.Transition.TransitionListener);
-    method public androidx.transition.TransitionSet removeTarget(@IdRes int);
     method public androidx.transition.TransitionSet removeTarget(android.view.View);
+    method public androidx.transition.TransitionSet removeTarget(@IdRes int);
     method public androidx.transition.TransitionSet removeTarget(Class<?>);
     method public androidx.transition.TransitionSet removeTarget(String);
     method public androidx.transition.TransitionSet removeTransition(androidx.transition.Transition);
@@ -294,10 +315,10 @@ package androidx.transition {
     method public void captureStartValues(androidx.transition.TransitionValues);
     method @androidx.transition.Visibility.Mode public int getMode();
     method public boolean isVisible(androidx.transition.TransitionValues?);
-    method public android.animation.Animator? onAppear(android.view.ViewGroup, androidx.transition.TransitionValues?, int, androidx.transition.TransitionValues?, int);
     method public android.animation.Animator? onAppear(android.view.ViewGroup, android.view.View, androidx.transition.TransitionValues?, androidx.transition.TransitionValues?);
-    method public android.animation.Animator? onDisappear(android.view.ViewGroup, androidx.transition.TransitionValues?, int, androidx.transition.TransitionValues?, int);
+    method public android.animation.Animator? onAppear(android.view.ViewGroup, androidx.transition.TransitionValues?, int, androidx.transition.TransitionValues?, int);
     method public android.animation.Animator? onDisappear(android.view.ViewGroup, android.view.View, androidx.transition.TransitionValues?, androidx.transition.TransitionValues?);
+    method public android.animation.Animator? onDisappear(android.view.ViewGroup, androidx.transition.TransitionValues?, int, androidx.transition.TransitionValues?, int);
     method public void setMode(@androidx.transition.Visibility.Mode int);
     field public static final int MODE_IN = 1; // 0x1
     field public static final int MODE_OUT = 2; // 0x2
