@@ -32,8 +32,6 @@ import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.util.fastForEach
-import androidx.compose.ui.util.fastForEachIndexed
 import kotlin.math.max
 
 @Composable
@@ -72,47 +70,48 @@ internal fun AlertDialogContent(
                 }
             }
             title?.let {
-                ProvideContentColorTextStyle(
-                    contentColor = titleContentColor,
-                    textStyle = MaterialTheme.typography.fromToken(DialogTokens.HeadlineFont)) {
-                    Box(
-                        // Align the title to the center when an icon is present.
-                        Modifier
-                            .padding(TitlePadding)
-                            .align(
-                                if (icon == null) {
-                                    Alignment.Start
-                                } else {
-                                    Alignment.CenterHorizontally
-                                }
-                            )
-                    ) {
-                        title()
+                CompositionLocalProvider(LocalContentColor provides titleContentColor) {
+                    val textStyle = MaterialTheme.typography.fromToken(DialogTokens.HeadlineFont)
+                    ProvideTextStyle(textStyle) {
+                        Box(
+                            // Align the title to the center when an icon is present.
+                            Modifier
+                                .padding(TitlePadding)
+                                .align(
+                                    if (icon == null) {
+                                        Alignment.Start
+                                    } else {
+                                        Alignment.CenterHorizontally
+                                    }
+                                )
+                        ) {
+                            title()
+                        }
                     }
                 }
             }
             text?.let {
-                val textStyle = MaterialTheme.typography.fromToken(DialogTokens.SupportingTextFont)
-                ProvideContentColorTextStyle(
-                    contentColor = textContentColor,
-                    textStyle = textStyle) {
-                    Box(
-                        Modifier
-                            .weight(weight = 1f, fill = false)
-                            .padding(TextPadding)
-                            .align(Alignment.Start)
-                    ) {
-                        text()
+                CompositionLocalProvider(LocalContentColor provides textContentColor) {
+                    val textStyle =
+                        MaterialTheme.typography.fromToken(DialogTokens.SupportingTextFont)
+                    ProvideTextStyle(textStyle) {
+                        Box(
+                            Modifier
+                                .weight(weight = 1f, fill = false)
+                                .padding(TextPadding)
+                                .align(Alignment.Start)
+                        ) {
+                            text()
+                        }
                     }
                 }
             }
             Box(modifier = Modifier.align(Alignment.End)) {
-                val textStyle =
-                    MaterialTheme.typography.fromToken(DialogTokens.ActionLabelTextFont)
-                ProvideContentColorTextStyle(
-                    contentColor = buttonContentColor,
-                    textStyle = textStyle,
-                    content = buttons)
+                CompositionLocalProvider(LocalContentColor provides buttonContentColor) {
+                    val textStyle =
+                        MaterialTheme.typography.fromToken(DialogTokens.ActionLabelTextFont)
+                    ProvideTextStyle(value = textStyle, content = buttons)
+                }
             }
         }
     }
@@ -150,9 +149,7 @@ internal fun AlertDialogFlowRow(
             if (sequences.isNotEmpty()) {
                 crossAxisSpace += crossAxisSpacing.roundToPx()
             }
-            // Ensures that confirming actions appear above dismissive actions.
-            @Suppress("ListIterator")
-            sequences.add(0, currentSequence.toList())
+            sequences += currentSequence.toList()
             crossAxisSizes += currentCrossAxisSize
             crossAxisPositions += crossAxisSpace
 
@@ -164,7 +161,7 @@ internal fun AlertDialogFlowRow(
             currentCrossAxisSize = 0
         }
 
-        measurables.fastForEach { measurable ->
+        for (measurable in measurables) {
             // Ask the child for its preferred size.
             val placeable = measurable.measure(constraints)
 
@@ -191,7 +188,7 @@ internal fun AlertDialogFlowRow(
         val layoutHeight = crossAxisLayoutSize
 
         layout(layoutWidth, layoutHeight) {
-            sequences.fastForEachIndexed { i, placeables ->
+            sequences.forEachIndexed { i, placeables ->
                 val childrenMainAxisSizes = IntArray(placeables.size) { j ->
                     placeables[j].width +
                         if (j < placeables.lastIndex) mainAxisSpacing.roundToPx() else 0
@@ -202,7 +199,7 @@ internal fun AlertDialogFlowRow(
                     arrange(mainAxisLayoutSize, childrenMainAxisSizes,
                         layoutDirection, mainAxisPositions)
                 }
-                placeables.fastForEachIndexed { j, placeable ->
+                placeables.forEachIndexed { j, placeable ->
                     placeable.place(
                         x = mainAxisPositions[j],
                         y = crossAxisPositions[i]

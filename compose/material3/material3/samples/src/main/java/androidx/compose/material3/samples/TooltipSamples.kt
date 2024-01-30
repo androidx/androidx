@@ -28,14 +28,14 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.PlainTooltip
-import androidx.compose.material3.RichTooltip
+import androidx.compose.material3.PlainTooltipBox
+import androidx.compose.material3.PlainTooltipState
+import androidx.compose.material3.RichTooltipBox
+import androidx.compose.material3.RichTooltipState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TooltipBox
-import androidx.compose.material3.TooltipDefaults
-import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -48,17 +48,12 @@ import kotlinx.coroutines.launch
 @Sampled
 @Composable
 fun PlainTooltipSample() {
-    TooltipBox(
-        positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
-        tooltip = {
-            PlainTooltip {
-                Text("Add to favorites")
-            }
-        },
-        state = rememberTooltipState()
+    PlainTooltipBox(
+        tooltip = { Text("Add to favorites") }
     ) {
         IconButton(
-            onClick = { /* Icon button's click event */ }
+            onClick = { /* Icon button's click event */ },
+            modifier = Modifier.tooltipAnchor()
         ) {
             Icon(
                 imageVector = Icons.Filled.Favorite,
@@ -73,19 +68,14 @@ fun PlainTooltipSample() {
 @Sampled
 @Composable
 fun PlainTooltipWithManualInvocationSample() {
-    val tooltipState = rememberTooltipState()
+    val tooltipState = remember { PlainTooltipState() }
     val scope = rememberCoroutineScope()
     Column(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        TooltipBox(
-            positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
-            tooltip = {
-                PlainTooltip {
-                    Text("Add to list")
-                }
-            },
-            state = tooltipState
+        PlainTooltipBox(
+            tooltip = { Text("Add to list") },
+            tooltipState = tooltipState
         ) {
             Icon(
                 imageVector = Icons.Filled.AddCircle,
@@ -105,26 +95,21 @@ fun PlainTooltipWithManualInvocationSample() {
 @Sampled
 @Composable
 fun RichTooltipSample() {
-    val tooltipState = rememberTooltipState(isPersistent = true)
+    val tooltipState = remember { RichTooltipState() }
     val scope = rememberCoroutineScope()
-    TooltipBox(
-        positionProvider = TooltipDefaults.rememberRichTooltipPositionProvider(),
-        tooltip = {
-            RichTooltip(
-                title = { Text(richTooltipSubheadText) },
-                action = {
-                    TextButton(
-                        onClick = { scope.launch { tooltipState.dismiss() } }
-                    ) { Text(richTooltipActionText) }
-                }
-            ) {
-                Text(richTooltipText)
-            }
+    RichTooltipBox(
+        title = { Text(richTooltipSubheadText) },
+        action = {
+            TextButton(
+                onClick = { scope.launch { tooltipState.dismiss() } }
+            ) { Text(richTooltipActionText) }
         },
-        state = tooltipState
+        text = { Text(richTooltipText) },
+        tooltipState = tooltipState
     ) {
         IconButton(
-            onClick = { /* Icon button's click event */ }
+            onClick = { /* Icon button's click event */ },
+            modifier = Modifier.tooltipAnchor()
         ) {
             Icon(
                 imageVector = Icons.Filled.Info,
@@ -133,33 +118,28 @@ fun RichTooltipSample() {
         }
     }
 }
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Sampled
 @Composable
 fun RichTooltipWithManualInvocationSample() {
-    val tooltipState = rememberTooltipState(isPersistent = true)
+    val tooltipState = remember { RichTooltipState() }
     val scope = rememberCoroutineScope()
     Column(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        TooltipBox(
-            positionProvider = TooltipDefaults.rememberRichTooltipPositionProvider(),
-            tooltip = {
-                RichTooltip(
-                    title = { Text(richTooltipSubheadText) },
-                    action = {
-                        TextButton(
-                            onClick = {
-                                scope.launch {
-                                    tooltipState.dismiss()
-                                }
-                            }
-                        ) { Text(richTooltipActionText) }
+        RichTooltipBox(
+            title = { Text(richTooltipSubheadText) },
+            action = {
+                TextButton(
+                    onClick = {
+                        scope.launch {
+                            tooltipState.dismiss()
+                        }
                     }
-                ) { Text(richTooltipText) }
+                ) { Text(richTooltipActionText) }
             },
-            state = tooltipState
+            text = { Text(richTooltipText) },
+            tooltipState = tooltipState
         ) {
             Icon(
                 imageVector = Icons.Filled.Info,

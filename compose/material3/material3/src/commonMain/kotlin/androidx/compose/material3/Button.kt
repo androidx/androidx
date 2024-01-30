@@ -37,12 +37,14 @@ import androidx.compose.material3.tokens.FilledTonalButtonTokens
 import androidx.compose.material3.tokens.OutlinedButtonTokens
 import androidx.compose.material3.tokens.TextButtonTokens
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -112,10 +114,10 @@ fun Button(
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     content: @Composable RowScope.() -> Unit
 ) {
-    val containerColor = colors.containerColor(enabled)
-    val contentColor = colors.contentColor(enabled)
+    val containerColor = colors.containerColor(enabled).value
+    val contentColor = colors.contentColor(enabled).value
     val shadowElevation = elevation?.shadowElevation(enabled, interactionSource)?.value ?: 0.dp
-    val tonalElevation = elevation?.tonalElevation(enabled) ?: 0.dp
+    val tonalElevation = elevation?.tonalElevation(enabled, interactionSource)?.value ?: 0.dp
     Surface(
         onClick = onClick,
         modifier = modifier.semantics { role = Role.Button },
@@ -128,20 +130,20 @@ fun Button(
         border = border,
         interactionSource = interactionSource
     ) {
-        ProvideContentColorTextStyle(
-            contentColor = contentColor,
-            textStyle = MaterialTheme.typography.labelLarge) {
-            Row(
-                Modifier
-                    .defaultMinSize(
-                        minWidth = ButtonDefaults.MinWidth,
-                        minHeight = ButtonDefaults.MinHeight
-                    )
-                    .padding(contentPadding),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically,
-                content = content
-            )
+        CompositionLocalProvider(LocalContentColor provides contentColor) {
+            ProvideTextStyle(value = MaterialTheme.typography.labelLarge) {
+                Row(
+                    Modifier
+                        .defaultMinSize(
+                            minWidth = ButtonDefaults.MinWidth,
+                            minHeight = ButtonDefaults.MinHeight
+                        )
+                        .padding(contentPadding),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically,
+                    content = content
+                )
+            }
         }
     }
 }
@@ -524,19 +526,19 @@ object ButtonDefaults {
     val IconSpacing = 8.dp
 
     /** Default shape for a button. */
-    val shape: Shape @Composable get() = FilledButtonTokens.ContainerShape.value
+    val shape: Shape @Composable get() = FilledButtonTokens.ContainerShape.toShape()
 
     /** Default shape for an elevated button. */
-    val elevatedShape: Shape @Composable get() = ElevatedButtonTokens.ContainerShape.value
+    val elevatedShape: Shape @Composable get() = ElevatedButtonTokens.ContainerShape.toShape()
 
     /** Default shape for a filled tonal button. */
-    val filledTonalShape: Shape @Composable get() = FilledTonalButtonTokens.ContainerShape.value
+    val filledTonalShape: Shape @Composable get() = FilledTonalButtonTokens.ContainerShape.toShape()
 
     /** Default shape for an outlined button. */
-    val outlinedShape: Shape @Composable get() = OutlinedButtonTokens.ContainerShape.value
+    val outlinedShape: Shape @Composable get() = OutlinedButtonTokens.ContainerShape.toShape()
 
     /** Default shape for a text button. */
-    val textShape: Shape @Composable get() = TextButtonTokens.ContainerShape.value
+    val textShape: Shape @Composable get() = TextButtonTokens.ContainerShape.toShape()
 
     /**
      * Creates a [ButtonColors] that represents the default container and content colors used in a
@@ -549,12 +551,12 @@ object ButtonDefaults {
      */
     @Composable
     fun buttonColors(
-        containerColor: Color = FilledButtonTokens.ContainerColor.value,
-        contentColor: Color = FilledButtonTokens.LabelTextColor.value,
+        containerColor: Color = FilledButtonTokens.ContainerColor.toColor(),
+        contentColor: Color = FilledButtonTokens.LabelTextColor.toColor(),
         disabledContainerColor: Color =
-            FilledButtonTokens.DisabledContainerColor.value
+            FilledButtonTokens.DisabledContainerColor.toColor()
                 .copy(alpha = FilledButtonTokens.DisabledContainerOpacity),
-        disabledContentColor: Color = FilledButtonTokens.DisabledLabelTextColor.value
+        disabledContentColor: Color = FilledButtonTokens.DisabledLabelTextColor.toColor()
             .copy(alpha = FilledButtonTokens.DisabledLabelTextOpacity),
     ): ButtonColors = ButtonColors(
         containerColor = containerColor,
@@ -574,13 +576,13 @@ object ButtonDefaults {
      */
     @Composable
     fun elevatedButtonColors(
-        containerColor: Color = ElevatedButtonTokens.ContainerColor.value,
-        contentColor: Color = ElevatedButtonTokens.LabelTextColor.value,
+        containerColor: Color = ElevatedButtonTokens.ContainerColor.toColor(),
+        contentColor: Color = ElevatedButtonTokens.LabelTextColor.toColor(),
         disabledContainerColor: Color = ElevatedButtonTokens.DisabledContainerColor
-            .value
+            .toColor()
             .copy(alpha = ElevatedButtonTokens.DisabledContainerOpacity),
         disabledContentColor: Color = ElevatedButtonTokens.DisabledLabelTextColor
-            .value
+            .toColor()
             .copy(alpha = ElevatedButtonTokens.DisabledLabelTextOpacity),
     ): ButtonColors = ButtonColors(
         containerColor = containerColor,
@@ -600,13 +602,13 @@ object ButtonDefaults {
      */
     @Composable
     fun filledTonalButtonColors(
-        containerColor: Color = FilledTonalButtonTokens.ContainerColor.value,
-        contentColor: Color = FilledTonalButtonTokens.LabelTextColor.value,
+        containerColor: Color = FilledTonalButtonTokens.ContainerColor.toColor(),
+        contentColor: Color = FilledTonalButtonTokens.LabelTextColor.toColor(),
         disabledContainerColor: Color = FilledTonalButtonTokens.DisabledContainerColor
-            .value
+            .toColor()
             .copy(alpha = FilledTonalButtonTokens.DisabledContainerOpacity),
         disabledContentColor: Color = FilledTonalButtonTokens.DisabledLabelTextColor
-            .value
+            .toColor()
             .copy(alpha = FilledTonalButtonTokens.DisabledLabelTextOpacity),
     ): ButtonColors = ButtonColors(
         containerColor = containerColor,
@@ -627,10 +629,10 @@ object ButtonDefaults {
     @Composable
     fun outlinedButtonColors(
         containerColor: Color = Color.Transparent,
-        contentColor: Color = OutlinedButtonTokens.LabelTextColor.value,
+        contentColor: Color = OutlinedButtonTokens.LabelTextColor.toColor(),
         disabledContainerColor: Color = Color.Transparent,
         disabledContentColor: Color = OutlinedButtonTokens.DisabledLabelTextColor
-            .value
+            .toColor()
             .copy(alpha = OutlinedButtonTokens.DisabledLabelTextOpacity),
     ): ButtonColors = ButtonColors(
         containerColor = containerColor,
@@ -651,10 +653,10 @@ object ButtonDefaults {
     @Composable
     fun textButtonColors(
         containerColor: Color = Color.Transparent,
-        contentColor: Color = TextButtonTokens.LabelTextColor.value,
+        contentColor: Color = TextButtonTokens.LabelTextColor.toColor(),
         disabledContainerColor: Color = Color.Transparent,
         disabledContentColor: Color = TextButtonTokens.DisabledLabelTextColor
-            .value
+            .toColor()
             .copy(alpha = TextButtonTokens.DisabledLabelTextOpacity),
     ): ButtonColors = ButtonColors(
         containerColor = containerColor,
@@ -747,7 +749,7 @@ object ButtonDefaults {
         @Composable
         get() = BorderStroke(
             width = OutlinedButtonTokens.OutlineWidth,
-            color = OutlinedButtonTokens.OutlineColor.value,
+            color = OutlinedButtonTokens.OutlineColor.toColor(),
         )
 }
 
@@ -767,7 +769,8 @@ class ButtonElevation internal constructor(
     private val disabledElevation: Dp,
 ) {
     /**
-     * Represents the tonal elevation used in a button, depending on its [enabled] state.
+     * Represents the tonal elevation used in a button, depending on its [enabled] state and
+     * [interactionSource]. This should typically be the same value as the [shadowElevation].
      *
      * Tonal elevation is used to apply a color shift to the surface to give the it higher emphasis.
      * When surface's color is [ColorScheme.surface], a higher elevation will result in a darker
@@ -776,14 +779,16 @@ class ButtonElevation internal constructor(
      * See [shadowElevation] which controls the elevation of the shadow drawn around the button.
      *
      * @param enabled whether the button is enabled
+     * @param interactionSource the [InteractionSource] for this button
      */
-    internal fun tonalElevation(enabled: Boolean): Dp {
-        return if (enabled) defaultElevation else disabledElevation
+    @Composable
+    internal fun tonalElevation(enabled: Boolean, interactionSource: InteractionSource): State<Dp> {
+        return animateElevation(enabled = enabled, interactionSource = interactionSource)
     }
 
     /**
      * Represents the shadow elevation used in a button, depending on its [enabled] state and
-     * [interactionSource].
+     * [interactionSource]. This should typically be the same value as the [tonalElevation].
      *
      * Shadow elevation is used to apply a shadow around the button to give it higher emphasis.
      *
@@ -812,27 +817,21 @@ class ButtonElevation internal constructor(
                     is HoverInteraction.Enter -> {
                         interactions.add(interaction)
                     }
-
                     is HoverInteraction.Exit -> {
                         interactions.remove(interaction.enter)
                     }
-
                     is FocusInteraction.Focus -> {
                         interactions.add(interaction)
                     }
-
                     is FocusInteraction.Unfocus -> {
                         interactions.remove(interaction.focus)
                     }
-
                     is PressInteraction.Press -> {
                         interactions.add(interaction)
                     }
-
                     is PressInteraction.Release -> {
                         interactions.remove(interaction.press)
                     }
-
                     is PressInteraction.Cancel -> {
                         interactions.remove(interaction.press)
                     }
@@ -856,24 +855,22 @@ class ButtonElevation internal constructor(
 
         val animatable = remember { Animatable(target, Dp.VectorConverter) }
 
-        LaunchedEffect(target) {
-            if (animatable.targetValue != target) {
-                if (!enabled) {
-                    // No transition when moving to a disabled state
-                    animatable.snapTo(target)
-                } else {
-                    val lastInteraction = when (animatable.targetValue) {
-                        pressedElevation -> PressInteraction.Press(Offset.Zero)
-                        hoveredElevation -> HoverInteraction.Enter()
-                        focusedElevation -> FocusInteraction.Focus()
-                        else -> null
-                    }
-                    animatable.animateElevation(
-                        from = lastInteraction,
-                        to = interaction,
-                        target = target
-                    )
+        if (!enabled) {
+            // No transition when moving to a disabled state
+            LaunchedEffect(target) { animatable.snapTo(target) }
+        } else {
+            LaunchedEffect(target) {
+                val lastInteraction = when (animatable.targetValue) {
+                    pressedElevation -> PressInteraction.Press(Offset.Zero)
+                    hoveredElevation -> HoverInteraction.Enter()
+                    focusedElevation -> FocusInteraction.Focus()
+                    else -> null
                 }
+                animatable.animateElevation(
+                    from = lastInteraction,
+                    to = interaction,
+                    target = target
+                )
             }
         }
 
@@ -906,37 +903,36 @@ class ButtonElevation internal constructor(
 /**
  * Represents the container and content colors used in a button in different states.
  *
- *  @constructor create an instance with arbitrary colors.
  * - See [ButtonDefaults.buttonColors] for the default colors used in a [Button].
  * - See [ButtonDefaults.elevatedButtonColors] for the default colors used in a [ElevatedButton].
  * - See [ButtonDefaults.textButtonColors] for the default colors used in a [TextButton].
- * @param containerColor the container color of this [Button] when enabled.
- * @param contentColor the content color of this [Button] when enabled.
- * @param disabledContainerColor the container color of this [Button] when not enabled.
- * @param disabledContentColor the content color of this [Button] when not enabled.
  */
 @Immutable
-class ButtonColors constructor(
-    val containerColor: Color,
-    val contentColor: Color,
-    val disabledContainerColor: Color,
-    val disabledContentColor: Color,
+class ButtonColors internal constructor(
+    private val containerColor: Color,
+    private val contentColor: Color,
+    private val disabledContainerColor: Color,
+    private val disabledContentColor: Color,
 ) {
     /**
      * Represents the container color for this button, depending on [enabled].
      *
      * @param enabled whether the button is enabled
      */
-    internal fun containerColor(enabled: Boolean): Color =
-        if (enabled) containerColor else disabledContainerColor
+    @Composable
+    internal fun containerColor(enabled: Boolean): State<Color> {
+        return rememberUpdatedState(if (enabled) containerColor else disabledContainerColor)
+    }
 
     /**
      * Represents the content color for this button, depending on [enabled].
      *
      * @param enabled whether the button is enabled
      */
-    internal fun contentColor(enabled: Boolean): Color =
-        if (enabled) contentColor else disabledContentColor
+    @Composable
+    internal fun contentColor(enabled: Boolean): State<Color> {
+        return rememberUpdatedState(if (enabled) contentColor else disabledContentColor)
+    }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

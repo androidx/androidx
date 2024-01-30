@@ -35,7 +35,7 @@ import androidx.compose.material3.DismissValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
-import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismiss
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDismissState
 import androidx.compose.runtime.Composable
@@ -98,10 +98,11 @@ fun SwipeToDismissDemo() {
                 visible = !isDismissed,
                 exit = shrinkHorizontally(shrinkTowards = Alignment.Start)
             ) {
-                SwipeToDismissBox(
+                SwipeToDismiss(
                     state = dismissState,
-                    backgroundContent = {
-                        val direction = dismissState.dismissDirection ?: return@SwipeToDismissBox
+                    modifier = Modifier.padding(vertical = 4.dp),
+                    background = {
+                        val direction = dismissState.dismissDirection ?: return@SwipeToDismiss
                         val color by animateColorAsState(
                             when (dismissState.targetValue) {
                                 DismissValue.Default -> Color.LightGray
@@ -135,30 +136,30 @@ fun SwipeToDismissDemo() {
                             )
                         }
                     },
-                    modifier = Modifier.padding(vertical = 4.dp)
-                ) {
-                    Card {
-                        ListItem(
-                            headlineContent = {
-                                Text(item, fontWeight = if (unread) FontWeight.Bold else null)
-                            },
-                            modifier = Modifier.semantics {
-                                // Provide accessible alternatives to swipe actions.
-                                val label = if (unread) "Mark Read" else "Mark Unread"
-                                customActions = listOf(
-                                    CustomAccessibilityAction(label) { unread = !unread; true },
-                                    CustomAccessibilityAction("Delete") {
-                                        scope.launch {
-                                            dismissState.dismiss(DismissDirection.EndToStart)
+                    dismissContent = {
+                        Card {
+                            ListItem(
+                                headlineContent = {
+                                    Text(item, fontWeight = if (unread) FontWeight.Bold else null)
+                                },
+                                modifier = Modifier.semantics {
+                                    // Provide accessible alternatives to swipe actions.
+                                    val label = if (unread) "Mark Read" else "Mark Unread"
+                                    customActions = listOf(
+                                        CustomAccessibilityAction(label) { unread = !unread; true },
+                                        CustomAccessibilityAction("Delete") {
+                                            scope.launch {
+                                                dismissState.dismiss(DismissDirection.EndToStart)
+                                            }
+                                            true
                                         }
-                                        true
-                                    }
-                                )
-                            },
-                            supportingContent = { Text("Swipe me left or right!") },
-                        )
+                                    )
+                                },
+                                supportingContent = { Text("Swipe me left or right!") },
+                            )
+                        }
                     }
-                }
+                )
             }
         }
     }

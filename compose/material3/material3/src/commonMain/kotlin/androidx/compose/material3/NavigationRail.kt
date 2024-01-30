@@ -30,7 +30,6 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
-import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.only
@@ -53,7 +52,6 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
@@ -64,11 +62,8 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.constrainWidth
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.util.fastFirst
-import androidx.compose.ui.util.fastFirstOrNull
 import kotlin.math.roundToInt
 
 /**
@@ -187,11 +182,9 @@ fun NavigationRailItem(
         @Composable {
             val style = MaterialTheme.typography.fromToken(NavigationRailTokens.LabelTextFont)
             val textColor by colors.textColor(selected = selected, enabled = enabled)
-            ProvideContentColorTextStyle(
-                contentColor = textColor,
-                textStyle = style,
-                content = label
-            )
+            CompositionLocalProvider(LocalContentColor provides textColor) {
+                ProvideTextStyle(style, content = label)
+            }
         }
     }
 
@@ -205,12 +198,11 @@ fun NavigationRailItem(
                 interactionSource = interactionSource,
                 indication = null,
             )
-            .defaultMinSize(minHeight = NavigationRailItemHeight)
+            .height(height = NavigationRailItemHeight)
             .widthIn(min = NavigationRailItemWidth),
-        contentAlignment = Alignment.Center,
-        propagateMinConstraints = true,
+        contentAlignment = Alignment.Center
     ) {
-        val animationProgress: State<Float> = animateFloatAsState(
+        val animationProgress: Float by animateFloatAsState(
             targetValue = if (selected) 1f else 0f,
             animationSpec = tween(ItemAnimationDurationMillis)
         )
@@ -229,9 +221,9 @@ fun NavigationRailItem(
         }
 
         val indicatorShape = if (label != null) {
-            NavigationRailTokens.ActiveIndicatorShape.value
+            NavigationRailTokens.ActiveIndicatorShape.toShape()
         } else {
-            NavigationRailTokens.NoLabelActiveIndicatorShape.value
+            NavigationRailTokens.NoLabelActiveIndicatorShape.toShape()
         }
 
         // The indicator has a width-expansion animation which interferes with the timing of the
@@ -248,21 +240,20 @@ fun NavigationRailItem(
             Box(
                 Modifier
                     .layoutId(IndicatorLayoutIdTag)
-                    .graphicsLayer { alpha = animationProgress.value }
                     .background(
-                        color = colors.indicatorColor,
+                        color = colors.indicatorColor.copy(alpha = animationProgress),
                         shape = indicatorShape
                     )
             )
         }
 
-        NavigationRailItemLayout(
+        NavigationRailItemBaselineLayout(
             indicatorRipple = indicatorRipple,
             indicator = indicator,
             icon = styledIcon,
             label = styledLabel,
             alwaysShowLabel = alwaysShowLabel,
-            animationProgress = { animationProgress.value },
+            animationProgress = animationProgress,
         )
     }
 }
@@ -270,7 +261,7 @@ fun NavigationRailItem(
 /** Defaults used in [NavigationRail] */
 object NavigationRailDefaults {
     /** Default container color of a navigation rail. */
-    val ContainerColor: Color @Composable get() = NavigationRailTokens.ContainerColor.value
+    val ContainerColor: Color @Composable get() = NavigationRailTokens.ContainerColor.toColor()
 
     /**
      * Default window insets for navigation rail.
@@ -298,11 +289,11 @@ object NavigationRailItemDefaults {
      */
     @Composable
     fun colors(
-        selectedIconColor: Color = NavigationRailTokens.ActiveIconColor.value,
-        selectedTextColor: Color = NavigationRailTokens.ActiveLabelTextColor.value,
-        indicatorColor: Color = NavigationRailTokens.ActiveIndicatorColor.value,
-        unselectedIconColor: Color = NavigationRailTokens.InactiveIconColor.value,
-        unselectedTextColor: Color = NavigationRailTokens.InactiveLabelTextColor.value,
+        selectedIconColor: Color = NavigationRailTokens.ActiveIconColor.toColor(),
+        selectedTextColor: Color = NavigationRailTokens.ActiveLabelTextColor.toColor(),
+        indicatorColor: Color = NavigationRailTokens.ActiveIndicatorColor.toColor(),
+        unselectedIconColor: Color = NavigationRailTokens.InactiveIconColor.toColor(),
+        unselectedTextColor: Color = NavigationRailTokens.InactiveLabelTextColor.toColor(),
         disabledIconColor: Color = unselectedIconColor.copy(alpha = DisabledAlpha),
         disabledTextColor: Color = unselectedTextColor.copy(alpha = DisabledAlpha),
     ): NavigationRailItemColors = NavigationRailItemColors(
@@ -321,11 +312,11 @@ object NavigationRailItemDefaults {
     )
     @Composable
     fun colors(
-        selectedIconColor: Color = NavigationRailTokens.ActiveIconColor.value,
-        selectedTextColor: Color = NavigationRailTokens.ActiveLabelTextColor.value,
-        indicatorColor: Color = NavigationRailTokens.ActiveIndicatorColor.value,
-        unselectedIconColor: Color = NavigationRailTokens.InactiveIconColor.value,
-        unselectedTextColor: Color = NavigationRailTokens.InactiveLabelTextColor.value,
+        selectedIconColor: Color = NavigationRailTokens.ActiveIconColor.toColor(),
+        selectedTextColor: Color = NavigationRailTokens.ActiveLabelTextColor.toColor(),
+        indicatorColor: Color = NavigationRailTokens.ActiveIndicatorColor.toColor(),
+        unselectedIconColor: Color = NavigationRailTokens.InactiveIconColor.toColor(),
+        unselectedTextColor: Color = NavigationRailTokens.InactiveLabelTextColor.toColor(),
     ): NavigationRailItemColors = NavigationRailItemColors(
         selectedIconColor = selectedIconColor,
         selectedTextColor = selectedTextColor,
@@ -337,28 +328,16 @@ object NavigationRailItemDefaults {
     )
 }
 
-/**
- * Represents the colors of the various elements of a navigation item.
- *
- * @constructor create an instance with arbitrary colors.
- *
- * @param selectedIconColor the color to use for the icon when the item is selected.
- * @param selectedTextColor the color to use for the text label when the item is selected.
- * @param selectedIndicatorColor the color to use for the indicator when the item is selected.
- * @param unselectedIconColor the color to use for the icon when the item is unselected.
- * @param unselectedTextColor the color to use for the text label when the item is unselected.
- * @param disabledIconColor the color to use for the icon when the item is disabled.
- * @param disabledTextColor the color to use for the text label when the item is disabled.
- */
+/** Represents the colors of the various elements of a navigation item. */
 @Stable
-class NavigationRailItemColors constructor(
-    val selectedIconColor: Color,
-    val selectedTextColor: Color,
-    val selectedIndicatorColor: Color,
-    val unselectedIconColor: Color,
-    val unselectedTextColor: Color,
-    val disabledIconColor: Color,
-    val disabledTextColor: Color,
+class NavigationRailItemColors internal constructor(
+    private val selectedIconColor: Color,
+    private val selectedTextColor: Color,
+    private val selectedIndicatorColor: Color,
+    private val unselectedIconColor: Color,
+    private val unselectedTextColor: Color,
+    private val disabledIconColor: Color,
+    private val disabledTextColor: Color,
 ) {
     /**
      * Represents the icon color for this item, depending on whether it is [selected].
@@ -400,6 +379,7 @@ class NavigationRailItemColors constructor(
 
     /** Represents the color of the indicator used for selected items. */
     internal val indicatorColor: Color
+        @Composable
         get() = selectedIndicatorColor
 
     override fun equals(other: Any?): Boolean {
@@ -444,17 +424,19 @@ class NavigationRailItemColors constructor(
  * size, icon and label positions, etc.
  */
 @Composable
-private fun NavigationRailItemLayout(
+private fun NavigationRailItemBaselineLayout(
     indicatorRipple: @Composable () -> Unit,
     indicator: @Composable () -> Unit,
     icon: @Composable () -> Unit,
     label: @Composable (() -> Unit)?,
     alwaysShowLabel: Boolean,
-    animationProgress: () -> Float,
+    animationProgress: Float,
 ) {
     Layout({
         indicatorRipple()
-        indicator()
+        if (animationProgress > 0) {
+            indicator()
+        }
 
         Box(Modifier.layoutId(IconLayoutIdTag)) { icon() }
 
@@ -462,15 +444,12 @@ private fun NavigationRailItemLayout(
             Box(
                 Modifier
                     .layoutId(LabelLayoutIdTag)
-                    .graphicsLayer { alpha = if (alwaysShowLabel) 1f else animationProgress() }
+                    .alpha(if (alwaysShowLabel) 1f else animationProgress)
             ) { label() }
         }
     }) { measurables, constraints ->
-        @Suppress("NAME_SHADOWING")
-        val animationProgress = animationProgress()
-        val looseConstraints = constraints.copy(minWidth = 0, minHeight = 0)
         val iconPlaceable =
-            measurables.fastFirst { it.layoutId == IconLayoutIdTag }.measure(looseConstraints)
+            measurables.first { it.layoutId == IconLayoutIdTag }.measure(constraints)
 
         val totalIndicatorWidth = iconPlaceable.width + (IndicatorHorizontalPadding * 2).roundToPx()
         val animatedIndicatorWidth = (totalIndicatorWidth * animationProgress).roundToInt()
@@ -483,7 +462,7 @@ private fun NavigationRailItemLayout(
 
         val indicatorRipplePlaceable =
             measurables
-                .fastFirst { it.layoutId == IndicatorRippleLayoutIdTag }
+                .first { it.layoutId == IndicatorRippleLayoutIdTag }
                 .measure(
                     Constraints.fixed(
                         width = totalIndicatorWidth,
@@ -492,7 +471,7 @@ private fun NavigationRailItemLayout(
                 )
         val indicatorPlaceable =
             measurables
-                .fastFirstOrNull { it.layoutId == IndicatorLayoutIdTag }
+                .firstOrNull { it.layoutId == IndicatorLayoutIdTag }
                 ?.measure(
                     Constraints.fixed(
                         width = animatedIndicatorWidth,
@@ -503,8 +482,12 @@ private fun NavigationRailItemLayout(
         val labelPlaceable =
             label?.let {
                 measurables
-                    .fastFirst { it.layoutId == LabelLayoutIdTag }
-                    .measure(looseConstraints)
+                    .first { it.layoutId == LabelLayoutIdTag }
+                    .measure(
+                        // Measure with loose constraints for height as we don't want the label to
+                        // take up more space than it needs
+                        constraints.copy(minHeight = 0)
+                    )
             }
 
         if (label == null) {
@@ -539,7 +522,7 @@ private fun MeasureScope.placeIcon(
             indicatorPlaceable?.width ?: 0
         )
     )
-    val height = constraints.constrainHeight(NavigationRailItemHeight.roundToPx())
+    val height = constraints.maxHeight
 
     val iconX = (width - iconPlaceable.width) / 2
     val iconY = (height - iconPlaceable.height) / 2
@@ -562,8 +545,8 @@ private fun MeasureScope.placeIcon(
  * Places the provided [Placeable]s in the correct position, depending on [alwaysShowLabel] and
  * [animationProgress].
  *
- * When [alwaysShowLabel] is true, the positions do not move. The [iconPlaceable] and
- * [labelPlaceable] will be placed together in the center with padding between them, according to
+ * When [alwaysShowLabel] is true, the positions do not move. The [iconPlaceable] will be placed
+ * near the top of the item and the [labelPlaceable] will be placed near the bottom, according to
  * the spec.
  *
  * When [animationProgress] is 1 (representing the selected state), the positions will be the same
@@ -599,14 +582,13 @@ private fun MeasureScope.placeLabelAndIcon(
     alwaysShowLabel: Boolean,
     animationProgress: Float,
 ): MeasureResult {
-    val contentHeight = iconPlaceable.height + IndicatorVerticalPaddingWithLabel.toPx() +
-        NavigationRailItemVerticalPadding.toPx() + labelPlaceable.height
-    val contentVerticalPadding = ((constraints.minHeight - contentHeight) / 2)
-        .coerceAtLeast(IndicatorVerticalPaddingWithLabel.toPx())
-    val height = contentHeight + contentVerticalPadding * 2
+    val height = constraints.maxHeight
 
-    // Icon (when selected) should be `contentVerticalPadding` from the top
-    val selectedIconY = contentVerticalPadding
+    // Label should be `ItemVerticalPadding` from the bottom
+    val labelY = height - labelPlaceable.height - NavigationRailItemVerticalPadding.roundToPx()
+
+    // Icon (when selected) should be `ItemVerticalPadding` from the top
+    val selectedIconY = NavigationRailItemVerticalPadding.roundToPx()
     val unselectedIconY =
         if (alwaysShowLabel) selectedIconY else (height - iconPlaceable.height) / 2
 
@@ -615,13 +597,7 @@ private fun MeasureScope.placeLabelAndIcon(
 
     // The interpolated fraction of iconDistance that all placeables need to move based on
     // animationProgress, since the icon is higher in the selected state.
-    val offset = iconDistance * (1 - animationProgress)
-
-    // Label should be fixed padding below icon
-    val labelY = selectedIconY + iconPlaceable.height +
-        IndicatorVerticalPaddingWithLabel.toPx() +
-        NavigationRailItemVerticalPadding.toPx()
-
+    val offset = (iconDistance * (1 - animationProgress)).roundToInt()
     val width = constraints.constrainWidth(
         maxOf(
             iconPlaceable.width,
@@ -632,19 +608,19 @@ private fun MeasureScope.placeLabelAndIcon(
     val labelX = (width - labelPlaceable.width) / 2
     val iconX = (width - iconPlaceable.width) / 2
     val rippleX = (width - indicatorRipplePlaceable.width) / 2
-    val rippleY = selectedIconY - IndicatorVerticalPaddingWithLabel.toPx()
+    val rippleY = selectedIconY - IndicatorVerticalPaddingWithLabel.roundToPx()
 
-    return layout(width, height.roundToInt()) {
+    return layout(width, height) {
         indicatorPlaceable?.let {
             val indicatorX = (width - it.width) / 2
-            val indicatorY = selectedIconY - IndicatorVerticalPaddingWithLabel.toPx()
-            it.placeRelative(indicatorX, (indicatorY + offset).roundToInt())
+            val indicatorY = selectedIconY - IndicatorVerticalPaddingWithLabel.roundToPx()
+            it.placeRelative(indicatorX, indicatorY + offset)
         }
         if (alwaysShowLabel || animationProgress != 0f) {
-            labelPlaceable.placeRelative(labelX, (labelY + offset).roundToInt())
+            labelPlaceable.placeRelative(labelX, labelY + offset)
         }
-        iconPlaceable.placeRelative(iconX, (selectedIconY + offset).roundToInt())
-        indicatorRipplePlaceable.placeRelative(rippleX, (rippleY + offset).roundToInt())
+        iconPlaceable.placeRelative(iconX, selectedIconY + offset)
+        indicatorRipplePlaceable.placeRelative(rippleX, rippleY + offset)
     }
 }
 

@@ -38,6 +38,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -83,9 +84,9 @@ fun Card(
     Surface(
         modifier = modifier,
         shape = shape,
-        color = colors.containerColor(enabled = true),
-        contentColor = colors.contentColor(enabled = true),
-        tonalElevation = elevation.tonalElevation(enabled = true),
+        color = colors.containerColor(enabled = true).value,
+        contentColor = colors.contentColor(enabled = true).value,
+        tonalElevation = elevation.tonalElevation(enabled = true, interactionSource = null).value,
         shadowElevation = elevation.shadowElevation(enabled = true, interactionSource = null).value,
         border = border,
     ) {
@@ -126,6 +127,7 @@ fun Card(
  * [Interaction]s and customize the appearance / behavior of this card in different states.
  *
  */
+@ExperimentalMaterial3Api
 @Composable
 fun Card(
     onClick: () -> Unit,
@@ -143,9 +145,9 @@ fun Card(
         modifier = modifier,
         enabled = enabled,
         shape = shape,
-        color = colors.containerColor(enabled),
-        contentColor = colors.contentColor(enabled),
-        tonalElevation = elevation.tonalElevation(enabled),
+        color = colors.containerColor(enabled).value,
+        contentColor = colors.contentColor(enabled).value,
+        tonalElevation = elevation.tonalElevation(enabled, interactionSource).value,
         shadowElevation = elevation.shadowElevation(enabled, interactionSource).value,
         border = border,
         interactionSource = interactionSource,
@@ -224,6 +226,7 @@ fun ElevatedCard(
  * for this card. You can create and pass in your own `remember`ed instance to observe
  * [Interaction]s and customize the appearance / behavior of this card in different states.
  */
+@ExperimentalMaterial3Api
 @Composable
 fun ElevatedCard(
     onClick: () -> Unit,
@@ -319,6 +322,7 @@ fun OutlinedCard(
  * for this card. You can create and pass in your own `remember`ed instance to observe
  * [Interaction]s and customize the appearance / behavior of this card in different states.
  */
+@ExperimentalMaterial3Api
 @Composable
 fun OutlinedCard(
     onClick: () -> Unit,
@@ -348,13 +352,13 @@ fun OutlinedCard(
 object CardDefaults {
     // shape Defaults
     /** Default shape for a card. */
-    val shape: Shape @Composable get() = FilledCardTokens.ContainerShape.value
+    val shape: Shape @Composable get() = FilledCardTokens.ContainerShape.toShape()
 
     /** Default shape for an elevated card. */
-    val elevatedShape: Shape @Composable get() = ElevatedCardTokens.ContainerShape.value
+    val elevatedShape: Shape @Composable get() = ElevatedCardTokens.ContainerShape.toShape()
 
     /** Default shape for an outlined card. */
-    val outlinedShape: Shape @Composable get() = OutlinedCardTokens.ContainerShape.value
+    val outlinedShape: Shape @Composable get() = OutlinedCardTokens.ContainerShape.toShape()
 
     /**
      * Creates a [CardElevation] that will animate between the provided values according to the
@@ -450,10 +454,10 @@ object CardDefaults {
      */
     @Composable
     fun cardColors(
-        containerColor: Color = FilledCardTokens.ContainerColor.value,
+        containerColor: Color = FilledCardTokens.ContainerColor.toColor(),
         contentColor: Color = contentColorFor(containerColor),
         disabledContainerColor: Color =
-            FilledCardTokens.DisabledContainerColor.value
+            FilledCardTokens.DisabledContainerColor.toColor()
                 .copy(alpha = FilledCardTokens.DisabledContainerOpacity)
                 .compositeOver(
                     MaterialTheme.colorScheme.surfaceColorAtElevation(
@@ -479,10 +483,10 @@ object CardDefaults {
      */
     @Composable
     fun elevatedCardColors(
-        containerColor: Color = ElevatedCardTokens.ContainerColor.value,
+        containerColor: Color = ElevatedCardTokens.ContainerColor.toColor(),
         contentColor: Color = contentColorFor(containerColor),
         disabledContainerColor: Color =
-            ElevatedCardTokens.DisabledContainerColor.value
+            ElevatedCardTokens.DisabledContainerColor.toColor()
                 .copy(alpha = ElevatedCardTokens.DisabledContainerOpacity)
                 .compositeOver(
                     MaterialTheme.colorScheme.surfaceColorAtElevation(
@@ -509,7 +513,7 @@ object CardDefaults {
      */
     @Composable
     fun outlinedCardColors(
-        containerColor: Color = OutlinedCardTokens.ContainerColor.value,
+        containerColor: Color = OutlinedCardTokens.ContainerColor.toColor(),
         contentColor: Color = contentColorFor(containerColor),
         disabledContainerColor: Color = containerColor,
         disabledContentColor: Color = contentColor.copy(DisabledAlpha),
@@ -529,9 +533,9 @@ object CardDefaults {
     @Composable
     fun outlinedCardBorder(enabled: Boolean = true): BorderStroke {
         val color = if (enabled) {
-            OutlinedCardTokens.OutlineColor.value
+            OutlinedCardTokens.OutlineColor.toColor()
         } else {
-            OutlinedCardTokens.DisabledOutlineColor.value
+            OutlinedCardTokens.DisabledOutlineColor.toColor()
                 .copy(alpha = OutlinedCardTokens.DisabledOutlineOpacity)
                 .compositeOver(
                     MaterialTheme.colorScheme.surfaceColorAtElevation(
@@ -560,7 +564,8 @@ class CardElevation internal constructor(
     private val disabledElevation: Dp
 ) {
     /**
-     * Represents the tonal elevation used in a card, depending on its [enabled].
+     * Represents the tonal elevation used in a card, depending on its [enabled] state and
+     * [interactionSource]. This should typically be the same value as the [shadowElevation].
      *
      * Tonal elevation is used to apply a color shift to the surface to give the it higher emphasis.
      * When surface's color is [ColorScheme.surface], a higher elevation will result in a darker
@@ -569,13 +574,22 @@ class CardElevation internal constructor(
      * See [shadowElevation] which controls the elevation of the shadow drawn around the card.
      *
      * @param enabled whether the card is enabled
+     * @param interactionSource the [InteractionSource] for this card
      */
-    internal fun tonalElevation(enabled: Boolean): Dp =
-        if (enabled) defaultElevation else disabledElevation
+    @Composable
+    internal fun tonalElevation(
+        enabled: Boolean,
+        interactionSource: InteractionSource?
+    ): State<Dp> {
+        if (interactionSource == null) {
+            return remember { mutableStateOf(defaultElevation) }
+        }
+        return animateElevation(enabled = enabled, interactionSource = interactionSource)
+    }
 
     /**
      * Represents the shadow elevation used in a card, depending on its [enabled] state and
-     * [interactionSource].
+     * [interactionSource]. This should typically be the same value as the [tonalElevation].
      *
      * Shadow elevation is used to apply a shadow around the card to give it higher emphasis.
      *
@@ -607,39 +621,30 @@ class CardElevation internal constructor(
                     is HoverInteraction.Enter -> {
                         interactions.add(interaction)
                     }
-
                     is HoverInteraction.Exit -> {
                         interactions.remove(interaction.enter)
                     }
-
                     is FocusInteraction.Focus -> {
                         interactions.add(interaction)
                     }
-
                     is FocusInteraction.Unfocus -> {
                         interactions.remove(interaction.focus)
                     }
-
                     is PressInteraction.Press -> {
                         interactions.add(interaction)
                     }
-
                     is PressInteraction.Release -> {
                         interactions.remove(interaction.press)
                     }
-
                     is PressInteraction.Cancel -> {
                         interactions.remove(interaction.press)
                     }
-
                     is DragInteraction.Start -> {
                         interactions.add(interaction)
                     }
-
                     is DragInteraction.Stop -> {
                         interactions.remove(interaction.start)
                     }
-
                     is DragInteraction.Cancel -> {
                         interactions.remove(interaction.start)
                     }
@@ -665,24 +670,22 @@ class CardElevation internal constructor(
         val animatable = remember { Animatable(target, Dp.VectorConverter) }
 
         LaunchedEffect(target) {
-            if (animatable.targetValue != target) {
-                if (!enabled) {
-                    // No transition when moving to a disabled state.
-                    animatable.snapTo(target)
-                } else {
-                    val lastInteraction = when (animatable.targetValue) {
-                        pressedElevation -> PressInteraction.Press(Offset.Zero)
-                        hoveredElevation -> HoverInteraction.Enter()
-                        focusedElevation -> FocusInteraction.Focus()
-                        draggedElevation -> DragInteraction.Start()
-                        else -> null
-                    }
-                    animatable.animateElevation(
-                        from = lastInteraction,
-                        to = interaction,
-                        target = target
-                    )
+            if (enabled) {
+                val lastInteraction = when (animatable.targetValue) {
+                    pressedElevation -> PressInteraction.Press(Offset.Zero)
+                    hoveredElevation -> HoverInteraction.Enter()
+                    focusedElevation -> FocusInteraction.Focus()
+                    draggedElevation -> DragInteraction.Start()
+                    else -> null
                 }
+                animatable.animateElevation(
+                    from = lastInteraction,
+                    to = interaction,
+                    target = target
+                )
+            } else {
+                // No transition when moving to a disabled state.
+                animatable.snapTo(target)
             }
         }
 
@@ -715,22 +718,16 @@ class CardElevation internal constructor(
 /**
  * Represents the container and content colors used in a card in different states.
  *
- * @constructor create an instance with arbitrary colors.
  * - See [CardDefaults.cardColors] for the default colors used in a [Card].
  * - See [CardDefaults.elevatedCardColors] for the default colors used in a [ElevatedCard].
  * - See [CardDefaults.outlinedCardColors] for the default colors used in a [OutlinedCard].
- *
- * @param containerColor the container color of this [Card] when enabled.
- * @param contentColor the content color of this [Card] when enabled.
- * @param disabledContainerColor the container color of this [Card] when not enabled.
- * @param disabledContentColor the content color of this [Card] when not enabled.
  */
 @Immutable
-class CardColors constructor(
-    val containerColor: Color,
-    val contentColor: Color,
-    val disabledContainerColor: Color,
-    val disabledContentColor: Color,
+class CardColors internal constructor(
+    private val containerColor: Color,
+    private val contentColor: Color,
+    private val disabledContainerColor: Color,
+    private val disabledContentColor: Color,
 ) {
     /**
      * Represents the container color for this card, depending on [enabled].
@@ -738,8 +735,9 @@ class CardColors constructor(
      * @param enabled whether the card is enabled
      */
     @Composable
-    internal fun containerColor(enabled: Boolean): Color =
-        if (enabled) containerColor else disabledContainerColor
+    internal fun containerColor(enabled: Boolean): State<Color> {
+        return rememberUpdatedState(if (enabled) containerColor else disabledContainerColor)
+    }
 
     /**
      * Represents the content color for this card, depending on [enabled].
@@ -747,8 +745,9 @@ class CardColors constructor(
      * @param enabled whether the card is enabled
      */
     @Composable
-    internal fun contentColor(enabled: Boolean) =
-        if (enabled) contentColor else disabledContentColor
+    internal fun contentColor(enabled: Boolean): State<Color> {
+        return rememberUpdatedState(if (enabled) contentColor else disabledContentColor)
+    }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

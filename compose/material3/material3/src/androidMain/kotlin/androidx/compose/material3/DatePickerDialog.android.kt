@@ -28,6 +28,7 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material3.tokens.DatePickerModalTokens
 import androidx.compose.material3.tokens.DialogTokens
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
@@ -72,7 +73,7 @@ fun DatePickerDialog(
     properties: DialogProperties = DialogProperties(usePlatformDefaultWidth = false),
     content: @Composable ColumnScope.() -> Unit
 ) {
-    BasicAlertDialog(
+    AlertDialog(
         onDismissRequest = onDismissRequest,
         modifier = modifier.wrapContentHeight(),
         properties = properties
@@ -93,17 +94,19 @@ fun DatePickerDialog(
                         .align(Alignment.End)
                         .padding(DialogButtonsPadding)
                 ) {
-                    ProvideContentColorTextStyle(
-                        contentColor = DialogTokens.ActionLabelTextColor.value,
-                        textStyle =
-                        MaterialTheme.typography.fromToken(DialogTokens.ActionLabelTextFont)
+                    CompositionLocalProvider(
+                        LocalContentColor provides DialogTokens.ActionLabelTextColor.toColor()
                     ) {
-                        AlertDialogFlowRow(
-                            mainAxisSpacing = DialogButtonsMainAxisSpacing,
-                            crossAxisSpacing = DialogButtonsCrossAxisSpacing
-                        ) {
-                            dismissButton?.invoke()
-                            confirmButton()
+                        val textStyle =
+                            MaterialTheme.typography.fromToken(DialogTokens.ActionLabelTextFont)
+                        ProvideTextStyle(value = textStyle) {
+                            AlertDialogFlowRow(
+                                mainAxisSpacing = DialogButtonsMainAxisSpacing,
+                                crossAxisSpacing = DialogButtonsCrossAxisSpacing
+                            ) {
+                                dismissButton?.invoke()
+                                confirmButton()
+                            }
                         }
                     }
                 }

@@ -32,12 +32,9 @@ import androidx.compose.material3.ListItem
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.PlainTooltip
+import androidx.compose.material3.PlainTooltipBox
+import androidx.compose.material3.PlainTooltipState
 import androidx.compose.material3.Text
-import androidx.compose.material3.TooltipBox
-import androidx.compose.material3.TooltipDefaults
-import androidx.compose.material3.TooltipState
-import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -64,16 +61,13 @@ fun TooltipDemo() {
         ) {
             var textFieldValue by remember { mutableStateOf("") }
             var textFieldTooltipText by remember { mutableStateOf("") }
-            val textFieldTooltipState = rememberTooltipState()
+            val textFieldTooltipState = remember { PlainTooltipState() }
             val scope = rememberCoroutineScope()
-            TooltipBox(
-                positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+            PlainTooltipBox(
                 tooltip = {
-                    PlainTooltip {
-                        Text(textFieldTooltipText)
-                    }
+                    Text(textFieldTooltipText)
                 },
-                state = textFieldTooltipState
+                tooltipState = textFieldTooltipState
             ) {
                 OutlinedTextField(
                     value = textFieldValue,
@@ -92,7 +86,7 @@ fun TooltipDemo() {
                             textFieldTooltipState.show()
                         }
                     } else {
-                        val listItem = ItemInfo(textFieldValue, TooltipState())
+                        val listItem = ItemInfo(textFieldValue, PlainTooltipState())
                         listData.add(listItem)
                         textFieldValue = ""
                         scope.launch {
@@ -109,14 +103,9 @@ fun TooltipDemo() {
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
             items(listData) { item ->
-                TooltipBox(
-                    positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
-                    tooltip = {
-                        PlainTooltip {
-                            Text("${item.itemName} added to list")
-                        }
-                    },
-                    state = item.addedTooltipState
+                PlainTooltipBox(
+                    tooltip = { Text("${item.itemName} added to list") },
+                    tooltipState = item.addedTooltipState
                 ) {
                     ListItemCard(
                         itemName = item.itemName,
@@ -140,18 +129,12 @@ fun ListItemCard(
         ListItem(
             headlineContent = { Text(itemName) },
             trailingContent = {
-                TooltipBox(
-                    positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
-                    tooltip = {
-                        PlainTooltip {
-                            Text("Delete $itemName")
-                        }
-                    },
-                    state = rememberTooltipState(),
-                    enableUserInput = true
+                PlainTooltipBox(
+                    tooltip = { Text("Delete $itemName") }
                 ) {
                     IconButton(
-                        onClick = onDelete
+                        onClick = onDelete,
+                        modifier = Modifier.tooltipAnchor()
                     ) {
                         Icon(
                             imageVector = Icons.Filled.Delete,
@@ -167,5 +150,5 @@ fun ListItemCard(
 @OptIn(ExperimentalMaterial3Api::class)
 class ItemInfo(
     val itemName: String,
-    val addedTooltipState: TooltipState
+    val addedTooltipState: PlainTooltipState
 )

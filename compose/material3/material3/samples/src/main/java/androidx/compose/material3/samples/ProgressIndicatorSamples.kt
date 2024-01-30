@@ -20,6 +20,7 @@ import androidx.annotation.Sampled
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.LinearProgressIndicator
@@ -50,7 +51,8 @@ fun LinearProgressIndicatorSample() {
 
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         LinearProgressIndicator(
-            progress = { animatedProgress },
+            modifier = Modifier.semantics(mergeDescendants = true) {}.padding(10.dp),
+            progress = animatedProgress,
         )
         Spacer(Modifier.requiredHeight(30.dp))
         OutlinedButton(
@@ -74,7 +76,9 @@ fun LinearProgressIndicatorSample() {
 @Composable
 fun IndeterminateLinearProgressIndicatorSample() {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        LinearProgressIndicator()
+        LinearProgressIndicator(
+            modifier = Modifier.semantics(mergeDescendants = true) {}.padding(10.dp)
+        )
     }
 }
 
@@ -89,7 +93,7 @@ fun CircularProgressIndicatorSample() {
     )
 
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        CircularProgressIndicator(progress = { animatedProgress })
+        CircularProgressIndicator(progress = animatedProgress)
         Spacer(Modifier.requiredHeight(30.dp))
         OutlinedButton(
             modifier = Modifier.semantics {

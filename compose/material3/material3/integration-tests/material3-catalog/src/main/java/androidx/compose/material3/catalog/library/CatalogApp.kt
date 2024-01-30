@@ -16,27 +16,22 @@
 
 package androidx.compose.material3.catalog.library
 
-import androidx.compose.material3.catalog.library.data.UserPreferencesRepository
 import androidx.compose.material3.catalog.library.model.Theme
+import androidx.compose.material3.catalog.library.model.ThemeSaver
 import androidx.compose.material3.catalog.library.ui.theme.CatalogTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.platform.LocalContext
-import kotlinx.coroutines.launch
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 
 @Composable
-fun Material3CatalogApp(initialFavoriteRoute: String?) {
-    val context = LocalContext.current
-    val coroutineScope = rememberCoroutineScope()
-    val userPreferencesRepository = remember { UserPreferencesRepository(context) }
-    val theme = userPreferencesRepository.theme.collectAsState(Theme()).value
+fun Material3CatalogApp() {
+    var theme by rememberSaveable(stateSaver = ThemeSaver) { mutableStateOf(Theme()) }
     CatalogTheme(theme = theme) {
         NavGraph(
-            initialFavoriteRoute = initialFavoriteRoute,
             theme = theme,
-            onThemeChange = { coroutineScope.launch { userPreferencesRepository.saveTheme(it) } }
+            onThemeChange = { theme = it }
         )
     }
 }

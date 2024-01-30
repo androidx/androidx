@@ -16,15 +16,16 @@
 
 package androidx.compose.material3
 
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.ReadOnlyComposable
+import java.util.Locale
 
 /**
  * Creates a [CalendarModel] to be used by the date picker.
- *
- * @param locale a [CalendarLocale] that will be used by the created model
  */
 @ExperimentalMaterial3Api
-internal expect fun createCalendarModel(locale: CalendarLocale): CalendarModel
+internal expect fun CalendarModel(): CalendarModel
 
 /**
  * Formats a UTC timestamp into a string with a given date format skeleton.
@@ -37,38 +38,38 @@ internal expect fun createCalendarModel(locale: CalendarLocale): CalendarModel
  *
  * @param utcTimeMillis a UTC timestamp to format (milliseconds from epoch)
  * @param skeleton a date format skeleton
- * @param locale the [CalendarLocale] to use when formatting the given timestamp
- * @param cache a [MutableMap] for caching formatter related results for better performance
+ * @param locale the [Locale] to use when formatting the given timestamp
  */
 @ExperimentalMaterial3Api
-expect fun formatWithSkeleton(
+internal expect fun formatWithSkeleton(
     utcTimeMillis: Long,
     skeleton: String,
-    locale: CalendarLocale,
-    cache: MutableMap<String, Any>
+    locale: Locale = Locale.getDefault()
 ): String
 
 /**
- * A calendar model.
+ * A composable function that returns the default [Locale].
  *
- * @param locale a [CalendarLocale] to be used by this model
+ * When running on an Android platform, it will be recomposed when the `Configuration` gets updated.
  */
+@Composable
+@ReadOnlyComposable
 @ExperimentalMaterial3Api
-internal abstract class CalendarModel(val locale: CalendarLocale) {
+internal expect fun defaultLocale(): Locale
 
-    // A map for caching formatter related results for better performance
-    internal val formatterCache = mutableMapOf<String, Any>()
+@ExperimentalMaterial3Api
+internal interface CalendarModel {
 
     /**
      * A [CalendarDate] representing the current day.
      */
-    abstract val today: CalendarDate
+    val today: CalendarDate
 
     /**
      * Hold the first day of the week at the current `Locale` as an integer. The integer value
      * follows the ISO-8601 standard and refer to Monday as 1, and Sunday as 7.
      */
-    abstract val firstDayOfWeek: Int
+    val firstDayOfWeek: Int
 
     /**
      * Holds a list of weekday names, starting from Monday as the first day in the list.
@@ -80,10 +81,10 @@ internal abstract class CalendarModel(val locale: CalendarLocale) {
      * day.
      * Older APIs that predate API 26 will hold a full name and the first three letters of the day.
      */
-    abstract val weekdayNames: List<Pair<String, String>>
+    val weekdayNames: List<Pair<String, String>>
 
     /**
-     * Returns a [DateInputFormat] for the given [CalendarLocale].
+     * Returns a [DateInputFormat] for the given [Locale].
      *
      * The input format represents the date with two digits for the day and the month, and
      * four digits for the year.
@@ -98,7 +99,7 @@ internal abstract class CalendarModel(val locale: CalendarLocale) {
      *  - dd.MM.yyyy
      *  - MM/dd/yyyy
      */
-    abstract fun getDateInputFormat(locale: CalendarLocale = this.locale): DateInputFormat
+    fun getDateInputFormat(locale: Locale = Locale.getDefault()): DateInputFormat
 
     /**
      * Returns a [CalendarDate] from a given _UTC_ time in milliseconds.
@@ -108,14 +109,14 @@ internal abstract class CalendarModel(val locale: CalendarLocale) {
      *
      * @param timeInMillis UTC milliseconds from the epoch
      */
-    abstract fun getCanonicalDate(timeInMillis: Long): CalendarDate
+    fun getCanonicalDate(timeInMillis: Long): CalendarDate
 
     /**
      * Returns a [CalendarMonth] from a given _UTC_ time in milliseconds.
      *
      * @param timeInMillis UTC milliseconds from the epoch for the first day the month
      */
-    abstract fun getMonth(timeInMillis: Long): CalendarMonth
+    fun getMonth(timeInMillis: Long): CalendarMonth
 
     /**
      * Returns a [CalendarMonth] from a given [CalendarDate].
@@ -125,7 +126,7 @@ internal abstract class CalendarModel(val locale: CalendarLocale) {
      *
      * @param date a [CalendarDate] to resolve into a month
      */
-    abstract fun getMonth(date: CalendarDate): CalendarMonth
+    fun getMonth(date: CalendarDate): CalendarMonth
 
     /**
      * Returns a [CalendarMonth] from a given [year] and [month].
@@ -133,14 +134,14 @@ internal abstract class CalendarModel(val locale: CalendarLocale) {
      * @param year the month's year
      * @param month an integer representing a month (e.g. JANUARY as 1, December as 12)
      */
-    abstract fun getMonth(year: Int, /* @IntRange(from = 1, to = 12) */ month: Int): CalendarMonth
+    fun getMonth(year: Int, /* @IntRange(from = 1, to = 12) */ month: Int): CalendarMonth
 
     /**
      * Returns a day of week from a given [CalendarDate].
      *
      * @param date a [CalendarDate] to resolve
      */
-    abstract fun getDayOfWeek(date: CalendarDate): Int
+    fun getDayOfWeek(date: CalendarDate): Int
 
     /**
      * Returns a [CalendarMonth] that is computed by adding a number of months, given as
@@ -149,7 +150,7 @@ internal abstract class CalendarModel(val locale: CalendarLocale) {
      * @param from the [CalendarMonth] to add to
      * @param addedMonthsCount the number of months to add
      */
-    abstract fun plusMonths(from: CalendarMonth, addedMonthsCount: Int): CalendarMonth
+    fun plusMonths(from: CalendarMonth, addedMonthsCount: Int): CalendarMonth
 
     /**
      * Returns a [CalendarMonth] that is computed by subtracting a number of months, given as
@@ -158,47 +159,43 @@ internal abstract class CalendarModel(val locale: CalendarLocale) {
      * @param from the [CalendarMonth] to subtract from
      * @param subtractedMonthsCount the number of months to subtract
      */
-    abstract fun minusMonths(from: CalendarMonth, subtractedMonthsCount: Int): CalendarMonth
+    fun minusMonths(from: CalendarMonth, subtractedMonthsCount: Int): CalendarMonth
 
     /**
      * Formats a [CalendarMonth] into a string with a given date format skeleton.
      *
      * @param month a [CalendarMonth] to format
      * @param skeleton a date format skeleton
-     * @param locale the [CalendarLocale] to use when formatting the given month
+     * @param locale the [Locale] to use when formatting the given month
      */
     fun formatWithSkeleton(
         month: CalendarMonth,
         skeleton: String,
-        locale: CalendarLocale = this.locale
+        locale: Locale = Locale.getDefault()
     ): String =
-        formatWithSkeleton(month.startUtcTimeMillis, skeleton, locale, formatterCache)
+        formatWithSkeleton(month.startUtcTimeMillis, skeleton, locale)
 
     /**
      * Formats a [CalendarDate] into a string with a given date format skeleton.
      *
      * @param date a [CalendarDate] to format
      * @param skeleton a date format skeleton
-     * @param locale the [CalendarLocale] to use when formatting the given date
+     * @param locale the [Locale] to use when formatting the given date
      */
     fun formatWithSkeleton(
         date: CalendarDate,
         skeleton: String,
-        locale: CalendarLocale = this.locale
-    ): String = formatWithSkeleton(date.utcTimeMillis, skeleton, locale, formatterCache)
+        locale: Locale = Locale.getDefault()
+    ): String = formatWithSkeleton(date.utcTimeMillis, skeleton, locale)
 
     /**
      * Formats a UTC timestamp into a string with a given date format pattern.
      *
      * @param utcTimeMillis a UTC timestamp to format (milliseconds from epoch)
      * @param pattern a date format pattern
-     * @param locale the [CalendarLocale] to use when formatting the given timestamp
+     * @param locale the [Locale] to use when formatting the given timestamp
      */
-    abstract fun formatWithPattern(
-        utcTimeMillis: Long,
-        pattern: String,
-        locale: CalendarLocale
-    ): String
+    fun formatWithPattern(utcTimeMillis: Long, pattern: String, locale: Locale): String
 
     /**
      * Parses a date string into a [CalendarDate].
@@ -207,7 +204,7 @@ internal abstract class CalendarModel(val locale: CalendarLocale) {
      * @param pattern the expected date pattern to be used for parsing the date string
      * @return a [CalendarDate], or a `null` in case the parsing failed
      */
-    abstract fun parse(date: String, pattern: String): CalendarDate?
+    fun parse(date: String, pattern: String): CalendarDate?
 }
 
 /**
@@ -229,13 +226,14 @@ internal data class CalendarDate(
         this.utcTimeMillis.compareTo(other.utcTimeMillis)
 
     /**
-     * Formats the date into a string with the given skeleton format and a [CalendarLocale].
+     * Formats the date into a string with the given skeleton format and a [Locale].
      */
     fun format(
         calendarModel: CalendarModel,
         skeleton: String,
+        locale: Locale = Locale.getDefault()
     ): String =
-        calendarModel.formatWithSkeleton(this, skeleton, calendarModel.locale)
+        calendarModel.formatWithSkeleton(this, skeleton, locale)
 }
 
 /**
@@ -271,20 +269,21 @@ internal data class CalendarMonth(
     }
 
     /**
-     * Formats the month into a string with the given skeleton format and a [CalendarLocale].
+     * Formats the month into a string with the given skeleton format and a [Locale].
      */
     fun format(
         calendarModel: CalendarModel,
-        skeleton: String
+        skeleton: String,
+        locale: Locale = Locale.getDefault()
     ): String =
-        calendarModel.formatWithSkeleton(this, skeleton, calendarModel.locale)
+        calendarModel.formatWithSkeleton(this, skeleton, locale)
 }
 
 /**
  * Holds the date input format pattern information.
  *
- * This data class hold the delimiter that is used by the current [CalendarLocale] when representing
- * dates in a short format, as well as a date pattern with and without a delimiter.
+ * This data class hold the delimiter that is used by the current [Locale] when representing dates
+ * in a short format, as well as a date pattern with and without a delimiter.
  */
 @ExperimentalMaterial3Api
 @Immutable

@@ -16,6 +16,7 @@
 
 package androidx.compose.material3.catalog.library.ui.home
 
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
@@ -34,22 +35,19 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun Home(
     components: List<Component>,
     theme: Theme,
     onThemeChange: (theme: Theme) -> Unit,
-    onComponentClick: (component: Component) -> Unit,
-    favorite: Boolean = false,
-    onFavoriteClick: () -> Unit,
+    onComponentClick: (component: Component) -> Unit
 ) {
     val ltr = LocalLayoutDirection.current
     CatalogScaffold(
         topBarTitle = stringResource(id = R.string.compose_material_3),
         theme = theme,
-        onThemeChange = onThemeChange,
-        favorite = favorite,
-        onFavoriteClick = onFavoriteClick
+        onThemeChange = onThemeChange
     ) { paddingValues ->
         LazyVerticalGrid(
             modifier = Modifier.consumeWindowInsets(paddingValues),

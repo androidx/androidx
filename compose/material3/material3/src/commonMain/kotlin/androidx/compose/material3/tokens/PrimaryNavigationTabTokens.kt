@@ -13,8 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-// VERSION: v0_162
+// VERSION: v0_103
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 package androidx.compose.material3.tokens
@@ -30,6 +29,8 @@ internal object PrimaryNavigationTabTokens {
     val ContainerElevation = ElevationTokens.Level0
     val ContainerHeight = 48.0.dp
     val ContainerShape = ShapeKeyTokens.CornerNone
+    val DividerColor = ColorSchemeKeyTokens.SurfaceVariant
+    val DividerHeight = 1.0.dp
     val ActiveFocusIconColor = ColorSchemeKeyTokens.Primary
     val ActiveHoverIconColor = ColorSchemeKeyTokens.Primary
     val ActiveIconColor = ColorSchemeKeyTokens.Primary

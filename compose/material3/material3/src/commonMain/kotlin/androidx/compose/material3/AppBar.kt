@@ -36,6 +36,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -55,7 +56,8 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -72,7 +74,6 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.layout.AlignmentLine
 import androidx.compose.ui.layout.LastBaseline
 import androidx.compose.ui.layout.Layout
-import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.clearAndSetSemantics
@@ -81,7 +82,6 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.util.fastFirst
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.roundToInt
@@ -391,7 +391,6 @@ fun LargeTopAppBar(
  * @param contentPadding the padding applied to the content of this BottomAppBar
  * @param windowInsets a window insets that app bar will respect.
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BottomAppBar(
     actions: @Composable RowScope.() -> Unit,
@@ -403,84 +402,16 @@ fun BottomAppBar(
     contentPadding: PaddingValues = BottomAppBarDefaults.ContentPadding,
     windowInsets: WindowInsets = BottomAppBarDefaults.windowInsets,
 ) = BottomAppBar(
-    actions = actions,
-    modifier = modifier,
-    floatingActionButton = floatingActionButton,
-    containerColor = containerColor,
-    contentColor = contentColor,
-    tonalElevation = tonalElevation,
-    contentPadding = contentPadding,
-    windowInsets = windowInsets,
-    scrollBehavior = null
-)
-
-/**
- * <a href="https://m3.material.io/components/bottom-app-bar/overview" class="external" target="_blank">Material Design bottom app bar</a>.
- *
- * A bottom app bar displays navigation and key actions at the bottom of mobile screens.
- *
- * ![Bottom app bar image](https://developer.android.com/images/reference/androidx/compose/material3/bottom-app-bar.png)
- *
- * @sample androidx.compose.material3.samples.SimpleBottomAppBar
- *
- * It can optionally display a [FloatingActionButton] embedded at the end of the BottomAppBar.
- *
- * @sample androidx.compose.material3.samples.BottomAppBarWithFAB
- *
- * A bottom app bar that uses a [scrollBehavior] to customize its nested scrolling behavior when
- * working in conjunction with a scrolling content looks like:
- *
- * @sample androidx.compose.material3.samples.ExitAlwaysBottomAppBar
- *
- * Also see [NavigationBar].
- *
- * @param actions the icon content of this BottomAppBar. The default layout here is a [Row],
- * so content inside will be placed horizontally.
- * @param modifier the [Modifier] to be applied to this BottomAppBar
- * @param floatingActionButton optional floating action button at the end of this BottomAppBar
- * @param containerColor the color used for the background of this BottomAppBar. Use
- * [Color.Transparent] to have no color.
- * @param contentColor the preferred color for content inside this BottomAppBar. Defaults to either
- * the matching content color for [containerColor], or to the current [LocalContentColor] if
- * [containerColor] is not a color from the theme.
- * @param tonalElevation when [containerColor] is [ColorScheme.surface], a translucent primary color
- * overlay is applied on top of the container. A higher tonal elevation value will result in a
- * darker color in light theme and lighter color in dark theme. See also: [Surface].
- * @param contentPadding the padding applied to the content of this BottomAppBar
- * @param windowInsets a window insets that app bar will respect.
- * @param scrollBehavior a [BottomAppBarScrollBehavior] which holds various offset values that will
- * be applied by this bottom app bar to set up its height. A scroll behavior is designed to
- * work in conjunction with a scrolled content to change the bottom app bar appearance as the
- * content scrolls. See [BottomAppBarScrollBehavior.nestedScrollConnection].
- */
-@ExperimentalMaterial3Api
-@Composable
-fun BottomAppBar(
-    actions: @Composable RowScope.() -> Unit,
-    modifier: Modifier = Modifier,
-    floatingActionButton: @Composable (() -> Unit)? = null,
-    containerColor: Color = BottomAppBarDefaults.containerColor,
-    contentColor: Color = contentColorFor(containerColor),
-    tonalElevation: Dp = BottomAppBarDefaults.ContainerElevation,
-    contentPadding: PaddingValues = BottomAppBarDefaults.ContentPadding,
-    windowInsets: WindowInsets = BottomAppBarDefaults.windowInsets,
-    scrollBehavior: BottomAppBarScrollBehavior? = null,
-) = BottomAppBar(
     modifier = modifier,
     containerColor = containerColor,
     contentColor = contentColor,
     tonalElevation = tonalElevation,
     windowInsets = windowInsets,
-    contentPadding = contentPadding,
-    scrollBehavior = scrollBehavior
+    contentPadding = contentPadding
 ) {
-    Row(
-        modifier = Modifier.weight(1f),
-        horizontalArrangement = Arrangement.Start,
-        verticalAlignment = Alignment.CenterVertically,
-        content = actions,
-    )
+    actions()
     if (floatingActionButton != null) {
+        Spacer(Modifier.weight(1f, true))
         Box(
             Modifier
                 .fillMaxHeight()
@@ -520,7 +451,6 @@ fun BottomAppBar(
  * @param content the content of this BottomAppBar. The default layout here is a [Row],
  * so content inside will be placed horizontally.
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BottomAppBar(
     modifier: Modifier = Modifier,
@@ -529,102 +459,15 @@ fun BottomAppBar(
     tonalElevation: Dp = BottomAppBarDefaults.ContainerElevation,
     contentPadding: PaddingValues = BottomAppBarDefaults.ContentPadding,
     windowInsets: WindowInsets = BottomAppBarDefaults.windowInsets,
-    content: @Composable RowScope.() -> Unit
-) = BottomAppBar(
-    modifier = modifier,
-    containerColor = containerColor,
-    contentColor = contentColor,
-    tonalElevation = tonalElevation,
-    contentPadding = contentPadding,
-    windowInsets = windowInsets,
-    scrollBehavior = null,
-    content = content
-)
-
-/**
- * <a href="https://m3.material.io/components/bottom-app-bar/overview" class="external" target="_blank">Material Design bottom app bar</a>.
- *
- * A bottom app bar displays navigation and key actions at the bottom of mobile screens.
- *
- * ![Bottom app bar image](https://developer.android.com/images/reference/androidx/compose/material3/bottom-app-bar.png)
- *
- * If you are interested in displaying a [FloatingActionButton], consider using another overload.
- *
- * Also see [NavigationBar].
- *
- * @param modifier the [Modifier] to be applied to this BottomAppBar
- * @param containerColor the color used for the background of this BottomAppBar. Use
- * [Color.Transparent] to have no color.
- * @param contentColor the preferred color for content inside this BottomAppBar. Defaults to either
- * the matching content color for [containerColor], or to the current [LocalContentColor] if
- * [containerColor] is not a color from the theme.
- * @param tonalElevation when [containerColor] is [ColorScheme.surface], a translucent primary color
- * overlay is applied on top of the container. A higher tonal elevation value will result in a
- * darker color in light theme and lighter color in dark theme. See also: [Surface].
- * @param contentPadding the padding applied to the content of this BottomAppBar
- * @param windowInsets a window insets that app bar will respect.
- * @param scrollBehavior a [BottomAppBarScrollBehavior] which holds various offset values that will
- * be applied by this bottom app bar to set up its height. A scroll behavior is designed to
- * work in conjunction with a scrolled content to change the bottom app bar appearance as the
- * content scrolls. See [BottomAppBarScrollBehavior.nestedScrollConnection].
- * @param content the content of this BottomAppBar. The default layout here is a [Row],
- * so content inside will be placed horizontally.
- */
-@ExperimentalMaterial3Api
-@Composable
-fun BottomAppBar(
-    modifier: Modifier = Modifier,
-    containerColor: Color = BottomAppBarDefaults.containerColor,
-    contentColor: Color = contentColorFor(containerColor),
-    tonalElevation: Dp = BottomAppBarDefaults.ContainerElevation,
-    contentPadding: PaddingValues = BottomAppBarDefaults.ContentPadding,
-    windowInsets: WindowInsets = BottomAppBarDefaults.windowInsets,
-    scrollBehavior: BottomAppBarScrollBehavior? = null,
     content: @Composable RowScope.() -> Unit
 ) {
-    // Set up support for resizing the bottom app bar when vertically dragging the bar itself.
-    val appBarDragModifier = if (scrollBehavior != null && !scrollBehavior.isPinned) {
-        Modifier.draggable(
-            orientation = Orientation.Vertical,
-            state = rememberDraggableState { delta ->
-                scrollBehavior.state.heightOffset -= delta
-            },
-            onDragStopped = { velocity ->
-                settleAppBarBottom(
-                    scrollBehavior.state,
-                    velocity,
-                    scrollBehavior.flingAnimationSpec,
-                    scrollBehavior.snapAnimationSpec
-                )
-            }
-        )
-    } else {
-        Modifier
-    }
-
-    // Compose a Surface with a Row content.
-    // The height of the app bar is determined by subtracting the bar's height offset from the
-    // app bar's defined constant height value (i.e. the ContainerHeight token).
     Surface(
         color = containerColor,
         contentColor = contentColor,
         tonalElevation = tonalElevation,
         // TODO(b/209583788): Consider adding a shape parameter if updated design guidance allows
-        shape = BottomAppBarTokens.ContainerShape.value,
+        shape = BottomAppBarTokens.ContainerShape.toShape(),
         modifier = modifier
-            .layout { measurable, constraints ->
-                // Sets the app bar's height offset to collapse the entire bar's height when content
-                // is scrolled.
-                scrollBehavior?.state?.heightOffsetLimit =
-                    -BottomAppBarTokens.ContainerHeight.toPx()
-
-                val placeable = measurable.measure(constraints)
-                val height = placeable.height + (scrollBehavior?.state?.heightOffset ?: 0f)
-                layout(placeable.width, height.roundToInt()) {
-                    placeable.place(0, 0)
-                }
-            }
-            .then(appBarDragModifier)
     ) {
         Row(
             Modifier
@@ -701,14 +544,14 @@ object TopAppBarDefaults {
      */
     @Composable
     fun topAppBarColors(
-        containerColor: Color = TopAppBarSmallTokens.ContainerColor.value,
+        containerColor: Color = TopAppBarSmallTokens.ContainerColor.toColor(),
         scrolledContainerColor: Color = MaterialTheme.colorScheme.applyTonalElevation(
             backgroundColor = containerColor,
             elevation = TopAppBarSmallTokens.OnScrollContainerElevation
         ),
-        navigationIconContentColor: Color = TopAppBarSmallTokens.LeadingIconColor.value,
-        titleContentColor: Color = TopAppBarSmallTokens.HeadlineColor.value,
-        actionIconContentColor: Color = TopAppBarSmallTokens.TrailingIconColor.value,
+        navigationIconContentColor: Color = TopAppBarSmallTokens.LeadingIconColor.toColor(),
+        titleContentColor: Color = TopAppBarSmallTokens.HeadlineColor.toColor(),
+        actionIconContentColor: Color = TopAppBarSmallTokens.TrailingIconColor.toColor(),
     ): TopAppBarColors =
         TopAppBarColors(
             containerColor,
@@ -740,14 +583,14 @@ object TopAppBarDefaults {
     )
     @Composable
     fun smallTopAppBarColors(
-        containerColor: Color = TopAppBarSmallTokens.ContainerColor.value,
+        containerColor: Color = TopAppBarSmallTokens.ContainerColor.toColor(),
         scrolledContainerColor: Color = MaterialTheme.colorScheme.applyTonalElevation(
             backgroundColor = containerColor,
             elevation = TopAppBarSmallTokens.OnScrollContainerElevation
         ),
-        navigationIconContentColor: Color = TopAppBarSmallTokens.LeadingIconColor.value,
-        titleContentColor: Color = TopAppBarSmallTokens.HeadlineColor.value,
-        actionIconContentColor: Color = TopAppBarSmallTokens.TrailingIconColor.value,
+        navigationIconContentColor: Color = TopAppBarSmallTokens.LeadingIconColor.toColor(),
+        titleContentColor: Color = TopAppBarSmallTokens.HeadlineColor.toColor(),
+        actionIconContentColor: Color = TopAppBarSmallTokens.TrailingIconColor.toColor(),
     ): TopAppBarColors =
         topAppBarColors(
             containerColor,
@@ -778,14 +621,14 @@ object TopAppBarDefaults {
      */
     @Composable
     fun centerAlignedTopAppBarColors(
-        containerColor: Color = TopAppBarSmallCenteredTokens.ContainerColor.value,
+        containerColor: Color = TopAppBarSmallCenteredTokens.ContainerColor.toColor(),
         scrolledContainerColor: Color = MaterialTheme.colorScheme.applyTonalElevation(
             backgroundColor = containerColor,
             elevation = TopAppBarSmallTokens.OnScrollContainerElevation
         ),
-        navigationIconContentColor: Color = TopAppBarSmallCenteredTokens.LeadingIconColor.value,
-        titleContentColor: Color = TopAppBarSmallCenteredTokens.HeadlineColor.value,
-        actionIconContentColor: Color = TopAppBarSmallCenteredTokens.TrailingIconColor.value,
+        navigationIconContentColor: Color = TopAppBarSmallCenteredTokens.LeadingIconColor.toColor(),
+        titleContentColor: Color = TopAppBarSmallCenteredTokens.HeadlineColor.toColor(),
+        actionIconContentColor: Color = TopAppBarSmallCenteredTokens.TrailingIconColor.toColor(),
     ): TopAppBarColors =
         TopAppBarColors(
             containerColor,
@@ -809,14 +652,14 @@ object TopAppBarDefaults {
      */
     @Composable
     fun mediumTopAppBarColors(
-        containerColor: Color = TopAppBarMediumTokens.ContainerColor.value,
+        containerColor: Color = TopAppBarMediumTokens.ContainerColor.toColor(),
         scrolledContainerColor: Color = MaterialTheme.colorScheme.applyTonalElevation(
             backgroundColor = containerColor,
             elevation = TopAppBarSmallTokens.OnScrollContainerElevation
         ),
-        navigationIconContentColor: Color = TopAppBarMediumTokens.LeadingIconColor.value,
-        titleContentColor: Color = TopAppBarMediumTokens.HeadlineColor.value,
-        actionIconContentColor: Color = TopAppBarMediumTokens.TrailingIconColor.value,
+        navigationIconContentColor: Color = TopAppBarMediumTokens.LeadingIconColor.toColor(),
+        titleContentColor: Color = TopAppBarMediumTokens.HeadlineColor.toColor(),
+        actionIconContentColor: Color = TopAppBarMediumTokens.TrailingIconColor.toColor(),
     ): TopAppBarColors =
         TopAppBarColors(
             containerColor,
@@ -840,14 +683,14 @@ object TopAppBarDefaults {
      */
     @Composable
     fun largeTopAppBarColors(
-        containerColor: Color = TopAppBarLargeTokens.ContainerColor.value,
+        containerColor: Color = TopAppBarLargeTokens.ContainerColor.toColor(),
         scrolledContainerColor: Color = MaterialTheme.colorScheme.applyTonalElevation(
             backgroundColor = containerColor,
             elevation = TopAppBarSmallTokens.OnScrollContainerElevation
         ),
-        navigationIconContentColor: Color = TopAppBarLargeTokens.LeadingIconColor.value,
-        titleContentColor: Color = TopAppBarLargeTokens.HeadlineColor.value,
-        actionIconContentColor: Color = TopAppBarLargeTokens.TrailingIconColor.value,
+        navigationIconContentColor: Color = TopAppBarLargeTokens.LeadingIconColor.toColor(),
+        titleContentColor: Color = TopAppBarLargeTokens.HeadlineColor.toColor(),
+        actionIconContentColor: Color = TopAppBarLargeTokens.TrailingIconColor.toColor(),
     ): TopAppBarColors =
         TopAppBarColors(
             containerColor,
@@ -987,7 +830,7 @@ class TopAppBarState(
      *
      * Use this limit to coerce the [heightOffset] value when it's updated.
      */
-    var heightOffsetLimit by mutableFloatStateOf(initialHeightOffsetLimit)
+    var heightOffsetLimit by mutableStateOf(initialHeightOffsetLimit)
 
     /**
      * The top app bar's current height offset in pixels. This height offset is applied to the fixed
@@ -996,9 +839,9 @@ class TopAppBarState(
      * Updates to the [heightOffset] value are coerced between zero and [heightOffsetLimit].
      */
     var heightOffset: Float
-        get() = _heightOffset.floatValue
+        get() = _heightOffset.value
         set(newOffset) {
-            _heightOffset.floatValue = newOffset.coerceIn(
+            _heightOffset.value = newOffset.coerceIn(
                 minimumValue = heightOffsetLimit,
                 maximumValue = 0f
             )
@@ -1014,7 +857,7 @@ class TopAppBarState(
      * consumes scroll events. A common implementation would update the value to be the sum of all
      * [NestedScrollConnection.onPostScroll] `consumed.y` values.
      */
-    var contentOffset by mutableFloatStateOf(initialContentOffset)
+    var contentOffset by mutableStateOf(initialContentOffset)
 
     /**
      * A value that represents the collapsed height percentage of the app bar.
@@ -1062,31 +905,22 @@ class TopAppBarState(
         )
     }
 
-    private var _heightOffset = mutableFloatStateOf(initialHeightOffset)
+    private var _heightOffset = mutableStateOf(initialHeightOffset)
 }
 
 /**
  * Represents the colors used by a top app bar in different states.
  * This implementation animates the container color according to the top app bar scroll state. It
  * does not animate the leading, headline, or trailing colors.
- *
- * @constructor create an instance with arbitrary colors, see [TopAppBarColors] for a
- * factory method using the default material3 spec
- * @param containerColor the color used for the background of this BottomAppBar. Use
- * [Color.Transparent] to have no color.
- * @param scrolledContainerColor the container color when content is scrolled behind it
- * @param navigationIconContentColor the content color used for the navigation icon
- * @param titleContentColor the content color used for the title
- * @param actionIconContentColor the content color used for actions
  */
 @ExperimentalMaterial3Api
 @Stable
-class TopAppBarColors constructor(
-    val containerColor: Color,
-    val scrolledContainerColor: Color,
-    val navigationIconContentColor: Color,
-    val titleContentColor: Color,
-    val actionIconContentColor: Color,
+class TopAppBarColors internal constructor(
+    private val containerColor: Color,
+    private val scrolledContainerColor: Color,
+    internal val navigationIconContentColor: Color,
+    internal val titleContentColor: Color,
+    internal val actionIconContentColor: Color,
 ) {
 
     /**
@@ -1132,57 +966,13 @@ class TopAppBarColors constructor(
     }
 }
 
-/**
- * A BottomAppBarScrollBehavior defines how a bottom app bar should behave when the content under
- * it is scrolled.
- *
- * @see [BottomAppBarDefaults.exitAlwaysScrollBehavior]
- */
-@ExperimentalMaterial3Api
-@Stable
-interface BottomAppBarScrollBehavior {
-
-    /**
-     * A [BottomAppBarState] that is attached to this behavior and is read and updated when
-     * scrolling happens.
-     */
-    val state: BottomAppBarState
-
-    /**
-     * Indicates whether the bottom app bar is pinned.
-     *
-     * A pinned app bar will stay fixed in place when content is scrolled and will not react to any
-     * drag gestures.
-     */
-    val isPinned: Boolean
-
-    /**
-     * An optional [AnimationSpec] that defines how the bottom app bar snaps to either fully
-     * collapsed or fully extended state when a fling or a drag scrolled it into an intermediate
-     * position.
-     */
-    val snapAnimationSpec: AnimationSpec<Float>?
-
-    /**
-     * An optional [DecayAnimationSpec] that defined how to fling the bottom app bar when the user
-     * flings the app bar itself, or the content below it.
-     */
-    val flingAnimationSpec: DecayAnimationSpec<Float>?
-
-    /**
-     * A [NestedScrollConnection] that should be attached to a [Modifier.nestedScroll] in order to
-     * keep track of the scroll events.
-     */
-    val nestedScrollConnection: NestedScrollConnection
-}
-
 /** Contains default values used for the bottom app bar implementations. */
 object BottomAppBarDefaults {
 
-    /** Default color used for [BottomAppBar] container */
-    val containerColor: Color @Composable get() = BottomAppBarTokens.ContainerColor.value
+    /** Default color used for [BottomAppBar] container **/
+    val containerColor: Color @Composable get() = BottomAppBarTokens.ContainerColor.toColor()
 
-    /** Default elevation used for [BottomAppBar] */
+    /** Default elevation used for [BottomAppBar] **/
     val ContainerElevation: Dp = BottomAppBarTokens.ContainerElevation
 
     /**
@@ -1208,288 +998,7 @@ object BottomAppBarDefaults {
     /** The color of a [BottomAppBar]'s [FloatingActionButton] */
     val bottomAppBarFabColor: Color
         @Composable get() =
-            FabSecondaryTokens.ContainerColor.value
-
-    /**
-     * Returns a [BottomAppBarScrollBehavior]. A bottom app bar that is set up with this
-     * [BottomAppBarScrollBehavior] will immediately collapse when the content is pulled up, and
-     * will immediately appear when the content is pulled down.
-     *
-     * @param state the state object to be used to control or observe the bottom app bar's scroll
-     * state. See [rememberBottomAppBarState] for a state that is remembered across compositions.
-     * @param canScroll a callback used to determine whether scroll events are to be
-     * handled by this [ExitAlwaysScrollBehavior]
-     * @param snapAnimationSpec an optional [AnimationSpec] that defines how the bottom app bar
-     * snaps to either fully collapsed or fully extended state when a fling or a drag scrolled it
-     * into an intermediate position
-     * @param flingAnimationSpec an optional [DecayAnimationSpec] that defined how to fling the
-     * bottom app bar when the user flings the app bar itself, or the content below it
-     */
-    @ExperimentalMaterial3Api
-    @Composable
-    fun exitAlwaysScrollBehavior(
-        state: BottomAppBarState = rememberBottomAppBarState(),
-        canScroll: () -> Boolean = { true },
-        snapAnimationSpec: AnimationSpec<Float>? = spring(stiffness = Spring.StiffnessMediumLow),
-        flingAnimationSpec: DecayAnimationSpec<Float>? = rememberSplineBasedDecay()
-    ): BottomAppBarScrollBehavior =
-        ExitAlwaysScrollBehavior(
-            state = state,
-            snapAnimationSpec = snapAnimationSpec,
-            flingAnimationSpec = flingAnimationSpec,
-            canScroll = canScroll
-        )
-}
-
-/**
- * Creates a [BottomAppBarState] that is remembered across compositions.
- *
- * @param initialHeightOffsetLimit the initial value for [BottomAppBarState.heightOffsetLimit],
- * which represents the pixel limit that a bottom app bar is allowed to collapse when the scrollable
- * content is scrolled
- * @param initialHeightOffset the initial value for [BottomAppBarState.heightOffset]. The initial
- * offset height offset should be between zero and [initialHeightOffsetLimit].
- * @param initialContentOffset the initial value for [BottomAppBarState.contentOffset]
- */
-@ExperimentalMaterial3Api
-@Composable
-fun rememberBottomAppBarState(
-    initialHeightOffsetLimit: Float = -Float.MAX_VALUE,
-    initialHeightOffset: Float = 0f,
-    initialContentOffset: Float = 0f
-): BottomAppBarState {
-    return rememberSaveable(saver = BottomAppBarState.Saver) {
-        BottomAppBarState(
-            initialHeightOffsetLimit,
-            initialHeightOffset,
-            initialContentOffset
-        )
-    }
-}
-
-/**
- * A state object that can be hoisted to control and observe the bottom app bar state. The state is
- * read and updated by a [BottomAppBarScrollBehavior] implementation.
- *
- * In most cases, this state will be created via [rememberBottomAppBarState].
- */
-@ExperimentalMaterial3Api
-interface BottomAppBarState {
-
-    /**
-     * The bottom app bar's height offset limit in pixels, which represents the limit that a bottom
-     * app bar is allowed to collapse to.
-     *
-     * Use this limit to coerce the [heightOffset] value when it's updated.
-     */
-    var heightOffsetLimit: Float
-
-    /**
-     * The bottom app bar's current height offset in pixels. This height offset is applied to the
-     * fixed height of the app bar to control the displayed height when content is being scrolled.
-     *
-     * Updates to the [heightOffset] value are coerced between zero and [heightOffsetLimit].
-     */
-    var heightOffset: Float
-
-    /**
-     * The total offset of the content scrolled under the bottom app bar.
-     *
-     * This value is updated by a [BottomAppBarScrollBehavior] whenever a nested scroll connection
-     * consumes scroll events. A common implementation would update the value to be the sum of all
-     * [NestedScrollConnection.onPostScroll] `consumed.y` values.
-     */
-    var contentOffset: Float
-
-    /**
-     * A value that represents the collapsed height percentage of the app bar.
-     *
-     * A `0.0` represents a fully expanded bar, and `1.0` represents a fully collapsed bar (computed
-     * as [heightOffset] / [heightOffsetLimit]).
-     */
-    val collapsedFraction: Float
-
-    companion object {
-        /**
-         * The default [Saver] implementation for [BottomAppBarState].
-         */
-        val Saver: Saver<BottomAppBarState, *> = listSaver(
-            save = { listOf(it.heightOffsetLimit, it.heightOffset, it.contentOffset) },
-            restore = {
-                BottomAppBarState(
-                    initialHeightOffsetLimit = it[0],
-                    initialHeightOffset = it[1],
-                    initialContentOffset = it[2]
-                )
-            }
-        )
-    }
-}
-
-/**
- * Creates a [BottomAppBarState].
- *
- * @param initialHeightOffsetLimit the initial value for [BottomAppBarState.heightOffsetLimit],
- * which represents the pixel limit that a bottom app bar is allowed to collapse when the scrollable
- * content is scrolled
- * @param initialHeightOffset the initial value for [BottomAppBarState.heightOffset]. The initial
- * offset height offset should be between zero and [initialHeightOffsetLimit].
- * @param initialContentOffset the initial value for [BottomAppBarState.contentOffset]
- */
-@ExperimentalMaterial3Api
-fun BottomAppBarState(
-    initialHeightOffsetLimit: Float,
-    initialHeightOffset: Float,
-    initialContentOffset: Float
-): BottomAppBarState = BottomAppBarStateImpl(
-    initialHeightOffsetLimit,
-    initialHeightOffset,
-    initialContentOffset
-)
-
-@ExperimentalMaterial3Api
-@Stable
-private class BottomAppBarStateImpl(
-    initialHeightOffsetLimit: Float,
-    initialHeightOffset: Float,
-    initialContentOffset: Float
-) : BottomAppBarState {
-
-    override var heightOffsetLimit by mutableFloatStateOf(initialHeightOffsetLimit)
-
-    override var heightOffset: Float
-        get() = _heightOffset.floatValue
-        set(newOffset) {
-            _heightOffset.floatValue = newOffset.coerceIn(
-                minimumValue = heightOffsetLimit,
-                maximumValue = 0f
-            )
-        }
-
-    override var contentOffset by mutableFloatStateOf(initialContentOffset)
-
-    override val collapsedFraction: Float
-        get() = if (heightOffsetLimit != 0f) {
-            heightOffset / heightOffsetLimit
-        } else {
-            0f
-        }
-
-    private var _heightOffset = mutableFloatStateOf(initialHeightOffset)
-}
-
-/**
- * A [BottomAppBarScrollBehavior] that adjusts its properties to affect the colors and height of a
- * bottom app bar.
- *
- * A bottom app bar that is set up with this [BottomAppBarScrollBehavior] will immediately collapse
- * when the nested content is pulled up, and will immediately appear when the content is pulled
- * down.
- *
- * @param state a [BottomAppBarState]
- * @param snapAnimationSpec an optional [AnimationSpec] that defines how the bottom app bar snaps to
- * either fully collapsed or fully extended state when a fling or a drag scrolled it into an
- * intermediate position
- * @param flingAnimationSpec an optional [DecayAnimationSpec] that defined how to fling the bottom
- * app bar when the user flings the app bar itself, or the content below it
- * @param canScroll a callback used to determine whether scroll events are to be
- * handled by this [ExitAlwaysScrollBehavior]
- */
-@ExperimentalMaterial3Api
-private class ExitAlwaysScrollBehavior(
-    override val state: BottomAppBarState,
-    override val snapAnimationSpec: AnimationSpec<Float>?,
-    override val flingAnimationSpec: DecayAnimationSpec<Float>?,
-    val canScroll: () -> Boolean = { true }
-) : BottomAppBarScrollBehavior {
-    override val isPinned: Boolean = false
-    override var nestedScrollConnection =
-        object : NestedScrollConnection {
-            override fun onPostScroll(
-                consumed: Offset,
-                available: Offset,
-                source: NestedScrollSource
-            ): Offset {
-                if (!canScroll()) return Offset.Zero
-                state.contentOffset += consumed.y
-                if (state.heightOffset == 0f || state.heightOffset == state.heightOffsetLimit) {
-                    if (consumed.y == 0f && available.y > 0f) {
-                        // Reset the total content offset to zero when scrolling all the way down.
-                        // This will eliminate some float precision inaccuracies.
-                        state.contentOffset = 0f
-                    }
-                }
-                state.heightOffset = state.heightOffset + consumed.y
-                return Offset.Zero
-            }
-
-            override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
-                val superConsumed = super.onPostFling(consumed, available)
-                return superConsumed + settleAppBarBottom(
-                    state,
-                    available.y,
-                    flingAnimationSpec,
-                    snapAnimationSpec
-                )
-            }
-        }
-}
-
-/**
- * Settles the app bar by flinging, in case the given velocity is greater than zero, and snapping
- * after the fling settles.
- */
-@ExperimentalMaterial3Api
-private suspend fun settleAppBarBottom(
-    state: BottomAppBarState,
-    velocity: Float,
-    flingAnimationSpec: DecayAnimationSpec<Float>?,
-    snapAnimationSpec: AnimationSpec<Float>?
-): Velocity {
-    // Check if the app bar is completely collapsed/expanded. If so, no need to settle the app bar,
-    // and just return Zero Velocity.
-    // Note that we don't check for 0f due to float precision with the collapsedFraction
-    // calculation.
-    if (state.collapsedFraction < 0.01f || state.collapsedFraction == 1f) {
-        return Velocity.Zero
-    }
-    var remainingVelocity = velocity
-    // In case there is an initial velocity that was left after a previous user fling, animate to
-    // continue the motion to expand or collapse the app bar.
-    if (flingAnimationSpec != null && abs(velocity) > 1f) {
-        var lastValue = 0f
-        AnimationState(
-            initialValue = 0f,
-            initialVelocity = velocity,
-        )
-            .animateDecay(flingAnimationSpec) {
-                val delta = value - lastValue
-                val initialHeightOffset = state.heightOffset
-                state.heightOffset = initialHeightOffset + delta
-                val consumed = abs(initialHeightOffset - state.heightOffset)
-                lastValue = value
-                remainingVelocity = this.velocity
-                // avoid rounding errors and stop if anything is unconsumed
-                if (abs(delta - consumed) > 0.5f) this.cancelAnimation()
-            }
-    }
-    // Snap if animation specs were provided.
-    if (snapAnimationSpec != null) {
-        if (state.heightOffset < 0 &&
-            state.heightOffset > state.heightOffsetLimit
-        ) {
-            AnimationState(initialValue = state.heightOffset).animateTo(
-                if (state.collapsedFraction < 0.5f) {
-                    0f
-                } else {
-                    state.heightOffsetLimit
-                },
-                animationSpec = snapAnimationSpec
-            ) { state.heightOffset = value }
-        }
-    }
-
-    return Velocity(0f, remainingVelocity)
+            FabSecondaryTokens.ContainerColor.toColor()
 }
 
 // Padding minus IconButton's min touch target expansion
@@ -1655,7 +1164,7 @@ private fun TwoRowsTopAppBar(
     // This will potentially animate or interpolate a transition between the container color and the
     // container's scrolled color according to the app bar's scroll state.
     val colorTransitionFraction = scrollBehavior?.state?.collapsedFraction ?: 0f
-    val appBarContainerColor = colors.containerColor(colorTransitionFraction)
+    val appBarContainerColor by rememberUpdatedState(colors.containerColor(colorTransitionFraction))
 
     // Wrap the given actions in a Row.
     val actionsRow = @Composable {
@@ -1804,10 +1313,12 @@ private fun TopAppBarLayout(
                     .then(if (hideTitleSemantics) Modifier.clearAndSetSemantics { } else Modifier)
                     .graphicsLayer(alpha = titleAlpha)
             ) {
-                ProvideContentColorTextStyle(
-                    contentColor = titleContentColor,
-                    textStyle = titleTextStyle,
-                    content = title)
+                ProvideTextStyle(value = titleTextStyle) {
+                    CompositionLocalProvider(
+                        LocalContentColor provides titleContentColor,
+                        content = title
+                    )
+                }
             }
             Box(
                 Modifier
@@ -1823,10 +1334,10 @@ private fun TopAppBarLayout(
         modifier = modifier
     ) { measurables, constraints ->
         val navigationIconPlaceable =
-            measurables.fastFirst { it.layoutId == "navigationIcon" }
+            measurables.first { it.layoutId == "navigationIcon" }
                 .measure(constraints.copy(minWidth = 0))
         val actionIconsPlaceable =
-            measurables.fastFirst { it.layoutId == "actionIcons" }
+            measurables.first { it.layoutId == "actionIcons" }
                 .measure(constraints.copy(minWidth = 0))
 
         val maxTitleWidth = if (constraints.maxWidth == Constraints.Infinity) {
@@ -1836,7 +1347,7 @@ private fun TopAppBarLayout(
                 .coerceAtLeast(0)
         }
         val titlePlaceable =
-            measurables.fastFirst { it.layoutId == "title" }
+            measurables.first { it.layoutId == "title" }
                 .measure(constraints.copy(minWidth = 0, maxWidth = maxTitleWidth))
 
         // Locate the title's baseline.
@@ -1847,7 +1358,7 @@ private fun TopAppBarLayout(
                 0
             }
 
-        val layoutHeight = if (heightPx.isNaN()) 0 else heightPx.roundToInt()
+        val layoutHeight = heightPx.roundToInt()
 
         layout(constraints.maxWidth, layoutHeight) {
             // Navigation icon
@@ -1859,24 +1370,7 @@ private fun TopAppBarLayout(
             // Title
             titlePlaceable.placeRelative(
                 x = when (titleHorizontalArrangement) {
-                    Arrangement.Center -> {
-                        var baseX = (constraints.maxWidth - titlePlaceable.width) / 2
-                        if (baseX < navigationIconPlaceable.width) {
-                            // May happen if the navigation is wider than the actions and the
-                            // title is long. In this case, prioritize showing more of the title by
-                            // offsetting it to the right.
-                            baseX += (navigationIconPlaceable.width - baseX)
-                        } else if (baseX + titlePlaceable.width >
-                            constraints.maxWidth - actionIconsPlaceable.width
-                        ) {
-                            // May happen if the actions are wider than the navigation and the title
-                            // is long. In this case, offset to the left.
-                            baseX += ((constraints.maxWidth - actionIconsPlaceable.width) -
-                                (baseX + titlePlaceable.width))
-                        }
-                        baseX
-                    }
-
+                    Arrangement.Center -> (constraints.maxWidth - titlePlaceable.width) / 2
                     Arrangement.End ->
                         constraints.maxWidth - titlePlaceable.width - actionIconsPlaceable.width
                     // Arrangement.Start.

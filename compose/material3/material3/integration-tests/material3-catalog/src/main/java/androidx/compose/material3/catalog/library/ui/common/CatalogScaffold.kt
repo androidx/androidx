@@ -17,9 +17,14 @@
 package androidx.compose.material3.catalog.library.ui.common
 
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.ModalBottomSheetLayout
+import androidx.compose.material.ModalBottomSheetValue
+import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.catalog.library.model.Theme
@@ -32,19 +37,18 @@ import androidx.compose.material3.catalog.library.util.ReleasesUrl
 import androidx.compose.material3.catalog.library.util.SourceUrl
 import androidx.compose.material3.catalog.library.util.TermsUrl
 import androidx.compose.material3.catalog.library.util.openUrl
-import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun CatalogScaffold(
     topBarTitle: String,
@@ -59,59 +63,64 @@ fun CatalogScaffold(
     licensesUrl: String = LicensesUrl,
     onThemeChange: (theme: Theme) -> Unit,
     onBackClick: () -> Unit = {},
-    favorite: Boolean,
-    onFavoriteClick: () -> Unit,
     content: @Composable (PaddingValues) -> Unit
 ) {
     val coroutineScope = rememberCoroutineScope()
-    val context = LocalContext.current
-    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
-    val sheetState = rememberModalBottomSheetState()
-    var openThemePicker by rememberSaveable { mutableStateOf(false) }
-
-    Scaffold(
-        topBar = {
-            CatalogTopAppBar(
-                title = topBarTitle,
-                showBackNavigationIcon = showBackNavigationIcon,
-                scrollBehavior = scrollBehavior,
-                onBackClick = onBackClick,
-                favorite = favorite,
-                onFavoriteClick = onFavoriteClick,
-                onThemeClick = { openThemePicker = true },
-                onGuidelinesClick = { context.openUrl(guidelinesUrl) },
-                onDocsClick = { context.openUrl(docsUrl) },
-                onSourceClick = { context.openUrl(sourceUrl) },
-                onIssueClick = { context.openUrl(issueUrl) },
-                onTermsClick = { context.openUrl(termsUrl) },
-                onPrivacyClick = { context.openUrl(privacyUrl) },
-                onLicensesClick = { context.openUrl(licensesUrl) }
-            )
-        },
-        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-        content = content
-    )
-
-    if (openThemePicker) {
-        ModalBottomSheet(
-            onDismissRequest = { openThemePicker = false },
+    val sheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
+    val containerColor = MaterialTheme.colorScheme.surfaceVariant
+    val contentColor = contentColorFor(containerColor)
+    CompositionLocalProvider(LocalContentColor provides contentColor) {
+        // TODO: Replace with M3 ModalBottomSheetLayout when available
+        ModalBottomSheetLayout(
             sheetState = sheetState,
-            windowInsets = WindowInsets(0),
-            content = {
+            sheetBackgroundColor = containerColor,
+            sheetContentColor = contentColor,
+            sheetShape = SheetShape,
+            sheetContent = {
                 ThemePicker(
                     theme = theme,
                     onThemeChange = { theme ->
                         coroutineScope.launch {
                             sheetState.hide()
                             onThemeChange(theme)
-                        }.invokeOnCompletion {
-                            if (!sheetState.isVisible) {
-                                openThemePicker = false
-                            }
                         }
                     }
                 )
             },
-        )
+            // Default scrim color is onSurface which is incorrect in dark theme
+            // https://issuetracker.google.com/issues/183697056
+            scrimColor = SheetScrimColor
+        ) {
+            val context = LocalContext.current
+            val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
+            Scaffold(
+                topBar = {
+                    CatalogTopAppBar(
+                        title = topBarTitle,
+                        showBackNavigationIcon = showBackNavigationIcon,
+                        scrollBehavior = scrollBehavior,
+                        onBackClick = onBackClick,
+                        onThemeClick = { coroutineScope.launch { sheetState.show() } },
+                        onGuidelinesClick = { context.openUrl(guidelinesUrl) },
+                        onDocsClick = { context.openUrl(docsUrl) },
+                        onSourceClick = { context.openUrl(sourceUrl) },
+                        onIssueClick = { context.openUrl(issueUrl) },
+                        onTermsClick = { context.openUrl(termsUrl) },
+                        onPrivacyClick = { context.openUrl(privacyUrl) },
+                        onLicensesClick = { context.openUrl(licensesUrl) }
+                    )
+                },
+                modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+                content = content
+            )
+        }
     }
 }
+
+private val SheetScrimColor = Color.Black.copy(alpha = 0.4f)
+private val SheetShape = RoundedCornerShape(
+    topStart = 16.dp,
+    topEnd = 16.dp,
+    bottomEnd = 0.dp,
+    bottomStart = 0.dp
+)

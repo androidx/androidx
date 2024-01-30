@@ -20,7 +20,6 @@ package androidx.compose.material3.tokens
 
 import androidx.compose.material3.defaultPlatformTextStyle
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.style.LineHeightStyle
 
 internal object TypographyTokens {
     val BodyLarge =
@@ -145,12 +144,4 @@ internal object TypographyTokens {
         )
 }
 
-internal val DefaultLineHeightStyle = LineHeightStyle(
-    alignment = LineHeightStyle.Alignment.Center,
-    trim = LineHeightStyle.Trim.None
-)
-
-internal val DefaultTextStyle = TextStyle.Default.copy(
-    platformStyle = defaultPlatformTextStyle(),
-    lineHeightStyle = DefaultLineHeightStyle,
-)
+internal val DefaultTextStyle = TextStyle.Default.copy(platformStyle = defaultPlatformTextStyle())
