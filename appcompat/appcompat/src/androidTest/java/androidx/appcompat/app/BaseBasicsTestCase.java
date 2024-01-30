@@ -222,7 +222,7 @@ public abstract class BaseBasicsTestCase<A extends BaseTestActivity> {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 28)
+    @SdkSuppress(minSdkVersion = 28, maxSdkVersion = 33) // maxSdk 33 b/322355781
     @RequiresApi(28)
     public void testOnApplyWindowInsetsReachesContent_withDisplayCutout() throws Throwable {
         final A activity = mActivityTestRule.getActivity();
