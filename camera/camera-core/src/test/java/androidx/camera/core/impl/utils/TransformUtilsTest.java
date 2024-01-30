@@ -16,6 +16,7 @@
 
 package androidx.camera.core.impl.utils;
 
+import static androidx.camera.core.impl.utils.TransformUtils.calculateSignedAngle;
 import static androidx.camera.core.impl.utils.TransformUtils.getExifTransform;
 import static androidx.camera.core.impl.utils.TransformUtils.getRotationDegrees;
 import static androidx.camera.core.impl.utils.TransformUtils.rectToVertices;
@@ -51,6 +52,48 @@ public class TransformUtilsTest {
     @Test
     public void reversSize() {
         assertThat(TransformUtils.reverseSize(new Size(640, 480))).isEqualTo(new Size(480, 640));
+    }
+
+    @Test
+    public void calculateSignedAngles() {
+        assertThat(calculateSignedAngle(0f, 1f, 1f, 0f)).isWithin(1e-3f).of(-90);
+        assertThat(calculateSignedAngle(1f, 0f, 0f, 1f)).isWithin(1e-3f).of(90);
+    }
+
+    @Test
+    public void mirrorHorizontally_isMirrored() {
+        // Arrange.
+        Matrix matrix = new Matrix();
+        // Act.
+        matrix.postScale(1, -1);
+        // Assert.
+        assertThat(TransformUtils.isMirrored(matrix)).isTrue();
+    }
+
+    @Test
+    public void mirrorVertically_isMirrored() {
+        // Arrange.
+        Matrix matrix = new Matrix();
+        // Act.
+        matrix.postScale(-1, 1);
+        // Assert.
+        assertThat(TransformUtils.isMirrored(matrix)).isTrue();
+    }
+
+    @Test
+    public void newMatrix_isNotMirrored() {
+        assertThat(TransformUtils.isMirrored(new Matrix())).isFalse();
+    }
+
+    @Test
+    public void mirrorHorizontallyAndVertically_isNotMirrored() {
+        // Arrange.
+        Matrix matrix = new Matrix();
+        // Act.
+        matrix.postScale(1, -1);
+        matrix.postScale(-1, 1);
+        // Assert.
+        assertThat(TransformUtils.isMirrored(matrix)).isFalse();
     }
 
     @Test
