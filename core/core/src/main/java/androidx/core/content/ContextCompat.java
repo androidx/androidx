@@ -757,7 +757,7 @@ public class ContextCompat {
      * @param flags    If this receiver is listening for broadcasts sent from other apps—even other
      *                 apps that you own—use the {@link #RECEIVER_EXPORTED} flag. If instead this 
                        receiver is listening only for broadcasts sent by your
-     *                 app, or the system, use the {@link #RECEIVER_NOT_EXPORTED} flag.
+     *                 app, or from the system, use the {@link #RECEIVER_NOT_EXPORTED} flag.
      * @return The first sticky intent found that matches <var>filter</var>,
      * or null if there are none.
      * @see Context#registerReceiver(BroadcastReceiver, IntentFilter, int)
