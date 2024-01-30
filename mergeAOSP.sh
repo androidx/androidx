@@ -52,11 +52,11 @@ git checkout --no-overlay HEAD --ours -- './compose/*/desktopTest/*' || true
 git checkout --no-overlay HEAD --ours -- './compose/desktop/*' || true
 # some files are small, and git can thin that some other file was renamed, and we can have conflicts with AOSP
 git checkout --no-overlay HEAD --ours -- './compose/mpp/demo/*' || true
-git checkout --no-overlay HEAD --theirs -- './busytown/*' || true
-git checkout --no-overlay HEAD --theirs -- './buildSrc-tests/*' || true
-git checkout --no-overlay HEAD --theirs -- './*/api/*.txt' || true
-git checkout --no-overlay HEAD --theirs -- './*/api/*.ignore' || true
-git checkout --no-overlay HEAD --theirs -- './compose/material/material/icons/generator/api/**.txt' || true
+git checkout --no-overlay $MERGE_BRANCH --theirs -- './busytown/*' || true
+git checkout --no-overlay $MERGE_BRANCH --theirs -- './buildSrc-tests/*' || true
+git checkout --no-overlay $MERGE_BRANCH --theirs -- './*/api/*.txt' || true
+git checkout --no-overlay $MERGE_BRANCH --theirs -- './*/api/*.ignore' || true
+git checkout --no-overlay $MERGE_BRANCH --theirs -- './compose/material/material/icons/generator/api/**.txt' || true
 
 #material3 only for now, there is a lot of issues with it right now, we'll fix them soon, and we shouldn't reset it after that
 git checkout --no-overlay HEAD --ours -- './compose/material3/*' || true
