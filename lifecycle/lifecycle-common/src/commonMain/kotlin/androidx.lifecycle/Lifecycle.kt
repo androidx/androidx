@@ -17,12 +17,10 @@ package androidx.lifecycle
 
 import androidx.annotation.MainThread
 import androidx.annotation.RestrictTo
-import androidx.lifecycle.Lifecycle.Event
-import java.util.concurrent.atomic.AtomicReference
 import kotlin.coroutines.CoroutineContext
+import kotlin.jvm.JvmStatic
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.awaitClose
@@ -61,7 +59,7 @@ public abstract class Lifecycle {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public var internalScopeRef: AtomicReference<Any> = AtomicReference<Any>()
+    public var internalScopeRef: AtomicReference<Any?> = AtomicReference(null)
 
     /**
      * Adds a LifecycleObserver that will be notified when the LifecycleOwner changes
@@ -305,6 +303,12 @@ public abstract class Lifecycle {
     }
 }
 
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public expect class AtomicReference<V>(value: V) {
+    public fun get(): V
+    public fun compareAndSet(expect: V, newValue: V): Boolean
+}
+
 /**
  * [CoroutineScope] tied to this [Lifecycle].
  *
@@ -336,69 +340,9 @@ public val Lifecycle.coroutineScope: LifecycleCoroutineScope
  * [Dispatchers.Main.immediate][kotlinx.coroutines.MainCoroutineDispatcher.immediate]
  *
  * This scope will be cancelled when the [Lifecycle] is destroyed.
- *
- * This scope provides specialised versions of `launch`: [launchWhenCreated], [launchWhenStarted],
- * [launchWhenResumed]
  */
-public abstract class LifecycleCoroutineScope internal constructor() : CoroutineScope {
+public expect abstract class LifecycleCoroutineScope internal constructor() : CoroutineScope {
     internal abstract val lifecycle: Lifecycle
-
-    /**
-     * Launches and runs the given block when the [Lifecycle] controlling this
-     * [LifecycleCoroutineScope] is at least in [Lifecycle.State.CREATED] state.
-     *
-     * The returned [Job] will be cancelled when the [Lifecycle] is destroyed.
-     *
-     * @see Lifecycle.whenCreated
-     * @see Lifecycle.coroutineScope
-     */
-    @Deprecated(
-        message = "launchWhenCreated is deprecated as it can lead to wasted resources " +
-            "in some cases. Replace with suspending repeatOnLifecycle to run the block whenever " +
-            "the Lifecycle state is at least Lifecycle.State.CREATED."
-    )
-    @Suppress("DEPRECATION")
-    public fun launchWhenCreated(block: suspend CoroutineScope.() -> Unit): Job = launch {
-        lifecycle.whenCreated(block)
-    }
-
-    /**
-     * Launches and runs the given block when the [Lifecycle] controlling this
-     * [LifecycleCoroutineScope] is at least in [Lifecycle.State.STARTED] state.
-     *
-     * The returned [Job] will be cancelled when the [Lifecycle] is destroyed.
-     *
-     * @see Lifecycle.whenStarted
-     * @see Lifecycle.coroutineScope
-     */
-    @Deprecated(
-        message = "launchWhenStarted is deprecated as it can lead to wasted resources " +
-            "in some cases. Replace with suspending repeatOnLifecycle to run the block whenever " +
-            "the Lifecycle state is at least Lifecycle.State.STARTED."
-    )
-    @Suppress("DEPRECATION")
-    public fun launchWhenStarted(block: suspend CoroutineScope.() -> Unit): Job = launch {
-        lifecycle.whenStarted(block)
-    }
-
-    /**
-     * Launches and runs the given block when the [Lifecycle] controlling this
-     * [LifecycleCoroutineScope] is at least in [Lifecycle.State.RESUMED] state.
-     *
-     * The returned [Job] will be cancelled when the [Lifecycle] is destroyed.
-     *
-     * @see Lifecycle.whenResumed
-     * @see Lifecycle.coroutineScope
-     */
-    @Deprecated(
-        message = "launchWhenResumed is deprecated as it can lead to wasted resources " +
-            "in some cases. Replace with suspending repeatOnLifecycle to run the block whenever " +
-            "the Lifecycle state is at least Lifecycle.State.RESUMED."
-    )
-    @Suppress("DEPRECATION")
-    public fun launchWhenResumed(block: suspend CoroutineScope.() -> Unit): Job = launch {
-        lifecycle.whenResumed(block)
-    }
 }
 
 internal class LifecycleCoroutineScopeImpl(
@@ -433,9 +377,9 @@ internal class LifecycleCoroutineScopeImpl(
 }
 
 /**
- * Creates a [Flow] of [Event]s containing values dispatched by this [Lifecycle].
+ * Creates a [Flow] of [Lifecycle.Event]s containing values dispatched by this [Lifecycle].
  */
-public val Lifecycle.eventFlow: Flow<Event>
+public val Lifecycle.eventFlow: Flow<Lifecycle.Event>
     get() = callbackFlow {
         val observer = LifecycleEventObserver { _, event ->
             trySend(event)
