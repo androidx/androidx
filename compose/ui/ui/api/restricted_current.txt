@@ -2539,9 +2539,11 @@ package androidx.compose.ui.modifier {
 
   public final class ModifierLocalModifierNodeKt {
     method public static androidx.compose.ui.modifier.ModifierLocalMap modifierLocalMapOf();
-    method public static androidx.compose.ui.modifier.ModifierLocalMap modifierLocalMapOf(androidx.compose.ui.modifier.ModifierLocal<?>... keys);
+    method public static androidx.compose.ui.modifier.ModifierLocalMap modifierLocalMapOf(androidx.compose.ui.modifier.ModifierLocal<?> key1, androidx.compose.ui.modifier.ModifierLocal<?> key2, androidx.compose.ui.modifier.ModifierLocal<?>... keys);
+    method @Deprecated public static androidx.compose.ui.modifier.ModifierLocalMap modifierLocalMapOf(androidx.compose.ui.modifier.ModifierLocal<?>... keys);
     method public static <T> androidx.compose.ui.modifier.ModifierLocalMap modifierLocalMapOf(androidx.compose.ui.modifier.ModifierLocal<T> key);
-    method public static androidx.compose.ui.modifier.ModifierLocalMap modifierLocalMapOf(kotlin.Pair<? extends androidx.compose.ui.modifier.ModifierLocal<?>,?>... entries);
+    method public static androidx.compose.ui.modifier.ModifierLocalMap modifierLocalMapOf(kotlin.Pair<? extends androidx.compose.ui.modifier.ModifierLocal<?>,?> entry1, kotlin.Pair<? extends androidx.compose.ui.modifier.ModifierLocal<?>,?> entry2, kotlin.Pair<? extends androidx.compose.ui.modifier.ModifierLocal<?>,?>... entries);
+    method @Deprecated public static androidx.compose.ui.modifier.ModifierLocalMap modifierLocalMapOf(kotlin.Pair<? extends androidx.compose.ui.modifier.ModifierLocal<?>,?>... entries);
     method public static <T> androidx.compose.ui.modifier.ModifierLocalMap modifierLocalMapOf(kotlin.Pair<? extends androidx.compose.ui.modifier.ModifierLocal<T>,? extends T> entry);
   }
 
