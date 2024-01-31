@@ -25,6 +25,7 @@ import androidx.window.extensions.RequiresVendorApiLevel;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.Objects;
 
 /**
  * An abstract base class to represent a physical feature on a display that may intersect a window
@@ -99,6 +100,28 @@ public abstract class SupportedDisplayFeature {
         @RequiresVendorApiLevel(level = 6)
         public boolean isHalfOpenedSupported() {
             return mIsHalfOpenedSupported;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            ScreenFoldDisplayFeature that = (ScreenFoldDisplayFeature) o;
+            return mType == that.mType && mIsHalfOpenedSupported == that.mIsHalfOpenedSupported;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(mType, mIsHalfOpenedSupported);
+        }
+
+        @Override
+        @NonNull
+        public String toString() {
+            return "ScreenFoldDisplayFeature{"
+                    + "mType=" + mType
+                    + ", mIsHalfOpenedSupported=" + mIsHalfOpenedSupported
+                    + '}';
         }
 
         /**
