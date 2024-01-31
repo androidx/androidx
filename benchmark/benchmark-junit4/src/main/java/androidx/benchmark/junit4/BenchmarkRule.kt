@@ -224,7 +224,7 @@ public class BenchmarkRule private constructor(
             val tracePath = PerfettoCaptureWrapper().record(
                 fileLabel = uniqueName,
                 config = PerfettoConfig.Benchmark(
-                    appTagPackages = if (config?.shouldEnableTraceAppTag == true) {
+                    appTagPackages = if (config?.traceAppTagEnabled == true) {
                         listOf(InstrumentationRegistry.getInstrumentation().context.packageName)
                     } else {
                         emptyList()
@@ -233,7 +233,7 @@ public class BenchmarkRule private constructor(
                 ),
                 // TODO(290918736): add support for Perfetto SDK Tracing in
                 //  Microbenchmark in other cases, outside of MicrobenchmarkConfig
-                perfettoSdkConfig = if (config?.shouldEnablePerfettoSdkTracing == true &&
+                perfettoSdkConfig = if (config?.perfettoSdkTracingEnabled == true &&
                     Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
                 ) {
                     PerfettoCapture.PerfettoSdkConfig(
