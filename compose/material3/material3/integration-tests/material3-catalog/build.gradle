@@ -31,8 +31,10 @@ dependencies {
     implementation project(":compose:foundation:foundation-layout")
     implementation project(":compose:ui:ui")
     implementation project(":compose:material:material")
+    implementation project(":compose:material:material-icons-extended")
     implementation project(":compose:material3:material3")
     implementation project(":compose:material3:material3:material3-samples")
+    implementation project(":datastore:datastore-preferences")
     implementation project(":navigation:navigation-compose")
 }
 

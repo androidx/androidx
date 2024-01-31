@@ -106,7 +106,7 @@ class MenuScreenshotTest {
                 .testTag(testTag)
                 .padding(20.dp), contentAlignment = Alignment.Center) {
             DropdownMenuContent(
-                expandedStates = MutableTransitionState(initialState = true),
+                expandedState = MutableTransitionState(initialState = true),
                 transformOriginState = remember { mutableStateOf(TransformOrigin.Center) },
                 scrollState = rememberScrollState()
             ) {

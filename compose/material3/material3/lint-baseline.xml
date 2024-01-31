@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.1.0-beta05" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.0-beta05)" variant="all" version="8.1.0-beta05">
+<issues format="6" by="lint 8.2.0-alpha14" type="baseline" client="cli" dependencies="false" name="AGP (8.2.0-alpha14)" variant="all" version="8.2.0-alpha14">
 
     <issue
         id="BanThreadSleep"
@@ -170,24 +170,6 @@
         errorLine2="                   ~~~~~">
         <location
             file="src/androidAndroidTest/kotlin/androidx/compose/material3/TabScreenshotTest.kt"/>
-    </issue>
-
-    <issue
-        id="ExperimentalPropertyAnnotation"
-        message="This property does not have all required annotations to correctly mark it as experimental."
-        errorLine1="    @ExperimentalMaterial3Api"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/material3/SwipeableV2.kt"/>
-    </issue>
-
-    <issue
-        id="ExperimentalPropertyAnnotation"
-        message="This property does not have all required annotations to correctly mark it as experimental."
-        errorLine1="    @ExperimentalMaterial3Api"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/material3/SwipeableV2.kt"/>
     </issue>
 
     <issue
@@ -678,42 +660,6 @@
 
     <issue
         id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor DismissState has parameter &apos;positionalThreshold&apos; with type Function2&lt;? super Density, ? super Float, Float>."
-        errorLine1="    positionalThreshold: Density.(totalDistance: Float) -> Float ="
-        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/material3/SwipeToDismiss.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method Saver has parameter &apos;positionalThreshold&apos; with type Function2&lt;? super Density, ? super Float, Float>."
-        errorLine1="            positionalThreshold: Density.(totalDistance: Float) -> Float,"
-        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/material3/SwipeToDismiss.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method rememberDismissState has parameter &apos;positionalThreshold&apos; with type Function2&lt;? super Density, ? super Float, Float>."
-        errorLine1="    positionalThreshold: Density.(totalDistance: Float) -> Float ="
-        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/material3/SwipeToDismiss.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function2&lt;Density, Float, Float> of &apos;getFixedPositionalThreshold&apos;."
-        errorLine1="    val FixedPositionalThreshold: Density.(totalDistance: Float) -> Float = { _ -> 56.dp.toPx() }"
-        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/material3/SwipeToDismiss.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
         message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method setThresholds$lint_module has parameter &apos;&lt;set-?>&apos; with type Function2&lt;? super Float, ? super Float, Float>."
         errorLine1="    internal var thresholds: (Float, Float) -> Float by mutableStateOf({ _, _ -> 0f })"
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
@@ -744,78 +690,6 @@
         message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method swipeAnchors has parameter &apos;calculateAnchor&apos; with type Function2&lt;? super T, ? super IntSize, Float>."
         errorLine1="    calculateAnchor: (value: T, layoutSize: IntSize) -> Float?,"
         errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/material3/SwipeableV2.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor SwipeableV2State has parameter &apos;positionalThreshold&apos; with type Function2&lt;? super Density, ? super Float, Float>."
-        errorLine1="    internal val positionalThreshold: Density.(totalDistance: Float) -> Float ="
-        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/material3/SwipeableV2.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function2&lt;Density, Float, Float> of &apos;getPositionalThreshold$lint_module&apos;."
-        errorLine1="    internal val positionalThreshold: Density.(totalDistance: Float) -> Float ="
-        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/material3/SwipeableV2.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method Saver has parameter &apos;positionalThreshold&apos; with type Function2&lt;? super Density, ? super Float, Float>."
-        errorLine1="            positionalThreshold: Density.(distance: Float) -> Float,"
-        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/material3/SwipeableV2.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function2&lt;Density, Float, Float> of &apos;fixedPositionalThreshold&apos;."
-        errorLine1="internal fun fixedPositionalThreshold(threshold: Dp): Density.(distance: Float) -> Float = {"
-        errorLine2="                                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/material3/SwipeableV2.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function2&lt;Density, Float, Float> of &apos;fractionalPositionalThreshold&apos;."
-        errorLine1="): Density.(distance: Float) -> Float = { distance -> distance * fraction }"
-        errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/material3/SwipeableV2.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function2&lt;Density, Float, Float> of &apos;getPositionalThreshold&apos;."
-        errorLine1="    val PositionalThreshold: Density.(totalDistance: Float) -> Float ="
-        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/material3/SwipeableV2.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method ReconcileAnimationOnAnchorChangeHandler$lint_module has parameter &apos;animate&apos; with type Function2&lt;? super T, ? super Float, Unit>."
-        errorLine1="        animate: (target: T, velocity: Float) -> Unit,"
-        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/material3/SwipeableV2.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor SwipeAnchorsModifier has parameter &apos;onSizeChanged&apos; with type Function1&lt;? super IntSize, Unit>."
-        errorLine1="    private val onSizeChanged: (layoutSize: IntSize) -> Unit,"
-        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/material3/SwipeableV2.kt"/>
     </issue>
