@@ -16,7 +16,7 @@
 
 package androidx.compose.material3
 
-import android.graphics.Rect
+import android.graphics.Rect as ViewRect
 import android.view.View
 import android.view.ViewTreeObserver
 import androidx.compose.animation.core.MutableTransitionState
@@ -27,8 +27,6 @@ import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.foundation.text.selection.TextSelectionColors
@@ -46,27 +44,32 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.graphics.toComposeRect
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.LayoutCoordinates
-import androidx.compose.ui.layout.boundsInWindow
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.node.Ref
+import androidx.compose.ui.layout.positionInWindow
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
-import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.DpOffset
+import androidx.compose.ui.unit.constrainHeight
+import androidx.compose.ui.unit.constrainWidth
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.toSize
 import kotlin.math.max
 
 /**
@@ -107,42 +110,55 @@ fun ExposedDropdownMenuBox(
     modifier: Modifier = Modifier,
     content: @Composable ExposedDropdownMenuBoxScope.() -> Unit
 ) {
+    val config = LocalConfiguration.current
     val density = LocalDensity.current
     val view = LocalView.current
-    var width by remember { mutableIntStateOf(0) }
-    var menuHeight by remember { mutableIntStateOf(0) }
-    val verticalMarginInPx = with(density) { MenuVerticalMargin.roundToPx() }
-    val coordinates = remember { Ref<LayoutCoordinates>() }
+
+    var anchorWidth by remember { mutableIntStateOf(0) }
+    var menuMaxHeight by remember { mutableIntStateOf(0) }
+    val verticalMargin = with(density) { MenuVerticalMargin.roundToPx() }
+    var anchorCoordinates by remember { mutableStateOf<LayoutCoordinates?>(null) }
 
     val focusRequester = remember { FocusRequester() }
+    val menuDescription = getString(Strings.ExposedDropdownMenu)
+    val expandedDescription = getString(Strings.MenuExpanded)
+    val collapsedDescription = getString(Strings.MenuCollapsed)
 
-    val scope = remember(expanded, onExpandedChange, density, menuHeight, width) {
+    val scope = remember(expanded, onExpandedChange, config, view, density) {
         object : ExposedDropdownMenuBoxScope {
-            override fun Modifier.menuAnchor(): Modifier {
-                return composed(inspectorInfo = debugInspectorInfo { name = "menuAnchor" }) {
-                    onGloballyPositioned {
-                        width = it.size.width
-                        coordinates.value = it
-                        updateHeight(view.rootView, coordinates.value, verticalMarginInPx) {
-                            newHeight -> menuHeight = newHeight
-                        }
-                    }.expandable(
-                        expanded = expanded,
-                        onExpandedChange = { onExpandedChange(!expanded) },
-                    ).focusRequester(focusRequester)
+            override fun Modifier.menuAnchor(): Modifier = this
+                .onGloballyPositioned {
+                    anchorCoordinates = it
+                    anchorWidth = it.size.width
+                    updateHeight(
+                        windowBounds = view.rootView.getWindowBounds(),
+                        anchorBounds = anchorCoordinates.getAnchorBounds(),
+                        verticalMargin = verticalMargin,
+                        onHeightUpdate = { newHeight -> menuMaxHeight = newHeight }
+                    )
                 }
-            }
-            override fun Modifier.exposedDropdownSize(matchTextFieldWidth: Boolean): Modifier {
-                return with(density) {
-                    heightIn(max = menuHeight.toDp()).let {
-                        if (matchTextFieldWidth) {
-                            it.width(width.toDp())
-                        } else {
-                            it
-                        }
+                .expandable(
+                    expanded = expanded,
+                    onExpandedChange = { onExpandedChange(!expanded) },
+                    menuDescription = menuDescription,
+                    expandedDescription = expandedDescription,
+                    collapsedDescription = collapsedDescription,
+                )
+                .focusRequester(focusRequester)
+
+            override fun Modifier.exposedDropdownSize(matchTextFieldWidth: Boolean): Modifier =
+                layout { measurable, constraints ->
+                    val menuWidth = constraints.constrainWidth(anchorWidth)
+                    val menuConstraints = constraints.copy(
+                        maxHeight = constraints.constrainHeight(menuMaxHeight),
+                        minWidth = if (matchTextFieldWidth) menuWidth else constraints.minWidth,
+                        maxWidth = if (matchTextFieldWidth) menuWidth else constraints.maxWidth,
+                    )
+                    val placeable = measurable.measure(menuConstraints)
+                    layout(placeable.width, placeable.height) {
+                        placeable.place(0, 0)
                     }
                 }
-            }
         }
     }
 
@@ -154,53 +170,50 @@ fun ExposedDropdownMenuBox(
         if (expanded) focusRequester.requestFocus()
     }
 
-    DisposableEffect(view) {
-        val listener = OnGlobalLayoutListener(view) {
-            // We want to recalculate the menu height on relayout - e.g. when keyboard shows up.
-            updateHeight(view.rootView, coordinates.value, verticalMarginInPx) { newHeight ->
-                menuHeight = newHeight
-            }
-        }
-        onDispose { listener.dispose() }
+    SoftKeyboardListener(view, density) {
+        updateHeight(
+            windowBounds = view.rootView.getWindowBounds(),
+            anchorBounds = anchorCoordinates.getAnchorBounds(),
+            verticalMargin = verticalMargin,
+            onHeightUpdate = { newHeight -> menuMaxHeight = newHeight }
+        )
     }
 }
 
-/**
- * Subscribes to onGlobalLayout and correctly removes the callback when the View is detached.
- * Logic copied from AndroidPopup.android.kt.
- */
-private class OnGlobalLayoutListener(
-    private val view: View,
-    private val onGlobalLayoutCallback: () -> Unit
-) : View.OnAttachStateChangeListener, ViewTreeObserver.OnGlobalLayoutListener {
-    private var isListeningToGlobalLayout = false
+@Composable
+private fun SoftKeyboardListener(
+    view: View,
+    density: Density,
+    onKeyboardVisibilityChange: () -> Unit,
+) {
+    DisposableEffect(view, density) {
+        val listener =
+            object : View.OnAttachStateChangeListener, ViewTreeObserver.OnGlobalLayoutListener {
+                private var isListeningToGlobalLayout = false
+                init {
+                    view.addOnAttachStateChangeListener(this)
+                    registerOnGlobalLayoutListener()
+                }
+                override fun onViewAttachedToWindow(p0: View) = registerOnGlobalLayoutListener()
+                override fun onViewDetachedFromWindow(p0: View) = unregisterOnGlobalLayoutListener()
+                override fun onGlobalLayout() = onKeyboardVisibilityChange()
+                private fun registerOnGlobalLayoutListener() {
+                    if (isListeningToGlobalLayout || !view.isAttachedToWindow) return
+                    view.viewTreeObserver.addOnGlobalLayoutListener(this)
+                    isListeningToGlobalLayout = true
+                }
+                private fun unregisterOnGlobalLayoutListener() {
+                    if (!isListeningToGlobalLayout) return
+                    view.viewTreeObserver.removeOnGlobalLayoutListener(this)
+                    isListeningToGlobalLayout = false
+                }
+                fun dispose() {
+                    unregisterOnGlobalLayoutListener()
+                    view.removeOnAttachStateChangeListener(this)
+                }
+            }
 
-    init {
-        view.addOnAttachStateChangeListener(this)
-        registerOnGlobalLayoutListener()
-    }
-
-    override fun onViewAttachedToWindow(p0: View) = registerOnGlobalLayoutListener()
-
-    override fun onViewDetachedFromWindow(p0: View) = unregisterOnGlobalLayoutListener()
-
-    override fun onGlobalLayout() = onGlobalLayoutCallback()
-
-    private fun registerOnGlobalLayoutListener() {
-        if (isListeningToGlobalLayout || !view.isAttachedToWindow) return
-        view.viewTreeObserver.addOnGlobalLayoutListener(this)
-        isListeningToGlobalLayout = true
-    }
-
-    private fun unregisterOnGlobalLayoutListener() {
-        if (!isListeningToGlobalLayout) return
-        view.viewTreeObserver.removeOnGlobalLayoutListener(this)
-        isListeningToGlobalLayout = false
-    }
-
-    fun dispose() {
-        unregisterOnGlobalLayoutListener()
-        view.removeOnAttachStateChangeListener(this)
+        onDispose { listener.dispose() }
     }
 }
 
@@ -1012,14 +1025,12 @@ object ExposedDropdownMenuDefaults {
     )
 }
 
-@Suppress("ComposableModifierFactory")
-@Composable
 private fun Modifier.expandable(
     expanded: Boolean,
     onExpandedChange: () -> Unit,
-    menuDescription: String = getString(Strings.ExposedDropdownMenu),
-    expandedDescription: String = getString(Strings.MenuExpanded),
-    collapsedDescription: String = getString(Strings.MenuCollapsed),
+    menuDescription: String,
+    expandedDescription: String,
+    collapsedDescription: String,
 ) = pointerInput(Unit) {
     awaitEachGesture {
         // Must be PointerEventPass.Initial to observe events before the text field consumes them
@@ -1040,20 +1051,25 @@ private fun Modifier.expandable(
 }
 
 private fun updateHeight(
-    view: View,
-    anchorCoordinates: LayoutCoordinates?,
-    verticalMarginInPx: Int,
+    windowBounds: Rect,
+    anchorBounds: Rect?,
+    verticalMargin: Int,
     onHeightUpdate: (Int) -> Unit
 ) {
-    anchorCoordinates ?: return
-    val visibleWindowBounds = Rect().let {
-        view.getWindowVisibleDisplayFrame(it)
-        it
-    }
-    val heightAbove = anchorCoordinates.boundsInWindow().top - visibleWindowBounds.top
-    val heightBelow = visibleWindowBounds.bottom - visibleWindowBounds.top -
-        anchorCoordinates.boundsInWindow().bottom
-    onHeightUpdate(max(heightAbove, heightBelow).toInt() - verticalMarginInPx)
+    anchorBounds ?: return
+    val heightAbove = anchorBounds.top - windowBounds.top
+    val heightBelow = windowBounds.bottom - windowBounds.top - anchorBounds.bottom
+    onHeightUpdate(max(heightAbove, heightBelow).toInt() - verticalMargin)
+}
+
+private fun View.getWindowBounds(): Rect = ViewRect().let {
+    this.getWindowVisibleDisplayFrame(it)
+    it.toComposeRect()
+}
+
+private fun LayoutCoordinates?.getAnchorBounds(): Rect {
+    // Don't use `boundsInWindow()` because it can report 0 when the window is animating/resizing
+    return if (this == null) Rect.Zero else Rect(positionInWindow(), size.toSize())
 }
 
 private val ExposedDropdownMenuItemHorizontalPadding = 16.dp

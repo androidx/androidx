@@ -41,7 +41,7 @@
     <string name="m3c_date_input_no_input_description" msgid="1237013946323089826">"ምንም"</string>
     <string name="m3c_date_input_invalid_not_allowed" msgid="2521768508935305279">"ቀን አልተፈቀደም፦ %1$s"</string>
     <string name="m3c_date_input_invalid_for_pattern" msgid="6116910750161463197">"ቀኑ ከተጠበቀው ስርዓተ ጥለት ጋር አይዛመድም፦ %1$s"</string>
-    <string name="m3c_date_input_invalid_year_range" msgid="7052898923934555305">"ቀን ከተጠበቀው የዓመት ክልል ውጪ ነው %1$s - %2$s"</string>
+    <string name="m3c_date_input_invalid_year_range" msgid="7052898923934555305">"ቀን ከተጠበቀው የዓመት ክልል ውጭ ነው %1$s - %2$s"</string>
     <string name="m3c_date_picker_switch_to_calendar_mode" msgid="1804346892470238807">"ወደ የቀን መቁጠሪያ ግቤት ሁነታ ይቀይሩ"</string>
     <string name="m3c_date_picker_switch_to_input_mode" msgid="2219746470065162704">"ወደ የጽሁፍ ግቤት ሁነታ ይቀይሩ"</string>
     <string name="m3c_date_picker_scroll_to_later_years" msgid="5727367015496556177">"ከዚህ በኋላ ያሉ ዓመታትን ለማሳየት ያሸብልሉ"</string>
