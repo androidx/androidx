@@ -676,7 +676,7 @@ class SliderTest {
                 modifier = Modifier.testTag(tag),
                 value = state.value,
                 onValueChange = { state.value = it },
-                thumb = { sliderPositions -> recompositionCounter.OuterContent(sliderPositions) }
+                thumb = { sliderState -> recompositionCounter.OuterContent(sliderState) }
             )
         }
 
@@ -704,7 +704,7 @@ class SliderTest {
                 modifier = Modifier.testTag(tag),
                 value = state.value,
                 onValueChange = { state.value = it },
-                track = { sliderPositions -> recompositionCounter.OuterContent(sliderPositions) }
+                track = { sliderState -> recompositionCounter.OuterContent(sliderState) }
             )
         }
 
@@ -959,7 +959,6 @@ class SliderTest {
         }
     }
 
-    @OptIn(ExperimentalMaterial3Api::class)
     @Test
     fun rangeSlider_drag_out_of_bounds_rtl() {
         val state = mutableStateOf(0f..1f)
@@ -1208,8 +1207,8 @@ class SliderTest {
     @Test
     fun rangeSlider_thumb_recomposition() {
         val state = mutableStateOf(0f..100f)
-        val startRecompositionCounter = SliderRecompositionCounter()
-        val endRecompositionCounter = SliderRecompositionCounter()
+        val startRecompositionCounter = RangeSliderRecompositionCounter()
+        val endRecompositionCounter = RangeSliderRecompositionCounter()
 
         rule.setContent {
             RangeSlider(
@@ -1246,7 +1245,7 @@ class SliderTest {
     @Test
     fun rangeSlider_track_recomposition() {
         val state = mutableStateOf(0f..100f)
-        val recompositionCounter = SliderRecompositionCounter()
+        val recompositionCounter = RangeSliderRecompositionCounter()
 
         rule.setContent {
             RangeSlider(
@@ -1302,7 +1301,7 @@ class SliderTest {
 }
 
 @Stable
-class SliderRecompositionCounter {
+class RangeSliderRecompositionCounter {
     var innerRecomposition = 0
     var outerRecomposition = 0
 
@@ -1321,5 +1320,27 @@ class SliderRecompositionCounter {
     private fun InnerContent(sliderPositions: SliderPositions) {
         SideEffect { ++innerRecomposition }
         Text("InnerContent: ${sliderPositions.activeRange}")
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Stable
+class SliderRecompositionCounter {
+    var innerRecomposition = 0
+    var outerRecomposition = 0
+
+    @Composable
+    fun OuterContent(state: SliderState) {
+        SideEffect { ++outerRecomposition }
+        Column {
+            Text("OuterContent")
+            InnerContent(state)
+        }
+    }
+
+    @Composable
+    private fun InnerContent(state: SliderState) {
+        SideEffect { ++innerRecomposition }
+        Text("InnerContent: ${state.value}")
     }
 }

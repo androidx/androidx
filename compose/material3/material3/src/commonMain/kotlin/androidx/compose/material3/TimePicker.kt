@@ -91,6 +91,7 @@ import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -527,8 +528,12 @@ class TimePickerState(
     internal var isAfternoonToggle by mutableStateOf(initialHour > 12 && !is24Hour)
     internal var isInnerCircle by mutableStateOf(initialHour >= 12)
 
-    internal var hourAngle by mutableStateOf(RadiansPerHour * initialHour % 12 - FullCircle / 4)
-    internal var minuteAngle by mutableStateOf(RadiansPerMinute * initialMinute - FullCircle / 4)
+    internal var hourAngle by mutableFloatStateOf(
+        RadiansPerHour * initialHour % 12 - FullCircle / 4
+    )
+    internal var minuteAngle by mutableFloatStateOf(
+        RadiansPerMinute * initialMinute - FullCircle / 4
+    )
 
     private val mutex = MutatorMutex()
     private val isAfternoon by derivedStateOf { is24hour && isInnerCircle || isAfternoonToggle }
@@ -980,6 +985,7 @@ private fun PeriodToggleImpl(
     Layout(
         modifier = modifier
             .semantics {
+                @Suppress("DEPRECATION")
                 isContainer = true
                 this.contentDescription = contentDescription
             }
@@ -1133,6 +1139,7 @@ internal fun ClockFace(
             .background(shape = CircleShape, color = colors.clockDialColor)
             .size(ClockDialContainerSize)
             .semantics {
+                @Suppress("DEPRECATION")
                 isContainer = false
                 selectableGroup()
             },
@@ -1243,8 +1250,8 @@ private fun Modifier.clockDial(state: TimePickerState, autoSwitchToMinute: Boole
     name = "clockDial"
     properties["state"] = state
 }) {
-    var offsetX by remember { mutableStateOf(0f) }
-    var offsetY by remember { mutableStateOf(0f) }
+    var offsetX by remember { mutableFloatStateOf(0f) }
+    var offsetY by remember { mutableFloatStateOf(0f) }
     val center by remember { mutableStateOf(IntOffset.Zero) }
     val scope = rememberCoroutineScope()
     val maxDist = with(LocalDensity.current) { MaxDistance.toPx() }

@@ -1,3 +1,33 @@
 // Baseline format: 1.0
-RemovedClass: androidx.compose.material3.TimePickerState:
-    Removed class androidx.compose.material3.TimePickerState
+BecameUnchecked: Field TimePickerState.hour:
+    Removed Field TimePickerState.hour from compatibility checked API surface
+BecameUnchecked: Field TimePickerState.is24hour:
+    Removed Field TimePickerState.is24hour from compatibility checked API surface
+BecameUnchecked: Field TimePickerState.minute:
+    Removed Field TimePickerState.minute from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.TimePickerState:
+    Removed class androidx.compose.material3.TimePickerState from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.TimePickerState#Companion:
+    Removed field androidx.compose.material3.TimePickerState.Companion from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.TimePickerState#TimePickerState(int, int, boolean):
+    Removed constructor androidx.compose.material3.TimePickerState(int,int,boolean) from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.TimePickerState#TimePickerState(int, int, boolean) parameter #0:
+    Removed parameter initialHour in androidx.compose.material3.TimePickerState(int initialHour, int initialMinute, boolean is24Hour) from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.TimePickerState#TimePickerState(int, int, boolean) parameter #1:
+    Removed parameter initialMinute in androidx.compose.material3.TimePickerState(int initialHour, int initialMinute, boolean is24Hour) from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.TimePickerState#TimePickerState(int, int, boolean) parameter #2:
+    Removed parameter is24Hour in androidx.compose.material3.TimePickerState(int initialHour, int initialMinute, boolean is24Hour) from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.TimePickerState#getHour():
+    Removed method androidx.compose.material3.TimePickerState.getHour() from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.TimePickerState#getMinute():
+    Removed method androidx.compose.material3.TimePickerState.getMinute() from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.TimePickerState#is24hour():
+    Removed method androidx.compose.material3.TimePickerState.is24hour() from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.TimePickerState#settle(kotlin.coroutines.Continuation<? super kotlin.Unit>):
+    Removed method androidx.compose.material3.TimePickerState.settle(kotlin.coroutines.Continuation<? super kotlin.Unit>) from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.TimePickerState#settle(kotlin.coroutines.Continuation<? super kotlin.Unit>) parameter #0:
+    Removed parameter arg1 in androidx.compose.material3.TimePickerState.settle(kotlin.coroutines.Continuation<? super kotlin.Unit> arg1) from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.TimePickerState.Companion:
+    Removed class androidx.compose.material3.TimePickerState.Companion from compatibility checked API surface
+BecameUnchecked: androidx.compose.material3.TimePickerState.Companion#Saver():
+    Removed method androidx.compose.material3.TimePickerState.Companion.Saver() from compatibility checked API surface

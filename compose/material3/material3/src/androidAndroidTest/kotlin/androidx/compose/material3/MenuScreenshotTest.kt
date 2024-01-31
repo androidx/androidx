@@ -20,6 +20,7 @@ import android.os.Build
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Email
@@ -100,10 +101,14 @@ class MenuScreenshotTest {
 
     @Composable
     private fun TestMenu(enabledItems: Boolean) {
-        Box(Modifier.testTag(testTag).padding(20.dp), contentAlignment = Alignment.Center) {
+        Box(
+            Modifier
+                .testTag(testTag)
+                .padding(20.dp), contentAlignment = Alignment.Center) {
             DropdownMenuContent(
                 expandedStates = MutableTransitionState(initialState = true),
-                transformOriginState = remember { mutableStateOf(TransformOrigin.Center) }
+                transformOriginState = remember { mutableStateOf(TransformOrigin.Center) },
+                scrollState = rememberScrollState()
             ) {
                 DropdownMenuItem(
                     text = { Text("Edit") },

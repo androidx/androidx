@@ -18,7 +18,6 @@ package androidx.compose.material3
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
-
 import java.util.Locale
 
 @Composable
@@ -69,6 +68,7 @@ internal actual fun getString(string: Strings): String {
         Strings.DateRangePickerDayInRange -> "In range"
         Strings.DateRangeInputTitle -> "Enter dates"
         Strings.DateRangeInputInvalidRangeInput -> "Invalid date range input"
+        Strings.BottomSheetPaneTitle -> "Bottom Sheet"
         Strings.BottomSheetDragHandleDescription -> "Drag Handle"
         Strings.BottomSheetPartialExpandDescription -> "Collapse bottom sheet"
         Strings.BottomSheetDismissDescription -> "Dismiss bottom sheet"
