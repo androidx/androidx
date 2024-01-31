@@ -19,6 +19,7 @@ package androidx.compose.material3
 import android.content.ComponentCallbacks2
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
+import android.os.Build.VERSION.SDK_INT
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.foundation.ScrollState
@@ -69,6 +70,7 @@ import androidx.compose.ui.test.onParent
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.test.swipeDown
 import androidx.compose.ui.test.swipeUp
 import androidx.compose.ui.unit.Dp
@@ -90,6 +92,7 @@ import junit.framework.TestCase.fail
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import org.junit.Assume
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -1314,6 +1317,54 @@ class ModalBottomSheetTest(private val edgeToEdgeWrapper: EdgeToEdgeWrapper) {
 
         // Make sure that BottomSheet is updating and resizing to the new screen width
         assertThat(boxWidth).isEqualTo(screenWidth)
+    }
+
+    @Test
+    fun modalBottomSheet_imePadding() {
+        // TODO: Include APIs < 30  when a solution is found for b/290893168.
+        // TODO: 33 > API > 29 does not use imePadding because of b/285746907, include when a better solution is found.
+        Assume.assumeTrue(SDK_INT >= 33)
+
+        val imeAnimationDuration = 750000L
+        val textFieldTag = "sheetTextField"
+
+        lateinit var sheetState: SheetState
+        rule.setContent {
+            val windowInsets = if (edgeToEdgeWrapper.edgeToEdgeEnabled)
+                WindowInsets(0) else BottomSheetDefaults.windowInsets
+            sheetState = rememberModalBottomSheetState()
+            ModalBottomSheet(
+                sheetState = sheetState,
+                onDismissRequest = {},
+                windowInsets = windowInsets
+            ) {
+                Box(Modifier.testTag(sheetTag)) {
+                    TextField(
+                        value = "",
+                        onValueChange = {},
+                        modifier = Modifier.testTag(textFieldTag)
+                    )
+                }
+            }
+        }
+
+        // Stop auto advance for test consistency
+        rule.mainClock.autoAdvance = false
+
+        val textFieldNode = rule.onNodeWithTag(textFieldTag)
+        var sheetNode = rule.onNodeWithTag(sheetTag)
+        val initialTop = sheetNode.getUnclippedBoundsInRoot().top
+
+        // Focus on the text field to force ime visibility.
+        textFieldNode.requestFocus()
+
+        // Wait for the ime and bottom sheet to animate after text field is focused.
+        rule.mainClock.advanceTimeBy(imeAnimationDuration)
+        val finalTop = sheetNode.getUnclippedBoundsInRoot().top
+        rule.runOnIdle {
+            // The top of the bottom sheet should be higher now due to ime padding.
+            assertThat(finalTop).isLessThan(initialTop)
+        }
     }
 
     @Test

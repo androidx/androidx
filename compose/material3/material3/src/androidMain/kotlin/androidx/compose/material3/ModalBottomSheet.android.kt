@@ -18,6 +18,7 @@ package androidx.compose.material3
 
 import android.content.Context
 import android.graphics.PixelFormat
+import android.os.Build
 import android.view.Gravity
 import android.view.KeyEvent
 import android.view.View
@@ -81,6 +82,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.window.SecureFlagPolicy
 import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.lifecycle.findViewTreeViewModelStoreOwner
 import androidx.lifecycle.setViewTreeLifecycleOwner
@@ -122,6 +124,8 @@ import kotlinx.coroutines.launch
  * @param dragHandle Optional visual marker to swipe the bottom sheet.
  * @param windowInsets window insets to be passed to the bottom sheet window via [PaddingValues]
  * params.
+ * @param securePolicy Policy for setting [WindowManager.LayoutParams.FLAG_SECURE] on the bottom
+ * sheet's window.
  * @param content The content to be displayed inside the bottom sheet.
  */
 @Composable
@@ -138,6 +142,7 @@ fun ModalBottomSheet(
     scrimColor: Color = BottomSheetDefaults.ScrimColor,
     dragHandle: @Composable (() -> Unit)? = { BottomSheetDefaults.DragHandle() },
     windowInsets: WindowInsets = BottomSheetDefaults.windowInsets,
+    securePolicy: SecureFlagPolicy = SecureFlagPolicy.Inherit,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     // b/291735717 Remove this once deprecated methods without density are removed
@@ -162,6 +167,7 @@ fun ModalBottomSheet(
     }
 
     ModalBottomSheetPopup(
+        securePolicy = securePolicy,
         onDismissRequest = {
             if (sheetState.currentValue == Expanded && sheetState.hasPartiallyExpandedState) {
                 scope.launch { sheetState.partialExpand() }
@@ -355,6 +361,7 @@ private fun Modifier.modalBottomSheetAnchors(
  */
 @Composable
 internal fun ModalBottomSheetPopup(
+    securePolicy: SecureFlagPolicy,
     onDismissRequest: () -> Unit,
     windowInsets: WindowInsets,
     content: @Composable () -> Unit,
@@ -367,6 +374,7 @@ internal fun ModalBottomSheetPopup(
     val configuration = LocalConfiguration.current
     val modalBottomSheetWindow = remember(configuration) {
         ModalBottomSheetWindow(
+            securePolicy = securePolicy,
             onDismissRequest = onDismissRequest,
             composeView = view,
             saveId = id
@@ -378,7 +386,12 @@ internal fun ModalBottomSheetPopup(
                         Modifier
                             .semantics { this.popup() }
                             .windowInsetsPadding(windowInsets)
-                            .imePadding()
+                            .then(
+                                // TODO(b/290893168): Figure out a solution for APIs < 30.
+                                if (Build.VERSION.SDK_INT >= 33)
+                                    Modifier.imePadding()
+                                else Modifier
+                            )
                     ) {
                         currentContent()
                     }
@@ -399,6 +412,7 @@ internal fun ModalBottomSheetPopup(
 
 /** Custom compose view for [ModalBottomSheet] */
 private class ModalBottomSheetWindow(
+    private val securePolicy: SecureFlagPolicy,
     private var onDismissRequest: () -> Unit,
     private val composeView: View,
     saveId: UUID,
@@ -450,6 +464,15 @@ private class ModalBottomSheetWindow(
                 ).inv()
 
             flags = flags or WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
+
+            // Security flag
+            val secureFlagEnabled =
+                securePolicy.shouldApplySecureFlag(composeView.isFlagSecureEnabled())
+            if (secureFlagEnabled) {
+                flags = flags or WindowManager.LayoutParams.FLAG_SECURE
+            } else {
+                flags = flags and (WindowManager.LayoutParams.FLAG_SECURE.inv())
+            }
         }
 
     private var content: @Composable () -> Unit by mutableStateOf({})
@@ -521,5 +544,23 @@ private class ModalBottomSheetWindow(
             LayoutDirection.Rtl -> android.util.LayoutDirection.RTL
         }
         super.setLayoutDirection(direction)
+    }
+}
+
+// Taken from AndroidPopup.android.kt
+private fun View.isFlagSecureEnabled(): Boolean {
+    val windowParams = rootView.layoutParams as? WindowManager.LayoutParams
+    if (windowParams != null) {
+        return (windowParams.flags and WindowManager.LayoutParams.FLAG_SECURE) != 0
+    }
+    return false
+}
+
+// Taken from AndroidPopup.android.kt
+private fun SecureFlagPolicy.shouldApplySecureFlag(isSecureFlagSetOnParent: Boolean): Boolean {
+    return when (this) {
+        SecureFlagPolicy.SecureOff -> false
+        SecureFlagPolicy.SecureOn -> true
+        SecureFlagPolicy.Inherit -> isSecureFlagSetOnParent
     }
 }

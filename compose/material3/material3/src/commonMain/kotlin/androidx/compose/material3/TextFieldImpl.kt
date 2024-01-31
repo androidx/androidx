@@ -276,7 +276,10 @@ internal fun Decoration(
             content = content
         )
     }
-    if (typography != null) ProvideTextStyle(typography, contentWithColor) else contentWithColor()
+    if (typography != null)
+        ProvideContentColorTextStyle(contentColor, typography, content)
+    else
+        contentWithColor()
 }
 
 // Developers need to handle invalid input manually. But since we don't provide an error message

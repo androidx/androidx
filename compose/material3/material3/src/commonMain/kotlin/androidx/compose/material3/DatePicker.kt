@@ -1379,16 +1379,26 @@ private fun DatePickerContent(
             ) ?: "-",
             onNextClicked = {
                 coroutineScope.launch {
-                    monthsListState.animateScrollToItem(
-                        monthsListState.firstVisibleItemIndex + 1
-                    )
+                    try {
+                        monthsListState.animateScrollToItem(
+                            monthsListState.firstVisibleItemIndex + 1
+                        )
+                    } catch (_: IllegalArgumentException) {
+                        // Ignore. This may happen if the user clicked the "next" arrow fast while
+                        // the list was still animating to the next item.
+                    }
                 }
             },
             onPreviousClicked = {
                 coroutineScope.launch {
-                    monthsListState.animateScrollToItem(
-                        monthsListState.firstVisibleItemIndex - 1
-                    )
+                    try {
+                        monthsListState.animateScrollToItem(
+                            monthsListState.firstVisibleItemIndex - 1
+                        )
+                    } catch (_: IllegalArgumentException) {
+                        // Ignore. This may happen if the user clicked the "previous" arrow fast
+                        // while  the list was still animating to the previous item.
+                    }
                 }
             },
             onYearPickerButtonClicked = { yearPickerVisible = !yearPickerVisible },
@@ -1480,15 +1490,15 @@ internal fun DatePickerHeader(
         verticalArrangement = Arrangement.SpaceBetween
     ) {
         if (title != null) {
-            CompositionLocalProvider(LocalContentColor provides titleContentColor) {
-                val textStyle =
-                    MaterialTheme.typography.fromToken(
-                        DatePickerModalTokens.HeaderSupportingTextFont
-                    )
-                ProvideTextStyle(textStyle) {
-                    Box(contentAlignment = Alignment.BottomStart) {
-                        title()
-                    }
+            val textStyle =
+                MaterialTheme.typography.fromToken(
+                    DatePickerModalTokens.HeaderSupportingTextFont
+                )
+            ProvideContentColorTextStyle(
+                contentColor = titleContentColor,
+                textStyle = textStyle) {
+                Box(contentAlignment = Alignment.BottomStart) {
+                    title()
                 }
             }
         }
@@ -1605,35 +1615,34 @@ internal fun WeekDays(colors: DatePickerColors, calendarModel: CalendarModel) {
     for (i in 0 until firstDayOfWeek - 1) {
         dayNames.add(weekdays[i])
     }
-    CompositionLocalProvider(LocalContentColor provides colors.weekdayContentColor) {
-        val textStyle =
-            MaterialTheme.typography.fromToken(DatePickerModalTokens.WeekdaysLabelTextFont)
-        ProvideTextStyle(value = textStyle) {
-            Row(
+    val textStyle =
+        MaterialTheme.typography.fromToken(DatePickerModalTokens.WeekdaysLabelTextFont)
+
+    Row(
+        modifier = Modifier
+            .defaultMinSize(
+                minHeight = RecommendedSizeForAccessibility
+            )
+            .fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceEvenly,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        dayNames.fastForEach {
+            Box(
                 modifier = Modifier
-                    .defaultMinSize(
-                        minHeight = RecommendedSizeForAccessibility
-                    )
-                    .fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                dayNames.fastForEach {
-                    Box(
-                        modifier = Modifier
-                            .clearAndSetSemantics { contentDescription = it.first }
-                            .size(
-                                width = RecommendedSizeForAccessibility,
-                                height = RecommendedSizeForAccessibility
-                            ),
-                        contentAlignment = Alignment.Center) {
-                        Text(
-                            text = it.second,
-                            modifier = Modifier.wrapContentSize(),
-                            textAlign = TextAlign.Center
-                        )
-                    }
-                }
+                    .clearAndSetSemantics { contentDescription = it.first }
+                    .size(
+                        width = RecommendedSizeForAccessibility,
+                        height = RecommendedSizeForAccessibility
+                    ),
+                contentAlignment = Alignment.Center) {
+                Text(
+                    text = it.second,
+                    modifier = Modifier.wrapContentSize(),
+                    color = colors.weekdayContentColor,
+                    style = textStyle,
+                    textAlign = TextAlign.Center
+                )
             }
         }
     }

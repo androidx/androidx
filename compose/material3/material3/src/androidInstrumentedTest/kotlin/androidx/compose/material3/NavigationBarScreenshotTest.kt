@@ -24,11 +24,13 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.height
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.test.captureToImage
@@ -186,6 +188,35 @@ class NavigationBarScreenshotTest {
             interactionSource = interactionSource,
             interaction = null,
             goldenIdentifier = "navigationBar_darkTheme_defaultColors_disabled"
+        )
+    }
+
+    @Test
+    fun lightTheme_transparentIndicator() {
+        val interactionSource = MutableInteractionSource()
+        var scope: CoroutineScope? = null
+
+        composeTestRule.setMaterialContent(lightColorScheme()) {
+            scope = rememberCoroutineScope()
+            Box(Modifier.semantics(mergeDescendants = true) {}.testTag(Tag)) {
+                NavigationBar {
+                    NavigationBarItem(
+                        selected = true,
+                        onClick = {},
+                        icon = { Icon(Icons.Filled.Home, contentDescription = null) },
+                        colors = NavigationBarItemDefaults.colors(
+                            indicatorColor = Color.Transparent
+                        )
+                    )
+                }
+            }
+        }
+
+        assertNavigationBarMatches(
+            scope = scope!!,
+            interactionSource = interactionSource,
+            interaction = null,
+            goldenIdentifier = "navigationBar_lightTheme_transparentIndicator"
         )
     }
 

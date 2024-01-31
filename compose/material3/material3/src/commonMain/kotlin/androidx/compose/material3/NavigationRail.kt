@@ -53,6 +53,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
@@ -186,9 +187,11 @@ fun NavigationRailItem(
         @Composable {
             val style = MaterialTheme.typography.fromToken(NavigationRailTokens.LabelTextFont)
             val textColor by colors.textColor(selected = selected, enabled = enabled)
-            CompositionLocalProvider(LocalContentColor provides textColor) {
-                ProvideTextStyle(style, content = label)
-            }
+            ProvideContentColorTextStyle(
+                contentColor = textColor,
+                textStyle = style,
+                content = label
+            )
         }
     }
 
@@ -207,7 +210,7 @@ fun NavigationRailItem(
         contentAlignment = Alignment.Center,
         propagateMinConstraints = true,
     ) {
-        val animationProgress: Float by animateFloatAsState(
+        val animationProgress: State<Float> = animateFloatAsState(
             targetValue = if (selected) 1f else 0f,
             animationSpec = tween(ItemAnimationDurationMillis)
         )
@@ -245,8 +248,9 @@ fun NavigationRailItem(
             Box(
                 Modifier
                     .layoutId(IndicatorLayoutIdTag)
+                    .graphicsLayer { alpha = animationProgress.value }
                     .background(
-                        color = colors.indicatorColor.copy(alpha = animationProgress),
+                        color = colors.indicatorColor,
                         shape = indicatorShape
                     )
             )
@@ -258,7 +262,7 @@ fun NavigationRailItem(
             icon = styledIcon,
             label = styledLabel,
             alwaysShowLabel = alwaysShowLabel,
-            animationProgress = animationProgress,
+            animationProgress = animationProgress.value,
         )
     }
 }
@@ -396,7 +400,6 @@ class NavigationRailItemColors constructor(
 
     /** Represents the color of the indicator used for selected items. */
     internal val indicatorColor: Color
-        @Composable
         get() = selectedIndicatorColor
 
     override fun equals(other: Any?): Boolean {

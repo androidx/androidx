@@ -52,6 +52,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
@@ -185,9 +186,11 @@ fun RowScope.NavigationBarItem(
         @Composable {
             val style = MaterialTheme.typography.fromToken(NavigationBarTokens.LabelTextFont)
             val textColor by colors.textColor(selected = selected, enabled = enabled)
-            CompositionLocalProvider(LocalContentColor provides textColor) {
-                ProvideTextStyle(style, content = label)
-            }
+            ProvideContentColorTextStyle(
+                contentColor = textColor,
+                textStyle = style,
+                content = label
+            )
         }
     }
 
@@ -211,7 +214,7 @@ fun RowScope.NavigationBarItem(
         contentAlignment = Alignment.Center,
         propagateMinConstraints = true,
     ) {
-        val animationProgress: Float by animateFloatAsState(
+        val animationProgress: State<Float> = animateFloatAsState(
             targetValue = if (selected) 1f else 0f,
             animationSpec = tween(ItemAnimationDurationMillis)
         )
@@ -245,8 +248,9 @@ fun RowScope.NavigationBarItem(
             Box(
                 Modifier
                     .layoutId(IndicatorLayoutIdTag)
+                    .graphicsLayer { alpha = animationProgress.value }
                     .background(
-                        color = colors.indicatorColor.copy(alpha = animationProgress),
+                        color = colors.indicatorColor,
                         shape = NavigationBarTokens.ActiveIndicatorShape.value,
                     )
             )
@@ -258,7 +262,7 @@ fun RowScope.NavigationBarItem(
             icon = styledIcon,
             label = styledLabel,
             alwaysShowLabel = alwaysShowLabel,
-            animationProgress = animationProgress
+            animationProgress = animationProgress.value,
         )
     }
 }
