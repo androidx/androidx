@@ -32,8 +32,6 @@ import android.view.ViewGroup.LayoutParams
 import android.widget.FrameLayout
 import androidx.annotation.LayoutRes
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Recomposer
-import androidx.compose.ui.platform.AndroidUiDispatcher
 import androidx.compose.ui.platform.ComposeView
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
@@ -73,7 +71,6 @@ import com.android.layoutlib.bridge.impl.RenderSessionImpl
 import java.awt.image.BufferedImage
 import java.util.Date
 import java.util.concurrent.TimeUnit
-import kotlin.coroutines.ContinuationInterceptor
 import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
@@ -554,56 +551,20 @@ class Paparazzi @JvmOverloads constructor(
   }
 
   private fun forceReleaseComposeReferenceLeaks() {
-    val snapshotClass = Class.forName("androidx.compose.runtime.snapshots.SnapshotKt")
-    val applyObservers = snapshotClass
-      .getDeclaredField("applyObservers")
-      .apply { isAccessible = true }
-      .get(null) as MutableList<*>
-    val applyObserver = applyObservers.getOrNull(0)
-    if (applyObserver != null) {
-      val recomposer = applyObserver.javaClass
-        .getDeclaredField("this\$0")
-        .apply { isAccessible = true }
-        .get(applyObserver) as Recomposer
-      val compositionInvalidations = recomposer.javaClass
-        .getDeclaredField("compositionInvalidations")
-        .apply { isAccessible = true }
-        .get(recomposer) as MutableCollection<*>
-      val snapshotInvalidations = recomposer.javaClass
-        .getDeclaredField("snapshotInvalidations")
-        .apply { isAccessible = true }
-        .get(recomposer)
-      compositionInvalidations.clear()
-      applyObservers.clear()
+    // AndroidUiDispatcher is backed by a Handler, by executing one last time
+    // we give the dispatcher the ability to clean-up / release its callbacks.
+    executeHandlerCallbacks()
+  }
 
-      if (snapshotInvalidations is MutableCollection<*>) {
-        snapshotInvalidations.clear()
-      } else {
-        // backed by IdentityArraySet
-        snapshotInvalidations.javaClass
-          .getDeclaredMethod("clear")
-          .apply { isAccessible = true }
-          .invoke(snapshotInvalidations)
-      }
+  private fun executeHandlerCallbacks() {
+    // Avoid ConcurrentModificationException in
+    // RenderAction.currentContext.sessionInteractiveData.handlerMessageQueue.runnablesMap which is a WeakHashMap
+    // https://android.googlesource.com/platform/tools/adt/idea/+/c331c9b2f4334748c55c29adec3ad1cd67e45df2/designer/src/com/android/tools/idea/uibuilder/scene/LayoutlibSceneManager.java#1558
+    synchronized(this) {
+      // https://android.googlesource.com/platform/frameworks/layoutlib/+/d58aa4703369e109b24419548f38b422d5a44738/bridge/src/com/android/layoutlib/bridge/BridgeRenderSession.java#171
+      // BridgeRenderSession.executeCallbacks aggressively tears down the main Looper and BridgeContext, so we call the static delegates ourselves.
+      Handler_Delegate.executeCallbacks()
     }
-
-    val dispatcher =
-      AndroidUiDispatcher.CurrentThread[ContinuationInterceptor] as AndroidUiDispatcher
-    val toRunTrampolined = dispatcher.javaClass
-      .getDeclaredField("toRunTrampolined")
-      .apply { isAccessible = true }
-      .get(dispatcher) as ArrayDeque<*>
-    toRunTrampolined.clear()
-    // Upon reference leaks being fixed, verify we don't need to reset these values for
-    // AndroidUiDispatcher to continue dispatching between tests.
-    dispatcher.javaClass
-      .getDeclaredField("scheduledTrampolineDispatch")
-      .apply { isAccessible = true }
-      .set(dispatcher, false)
-    dispatcher.javaClass
-      .getDeclaredField("scheduledFrameDispatch")
-      .apply { isAccessible = true }
-      .set(dispatcher, false)
   }
 
   private class PaparazziComposeOwner private constructor() :
