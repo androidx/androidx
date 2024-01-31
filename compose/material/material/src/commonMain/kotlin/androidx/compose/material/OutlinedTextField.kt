@@ -610,9 +610,10 @@ private class OutlinedTextFieldMeasurePolicy(
         )
         val labelPlaceable =
             measurables.fastFirstOrNull { it.layoutId == LabelId }?.measure(labelConstraints)
-        labelPlaceable?.let {
-            onLabelMeasured(Size(it.width.toFloat(), it.height.toFloat()))
-        }
+        val labelSize = labelPlaceable?.let {
+            Size(it.width.toFloat(), it.height.toFloat())
+        } ?: Size.Zero
+        onLabelMeasured(labelSize)
 
         // measure text field
         // on top we offset either by default padding or by label's half height if its too big
