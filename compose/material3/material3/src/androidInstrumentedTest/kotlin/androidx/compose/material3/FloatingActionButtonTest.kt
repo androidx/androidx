@@ -552,7 +552,7 @@ class FloatingActionButtonTest {
         val pressedElevation = 2.dp
         val hoveredElevation = 3.dp
         val focusedElevation = 4.dp
-        lateinit var tonalElevation: State<Dp>
+        var tonalElevation: Dp = Dp.Unspecified
         lateinit var shadowElevation: State<Dp>
 
         rule.setMaterialContent(lightColorScheme()) {
@@ -563,12 +563,12 @@ class FloatingActionButtonTest {
                 focusedElevation = focusedElevation
             )
 
-            tonalElevation = fabElevation.tonalElevation(interactionSource)
+            tonalElevation = fabElevation.tonalElevation()
             shadowElevation = fabElevation.shadowElevation(interactionSource)
         }
 
         rule.runOnIdle {
-            assertThat(tonalElevation.value).isEqualTo(defaultElevation)
+            assertThat(tonalElevation).isEqualTo(defaultElevation)
             assertThat(shadowElevation.value).isEqualTo(defaultElevation)
         }
 
@@ -577,7 +577,7 @@ class FloatingActionButtonTest {
         }
 
         rule.runOnIdle {
-            assertThat(tonalElevation.value).isEqualTo(pressedElevation)
+            assertThat(tonalElevation).isEqualTo(defaultElevation)
             assertThat(shadowElevation.value).isEqualTo(pressedElevation)
         }
     }
@@ -589,7 +589,7 @@ class FloatingActionButtonTest {
         val pressedElevation = 2.dp
         val hoveredElevation = 3.dp
         val focusedElevation = 4.dp
-        lateinit var tonalElevation: State<Dp>
+        var tonalElevation: Dp = Dp.Unspecified
         lateinit var shadowElevation: State<Dp>
 
         rule.setMaterialContent(lightColorScheme()) {
@@ -600,12 +600,12 @@ class FloatingActionButtonTest {
                 focusedElevation = focusedElevation
             )
 
-            tonalElevation = fabElevation.tonalElevation(interactionSource)
+            tonalElevation = fabElevation.tonalElevation()
             shadowElevation = fabElevation.shadowElevation(interactionSource)
         }
 
         rule.runOnIdle {
-            assertThat(tonalElevation.value).isEqualTo(defaultElevation)
+            assertThat(tonalElevation).isEqualTo(defaultElevation)
             assertThat(shadowElevation.value).isEqualTo(defaultElevation)
         }
 
@@ -614,7 +614,7 @@ class FloatingActionButtonTest {
         }
 
         rule.runOnIdle {
-            assertThat(tonalElevation.value).isEqualTo(5.dp)
+            assertThat(tonalElevation).isEqualTo(5.dp)
             assertThat(shadowElevation.value).isEqualTo(5.dp)
         }
     }
@@ -626,7 +626,7 @@ class FloatingActionButtonTest {
         var pressedElevation by mutableStateOf(2.dp)
         val hoveredElevation = 3.dp
         val focusedElevation = 4.dp
-        lateinit var tonalElevation: State<Dp>
+        var tonalElevation: Dp = Dp.Unspecified
         lateinit var shadowElevation: State<Dp>
 
         rule.setMaterialContent(lightColorScheme()) {
@@ -637,12 +637,12 @@ class FloatingActionButtonTest {
                 focusedElevation = focusedElevation
             )
 
-            tonalElevation = fabElevation.tonalElevation(interactionSource)
+            tonalElevation = fabElevation.tonalElevation()
             shadowElevation = fabElevation.shadowElevation(interactionSource)
         }
 
         rule.runOnIdle {
-            assertThat(tonalElevation.value).isEqualTo(defaultElevation)
+            assertThat(tonalElevation).isEqualTo(defaultElevation)
             assertThat(shadowElevation.value).isEqualTo(defaultElevation)
         }
 
@@ -651,7 +651,7 @@ class FloatingActionButtonTest {
         }
 
         rule.runOnIdle {
-            assertThat(tonalElevation.value).isEqualTo(pressedElevation)
+            assertThat(tonalElevation).isEqualTo(defaultElevation)
             assertThat(shadowElevation.value).isEqualTo(pressedElevation)
         }
 
@@ -661,7 +661,7 @@ class FloatingActionButtonTest {
 
         // We are still pressed, so we should now show the updated value for the pressed state
         rule.runOnIdle {
-            assertThat(tonalElevation.value).isEqualTo(5.dp)
+            assertThat(tonalElevation).isEqualTo(defaultElevation)
             assertThat(shadowElevation.value).isEqualTo(5.dp)
         }
     }

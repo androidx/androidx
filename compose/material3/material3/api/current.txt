@@ -29,13 +29,17 @@ package androidx.compose.material3 {
   }
 
   public final class AppBarKt {
+    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static void BottomAppBar(optional androidx.compose.ui.Modifier modifier, optional long containerColor, optional long contentColor, optional float tonalElevation, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional androidx.compose.foundation.layout.WindowInsets windowInsets, optional androidx.compose.material3.BottomAppBarScrollBehavior? scrollBehavior, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> content);
     method @androidx.compose.runtime.Composable public static void BottomAppBar(optional androidx.compose.ui.Modifier modifier, optional long containerColor, optional long contentColor, optional float tonalElevation, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional androidx.compose.foundation.layout.WindowInsets windowInsets, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> content);
     method @androidx.compose.runtime.Composable public static void BottomAppBar(kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> actions, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function0<kotlin.Unit>? floatingActionButton, optional long containerColor, optional long contentColor, optional float tonalElevation, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional androidx.compose.foundation.layout.WindowInsets windowInsets);
+    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static void BottomAppBar(kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> actions, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function0<kotlin.Unit>? floatingActionButton, optional long containerColor, optional long contentColor, optional float tonalElevation, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional androidx.compose.foundation.layout.WindowInsets windowInsets, optional androidx.compose.material3.BottomAppBarScrollBehavior? scrollBehavior);
+    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public static androidx.compose.material3.BottomAppBarState BottomAppBarState(float initialHeightOffsetLimit, float initialHeightOffset, float initialContentOffset);
     method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static void CenterAlignedTopAppBar(kotlin.jvm.functions.Function0<kotlin.Unit> title, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function0<kotlin.Unit> navigationIcon, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> actions, optional androidx.compose.foundation.layout.WindowInsets windowInsets, optional androidx.compose.material3.TopAppBarColors colors, optional androidx.compose.material3.TopAppBarScrollBehavior? scrollBehavior);
     method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static void LargeTopAppBar(kotlin.jvm.functions.Function0<kotlin.Unit> title, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function0<kotlin.Unit> navigationIcon, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> actions, optional androidx.compose.foundation.layout.WindowInsets windowInsets, optional androidx.compose.material3.TopAppBarColors colors, optional androidx.compose.material3.TopAppBarScrollBehavior? scrollBehavior);
     method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static void MediumTopAppBar(kotlin.jvm.functions.Function0<kotlin.Unit> title, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function0<kotlin.Unit> navigationIcon, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> actions, optional androidx.compose.foundation.layout.WindowInsets windowInsets, optional androidx.compose.material3.TopAppBarColors colors, optional androidx.compose.material3.TopAppBarScrollBehavior? scrollBehavior);
     method @Deprecated @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static void SmallTopAppBar(kotlin.jvm.functions.Function0<kotlin.Unit> title, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function0<kotlin.Unit> navigationIcon, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> actions, optional androidx.compose.foundation.layout.WindowInsets windowInsets, optional androidx.compose.material3.TopAppBarColors colors, optional androidx.compose.material3.TopAppBarScrollBehavior? scrollBehavior);
     method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static void TopAppBar(kotlin.jvm.functions.Function0<kotlin.Unit> title, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function0<kotlin.Unit> navigationIcon, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> actions, optional androidx.compose.foundation.layout.WindowInsets windowInsets, optional androidx.compose.material3.TopAppBarColors colors, optional androidx.compose.material3.TopAppBarScrollBehavior? scrollBehavior);
+    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static androidx.compose.material3.BottomAppBarState rememberBottomAppBarState(optional float initialHeightOffsetLimit, optional float initialHeightOffset, optional float initialContentOffset);
     method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static androidx.compose.material3.TopAppBarState rememberTopAppBarState(optional float initialHeightOffsetLimit, optional float initialHeightOffset, optional float initialContentOffset);
   }
 
@@ -66,6 +70,7 @@ package androidx.compose.material3 {
   }
 
   public final class BottomAppBarDefaults {
+    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public androidx.compose.material3.BottomAppBarScrollBehavior exitAlwaysScrollBehavior(optional androidx.compose.material3.BottomAppBarState state, optional kotlin.jvm.functions.Function0<java.lang.Boolean> canScroll, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float>? snapAnimationSpec, optional androidx.compose.animation.core.DecayAnimationSpec<java.lang.Float>? flingAnimationSpec);
     method @androidx.compose.runtime.Composable public long getBottomAppBarFabColor();
     method @androidx.compose.runtime.Composable public long getContainerColor();
     method public float getContainerElevation();
@@ -77,6 +82,39 @@ package androidx.compose.material3 {
     property @androidx.compose.runtime.Composable public final long containerColor;
     property @androidx.compose.runtime.Composable public final androidx.compose.foundation.layout.WindowInsets windowInsets;
     field public static final androidx.compose.material3.BottomAppBarDefaults INSTANCE;
+  }
+
+  @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Stable public interface BottomAppBarScrollBehavior {
+    method public androidx.compose.animation.core.DecayAnimationSpec<java.lang.Float>? getFlingAnimationSpec();
+    method public androidx.compose.ui.input.nestedscroll.NestedScrollConnection getNestedScrollConnection();
+    method public androidx.compose.animation.core.AnimationSpec<java.lang.Float>? getSnapAnimationSpec();
+    method public androidx.compose.material3.BottomAppBarState getState();
+    method public boolean isPinned();
+    property public abstract androidx.compose.animation.core.DecayAnimationSpec<java.lang.Float>? flingAnimationSpec;
+    property public abstract boolean isPinned;
+    property public abstract androidx.compose.ui.input.nestedscroll.NestedScrollConnection nestedScrollConnection;
+    property public abstract androidx.compose.animation.core.AnimationSpec<java.lang.Float>? snapAnimationSpec;
+    property public abstract androidx.compose.material3.BottomAppBarState state;
+  }
+
+  @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public interface BottomAppBarState {
+    method public float getCollapsedFraction();
+    method public float getContentOffset();
+    method public float getHeightOffset();
+    method public float getHeightOffsetLimit();
+    method public void setContentOffset(float);
+    method public void setHeightOffset(float);
+    method public void setHeightOffsetLimit(float);
+    property public abstract float collapsedFraction;
+    property public abstract float contentOffset;
+    property public abstract float heightOffset;
+    property public abstract float heightOffsetLimit;
+    field public static final androidx.compose.material3.BottomAppBarState.Companion Companion;
+  }
+
+  public static final class BottomAppBarState.Companion {
+    method public androidx.compose.runtime.saveable.Saver<androidx.compose.material3.BottomAppBarState,?> getSaver();
+    property public final androidx.compose.runtime.saveable.Saver<androidx.compose.material3.BottomAppBarState,?> Saver;
   }
 
   @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Stable public final class BottomSheetDefaults {
@@ -298,7 +336,7 @@ package androidx.compose.material3 {
     method @androidx.compose.runtime.Composable public static void SuggestionChip(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, kotlin.jvm.functions.Function0<kotlin.Unit> label, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional kotlin.jvm.functions.Function0<kotlin.Unit>? icon, optional androidx.compose.ui.graphics.Shape shape, optional androidx.compose.material3.ChipColors colors, optional androidx.compose.material3.ChipElevation? elevation, optional androidx.compose.material3.ChipBorder? border, optional androidx.compose.foundation.interaction.MutableInteractionSource interactionSource);
   }
 
-  @androidx.compose.runtime.Stable public final class ColorScheme {
+  @androidx.compose.runtime.Immutable public final class ColorScheme {
     ctor public ColorScheme(long primary, long onPrimary, long primaryContainer, long onPrimaryContainer, long inversePrimary, long secondary, long onSecondary, long secondaryContainer, long onSecondaryContainer, long tertiary, long onTertiary, long tertiaryContainer, long onTertiaryContainer, long background, long onBackground, long surface, long onSurface, long surfaceVariant, long onSurfaceVariant, long surfaceTint, long inverseSurface, long inverseOnSurface, long error, long onError, long errorContainer, long onErrorContainer, long outline, long outlineVariant, long scrim);
     ctor public ColorScheme(long primary, long onPrimary, long primaryContainer, long onPrimaryContainer, long inversePrimary, long secondary, long onSecondary, long secondaryContainer, long onSecondaryContainer, long tertiary, long onTertiary, long tertiaryContainer, long onTertiaryContainer, long background, long onBackground, long surface, long onSurface, long surfaceVariant, long onSurfaceVariant, long surfaceTint, long inverseSurface, long inverseOnSurface, long error, long onError, long errorContainer, long onErrorContainer, long outline, long outlineVariant, long scrim, long surfaceBright, long surfaceDim, long surfaceContainer, long surfaceContainerHigh, long surfaceContainerHighest, long surfaceContainerLow, long surfaceContainerLowest);
     method @Deprecated public androidx.compose.material3.ColorScheme copy(optional long primary, optional long onPrimary, optional long primaryContainer, optional long onPrimaryContainer, optional long inversePrimary, optional long secondary, optional long onSecondary, optional long secondaryContainer, optional long onSecondaryContainer, optional long tertiary, optional long onTertiary, optional long tertiaryContainer, optional long onTertiaryContainer, optional long background, optional long onBackground, optional long surface, optional long onSurface, optional long surfaceVariant, optional long onSurfaceVariant, optional long surfaceTint, optional long inverseSurface, optional long inverseOnSurface, optional long error, optional long onError, optional long errorContainer, optional long onErrorContainer, optional long outline, optional long outlineVariant, optional long scrim);
@@ -677,9 +715,11 @@ package androidx.compose.material3 {
   public static final class FabPosition.Companion {
     method public int getCenter();
     method public int getEnd();
+    method public int getEndOverlay();
     method public int getStart();
     property public final int Center;
     property public final int End;
+    property public final int EndOverlay;
     property public final int Start;
   }
 
@@ -827,6 +867,10 @@ package androidx.compose.material3 {
     method public static androidx.compose.ui.Modifier minimumInteractiveComponentSize(androidx.compose.ui.Modifier);
     property @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public static final androidx.compose.runtime.ProvidableCompositionLocal<java.lang.Boolean> LocalMinimumInteractiveComponentEnforcement;
     property @Deprecated @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public static final androidx.compose.runtime.ProvidableCompositionLocal<java.lang.Boolean> LocalMinimumTouchTargetEnforcement;
+  }
+
+  public final class LabelKt {
+    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static void Label(kotlin.jvm.functions.Function0<kotlin.Unit> label, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.foundation.interaction.MutableInteractionSource interactionSource, optional boolean isPersistent, kotlin.jvm.functions.Function0<kotlin.Unit> content);
   }
 
   @androidx.compose.runtime.Immutable public final class ListItemColors {
@@ -1130,6 +1174,9 @@ package androidx.compose.material3 {
 
   public final class ScaffoldKt {
     method @androidx.compose.runtime.Composable public static void Scaffold(optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function0<kotlin.Unit> topBar, optional kotlin.jvm.functions.Function0<kotlin.Unit> bottomBar, optional kotlin.jvm.functions.Function0<kotlin.Unit> snackbarHost, optional kotlin.jvm.functions.Function0<kotlin.Unit> floatingActionButton, optional int floatingActionButtonPosition, optional long containerColor, optional long contentColor, optional androidx.compose.foundation.layout.WindowInsets contentWindowInsets, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.PaddingValues,kotlin.Unit> content);
+    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public static boolean getScaffoldSubcomposeInMeasureFix();
+    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public static void setScaffoldSubcomposeInMeasureFix(boolean);
+    property @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public static final boolean ScaffoldSubcomposeInMeasureFix;
   }
 
   @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Immutable public final class SearchBarColors {

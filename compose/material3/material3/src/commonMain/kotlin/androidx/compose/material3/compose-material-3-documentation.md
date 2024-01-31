@@ -90,6 +90,9 @@ For more information, check out <a href="https://developer.android.com/jetpack/c
 | **Radio button**        | [RadioButton]                  | M3 radio button                           |
 | **Search Bar**          | [SearchBar]                    | M3 search bar                             |
 |                         | [DockedSearchBar]              | M3 docked search bar                      |
+| **Segmented Button**    | [SegmentedButton]              | M3 segmented button                       |
+|                         | [SingleChoiceSegmentedButtonRow] | M3 single choice segmented button row |
+|                         | [MultiChoiceSegmentedButtonRow] | M3 multiple choice segmented button row |
 | **Sliders**             | [Slider]                       | M3 slider                                 |
 |                         | [RangeSlider]                  | M3 range slider                           |
 | **Snackbars**           | [Snackbar]                     | M3 snackbar                               |

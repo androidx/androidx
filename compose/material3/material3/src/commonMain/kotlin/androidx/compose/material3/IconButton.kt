@@ -84,7 +84,7 @@ fun IconButton(
             .minimumInteractiveComponentSize()
             .size(IconButtonTokens.StateLayerSize)
             .clip(IconButtonTokens.StateLayerShape.value)
-            .background(color = colors.containerColor(enabled).value)
+            .background(color = colors.containerColor(enabled))
             .clickable(
                 onClick = onClick,
                 enabled = enabled,
@@ -97,7 +97,7 @@ fun IconButton(
             ),
         contentAlignment = Alignment.Center
     ) {
-        val contentColor = colors.contentColor(enabled).value
+        val contentColor = colors.contentColor(enabled)
         CompositionLocalProvider(LocalContentColor provides contentColor, content = content)
     }
 }
@@ -207,8 +207,8 @@ fun FilledIconButton(
     modifier = modifier.semantics { role = Role.Button },
     enabled = enabled,
     shape = shape,
-    color = colors.containerColor(enabled).value,
-    contentColor = colors.contentColor(enabled).value,
+    color = colors.containerColor(enabled),
+    contentColor = colors.contentColor(enabled),
     interactionSource = interactionSource
 ) {
     Box(
@@ -267,8 +267,8 @@ fun FilledTonalIconButton(
     modifier = modifier.semantics { role = Role.Button },
     enabled = enabled,
     shape = shape,
-    color = colors.containerColor(enabled).value,
-    contentColor = colors.contentColor(enabled).value,
+    color = colors.containerColor(enabled),
+    contentColor = colors.contentColor(enabled),
     interactionSource = interactionSource
 ) {
     Box(
@@ -454,8 +454,8 @@ fun OutlinedIconButton(
     modifier = modifier.semantics { role = Role.Button },
     enabled = enabled,
     shape = shape,
-    color = colors.containerColor(enabled).value,
-    contentColor = colors.contentColor(enabled).value,
+    color = colors.containerColor(enabled),
+    contentColor = colors.contentColor(enabled),
     border = border,
     interactionSource = interactionSource
 ) {
@@ -825,20 +825,16 @@ class IconButtonColors constructor(
      *
      * @param enabled whether the icon button is enabled
      */
-    @Composable
-    internal fun containerColor(enabled: Boolean): State<Color> {
-        return rememberUpdatedState(if (enabled) containerColor else disabledContainerColor)
-    }
+    internal fun containerColor(enabled: Boolean): Color =
+        if (enabled) containerColor else disabledContainerColor
 
     /**
      * Represents the content color for this icon button, depending on [enabled].
      *
      * @param enabled whether the icon button is enabled
      */
-    @Composable
-    internal fun contentColor(enabled: Boolean): State<Color> {
-        return rememberUpdatedState(if (enabled) contentColor else disabledContentColor)
-    }
+    internal fun contentColor(enabled: Boolean): Color =
+        if (enabled) contentColor else disabledContentColor
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

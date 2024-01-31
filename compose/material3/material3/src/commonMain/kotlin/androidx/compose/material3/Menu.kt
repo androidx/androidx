@@ -145,9 +145,8 @@ class MenuItemColors(
      * @param enabled whether the menu item is enabled
      */
     @Composable
-    internal fun leadingIconColor(enabled: Boolean): State<Color> {
-        return rememberUpdatedState(if (enabled) leadingIconColor else disabledLeadingIconColor)
-    }
+    internal fun leadingIconColor(enabled: Boolean): Color =
+        if (enabled) leadingIconColor else disabledLeadingIconColor
 
     /**
      * Represents the trailing icon color for a menu item, depending on its [enabled] state.
@@ -155,9 +154,8 @@ class MenuItemColors(
      * @param enabled whether the menu item is enabled
      */
     @Composable
-    internal fun trailingIconColor(enabled: Boolean): State<Color> {
-        return rememberUpdatedState(if (enabled) trailingIconColor else disabledTrailingIconColor)
-    }
+    internal fun trailingIconColor(enabled: Boolean): Color =
+        if (enabled) trailingIconColor else disabledTrailingIconColor
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -284,7 +282,7 @@ internal fun DropdownMenuItemContent(
         ProvideTextStyle(MaterialTheme.typography.fromToken(MenuTokens.ListItemLabelTextFont)) {
             if (leadingIcon != null) {
                 CompositionLocalProvider(
-                    LocalContentColor provides colors.leadingIconColor(enabled).value,
+                    LocalContentColor provides colors.leadingIconColor(enabled),
                 ) {
                     Box(Modifier.defaultMinSize(minWidth = MenuTokens.ListItemLeadingIconSize)) {
                         leadingIcon()
@@ -313,7 +311,7 @@ internal fun DropdownMenuItemContent(
             }
             if (trailingIcon != null) {
                 CompositionLocalProvider(
-                    LocalContentColor provides colors.trailingIconColor(enabled).value
+                    LocalContentColor provides colors.trailingIconColor(enabled)
                 ) {
                     Box(Modifier.defaultMinSize(minWidth = MenuTokens.ListItemTrailingIconSize)) {
                         trailingIcon()

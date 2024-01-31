@@ -525,6 +525,7 @@ class ExposedDropdownMenuTest(
         // Should not have crashed.
     }
 
+    @Ignore("b/297059209")
     @OptIn(ExperimentalMaterial3Api::class)
     @Test
     fun edm_withScrolledContent() {

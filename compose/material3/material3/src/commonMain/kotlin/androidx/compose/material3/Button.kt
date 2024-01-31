@@ -44,7 +44,6 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -114,10 +113,10 @@ fun Button(
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     content: @Composable RowScope.() -> Unit
 ) {
-    val containerColor = colors.containerColor(enabled).value
-    val contentColor = colors.contentColor(enabled).value
+    val containerColor = colors.containerColor(enabled)
+    val contentColor = colors.contentColor(enabled)
     val shadowElevation = elevation?.shadowElevation(enabled, interactionSource)?.value ?: 0.dp
-    val tonalElevation = elevation?.tonalElevation(enabled, interactionSource)?.value ?: 0.dp
+    val tonalElevation = elevation?.tonalElevation(enabled) ?: 0.dp
     Surface(
         onClick = onClick,
         modifier = modifier.semantics { role = Role.Button },
@@ -769,8 +768,7 @@ class ButtonElevation internal constructor(
     private val disabledElevation: Dp,
 ) {
     /**
-     * Represents the tonal elevation used in a button, depending on its [enabled] state and
-     * [interactionSource]. This should typically be the same value as the [shadowElevation].
+     * Represents the tonal elevation used in a button, depending on its [enabled] state.
      *
      * Tonal elevation is used to apply a color shift to the surface to give the it higher emphasis.
      * When surface's color is [ColorScheme.surface], a higher elevation will result in a darker
@@ -779,16 +777,14 @@ class ButtonElevation internal constructor(
      * See [shadowElevation] which controls the elevation of the shadow drawn around the button.
      *
      * @param enabled whether the button is enabled
-     * @param interactionSource the [InteractionSource] for this button
      */
-    @Composable
-    internal fun tonalElevation(enabled: Boolean, interactionSource: InteractionSource): State<Dp> {
-        return animateElevation(enabled = enabled, interactionSource = interactionSource)
+    internal fun tonalElevation(enabled: Boolean): Dp {
+        return if (enabled) defaultElevation else disabledElevation
     }
 
     /**
      * Represents the shadow elevation used in a button, depending on its [enabled] state and
-     * [interactionSource]. This should typically be the same value as the [tonalElevation].
+     * [interactionSource].
      *
      * Shadow elevation is used to apply a shadow around the button to give it higher emphasis.
      *
@@ -817,21 +813,27 @@ class ButtonElevation internal constructor(
                     is HoverInteraction.Enter -> {
                         interactions.add(interaction)
                     }
+
                     is HoverInteraction.Exit -> {
                         interactions.remove(interaction.enter)
                     }
+
                     is FocusInteraction.Focus -> {
                         interactions.add(interaction)
                     }
+
                     is FocusInteraction.Unfocus -> {
                         interactions.remove(interaction.focus)
                     }
+
                     is PressInteraction.Press -> {
                         interactions.add(interaction)
                     }
+
                     is PressInteraction.Release -> {
                         interactions.remove(interaction.press)
                     }
+
                     is PressInteraction.Cancel -> {
                         interactions.remove(interaction.press)
                     }
@@ -926,20 +928,16 @@ class ButtonColors constructor(
      *
      * @param enabled whether the button is enabled
      */
-    @Composable
-    internal fun containerColor(enabled: Boolean): State<Color> {
-        return rememberUpdatedState(if (enabled) containerColor else disabledContainerColor)
-    }
+    internal fun containerColor(enabled: Boolean): Color =
+        if (enabled) containerColor else disabledContainerColor
 
     /**
      * Represents the content color for this button, depending on [enabled].
      *
      * @param enabled whether the button is enabled
      */
-    @Composable
-    internal fun contentColor(enabled: Boolean): State<Color> {
-        return rememberUpdatedState(if (enabled) contentColor else disabledContentColor)
-    }
+    internal fun contentColor(enabled: Boolean): Color =
+        if (enabled) contentColor else disabledContentColor
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

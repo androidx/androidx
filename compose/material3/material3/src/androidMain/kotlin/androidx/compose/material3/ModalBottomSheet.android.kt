@@ -28,6 +28,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -65,6 +66,7 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.AbstractComposeView
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalView
@@ -87,7 +89,6 @@ import androidx.savedstate.findViewTreeSavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import java.util.UUID
 import kotlin.math.max
-import kotlin.math.roundToInt
 import kotlinx.coroutines.launch
 
 /**
@@ -198,10 +199,12 @@ fun ModalBottomSheet(
                             )
                         }
                     )
-                    .anchoredDraggable(
-                        state = sheetState.anchoredDraggableState,
+                    .draggable(
+                        state = sheetState.anchoredDraggableState.draggableState,
                         orientation = Orientation.Vertical,
-                        enabled = sheetState.isVisible
+                        enabled = sheetState.isVisible,
+                        startDragImmediately = sheetState.anchoredDraggableState.isAnimationRunning,
+                        onDragStopped = { settleToDismiss(it) }
                     )
                     .modalBottomSheetAnchors(
                         sheetState = sheetState,
@@ -358,7 +361,8 @@ internal fun ModalBottomSheetPopup(
     val parentComposition = rememberCompositionContext()
     val currentContent by rememberUpdatedState(content)
     val layoutDirection = LocalLayoutDirection.current
-    val modalBottomSheetWindow = remember {
+    val configuration = LocalConfiguration.current
+    val modalBottomSheetWindow = remember(configuration) {
         ModalBottomSheetWindow(
             onDismissRequest = onDismissRequest,
             composeView = view,
@@ -414,10 +418,7 @@ private class ModalBottomSheetWindow(
         composeView.context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
 
     private val displayWidth: Int
-        get() {
-            val density = context.resources.displayMetrics.density
-            return (context.resources.configuration.screenWidthDp * density).roundToInt()
-        }
+        get() = context.resources.displayMetrics.widthPixels
 
     private val params: WindowManager.LayoutParams =
         WindowManager.LayoutParams().apply {

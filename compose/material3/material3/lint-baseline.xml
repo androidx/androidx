@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.2.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.2.0-beta01)" variant="all" version="8.2.0-beta01">
+<issues format="6" by="lint 8.3.0-alpha02" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha02)" variant="all" version="8.3.0-alpha02">
 
     <issue
         id="BanThreadSleep"
@@ -7,7 +7,7 @@
         errorLine1="        Thread.sleep(300)"
         errorLine2="               ~~~~~">
         <location
-            file="src/androidAndroidTest/kotlin/androidx/compose/material3/CardScreenshotTest.kt"/>
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/CardScreenshotTest.kt"/>
     </issue>
 
     <issue
@@ -16,7 +16,7 @@
         errorLine1="        Thread.sleep(300)"
         errorLine2="               ~~~~~">
         <location
-            file="src/androidAndroidTest/kotlin/androidx/compose/material3/CheckboxScreenshotTest.kt"/>
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/CheckboxScreenshotTest.kt"/>
     </issue>
 
     <issue
@@ -25,7 +25,7 @@
         errorLine1="        Thread.sleep(300)"
         errorLine2="               ~~~~~">
         <location
-            file="src/androidAndroidTest/kotlin/androidx/compose/material3/FloatingActionButtonScreenshotTest.kt"/>
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/FloatingActionButtonScreenshotTest.kt"/>
     </issue>
 
     <issue
@@ -34,7 +34,7 @@
         errorLine1="        Thread.sleep(300)"
         errorLine2="               ~~~~~">
         <location
-            file="src/androidAndroidTest/kotlin/androidx/compose/material3/IconButtonScreenshotTest.kt"/>
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/IconButtonScreenshotTest.kt"/>
     </issue>
 
     <issue
@@ -43,7 +43,7 @@
         errorLine1="        Thread.sleep(300)"
         errorLine2="               ~~~~~">
         <location
-            file="src/androidAndroidTest/kotlin/androidx/compose/material3/MaterialRippleThemeTest.kt"/>
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/MaterialRippleThemeTest.kt"/>
     </issue>
 
     <issue
@@ -52,7 +52,7 @@
         errorLine1="            Thread.sleep(300)"
         errorLine2="                   ~~~~~">
         <location
-            file="src/androidAndroidTest/kotlin/androidx/compose/material3/MaterialRippleThemeTest.kt"/>
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/MaterialRippleThemeTest.kt"/>
     </issue>
 
     <issue
@@ -61,7 +61,7 @@
         errorLine1="            Thread.sleep(300)"
         errorLine2="                   ~~~~~">
         <location
-            file="src/androidAndroidTest/kotlin/androidx/compose/material3/NavigationBarScreenshotTest.kt"/>
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/NavigationBarScreenshotTest.kt"/>
     </issue>
 
     <issue
@@ -70,7 +70,7 @@
         errorLine1="            Thread.sleep(300)"
         errorLine2="                   ~~~~~">
         <location
-            file="src/androidAndroidTest/kotlin/androidx/compose/material3/NavigationDrawerItemScreenshotTest.kt"/>
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/NavigationDrawerItemScreenshotTest.kt"/>
     </issue>
 
     <issue
@@ -79,7 +79,7 @@
         errorLine1="            Thread.sleep(300)"
         errorLine2="                   ~~~~~">
         <location
-            file="src/androidAndroidTest/kotlin/androidx/compose/material3/NavigationRailScreenshotTest.kt"/>
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/NavigationRailScreenshotTest.kt"/>
     </issue>
 
     <issue
@@ -88,7 +88,7 @@
         errorLine1="        Thread.sleep(300)"
         errorLine2="               ~~~~~">
         <location
-            file="src/androidAndroidTest/kotlin/androidx/compose/material3/RadioButtonScreenshotTest.kt"/>
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/RadioButtonScreenshotTest.kt"/>
     </issue>
 
     <issue
@@ -97,7 +97,7 @@
         errorLine1="        Thread.sleep(300)"
         errorLine2="               ~~~~~">
         <location
-            file="src/androidAndroidTest/kotlin/androidx/compose/material3/RadioButtonScreenshotTest.kt"/>
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/RadioButtonScreenshotTest.kt"/>
     </issue>
 
     <issue
@@ -106,7 +106,7 @@
         errorLine1="        Thread.sleep(300)"
         errorLine2="               ~~~~~">
         <location
-            file="src/androidAndroidTest/kotlin/androidx/compose/material3/RadioButtonScreenshotTest.kt"/>
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/RadioButtonScreenshotTest.kt"/>
     </issue>
 
     <issue
@@ -115,7 +115,7 @@
         errorLine1="        Thread.sleep(300)"
         errorLine2="               ~~~~~">
         <location
-            file="src/androidAndroidTest/kotlin/androidx/compose/material3/RadioButtonScreenshotTest.kt"/>
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/RadioButtonScreenshotTest.kt"/>
     </issue>
 
     <issue
@@ -124,7 +124,7 @@
         errorLine1="        Thread.sleep(300)"
         errorLine2="               ~~~~~">
         <location
-            file="src/androidAndroidTest/kotlin/androidx/compose/material3/RadioButtonScreenshotTest.kt"/>
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/RadioButtonScreenshotTest.kt"/>
     </issue>
 
     <issue
@@ -133,7 +133,7 @@
         errorLine1="        Thread.sleep(300)"
         errorLine2="               ~~~~~">
         <location
-            file="src/androidAndroidTest/kotlin/androidx/compose/material3/RadioButtonScreenshotTest.kt"/>
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/RadioButtonScreenshotTest.kt"/>
     </issue>
 
     <issue
@@ -142,7 +142,7 @@
         errorLine1="        Thread.sleep(300)"
         errorLine2="               ~~~~~">
         <location
-            file="src/androidAndroidTest/kotlin/androidx/compose/material3/SwitchScreenshotTest.kt"/>
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/SwitchScreenshotTest.kt"/>
     </issue>
 
     <issue
@@ -151,7 +151,7 @@
         errorLine1="        Thread.sleep(300)"
         errorLine2="               ~~~~~">
         <location
-            file="src/androidAndroidTest/kotlin/androidx/compose/material3/SwitchScreenshotTest.kt"/>
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/SwitchScreenshotTest.kt"/>
     </issue>
 
     <issue
@@ -160,7 +160,7 @@
         errorLine1="        Thread.sleep(300)"
         errorLine2="               ~~~~~">
         <location
-            file="src/androidAndroidTest/kotlin/androidx/compose/material3/SwitchScreenshotTest.kt"/>
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/SwitchScreenshotTest.kt"/>
     </issue>
 
     <issue
@@ -169,16 +169,7 @@
         errorLine1="            Thread.sleep(300)"
         errorLine2="                   ~~~~~">
         <location
-            file="src/androidAndroidTest/kotlin/androidx/compose/material3/TabScreenshotTest.kt"/>
-    </issue>
-
-    <issue
-        id="ExperimentalPropertyAnnotation"
-        message="This property does not have all required annotations to correctly mark it as experimental."
-        errorLine1="    @ExperimentalMaterial3Api"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/material3/SwipeableV2.kt"/>
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/TabScreenshotTest.kt"/>
     </issue>
 
     <issue
@@ -195,15 +186,6 @@
         message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method BottomSheetScaffoldLayout has parameter &apos;sheetOffset&apos; with type Function0&lt;Float>."
         errorLine1="    sheetOffset: () -> Float,"
         errorLine2="                 ~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/material3/BottomSheetScaffold.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method BottomSheetScaffoldAnchorChangeHandler has parameter &apos;animateTo&apos; with type Function2&lt;? super SheetValue, ? super Float, Unit>."
-        errorLine1="    animateTo: (target: SheetValue, velocity: Float) -> Unit,"
-        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/material3/BottomSheetScaffold.kt"/>
     </issue>
@@ -382,8 +364,8 @@
     <issue
         id="PrimitiveInLambda"
         message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;onDateSelectionChange&apos; with type Function1&lt;? super Long, ? extends Unit>."
-        errorLine1="                    val onDateSelectionChange = { dateInMillis: Long ->"
-        errorLine2="                    ^">
+        errorLine1="        val onDateSelectionChange = { dateInMillis: Long ->"
+        errorLine2="        ^">
         <location
             file="src/commonMain/kotlin/androidx/compose/material3/DateRangePicker.kt"/>
     </issue>
@@ -411,24 +393,6 @@
         message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;settleToDismiss&apos; with type Function1&lt;? super Float, ? extends Unit>."
         errorLine1="    val settleToDismiss: (velocity: Float) -> Unit = {"
         errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidMain/kotlin/androidx/compose/material3/ModalBottomSheet.android.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method modalBottomSheetSwipeable has parameter &apos;onDragStopped&apos; with type Function2&lt;? super CoroutineScope, ? super Float, Unit>."
-        errorLine1="    onDragStopped: CoroutineScope.(velocity: Float) -> Unit,"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidMain/kotlin/androidx/compose/material3/ModalBottomSheet.android.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method ModalBottomSheetAnchorChangeHandler has parameter &apos;animateTo&apos; with type Function2&lt;? super SheetValue, ? super Float, Unit>."
-        errorLine1="    animateTo: (target: SheetValue, velocity: Float) -> Unit,"
-        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidMain/kotlin/androidx/compose/material3/ModalBottomSheet.android.kt"/>
     </issue>
@@ -534,24 +498,6 @@
 
     <issue
         id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor SliderDraggableState has parameter &apos;onDelta&apos; with type Function1&lt;? super Float, Unit>."
-        errorLine1="    val onDelta: (Float) -> Unit"
-        errorLine2="                 ~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/material3/Slider.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function1&lt;Float, Unit> of &apos;getOnDelta&apos;."
-        errorLine1="    val onDelta: (Float) -> Unit"
-        errorLine2="                 ~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/material3/Slider.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
         message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor SliderState has parameter &apos;initialOnValueChange&apos; with type Function1&lt;? super Float, Unit>."
         errorLine1="    initialOnValueChange: ((Float) -> Unit)? = null,"
         errorLine2="                          ~~~~~~~~~~~~~~~~~~">
@@ -579,15 +525,6 @@
 
     <issue
         id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function3&lt;PressGestureScope, Offset, Continuation&lt;? super Unit>, Object> of &apos;getPress$lint_module&apos;."
-        errorLine1="    internal val press: suspend PressGestureScope.(Offset) -> Unit = { pos ->"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/material3/Slider.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
         message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor RangeSliderState has parameter &apos;initialOnValueChange&apos; with type Function1&lt;? super FloatRange, Unit>."
         errorLine1="    initialOnValueChange: ((FloatRange) -> Unit)? = null,"
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~">
@@ -609,15 +546,6 @@
         message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function1&lt;FloatRange, Unit> of &apos;getOnValueChange$lint_module&apos;."
         errorLine1="    internal var onValueChange: (FloatRange) -> Unit = {"
         errorLine2="                                ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/material3/Slider.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function2&lt;Boolean, Float, Unit> of &apos;getOnDrag$lint_module&apos;."
-        errorLine1="    internal val onDrag: (Boolean, Float) -> Unit = { isStart, offset ->"
-        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/material3/Slider.kt"/>
     </issue>
@@ -674,15 +602,6 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/material3/Swipeable.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method swipeAnchors has parameter &apos;calculateAnchor&apos; with type Function2&lt;? super T, ? super IntSize, Float>."
-        errorLine1="    calculateAnchor: (value: T, layoutSize: IntSize) -> Float?,"
-        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/material3/SwipeableV2.kt"/>
     </issue>
 
     <issue

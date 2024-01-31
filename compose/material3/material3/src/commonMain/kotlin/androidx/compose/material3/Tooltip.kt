@@ -43,8 +43,6 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.Saver
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.graphics.Color
@@ -89,7 +87,7 @@ import kotlinx.coroutines.withTimeout
  * relative to the anchor content.
  * @param tooltip the composable that will be used to populate the tooltip's content.
  * @param state handles the state of the tooltip's visibility.
- * @param modifier the [Modifier] to be applied to the tooltip.
+ * @param modifier the [Modifier] to be applied to the TooltipBox.
  * @param focusable [Boolean] that determines if the tooltip is focusable. When true,
  * the tooltip will consume touch events while it's shown and will have accessibility
  * focus move to the first element of the component. When false, the tooltip
@@ -142,16 +140,16 @@ fun PlainTooltip(
     content: @Composable () -> Unit
 ) {
     Surface(
-        modifier = modifier
+        shape = shape,
+        color = containerColor
+    ) {
+        Box(modifier = modifier
             .sizeIn(
                 minWidth = TooltipMinWidth,
                 maxWidth = PlainTooltipMaxWidth,
                 minHeight = TooltipMinHeight
-            ),
-        shape = shape,
-        color = containerColor
-    ) {
-        Box(modifier = Modifier.padding(PlainTooltipContentPadding)) {
+            ).padding(PlainTooltipContentPadding)
+        ) {
             val textStyle =
                 MaterialTheme.typography.fromToken(PlainTooltipTokens.SupportingTextFont)
             CompositionLocalProvider(
@@ -422,11 +420,10 @@ fun rememberTooltipState(
     initialIsVisible: Boolean = false,
     isPersistent: Boolean = false,
     mutatorMutex: MutatorMutex = BasicTooltipDefaults.GlobalMutatorMutex
-): TooltipState {
-    return rememberSaveable(
+): TooltipState =
+    remember(
         isPersistent,
-        mutatorMutex,
-        saver = TooltipStateImpl.Saver
+        mutatorMutex
     ) {
         TooltipStateImpl(
             initialIsVisible = initialIsVisible,
@@ -434,7 +431,6 @@ fun rememberTooltipState(
             mutatorMutex = mutatorMutex
         )
     }
-}
 
 /**
  * Constructor extension function for [TooltipState]
@@ -527,29 +523,6 @@ private class TooltipStateImpl(
      */
     override fun onDispose() {
         job?.cancel()
-    }
-
-    companion object {
-        /**
-         * The default [Saver] implementation for [TooltipStateImpl].
-         */
-        val Saver = Saver<TooltipStateImpl, Any>(
-            save = {
-                listOf(
-                    it.isVisible,
-                    it.isPersistent,
-                    it.mutatorMutex
-                )
-            },
-            restore = {
-                val (isVisible, isPersistent, mutatorMutex) = it as List<*>
-                TooltipStateImpl(
-                    initialIsVisible = isVisible as Boolean,
-                    isPersistent = isPersistent as Boolean,
-                    mutatorMutex = mutatorMutex as MutatorMutex,
-                )
-            }
-        )
     }
 }
 
