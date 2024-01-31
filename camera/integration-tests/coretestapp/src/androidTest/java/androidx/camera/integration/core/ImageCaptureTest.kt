@@ -34,6 +34,7 @@ import android.util.Pair
 import android.util.Rational
 import android.util.Size
 import android.view.Surface
+import androidx.annotation.MainThread
 import androidx.annotation.OptIn
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop
@@ -46,6 +47,8 @@ import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
+import androidx.camera.core.ImageCapture.OUTPUT_FORMAT_JPEG
+import androidx.camera.core.ImageCapture.OUTPUT_FORMAT_ULTRA_HDR
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.ImageProxy
 import androidx.camera.core.Preview
@@ -122,6 +125,11 @@ private val FRONT_SELECTOR = CameraSelector.DEFAULT_FRONT_CAMERA
 private const val BACK_LENS_FACING = CameraSelector.LENS_FACING_BACK
 private const val CAPTURE_TIMEOUT = 15_000.toLong() //  15 seconds
 private const val TOLERANCE = 1e-3f
+private val EXIF_GAINMAP_PATTERNS = listOf(
+    "xmlns:hdrgm=\"http://ns.adobe.com/hdr-gain-map/",
+    "hdrgm:Version=",
+    "Item:Semantic=\"GainMap\"",
+)
 
 @LargeTest
 @RunWith(Parameterized::class)
@@ -185,21 +193,43 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
         }
     }
 
-    @Suppress("DEPRECATION") // test for legacy resolution API
     @Test
-    fun capturedImageHasCorrectSize() = runBlocking {
-        val useCase = ImageCapture.Builder()
+    fun capturedImageHasCorrectSize() {
+        takeImageAndVerifySize()
+    }
+
+    @SdkSuppress(minSdkVersion = 34)
+    @Test
+    fun capturedImageHasCorrectSize_whenOutputFormatIsUltraHdr() {
+        takeImageAndVerifySize(outputFormat = OUTPUT_FORMAT_ULTRA_HDR)
+    }
+
+    @Suppress("DEPRECATION") // test for legacy resolution API
+    private fun takeImageAndVerifySize(
+        cameraSelector: CameraSelector = BACK_SELECTOR,
+        @ImageCapture.OutputFormat outputFormat: Int = OUTPUT_FORMAT_JPEG,
+    ): Unit = runBlocking {
+        // Arrange.
+        val useCaseBuilder = ImageCapture.Builder()
             .setTargetResolution(DEFAULT_RESOLUTION)
             .setTargetRotation(Surface.ROTATION_0)
-            .build()
 
-        withContext(Dispatchers.Main) {
-            cameraProvider.bindToLifecycle(fakeLifecycleOwner, BACK_SELECTOR, useCase)
+        // Only test Ultra HDR on supported devices.
+        if (outputFormat == OUTPUT_FORMAT_ULTRA_HDR) {
+            assumeUltraHdrSupported(cameraSelector)
+            useCaseBuilder.setOutputFormat(OUTPUT_FORMAT_ULTRA_HDR)
         }
 
+        val useCase = useCaseBuilder.build()
+        withContext(Dispatchers.Main) {
+            cameraProvider.bindToLifecycle(fakeLifecycleOwner, cameraSelector, useCase)
+        }
+
+        // Act.
         val callback = FakeImageCaptureCallback(captureCount = 1)
         useCase.takePicture(mainExecutor, callback)
 
+        // Assert.
         // Wait for the signal that the image has been captured.
         callback.awaitCapturesAndAssert(capturedImagesCount = 1)
 
@@ -223,9 +253,26 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
         }
     }
 
+    @MainThread
+    private suspend fun assumeUltraHdrSupported(cameraSelector: CameraSelector) {
+        withContext(Dispatchers.Main) {
+            val camera = cameraProvider.bindToLifecycle(fakeLifecycleOwner, cameraSelector)
+            val capabilities = ImageCapture.getImageCaptureCapabilities(camera.cameraInfo)
+            assumeTrue(capabilities.supportedOutputFormats.contains(OUTPUT_FORMAT_ULTRA_HDR))
+        }
+    }
+
     @Test
     fun canCaptureMultipleImages() {
         canTakeImages(defaultBuilder, numImages = 5)
+    }
+
+    @SdkSuppress(minSdkVersion = 34)
+    @Test
+    fun canCaptureMultipleImages_whenOutputFormatIsUltraHdr() {
+        canTakeImages(defaultBuilder.setOutputFormat(OUTPUT_FORMAT_ULTRA_HDR), numImages = 5) {
+            assumeUltraHdrSupported(BACK_SELECTOR)
+        }
     }
 
     @Test
@@ -234,6 +281,17 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
             ImageCapture.Builder().setCaptureMode(ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY),
             numImages = 5
         )
+    }
+
+    @SdkSuppress(minSdkVersion = 34)
+    @Test
+    fun canCaptureMultipleImagesWithMaxQuality_whenOutputFormatIsUltraHdr() {
+        val builder = ImageCapture.Builder()
+            .setCaptureMode(ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY)
+            .setOutputFormat(OUTPUT_FORMAT_ULTRA_HDR)
+        canTakeImages(builder, numImages = 5) {
+            assumeUltraHdrSupported(BACK_SELECTOR)
+        }
     }
 
     @Test
@@ -332,17 +390,23 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
         builder: ImageCapture.Builder,
         cameraSelector: CameraSelector = BACK_SELECTOR,
         numImages: Int = 1,
+        runAtStart: suspend () -> Unit = {},
     ): Unit = runBlocking {
+        runAtStart()
+
+        // Arrange.
         val useCase = builder.build()
         withContext(Dispatchers.Main) {
             cameraProvider.bindToLifecycle(fakeLifecycleOwner, cameraSelector, useCase)
         }
 
+        // Act.
         val callback = FakeImageCaptureCallback(captureCount = numImages)
         repeat(numImages) {
             useCase.takePicture(mainExecutor, callback)
         }
 
+        // Assert.
         callback.awaitCapturesAndAssert(
             timeout = numImages * CAPTURE_TIMEOUT,
             capturedImagesCount = numImages
@@ -398,12 +462,65 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
         callback.awaitCapturesAndAssert(savedImagesCount = 1)
     }
 
+    @SdkSuppress(minSdkVersion = 34)
     @Test
-    fun saveToUri(): Unit = runBlocking {
+    fun canSaveToFile_withGainmapInfoInMetadata_whenOutputFormatIsUltraHdr(): Unit = runBlocking {
+        val cameraSelector = BACK_SELECTOR
+        assumeUltraHdrSupported(cameraSelector)
+
         // Arrange.
+        val useCase = ImageCapture.Builder()
+            .setOutputFormat(OUTPUT_FORMAT_ULTRA_HDR)
+            .build()
+        withContext(Dispatchers.Main) {
+            cameraProvider.bindToLifecycle(fakeLifecycleOwner, cameraSelector, useCase)
+        }
+
+        // Act.
+        val saveLocation = temporaryFolder.newFile("test.jpg")
+        val outputFileOptions = ImageCapture.OutputFileOptions.Builder(saveLocation).build()
+        val callback = FakeImageSavedCallback(capturesCount = 1)
+        useCase.takePicture(outputFileOptions, mainExecutor, callback)
+
+        // Assert.
+        // Wait for the signal that the image has been saved.
+        callback.awaitCapturesAndAssert(savedImagesCount = 1)
+
+        // Retrieve the exif from the image and assert.
+        val exifMetadata = Exif.createFromFile(saveLocation).metadata
+        assertThat(exifMetadata).isNotNull()
+        for (pattern in EXIF_GAINMAP_PATTERNS) {
+            assertThat(exifMetadata).contains(pattern)
+        }
+    }
+
+    @Test
+    fun canSaveToUri() {
+        saveToUri()
+    }
+
+    @SdkSuppress(minSdkVersion = 34)
+    @Test
+    fun canSaveToUri_whenOutputFormatIsUltraHdr() {
+        saveToUri(outputFormat = OUTPUT_FORMAT_ULTRA_HDR)
+    }
+
+    private fun saveToUri(
+        cameraSelector: CameraSelector = BACK_SELECTOR,
+        @ImageCapture.OutputFormat outputFormat: Int = OUTPUT_FORMAT_JPEG,
+    ): Unit = runBlocking {
+        // Arrange.
+        val useCaseBuilder = defaultBuilder
+
+        // Only test Ultra HDR on supported devices.
+        if (outputFormat == OUTPUT_FORMAT_ULTRA_HDR) {
+            assumeUltraHdrSupported(cameraSelector)
+            useCaseBuilder.setOutputFormat(OUTPUT_FORMAT_ULTRA_HDR)
+        }
+
         val useCase = defaultBuilder.build()
         withContext(Dispatchers.Main) {
-            cameraProvider.bindToLifecycle(fakeLifecycleOwner, BACK_SELECTOR, useCase)
+            cameraProvider.bindToLifecycle(fakeLifecycleOwner, cameraSelector, useCase)
         }
 
         val contentValues = ContentValues()
@@ -431,11 +548,32 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
     }
 
     @Test
-    fun saveToOutputStream() = runBlocking {
+    fun canSaveToOutputStream() {
+        saveToOutputStream()
+    }
+
+    @SdkSuppress(minSdkVersion = 34)
+    @Test
+    fun canSaveToOutputStream_whenOutputFormatIsUltraHdr() {
+        saveToOutputStream(outputFormat = OUTPUT_FORMAT_ULTRA_HDR)
+    }
+
+    private fun saveToOutputStream(
+        cameraSelector: CameraSelector = BACK_SELECTOR,
+        @ImageCapture.OutputFormat outputFormat: Int = OUTPUT_FORMAT_JPEG,
+    ) = runBlocking {
         // Arrange.
+        val useCaseBuilder = defaultBuilder
+
+        // Only test Ultra HDR on supported devices.
+        if (outputFormat == OUTPUT_FORMAT_ULTRA_HDR) {
+            assumeUltraHdrSupported(cameraSelector)
+            useCaseBuilder.setOutputFormat(OUTPUT_FORMAT_ULTRA_HDR)
+        }
+
         val useCase = defaultBuilder.build()
         withContext(Dispatchers.Main) {
-            cameraProvider.bindToLifecycle(fakeLifecycleOwner, BACK_SELECTOR, useCase)
+            cameraProvider.bindToLifecycle(fakeLifecycleOwner, cameraSelector, useCase)
         }
 
         val saveLocation = temporaryFolder.newFile("test.jpg")
