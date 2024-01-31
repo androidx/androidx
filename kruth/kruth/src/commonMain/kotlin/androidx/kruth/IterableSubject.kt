@@ -449,7 +449,7 @@ open class IterableSubject<T> internal constructor(
      * @throws ClassCastException if any pair of elements is not mutually Comparable
      * @throws NullPointerException if any element is null
      */
-    fun isInStrictOrder() {
+    open fun isInStrictOrder() {
         isInStrictOrder(compareBy<Comparable<Any>> { it })
     }
 
@@ -480,7 +480,7 @@ open class IterableSubject<T> internal constructor(
      * @throws ClassCastException if any pair of elements is not mutually Comparable
      * @throws NullPointerException if any element is null
      */
-    fun isInOrder() {
+    open fun isInOrder() {
         isInOrder(compareBy<Comparable<Any>> { it })
     }
 
