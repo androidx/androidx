@@ -16,17 +16,23 @@
 
 package androidx.compose.animation
 
+import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.LayoutModifier
 import androidx.compose.ui.layout.LookaheadScope
 import androidx.compose.ui.layout.Measurable
@@ -42,6 +48,7 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.round
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import junit.framework.TestCase.assertEquals
@@ -209,6 +216,86 @@ class AnimationModifierTest {
                 }
             }.also { assertTrue(it) }
         }
+    }
+
+    @Test
+    fun properFinalStateAfterReAttach() = with(rule.density) {
+        // Tests that animateContentSize is able to recover (end at its proper target size) after
+        // being interrupted with movableContent
+        val totalSizePx = 300
+
+        val smallSizePx = 100
+        val largeSizePx = 200
+        val isExpanded = mutableStateOf(false)
+
+        val containerAOffset = Offset.Zero
+        val containerBOffset = Offset(100f, 100f)
+        val isAtContainerA = mutableStateOf(true)
+
+        val frameDuration = 16
+        val animDuration = 10 * frameDuration
+
+        val testModifier by mutableStateOf(TestModifier())
+
+        rule.setContent {
+            val animatedBox = remember {
+                movableContentOf {
+                    Box(
+                        modifier = Modifier
+                            .wrapContentSize()
+                            .then(testModifier)
+                            .animateContentSize(tween(animDuration, easing = LinearEasing))
+                    ) {
+                        val size = if (isExpanded.value) {
+                            largeSizePx.toDp()
+                        } else {
+                            smallSizePx.toDp()
+                        }
+                        Box(Modifier.requiredSize(size))
+                    }
+                }
+            }
+
+            Box(Modifier.size(totalSizePx.toDp())) {
+                Box(Modifier.offset { containerAOffset.round() }) {
+                    if (isAtContainerA.value) {
+                        animatedBox()
+                    }
+                }
+                Box(Modifier.offset { containerBOffset.round() }) {
+                    if (!isAtContainerA.value) {
+                        animatedBox()
+                    }
+                }
+            }
+        }
+
+        rule.waitForIdle()
+        rule.mainClock.autoAdvance = false
+
+        isExpanded.value = true
+        rule.mainClock.advanceTimeByFrame()
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle()
+
+        // Animate towards halfway the animation
+        rule.mainClock.advanceTimeBy(animDuration / 2L)
+        rule.waitForIdle()
+
+        assertEquals(150, testModifier.width)
+        assertEquals(150, testModifier.height)
+
+        // Move container, this should cause a re-attach in `animateContentSize` node, after this,
+        // if we let the animation run until it finishes, the final size should match the expected
+        // size.
+        // Note that this test intentionally doesn't cover the behavior of the remaining animation
+        // as this change does not address that.
+        isAtContainerA.value = !isAtContainerA.value
+        rule.mainClock.autoAdvance = true
+        rule.waitForIdle()
+
+        assertEquals(largeSizePx, testModifier.width)
+        assertEquals(largeSizePx, testModifier.height)
     }
 }
 

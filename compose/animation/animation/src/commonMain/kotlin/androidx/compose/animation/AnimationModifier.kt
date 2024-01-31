@@ -169,7 +169,11 @@ private class SizeAnimationModifierNode(
 
     fun animateTo(targetSize: IntSize): IntSize {
         val data = animData?.apply {
-            if (targetSize != anim.targetValue) {
+            // TODO(b/322878517): Figure out a way to seamlessly continue the animation after
+            //  re-attach. Note that in some cases restarting the animation is the correct behavior.
+            val wasInterrupted = (targetSize != anim.value && !anim.isRunning)
+
+            if (targetSize != anim.targetValue || wasInterrupted) {
                 startSize = anim.value
                 coroutineScope.launch {
                     val result = anim.animateTo(targetSize, animationSpec)
