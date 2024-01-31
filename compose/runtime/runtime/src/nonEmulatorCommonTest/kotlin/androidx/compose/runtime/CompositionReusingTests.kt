@@ -34,6 +34,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue
+import kotlinx.test.IgnoreJsTarget
 
 @Stable
 class CompositionReusingTests {
@@ -806,6 +807,7 @@ class CompositionReusingTests {
     }
 
     @Test
+    @IgnoreJsTarget // TODO (o.k.): remove ignore when k/wasm implements KT-65411
     fun forceReuseForgetsWhenContentDidntChange() = compositionTest {
         var active by mutableStateOf(true)
 
