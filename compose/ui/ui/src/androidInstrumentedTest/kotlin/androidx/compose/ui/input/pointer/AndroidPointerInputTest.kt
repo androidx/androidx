@@ -80,6 +80,7 @@ import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
+import androidx.testutils.waitForFutureFrame
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
@@ -101,9 +102,8 @@ import org.mockito.kotlin.verify
 class AndroidPointerInputTest {
     @Suppress("DEPRECATION")
     @get:Rule
-    val rule = androidx.test.rule.ActivityTestRule(
-        AndroidPointerInputTestActivity::class.java
-    )
+    val rule =
+        androidx.test.rule.ActivityTestRule(AndroidPointerInputTestActivity::class.java)
 
     private lateinit var container: OpenComposeView
 
@@ -1348,6 +1348,10 @@ class AndroidPointerInputTest {
         pointerEvent = null // Reset before each event
         dispatchMouseEvent(ACTION_HOVER_EXIT, box2LayoutCoordinates!!)
 
+        // Hover exit events in Compose are always delayed two frames to ensure Compose does not
+        // trigger them if they are followed by a press in the next frame. This accounts for that.
+        rule.waitForFutureFrame(2)
+
         rule.runOnUiThread {
             assertThat(exitBox2).isTrue()
             assertThat(pointerEvent).isNotNull()
@@ -1542,6 +1546,206 @@ class AndroidPointerInputTest {
             assertThat(enterBox1).isTrue()
             assertThat(scrollBox1).isTrue()
             assertThat(pointerEvent).isNotNull()
+            assertThat(eventsThatShouldNotTrigger).isFalse()
+        }
+    }
+
+    /*
+     * Tests an ACTION_HOVER_EXIT MotionEvent is ignored in Compose when it proceeds an
+     * ACTION_DOWN MotionEvent (in a measure of milliseconds only).
+     *
+     * The event order of MotionEvents:
+     *   - Hover enter on box 1
+     *   - Loop 10 times:
+     *     - Hover enter on box 1
+     *     - Down on box 1
+     *     - Up on box 1
+     */
+    @Test
+    fun hoverExitBeforeDownMotionEvent_shortDelayBetweenMotionEvents_shouldNotTriggerHoverExit() {
+        // --> Arrange
+        var box1LayoutCoordinates: LayoutCoordinates? = null
+
+        val setUpFinishedLatch = CountDownLatch(4)
+
+        // Events for Box 1
+        var enterBox1 = false
+        var pressBox1 = false
+
+        // All other events that should never be triggered in this test
+        var eventsThatShouldNotTrigger = false
+
+        var pointerEvent: PointerEvent? = null
+
+        rule.runOnUiThread {
+            container.setContent {
+                Column(
+                    Modifier
+                        .fillMaxSize()
+                        .onGloballyPositioned {
+                            setUpFinishedLatch.countDown()
+                        }
+                ) {
+                    // Box 1
+                    Box(
+                        Modifier
+                            .size(50.dp)
+                            .onGloballyPositioned {
+                                box1LayoutCoordinates = it
+                                setUpFinishedLatch.countDown()
+                            }
+                            .pointerInput(Unit) {
+                                awaitPointerEventScope {
+                                    while (true) {
+                                        pointerEvent = awaitPointerEvent()
+
+                                        when (pointerEvent!!.type) {
+                                            PointerEventType.Enter -> {
+                                                enterBox1 = true
+                                            }
+
+                                            PointerEventType.Exit -> {
+                                                enterBox1 = false
+                                            }
+
+                                            PointerEventType.Press -> {
+                                                pressBox1 = true
+                                            }
+
+                                            PointerEventType.Release -> {
+                                                pressBox1 = false
+                                            }
+
+                                            else -> {
+                                                eventsThatShouldNotTrigger = true
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                    ) { }
+
+                    // Box 2
+                    Box(
+                        Modifier
+                            .size(50.dp)
+                            .onGloballyPositioned {
+                                setUpFinishedLatch.countDown()
+                            }
+                            .pointerInput(Unit) {
+                                awaitPointerEventScope {
+                                    while (true) {
+                                        pointerEvent = awaitPointerEvent()
+                                        // Should never do anything with this UI element.
+                                        eventsThatShouldNotTrigger = true
+                                    }
+                                }
+                            }
+                    ) { }
+
+                    // Box 3
+                    Box(
+                        Modifier
+                            .size(50.dp)
+                            .onGloballyPositioned {
+                                setUpFinishedLatch.countDown()
+                            }
+                            .pointerInput(Unit) {
+                                awaitPointerEventScope {
+                                    while (true) {
+                                        pointerEvent = awaitPointerEvent()
+                                        // Should never do anything with this UI element.
+                                        eventsThatShouldNotTrigger = true
+                                    }
+                                }
+                            }
+                    ) { }
+                }
+            }
+        }
+        // Ensure Arrange (setup) step is finished
+        assertTrue(setUpFinishedLatch.await(2, TimeUnit.SECONDS))
+
+        // --> Act + Assert (interwoven)
+        // Hover Enter on Box 1
+        dispatchMouseEvent(ACTION_HOVER_ENTER, box1LayoutCoordinates!!)
+        rule.runOnUiThread {
+            assertThat(enterBox1).isTrue()
+            assertThat(pointerEvent).isNotNull()
+            assertThat(eventsThatShouldNotTrigger).isFalse()
+            assertHoverEvent(pointerEvent!!, isEnter = true)
+        }
+
+        pointerEvent = null // Reset before each event
+
+        for (index in 0 until 10) {
+            // We do not use dispatchMouseEvent() to dispatch the following two events, because the
+            // actions need to be executed in immediate succession.
+            rule.runOnUiThread {
+                val root = box1LayoutCoordinates!!.findRootCoordinates()
+                val pos = root.localPositionOf(box1LayoutCoordinates!!, Offset.Zero)
+
+                // Exit on Box 1 right before action down. This happens normally on devices, so we
+                // are recreating it here. However, Compose ignores the exit if it is right before
+                // a down (right before meaning within a couple milliseconds). We verify that it
+                // did in fact ignore this exit.
+                val exitMotionEvent = MotionEvent(
+                    0,
+                    ACTION_HOVER_EXIT,
+                    1,
+                    0,
+                    arrayOf(
+                        PointerProperties(0).also { it.toolType = MotionEvent.TOOL_TYPE_MOUSE }
+                    ),
+                    arrayOf(
+                        PointerCoords(pos.x, pos.y, Offset.Zero.x, Offset.Zero.y)
+                    )
+                )
+
+                // Press on Box 1
+                val downMotionEvent = MotionEvent(
+                    0,
+                    ACTION_DOWN,
+                    1,
+                    0,
+                    arrayOf(
+                        PointerProperties(0).also { it.toolType = MotionEvent.TOOL_TYPE_MOUSE }
+                    ),
+                    arrayOf(
+                        PointerCoords(pos.x, pos.y, Offset.Zero.x, Offset.Zero.y)
+                    )
+                )
+
+                val androidComposeView =
+                    findAndroidComposeView(container) as AndroidComposeView
+
+                // Execute events
+                androidComposeView.dispatchHoverEvent(exitMotionEvent)
+                androidComposeView.dispatchTouchEvent(downMotionEvent)
+            }
+
+            // In Compose, a hover exit MotionEvent is ignored if it is quickly followed
+            // by a press.
+            rule.runOnUiThread {
+                assertThat(enterBox1).isTrue()
+                assertThat(pressBox1).isTrue()
+                assertThat(eventsThatShouldNotTrigger).isFalse()
+                assertThat(pointerEvent).isNotNull()
+            }
+
+            // Release on Box 1
+            pointerEvent = null // Reset before each event
+            dispatchTouchEvent(ACTION_UP, box1LayoutCoordinates!!)
+
+            rule.runOnUiThread {
+                assertThat(enterBox1).isTrue()
+                assertThat(pressBox1).isFalse()
+                assertThat(eventsThatShouldNotTrigger).isFalse()
+                assertThat(pointerEvent).isNotNull()
+            }
+        }
+
+        rule.runOnUiThread {
             assertThat(eventsThatShouldNotTrigger).isFalse()
         }
     }
@@ -2170,6 +2374,10 @@ class AndroidPointerInputTest {
         dispatchStylusEvents(coords, Offset.Zero, ACTION_HOVER_ENTER)
         dispatchStylusEvents(coords, Offset.Zero, ACTION_HOVER_EXIT)
 
+        // Hover exit events in Compose are always delayed two frames to ensure Compose does not
+        // trigger them if they are followed by a press in the next frame. This accounts for that.
+        rule.waitForFutureFrame(2)
+
         rule.runOnUiThread {
             assertThat(eventLog).hasSize(2)
             assertThat(eventLog[0].type).isEqualTo(PointerEventType.Enter)
@@ -2255,7 +2463,6 @@ class AndroidPointerInputTest {
         }
     }
 
-    // TODO (jjw): Another option
     @Test
     fun syntheticEventSentAfterUp() {
         val eventLog = mutableListOf<PointerEvent>()
