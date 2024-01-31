@@ -31,5 +31,5 @@ import android.view.View
     ),
     level = DeprecationLevel.HIDDEN
 )
-public fun View.findViewTreeSavedStateRegistryOwner(): SavedStateRegistryOwner? =
-    findViewTreeSavedStateRegistryOwner()
+public fun findViewTreeSavedStateRegistryOwner(view: View): SavedStateRegistryOwner? =
+    view.findViewTreeSavedStateRegistryOwner()
