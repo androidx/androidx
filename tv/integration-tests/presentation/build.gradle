@@ -92,6 +92,8 @@ configurations.all {
                 using project(":lifecycle:lifecycle-runtime")
         substitute(module("androidx.lifecycle:lifecycle-viewmodel:")).
                 using project(":lifecycle:lifecycle-viewmodel")
+        substitute(module("androidx.lifecycle:lifecycle-viewmodel-ktx:")).
+                using project(":lifecycle:lifecycle-viewmodel-ktx")
         substitute(module("androidx.lifecycle:lifecycle-viewmodel-savedstate:")).
                 using project(":lifecycle:lifecycle-viewmodel-savedstate")
     }
