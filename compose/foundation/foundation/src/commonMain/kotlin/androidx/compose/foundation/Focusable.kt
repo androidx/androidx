@@ -150,6 +150,7 @@ private val FocusableInNonTouchModeElement =
 
 internal class FocusableInNonTouchMode : Modifier.Node(), CompositionLocalConsumerModifierNode,
     FocusPropertiesModifierNode {
+    override val shouldAutoInvalidate: Boolean = false
 
     private val inputModeManager: InputModeManager
         get() = currentValueOf(LocalInputModeManager)
@@ -196,6 +197,7 @@ internal class FocusableNode(
     interactionSource: MutableInteractionSource?
 ) : DelegatingNode(), FocusEventModifierNode, LayoutAwareModifierNode, SemanticsModifierNode,
     GlobalPositionAwareModifierNode, FocusRequesterModifierNode {
+    override val shouldAutoInvalidate: Boolean = false
 
     private var focusState: FocusState? = null
 
@@ -261,6 +263,8 @@ private class FocusableInteractionNode(
 ) : Modifier.Node() {
     private var focusedInteraction: FocusInteraction.Focus? = null
 
+    override val shouldAutoInvalidate: Boolean = false
+
     /**
      * Interaction source events will be controlled entirely by changes in focus events. The
      * FocusEventNode will be the source of truth for this and will emit an event in case it
@@ -319,6 +323,8 @@ private class FocusablePinnableContainerNode : Modifier.Node(),
     CompositionLocalConsumerModifierNode, ObserverModifierNode {
     private var pinnedHandle: PinnableContainer.PinnedHandle? = null
     private var isFocused: Boolean = false
+
+    override val shouldAutoInvalidate: Boolean = false
 
     private fun retrievePinnableContainer(): PinnableContainer? {
         var container: PinnableContainer? = null
