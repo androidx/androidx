@@ -376,11 +376,11 @@ class ModalBottomSheetTest(private val edgeToEdgeWrapper: EdgeToEdgeWrapper) {
                 )
             }
         }
-
+        rule.waitForIdle()
         screenHeightPx = with(rule.density) {
             rule.onNode(isPopup()).getUnclippedBoundsInRoot().height.toPx()
         }
-        assertThat(sheetState.currentValue).isEqualTo(SheetValue.PartiallyExpanded)
+        assertThat(sheetState.targetValue).isEqualTo(SheetValue.PartiallyExpanded)
         assertThat(sheetState.requireOffset())
             .isWithin(1f)
             .of(screenHeightPx / 2f)

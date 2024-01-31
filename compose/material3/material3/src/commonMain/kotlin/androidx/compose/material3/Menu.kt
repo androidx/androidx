@@ -36,7 +36,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.tokens.MenuTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -261,13 +260,14 @@ internal fun DropdownMenuItemContent(
     contentPadding: PaddingValues,
     interactionSource: MutableInteractionSource
 ) {
+    @Suppress("DEPRECATION_ERROR")
     Row(
         modifier = modifier
             .clickable(
                 enabled = enabled,
                 onClick = onClick,
                 interactionSource = interactionSource,
-                indication = rememberRipple(true)
+                indication = androidx.compose.material.ripple.rememberRipple(true)
             )
             .fillMaxWidth()
             // Preferred min and max width used during the intrinsic measurement.

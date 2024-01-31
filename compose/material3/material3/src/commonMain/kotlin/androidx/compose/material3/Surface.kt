@@ -26,7 +26,6 @@ import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.toggleable
-import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.NonRestartableComposable
@@ -220,6 +219,7 @@ fun Surface(
         LocalContentColor provides contentColor,
         LocalAbsoluteTonalElevation provides absoluteElevation
     ) {
+        @Suppress("DEPRECATION_ERROR")
         Box(
             modifier = modifier
                 .minimumInteractiveComponentSize()
@@ -234,7 +234,7 @@ fun Surface(
                 )
                 .clickable(
                     interactionSource = interactionSource,
-                    indication = rememberRipple(),
+                    indication = androidx.compose.material.ripple.rememberRipple(),
                     enabled = enabled,
                     onClick = onClick
                 ),
@@ -329,6 +329,7 @@ fun Surface(
         LocalContentColor provides contentColor,
         LocalAbsoluteTonalElevation provides absoluteElevation
     ) {
+        @Suppress("DEPRECATION_ERROR")
         Box(
             modifier = modifier
                 .minimumInteractiveComponentSize()
@@ -344,7 +345,7 @@ fun Surface(
                 .selectable(
                     selected = selected,
                     interactionSource = interactionSource,
-                    indication = rememberRipple(),
+                    indication = androidx.compose.material.ripple.rememberRipple(),
                     enabled = enabled,
                     onClick = onClick
                 ),
@@ -439,6 +440,7 @@ fun Surface(
         LocalContentColor provides contentColor,
         LocalAbsoluteTonalElevation provides absoluteElevation
     ) {
+        @Suppress("DEPRECATION_ERROR")
         Box(
             modifier = modifier
                 .minimumInteractiveComponentSize()
@@ -454,7 +456,7 @@ fun Surface(
                 .toggleable(
                     value = checked,
                     interactionSource = interactionSource,
-                    indication = rememberRipple(),
+                    indication = androidx.compose.material.ripple.rememberRipple(),
                     enabled = enabled,
                     onValueChange = onCheckedChange
                 ),

@@ -23,7 +23,6 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.selection.toggleable
-import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.tokens.FilledIconButtonTokens
 import androidx.compose.material3.tokens.FilledTonalIconButtonTokens
 import androidx.compose.material3.tokens.IconButtonTokens
@@ -80,6 +79,7 @@ fun IconButton(
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     content: @Composable () -> Unit
 ) {
+    @Suppress("DEPRECATION_ERROR")
     Box(
         modifier = modifier
             .minimumInteractiveComponentSize()
@@ -91,7 +91,7 @@ fun IconButton(
                 enabled = enabled,
                 role = Role.Button,
                 interactionSource = interactionSource,
-                indication = rememberRipple(
+                indication = androidx.compose.material.ripple.rememberRipple(
                     bounded = false,
                     radius = IconButtonTokens.StateLayerSize / 2
                 )
@@ -141,6 +141,7 @@ fun IconToggleButton(
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     content: @Composable () -> Unit
 ) {
+    @Suppress("DEPRECATION_ERROR")
     Box(
         modifier = modifier
             .minimumInteractiveComponentSize()
@@ -153,7 +154,7 @@ fun IconToggleButton(
                 enabled = enabled,
                 role = Role.Checkbox,
                 interactionSource = interactionSource,
-                indication = rememberRipple(
+                indication = androidx.compose.material.ripple.rememberRipple(
                     bounded = false,
                     radius = IconButtonTokens.StateLayerSize / 2
                 )

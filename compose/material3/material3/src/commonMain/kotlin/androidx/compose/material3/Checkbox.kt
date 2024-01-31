@@ -29,7 +29,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.selection.triStateToggleable
-import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.tokens.CheckboxTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
@@ -145,13 +144,14 @@ fun TriStateCheckbox(
 ) {
     val toggleableModifier =
         if (onClick != null) {
+            @Suppress("DEPRECATION_ERROR")
             Modifier.triStateToggleable(
                 state = state,
                 onClick = onClick,
                 enabled = enabled,
                 role = Role.Checkbox,
                 interactionSource = interactionSource,
-                indication = rememberRipple(
+                indication = androidx.compose.material.ripple.rememberRipple(
                     bounded = false,
                     radius = CheckboxTokens.StateLayerSize / 2
                 )

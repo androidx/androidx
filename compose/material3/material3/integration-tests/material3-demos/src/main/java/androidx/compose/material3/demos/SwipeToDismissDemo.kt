@@ -16,10 +16,8 @@
 
 package androidx.compose.material3.demos
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -30,14 +28,13 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material3.Card
-import androidx.compose.material3.DismissDirection
-import androidx.compose.material3.DismissValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissValue
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberDismissState
+import androidx.compose.material3.rememberSwipeToDismissState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -86,78 +83,74 @@ fun SwipeToDismissDemo() {
             var unread by remember { mutableStateOf(false) }
             val scope = rememberCoroutineScope()
 
-            val dismissState = rememberDismissState(
+            val dismissState = rememberSwipeToDismissState(
                 confirmValueChange = {
-                    if (it == DismissValue.DismissedToEnd) unread = !unread
-                    it != DismissValue.DismissedToEnd
+                    if (it == SwipeToDismissValue.StartToEnd) unread = !unread
+                    it != SwipeToDismissValue.StartToEnd
                 },
                 positionalThreshold = { distance -> distance * .25f }
             )
-            val isDismissed = dismissState.isDismissed(DismissDirection.EndToStart)
-            AnimatedVisibility(
-                visible = !isDismissed,
-                exit = shrinkHorizontally(shrinkTowards = Alignment.Start)
-            ) {
-                SwipeToDismissBox(
-                    state = dismissState,
-                    backgroundContent = {
-                        val direction = dismissState.dismissDirection ?: return@SwipeToDismissBox
-                        val color by animateColorAsState(
-                            when (dismissState.targetValue) {
-                                DismissValue.Default -> Color.LightGray
-                                DismissValue.DismissedToEnd -> Color.Green
-                                DismissValue.DismissedToStart -> Color.Red
-                            }
-                        )
-                        val alignment = when (direction) {
-                            DismissDirection.StartToEnd -> Alignment.CenterStart
-                            DismissDirection.EndToStart -> Alignment.CenterEnd
+            SwipeToDismissBox(
+                state = dismissState,
+                modifier = Modifier.padding(vertical = 4.dp),
+                backgroundContent = {
+                    val direction = dismissState.dismissDirection
+                    val color by animateColorAsState(
+                        when (dismissState.targetValue) {
+                            SwipeToDismissValue.Settled -> Color.LightGray
+                            SwipeToDismissValue.StartToEnd -> Color.Green
+                            SwipeToDismissValue.EndToStart -> Color.Red
                         }
-                        val icon = when (direction) {
-                            DismissDirection.StartToEnd -> Icons.Default.Done
-                            DismissDirection.EndToStart -> Icons.Default.Delete
-                        }
-                        val scale by animateFloatAsState(
-                            if (dismissState.targetValue == DismissValue.Default)
-                                0.75f else 1f
-                        )
-                        Box(
-                            Modifier
-                                .fillMaxSize()
-                                .background(color)
-                                .padding(horizontal = 20.dp),
-                            contentAlignment = alignment
-                        ) {
-                            Icon(
-                                icon,
-                                contentDescription = "Localized description",
-                                modifier = Modifier.scale(scale)
-                            )
-                        }
-                    },
-                    modifier = Modifier.padding(vertical = 4.dp)
-                ) {
-                    Card {
-                        ListItem(
-                            headlineContent = {
-                                Text(item, fontWeight = if (unread) FontWeight.Bold else null)
-                            },
-                            modifier = Modifier.semantics {
-                                // Provide accessible alternatives to swipe actions.
-                                val label = if (unread) "Mark Read" else "Mark Unread"
-                                customActions = listOf(
-                                    CustomAccessibilityAction(label) { unread = !unread; true },
-                                    CustomAccessibilityAction("Delete") {
-                                        scope.launch {
-                                            dismissState.dismiss(DismissDirection.EndToStart)
-                                        }
-                                        true
-                                    }
-                                )
-                            },
-                            supportingContent = { Text("Swipe me left or right!") },
+                    )
+                    val alignment = when (direction) {
+                        SwipeToDismissValue.StartToEnd,
+                        SwipeToDismissValue.Settled -> Alignment.CenterStart
+                        SwipeToDismissValue.EndToStart -> Alignment.CenterEnd
+                    }
+                    val icon = when (direction) {
+                        SwipeToDismissValue.StartToEnd,
+                        SwipeToDismissValue.Settled -> Icons.Default.Done
+                        SwipeToDismissValue.EndToStart -> Icons.Default.Delete
+                    }
+                    val scale by animateFloatAsState(
+                        if (dismissState.targetValue == SwipeToDismissValue.Settled)
+                            0.75f else 1f
+                    )
+                    Box(
+                        Modifier
+                            .fillMaxSize()
+                            .background(color)
+                            .padding(horizontal = 20.dp),
+                        contentAlignment = alignment
+                    ) {
+                        Icon(
+                            icon,
+                            contentDescription = "Localized description",
+                            modifier = Modifier.scale(scale)
                         )
                     }
+                }
+            ) {
+                Card {
+                    ListItem(
+                        headlineContent = {
+                            Text(item, fontWeight = if (unread) FontWeight.Bold else null)
+                        },
+                        modifier = Modifier.semantics {
+                            // Provide accessible alternatives to swipe actions.
+                            val label = if (unread) "Mark Read" else "Mark Unread"
+                            customActions = listOf(
+                                CustomAccessibilityAction(label) { unread = !unread; true },
+                                CustomAccessibilityAction("Delete") {
+                                    scope.launch {
+                                        dismissState.dismiss(SwipeToDismissValue.EndToStart)
+                                    }
+                                    true
+                                }
+                            )
+                        },
+                        supportingContent = { Text("Swipe me left or right!") },
+                    )
                 }
             }
         }

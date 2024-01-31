@@ -18,6 +18,10 @@ package androidx.compose.material3.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.animation.animateColor
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.AnimationVector1D
+import androidx.compose.animation.core.VectorConverter
 import androidx.compose.animation.core.animateDp
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.spring
@@ -48,6 +52,7 @@ import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.SecondaryScrollableTabRow
 import androidx.compose.material3.SecondaryTabRow
 import androidx.compose.material3.Tab
+import androidx.compose.material3.TabIndicatorScope
 import androidx.compose.material3.TabPosition
 import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
@@ -56,13 +61,21 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.launch
 
 @Preview
 @Composable
@@ -386,18 +399,15 @@ fun FancyIndicatorTabs() {
     var state by remember { mutableStateOf(0) }
     val titles = listOf("Tab 1", "Tab 2", "Tab 3")
 
-    // Reuse the default offset animation modifier, but use our own indicator
-    val indicator = @Composable { tabPositions: List<TabPosition> ->
-        FancyIndicator(
-            MaterialTheme.colorScheme.primary,
-            Modifier.tabIndicatorOffset(tabPositions[state])
-        )
-    }
-
     Column {
         SecondaryTabRow(
             selectedTabIndex = state,
-            indicator = indicator
+            indicator = {
+                FancyIndicator(
+                    MaterialTheme.colorScheme.primary,
+                    Modifier.tabIndicatorOffset(state)
+                )
+            }
         ) {
             titles.forEachIndexed { index, title ->
                 Tab(
@@ -423,14 +433,10 @@ fun FancyIndicatorContainerTabs() {
     var state by remember { mutableStateOf(0) }
     val titles = listOf("Tab 1", "Tab 2", "Tab 3")
 
-    val indicator = @Composable { tabPositions: List<TabPosition> ->
-        FancyAnimatedIndicator(tabPositions = tabPositions, selectedTabIndex = state)
-    }
-
     Column {
         SecondaryTabRow(
             selectedTabIndex = state,
-            indicator = indicator
+            indicator = { FancyAnimatedIndicatorWithModifier(state) }
         ) {
             titles.forEachIndexed { index, title ->
                 Tab(
@@ -446,6 +452,104 @@ fun FancyIndicatorContainerTabs() {
             style = MaterialTheme.typography.bodyLarge
         )
     }
+}
+
+@Sampled
+@Composable
+fun FancyIndicator(color: Color, modifier: Modifier = Modifier) {
+    // Draws a rounded rectangular with border around the Tab, with a 5.dp padding from the edges
+    // Color is passed in as a parameter [color]
+    Box(
+        modifier
+            .padding(5.dp)
+            .fillMaxSize()
+            .border(BorderStroke(2.dp, color), RoundedCornerShape(5.dp))
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Sampled
+@Composable
+fun TabIndicatorScope.FancyAnimatedIndicatorWithModifier(index: Int) {
+    val colors = listOf(
+        MaterialTheme.colorScheme.primary,
+        MaterialTheme.colorScheme.secondary,
+        MaterialTheme.colorScheme.tertiary,
+    )
+    var startAnimatable by remember { mutableStateOf<Animatable<Dp, AnimationVector1D>?>(null) }
+    var endAnimatable by remember { mutableStateOf<Animatable<Dp, AnimationVector1D>?>(null) }
+    val coroutineScope = rememberCoroutineScope()
+    val indicatorColor: Color by animateColorAsState(colors[index % colors.size], label = "")
+
+    Box(
+        Modifier
+            .tabIndicatorLayout { measurable: Measurable, constraints: Constraints,
+                tabPositions: List<TabPosition> ->
+                val newStart = tabPositions[index].left
+                val newEnd = tabPositions[index].right
+                val startAnim = startAnimatable ?: Animatable(newStart, Dp.VectorConverter)
+                    .also { startAnimatable = it }
+
+                val endAnim = endAnimatable ?: Animatable(newEnd, Dp.VectorConverter)
+                    .also { endAnimatable = it }
+
+                if (endAnim.targetValue != newEnd) {
+                    coroutineScope.launch {
+                        endAnim.animateTo(
+                            newEnd,
+                            animationSpec =
+                            if (endAnim.targetValue < newEnd) {
+                                spring(dampingRatio = 1f, stiffness = 1000f)
+                            } else {
+                                spring(dampingRatio = 1f, stiffness = 50f)
+                            }
+
+                        )
+                    }
+                }
+
+                if (startAnim.targetValue != newStart) {
+                    coroutineScope.launch {
+                        startAnim.animateTo(
+                            newStart,
+                            animationSpec =
+                            // Handle directionality here, if we are moving to the right, we
+                            // want the right side of the indicator to move faster, if we are
+                            // moving to the left, we want the left side to move faster.
+                            if (startAnim.targetValue < newStart) {
+                                spring(dampingRatio = 1f, stiffness = 50f)
+                            } else {
+                                spring(dampingRatio = 1f, stiffness = 1000f)
+                            }
+
+                        )
+                    }
+                }
+
+                val indicatorEnd = endAnim.value.roundToPx()
+                val indicatorStart = startAnim.value.roundToPx()
+
+                // Apply an offset from the start to correctly position the indicator around the tab
+                val placeable = measurable.measure(
+                    constraints.copy(
+                        maxWidth = indicatorEnd - indicatorStart,
+                        minWidth = indicatorEnd - indicatorStart,
+                    )
+                )
+                layout(constraints.maxWidth, constraints.maxHeight) {
+                    placeable.place(indicatorStart, 0)
+                }
+            }
+            .padding(5.dp)
+            .fillMaxSize()
+            .drawWithContent {
+                drawRoundRect(
+                    color = indicatorColor,
+                    cornerRadius = CornerRadius(5.dp.toPx()),
+                    style = Stroke(width = 2.dp.toPx())
+                )
+            }
+    )
 }
 
 @Preview
@@ -495,11 +599,15 @@ fun ScrollingFancyIndicatorContainerTabs() {
 fun FancyTab(title: String, onClick: () -> Unit, selected: Boolean) {
     Tab(selected, onClick) {
         Column(
-            Modifier.padding(10.dp).height(50.dp).fillMaxWidth(),
+            Modifier
+                .padding(10.dp)
+                .height(50.dp)
+                .fillMaxWidth(),
             verticalArrangement = Arrangement.SpaceBetween
         ) {
             Box(
-                Modifier.size(10.dp)
+                Modifier
+                    .size(10.dp)
                     .align(Alignment.CenterHorizontally)
                     .background(
                         color = if (selected) MaterialTheme.colorScheme.primary
@@ -517,26 +625,13 @@ fun FancyTab(title: String, onClick: () -> Unit, selected: Boolean) {
 
 @Sampled
 @Composable
-fun FancyIndicator(color: Color, modifier: Modifier = Modifier) {
-    // Draws a rounded rectangular with border around the Tab, with a 5.dp padding from the edges
-    // Color is passed in as a parameter [color]
-    Box(
-        modifier
-            .padding(5.dp)
-            .fillMaxSize()
-            .border(BorderStroke(2.dp, color), RoundedCornerShape(5.dp))
-    )
-}
-
-@Sampled
-@Composable
 fun FancyAnimatedIndicator(tabPositions: List<TabPosition>, selectedTabIndex: Int) {
     val colors = listOf(
         MaterialTheme.colorScheme.primary,
         MaterialTheme.colorScheme.secondary,
         MaterialTheme.colorScheme.tertiary,
     )
-    val transition = updateTransition(selectedTabIndex)
+    val transition = updateTransition(selectedTabIndex, label = "")
     val indicatorStart by transition.animateDp(
         transitionSpec = {
             // Handle directionality here, if we are moving to the right, we
@@ -547,7 +642,7 @@ fun FancyAnimatedIndicator(tabPositions: List<TabPosition>, selectedTabIndex: In
             } else {
                 spring(dampingRatio = 1f, stiffness = 1000f)
             }
-        }
+        }, label = "fancy_indicator"
     ) {
         tabPositions[it].left
     }
@@ -562,12 +657,12 @@ fun FancyAnimatedIndicator(tabPositions: List<TabPosition>, selectedTabIndex: In
             } else {
                 spring(dampingRatio = 1f, stiffness = 50f)
             }
-        }
+        }, label = "indicator_position"
     ) {
         tabPositions[it].right
     }
 
-    val indicatorColor by transition.animateColor {
+    val indicatorColor by transition.animateColor(label = "indicator_color") {
         colors[it % colors.size]
     }
 

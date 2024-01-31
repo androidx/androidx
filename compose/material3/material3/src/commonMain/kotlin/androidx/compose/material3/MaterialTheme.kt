@@ -19,10 +19,7 @@ package androidx.compose.material3
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.foundation.text.selection.TextSelectionColors
-import androidx.compose.material.ripple.LocalRippleTheme
 import androidx.compose.material.ripple.RippleAlpha
-import androidx.compose.material.ripple.RippleTheme
-import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.tokens.StateTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -54,6 +51,7 @@ import androidx.compose.runtime.remember
  * @param typography A set of text styles to be used as this hierarchy's typography system
  * @param shapes A set of corner shapes to be used as this hierarchy's shape system
  */
+@Suppress("DEPRECATION_ERROR")
 @Composable
 fun MaterialTheme(
     colorScheme: ColorScheme = MaterialTheme.colorScheme,
@@ -61,12 +59,12 @@ fun MaterialTheme(
     typography: Typography = MaterialTheme.typography,
     content: @Composable () -> Unit
 ) {
-    val rippleIndication = rememberRipple()
+    val rippleIndication = androidx.compose.material.ripple.rememberRipple()
     val selectionColors = rememberTextSelectionColors(colorScheme)
     CompositionLocalProvider(
         LocalColorScheme provides colorScheme,
         LocalIndication provides rippleIndication,
-        LocalRippleTheme provides MaterialRippleTheme,
+        androidx.compose.material.ripple.LocalRippleTheme provides MaterialRippleTheme,
         LocalShapes provides shapes,
         LocalTextSelectionColors provides selectionColors,
         LocalTypography provides typography,
@@ -105,11 +103,14 @@ object MaterialTheme {
         get() = LocalShapes.current
 }
 
+@Suppress("DEPRECATION_ERROR")
 @Immutable
-private object MaterialRippleTheme : RippleTheme {
+private object MaterialRippleTheme : androidx.compose.material.ripple.RippleTheme {
+    @Deprecated("Super method deprecated")
     @Composable
     override fun defaultColor() = LocalContentColor.current
 
+    @Deprecated("Super method deprecated")
     @Composable
     override fun rippleAlpha() = DefaultRippleAlpha
 }
