@@ -274,9 +274,9 @@ public final class EdgeContentLayout2 implements LayoutElement {
             float edgeContentSize = 2
                     * (EDGE_CONTENT_LAYOUT2_OUTER_MARGIN_DP + edgeContentThickness);
 
-            DpProp mainContentHeight = dp(
+            DpProp contentHeight = dp(
                     mDeviceParameters.getScreenWidthDp() - edgeContentSize);
-            DpProp mainContentWidth = dp(
+            DpProp contentWidth = dp(
                     mDeviceParameters.getScreenHeightDp() - edgeContentSize);
 
             // TODO(b/321681652): Confirm with the UX if we can put 6dp as outer margin so it
@@ -335,8 +335,8 @@ public final class EdgeContentLayout2 implements LayoutElement {
             // Contains primary label, additional content and secondary label.
             Column.Builder allInnerContent =
                     new Column.Builder()
-                            .setWidth(mainContentWidth)
-                            .setHeight(mainContentHeight)
+                            .setWidth(contentWidth)
+                            .setHeight(contentHeight)
                             .setModifiers(modifiers);
 
             if (mPrimaryLabel != null) {
@@ -432,7 +432,7 @@ public final class EdgeContentLayout2 implements LayoutElement {
                 : null;
     }
 
-    /** Get the vertical spacer height from this layout. */
+    /** Get the size of spacing between content and secondary from this layout. */
     @Dimension(unit = Dimension.DP)
     public float getContentAndSecondaryLabelSpacing() {
         List<LayoutElement> innerColumnContents = getInnerColumnContents();
