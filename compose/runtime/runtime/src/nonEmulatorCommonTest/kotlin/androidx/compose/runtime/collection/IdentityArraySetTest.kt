@@ -27,6 +27,7 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertNotSame
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import kotlinx.test.IgnoreJsTarget
 
 @OptIn(InternalComposeApi::class)
 class IdentityArraySetTest {
@@ -63,6 +64,7 @@ class IdentityArraySetTest {
     }
 
     @Test
+    @IgnoreJsTarget // because of different identityHashCode implementation
     fun addValueForward() {
         list.forEach { set.add(it) }
         assertEquals(list.size, set.size)
@@ -75,6 +77,7 @@ class IdentityArraySetTest {
     }
 
     @Test
+    @IgnoreJsTarget // because of different identityHashCode implementation
     fun addValueReversed() {
         list.asReversed().forEach { set.add(it) }
         assertEquals(list.size, set.size)
@@ -87,6 +90,7 @@ class IdentityArraySetTest {
     }
 
     @Test
+    @IgnoreJsTarget // because of different identityHashCode implementation
     fun addExistingValue() {
         list.forEach { set.add(it) }
         list.asReversed().forEach { set.add(it) }

@@ -33,7 +33,18 @@ private external fun dynamicGetInt(obj: JsAny, index: String): Int?
 @JsFun("(obj) => typeof obj")
 private external fun jsTypeOf(a: JsAny?): String
 
-// TODO https://youtrack.jetbrains.com/issue/COMPOSE-789/CfW-properly-implement-identityHashCode-for-k-wasm
+/**
+ * We intentionally use the default `instance.hashCode()` here.
+ * The consequence is that the returned values can be more often not unique,
+ * but it's not required for correctness (absolute uniqueness can't be guaranteed on any platform).
+ * It has good performance comparing with alternatives.
+ *
+ * For more details have a look:
+ * https://kotlinlang.slack.com/archives/G010KHY484C/p1706547846376149
+ * Quote: "...we optimize for the case where hash code is unique, but it is not required for correctness"
+ *
+ * And here: https://jetbrains.slack.com/archives/C047QCXNLTX/p1706536405443729
+ */
 @InternalComposeApi
 actual fun identityHashCode(instance: Any?): Int {
     if (instance == null) {
