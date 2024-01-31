@@ -52,6 +52,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.util.fastFirst
 import kotlin.math.max
 
 /**
@@ -319,7 +320,7 @@ private fun TabBaselineLayout(
         }
     ) { measurables, constraints ->
         val textPlaceable = text?.let {
-            measurables.first { it.layoutId == "text" }.measure(
+            measurables.fastFirst { it.layoutId == "text" }.measure(
                 // Measure with loose constraints for height as we don't want the text to take up more
                 // space than it needs
                 constraints.copy(minHeight = 0)
@@ -327,7 +328,7 @@ private fun TabBaselineLayout(
         }
 
         val iconPlaceable = icon?.let {
-            measurables.first { it.layoutId == "icon" }.measure(constraints)
+            measurables.fastFirst { it.layoutId == "icon" }.measure(constraints)
         }
 
         val tabWidth = max(textPlaceable?.width ?: 0, iconPlaceable?.width ?: 0)

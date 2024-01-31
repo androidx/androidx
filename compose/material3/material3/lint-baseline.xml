@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.2.0-alpha14" type="baseline" client="cli" dependencies="false" name="AGP (8.2.0-alpha14)" variant="all" version="8.2.0-alpha14">
+<issues format="6" by="lint 8.2.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.2.0-beta01)" variant="all" version="8.2.0-beta01">
 
     <issue
         id="BanThreadSleep"
@@ -404,15 +404,6 @@
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/material3/DragGestureDetectorCopy.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method updateHeight has parameter &apos;onHeightUpdate&apos; with type Function1&lt;? super Integer, Unit>."
-        errorLine1="    onHeightUpdate: (Int) -> Unit"
-        errorLine2="                    ~~~~~~~~~~~~~">
-        <location
-            file="src/androidMain/kotlin/androidx/compose/material3/ExposedDropdownMenu.kt"/>
     </issue>
 
     <issue

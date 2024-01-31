@@ -501,7 +501,8 @@ class DatePickerTest {
         val fullDateDescription = formatWithSkeleton(
             selectedDateInUtcMillis,
             DatePickerDefaults.YearMonthWeekdayDaySkeleton,
-            Locale.US
+            Locale.US,
+            cache = mutableMapOf()
         )
 
         rule.onNodeWithContentDescription(label = "next", substring = true, ignoreCase = true)

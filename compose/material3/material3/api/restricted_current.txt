@@ -176,11 +176,11 @@ package androidx.compose.material3 {
   }
 
   public final class CalendarModelKt {
-    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public static String formatWithSkeleton(long utcTimeMillis, String skeleton, java.util.Locale locale);
+    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public static String formatWithSkeleton(long utcTimeMillis, String skeleton, java.util.Locale locale, java.util.Map<java.lang.String,java.lang.Object> cache);
   }
 
   public final class CalendarModel_androidKt {
-    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public static String formatWithSkeleton(long utcTimeMillis, String skeleton, java.util.Locale locale);
+    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public static String formatWithSkeleton(long utcTimeMillis, String skeleton, java.util.Locale locale, java.util.Map<java.lang.String,java.lang.Object> cache);
   }
 
   @androidx.compose.runtime.Immutable public final class CardColors {
@@ -1039,9 +1039,6 @@ package androidx.compose.material3 {
     method @androidx.compose.runtime.Composable public static void OutlinedTextField(String value, kotlin.jvm.functions.Function1<? super java.lang.String,kotlin.Unit> onValueChange, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional boolean readOnly, optional androidx.compose.ui.text.TextStyle textStyle, optional kotlin.jvm.functions.Function0<kotlin.Unit>? label, optional kotlin.jvm.functions.Function0<kotlin.Unit>? placeholder, optional kotlin.jvm.functions.Function0<kotlin.Unit>? leadingIcon, optional kotlin.jvm.functions.Function0<kotlin.Unit>? trailingIcon, optional kotlin.jvm.functions.Function0<kotlin.Unit>? prefix, optional kotlin.jvm.functions.Function0<kotlin.Unit>? suffix, optional kotlin.jvm.functions.Function0<kotlin.Unit>? supportingText, optional boolean isError, optional androidx.compose.ui.text.input.VisualTransformation visualTransformation, optional androidx.compose.foundation.text.KeyboardOptions keyboardOptions, optional androidx.compose.foundation.text.KeyboardActions keyboardActions, optional boolean singleLine, optional int maxLines, optional int minLines, optional androidx.compose.foundation.interaction.MutableInteractionSource interactionSource, optional androidx.compose.ui.graphics.Shape shape, optional androidx.compose.material3.TextFieldColors colors);
   }
 
-  @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Stable public interface PlainTooltipState extends androidx.compose.material3.TooltipState {
-  }
-
   public final class ProgressIndicatorDefaults {
     method @androidx.compose.runtime.Composable public long getCircularColor();
     method public int getCircularDeterminateStrokeCap();
@@ -1123,11 +1120,6 @@ package androidx.compose.material3 {
     property public final long containerColor;
     property public final long contentColor;
     property public final long titleContentColor;
-  }
-
-  @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Stable public interface RichTooltipState extends androidx.compose.material3.TooltipState {
-    method public boolean isPersistent();
-    property public abstract boolean isPersistent;
   }
 
   public final class ScaffoldDefaults {
@@ -1214,22 +1206,22 @@ package androidx.compose.material3 {
 
   @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Stable public final class SegmentedButtonDefaults {
     method @androidx.compose.runtime.Composable public void ActiveIcon();
-    method @androidx.compose.runtime.Composable public void SegmentedButtonIcon(boolean active, optional kotlin.jvm.functions.Function0<kotlin.Unit> activeContent, optional kotlin.jvm.functions.Function0<kotlin.Unit>? inactiveContent);
+    method @androidx.compose.runtime.Composable public void Icon(boolean active, optional kotlin.jvm.functions.Function0<kotlin.Unit> activeContent, optional kotlin.jvm.functions.Function0<kotlin.Unit>? inactiveContent);
     method @androidx.compose.runtime.Composable public androidx.compose.material3.SegmentedButtonColors colors(optional long activeContainerColor, optional long activeContentColor, optional long activeBorderColor, optional long inactiveContainerColor, optional long inactiveContentColor, optional long inactiveBorderColor, optional long disabledActiveContainerColor, optional long disabledActiveContentColor, optional long disabledActiveBorderColor, optional long disabledInactiveContainerColor, optional long disabledInactiveContentColor, optional long disabledInactiveBorderColor);
+    method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.compose.foundation.shape.CornerBasedShape getBaseShape();
     method public androidx.compose.material3.SegmentedButtonBorder getBorder();
     method public float getIconSize();
-    method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.compose.foundation.shape.CornerBasedShape getShape();
-    method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.compose.ui.graphics.Shape shape(int position, int count, optional androidx.compose.foundation.shape.CornerBasedShape shape);
+    method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.compose.ui.graphics.Shape itemShape(int index, int count, optional androidx.compose.foundation.shape.CornerBasedShape baseShape);
     property public final androidx.compose.material3.SegmentedButtonBorder Border;
     property public final float IconSize;
-    property @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public final androidx.compose.foundation.shape.CornerBasedShape Shape;
+    property @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public final androidx.compose.foundation.shape.CornerBasedShape baseShape;
     field public static final androidx.compose.material3.SegmentedButtonDefaults INSTANCE;
   }
 
   public final class SegmentedButtonKt {
     method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static void MultiChoiceSegmentedButtonRow(optional androidx.compose.ui.Modifier modifier, optional float space, kotlin.jvm.functions.Function1<? super androidx.compose.material3.MultiChoiceSegmentedButtonRowScope,kotlin.Unit> content);
-    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static void SegmentedButton(androidx.compose.material3.MultiChoiceSegmentedButtonRowScope, boolean checked, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit> onCheckedChange, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional androidx.compose.ui.graphics.Shape shape, optional androidx.compose.material3.SegmentedButtonColors colors, optional androidx.compose.material3.SegmentedButtonBorder border, optional androidx.compose.foundation.interaction.MutableInteractionSource interactionSource, optional kotlin.jvm.functions.Function0<kotlin.Unit> icon, kotlin.jvm.functions.Function0<kotlin.Unit> content);
-    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static void SegmentedButton(androidx.compose.material3.SingleChoiceSegmentedButtonRowScope, boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit> onClick, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional androidx.compose.ui.graphics.Shape shape, optional androidx.compose.material3.SegmentedButtonColors colors, optional androidx.compose.material3.SegmentedButtonBorder border, optional androidx.compose.foundation.interaction.MutableInteractionSource interactionSource, optional kotlin.jvm.functions.Function0<kotlin.Unit> icon, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static void SegmentedButton(androidx.compose.material3.MultiChoiceSegmentedButtonRowScope, boolean checked, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit> onCheckedChange, androidx.compose.ui.graphics.Shape shape, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional androidx.compose.material3.SegmentedButtonColors colors, optional androidx.compose.material3.SegmentedButtonBorder border, optional androidx.compose.foundation.interaction.MutableInteractionSource interactionSource, optional kotlin.jvm.functions.Function0<kotlin.Unit> icon, kotlin.jvm.functions.Function0<kotlin.Unit> label);
+    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static void SegmentedButton(androidx.compose.material3.SingleChoiceSegmentedButtonRowScope, boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit> onClick, androidx.compose.ui.graphics.Shape shape, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional androidx.compose.material3.SegmentedButtonColors colors, optional androidx.compose.material3.SegmentedButtonBorder border, optional androidx.compose.foundation.interaction.MutableInteractionSource interactionSource, optional kotlin.jvm.functions.Function0<kotlin.Unit> icon, kotlin.jvm.functions.Function0<kotlin.Unit> label);
     method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static void SingleChoiceSegmentedButtonRow(optional androidx.compose.ui.Modifier modifier, optional float space, kotlin.jvm.functions.Function1<? super androidx.compose.material3.SingleChoiceSegmentedButtonRowScope,kotlin.Unit> content);
   }
 
@@ -1356,7 +1348,7 @@ package androidx.compose.material3 {
   @androidx.compose.runtime.Stable public final class SliderDefaults {
     method @androidx.compose.runtime.Composable public void Thumb(androidx.compose.foundation.interaction.MutableInteractionSource interactionSource, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.material3.SliderColors colors, optional boolean enabled, optional long thumbSize);
     method @androidx.compose.runtime.Composable public void Track(androidx.compose.material3.RangeSliderState rangeSliderState, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.material3.SliderColors colors, optional boolean enabled);
-    method @androidx.compose.runtime.Composable public void Track(androidx.compose.material3.SliderPositions sliderPositions, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.material3.SliderColors colors, optional boolean enabled);
+    method @Deprecated @androidx.compose.runtime.Composable public void Track(androidx.compose.material3.SliderPositions sliderPositions, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.material3.SliderColors colors, optional boolean enabled);
     method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public void Track(androidx.compose.material3.SliderState sliderState, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.material3.SliderColors colors, optional boolean enabled);
     method @androidx.compose.runtime.Composable public androidx.compose.material3.SliderColors colors(optional long thumbColor, optional long activeTrackColor, optional long activeTickColor, optional long inactiveTrackColor, optional long inactiveTickColor, optional long disabledThumbColor, optional long disabledActiveTrackColor, optional long disabledActiveTickColor, optional long disabledInactiveTrackColor, optional long disabledInactiveTickColor);
     field public static final androidx.compose.material3.SliderDefaults INSTANCE;
@@ -1371,16 +1363,18 @@ package androidx.compose.material3 {
     method @androidx.compose.runtime.Composable public static void Slider(float value, kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> onValueChange, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional kotlin.ranges.ClosedFloatingPointRange<java.lang.Float> valueRange, optional @IntRange(from=0L) int steps, optional kotlin.jvm.functions.Function0<kotlin.Unit>? onValueChangeFinished, optional androidx.compose.material3.SliderColors colors, optional androidx.compose.foundation.interaction.MutableInteractionSource interactionSource);
   }
 
-  @androidx.compose.runtime.Stable public final class SliderPositions {
-    ctor public SliderPositions(optional kotlin.ranges.ClosedFloatingPointRange<java.lang.Float> initialActiveRange, optional float[] initialTickFractions);
-    method public kotlin.ranges.ClosedFloatingPointRange<java.lang.Float> getActiveRange();
-    method public float[] getTickFractions();
-    property public final kotlin.ranges.ClosedFloatingPointRange<java.lang.Float> activeRange;
-    property public final float[] tickFractions;
+  @Deprecated @androidx.compose.runtime.Stable public final class SliderPositions {
+    ctor @Deprecated public SliderPositions(optional kotlin.ranges.ClosedFloatingPointRange<java.lang.Float> initialActiveRange, optional float[] initialTickFractions);
+    method @Deprecated public kotlin.ranges.ClosedFloatingPointRange<java.lang.Float> getActiveRange();
+    method @Deprecated public float[] getTickFractions();
+    property @Deprecated public final kotlin.ranges.ClosedFloatingPointRange<java.lang.Float> activeRange;
+    property @Deprecated public final float[] tickFractions;
   }
 
-  @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Stable public final class SliderState {
+  @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Stable public final class SliderState implements androidx.compose.foundation.gestures.DraggableState {
     ctor public SliderState(optional float initialValue, optional kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit>? initialOnValueChange, optional @IntRange(from=0L) int steps, optional kotlin.ranges.ClosedFloatingPointRange<java.lang.Float> valueRange, optional kotlin.jvm.functions.Function0<kotlin.Unit>? onValueChangeFinished);
+    method public void dispatchRawDelta(float delta);
+    method public suspend Object? drag(androidx.compose.foundation.MutatePriority dragPriority, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.gestures.DragScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public kotlin.jvm.functions.Function0<kotlin.Unit>? getOnValueChangeFinished();
     method public int getSteps();
     method public float getValue();
@@ -1795,18 +1789,14 @@ package androidx.compose.material3 {
     method public androidx.compose.runtime.saveable.Saver<androidx.compose.material3.TimePickerState,?> Saver();
   }
 
-  @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public interface TooltipBoxScope {
-    method public androidx.compose.ui.Modifier tooltipTrigger(androidx.compose.ui.Modifier);
-  }
-
   @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public final class TooltipDefaults {
-    method public androidx.compose.foundation.MutatorMutex getGlobalMutatorMutex();
     method @androidx.compose.runtime.Composable public long getPlainTooltipContainerColor();
     method @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getPlainTooltipContainerShape();
     method @androidx.compose.runtime.Composable public long getPlainTooltipContentColor();
     method @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getRichTooltipContainerShape();
+    method @androidx.compose.runtime.Composable public androidx.compose.ui.window.PopupPositionProvider rememberPlainTooltipPositionProvider(optional float spacingBetweenTooltipAndAnchor);
+    method @androidx.compose.runtime.Composable public androidx.compose.ui.window.PopupPositionProvider rememberRichTooltipPositionProvider(optional float spacingBetweenTooltipAndAnchor);
     method @androidx.compose.runtime.Composable public androidx.compose.material3.RichTooltipColors richTooltipColors(optional long containerColor, optional long contentColor, optional long titleContentColor, optional long actionContentColor);
-    property public final androidx.compose.foundation.MutatorMutex GlobalMutatorMutex;
     property @androidx.compose.runtime.Composable public final long plainTooltipContainerColor;
     property @androidx.compose.runtime.Composable public final androidx.compose.ui.graphics.Shape plainTooltipContainerShape;
     property @androidx.compose.runtime.Composable public final long plainTooltipContentColor;
@@ -1815,18 +1805,16 @@ package androidx.compose.material3 {
   }
 
   public final class TooltipKt {
-    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static void PlainTooltipBox(kotlin.jvm.functions.Function0<kotlin.Unit> tooltip, optional androidx.compose.ui.Modifier modifier, optional boolean focusable, optional androidx.compose.material3.PlainTooltipState tooltipState, optional androidx.compose.ui.graphics.Shape shape, optional long containerColor, optional long contentColor, kotlin.jvm.functions.Function1<? super androidx.compose.material3.TooltipBoxScope,kotlin.Unit> content);
-    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static void RichTooltipBox(kotlin.jvm.functions.Function0<kotlin.Unit> text, optional androidx.compose.ui.Modifier modifier, optional boolean focusable, optional kotlin.jvm.functions.Function0<kotlin.Unit>? title, optional kotlin.jvm.functions.Function0<kotlin.Unit>? action, optional androidx.compose.material3.RichTooltipState tooltipState, optional androidx.compose.ui.graphics.Shape shape, optional androidx.compose.material3.RichTooltipColors colors, kotlin.jvm.functions.Function1<? super androidx.compose.material3.TooltipBoxScope,kotlin.Unit> content);
-    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static androidx.compose.material3.PlainTooltipState rememberPlainTooltipState(optional androidx.compose.foundation.MutatorMutex mutatorMutex);
-    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static androidx.compose.material3.RichTooltipState rememberRichTooltipState(boolean isPersistent, optional androidx.compose.foundation.MutatorMutex mutatorMutex);
+    method @androidx.compose.runtime.Composable public static void PlainTooltip(optional androidx.compose.ui.Modifier modifier, optional long contentColor, optional long containerColor, optional androidx.compose.ui.graphics.Shape shape, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method @androidx.compose.runtime.Composable public static void RichTooltip(optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function0<kotlin.Unit>? title, optional kotlin.jvm.functions.Function0<kotlin.Unit>? action, optional androidx.compose.material3.RichTooltipColors colors, optional androidx.compose.ui.graphics.Shape shape, kotlin.jvm.functions.Function0<kotlin.Unit> text);
+    method @androidx.compose.runtime.Composable public static void TooltipBox(androidx.compose.ui.window.PopupPositionProvider positionProvider, kotlin.jvm.functions.Function0<kotlin.Unit> tooltip, androidx.compose.material3.TooltipState state, optional androidx.compose.ui.Modifier modifier, optional boolean focusable, optional boolean enableUserInput, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method public static androidx.compose.material3.TooltipState TooltipState(optional boolean initialIsVisible, optional boolean isPersistent, optional androidx.compose.foundation.MutatorMutex mutatorMutex);
+    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static androidx.compose.material3.TooltipState rememberTooltipState(optional boolean initialIsVisible, optional boolean isPersistent, optional androidx.compose.foundation.MutatorMutex mutatorMutex);
   }
 
-  @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Stable public interface TooltipState {
-    method public void dismiss();
-    method public boolean isVisible();
-    method public void onDispose();
-    method public suspend Object? show(kotlin.coroutines.Continuation<? super kotlin.Unit>);
-    property public abstract boolean isVisible;
+  public interface TooltipState extends androidx.compose.foundation.BasicTooltipState {
+    method public androidx.compose.animation.core.MutableTransitionState<java.lang.Boolean> getTransition();
+    property public abstract androidx.compose.animation.core.MutableTransitionState<java.lang.Boolean> transition;
   }
 
   @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Stable public final class TopAppBarColors {

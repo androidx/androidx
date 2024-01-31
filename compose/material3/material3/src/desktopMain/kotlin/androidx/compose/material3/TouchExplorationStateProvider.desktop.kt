@@ -18,7 +18,7 @@ package androidx.compose.material3
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
-import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 
 /**
@@ -27,5 +27,5 @@ import androidx.compose.runtime.remember
  */
 @Composable
 internal actual fun touchExplorationState(): State<Boolean> {
-    return remember { derivedStateOf { false } }
+    return remember { mutableStateOf(false) }
 }

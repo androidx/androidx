@@ -57,11 +57,11 @@ import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.KeyboardArrowLeft
-import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material3.tokens.DatePickerModalTokens
 import androidx.compose.material3.tokens.MotionTokens
 import androidx.compose.runtime.Composable
@@ -70,7 +70,6 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -89,7 +88,6 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.semantics.CustomAccessibilityAction
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.Role
@@ -109,8 +107,8 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastForEach
 import kotlin.math.max
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -1069,18 +1067,21 @@ private class DatePickerStateImpl(
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Immutable
-private class DatePickerFormatterImpl constructor(
+private class DatePickerFormatterImpl(
     val yearSelectionSkeleton: String,
     val selectedDateSkeleton: String,
     val selectedDateDescriptionSkeleton: String
 ) : DatePickerFormatter {
+
+    // A map for caching formatter related results for better performance
+    private val formatterCache = mutableMapOf<String, Any>()
 
     override fun formatMonthYear(
         monthMillis: Long?,
         locale: CalendarLocale
     ): String? {
         if (monthMillis == null) return null
-        return formatWithSkeleton(monthMillis, yearSelectionSkeleton, locale)
+        return formatWithSkeleton(monthMillis, yearSelectionSkeleton, locale, formatterCache)
     }
 
     override fun formatDate(
@@ -1095,7 +1096,8 @@ private class DatePickerFormatterImpl constructor(
             } else {
                 selectedDateSkeleton
             },
-            locale
+            locale,
+            formatterCache
         )
     }
 
@@ -1468,37 +1470,41 @@ private fun HorizontalMonthsList(
             month = 1 // January
         )
     }
-    LazyRow(
-        // Apply this to prevent the screen reader from scrolling to the next or previous month, and
-        // instead, traverse outside the Month composable when swiping from a focused first or last
-        // day of the month.
-        modifier = Modifier.semantics {
-            horizontalScrollAxisRange = ScrollAxisRange(value = { 0f }, maxValue = { 0f })
-        },
-        state = lazyListState,
-        // TODO(b/264687693): replace with the framework's rememberSnapFlingBehavior(lazyListState)
-        //  when promoted to stable
-        flingBehavior = DatePickerDefaults.rememberSnapFlingBehavior(lazyListState)
+    ProvideTextStyle(
+        MaterialTheme.typography.fromToken(DatePickerModalTokens.DateLabelTextFont)
     ) {
-        items(numberOfMonthsInRange(yearRange)) {
-            val month = calendarModel.plusMonths(
-                from = firstMonth,
-                addedMonthsCount = it
-            )
-            Box(
-                modifier = Modifier.fillParentMaxWidth()
-            ) {
-                Month(
-                    month = month,
-                    onDateSelectionChange = onDateSelectionChange,
-                    todayMillis = today.utcTimeMillis,
-                    startDateMillis = selectedDateMillis,
-                    endDateMillis = null,
-                    rangeSelectionInfo = null,
-                    dateFormatter = dateFormatter,
-                    selectableDates = selectableDates,
-                    colors = colors
+        LazyRow(
+            // Apply this to prevent the screen reader from scrolling to the next or previous month,
+            // and instead, traverse outside the Month composable when swiping from a focused first
+            // or last day of the month.
+            modifier = Modifier.semantics {
+                horizontalScrollAxisRange = ScrollAxisRange(value = { 0f }, maxValue = { 0f })
+            },
+            state = lazyListState,
+            // TODO(b/264687693): replace with the framework's rememberSnapFlingBehavior
+            //  (lazyListState) when promoted to stable
+            flingBehavior = DatePickerDefaults.rememberSnapFlingBehavior(lazyListState)
+        ) {
+            items(numberOfMonthsInRange(yearRange)) {
+                val month = calendarModel.plusMonths(
+                    from = firstMonth,
+                    addedMonthsCount = it
                 )
+                Box(
+                    modifier = Modifier.fillParentMaxWidth()
+                ) {
+                    Month(
+                        month = month,
+                        onDateSelectionChange = onDateSelectionChange,
+                        todayMillis = today.utcTimeMillis,
+                        startDateMillis = selectedDateMillis,
+                        endDateMillis = null,
+                        rangeSelectionInfo = null,
+                        dateFormatter = dateFormatter,
+                        selectableDates = selectableDates,
+                        colors = colors
+                    )
+                }
             }
         }
     }
@@ -1561,7 +1567,7 @@ internal fun WeekDays(colors: DatePickerColors, calendarModel: CalendarModel) {
                 horizontalArrangement = Arrangement.SpaceEvenly,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                dayNames.forEach {
+                dayNames.fastForEach {
                     Box(
                         modifier = Modifier
                             .clearAndSetSemantics { contentDescription = it.first }
@@ -1608,97 +1614,96 @@ internal fun Month(
     }
 
     val defaultLocale = defaultLocale()
-    ProvideTextStyle(
-        MaterialTheme.typography.fromToken(DatePickerModalTokens.DateLabelTextFont)
+    var cellIndex = 0
+    Column(
+        modifier = Modifier
+            .requiredHeight(RecommendedSizeForAccessibility * MaxCalendarRows)
+            .then(rangeSelectionDrawModifier),
+        verticalArrangement = Arrangement.SpaceEvenly
     ) {
-        var cellIndex = 0
-        Column(
-            modifier = Modifier
-                .requiredHeight(RecommendedSizeForAccessibility * MaxCalendarRows)
-                .then(rangeSelectionDrawModifier),
-            verticalArrangement = Arrangement.SpaceEvenly
-        ) {
-            repeat(MaxCalendarRows) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceEvenly,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    repeat(DaysInWeek) {
-                        if (cellIndex < month.daysFromStartOfWeekToFirstOfMonth ||
-                            cellIndex >=
-                            (month.daysFromStartOfWeekToFirstOfMonth + month.numberOfDays)
-                        ) {
-                            // Empty cell
-                            Spacer(
-                                modifier = Modifier.requiredSize(
-                                    width = RecommendedSizeForAccessibility,
-                                    height = RecommendedSizeForAccessibility
-                                )
+        for (weekIndex in 0 until MaxCalendarRows) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                for (dayIndex in 0 until DaysInWeek) {
+                    if (cellIndex < month.daysFromStartOfWeekToFirstOfMonth ||
+                        cellIndex >=
+                        (month.daysFromStartOfWeekToFirstOfMonth + month.numberOfDays)
+                    ) {
+                        // Empty cell
+                        Spacer(
+                            modifier = Modifier.requiredSize(
+                                width = RecommendedSizeForAccessibility,
+                                height = RecommendedSizeForAccessibility
                             )
-                        } else {
-                            val dayNumber = cellIndex - month.daysFromStartOfWeekToFirstOfMonth
-                            val dateInMillis = month.startUtcTimeMillis +
-                                (dayNumber * MillisecondsIn24Hours)
-                            val isToday = dateInMillis == todayMillis
-                            val startDateSelected = dateInMillis == startDateMillis
-                            val endDateSelected = dateInMillis == endDateMillis
-                            val inRange = remember(rangeSelectionInfo, dateInMillis) {
-                                derivedStateOf {
-                                    rangeSelectionInfo != null &&
-                                        dateInMillis >= (startDateMillis
+                        )
+                    } else {
+                        val dayNumber = cellIndex - month.daysFromStartOfWeekToFirstOfMonth
+                        val dateInMillis = month.startUtcTimeMillis +
+                            (dayNumber * MillisecondsIn24Hours)
+                        val isToday = dateInMillis == todayMillis
+                        val startDateSelected = dateInMillis == startDateMillis
+                        val endDateSelected = dateInMillis == endDateMillis
+                        val inRange = if (rangeSelectionInfo != null) {
+                            remember(rangeSelectionInfo, dateInMillis) {
+                                mutableStateOf(
+                                    dateInMillis >= (startDateMillis
                                         ?: Long.Companion.MAX_VALUE) &&
                                         dateInMillis <= (endDateMillis ?: Long.MIN_VALUE)
-                                }
-                            }
-                            val dayContentDescription = dayContentDescription(
-                                rangeSelectionEnabled = rangeSelectionInfo != null,
-                                isToday = isToday,
-                                isStartDate = startDateSelected,
-                                isEndDate = endDateSelected,
-                                isInRange = inRange.value
-                            )
-                            val formattedDateDescription = dateFormatter.formatDate(
-                                dateInMillis,
-                                defaultLocale,
-                                forContentDescription = true
-                            ) ?: ""
-                            Day(
-                                modifier = Modifier,
-                                selected = startDateSelected || endDateSelected,
-                                onClick = { onDateSelectionChange(dateInMillis) },
-                                // Only animate on the first selected day. This is important to
-                                // disable when drawing a range marker behind the days on an
-                                // end-date selection.
-                                animateChecked = startDateSelected,
-                                enabled = remember(dateInMillis) {
-                                    // Disabled a day in case its year is not selectable, or the
-                                    // date itself is specifically not allowed by the state's
-                                    // SelectableDates.
-                                    with(selectableDates) {
-                                        isSelectableYear(month.year) &&
-                                            isSelectableDate(dateInMillis)
-                                    }
-                                },
-                                today = isToday,
-                                inRange = inRange.value,
-                                description = if (dayContentDescription != null) {
-                                    "$dayContentDescription, $formattedDateDescription"
-                                } else {
-                                    formattedDateDescription
-                                },
-                                colors = colors
-                            ) {
-                                Text(
-                                    text = (dayNumber + 1).toLocalString(),
-                                    // The semantics are set at the Day level.
-                                    modifier = Modifier.clearAndSetSemantics { },
-                                    textAlign = TextAlign.Center
                                 )
-                            }
+                            }.value
+                        } else {
+                            false
                         }
-                        cellIndex++
+                        val dayContentDescription = dayContentDescription(
+                            rangeSelectionEnabled = rangeSelectionInfo != null,
+                            isToday = isToday,
+                            isStartDate = startDateSelected,
+                            isEndDate = endDateSelected,
+                            isInRange = inRange
+                        )
+                        val formattedDateDescription = dateFormatter.formatDate(
+                            dateInMillis,
+                            defaultLocale,
+                            forContentDescription = true
+                        ) ?: ""
+                        Day(
+                            modifier = Modifier,
+                            selected = startDateSelected || endDateSelected,
+                            onClick = { onDateSelectionChange(dateInMillis) },
+                            // Only animate on the first selected day. This is important to
+                            // disable when drawing a range marker behind the days on an
+                            // end-date selection.
+                            animateChecked = startDateSelected,
+                            enabled = remember(dateInMillis) {
+                                // Disabled a day in case its year is not selectable, or the
+                                // date itself is specifically not allowed by the state's
+                                // SelectableDates.
+                                with(selectableDates) {
+                                    isSelectableYear(month.year) &&
+                                        isSelectableDate(dateInMillis)
+                                }
+                            },
+                            today = isToday,
+                            inRange = inRange,
+                            description = if (dayContentDescription != null) {
+                                "$dayContentDescription, $formattedDateDescription"
+                            } else {
+                                formattedDateDescription
+                            },
+                            colors = colors
+                        ) {
+                            Text(
+                                text = (dayNumber + 1).toLocalString(),
+                                // The semantics are set at the Day level.
+                                modifier = Modifier.clearAndSetSemantics { },
+                                textAlign = TextAlign.Center
+                            )
+                        }
                     }
+                    cellIndex++
                 }
             }
         }
@@ -1760,11 +1765,6 @@ private fun Day(
         selected = selected,
         onClick = onClick,
         modifier = modifier
-            .minimumInteractiveComponentSize()
-            .requiredSize(
-                DatePickerModalTokens.DateStateLayerWidth,
-                DatePickerModalTokens.DateStateLayerHeight
-            )
             // Apply and merge semantics here. This will ensure that when scrolling the list the
             // entire Day surface is treated as one unit and holds the date semantics even when it's
             // not completely visible atm.
@@ -1794,7 +1794,13 @@ private fun Day(
             null
         }
     ) {
-        Box(contentAlignment = Alignment.Center) {
+        Box(
+            modifier = Modifier.requiredSize(
+                DatePickerModalTokens.DateStateLayerWidth,
+                DatePickerModalTokens.DateStateLayerHeight
+            ),
+            contentAlignment = Alignment.Center
+        ) {
             content()
         }
     }
@@ -1985,24 +1991,15 @@ private fun MonthsNavigation(
             // Show arrows for traversing months (only visible when the year selection is off)
             if (!yearPickerVisible) {
                 Row {
-                    val rtl = LocalLayoutDirection.current == LayoutDirection.Rtl
                     IconButton(onClick = onPreviousClicked, enabled = previousAvailable) {
                         Icon(
-                            if (rtl) {
-                                Icons.Filled.KeyboardArrowRight
-                            } else {
-                                Icons.Filled.KeyboardArrowLeft
-                            },
+                            Icons.AutoMirrored.Filled.KeyboardArrowLeft,
                             contentDescription = getString(Strings.DatePickerSwitchToPreviousMonth)
                         )
                     }
                     IconButton(onClick = onNextClicked, enabled = nextAvailable) {
                         Icon(
-                            if (rtl) {
-                                Icons.Filled.KeyboardArrowLeft
-                            } else {
-                                Icons.Filled.KeyboardArrowRight
-                            },
+                            Icons.AutoMirrored.Filled.KeyboardArrowRight,
                             contentDescription = getString(Strings.DatePickerSwitchToNextMonth)
                         )
                     }
@@ -2086,7 +2083,8 @@ internal val DatePickerHorizontalPadding = 12.dp
 internal val DatePickerModeTogglePadding = PaddingValues(end = 12.dp, bottom = 12.dp)
 
 private val DatePickerTitlePadding = PaddingValues(start = 24.dp, end = 12.dp, top = 16.dp)
-private val DatePickerHeadlinePadding = PaddingValues(start = 24.dp, end = 12.dp, bottom = 12.dp)
+private val DatePickerHeadlinePadding =
+    PaddingValues(start = 24.dp, end = 12.dp, bottom = 12.dp)
 
 private val YearsVerticalPadding = 16.dp
 

@@ -20,8 +20,8 @@ import android.os.Build
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.TopAppBarDefaults.enterAlwaysScrollBehavior
@@ -63,7 +63,7 @@ class AppBarScreenshotTest {
                     navigationIcon = {
                         IconButton(onClick = { /* doSomething() */ }) {
                             Icon(
-                                imageVector = Icons.Filled.ArrowBack,
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                                 contentDescription = "Back"
                             )
                         }
@@ -95,7 +95,7 @@ class AppBarScreenshotTest {
                     navigationIcon = {
                         IconButton(onClick = { /* doSomething() */ }) {
                             Icon(
-                                imageVector = Icons.Filled.ArrowBack,
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                                 contentDescription = "Back"
                             )
                         }
@@ -136,7 +136,7 @@ class AppBarScreenshotTest {
                     navigationIcon = {
                         IconButton(onClick = { /* doSomething() */ }) {
                             Icon(
-                                imageVector = Icons.Filled.ArrowBack,
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                                 contentDescription = "Back"
                             )
                         }
@@ -167,7 +167,7 @@ class AppBarScreenshotTest {
                     navigationIcon = {
                         IconButton(onClick = { /* doSomething() */ }) {
                             Icon(
-                                imageVector = Icons.Filled.ArrowBack,
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                                 contentDescription = "Back"
                             )
                         }
@@ -198,7 +198,7 @@ class AppBarScreenshotTest {
                     navigationIcon = {
                         IconButton(onClick = { /* doSomething() */ }) {
                             Icon(
-                                imageVector = Icons.Filled.ArrowBack,
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                                 contentDescription = "Back"
                             )
                         }
@@ -229,7 +229,7 @@ class AppBarScreenshotTest {
                     navigationIcon = {
                         IconButton(onClick = { /* doSomething() */ }) {
                             Icon(
-                                imageVector = Icons.Filled.ArrowBack,
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                                 contentDescription = "Back"
                             )
                         }
@@ -260,7 +260,7 @@ class AppBarScreenshotTest {
                     navigationIcon = {
                         IconButton(onClick = { /* doSomething() */ }) {
                             Icon(
-                                imageVector = Icons.Filled.ArrowBack,
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                                 contentDescription = "Back"
                             )
                         }
@@ -291,7 +291,7 @@ class AppBarScreenshotTest {
                     navigationIcon = {
                         IconButton(onClick = { /* doSomething() */ }) {
                             Icon(
-                                imageVector = Icons.Filled.ArrowBack,
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                                 contentDescription = "Back"
                             )
                         }
@@ -322,7 +322,7 @@ class AppBarScreenshotTest {
                     navigationIcon = {
                         IconButton(onClick = { /* doSomething() */ }) {
                             Icon(
-                                imageVector = Icons.Filled.ArrowBack,
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                                 contentDescription = "Back"
                             )
                         }

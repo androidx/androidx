@@ -224,7 +224,8 @@ class DateInputTest {
         val fullDateDescription = formatWithSkeleton(
             selectedDateInUtcMillis,
             DatePickerDefaults.YearMonthWeekdayDaySkeleton,
-            Locale.US
+            Locale.US,
+            cache = mutableMapOf()
         )
 
         rule.onNodeWithText("May 11, 2010")

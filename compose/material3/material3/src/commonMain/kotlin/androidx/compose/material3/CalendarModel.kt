@@ -38,12 +38,14 @@ internal expect fun createCalendarModel(locale: CalendarLocale): CalendarModel
  * @param utcTimeMillis a UTC timestamp to format (milliseconds from epoch)
  * @param skeleton a date format skeleton
  * @param locale the [CalendarLocale] to use when formatting the given timestamp
+ * @param cache a [MutableMap] for caching formatter related results for better performance
  */
 @ExperimentalMaterial3Api
 expect fun formatWithSkeleton(
     utcTimeMillis: Long,
     skeleton: String,
-    locale: CalendarLocale
+    locale: CalendarLocale,
+    cache: MutableMap<String, Any>
 ): String
 
 /**
@@ -53,6 +55,9 @@ expect fun formatWithSkeleton(
  */
 @ExperimentalMaterial3Api
 internal abstract class CalendarModel(val locale: CalendarLocale) {
+
+    // A map for caching formatter related results for better performance
+    internal val formatterCache = mutableMapOf<String, Any>()
 
     /**
      * A [CalendarDate] representing the current day.
@@ -167,7 +172,7 @@ internal abstract class CalendarModel(val locale: CalendarLocale) {
         skeleton: String,
         locale: CalendarLocale = this.locale
     ): String =
-        formatWithSkeleton(month.startUtcTimeMillis, skeleton, locale)
+        formatWithSkeleton(month.startUtcTimeMillis, skeleton, locale, formatterCache)
 
     /**
      * Formats a [CalendarDate] into a string with a given date format skeleton.
@@ -180,7 +185,7 @@ internal abstract class CalendarModel(val locale: CalendarLocale) {
         date: CalendarDate,
         skeleton: String,
         locale: CalendarLocale = this.locale
-    ): String = formatWithSkeleton(date.utcTimeMillis, skeleton, locale)
+    ): String = formatWithSkeleton(date.utcTimeMillis, skeleton, locale, formatterCache)
 
     /**
      * Formats a UTC timestamp into a string with a given date format pattern.

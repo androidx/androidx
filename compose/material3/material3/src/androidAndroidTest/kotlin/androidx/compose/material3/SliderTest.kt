@@ -481,7 +481,9 @@ class SliderTest {
                 Spacer(Modifier.width(spacerWidth))
                 Slider(
                     state = SliderState(0f, {}),
-                    modifier = Modifier.testTag(tag).weight(1f)
+                    modifier = Modifier
+                        .testTag(tag)
+                        .weight(1f)
                 )
                 Spacer(Modifier.width(spacerWidth))
             }
@@ -1287,7 +1289,7 @@ class SliderTest {
 
         rule.runOnIdle {
             Truth.assertThat(recompositionCounter.outerRecomposition).isEqualTo(1)
-            Truth.assertThat(recompositionCounter.innerRecomposition).isEqualTo(3)
+            Truth.assertThat(recompositionCounter.innerRecomposition).isEqualTo(4)
         }
     }
 

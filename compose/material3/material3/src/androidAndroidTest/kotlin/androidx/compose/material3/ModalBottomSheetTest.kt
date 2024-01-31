@@ -80,6 +80,8 @@ import androidx.test.uiautomator.UiDevice
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import junit.framework.TestCase.assertFalse
+import junit.framework.TestCase.assertTrue
 import junit.framework.TestCase.fail
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -273,12 +275,13 @@ class ModalBottomSheetTest(private val edgeToEdgeWrapper: EdgeToEdgeWrapper) {
                 onDismissRequest = {},
                 sheetState = sheetState,
                 windowInsets = windowInsets
-                ) {
+            ) {
                 Box(
                     Modifier
                         // Deliberately use fraction != 1f
                         .fillMaxSize(0.6f)
-                        .testTag(sheetTag))
+                        .testTag(sheetTag)
+                )
             }
         }
 
@@ -309,7 +312,8 @@ class ModalBottomSheetTest(private val edgeToEdgeWrapper: EdgeToEdgeWrapper) {
                     Box(
                         Modifier
                             .fillMaxHeight(0.4f)
-                            .testTag(sheetTag)) {
+                            .testTag(sheetTag)
+                    ) {
                         Button(
                             onClick = { dispatcher.onBackPressed() },
                             modifier = Modifier.testTag(BackTestTag),
@@ -348,7 +352,8 @@ class ModalBottomSheetTest(private val edgeToEdgeWrapper: EdgeToEdgeWrapper) {
                     Box(
                         Modifier
                             .fillMaxHeight(0.6f)
-                            .testTag(sheetTag)) {
+                            .testTag(sheetTag)
+                    ) {
                         Button(
                             onClick = { dispatcher.onBackPressed() },
                             modifier = Modifier.testTag(BackTestTag),
@@ -424,14 +429,14 @@ class ModalBottomSheetTest(private val edgeToEdgeWrapper: EdgeToEdgeWrapper) {
                 sheetState = state,
                 dragHandle = null,
                 windowInsets = windowInsets
-                ) {}
+            ) {}
         }
-        assertThat(state.swipeableState.currentValue).isEqualTo(SheetValue.Hidden)
+        assertThat(state.anchoredDraggableState.currentValue).isEqualTo(SheetValue.Hidden)
         val hiddenOffset = state.requireOffset()
         scope.launch { state.show() }
         rule.waitForIdle()
 
-        assertThat(state.swipeableState.currentValue).isEqualTo(SheetValue.Expanded)
+        assertThat(state.anchoredDraggableState.currentValue).isEqualTo(SheetValue.Expanded)
         val expandedOffset = state.requireOffset()
 
         assertThat(hiddenOffset).isEqualTo(expandedOffset)
@@ -479,17 +484,16 @@ class ModalBottomSheetTest(private val edgeToEdgeWrapper: EdgeToEdgeWrapper) {
         rule.waitForIdle()
         assertThat(state.currentValue).isEqualTo(SheetValue.PartiallyExpanded) // We should
         // retain the current value if possible
-        assertThat(state.swipeableState.anchors).containsKey(SheetValue.Hidden)
-        assertThat(state.swipeableState.anchors).containsKey(SheetValue.PartiallyExpanded)
-        assertThat(state.swipeableState.anchors).containsKey(SheetValue.Expanded)
+        assertTrue(state.anchoredDraggableState.anchors.hasAnchorFor(SheetValue.Hidden))
+        assertTrue(state.anchoredDraggableState.anchors.hasAnchorFor(SheetValue.PartiallyExpanded))
+        assertTrue(state.anchoredDraggableState.anchors.hasAnchorFor(SheetValue.Expanded))
 
         amountOfItems = 0 // When the sheet height is 0, we should only have a hidden anchor
         rule.waitForIdle()
         assertThat(state.currentValue).isEqualTo(SheetValue.Hidden)
-        assertThat(state.swipeableState.anchors).containsKey(SheetValue.Hidden)
-        assertThat(state.swipeableState.anchors)
-            .doesNotContainKey(SheetValue.PartiallyExpanded)
-        assertThat(state.swipeableState.anchors).doesNotContainKey(SheetValue.Expanded)
+        assertTrue(state.anchoredDraggableState.anchors.hasAnchorFor(SheetValue.Hidden))
+        assertFalse(state.anchoredDraggableState.anchors.hasAnchorFor(SheetValue.PartiallyExpanded))
+        assertFalse(state.anchoredDraggableState.anchors.hasAnchorFor(SheetValue.Expanded))
     }
 
     @Test
@@ -660,10 +664,13 @@ class ModalBottomSheetTest(private val edgeToEdgeWrapper: EdgeToEdgeWrapper) {
             ModalBottomSheet(
                 onDismissRequest = {},
                 sheetState = sheetState,
-                dragHandle = { Box(
-                    Modifier
-                        .testTag(dragHandleTag)
-                        .size(dragHandleSize)) },
+                dragHandle = {
+                    Box(
+                        Modifier
+                            .testTag(dragHandleTag)
+                            .size(dragHandleSize)
+                    )
+                },
                 windowInsets = windowInsets
             ) {
                 Box(
@@ -847,10 +854,13 @@ class ModalBottomSheetTest(private val edgeToEdgeWrapper: EdgeToEdgeWrapper) {
                 WindowInsets(0) else BottomSheetDefaults.windowInsets
             ModalBottomSheet(
                 onDismissRequest = {},
-                dragHandle = { Box(
-                    Modifier
-                        .testTag(dragHandleTag)
-                        .size(dragHandleSize)) },
+                dragHandle = {
+                    Box(
+                        Modifier
+                            .testTag(dragHandleTag)
+                            .size(dragHandleSize)
+                    )
+                },
                 windowInsets = windowInsets
             ) {
                 Box(
@@ -878,10 +888,13 @@ class ModalBottomSheetTest(private val edgeToEdgeWrapper: EdgeToEdgeWrapper) {
             ModalBottomSheet(
                 onDismissRequest = {},
                 sheetState = sheetState,
-                dragHandle = { Box(
-                    Modifier
-                        .testTag(dragHandleTag)
-                        .size(dragHandleSize)) },
+                dragHandle = {
+                    Box(
+                        Modifier
+                            .testTag(dragHandleTag)
+                            .size(dragHandleSize)
+                    )
+                },
                 windowInsets = windowInsets
             ) {
                 Box(
@@ -919,10 +932,13 @@ class ModalBottomSheetTest(private val edgeToEdgeWrapper: EdgeToEdgeWrapper) {
             ModalBottomSheet(
                 onDismissRequest = {},
                 sheetState = sheetState,
-                dragHandle = { Box(
-                    Modifier
-                        .testTag(dragHandleTag)
-                        .size(dragHandleSize)) },
+                dragHandle = {
+                    Box(
+                        Modifier
+                            .testTag(dragHandleTag)
+                            .size(dragHandleSize)
+                    )
+                },
                 windowInsets = windowInsets
             ) {
                 Box(
@@ -967,10 +983,13 @@ class ModalBottomSheetTest(private val edgeToEdgeWrapper: EdgeToEdgeWrapper) {
             ModalBottomSheet(
                 onDismissRequest = {},
                 sheetState = sheetState,
-                dragHandle = { Box(
-                    Modifier
-                        .testTag(dragHandleTag)
-                        .size(dragHandleSize)) },
+                dragHandle = {
+                    Box(
+                        Modifier
+                            .testTag(dragHandleTag)
+                            .size(dragHandleSize)
+                    )
+                },
                 windowInsets = windowInsets
             ) {
                 Box(
@@ -1022,10 +1041,10 @@ class ModalBottomSheetTest(private val edgeToEdgeWrapper: EdgeToEdgeWrapper) {
         }
 
         assertThat(sheetState.currentValue).isEqualTo(SheetValue.Hidden)
-        assertThat(sheetState.swipeableState.hasAnchorForValue(SheetValue.PartiallyExpanded))
-            .isFalse()
-        assertThat(sheetState.swipeableState.hasAnchorForValue(SheetValue.Expanded))
-            .isFalse()
+        assertFalse(
+            sheetState.anchoredDraggableState.anchors.hasAnchorFor(SheetValue.PartiallyExpanded)
+        )
+        assertFalse(sheetState.anchoredDraggableState.anchors.hasAnchorFor(SheetValue.Expanded))
 
         scope.launch { sheetState.show() }
         rule.waitForIdle()
@@ -1061,10 +1080,10 @@ class ModalBottomSheetTest(private val edgeToEdgeWrapper: EdgeToEdgeWrapper) {
         }
 
         assertThat(sheetState.currentValue).isEqualTo(SheetValue.Hidden)
-        assertThat(sheetState.swipeableState.hasAnchorForValue(SheetValue.PartiallyExpanded))
-            .isFalse()
-        assertThat(sheetState.swipeableState.hasAnchorForValue(SheetValue.Expanded))
-            .isFalse()
+        assertFalse(
+            sheetState.anchoredDraggableState.anchors.hasAnchorFor(SheetValue.PartiallyExpanded)
+        )
+        assertFalse(sheetState.anchoredDraggableState.anchors.hasAnchorFor(SheetValue.Expanded))
 
         scope.launch { sheetState.show() }
         rule.waitForIdle()

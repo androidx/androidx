@@ -242,16 +242,18 @@ class DateRangeInputTest {
                 )
             )
         }
-
+        val cache = mutableMapOf<String, Any>()
         val fullStartDateDescription = formatWithSkeleton(
             startDateMillis,
             DatePickerDefaults.YearMonthWeekdayDaySkeleton,
-            Locale.US
+            Locale.US,
+            cache
         )
         val fullEndDateDescription = formatWithSkeleton(
             endDateMillis,
             DatePickerDefaults.YearMonthWeekdayDaySkeleton,
-            Locale.US
+            Locale.US,
+            cache
         )
 
         val startHeadlineDescription = "$pickerStartDateHeadline: $fullStartDateDescription"
