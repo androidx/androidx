@@ -36,7 +36,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -409,9 +408,13 @@ fun BottomAppBar(
     windowInsets = windowInsets,
     contentPadding = contentPadding
 ) {
-    actions()
+    Row(
+        modifier = Modifier.weight(1f),
+        horizontalArrangement = Arrangement.Start,
+        verticalAlignment = Alignment.CenterVertically,
+        content = actions,
+    )
     if (floatingActionButton != null) {
-        Spacer(Modifier.weight(1f, true))
         Box(
             Modifier
                 .fillMaxHeight()
@@ -912,15 +915,24 @@ class TopAppBarState(
  * Represents the colors used by a top app bar in different states.
  * This implementation animates the container color according to the top app bar scroll state. It
  * does not animate the leading, headline, or trailing colors.
+ *
+ * @constructor create an instance with arbitrary colors, see [TopAppBarColors] for a
+ * factory method using the default material3 spec
+ * @param containerColor the color used for the background of this BottomAppBar. Use
+ * [Color.Transparent] to have no color.
+ * @param scrolledContainerColor the container color when content is scrolled behind it
+ * @param navigationIconContentColor the content color used for the navigation icon
+ * @param titleContentColor the content color used for the title
+ * @param actionIconContentColor the content color used for actions
  */
 @ExperimentalMaterial3Api
 @Stable
-class TopAppBarColors internal constructor(
-    private val containerColor: Color,
-    private val scrolledContainerColor: Color,
-    internal val navigationIconContentColor: Color,
-    internal val titleContentColor: Color,
-    internal val actionIconContentColor: Color,
+class TopAppBarColors constructor(
+    val containerColor: Color,
+    val scrolledContainerColor: Color,
+    val navigationIconContentColor: Color,
+    val titleContentColor: Color,
+    val actionIconContentColor: Color,
 ) {
 
     /**
@@ -1358,7 +1370,7 @@ private fun TopAppBarLayout(
                 0
             }
 
-        val layoutHeight = heightPx.roundToInt()
+        val layoutHeight = if (heightPx.isNaN()) 0 else heightPx.roundToInt()
 
         layout(constraints.maxWidth, layoutHeight) {
             // Navigation icon
@@ -1370,7 +1382,24 @@ private fun TopAppBarLayout(
             // Title
             titlePlaceable.placeRelative(
                 x = when (titleHorizontalArrangement) {
-                    Arrangement.Center -> (constraints.maxWidth - titlePlaceable.width) / 2
+                    Arrangement.Center -> {
+                        var baseX = (constraints.maxWidth - titlePlaceable.width) / 2
+                        if (baseX < navigationIconPlaceable.width) {
+                            // May happen if the navigation is wider than the actions and the
+                            // title is long. In this case, prioritize showing more of the title by
+                            // offsetting it to the right.
+                            baseX += (navigationIconPlaceable.width - baseX)
+                        } else if (baseX + titlePlaceable.width >
+                            constraints.maxWidth - actionIconsPlaceable.width
+                        ) {
+                            // May happen if the actions are wider than the navigation and the title
+                            // is long. In this case, offset to the left.
+                            baseX += ((constraints.maxWidth - actionIconsPlaceable.width) -
+                                (baseX + titlePlaceable.width))
+                        }
+                        baseX
+                    }
+
                     Arrangement.End ->
                         constraints.maxWidth - titlePlaceable.width - actionIconsPlaceable.width
                     // Arrangement.Start.

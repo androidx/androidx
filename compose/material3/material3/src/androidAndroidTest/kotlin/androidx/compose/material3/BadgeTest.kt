@@ -16,6 +16,7 @@
 package androidx.compose.material3
 
 import android.os.Build
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
@@ -30,6 +31,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.test.assertContentDescriptionEquals
 import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.assertPositionInRootIsEqualTo
+import androidx.compose.ui.test.assertTopPositionInRootIsEqualTo
 import androidx.compose.ui.test.assertWidthIsAtLeast
 import androidx.compose.ui.test.assertWidthIsEqualTo
 import androidx.compose.ui.test.captureToImage
@@ -44,6 +46,7 @@ import androidx.compose.ui.unit.width
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
+import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -240,6 +243,45 @@ class BadgeTest {
         }
             .assertWidthIsEqualTo(icon.defaultWidth)
             .assertHeightIsEqualTo(icon.defaultHeight)
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Test
+    fun badgeBox_smallGreatGrandParentAndLargeAnchor_adjustedBadge() {
+        val greatGrandParentTag = "greatGrandParentLayout"
+        val badgeTag = "badgeTag"
+
+        rule.setMaterialContent(lightColorScheme()) {
+            Box(
+                modifier = Modifier.size(50.dp)
+                    .testTag(greatGrandParentTag)
+            ) {
+                Box {
+                    BadgedBox(
+                        badge = {
+                            Badge(modifier = Modifier
+                                .testTag(badgeTag)
+                            ) { Text("999+") }
+                        }
+                    ) {
+                        Icon(
+                            icon,
+                            null,
+                            modifier = Modifier.size(40.dp)
+                        )
+                    }
+                }
+            }
+        }
+
+        val badge = rule.onNodeWithTag(badgeTag)
+        val badgeBounds = rule.onNodeWithTag(badgeTag).getUnclippedBoundsInRoot()
+        val greatGrandParentBounds =
+            rule.onNodeWithTag(greatGrandParentTag).getUnclippedBoundsInRoot()
+
+        badge.assertTopPositionInRootIsEqualTo(greatGrandParentBounds.top)
+        // Manually test the badge's right bound.
+        assertThat(badgeBounds.right == greatGrandParentBounds.right).isTrue()
     }
 }
 

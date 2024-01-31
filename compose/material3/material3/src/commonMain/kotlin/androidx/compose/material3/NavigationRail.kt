@@ -328,16 +328,28 @@ object NavigationRailItemDefaults {
     )
 }
 
-/** Represents the colors of the various elements of a navigation item. */
+/**
+ * Represents the colors of the various elements of a navigation item.
+ *
+ * @constructor create an instance with arbitrary colors.
+ *
+ * @param selectedIconColor the color to use for the icon when the item is selected.
+ * @param selectedTextColor the color to use for the text label when the item is selected.
+ * @param selectedIndicatorColor the color to use for the indicator when the item is selected.
+ * @param unselectedIconColor the color to use for the icon when the item is unselected.
+ * @param unselectedTextColor the color to use for the text label when the item is unselected.
+ * @param disabledIconColor the color to use for the icon when the item is disabled.
+ * @param disabledTextColor the color to use for the text label when the item is disabled.
+ */
 @Stable
-class NavigationRailItemColors internal constructor(
-    private val selectedIconColor: Color,
-    private val selectedTextColor: Color,
-    private val selectedIndicatorColor: Color,
-    private val unselectedIconColor: Color,
-    private val unselectedTextColor: Color,
-    private val disabledIconColor: Color,
-    private val disabledTextColor: Color,
+class NavigationRailItemColors constructor(
+    val selectedIconColor: Color,
+    val selectedTextColor: Color,
+    val selectedIndicatorColor: Color,
+    val unselectedIconColor: Color,
+    val unselectedTextColor: Color,
+    val disabledIconColor: Color,
+    val disabledTextColor: Color,
 ) {
     /**
      * Represents the icon color for this item, depending on whether it is [selected].

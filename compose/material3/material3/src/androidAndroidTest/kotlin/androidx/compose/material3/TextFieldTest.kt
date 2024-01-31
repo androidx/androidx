@@ -1729,7 +1729,7 @@ class TextFieldTest {
     }
 
     @Test
-    fun testTextField_intrinsicsMeasurement_correctHeight() {
+    fun testTextField_intrinsicHeight_withOnlyEmptyInput() {
         var height = 0
         rule.setMaterialContent(lightColorScheme()) {
             val text = remember { mutableStateOf("") }
@@ -1740,7 +1740,6 @@ class TextFieldTest {
                     TextField(
                         value = text.value,
                         onValueChange = { text.value = it },
-                        textStyle = TextStyle(fontSize = 1.sp), // ensure text size is minimum
                     )
                     Divider(Modifier.fillMaxHeight())
                 }
@@ -1753,7 +1752,7 @@ class TextFieldTest {
     }
 
     @Test
-    fun testTextField_intrinsicsMeasurement_withLeadingIcon_correctHeight() {
+    fun testTextField_intrinsicHeight_withEmptyInput_andDecorations() {
         var height = 0
         rule.setMaterialContent(lightColorScheme()) {
             val text = remember { mutableStateOf("") }
@@ -1764,8 +1763,10 @@ class TextFieldTest {
                     TextField(
                         value = text.value,
                         onValueChange = { text.value = it },
-                        textStyle = TextStyle(fontSize = 1.sp), // ensure text size is minimum
-                        leadingIcon = { Icon(Icons.Default.Favorite, null) }
+                        leadingIcon = { Icon(Icons.Default.Favorite, null) },
+                        trailingIcon = { Icon(Icons.Default.Favorite, null) },
+                        prefix = { Text("P") },
+                        suffix = { Text("S") },
                     )
                     Divider(Modifier.fillMaxHeight())
                 }
@@ -1778,28 +1779,46 @@ class TextFieldTest {
     }
 
     @Test
-    fun testTextField_intrinsicsMeasurement_withTrailingIcon_correctHeight() {
-        var height = 0
+    fun testTextField_intrinsicHeight_withLongInput_andDecorations() {
+        var tfHeightIntrinsic = 0
+        var tfHeightNoIntrinsic = 0
+        val text = "Long text input. ".repeat(20)
         rule.setMaterialContent(lightColorScheme()) {
-            val text = remember { mutableStateOf("") }
-            Box(Modifier.onGloballyPositioned {
-                height = it.size.height
-            }) {
-                Row(Modifier.height(IntrinsicSize.Min)) {
+            Row {
+                Box(Modifier.width(150.dp).height(IntrinsicSize.Min)) {
                     TextField(
-                        value = text.value,
-                        onValueChange = { text.value = it },
-                        textStyle = TextStyle(fontSize = 1.sp), // ensure text size is minimum
-                        trailingIcon = { Icon(Icons.Default.Favorite, null) }
+                        value = text,
+                        onValueChange = {},
+                        modifier = Modifier.onGloballyPositioned {
+                            tfHeightIntrinsic = it.size.height
+                        },
+                        leadingIcon = { Icon(Icons.Default.Favorite, null) },
+                        trailingIcon = { Icon(Icons.Default.Favorite, null) },
+                        prefix = { Text("P") },
+                        suffix = { Text("S") },
                     )
-                    Divider(Modifier.fillMaxHeight())
+                }
+
+                Box(Modifier.width(150.dp)) {
+                    TextField(
+                        value = text,
+                        onValueChange = {},
+                        modifier = Modifier.onGloballyPositioned {
+                            tfHeightNoIntrinsic = it.size.height
+                        },
+                        leadingIcon = { Icon(Icons.Default.Favorite, null) },
+                        trailingIcon = { Icon(Icons.Default.Favorite, null) },
+                        prefix = { Text("P") },
+                        suffix = { Text("S") },
+                    )
                 }
             }
         }
 
-        with(rule.density) {
-            assertThat(height).isEqualTo((TextFieldDefaults.MinHeight).roundToPx())
-        }
+        assertThat(tfHeightIntrinsic).isNotEqualTo(0)
+        assertThat(tfHeightNoIntrinsic).isNotEqualTo(0)
+
+        assertThat(tfHeightIntrinsic).isEqualTo(tfHeightNoIntrinsic)
     }
 
     @Test

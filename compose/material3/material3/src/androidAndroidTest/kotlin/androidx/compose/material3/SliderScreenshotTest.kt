@@ -208,7 +208,12 @@ class SliderScreenshotTest {
         rule.setMaterialContent(lightColorScheme()) {
             Box(wrap.testTag(wrapperTestTag)) {
                 var position by remember { mutableStateOf(0.5f..1f) }
-                RangeSlider(position, { position = it }, steps = 5, enabled = false)
+                RangeSlider(
+                    position,
+                    { position = it },
+                    steps = 5,
+                    enabled = false
+                )
             }
         }
         assertSliderAgainstGolden("rangeSlider_middle_steps_disabled")

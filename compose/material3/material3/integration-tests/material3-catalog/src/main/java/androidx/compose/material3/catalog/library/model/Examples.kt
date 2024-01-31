@@ -101,6 +101,7 @@ import androidx.compose.material3.samples.PermanentNavigationDrawerSample
 import androidx.compose.material3.samples.PinnedTopAppBar
 import androidx.compose.material3.samples.PlainTooltipSample
 import androidx.compose.material3.samples.PlainTooltipWithManualInvocationSample
+import androidx.compose.material3.samples.PrimaryIconTabs
 import androidx.compose.material3.samples.PrimaryTabs
 import androidx.compose.material3.samples.RadioButtonSample
 import androidx.compose.material3.samples.RadioGroupSample
@@ -145,7 +146,8 @@ import androidx.compose.material3.samples.TextFieldWithPlaceholder
 import androidx.compose.material3.samples.TextFieldWithPrefixAndSuffix
 import androidx.compose.material3.samples.TextFieldWithSupportingText
 import androidx.compose.material3.samples.TextTabs
-import androidx.compose.material3.samples.ThreeLineListItem
+import androidx.compose.material3.samples.ThreeLineListItemWithExtendedSupporting
+import androidx.compose.material3.samples.ThreeLineListItemWithOverlineAndSupporting
 import androidx.compose.material3.samples.TimeInputSample
 import androidx.compose.material3.samples.TimePickerSample
 import androidx.compose.material3.samples.TimePickerSwitchableSample
@@ -558,11 +560,18 @@ val ListsExamples = listOf(
         TwoLineListItem()
     },
     Example(
-        name = ::ThreeLineListItem.name,
+        name = ::ThreeLineListItemWithOverlineAndSupporting.name,
         description = ListsExampleDescription,
         sourceUrl = ListsExampleSourceUrl
     ) {
-        ThreeLineListItem()
+        ThreeLineListItemWithOverlineAndSupporting()
+    },
+    Example(
+        name = ::ThreeLineListItemWithExtendedSupporting.name,
+        description = ListsExampleDescription,
+        sourceUrl = ListsExampleSourceUrl
+    ) {
+        ThreeLineListItemWithExtendedSupporting()
     },
 )
 
@@ -903,6 +912,13 @@ val TabsExamples = listOf(
         sourceUrl = TabsExampleSourceUrl
     ) {
         PrimaryTabs()
+    },
+    Example(
+        name = ::PrimaryIconTabs.name,
+        description = TabsExampleDescription,
+        sourceUrl = TabsExampleSourceUrl
+    ) {
+        PrimaryIconTabs()
     },
     Example(
         name = ::SecondaryTabs.name,

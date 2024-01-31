@@ -26,10 +26,11 @@ import androidx.compose.ui.window.PopupProperties
 internal actual fun TooltipPopup(
     popupPositionProvider: PopupPositionProvider,
     onDismissRequest: () -> Unit,
+    focusable: Boolean,
     content: @Composable () -> Unit
 ) = Popup(
     popupPositionProvider = popupPositionProvider,
     onDismissRequest = onDismissRequest,
     content = content,
-    properties = PopupProperties(focusable = true)
+    properties = PopupProperties(focusable = focusable)
 )

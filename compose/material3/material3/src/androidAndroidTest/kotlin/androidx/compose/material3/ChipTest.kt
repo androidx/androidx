@@ -17,16 +17,21 @@
 package androidx.compose.material3
 
 import android.os.Build
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.tokens.AssistChipTokens
 import androidx.compose.material3.tokens.FilterChipTokens
 import androidx.compose.material3.tokens.InputChipTokens
@@ -55,6 +60,7 @@ import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertHeightIsAtLeast
 import androidx.compose.ui.test.assertHeightIsEqualTo
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertIsNotSelected
@@ -68,6 +74,7 @@ import androidx.compose.ui.test.click
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.text.TextStyle
@@ -220,6 +227,44 @@ class ChipTest {
         rule.onNodeWithTag(TestChipTag, useUnmergedTree = true)
             .assertLeftPositionInRootIsEqualTo(8.dp + AssistChipDefaults.IconSize + 8.dp)
             .assertWidthIsEqualTo(chipWidth - 16.dp - AssistChipDefaults.IconSize - 16.dp)
+    }
+
+    @Test
+    fun horizontalPadding_assistChip_customWidth() {
+        val chipWidth = 200.dp
+        val horizontalPadding = 8.dp
+        rule.setMaterialContent(lightColorScheme()) {
+            AssistChip(
+                onClick = {},
+                label = { Text("Test chip") },
+                modifier = Modifier.width(chipWidth),
+                leadingIcon = {
+                    Icon(
+                        Icons.Filled.Settings,
+                        contentDescription = "Localized description",
+                        modifier = Modifier.testTag("Leading").size(AssistChipDefaults.IconSize)
+                    )
+                },
+                trailingIcon = {
+                    Icon(
+                        Icons.Filled.Settings,
+                        contentDescription = "Localized description",
+                        modifier = Modifier.testTag("Trailing").size(AssistChipDefaults.IconSize)
+                    )
+                },
+            )
+        }
+
+        rule.onNodeWithTag("Leading", useUnmergedTree = true)
+            .assertLeftPositionInRootIsEqualTo(horizontalPadding)
+        rule.onNodeWithText("Test chip", useUnmergedTree = true)
+            .assertLeftPositionInRootIsEqualTo(
+                horizontalPadding + AssistChipDefaults.IconSize + horizontalPadding
+            )
+        rule.onNodeWithTag("Trailing", useUnmergedTree = true)
+            .assertLeftPositionInRootIsEqualTo(
+                chipWidth - horizontalPadding - AssistChipDefaults.IconSize
+            )
     }
 
     @Test
@@ -463,6 +508,53 @@ class ChipTest {
 
         rule.onNode(hasClickAction())
             .assertHeightIsEqualTo(FilterChipDefaults.Height)
+    }
+
+    @Test
+    fun correctDimensionsInScrollableRow_filterChip() {
+        val labelWidth = 64.dp
+        val horizontalPadding = 16.dp
+        rule.setMaterialContent(lightColorScheme()) {
+            Row(Modifier.horizontalScroll(rememberScrollState())) {
+                FilterChip(
+                    selected = false,
+                    onClick = {},
+                    label = { Box(Modifier.width(labelWidth)) },
+                )
+            }
+        }
+
+        rule.onNode(hasClickAction())
+            .assertHeightIsEqualTo(FilterChipDefaults.Height)
+            .assertWidthIsEqualTo(labelWidth + horizontalPadding * 2)
+    }
+
+    @Test
+    fun longLabelDoesNotHideTrailingIcon_filterChip() {
+        rule.setMaterialContent(lightColorScheme()) {
+            FilterChip(
+                selected = false,
+                onClick = {},
+                label = { Text("Long long long long long long long long long long long long" +
+                    "long long long long long long long long long long long long long long long") },
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Filled.Settings,
+                        contentDescription = "Localized Description",
+                        modifier = Modifier.size(FilterChipDefaults.IconSize)
+                    )
+                },
+                trailingIcon = {
+                    Icon(
+                        imageVector = Icons.Filled.Settings,
+                        contentDescription = "Localized Description",
+                        modifier = Modifier.testTag("Trailing").size(FilterChipDefaults.IconSize)
+                    )
+                }
+            )
+        }
+
+        rule.onNodeWithTag("Trailing", useUnmergedTree = true).assertIsDisplayed()
     }
 
     @Test

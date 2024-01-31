@@ -54,8 +54,7 @@
     <string name="m3c_date_range_picker_day_in_range" msgid="2138321128465719402">"喺指定日期範圍內"</string>
     <string name="m3c_date_range_input_title" msgid="3148384720560189467">"輸入日期"</string>
     <string name="m3c_date_range_input_invalid_range_input" msgid="3190049423327661366">"輸入的日期範圍無效"</string>
-    <!-- no translation found for m3c_bottom_sheet_pane_title (3010635850035863127) -->
-    <skip />
+    <string name="m3c_bottom_sheet_pane_title" msgid="3010635850035863127">"頁底面板"</string>
     <string name="m3c_bottom_sheet_drag_handle_description" msgid="8403354765404029791">"拖曳控點"</string>
     <string name="m3c_bottom_sheet_collapse_description" msgid="2988463736136100848">"收合頁底面板"</string>
     <string name="m3c_bottom_sheet_dismiss_description" msgid="1555567894577437024">"關閉頁底面板"</string>

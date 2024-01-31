@@ -94,6 +94,31 @@ fun PrimaryTabs() {
 
 @Preview
 @Composable
+fun PrimaryIconTabs() {
+    var state by remember { mutableStateOf(0) }
+    val icons = listOf(Icons.Filled.Favorite, Icons.Filled.Favorite, Icons.Filled.Favorite)
+    Column {
+        TabRow(selectedTabIndex = state, indicator = @Composable { tabPositions ->
+            if (state < tabPositions.size) {
+                TabRowDefaults.PrimaryIndicator(
+                    modifier = Modifier.tabIndicatorOffset(tabPositions[state]),
+                    width = tabPositions[state].contentWidth
+                )
+            }
+        }) {
+            icons.forEachIndexed { index, icon ->
+                Tab(
+                    selected = state == index,
+                    onClick = { state = index },
+                    icon = { Icon(icon, contentDescription = "Favorite") }
+                )
+            }
+        }
+    }
+}
+
+@Preview
+@Composable
 fun SecondaryTabs() {
     var state by remember { mutableStateOf(0) }
     val titles = listOf("Tab 1", "Tab 2", "Tab 3 with lots of text")

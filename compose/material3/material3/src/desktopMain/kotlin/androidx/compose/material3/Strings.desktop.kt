@@ -42,6 +42,7 @@ internal actual fun getString(string: Strings): String {
         Strings.DatePickerSwitchToYearSelection -> "Switch to selecting a year"
         Strings.DatePickerSwitchToDaySelection -> "Swipe to select a year, or tap to switch " +
             "back to selecting a day"
+
         Strings.DatePickerSwitchToNextMonth -> "Change to next month"
         Strings.DatePickerSwitchToPreviousMonth -> "Change to previous month"
         Strings.DatePickerNavigateToYearDescription -> "Navigate to year %1$"
@@ -90,6 +91,76 @@ internal actual fun getString(string: Strings): String {
         else -> ""
     }
 }
+
+@JvmInline
+internal actual value class Strings constructor(val value: Int) {
+    actual companion object {
+        actual val NavigationMenu = Strings(0)
+        actual val CloseDrawer = Strings(1)
+        actual val CloseSheet = Strings(2)
+        actual val DefaultErrorMessage = Strings(3)
+        actual val SliderRangeStart = Strings(4)
+        actual val SliderRangeEnd = Strings(5)
+        actual val Dialog = Strings(6)
+        actual val MenuExpanded = Strings(7)
+        actual val MenuCollapsed = Strings(8)
+        actual val SnackbarDismiss = Strings(9)
+        actual val SearchBarSearch = Strings(10)
+        actual val SuggestionsAvailable = Strings(11)
+        actual val DatePickerTitle = Strings(12)
+        actual val DatePickerHeadline = Strings(13)
+        actual val DatePickerYearPickerPaneTitle = Strings(14)
+        actual val DatePickerSwitchToYearSelection = Strings(15)
+        actual val DatePickerSwitchToDaySelection = Strings(16)
+        actual val DatePickerSwitchToNextMonth = Strings(17)
+        actual val DatePickerSwitchToPreviousMonth = Strings(18)
+        actual val DatePickerNavigateToYearDescription = Strings(19)
+        actual val DatePickerHeadlineDescription = Strings(20)
+        actual val DatePickerNoSelectionDescription = Strings(21)
+        actual val DatePickerTodayDescription = Strings(22)
+        actual val DatePickerScrollToShowLaterYears = Strings(23)
+        actual val DatePickerScrollToShowEarlierYears = Strings(24)
+        actual val DateInputTitle = Strings(25)
+        actual val DateInputHeadline = Strings(26)
+        actual val DateInputLabel = Strings(27)
+        actual val DateInputHeadlineDescription = Strings(28)
+        actual val DateInputNoInputDescription = Strings(29)
+        actual val DateInputInvalidNotAllowed = Strings(30)
+        actual val DateInputInvalidForPattern = Strings(31)
+        actual val DateInputInvalidYearRange = Strings(32)
+        actual val DatePickerSwitchToCalendarMode = Strings(33)
+        actual val DatePickerSwitchToInputMode = Strings(34)
+        actual val DateRangePickerTitle = Strings(35)
+        actual val DateRangePickerStartHeadline = Strings(36)
+        actual val DateRangePickerEndHeadline = Strings(37)
+        actual val DateRangePickerScrollToShowNextMonth = Strings(38)
+        actual val DateRangePickerScrollToShowPreviousMonth = Strings(39)
+        actual val DateRangePickerDayInRange = Strings(40)
+        actual val DateRangeInputTitle = Strings(41)
+        actual val DateRangeInputInvalidRangeInput = Strings(42)
+        actual val BottomSheetPaneTitle = Strings(43)
+        actual val BottomSheetDragHandleDescription = Strings(44)
+        actual val BottomSheetPartialExpandDescription = Strings(45)
+        actual val BottomSheetDismissDescription = Strings(46)
+        actual val BottomSheetExpandDescription = Strings(47)
+        actual val TooltipLongPressLabel = Strings(48)
+        actual val TimePickerAM = Strings(49)
+        actual val TimePickerPM = Strings(50)
+        actual val TimePickerPeriodToggle = Strings(51)
+        actual val TimePickerHourSelection = Strings(52)
+        actual val TimePickerMinuteSelection = Strings(53)
+        actual val TimePickerHourSuffix = Strings(54)
+        actual val TimePicker24HourSuffix = Strings(55)
+        actual val TimePickerMinuteSuffix = Strings(56)
+        actual val TimePickerHour = Strings(57)
+        actual val TimePickerMinute = Strings(58)
+        actual val TimePickerHourTextField = Strings(59)
+        actual val TimePickerMinuteTextField = Strings(60)
+        actual val TooltipPaneDescription = Strings(61)
+        actual val ExposedDropdownMenu = Strings(62)
+    }
+}
+
 @Composable
 @ReadOnlyComposable
 internal actual fun getString(string: Strings, vararg formatArgs: Any): String =

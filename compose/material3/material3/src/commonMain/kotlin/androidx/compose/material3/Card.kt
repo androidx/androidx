@@ -670,22 +670,24 @@ class CardElevation internal constructor(
         val animatable = remember { Animatable(target, Dp.VectorConverter) }
 
         LaunchedEffect(target) {
-            if (enabled) {
-                val lastInteraction = when (animatable.targetValue) {
-                    pressedElevation -> PressInteraction.Press(Offset.Zero)
-                    hoveredElevation -> HoverInteraction.Enter()
-                    focusedElevation -> FocusInteraction.Focus()
-                    draggedElevation -> DragInteraction.Start()
-                    else -> null
+            if (animatable.targetValue != target) {
+                if (!enabled) {
+                    // No transition when moving to a disabled state.
+                    animatable.snapTo(target)
+                } else {
+                    val lastInteraction = when (animatable.targetValue) {
+                        pressedElevation -> PressInteraction.Press(Offset.Zero)
+                        hoveredElevation -> HoverInteraction.Enter()
+                        focusedElevation -> FocusInteraction.Focus()
+                        draggedElevation -> DragInteraction.Start()
+                        else -> null
+                    }
+                    animatable.animateElevation(
+                        from = lastInteraction,
+                        to = interaction,
+                        target = target
+                    )
                 }
-                animatable.animateElevation(
-                    from = lastInteraction,
-                    to = interaction,
-                    target = target
-                )
-            } else {
-                // No transition when moving to a disabled state.
-                animatable.snapTo(target)
             }
         }
 
@@ -718,16 +720,22 @@ class CardElevation internal constructor(
 /**
  * Represents the container and content colors used in a card in different states.
  *
+ * @constructor create an instance with arbitrary colors.
  * - See [CardDefaults.cardColors] for the default colors used in a [Card].
  * - See [CardDefaults.elevatedCardColors] for the default colors used in a [ElevatedCard].
  * - See [CardDefaults.outlinedCardColors] for the default colors used in a [OutlinedCard].
+ *
+ * @param containerColor the container color of this [Card] when enabled.
+ * @param contentColor the content color of this [Card] when enabled.
+ * @param disabledContainerColor the container color of this [Card] when not enabled.
+ * @param disabledContentColor the content color of this [Card] when not enabled.
  */
 @Immutable
-class CardColors internal constructor(
-    private val containerColor: Color,
-    private val contentColor: Color,
-    private val disabledContainerColor: Color,
-    private val disabledContentColor: Color,
+class CardColors constructor(
+    val containerColor: Color,
+    val contentColor: Color,
+    val disabledContainerColor: Color,
+    val disabledContentColor: Color,
 ) {
     /**
      * Represents the container color for this card, depending on [enabled].

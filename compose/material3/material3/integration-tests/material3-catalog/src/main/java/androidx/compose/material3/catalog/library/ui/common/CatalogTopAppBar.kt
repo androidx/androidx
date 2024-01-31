@@ -18,16 +18,15 @@ package androidx.compose.material3.catalog.library.ui.common
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
-import androidx.compose.material.Divider
-import androidx.compose.material.DropdownMenu
-import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.Divider
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarScrollBehavior
@@ -142,33 +141,39 @@ private fun MoreMenu(
     onPrivacyClick: () -> Unit,
     onLicensesClick: () -> Unit,
 ) {
-    // TODO: Replace with M3 DropdownMenu, DropdownMenuItem and Divider when available
     DropdownMenu(
         expanded = expanded,
         onDismissRequest = onDismissRequest
     ) {
-        DropdownMenuItem(onClick = onGuidelinesClick) {
-            Text(stringResource(id = R.string.view_design_guidelines))
-        }
-        DropdownMenuItem(onClick = onDocsClick) {
-            Text(stringResource(id = R.string.view_developer_docs))
-        }
-        DropdownMenuItem(onClick = onSourceClick) {
-            Text(stringResource(id = R.string.view_source_code))
-        }
-        Divider(color = MaterialTheme.colorScheme.outline)
-        DropdownMenuItem(onClick = onIssueClick) {
-            Text(stringResource(id = R.string.report_an_issue))
-        }
-        Divider(color = MaterialTheme.colorScheme.outline)
-        DropdownMenuItem(onClick = onTermsClick) {
-            Text(stringResource(id = R.string.terms_of_service))
-        }
-        DropdownMenuItem(onClick = onPrivacyClick) {
-            Text(stringResource(id = R.string.privacy_policy))
-        }
-        DropdownMenuItem(onClick = onLicensesClick) {
-            Text(stringResource(id = R.string.open_source_licenses))
-        }
+        DropdownMenuItem(
+            text = { Text(stringResource(id = R.string.view_design_guidelines)) },
+            onClick = onGuidelinesClick
+        )
+        DropdownMenuItem(
+            text = { Text(stringResource(id = R.string.view_developer_docs)) },
+            onClick = onDocsClick
+        )
+        DropdownMenuItem(
+            text = { Text(stringResource(id = R.string.view_source_code)) },
+            onClick = onSourceClick
+        )
+        Divider()
+        DropdownMenuItem(
+            text = { Text(stringResource(id = R.string.report_an_issue)) },
+            onClick = onIssueClick
+        )
+        Divider()
+        DropdownMenuItem(
+            text = { Text(stringResource(id = R.string.terms_of_service)) },
+            onClick = onTermsClick
+        )
+        DropdownMenuItem(
+            text = { Text(stringResource(id = R.string.privacy_policy)) },
+            onClick = onPrivacyClick
+        )
+        DropdownMenuItem(
+            text = { Text(stringResource(id = R.string.open_source_licenses)) },
+            onClick = onLicensesClick
+        )
     }
 }

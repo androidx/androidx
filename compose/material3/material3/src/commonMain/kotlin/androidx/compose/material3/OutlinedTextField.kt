@@ -869,29 +869,42 @@ private class OutlinedTextFieldMeasurePolicy(
         width: Int,
         intrinsicMeasurer: (IntrinsicMeasurable, Int) -> Int
     ): Int {
-        val textFieldHeight =
-            intrinsicMeasurer(measurables.first { it.layoutId == TextFieldId }, width)
-        val labelHeight = measurables.find { it.layoutId == LabelId }?.let {
+        var remainingWidth = width
+        val leadingHeight = measurables.find { it.layoutId == LeadingId }?.let {
+            remainingWidth -= it.maxIntrinsicWidth(Constraints.Infinity)
             intrinsicMeasurer(it, width)
         } ?: 0
         val trailingHeight = measurables.find { it.layoutId == TrailingId }?.let {
+            remainingWidth -= it.maxIntrinsicWidth(Constraints.Infinity)
             intrinsicMeasurer(it, width)
         } ?: 0
-        val leadingHeight = measurables.find { it.layoutId == LeadingId }?.let {
-            intrinsicMeasurer(it, width)
+
+        val labelHeight = measurables.find { it.layoutId == LabelId }?.let {
+            intrinsicMeasurer(it, lerp(remainingWidth, width, animationProgress))
         } ?: 0
+
         val prefixHeight = measurables.find { it.layoutId == PrefixId }?.let {
-            intrinsicMeasurer(it, width)
+            val height = intrinsicMeasurer(it, remainingWidth)
+            remainingWidth -= it.maxIntrinsicWidth(Constraints.Infinity)
+            height
         } ?: 0
         val suffixHeight = measurables.find { it.layoutId == SuffixId }?.let {
-            intrinsicMeasurer(it, width)
+            val height = intrinsicMeasurer(it, remainingWidth)
+            remainingWidth -= it.maxIntrinsicWidth(Constraints.Infinity)
+            height
         } ?: 0
+
+        val textFieldHeight =
+            intrinsicMeasurer(measurables.first { it.layoutId == TextFieldId }, remainingWidth)
+
         val placeholderHeight = measurables.find { it.layoutId == PlaceholderId }?.let {
-            intrinsicMeasurer(it, width)
+            intrinsicMeasurer(it, remainingWidth)
         } ?: 0
+
         val supportingHeight = measurables.find { it.layoutId == SupportingId }?.let {
             intrinsicMeasurer(it, width)
         } ?: 0
+
         return calculateHeight(
             leadingHeight = leadingHeight,
             trailingHeight = trailingHeight,
@@ -965,6 +978,8 @@ private fun calculateHeight(
     val inputFieldHeight = maxOf(
         textFieldHeight,
         placeholderHeight,
+        prefixHeight,
+        suffixHeight,
         lerp(labelHeight, 0, animationProgress)
     )
     val topPadding = paddingValues.calculateTopPadding().value * density
@@ -977,8 +992,6 @@ private fun calculateHeight(
         maxOf(
             leadingHeight,
             trailingHeight,
-            prefixHeight,
-            suffixHeight,
             middleSectionHeight.roundToInt()
         ) + supportingHeight
     )

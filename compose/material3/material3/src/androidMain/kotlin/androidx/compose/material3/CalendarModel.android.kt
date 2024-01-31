@@ -18,11 +18,6 @@ package androidx.compose.material3
 
 import android.os.Build
 import android.text.format.DateFormat
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.ReadOnlyComposable
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.core.os.ConfigurationCompat
-import java.util.Locale
 
 /**
  * Returns a [CalendarModel] to be used by the date picker.
@@ -47,13 +42,13 @@ internal actual fun CalendarModel(): CalendarModel {
  *
  * @param utcTimeMillis a UTC timestamp to format (milliseconds from epoch)
  * @param skeleton a date format skeleton
- * @param locale the [Locale] to use when formatting the given timestamp
+ * @param locale the [CalendarLocale] to use when formatting the given timestamp
  */
 @ExperimentalMaterial3Api
 actual fun formatWithSkeleton(
     utcTimeMillis: Long,
     skeleton: String,
-    locale: Locale
+    locale: CalendarLocale
 ): String {
     val pattern = DateFormat.getBestDateTimePattern(locale, skeleton)
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -61,15 +56,4 @@ actual fun formatWithSkeleton(
     } else {
         LegacyCalendarModelImpl.formatWithPattern(utcTimeMillis, pattern, locale)
     }
-}
-
-/**
- * A composable function that returns the default [Locale]. It will be recomposed when the
- * `Configuration` gets updated.
- */
-@Composable
-@ReadOnlyComposable
-@ExperimentalMaterial3Api
-internal actual fun defaultLocale(): Locale {
-    return ConfigurationCompat.getLocales(LocalConfiguration.current).get(0) ?: Locale.getDefault()
 }
