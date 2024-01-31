@@ -173,6 +173,267 @@
     </issue>
 
     <issue
+        id="PrimitiveInCollection"
+        message="variable crossAxisSizes with type List&lt;Integer>: replace with IntList"
+        errorLine1="        val crossAxisSizes = mutableListOf&lt;Int>()"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/AlertDialog.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable crossAxisPositions with type List&lt;Integer>: replace with IntList"
+        errorLine1="        val crossAxisPositions = mutableListOf&lt;Int>()"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/AlertDialog.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field anchors with type Map&lt;T, Float>: replace with ObjectFloatMap"
+        errorLine1="    internal val anchors = mutableMapOf&lt;T, Float>()"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/AnchoredDraggable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="return type Map&lt;T, Float> of getAnchors$lint_module: replace with ObjectFloatMap"
+        errorLine1="    internal val anchors = mutableMapOf&lt;T, Float>()"
+        errorLine2="                 ~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/AnchoredDraggable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="constructor MapDraggableAnchors has parameter anchors with type Map&lt;T, Float>: replace with ObjectFloatMap"
+        errorLine1="private class MapDraggableAnchors&lt;T>(private val anchors: Map&lt;T, Float>) : DraggableAnchors&lt;T> {"
+        errorLine2="                                                          ~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/AnchoredDraggable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field anchors with type Map&lt;T, Float>: replace with ObjectFloatMap"
+        errorLine1="private class MapDraggableAnchors&lt;T>(private val anchors: Map&lt;T, Float>) : DraggableAnchors&lt;T> {"
+        errorLine2="                                                          ~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/AnchoredDraggable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable xCandidates with type List&lt;? extends Integer>: replace with IntList"
+        errorLine1="        val xCandidates = listOf("
+        errorLine2="        ^">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/MenuPosition.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable yCandidates with type List&lt;? extends Integer>: replace with IntList"
+        errorLine1="        val yCandidates = listOf("
+        errorLine2="        ^">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/MenuPosition.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable anchors with type Map&lt;Float, ? extends DrawerValue>: replace with FloatObjectMap"
+        errorLine1="    val anchors = mapOf(minValue to DrawerValue.Closed, maxValue to DrawerValue.Open)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/NavigationDrawer.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable anchors with type Map&lt;Float, ? extends DrawerValue>: replace with FloatObjectMap"
+        errorLine1="    val anchors = mapOf(minValue to DrawerValue.Closed, maxValue to DrawerValue.Open)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/NavigationDrawer.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method setAnchors$lint_module has parameter &lt;set-?> with type Map&lt;Float, ? extends T>: replace with FloatObjectMap"
+        errorLine1="    internal var anchors by mutableStateOf(emptyMap&lt;Float, T>())"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Swipeable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="return type Map&lt;Float, T> of getAnchors$lint_module: replace with FloatObjectMap"
+        errorLine1="    internal var anchors by mutableStateOf(emptyMap&lt;Float, T>())"
+        errorLine2="                 ~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Swipeable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method ensureInit$lint_module has parameter newAnchors with type Map&lt;Float, ? extends T>: replace with FloatObjectMap"
+        errorLine1="    internal fun ensureInit(newAnchors: Map&lt;Float, T>) {"
+        errorLine2="                                        ~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Swipeable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method processNewAnchors$lint_module has parameter oldAnchors with type Map&lt;Float, ? extends T>: replace with FloatObjectMap"
+        errorLine1="        oldAnchors: Map&lt;Float, T>,"
+        errorLine2="                    ~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Swipeable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method processNewAnchors$lint_module has parameter newAnchors with type Map&lt;Float, ? extends T>: replace with FloatObjectMap"
+        errorLine1="        newAnchors: Map&lt;Float, T>"
+        errorLine2="                    ~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Swipeable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable bounds with type List&lt;? extends Float>: replace with FloatList"
+        errorLine1="            val bounds = findBounds(offset.floatValue, anchors.keys)"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Swipeable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method swipeable has parameter anchors with type Map&lt;Float, ? extends T>: replace with FloatObjectMap"
+        errorLine1="    anchors: Map&lt;Float, T>,"
+        errorLine2="             ~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Swipeable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable oldAnchors with type Map&lt;Float, ? extends T>: replace with FloatObjectMap"
+        errorLine1="        val oldAnchors = state.anchors"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Swipeable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method findBounds has parameter anchors with type Set&lt;Float>: replace with FloatSet"
+        errorLine1="    anchors: Set&lt;Float>"
+        errorLine2="             ~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Swipeable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="return type List&lt;Float> of findBounds: replace with FloatList"
+        errorLine1="): List&lt;Float> {"
+        errorLine2="   ~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Swipeable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method computeTarget has parameter anchors with type Set&lt;Float>: replace with FloatSet"
+        errorLine1="    anchors: Set&lt;Float>,"
+        errorLine2="             ~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Swipeable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable bounds with type List&lt;? extends Float>: replace with FloatList"
+        errorLine1="    val bounds = findBounds(offset, anchors)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Swipeable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method getOffset has parameter $this$getOffset with type Map&lt;Float, ? extends T>: replace with FloatObjectMap"
+        errorLine1="private fun &lt;T> Map&lt;Float, T>.getOffset(state: T): Float? {"
+        errorLine2="                ~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Swipeable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method resistanceConfig$lint_module has parameter anchors with type Set&lt;Float>: replace with FloatSet"
+        errorLine1="        anchors: Set&lt;Float>,"
+        errorLine2="                 ~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Swipeable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable tabContentWidths with type List&lt;Dp>: replace with FloatList"
+        errorLine1="            val tabContentWidths = mutableListOf&lt;Dp>()"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TabRow.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="return type List&lt;Integer> of getValues$lint_module: replace with IntList"
+        errorLine1="    internal val values get() = if (selection == Selection.Minute) Minutes else Hours"
+        errorLine2="                 ~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TimePicker.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field Minutes with type List&lt;Integer>: replace with IntList"
+        errorLine1="private val Minutes = listOf(0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55)"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TimePicker.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field Hours with type List&lt;Integer>: replace with IntList"
+        errorLine1="private val Hours = listOf(12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11)"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TimePicker.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field ExtraHours with type List&lt;Integer>: replace with IntList"
+        errorLine1="private val ExtraHours = Hours.fastMap { (it % 12 + 12) }"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TimePicker.kt"/>
+    </issue>
+
+    <issue
         id="PrimitiveInLambda"
         message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method BottomSheetScaffoldLayout has parameter &apos;bottomSheet&apos; with type Function1&lt;? super Integer, Unit>."
         errorLine1="    bottomSheet: @Composable (layoutHeight: Int) -> Unit,"

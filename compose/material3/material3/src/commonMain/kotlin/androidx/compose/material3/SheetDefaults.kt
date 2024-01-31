@@ -57,36 +57,6 @@ import kotlinx.coroutines.CancellationException
  * to the [Hidden] state if available when hiding the sheet, either programmatically or by user
  * interaction.
  * @param initialValue The initial value of the state.
- * @param density The density that this state can use to convert values to and from dp.
- * @param confirmValueChange Optional callback invoked to confirm or veto a pending state change.
- * @param skipHiddenState Whether the hidden state should be skipped. If true, the sheet will always
- * expand to the [Expanded] state and move to the [PartiallyExpanded] if available, either
- * programmatically or by user interaction.
- */
-@ExperimentalMaterial3Api
-@Suppress("Deprecation")
-fun SheetState(
-    skipPartiallyExpanded: Boolean,
-    density: Density,
-    initialValue: SheetValue = Hidden,
-    confirmValueChange: (SheetValue) -> Boolean = { true },
-    skipHiddenState: Boolean = false,
-) = SheetState(
-    skipPartiallyExpanded, initialValue, confirmValueChange, skipHiddenState
-).also {
-    it.density = density
-}
-
-/**
- * State of a sheet composable, such as [ModalBottomSheet]
- *
- * Contains states relating to its swipe position as well as animations between state values.
- *
- * @param skipPartiallyExpanded Whether the partially expanded state, if the sheet is large
- * enough, should be skipped. If true, the sheet will always expand to the [Expanded] state and move
- * to the [Hidden] state if available when hiding the sheet, either programmatically or by user
- * interaction.
- * @param initialValue The initial value of the state.
  * @param confirmValueChange Optional callback invoked to confirm or veto a pending state change.
  * @param skipHiddenState Whether the hidden state should be skipped. If true, the sheet will always
  * expand to the [Expanded] state and move to the [PartiallyExpanded] if available, either
@@ -108,6 +78,34 @@ class SheetState @Deprecated(
     confirmValueChange: (SheetValue) -> Boolean = { true },
     internal val skipHiddenState: Boolean = false,
 ) {
+
+    /**
+     * State of a sheet composable, such as [ModalBottomSheet]
+     *
+     * Contains states relating to its swipe position as well as animations between state values.
+     *
+     * @param skipPartiallyExpanded Whether the partially expanded state, if the sheet is large
+     * enough, should be skipped. If true, the sheet will always expand to the [Expanded] state and move
+     * to the [Hidden] state if available when hiding the sheet, either programmatically or by user
+     * interaction.
+     * @param initialValue The initial value of the state.
+     * @param density The density that this state can use to convert values to and from dp.
+     * @param confirmValueChange Optional callback invoked to confirm or veto a pending state change.
+     * @param skipHiddenState Whether the hidden state should be skipped. If true, the sheet will always
+     * expand to the [Expanded] state and move to the [PartiallyExpanded] if available, either
+     * programmatically or by user interaction.
+     */
+    @ExperimentalMaterial3Api
+    @Suppress("Deprecation")
+    constructor(
+        skipPartiallyExpanded: Boolean,
+        density: Density,
+        initialValue: SheetValue = Hidden,
+        confirmValueChange: (SheetValue) -> Boolean = { true },
+        skipHiddenState: Boolean = false,
+    ) : this(skipPartiallyExpanded, initialValue, confirmValueChange, skipHiddenState) {
+        this.density = density
+    }
     init {
         if (skipPartiallyExpanded) {
             require(initialValue != PartiallyExpanded) {
@@ -374,6 +372,11 @@ object BottomSheetDefaults {
     val SheetPeekHeight = 56.dp
 
     /**
+     * The default max width used by [ModalBottomSheet] and [BottomSheetScaffold]
+     */
+    val SheetMaxWidth = 640.dp
+
+    /**
      * Default insets to be used and consumed by the [ModalBottomSheet] window.
      */
     val windowInsets: WindowInsets
@@ -497,4 +500,3 @@ internal fun rememberSheetState(
 }
 
 private val DragHandleVerticalPadding = 22.dp
-internal val BottomSheetMaxWidth = 640.dp

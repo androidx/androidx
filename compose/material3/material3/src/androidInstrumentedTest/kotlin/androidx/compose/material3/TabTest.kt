@@ -101,7 +101,7 @@ class TabTest {
     @Test
     fun defaultSemantics() {
         rule.setMaterialContent(lightColorScheme()) {
-            TabRow(0) {
+            SecondaryTabRow(0) {
                 Tab(
                     selected = true,
                     onClick = {},
@@ -146,7 +146,7 @@ class TabTest {
     @Test
     fun leadingIconTab_defaultSemantics() {
         rule.setMaterialContent(lightColorScheme()) {
-            TabRow(0) {
+            SecondaryTabRow(0) {
                 LeadingIconTab(
                     selected = true,
                     onClick = {},
@@ -260,7 +260,7 @@ class TabTest {
             }
 
             Box(Modifier.testTag("tabRow")) {
-                TabRow(
+                SecondaryTabRow(
                     selectedTabIndex = state,
                     indicator = indicator
                 ) {
@@ -304,7 +304,7 @@ class TabTest {
             val divider = @Composable { HorizontalDivider(Modifier.testTag("divider")) }
 
             Box(Modifier.testTag("tabRow")) {
-                TabRow(
+                SecondaryTabRow(
                     modifier = Modifier.height(tabRowHeight),
                     selectedTabIndex = 0,
                     divider = divider
@@ -338,7 +338,7 @@ class TabTest {
             val titles = listOf("TAB")
 
             Box {
-                TabRow(
+                SecondaryTabRow(
                     modifier = Modifier.testTag("tabRow"),
                     selectedTabIndex = state
                 ) {
@@ -369,7 +369,7 @@ class TabTest {
             val titles = listOf("TAB")
 
             Box {
-                TabRow(
+                SecondaryTabRow(
                     modifier = Modifier.testTag("tabRow"),
                     selectedTabIndex = state
                 ) {
@@ -409,7 +409,7 @@ class TabTest {
             val titles = listOf("Two line \n text")
 
             Box {
-                TabRow(
+                SecondaryTabRow(
                     modifier = Modifier.testTag("tabRow"),
                     selectedTabIndex = state
                 ) {
@@ -438,7 +438,7 @@ class TabTest {
     fun leadingIconTab_textAndIconPosition() {
         rule.setMaterialContent(lightColorScheme()) {
             Box {
-                TabRow(
+                SecondaryTabRow(
                     modifier = Modifier.testTag("tabRow"),
                     selectedTabIndex = 0
                 ) {
@@ -495,7 +495,7 @@ class TabTest {
             }
 
             Box {
-                ScrollableTabRow(
+                SecondaryScrollableTabRow(
                     modifier = Modifier.testTag("tabRow"),
                     selectedTabIndex = state,
                     indicator = indicator
@@ -542,7 +542,7 @@ class TabTest {
             val divider = @Composable { HorizontalDivider(Modifier.testTag("divider")) }
 
             Box(Modifier.testTag("tabRow")) {
-                ScrollableTabRow(
+                SecondaryScrollableTabRow(
                     modifier = Modifier.height(tabRowHeight),
                     selectedTabIndex = 0,
                     divider = divider
@@ -687,7 +687,7 @@ class TabTest {
             .setMaterialContent(lightColorScheme()) {
                 var state by remember { mutableStateOf(9) }
                 val titles = List(10) { "Tab ${it + 1}" }
-                ScrollableTabRow(selectedTabIndex = state) {
+                SecondaryScrollableTabRow(selectedTabIndex = state) {
                     titles.forEachIndexed { index, title ->
                         Tab(
                             selected = state == index,
@@ -757,7 +757,7 @@ class TabTest {
             }
 
             Box {
-                ScrollableTabRow(
+                SecondaryScrollableTabRow(
                     selectedTabIndex = state,
                     indicator = indicator
                 ) {
@@ -881,7 +881,7 @@ class TabTest {
                         .heightIn(max = height)
                         .testTag("Tabs")
                 ) {
-                    TabRow(selectedTabIndex = state) {
+                    SecondaryTabRow(selectedTabIndex = state) {
                         titles.forEachIndexed { index, title ->
                             Tab(
                                 selected = state == index,
@@ -913,7 +913,7 @@ class TabTest {
                         .heightIn(max = height)
                         .testTag("Tabs")
                 ) {
-                    ScrollableTabRow(selectedTabIndex = state) {
+                    SecondaryScrollableTabRow(selectedTabIndex = state) {
                         titles.forEachIndexed { index, title ->
                             Tab(
                                 selected = state == index,
@@ -936,7 +936,7 @@ class TabTest {
     @Test
     fun tabRow_noTabsHasHeightZero() {
         rule.setMaterialContent(lightColorScheme()) {
-            TabRow(
+            SecondaryTabRow(
                 modifier = Modifier.testTag("tabRow"),
                 selectedTabIndex = 0
             ) {}

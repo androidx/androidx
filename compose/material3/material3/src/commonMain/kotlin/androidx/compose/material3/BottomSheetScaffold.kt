@@ -71,6 +71,8 @@ import kotlinx.coroutines.launch
  * @param modifier the [Modifier] to be applied to this scaffold
  * @param scaffoldState the state of the bottom sheet scaffold
  * @param sheetPeekHeight the height of the bottom sheet when it is collapsed
+ * @param sheetMaxWidth [Dp] that defines what the maximum width the sheet will take.
+ * Pass in [Dp.Unspecified] for a sheet that spans the entire screen width.
  * @param sheetShape the shape of the bottom sheet
  * @param sheetContainerColor the background color of the bottom sheet
  * @param sheetContentColor the preferred content color provided by the bottom sheet to its
@@ -101,6 +103,7 @@ fun BottomSheetScaffold(
     modifier: Modifier = Modifier,
     scaffoldState: BottomSheetScaffoldState = rememberBottomSheetScaffoldState(),
     sheetPeekHeight: Dp = BottomSheetDefaults.SheetPeekHeight,
+    sheetMaxWidth: Dp = BottomSheetDefaults.SheetMaxWidth,
     sheetShape: Shape = BottomSheetDefaults.ExpandedShape,
     sheetContainerColor: Color = BottomSheetDefaults.ContainerColor,
     sheetContentColor: Color = contentColorFor(sheetContainerColor),
@@ -133,6 +136,7 @@ fun BottomSheetScaffold(
             StandardBottomSheet(
                 state = scaffoldState.bottomSheetState,
                 peekHeight = sheetPeekHeight,
+                sheetMaxWidth = sheetMaxWidth,
                 sheetSwipeEnabled = sheetSwipeEnabled,
                 calculateAnchors = { sheetSize ->
                     val sheetHeight = sheetSize.height
@@ -217,6 +221,7 @@ private fun StandardBottomSheet(
     @Suppress("PrimitiveInLambda")
     calculateAnchors: (sheetSize: IntSize) -> DraggableAnchors<SheetValue>,
     peekHeight: Dp,
+    sheetMaxWidth: Dp,
     sheetSwipeEnabled: Boolean,
     shape: Shape,
     containerColor: Color,
@@ -232,7 +237,7 @@ private fun StandardBottomSheet(
 
     Surface(
         modifier = Modifier
-            .widthIn(max = BottomSheetMaxWidth)
+            .widthIn(max = sheetMaxWidth)
             .fillMaxWidth()
             .requiredHeightIn(min = peekHeight)
             .nestedScroll(

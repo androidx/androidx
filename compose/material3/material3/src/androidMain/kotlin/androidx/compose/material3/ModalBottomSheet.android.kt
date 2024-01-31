@@ -110,6 +110,8 @@ import kotlinx.coroutines.launch
  * animates to [Hidden].
  * @param modifier Optional [Modifier] for the bottom sheet.
  * @param sheetState The state of the bottom sheet.
+ * @param sheetMaxWidth [Dp] that defines what the maximum width the sheet will take.
+ * Pass in [Dp.Unspecified] for a sheet that spans the entire screen width.
  * @param shape The shape of the bottom sheet.
  * @param containerColor The color used for the background of this bottom sheet
  * @param contentColor The preferred color for content inside this bottom sheet. Defaults to either
@@ -128,6 +130,7 @@ fun ModalBottomSheet(
     onDismissRequest: () -> Unit,
     modifier: Modifier = Modifier,
     sheetState: SheetState = rememberModalBottomSheetState(),
+    sheetMaxWidth: Dp = BottomSheetDefaults.SheetMaxWidth,
     shape: Shape = BottomSheetDefaults.ExpandedShape,
     containerColor: Color = BottomSheetDefaults.ContainerColor,
     contentColor: Color = contentColorFor(containerColor),
@@ -178,7 +181,7 @@ fun ModalBottomSheet(
             val bottomSheetPaneTitle = getString(string = Strings.BottomSheetPaneTitle)
             Surface(
                 modifier = modifier
-                    .widthIn(max = BottomSheetMaxWidth)
+                    .widthIn(max = sheetMaxWidth)
                     .fillMaxWidth()
                     .align(Alignment.TopCenter)
                     .semantics { paneTitle = bottomSheetPaneTitle }

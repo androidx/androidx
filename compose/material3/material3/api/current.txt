@@ -124,6 +124,7 @@ package androidx.compose.material3 {
     method @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getExpandedShape();
     method @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getHiddenShape();
     method @androidx.compose.runtime.Composable public long getScrimColor();
+    method public float getSheetMaxWidth();
     method public float getSheetPeekHeight();
     method @androidx.compose.runtime.Composable public androidx.compose.foundation.layout.WindowInsets getWindowInsets();
     property @androidx.compose.runtime.Composable public final long ContainerColor;
@@ -131,13 +132,14 @@ package androidx.compose.material3 {
     property @androidx.compose.runtime.Composable public final androidx.compose.ui.graphics.Shape ExpandedShape;
     property @androidx.compose.runtime.Composable public final androidx.compose.ui.graphics.Shape HiddenShape;
     property @androidx.compose.runtime.Composable public final long ScrimColor;
+    property public final float SheetMaxWidth;
     property public final float SheetPeekHeight;
     property @androidx.compose.runtime.Composable public final androidx.compose.foundation.layout.WindowInsets windowInsets;
     field public static final androidx.compose.material3.BottomSheetDefaults INSTANCE;
   }
 
   public final class BottomSheetScaffoldKt {
-    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static void BottomSheetScaffold(kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit> sheetContent, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.material3.BottomSheetScaffoldState scaffoldState, optional float sheetPeekHeight, optional androidx.compose.ui.graphics.Shape sheetShape, optional long sheetContainerColor, optional long sheetContentColor, optional float sheetTonalElevation, optional float sheetShadowElevation, optional kotlin.jvm.functions.Function0<kotlin.Unit>? sheetDragHandle, optional boolean sheetSwipeEnabled, optional kotlin.jvm.functions.Function0<kotlin.Unit>? topBar, optional kotlin.jvm.functions.Function1<? super androidx.compose.material3.SnackbarHostState,kotlin.Unit> snackbarHost, optional long containerColor, optional long contentColor, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.PaddingValues,kotlin.Unit> content);
+    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static void BottomSheetScaffold(kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit> sheetContent, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.material3.BottomSheetScaffoldState scaffoldState, optional float sheetPeekHeight, optional float sheetMaxWidth, optional androidx.compose.ui.graphics.Shape sheetShape, optional long sheetContainerColor, optional long sheetContentColor, optional float sheetTonalElevation, optional float sheetShadowElevation, optional kotlin.jvm.functions.Function0<kotlin.Unit>? sheetDragHandle, optional boolean sheetSwipeEnabled, optional kotlin.jvm.functions.Function0<kotlin.Unit>? topBar, optional kotlin.jvm.functions.Function1<? super androidx.compose.material3.SnackbarHostState,kotlin.Unit> snackbarHost, optional long containerColor, optional long contentColor, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.PaddingValues,kotlin.Unit> content);
     method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static androidx.compose.material3.BottomSheetScaffoldState rememberBottomSheetScaffoldState(optional androidx.compose.material3.SheetState bottomSheetState, optional androidx.compose.material3.SnackbarHostState snackbarHostState);
     method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static androidx.compose.material3.SheetState rememberStandardBottomSheetState(optional androidx.compose.material3.SheetValue initialValue, optional kotlin.jvm.functions.Function1<? super androidx.compose.material3.SheetValue,java.lang.Boolean> confirmValueChange, optional boolean skipHiddenState);
   }
@@ -491,9 +493,11 @@ package androidx.compose.material3 {
     method @androidx.compose.runtime.Composable public void DatePickerTitle(int displayMode, optional androidx.compose.ui.Modifier modifier);
     method @androidx.compose.runtime.Composable public androidx.compose.material3.DatePickerColors colors(optional long containerColor, optional long titleContentColor, optional long headlineContentColor, optional long weekdayContentColor, optional long subheadContentColor, optional long navigationContentColor, optional long yearContentColor, optional long disabledYearContentColor, optional long currentYearContentColor, optional long selectedYearContentColor, optional long disabledSelectedYearContentColor, optional long selectedYearContainerColor, optional long disabledSelectedYearContainerColor, optional long dayContentColor, optional long disabledDayContentColor, optional long selectedDayContentColor, optional long disabledSelectedDayContentColor, optional long selectedDayContainerColor, optional long disabledSelectedDayContainerColor, optional long todayContentColor, optional long todayDateBorderColor, optional long dayInSelectionRangeContentColor, optional long dayInSelectionRangeContainerColor, optional long dividerColor, optional androidx.compose.material3.TextFieldColors dateTextFieldColors);
     method public androidx.compose.material3.DatePickerFormatter dateFormatter(optional String yearSelectionSkeleton, optional String selectedDateSkeleton, optional String selectedDateDescriptionSkeleton);
+    method public androidx.compose.material3.SelectableDates getAllDates();
     method @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getShape();
     method public float getTonalElevation();
     method public kotlin.ranges.IntRange getYearRange();
+    property public final androidx.compose.material3.SelectableDates AllDates;
     property public final float TonalElevation;
     property public final kotlin.ranges.IntRange YearRange;
     property @androidx.compose.runtime.Composable public final androidx.compose.ui.graphics.Shape shape;
@@ -514,6 +518,7 @@ package androidx.compose.material3 {
 
   public final class DatePickerKt {
     method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static void DatePicker(androidx.compose.material3.DatePickerState state, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.material3.DatePickerFormatter dateFormatter, optional kotlin.jvm.functions.Function0<kotlin.Unit>? title, optional kotlin.jvm.functions.Function0<kotlin.Unit>? headline, optional boolean showModeToggle, optional androidx.compose.material3.DatePickerColors colors);
+    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public static androidx.compose.material3.DatePickerState DatePickerState(java.util.Locale locale, optional Long? initialSelectedDateMillis, optional Long? initialDisplayedMonthMillis, optional kotlin.ranges.IntRange yearRange, optional int initialDisplayMode, optional androidx.compose.material3.SelectableDates selectableDates);
     method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static androidx.compose.material3.DatePickerState rememberDatePickerState(optional Long? initialSelectedDateMillis, optional Long? initialDisplayedMonthMillis, optional kotlin.ranges.IntRange yearRange, optional int initialDisplayMode, optional androidx.compose.material3.SelectableDates selectableDates);
   }
 
@@ -541,6 +546,7 @@ package androidx.compose.material3 {
 
   public final class DateRangePickerKt {
     method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static void DateRangePicker(androidx.compose.material3.DateRangePickerState state, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.material3.DatePickerFormatter dateFormatter, optional kotlin.jvm.functions.Function0<kotlin.Unit>? title, optional kotlin.jvm.functions.Function0<kotlin.Unit>? headline, optional boolean showModeToggle, optional androidx.compose.material3.DatePickerColors colors);
+    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public static androidx.compose.material3.DateRangePickerState DateRangePickerState(java.util.Locale locale, optional Long? initialSelectedStartDateMillis, optional Long? initialSelectedEndDateMillis, optional Long? initialDisplayedMonthMillis, optional kotlin.ranges.IntRange yearRange, optional int initialDisplayMode, optional androidx.compose.material3.SelectableDates selectableDates);
     method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static androidx.compose.material3.DateRangePickerState rememberDateRangePickerState(optional Long? initialSelectedStartDateMillis, optional Long? initialSelectedEndDateMillis, optional Long? initialDisplayedMonthMillis, optional kotlin.ranges.IntRange yearRange, optional int initialDisplayMode, optional androidx.compose.material3.SelectableDates selectableDates);
   }
 
@@ -570,6 +576,7 @@ package androidx.compose.material3 {
   }
 
   @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public final class DismissState {
+    ctor @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public DismissState(androidx.compose.material3.DismissValue initialValue, androidx.compose.ui.unit.Density density, optional kotlin.jvm.functions.Function1<? super androidx.compose.material3.DismissValue,java.lang.Boolean> confirmValueChange, kotlin.jvm.functions.Function1<? super java.lang.Float,java.lang.Float> positionalThreshold);
     ctor @Deprecated public DismissState(androidx.compose.material3.DismissValue initialValue, optional kotlin.jvm.functions.Function1<? super androidx.compose.material3.DismissValue,java.lang.Boolean> confirmValueChange, kotlin.jvm.functions.Function1<? super java.lang.Float,java.lang.Float> positionalThreshold);
     method public suspend Object? dismiss(androidx.compose.material3.DismissDirection direction, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public androidx.compose.material3.DismissValue getCurrentValue();
@@ -647,21 +654,23 @@ package androidx.compose.material3 {
 
   @androidx.compose.runtime.Stable public final class DrawerState {
     ctor public DrawerState(androidx.compose.material3.DrawerValue initialValue, optional kotlin.jvm.functions.Function1<? super androidx.compose.material3.DrawerValue,java.lang.Boolean> confirmStateChange);
-    method public suspend Object? animateTo(androidx.compose.material3.DrawerValue targetValue, androidx.compose.animation.core.AnimationSpec<java.lang.Float> anim, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method @Deprecated public suspend Object? animateTo(androidx.compose.material3.DrawerValue targetValue, androidx.compose.animation.core.AnimationSpec<java.lang.Float> anim, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public suspend Object? close(kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public float getCurrentOffset();
     method public androidx.compose.material3.DrawerValue getCurrentValue();
-    method public androidx.compose.runtime.State<java.lang.Float> getOffset();
+    method @Deprecated public androidx.compose.runtime.State<java.lang.Float> getOffset();
     method public androidx.compose.material3.DrawerValue getTargetValue();
     method public boolean isAnimationRunning();
     method public boolean isClosed();
     method public boolean isOpen();
     method public suspend Object? open(kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public suspend Object? snapTo(androidx.compose.material3.DrawerValue targetValue, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    property public final float currentOffset;
     property public final androidx.compose.material3.DrawerValue currentValue;
     property public final boolean isAnimationRunning;
     property public final boolean isClosed;
     property public final boolean isOpen;
-    property public final androidx.compose.runtime.State<java.lang.Float> offset;
+    property @Deprecated public final androidx.compose.runtime.State<java.lang.Float> offset;
     property public final androidx.compose.material3.DrawerValue targetValue;
     field public static final androidx.compose.material3.DrawerState.Companion Companion;
   }
@@ -950,7 +959,7 @@ package androidx.compose.material3 {
   }
 
   public final class ModalBottomSheet_androidKt {
-    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static void ModalBottomSheet(kotlin.jvm.functions.Function0<kotlin.Unit> onDismissRequest, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.material3.SheetState sheetState, optional androidx.compose.ui.graphics.Shape shape, optional long containerColor, optional long contentColor, optional float tonalElevation, optional long scrimColor, optional kotlin.jvm.functions.Function0<kotlin.Unit>? dragHandle, optional androidx.compose.foundation.layout.WindowInsets windowInsets, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit> content);
+    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static void ModalBottomSheet(kotlin.jvm.functions.Function0<kotlin.Unit> onDismissRequest, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.material3.SheetState sheetState, optional float sheetMaxWidth, optional androidx.compose.ui.graphics.Shape shape, optional long containerColor, optional long contentColor, optional float tonalElevation, optional long scrimColor, optional kotlin.jvm.functions.Function0<kotlin.Unit>? dragHandle, optional androidx.compose.foundation.layout.WindowInsets windowInsets, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit> content);
     method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static androidx.compose.material3.SheetState rememberModalBottomSheetState(optional boolean skipPartiallyExpanded, optional kotlin.jvm.functions.Function1<? super androidx.compose.material3.SheetValue,java.lang.Boolean> confirmValueChange);
   }
 
@@ -1083,6 +1092,9 @@ package androidx.compose.material3 {
     method @androidx.compose.runtime.Composable public static void OutlinedTextField(String value, kotlin.jvm.functions.Function1<? super java.lang.String,kotlin.Unit> onValueChange, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional boolean readOnly, optional androidx.compose.ui.text.TextStyle textStyle, optional kotlin.jvm.functions.Function0<kotlin.Unit>? label, optional kotlin.jvm.functions.Function0<kotlin.Unit>? placeholder, optional kotlin.jvm.functions.Function0<kotlin.Unit>? leadingIcon, optional kotlin.jvm.functions.Function0<kotlin.Unit>? trailingIcon, optional kotlin.jvm.functions.Function0<kotlin.Unit>? prefix, optional kotlin.jvm.functions.Function0<kotlin.Unit>? suffix, optional kotlin.jvm.functions.Function0<kotlin.Unit>? supportingText, optional boolean isError, optional androidx.compose.ui.text.input.VisualTransformation visualTransformation, optional androidx.compose.foundation.text.KeyboardOptions keyboardOptions, optional androidx.compose.foundation.text.KeyboardActions keyboardActions, optional boolean singleLine, optional int maxLines, optional int minLines, optional androidx.compose.foundation.interaction.MutableInteractionSource interactionSource, optional androidx.compose.ui.graphics.Shape shape, optional androidx.compose.material3.TextFieldColors colors);
   }
 
+  @Deprecated @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Stable public interface PlainTooltipState extends androidx.compose.foundation.BasicTooltipState {
+  }
+
   public final class ProgressIndicatorDefaults {
     method @androidx.compose.runtime.Composable public long getCircularColor();
     method public int getCircularDeterminateStrokeCap();
@@ -1164,6 +1176,9 @@ package androidx.compose.material3 {
     property public final long containerColor;
     property public final long contentColor;
     property public final long titleContentColor;
+  }
+
+  @Deprecated @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Stable public interface RichTooltipState extends androidx.compose.foundation.BasicTooltipState {
   }
 
   public final class ScaffoldDefaults {
@@ -1328,12 +1343,9 @@ package androidx.compose.material3 {
     property public final androidx.compose.foundation.shape.CornerBasedShape small;
   }
 
-  public final class SheetDefaultsKt {
-    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public static androidx.compose.material3.SheetState SheetState(boolean skipPartiallyExpanded, androidx.compose.ui.unit.Density density, optional androidx.compose.material3.SheetValue initialValue, optional kotlin.jvm.functions.Function1<? super androidx.compose.material3.SheetValue,java.lang.Boolean> confirmValueChange, optional boolean skipHiddenState);
-  }
-
   @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Stable public final class SheetState {
     ctor @Deprecated public SheetState(boolean skipPartiallyExpanded, optional androidx.compose.material3.SheetValue initialValue, optional kotlin.jvm.functions.Function1<? super androidx.compose.material3.SheetValue,java.lang.Boolean> confirmValueChange, optional boolean skipHiddenState);
+    ctor @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public SheetState(boolean skipPartiallyExpanded, androidx.compose.ui.unit.Density density, optional androidx.compose.material3.SheetValue initialValue, optional kotlin.jvm.functions.Function1<? super androidx.compose.material3.SheetValue,java.lang.Boolean> confirmValueChange, optional boolean skipHiddenState);
     method public suspend Object? expand(kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public androidx.compose.material3.SheetValue getCurrentValue();
     method public boolean getHasExpandedState();
@@ -1473,7 +1485,7 @@ package androidx.compose.material3 {
     ctor public SnackbarHostState();
     method public androidx.compose.material3.SnackbarData? getCurrentSnackbarData();
     method public suspend Object? showSnackbar(androidx.compose.material3.SnackbarVisuals visuals, kotlin.coroutines.Continuation<? super androidx.compose.material3.SnackbarResult>);
-    method public suspend Object? showSnackbar(String message, optional String? actionLabel, optional boolean withDismissAction, optional androidx.compose.material3.SnackbarDuration duration, optional kotlin.coroutines.Continuation<? super androidx.compose.material3.SnackbarResult>);
+    method public suspend Object? showSnackbar(String message, optional String? actionLabel, optional boolean withDismissAction, optional androidx.compose.material3.SnackbarDuration duration, kotlin.coroutines.Continuation<? super androidx.compose.material3.SnackbarResult>);
     property public final androidx.compose.material3.SnackbarData? currentSnackbarData;
   }
 
@@ -1531,7 +1543,6 @@ package androidx.compose.material3 {
   }
 
   public final class SwipeToDismissKt {
-    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public static androidx.compose.material3.DismissState DismissState(androidx.compose.material3.DismissValue initialValue, androidx.compose.ui.unit.Density density, optional kotlin.jvm.functions.Function1<? super androidx.compose.material3.DismissValue,java.lang.Boolean> confirmValueChange, kotlin.jvm.functions.Function1<? super java.lang.Float,java.lang.Float> positionalThreshold);
     method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static void SwipeToDismiss(androidx.compose.material3.DismissState state, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> background, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> dismissContent, optional androidx.compose.ui.Modifier modifier, optional java.util.Set<? extends androidx.compose.material3.DismissDirection> directions);
     method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static androidx.compose.material3.DismissState rememberDismissState(optional androidx.compose.material3.DismissValue initialValue, optional kotlin.jvm.functions.Function1<? super androidx.compose.material3.DismissValue,java.lang.Boolean> confirmValueChange, optional kotlin.jvm.functions.Function1<? super java.lang.Float,java.lang.Float> positionalThreshold);
   }
@@ -1604,17 +1615,31 @@ package androidx.compose.material3 {
     method @Deprecated @androidx.compose.runtime.Composable public void Indicator(optional androidx.compose.ui.Modifier modifier, optional float height, optional long color);
     method @androidx.compose.runtime.Composable public void PrimaryIndicator(optional androidx.compose.ui.Modifier modifier, optional float width, optional float height, optional long color, optional androidx.compose.ui.graphics.Shape shape);
     method @androidx.compose.runtime.Composable public void SecondaryIndicator(optional androidx.compose.ui.Modifier modifier, optional float height, optional long color);
-    method @androidx.compose.runtime.Composable public long getContainerColor();
-    method @androidx.compose.runtime.Composable public long getContentColor();
+    method @Deprecated @androidx.compose.runtime.Composable public long getContainerColor();
+    method @Deprecated @androidx.compose.runtime.Composable public long getContentColor();
+    method @androidx.compose.runtime.Composable public long getPrimaryContainerColor();
+    method @androidx.compose.runtime.Composable public long getPrimaryContentColor();
+    method public float getScrollableTabRowEdgeStartPadding();
+    method @androidx.compose.runtime.Composable public long getSecondaryContainerColor();
+    method @androidx.compose.runtime.Composable public long getSecondaryContentColor();
     method public androidx.compose.ui.Modifier tabIndicatorOffset(androidx.compose.ui.Modifier, androidx.compose.material3.TabPosition currentTabPosition);
-    property @androidx.compose.runtime.Composable public final long containerColor;
-    property @androidx.compose.runtime.Composable public final long contentColor;
+    property public final float ScrollableTabRowEdgeStartPadding;
+    property @Deprecated @androidx.compose.runtime.Composable public final long containerColor;
+    property @Deprecated @androidx.compose.runtime.Composable public final long contentColor;
+    property @androidx.compose.runtime.Composable public final long primaryContainerColor;
+    property @androidx.compose.runtime.Composable public final long primaryContentColor;
+    property @androidx.compose.runtime.Composable public final long secondaryContainerColor;
+    property @androidx.compose.runtime.Composable public final long secondaryContentColor;
     field public static final androidx.compose.material3.TabRowDefaults INSTANCE;
   }
 
   public final class TabRowKt {
-    method @androidx.compose.runtime.Composable public static void ScrollableTabRow(int selectedTabIndex, optional androidx.compose.ui.Modifier modifier, optional long containerColor, optional long contentColor, optional float edgePadding, optional kotlin.jvm.functions.Function1<? super java.util.List<androidx.compose.material3.TabPosition>,kotlin.Unit> indicator, optional kotlin.jvm.functions.Function0<kotlin.Unit> divider, kotlin.jvm.functions.Function0<kotlin.Unit> tabs);
-    method @androidx.compose.runtime.Composable public static void TabRow(int selectedTabIndex, optional androidx.compose.ui.Modifier modifier, optional long containerColor, optional long contentColor, optional kotlin.jvm.functions.Function1<? super java.util.List<androidx.compose.material3.TabPosition>,kotlin.Unit> indicator, optional kotlin.jvm.functions.Function0<kotlin.Unit> divider, kotlin.jvm.functions.Function0<kotlin.Unit> tabs);
+    method @androidx.compose.runtime.Composable public static void PrimaryScrollableTabRow(int selectedTabIndex, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.foundation.ScrollState scrollState, optional long containerColor, optional long contentColor, optional float edgePadding, optional kotlin.jvm.functions.Function1<? super java.util.List<androidx.compose.material3.TabPosition>,kotlin.Unit> indicator, optional kotlin.jvm.functions.Function0<kotlin.Unit> divider, kotlin.jvm.functions.Function0<kotlin.Unit> tabs);
+    method @androidx.compose.runtime.Composable public static void PrimaryTabRow(int selectedTabIndex, optional androidx.compose.ui.Modifier modifier, optional long containerColor, optional long contentColor, optional kotlin.jvm.functions.Function1<? super java.util.List<androidx.compose.material3.TabPosition>,kotlin.Unit> indicator, optional kotlin.jvm.functions.Function0<kotlin.Unit> divider, kotlin.jvm.functions.Function0<kotlin.Unit> tabs);
+    method @Deprecated @androidx.compose.runtime.Composable public static void ScrollableTabRow(int selectedTabIndex, optional androidx.compose.ui.Modifier modifier, optional long containerColor, optional long contentColor, optional float edgePadding, optional kotlin.jvm.functions.Function1<? super java.util.List<androidx.compose.material3.TabPosition>,kotlin.Unit> indicator, optional kotlin.jvm.functions.Function0<kotlin.Unit> divider, kotlin.jvm.functions.Function0<kotlin.Unit> tabs);
+    method @androidx.compose.runtime.Composable public static void SecondaryScrollableTabRow(int selectedTabIndex, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.foundation.ScrollState scrollState, optional long containerColor, optional long contentColor, optional float edgePadding, optional kotlin.jvm.functions.Function1<? super java.util.List<androidx.compose.material3.TabPosition>,kotlin.Unit> indicator, optional kotlin.jvm.functions.Function0<kotlin.Unit> divider, kotlin.jvm.functions.Function0<kotlin.Unit> tabs);
+    method @androidx.compose.runtime.Composable public static void SecondaryTabRow(int selectedTabIndex, optional androidx.compose.ui.Modifier modifier, optional long containerColor, optional long contentColor, optional kotlin.jvm.functions.Function1<? super java.util.List<androidx.compose.material3.TabPosition>,kotlin.Unit> indicator, optional kotlin.jvm.functions.Function0<kotlin.Unit> divider, kotlin.jvm.functions.Function0<kotlin.Unit> tabs);
+    method @Deprecated @androidx.compose.runtime.Composable public static void TabRow(int selectedTabIndex, optional androidx.compose.ui.Modifier modifier, optional long containerColor, optional long contentColor, optional kotlin.jvm.functions.Function1<? super java.util.List<androidx.compose.material3.TabPosition>,kotlin.Unit> indicator, optional kotlin.jvm.functions.Function0<kotlin.Unit> divider, kotlin.jvm.functions.Function0<kotlin.Unit> tabs);
   }
 
   @androidx.compose.runtime.Immutable public final class TextFieldColors {
@@ -1836,6 +1861,10 @@ package androidx.compose.material3 {
     method public androidx.compose.runtime.saveable.Saver<androidx.compose.material3.TimePickerState,?> Saver();
   }
 
+  @Deprecated @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public interface TooltipBoxScope {
+    method @Deprecated public androidx.compose.ui.Modifier tooltipTrigger(androidx.compose.ui.Modifier);
+  }
+
   @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public final class TooltipDefaults {
     method @androidx.compose.runtime.Composable public long getPlainTooltipContainerColor();
     method @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getPlainTooltipContainerShape();
@@ -1853,9 +1882,13 @@ package androidx.compose.material3 {
 
   public final class TooltipKt {
     method @androidx.compose.runtime.Composable public static void PlainTooltip(optional androidx.compose.ui.Modifier modifier, optional long contentColor, optional long containerColor, optional androidx.compose.ui.graphics.Shape shape, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method @Deprecated @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static void PlainTooltipBox(kotlin.jvm.functions.Function0<kotlin.Unit> tooltip, optional androidx.compose.ui.Modifier modifier, optional boolean focusable, optional androidx.compose.material3.PlainTooltipState tooltipState, optional androidx.compose.ui.graphics.Shape shape, optional long containerColor, optional long contentColor, kotlin.jvm.functions.Function1<? super androidx.compose.material3.TooltipBoxScope,kotlin.Unit> content);
     method @androidx.compose.runtime.Composable public static void RichTooltip(optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function0<kotlin.Unit>? title, optional kotlin.jvm.functions.Function0<kotlin.Unit>? action, optional androidx.compose.material3.RichTooltipColors colors, optional androidx.compose.ui.graphics.Shape shape, kotlin.jvm.functions.Function0<kotlin.Unit> text);
+    method @Deprecated @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static void RichTooltipBox(kotlin.jvm.functions.Function0<kotlin.Unit> text, optional androidx.compose.ui.Modifier modifier, optional boolean focusable, optional kotlin.jvm.functions.Function0<kotlin.Unit>? title, optional kotlin.jvm.functions.Function0<kotlin.Unit>? action, optional androidx.compose.material3.RichTooltipState tooltipState, optional androidx.compose.ui.graphics.Shape shape, optional androidx.compose.material3.RichTooltipColors colors, kotlin.jvm.functions.Function1<? super androidx.compose.material3.TooltipBoxScope,kotlin.Unit> content);
     method @androidx.compose.runtime.Composable public static void TooltipBox(androidx.compose.ui.window.PopupPositionProvider positionProvider, kotlin.jvm.functions.Function0<kotlin.Unit> tooltip, androidx.compose.material3.TooltipState state, optional androidx.compose.ui.Modifier modifier, optional boolean focusable, optional boolean enableUserInput, kotlin.jvm.functions.Function0<kotlin.Unit> content);
     method public static androidx.compose.material3.TooltipState TooltipState(optional boolean initialIsVisible, optional boolean isPersistent, optional androidx.compose.foundation.MutatorMutex mutatorMutex);
+    method @Deprecated @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static androidx.compose.material3.PlainTooltipState rememberPlainTooltipState(optional androidx.compose.foundation.MutatorMutex mutatorMutex);
+    method @Deprecated @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static androidx.compose.material3.RichTooltipState rememberRichTooltipState(boolean isPersistent, optional androidx.compose.foundation.MutatorMutex mutatorMutex);
     method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static androidx.compose.material3.TooltipState rememberTooltipState(optional boolean initialIsVisible, optional boolean isPersistent, optional androidx.compose.foundation.MutatorMutex mutatorMutex);
   }
 

@@ -44,6 +44,26 @@ class DateRangePickerTest {
     val rule = createComposeRule()
 
     @Test
+    fun state_initWithoutRemember() {
+        val dateRangePickerState = DateRangePickerState(
+            locale = Locale.getDefault(),
+            initialSelectedStartDateMillis = 1649721600000L, // 04/12/2022
+            initialSelectedEndDateMillis = 1649721600000L + MillisecondsIn24Hours // 04/13/2022
+        )
+        with(dateRangePickerState) {
+            assertThat(selectedStartDateMillis).isEqualTo(1649721600000L)
+            assertThat(selectedEndDateMillis).isEqualTo(1649721600000L + MillisecondsIn24Hours)
+            assertThat(displayedMonthMillis).isEqualTo(
+                // Using the JVM Locale.getDefault() for testing purposes only.
+                createCalendarModel(Locale.getDefault()).getMonth(
+                    year = 2022,
+                    month = 4
+                ).startUtcTimeMillis
+            )
+        }
+    }
+
+    @Test
     fun state_initWithSelectedDates() {
         lateinit var dateRangePickerState: DateRangePickerState
         rule.setMaterialContent(lightColorScheme()) {

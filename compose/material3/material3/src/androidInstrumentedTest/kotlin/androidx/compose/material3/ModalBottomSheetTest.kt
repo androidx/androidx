@@ -51,6 +51,7 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsActions
@@ -70,6 +71,7 @@ import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeDown
 import androidx.compose.ui.test.swipeUp
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.coerceAtMost
@@ -208,7 +210,7 @@ class ModalBottomSheetTest(private val edgeToEdgeWrapper: EdgeToEdgeWrapper) {
     }
 
     @Test
-    fun modalBottomSheet_wideScreen_sheetRespectsMaxWidthAndIsCentered() {
+    fun modalBottomSheet_wideScreen_fixedMaxWidth_sheetRespectsMaxWidthAndIsCentered() {
         rule.activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
         val latch = CountDownLatch(1)
 
@@ -259,6 +261,56 @@ class ModalBottomSheetTest(private val edgeToEdgeWrapper: EdgeToEdgeWrapper) {
                     expectedLeft = expectedSheetLeft
                 )
                 .assertWidthIsEqualTo(expectedSheetWidth)
+        } catch (e: InterruptedException) {
+            fail("Unable to verify sheet width in landscape orientation")
+        } finally {
+            rule.activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+        }
+    }
+
+    @Test
+    fun modalBottomSheet_wideScreen_filledWidth_sheetFillsEntireWidth() {
+        rule.activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+        val latch = CountDownLatch(1)
+
+        rule.activity.application.registerComponentCallbacks(object : ComponentCallbacks2 {
+            override fun onConfigurationChanged(p0: Configuration) {
+                latch.countDown()
+            }
+
+            override fun onLowMemory() {
+                // NO-OP
+            }
+
+            override fun onTrimMemory(p0: Int) {
+                // NO-OP
+            }
+        })
+
+        try {
+            latch.await(1500, TimeUnit.MILLISECONDS)
+            var screenWidthPx by mutableStateOf(0)
+            rule.setContent {
+                val context = LocalContext.current
+                screenWidthPx = context.resources.displayMetrics.widthPixels
+                val windowInsets = if (edgeToEdgeWrapper.edgeToEdgeEnabled)
+                    WindowInsets(0) else BottomSheetDefaults.windowInsets
+                ModalBottomSheet(
+                    onDismissRequest = {},
+                    sheetMaxWidth = Dp.Unspecified,
+                    windowInsets = windowInsets
+                ) {
+                    Box(
+                        Modifier
+                            .testTag(sheetTag)
+                            .fillMaxHeight(0.4f)
+                    )
+                }
+            }
+
+            val sheet = rule.onNodeWithTag(sheetTag).onParent().getUnclippedBoundsInRoot()
+            val sheetWidthPx = with(rule.density) { sheet.width.roundToPx() }
+            assertThat(sheetWidthPx).isEqualTo(screenWidthPx)
         } catch (e: InterruptedException) {
             fail("Unable to verify sheet width in landscape orientation")
         } finally {
@@ -448,6 +500,38 @@ class ModalBottomSheetTest(private val edgeToEdgeWrapper: EdgeToEdgeWrapper) {
         size = 30.dp
         rule.waitForIdle()
         assertThat(state.requireOffset()).isWithin(1f).of(expectedExpandedAnchor)
+    }
+
+    @Test
+    fun modalBottomSheet_sheetMaxWidth_sizeChanges_snapsToNewTarget() {
+        lateinit var sheetMaxWidth: MutableState<Dp>
+        var screenWidth by mutableStateOf(0.dp)
+        rule.setContent {
+            val windowInsets = if (edgeToEdgeWrapper.edgeToEdgeEnabled)
+                WindowInsets(0) else BottomSheetDefaults.windowInsets
+            sheetMaxWidth = remember { mutableStateOf(0.dp) }
+            val context = LocalContext.current
+            val density = LocalDensity.current
+            screenWidth = with(density) { context.resources.displayMetrics.widthPixels.toDp() }
+            ModalBottomSheet(
+                onDismissRequest = {},
+                sheetMaxWidth = sheetMaxWidth.value,
+                windowInsets = windowInsets
+            ) {
+                Box(
+                    Modifier
+                        .fillMaxWidth()
+                        .testTag(sheetTag)
+                )
+            }
+        }
+
+        for (dp in listOf(0.dp, 200.dp, 400.dp)) {
+            sheetMaxWidth.value = dp
+            val sheetWidth = rule.onNodeWithTag(sheetTag).getUnclippedBoundsInRoot().width
+            val expectedSheetWidth = minOf(sheetMaxWidth.value, screenWidth)
+            assertThat(sheetWidth).isEqualTo(expectedSheetWidth)
+        }
     }
 
     @Test

@@ -137,6 +137,49 @@ internal class CalendarModelTest(private val model: CalendarModel) {
     }
 
     @Test
+    fun formatWithSkeleton() {
+        // Format twice to check that the formatter is outputting the right values, and that it's
+        // not failing due to cache issues.
+        var formatted = formatWithSkeleton(
+            January2022Millis,
+            DatePickerDefaults.YearMonthWeekdayDaySkeleton,
+            Locale.US,
+            cache = mutableMapOf()
+        )
+        assertThat(formatted).isEqualTo("Saturday, January 1, 2022")
+
+        formatted = formatWithSkeleton(
+            January2022Millis - 1000000000,
+            DatePickerDefaults.YearMonthWeekdayDaySkeleton,
+            Locale.US,
+            cache = mutableMapOf()
+        )
+        assertThat(formatted).isEqualTo("Monday, December 20, 2021")
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.M)
+    @Test
+    fun formatWithSkeletonProducingEqualPattern() {
+        // Format twice to check that the formatter is outputting the right values, and that it's
+        // not failing due to cache issues.
+        var formatted = formatWithSkeleton(
+            January2022Millis,
+            skeleton = "YY",
+            Locale.US,
+            cache = mutableMapOf()
+        )
+        assertThat(formatted).isEqualTo("22")
+
+        formatted = formatWithSkeleton(
+            January2022Millis - 1000000000,
+            "YY",
+            Locale.US,
+            cache = mutableMapOf()
+        )
+        assertThat(formatted).isEqualTo("21")
+    }
+
+    @Test
     fun weekdayNames() {
         // Ensure we are running on a US locale for this test.
         Locale.setDefault(Locale.US)

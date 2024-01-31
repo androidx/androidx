@@ -75,7 +75,6 @@ import androidx.compose.material3.samples.FilterChipSample
 import androidx.compose.material3.samples.FilterChipWithLeadingIconSample
 import androidx.compose.material3.samples.FloatingActionButtonSample
 import androidx.compose.material3.samples.IconButtonSample
-import androidx.compose.material3.samples.IconTabs
 import androidx.compose.material3.samples.IconToggleButtonSample
 import androidx.compose.material3.samples.IndeterminateCircularProgressIndicatorSample
 import androidx.compose.material3.samples.IndeterminateLinearProgressIndicatorSample
@@ -106,7 +105,7 @@ import androidx.compose.material3.samples.PinnedTopAppBar
 import androidx.compose.material3.samples.PlainTooltipSample
 import androidx.compose.material3.samples.PlainTooltipWithManualInvocationSample
 import androidx.compose.material3.samples.PrimaryIconTabs
-import androidx.compose.material3.samples.PrimaryTabs
+import androidx.compose.material3.samples.PrimaryTextTabs
 import androidx.compose.material3.samples.RadioButtonSample
 import androidx.compose.material3.samples.RadioGroupSample
 import androidx.compose.material3.samples.RangeSliderSample
@@ -119,11 +118,11 @@ import androidx.compose.material3.samples.ScaffoldWithIndefiniteSnackbar
 import androidx.compose.material3.samples.ScaffoldWithMultilineSnackbar
 import androidx.compose.material3.samples.ScaffoldWithSimpleSnackbar
 import androidx.compose.material3.samples.ScrollingFancyIndicatorContainerTabs
-import androidx.compose.material3.samples.ScrollingPrimaryTabs
-import androidx.compose.material3.samples.ScrollingSecondaryTabs
-import androidx.compose.material3.samples.ScrollingTextTabs
+import androidx.compose.material3.samples.ScrollingPrimaryTextTabs
+import androidx.compose.material3.samples.ScrollingSecondaryTextTabs
 import androidx.compose.material3.samples.SearchBarSample
-import androidx.compose.material3.samples.SecondaryTabs
+import androidx.compose.material3.samples.SecondaryIconTabs
+import androidx.compose.material3.samples.SecondaryTextTabs
 import androidx.compose.material3.samples.SegmentedButtonMultiSelectSample
 import androidx.compose.material3.samples.SegmentedButtonSingleSelectSample
 import androidx.compose.material3.samples.SimpleBottomAppBar
@@ -151,7 +150,6 @@ import androidx.compose.material3.samples.TextFieldWithIcons
 import androidx.compose.material3.samples.TextFieldWithPlaceholder
 import androidx.compose.material3.samples.TextFieldWithPrefixAndSuffix
 import androidx.compose.material3.samples.TextFieldWithSupportingText
-import androidx.compose.material3.samples.TextTabs
 import androidx.compose.material3.samples.ThreeLineListItemWithExtendedSupporting
 import androidx.compose.material3.samples.ThreeLineListItemWithOverlineAndSupporting
 import androidx.compose.material3.samples.TimeInputSample
@@ -954,11 +952,11 @@ private const val TabsExampleDescription = "Tabs examples"
 private const val TabsExampleSourceUrl = "$SampleSourceUrl/TabSamples.kt"
 val TabsExamples = listOf(
     Example(
-        name = ::PrimaryTabs.name,
+        name = ::PrimaryTextTabs.name,
         description = TabsExampleDescription,
         sourceUrl = TabsExampleSourceUrl
     ) {
-        PrimaryTabs()
+        PrimaryTextTabs()
     },
     Example(
         name = ::PrimaryIconTabs.name,
@@ -968,25 +966,18 @@ val TabsExamples = listOf(
         PrimaryIconTabs()
     },
     Example(
-        name = ::SecondaryTabs.name,
+        name = ::SecondaryTextTabs.name,
         description = TabsExampleDescription,
         sourceUrl = TabsExampleSourceUrl
     ) {
-        SecondaryTabs()
+        SecondaryTextTabs()
     },
     Example(
-        name = ::TextTabs.name,
+        name = ::SecondaryIconTabs.name,
         description = TabsExampleDescription,
         sourceUrl = TabsExampleSourceUrl
     ) {
-        TextTabs()
-    },
-    Example(
-        name = ::IconTabs.name,
-        description = TabsExampleDescription,
-        sourceUrl = TabsExampleSourceUrl
-    ) {
-        IconTabs()
+        SecondaryIconTabs()
     },
     Example(
         name = ::TextAndIconTabs.name,
@@ -1003,25 +994,18 @@ val TabsExamples = listOf(
         LeadingIconTabs()
     },
     Example(
-        name = ::ScrollingPrimaryTabs.name,
+        name = ::ScrollingPrimaryTextTabs.name,
         description = TabsExampleDescription,
         sourceUrl = TabsExampleSourceUrl
     ) {
-        ScrollingPrimaryTabs()
+        ScrollingPrimaryTextTabs()
     },
     Example(
-        name = ::ScrollingSecondaryTabs.name,
+        name = ::ScrollingSecondaryTextTabs.name,
         description = TabsExampleDescription,
         sourceUrl = TabsExampleSourceUrl
     ) {
-        ScrollingSecondaryTabs()
-    },
-    Example(
-        name = ::ScrollingTextTabs.name,
-        description = TabsExampleDescription,
-        sourceUrl = TabsExampleSourceUrl
-    ) {
-        ScrollingTextTabs()
+        ScrollingSecondaryTextTabs()
     },
     Example(
         name = ::FancyTabs.name,
