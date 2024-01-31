@@ -53,13 +53,14 @@ import androidx.compose.ui.unit.offset
 import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.max
+import kotlin.math.min
 
 /**
  * <a href="https://m3.material.io/components/progress-indicators/overview" class="external" target="_blank">Determinate Material Design linear progress indicator</a>.
  *
  * Progress indicators express an unspecified wait time or display the duration of a process.
  *
- * ![Linear progress indicator image](https://developer.android.com/images/reference/androidx/compose/material3/linear-progress-indicator.png)
+ * ![Linear progress indicator image](https://firebasestorage.googleapis.com/v0/b/design-spec/o/projects%2Fgoogle-material-3%2Fimages%2Flqdiyyvh-1P-progress-indicator-configurations.png?alt=media)
  *
  * By default there is no animation between [progress] values. You can use
  * [ProgressIndicatorDefaults.ProgressAnimationSpec] as the default recommended [AnimationSpec] when
@@ -75,6 +76,16 @@ import kotlin.math.max
  * reached the area of the overall indicator yet
  * @param strokeCap stroke cap to use for the ends of this progress indicator
  */
+@Deprecated(
+    message = "Use the overload that takes `gapSize` and `drawStopIndicator`, see " +
+        "`LegacyLinearProgressIndicatorSample` on how to restore the previous behavior",
+    replaceWith = ReplaceWith(
+        "LinearProgressIndicator(progress, modifier, color, trackColor, strokeCap, " +
+            "gapSize, drawStopIndicator)"
+    ),
+    level = DeprecationLevel.HIDDEN
+)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LinearProgressIndicator(
     progress: () -> Float,
@@ -82,6 +93,56 @@ fun LinearProgressIndicator(
     color: Color = ProgressIndicatorDefaults.linearColor,
     trackColor: Color = ProgressIndicatorDefaults.linearTrackColor,
     strokeCap: StrokeCap = ProgressIndicatorDefaults.LinearStrokeCap,
+) {
+    LinearProgressIndicator(
+        progress,
+        modifier,
+        color,
+        trackColor,
+        strokeCap,
+        gapSize = ProgressIndicatorDefaults.LinearIndicatorTrackGapSize
+    )
+}
+
+/**
+ * <a href="https://m3.material.io/components/progress-indicators/overview" class="external" target="_blank">Determinate Material Design linear progress indicator</a>.
+ *
+ * Progress indicators express an unspecified wait time or display the duration of a process.
+ *
+ * ![Linear progress indicator image](https://firebasestorage.googleapis.com/v0/b/design-spec/o/projects%2Fgoogle-material-3%2Fimages%2Flqdiyyvh-1P-progress-indicator-configurations.png?alt=media)
+ *
+ * By default there is no animation between [progress] values. You can use
+ * [ProgressIndicatorDefaults.ProgressAnimationSpec] as the default recommended [AnimationSpec] when
+ * animating progress, such as in the following example:
+ *
+ * @sample androidx.compose.material3.samples.LinearProgressIndicatorSample
+ *
+ * @param progress the progress of this progress indicator, where 0.0 represents no progress and 1.0
+ * represents full progress. Values outside of this range are coerced into the range.
+ * @param modifier the [Modifier] to be applied to this progress indicator
+ * @param color color of this progress indicator
+ * @param trackColor color of the track behind the indicator, visible when the progress has not
+ * reached the area of the overall indicator yet
+ * @param strokeCap stroke cap to use for the ends of this progress indicator
+ * @param gapSize size of the gap between the progress indicator and the track
+ * @param drawStopIndicator lambda that will be called to draw the stop indicator
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun LinearProgressIndicator(
+    progress: () -> Float,
+    modifier: Modifier = Modifier,
+    color: Color = ProgressIndicatorDefaults.linearColor,
+    trackColor: Color = ProgressIndicatorDefaults.linearTrackColor,
+    strokeCap: StrokeCap = ProgressIndicatorDefaults.LinearStrokeCap,
+    gapSize: Dp = ProgressIndicatorDefaults.LinearIndicatorTrackGapSize,
+    drawStopIndicator: (DrawScope.() -> Unit)? = {
+        drawStopIndicator(
+            stopSize = ProgressIndicatorDefaults.LinearTrackStopIndicatorSize,
+            color = color,
+            strokeCap = strokeCap
+        )
+    },
 ) {
     val coercedProgress = { progress().coerceIn(0f, 1f) }
     Canvas(
@@ -93,8 +154,56 @@ fun LinearProgressIndicator(
             .size(LinearIndicatorWidth, LinearIndicatorHeight)
     ) {
         val strokeWidth = size.height
-        drawLinearIndicatorTrack(trackColor, strokeWidth, strokeCap)
-        drawLinearIndicator(0f, coercedProgress(), color, strokeWidth, strokeCap)
+        val adjustedGapSize = if (strokeCap == StrokeCap.Butt || size.height > size.width) {
+            gapSize
+        } else {
+            gapSize + strokeWidth.toDp()
+        }
+        val gapSizeFraction = adjustedGapSize / size.width.toDp()
+        val currentCoercedProgress = coercedProgress()
+
+        // track
+        val trackStartFraction =
+            currentCoercedProgress + min(currentCoercedProgress, gapSizeFraction)
+        if (trackStartFraction <= 1f) {
+            drawLinearIndicator(
+                trackStartFraction, 1f, trackColor, strokeWidth, strokeCap
+            )
+        }
+        // indicator
+        drawLinearIndicator(
+            0f, currentCoercedProgress, color, strokeWidth, strokeCap
+        )
+        // stop
+        drawStopIndicator?.invoke(this)
+    }
+}
+
+private fun DrawScope.drawStopIndicator(
+    stopSize: Dp,
+    color: Color,
+    strokeCap: StrokeCap,
+) {
+    val adjustedStopSize = min(stopSize.toPx(), size.height) // Stop can't be bigger than track
+    val stopOffset = (size.height - adjustedStopSize) / 2 // Offset from end
+    if (strokeCap == StrokeCap.Round) {
+        drawCircle(
+            color = color,
+            radius = adjustedStopSize / 2f,
+            center = Offset(
+                x = size.width - (adjustedStopSize / 2f) - stopOffset,
+                y = size.height / 2f
+            )
+        )
+    } else {
+        drawRect(
+            color = color,
+            topLeft = Offset(
+                x = size.width - adjustedStopSize - stopOffset,
+                y = (size.height - adjustedStopSize) / 2f
+            ),
+            size = Size(width = adjustedStopSize, height = adjustedStopSize)
+        )
     }
 }
 
@@ -103,7 +212,7 @@ fun LinearProgressIndicator(
  *
  * Progress indicators express an unspecified wait time or display the duration of a process.
  *
- * ![Linear progress indicator image](https://developer.android.com/images/reference/androidx/compose/material3/linear-progress-indicator.png)
+ * ![Linear progress indicator image](https://firebasestorage.googleapis.com/v0/b/design-spec/o/projects%2Fgoogle-material-3%2Fimages%2Flqdiyyvh-1P-progress-indicator-configurations.png?alt=media)
  *
  * @sample androidx.compose.material3.samples.IndeterminateLinearProgressIndicatorSample
  *
@@ -113,12 +222,55 @@ fun LinearProgressIndicator(
  * reached the area of the overall indicator yet
  * @param strokeCap stroke cap to use for the ends of this progress indicator
  */
+@Deprecated(
+    message = "Use the overload that takes `gapSize`, see `" +
+        "LegacyIndeterminateLinearProgressIndicatorSample` on how to restore the previous behavior",
+    replaceWith = ReplaceWith(
+        "LinearProgressIndicator(modifier, color, trackColor, strokeCap, gapSize)"
+    ),
+    level = DeprecationLevel.HIDDEN
+)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LinearProgressIndicator(
     modifier: Modifier = Modifier,
     color: Color = ProgressIndicatorDefaults.linearColor,
     trackColor: Color = ProgressIndicatorDefaults.linearTrackColor,
     strokeCap: StrokeCap = ProgressIndicatorDefaults.LinearStrokeCap,
+) {
+    LinearProgressIndicator(
+        modifier,
+        color,
+        trackColor,
+        strokeCap,
+        gapSize = ProgressIndicatorDefaults.LinearIndicatorTrackGapSize,
+    )
+}
+
+/**
+ * <a href="https://m3.material.io/components/progress-indicators/overview" class="external" target="_blank">Indeterminate Material Design linear progress indicator</a>.
+ *
+ * Progress indicators express an unspecified wait time or display the duration of a process.
+ *
+ * ![Linear progress indicator image](https://firebasestorage.googleapis.com/v0/b/design-spec/o/projects%2Fgoogle-material-3%2Fimages%2Flqdiyyvh-1P-progress-indicator-configurations.png?alt=media)
+ *
+ * @sample androidx.compose.material3.samples.IndeterminateLinearProgressIndicatorSample
+ *
+ * @param modifier the [Modifier] to be applied to this progress indicator
+ * @param color color of this progress indicator
+ * @param trackColor color of the track behind the indicator, visible when the progress has not
+ * reached the area of the overall indicator yet
+ * @param strokeCap stroke cap to use for the ends of this progress indicator
+ * @param gapSize size of the gap between the progress indicator and the track
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun LinearProgressIndicator(
+    modifier: Modifier = Modifier,
+    color: Color = ProgressIndicatorDefaults.linearColor,
+    trackColor: Color = ProgressIndicatorDefaults.linearTrackColor,
+    strokeCap: StrokeCap = ProgressIndicatorDefaults.LinearStrokeCap,
+    gapSize: Dp = ProgressIndicatorDefaults.LinearIndicatorTrackGapSize,
 ) {
     val infiniteTransition = rememberInfiniteTransition()
     // Fractional position of the 'head' and 'tail' of the two lines drawn, i.e. if the head is 0.8
@@ -175,8 +327,24 @@ fun LinearProgressIndicator(
             .size(LinearIndicatorWidth, LinearIndicatorHeight)
     ) {
         val strokeWidth = size.height
-        drawLinearIndicatorTrack(trackColor, strokeWidth, strokeCap)
+        val adjustedGapSize = if (strokeCap == StrokeCap.Butt || size.height > size.width) {
+            gapSize
+        } else {
+            gapSize + strokeWidth.toDp()
+        }
+        val gapSizeFraction = adjustedGapSize / size.width.toDp()
+
         if (firstLineHead.value - firstLineTail.value > 0) {
+            if (firstLineTail.value > gapSizeFraction) {
+                val start = if (secondLineHead.value > gapSizeFraction) {
+                    secondLineHead.value + gapSizeFraction
+                } else {
+                    0f
+                }
+                drawLinearIndicator(
+                    start, firstLineTail.value - gapSizeFraction, trackColor, strokeWidth, strokeCap
+                )
+            }
             drawLinearIndicator(
                 firstLineHead.value,
                 firstLineTail.value,
@@ -184,8 +352,18 @@ fun LinearProgressIndicator(
                 strokeWidth,
                 strokeCap,
             )
+            if (firstLineHead.value < 1f - gapSizeFraction) {
+                drawLinearIndicator(
+                    firstLineHead.value + gapSizeFraction, 1f, trackColor, strokeWidth, strokeCap
+                )
+            }
         }
         if (secondLineHead.value - secondLineTail.value > 0) {
+            if (secondLineTail.value > gapSizeFraction) {
+                drawLinearIndicator(
+                    0f, secondLineTail.value - gapSizeFraction, trackColor, strokeWidth, strokeCap
+                )
+            }
             drawLinearIndicator(
                 secondLineHead.value,
                 secondLineTail.value,
@@ -193,19 +371,31 @@ fun LinearProgressIndicator(
                 strokeWidth,
                 strokeCap,
             )
+            if (secondLineHead.value < 1f - gapSizeFraction) {
+                val end = if (firstLineTail.value < 1f - gapSizeFraction) {
+                    firstLineTail.value - gapSizeFraction
+                } else {
+                    1f
+                }
+                drawLinearIndicator(
+                    secondLineHead.value + gapSizeFraction, end, trackColor, strokeWidth, strokeCap
+                )
+            }
         }
     }
 }
 
 @Deprecated(
     message = "Use the overload that takes `progress` as a lambda",
-    replaceWith = ReplaceWith("LinearProgressIndicator(\n" +
-        "progress = { progress },\n" +
-        "modifier = modifier,\n" +
-        "color = color,\n" +
-        "trackColor = trackColor,\n" +
-        "strokeCap = strokeCap,\n" +
-        ")")
+    replaceWith = ReplaceWith(
+        "LinearProgressIndicator(\n" +
+            "progress = { progress },\n" +
+            "modifier = modifier,\n" +
+            "color = color,\n" +
+            "trackColor = trackColor,\n" +
+            "strokeCap = strokeCap,\n" +
+            ")"
+    )
 )
 @Composable
 fun LinearProgressIndicator(
@@ -291,12 +481,6 @@ private fun DrawScope.drawLinearIndicator(
     }
 }
 
-private fun DrawScope.drawLinearIndicatorTrack(
-    color: Color,
-    strokeWidth: Float,
-    strokeCap: StrokeCap,
-) = drawLinearIndicator(0f, 1f, color, strokeWidth, strokeCap)
-
 private val SemanticsBoundsPadding: Dp = 10.dp
 private val IncreaseSemanticsBounds: Modifier = Modifier
     .layout { measurable, constraints ->
@@ -325,7 +509,7 @@ private val IncreaseSemanticsBounds: Modifier = Modifier
  *
  * Progress indicators express an unspecified wait time or display the duration of a process.
  *
- * ![Circular progress indicator image](https://developer.android.com/images/reference/androidx/compose/material3/circular-progress-indicator.png)
+ * ![Circular progress indicator image](https://firebasestorage.googleapis.com/v0/b/design-spec/o/projects%2Fgoogle-material-3%2Fimages%2Flqdiyyvh-1P-progress-indicator-configurations.png?alt=media)
  *
  * By default there is no animation between [progress] values. You can use
  * [ProgressIndicatorDefaults.ProgressAnimationSpec] as the default recommended [AnimationSpec] when
@@ -342,14 +526,69 @@ private val IncreaseSemanticsBounds: Modifier = Modifier
  * reached the area of the overall indicator yet
  * @param strokeCap stroke cap to use for the ends of this progress indicator
  */
+@Deprecated(
+    message = "Use the overload that takes `gapSize`, see " +
+        "`LegacyCircularProgressIndicatorSample` on how to restore the previous behavior",
+    replaceWith = ReplaceWith(
+        "CircularProgressIndicator(progress, modifier, color, strokeWidth, trackColor, " +
+            "strokeCap, gapSize)"
+    ),
+    level = DeprecationLevel.HIDDEN
+)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CircularProgressIndicator(
     progress: () -> Float,
     modifier: Modifier = Modifier,
     color: Color = ProgressIndicatorDefaults.circularColor,
     strokeWidth: Dp = ProgressIndicatorDefaults.CircularStrokeWidth,
-    trackColor: Color = ProgressIndicatorDefaults.circularTrackColor,
+    trackColor: Color = ProgressIndicatorDefaults.circularDeterminateTrackColor,
     strokeCap: StrokeCap = ProgressIndicatorDefaults.CircularDeterminateStrokeCap,
+) {
+    CircularProgressIndicator(
+        progress,
+        modifier,
+        color,
+        strokeWidth,
+        trackColor,
+        strokeCap,
+        gapSize = ProgressIndicatorDefaults.CircularIndicatorTrackGapSize
+    )
+}
+
+/**
+ * <a href="https://m3.material.io/components/progress-indicators/overview" class="external" target="_blank">Determinate Material Design circular progress indicator</a>.
+ *
+ * Progress indicators express an unspecified wait time or display the duration of a process.
+ *
+ * ![Circular progress indicator image](https://firebasestorage.googleapis.com/v0/b/design-spec/o/projects%2Fgoogle-material-3%2Fimages%2Flqdiyyvh-1P-progress-indicator-configurations.png?alt=media)
+ *
+ * By default there is no animation between [progress] values. You can use
+ * [ProgressIndicatorDefaults.ProgressAnimationSpec] as the default recommended [AnimationSpec] when
+ * animating progress, such as in the following example:
+ *
+ * @sample androidx.compose.material3.samples.CircularProgressIndicatorSample
+ *
+ * @param progress the progress of this progress indicator, where 0.0 represents no progress and 1.0
+ * represents full progress. Values outside of this range are coerced into the range.
+ * @param modifier the [Modifier] to be applied to this progress indicator
+ * @param color color of this progress indicator
+ * @param strokeWidth stroke width of this progress indicator
+ * @param trackColor color of the track behind the indicator, visible when the progress has not
+ * reached the area of the overall indicator yet
+ * @param strokeCap stroke cap to use for the ends of this progress indicator
+ * @param gapSize size of the gap between the progress indicator and the track
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun CircularProgressIndicator(
+    progress: () -> Float,
+    modifier: Modifier = Modifier,
+    color: Color = ProgressIndicatorDefaults.circularColor,
+    strokeWidth: Dp = ProgressIndicatorDefaults.CircularStrokeWidth,
+    trackColor: Color = ProgressIndicatorDefaults.circularDeterminateTrackColor,
+    strokeCap: StrokeCap = ProgressIndicatorDefaults.CircularDeterminateStrokeCap,
+    gapSize: Dp = ProgressIndicatorDefaults.CircularIndicatorTrackGapSize,
 ) {
     val coercedProgress = { progress().coerceIn(0f, 1f) }
     val stroke = with(LocalDensity.current) {
@@ -365,7 +604,20 @@ fun CircularProgressIndicator(
         // Start at 12 o'clock
         val startAngle = 270f
         val sweep = coercedProgress() * 360f
-        drawCircularIndicatorTrack(trackColor, stroke)
+        val adjustedGapSize = if (strokeCap == StrokeCap.Butt || size.height > size.width) {
+            gapSize
+        } else {
+            gapSize + strokeWidth
+        }
+        val gapSizeSweep =
+            (adjustedGapSize.value / (Math.PI * CircularIndicatorDiameter.value).toFloat()) * 360f
+
+        drawCircularIndicator(
+            startAngle + sweep + min(sweep, gapSizeSweep),
+            360f - sweep - min(sweep, gapSizeSweep) * 2,
+            trackColor,
+            stroke
+        )
         drawDeterminateCircularIndicator(startAngle, sweep, color, stroke)
     }
 }
@@ -375,7 +627,7 @@ fun CircularProgressIndicator(
  *
  * Progress indicators express an unspecified wait time or display the duration of a process.
  *
- * ![Circular progress indicator image](https://developer.android.com/images/reference/androidx/compose/material3/circular-progress-indicator.png)
+ * ![Circular progress indicator image](https://firebasestorage.googleapis.com/v0/b/design-spec/o/projects%2Fgoogle-material-3%2Fimages%2Flqdiyyvh-1P-progress-indicator-configurations.png?alt=media)
  *
  * @sample androidx.compose.material3.samples.IndeterminateCircularProgressIndicatorSample
  *
@@ -391,7 +643,7 @@ fun CircularProgressIndicator(
     modifier: Modifier = Modifier,
     color: Color = ProgressIndicatorDefaults.circularColor,
     strokeWidth: Dp = ProgressIndicatorDefaults.CircularStrokeWidth,
-    trackColor: Color = ProgressIndicatorDefaults.circularTrackColor,
+    trackColor: Color = ProgressIndicatorDefaults.circularIndeterminateTrackColor,
     strokeCap: StrokeCap = ProgressIndicatorDefaults.CircularIndeterminateStrokeCap,
 ) {
     val stroke = with(LocalDensity.current) {
@@ -469,6 +721,7 @@ fun CircularProgressIndicator(
     }
 }
 
+@Suppress("DEPRECATION")
 @Deprecated(
     message = "Use the overload that takes `progress` as a lambda",
     replaceWith = ReplaceWith(
@@ -479,7 +732,8 @@ fun CircularProgressIndicator(
             "strokeWidth = strokeWidth,\n" +
             "trackColor = trackColor,\n" +
             "strokeCap = strokeCap,\n" +
-            ")")
+            ")"
+    )
 )
 @Composable
 fun CircularProgressIndicator(
@@ -515,6 +769,7 @@ fun CircularProgressIndicator(
     strokeCap = ProgressIndicatorDefaults.CircularDeterminateStrokeCap,
 )
 
+@Suppress("DEPRECATION")
 @Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
 @Composable
 fun CircularProgressIndicator(
@@ -594,31 +849,65 @@ private fun DrawScope.drawIndeterminateCircularIndicator(
  */
 object ProgressIndicatorDefaults {
     /** Default color for a linear progress indicator. */
-    val linearColor: Color @Composable get() =
-        LinearProgressIndicatorTokens.ActiveIndicatorColor.value
+    val linearColor: Color
+        @Composable get() =
+            LinearProgressIndicatorTokens.ActiveIndicatorColor.value
 
     /** Default color for a circular progress indicator. */
-    val circularColor: Color @Composable get() =
-        CircularProgressIndicatorTokens.ActiveIndicatorColor.value
+    val circularColor: Color
+        @Composable get() =
+            CircularProgressIndicatorTokens.ActiveIndicatorColor.value
 
     /** Default track color for a linear progress indicator. */
-    val linearTrackColor: Color @Composable get() =
-        LinearProgressIndicatorTokens.TrackColor.value
+    val linearTrackColor: Color
+        @Composable get() = LinearProgressIndicatorTokens.TrackColor.value
 
     /** Default track color for a circular progress indicator. */
-    val circularTrackColor: Color @Composable get() = Color.Transparent
+    @Deprecated(
+        "Renamed to circularDeterminateTrackColor or circularIndeterminateTrackColor",
+        ReplaceWith("ProgressIndicatorDefaults.circularIndeterminateTrackColor"),
+        DeprecationLevel.WARNING
+    )
+    val circularTrackColor: Color
+        @Composable get() = Color.Transparent
+
+    /** Default track color for a circular determinate progress indicator. */
+    val circularDeterminateTrackColor: Color
+        @Composable get() = LinearProgressIndicatorTokens.TrackColor.value
+
+    /** Default track color for a circular indeterminate progress indicator. */
+    val circularIndeterminateTrackColor: Color
+        @Composable get() = Color.Transparent
 
     /** Default stroke width for a circular progress indicator. */
     val CircularStrokeWidth: Dp = CircularProgressIndicatorTokens.ActiveIndicatorWidth
 
     /** Default stroke cap for a linear progress indicator. */
-    val LinearStrokeCap: StrokeCap = StrokeCap.Butt
+    val LinearStrokeCap: StrokeCap = StrokeCap.Round
 
     /** Default stroke cap for a determinate circular progress indicator. */
-    val CircularDeterminateStrokeCap: StrokeCap = StrokeCap.Butt
+    val CircularDeterminateStrokeCap: StrokeCap = StrokeCap.Round
 
     /** Default stroke cap for an indeterminate circular progress indicator. */
-    val CircularIndeterminateStrokeCap: StrokeCap = StrokeCap.Square
+    val CircularIndeterminateStrokeCap: StrokeCap = StrokeCap.Round
+
+    /** Default track stop indicator size for a linear progress indicator. */
+    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
+    @get:ExperimentalMaterial3Api
+    @ExperimentalMaterial3Api
+    val LinearTrackStopIndicatorSize: Dp = 4.dp
+
+    /** Default indicator track gap size for a linear progress indicator. */
+    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
+    @get:ExperimentalMaterial3Api
+    @ExperimentalMaterial3Api
+    val LinearIndicatorTrackGapSize: Dp = 4.dp
+
+    /** Default indicator track gap size for a circular progress indicator. */
+    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
+    @get:ExperimentalMaterial3Api
+    @ExperimentalMaterial3Api
+    val CircularIndicatorTrackGapSize: Dp = 4.dp
 
     /**
      * The default [AnimationSpec] that should be used when animating between progress in a
