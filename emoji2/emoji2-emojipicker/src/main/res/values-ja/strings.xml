@@ -29,6 +29,5 @@
     <string name="emoji_category_flags" msgid="6185639503532784871">"旗"</string>
     <string name="emoji_empty_non_recent_category" msgid="288822832574892625">"使用できる絵文字がありません"</string>
     <string name="emoji_empty_recent_category" msgid="7863877827879290200">"まだ絵文字を使用していません"</string>
-    <!-- no translation found for emoji_bidirectional_switcher_content_desc (5084600168354220605) -->
-    <skip />
+    <string name="emoji_bidirectional_switcher_content_desc" msgid="5084600168354220605">"絵文字の双方向切り替え"</string>
 </resources>
