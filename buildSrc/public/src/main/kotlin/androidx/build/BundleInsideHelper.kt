@@ -23,8 +23,6 @@ import org.apache.tools.zip.ZipOutputStream
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.artifacts.Configuration
-import org.gradle.api.artifacts.type.ArtifactTypeDefinition
-import org.gradle.api.attributes.Attribute
 import org.gradle.api.file.FileTreeElement
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
@@ -213,24 +211,23 @@ object BundleInsideHelper {
         compileOnly.setExtendsFrom(listOf(bundle))
         testImplementation.setExtendsFrom(listOf(bundle))
 
-        // Lazy evaluation. Artifacts download happens in execution stage
-        val jarFilesCollection = bundle.incoming
-                    .artifactView { view ->
-                        view.attributes { attributes ->
-                            attributes.attribute(
-                                Attribute.of("artifactType", String::class.java),
-                                ArtifactTypeDefinition.JAR_TYPE
-                            )
+        tasks.named("jar").configure { jarTask ->
+            jarTask as Jar
+            jarTask.dependsOn(bundle)
+            jarTask.from({
+                bundle
+                    // The stdlib is already bundled with lint, so no need to include it manually
+                    // in the lint.jar if any dependencies here depend on it
+                    .filter { !it.name.contains("kotlin-stdlib") }
+                    .map { file ->
+                        if (file.isDirectory) {
+                            file
+                        } else {
+                            zipTree(file)
                         }
                     }
-                    .files
-                    .filter {
-                        // The stdlib is already bundled with lint, so no need to include it
-                        // manually in the lint.jar if any dependencies here depend on it
-                        !it.name.contains("kotlin-stdlib")
-                    }
-
-        tasks.named("jar", Jar::class.java).configure { it.from(jarFilesCollection) }
+            })
+        }
     }
 
     data class Relocation(val from: String, val to: String)
