@@ -44,9 +44,10 @@ class EnumColumnTypeAdapter(
     ) {
         val stringToEnumMethod = stringToEnumMethod(scope)
         scope.builder.apply {
+            val getter = if (scope.useDriverApi) "getText" else "getString"
             fun XCodeBlock.Builder.addGetStringStatement() {
                 addStatement(
-                    "%L = %N(%L.getString(%L))",
+                    "%L = %N(%L.$getter(%L))",
                     outVarName,
                     stringToEnumMethod,
                     cursorVarName,
@@ -72,10 +73,11 @@ class EnumColumnTypeAdapter(
         scope: CodeGenScope
     ) {
         val enumToStringMethod = enumToStringMethod(scope)
+        val setter = if (scope.useDriverApi) "bindText" else "bindString"
         scope.builder.apply {
             fun XCodeBlock.Builder.addBindStringStatement() {
                 addStatement(
-                    "%L.bindString(%L, %N(%L))",
+                    "%L.$setter(%L, %N(%L))",
                     stmtName, indexVarName, enumToStringMethod, valueVarName,
                 )
             }

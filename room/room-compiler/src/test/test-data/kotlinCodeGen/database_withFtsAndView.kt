@@ -7,13 +7,9 @@ import androidx.room.util.TableInfo
 import androidx.room.util.ViewInfo
 import androidx.room.util.dropFtsSyncTriggers
 import androidx.sqlite.SQLiteConnection
-import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.execSQL
-import java.util.HashMap
-import java.util.HashSet
 import javax.`annotation`.processing.Generated
 import kotlin.Any
-import kotlin.Boolean
 import kotlin.Lazy
 import kotlin.String
 import kotlin.Suppress
@@ -76,13 +72,11 @@ public class MyDatabase_Impl : MyDatabase() {
 
       public override fun onValidateSchema(connection: SQLiteConnection):
           RoomOpenDelegate.ValidationResult {
-        val _columnsMyParentEntity: HashMap<String, TableInfo.Column> =
-            HashMap<String, TableInfo.Column>(1)
+        val _columnsMyParentEntity: MutableMap<String, TableInfo.Column> = mutableMapOf()
         _columnsMyParentEntity.put("parentKey", TableInfo.Column("parentKey", "INTEGER", true, 1,
             null, TableInfo.CREATED_FROM_ENTITY))
-        val _foreignKeysMyParentEntity: HashSet<TableInfo.ForeignKey> =
-            HashSet<TableInfo.ForeignKey>(0)
-        val _indicesMyParentEntity: HashSet<TableInfo.Index> = HashSet<TableInfo.Index>(0)
+        val _foreignKeysMyParentEntity: MutableSet<TableInfo.ForeignKey> = mutableSetOf()
+        val _indicesMyParentEntity: MutableSet<TableInfo.Index> = mutableSetOf()
         val _infoMyParentEntity: TableInfo = TableInfo("MyParentEntity", _columnsMyParentEntity,
             _foreignKeysMyParentEntity, _indicesMyParentEntity)
         val _existingMyParentEntity: TableInfo = tableInfoRead(connection, "MyParentEntity")
@@ -95,16 +89,15 @@ public class MyDatabase_Impl : MyDatabase() {
               | Found:
               |""".trimMargin() + _existingMyParentEntity)
         }
-        val _columnsMyEntity: HashMap<String, TableInfo.Column> =
-            HashMap<String, TableInfo.Column>(2)
+        val _columnsMyEntity: MutableMap<String, TableInfo.Column> = mutableMapOf()
         _columnsMyEntity.put("pk", TableInfo.Column("pk", "INTEGER", true, 1, null,
             TableInfo.CREATED_FROM_ENTITY))
         _columnsMyEntity.put("indexedCol", TableInfo.Column("indexedCol", "TEXT", true, 0, null,
             TableInfo.CREATED_FROM_ENTITY))
-        val _foreignKeysMyEntity: HashSet<TableInfo.ForeignKey> = HashSet<TableInfo.ForeignKey>(1)
+        val _foreignKeysMyEntity: MutableSet<TableInfo.ForeignKey> = mutableSetOf()
         _foreignKeysMyEntity.add(TableInfo.ForeignKey("MyParentEntity", "CASCADE", "NO ACTION",
             listOf("indexedCol"), listOf("parentKey")))
-        val _indicesMyEntity: HashSet<TableInfo.Index> = HashSet<TableInfo.Index>(1)
+        val _indicesMyEntity: MutableSet<TableInfo.Index> = mutableSetOf()
         _indicesMyEntity.add(TableInfo.Index("index_MyEntity_indexedCol", false,
             listOf("indexedCol"), listOf("ASC")))
         val _infoMyEntity: TableInfo = TableInfo("MyEntity", _columnsMyEntity, _foreignKeysMyEntity,
@@ -119,7 +112,7 @@ public class MyDatabase_Impl : MyDatabase() {
               | Found:
               |""".trimMargin() + _existingMyEntity)
         }
-        val _columnsMyFtsEntity: HashSet<String> = HashSet<String>(2)
+        val _columnsMyFtsEntity: MutableSet<String> = mutableSetOf()
         _columnsMyFtsEntity.add("text")
         val _infoMyFtsEntity: FtsTableInfo = FtsTableInfo("MyFtsEntity", _columnsMyFtsEntity,
             "CREATE VIRTUAL TABLE IF NOT EXISTS `MyFtsEntity` USING FTS4(`text` TEXT NOT NULL)")
@@ -152,43 +145,18 @@ public class MyDatabase_Impl : MyDatabase() {
   }
 
   protected override fun createInvalidationTracker(): InvalidationTracker {
-    val _shadowTablesMap: HashMap<String, String> = HashMap<String, String>(1)
+    val _shadowTablesMap: MutableMap<String, String> = mutableMapOf()
     _shadowTablesMap.put("MyFtsEntity", "MyFtsEntity_content")
-    val _viewTables: HashMap<String, Set<String>> = HashMap<String, Set<String>>(1)
-    val _tables: HashSet<String> = HashSet<String>(1)
+    val _viewTables: MutableMap<String, Set<String>> = mutableMapOf()
+    val _tables: MutableSet<String> = mutableSetOf()
     _tables.add("MyFtsEntity")
     _viewTables.put("myview", _tables)
-    return InvalidationTracker(this, _shadowTablesMap, _viewTables,
-        "MyParentEntity","MyEntity","MyFtsEntity")
+    return InvalidationTracker(this, _shadowTablesMap, _viewTables, "MyParentEntity", "MyEntity",
+        "MyFtsEntity")
   }
 
   public override fun clearAllTables() {
-    super.assertNotMainThread()
-    val _db: SupportSQLiteDatabase = super.openHelper.writableDatabase
-    val _supportsDeferForeignKeys: Boolean = android.os.Build.VERSION.SDK_INT >=
-        android.os.Build.VERSION_CODES.LOLLIPOP
-    try {
-      if (!_supportsDeferForeignKeys) {
-        _db.execSQL("PRAGMA foreign_keys = FALSE")
-      }
-      super.beginTransaction()
-      if (_supportsDeferForeignKeys) {
-        _db.execSQL("PRAGMA defer_foreign_keys = TRUE")
-      }
-      _db.execSQL("DELETE FROM `MyParentEntity`")
-      _db.execSQL("DELETE FROM `MyEntity`")
-      _db.execSQL("DELETE FROM `MyFtsEntity`")
-      super.setTransactionSuccessful()
-    } finally {
-      super.endTransaction()
-      if (!_supportsDeferForeignKeys) {
-        _db.execSQL("PRAGMA foreign_keys = TRUE")
-      }
-      _db.query("PRAGMA wal_checkpoint(FULL)").close()
-      if (!_db.inTransaction()) {
-        _db.execSQL("VACUUM")
-      }
-    }
+    super.performClear(true, "MyParentEntity", "MyEntity", "MyFtsEntity")
   }
 
   protected override fun getRequiredTypeConverterClasses():

@@ -587,6 +587,28 @@ class DaoWriter(
     }
 
     private fun createQueryMethodBody(method: ReadQueryMethod): XCodeBlock {
+        if (!method.queryResultBinder.isMigratedToDriver()) {
+            return compatCreateQueryMethodBody(method)
+        }
+
+        val scope = CodeGenScope(this, useDriverApi = true)
+        val queryWriter = QueryWriter(method)
+        val sqlVar = scope.getTmpVar("_sql")
+        val listSizeArgs = queryWriter.prepareQuery(sqlVar, scope)
+        method.queryResultBinder.convertAndReturn(
+            sqlQueryVar = sqlVar,
+            dbProperty = dbProperty,
+            bindStatement = { stmtVar ->
+                queryWriter.bindArgs(stmtVar, listSizeArgs, this)
+            },
+            returnTypeName = method.returnType.asTypeName(),
+            inTransaction = method.inTransaction,
+            scope = scope
+        )
+        return scope.generate()
+    }
+
+    private fun compatCreateQueryMethodBody(method: ReadQueryMethod): XCodeBlock {
         val queryWriter = QueryWriter(method)
         val scope = CodeGenScope(this)
         val sqlVar = scope.getTmpVar("_sql")

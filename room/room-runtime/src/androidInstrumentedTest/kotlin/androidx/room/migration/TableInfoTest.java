@@ -16,6 +16,7 @@
 
 package androidx.room.migration;
 
+import static androidx.room.util.TableInfo.Column.defaultValueEquals;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -458,7 +459,7 @@ public class TableInfoTest {
         assertThat("((0) + (1 + 2))")
                 .isNotEqualTo(Objects.requireNonNull(dbInfo.columns.get("name")).defaultValue);
 
-        assertThat(TableInfo.Column.defaultValueEquals(
+        assertThat(defaultValueEquals(
                 "((0) + (1 + 2))",
                 Objects.requireNonNull(dbInfo.columns.get("name")).defaultValue)).isTrue();
     }
@@ -472,7 +473,7 @@ public class TableInfoTest {
         assertThat("(((0) + (1 + 2)))")
                 .isNotEqualTo(Objects.requireNonNull(dbInfo.columns.get("name")).defaultValue);
 
-        assertThat(TableInfo.Column.defaultValueEquals(
+        assertThat(defaultValueEquals(
                 "(((0) + (1 + 2)))",
                 Objects.requireNonNull(dbInfo.columns.get("name")).defaultValue));
     }
@@ -486,7 +487,7 @@ public class TableInfoTest {
         assertThat("(((3 + 5) + (2 + 1)) + (1 + 2))")
                 .isNotEqualTo(Objects.requireNonNull(dbInfo.columns.get("name")).defaultValue);
 
-        assertThat(TableInfo.Column.defaultValueEquals(
+        assertThat(defaultValueEquals(
                 "(((3 + 5) + (2 + 1)) + (1 + 2))",
                 Objects.requireNonNull(dbInfo.columns.get("name")).defaultValue));
     }
@@ -500,7 +501,7 @@ public class TableInfoTest {
         assertThat("(    (0) + (1 + 2))")
                 .isNotEqualTo(Objects.requireNonNull(dbInfo.columns.get("name")).defaultValue);
 
-        assertThat(TableInfo.Column.defaultValueEquals(
+        assertThat(defaultValueEquals(
                 "(    (0) + (1 + 2))",
                 Objects.requireNonNull(dbInfo.columns.get("name")).defaultValue));
     }
@@ -514,7 +515,7 @@ public class TableInfoTest {
         assertThat("((0) + (1 + 2)    )")
                 .isNotEqualTo(Objects.requireNonNull(dbInfo.columns.get("name")).defaultValue);
 
-        assertThat(TableInfo.Column.defaultValueEquals(
+        assertThat(defaultValueEquals(
                 "((0) + (1 + 2)    )",
                 Objects.requireNonNull(dbInfo.columns.get("name")).defaultValue)).isTrue();
     }

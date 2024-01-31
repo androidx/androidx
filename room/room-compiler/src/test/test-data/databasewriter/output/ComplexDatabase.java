@@ -10,7 +10,6 @@ import androidx.room.util.TableInfo;
 import androidx.room.util.ViewInfo;
 import androidx.sqlite.SQLiteConnection;
 import androidx.sqlite.SQLiteKt;
-import androidx.sqlite.db.SupportSQLiteDatabase;
 import java.lang.Class;
 import java.lang.Override;
 import java.lang.String;
@@ -72,13 +71,13 @@ public final class ComplexDatabase_Impl extends ComplexDatabase {
             @NonNull
             public RoomOpenDelegate.ValidationResult onValidateSchema(
                     @NonNull final SQLiteConnection connection) {
-                final HashMap<String, TableInfo.Column> _columnsUser = new HashMap<String, TableInfo.Column>(4);
+                final Map<String, TableInfo.Column> _columnsUser = new HashMap<String, TableInfo.Column>(4);
                 _columnsUser.put("uid", new TableInfo.Column("uid", "INTEGER", true, 1, null, TableInfo.CREATED_FROM_ENTITY));
                 _columnsUser.put("name", new TableInfo.Column("name", "TEXT", false, 0, null, TableInfo.CREATED_FROM_ENTITY));
                 _columnsUser.put("lastName", new TableInfo.Column("lastName", "TEXT", false, 0, null, TableInfo.CREATED_FROM_ENTITY));
                 _columnsUser.put("ageColumn", new TableInfo.Column("ageColumn", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
-                final HashSet<TableInfo.ForeignKey> _foreignKeysUser = new HashSet<TableInfo.ForeignKey>(0);
-                final HashSet<TableInfo.Index> _indicesUser = new HashSet<TableInfo.Index>(0);
+                final Set<TableInfo.ForeignKey> _foreignKeysUser = new HashSet<TableInfo.ForeignKey>(0);
+                final Set<TableInfo.Index> _indicesUser = new HashSet<TableInfo.Index>(0);
                 final TableInfo _infoUser = new TableInfo("User", _columnsUser, _foreignKeysUser, _indicesUser);
                 final TableInfo _existingUser = TableInfo.read(connection, "User");
                 if (!_infoUser.equals(_existingUser)) {
@@ -86,13 +85,13 @@ public final class ComplexDatabase_Impl extends ComplexDatabase {
                             + " Expected:\n" + _infoUser + "\n"
                             + " Found:\n" + _existingUser);
                 }
-                final HashMap<String, TableInfo.Column> _columnsChild1 = new HashMap<String, TableInfo.Column>(4);
+                final Map<String, TableInfo.Column> _columnsChild1 = new HashMap<String, TableInfo.Column>(4);
                 _columnsChild1.put("id", new TableInfo.Column("id", "INTEGER", true, 1, null, TableInfo.CREATED_FROM_ENTITY));
                 _columnsChild1.put("name", new TableInfo.Column("name", "TEXT", false, 0, null, TableInfo.CREATED_FROM_ENTITY));
                 _columnsChild1.put("serial", new TableInfo.Column("serial", "INTEGER", false, 0, null, TableInfo.CREATED_FROM_ENTITY));
                 _columnsChild1.put("code", new TableInfo.Column("code", "TEXT", false, 0, null, TableInfo.CREATED_FROM_ENTITY));
-                final HashSet<TableInfo.ForeignKey> _foreignKeysChild1 = new HashSet<TableInfo.ForeignKey>(0);
-                final HashSet<TableInfo.Index> _indicesChild1 = new HashSet<TableInfo.Index>(0);
+                final Set<TableInfo.ForeignKey> _foreignKeysChild1 = new HashSet<TableInfo.ForeignKey>(0);
+                final Set<TableInfo.Index> _indicesChild1 = new HashSet<TableInfo.Index>(0);
                 final TableInfo _infoChild1 = new TableInfo("Child1", _columnsChild1, _foreignKeysChild1, _indicesChild1);
                 final TableInfo _existingChild1 = TableInfo.read(connection, "Child1");
                 if (!_infoChild1.equals(_existingChild1)) {
@@ -100,13 +99,13 @@ public final class ComplexDatabase_Impl extends ComplexDatabase {
                             + " Expected:\n" + _infoChild1 + "\n"
                             + " Found:\n" + _existingChild1);
                 }
-                final HashMap<String, TableInfo.Column> _columnsChild2 = new HashMap<String, TableInfo.Column>(4);
+                final Map<String, TableInfo.Column> _columnsChild2 = new HashMap<String, TableInfo.Column>(4);
                 _columnsChild2.put("id", new TableInfo.Column("id", "INTEGER", true, 1, null, TableInfo.CREATED_FROM_ENTITY));
                 _columnsChild2.put("name", new TableInfo.Column("name", "TEXT", false, 0, null, TableInfo.CREATED_FROM_ENTITY));
                 _columnsChild2.put("serial", new TableInfo.Column("serial", "INTEGER", false, 0, null, TableInfo.CREATED_FROM_ENTITY));
                 _columnsChild2.put("code", new TableInfo.Column("code", "TEXT", false, 0, null, TableInfo.CREATED_FROM_ENTITY));
-                final HashSet<TableInfo.ForeignKey> _foreignKeysChild2 = new HashSet<TableInfo.ForeignKey>(0);
-                final HashSet<TableInfo.Index> _indicesChild2 = new HashSet<TableInfo.Index>(0);
+                final Set<TableInfo.ForeignKey> _foreignKeysChild2 = new HashSet<TableInfo.ForeignKey>(0);
+                final Set<TableInfo.Index> _indicesChild2 = new HashSet<TableInfo.Index>(0);
                 final TableInfo _infoChild2 = new TableInfo("Child2", _columnsChild2, _foreignKeysChild2, _indicesChild2);
                 final TableInfo _existingChild2 = TableInfo.read(connection, "Child2");
                 if (!_infoChild2.equals(_existingChild2)) {
@@ -130,31 +129,17 @@ public final class ComplexDatabase_Impl extends ComplexDatabase {
     @Override
     @NonNull
     protected InvalidationTracker createInvalidationTracker() {
-        final HashMap<String, String> _shadowTablesMap = new HashMap<String, String>(0);
-        final HashMap<String, Set<String>> _viewTables = new HashMap<String, Set<String>>(1);
-        final HashSet<String> _tables = new HashSet<String>(1);
+        final Map<String, String> _shadowTablesMap = new HashMap<String, String>(0);
+        final Map<String, Set<String>> _viewTables = new HashMap<String, Set<String>>(1);
+        final Set<String> _tables = new HashSet<String>(1);
         _tables.add("User");
         _viewTables.put("usersummary", _tables);
-        return new InvalidationTracker(this, _shadowTablesMap, _viewTables, "User","Child1","Child2");
+        return new InvalidationTracker(this, _shadowTablesMap, _viewTables, "User", "Child1", "Child2");
     }
 
     @Override
     public void clearAllTables() {
-        super.assertNotMainThread();
-        final SupportSQLiteDatabase _db = super.getOpenHelper().getWritableDatabase();
-        try {
-            super.beginTransaction();
-            _db.execSQL("DELETE FROM `User`");
-            _db.execSQL("DELETE FROM `Child1`");
-            _db.execSQL("DELETE FROM `Child2`");
-            super.setTransactionSuccessful();
-        } finally {
-            super.endTransaction();
-            _db.query("PRAGMA wal_checkpoint(FULL)").close();
-            if (!_db.inTransaction()) {
-                _db.execSQL("VACUUM");
-            }
-        }
+        super.performClear(false, "User", "Child1", "Child2");
     }
 
     @Override

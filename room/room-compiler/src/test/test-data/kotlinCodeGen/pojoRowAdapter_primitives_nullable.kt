@@ -1,10 +1,7 @@
-import android.database.Cursor
 import androidx.room.EntityInsertionAdapter
 import androidx.room.RoomDatabase
-import androidx.room.RoomSQLiteQuery
-import androidx.room.RoomSQLiteQuery.Companion.acquire
 import androidx.room.util.getColumnIndexOrThrow
-import androidx.room.util.query
+import androidx.room.util.performReadBlocking
 import androidx.sqlite.db.SupportSQLiteStatement
 import javax.`annotation`.processing.Generated
 import kotlin.Byte
@@ -94,69 +91,63 @@ public class MyDao_Impl(
 
   public override fun getEntity(): MyEntity {
     val _sql: String = "SELECT * FROM MyEntity"
-    val _statement: RoomSQLiteQuery = acquire(_sql, 0)
-    __db.assertNotSuspendingTransaction()
-    val _cursor: Cursor = query(__db, _statement, false, null)
-    try {
-      val _cursorIndexOfInt: Int = getColumnIndexOrThrow(_cursor, "int")
-      val _cursorIndexOfShort: Int = getColumnIndexOrThrow(_cursor, "short")
-      val _cursorIndexOfByte: Int = getColumnIndexOrThrow(_cursor, "byte")
-      val _cursorIndexOfLong: Int = getColumnIndexOrThrow(_cursor, "long")
-      val _cursorIndexOfChar: Int = getColumnIndexOrThrow(_cursor, "char")
-      val _cursorIndexOfFloat: Int = getColumnIndexOrThrow(_cursor, "float")
-      val _cursorIndexOfDouble: Int = getColumnIndexOrThrow(_cursor, "double")
+    return performReadBlocking(__db, _sql) { _stmt ->
+      val _cursorIndexOfInt: Int = getColumnIndexOrThrow(_stmt, "int")
+      val _cursorIndexOfShort: Int = getColumnIndexOrThrow(_stmt, "short")
+      val _cursorIndexOfByte: Int = getColumnIndexOrThrow(_stmt, "byte")
+      val _cursorIndexOfLong: Int = getColumnIndexOrThrow(_stmt, "long")
+      val _cursorIndexOfChar: Int = getColumnIndexOrThrow(_stmt, "char")
+      val _cursorIndexOfFloat: Int = getColumnIndexOrThrow(_stmt, "float")
+      val _cursorIndexOfDouble: Int = getColumnIndexOrThrow(_stmt, "double")
       val _result: MyEntity
-      if (_cursor.moveToFirst()) {
+      if (_stmt.step()) {
         val _tmpInt: Int?
-        if (_cursor.isNull(_cursorIndexOfInt)) {
+        if (_stmt.isNull(_cursorIndexOfInt)) {
           _tmpInt = null
         } else {
-          _tmpInt = _cursor.getInt(_cursorIndexOfInt)
+          _tmpInt = _stmt.getLong(_cursorIndexOfInt).toInt()
         }
         val _tmpShort: Short?
-        if (_cursor.isNull(_cursorIndexOfShort)) {
+        if (_stmt.isNull(_cursorIndexOfShort)) {
           _tmpShort = null
         } else {
-          _tmpShort = _cursor.getShort(_cursorIndexOfShort)
+          _tmpShort = _stmt.getLong(_cursorIndexOfShort).toShort()
         }
         val _tmpByte: Byte?
-        if (_cursor.isNull(_cursorIndexOfByte)) {
+        if (_stmt.isNull(_cursorIndexOfByte)) {
           _tmpByte = null
         } else {
-          _tmpByte = _cursor.getShort(_cursorIndexOfByte).toByte()
+          _tmpByte = _stmt.getLong(_cursorIndexOfByte).toByte()
         }
         val _tmpLong: Long?
-        if (_cursor.isNull(_cursorIndexOfLong)) {
+        if (_stmt.isNull(_cursorIndexOfLong)) {
           _tmpLong = null
         } else {
-          _tmpLong = _cursor.getLong(_cursorIndexOfLong)
+          _tmpLong = _stmt.getLong(_cursorIndexOfLong)
         }
         val _tmpChar: Char?
-        if (_cursor.isNull(_cursorIndexOfChar)) {
+        if (_stmt.isNull(_cursorIndexOfChar)) {
           _tmpChar = null
         } else {
-          _tmpChar = _cursor.getInt(_cursorIndexOfChar).toChar()
+          _tmpChar = _stmt.getLong(_cursorIndexOfChar).toChar()
         }
         val _tmpFloat: Float?
-        if (_cursor.isNull(_cursorIndexOfFloat)) {
+        if (_stmt.isNull(_cursorIndexOfFloat)) {
           _tmpFloat = null
         } else {
-          _tmpFloat = _cursor.getFloat(_cursorIndexOfFloat)
+          _tmpFloat = _stmt.getDouble(_cursorIndexOfFloat).toFloat()
         }
         val _tmpDouble: Double?
-        if (_cursor.isNull(_cursorIndexOfDouble)) {
+        if (_stmt.isNull(_cursorIndexOfDouble)) {
           _tmpDouble = null
         } else {
-          _tmpDouble = _cursor.getDouble(_cursorIndexOfDouble)
+          _tmpDouble = _stmt.getDouble(_cursorIndexOfDouble)
         }
         _result = MyEntity(_tmpInt,_tmpShort,_tmpByte,_tmpLong,_tmpChar,_tmpFloat,_tmpDouble)
       } else {
         error("The query result was empty, but expected a single row to return a NON-NULL object of type <MyEntity>.")
       }
-      return _result
-    } finally {
-      _cursor.close()
-      _statement.release()
+      _result
     }
   }
 

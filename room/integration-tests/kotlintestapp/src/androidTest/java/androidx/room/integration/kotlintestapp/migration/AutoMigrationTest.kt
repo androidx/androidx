@@ -50,6 +50,7 @@ class AutoMigrationTest {
     }
 
     @Test
+    @Suppress("DEPRECATION") // Due to TableInfo.read()
     fun goFromV1ToV2() {
         createFirstVersion()
         val db = helper.runMigrationsAndValidate(
@@ -83,6 +84,7 @@ Violation(s) detected in the following constraint(s):
     }
 
     @Test
+    @Suppress("DEPRECATION") // Due to TableInfo.read()
     fun testAutoMigrationWithNewEmbeddedField() {
         val embeddedHelper = MigrationTestHelper(
             InstrumentationRegistry.getInstrumentation(),

@@ -25,6 +25,7 @@ import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.SQLiteStatement
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.db.SupportSQLiteOpenHelper
+import androidx.sqlite.use
 
 /**
  * An Android platform specific [RoomConnectionManager] with backwards compatibility with
@@ -243,7 +244,7 @@ internal class RoomAndroidConnectionManager : RoomConnectionManager {
         private var currentTransactionType: Transactor.SQLiteTransactionType? = null
 
         override suspend fun <R> usePrepared(sql: String, block: (SQLiteStatement) -> R): R {
-            return block.invoke(delegate.prepare(sql))
+            return delegate.prepare(sql).use { block.invoke(it) }
         }
 
         // TODO(b/318767291): Add coroutine confinement like RoomDatabase.withTransaction
@@ -268,7 +269,9 @@ internal class RoomAndroidConnectionManager : RoomConnectionManager {
                 Transactor.SQLiteTransactionType.EXCLUSIVE -> db.beginTransaction()
             }
             try {
-                return SupportTransactor<R>().block()
+                val result = SupportTransactor<R>().block()
+                db.setTransactionSuccessful()
+                return result
             } catch (rollback: RollbackException) {
                 @Suppress("UNCHECKED_CAST")
                 return rollback.result as R

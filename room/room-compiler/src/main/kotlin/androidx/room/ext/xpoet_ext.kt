@@ -79,6 +79,7 @@ object RoomTypeNames {
     val ROOM_OPEN_DELEGATE = XClassName.get(ROOM_PACKAGE, "RoomOpenDelegate")
     val ROOM_OPEN_DELEGATE_VALIDATION_RESULT =
         XClassName.get(ROOM_PACKAGE, "RoomOpenDelegate", "ValidationResult")
+    val STATEMENT_UTIL = XClassName.get("$ROOM_PACKAGE.util", "SQLiteStatementUtil")
 }
 
 object RoomAnnotationTypeNames {

@@ -1,10 +1,7 @@
-import android.database.Cursor
 import androidx.room.EntityInsertionAdapter
 import androidx.room.RoomDatabase
-import androidx.room.RoomSQLiteQuery
-import androidx.room.RoomSQLiteQuery.Companion.acquire
 import androidx.room.util.getColumnIndexOrThrow
-import androidx.room.util.query
+import androidx.room.util.performReadBlocking
 import androidx.sqlite.db.SupportSQLiteStatement
 import java.lang.IllegalArgumentException
 import javax.`annotation`.processing.Generated
@@ -55,33 +52,27 @@ public class MyDao_Impl(
 
   public override fun getEntity(): MyEntity {
     val _sql: String = "SELECT * FROM MyEntity"
-    val _statement: RoomSQLiteQuery = acquire(_sql, 0)
-    __db.assertNotSuspendingTransaction()
-    val _cursor: Cursor = query(__db, _statement, false, null)
-    try {
-      val _cursorIndexOfPk: Int = getColumnIndexOrThrow(_cursor, "pk")
-      val _cursorIndexOfEnum: Int = getColumnIndexOrThrow(_cursor, "enum")
-      val _cursorIndexOfNullableEnum: Int = getColumnIndexOrThrow(_cursor, "nullableEnum")
+    return performReadBlocking(__db, _sql) { _stmt ->
+      val _cursorIndexOfPk: Int = getColumnIndexOrThrow(_stmt, "pk")
+      val _cursorIndexOfEnum: Int = getColumnIndexOrThrow(_stmt, "enum")
+      val _cursorIndexOfNullableEnum: Int = getColumnIndexOrThrow(_stmt, "nullableEnum")
       val _result: MyEntity
-      if (_cursor.moveToFirst()) {
+      if (_stmt.step()) {
         val _tmpPk: Int
-        _tmpPk = _cursor.getInt(_cursorIndexOfPk)
+        _tmpPk = _stmt.getLong(_cursorIndexOfPk).toInt()
         val _tmpEnum: Fruit
-        _tmpEnum = __Fruit_stringToEnum(_cursor.getString(_cursorIndexOfEnum))
+        _tmpEnum = __Fruit_stringToEnum(_stmt.getText(_cursorIndexOfEnum))
         val _tmpNullableEnum: Fruit?
-        if (_cursor.isNull(_cursorIndexOfNullableEnum)) {
+        if (_stmt.isNull(_cursorIndexOfNullableEnum)) {
           _tmpNullableEnum = null
         } else {
-          _tmpNullableEnum = __Fruit_stringToEnum(_cursor.getString(_cursorIndexOfNullableEnum))
+          _tmpNullableEnum = __Fruit_stringToEnum(_stmt.getText(_cursorIndexOfNullableEnum))
         }
         _result = MyEntity(_tmpPk,_tmpEnum,_tmpNullableEnum)
       } else {
         error("The query result was empty, but expected a single row to return a NON-NULL object of type <MyEntity>.")
       }
-      return _result
-    } finally {
-      _cursor.close()
-      _statement.release()
+      _result
     }
   }
 

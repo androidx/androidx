@@ -22,7 +22,6 @@ import androidx.room.compiler.codegen.CodeLanguage
 import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.processing.XAnnotationBox
 import androidx.room.compiler.processing.XElement
-import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.ext.RoomTypeNames
 import androidx.room.migration.bundle.DatabaseBundle
@@ -50,8 +49,8 @@ import java.util.Locale
 class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
     val context = baseContext.fork(element)
 
-    val roomDatabaseType: XType by lazy {
-        context.processingEnv.requireType(RoomTypeNames.ROOM_DB)
+    private val roomDatabaseTypeElement: XTypeElement by lazy {
+        context.processingEnv.requireTypeElement(RoomTypeNames.ROOM_DB)
     }
 
     fun process(): Database {
@@ -70,7 +69,7 @@ class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
         validateForeignKeys(element, entities)
         validateExternalContentFts(element, entities)
 
-        val extendsRoomDb = roomDatabaseType.isAssignableFrom(element.type)
+        val extendsRoomDb = roomDatabaseTypeElement.type.isAssignableFrom(element.type)
         context.checker.check(extendsRoomDb, element, ProcessorErrors.DB_MUST_EXTEND_ROOM_DB)
 
         val views = resolveDatabaseViews(viewsMap.values.toList())
@@ -128,6 +127,9 @@ class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
 
         val hasForeignKeys = entities.any { it.foreignKeys.isNotEmpty() }
 
+        val hasClearAllTables = roomDatabaseTypeElement.getDeclaredMethods()
+            .any { it.name == "clearAllTables" }
+
         context.checker.check(
             predicate = dbAnnotation.value.version > 0,
             element = element,
@@ -142,7 +144,8 @@ class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
             views = views,
             daoMethods = daoMethods,
             exportSchema = dbAnnotation.value.exportSchema,
-            enableForeignKeys = hasForeignKeys
+            enableForeignKeys = hasForeignKeys,
+            overrideClearAllTables = hasClearAllTables,
         )
         database.autoMigrations = processAutoMigrations(element, database.bundle)
         return database

@@ -174,6 +174,7 @@ class MigrationKotlinTest {
 
     @Test
     @Throws(IOException::class)
+    @Suppress("DEPRECATION") // Due to TableInfo.read()
     fun removeColumn() {
         helper.createDatabase(TEST_DB, 4)
         val db = helper.runMigrationsAndValidate(
@@ -186,6 +187,7 @@ class MigrationKotlinTest {
 
     @Test
     @Throws(IOException::class)
+    @Suppress("DEPRECATION") // Due to TableInfo.read()
     fun dropTable() {
         helper.createDatabase(TEST_DB, 5)
         val db = helper.runMigrationsAndValidate(
@@ -204,6 +206,7 @@ class MigrationKotlinTest {
 
     @Test
     @Throws(IOException::class)
+    @Suppress("DEPRECATION") // Due to TableInfo.read()
     fun failedToDropTableDontVerify() {
         helper.createDatabase(TEST_DB, 5)
         val db = helper.runMigrationsAndValidate(
@@ -244,6 +247,7 @@ class MigrationKotlinTest {
 
     @Test
     @Throws(IOException::class)
+    @Suppress("DEPRECATION") // Due to TableInfo.read()
     fun newTableWithForeignKey() {
         helper.createDatabase(TEST_DB, 6)
         val db = helper.runMigrationsAndValidate(
