@@ -334,7 +334,7 @@ private class PagerBringIntoViewSpec(
                 // move one page forward or backward, whilst making sure we don't move out of bounds
                 // again.
                 val reversedFirstPageScroll = pagerState.firstVisiblePageOffset * -1f
-                if (pagerState.isScrollingForward) {
+                if (pagerState.isLastScrollForward) {
                     reversedFirstPageScroll + pagerState.pageSizeWithSpacing
                 } else {
                     reversedFirstPageScroll
