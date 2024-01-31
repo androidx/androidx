@@ -36,6 +36,31 @@ public class ReplaceWithUsageJava {
     }
 
     /**
+     * Calls the method on the object.
+     *
+     * @param obj The object on which to call the method.
+     * @deprecated Use {@link Object#toString()} directly.
+     */
+    @Deprecated
+    @ReplaceWith(expression = "obj.toString()", imports = "androidx.annotation.Deprecated")
+    public static void toStringWithImport(Object obj) {
+        // Stub.
+    }
+
+    /**
+     * Calls the method on the object.
+     *
+     * @param obj The object on which to call the method.
+     * @deprecated Use {@link Object#toString()} directly.
+     */
+    @Deprecated
+    @ReplaceWith(expression = "obj.toString()",
+            imports = {"androidx.annotation.Deprecated", "androidx.annotation.NonNull"})
+    public static void toStringWithImports(Object obj) {
+        // Stub.
+    }
+
+    /**
      * Returns a new object.
      */
     public static ReplaceWithUsageJava obtain(int param) {
