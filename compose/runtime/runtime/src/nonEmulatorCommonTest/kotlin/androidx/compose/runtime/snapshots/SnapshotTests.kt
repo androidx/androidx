@@ -621,15 +621,22 @@ class SnapshotTests {
         }
     }
 
+    // Boxes a primitive Int into an object to facilitate testing on all platforms.
+    // In common case we can't rely on a default pool of boxed Integers (-128..127).
+    // For example, in K/Wasm each boxed Int is a new instance.
+    private fun boxInt(i: Int): Any = i
+
     @Test
     fun stateUsingNeverEqualPolicyCannotBeMerged() {
+        val value = boxInt(0)
+        val value2 = boxInt(1)
         assertFailsWith(SnapshotApplyConflictException::class) {
-            val state = mutableStateOf(0, neverEqualPolicy())
+            val state = mutableStateOf(value, neverEqualPolicy())
             val snapshot1 = takeMutableSnapshot()
             val snapshot2 = takeMutableSnapshot()
             try {
-                snapshot1.enter { state.value = 1 }
-                snapshot2.enter { state.value = 1 }
+                snapshot1.enter { state.value = value2 }
+                snapshot2.enter { state.value = value2 }
                 snapshot1.apply().check()
                 snapshot2.apply().check()
             } finally {
@@ -641,18 +648,20 @@ class SnapshotTests {
 
     @Test
     fun changingAnEqualityPolicyStateToItsCurrentValueIsNotConsideredAChange() {
-        val state = mutableStateOf(0, referentialEqualityPolicy())
+        val value = boxInt(0)
+        val state = mutableStateOf(value, referentialEqualityPolicy())
         val changes = changesOf(state) {
-            state.value = 0
+            state.value = value
         }
         assertEquals(0, changes)
     }
 
     @Test
     fun changingANeverEqualPolicyStateToItsCurrentValueIsConsideredAChange() {
-        val state = mutableStateOf(0, neverEqualPolicy())
+        val value = boxInt(0)
+        val state = mutableStateOf(value, neverEqualPolicy())
         val changes = changesOf(state) {
-            state.value = 0
+            state.value = value
         }
         assertEquals(1, changes)
     }
