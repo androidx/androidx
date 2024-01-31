@@ -42,7 +42,6 @@ import androidx.camera.core.impl.OutputSurface;
 import androidx.camera.core.impl.OutputSurfaceConfiguration;
 import androidx.camera.core.impl.RequestProcessor;
 import androidx.camera.core.impl.SessionProcessor;
-import androidx.camera.extensions.ExtensionMode;
 import androidx.camera.extensions.impl.CaptureProcessorImpl;
 import androidx.camera.extensions.impl.CaptureStageImpl;
 import androidx.camera.extensions.impl.ImageCaptureExtenderImpl;
@@ -56,8 +55,6 @@ import androidx.camera.extensions.internal.VendorExtender;
 import androidx.camera.extensions.internal.Version;
 import androidx.camera.extensions.internal.compat.workaround.OnEnableDisableSessionDurationCheck;
 import androidx.core.util.Preconditions;
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -102,10 +99,6 @@ public class BasicExtenderSessionProcessor extends SessionProcessorBase {
     @Nullable
     private OutputSurface mPostviewOutputSurface;
     private final VendorExtender mVendorExtender;
-    @ExtensionMode.Mode
-    private final int mMode;
-    @NonNull
-    private final LiveData<Integer> mCurrentExtensionType;
 
     public BasicExtenderSessionProcessor(@NonNull PreviewExtenderImpl previewExtenderImpl,
             @NonNull ImageCaptureExtenderImpl imageCaptureExtenderImpl,
@@ -113,25 +106,12 @@ public class BasicExtenderSessionProcessor extends SessionProcessorBase {
             @NonNull List<CaptureResult.Key> supportedResultKeys,
             @NonNull VendorExtender vendorExtender,
             @NonNull Context context) {
-        this(previewExtenderImpl, imageCaptureExtenderImpl, supportedRequestKeys,
-                supportedResultKeys, vendorExtender, context, ExtensionMode.NONE);
-    }
-
-    public BasicExtenderSessionProcessor(@NonNull PreviewExtenderImpl previewExtenderImpl,
-            @NonNull ImageCaptureExtenderImpl imageCaptureExtenderImpl,
-            @NonNull List<CaptureRequest.Key> supportedRequestKeys,
-            @NonNull List<CaptureResult.Key> supportedResultKeys,
-            @NonNull VendorExtender vendorExtender,
-            @NonNull Context context,
-            @ExtensionMode.Mode int mode) {
         super(supportedRequestKeys);
         mPreviewExtenderImpl = previewExtenderImpl;
         mImageCaptureExtenderImpl = imageCaptureExtenderImpl;
         mSupportedResultKeys = supportedResultKeys;
         mContext = context;
         mVendorExtender = vendorExtender;
-        mMode = mode;
-        mCurrentExtensionType = new MutableLiveData<>(mMode);
     }
 
     @NonNull
@@ -267,20 +247,6 @@ public class BasicExtenderSessionProcessor extends SessionProcessorBase {
         mPreviewExtenderImpl.onDeInit();
         Logger.d(TAG, "capture onDeInit");
         mImageCaptureExtenderImpl.onDeInit();
-    }
-
-    @NonNull
-    @Override
-    public LiveData<Integer> getCurrentExtensionType() {
-        return mCurrentExtensionType;
-    }
-
-    @NonNull
-    @Override
-    public LiveData<Integer> getExtensionStrength() {
-        // Extension strength is only supported in advanced extender implementation. Returns a
-        // LiveData which the value is always 100.
-        return new MutableLiveData<>(100);
     }
 
     @Override

@@ -32,6 +32,7 @@ import android.media.ImageReader
 import android.media.ImageWriter
 import android.os.Build
 import android.util.Pair
+import android.util.Range
 import android.util.Size
 import android.view.Surface
 import androidx.annotation.RequiresApi
@@ -56,6 +57,7 @@ import androidx.camera.core.impl.OutputSurfaceConfiguration
 import androidx.camera.core.impl.SessionProcessor
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.extensions.ExtensionMode
+import androidx.camera.extensions.impl.advanced.AdvancedExtenderImpl
 import androidx.camera.extensions.impl.advanced.Camera2OutputConfigImpl
 import androidx.camera.extensions.impl.advanced.Camera2OutputConfigImplBuilder
 import androidx.camera.extensions.impl.advanced.Camera2SessionConfigImpl
@@ -240,6 +242,126 @@ class AdvancedSessionProcessorTest {
             assertThat(realtimeCaptureLatencyEstimate?.second).isEqualTo(10L)
         }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @Test
+    fun isCurrentExtensionTypeAvailableReturnsCorrectFalseValue() =
+        runBlocking {
+            assumeTrue(ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_4))
+            ClientVersion.setCurrentVersion(ClientVersion("1.4.0"))
+
+            val advancedVendorExtender = AdvancedVendorExtender(FakeAdvancedExtenderImpl())
+
+            val advancedSessionProcessor = AdvancedSessionProcessor(
+                FakeSessionProcessImpl(), emptyList(), advancedVendorExtender, context
+            )
+
+            assertThat(advancedSessionProcessor.isCurrentExtensionTypeAvailable).isFalse()
+        }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @Suppress("UNCHECKED_CAST")
+    @Test
+    fun isCurrentExtensionTypeAvailableReturnsCorrectTrueValue() =
+        runBlocking {
+            assumeTrue(ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_4))
+            ClientVersion.setCurrentVersion(ClientVersion("1.4.0"))
+
+            val advancedVendorExtender = AdvancedVendorExtender(
+                FakeAdvancedExtenderImpl(
+                    testCaptureResultKeys = mutableListOf(
+                        CaptureResult.EXTENSION_CURRENT_TYPE as CaptureResult.Key<Any>
+                    )
+                )
+            )
+
+            val advancedSessionProcessor = AdvancedSessionProcessor(
+                FakeSessionProcessImpl(), emptyList(), advancedVendorExtender, context
+            )
+
+            assertThat(advancedSessionProcessor.isCurrentExtensionTypeAvailable).isTrue()
+        }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @Test
+    fun isExtensionStrengthAvailableReturnsCorrectFalseValue() =
+        runBlocking {
+            assumeTrue(ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_4))
+            ClientVersion.setCurrentVersion(ClientVersion("1.4.0"))
+
+            val advancedVendorExtender = AdvancedVendorExtender(FakeAdvancedExtenderImpl())
+
+            val advancedSessionProcessor = AdvancedSessionProcessor(
+                FakeSessionProcessImpl(), emptyList(), advancedVendorExtender, context
+            )
+
+            assertThat(advancedSessionProcessor.isExtensionStrengthAvailable).isFalse()
+        }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @Suppress("UNCHECKED_CAST")
+    @Test
+    fun isExtensionStrengthAvailableReturnsCorrectTrueValue() =
+        runBlocking {
+            assumeTrue(ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_4))
+            ClientVersion.setCurrentVersion(ClientVersion("1.4.0"))
+
+            val advancedVendorExtender = AdvancedVendorExtender(
+                FakeAdvancedExtenderImpl(
+                    testCaptureRequestKeys = mutableListOf(
+                        CaptureRequest.EXTENSION_STRENGTH as CaptureRequest.Key<Any>
+                    )
+                )
+            )
+
+            val advancedSessionProcessor = AdvancedSessionProcessor(
+                FakeSessionProcessImpl(), emptyList(), advancedVendorExtender, context
+            )
+
+            assertThat(advancedSessionProcessor.isExtensionStrengthAvailable).isTrue()
+        }
+
+    private class FakeAdvancedExtenderImpl(
+        val testCaptureRequestKeys: MutableList<CaptureRequest.Key<Any>> = mutableListOf(),
+        val testCaptureResultKeys: MutableList<CaptureResult.Key<Any>> = mutableListOf(),
+    ) : AdvancedExtenderImpl {
+        override fun isExtensionAvailable(
+            cameraId: String,
+            characteristicsMap: MutableMap<String, CameraCharacteristics>
+        ): Boolean = true
+
+        override fun init(
+            cameraId: String,
+            characteristicsMap: MutableMap<String, CameraCharacteristics>
+        ) {
+        }
+
+        override fun getEstimatedCaptureLatencyRange(
+            cameraId: String,
+            captureOutputSize: Size?,
+            imageFormat: Int
+        ): Range<Long>? = null
+
+        override fun getSupportedPreviewOutputResolutions(cameraId: String):
+            MutableMap<Int, MutableList<Size>> = mutableMapOf()
+
+        override fun getSupportedCaptureOutputResolutions(cameraId: String):
+            MutableMap<Int, MutableList<Size>> = mutableMapOf()
+
+        override fun getSupportedPostviewResolutions(captureSize: Size):
+            MutableMap<Int, MutableList<Size>> = mutableMapOf()
+
+        override fun getSupportedYuvAnalysisResolutions(cameraId: String): MutableList<Size>? = null
+        override fun createSessionProcessor(): SessionProcessorImpl = FakeSessionProcessImpl()
+        override fun getAvailableCaptureRequestKeys(): MutableList<CaptureRequest.Key<Any>> =
+            testCaptureRequestKeys
+
+        override fun getAvailableCaptureResultKeys(): MutableList<CaptureResult.Key<Any>> =
+            testCaptureResultKeys
+
+        override fun isCaptureProcessProgressAvailable(): Boolean = false
+        override fun isPostviewAvailable(): Boolean = false
+    }
+
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     fun getCurrentExtensionType_advancedSessionProcessorMonitorSessionProcessorImplResults(): Unit =
@@ -265,6 +387,9 @@ class AdvancedSessionProcessorTest {
             }
             val advancedSessionProcessor = AdvancedSessionProcessor(
                 fakeSessionProcessImpl, emptyList(), object : VendorExtender {
+                    override fun isCurrentExtensionTypeAvailable(): Boolean {
+                        return true
+                    }
                 }, context, ExtensionMode.AUTO
             )
 

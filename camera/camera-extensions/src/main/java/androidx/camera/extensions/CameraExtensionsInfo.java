@@ -16,11 +16,10 @@
 
 package androidx.camera.extensions;
 
-import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.camera.core.CameraInfo;
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
 
 /**
  * A camera extensions info instance that allows to observe or monitor capture request settings
@@ -51,38 +50,50 @@ public interface CameraExtensionsInfo {
      * Returns a {@link LiveData} which is allowed to observe the extension strength changes for
      * the extensions enabled camera associated with the CameraExtensionsInfo.
      *
-     * <p>The extension strength will range from 0 to 100. The value depends on the following
-     * conditions:
-     * <ul>
-     *     <li>Extension mode is enabled and {@link #isExtensionStrengthAvailable()} returns
-     *     {@code true}: The strength value will dynamically change based on the latest
-     *     adjustments made within the current extension mode.
-     *     <li>Extension mode is enabled but {@link #isExtensionStrengthAvailable()} returns {@code
-     *     false}: The strength value will default to its maximum setting of 100.
-     *     <li>No extension mode is enabled: The strength value will be set to its minimum of 0.
-     * </ul>
+     * <p>This is only available when {@link #isExtensionStrengthAvailable()} returns {@code true
+     * }. When this is supported, the extension strength value will range from 0 to 100 and will
+     * dynamically change based on the latest adjustments made within the current extension mode.
      *
-     * @return a {@link LiveData} of {@link Integer} type to observe the extension strength changes.
+     * @return a {@link LiveData} of {@link Integer} type to observe the extension strength
+     * changes when {@link #isExtensionStrengthAvailable()} returns {@code true}. Otherwise,
+     * returns {@code null}.
      */
-    @NonNull
+    @Nullable
     default LiveData<Integer> getExtensionStrength() {
-        return new MutableLiveData<>(100);
+        return null;
+    }
+
+    /**
+     * Returns whether current extension type is supported for the extensions enabled camera
+     * associated with the CameraExtensionsInfo.
+     *
+     * <p>When current extension type is supported, applications can observe the current extension
+     * value changes via the {@link LiveData} object returned by {@link #getCurrentExtensionType()}.
+     *
+     * @return {@code true} if current extension type is supported. Otherwise, returns {@code
+     * false}.
+     */
+    default boolean isCurrentExtensionTypeAvailable() {
+        return false;
     }
 
     /**
      * Returns a {@link LiveData} which is allowed to observe the extension type changes for
      * the extensions enabled camera associated with the CameraExtensionsInfo.
      *
-     * <p>The initial value will be equal to the extension type the session was started with. The
-     * current extension type may change over time. For example, when the extension mode is
-     * {@link ExtensionMode#AUTO}, the current extension type may change to the
-     * {@link ExtensionMode#NIGHT} or {@link ExtensionMode#HDR} processor depending on the
-     * current lighting conditions or environment.
+     * <p>This is only available when {@link #isCurrentExtensionTypeAvailable()} returns {@code
+     * true}. When this is supported, the initial value will be equal to the extension type the
+     * session was started with. Then, the current extension type may change over time. For
+     * example, when the extension mode is {@link ExtensionMode#AUTO}, the current extension type
+     * may change to the {@link ExtensionMode#NIGHT} or {@link ExtensionMode#HDR} depending on
+     * the current lighting conditions or environment.
      *
-     * @return a {@link LiveData} of {@link Integer} type to observe the extension type changes.
+     * @return a {@link LiveData} of {@link Integer} type to observe the extension type changes
+     * when {@link #isCurrentExtensionTypeAvailable()} returns {@code true}. Otherwise, returns
+     * {@code null}.
      */
-    @NonNull
+    @Nullable
     default LiveData<Integer> getCurrentExtensionType() {
-        return new MutableLiveData<>(ExtensionMode.NONE);
+        return null;
     }
 }

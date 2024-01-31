@@ -157,6 +157,13 @@ public interface VendorExtender {
     }
 
     /**
+     * Returns if dynamic extension type is supported or not.
+     */
+    default boolean isCurrentExtensionTypeAvailable() {
+        return false;
+    }
+
+    /**
      * Creates a {@link SessionProcessor} that is responsible for (1) determining the stream
      * configuration based on given output surfaces (2) Requesting OEM implementation to start
      * repeating request and performing a still image capture.

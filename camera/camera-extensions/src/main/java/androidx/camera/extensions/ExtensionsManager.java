@@ -538,7 +538,7 @@ public final class ExtensionsManager {
      *
      * <p>If the provided {@link CameraControl} doesn't represent a camera with enabled
      * extensions, a placeholder {@link CameraExtensionsInfo} object will be returned, indicating
-     * no extension strength support and a fixed strength value of 0.
+     * no extension type and strength support.
      *
      * @param cameraInfo the camera info for a camera with a specific extension mode turned on.
      * @return a {@link CameraExtensionsInfo} object for observing extension-specific capture

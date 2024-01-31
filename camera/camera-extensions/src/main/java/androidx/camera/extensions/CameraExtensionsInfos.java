@@ -22,8 +22,6 @@ import androidx.camera.core.CameraInfo;
 import androidx.camera.core.impl.RestrictedCameraInfo;
 import androidx.camera.core.impl.SessionProcessor;
 import androidx.core.util.Preconditions;
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
 
 /**
  * Utility methods for operating on {@link CameraExtensionsInfo} instances.
@@ -32,17 +30,6 @@ import androidx.lifecycle.MutableLiveData;
 class CameraExtensionsInfos {
     private static final CameraExtensionsInfo NORMAL_MODE_CAMERA_EXTENSIONS_INFO =
             new CameraExtensionsInfo() {
-                @NonNull
-                @Override
-                public LiveData<Integer> getExtensionStrength() {
-                    return new MutableLiveData<>(0);
-                }
-
-                @NonNull
-                @Override
-                public LiveData<Integer> getCurrentExtensionType() {
-                    return new MutableLiveData<>(ExtensionMode.NONE);
-                }
             };
 
     /**

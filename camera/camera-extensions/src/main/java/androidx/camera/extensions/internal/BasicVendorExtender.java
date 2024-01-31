@@ -437,7 +437,6 @@ public class BasicVendorExtender implements VendorExtender {
                 getSupportedParameterKeys(context),
                 getSupportedCaptureResultKeys(),
                 this,
-                context,
-                mMode);
+                context);
     }
 }

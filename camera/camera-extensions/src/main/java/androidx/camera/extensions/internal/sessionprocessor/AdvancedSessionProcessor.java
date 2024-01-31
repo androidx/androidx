@@ -87,7 +87,7 @@ public class AdvancedSessionProcessor extends SessionProcessorBase {
     private final Context mContext;
     @ExtensionMode.Mode
     private final int mMode;
-    @NonNull
+    @Nullable
     private final MutableLiveData<Integer> mCurrentExtensionTypeLiveData;
     private boolean mIsPostviewConfigured = false;
     // Caches the working capture config so that the new extension strength can be applied on top
@@ -98,7 +98,7 @@ public class AdvancedSessionProcessor extends SessionProcessorBase {
     // new extension strength setting.
     @GuardedBy("mLock")
     private SessionProcessorImplCaptureCallbackAdapter mRepeatingCaptureCallbackAdapter = null;
-    @NonNull
+    @Nullable
     private final MutableLiveData<Integer> mExtensionStrengthLiveData;
     @Nullable
     private final ExtensionMetadataMonitor mExtensionMetadataMonitor;
@@ -120,11 +120,16 @@ public class AdvancedSessionProcessor extends SessionProcessorBase {
         mVendorExtender = vendorExtender;
         mContext = context;
         mMode = mode;
-        mCurrentExtensionTypeLiveData = new MutableLiveData<>(mMode);
-        mExtensionStrengthLiveData = new MutableLiveData<>(100);
-        mExtensionMetadataMonitor = Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE
-                ? new ExtensionMetadataMonitor(mCurrentExtensionTypeLiveData,
-                mExtensionStrengthLiveData) : null;
+        mCurrentExtensionTypeLiveData = isCurrentExtensionTypeAvailable() ? new MutableLiveData<>(
+                mMode) : null;
+        mExtensionStrengthLiveData = isExtensionStrengthAvailable() ? new MutableLiveData<>(100)
+                : null;
+        if (mCurrentExtensionTypeLiveData != null || mExtensionStrengthLiveData != null) {
+            mExtensionMetadataMonitor = new ExtensionMetadataMonitor(mCurrentExtensionTypeLiveData,
+                    mExtensionStrengthLiveData);
+        } else {
+            mExtensionMetadataMonitor = null;
+        }
     }
 
     @NonNull
@@ -163,8 +168,13 @@ public class AdvancedSessionProcessor extends SessionProcessorBase {
         }
 
         mIsPostviewConfigured = outputSurfaceConfig.getPostviewOutputSurface() != null;
-        // Resets the extension strength result when initializing the session
-        mExtensionStrengthLiveData.postValue(100);
+        // Resets the extension type and strength result when initializing the session
+        if (mCurrentExtensionTypeLiveData != null) {
+            mCurrentExtensionTypeLiveData.postValue(mMode);
+        }
+        if (mExtensionStrengthLiveData != null) {
+            mExtensionStrengthLiveData.postValue(100);
+        }
         // Convert Camera2SessionConfigImpl(implemented in OEM) into Camera2SessionConfig
         return convertToCamera2SessionConfig(sessionConfigImpl);
     }
@@ -209,6 +219,11 @@ public class AdvancedSessionProcessor extends SessionProcessorBase {
             mRepeatingCaptureCallbackAdapter = null;
         }
         mImpl.deInitSession();
+    }
+
+    @Override
+    public boolean isCurrentExtensionTypeAvailable() {
+        return mVendorExtender.isCurrentExtensionTypeAvailable();
     }
 
     @NonNull
@@ -753,37 +768,42 @@ public class AdvancedSessionProcessor extends SessionProcessorBase {
      * Monitors the extension metadata (extension strength, type) changes from the capture results.
      */
     private static class ExtensionMetadataMonitor {
-        @NonNull
+        @Nullable
         private final MutableLiveData<Integer> mCurrentExtensionTypeLiveData;
-        @NonNull
+        @Nullable
         private final MutableLiveData<Integer> mExtensionStrengthLiveData;
 
         ExtensionMetadataMonitor(
-                @NonNull MutableLiveData<Integer> currentExtensionTypeLiveData,
-                @NonNull MutableLiveData<Integer> extensionStrengthLiveData) {
+                @Nullable MutableLiveData<Integer> currentExtensionTypeLiveData,
+                @Nullable MutableLiveData<Integer> extensionStrengthLiveData) {
             mCurrentExtensionTypeLiveData = currentExtensionTypeLiveData;
             mExtensionStrengthLiveData = extensionStrengthLiveData;
         }
 
         void checkExtensionMetadata(Map<CaptureResult.Key, Object> captureResult) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                // Monitors and update current extension type
-                Object extensionType = captureResult.get(CaptureResult.EXTENSION_CURRENT_TYPE);
-                // The returned type should be the value defined by the Camera2 API.
-                // Needs to
-                // convert it to the value defined by CameraX.
-                if (extensionType != null && !Objects.equals(
-                        mCurrentExtensionTypeLiveData.getValue(),
-                        convertExtensionMode((int) extensionType))) {
-                    mCurrentExtensionTypeLiveData.postValue(
-                            convertExtensionMode((int) extensionType));
+
+                if (mCurrentExtensionTypeLiveData != null) {
+                    // Monitors and update current extension type
+                    Object extensionType = captureResult.get(CaptureResult.EXTENSION_CURRENT_TYPE);
+                    // The returned type should be the value defined by the Camera2 API.
+                    // Needs to
+                    // convert it to the value defined by CameraX.
+                    if (extensionType != null && !Objects.equals(
+                            mCurrentExtensionTypeLiveData.getValue(),
+                            convertExtensionMode((int) extensionType))) {
+                        mCurrentExtensionTypeLiveData.postValue(
+                                convertExtensionMode((int) extensionType));
+                    }
                 }
 
-                // Monitors and update current extension strength
-                Object extensionStrength = captureResult.get(CaptureResult.EXTENSION_STRENGTH);
-                if (extensionStrength != null && !Objects.equals(
-                        mExtensionStrengthLiveData.getValue(), extensionStrength)) {
-                    mExtensionStrengthLiveData.postValue((Integer) extensionStrength);
+                if (mExtensionStrengthLiveData != null) {
+                    // Monitors and update current extension strength
+                    Object extensionStrength = captureResult.get(CaptureResult.EXTENSION_STRENGTH);
+                    if (extensionStrength != null && !Objects.equals(
+                            mExtensionStrengthLiveData.getValue(), extensionStrength)) {
+                        mExtensionStrengthLiveData.postValue((Integer) extensionStrength);
+                    }
                 }
             }
         }
