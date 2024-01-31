@@ -29,7 +29,8 @@ import platform.Foundation.currentLocale
 import platform.Foundation.dateWithTimeIntervalSince1970
 import platform.Foundation.timeIntervalSince1970
 
-internal actual object PlatformDateFormat {
+internal actual class PlatformDateFormat actual constructor(locale: CalendarLocale) {
+    private val locale = locale
 
     actual val firstDayOfWeek: Int
         get() = firstDayOfWeek()
@@ -37,7 +38,6 @@ internal actual object PlatformDateFormat {
     actual fun formatWithPattern(
         utcTimeMillis: Long,
         pattern: String,
-        locale: CalendarLocale
     ): String {
 
         val nsDate = NSDate.dateWithTimeIntervalSince1970(utcTimeMillis / 1000.0)
@@ -52,7 +52,6 @@ internal actual object PlatformDateFormat {
     actual fun formatWithSkeleton(
         utcTimeMillis: Long,
         skeleton: String,
-        locale: CalendarLocale
     ): String {
 
         val nsDate = NSDate.dateWithTimeIntervalSince1970(utcTimeMillis / 1000.0)
@@ -79,7 +78,7 @@ internal actual object PlatformDateFormat {
             .toCalendarDate(TimeZone.UTC)
     }
 
-    actual fun getDateInputFormat(locale: CalendarLocale): DateInputFormat {
+    actual fun getDateInputFormat(): DateInputFormat {
 
         val pattern = NSDateFormatter().apply {
             setLocale(locale)
@@ -90,7 +89,7 @@ internal actual object PlatformDateFormat {
     }
 
     @Suppress("UNCHECKED_CAST")
-    actual fun weekdayNames(locale: CalendarLocale): List<Pair<String, String>> {
+    actual val weekdayNames: List<Pair<String, String>> get() {
         val formatter = NSDateFormatter().apply {
             setLocale(locale)
         }
@@ -110,7 +109,7 @@ internal actual object PlatformDateFormat {
     // 'j' template requests the preferred hour format for the locale.
     // 'a' is a pattern for AM\PM symbol. Presence of this symbol means that locale has 12h format.
     @Suppress("SIGNED_CONSTANT_CONVERTED_TO_UNSIGNED")
-    actual fun is24HourFormat(locale: CalendarLocale): Boolean {
+    actual fun is24HourFormat(): Boolean {
         return NSDateFormatter
             .dateFormatFromTemplate("j", 0, locale)
             ?.contains('a') == false

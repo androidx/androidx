@@ -24,15 +24,16 @@ import kotlinx.datetime.atTime
 import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
 
-internal actual object PlatformDateFormat {
+internal actual class PlatformDateFormat actual constructor(locale: CalendarLocale) {
+    private val locale = locale
 
     actual val firstDayOfWeek: Int
         get() = firstDayOfWeek()
 
-    private const val NUMERIC = "numeric"
-    private const val SHORT = "short"
-    private const val LONG = "long"
-    private const val NARROW = "narrow"
+    private val NUMERIC = "numeric"
+    private val SHORT = "short"
+    private val LONG = "long"
+    private val NARROW = "narrow"
 
     private val firstDaysOfWeekByRegionCode: Map<String, Int> by lazy {
         listOf(
@@ -49,7 +50,6 @@ internal actual object PlatformDateFormat {
     actual fun formatWithPattern(
         utcTimeMillis: Long,
         pattern: String,
-        locale: CalendarLocale
     ): String {
 
         val date = Instant
@@ -91,7 +91,6 @@ internal actual object PlatformDateFormat {
     actual fun formatWithSkeleton(
         utcTimeMillis: Long,
         skeleton: String,
-        locale: CalendarLocale
     ): String {
         val jsDate = Date(utcTimeMillis.toDouble())
 
@@ -171,7 +170,7 @@ internal actual object PlatformDateFormat {
             .toIntOrNull()
     }
 
-    actual fun getDateInputFormat(locale: CalendarLocale): DateInputFormat {
+    actual fun getDateInputFormat(): DateInputFormat {
 
         val date = Date(year = 2000, month = 10, day = 23)
 
@@ -185,7 +184,7 @@ internal actual object PlatformDateFormat {
         return datePatternAsInputFormat(pattern)
     }
 
-    actual fun weekdayNames(locale: CalendarLocale): List<Pair<String, String>> {
+    actual val weekdayNames: List<Pair<String, String>> get() {
         val now = Date.now()
 
         val week = List(DaysInWeek) {
@@ -219,10 +218,10 @@ internal actual object PlatformDateFormat {
     }
 
     private fun fallbackFirstDayOfWeek() : Int {
-        return firstDaysOfWeekByRegionCode[Locale.current.region.uppercase()] ?: 1
+        return firstDaysOfWeekByRegionCode[locale.region.uppercase()] ?: 1
     }
 
-    actual fun is24HourFormat(locale: CalendarLocale): Boolean {
+    actual fun is24HourFormat(): Boolean {
         val localeTag = locale.toLanguageTag()
 
         return try {

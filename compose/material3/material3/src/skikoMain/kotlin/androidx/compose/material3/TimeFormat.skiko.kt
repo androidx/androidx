@@ -22,4 +22,4 @@ import androidx.compose.runtime.ReadOnlyComposable
 @Composable
 @ReadOnlyComposable
 internal actual fun is24HourFormat(): Boolean =
-    PlatformDateFormat.is24HourFormat(defaultLocale())
+    PlatformDateFormat(defaultLocale()).is24HourFormat()

@@ -30,7 +30,8 @@ import kotlinx.datetime.plus
 import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
 
-internal class KotlinxDatetimeCalendarModel : CalendarModel {
+internal class KotlinxDatetimeCalendarModel(locale: CalendarLocale) : CalendarModel(locale) {
+    private val platformDateFormat = PlatformDateFormat(locale)
 
     override val today: CalendarDate
         get() {
@@ -47,21 +48,17 @@ internal class KotlinxDatetimeCalendarModel : CalendarModel {
         }
 
     override val firstDayOfWeek: Int
-        get() = PlatformDateFormat.firstDayOfWeek
+        get() = platformDateFormat.firstDayOfWeek
 
     override val weekdayNames: List<Pair<String, String>>
-        get() = weekdayNames(defaultLocale())
+        get() = platformDateFormat.weekdayNames
 
     private val systemTZ
         get() = TimeZone.currentSystemDefault()
 
-    fun weekdayNames(locale: CalendarLocale): List<Pair<String, String>> {
-        return PlatformDateFormat.weekdayNames(locale)
-    }
-
     override fun getDateInputFormat(locale: CalendarLocale): DateInputFormat {
-        return PlatformDateFormat
-            .getDateInputFormat(locale)
+        return platformDateFormat
+            .getDateInputFormat()
     }
 
     override fun getCanonicalDate(timeInMillis: Long): CalendarDate {
@@ -122,11 +119,11 @@ internal class KotlinxDatetimeCalendarModel : CalendarModel {
         pattern: String,
         locale: CalendarLocale
     ): String {
-        return PlatformDateFormat.formatWithPattern(utcTimeMillis, pattern, locale)
+        return platformDateFormat.formatWithPattern(utcTimeMillis, pattern)
     }
 
     override fun parse(date: String, pattern: String): CalendarDate? {
-        return PlatformDateFormat.parse(date, pattern)
+        return platformDateFormat.parse(date, pattern)
     }
 
     private fun Instant.toCalendarMonth(

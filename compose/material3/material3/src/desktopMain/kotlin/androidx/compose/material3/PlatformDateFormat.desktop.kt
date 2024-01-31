@@ -20,12 +20,12 @@ import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.time.DayOfWeek
 import java.time.format.TextStyle
-import java.util.Locale
 
 
-internal actual object PlatformDateFormat {
+internal actual class PlatformDateFormat actual constructor(locale: CalendarLocale) {
+    private val locale = locale
 
-    private val delegate = LegacyCalendarModelImpl()
+    private val delegate = LegacyCalendarModelImpl(locale)
 
     actual val firstDayOfWeek: Int
         get() = delegate.firstDayOfWeek
@@ -33,15 +33,13 @@ internal actual object PlatformDateFormat {
     actual fun formatWithPattern(
         utcTimeMillis: Long,
         pattern: String,
-        locale: CalendarLocale
     ): String {
         return delegate.formatWithPattern(utcTimeMillis, pattern, locale)
     }
 
     actual fun formatWithSkeleton(
         utcTimeMillis: Long,
-        skeleton: String,
-        locale: CalendarLocale
+        skeleton: String
     ): String {
         // Note: there is no equivalent in Java for Android's DateFormat.getBestDateTimePattern.
         // The JDK SimpleDateFormat expects a pattern, so the results will be "2023Jan7",
@@ -58,7 +56,7 @@ internal actual object PlatformDateFormat {
             DatePickerDefaults.YearMonthWeekdayDaySkeleton -> "EEEE, MMMM d, yyyy"
             else -> skeleton
         }
-        return formatWithPattern(utcTimeMillis, pattern, locale)
+        return formatWithPattern(utcTimeMillis, pattern)
     }
 
     actual fun parse(
@@ -68,14 +66,14 @@ internal actual object PlatformDateFormat {
         return delegate.parse(date, pattern)
     }
 
-    actual fun getDateInputFormat(locale: CalendarLocale): DateInputFormat {
+    actual fun getDateInputFormat(): DateInputFormat {
         return delegate.getDateInputFormat(locale)
     }
 
     // From CalendarModelImpl.android.kt weekdayNames.
     //
     // Legacy model returns short ('Mon') format while newer version returns narrow ('M') format
-    actual fun weekdayNames(locale: CalendarLocale): List<Pair<String, String>> {
+    actual val weekdayNames: List<Pair<String, String>> get() {
         return DayOfWeek.values().map {
             it.getDisplayName(
                 TextStyle.FULL,
@@ -90,7 +88,7 @@ internal actual object PlatformDateFormat {
     // https://android.googlesource.com/platform/frameworks/base/+/jb-release/core/java/android/text/format/DateFormat.java
     //
     // public static boolean is24HourFormat(Context context) -- used by Android date format
-    actual fun is24HourFormat(locale : CalendarLocale) : Boolean {
+    actual fun is24HourFormat() : Boolean {
         val dateFormat = DateFormat.getTimeInstance(DateFormat.LONG, locale)
 
         if (dateFormat !is SimpleDateFormat)

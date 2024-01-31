@@ -28,8 +28,9 @@ class EqualityOfCalendarModelsTest {
     fun equalModelsOutput() {
         // Note: This test ignores the parameters and just runs a few equality tests for the output.
         // It will execute twice, but that should to tolerable :)
-        val newModel = KotlinxDatetimeCalendarModel()
-        val legacyModel = LegacyCalendarModelImpl()
+        val locale = CalendarLocale.getDefault()
+        val newModel = KotlinxDatetimeCalendarModel(locale)
+        val legacyModel = LegacyCalendarModelImpl(locale)
 
         val defaultTZ = getTimeZone()
 
