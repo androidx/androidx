@@ -372,6 +372,7 @@ package androidx.wear.protolayout {
   @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=0) public static final class LayoutElementBuilders.Arc implements androidx.wear.protolayout.LayoutElementBuilders.LayoutElement {
     method public androidx.wear.protolayout.DimensionBuilders.DegreesProp? getAnchorAngle();
     method public androidx.wear.protolayout.LayoutElementBuilders.ArcAnchorTypeProp? getAnchorType();
+    method public androidx.wear.protolayout.LayoutElementBuilders.ArcDirectionProp? getArcDirection();
     method public java.util.List<androidx.wear.protolayout.LayoutElementBuilders.ArcLayoutElement!> getContents();
     method public androidx.wear.protolayout.ModifiersBuilders.Modifiers? getModifiers();
     method public androidx.wear.protolayout.LayoutElementBuilders.VerticalAlignmentProp? getVerticalAlign();
@@ -384,6 +385,8 @@ package androidx.wear.protolayout {
     method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=0) public androidx.wear.protolayout.LayoutElementBuilders.Arc.Builder setAnchorAngle(androidx.wear.protolayout.DimensionBuilders.DegreesProp);
     method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=0) public androidx.wear.protolayout.LayoutElementBuilders.Arc.Builder setAnchorType(androidx.wear.protolayout.LayoutElementBuilders.ArcAnchorTypeProp);
     method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=0) public androidx.wear.protolayout.LayoutElementBuilders.Arc.Builder setAnchorType(int);
+    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=300) public androidx.wear.protolayout.LayoutElementBuilders.Arc.Builder setArcDirection(androidx.wear.protolayout.LayoutElementBuilders.ArcDirectionProp);
+    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=300) public androidx.wear.protolayout.LayoutElementBuilders.Arc.Builder setArcDirection(int);
     method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=0) public androidx.wear.protolayout.LayoutElementBuilders.Arc.Builder setModifiers(androidx.wear.protolayout.ModifiersBuilders.Modifiers);
     method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=0) public androidx.wear.protolayout.LayoutElementBuilders.Arc.Builder setVerticalAlign(androidx.wear.protolayout.LayoutElementBuilders.VerticalAlignmentProp);
     method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=0) public androidx.wear.protolayout.LayoutElementBuilders.Arc.Builder setVerticalAlign(int);
@@ -412,10 +415,21 @@ package androidx.wear.protolayout {
     method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=0) public androidx.wear.protolayout.LayoutElementBuilders.ArcAnchorTypeProp.Builder setValue(int);
   }
 
+  @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=300) public static final class LayoutElementBuilders.ArcDirectionProp {
+    method public int getValue();
+  }
+
+  public static final class LayoutElementBuilders.ArcDirectionProp.Builder {
+    ctor public LayoutElementBuilders.ArcDirectionProp.Builder();
+    method public androidx.wear.protolayout.LayoutElementBuilders.ArcDirectionProp build();
+    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=300) public androidx.wear.protolayout.LayoutElementBuilders.ArcDirectionProp.Builder setValue(int);
+  }
+
   @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=0) public static interface LayoutElementBuilders.ArcLayoutElement {
   }
 
   @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=0) public static final class LayoutElementBuilders.ArcLine implements androidx.wear.protolayout.LayoutElementBuilders.ArcLayoutElement {
+    method public androidx.wear.protolayout.LayoutElementBuilders.ArcDirectionProp? getArcDirection();
     method public androidx.wear.protolayout.ColorBuilders.Brush? getBrush();
     method public androidx.wear.protolayout.ColorBuilders.ColorProp? getColor();
     method public androidx.wear.protolayout.DimensionBuilders.AngularLayoutConstraint? getLayoutConstraintsForDynamicLength();
@@ -428,6 +442,8 @@ package androidx.wear.protolayout {
   public static final class LayoutElementBuilders.ArcLine.Builder {
     ctor public LayoutElementBuilders.ArcLine.Builder();
     method public androidx.wear.protolayout.LayoutElementBuilders.ArcLine build();
+    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=300) public androidx.wear.protolayout.LayoutElementBuilders.ArcLine.Builder setArcDirection(androidx.wear.protolayout.LayoutElementBuilders.ArcDirectionProp);
+    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=300) public androidx.wear.protolayout.LayoutElementBuilders.ArcLine.Builder setArcDirection(int);
     method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=300) public androidx.wear.protolayout.LayoutElementBuilders.ArcLine.Builder setBrush(androidx.wear.protolayout.ColorBuilders.Brush);
     method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=0) public androidx.wear.protolayout.LayoutElementBuilders.ArcLine.Builder setColor(androidx.wear.protolayout.ColorBuilders.ColorProp);
     method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public androidx.wear.protolayout.LayoutElementBuilders.ArcLine.Builder setLayoutConstraintsForDynamicLength(androidx.wear.protolayout.DimensionBuilders.AngularLayoutConstraint);
@@ -453,6 +469,7 @@ package androidx.wear.protolayout {
   }
 
   @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=0) public static final class LayoutElementBuilders.ArcText implements androidx.wear.protolayout.LayoutElementBuilders.ArcLayoutElement {
+    method public androidx.wear.protolayout.LayoutElementBuilders.ArcDirectionProp? getArcDirection();
     method public androidx.wear.protolayout.LayoutElementBuilders.FontStyle? getFontStyle();
     method public androidx.wear.protolayout.ModifiersBuilders.ArcModifiers? getModifiers();
     method public androidx.wear.protolayout.TypeBuilders.StringProp? getText();
@@ -461,6 +478,8 @@ package androidx.wear.protolayout {
   public static final class LayoutElementBuilders.ArcText.Builder {
     ctor public LayoutElementBuilders.ArcText.Builder();
     method public androidx.wear.protolayout.LayoutElementBuilders.ArcText build();
+    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=300) public androidx.wear.protolayout.LayoutElementBuilders.ArcText.Builder setArcDirection(androidx.wear.protolayout.LayoutElementBuilders.ArcDirectionProp);
+    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=300) public androidx.wear.protolayout.LayoutElementBuilders.ArcText.Builder setArcDirection(int);
     method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=0) public androidx.wear.protolayout.LayoutElementBuilders.ArcText.Builder setFontStyle(androidx.wear.protolayout.LayoutElementBuilders.FontStyle);
     method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=0) public androidx.wear.protolayout.LayoutElementBuilders.ArcText.Builder setModifiers(androidx.wear.protolayout.ModifiersBuilders.ArcModifiers);
     method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=0) public androidx.wear.protolayout.LayoutElementBuilders.ArcText.Builder setText(androidx.wear.protolayout.TypeBuilders.StringProp);
