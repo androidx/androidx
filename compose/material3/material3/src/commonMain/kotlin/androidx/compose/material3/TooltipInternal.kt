@@ -16,7 +16,6 @@
 
 package androidx.compose.material3
 
-import android.content.res.Configuration
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.sizeIn
@@ -32,11 +31,9 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.boundsInWindow
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 
 /**
  * Plain tooltip that provides a descriptive message.
@@ -56,7 +53,7 @@ import androidx.compose.ui.unit.dp
  */
 @Composable
 @ExperimentalMaterial3Api
-actual fun CaretScope.PlainTooltip(
+internal fun CaretScope.PlainTooltipImpl(
     modifier: Modifier,
     caretProperties: (CaretProperties)?,
     shape: Shape,
@@ -69,7 +66,7 @@ actual fun CaretScope.PlainTooltip(
     val customModifier =
         if (caretProperties != null) {
             val density = LocalDensity.current
-            val configuration = LocalConfiguration.current
+            val configuration = getCurrentConfiguration()
             Modifier.drawCaret { anchorLayoutCoordinates ->
                     drawCaretWithPath(
                         density,
@@ -126,7 +123,7 @@ private fun CacheDrawScope.drawCaretWithPath(
         with(density) {
             caretHeightPx = caretProperties.caretHeight.roundToPx()
             caretWidthPx = caretProperties.caretWidth.roundToPx()
-            screenWidthPx = configuration.screenWidthDp.dp.roundToPx()
+            screenWidthPx = configuration.getScreenWidthPx(density)
             tooltipAnchorSpacing = SpacingBetweenTooltipAndAnchor.roundToPx()
         }
         val anchorBounds = anchorLayoutCoordinates.boundsInWindow()
@@ -182,3 +179,11 @@ private fun CacheDrawScope.drawCaretWithPath(
         }
     }
 }
+
+@Composable
+internal expect fun getCurrentConfiguration(): Configuration
+
+internal expect fun Configuration.getScreenWidthPx(density: Density): Int
+
+@kotlin.jvm.JvmInline
+internal value class Configuration(val delegate: Any)
