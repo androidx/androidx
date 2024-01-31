@@ -29,6 +29,8 @@ import androidx.graphics.shapes.CornerRounding.Companion.Unrounded
 import androidx.graphics.shapes.Morph
 import androidx.graphics.shapes.RoundedPolygon
 import androidx.graphics.shapes.circle
+import androidx.graphics.shapes.pill
+import androidx.graphics.shapes.pillStar
 import androidx.graphics.shapes.rectangle
 import androidx.graphics.shapes.star
 import androidx.graphics.shapes.transformed
@@ -144,6 +146,17 @@ class ShapeActivity : Activity() {
             MaterialShapes.clover(rounding = .352f, innerRadius = .1f,
             innerRounding = Unrounded))
         shapes.add(RoundedPolygon(3))
+
+        // Pills
+        shapes.add(RoundedPolygon.pill())
+        shapes.add(RoundedPolygon.pill(15f, 1f))
+        shapes.add(RoundedPolygon.pillStar())
+        shapes.add(RoundedPolygon.pillStar(numVerticesPerRadius = 10,
+            rounding = CornerRounding(.5f)
+        ))
+        shapes.add(RoundedPolygon.pillStar(numVerticesPerRadius = 10,
+            rounding = CornerRounding(.5f), innerRadiusRatio = .5f,
+            innerRounding = CornerRounding(.2f)))
 
         prevShape = shapes[0]
         currShape = shapes[0]
