@@ -14,13 +14,67 @@
  * limitations under the License.
  */
 
-@file:Suppress("unused")
+@file:Suppress("unused", "UNUSED_PARAMETER")
 
 package replacewith
 
 import android.view.View
 
 class ReplaceWithUsageKotlin {
+
+    /**
+     * Constructor.
+     *
+     * @deprecated Use [java.lang.StringBuffer#StringBuffer(String)] instead.
+     */
+    @Deprecated(
+        message = "Use [java.lang.StringBuffer#StringBuffer(String)] instead.",
+        replaceWith = ReplaceWith("StringBuffer(param)", "java.lang.StringBuffer")
+    )
+    constructor(param: String) {
+        // Stub.
+    }
+
+    /**
+     * Constructor.
+     *
+     * @deprecated Use [ReplaceWithUsageKotlin#obtain(int)] instead.
+     */
+    @Deprecated(
+        message = "Use [ReplaceWithUsageKotlin#obtain(Int)] instead.",
+        replaceWith = ReplaceWith("ReplaceWithUsageKotlin.obtain(param)")
+    )
+    constructor(param: Int) {
+        // Stub.
+    }
+
+    /**
+     * Constructor.
+     */
+    constructor() {
+        // Stub.
+    }
+
+    inner class InnerClass {
+        /**
+         * Constructor.
+         *
+         * @deprecated Use [InnerClass#InnerClass()] instead.
+         */
+
+        @Deprecated("Use [InnerClass#InnerClass()] instead.", ReplaceWith("InnerClass()"))
+        constructor(param: String) {
+            // Stub.
+        }
+
+        /**
+         * Constructor.
+         */
+        constructor() {
+            // Stub.
+        }
+    }
+
     companion object {
         /**
          * Calls the method on the object.
@@ -31,6 +85,14 @@ class ReplaceWithUsageKotlin {
         @JvmStatic
         fun toString(obj: Any) {
             obj.toString()
+        }
+
+        /**
+         * Returns a new object.
+         */
+        @JvmStatic
+        fun obtain(param: Int): ReplaceWithUsageKotlin {
+            return ReplaceWithUsageKotlin()
         }
 
         /**
