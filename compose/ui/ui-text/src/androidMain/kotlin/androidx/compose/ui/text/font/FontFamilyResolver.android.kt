@@ -18,6 +18,7 @@ package androidx.compose.ui.text.font
 
 import android.content.Context
 import android.graphics.Typeface
+import androidx.annotation.RestrictTo
 import androidx.compose.runtime.State
 import androidx.compose.ui.text.InternalTextApi
 import kotlin.coroutines.CoroutineContext
@@ -88,6 +89,7 @@ fun createFontFamilyResolver(
  *
  */
 @InternalTextApi // exposed for benchmarking, not a stable API.
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 fun emptyCacheFontFamilyResolver(context: Context): FontFamily.Resolver {
     return FontFamilyResolverImpl(
         AndroidFontLoader(context),
