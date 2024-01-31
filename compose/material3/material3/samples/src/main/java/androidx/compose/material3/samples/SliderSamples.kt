@@ -56,6 +56,7 @@ fun SliderSample() {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable
@@ -121,7 +122,7 @@ fun SliderWithCustomTrackAndThumb() {
             }
         )
     }
-    val interactionSource = MutableInteractionSource()
+    val interactionSource = remember { MutableInteractionSource() }
     val colors = SliderDefaults.colors(thumbColor = Color.Red, activeTrackColor = Color.Red)
     Column {
         Text(text = sliderState.value.toString())
@@ -145,43 +146,53 @@ fun SliderWithCustomTrackAndThumb() {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable
 fun RangeSliderSample() {
-    var sliderPosition by remember { mutableStateOf(0f..100f) }
+    val rangeSliderState = remember {
+        RangeSliderState(
+            0f,
+            100f,
+            valueRange = 0f..100f,
+            onValueChangeFinished = {
+                // launch some business logic update with the state you hold
+                // viewModel.updateSelectedSliderValue(sliderPosition)
+            }
+        )
+    }
     Column {
-        Text(text = sliderPosition.toString())
+        Text(text = (rangeSliderState.activeRangeStart..rangeSliderState.activeRangeEnd).toString())
         RangeSlider(
-            modifier = Modifier.semantics { contentDescription = "Localized Description" },
-            value = sliderPosition,
-            onValueChange = { range -> sliderPosition = range },
+            state = rangeSliderState,
+            modifier = Modifier.semantics { contentDescription = "Localized Description" }
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Preview
+@Sampled
+@Composable
+fun StepRangeSliderSample() {
+    val rangeSliderState = remember {
+        RangeSliderState(
+            0f,
+            100f,
             valueRange = 0f..100f,
             onValueChangeFinished = {
                 // launch some business logic update with the state you hold
                 // viewModel.updateSelectedSliderValue(sliderPosition)
             },
+            steps = 5
         )
     }
-}
-
-@Preview
-@Sampled
-@Composable
-fun StepRangeSliderSample() {
-    var sliderPosition by remember { mutableStateOf(0f..100f) }
     Column {
-        Text(text = sliderPosition.toString())
+        Text(text = (rangeSliderState.activeRangeStart..rangeSliderState.activeRangeEnd).toString())
         RangeSlider(
-            modifier = Modifier.semantics { contentDescription = "Localized Description" },
-            steps = 5,
-            value = sliderPosition,
-            onValueChange = { range -> sliderPosition = range },
-            valueRange = 0f..1f,
-            onValueChangeFinished = {
-                // launch some business logic update with the state you hold
-                // viewModel.updateSelectedSliderValue(sliderPosition)
-            },
+            state = rangeSliderState,
+            modifier = Modifier.semantics { contentDescription = "Localized Description" }
         )
     }
 }

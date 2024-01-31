@@ -186,9 +186,9 @@ fun Badge(
 ) {
     val size = if (content != null) BadgeTokens.LargeSize else BadgeTokens.Size
     val shape = if (content != null) {
-        BadgeTokens.LargeShape.toShape()
+        BadgeTokens.LargeShape.value
     } else {
-        BadgeTokens.Shape.toShape()
+        BadgeTokens.Shape.value
     }
 
     // Draw badge container.
@@ -212,10 +212,7 @@ fun Badge(
             CompositionLocalProvider(
                 LocalContentColor provides contentColor
             ) {
-                val style = copyAndSetFontPadding(
-                    style = MaterialTheme.typography.fromToken(BadgeTokens.LargeLabelTextFont),
-                    includeFontPadding = false
-                )
+                val style = MaterialTheme.typography.fromToken(BadgeTokens.LargeLabelTextFont)
                 ProvideTextStyle(
                     value = style,
                     content = { content() }
@@ -229,7 +226,7 @@ fun Badge(
 @ExperimentalMaterial3Api
 object BadgeDefaults {
     /** Default container color for a badge. */
-    val containerColor: Color @Composable get() = BadgeTokens.Color.toColor()
+    val containerColor: Color @Composable get() = BadgeTokens.Color.value
 }
 
 /*@VisibleForTesting*/

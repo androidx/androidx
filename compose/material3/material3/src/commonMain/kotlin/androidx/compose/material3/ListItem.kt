@@ -196,11 +196,11 @@ private fun ListItemLayout(
 
         var currentTotalHeight = 0
 
-        val headlinePlaceable = headlineMeasurable.first().measure(
+        val headlinePlaceable = headlineMeasurable.firstOrNull()?.measure(
             looseConstraints.offset(
                 horizontal = -currentTotalWidth
             ))
-        currentTotalHeight += headlinePlaceable.height
+        currentTotalHeight += heightOrZero(headlinePlaceable)
 
         val supportingPlaceable = supportingMeasurable.firstOrNull()?.measure(
             looseConstraints.offset(
@@ -270,7 +270,7 @@ private fun ListItemLayout(
 private fun MeasureScope.calculateWidth(
     leadingPlaceable: Placeable?,
     trailingPlaceable: Placeable?,
-    headlinePlaceable: Placeable,
+    headlinePlaceable: Placeable?,
     overlinePlaceable: Placeable?,
     supportingPlaceable: Placeable?,
     layoutDirection: LayoutDirection,
@@ -284,7 +284,7 @@ private fun MeasureScope.calculateWidth(
     val horizontalPadding = (paddingValues.calculateLeftPadding(layoutDirection) +
         paddingValues.calculateRightPadding(layoutDirection)).roundToPx()
     val mainContentWidth = maxOf(
-        headlinePlaceable.width,
+        widthOrZero(headlinePlaceable),
         widthOrZero(overlinePlaceable),
         widthOrZero(supportingPlaceable),
     )
@@ -297,7 +297,7 @@ private fun MeasureScope.calculateWidth(
 private fun MeasureScope.calculateHeight(
     leadingPlaceable: Placeable?,
     trailingPlaceable: Placeable?,
-    headlinePlaceable: Placeable,
+    headlinePlaceable: Placeable?,
     overlinePlaceable: Placeable?,
     supportingPlaceable: Placeable?,
     listItemType: ListItemType,
@@ -314,7 +314,7 @@ private fun MeasureScope.calculateHeight(
     val verticalPadding =
         paddingValues.calculateTopPadding() + paddingValues.calculateBottomPadding()
 
-    val mainContentHeight = headlinePlaceable.height +
+    val mainContentHeight = heightOrZero(headlinePlaceable) +
         heightOrZero(overlinePlaceable) +
         heightOrZero(supportingPlaceable)
 
@@ -333,7 +333,7 @@ private fun MeasureScope.place(
     height: Int,
     leadingPlaceable: Placeable?,
     trailingPlaceable: Placeable?,
-    headlinePlaceable: Placeable,
+    headlinePlaceable: Placeable?,
     overlinePlaceable: Placeable?,
     supportingPlaceable: Placeable?,
     isThreeLine: Boolean,
@@ -360,7 +360,7 @@ private fun MeasureScope.place(
 
         val mainContentX = startPadding + widthOrZero(leadingPlaceable)
         val mainContentY = if (isThreeLine) { topPadding } else {
-            val totalHeight = headlinePlaceable.height + heightOrZero(overlinePlaceable) +
+            val totalHeight = heightOrZero(headlinePlaceable) + heightOrZero(overlinePlaceable) +
                 heightOrZero(supportingPlaceable)
             CenterVertically.align(totalHeight, height)
         }
@@ -369,8 +369,8 @@ private fun MeasureScope.place(
         overlinePlaceable?.placeRelative(mainContentX, currentY)
         currentY += heightOrZero(overlinePlaceable)
 
-        headlinePlaceable.placeRelative(mainContentX, currentY)
-        currentY += headlinePlaceable.height
+        headlinePlaceable?.placeRelative(mainContentX, currentY)
+        currentY += heightOrZero(headlinePlaceable)
 
         supportingPlaceable?.placeRelative(mainContentX, currentY)
     }
@@ -386,17 +386,17 @@ object ListItemDefaults {
     /** The default shape of a list item */
     val shape: Shape
         @Composable
-        @ReadOnlyComposable get() = ListTokens.ListItemContainerShape.toShape()
+        @ReadOnlyComposable get() = ListTokens.ListItemContainerShape.value
 
     /** The container color of a list item */
     val containerColor: Color
         @Composable
-        @ReadOnlyComposable get() = ListTokens.ListItemContainerColor.toColor()
+        @ReadOnlyComposable get() = ListTokens.ListItemContainerColor.value
 
     /** The content color of a list item */
     val contentColor: Color
         @Composable
-        @ReadOnlyComposable get() = ListTokens.ListItemLabelTextColor.toColor()
+        @ReadOnlyComposable get() = ListTokens.ListItemLabelTextColor.value
 
     /**
      * Creates a [ListItemColors] that represents the default container and content colors used in a
@@ -417,17 +417,17 @@ object ListItemDefaults {
      */
     @Composable
     fun colors(
-        containerColor: Color = ListTokens.ListItemContainerColor.toColor(),
-        headlineColor: Color = ListTokens.ListItemLabelTextColor.toColor(),
-        leadingIconColor: Color = ListTokens.ListItemLeadingIconColor.toColor(),
-        overlineColor: Color = ListTokens.ListItemOverlineColor.toColor(),
-        supportingColor: Color = ListTokens.ListItemSupportingTextColor.toColor(),
-        trailingIconColor: Color = ListTokens.ListItemTrailingIconColor.toColor(),
-        disabledHeadlineColor: Color = ListTokens.ListItemDisabledLabelTextColor.toColor()
+        containerColor: Color = ListTokens.ListItemContainerColor.value,
+        headlineColor: Color = ListTokens.ListItemLabelTextColor.value,
+        leadingIconColor: Color = ListTokens.ListItemLeadingIconColor.value,
+        overlineColor: Color = ListTokens.ListItemOverlineColor.value,
+        supportingColor: Color = ListTokens.ListItemSupportingTextColor.value,
+        trailingIconColor: Color = ListTokens.ListItemTrailingIconColor.value,
+        disabledHeadlineColor: Color = ListTokens.ListItemDisabledLabelTextColor.value
             .copy(alpha = ListTokens.ListItemDisabledLabelTextOpacity),
-        disabledLeadingIconColor: Color = ListTokens.ListItemDisabledLeadingIconColor.toColor()
+        disabledLeadingIconColor: Color = ListTokens.ListItemDisabledLeadingIconColor.value
             .copy(alpha = ListTokens.ListItemDisabledLeadingIconOpacity),
-        disabledTrailingIconColor: Color = ListTokens.ListItemDisabledTrailingIconColor.toColor()
+        disabledTrailingIconColor: Color = ListTokens.ListItemDisabledTrailingIconColor.value
             .copy(alpha = ListTokens.ListItemDisabledTrailingIconOpacity)
     ): ListItemColors =
         ListItemColors(

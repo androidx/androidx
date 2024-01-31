@@ -29,7 +29,7 @@ import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Slider
@@ -104,7 +104,7 @@ fun ThemePicker(
                     )
                 }
             }
-            Divider(Modifier.padding(horizontal = ThemePickerPadding))
+            HorizontalDivider(Modifier.padding(horizontal = ThemePickerPadding))
         }
         item {
             Text(
@@ -141,7 +141,7 @@ fun ThemePicker(
                     )
                 }
             }
-            Divider(Modifier.padding(horizontal = ThemePickerPadding))
+            HorizontalDivider(Modifier.padding(horizontal = ThemePickerPadding))
         }
         item {
             Text(
@@ -178,7 +178,7 @@ fun ThemePicker(
                     )
                 }
             }
-            Divider(Modifier.padding(horizontal = ThemePickerPadding))
+            HorizontalDivider(Modifier.padding(horizontal = ThemePickerPadding))
         }
         item {
             Text(

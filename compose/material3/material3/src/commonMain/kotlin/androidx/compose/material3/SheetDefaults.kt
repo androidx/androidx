@@ -38,8 +38,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
@@ -48,7 +50,37 @@ import kotlinx.coroutines.CancellationException
 /**
  * State of a sheet composable, such as [ModalBottomSheet]
  *
- * Contains states relating to it's swipe position as well as animations between state values.
+ * Contains states relating to its swipe position as well as animations between state values.
+ *
+ * @param skipPartiallyExpanded Whether the partially expanded state, if the sheet is large
+ * enough, should be skipped. If true, the sheet will always expand to the [Expanded] state and move
+ * to the [Hidden] state if available when hiding the sheet, either programmatically or by user
+ * interaction.
+ * @param initialValue The initial value of the state.
+ * @param density The density that this state can use to convert values to and from dp.
+ * @param confirmValueChange Optional callback invoked to confirm or veto a pending state change.
+ * @param skipHiddenState Whether the hidden state should be skipped. If true, the sheet will always
+ * expand to the [Expanded] state and move to the [PartiallyExpanded] if available, either
+ * programmatically or by user interaction.
+ */
+@ExperimentalMaterial3Api
+@Suppress("Deprecation")
+fun SheetState(
+    skipPartiallyExpanded: Boolean,
+    density: Density,
+    initialValue: SheetValue = Hidden,
+    confirmValueChange: (SheetValue) -> Boolean = { true },
+    skipHiddenState: Boolean = false,
+) = SheetState(
+    skipPartiallyExpanded, initialValue, confirmValueChange, skipHiddenState
+).also {
+    it.density = density
+}
+
+/**
+ * State of a sheet composable, such as [ModalBottomSheet]
+ *
+ * Contains states relating to its swipe position as well as animations between state values.
  *
  * @param skipPartiallyExpanded Whether the partially expanded state, if the sheet is large
  * enough, should be skipped. If true, the sheet will always expand to the [Expanded] state and move
@@ -62,7 +94,15 @@ import kotlinx.coroutines.CancellationException
  */
 @Stable
 @ExperimentalMaterial3Api
-class SheetState(
+class SheetState @Deprecated(
+    message = "This constructor is deprecated. " +
+        "Please use the constructor that provides a [Density]",
+    replaceWith = ReplaceWith(
+        "SheetState(" +
+            "skipPartiallyExpanded, LocalDensity.current, initialValue, " +
+            "confirmValueChange, skipHiddenState)"
+    )
+) constructor(
     internal val skipPartiallyExpanded: Boolean,
     initialValue: SheetValue = Hidden,
     confirmValueChange: (SheetValue) -> Boolean = { true },
@@ -237,14 +277,44 @@ class SheetState(
         initialValue = initialValue,
         animationSpec = SwipeableV2Defaults.AnimationSpec,
         confirmValueChange = confirmValueChange,
+        positionalThreshold = { with(requireDensity()) { 56.dp.toPx() } },
+        velocityThreshold = { with(requireDensity()) { 125.dp.toPx() } }
     )
 
     internal val offset: Float? get() = swipeableState.offset
+
+    internal var density: Density? = null
+    private fun requireDensity() = requireNotNull(density) {
+        "SheetState did not have a density attached. Are you using SheetState with " +
+            "BottomSheetScaffold or ModalBottomSheet component?"
+    }
 
     companion object {
         /**
          * The default [Saver] implementation for [SheetState].
          */
+        fun Saver(
+            skipPartiallyExpanded: Boolean,
+            confirmValueChange: (SheetValue) -> Boolean,
+            density: Density
+        ) = Saver<SheetState, SheetValue>(
+            save = { it.currentValue },
+            restore = { savedValue ->
+                SheetState(skipPartiallyExpanded, density, savedValue, confirmValueChange)
+            }
+        )
+
+        /**
+         * The default [Saver] implementation for [SheetState].
+         */
+        @Deprecated(
+            message = "This function is deprecated. Please use the overload where Density is" +
+                " provided.",
+            replaceWith = ReplaceWith(
+                "Saver(skipPartiallyExpanded, confirmValueChange, LocalDensity.current)"
+            )
+        )
+        @Suppress("Deprecation")
         fun Saver(
             skipPartiallyExpanded: Boolean,
             confirmValueChange: (SheetValue) -> Boolean
@@ -287,17 +357,17 @@ object BottomSheetDefaults {
     /** The default shape for bottom sheets in a [Hidden] state. */
     val HiddenShape: Shape
         @Composable get() =
-        SheetBottomTokens.DockedMinimizedContainerShape.toShape()
+            SheetBottomTokens.DockedMinimizedContainerShape.value
 
     /** The default shape for a bottom sheets in [PartiallyExpanded] and [Expanded] states. */
     val ExpandedShape: Shape
         @Composable get() =
-        SheetBottomTokens.DockedContainerShape.toShape()
+            SheetBottomTokens.DockedContainerShape.value
 
     /** The default container color for a bottom sheet. */
     val ContainerColor: Color
         @Composable get() =
-        SheetBottomTokens.DockedContainerColor.toColor()
+            SheetBottomTokens.DockedContainerColor.value
 
     /** The default elevation for a bottom sheet. */
     val Elevation = SheetBottomTokens.DockedModalContainerElevation
@@ -305,7 +375,7 @@ object BottomSheetDefaults {
     /** The default color of the scrim overlay for background content. */
     val ScrimColor: Color
         @Composable get() =
-        ScrimTokens.ContainerColor.toColor().copy(ScrimTokens.ContainerOpacity)
+            ScrimTokens.ContainerColor.value.copy(ScrimTokens.ContainerOpacity)
 
     /**
      * The default peek height used by [BottomSheetScaffold].
@@ -328,7 +398,7 @@ object BottomSheetDefaults {
         width: Dp = SheetBottomTokens.DockedDragHandleWidth,
         height: Dp = SheetBottomTokens.DockedDragHandleHeight,
         shape: Shape = MaterialTheme.shapes.extraLarge,
-        color: Color = SheetBottomTokens.DockedDragHandleColor.toColor()
+        color: Color = SheetBottomTokens.DockedDragHandleColor.value
             .copy(SheetBottomTokens.DockedDragHandleOpacity),
     ) {
         val dragHandleDescription = getString(Strings.BottomSheetDragHandleDescription)
@@ -414,14 +484,23 @@ internal fun rememberSheetState(
     initialValue: SheetValue = Hidden,
     skipHiddenState: Boolean = false,
 ): SheetState {
+
+    val density = LocalDensity.current
     return rememberSaveable(
         skipPartiallyExpanded, confirmValueChange,
         saver = SheetState.Saver(
             skipPartiallyExpanded = skipPartiallyExpanded,
-            confirmValueChange = confirmValueChange
+            confirmValueChange = confirmValueChange,
+            density = density
         )
     ) {
-        SheetState(skipPartiallyExpanded, initialValue, confirmValueChange, skipHiddenState)
+        SheetState(
+            skipPartiallyExpanded,
+            density,
+            initialValue,
+            confirmValueChange,
+            skipHiddenState
+        )
     }
 }
 

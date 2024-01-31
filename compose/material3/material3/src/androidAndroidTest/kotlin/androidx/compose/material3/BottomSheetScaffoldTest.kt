@@ -253,6 +253,7 @@ class BottomSheetScaffoldTest {
             skipPartiallyExpanded = false,
             skipHiddenState = true,
             initialValue = SheetValue.PartiallyExpanded,
+            density = rule.density
         )
         rule.setContent {
             scope = rememberCoroutineScope()
@@ -772,7 +773,7 @@ class BottomSheetScaffoldTest {
 
         rule.setContent {
             dragHandleContentDescription = getString(Strings.BottomSheetDragHandleDescription)
-            dragHandleColor = SheetBottomTokens.DockedDragHandleColor.toColor()
+            dragHandleColor = SheetBottomTokens.DockedDragHandleColor.value
                 .copy(SheetBottomTokens.DockedDragHandleOpacity)
             surface = MaterialTheme.colorScheme.surface
             density = LocalDensity.current

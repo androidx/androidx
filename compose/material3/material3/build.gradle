@@ -42,6 +42,7 @@ androidXMultiplatform {
                 implementation(project(":compose:animation:animation-core"))
 
                 api(project(":compose:foundation:foundation"))
+                api(project(":compose:foundation:foundation-layout"))
                 api(project(":compose:material:material-icons-core"))
                 api(project(":compose:material:material-ripple"))
                 api(project(":compose:runtime:runtime"))
@@ -49,7 +50,6 @@ androidXMultiplatform {
                 api(project(":compose:ui:ui-text"))
 
                 implementation(project(":compose:ui:ui-util"))
-                implementation(project(":compose:foundation:foundation-layout"))
             }
         }
 
@@ -72,8 +72,9 @@ androidXMultiplatform {
                     api(project(":compose:runtime:runtime"))
                     api(project(":compose:ui:ui"))
                     api(project(":compose:ui:ui-text"))
+                    api(project(":compose:foundation:foundation-layout"))
+
                     implementation(project(":compose:animation:animation"))
-                    implementation(project(":compose:foundation:foundation-layout"))
                     implementation(project(":compose:ui:ui-util"))
                 }
             }
@@ -145,7 +146,6 @@ androidXMultiplatform {
         if (desktopEnabled) {
             desktopTest {
                 dependsOn(jvmTest)
-                dependsOn(desktopMain)
                 dependencies {
                     implementation(project(":compose:ui:ui-test-junit4"))
                     implementation(libs.truth)
@@ -158,6 +158,7 @@ androidXMultiplatform {
 }
 
 dependencies {
+    lintChecks project(":compose:material3:material3-lint")
     lintPublish project(":compose:material3:material3-lint")
 }
 

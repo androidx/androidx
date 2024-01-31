@@ -28,6 +28,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.node.Ref
 import androidx.compose.ui.platform.testTag
@@ -96,6 +98,38 @@ class SearchBarTest {
         rule.onNodeWithTag(BackTestTag).performClick()
         rule.onNodeWithTag(BackTestTag).assertDoesNotExist()
         rule.onNodeWithText("Query").assertIsNotFocused()
+    }
+
+    @Test
+    fun searchBar_doesNotOverwriteFocusOfOtherComponents() {
+        val focusRequester = FocusRequester()
+        rule.setMaterialContent(lightColorScheme()) {
+            Column(Modifier.fillMaxSize()) {
+                SearchBar(
+                    modifier = Modifier.testTag(SearchBarTestTag),
+                    query = "Query",
+                    onQueryChange = {},
+                    onSearch = {},
+                    active = false,
+                    onActiveChange = {},
+                    content = {},
+                )
+                TextField(
+                    value = "",
+                    onValueChange = {},
+                    modifier = Modifier.testTag("SIBLING").focusRequester(focusRequester)
+                )
+            }
+        }
+
+        rule.runOnIdle {
+            focusRequester.requestFocus()
+        }
+
+        rule.onNodeWithTag("SIBLING").assertIsFocused()
+
+        rule.onNodeWithTag(SearchBarTestTag).performClick()
+        rule.onNodeWithText("Query").assertIsFocused()
     }
 
     @Test
@@ -243,6 +277,38 @@ class SearchBarTest {
         rule.onNodeWithTag(BackTestTag).performClick()
         rule.onNodeWithTag(BackTestTag).assertDoesNotExist()
         rule.onNodeWithText("Query").assertIsNotFocused()
+    }
+
+    @Test
+    fun dockedSearchBar_doesNotOverwriteFocusOfOtherComponents() {
+        val focusRequester = FocusRequester()
+        rule.setMaterialContent(lightColorScheme()) {
+            Column(Modifier.fillMaxSize()) {
+                DockedSearchBar(
+                    modifier = Modifier.testTag(SearchBarTestTag),
+                    query = "Query",
+                    onQueryChange = {},
+                    onSearch = {},
+                    active = false,
+                    onActiveChange = {},
+                    content = {},
+                )
+                TextField(
+                    value = "",
+                    onValueChange = {},
+                    modifier = Modifier.testTag("SIBLING").focusRequester(focusRequester)
+                )
+            }
+        }
+
+        rule.runOnIdle {
+            focusRequester.requestFocus()
+        }
+
+        rule.onNodeWithTag("SIBLING").assertIsFocused()
+
+        rule.onNodeWithTag(SearchBarTestTag).performClick()
+        rule.onNodeWithText("Query").assertIsFocused()
     }
 
     @Test

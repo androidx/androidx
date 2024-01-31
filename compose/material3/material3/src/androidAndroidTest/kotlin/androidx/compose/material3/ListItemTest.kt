@@ -55,6 +55,16 @@ class ListItemTest {
     val icon40x40 by lazy { ImageBitmap(width = 40.dp.toIntPx(), height = 40.dp.toIntPx()) }
 
     @Test
+    fun listItem_withEmptyHeadline_doesNotCrash() {
+        rule
+            .setMaterialContentForSizeAssertions {
+                ListItem(headlineContent = {})
+            }
+            .assertHeightIsEqualTo(ListTokens.ListItemOneLineContainerHeight)
+            .assertWidthIsEqualTo(rule.rootWidth())
+    }
+
+    @Test
     fun listItem_oneLine_size() {
         val expectedHeightNoIcon = ListTokens.ListItemOneLineContainerHeight
         rule

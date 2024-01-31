@@ -30,6 +30,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -247,8 +248,8 @@ fun SearchBar(
                     .offset(vertical = -animatedTopPadding))
                 layout(width, height) {
                     placeable.placeRelative(0, animatedTopPadding)
+                }
             }
-        }
     ) {
         Column {
             val animatedInputFieldPadding = remember {
@@ -274,15 +275,17 @@ fun SearchBar(
             }
             if (showResults) {
                 Column(Modifier.graphicsLayer { alpha = animationProgress.value }) {
-                    Divider(color = colors.dividerColor)
+                    HorizontalDivider(color = colors.dividerColor)
                     content()
                 }
             }
         }
     }
 
+    val isFocused = interactionSource.collectIsFocusedAsState().value
+    val shouldClearFocus = !active && isFocused
     LaunchedEffect(active) {
-        if (!active) {
+        if (shouldClearFocus) {
             // Not strictly needed according to the motion spec, but since the animation already has
             // a delay, this works around b/261632544.
             delay(AnimationDelayMillis.toLong())
@@ -401,15 +404,17 @@ fun DockedSearchBar(
                 }
 
                 Column(Modifier.heightIn(min = minHeight, max = maxHeight)) {
-                    Divider(color = colors.dividerColor)
+                    HorizontalDivider(color = colors.dividerColor)
                     content()
                 }
             }
         }
     }
 
+    val isFocused = interactionSource.collectIsFocusedAsState().value
+    val shouldClearFocus = !active && isFocused
     LaunchedEffect(active) {
-        if (!active) {
+        if (shouldClearFocus) {
             // Not strictly needed according to the motion spec, but since the animation already has
             // a delay, this works around b/261632544.
             delay(AnimationDelayMillis.toLong())
@@ -516,14 +521,14 @@ object SearchBarDefaults {
     val InputFieldHeight: Dp = SearchBarTokens.ContainerHeight
 
     /** Default shape for a search bar's input field, or a search bar in the inactive state. */
-    val inputFieldShape: Shape @Composable get() = SearchBarTokens.ContainerShape.toShape()
+    val inputFieldShape: Shape @Composable get() = SearchBarTokens.ContainerShape.value
 
     /** Default shape for a [SearchBar] in the active state. */
     val fullScreenShape: Shape
-        @Composable get() = SearchViewTokens.FullScreenContainerShape.toShape()
+        @Composable get() = SearchViewTokens.FullScreenContainerShape.value
 
     /** Default shape for a [DockedSearchBar]. */
-    val dockedShape: Shape @Composable get() = SearchViewTokens.DockedContainerShape.toShape()
+    val dockedShape: Shape @Composable get() = SearchViewTokens.DockedContainerShape.value
 
     /** Default window insets for a [SearchBar]. */
     val windowInsets: WindowInsets @Composable get() = WindowInsets.statusBars
@@ -538,8 +543,8 @@ object SearchBarDefaults {
      */
     @Composable
     fun colors(
-        containerColor: Color = SearchBarTokens.ContainerColor.toColor(),
-        dividerColor: Color = SearchViewTokens.DividerColor.toColor(),
+        containerColor: Color = SearchBarTokens.ContainerColor.value,
+        dividerColor: Color = SearchViewTokens.DividerColor.value,
         inputFieldColors: TextFieldColors = inputFieldColors(),
     ): SearchBarColors = SearchBarColors(
         containerColor = containerColor,
@@ -573,23 +578,23 @@ object SearchBarDefaults {
      */
     @Composable
     fun inputFieldColors(
-        focusedTextColor: Color = SearchBarTokens.InputTextColor.toColor(),
-        unfocusedTextColor: Color = SearchBarTokens.InputTextColor.toColor(),
-        disabledTextColor: Color = FilledTextFieldTokens.DisabledInputColor.toColor()
+        focusedTextColor: Color = SearchBarTokens.InputTextColor.value,
+        unfocusedTextColor: Color = SearchBarTokens.InputTextColor.value,
+        disabledTextColor: Color = FilledTextFieldTokens.DisabledInputColor.value
             .copy(alpha = FilledTextFieldTokens.DisabledInputOpacity),
-        cursorColor: Color = FilledTextFieldTokens.CaretColor.toColor(),
+        cursorColor: Color = FilledTextFieldTokens.CaretColor.value,
         selectionColors: TextSelectionColors = LocalTextSelectionColors.current,
-        focusedLeadingIconColor: Color = SearchBarTokens.LeadingIconColor.toColor(),
-        unfocusedLeadingIconColor: Color = SearchBarTokens.LeadingIconColor.toColor(),
+        focusedLeadingIconColor: Color = SearchBarTokens.LeadingIconColor.value,
+        unfocusedLeadingIconColor: Color = SearchBarTokens.LeadingIconColor.value,
         disabledLeadingIconColor: Color = FilledTextFieldTokens.DisabledLeadingIconColor
-            .toColor().copy(alpha = FilledTextFieldTokens.DisabledLeadingIconOpacity),
-        focusedTrailingIconColor: Color = SearchBarTokens.TrailingIconColor.toColor(),
-        unfocusedTrailingIconColor: Color = SearchBarTokens.TrailingIconColor.toColor(),
+            .value.copy(alpha = FilledTextFieldTokens.DisabledLeadingIconOpacity),
+        focusedTrailingIconColor: Color = SearchBarTokens.TrailingIconColor.value,
+        unfocusedTrailingIconColor: Color = SearchBarTokens.TrailingIconColor.value,
         disabledTrailingIconColor: Color = FilledTextFieldTokens.DisabledTrailingIconColor
-            .toColor().copy(alpha = FilledTextFieldTokens.DisabledTrailingIconOpacity),
-        focusedPlaceholderColor: Color = SearchBarTokens.SupportingTextColor.toColor(),
-        unfocusedPlaceholderColor: Color = SearchBarTokens.SupportingTextColor.toColor(),
-        disabledPlaceholderColor: Color = FilledTextFieldTokens.DisabledInputColor.toColor()
+            .value.copy(alpha = FilledTextFieldTokens.DisabledTrailingIconOpacity),
+        focusedPlaceholderColor: Color = SearchBarTokens.SupportingTextColor.value,
+        unfocusedPlaceholderColor: Color = SearchBarTokens.SupportingTextColor.value,
+        disabledPlaceholderColor: Color = FilledTextFieldTokens.DisabledInputColor.value
             .copy(alpha = FilledTextFieldTokens.DisabledInputOpacity),
     ): TextFieldColors =
         TextFieldDefaults.colors(
@@ -612,21 +617,21 @@ object SearchBarDefaults {
     @Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
     @Composable
     fun inputFieldColors(
-        textColor: Color = SearchBarTokens.InputTextColor.toColor(),
-        disabledTextColor: Color = FilledTextFieldTokens.DisabledInputColor.toColor()
+        textColor: Color = SearchBarTokens.InputTextColor.value,
+        disabledTextColor: Color = FilledTextFieldTokens.DisabledInputColor.value
             .copy(alpha = FilledTextFieldTokens.DisabledInputOpacity),
-        cursorColor: Color = FilledTextFieldTokens.CaretColor.toColor(),
+        cursorColor: Color = FilledTextFieldTokens.CaretColor.value,
         selectionColors: TextSelectionColors = LocalTextSelectionColors.current,
-        focusedLeadingIconColor: Color = SearchBarTokens.LeadingIconColor.toColor(),
-        unfocusedLeadingIconColor: Color = SearchBarTokens.LeadingIconColor.toColor(),
+        focusedLeadingIconColor: Color = SearchBarTokens.LeadingIconColor.value,
+        unfocusedLeadingIconColor: Color = SearchBarTokens.LeadingIconColor.value,
         disabledLeadingIconColor: Color = FilledTextFieldTokens.DisabledLeadingIconColor
-            .toColor().copy(alpha = FilledTextFieldTokens.DisabledLeadingIconOpacity),
-        focusedTrailingIconColor: Color = SearchBarTokens.TrailingIconColor.toColor(),
-        unfocusedTrailingIconColor: Color = SearchBarTokens.TrailingIconColor.toColor(),
+            .value.copy(alpha = FilledTextFieldTokens.DisabledLeadingIconOpacity),
+        focusedTrailingIconColor: Color = SearchBarTokens.TrailingIconColor.value,
+        unfocusedTrailingIconColor: Color = SearchBarTokens.TrailingIconColor.value,
         disabledTrailingIconColor: Color = FilledTextFieldTokens.DisabledTrailingIconColor
-            .toColor().copy(alpha = FilledTextFieldTokens.DisabledTrailingIconOpacity),
-        placeholderColor: Color = SearchBarTokens.SupportingTextColor.toColor(),
-        disabledPlaceholderColor: Color = FilledTextFieldTokens.DisabledInputColor.toColor()
+            .value.copy(alpha = FilledTextFieldTokens.DisabledTrailingIconOpacity),
+        placeholderColor: Color = SearchBarTokens.SupportingTextColor.value,
+        disabledPlaceholderColor: Color = FilledTextFieldTokens.DisabledInputColor.value
             .copy(alpha = FilledTextFieldTokens.DisabledInputOpacity),
     ) = inputFieldColors(
         focusedTextColor = textColor,

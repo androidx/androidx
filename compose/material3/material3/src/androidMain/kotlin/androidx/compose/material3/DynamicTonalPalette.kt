@@ -20,6 +20,7 @@ import android.content.Context
 import android.os.Build
 import androidx.annotation.ColorRes
 import androidx.annotation.DoNotInline
+import androidx.annotation.FloatRange
 import androidx.annotation.RequiresApi
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.colorspace.ColorSpaces
@@ -240,7 +241,7 @@ private object ColorResourceHelper {
  * @param newLuminance 0 <= newLuminance <= 100; invalid values are corrected.
  */
 internal fun Color.setLuminance(
-    /*@FloatRange(from = 0.0, to = 100.0)*/
+    @FloatRange(from = 0.0, to = 100.0)
     newLuminance: Float
 ): Color {
     if ((newLuminance < 0.0001) or (newLuminance > 99.9999)) {

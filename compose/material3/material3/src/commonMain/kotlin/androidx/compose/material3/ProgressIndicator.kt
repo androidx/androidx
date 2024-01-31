@@ -504,15 +504,15 @@ private fun DrawScope.drawIndeterminateCircularIndicator(
 object ProgressIndicatorDefaults {
     /** Default color for a linear progress indicator. */
     val linearColor: Color @Composable get() =
-        LinearProgressIndicatorTokens.ActiveIndicatorColor.toColor()
+        LinearProgressIndicatorTokens.ActiveIndicatorColor.value
 
     /** Default color for a circular progress indicator. */
     val circularColor: Color @Composable get() =
-        CircularProgressIndicatorTokens.ActiveIndicatorColor.toColor()
+        CircularProgressIndicatorTokens.ActiveIndicatorColor.value
 
     /** Default track color for a linear progress indicator. */
     val linearTrackColor: Color @Composable get() =
-        LinearProgressIndicatorTokens.TrackColor.toColor()
+        LinearProgressIndicatorTokens.TrackColor.value
 
     /** Default track color for a circular progress indicator. */
     val circularTrackColor: Color @Composable get() = Color.Transparent

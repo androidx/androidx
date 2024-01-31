@@ -18,7 +18,9 @@ package androidx.compose.material3
 
 import android.os.Build
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.Modifier
@@ -26,6 +28,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -51,11 +54,11 @@ class DividerScreenshotTest {
     private val Tag = "Divider"
 
     @Test
-    fun lightTheme() {
+    fun horizontalDivider_lightTheme() {
         composeTestRule.setMaterialContent(lightColorScheme()) {
             Column(Modifier.testTag(Tag)) {
                 Spacer(Modifier.size(10.dp))
-                Divider()
+                HorizontalDivider()
                 Spacer(Modifier.size(10.dp))
             }
         }
@@ -66,18 +69,46 @@ class DividerScreenshotTest {
 
     @Test
     @Ignore("b/272301182")
-    fun darkTheme() {
+    fun horizontalDivider_darkTheme() {
         assumeFalse("See b/272301182", Build.VERSION.SDK_INT == 33)
 
         composeTestRule.setMaterialContent(darkColorScheme()) {
             Column(Modifier.testTag(Tag)) {
                 Spacer(Modifier.size(10.dp))
-                Divider()
+                HorizontalDivider()
                 Spacer(Modifier.size(10.dp))
             }
         }
         composeTestRule.onNodeWithTag(Tag)
             .captureToImage()
             .assertAgainstGolden(screenshotRule, "divider_darkTheme")
+    }
+
+    @Test
+    fun verticalDivider_lightTheme() {
+        composeTestRule.setMaterialContent(lightColorScheme()) {
+            Row(Modifier.testTag(Tag).height(300.dp)) {
+                Spacer(Modifier.size(10.dp))
+                VerticalDivider()
+                Spacer(Modifier.size(10.dp))
+            }
+        }
+        composeTestRule.onNodeWithTag(Tag)
+            .captureToImage()
+            .assertAgainstGolden(screenshotRule, "divider_vertical_lightTheme")
+    }
+
+    @Test
+    fun horizontalDivider_hairlineThickness() {
+        composeTestRule.setMaterialContent(lightColorScheme()) {
+            Column(Modifier.testTag(Tag)) {
+                Spacer(Modifier.size(10.dp))
+                HorizontalDivider(thickness = Dp.Hairline)
+                Spacer(Modifier.size(10.dp))
+            }
+        }
+        composeTestRule.onNodeWithTag(Tag)
+            .captureToImage()
+            .assertAgainstGolden(screenshotRule, "divider_hairlineThickness")
     }
 }

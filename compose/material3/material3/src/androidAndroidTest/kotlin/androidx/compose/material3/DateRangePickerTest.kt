@@ -29,6 +29,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
 import java.util.Calendar
+import java.util.Locale
 import java.util.TimeZone
 import org.junit.Rule
 import org.junit.Test
@@ -58,7 +59,11 @@ class DateRangePickerTest {
             assertThat(selectedStartDateMillis).isEqualTo(1649721600000L)
             assertThat(selectedEndDateMillis).isEqualTo(1649721600000L + MillisecondsIn24Hours)
             assertThat(displayedMonthMillis).isEqualTo(
-                CalendarModel.Default.getMonth(year = 2022, month = 4).startUtcTimeMillis
+                // Using the JVM Locale.getDefault() for testing purposes only.
+                createCalendarModel(Locale.getDefault()).getMonth(
+                    year = 2022,
+                    month = 4
+                ).startUtcTimeMillis
             )
         }
     }
@@ -81,7 +86,10 @@ class DateRangePickerTest {
             assertThat(selectedStartDateMillis).isEqualTo(1649721600000L)
             assertThat(selectedEndDateMillis).isEqualTo(1649721600000L + MillisecondsIn24Hours)
             assertThat(displayedMonthMillis).isEqualTo(
-                CalendarModel.Default.getMonth(year = 2022, month = 4).startUtcTimeMillis
+                createCalendarModel(Locale.getDefault()).getMonth(
+                    year = 2022,
+                    month = 4
+                ).startUtcTimeMillis
             )
         }
     }
@@ -414,7 +422,8 @@ class DateRangePickerTest {
         restorationTester.setContent {
             dateRangePickerState = rememberDateRangePickerState()
         }
-        val calendarModel = CalendarModel.Default
+        // Using the JVM Locale.getDefault() for testing purposes only.
+        val calendarModel = createCalendarModel(Locale.getDefault())
         with(dateRangePickerState!!) {
             // 04/12/2022
             val startDate =

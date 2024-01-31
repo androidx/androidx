@@ -33,11 +33,6 @@ internal actual typealias InternalAtomicReference<V> =
 actual typealias CalendarLocale = java.util.Locale
 
 /**
- * Returns the default [CalendarLocale].
- */
-internal actual fun defaultLocale(): CalendarLocale = java.util.Locale.getDefault()
-
-/**
  * Returns a string representation of an integer for the current Locale.
  */
 internal actual fun Int.toLocalString(

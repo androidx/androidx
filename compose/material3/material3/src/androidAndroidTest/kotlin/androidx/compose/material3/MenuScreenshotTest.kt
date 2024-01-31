@@ -131,7 +131,7 @@ class MenuScreenshotTest {
                         )
                     },
                     trailingIcon = { Text("F11", textAlign = TextAlign.Center) })
-                Divider()
+                HorizontalDivider()
                 DropdownMenuItem(
                     text = { Text("Send Feedback") },
                     onClick = { },

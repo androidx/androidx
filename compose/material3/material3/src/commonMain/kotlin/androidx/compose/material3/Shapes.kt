@@ -183,12 +183,14 @@ internal fun Shapes.fromToken(value: ShapeKeyTokens): Shape {
     }
 }
 
-/** Converts a shape token key to the local shape provided by the theme */
-@Composable
-@ReadOnlyComposable
-internal fun ShapeKeyTokens.toShape(): Shape {
-    return MaterialTheme.shapes.fromToken(this)
-}
+/**
+ * Converts a shape token key to the local shape provided by the theme
+ * The color is subscribed to [LocalShapes] changes
+ */
+internal val ShapeKeyTokens.value: Shape
+    @Composable
+    @ReadOnlyComposable
+    get() = MaterialTheme.shapes.fromToken(this)
 
 /** CompositionLocal used to specify the default shapes for the surfaces. */
 internal val LocalShapes = staticCompositionLocalOf { Shapes() }

@@ -16,6 +16,9 @@
 
 package androidx.compose.material3
 
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ReadOnlyComposable
+
 /**
  * Represents a Locale for the calendar. This locale will be used when formatting dates, determining
  * the input format, and more.
@@ -31,6 +34,8 @@ expect class CalendarLocale
  * Note: For JVM based platforms, this would be equivalent to [java.util.Locale.getDefault].
  */
 @OptIn(ExperimentalMaterial3Api::class)
+@Composable
+@ReadOnlyComposable
 internal expect fun defaultLocale(): CalendarLocale
 
 /**

@@ -48,6 +48,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionContext
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -64,6 +65,8 @@ import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.AbstractComposeView
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.ViewRootForInspector
 import androidx.compose.ui.semantics.clearAndSetSemantics
@@ -75,6 +78,7 @@ import androidx.compose.ui.semantics.popup
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.lifecycle.findViewTreeViewModelStoreOwner
 import androidx.lifecycle.setViewTreeLifecycleOwner
@@ -133,6 +137,11 @@ fun ModalBottomSheet(
     windowInsets: WindowInsets = BottomSheetDefaults.windowInsets,
     content: @Composable ColumnScope.() -> Unit,
 ) {
+    // b/291735717 Remove this once deprecated methods without density are removed
+    val density = LocalDensity.current
+    SideEffect {
+        sheetState.density = density
+    }
     val scope = rememberCoroutineScope()
     val animateToDismiss: () -> Unit = {
         if (sheetState.swipeableState.confirmValueChange(Hidden)) {
@@ -245,8 +254,7 @@ fun ModalBottomSheet(
                                             }
                                         } else if (hasPartiallyExpandedState) {
                                             collapse(collapseActionLabel) {
-                                                if (
-                                                    swipeableState.confirmValueChange(
+                                                if (swipeableState.confirmValueChange(
                                                         PartiallyExpanded
                                                     )
                                                 ) {
@@ -327,12 +335,12 @@ private fun Modifier.modalBottomSheetSwipeable(
     screenHeight: Float,
     onDragStopped: CoroutineScope.(velocity: Float) -> Unit,
 ) = draggable(
-        state = sheetState.swipeableState.swipeDraggableState,
-        orientation = Orientation.Vertical,
-        enabled = sheetState.isVisible,
-        startDragImmediately = sheetState.swipeableState.isAnimationRunning,
-        onDragStopped = onDragStopped
-    )
+    state = sheetState.swipeableState.swipeDraggableState,
+    orientation = Orientation.Vertical,
+    enabled = sheetState.isVisible,
+    startDragImmediately = sheetState.swipeableState.isAnimationRunning,
+    onDragStopped = onDragStopped
+)
     .swipeAnchors(
         state = sheetState.swipeableState,
         anchorChangeHandler = anchorChangeHandler,
@@ -345,6 +353,7 @@ private fun Modifier.modalBottomSheetSwipeable(
                 sheetState.skipPartiallyExpanded -> null
                 else -> screenHeight / 2f
             }
+
             Expanded -> if (sheetSize.height != 0) {
                 max(0f, screenHeight - sheetSize.height)
             } else null
@@ -392,6 +401,7 @@ internal fun ModalBottomSheetPopup(
     val id = rememberSaveable { UUID.randomUUID() }
     val parentComposition = rememberCompositionContext()
     val currentContent by rememberUpdatedState(content)
+    val layoutDirection = LocalLayoutDirection.current
     val modalBottomSheetWindow = remember {
         ModalBottomSheetWindow(
             onDismissRequest = onDismissRequest,
@@ -416,6 +426,7 @@ internal fun ModalBottomSheetPopup(
 
     DisposableEffect(modalBottomSheetWindow) {
         modalBottomSheetWindow.show()
+        modalBottomSheetWindow.superSetLayoutDirection(layoutDirection)
         onDispose {
             modalBottomSheetWindow.disposeComposition()
             modalBottomSheetWindow.dismiss()
@@ -475,8 +486,8 @@ private class ModalBottomSheetWindow(
             // Flags specific to modal bottom sheet.
             flags = flags and (
                 WindowManager.LayoutParams.FLAG_IGNORE_CHEEK_PRESSES or
-                WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM
-            ).inv()
+                    WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM
+                ).inv()
 
             flags = flags or WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
         }
@@ -536,5 +547,19 @@ private class ModalBottomSheetWindow(
 
     override fun onGlobalLayout() {
         // No-op
+    }
+
+    override fun setLayoutDirection(layoutDirection: Int) {
+        // Do nothing. ViewRootImpl will call this method attempting to set the layout direction
+        // from the context's locale, but we have one already from the parent composition.
+    }
+
+    // Sets the "real" layout direction for our content that we obtain from the parent composition.
+    fun superSetLayoutDirection(layoutDirection: LayoutDirection) {
+        val direction = when (layoutDirection) {
+            LayoutDirection.Ltr -> android.util.LayoutDirection.LTR
+            LayoutDirection.Rtl -> android.util.LayoutDirection.RTL
+        }
+        super.setLayoutDirection(direction)
     }
 }

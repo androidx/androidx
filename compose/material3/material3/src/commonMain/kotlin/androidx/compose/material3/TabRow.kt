@@ -141,7 +141,7 @@ fun TabRow(
         }
     },
     divider: @Composable () -> Unit = @Composable {
-        Divider()
+        HorizontalDivider()
     },
     tabs: @Composable () -> Unit
 ) {
@@ -260,7 +260,7 @@ fun ScrollableTabRow(
         )
     },
     divider: @Composable () -> Unit = @Composable {
-        Divider()
+        HorizontalDivider()
     },
     tabs: @Composable () -> Unit
 ) {
@@ -411,12 +411,12 @@ object TabRowDefaults {
     /** Default container color of a tab row. */
     val containerColor: Color
         @Composable get() =
-            PrimaryNavigationTabTokens.ContainerColor.toColor()
+            PrimaryNavigationTabTokens.ContainerColor.value
 
     /** Default content color of a tab row. */
     val contentColor: Color
         @Composable get() =
-            PrimaryNavigationTabTokens.ActiveLabelTextColor.toColor()
+            PrimaryNavigationTabTokens.ActiveLabelTextColor.value
 
     /**
      * Default indicator, which will be positioned at the bottom of the [TabRow], on top of the
@@ -462,7 +462,7 @@ object TabRowDefaults {
         modifier: Modifier = Modifier,
         width: Dp = 24.dp,
         height: Dp = PrimaryNavigationTabTokens.ActiveIndicatorHeight,
-        color: Color = PrimaryNavigationTabTokens.ActiveIndicatorColor.toColor(),
+        color: Color = PrimaryNavigationTabTokens.ActiveIndicatorColor.value,
         shape: Shape = PrimaryNavigationTabTokens.ActiveIndicatorShape
     ) {
         Spacer(

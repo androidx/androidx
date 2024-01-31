@@ -455,7 +455,7 @@ fun PermanentNavigationDrawer(
 fun ModalDrawerSheet(
     modifier: Modifier = Modifier,
     drawerShape: Shape = DrawerDefaults.shape,
-    drawerContainerColor: Color = MaterialTheme.colorScheme.surface,
+    drawerContainerColor: Color = DrawerDefaults.containerColor,
     drawerContentColor: Color = contentColorFor(drawerContainerColor),
     drawerTonalElevation: Dp = DrawerDefaults.ModalDrawerElevation,
     windowInsets: WindowInsets = DrawerDefaults.windowInsets,
@@ -492,7 +492,7 @@ fun ModalDrawerSheet(
 fun DismissibleDrawerSheet(
     modifier: Modifier = Modifier,
     drawerShape: Shape = RectangleShape,
-    drawerContainerColor: Color = MaterialTheme.colorScheme.surface,
+    drawerContainerColor: Color = DrawerDefaults.containerColor,
     drawerContentColor: Color = contentColorFor(drawerContainerColor),
     drawerTonalElevation: Dp = DrawerDefaults.DismissibleDrawerElevation,
     windowInsets: WindowInsets = DrawerDefaults.windowInsets,
@@ -529,7 +529,7 @@ fun DismissibleDrawerSheet(
 fun PermanentDrawerSheet(
     modifier: Modifier = Modifier,
     drawerShape: Shape = RectangleShape,
-    drawerContainerColor: Color = MaterialTheme.colorScheme.surface,
+    drawerContainerColor: Color = DrawerDefaults.containerColor,
     drawerContentColor: Color = contentColorFor(drawerContainerColor),
     drawerTonalElevation: Dp = DrawerDefaults.PermanentDrawerElevation,
     windowInsets: WindowInsets = DrawerDefaults.windowInsets,
@@ -554,7 +554,7 @@ private fun DrawerSheet(
     windowInsets: WindowInsets,
     modifier: Modifier = Modifier,
     drawerShape: Shape = RectangleShape,
-    drawerContainerColor: Color = MaterialTheme.colorScheme.surface,
+    drawerContainerColor: Color = DrawerDefaults.containerColor,
     drawerContentColor: Color = contentColorFor(drawerContainerColor),
     drawerTonalElevation: Dp = DrawerDefaults.PermanentDrawerElevation,
     content: @Composable ColumnScope.() -> Unit
@@ -606,16 +606,16 @@ object DrawerDefaults {
     val DismissibleDrawerElevation = NavigationDrawerTokens.StandardContainerElevation
 
     /** Default shape for a navigation drawer. */
-    val shape: Shape @Composable get() = NavigationDrawerTokens.ContainerShape.toShape()
+    val shape: Shape @Composable get() = NavigationDrawerTokens.ContainerShape.value
 
     /** Default color of the scrim that obscures content when the drawer is open */
     val scrimColor: Color
-        @Composable get() = ScrimTokens.ContainerColor.toColor().copy(ScrimTokens.ContainerOpacity)
+        @Composable get() = ScrimTokens.ContainerColor.value.copy(ScrimTokens.ContainerOpacity)
 
     /** Default container color for a navigation drawer */
-    val containerColor: Color @Composable get() = NavigationDrawerTokens.ContainerColor.toColor()
+    val containerColor: Color @Composable get() = NavigationDrawerTokens.ContainerColor.value
 
-    /** Default and maximum width of a navigation drawer **/
+    /** Default and maximum width of a navigation drawer */
     val MaximumDrawerWidth = NavigationDrawerTokens.ContainerWidth
 
     /**
@@ -655,7 +655,7 @@ fun NavigationDrawerItem(
     modifier: Modifier = Modifier,
     icon: (@Composable () -> Unit)? = null,
     badge: (@Composable () -> Unit)? = null,
-    shape: Shape = NavigationDrawerTokens.ActiveIndicatorShape.toShape(),
+    shape: Shape = NavigationDrawerTokens.ActiveIndicatorShape.value,
     colors: NavigationDrawerItemColors = NavigationDrawerItemDefaults.colors(),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() }
 ) {
@@ -747,12 +747,12 @@ object NavigationDrawerItemDefaults {
      */
     @Composable
     fun colors(
-        selectedContainerColor: Color = NavigationDrawerTokens.ActiveIndicatorColor.toColor(),
-        unselectedContainerColor: Color = NavigationDrawerTokens.ContainerColor.toColor(),
-        selectedIconColor: Color = NavigationDrawerTokens.ActiveIconColor.toColor(),
-        unselectedIconColor: Color = NavigationDrawerTokens.InactiveIconColor.toColor(),
-        selectedTextColor: Color = NavigationDrawerTokens.ActiveLabelTextColor.toColor(),
-        unselectedTextColor: Color = NavigationDrawerTokens.InactiveLabelTextColor.toColor(),
+        selectedContainerColor: Color = NavigationDrawerTokens.ActiveIndicatorColor.value,
+        unselectedContainerColor: Color = NavigationDrawerTokens.ContainerColor.value,
+        selectedIconColor: Color = NavigationDrawerTokens.ActiveIconColor.value,
+        unselectedIconColor: Color = NavigationDrawerTokens.InactiveIconColor.value,
+        selectedTextColor: Color = NavigationDrawerTokens.ActiveLabelTextColor.value,
+        unselectedTextColor: Color = NavigationDrawerTokens.InactiveLabelTextColor.value,
         selectedBadgeColor: Color = selectedTextColor,
         unselectedBadgeColor: Color = unselectedTextColor,
     ): NavigationDrawerItemColors = DefaultDrawerItemsColor(

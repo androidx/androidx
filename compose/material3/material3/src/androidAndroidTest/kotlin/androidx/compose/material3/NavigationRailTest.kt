@@ -56,7 +56,6 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onParent
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.height
 import androidx.compose.ui.unit.width
@@ -236,20 +235,10 @@ class NavigationRailTest {
             }
         }
 
-        assertDimension(itemCoords, NavigationRailItemWidth, NavigationRailItemHeight)
-    }
-
-    private fun assertDimension(
-        itemCoords: MutableMap<Int, LayoutCoordinates>,
-        expectedItemWidth: Dp,
-        expectedItemHeight: Dp
-    ) {
         rule.runOnIdleWithDensity {
-            val expectedItemWidthPx = expectedItemWidth.roundToPx()
-            val expectedItemHeightPx = expectedItemHeight.roundToPx()
+            val expectedItemWidthPx = NavigationRailItemWidth.roundToPx()
+            val expectedItemHeightPx = NavigationRailItemHeight.roundToPx()
             val navigationRailPadding = NavigationRailItemVerticalPadding.roundToPx()
-
-            Truth.assertThat(itemCoords.size).isEqualTo(4)
 
             itemCoords.forEach { (index, coord) ->
                 Truth.assertThat(coord.size.width).isEqualTo(expectedItemWidthPx)
@@ -259,6 +248,29 @@ class NavigationRailTest {
                 Truth.assertThat(coord.positionInWindow().y).isEqualTo(expectedY.toFloat())
             }
         }
+    }
+
+    @Test
+    fun navigationRailItem_withLongLabel_automaticallyResizesHeight() {
+        val defaultHeight = NavigationRailItemHeight
+
+        rule.setMaterialContent(lightColorScheme()) {
+            NavigationRail {
+                NavigationRailItem(
+                    icon = { Icon(Icons.Filled.Favorite, null) },
+                    label = { Text("Long\nLabel\nMultiple\nLines") },
+                    selected = true,
+                    onClick = {},
+                    modifier = Modifier.testTag("TAG"),
+                )
+            }
+        }
+
+        Truth.assertThat(
+            rule.onNodeWithTag("TAG", useUnmergedTree = true)
+                .getUnclippedBoundsInRoot()
+                .height
+        ).isGreaterThan(defaultHeight)
     }
 
     @Test

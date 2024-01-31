@@ -28,6 +28,7 @@ import androidx.compose.material3.SheetValue.Expanded
 import androidx.compose.material3.SheetValue.Hidden
 import androidx.compose.material3.SheetValue.PartiallyExpanded
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -326,6 +327,11 @@ private fun BottomSheetScaffoldLayout(
     containerColor: Color,
     contentColor: Color,
 ) {
+    // b/291735717 Remove this once deprecated methods without density are removed
+    val density = LocalDensity.current
+    SideEffect {
+        sheetState.density = density
+    }
     SubcomposeLayout { constraints ->
         val layoutWidth = constraints.maxWidth
         val layoutHeight = constraints.maxHeight

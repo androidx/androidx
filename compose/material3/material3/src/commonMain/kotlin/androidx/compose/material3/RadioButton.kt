@@ -143,13 +143,13 @@ object RadioButtonDefaults {
      */
     @Composable
     fun colors(
-        selectedColor: Color = RadioButtonTokens.SelectedIconColor.toColor(),
-        unselectedColor: Color = RadioButtonTokens.UnselectedIconColor.toColor(),
+        selectedColor: Color = RadioButtonTokens.SelectedIconColor.value,
+        unselectedColor: Color = RadioButtonTokens.UnselectedIconColor.value,
         disabledSelectedColor: Color = RadioButtonTokens.DisabledSelectedIconColor
-            .toColor()
+            .value
             .copy(alpha = RadioButtonTokens.DisabledSelectedIconOpacity),
         disabledUnselectedColor: Color = RadioButtonTokens.DisabledUnselectedIconColor
-            .toColor()
+            .value
             .copy(alpha = RadioButtonTokens.DisabledUnselectedIconOpacity)
     ): RadioButtonColors = RadioButtonColors(
         selectedColor,

@@ -16,6 +16,7 @@
 
 package androidx.compose.material3
 
+import androidx.annotation.FloatRange
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.SpringSpec
@@ -211,7 +212,7 @@ internal open class SwipeableState<T>(
 
     private suspend fun snapInternalToOffset(target: Float) {
         draggableState.drag {
-            dragBy(target - absoluteOffset.value)
+            dragBy(target - absoluteOffset.floatValue)
         }
     }
 
@@ -244,8 +245,8 @@ internal open class SwipeableState<T>(
         get() {
             // TODO(calintat): Track current velocity (b/149549482) and use that here.
             val target = animationTarget.value ?: computeTarget(
-                offset = offset.value,
-                lastValue = anchors.getOffset(currentValue) ?: offset.value,
+                offset = offset.floatValue,
+                lastValue = anchors.getOffset(currentValue) ?: offset.floatValue,
                 anchors = anchors.keys,
                 thresholds = thresholds,
                 velocity = 0f,
@@ -362,7 +363,7 @@ internal open class SwipeableState<T>(
         latestNonEmptyAnchorsFlow.collect { anchors ->
             val lastAnchor = anchors.getOffset(currentValue)!!
             val targetValue = computeTarget(
-                offset = offset.value,
+                offset = offset.floatValue,
                 lastValue = lastAnchor,
                 anchors = anchors.keys,
                 thresholds = thresholds,
@@ -431,7 +432,7 @@ internal open class SwipeableState<T>(
 internal class SwipeProgress<T>(
     val from: T,
     val to: T,
-    /*@FloatRange(from = 0.0, to = 1.0)*/
+    @FloatRange(from = 0.0, to = 1.0)
     val fraction: Float
 ) {
     override fun equals(other: Any?): Boolean {
@@ -536,7 +537,7 @@ internal fun <T : Any> rememberSwipeableStateFor(
  * the new anchor. The target anchor is calculated based on the provided positional [thresholds].
  *
  * Swiping is constrained between the minimum and maximum anchors. If the user attempts to swipe
- * past these bounds, a resistance effect will be applied by default. The amount of resistance at
+ * past these bounds, a resistance effect will bfe applied by default. The amount of resistance at
  * each edge is specified by the [resistance] config. To disable all resistance, set it to `null`.
  *
  * @param T The type of the state.
@@ -650,7 +651,7 @@ internal data class FixedThreshold(private val offset: Dp) : ThresholdConfig {
 @Immutable
 @ExperimentalMaterial3Api
 internal data class FractionalThreshold(
-    /*@FloatRange(from = 0.0, to = 1.0)*/
+    @FloatRange(from = 0.0, to = 1.0)
     private val fraction: Float
 ) : ThresholdConfig {
     override fun Density.computeThreshold(fromValue: Float, toValue: Float): Float {
@@ -682,11 +683,11 @@ internal data class FractionalThreshold(
  */
 @Immutable
 internal class ResistanceConfig(
-    /*@FloatRange(from = 0.0, fromInclusive = false)*/
+    @FloatRange(from = 0.0, fromInclusive = false)
     val basis: Float,
-    /*@FloatRange(from = 0.0)*/
+    @FloatRange(from = 0.0)
     val factorAtMin: Float = StandardResistanceFactor,
-    /*@FloatRange(from = 0.0)*/
+    @FloatRange(from = 0.0)
     val factorAtMax: Float = StandardResistanceFactor
 ) {
     fun computeResistance(overflow: Float): Float {

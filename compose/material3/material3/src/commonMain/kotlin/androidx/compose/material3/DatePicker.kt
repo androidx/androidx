@@ -169,7 +169,8 @@ fun DatePicker(
     showModeToggle: Boolean = true,
     colors: DatePickerColors = DatePickerDefaults.colors()
 ) {
-    val calendarModel = remember { CalendarModel() }
+    val defaultLocale = defaultLocale()
+    val calendarModel = remember(defaultLocale) { createCalendarModel(defaultLocale) }
     DateEntryContainer(
         modifier = modifier,
         title = title,
@@ -357,16 +358,20 @@ fun rememberDatePickerState(
     yearRange: IntRange = DatePickerDefaults.YearRange,
     initialDisplayMode: DisplayMode = DisplayMode.Picker,
     selectableDates: SelectableDates = object : SelectableDates {}
-): DatePickerState = rememberSaveable(
-    saver = DatePickerStateImpl.Saver(selectableDates)
-) {
-    DatePickerStateImpl(
-        initialSelectedDateMillis = initialSelectedDateMillis,
-        initialDisplayedMonthMillis = initialDisplayedMonthMillis,
-        yearRange = yearRange,
-        initialDisplayMode = initialDisplayMode,
-        selectableDates = selectableDates
-    )
+): DatePickerState {
+    val locale = defaultLocale()
+    return rememberSaveable(
+        saver = DatePickerStateImpl.Saver(selectableDates, locale)
+    ) {
+        DatePickerStateImpl(
+            initialSelectedDateMillis = initialSelectedDateMillis,
+            initialDisplayedMonthMillis = initialDisplayedMonthMillis,
+            yearRange = yearRange,
+            initialDisplayMode = initialDisplayMode,
+            selectableDates = selectableDates,
+            locale = locale
+        )
+    }
 }
 
 /**
@@ -417,43 +422,43 @@ object DatePickerDefaults {
      */
     @Composable
     fun colors(
-        containerColor: Color = DatePickerModalTokens.ContainerColor.toColor(),
-        titleContentColor: Color = DatePickerModalTokens.HeaderSupportingTextColor.toColor(),
-        headlineContentColor: Color = DatePickerModalTokens.HeaderHeadlineColor.toColor(),
-        weekdayContentColor: Color = DatePickerModalTokens.WeekdaysLabelTextColor.toColor(),
+        containerColor: Color = DatePickerModalTokens.ContainerColor.value,
+        titleContentColor: Color = DatePickerModalTokens.HeaderSupportingTextColor.value,
+        headlineContentColor: Color = DatePickerModalTokens.HeaderHeadlineColor.value,
+        weekdayContentColor: Color = DatePickerModalTokens.WeekdaysLabelTextColor.value,
         subheadContentColor: Color =
-            DatePickerModalTokens.RangeSelectionMonthSubheadColor.toColor(),
+            DatePickerModalTokens.RangeSelectionMonthSubheadColor.value,
         // TODO(b/234060211): Apply this from the MenuButton tokens or defaults.
         navigationContentColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
         yearContentColor: Color =
-            DatePickerModalTokens.SelectionYearUnselectedLabelTextColor.toColor(),
+            DatePickerModalTokens.SelectionYearUnselectedLabelTextColor.value,
         // TODO: Using DisabledAlpha as there are no token values for the disabled states.
         disabledYearContentColor: Color = yearContentColor.copy(alpha = DisabledAlpha),
-        currentYearContentColor: Color = DatePickerModalTokens.DateTodayLabelTextColor.toColor(),
+        currentYearContentColor: Color = DatePickerModalTokens.DateTodayLabelTextColor.value,
         selectedYearContentColor: Color =
-            DatePickerModalTokens.SelectionYearSelectedLabelTextColor.toColor(),
+            DatePickerModalTokens.SelectionYearSelectedLabelTextColor.value,
         disabledSelectedYearContentColor: Color =
             selectedYearContentColor.copy(alpha = DisabledAlpha),
         selectedYearContainerColor: Color =
-            DatePickerModalTokens.SelectionYearSelectedContainerColor.toColor(),
+            DatePickerModalTokens.SelectionYearSelectedContainerColor.value,
         disabledSelectedYearContainerColor: Color =
             selectedYearContainerColor.copy(alpha = DisabledAlpha),
-        dayContentColor: Color = DatePickerModalTokens.DateUnselectedLabelTextColor.toColor(),
+        dayContentColor: Color = DatePickerModalTokens.DateUnselectedLabelTextColor.value,
         disabledDayContentColor: Color = dayContentColor.copy(alpha = DisabledAlpha),
-        selectedDayContentColor: Color = DatePickerModalTokens.DateSelectedLabelTextColor.toColor(),
+        selectedDayContentColor: Color = DatePickerModalTokens.DateSelectedLabelTextColor.value,
         disabledSelectedDayContentColor: Color =
             selectedDayContentColor.copy(alpha = DisabledAlpha),
         selectedDayContainerColor: Color =
-            DatePickerModalTokens.DateSelectedContainerColor.toColor(),
+            DatePickerModalTokens.DateSelectedContainerColor.value,
         disabledSelectedDayContainerColor: Color =
             selectedDayContainerColor.copy(alpha = DisabledAlpha),
-        todayContentColor: Color = DatePickerModalTokens.DateTodayLabelTextColor.toColor(),
+        todayContentColor: Color = DatePickerModalTokens.DateTodayLabelTextColor.value,
         todayDateBorderColor: Color =
-            DatePickerModalTokens.DateTodayContainerOutlineColor.toColor(),
+            DatePickerModalTokens.DateTodayContainerOutlineColor.value,
         dayInSelectionRangeContentColor: Color =
-            DatePickerModalTokens.SelectionDateInRangeLabelTextColor.toColor(),
+            DatePickerModalTokens.SelectionDateInRangeLabelTextColor.value,
         dayInSelectionRangeContainerColor: Color =
-            DatePickerModalTokens.RangeSelectionActiveIndicatorContainerColor.toColor(),
+            DatePickerModalTokens.RangeSelectionActiveIndicatorContainerColor.value,
         dividerColor: Color = DividerDefaults.color,
         dateTextFieldColors: TextFieldColors = OutlinedTextFieldDefaults.colors()
     ): DatePickerColors =
@@ -617,7 +622,7 @@ object DatePickerDefaults {
     val TonalElevation: Dp = DatePickerModalTokens.ContainerElevation
 
     /** The default shape for date picker dialogs. */
-    val shape: Shape @Composable get() = DatePickerModalTokens.ContainerShape.toShape()
+    val shape: Shape @Composable get() = DatePickerModalTokens.ContainerShape.value
 
     /**
      * A date format skeleton used to format the date picker's year selection menu button (e.g.
@@ -899,10 +904,11 @@ class DatePickerColors constructor(
 internal abstract class BaseDatePickerStateImpl(
     @Suppress("AutoBoxing") initialDisplayedMonthMillis: Long?,
     val yearRange: IntRange,
-    val selectableDates: SelectableDates
+    val selectableDates: SelectableDates,
+    locale: CalendarLocale
 ) {
 
-    val calendarModel = CalendarModel.Default
+    val calendarModel = createCalendarModel(locale)
 
     private var _displayedMonth =
         mutableStateOf(if (initialDisplayedMonthMillis != null) {
@@ -955,11 +961,13 @@ private class DatePickerStateImpl(
     @Suppress("AutoBoxing") initialDisplayedMonthMillis: Long?,
     yearRange: IntRange,
     initialDisplayMode: DisplayMode,
-    selectableDates: SelectableDates
+    selectableDates: SelectableDates,
+    locale: CalendarLocale
 ) : BaseDatePickerStateImpl(
     initialDisplayedMonthMillis,
     yearRange,
-    selectableDates
+    selectableDates,
+    locale
 ), DatePickerState {
 
     /**
@@ -1015,7 +1023,10 @@ private class DatePickerStateImpl(
          * @param selectableDates a [SelectableDates] instance that is consulted to check if a date
          * is allowed
          */
-        fun Saver(selectableDates: SelectableDates): Saver<DatePickerStateImpl, Any> = listSaver(
+        fun Saver(
+            selectableDates: SelectableDates,
+            locale: CalendarLocale
+        ): Saver<DatePickerStateImpl, Any> = listSaver(
             save = {
                 listOf(
                     it.selectedDateMillis,
@@ -1031,7 +1042,8 @@ private class DatePickerStateImpl(
                     initialDisplayedMonthMillis = value[1] as Long?,
                     yearRange = IntRange(value[2] as Int, value[3] as Int),
                     initialDisplayMode = DisplayMode(value[4] as Int),
-                    selectableDates = selectableDates
+                    selectableDates = selectableDates,
+                    locale = locale
                 )
             }
         )
@@ -1158,7 +1170,7 @@ internal fun DateEntryContainer(
                 }
                 // Display a divider only when there is a title, headline, or a mode toggle.
                 if (title != null || headline != null || modeToggleButton != null) {
-                    Divider(color = colors.dividerColor)
+                    HorizontalDivider(color = colors.dividerColor)
                 }
             }
         }
@@ -1385,7 +1397,7 @@ private fun DatePickerContent(
                         yearRange = yearRange,
                         colors = colors
                     )
-                    Divider(color = colors.dividerColor)
+                    HorizontalDivider(color = colors.dividerColor)
                 }
             }
         }
@@ -1761,7 +1773,7 @@ private fun Day(
                 role = Role.Button
             },
         enabled = enabled,
-        shape = DatePickerModalTokens.DateContainerShape.toShape(),
+        shape = DatePickerModalTokens.DateContainerShape.value,
         color = colors.dayContainerColor(
             selected = selected,
             enabled = enabled,
@@ -1913,7 +1925,7 @@ private fun Year(
             role = Role.Button
         },
         enabled = enabled,
-        shape = DatePickerModalTokens.SelectionYearStateLayerShape.toShape(),
+        shape = DatePickerModalTokens.SelectionYearStateLayerShape.value,
         color = colors.yearContainerColor(selected = selected, enabled = enabled).value,
         contentColor = colors.yearContentColor(
             currentYear = currentYear,

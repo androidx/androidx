@@ -115,8 +115,8 @@ class BadgeTest {
         var shape = RectangleShape
         var errorColor = Color.Unspecified
         rule.setMaterialContent(lightColorScheme()) {
-            shape = BadgeTokens.Shape.toShape()
-            errorColor = BadgeTokens.Color.toColor()
+            shape = BadgeTokens.Shape.value
+            errorColor = BadgeTokens.Color.value
             Badge(modifier = Modifier.testTag(TestBadgeTag))
         }
 

@@ -92,7 +92,7 @@ class AlertDialogTest {
                     TextButton(onClick = { /* doSomething() */ }) {
                         Text("Confirm")
                         buttonContentColor = LocalContentColor.current
-                        expectedButtonContentColor = DialogTokens.ActionLabelTextColor.toColor()
+                        expectedButtonContentColor = DialogTokens.ActionLabelTextColor.value
                     }
                 },
                 containerColor = Color.Yellow,

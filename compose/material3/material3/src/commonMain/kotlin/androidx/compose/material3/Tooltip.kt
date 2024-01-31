@@ -24,7 +24,6 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.MutatePriority
 import androidx.compose.foundation.MutatorMutex
-import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.waitForUpOrCancellation
@@ -165,7 +164,7 @@ fun PlainTooltipBox(
 fun RichTooltipBox(
     text: @Composable () -> Unit,
     modifier: Modifier = Modifier,
-    focusable: Boolean = false,
+    focusable: Boolean = true,
     title: (@Composable () -> Unit)? = null,
     action: (@Composable () -> Unit)? = null,
     tooltipState: RichTooltipState = rememberRichTooltipState(action != null),
@@ -384,25 +383,25 @@ object TooltipDefaults {
      * The default [Shape] for a [PlainTooltipBox]'s container.
      */
     val plainTooltipContainerShape: Shape
-        @Composable get() = PlainTooltipTokens.ContainerShape.toShape()
+        @Composable get() = PlainTooltipTokens.ContainerShape.value
 
     /**
      * The default [Color] for a [PlainTooltipBox]'s container.
      */
     val plainTooltipContainerColor: Color
-        @Composable get() = PlainTooltipTokens.ContainerColor.toColor()
+        @Composable get() = PlainTooltipTokens.ContainerColor.value
 
     /**
      * The default [Color] for the content within the [PlainTooltipBox].
      */
     val plainTooltipContentColor: Color
-        @Composable get() = PlainTooltipTokens.SupportingTextColor.toColor()
+        @Composable get() = PlainTooltipTokens.SupportingTextColor.value
 
     /**
      * The default [Shape] for a [RichTooltipBox]'s container.
      */
     val richTooltipContainerShape: Shape @Composable get() =
-        RichTooltipTokens.ContainerShape.toShape()
+        RichTooltipTokens.ContainerShape.value
 
     /**
      * Method to create a [RichTooltipColors] for [RichTooltipBox]
@@ -410,10 +409,10 @@ object TooltipDefaults {
      */
     @Composable
     fun richTooltipColors(
-        containerColor: Color = RichTooltipTokens.ContainerColor.toColor(),
-        contentColor: Color = RichTooltipTokens.SupportingTextColor.toColor(),
-        titleContentColor: Color = RichTooltipTokens.SubheadColor.toColor(),
-        actionContentColor: Color = RichTooltipTokens.ActionLabelTextColor.toColor(),
+        containerColor: Color = RichTooltipTokens.ContainerColor.value,
+        contentColor: Color = RichTooltipTokens.SupportingTextColor.value,
+        titleContentColor: Color = RichTooltipTokens.SubheadColor.value,
+        actionContentColor: Color = RichTooltipTokens.ActionLabelTextColor.value,
     ): RichTooltipColors =
         RichTooltipColors(
             containerColor = containerColor,
@@ -802,6 +801,8 @@ private fun Modifier.animateTooltip(
     )
 }
 
+@Composable
+@ExperimentalMaterial3Api
 internal expect fun TooltipPopup(
     popupPositionProvider: PopupPositionProvider,
     onDismissRequest: () -> Unit,

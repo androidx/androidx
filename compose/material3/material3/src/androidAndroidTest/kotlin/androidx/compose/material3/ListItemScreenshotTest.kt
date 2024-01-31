@@ -61,7 +61,7 @@ class ListItemScreenshotTest {
                     },
                     colors = ListItemDefaults.colors(containerColor = Color.Red)
                 )
-                Divider()
+                HorizontalDivider()
             }
         }
         composeTestRule.onNodeWithTag(Tag)
@@ -74,7 +74,7 @@ class ListItemScreenshotTest {
         composeTestRule.setMaterialContent(lightColorScheme()) {
             Column(Modifier.testTag(Tag)) {
                 ListItem(headlineContent = { Text("One line list item with no icon") })
-                Divider()
+                HorizontalDivider()
                 ListItem(
                     headlineContent = { Text("One line list item with 24x24 icon") },
                     leadingContent = {
@@ -84,7 +84,7 @@ class ListItemScreenshotTest {
                         )
                     }
                 )
-                Divider()
+                HorizontalDivider()
             }
         }
         composeTestRule.onNodeWithTag(Tag)
@@ -97,7 +97,7 @@ class ListItemScreenshotTest {
         composeTestRule.setMaterialContent(darkColorScheme()) {
             Column(Modifier.testTag(Tag)) {
                 ListItem(headlineContent = { Text("One line list item with no icon") })
-                Divider()
+                HorizontalDivider()
                 ListItem(
                     headlineContent = { Text("One line list item with 24x24 icon") },
                     leadingContent = {
@@ -107,7 +107,7 @@ class ListItemScreenshotTest {
                         )
                     }
                 )
-                Divider()
+                HorizontalDivider()
             }
         }
         composeTestRule.onNodeWithTag(Tag)
@@ -123,12 +123,12 @@ class ListItemScreenshotTest {
                     headlineContent = { Text("Two line list item") },
                     supportingContent = { Text("Secondary text") }
                 )
-                Divider()
+                HorizontalDivider()
                 ListItem(
                     headlineContent = { Text("Two line list item") },
                     overlineContent = { Text("OVERLINE") }
                 )
-                Divider()
+                HorizontalDivider()
                 ListItem(
                     headlineContent = { Text("Two line list item with 24x24 icon") },
                     supportingContent = { Text("Secondary text") },
@@ -139,7 +139,7 @@ class ListItemScreenshotTest {
                         )
                     }
                 )
-                Divider()
+                HorizontalDivider()
             }
         }
         composeTestRule.onNodeWithTag(Tag)
@@ -155,12 +155,12 @@ class ListItemScreenshotTest {
                     headlineContent = { Text("Two line list item") },
                     supportingContent = { Text("Secondary text") }
                 )
-                Divider()
+                HorizontalDivider()
                 ListItem(
                     headlineContent = { Text("Two line list item") },
                     overlineContent = { Text("OVERLINE") }
                 )
-                Divider()
+                HorizontalDivider()
                 ListItem(
                     headlineContent = { Text("Two line list item with 24x24 icon") },
                     supportingContent = { Text("Secondary text") },
@@ -171,7 +171,7 @@ class ListItemScreenshotTest {
                         )
                     }
                 )
-                Divider()
+                HorizontalDivider()
             }
         }
         composeTestRule.onNodeWithTag(Tag)
@@ -189,13 +189,13 @@ class ListItemScreenshotTest {
                     supportingContent = { Text("Secondary text") },
                     trailingContent = { Text("meta") }
                 )
-                Divider()
+                HorizontalDivider()
                 ListItem(
                     headlineContent = { Text("Three line list item") },
                     overlineContent = { Text("OVERLINE") },
                     supportingContent = { Text("Secondary text") }
                 )
-                Divider()
+                HorizontalDivider()
                 ListItem(
                     headlineContent = { Text("Three line list item") },
                     overlineContent = { Text("OVERLINE") },
@@ -207,7 +207,7 @@ class ListItemScreenshotTest {
                         )
                     }
                 )
-                Divider()
+                HorizontalDivider()
             }
         }
         composeTestRule.onNodeWithTag(Tag)
@@ -225,13 +225,13 @@ class ListItemScreenshotTest {
                     supportingContent = { Text("Secondary text") },
                     trailingContent = { Text("meta") }
                 )
-                Divider()
+                HorizontalDivider()
                 ListItem(
                     headlineContent = { Text("Three line list item") },
                     overlineContent = { Text("OVERLINE") },
                     supportingContent = { Text("Secondary text") }
                 )
-                Divider()
+                HorizontalDivider()
                 ListItem(
                     headlineContent = { Text("Three line list item") },
                     overlineContent = { Text("OVERLINE") },
@@ -243,7 +243,7 @@ class ListItemScreenshotTest {
                         )
                     }
                 )
-                Divider()
+                HorizontalDivider()
             }
         }
         composeTestRule.onNodeWithTag(Tag)

@@ -23,11 +23,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Keyboard
@@ -54,13 +52,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.semantics.isContainer
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import androidx.compose.ui.zIndex
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -81,7 +76,9 @@ fun TimePickerSample() {
         Button(
             modifier = Modifier.align(Alignment.Center),
             onClick = { showTimePicker = true }
-        ) { Text("Set Time") }
+        ) {
+            Text("Set Time")
+        }
         SnackbarHost(hostState = snackState)
     }
 
@@ -119,7 +116,9 @@ fun TimeInputSample() {
         Button(
             modifier = Modifier.align(Alignment.Center),
             onClick = { showTimePicker = true }
-        ) { Text("Set Time") }
+        ) {
+            Text("Set Time")
+        }
         SnackbarHost(hostState = snackState)
     }
 
@@ -159,13 +158,19 @@ fun TimePickerSwitchableSample() {
         Button(
             modifier = Modifier.align(Alignment.Center),
             onClick = { showTimePicker = true }
-        ) { Text("Set Time") }
+        ) {
+            Text("Set Time")
+        }
         SnackbarHost(hostState = snackState)
     }
 
     if (showTimePicker) {
         TimePickerDialog(
-            title = if (showingPicker.value) { "Select Time " } else { "Enter Time" },
+            title = if (showingPicker.value) {
+                "Select Time "
+            } else {
+                "Enter Time"
+            },
             onCancel = { showTimePicker = false },
             onConfirm = {
                 val cal = Calendar.getInstance()
@@ -179,40 +184,20 @@ fun TimePickerSwitchableSample() {
             },
             toggle = {
                 if (configuration.screenHeightDp > 400) {
-                    // Make this take the entire viewport. This will guarantee that Screen readers
-                    // focus the toggle first.
-                    Box(
-                        Modifier
-                            .fillMaxSize()
-                        .semantics {
-                            @Suppress("DEPRECATION")
-                            isContainer = true
+                    IconButton(onClick = { showingPicker.value = !showingPicker.value }) {
+                        val icon = if (showingPicker.value) {
+                            Icons.Outlined.Keyboard
+                        } else {
+                            Icons.Outlined.Schedule
                         }
-                    ) {
-                        IconButton(
-                            modifier = Modifier
-                                // This is a workaround so that the Icon comes up first
-                                // in the talkback traversal order. So that users of a11y
-                                // services can use the text input. When talkback traversal
-                                // order is customizable we can remove this.
-                                .size(64.dp, 72.dp)
-                                .align(Alignment.BottomStart)
-                                .zIndex(5f),
-                            onClick = { showingPicker.value = !showingPicker.value }) {
-                            val icon = if (showingPicker.value) {
-                                Icons.Outlined.Keyboard
+                        Icon(
+                            icon,
+                            contentDescription = if (showingPicker.value) {
+                                "Switch to Text Input"
                             } else {
-                                Icons.Outlined.Schedule
+                                "Switch to Touch Input"
                             }
-                            Icon(
-                                icon,
-                                contentDescription = if (showingPicker.value) {
-                                    "Switch to Text Input"
-                                } else {
-                                    "Switch to Touch Input"
-                                }
-                            )
-                        }
+                        )
                     }
                 }
             }
@@ -236,9 +221,7 @@ fun TimePickerDialog(
 ) {
     Dialog(
         onDismissRequest = onCancel,
-        properties = DialogProperties(
-            usePlatformDefaultWidth = false
-        ),
+        properties = DialogProperties(usePlatformDefaultWidth = false),
     ) {
         Surface(
             shape = MaterialTheme.shapes.extraLarge,
@@ -251,7 +234,6 @@ fun TimePickerDialog(
                     color = MaterialTheme.colorScheme.surface
                 ),
         ) {
-            toggle()
             Column(
                 modifier = Modifier.padding(24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
@@ -264,18 +246,18 @@ fun TimePickerDialog(
                     style = MaterialTheme.typography.labelMedium
                 )
                 content()
-                Row(
-                    modifier = Modifier
-                        .height(40.dp)
-                        .fillMaxWidth()
+                Row(modifier = Modifier
+                    .height(40.dp)
+                    .fillMaxWidth()
                 ) {
+                    toggle()
                     Spacer(modifier = Modifier.weight(1f))
-                    TextButton(
-                        onClick = onCancel
-                    ) { Text("Cancel") }
-                    TextButton(
-                        onClick = onConfirm
-                    ) { Text("OK") }
+                    TextButton(onClick = onCancel) {
+                        Text("Cancel")
+                    }
+                    TextButton(onClick = onConfirm) {
+                        Text("OK")
+                    }
                 }
             }
         }

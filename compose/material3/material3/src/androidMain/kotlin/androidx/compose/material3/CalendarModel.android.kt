@@ -23,11 +23,11 @@ import android.text.format.DateFormat
  * Returns a [CalendarModel] to be used by the date picker.
  */
 @ExperimentalMaterial3Api
-internal actual fun CalendarModel(): CalendarModel {
+internal actual fun createCalendarModel(locale: CalendarLocale): CalendarModel {
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-        CalendarModelImpl()
+        CalendarModelImpl(locale)
     } else {
-        LegacyCalendarModelImpl()
+        LegacyCalendarModelImpl(locale)
     }
 }
 

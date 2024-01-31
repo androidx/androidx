@@ -120,6 +120,8 @@ import androidx.compose.material3.samples.ScrollingSecondaryTabs
 import androidx.compose.material3.samples.ScrollingTextTabs
 import androidx.compose.material3.samples.SearchBarSample
 import androidx.compose.material3.samples.SecondaryTabs
+import androidx.compose.material3.samples.SegmentedButtonMultiSelectSample
+import androidx.compose.material3.samples.SegmentedButtonSingleSelectSample
 import androidx.compose.material3.samples.SimpleBottomAppBar
 import androidx.compose.material3.samples.SimpleBottomSheetScaffoldSample
 import androidx.compose.material3.samples.SimpleCenterAlignedTopAppBar
@@ -786,6 +788,25 @@ val SearchBarExamples = listOf(
         sourceUrl = SearchBarExampleSourceUrl
     ) {
         DockedSearchBarSample()
+    }
+)
+
+private const val SegmentedButtonExampleDescription = "Segmented Button examples"
+private const val SegmentedButtonSourceUrl = "$SampleSourceUrl/SegmentedButtonSamples.kt"
+val SegmentedButtonExamples = listOf(
+    Example(
+        name = ::SegmentedButtonSingleSelectSample.name,
+        description = SegmentedButtonExampleDescription,
+        sourceUrl = SegmentedButtonSourceUrl
+    ) {
+        SegmentedButtonSingleSelectSample()
+    },
+    Example(
+        name = ::SegmentedButtonMultiSelectSample.name,
+        description = SegmentedButtonExampleDescription,
+        sourceUrl = SegmentedButtonSourceUrl
+    ) {
+        SegmentedButtonMultiSelectSample()
     },
 )
 
