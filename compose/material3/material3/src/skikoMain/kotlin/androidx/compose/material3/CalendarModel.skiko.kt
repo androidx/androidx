@@ -23,7 +23,7 @@ internal actual fun CalendarModel(): CalendarModel =
 
 
 @ExperimentalMaterial3Api
-internal actual fun formatWithSkeleton(
+actual fun formatWithSkeleton(
     utcTimeMillis: Long,
     skeleton: String,
     locale: CalendarLocale
