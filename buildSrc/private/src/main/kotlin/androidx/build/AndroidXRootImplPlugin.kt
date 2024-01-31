@@ -179,7 +179,6 @@ abstract class AndroidXRootImplPlugin : Plugin<Project> {
 
         project.zipComposeCompilerMetrics()
         project.zipComposeCompilerReports()
-        project.configureRootProjectForKmpLink()
     }
 
     private fun Project.setDependencyVersions() {
