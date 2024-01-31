@@ -46,6 +46,10 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.assertIsNotDisplayed
@@ -53,6 +57,7 @@ import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipe
@@ -545,6 +550,33 @@ class ExposedDropdownMenuTest {
 
         rule.onNodeWithTag("MenuContent 1").assertIsNotDisplayed()
         rule.onNodeWithTag("MenuContent 100").assertIsDisplayed()
+    }
+
+    @Test
+    fun edm_hasDropdownSemantics() {
+        rule.setMaterialContent(lightColorScheme()) {
+            ExposedDropdownMenuBox(
+                expanded = false,
+                onExpandedChange = { },
+            ) {
+                TextField(
+                    modifier = Modifier.menuAnchor(),
+                    value = "",
+                    onValueChange = { },
+                    label = { Text("Label") },
+                    readOnly = true,
+                )
+                ExposedDropdownMenu(
+                    expanded = false,
+                    onDismissRequest = { },
+                ) {
+                    Text("Menu Item")
+                }
+            }
+        }
+
+        rule.onNodeWithText("Label")
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.DropdownList))
     }
 
     @Composable

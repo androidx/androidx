@@ -17,6 +17,7 @@
 package androidx.compose.material3
 
 import androidx.compose.runtime.ProvidableCompositionLocal
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.LayoutModifier
@@ -46,6 +47,7 @@ import kotlin.math.roundToInt
  * This modifier is not needed for touch target expansion to happen. It only affects layout, to make
  * sure there is adequate space for touch target expansion.
  */
+@Stable
 fun Modifier.minimumInteractiveComponentSize(): Modifier = this then MinimumInteractiveModifier
 
 internal object MinimumInteractiveModifier :

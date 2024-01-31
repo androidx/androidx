@@ -22,6 +22,7 @@ import androidx.compose.material3.tokens.ColorSchemeKeyTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.ReadOnlyComposable
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.compositeOver
@@ -718,6 +719,7 @@ fun darkColorScheme(
  *
  * @see contentColorFor
  */
+@Stable
 fun ColorScheme.contentColorFor(backgroundColor: Color): Color =
     when (backgroundColor) {
         primary -> onPrimary
@@ -796,6 +798,7 @@ internal fun ColorScheme.applyTonalElevation(backgroundColor: Color, elevation: 
  * @return the [ColorScheme.surface] color with an alpha of the [ColorScheme.surfaceTint] color
  * overlaid on top of it.
  */
+@Stable
 fun ColorScheme.surfaceColorAtElevation(
     elevation: Dp,
 ): Color {
@@ -809,6 +812,7 @@ fun ColorScheme.surfaceColorAtElevation(
  * tokens:
  * ``MaterialTheme.colorScheme.fromToken(ExtendedFabBranded.BrandedContainerColor)``
  */
+@Stable
 internal fun ColorScheme.fromToken(value: ColorSchemeKeyTokens): Color {
     return when (value) {
         ColorSchemeKeyTokens.Background -> background

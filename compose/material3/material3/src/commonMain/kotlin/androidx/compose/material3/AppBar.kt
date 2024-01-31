@@ -1099,7 +1099,7 @@ class TopAppBarColors constructor(
      * @param colorTransitionFraction a `0.0` to `1.0` value that represents a color transition
      * percentage
      */
-    @Composable
+    @Stable
     internal fun containerColor(colorTransitionFraction: Float): Color {
         return lerp(
             containerColor,

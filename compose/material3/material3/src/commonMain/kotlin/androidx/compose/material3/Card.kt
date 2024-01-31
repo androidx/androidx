@@ -34,6 +34,7 @@ import androidx.compose.material3.tokens.OutlinedCardTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -737,7 +738,7 @@ class CardColors constructor(
      *
      * @param enabled whether the card is enabled
      */
-    @Composable
+    @Stable
     internal fun containerColor(enabled: Boolean): Color =
         if (enabled) containerColor else disabledContainerColor
 
@@ -746,7 +747,7 @@ class CardColors constructor(
      *
      * @param enabled whether the card is enabled
      */
-    @Composable
+    @Stable
     internal fun contentColor(enabled: Boolean) =
         if (enabled) contentColor else disabledContentColor
 

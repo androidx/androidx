@@ -621,6 +621,7 @@ class SegmentedButtonColors(
      * @param enabled whether the [SegmentedButton] is enabled or not
      * @param active whether the [SegmentedButton] item is checked or not
      */
+    @Stable
     internal fun borderColor(enabled: Boolean, active: Boolean): Color {
         return when {
             enabled && active -> activeBorderColor
@@ -636,6 +637,7 @@ class SegmentedButtonColors(
      * @param enabled whether the [SegmentedButton] is enabled or not
      * @param checked whether the [SegmentedButton] item is checked or not
      */
+    @Stable
     internal fun contentColor(enabled: Boolean, checked: Boolean): Color {
         return when {
             enabled && checked -> activeContentColor
@@ -651,6 +653,7 @@ class SegmentedButtonColors(
      * @param enabled whether the [SegmentedButton] is enabled or not
      * @param active whether the [SegmentedButton] item is active or not
      */
+    @Stable
     internal fun containerColor(enabled: Boolean, active: Boolean): Color {
         return when {
             enabled && active -> activeContainerColor

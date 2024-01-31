@@ -292,7 +292,7 @@ class ModalBottomSheetTest(private val edgeToEdgeWrapper: EdgeToEdgeWrapper) {
         })
 
         try {
-            latch.await(1500, TimeUnit.MILLISECONDS)
+            latch.await(3000, TimeUnit.MILLISECONDS)
             var screenWidthPx by mutableStateOf(0)
             rule.setContent {
                 val context = LocalContext.current

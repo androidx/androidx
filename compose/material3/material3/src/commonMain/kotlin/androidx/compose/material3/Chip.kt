@@ -43,6 +43,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -2173,6 +2174,7 @@ class ChipColors constructor(
      *
      * @param enabled whether the chip is enabled
      */
+    @Stable
     internal fun containerColor(enabled: Boolean): Color =
         if (enabled) containerColor else disabledContainerColor
 
@@ -2181,6 +2183,7 @@ class ChipColors constructor(
      *
      * @param enabled whether the chip is enabled
      */
+    @Stable
     internal fun labelColor(enabled: Boolean): Color =
         if (enabled) labelColor else disabledLabelColor
 
@@ -2189,6 +2192,7 @@ class ChipColors constructor(
      *
      * @param enabled whether the chip is enabled
      */
+    @Stable
     internal fun leadingIconContentColor(enabled: Boolean): Color =
         if (enabled) leadingIconContentColor else disabledLeadingIconContentColor
 
@@ -2197,6 +2201,7 @@ class ChipColors constructor(
      *
      * @param enabled whether the chip is enabled
      */
+    @Stable
     internal fun trailingIconContentColor(enabled: Boolean): Color =
         if (enabled) trailingIconContentColor else disabledTrailingIconContentColor
 

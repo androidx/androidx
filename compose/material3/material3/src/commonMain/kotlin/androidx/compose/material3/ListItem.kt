@@ -28,6 +28,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.ReadOnlyComposable
+import androidx.compose.runtime.Stable
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -486,21 +487,26 @@ class ListItemColors constructor(
     }
 
     /** The color of this [ListItem]'s headline text based on enabled state */
+    @Stable
     internal fun headlineColor(enabled: Boolean): Color {
         return if (enabled) headlineColor else disabledHeadlineColor
     }
 
     /** The color of this [ListItem]'s leading content based on enabled state */
+    @Stable
     internal fun leadingIconColor(enabled: Boolean): Color =
         if (enabled) leadingIconColor else disabledLeadingIconColor
 
     /** The color of this [ListItem]'s overline text based on enabled state */
+    @Stable
     internal fun overlineColor(): Color = overlineColor
 
     /** The color of this [ListItem]'s supporting text based on enabled state */
+    @Stable
     internal fun supportingColor(): Color = supportingTextColor
 
     /** The color of this [ListItem]'s trailing content based on enabled state */
+    @Stable
     internal fun trailingIconColor(enabled: Boolean): Color =
         if (enabled) trailingIconColor else disabledTrailingIconColor
 }

@@ -380,6 +380,7 @@ class TimePickerColors constructor(
     val timeSelectorSelectedContentColor: Color,
     val timeSelectorUnselectedContentColor: Color,
 ) {
+    @Stable
     internal fun periodSelectorContainerColor(selected: Boolean) =
         if (selected) {
             periodSelectorSelectedContainerColor
@@ -387,6 +388,7 @@ class TimePickerColors constructor(
             periodSelectorUnselectedContainerColor
         }
 
+    @Stable
     internal fun periodSelectorContentColor(selected: Boolean) =
         if (selected) {
             periodSelectorSelectedContentColor
@@ -394,6 +396,7 @@ class TimePickerColors constructor(
             periodSelectorUnselectedContentColor
         }
 
+    @Stable
     internal fun timeSelectorContainerColor(selected: Boolean) =
         if (selected) {
             timeSelectorSelectedContainerColor
@@ -401,6 +404,7 @@ class TimePickerColors constructor(
             timeSelectorUnselectedContainerColor
         }
 
+    @Stable
     internal fun timeSelectorContentColor(selected: Boolean) =
         if (selected) {
             timeSelectorSelectedContentColor
@@ -408,6 +412,7 @@ class TimePickerColors constructor(
             timeSelectorUnselectedContentColor
         }
 
+    @Stable
     internal fun clockDialContentColor(selected: Boolean) =
         if (selected) {
             clockDialSelectedContentColor

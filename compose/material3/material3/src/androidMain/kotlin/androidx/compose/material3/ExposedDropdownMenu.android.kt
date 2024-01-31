@@ -60,8 +60,9 @@ import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
-import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.onClick
+import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.unit.Density
@@ -124,7 +125,6 @@ fun ExposedDropdownMenuBox(
     var menuMaxHeight by remember { mutableIntStateOf(0) }
 
     val focusRequester = remember { FocusRequester() }
-    val menuDescription = getString(Strings.ExposedDropdownMenu)
     val expandedDescription = getString(Strings.MenuExpanded)
     val collapsedDescription = getString(Strings.MenuCollapsed)
 
@@ -143,7 +143,6 @@ fun ExposedDropdownMenuBox(
                 .expandable(
                     expanded = expanded,
                     onExpandedChange = { onExpandedChange(!expanded) },
-                    menuDescription = menuDescription,
                     expandedDescription = expandedDescription,
                     collapsedDescription = collapsedDescription,
                 )
@@ -1036,7 +1035,6 @@ object ExposedDropdownMenuDefaults {
 private fun Modifier.expandable(
     expanded: Boolean,
     onExpandedChange: () -> Unit,
-    menuDescription: String,
     expandedDescription: String,
     collapsedDescription: String,
 ) = pointerInput(onExpandedChange) {
@@ -1051,7 +1049,7 @@ private fun Modifier.expandable(
     }
 }.semantics {
     stateDescription = if (expanded) expandedDescription else collapsedDescription
-    contentDescription = menuDescription
+    role = Role.DropdownList
     onClick {
         onExpandedChange()
         true
