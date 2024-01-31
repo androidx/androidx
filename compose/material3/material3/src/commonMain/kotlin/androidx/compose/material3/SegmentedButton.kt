@@ -71,6 +71,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
@@ -429,6 +430,14 @@ interface MultiChoiceSegmentedButtonRowScope : RowScope
 @ExperimentalMaterial3Api
 @Stable
 object SegmentedButtonDefaults {
+
+    /**
+     * Creates a [SegmentedButtonColors] that represents the different colors
+     * used in a [SegmentedButton] in different states.
+     */
+    @Composable
+    fun colors() = MaterialTheme.colorScheme.defaultSegmentedButtonColors
+
     /**
      * Creates a [SegmentedButtonColors] that represents the different colors
      * used in a [SegmentedButton] in different states.
@@ -451,21 +460,19 @@ object SegmentedButtonDefaults {
      */
     @Composable
     fun colors(
-        activeContainerColor: Color = SelectedContainerColor.value,
-        activeContentColor: Color = SelectedLabelTextColor.value,
-        activeBorderColor: Color = OutlineColor.value,
-        inactiveContainerColor: Color = MaterialTheme.colorScheme.surface,
-        inactiveContentColor: Color = UnselectedLabelTextColor.value,
-        inactiveBorderColor: Color = activeBorderColor,
-        disabledActiveContainerColor: Color = activeContainerColor,
-        disabledActiveContentColor: Color = DisabledLabelTextColor.value
-            .copy(alpha = DisabledLabelTextOpacity),
-        disabledActiveBorderColor: Color = OutlineColor.value
-            .copy(alpha = DisabledOutlineOpacity),
-        disabledInactiveContainerColor: Color = inactiveContainerColor,
-        disabledInactiveContentColor: Color = disabledActiveContentColor,
-        disabledInactiveBorderColor: Color = activeBorderColor,
-    ): SegmentedButtonColors = SegmentedButtonColors(
+        activeContainerColor: Color = Color.Unspecified,
+        activeContentColor: Color = Color.Unspecified,
+        activeBorderColor: Color = Color.Unspecified,
+        inactiveContainerColor: Color = Color.Unspecified,
+        inactiveContentColor: Color = Color.Unspecified,
+        inactiveBorderColor: Color = Color.Unspecified,
+        disabledActiveContainerColor: Color = Color.Unspecified,
+        disabledActiveContentColor: Color = Color.Unspecified,
+        disabledActiveBorderColor: Color = Color.Unspecified,
+        disabledInactiveContainerColor: Color = Color.Unspecified,
+        disabledInactiveContentColor: Color = Color.Unspecified,
+        disabledInactiveBorderColor: Color = Color.Unspecified,
+    ): SegmentedButtonColors = MaterialTheme.colorScheme.defaultSegmentedButtonColors.copy(
         activeContainerColor = activeContainerColor,
         activeContentColor = activeContentColor,
         activeBorderColor = activeBorderColor,
@@ -479,6 +486,28 @@ object SegmentedButtonDefaults {
         disabledInactiveContentColor = disabledInactiveContentColor,
         disabledInactiveBorderColor = disabledInactiveBorderColor
     )
+
+    internal val ColorScheme.defaultSegmentedButtonColors: SegmentedButtonColors
+        get() {
+            return defaultSegmentedButtonColorsCached ?: SegmentedButtonColors(
+                activeContainerColor = fromToken(SelectedContainerColor),
+                activeContentColor = fromToken(SelectedLabelTextColor),
+                activeBorderColor = fromToken(OutlineColor),
+                inactiveContainerColor = surface,
+                inactiveContentColor = fromToken(UnselectedLabelTextColor),
+                inactiveBorderColor = fromToken(OutlineColor),
+                disabledActiveContainerColor = fromToken(SelectedContainerColor),
+                disabledActiveContentColor = fromToken(DisabledLabelTextColor)
+                    .copy(alpha = DisabledLabelTextOpacity),
+                disabledActiveBorderColor = fromToken(OutlineColor)
+                    .copy(alpha = DisabledOutlineOpacity),
+                disabledInactiveContainerColor = surface,
+                disabledInactiveContentColor = fromToken(DisabledLabelTextColor),
+                disabledInactiveBorderColor = fromToken(OutlineColor),
+            ).also {
+                defaultSegmentedButtonColorsCached = it
+            }
+        }
 
     /**
      * The shape of the segmented button container, for correct behavior this should or the desired
@@ -614,6 +643,38 @@ class SegmentedButtonColors(
     val disabledInactiveContentColor: Color,
     val disabledInactiveBorderColor: Color
 ) {
+    /**
+     * Returns a copy of this ChipColors, optionally overriding some of the ues.
+     * This uses the Color.Unspecified to mean “use the value from the source”
+     */
+    fun copy(
+        activeContainerColor: Color = this.activeContainerColor,
+        activeContentColor: Color = this.activeContentColor,
+        activeBorderColor: Color = this.activeBorderColor,
+        inactiveContainerColor: Color = this.inactiveContainerColor,
+        inactiveContentColor: Color = this.inactiveContentColor,
+        inactiveBorderColor: Color = this.inactiveBorderColor,
+        disabledActiveContainerColor: Color = this.disabledActiveContainerColor,
+        disabledActiveContentColor: Color = this.disabledActiveContentColor,
+        disabledActiveBorderColor: Color = this.disabledActiveBorderColor,
+        disabledInactiveContainerColor: Color = this.disabledInactiveContainerColor,
+        disabledInactiveContentColor: Color = this.disabledInactiveContentColor,
+        disabledInactiveBorderColor: Color = this.disabledInactiveBorderColor
+    ) = SegmentedButtonColors(
+        activeContainerColor.takeOrElse { this.activeContainerColor },
+        activeContentColor.takeOrElse { this.activeContentColor },
+        activeBorderColor.takeOrElse { this.activeBorderColor },
+        inactiveContainerColor.takeOrElse { this.inactiveContainerColor },
+        inactiveContentColor.takeOrElse { this.inactiveContentColor },
+        inactiveBorderColor.takeOrElse { this.inactiveBorderColor },
+        disabledActiveContainerColor.takeOrElse { this.disabledActiveContainerColor },
+        disabledActiveContentColor.takeOrElse { this.disabledActiveContentColor },
+        disabledActiveBorderColor.takeOrElse { this.disabledActiveBorderColor },
+        disabledInactiveContainerColor.takeOrElse { this.disabledInactiveContainerColor },
+        disabledInactiveContentColor.takeOrElse { this.disabledInactiveContentColor },
+        disabledInactiveBorderColor.takeOrElse { this.disabledInactiveBorderColor }
+    )
+
     /**
      * Represents the color used for the SegmentedButton's border,
      * depending on [enabled] and [active].

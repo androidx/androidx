@@ -404,6 +404,64 @@ class ColorScheme(
             "surfaceContainerLowest=$surfaceContainerLowest" +
             ")"
     }
+
+    internal var defaultButtonColorsCached: ButtonColors? = null
+    internal var defaultElevatedButtonColorsCached: ButtonColors? = null
+    internal var defaultFilledTonalButtonColorsCached: ButtonColors? = null
+    internal var defaultOutlinedButtonColorsCached: ButtonColors? = null
+    internal var defaultTextButtonColorsCached: ButtonColors? = null
+
+    internal var defaultCardColorsCached: CardColors? = null
+    internal var defaultElevatedCardColorsCached: CardColors? = null
+    internal var defaultOutlinedCardColorsCached: CardColors? = null
+
+    internal var defaultAssistChipColorsCached: ChipColors? = null
+    internal var defaultElevatedAssistChipColorsCached: ChipColors? = null
+    internal var defaultSuggestionChipColorsCached: ChipColors? = null
+    internal var defaultElevatedSuggestionChipColorsCached: ChipColors? = null
+    internal var defaultFilterChipColorsCached: SelectableChipColors? = null
+    internal var defaultElevatedFilterChipColorsCached: SelectableChipColors? = null
+    internal var defaultInputChipColorsCached: SelectableChipColors? = null
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    internal var defaultTopAppBarColorsCached: TopAppBarColors? = null
+    @OptIn(ExperimentalMaterial3Api::class)
+    internal var defaultCenterAlignedTopAppBarColorsCached: TopAppBarColors? = null
+    @OptIn(ExperimentalMaterial3Api::class)
+    internal var defaultMediumTopAppBarColorsCached: TopAppBarColors? = null
+    @OptIn(ExperimentalMaterial3Api::class)
+    internal var defaultLargeTopAppBarColorsCached: TopAppBarColors? = null
+
+    internal var defaultCheckboxColorsCached: CheckboxColors? = null
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    internal var defaultDatePickerColorsCached: DatePickerColors? = null
+
+    internal var defaultIconButtonColorsCached: IconButtonColors? = null
+
+    internal var defaultMenuItemColorsCached: MenuItemColors? = null
+
+    internal var defaultNavigationBarItemColorsCached: NavigationBarItemColors? = null
+
+    internal var defaultNavigationRailItemColorsCached: NavigationRailItemColors? = null
+
+    internal var defaultRadioButtonColorsCached: RadioButtonColors? = null
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    internal var defaultSegmentedButtonColorsCached: SegmentedButtonColors? = null
+
+    internal var defaultSliderColorsCached: SliderColors? = null
+
+    internal var defaultSwitchColorsCached: SwitchColors? = null
+
+    internal var defaultOutlinedTextFieldColorsCached: TextFieldColors? = null
+    internal var defaultTextFieldColorsCached: TextFieldColors? = null
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    internal var defaultTimePickerColorsCached: TimePickerColors? = null
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    internal var defaultRichTooltipColorsCached: RichTooltipColors? = null
 }
 
 /**
@@ -590,7 +648,7 @@ fun darkColorScheme(
     surfaceBright: Color = ColorDarkTokens.SurfaceBright,
     surfaceContainer: Color = ColorDarkTokens.SurfaceContainer,
     surfaceContainerHigh: Color = ColorDarkTokens.SurfaceContainerHigh,
-    surfaceContainerHighest: Color = ColorLightTokens.SurfaceContainerHighest,
+    surfaceContainerHighest: Color = ColorDarkTokens.SurfaceContainerHighest,
     surfaceContainerLow: Color = ColorDarkTokens.SurfaceContainerLow,
     surfaceContainerLowest: Color = ColorDarkTokens.SurfaceContainerLowest,
     surfaceDim: Color = ColorDarkTokens.SurfaceDim,

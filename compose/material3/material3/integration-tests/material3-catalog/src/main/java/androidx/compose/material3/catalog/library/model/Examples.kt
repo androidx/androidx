@@ -104,6 +104,7 @@ import androidx.compose.material3.samples.PasswordTextField
 import androidx.compose.material3.samples.PermanentNavigationDrawerSample
 import androidx.compose.material3.samples.PinnedTopAppBar
 import androidx.compose.material3.samples.PlainTooltipSample
+import androidx.compose.material3.samples.PlainTooltipWithCaret
 import androidx.compose.material3.samples.PlainTooltipWithManualInvocationSample
 import androidx.compose.material3.samples.PrimaryIconTabs
 import androidx.compose.material3.samples.PrimaryTextTabs
@@ -1221,6 +1222,13 @@ val TooltipsExamples = listOf(
         sourceUrl = TooltipsExampleSourceUrl
     ) {
         PlainTooltipWithManualInvocationSample()
+    },
+    Example(
+        name = ::PlainTooltipWithCaret.name,
+        description = TooltipsExampleDescription,
+        sourceUrl = TooltipsExampleSourceUrl
+    ) {
+        PlainTooltipWithCaret()
     },
     Example(
         name = ::RichTooltipSample.name,

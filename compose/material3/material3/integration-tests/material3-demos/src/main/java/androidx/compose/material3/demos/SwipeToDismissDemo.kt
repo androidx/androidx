@@ -32,9 +32,9 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.SwipeToDismissBox
-import androidx.compose.material3.SwipeToDismissValue
+import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberSwipeToDismissState
+import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -83,10 +83,10 @@ fun SwipeToDismissDemo() {
             var unread by remember { mutableStateOf(false) }
             val scope = rememberCoroutineScope()
 
-            val dismissState = rememberSwipeToDismissState(
+            val dismissState = rememberSwipeToDismissBoxState(
                 confirmValueChange = {
-                    if (it == SwipeToDismissValue.StartToEnd) unread = !unread
-                    it != SwipeToDismissValue.StartToEnd
+                    if (it == SwipeToDismissBoxValue.StartToEnd) unread = !unread
+                    it != SwipeToDismissBoxValue.StartToEnd
                 },
                 positionalThreshold = { distance -> distance * .25f }
             )
@@ -97,23 +97,23 @@ fun SwipeToDismissDemo() {
                     val direction = dismissState.dismissDirection
                     val color by animateColorAsState(
                         when (dismissState.targetValue) {
-                            SwipeToDismissValue.Settled -> Color.LightGray
-                            SwipeToDismissValue.StartToEnd -> Color.Green
-                            SwipeToDismissValue.EndToStart -> Color.Red
+                            SwipeToDismissBoxValue.Settled -> Color.LightGray
+                            SwipeToDismissBoxValue.StartToEnd -> Color.Green
+                            SwipeToDismissBoxValue.EndToStart -> Color.Red
                         }
                     )
                     val alignment = when (direction) {
-                        SwipeToDismissValue.StartToEnd,
-                        SwipeToDismissValue.Settled -> Alignment.CenterStart
-                        SwipeToDismissValue.EndToStart -> Alignment.CenterEnd
+                        SwipeToDismissBoxValue.StartToEnd,
+                        SwipeToDismissBoxValue.Settled -> Alignment.CenterStart
+                        SwipeToDismissBoxValue.EndToStart -> Alignment.CenterEnd
                     }
                     val icon = when (direction) {
-                        SwipeToDismissValue.StartToEnd,
-                        SwipeToDismissValue.Settled -> Icons.Default.Done
-                        SwipeToDismissValue.EndToStart -> Icons.Default.Delete
+                        SwipeToDismissBoxValue.StartToEnd,
+                        SwipeToDismissBoxValue.Settled -> Icons.Default.Done
+                        SwipeToDismissBoxValue.EndToStart -> Icons.Default.Delete
                     }
                     val scale by animateFloatAsState(
-                        if (dismissState.targetValue == SwipeToDismissValue.Settled)
+                        if (dismissState.targetValue == SwipeToDismissBoxValue.Settled)
                             0.75f else 1f
                     )
                     Box(
@@ -143,7 +143,7 @@ fun SwipeToDismissDemo() {
                                 CustomAccessibilityAction(label) { unread = !unread; true },
                                 CustomAccessibilityAction("Delete") {
                                     scope.launch {
-                                        dismissState.dismiss(SwipeToDismissValue.EndToStart)
+                                        dismissState.dismiss(SwipeToDismissBoxValue.EndToStart)
                                     }
                                     true
                                 }

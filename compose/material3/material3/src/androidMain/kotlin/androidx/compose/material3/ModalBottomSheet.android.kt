@@ -24,6 +24,10 @@ import android.view.KeyEvent
 import android.view.View
 import android.view.ViewTreeObserver
 import android.view.WindowManager
+import android.window.OnBackInvokedCallback
+import android.window.OnBackInvokedDispatcher
+import androidx.annotation.DoNotInline
+import androidx.annotation.RequiresApi
 import androidx.compose.animation.core.TweenSpec
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Canvas
@@ -68,7 +72,6 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.AbstractComposeView
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalView
@@ -437,8 +440,7 @@ internal fun ModalBottomSheetPopup(
     val parentComposition = rememberCompositionContext()
     val currentContent by rememberUpdatedState(content)
     val layoutDirection = LocalLayoutDirection.current
-    val configuration = LocalConfiguration.current
-    val modalBottomSheetWindow = remember(configuration) {
+    val modalBottomSheetWindow = remember {
         ModalBottomSheetWindow(
             properties = properties,
             onDismissRequest = onDismissRequest,
@@ -487,6 +489,9 @@ private class ModalBottomSheetWindow(
     AbstractComposeView(composeView.context),
     ViewTreeObserver.OnGlobalLayoutListener,
     ViewRootForInspector {
+
+    private var backCallback: Any? = null
+
     init {
         id = android.R.id.content
         // Set up view owners
@@ -602,6 +607,35 @@ private class ModalBottomSheetWindow(
         return super.dispatchKeyEvent(event)
     }
 
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+
+        maybeRegisterBackCallback()
+    }
+
+    override fun onDetachedFromWindow() {
+        super.onDetachedFromWindow()
+
+        maybeUnregisterBackCallback()
+    }
+
+    private fun maybeRegisterBackCallback() {
+        if (!properties.shouldDismissOnBackPress || Build.VERSION.SDK_INT < 33) {
+            return
+        }
+        if (backCallback == null) {
+            backCallback = Api33Impl.createBackCallback(onDismissRequest)
+        }
+        Api33Impl.maybeRegisterBackCallback(this, backCallback)
+    }
+
+    private fun maybeUnregisterBackCallback() {
+        if (Build.VERSION.SDK_INT >= 33) {
+            Api33Impl.maybeUnregisterBackCallback(this, backCallback)
+        }
+        backCallback = null
+    }
+
     override fun onGlobalLayout() {
         // No-op
     }
@@ -618,6 +652,33 @@ private class ModalBottomSheetWindow(
             LayoutDirection.Rtl -> android.util.LayoutDirection.RTL
         }
         super.setLayoutDirection(direction)
+    }
+
+    @RequiresApi(33)
+    private object Api33Impl {
+        @JvmStatic
+        @DoNotInline
+        fun createBackCallback(onDismissRequest: () -> Unit) =
+            OnBackInvokedCallback(onDismissRequest)
+
+        @JvmStatic
+        @DoNotInline
+        fun maybeRegisterBackCallback(view: View, backCallback: Any?) {
+            if (backCallback is OnBackInvokedCallback) {
+                view.findOnBackInvokedDispatcher()?.registerOnBackInvokedCallback(
+                    OnBackInvokedDispatcher.PRIORITY_OVERLAY,
+                    backCallback
+                )
+            }
+        }
+
+        @JvmStatic
+        @DoNotInline
+        fun maybeUnregisterBackCallback(view: View, backCallback: Any?) {
+            if (backCallback is OnBackInvokedCallback) {
+                view.findOnBackInvokedDispatcher()?.unregisterOnBackInvokedCallback(backCallback)
+            }
+        }
     }
 }
 

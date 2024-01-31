@@ -69,7 +69,7 @@ class SwipeToDismissTest {
     fun swipeDismiss_testOffset_whenDefault() {
         rule.setContent {
             SwipeToDismissBox(
-                state = rememberSwipeToDismissState(SwipeToDismissValue.Settled),
+                state = rememberSwipeToDismissBoxState(SwipeToDismissBoxValue.Settled),
                 backgroundContent = { }
             ) {
                     Box(
@@ -87,7 +87,7 @@ class SwipeToDismissTest {
     fun swipeDismiss_testOffset_whenDismissedToEnd() {
         rule.setContent {
             SwipeToDismissBox(
-                state = rememberSwipeToDismissState(SwipeToDismissValue.StartToEnd),
+                state = rememberSwipeToDismissBoxState(SwipeToDismissBoxValue.StartToEnd),
                 backgroundContent = { }
             ) {
                     Box(
@@ -106,7 +106,7 @@ class SwipeToDismissTest {
     fun swipeDismiss_testOffset_whenDismissedToStart() {
         rule.setContent {
             SwipeToDismissBox(
-                state = rememberSwipeToDismissState(SwipeToDismissValue.EndToStart),
+                state = rememberSwipeToDismissBoxState(SwipeToDismissBoxValue.EndToStart),
                 backgroundContent = { },
             ) {
                     Box(
@@ -125,7 +125,7 @@ class SwipeToDismissTest {
     fun swipeDismiss_testBackgroundMatchesContentSize() {
         rule.setContent {
             SwipeToDismissBox(
-                state = rememberSwipeToDismissState(SwipeToDismissValue.Settled),
+                state = rememberSwipeToDismissBoxState(SwipeToDismissBoxValue.Settled),
                 backgroundContent = {
                     Box(
                         Modifier
@@ -142,11 +142,11 @@ class SwipeToDismissTest {
 
     @Test
     fun swipeDismiss_dismissBySwipe_toEnd() {
-        lateinit var swipeToDismissState: SwipeToDismissState
+        lateinit var swipeToDismissBoxState: SwipeToDismissBoxState
         rule.setContent {
-            swipeToDismissState = rememberSwipeToDismissState(SwipeToDismissValue.Settled)
+            swipeToDismissBoxState = rememberSwipeToDismissBoxState(SwipeToDismissBoxValue.Settled)
             SwipeToDismissBox(
-                state = swipeToDismissState,
+                state = swipeToDismissBoxState,
                 modifier = Modifier.testTag(swipeDismissTag),
                 enableDismissFromStartToEnd = true,
                 enableDismissFromEndToStart = false,
@@ -159,17 +159,18 @@ class SwipeToDismissTest {
         advanceClock()
 
         rule.runOnIdle {
-            assertThat(swipeToDismissState.currentValue).isEqualTo(SwipeToDismissValue.StartToEnd)
+            assertThat(swipeToDismissBoxState.currentValue)
+                .isEqualTo(SwipeToDismissBoxValue.StartToEnd)
         }
     }
 
     @Test
     fun swipeDismiss_dismissBySwipe_toStart() {
-        lateinit var swipeToDismissState: SwipeToDismissState
+        lateinit var swipeToDismissBoxState: SwipeToDismissBoxState
         rule.setContent {
-            swipeToDismissState = rememberSwipeToDismissState(SwipeToDismissValue.Settled)
+            swipeToDismissBoxState = rememberSwipeToDismissBoxState(SwipeToDismissBoxValue.Settled)
             SwipeToDismissBox(
-                state = swipeToDismissState,
+                state = swipeToDismissBoxState,
                 modifier = Modifier.testTag(swipeDismissTag),
                 enableDismissFromStartToEnd = false,
                 enableDismissFromEndToStart = true,
@@ -182,18 +183,19 @@ class SwipeToDismissTest {
         advanceClock()
 
         rule.runOnIdle {
-            assertThat(swipeToDismissState.currentValue).isEqualTo(SwipeToDismissValue.EndToStart)
+            assertThat(swipeToDismissBoxState.currentValue)
+                .isEqualTo(SwipeToDismissBoxValue.EndToStart)
         }
     }
 
     @Test
     fun swipeDismiss_dismissBySwipe_toEnd_rtl() {
-        lateinit var swipeToDismissState: SwipeToDismissState
+        lateinit var swipeToDismissBoxState: SwipeToDismissBoxState
         rule.setContent {
-            swipeToDismissState = rememberSwipeToDismissState()
+            swipeToDismissBoxState = rememberSwipeToDismissBoxState()
             CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
                 SwipeToDismissBox(
-                    state = swipeToDismissState,
+                    state = swipeToDismissBoxState,
                     modifier = Modifier.testTag(swipeDismissTag),
                     enableDismissFromStartToEnd = true,
                     enableDismissFromEndToStart = false,
@@ -207,18 +209,19 @@ class SwipeToDismissTest {
         advanceClock()
 
         rule.runOnIdle {
-            assertThat(swipeToDismissState.currentValue).isEqualTo(SwipeToDismissValue.StartToEnd)
+            assertThat(swipeToDismissBoxState.currentValue)
+                .isEqualTo(SwipeToDismissBoxValue.StartToEnd)
         }
     }
 
     @Test
     fun swipeDismiss_dismissBySwipe_toStart_rtl() {
-        lateinit var swipeToDismissState: SwipeToDismissState
+        lateinit var swipeToDismissBoxState: SwipeToDismissBoxState
         rule.setContent {
-            swipeToDismissState = rememberSwipeToDismissState(SwipeToDismissValue.Settled)
+            swipeToDismissBoxState = rememberSwipeToDismissBoxState(SwipeToDismissBoxValue.Settled)
             CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
                 SwipeToDismissBox(
-                    state = swipeToDismissState,
+                    state = swipeToDismissBoxState,
                     modifier = Modifier.testTag(swipeDismissTag),
                     enableDismissFromStartToEnd = false,
                     enableDismissFromEndToStart = true,
@@ -232,17 +235,18 @@ class SwipeToDismissTest {
         advanceClock()
 
         rule.runOnIdle {
-            assertThat(swipeToDismissState.currentValue).isEqualTo(SwipeToDismissValue.EndToStart)
+            assertThat(swipeToDismissBoxState.currentValue)
+                .isEqualTo(SwipeToDismissBoxValue.EndToStart)
         }
     }
 
     @Test
     fun swipeDismiss_dismissBySwipe_disabled() {
-        lateinit var swipeToDismissState: SwipeToDismissState
+        lateinit var swipeToDismissBoxState: SwipeToDismissBoxState
         rule.setContent {
-            swipeToDismissState = rememberSwipeToDismissState(SwipeToDismissValue.Settled)
+            swipeToDismissBoxState = rememberSwipeToDismissBoxState(SwipeToDismissBoxValue.Settled)
             SwipeToDismissBox(
-                state = swipeToDismissState,
+                state = swipeToDismissBoxState,
                 modifier = Modifier.testTag(swipeDismissTag),
                 enableDismissFromStartToEnd = false,
                 enableDismissFromEndToStart = false,
@@ -255,7 +259,8 @@ class SwipeToDismissTest {
         advanceClock()
 
         rule.runOnIdle {
-            assertThat(swipeToDismissState.currentValue).isEqualTo(SwipeToDismissValue.Settled)
+            assertThat(swipeToDismissBoxState.currentValue)
+                .isEqualTo(SwipeToDismissBoxValue.Settled)
         }
 
         rule.onNodeWithTag(swipeDismissTag).performTouchInput { swipeLeft() }
@@ -263,7 +268,8 @@ class SwipeToDismissTest {
         advanceClock()
 
         rule.runOnIdle {
-            assertThat(swipeToDismissState.currentValue).isEqualTo(SwipeToDismissValue.Settled)
+            assertThat(swipeToDismissBoxState.currentValue)
+                .isEqualTo(SwipeToDismissBoxValue.Settled)
         }
     }
 
@@ -278,7 +284,7 @@ class SwipeToDismissTest {
         lateinit var lazyState: LazyListState
         lateinit var scope: CoroutineScope
         val amountOfItems = 100
-        val composedItems = mutableMapOf<Int, SwipeToDismissState>()
+        val composedItems = mutableMapOf<Int, SwipeToDismissBoxState>()
 
         rule.setContent {
             scope = rememberCoroutineScope()
@@ -286,9 +292,9 @@ class SwipeToDismissTest {
                 lazyState = rememberLazyListState()
                 LazyColumn(state = lazyState) {
                     items(amountOfItems, key = { item -> item }) { index ->
-                        composedItems[index] = rememberSwipeToDismissState()
+                        composedItems[index] = rememberSwipeToDismissBoxState()
                         val isDismissed =
-                            composedItems[index]!!.currentValue == SwipeToDismissValue.EndToStart
+                            composedItems[index]!!.currentValue == SwipeToDismissBoxValue.EndToStart
                         AnimatedVisibility(visible = !isDismissed) {
                             SwipeToDismissBox(
                                 modifier = Modifier
@@ -325,7 +331,7 @@ class SwipeToDismissTest {
 
         // Dismiss an item so that the lazy layout is required to compose a new item
         scope.launch {
-            composedItems[initiallyVisibleItems - 1]!!.dismiss(SwipeToDismissValue.EndToStart)
+            composedItems[initiallyVisibleItems - 1]!!.dismiss(SwipeToDismissBoxValue.EndToStart)
         }
         rule.waitForIdle()
 

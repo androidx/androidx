@@ -567,7 +567,7 @@ internal val ListItemThreeLineVerticalPadding = 12.dp
 internal val ListItemStartPadding = 16.dp
 
 @VisibleForTesting
-internal val ListItemEndPadding = 24.dp
+internal val ListItemEndPadding = 16.dp
 
 // Icon related defaults.
 // TODO: Make sure these values stay up to date until replaced with tokens.
