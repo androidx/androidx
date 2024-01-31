@@ -55,6 +55,7 @@ import androidx.compose.ui.unit.roundToIntRect
 import androidx.compose.ui.unit.toOffset
 import androidx.compose.ui.window.FocusStack
 import androidx.compose.ui.window.InteractionUIView
+import androidx.compose.ui.window.InteropContainer
 import androidx.compose.ui.window.KeyboardEventHandler
 import androidx.compose.ui.window.KeyboardVisibilityListenerImpl
 import androidx.compose.ui.window.RenderingUIView
@@ -147,7 +148,7 @@ internal class ComposeSceneMediator(
     /**
      * Container for UIKitView and UIKitViewController
      */
-    private val interopViewContainer = UIView()
+    private val interopViewContainer = InteropContainer()
 
     private val interactionView by lazy {
         InteractionUIView(
