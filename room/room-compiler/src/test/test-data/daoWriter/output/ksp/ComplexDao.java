@@ -10,7 +10,9 @@ import androidx.room.RoomSQLiteQuery;
 import androidx.room.guava.GuavaRoom;
 import androidx.room.util.CursorUtil;
 import androidx.room.util.DBUtil;
+import androidx.room.util.SQLiteStatementUtil;
 import androidx.room.util.StringUtil;
+import androidx.sqlite.SQLiteStatement;
 import androidx.sqlite.db.SupportSQLiteQuery;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.lang.Class;
@@ -25,6 +27,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 import javax.annotation.processing.Generated;
+import kotlin.jvm.functions.Function1;
 
 @Generated("androidx.room.RoomProcessor")
 @SuppressWarnings({"unchecked", "deprecation"})
@@ -78,67 +81,63 @@ public final class ComplexDao_Impl extends ComplexDao {
     @Override
     public User getById(final int id) {
         final String _sql = "SELECT * FROM user where uid = ?";
-        final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
-        int _argIndex = 1;
-        _statement.bindLong(_argIndex, id);
-        __db.assertNotSuspendingTransaction();
-        final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
-        try {
-            final int _cursorIndexOfUid = CursorUtil.getColumnIndexOrThrow(_cursor, "uid");
-            final int _cursorIndexOfName = CursorUtil.getColumnIndexOrThrow(_cursor, "name");
-            final int _cursorIndexOfLastName = CursorUtil.getColumnIndexOrThrow(_cursor, "lastName");
-            final int _cursorIndexOfAge = CursorUtil.getColumnIndexOrThrow(_cursor, "ageColumn");
-            final User _result;
-            if (_cursor.moveToFirst()) {
-                _result = new User();
-                _result.uid = _cursor.getInt(_cursorIndexOfUid);
-                _result.name = _cursor.getString(_cursorIndexOfName);
-                final String _tmpLastName;
-                _tmpLastName = _cursor.getString(_cursorIndexOfLastName);
-                _result.setLastName(_tmpLastName);
-                _result.age = _cursor.getInt(_cursorIndexOfAge);
-            } else {
-                _result = null;
+        return DBUtil.performReadBlocking(__db, _sql, new Function1<SQLiteStatement, User>() {
+            @Override
+            @NonNull
+            public User invoke(@NonNull final SQLiteStatement _stmt) {
+                int _argIndex = 1;
+                _stmt.bindLong(_argIndex, id);
+                final int _cursorIndexOfUid = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "uid");
+                final int _cursorIndexOfName = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "name");
+                final int _cursorIndexOfLastName = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "lastName");
+                final int _cursorIndexOfAge = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "ageColumn");
+                final User _result;
+                if (_stmt.step()) {
+                    _result = new User();
+                    _result.uid = (int) (_stmt.getLong(_cursorIndexOfUid));
+                    _result.name = _stmt.getText(_cursorIndexOfName);
+                    final String _tmpLastName;
+                    _tmpLastName = _stmt.getText(_cursorIndexOfLastName);
+                    _result.setLastName(_tmpLastName);
+                    _result.age = (int) (_stmt.getLong(_cursorIndexOfAge));
+                } else {
+                    _result = null;
+                }
+                return _result;
             }
-            return _result;
-        } finally {
-            _cursor.close();
-            _statement.release();
-        }
+        });
     }
 
     @Override
     public User findByName(final String name, final String lastName) {
         final String _sql = "SELECT * FROM user where name LIKE ? AND lastName LIKE ?";
-        final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 2);
-        int _argIndex = 1;
-        _statement.bindString(_argIndex, name);
-        _argIndex = 2;
-        _statement.bindString(_argIndex, lastName);
-        __db.assertNotSuspendingTransaction();
-        final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
-        try {
-            final int _cursorIndexOfUid = CursorUtil.getColumnIndexOrThrow(_cursor, "uid");
-            final int _cursorIndexOfName = CursorUtil.getColumnIndexOrThrow(_cursor, "name");
-            final int _cursorIndexOfLastName = CursorUtil.getColumnIndexOrThrow(_cursor, "lastName");
-            final int _cursorIndexOfAge = CursorUtil.getColumnIndexOrThrow(_cursor, "ageColumn");
-            final User _result;
-            if (_cursor.moveToFirst()) {
-                _result = new User();
-                _result.uid = _cursor.getInt(_cursorIndexOfUid);
-                _result.name = _cursor.getString(_cursorIndexOfName);
-                final String _tmpLastName;
-                _tmpLastName = _cursor.getString(_cursorIndexOfLastName);
-                _result.setLastName(_tmpLastName);
-                _result.age = _cursor.getInt(_cursorIndexOfAge);
-            } else {
-                _result = null;
+        return DBUtil.performReadBlocking(__db, _sql, new Function1<SQLiteStatement, User>() {
+            @Override
+            @NonNull
+            public User invoke(@NonNull final SQLiteStatement _stmt) {
+                int _argIndex = 1;
+                _stmt.bindText(_argIndex, name);
+                _argIndex = 2;
+                _stmt.bindText(_argIndex, lastName);
+                final int _cursorIndexOfUid = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "uid");
+                final int _cursorIndexOfName = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "name");
+                final int _cursorIndexOfLastName = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "lastName");
+                final int _cursorIndexOfAge = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "ageColumn");
+                final User _result;
+                if (_stmt.step()) {
+                    _result = new User();
+                    _result.uid = (int) (_stmt.getLong(_cursorIndexOfUid));
+                    _result.name = _stmt.getText(_cursorIndexOfName);
+                    final String _tmpLastName;
+                    _tmpLastName = _stmt.getText(_cursorIndexOfLastName);
+                    _result.setLastName(_tmpLastName);
+                    _result.age = (int) (_stmt.getLong(_cursorIndexOfAge));
+                } else {
+                    _result = null;
+                }
+                return _result;
             }
-            return _result;
-        } finally {
-            _cursor.close();
-            _statement.release();
-        }
+        });
     }
 
     @Override

@@ -141,30 +141,22 @@ internal sealed class AndroidSQLiteStatement(
 
         override fun getColumnCount(): Int {
             throwIfClosed()
+            ensureCursor()
             return cursor?.columnCount ?: 0
         }
 
         override fun getColumnName(index: Int): String {
             throwIfClosed()
-            val c = throwIfNoRow()
+            ensureCursor()
+            val c = checkNotNull(cursor)
             throwIfInvalidColumn(c, index)
             return c.getColumnName(index)
         }
 
         override fun step(): Boolean {
             throwIfClosed()
-            if (cursor == null) {
-                cursor = db.rawQueryWithFactory(
-                    /* cursorFactory = */ { _, masterQuery, editTable, query ->
-                        bindTo(query)
-                        SQLiteCursor(masterQuery, editTable, query)
-                    },
-                    /* sql = */ sql,
-                    /* selectionArgs = */ arrayOfNulls(0),
-                    /* editTable = */ null
-                )
-            }
-            return requireNotNull(cursor).moveToNext()
+            ensureCursor()
+            return checkNotNull(cursor).moveToNext()
         }
 
         override fun reset() {
@@ -215,6 +207,20 @@ internal sealed class AndroidSQLiteStatement(
                         blobBindings = blobBindings.copyOf(requiredSize)
                     }
                 }
+            }
+        }
+
+        private fun ensureCursor() {
+            if (cursor == null) {
+                cursor = db.rawQueryWithFactory(
+                    /* cursorFactory = */ { _, masterQuery, editTable, query ->
+                        bindTo(query)
+                        SQLiteCursor(masterQuery, editTable, query)
+                    },
+                    /* sql = */ sql,
+                    /* selectionArgs = */ arrayOfNulls(0),
+                    /* editTable = */ null
+                )
             }
         }
 

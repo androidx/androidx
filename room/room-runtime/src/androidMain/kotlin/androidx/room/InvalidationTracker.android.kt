@@ -26,7 +26,9 @@ import androidx.annotation.WorkerThread
 import androidx.arch.core.internal.SafeIterableMap
 import androidx.lifecycle.LiveData
 import androidx.room.Room.LOG_TAG
+import androidx.room.driver.SupportSQLiteConnection
 import androidx.room.util.useCursor
+import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.db.SimpleSQLiteQuery
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.db.SupportSQLiteStatement
@@ -35,8 +37,8 @@ import java.util.concurrent.Callable
 import java.util.concurrent.atomic.AtomicBoolean
 
 /**
- * InvalidationTracker keeps a list of tables modified by queries and notifies its callbacks about
- * these tables.
+ * The invalidation tracker keeps track of modified tables by queries and notifies its registered
+ * [Observer]s about such modifications.
  */
 // Some details on how the InvalidationTracker works:
 // * An in memory table is created with (table_id, invalidated) table_id is a hardcoded int from
@@ -49,7 +51,9 @@ import java.util.concurrent.atomic.AtomicBoolean
 // memory table table, flipping the invalidated flag ON.
 // * When multi-instance invalidation is turned on, MultiInstanceInvalidationClient will be created.
 // It works as an Observer, and notifies other instances of table invalidation.
-open class InvalidationTracker @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) constructor(
+actual open class InvalidationTracker
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+actual constructor(
     internal val database: RoomDatabase,
     private val shadowTablesMap: Map<String, String>,
     private val viewTables: Map<String, @JvmSuppressWildcards Set<String>>,
@@ -136,9 +140,20 @@ open class InvalidationTracker @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX
 
     /**
      * Internal method to initialize table tracking.
-     *
-     * You should never call this method, it is called by the generated code.
      */
+    internal actual fun internalInit(connection: SQLiteConnection) {
+        if (connection is SupportSQLiteConnection) {
+            @Suppress("DEPRECATION")
+            internalInit(connection.db)
+        } else {
+            TODO("Not yet migrated to use SQLiteDriver - b/309990302")
+        }
+    }
+
+    /**
+     * Internal method to initialize table tracking.
+     */
+    @Deprecated("No longer called by generated code")
     internal fun internalInit(database: SupportSQLiteDatabase) {
         synchronized(trackerLock) {
             if (initialized) {

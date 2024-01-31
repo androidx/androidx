@@ -15,11 +15,17 @@
  */
 package androidx.room.solver.query.result
 
+import androidx.room.compiler.codegen.CodeLanguage
 import androidx.room.compiler.codegen.XCodeBlock
+import androidx.room.compiler.codegen.XFunSpec.Builder.Companion.addStatement
 import androidx.room.compiler.codegen.XMemberName.Companion.packageMember
 import androidx.room.compiler.codegen.XPropertySpec
+import androidx.room.compiler.codegen.XTypeName
+import androidx.room.compiler.codegen.box
 import androidx.room.ext.AndroidTypeNames
+import androidx.room.ext.Function1TypeSpec
 import androidx.room.ext.RoomTypeNames
+import androidx.room.ext.SQLiteDriverTypeNames
 import androidx.room.solver.CodeGenScope
 
 /**
@@ -74,4 +80,88 @@ class InstantQueryResultBinder(adapter: QueryResultAdapter?) : QueryResultBinder
         }
         transactionWrapper?.endTransactionWithControlFlow()
     }
+
+    override fun isMigratedToDriver() = adapter?.isMigratedToDriver() == true
+
+    override fun convertAndReturn(
+        sqlQueryVar: String,
+        dbProperty: XPropertySpec,
+        bindStatement: CodeGenScope.(String) -> Unit,
+        returnTypeName: XTypeName,
+        inTransaction: Boolean,
+        scope: CodeGenScope
+    ) {
+        when (scope.language) {
+            CodeLanguage.JAVA -> convertAndReturnJava(
+                sqlQueryVar, dbProperty, bindStatement, returnTypeName, inTransaction, scope
+            )
+            CodeLanguage.KOTLIN -> convertAndReturnKotlin(
+                sqlQueryVar, dbProperty, bindStatement, inTransaction, scope
+            )
+        }
+    }
+
+    private fun convertAndReturnJava(
+        sqlQueryVar: String,
+        dbProperty: XPropertySpec,
+        bindStatement: CodeGenScope.(String) -> Unit,
+        returnTypeName: XTypeName,
+        inTransaction: Boolean,
+        scope: CodeGenScope
+    ) {
+        val performFunctionName = getPerformFunctionName(inTransaction)
+        val statementVar = scope.getTmpVar("_stmt")
+        scope.builder.addStatement(
+            "return %M(%N, %L, %L)",
+            RoomTypeNames.DB_UTIL.packageMember(performFunctionName),
+            dbProperty,
+            sqlQueryVar,
+            // TODO(b/322387497): Generate lambda syntax if possible
+            Function1TypeSpec(
+                language = scope.language,
+                parameterTypeName = SQLiteDriverTypeNames.STATEMENT,
+                parameterName = statementVar,
+                returnTypeName = returnTypeName.box()
+            ) {
+                val functionScope = scope.fork()
+                bindStatement(functionScope, statementVar)
+                val outVar = functionScope.getTmpVar("_result")
+                adapter?.convert(outVar, statementVar, functionScope)
+                this.addCode(functionScope.generate())
+                this.addStatement("return %L", outVar)
+            }
+        )
+    }
+
+    private fun convertAndReturnKotlin(
+        sqlQueryVar: String,
+        dbProperty: XPropertySpec,
+        bindStatement: CodeGenScope.(String) -> Unit,
+        inTransaction: Boolean,
+        scope: CodeGenScope
+    ) {
+        val statementVar = scope.getTmpVar("_stmt")
+        val performFunctionName = getPerformFunctionName(inTransaction)
+        scope.builder.apply {
+            beginControlFlow(
+                "return %M(%N, %L) { %L ->",
+                RoomTypeNames.DB_UTIL.packageMember(performFunctionName),
+                dbProperty,
+                sqlQueryVar,
+                statementVar
+            )
+            bindStatement(scope, statementVar)
+            val outVar = scope.getTmpVar("_result")
+            adapter?.convert(outVar, statementVar, scope)
+            addStatement("%L", outVar)
+            endControlFlow()
+        }
+    }
+
+    private fun getPerformFunctionName(inTransaction: Boolean) =
+        if (inTransaction) {
+            "performReadTransactionBlocking"
+        } else {
+            "performReadBlocking"
+        }
 }

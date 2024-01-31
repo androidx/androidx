@@ -96,6 +96,7 @@ class InvalidationTrackerTest {
             mRoomDatabase, shadowTables, viewTables,
             "a", "B", "i", "C", "d"
         )
+        @Suppress("DEPRECATION")
         mTracker.internalInit(mSqliteDb)
         reset(mSqliteDb)
     }

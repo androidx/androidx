@@ -1,10 +1,7 @@
-import android.database.Cursor
 import androidx.room.EntityInsertionAdapter
 import androidx.room.RoomDatabase
-import androidx.room.RoomSQLiteQuery
-import androidx.room.RoomSQLiteQuery.Companion.acquire
 import androidx.room.util.getColumnIndexOrThrow
-import androidx.room.util.query
+import androidx.room.util.performReadBlocking
 import androidx.sqlite.db.SupportSQLiteStatement
 import javax.`annotation`.processing.Generated
 import kotlin.Int
@@ -60,23 +57,20 @@ public class MyDao_Impl(
 
   public override fun getEntity(): MyEntity {
     val _sql: String = "SELECT * FROM MyEntity"
-    val _statement: RoomSQLiteQuery = acquire(_sql, 0)
-    __db.assertNotSuspendingTransaction()
-    val _cursor: Cursor = query(__db, _statement, false, null)
-    try {
-      val _cursorIndexOfPk: Int = getColumnIndexOrThrow(_cursor, "pk")
-      val _cursorIndexOfFoo: Int = getColumnIndexOrThrow(_cursor, "foo")
-      val _cursorIndexOfBar: Int = getColumnIndexOrThrow(_cursor, "bar")
+    return performReadBlocking(__db, _sql) { _stmt ->
+      val _cursorIndexOfPk: Int = getColumnIndexOrThrow(_stmt, "pk")
+      val _cursorIndexOfFoo: Int = getColumnIndexOrThrow(_stmt, "foo")
+      val _cursorIndexOfBar: Int = getColumnIndexOrThrow(_stmt, "bar")
       val _result: MyEntity
-      if (_cursor.moveToFirst()) {
+      if (_stmt.step()) {
         val _tmpPk: Int
-        _tmpPk = _cursor.getInt(_cursorIndexOfPk)
+        _tmpPk = _stmt.getLong(_cursorIndexOfPk).toInt()
         val _tmpFoo: Foo
         val _tmp: String?
-        if (_cursor.isNull(_cursorIndexOfFoo)) {
+        if (_stmt.isNull(_cursorIndexOfFoo)) {
           _tmp = null
         } else {
-          _tmp = _cursor.getString(_cursorIndexOfFoo)
+          _tmp = _stmt.getText(_cursorIndexOfFoo)
         }
         val _tmp_1: Foo? = FooBarConverter.fromString(_tmp)
         if (_tmp_1 == null) {
@@ -86,10 +80,10 @@ public class MyDao_Impl(
         }
         val _tmpBar: Bar
         val _tmp_2: String?
-        if (_cursor.isNull(_cursorIndexOfBar)) {
+        if (_stmt.isNull(_cursorIndexOfBar)) {
           _tmp_2 = null
         } else {
-          _tmp_2 = _cursor.getString(_cursorIndexOfBar)
+          _tmp_2 = _stmt.getText(_cursorIndexOfBar)
         }
         val _tmp_3: Foo? = FooBarConverter.fromString(_tmp_2)
         val _tmp_4: Bar?
@@ -107,10 +101,7 @@ public class MyDao_Impl(
       } else {
         error("The query result was empty, but expected a single row to return a NON-NULL object of type <MyEntity>.")
       }
-      return _result
-    } finally {
-      _cursor.close()
-      _statement.release()
+      _result
     }
   }
 

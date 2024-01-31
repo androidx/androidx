@@ -188,15 +188,8 @@ abstract class BaseConformanceTest {
     fun readColumnNameWithoutStep() = testWithConnection { connection ->
         connection.execSQL("CREATE TABLE Test (col)")
         connection.prepare("SELECT col FROM Test").use {
-            if (driverType == TestDriverType.ANDROID_FRAMEWORK) {
-                // In Android framework the statement is not compiled until first step, so
-                // proper analysis of result column count cannot be done.
-                val message = assertFailsWith<SQLiteException> { it.getColumnName(0) }.message
-                assertThat(message).isEqualTo("Error code: 21, message: no row")
-            } else {
-                assertThat(it.getColumnCount()).isEqualTo(1)
-                assertThat(it.getColumnName(0)).isEqualTo("col")
-            }
+            assertThat(it.getColumnCount()).isEqualTo(1)
+            assertThat(it.getColumnName(0)).isEqualTo("col")
         }
     }
 

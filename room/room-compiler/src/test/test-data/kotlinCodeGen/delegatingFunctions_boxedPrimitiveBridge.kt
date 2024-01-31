@@ -1,10 +1,7 @@
-import android.database.Cursor
 import androidx.room.RoomDatabase
-import androidx.room.RoomSQLiteQuery
-import androidx.room.RoomSQLiteQuery.Companion.acquire
 import androidx.room.SharedSQLiteStatement
 import androidx.room.util.getColumnIndexOrThrow
-import androidx.room.util.query
+import androidx.room.util.performReadBlocking
 import androidx.sqlite.db.SupportSQLiteStatement
 import javax.`annotation`.processing.Generated
 import kotlin.Int
@@ -54,25 +51,19 @@ public class MyDao_Impl(
 
   public override fun getEntity(id: Long): MyEntity {
     val _sql: String = "SELECT * FROM MyEntity WHERE pk = ?"
-    val _statement: RoomSQLiteQuery = acquire(_sql, 1)
-    var _argIndex: Int = 1
-    _statement.bindLong(_argIndex, id)
-    __db.assertNotSuspendingTransaction()
-    val _cursor: Cursor = query(__db, _statement, false, null)
-    try {
-      val _cursorIndexOfPk: Int = getColumnIndexOrThrow(_cursor, "pk")
+    return performReadBlocking(__db, _sql) { _stmt ->
+      var _argIndex: Int = 1
+      _stmt.bindLong(_argIndex, id)
+      val _cursorIndexOfPk: Int = getColumnIndexOrThrow(_stmt, "pk")
       val _result: MyEntity
-      if (_cursor.moveToFirst()) {
+      if (_stmt.step()) {
         val _tmpPk: Long
-        _tmpPk = _cursor.getLong(_cursorIndexOfPk)
+        _tmpPk = _stmt.getLong(_cursorIndexOfPk)
         _result = MyEntity(_tmpPk)
       } else {
         error("The query result was empty, but expected a single row to return a NON-NULL object of type <MyEntity>.")
       }
-      return _result
-    } finally {
-      _cursor.close()
-      _statement.release()
+      _result
     }
   }
 
