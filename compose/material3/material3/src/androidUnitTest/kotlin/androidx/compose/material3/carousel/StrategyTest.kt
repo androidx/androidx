@@ -57,6 +57,50 @@ class StrategyTest {
     }
 
     @Test
+    fun testStrategy_startAlignedCutoffStrategyShiftsEndWithCutoff() {
+        val carouselMainAxisSize = large + medium + medium
+        val cutoff = 50f
+        val defaultKeylineList = createStartAlignedCutoffKeylineList(cutoff = cutoff)
+
+        val strategy = Strategy.create(
+            carouselMainAxisSize = carouselMainAxisSize,
+            keylineList = defaultKeylineList
+        )
+        val endKeylineList = strategy.getEndKeylines()
+
+        assertThat(defaultKeylineList.lastNonAnchor.cutoff).isEqualTo(cutoff)
+        assertThat(defaultKeylineList.firstNonAnchor.offset -
+            defaultKeylineList.firstNonAnchor.size / 2f).isEqualTo(0f)
+        assertThat(endKeylineList.firstNonAnchor.cutoff).isEqualTo(cutoff)
+        assertThat(endKeylineList.firstNonAnchor.offset -
+            endKeylineList.firstNonAnchor.size / 2f).isEqualTo(-cutoff)
+        assertThat(endKeylineList.lastNonAnchor.offset +
+            endKeylineList.lastNonAnchor.size / 2f).isEqualTo(carouselMainAxisSize)
+    }
+
+    @Test
+    fun testStrategy_endAlignedCutoffStrategyShiftsStartWithCutoff() {
+        val carouselMainAxisSize = large + medium + medium
+        val cutoff = 50f
+        val defaultKeylineList = createEndAlignedCutoffKeylineList(cutoff = cutoff)
+
+        val strategy = Strategy.create(
+            carouselMainAxisSize = carouselMainAxisSize,
+            keylineList = defaultKeylineList
+        )
+        val startKeylineList = strategy.getStartKeylines()
+
+        assertThat(defaultKeylineList.firstNonAnchor.cutoff).isEqualTo(cutoff)
+        assertThat(defaultKeylineList.lastNonAnchor.offset +
+            defaultKeylineList.lastNonAnchor.size / 2f).isEqualTo(carouselMainAxisSize)
+        assertThat(startKeylineList.lastNonAnchor.cutoff).isEqualTo(cutoff)
+        assertThat(startKeylineList.firstNonAnchor.offset -
+            startKeylineList.firstNonAnchor.size / 2f).isEqualTo(0f)
+        assertThat(startKeylineList.lastNonAnchor.offset +
+            startKeylineList.lastNonAnchor.size / 2f).isEqualTo(carouselMainAxisSize + cutoff)
+    }
+
+    @Test
     fun testStrategy_centerAlignedShiftsStart() {
         val itemCount = 12
         val carouselMainAxisSize = (small * 2) + medium + (large * 2) + medium + (small * 2)
@@ -314,6 +358,28 @@ class StrategyTest {
                 add(large)
                 add(medium)
                 add(small)
+                add(xSmall, isAnchor = true)
+            }
+        }
+
+        private fun createStartAlignedCutoffKeylineList(cutoff: Float): KeylineList {
+            // [xs | l m m | xs]
+            return keylineListOf(large + medium + medium, CarouselAlignment.Start) {
+                add(xSmall, isAnchor = true)
+                add(large + cutoff)
+                add(medium)
+                add(medium)
+                add(xSmall, isAnchor = true)
+            }
+        }
+
+        private fun createEndAlignedCutoffKeylineList(cutoff: Float): KeylineList {
+            // [xs | m m l | xs]
+            return keylineListOf(large + medium + medium, CarouselAlignment.End) {
+                add(xSmall, isAnchor = true)
+                add(medium)
+                add(medium)
+                add(large + cutoff)
                 add(xSmall, isAnchor = true)
             }
         }

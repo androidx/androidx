@@ -18,6 +18,7 @@ package androidx.compose.material3.carousel
 
 import androidx.compose.ui.util.fastFirstOrNull
 import androidx.compose.ui.util.fastMapIndexed
+import kotlin.math.abs
 
 /**
  * A structure that is fixed at a specific [offset] along a scrolling axis and
@@ -390,7 +391,8 @@ private class KeylineListScopeImpl : KeylineListScope {
             val tmp = tmpKeylines[originalIndex]
             val tmpOffset = offset - (tmp.size / 2)
             val tmpUnadjustedOffset = unadjustedOffset - (itemMainAxisSize / 2)
-            val cutoff = if (isCutoffLeft(tmp.size, tmpOffset)) tmpOffset - (tmp.size / 2) else 0f
+            val cutoff = if (isCutoffLeft(tmp.size, tmpOffset))
+                abs(tmpOffset - (tmp.size / 2)) else 0f
             keylines.add(0,
                 Keyline(
                     size = tmp.size,

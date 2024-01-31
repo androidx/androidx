@@ -197,6 +197,16 @@ internal class Strategy private constructor(
         return defaultKeylines
     }
 
+    @VisibleForTesting
+    internal fun getEndKeylines(): KeylineList {
+        return endKeylineSteps.last()
+    }
+
+    @VisibleForTesting
+    internal fun getStartKeylines(): KeylineList {
+        return startKeylineSteps.last()
+    }
+
     companion object {
 
         /**
@@ -401,7 +411,7 @@ internal class Strategy private constructor(
         ): KeylineList {
             // -1 if the pivot is shifting left/top, 1 if shifting right/bottom
             val pivotDir = if (srcIndex > dstIndex) 1 else -1
-            val pivotDelta = from[srcIndex].size * pivotDir
+            val pivotDelta = (from[srcIndex].size - from[srcIndex].cutoff) * pivotDir
             val newPivotIndex = from.pivotIndex + pivotDir
             val newPivotOffset = from.pivot.offset + pivotDelta
             return keylineListOf(carouselMainAxisSize, newPivotIndex, newPivotOffset) {
