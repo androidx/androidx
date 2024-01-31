@@ -17,8 +17,12 @@
 package androidx.compose.foundation.text2.input.internal
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.content.MediaType
+import androidx.compose.foundation.content.TransferableContent
 import androidx.compose.foundation.content.internal.ReceiveContentConfiguration
+import androidx.compose.foundation.content.internal.dragAndDropRequestPermission
 import androidx.compose.foundation.content.internal.getReceiveContentConfiguration
+import androidx.compose.foundation.content.readPlainText
 import androidx.compose.foundation.interaction.HoverInteraction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.text.Handle
@@ -91,7 +95,11 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 
-private const val MIMETYPE_TEXT = "text/*"
+@OptIn(ExperimentalFoundationApi::class)
+private val MediaTypesText = setOf(MediaType.Text)
+
+@OptIn(ExperimentalFoundationApi::class)
+private val MediaTypesAll = setOf(MediaType.All)
 
 /**
  * Modifier element for most of the functionality of [BasicTextField2] that is attached to the
@@ -206,13 +214,34 @@ internal class TextFieldDecoratorModifierNode(
      */
     private var dragEnterEvent: HoverInteraction.Enter? = null
 
+    /**
+     * Special Drag and Drop node for BasicTextField2 that is also aware of `receiveContent` API.
+     */
     private val dragAndDropNode = delegate(
         textFieldDragAndDropNode(
-            acceptedMimeTypes = setOf(MIMETYPE_TEXT),
+            hintMediaTypes = {
+                val receiveContentConfiguration = getReceiveContentConfiguration()
+                // if receiveContent configuration is set, all drag operations should be
+                // accepted. ReceiveContent handler should evaluate the incoming content.
+                if (receiveContentConfiguration != null) {
+                    MediaTypesAll
+                } else {
+                    MediaTypesText
+                }
+            },
+            dragAndDropRequestPermission = {
+                if (getReceiveContentConfiguration() != null) {
+                    dragAndDropRequestPermission(it)
+                }
+            },
             onEntered = {
                 dragEnterEvent = HoverInteraction.Enter().also {
                     interactionSource.tryEmit(it)
                 }
+                // Although BasicTextField2 itself is not a `receiveContent` node, it should
+                // behave like one. Delegate the enter event to the ancestor nodes just like
+                // `receiveContent` itself would.
+                getReceiveContentConfiguration()?.receiveContentListener?.onDragEnter()
             },
             onMoved = { position ->
                 val positionOnTextField = textLayoutState.fromWindowToDecoration(position)
@@ -220,15 +249,36 @@ internal class TextFieldDecoratorModifierNode(
                 textFieldState.selectCharsIn(TextRange(cursorPosition))
                 textFieldSelectionState.updateHandleDragging(Handle.Cursor, positionOnTextField)
             },
-            onDrop = {
+            onDrop = { clipEntry, clipMetadata ->
                 emitDragExitEvent()
                 textFieldSelectionState.clearHandleDragging()
-                textFieldState.replaceSelectedText(it.text)
+                var plainText = clipEntry.readPlainText()
+
+                val receiveContentConfiguration = getReceiveContentConfiguration()
+                // if receiveContent configuration is set, all drag operations should be
+                // accepted. ReceiveContent handler should evaluate the incoming content.
+                if (receiveContentConfiguration != null) {
+                    val transferableContent = TransferableContent(
+                        clipEntry,
+                        clipMetadata,
+                        TransferableContent.Source.DragAndDrop
+                    )
+
+                    val remaining = receiveContentConfiguration
+                        .receiveContentListener
+                        .onReceive(transferableContent)
+                    plainText = remaining?.clipEntry?.readPlainText()
+                }
+                plainText?.let(textFieldState::replaceSelectedText)
                 true
             },
             onExited = {
                 emitDragExitEvent()
                 textFieldSelectionState.clearHandleDragging()
+                // Although BasicTextField2 itself is not a `receiveContent` node, it should
+                // behave like one. Delegate the exit event to the ancestor nodes just like
+                // `receiveContent` itself would.
+                getReceiveContentConfiguration()?.receiveContentListener?.onDragExit()
             },
             onEnded = {
                 emitDragExitEvent()
