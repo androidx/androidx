@@ -28,10 +28,13 @@ internal class EmojiPickerPopupView @JvmOverloads constructor(
     attrs: AttributeSet?,
     defStyleAttr: Int = 0,
     private val targetEmojiView: View,
-    private val variants: List<String>,
+    private val targetEmojiItem: EmojiViewItem,
     private val emojiViewOnClickListener: OnClickListener
 ) :
     FrameLayout(context, attrs, defStyleAttr) {
+
+    private val variants = targetEmojiItem.variants
+    private val targetEmoji = targetEmojiItem.emoji
     private val popupView: LinearLayout
     private val popupDesign: EmojiPickerPopupDesign
     init {
@@ -43,8 +46,9 @@ internal class EmojiPickerPopupView @JvmOverloads constructor(
                 context, targetEmojiView, variants, popupView, emojiViewOnClickListener)
             Layout.SQUARE -> EmojiPickerPopupSquareDesign(
                 context, targetEmojiView, variants, popupView, emojiViewOnClickListener)
-            Layout.SQUARE_WITH_SKIN_TONE_CIRCLE -> EmojiPickerPopupSquareWithSkintoneCircleDesign(
-                context, targetEmojiView, variants, popupView, emojiViewOnClickListener)
+            Layout.SQUARE_WITH_SKIN_TONE_CIRCLE -> EmojiPickerPopupMultiSkintoneDesign(
+                context, targetEmojiView, variants, popupView, emojiViewOnClickListener,
+                targetEmoji)
             Layout.BIDIRECTIONAL -> EmojiPickerPopupBidirectionalDesign(
                 context, targetEmojiView, variants, popupView, emojiViewOnClickListener)
         }
