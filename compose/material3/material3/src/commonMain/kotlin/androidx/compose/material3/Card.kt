@@ -126,7 +126,6 @@ fun Card(
  * [Interaction]s and customize the appearance / behavior of this card in different states.
  *
  */
-@ExperimentalMaterial3Api
 @Composable
 fun Card(
     onClick: () -> Unit,
@@ -225,7 +224,6 @@ fun ElevatedCard(
  * for this card. You can create and pass in your own `remember`ed instance to observe
  * [Interaction]s and customize the appearance / behavior of this card in different states.
  */
-@ExperimentalMaterial3Api
 @Composable
 fun ElevatedCard(
     onClick: () -> Unit,
@@ -321,7 +319,6 @@ fun OutlinedCard(
  * for this card. You can create and pass in your own `remember`ed instance to observe
  * [Interaction]s and customize the appearance / behavior of this card in different states.
  */
-@ExperimentalMaterial3Api
 @Composable
 fun OutlinedCard(
     onClick: () -> Unit,

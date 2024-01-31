@@ -21,15 +21,15 @@ package androidx.compose.material3.catalog.library.model
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.material3.adaptive.samples.NavigationSuiteScaffoldCustomConfigSample
-import androidx.compose.material3.adaptive.samples.NavigationSuiteScaffoldSample
-import androidx.compose.material3.catalog.library.util.AdaptiveSampleSourceUrl
+import androidx.compose.material3.adaptive.navigation.suite.samples.NavigationSuiteScaffoldCustomConfigSample
+import androidx.compose.material3.adaptive.navigation.suite.samples.NavigationSuiteScaffoldSample
+import androidx.compose.material3.catalog.library.util.AdaptiveNavigationSuiteSampleSourceUrl
 import androidx.compose.material3.catalog.library.util.SampleSourceUrl
 import androidx.compose.material3.samples.AlertDialogSample
-import androidx.compose.material3.samples.AlertDialogWithCustomContentSample
 import androidx.compose.material3.samples.AlertDialogWithIconSample
 import androidx.compose.material3.samples.AnimatedExtendedFloatingActionButtonSample
 import androidx.compose.material3.samples.AssistChipSample
+import androidx.compose.material3.samples.BasicAlertDialogSample
 import androidx.compose.material3.samples.BottomAppBarWithFAB
 import androidx.compose.material3.samples.BottomSheetScaffoldNestedScrollSample
 import androidx.compose.material3.samples.ButtonSample
@@ -106,6 +106,9 @@ import androidx.compose.material3.samples.PlainTooltipSample
 import androidx.compose.material3.samples.PlainTooltipWithManualInvocationSample
 import androidx.compose.material3.samples.PrimaryIconTabs
 import androidx.compose.material3.samples.PrimaryTextTabs
+import androidx.compose.material3.samples.PullToRefreshSample
+import androidx.compose.material3.samples.PullToRefreshSampleCustomState
+import androidx.compose.material3.samples.PullToRefreshScalingSample
 import androidx.compose.material3.samples.RadioButtonSample
 import androidx.compose.material3.samples.RadioGroupSample
 import androidx.compose.material3.samples.RangeSliderSample
@@ -446,10 +449,10 @@ val DialogExamples =
             sourceUrl = DialogExampleSourceUrl,
         ) { AlertDialogWithIconSample() },
         Example(
-            name = ::AlertDialogWithCustomContentSample.name,
+            name = ::BasicAlertDialogSample.name,
             description = DialogExampleDescription,
             sourceUrl = DialogExampleSourceUrl,
-        ) { AlertDialogWithCustomContentSample() },
+        ) { BasicAlertDialogSample() },
     )
 
 private const val BottomAppBarsExampleDescription = "Bottom app bar examples"
@@ -728,7 +731,7 @@ val NavigationDrawerExamples = listOf(
 
 private const val NavigationSuiteScaffoldExampleDescription = "Navigation suite scaffold examples"
 private const val NavigationSuiteScaffoldExampleSourceUrl =
-    "$AdaptiveSampleSourceUrl/NavigationSuiteScaffoldSamples.kt"
+    "$AdaptiveNavigationSuiteSampleSourceUrl/NavigationSuiteScaffoldSamples.kt"
 val NavigationSuiteScaffoldExamples =
     listOf(
         Example(
@@ -774,6 +777,32 @@ val ProgressIndicatorsExamples = listOf(
         sourceUrl = ProgressIndicatorsExampleSourceUrl
     ) {
         IndeterminateCircularProgressIndicatorSample()
+    }
+)
+
+private const val PullToRefreshExampleDescription = "Pull-to-refresh examples"
+private const val PullToRefreshExampleSourceUrl = "$SampleSourceUrl/PullToRefreshSamples.kt"
+val PullToRefreshExamples = listOf(
+    Example(
+        name = ::PullToRefreshSample.name,
+        description = PullToRefreshExampleDescription,
+        sourceUrl = PullToRefreshExampleSourceUrl
+    ) {
+        PullToRefreshSample()
+    },
+    Example(
+        name = ::PullToRefreshScalingSample.name,
+        description = PullToRefreshExampleDescription,
+        sourceUrl = PullToRefreshExampleSourceUrl
+    ) {
+        PullToRefreshScalingSample()
+    },
+    Example(
+        name = ::PullToRefreshSampleCustomState.name,
+        description = PullToRefreshExampleDescription,
+        sourceUrl = PullToRefreshExampleSourceUrl
+    ) {
+        PullToRefreshSampleCustomState()
     }
 )
 

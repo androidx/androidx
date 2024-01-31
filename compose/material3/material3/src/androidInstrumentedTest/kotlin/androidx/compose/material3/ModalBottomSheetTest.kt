@@ -93,6 +93,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.Assume
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -1319,13 +1320,14 @@ class ModalBottomSheetTest(private val edgeToEdgeWrapper: EdgeToEdgeWrapper) {
         assertThat(boxWidth).isEqualTo(screenWidth)
     }
 
+    @Ignore("b/307313354")
     @Test
     fun modalBottomSheet_imePadding() {
         // TODO: Include APIs < 30  when a solution is found for b/290893168.
         // TODO: 33 > API > 29 does not use imePadding because of b/285746907, include when a better solution is found.
         Assume.assumeTrue(SDK_INT >= 33)
 
-        val imeAnimationDuration = 750000L
+        val imeAnimationDuration = 1000000L
         val textFieldTag = "sheetTextField"
 
         lateinit var sheetState: SheetState
@@ -1336,7 +1338,8 @@ class ModalBottomSheetTest(private val edgeToEdgeWrapper: EdgeToEdgeWrapper) {
             ModalBottomSheet(
                 sheetState = sheetState,
                 onDismissRequest = {},
-                windowInsets = windowInsets
+                windowInsets = windowInsets,
+                properties = ModalBottomSheetDefaults.properties(isFocusable = true)
             ) {
                 Box(Modifier.testTag(sheetTag)) {
                     TextField(

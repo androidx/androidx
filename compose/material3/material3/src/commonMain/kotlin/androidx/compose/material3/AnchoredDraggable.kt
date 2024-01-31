@@ -216,7 +216,6 @@ internal interface AnchoredDragScope {
  * @param animationSpec The default animation that will be used to animate to a new state.
  * @param confirmValueChange Optional callback invoked to confirm or veto a pending state change.
  */
-@Suppress("PrimitiveInLambda")
 @Stable
 @ExperimentalMaterial3Api
 internal class AnchoredDraggableState<T>(

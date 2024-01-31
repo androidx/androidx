@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:JvmName("DynamicTonalPaletteKt")
+
 package androidx.compose.material3
 
 import android.content.Context

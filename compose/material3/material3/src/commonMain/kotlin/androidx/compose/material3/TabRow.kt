@@ -129,6 +129,7 @@ import kotlinx.coroutines.launch
  * @param tabs the tabs inside this tab row. Typically this will be multiple [Tab]s. Each element
  * inside this lambda will be measured and placed evenly across the row, each taking up equal space.
  */
+@ExperimentalMaterial3Api
 @Composable
 fun PrimaryTabRow(
     selectedTabIndex: Int,
@@ -185,6 +186,7 @@ fun PrimaryTabRow(
  * @param tabs the tabs inside this tab row. Typically this will be multiple [Tab]s. Each element
  * inside this lambda will be measured and placed evenly across the row, each taking up equal space.
  */
+@ExperimentalMaterial3Api
 @Composable
 fun SecondaryTabRow(
     selectedTabIndex: Int,
@@ -209,6 +211,9 @@ fun SecondaryTabRow(
  * <a href="https://m3.material.io/components/tabs/overview" class="external" target="_blank">Material Design tabs</a>
  *
  * Material Design fixed tabs.
+ *
+ * For primary indicator tabs, use [PrimaryTabRow]. For secondary indicator tabs, use
+ * [SecondaryTabRow].
  *
  * Fixed tabs display all tabs in a set simultaneously. They are best for switching between related
  * content quickly, such as between transportation methods in a map. To navigate between fixed tabs,
@@ -276,11 +281,6 @@ fun SecondaryTabRow(
  * @param tabs the tabs inside this tab row. Typically this will be multiple [Tab]s. Each element
  * inside this lambda will be measured and placed evenly across the row, each taking up equal space.
  */
-@Deprecated(
-    level = DeprecationLevel.WARNING,
-    message = "This TabRow implementation is misaligned with spec. Please use PrimaryTabRow for " +
-        "primary tabs and SecondaryTabRow for secondary tabs."
-)
 @Composable
 fun TabRow(
     selectedTabIndex: Int,
@@ -400,6 +400,7 @@ private fun TabRowImpl(
  * @param tabs the tabs inside this tab row. Typically this will be multiple [Tab]s. Each element
  * inside this lambda will be measured and placed evenly across the row, each taking up equal space.
  */
+@ExperimentalMaterial3Api
 @Composable
 fun PrimaryScrollableTabRow(
     selectedTabIndex: Int,
@@ -471,6 +472,7 @@ fun PrimaryScrollableTabRow(
  * @param tabs the tabs inside this tab row. Typically this will be multiple [Tab]s. Each element
  * inside this lambda will be measured and placed evenly across the row, each taking up equal space.
  */
+@ExperimentalMaterial3Api
 @Composable
 fun SecondaryScrollableTabRow(
     selectedTabIndex: Int,
@@ -507,6 +509,9 @@ fun SecondaryScrollableTabRow(
  *
  * Material Design scrollable tabs.
  *
+ * For primary indicator tabs, use [PrimaryScrollableTabRow]. For secondary indicator tabs, use
+ * [SecondaryScrollableTabRow].
+ *
  * When a set of tabs cannot fit on screen, use scrollable tabs. Scrollable tabs can use longer text
  * labels and a larger number of tabs. They are best used for browsing on touch interfaces.
  *
@@ -535,11 +540,6 @@ fun SecondaryScrollableTabRow(
  * @param tabs the tabs inside this tab row. Typically this will be multiple [Tab]s. Each element
  * inside this lambda will be measured and placed evenly across the row, each taking up equal space.
  */
-@Deprecated(
-    level = DeprecationLevel.WARNING,
-    message = "This ScrollableTabRow implementation is misaligned with spec. Please use " +
-        "PrimaryScrollableTabRow for primary tabs and SecondaryScrollableTabRow for secondary tabs."
-)
 @Composable
 fun ScrollableTabRow(
     selectedTabIndex: Int,

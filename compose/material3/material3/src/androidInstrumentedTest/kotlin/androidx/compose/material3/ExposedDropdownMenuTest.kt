@@ -559,7 +559,7 @@ class ExposedDropdownMenuTest {
             ExposedDropdownMenuBox(
                 modifier = Modifier.align(Alignment.Center),
                 expanded = expanded,
-                onExpandedChange = { onExpandChange(!expanded) }
+                onExpandedChange = onExpandChange,
             ) {
                 TextField(
                     modifier = Modifier

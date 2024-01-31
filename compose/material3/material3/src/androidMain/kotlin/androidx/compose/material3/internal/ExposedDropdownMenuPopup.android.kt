@@ -28,6 +28,7 @@ import android.view.View
 import android.view.ViewOutlineProvider
 import android.view.ViewTreeObserver
 import android.view.WindowManager
+import android.view.accessibility.AccessibilityManager
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionContext
 import androidx.compose.runtime.DisposableEffect
@@ -43,12 +44,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.R
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.toComposeIntRect
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.AbstractComposeView
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalView
@@ -85,16 +87,21 @@ internal fun ExposedDropdownMenuPopup(
     val view = LocalView.current
     val density = LocalDensity.current
     val layoutDirection = LocalLayoutDirection.current
+    val context = LocalContext.current
+    val a11yManager =
+        context.getSystemService(Context.ACCESSIBILITY_SERVICE) as? AccessibilityManager
+
     val parentComposition = rememberCompositionContext()
     val currentContent by rememberUpdatedState(content)
     val popupId = rememberSaveable { UUID.randomUUID() }
-    val popupLayout = remember {
+    val popupLayout = remember(a11yManager) {
         PopupLayout(
             onDismissRequest = onDismissRequest,
             composeView = view,
             positionProvider = popupPositionProvider,
+            focusable = a11yManager?.isTouchExplorationEnabled == true,
             density = density,
-            popupId = popupId
+            popupId = popupId,
         ).apply {
             setContent(parentComposition) {
                 SimpleStack(
@@ -200,6 +207,7 @@ private class PopupLayout(
     private var onDismissRequest: (() -> Unit)?,
     private val composeView: View,
     private val positionProvider: PopupPositionProvider,
+    private val focusable: Boolean,
     density: Density,
     popupId: UUID
 ) : AbstractComposeView(composeView.context),
@@ -312,10 +320,9 @@ private class PopupLayout(
         val parentBounds = parentBounds ?: return
         val popupContentSize = popupContentSize ?: return
 
-        val windowSize = previousWindowVisibleFrame.let {
-            composeView.getWindowVisibleDisplayFrame(it)
-            val bounds = it.toIntBounds()
-            IntSize(width = bounds.width, height = bounds.height)
+        val windowSize = previousWindowVisibleFrame.let { rect ->
+            composeView.getWindowVisibleDisplayFrame(rect)
+            rect.toComposeIntRect().size
         }
 
         val popupPosition = positionProvider.calculatePosition(
@@ -355,14 +362,11 @@ private class PopupLayout(
             (event.action == MotionEvent.ACTION_DOWN &&
                 (event.x < 0 || event.x >= width || event.y < 0 || event.y >= height))
         ) {
-            val parentBounds = parentBounds
-            val shouldDismiss = parentBounds == null || dismissOnOutsideClick(
-                // Keep menu open if ACTION_OUTSIDE event is reported as raw coordinates of (0, 0).
-                // This means it belongs to another owner, e.g., the soft keyboard or other window.
-                if (event.rawX != 0f && event.rawY != 0f) Offset(event.rawX, event.rawY) else null,
-                parentBounds
-            )
+            // If an event has raw coordinates of (0, 0), it means it belongs to another owner,
+            // e.g., the soft keyboard or other window, so we want to keep the menu open.
+            val isOutsideClickOnKeyboard = event.rawX == 0f && event.rawY == 0f
 
+            val shouldDismiss = parentBounds == null || !isOutsideClickOnKeyboard
             if (shouldDismiss) {
                 onDismissRequest?.invoke()
                 return true
@@ -385,15 +389,6 @@ private class PopupLayout(
         super.setLayoutDirection(direction)
     }
 
-    // Specific to exposed dropdown menus.
-    private fun dismissOnOutsideClick(offset: Offset?, bounds: IntRect): Boolean =
-        if (offset == null) {
-            false
-        } else {
-            offset.x < bounds.left || offset.x > bounds.right ||
-                offset.y < bounds.top || offset.y > bounds.bottom
-        }
-
     /**
      * Initialize the LayoutParams specific to [android.widget.PopupWindow].
      */
@@ -403,9 +398,15 @@ private class PopupLayout(
             gravity = Gravity.START or Gravity.TOP
 
             // Flags specific to exposed dropdown menu.
-            flags = WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH or
-                WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
+            flags = WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH and
+                WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL.inv() or
                 WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM
+            flags = if (focusable) {
+                flags and WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE.inv()
+            } else {
+                flags or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
+            }
+
             softInputMode = WindowManager.LayoutParams.SOFT_INPUT_STATE_UNCHANGED
 
             type = WindowManager.LayoutParams.TYPE_APPLICATION_PANEL
@@ -424,13 +425,6 @@ private class PopupLayout(
             title = composeView.context.resources.getString(R.string.default_popup_window_title)
         }
     }
-
-    private fun Rect.toIntBounds() = IntRect(
-        left = left,
-        top = top,
-        right = right,
-        bottom = bottom
-    )
 
     override fun onGlobalLayout() {
         // Update the position of the popup, in case getWindowVisibleDisplayFrame has changed.

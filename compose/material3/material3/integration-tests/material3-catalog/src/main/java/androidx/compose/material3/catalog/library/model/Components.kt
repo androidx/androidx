@@ -18,7 +18,7 @@ package androidx.compose.material3.catalog.library.model
 
 import androidx.annotation.DrawableRes
 import androidx.compose.material3.catalog.library.R
-import androidx.compose.material3.catalog.library.util.AdaptiveMaterial3SourceUrl
+import androidx.compose.material3.catalog.library.util.AdaptiveNavigationSuiteMaterial3SourceUrl
 import androidx.compose.material3.catalog.library.util.ComponentGuidelinesUrl
 import androidx.compose.material3.catalog.library.util.DocsUrl
 import androidx.compose.material3.catalog.library.util.Material3SourceUrl
@@ -254,7 +254,7 @@ private val NavigationSuiteScaffold = Component(
     // No navigation suite scaffold icon
     guidelinesUrl = "", // TODO: Add guidelines url when available
     docsUrl = "", // TODO: Add docs url when available
-    sourceUrl = "$AdaptiveMaterial3SourceUrl/NavigationSuiteScaffold.kt",
+    sourceUrl = "$AdaptiveNavigationSuiteMaterial3SourceUrl/NavigationSuiteScaffold.kt",
     examples = NavigationSuiteScaffoldExamples
 )
 
@@ -268,6 +268,19 @@ private val ProgressIndicators = Component(
     docsUrl = "$DocsUrl#circularprogressindicator",
     sourceUrl = "$Material3SourceUrl/ProgressIndicator.kt",
     examples = ProgressIndicatorsExamples
+)
+
+private val PullToRefreshIndicators = Component(
+    id = nextId(),
+    name = "Pull-to-Refresh Indicator",
+    description = "Pull to refresh is a swipe gesture available at the beginning of lists, grid " +
+        "lists, and card collections where the most recent content appears ",
+    // No pull-to-refresh icon
+    // TODO: Request component guidelines documentation from design.
+    guidelinesUrl = "",
+    docsUrl = "$DocsUrl#pulltorefreshcontainer",
+    sourceUrl = "$Material3SourceUrl/PullToRefresh.kt",
+    examples = PullToRefreshExamples
 )
 
 private val RadioButtons = Component(
@@ -415,6 +428,7 @@ val Components = listOf(
     NavigationRail,
     NavigationSuiteScaffold,
     ProgressIndicators,
+    PullToRefreshIndicators,
     RadioButtons,
     SearchBars,
     SegmentedButtons,

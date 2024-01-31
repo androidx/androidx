@@ -262,7 +262,7 @@ fun NavigationRailItem(
             icon = styledIcon,
             label = styledLabel,
             alwaysShowLabel = alwaysShowLabel,
-            animationProgress = animationProgress.value,
+            animationProgress = { animationProgress.value },
         )
     }
 }
@@ -450,13 +450,11 @@ private fun NavigationRailItemLayout(
     icon: @Composable () -> Unit,
     label: @Composable (() -> Unit)?,
     alwaysShowLabel: Boolean,
-    animationProgress: Float,
+    animationProgress: () -> Float,
 ) {
     Layout({
         indicatorRipple()
-        if (animationProgress > 0) {
-            indicator()
-        }
+        indicator()
 
         Box(Modifier.layoutId(IconLayoutIdTag)) { icon() }
 
@@ -464,10 +462,12 @@ private fun NavigationRailItemLayout(
             Box(
                 Modifier
                     .layoutId(LabelLayoutIdTag)
-                    .alpha(if (alwaysShowLabel) 1f else animationProgress)
+                    .graphicsLayer { alpha = if (alwaysShowLabel) 1f else animationProgress() }
             ) { label() }
         }
     }) { measurables, constraints ->
+        @Suppress("NAME_SHADOWING")
+        val animationProgress = animationProgress()
         val looseConstraints = constraints.copy(minWidth = 0, minHeight = 0)
         val iconPlaceable =
             measurables.fastFirst { it.layoutId == IconLayoutIdTag }.measure(looseConstraints)

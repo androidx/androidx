@@ -538,6 +538,7 @@ class TabScreenshotTest {
  * visual state.
  */
 @Composable
+@OptIn(ExperimentalMaterial3Api::class)
 private fun DefaultPrimaryTabs(
     interactionSource: MutableInteractionSource
 ) {
@@ -578,6 +579,7 @@ private fun DefaultPrimaryTabs(
  * visual state.
  */
 @Composable
+@OptIn(ExperimentalMaterial3Api::class)
 private fun DefaultSecondaryTabs(
     interactionSource: MutableInteractionSource
 ) {
@@ -616,6 +618,7 @@ private fun DefaultSecondaryTabs(
  * @param unselectedContentColor the content color for an unselected [Tab] (second and third tabs)
  */
 @Composable
+@OptIn(ExperimentalMaterial3Api::class)
 private fun CustomPrimaryTabs(
     interactionSource: MutableInteractionSource,
     containerColor: Color,
@@ -671,6 +674,7 @@ private fun CustomPrimaryTabs(
  * @param unselectedContentColor the content color for an unselected [Tab] (second and third tabs)
  */
 @Composable
+@OptIn(ExperimentalMaterial3Api::class)
 private fun CustomSecondaryTabs(
     interactionSource: MutableInteractionSource,
     containerColor: Color,
@@ -723,6 +727,7 @@ private fun CustomSecondaryTabs(
  * visual state.
  */
 @Composable
+@OptIn(ExperimentalMaterial3Api::class)
 private fun DefaultPrimaryLeadingIconTabs(
     interactionSource: MutableInteractionSource
 ) {
@@ -767,6 +772,7 @@ private fun DefaultPrimaryLeadingIconTabs(
  * visual state.
  */
 @Composable
+@OptIn(ExperimentalMaterial3Api::class)
 private fun DefaultSecondaryLeadingIconTabs(
     interactionSource: MutableInteractionSource
 ) {
@@ -805,6 +811,7 @@ private fun DefaultSecondaryLeadingIconTabs(
  * visual state.
  */
 @Composable
+@OptIn(ExperimentalMaterial3Api::class)
 private fun DefaultPrimaryScrollableTabs(
     interactionSource: MutableInteractionSource
 ) {
@@ -845,6 +852,7 @@ private fun DefaultPrimaryScrollableTabs(
  * visual state.
  */
 @Composable
+@OptIn(ExperimentalMaterial3Api::class)
 private fun DefaultSecondaryScrollableTabs(
     interactionSource: MutableInteractionSource
 ) {

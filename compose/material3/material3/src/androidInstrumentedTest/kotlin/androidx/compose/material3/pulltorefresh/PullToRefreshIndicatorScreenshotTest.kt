@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.material3.pullrefresh
+package androidx.compose.material3.pulltorefresh
 
 import android.os.Build
 import androidx.compose.foundation.layout.Box
@@ -29,12 +29,12 @@ import androidx.compose.material3.setMaterialContent
 import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.unit.Dp
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.AndroidXScreenshotTestRule
@@ -63,14 +63,24 @@ class PullRefreshIndicatorScreenshotTest(private val scheme: ColorSchemeWrapper)
         rule.setMaterialContent(scheme.colorScheme) {
             Box(wrap.testTag(testTag)) {
                 val density = LocalDensity.current
-                PullRefreshContainer(
-                    state = object : PullRefreshState {
-                        override val positionalThreshold: Dp
+                PullToRefreshContainer(
+                    state = object : PullToRefreshState {
+                        override val positionalThreshold: Float
                             get() = TODO("Not yet implemented")
                         override val progress = 0.0f
                         override val verticalOffset =
                             with(density) { CircularIndicatorDiameter.toPx() }
-                        override val refreshing = true
+                        override var nestedScrollConnection: NestedScrollConnection
+                            get() = TODO("Not yet implemented")
+                            set(_) {}
+                        override val isRefreshing = true
+                        override fun startRefresh() {
+                            TODO("Not yet implemented")
+                        }
+
+                        override fun endRefresh() {
+                            TODO("Not yet implemented")
+                        }
                     },
                 )
             }
@@ -84,14 +94,24 @@ class PullRefreshIndicatorScreenshotTest(private val scheme: ColorSchemeWrapper)
         rule.setMaterialContent(scheme.colorScheme) {
             Box(wrap.testTag(testTag)) {
                 val density = LocalDensity.current
-                PullRefreshContainer(
-                    state = object : PullRefreshState {
-                        override val positionalThreshold: Dp
+                PullToRefreshContainer(
+                    state = object : PullToRefreshState {
+                        override val positionalThreshold: Float
                             get() = TODO("Not yet implemented")
                         override val progress = 1f
                         override val verticalOffset =
                             with(density) { CircularIndicatorDiameter.toPx() }
-                        override val refreshing = false
+                        override var nestedScrollConnection: NestedScrollConnection
+                            get() = TODO("Not yet implemented")
+                            set(_) {}
+                        override val isRefreshing = false
+                        override fun startRefresh() {
+                            TODO("Not yet implemented")
+                        }
+
+                        override fun endRefresh() {
+                            TODO("Not yet implemented")
+                        }
                     },
                 )
             }

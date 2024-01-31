@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.2.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.2.0-beta01)" variant="all" version="8.2.0-beta01">
+<issues format="6" by="lint 8.3.0-alpha04" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha04)" variant="all" version="8.3.0-alpha04">
 
     <issue
         id="PrimitiveInCollection"
@@ -26,15 +26,6 @@
         errorLine2="        ^">
         <location
             file="src/main/java/androidx/compose/material3/catalog/library/data/UserPreferencesRepository.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method FontScaleItem has parameter &apos;onValueChange&apos; with type Function1&lt;? super Float, Unit>."
-        errorLine1="    onValueChange: (textScale: Float) -> Unit,"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/compose/material3/catalog/library/ui/theme/ThemePicker.kt"/>
     </issue>
 
 </issues>

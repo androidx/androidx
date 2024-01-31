@@ -75,7 +75,6 @@ import kotlin.math.max
  * reached the area of the overall indicator yet
  * @param strokeCap stroke cap to use for the ends of this progress indicator
  */
-@Suppress("PrimitiveInLambda")
 @Composable
 fun LinearProgressIndicator(
     progress: () -> Float,
@@ -343,7 +342,6 @@ private val IncreaseSemanticsBounds: Modifier = Modifier
  * reached the area of the overall indicator yet
  * @param strokeCap stroke cap to use for the ends of this progress indicator
  */
-@Suppress("PrimitiveInLambda")
 @Composable
 fun CircularProgressIndicator(
     progress: () -> Float,

@@ -48,7 +48,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -262,7 +261,7 @@ fun RowScope.NavigationBarItem(
             icon = styledIcon,
             label = styledLabel,
             alwaysShowLabel = alwaysShowLabel,
-            animationProgress = animationProgress.value,
+            animationProgress = { animationProgress.value },
         )
     }
 }
@@ -453,13 +452,11 @@ private fun NavigationBarItemLayout(
     icon: @Composable () -> Unit,
     label: @Composable (() -> Unit)?,
     alwaysShowLabel: Boolean,
-    animationProgress: Float,
+    animationProgress: () -> Float,
 ) {
     Layout({
         indicatorRipple()
-        if (animationProgress > 0) {
-            indicator()
-        }
+        indicator()
 
         Box(Modifier.layoutId(IconLayoutIdTag)) { icon() }
 
@@ -467,11 +464,13 @@ private fun NavigationBarItemLayout(
             Box(
                 Modifier
                     .layoutId(LabelLayoutIdTag)
-                    .alpha(if (alwaysShowLabel) 1f else animationProgress)
+                    .graphicsLayer { alpha = if (alwaysShowLabel) 1f else animationProgress() }
                     .padding(horizontal = NavigationBarItemHorizontalPadding / 2)
             ) { label() }
         }
     }) { measurables, constraints ->
+        @Suppress("NAME_SHADOWING")
+        val animationProgress = animationProgress()
         val looseConstraints = constraints.copy(minWidth = 0, minHeight = 0)
         val iconPlaceable =
             measurables.fastFirst { it.layoutId == IconLayoutIdTag }.measure(looseConstraints)

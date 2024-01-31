@@ -1048,7 +1048,7 @@ private fun PeriodToggleImpl(
                     .layoutId("Spacer")
                     .zIndex(SeparatorZIndex)
                     .fillMaxSize()
-                    .background(color = PeriodSelectorOutlineColor.value)
+                    .background(color = colors.periodSelectorBorderColor)
             )
             ToggleItem(
                 checked =
