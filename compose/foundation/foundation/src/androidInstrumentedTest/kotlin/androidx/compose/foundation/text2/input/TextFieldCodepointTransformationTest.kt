@@ -39,6 +39,7 @@ import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.test.withKeyDown
 import androidx.compose.ui.text.TextRange
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.FlakyTest
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
@@ -351,6 +352,7 @@ class TextFieldCodepointTransformationTest {
         )
     }
 
+    @FlakyTest(bugId = 317749301)
     @Test
     fun multipleCodepoints_selectionIsMappedAroundCodepoints() {
         val state = TextFieldState("a${SingleSurrogateCodepointString}c")
