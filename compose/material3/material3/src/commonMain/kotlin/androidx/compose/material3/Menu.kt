@@ -102,13 +102,14 @@ fun itemColors() = MaterialTheme.colorScheme.defaultMenuItemColors
         get() {
             return defaultMenuItemColorsCached ?: MenuItemColors(
                 textColor = fromToken(MenuTokens.ListItemLabelTextColor),
-            leadingIconColor = fromToken(MenuTokens.ListItemLeadingIconColor),
-            trailingIconColor = fromToken(MenuTokens.ListItemTrailingIconColor),
-            disabledTextColor = fromToken(MenuTokens.ListItemDisabledLabelTextColor),
-            disabledLeadingIconColor = fromToken(MenuTokens.ListItemDisabledLeadingIconColor)
-            .copy(alpha = MenuTokens.ListItemDisabledLeadingIconOpacity),
-            disabledTrailingIconColor = fromToken(MenuTokens.ListItemDisabledTrailingIconColor)
-            .copy(alpha = MenuTokens.ListItemDisabledTrailingIconOpacity),
+                leadingIconColor = fromToken(MenuTokens.ListItemLeadingIconColor),
+                trailingIconColor = fromToken(MenuTokens.ListItemTrailingIconColor),
+                disabledTextColor = fromToken(MenuTokens.ListItemDisabledLabelTextColor)
+                .copy(alpha = MenuTokens.ListItemDisabledLabelTextOpacity),
+                disabledLeadingIconColor = fromToken(MenuTokens.ListItemDisabledLeadingIconColor)
+                .copy(alpha = MenuTokens.ListItemDisabledLeadingIconOpacity),
+                disabledTrailingIconColor = fromToken(MenuTokens.ListItemDisabledTrailingIconColor)
+                .copy(alpha = MenuTokens.ListItemDisabledTrailingIconOpacity),
             ).also {
                 defaultMenuItemColorsCached = it
             }
