@@ -45,7 +45,10 @@ import org.jetbrains.kotlin.psi.psiUtil.endOffset
 import org.jetbrains.uast.UAnnotation
 import org.jetbrains.uast.UCallExpression
 import org.jetbrains.uast.UElement
+import org.jetbrains.uast.UExpression
 import org.jetbrains.uast.ULiteralExpression
+import org.jetbrains.uast.UParenthesizedExpression
+import org.jetbrains.uast.UPolyadicExpression
 import org.jetbrains.uast.UQualifiedReferenceExpression
 import org.jetbrains.uast.USimpleNameReferenceExpression
 
@@ -71,69 +74,80 @@ class ReplaceWithDetector : Detector(), SourceCodeScanner {
         // Ignore callbacks for assignment on the original declaration of an annotated field.
         if (type == AnnotationUsageType.ASSIGNMENT_RHS && usage.uastParent == referenced) return
 
-        when (qualifiedName) {
+        var (expression, imports) = when (qualifiedName) {
+            KOTLIN_DEPRECATED_ANNOTATION -> {
+                val replaceWith = annotation.findAttributeValue("replaceWith")?.unwrap()
+                    as? UCallExpression ?: return
+                val expression = replaceWith.valueArguments.getOrNull(0)?.parseLiteral() ?: return
+                val imports = replaceWith.valueArguments.getOrNull(1)?.parseVarargLiteral()
+                    ?: emptyList()
+                Pair(expression, imports)
+            }
             JAVA_REPLACE_WITH_ANNOTATION -> {
-                var location = context.getLocation(usage)
-                var expression = annotation.findAttributeValue("expression") ?.let { expr ->
+                val expression = annotation.findAttributeValue("expression")?.let { expr ->
                     ConstantEvaluator.evaluate(context, expr)
                 } as? String ?: return
-                val includeReceiver = Regex("^\\w+\\.\\w+.*\$").matches(expression)
-                val includeArguments = Regex("^.*\\w+\\(.*\\)$").matches(expression)
                 val imports = annotation.getAttributeValueVarargLiteral("imports")
+                Pair(expression, imports)
+            }
+            else -> return
+        }
 
-                if (referenced is PsiMethod && usage is UCallExpression) {
-                    // Per Kotlin documentation for ReplaceWith: For function calls, the replacement
-                    // expression may contain argument names of the deprecated function, which will
-                    // be substituted with actual parameters used in the call being updated.
-                    val argsToParams = referenced.parameters.mapIndexed { index, param ->
-                        param.name to usage.getArgumentForParameter(index)?.asSourceString()
-                    }.associate { it }
+        var location = context.getLocation(usage)
+        val includeReceiver = Regex("^\\w+\\.\\w+.*\$").matches(expression)
+        val includeArguments = Regex("^.*\\w+\\(.*\\)$").matches(expression)
 
-                    // Tokenize the replacement expression using a regex, replacing as we go. This
-                    // isn't the most efficient approach (e.g. trie) but it's easy to write.
-                    val search = Regex("\\w+")
-                    var index = 0
-                    do {
-                        val matchResult = search.find(expression, index) ?: break
-                        val replacement = argsToParams[matchResult.value]
-                        if (replacement != null) {
-                            expression = expression.replaceRange(matchResult.range, replacement)
-                            index += replacement.length
-                        } else {
-                            index += matchResult.value.length
-                        }
-                    } while (index < expression.length)
+        if (referenced is PsiMethod && usage is UCallExpression) {
+            // Per Kotlin documentation for ReplaceWith: For function calls, the replacement
+            // expression may contain argument names of the deprecated function, which will
+            // be substituted with actual parameters used in the call being updated.
+            val argsToParams = referenced.parameters.mapIndexed { index, param ->
+                param.name to usage.getArgumentForParameter(index)?.asSourceString()
+            }.toMap()
 
-                    location = when (val sourcePsi = usage.sourcePsi) {
-                        is PsiNewExpression -> {
-                            // The expression should never specify "new", but if it specifies a
-                            // receiver then we should replace the call to "new". For example, if
-                            // we're replacing `new Clazz("arg")` with `ClazzCompat.create("arg")`.
-                            context.getConstructorLocation(
-                                usage, sourcePsi, includeReceiver, includeArguments
-                            )
-                        }
-                        else -> {
-                            // The expression may optionally specify a receiver or arguments, in
-                            // which case we should include the originals in the replacement range.
-                            context.getCallLocation(usage, includeReceiver, includeArguments)
-                        }
-                    }
-                } else if (referenced is PsiField && usage is USimpleNameReferenceExpression) {
-                    // The expression may optionally specify a receiver, in which case we should
-                    // include the original in the replacement range.
-                    if (includeReceiver) {
-                        // If this is a qualified reference and we're including the "receiver" then
-                        // we should replace the fully-qualified expression.
-                        (usage.uastParent as? UQualifiedReferenceExpression)?.let { reference ->
-                            location = context.getLocation(reference)
-                        }
-                    }
+            // Tokenize the replacement expression using a regex, replacing as we go. This
+            // isn't the most efficient approach (e.g. trie) but it's easy to write.
+            val search = Regex("\\w+")
+            var index = 0
+            do {
+                val matchResult = search.find(expression, index) ?: break
+                val replacement = argsToParams[matchResult.value]
+                if (replacement != null) {
+                    expression = expression.replaceRange(matchResult.range, replacement)
+                    index += replacement.length
+                } else {
+                    index += matchResult.value.length
                 }
+            } while (index < expression.length)
 
-                reportLintFix(context, usage, location, expression, imports)
+            location = when (val sourcePsi = usage.sourcePsi) {
+                is PsiNewExpression -> {
+                    // The expression should never specify "new", but if it specifies a
+                    // receiver then we should replace the call to "new". For example, if
+                    // we're replacing `new Clazz("arg")` with `ClazzCompat.create("arg")`.
+                    context.getConstructorLocation(
+                        usage, sourcePsi, includeReceiver, includeArguments
+                    )
+                }
+                else -> {
+                    // The expression may optionally specify a receiver or arguments, in
+                    // which case we should include the originals in the replacement range.
+                    context.getCallLocation(usage, includeReceiver, includeArguments)
+                }
+            }
+        } else if (referenced is PsiField && usage is USimpleNameReferenceExpression) {
+            // The expression may optionally specify a receiver, in which case we should
+            // include the original in the replacement range.
+            if (includeReceiver) {
+                // If this is a qualified reference and we're including the "receiver" then
+                // we should replace the fully-qualified expression.
+                (usage.uastParent as? UQualifiedReferenceExpression)?.let { reference ->
+                    location = context.getLocation(reference)
+                }
             }
         }
+
+        reportLintFix(context, usage, location, expression, imports)
     }
 
     private fun reportLintFix(
@@ -300,10 +314,25 @@ fun JavaContext.getConstructorLocation(
  * list if not specified
  */
 fun UAnnotation.getAttributeValueVarargLiteral(name: String): List<String> =
-    when (val attributeValue = findDeclaredAttributeValue(name)) {
-        is ULiteralExpression -> listOf(attributeValue.value.toString())
-        is UCallExpression -> attributeValue.valueArguments.mapNotNull { argument ->
-            (argument as? ULiteralExpression)?.value?.toString()
-        }
+    findDeclaredAttributeValue(name)?.parseVarargLiteral() ?: emptyList()
+
+fun UExpression.parseVarargLiteral(): List<String> =
+    when (val expr = this.unwrap()) {
+        is ULiteralExpression -> listOfNotNull(expr.parseLiteral())
+        is UCallExpression -> expr.valueArguments.mapNotNull { it.parseLiteral() }
         else -> emptyList()
+    }
+
+fun UExpression.parseLiteral(): String? =
+    when (val expr = this.unwrap()) {
+        is ULiteralExpression -> expr.value.toString()
+        else -> null
+    }
+
+fun UExpression.unwrap(): UExpression =
+    when (this) {
+        is UParenthesizedExpression -> expression.unwrap()
+        is UPolyadicExpression -> operands.singleOrNull()?.unwrap() ?: this
+        is UQualifiedReferenceExpression -> selector.unwrap()
+        else -> this
     }
