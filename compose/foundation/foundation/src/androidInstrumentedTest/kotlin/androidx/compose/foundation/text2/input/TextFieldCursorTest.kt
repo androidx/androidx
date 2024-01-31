@@ -193,7 +193,6 @@ class TextFieldCursorTest : FocusedWindowTest {
             .assertCursor(cursorTopCenterInLtr)
     }
 
-    @FlakyTest(bugId = 305799612)
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun textFieldFocused_cursorRendered_rtlLayout() {
@@ -318,7 +317,6 @@ class TextFieldCursorTest : FocusedWindowTest {
             .assertCursor(cursorTopCenterInRtl + Offset(cursorSizePx.width, 0f))
     }
 
-    @Ignore("b/309704449")
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun textFieldFocused_cursorWithBrush() {
@@ -360,7 +358,6 @@ class TextFieldCursorTest : FocusedWindowTest {
         bitmap.assertPixelColor(Color.Green, x = cursorLeft, y = cursorBottom)
     }
 
-    @Ignore("b/309704449")
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun cursorBlinkingAnimation() {
@@ -543,7 +540,6 @@ class TextFieldCursorTest : FocusedWindowTest {
             .assertCursor(cursorTopCenterInLtr)
     }
 
-    @Ignore("b/285407485")
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun brushChanged_doesntResetTimer() {
@@ -715,7 +711,6 @@ class TextFieldCursorTest : FocusedWindowTest {
             .assertCursor(cursorTopCenterInLtr)
     }
 
-    @Ignore("b/309704449")
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun cursorNotBlinking_whenWindowLostFocus() {
