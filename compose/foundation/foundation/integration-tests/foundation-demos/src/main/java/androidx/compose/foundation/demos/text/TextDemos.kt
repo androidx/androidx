@@ -26,12 +26,13 @@ import androidx.compose.foundation.demos.text2.BasicTextField2ValueCallbackDemo
 import androidx.compose.foundation.demos.text2.DecorationBoxDemos
 import androidx.compose.foundation.demos.text2.KeyboardActionsDemos
 import androidx.compose.foundation.demos.text2.KeyboardOptionsDemos
-import androidx.compose.foundation.demos.text2.ReceiveContentBasicTextField2
+import androidx.compose.foundation.demos.text2.NestedReceiveContentDemo
 import androidx.compose.foundation.demos.text2.ScrollableDemos
 import androidx.compose.foundation.demos.text2.ScrollableDemosRtl
 import androidx.compose.foundation.demos.text2.SwapFieldSameStateDemo
 import androidx.compose.foundation.demos.text2.TextField2CursorNotBlinkingInUnfocusedWindowDemo
 import androidx.compose.foundation.demos.text2.TextFieldLineLimitsDemos
+import androidx.compose.foundation.demos.text2.TextFieldReceiveContentDemo
 import androidx.compose.foundation.samples.BasicTextField2UndoSample
 import androidx.compose.integration.demos.common.ComposableDemo
 import androidx.compose.integration.demos.common.DemoCategory
@@ -164,7 +165,10 @@ val TextDemos = DemoCategory(
                     ComposableDemo("Rtl") { ScrollableDemosRtl() },
                 )),
                 ComposableDemo("Filters") { BasicTextField2FilterDemos() },
-                ComposableDemo("Receive Content") { ReceiveContentBasicTextField2() },
+                DemoCategory("Receive Content", listOf(
+                    ComposableDemo("Basic") { TextFieldReceiveContentDemo() },
+                    ComposableDemo("Nested") { NestedReceiveContentDemo() },
+                )),
                 ComposableDemo("Output transformation") {
                     BasicTextField2OutputTransformationDemos()
                 },

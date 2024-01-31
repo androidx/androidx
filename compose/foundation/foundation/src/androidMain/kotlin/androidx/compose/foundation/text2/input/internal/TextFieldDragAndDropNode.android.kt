@@ -16,18 +16,23 @@
 
 package androidx.compose.foundation.text2.input.internal
 
-import android.content.ClipData
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.content.MediaType
 import androidx.compose.ui.draganddrop.DragAndDropEvent
 import androidx.compose.ui.draganddrop.DragAndDropModifierNode
 import androidx.compose.ui.draganddrop.DragAndDropTarget
 import androidx.compose.ui.draganddrop.toAndroidDragEvent
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.platform.ClipEntry
+import androidx.compose.ui.platform.ClipMetadata
+import androidx.compose.ui.platform.toClipEntry
+import androidx.compose.ui.platform.toClipMetadata
 
+@OptIn(ExperimentalFoundationApi::class)
 internal actual fun textFieldDragAndDropNode(
-    acceptedMimeTypes: Set<String>,
-    onDrop: (text: AnnotatedString) -> Boolean,
+    hintMediaTypes: () -> Set<MediaType>,
+    onDrop: (clipEntry: ClipEntry, clipMetadata: ClipMetadata) -> Boolean,
+    dragAndDropRequestPermission: (DragAndDropEvent) -> Unit,
     onStarted: ((event: DragAndDropEvent) -> Unit)?,
     onEntered: ((event: DragAndDropEvent) -> Unit)?,
     onMoved: ((position: Offset) -> Unit)?,
@@ -37,12 +42,22 @@ internal actual fun textFieldDragAndDropNode(
 ): DragAndDropModifierNode {
     return DragAndDropModifierNode(
         shouldStartDragAndDrop = { dragAndDropEvent ->
+            // If there's a receiveContent modifier wrapping around this TextField, initially all
+            // dragging items should be accepted for drop. This is expected to be met by the caller
+            // of this function.
             val clipDescription = dragAndDropEvent.toAndroidDragEvent().clipDescription
-            acceptedMimeTypes.any { clipDescription.hasMimeType(it) }
+            hintMediaTypes().any {
+                it == MediaType.All || clipDescription.hasMimeType(it.representation)
+            }
         },
         target = object : DragAndDropTarget {
-            override fun onDrop(event: DragAndDropEvent): Boolean =
-                onDrop.invoke(event.toAndroidDragEvent().clipData.convertToAnnotatedString())
+            override fun onDrop(event: DragAndDropEvent): Boolean {
+                dragAndDropRequestPermission(event)
+                return onDrop.invoke(
+                    event.toAndroidDragEvent().clipData.toClipEntry(),
+                    event.toAndroidDragEvent().clipDescription.toClipMetadata()
+                )
+            }
 
             override fun onStarted(event: DragAndDropEvent) =
                 onStarted?.invoke(event) ?: Unit
@@ -64,22 +79,4 @@ internal actual fun textFieldDragAndDropNode(
                 onEnded?.invoke(event) ?: Unit
         }
     )
-}
-
-private fun ClipData.convertToAnnotatedString(): AnnotatedString {
-    // TODO(halilibo): Implement stylized text to AnnotatedString conversion.
-    return buildAnnotatedString {
-        var isFirst = true
-        for (i in 0 until itemCount) {
-            if (isFirst) {
-                getItemAt(i).text?.let { append(it) }
-                isFirst = false
-            } else {
-                getItemAt(i).text?.let {
-                    append("\n")
-                    append(it)
-                }
-            }
-        }
-    }
 }

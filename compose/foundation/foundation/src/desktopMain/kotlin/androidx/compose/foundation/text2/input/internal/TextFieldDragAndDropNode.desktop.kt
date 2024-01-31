@@ -16,17 +16,22 @@
 
 package androidx.compose.foundation.text2.input.internal
 
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.content.MediaType
 import androidx.compose.ui.draganddrop.DragAndDropEvent
 import androidx.compose.ui.draganddrop.DragAndDropModifierNode
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.platform.ClipEntry
+import androidx.compose.ui.platform.ClipMetadata
 
 /**
  * System DragAndDrop is not yet supported on Desktop flavor of BTF2.
  */
+@OptIn(ExperimentalFoundationApi::class)
 internal actual fun textFieldDragAndDropNode(
-    acceptedMimeTypes: Set<String>,
-    onDrop: (text: AnnotatedString) -> Boolean,
+    hintMediaTypes: () -> Set<MediaType>,
+    onDrop: (clipEntry: ClipEntry, clipMetadata: ClipMetadata) -> Boolean,
+    dragAndDropRequestPermission: (DragAndDropEvent) -> Unit,
     onStarted: ((event: DragAndDropEvent) -> Unit)?,
     onEntered: ((event: DragAndDropEvent) -> Unit)?,
     onMoved: ((position: Offset) -> Unit)?,

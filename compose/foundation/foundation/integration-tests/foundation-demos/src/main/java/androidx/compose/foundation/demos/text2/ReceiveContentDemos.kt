@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.demos.text2
 
+import android.content.ClipDescription
 import android.content.Context
 import android.graphics.ImageDecoder
 import android.net.Uri
@@ -32,43 +33,164 @@ import androidx.compose.foundation.content.consumeEach
 import androidx.compose.foundation.content.hasMediaType
 import androidx.compose.foundation.content.receiveContent
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text2.BasicTextField2
 import androidx.compose.foundation.text2.input.TextFieldState
+import androidx.compose.foundation.text2.input.rememberTextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Card
 import androidx.compose.material.Divider
+import androidx.compose.material.Icon
 import androidx.compose.material.LocalTextStyle
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun ReceiveContentBasicTextField2() {
+fun TextFieldReceiveContentDemo() {
+    var dragging by remember { mutableStateOf(false) }
+    var hovering by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    var images: List<ImageBitmap> by remember { mutableStateOf(emptyList()) }
+
+    val receiveContentListener = remember {
+        object : ReceiveContentListener {
+            override fun onDragStart() {
+                dragging = true
+            }
+
+            override fun onDragEnd() {
+                dragging = false
+                hovering = false
+            }
+
+            override fun onDragEnter() {
+                hovering = true
+            }
+
+            override fun onDragExit() {
+                hovering = false
+            }
+
+            override fun onReceive(
+                transferableContent: TransferableContent
+            ): TransferableContent? {
+                val newImageUris = mutableListOf<Uri>()
+                return transferableContent
+                    .consumeEach { item ->
+                        // this happens in the ui thread, try not to load images here.
+                        val isImageBitmap = item.uri?.isImageBitmap(context) ?: false
+                        if (isImageBitmap) {
+                            newImageUris += item.uri
+                        }
+                        isImageBitmap
+                    }
+                    .also {
+                        // delegate image loading to IO dispatcher.
+                        scope.launch(Dispatchers.IO) {
+                            images = newImageUris.mapNotNull { it.readImageBitmap(context) }
+                        }
+                    }
+            }
+        }
+    }
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .receiveContent(
+                hintMediaTypes = setOf(MediaType.Image),
+                receiveContentListener = receiveContentListener
+            )
+            .padding(16.dp)
+            .background(
+                color = when {
+                    hovering -> MaterialTheme.colors.primary
+                    dragging -> MaterialTheme.colors.primary.copy(alpha = 0.7f)
+                    else -> MaterialTheme.colors.background
+                },
+                shape = RoundedCornerShape(8.dp)
+            ),
+        verticalArrangement = Arrangement.Bottom
+    ) {
+        Column(Modifier.weight(1f), verticalArrangement = Arrangement.Center) {
+            Text(
+                if (dragging) "Drop it anywhere" else "Chat messages should appear here...",
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center
+            )
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            images.forEach { imageBitmap ->
+                Box(Modifier.size(80.dp)) {
+                    Image(
+                        bitmap = imageBitmap,
+                        contentDescription = "",
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(4.dp)
+                            .clip(RoundedCornerShape(4.dp))
+                    )
+                    Icon(
+                        Icons.Default.Clear,
+                        "remove image",
+                        modifier = Modifier
+                            .size(16.dp)
+                            .align(Alignment.TopEnd)
+                            .background(MaterialTheme.colors.background, CircleShape)
+                            .clip(CircleShape)
+                            .clickable {
+                                images = images.filterNot { it == imageBitmap }
+                            }
+                    )
+                }
+            }
+        }
+        BasicTextField2(
+            state = rememberTextFieldState(),
+            modifier = demoTextFieldModifiers,
+            textStyle = LocalTextStyle.current
+        )
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun NestedReceiveContentDemo() {
     val state = remember { TextFieldState() }
     val context = LocalContext.current
 
@@ -234,11 +356,22 @@ private fun KeyValueEntry(
 
 @Suppress("ClassVerificationFailure", "DEPRECATION")
 private fun Uri.readImageBitmap(context: Context): ImageBitmap? {
-    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-        ImageDecoder.decodeBitmap(ImageDecoder.createSource(context.contentResolver, this))
-    } else {
-        MediaStore.Images.Media.getBitmap(context.contentResolver, this)
-    }.asImageBitmap()
+    return try {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            ImageDecoder.decodeBitmap(ImageDecoder.createSource(context.contentResolver, this))
+        } else {
+            MediaStore.Images.Media.getBitmap(context.contentResolver, this)
+        }.asImageBitmap()
+    } catch (e: Exception) {
+        null
+    }
+}
+
+private fun Uri.isImageBitmap(context: Context): Boolean {
+    val type = context.contentResolver.getType(this)
+    if (ClipDescription.compareMimeTypes(type, "image/*")) return true
+
+    return !context.contentResolver.getStreamTypes(this, "image/*").isNullOrEmpty()
 }
 
 @OptIn(ExperimentalFoundationApi::class)

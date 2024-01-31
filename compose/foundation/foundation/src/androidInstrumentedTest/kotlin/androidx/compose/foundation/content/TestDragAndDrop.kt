@@ -109,6 +109,7 @@ private class DragAndDropScopeImpl(
     }
 
     override fun cancelDrag() {
+        lastDraggingOffsetAndItem = null
         view.dispatchDragEvent(
             DragAndDropTestUtils.makeTextDragEvent(DragEvent.ACTION_DRAG_ENDED)
         )
