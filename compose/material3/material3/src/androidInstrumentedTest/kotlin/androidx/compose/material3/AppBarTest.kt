@@ -31,6 +31,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.TopAppBarDefaults.mediumTopAppBarColors
 import androidx.compose.material3.tokens.BottomAppBarTokens
 import androidx.compose.material3.tokens.TopAppBarLargeTokens
 import androidx.compose.material3.tokens.TopAppBarMediumTokens
@@ -672,6 +673,19 @@ class AppBarTest {
             titleContentColor = Color.Green,
             content = content
         )
+    }
+
+    @Test
+    fun mediumTopAppBarColors_noNameParams() {
+        rule.setContent {
+            val colors =
+                mediumTopAppBarColors(Color.Blue, Color.Green, Color.Red, Color.Yellow, Color.Cyan)
+            assert(colors.containerColor == Color.Blue)
+            assert(colors.scrolledContainerColor == Color.Green)
+            assert(colors.navigationIconContentColor == Color.Red)
+            assert(colors.titleContentColor == Color.Yellow)
+            assert(colors.actionIconContentColor == Color.Cyan)
+        }
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)

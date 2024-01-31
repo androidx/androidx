@@ -117,6 +117,7 @@ fun TooltipBox(
     enableUserInput: Boolean = true,
     content: @Composable () -> Unit,
 ) {
+    @Suppress("DEPRECATION")
     val transition = updateTransition(state.transition, label = "tooltip transition")
     var anchorBounds: LayoutCoordinates? by remember { mutableStateOf(null) }
     val scope = remember {

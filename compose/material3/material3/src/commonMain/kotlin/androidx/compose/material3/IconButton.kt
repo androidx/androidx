@@ -549,7 +549,19 @@ object IconButtonDefaults {
      * Creates a [IconButtonColors] that represents the default colors used in a [IconButton].
      */
     @Composable
-    fun iconButtonColors() = MaterialTheme.colorScheme.defaultIconButtonColors
+    fun iconButtonColors(): IconButtonColors {
+        val colors = MaterialTheme.colorScheme.defaultIconButtonColors
+        val contentColor = LocalContentColor.current
+        if (colors.contentColor == contentColor) {
+            return colors
+        } else {
+            return colors.copy(
+                contentColor = contentColor,
+                disabledContentColor =
+                contentColor.copy(alpha = IconButtonTokens.DisabledIconOpacity)
+            )
+        }
+    }
 
     /**
      * Creates a [IconButtonColors] that represents the default colors used in a [IconButton].
@@ -562,9 +574,10 @@ object IconButtonDefaults {
     @Composable
     fun iconButtonColors(
         containerColor: Color = Color.Unspecified,
-        contentColor: Color = Color.Unspecified,
+        contentColor: Color = LocalContentColor.current,
         disabledContainerColor: Color = Color.Unspecified,
-        disabledContentColor: Color = Color.Unspecified
+        disabledContentColor: Color =
+            contentColor.copy(alpha = IconButtonTokens.DisabledIconOpacity)
     ): IconButtonColors = MaterialTheme.colorScheme.defaultIconButtonColors.copy(
         containerColor = containerColor,
         contentColor = contentColor,
@@ -575,14 +588,17 @@ object IconButtonDefaults {
     internal val ColorScheme.defaultIconButtonColors: IconButtonColors
         @Composable
         get() {
-            return defaultIconButtonColorsCached ?: IconButtonColors(
-                containerColor = Color.Transparent,
-            contentColor = LocalContentColor.current,
-            disabledContainerColor = Color.Transparent,
-            disabledContentColor =
-            LocalContentColor.current.copy(alpha = IconButtonTokens.DisabledIconOpacity)
-            ).also {
-                defaultIconButtonColorsCached = it
+            return defaultIconButtonColorsCached ?: run {
+                val localContentColor = LocalContentColor.current
+                IconButtonColors(
+                    containerColor = Color.Transparent,
+                    contentColor = localContentColor,
+                    disabledContainerColor = Color.Transparent,
+                    disabledContentColor =
+                    localContentColor.copy(alpha = IconButtonTokens.DisabledIconOpacity)
+                ).also {
+                    defaultIconButtonColorsCached = it
+                }
             }
         }
 
@@ -852,13 +868,13 @@ class IconButtonColors constructor(
         disabledContainerColor: Color = this.disabledContainerColor,
         disabledContentColor: Color = this.disabledContentColor,
     ) = IconButtonColors(
-        contentColor.takeOrElse { this.contentColor },
         containerColor.takeOrElse { this.containerColor },
+        contentColor.takeOrElse { this.contentColor },
         disabledContainerColor.takeOrElse { this.disabledContainerColor },
         disabledContentColor.takeOrElse { this.disabledContentColor },
     )
 
-        /**
+    /**
      * Represents the container color for this icon button, depending on [enabled].
      *
      * @param enabled whether the icon button is enabled

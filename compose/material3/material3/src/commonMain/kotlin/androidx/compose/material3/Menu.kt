@@ -231,6 +231,7 @@ internal fun DropdownMenuContent(
     content: @Composable ColumnScope.() -> Unit
 ) {
     // Menu open/close animation.
+    @Suppress("DEPRECATION")
     val transition = updateTransition(expandedState, "DropDownMenu")
 
     val scale by transition.animateFloat(

@@ -54,6 +54,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastForEachIndexed
 
 @Preview
 @Sampled
@@ -237,6 +238,10 @@ fun ChipGroupSingleLineSample() {
 @Sampled
 @Composable
 fun ChipGroupReflowSample() {
+    val colorNames = listOf(
+        "Blue", "Yellow", "Red", "Orange", "Black", "Green",
+        "White", "Magenta", "Gray", "Transparent"
+    )
     Column {
         FlowRow(
             Modifier
@@ -244,13 +249,13 @@ fun ChipGroupReflowSample() {
                 .wrapContentHeight(align = Alignment.Top),
             horizontalArrangement = Arrangement.Start,
         ) {
-            repeat(10) { index ->
+            colorNames.fastForEachIndexed { index, element ->
                 AssistChip(
                     modifier = Modifier
                         .padding(horizontal = 4.dp)
                         .align(alignment = Alignment.CenterVertically),
                     onClick = { /* do something*/ },
-                    label = { Text("Chip $index") }
+                    label = { Text("$element $index") }
                 )
             }
         }
