@@ -126,4 +126,13 @@
 
     <!-- Content description for edit fab button -->
     <string name="action_edit">Edit file</string>
+
+    <!-- Text for an error indicator that is displayed when the file is password protected and the
+        password dialog has been dismissed without entering a correct password. [CHAR LIMIT=100] -->
+    <string name="password_not_entered">Enter password to unlock</string>
+
+    <!-- Text for retrying an action the user tried to attempt. For example, we tried to
+       load a file, but there was a problem (e.g. device was offline). So we show the user a button with
+       this "retry" text to try and fetch the file again. [CHAR LIMIT=20] -->
+    <string name="retry_button_text">Retry</string>
 </resources>

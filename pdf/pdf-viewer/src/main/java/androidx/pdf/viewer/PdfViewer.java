@@ -48,6 +48,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.pdf.R;
 import androidx.pdf.data.DisplayData;
+import androidx.pdf.data.ErrorType;
 import androidx.pdf.data.FutureValue;
 import androidx.pdf.data.FutureValues.SettableFutureValue;
 import androidx.pdf.data.Openable;
@@ -92,6 +93,7 @@ import androidx.pdf.widget.ZoomView.RotateMode;
 import androidx.pdf.widget.ZoomView.ZoomScroll;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 
 import java.util.ArrayList;
@@ -223,7 +225,7 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
     // Base padding for ZoomView in px as set in saveZoomViewBasePadding().
     private Rect mZoomViewBasePadding = new Rect();
     private boolean mZoomViewBasePaddingSaved;
-
+    private Snackbar mSnackbar;
     private boolean mWaitingOnSelectionToCreateInlineComment;
     private boolean mEditingAuthorized;
 
@@ -520,6 +522,9 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        if (mSnackbar != null) {
+            mSnackbar.dismiss();
+        }
         if (mFastscrollerPositionObserverKey != null && mFastScrollView != null) {
             mFastScrollView.getScrollerPositionY().removeObserver(mFastscrollerPositionObserverKey);
         }
@@ -647,7 +652,7 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
         Preconditions.checkNotNull(contents);
 
         setQuitOnError(true);
-        setExitOnPasswordCancel(true);
+        setExitOnPasswordCancel(false);
         feed(contents);
         postEnter();
     }
@@ -1532,7 +1537,30 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
 
     /** Create callback to retry password input when user cancels password prompt. */
     public void setPasswordCancelError() {
+        Runnable retryCallback = () -> mPdfLoaderCallbacks.requestPassword(false);
+        displayViewerError(ErrorType.FILE_PASSWORD_PROTECTED, this, retryCallback);
+    }
 
+    private void displayViewerError(ErrorType errorType, Viewer viewer, Runnable actionCallback) {
+        switch (errorType) {
+            case FILE_PASSWORD_PROTECTED:
+                showSnackBar(R.string.password_not_entered, R.string.retry_button_text,
+                        actionCallback);
+                return;
+            default:
+                break;
+        }
+
+    }
+
+    private void showSnackBar(int text, int actionText, Runnable actionCallback) {
+        mSnackbar = Snackbar.make(mPdfViewer, text, Snackbar.LENGTH_INDEFINITE);
+        View.OnClickListener mResolveClickListener =
+                v -> {
+                    actionCallback.run();
+                };
+        mSnackbar.setAction(actionText, mResolveClickListener);
+        mSnackbar.show();
     }
 
     private void showFastScrollView() {
