@@ -48,9 +48,6 @@ import androidx.compose.foundation.text2.input.internal.coerceIn
 import androidx.compose.foundation.text2.input.internal.findClosestRect
 import androidx.compose.foundation.text2.input.internal.fromDecorationToTextLayout
 import androidx.compose.foundation.text2.input.internal.getIndexTransformationType
-import androidx.compose.foundation.text2.input.internal.selection.TextToolbarState.Cursor
-import androidx.compose.foundation.text2.input.internal.selection.TextToolbarState.None
-import androidx.compose.foundation.text2.input.internal.selection.TextToolbarState.Selection
 import androidx.compose.foundation.text2.input.internal.undo.TextFieldEditUndoBehavior
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -459,7 +456,11 @@ internal class TextFieldSelectionState(
                     // do not show any TextToolbar.
                     updateTextToolbarState(TextToolbarState.None)
 
-                    placeCursorAtNearestOffset(offset)
+                    val coercedOffset = textLayoutState.coercedInVisibleBoundsOfInputText(offset)
+
+                    placeCursorAtNearestOffset(
+                        textLayoutState.fromDecorationToTextLayout(coercedOffset)
+                    )
                 }
             },
             onDoubleTap = { offset ->
@@ -489,19 +490,19 @@ internal class TextFieldSelectionState(
     }
 
     /**
-     * Calculates the valid cursor position nearest to [decorationOffset] and sets the cursor to it.
+     * Calculates the valid cursor position nearest to [offset] and sets the cursor to it.
      * Takes into account text transformations ([TransformedTextFieldState]) to avoid putting the
      * cursor in the middle of replacements.
      *
      * If the cursor would end up in the middle of an insertion or replacement, it is instead pushed
-     * to the nearest edge of the wedge to the [decorationOffset].
+     * to the nearest edge of the wedge to the [offset].
      *
+     * @param offset Where the cursor is in text layout coordinates. If the caller has the offset
+     * in decorator coordinates, [TextLayoutState.fromDecorationToTextLayout] can be used to convert
+     * between the two spaces.
      * @return true if the cursor moved, false if the cursor position did not need to change.
      */
-    private fun placeCursorAtNearestOffset(decorationOffset: Offset): Boolean {
-        // All layoutResult methods expect offsets relative to the layout itself, not the decoration
-        // box.
-        val offset = textLayoutState.fromDecorationToTextLayout(decorationOffset)
+    private fun placeCursorAtNearestOffset(offset: Offset): Boolean {
         val layoutResult = textLayoutState.layoutResult ?: return false
 
         // First step: calculate the proposed cursor index.

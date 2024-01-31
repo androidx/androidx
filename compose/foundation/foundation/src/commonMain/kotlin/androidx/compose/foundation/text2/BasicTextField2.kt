@@ -473,7 +473,6 @@ fun BasicTextField2(
                     )
                     .textFieldMinSize(textStyle)
                     .clipToBounds()
-                    .bringIntoViewRequester(textLayoutState.bringIntoViewRequester)
                     .then(
                         TextFieldCoreModifier(
                             isFocused = isFocused && isWindowFocused,
@@ -489,17 +488,22 @@ fun BasicTextField2(
                     )
             ) {
                 Box(
-                    modifier = TextFieldTextLayoutModifier(
-                        textLayoutState = textLayoutState,
-                        textFieldState = transformedState,
-                        textStyle = textStyle,
-                        singleLine = singleLine,
-                        onTextLayout = onTextLayout
-                    )
+                    modifier = Modifier
+                        .bringIntoViewRequester(textLayoutState.bringIntoViewRequester)
+                        .then(
+                            TextFieldTextLayoutModifier(
+                                textLayoutState = textLayoutState,
+                                textFieldState = transformedState,
+                                textStyle = textStyle,
+                                singleLine = singleLine,
+                                onTextLayout = onTextLayout
+                            )
+                        )
                 )
 
                 if (enabled && isFocused &&
-                    isWindowFocused && textFieldSelectionState.isInTouchMode) {
+                    isWindowFocused && textFieldSelectionState.isInTouchMode
+                ) {
                     TextFieldSelectionHandles(
                         selectionState = textFieldSelectionState
                     )

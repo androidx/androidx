@@ -29,7 +29,6 @@ import androidx.compose.foundation.text2.BasicTextField2
 import androidx.compose.foundation.text2.input.InputTransformation
 import androidx.compose.foundation.text2.input.internal.selection.TextFieldSelectionState
 import androidx.compose.foundation.text2.input.internal.selection.TextToolbarState
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusEventModifierNode
 import androidx.compose.ui.focus.FocusManager
@@ -87,8 +86,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.IntSize
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 
 private const val MIMETYPE_TEXT = "text/*"
@@ -583,10 +580,6 @@ internal class TextFieldDecoratorModifierNode(
                     textFieldSelectionState.observeChanges()
                 }
 
-                launch {
-                    keepSelectionInView()
-                }
-
                 platformSpecificTextInputSession(
                     state = textFieldState,
                     layoutState = textLayoutState,
@@ -601,22 +594,6 @@ internal class TextFieldDecoratorModifierNode(
     private fun disposeInputSession() {
         inputSessionJob?.cancel()
         inputSessionJob = null
-    }
-
-    /**
-     * Calls bringCursorIntoView when the cursor position changes. This handles the case where the user
-     * types while the cursor is scrolled out of view, as well as any programmatic changes to the
-     * cursor while focused.
-     *
-     * This function suspends indefinitely, should only be called when the field is focused, and
-     * cancelled when the field loses focus.
-     */
-    private suspend fun keepSelectionInView() {
-        snapshotFlow { textFieldState.visualText.selectionInChars }
-            .filter { it.collapsed }
-            .collectLatest {
-                textLayoutState.bringCursorIntoView(cursorIndex = it.start)
-            }
     }
 
     private fun startOrDisposeInputSessionOnWindowFocusChange() {

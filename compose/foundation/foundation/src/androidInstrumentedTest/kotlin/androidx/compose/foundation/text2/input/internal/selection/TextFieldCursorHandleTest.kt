@@ -610,7 +610,7 @@ class TextFieldCursorHandleTest : FocusedWindowTest {
     // region ltr drag tests
     @Test
     fun moveCursorHandleToRight_ltr() {
-        state = TextFieldState("abc")
+        state = TextFieldState("abc", initialSelectionInChars = TextRange.Zero)
         rule.setTextFieldTestContent {
             BasicTextField2(
                 state,
@@ -634,7 +634,7 @@ class TextFieldCursorHandleTest : FocusedWindowTest {
 
     @Test
     fun moveCursorHandleToLeft_ltr() {
-        state = TextFieldState("abc")
+        state = TextFieldState("abc", initialSelectionInChars = TextRange.Zero)
         rule.setTextFieldTestContent {
             BasicTextField2(
                 state,
@@ -659,7 +659,7 @@ class TextFieldCursorHandleTest : FocusedWindowTest {
 
     @Test
     fun moveCursorHandleToRight_ltr_outOfBounds() {
-        state = TextFieldState("abc")
+        state = TextFieldState("abc", initialSelectionInChars = TextRange.Zero)
         rule.setTextFieldTestContent {
             BasicTextField2(
                 state,
@@ -683,7 +683,7 @@ class TextFieldCursorHandleTest : FocusedWindowTest {
 
     @Test
     fun moveCursorHandleToLeft_ltr_outOfBounds() {
-        state = TextFieldState("abc")
+        state = TextFieldState("abc", initialSelectionInChars = TextRange(3))
         rule.setTextFieldTestContent {
             BasicTextField2(
                 state,
@@ -707,7 +707,10 @@ class TextFieldCursorHandleTest : FocusedWindowTest {
 
     @Test
     fun moveCursorHandleToRight_ltr_outOfBounds_scrollable_continuesDrag() {
-        state = TextFieldState("abcd abcd abcd abcd abcd")
+        state = TextFieldState(
+            initialText = "abcd abcd abcd abcd abcd",
+            initialSelectionInChars = TextRange.Zero
+        )
         rule.setTextFieldTestContent {
             BasicTextField2(
                 state,
@@ -728,6 +731,39 @@ class TextFieldCursorHandleTest : FocusedWindowTest {
         rule.waitForIdle()
 
         assertThat(state.text.selectionInChars).isEqualTo(TextRange(state.text.length))
+    }
+
+    @Test
+    fun moveCursorHandleToRight_ltr_outOfBounds_scrollable() {
+        state = TextFieldState(
+            initialText = "abcd abcd abcd abcd abcd",
+            initialSelectionInChars = TextRange.Zero
+        )
+        rule.setTextFieldTestContent {
+            BasicTextField2(
+                state,
+                textStyle = TextStyle(fontSize = fontSize, fontFamily = TEST_FONT_FAMILY),
+                lineLimits = TextFieldLineLimits.SingleLine,
+                modifier = Modifier
+                    .testTag(TAG)
+                    .width(fontSizeDp * 10)
+            )
+        }
+
+        focusAndWait()
+
+        rule.onNodeWithTag(TAG).performTouchInput { click(Offset(1f, 1f)) }
+        rule.onNode(isSelectionHandle(Handle.Cursor)).assertIsDisplayed()
+
+        swipeToRight(fontSizePx * 12, durationMillis = 1)
+        rule.runOnIdle {
+            assertThat(state.text.selectionInChars).isEqualTo(TextRange(12))
+        }
+
+        swipeToRight(fontSizePx * 2, durationMillis = 1)
+        rule.runOnIdle {
+            assertThat(state.text.selectionInChars).isEqualTo(TextRange(14))
+        }
     }
 
     // endregion
@@ -869,19 +905,64 @@ class TextFieldCursorHandleTest : FocusedWindowTest {
         assertThat(state.text.selectionInChars).isEqualTo(TextRange(state.text.length))
     }
 
+    @Test
+    fun moveCursorHandleToLeft_rtl_outOfBounds_scrollable() {
+        val scrollState = ScrollState(0)
+        state = TextFieldState(
+            initialText = "\u05D0\u05D1\u05D2\u05D3 " +
+                "\u05D0\u05D1\u05D2\u05D3 " +
+                "\u05D0\u05D1\u05D2\u05D3 " +
+                "\u05D0\u05D1\u05D2\u05D3",
+            initialSelectionInChars = TextRange.Zero
+        )
+        rule.setTextFieldTestContent {
+            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+                BasicTextField2(
+                    state,
+                    textStyle = TextStyle(fontSize = fontSize, fontFamily = TEST_FONT_FAMILY),
+                    lineLimits = TextFieldLineLimits.SingleLine,
+                    scrollState = scrollState,
+                    modifier = Modifier
+                        .testTag(TAG)
+                        .width(fontSizeDp * 10f)
+                )
+            }
+        }
+
+        focusAndWait()
+
+        rule.onNodeWithTag(TAG).performTouchInput { click(topRight) }
+        rule.onNode(isSelectionHandle(Handle.Cursor)).assertIsDisplayed()
+
+        swipeToLeft(fontSizePx * 12, durationMillis = 1)
+        rule.runOnIdle {
+            assertThat(state.text.selectionInChars).isEqualTo(TextRange(12))
+        }
+
+        swipeToLeft(fontSizePx * 2, durationMillis = 1)
+        rule.runOnIdle {
+            assertThat(state.text.selectionInChars).isEqualTo(TextRange(14))
+        }
+    }
+
     // endregion
 
     private fun focusAndWait() {
         rule.onNode(hasSetTextAction()).requestFocus()
     }
 
-    private fun swipeToLeft(swipeDistance: Float) =
-        performHandleDrag(Handle.Cursor, true, swipeDistance)
+    private fun swipeToLeft(swipeDistance: Float, durationMillis: Long = 1000) =
+        performHandleDrag(Handle.Cursor, true, swipeDistance, durationMillis)
 
-    private fun swipeToRight(swipeDistance: Float) =
-        performHandleDrag(Handle.Cursor, false, swipeDistance)
+    private fun swipeToRight(swipeDistance: Float, durationMillis: Long = 1000) =
+        performHandleDrag(Handle.Cursor, false, swipeDistance, durationMillis)
 
-    private fun performHandleDrag(handle: Handle, toLeft: Boolean, swipeDistance: Float = 1f) {
+    private fun performHandleDrag(
+        handle: Handle,
+        toLeft: Boolean,
+        swipeDistance: Float = 1f,
+        durationMillis: Long = 1000
+    ) {
         val handleNode = rule.onNode(isSelectionHandle(handle))
 
         handleNode.performTouchInput {
@@ -889,13 +970,13 @@ class TextFieldCursorHandleTest : FocusedWindowTest {
                 swipeLeft(
                     startX = centerX,
                     endX = centerX - viewConfiguration.touchSlop - swipeDistance,
-                    durationMillis = 1000
+                    durationMillis = durationMillis
                 )
             } else {
                 swipeRight(
                     startX = centerX,
                     endX = centerX + viewConfiguration.touchSlop + swipeDistance,
-                    durationMillis = 1000
+                    durationMillis = durationMillis
                 )
             }
         }
