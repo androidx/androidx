@@ -32,7 +32,6 @@ import platform.UIKit.*
 
 internal class RenderingUIView(
     private val renderDelegate: Delegate,
-    private val transparency: Boolean,
 ) : UIView(
     frame = CGRectMake(
         x = 0.0,
@@ -68,13 +67,17 @@ internal class RenderingUIView(
 
             override fun retrieveInteropTransaction(): UIKitInteropTransaction =
                 renderDelegate.retrieveInteropTransaction()
-        },
-        transparency = transparency,
+        }
     )
+
+    override fun setOpaque(opaque: Boolean) {
+        super.setOpaque(opaque)
+
+        redrawer.opaque = opaque
+    }
 
     init {
         userInteractionEnabled = false
-        opaque = !transparency
 
         metalLayer.also {
             // Workaround for KN compiler bug
@@ -87,7 +90,6 @@ internal class RenderingUIView(
                 it.backgroundColor =
                     CGColorCreate(CGColorSpaceCreateDeviceRGB(), pinned.addressOf(0))
             }
-            it.setOpaque(!transparency)//todo check if remove
             it.framebufferOnly = false
         }
     }

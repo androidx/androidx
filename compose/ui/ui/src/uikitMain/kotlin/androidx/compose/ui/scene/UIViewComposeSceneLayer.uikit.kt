@@ -97,10 +97,9 @@ internal class UIViewComposeSceneLayer(
     }
 
     private fun createSkikoUIView(renderDelegate: RenderingUIView.Delegate): RenderingUIView =
-        RenderingUIView(
-            renderDelegate = renderDelegate,
-            transparency = true,
-        )
+        RenderingUIView(renderDelegate = renderDelegate).apply {
+            opaque = false
+        }
 
     private fun createComposeScene(
         invalidate: () -> Unit,
