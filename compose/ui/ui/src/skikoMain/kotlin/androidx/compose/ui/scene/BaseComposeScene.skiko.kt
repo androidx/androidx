@@ -39,7 +39,7 @@ import androidx.compose.ui.node.SnapshotInvalidationTracker
 import androidx.compose.ui.platform.GlobalSnapshotManager
 import androidx.compose.ui.platform.PlatformContext
 import kotlin.coroutines.CoroutineContext
-import kotlin.jvm.Volatile
+import kotlin.concurrent.Volatile
 
 /**
  * BaseComposeScene is an internal abstract class that implements the ComposeScene interface.
