@@ -9,8 +9,11 @@ cd "$(dirname $0)"
 
 export ANDROIDX_PROJECTS=INFRAROGUE   # TODO: Switch from `INFRAROGUE` to `KMP`
 
-# disable GCP cache, these machines don't have credentials.
-export USE_ANDROIDX_REMOTE_BUILD_CACHE=false
+# This target is for testing that clean builds work correctly
+# We disable the remote cache for this target unless it was already enabled
+if [ "$USE_ANDROIDX_REMOTE_BUILD_CACHE" == "" ]; then
+  export USE_ANDROIDX_REMOTE_BUILD_CACHE=false
+fi
 
 sharedArgs="--no-configuration-cache -Pandroidx.constraints=true $*"
 # Setup simulators
