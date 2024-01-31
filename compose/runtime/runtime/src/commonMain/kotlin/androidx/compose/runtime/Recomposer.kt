@@ -19,6 +19,7 @@ package androidx.compose.runtime
 import androidx.collection.mutableScatterSetOf
 import androidx.compose.runtime.collection.IdentityArraySet
 import androidx.compose.runtime.collection.fastForEach
+import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.runtime.external.kotlinx.collections.immutable.persistentSetOf
 import androidx.compose.runtime.snapshots.MutableSnapshot
 import androidx.compose.runtime.snapshots.ReaderKind
@@ -211,7 +212,7 @@ class Recomposer(
         newCache
     }
     private var snapshotInvalidations = IdentityArraySet<Any>()
-    private val compositionInvalidations = mutableListOf<ControlledComposition>()
+    private val compositionInvalidations = mutableVectorOf<ControlledComposition>()
     private val compositionsAwaitingApply = mutableListOf<ControlledComposition>()
     private val compositionValuesAwaitingInsert = mutableListOf<MovableContentStateReference>()
     private val compositionValuesRemoved =
@@ -482,7 +483,7 @@ class Recomposer(
             }
             snapshotInvalidations = IdentityArraySet()
         }
-        compositionInvalidations.fastForEach(onEachInvalidComposition)
+        compositionInvalidations.forEach(onEachInvalidComposition)
         compositionInvalidations.clear()
         if (deriveStateLocked() != null) {
             error("called outside of runRecomposeAndApplyChanges")
@@ -588,7 +589,7 @@ class Recomposer(
                     // composers to work on
                     recordComposerModifications()
                     synchronized(stateLock) {
-                        compositionInvalidations.fastForEach {
+                        compositionInvalidations.forEach {
                             toRecompose += it
                         }
                         compositionInvalidations.clear()
@@ -617,7 +618,7 @@ class Recomposer(
                         // of a value change by a composition. This can happen, for example, if
                         // a CompositionLocal changes in a parent and was read in a child
                         // composition that was otherwise valid.
-                        if (modifiedValues.isNotEmpty()) {
+                        if (modifiedValues.isNotEmpty() || compositionInvalidations.isNotEmpty()) {
                             synchronized(stateLock) {
                                 knownCompositions.fastForEach { value ->
                                     if (
@@ -625,6 +626,18 @@ class Recomposer(
                                         value.observesAnyOf(modifiedValues)
                                     ) {
                                         toRecompose += value
+                                    }
+                                }
+
+                                // Composable lambda is a special kind of value that is not observed
+                                // by the snapshot system, but invalidates composition scope
+                                // directly instead.
+                                compositionInvalidations.removeIf { value ->
+                                    if (value !in alreadyComposed && value !in toRecompose) {
+                                        toRecompose += value
+                                        true
+                                    } else {
+                                        false
                                     }
                                 }
                             }
@@ -922,7 +935,7 @@ class Recomposer(
                     synchronized(stateLock) {
                         compositionsAwaitingApply.fastForEach { toApply += it }
                         compositionsAwaitingApply.clear()
-                        compositionInvalidations.fastForEach { toRecompose += it }
+                        compositionInvalidations.forEach { toRecompose += it }
                         compositionInvalidations.clear()
                         frameSignal.takeFrameRequestLocked()
                     }
