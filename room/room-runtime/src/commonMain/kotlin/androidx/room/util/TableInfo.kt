@@ -232,8 +232,16 @@ internal fun TableInfo.hashCodeCommon(): Int {
 }
 
 internal fun TableInfo.toStringCommon(): String {
-    return ("TableInfo{name='$name', columns=$columns, foreignKeys=$foreignKeys, " +
-        "indices=$indices}")
+    return (
+        """
+            |TableInfo {
+            |    name = '$name',
+            |    columns = {${formatString(columns.values.sortedBy { it.name })}
+            |    foreignKeys = {${formatString(foreignKeys)}
+            |    indices = {${formatString(indices?.sortedBy { it.name } ?: emptyList<String>())}
+            |}
+        """.trimMargin()
+    )
 }
 
 internal fun TableInfo.Column.equalsCommon(other: Any?): Boolean {
@@ -331,9 +339,18 @@ internal fun TableInfo.Column.hashCodeCommon(): Int {
 }
 
 internal fun TableInfo.Column.toStringCommon(): String {
-    return "Column{name='$name', type='$type', affinity='$affinity', " +
-        "notNull=$notNull, primaryKeyPosition=$primaryKeyPosition, " +
-        "defaultValue='${defaultValue ?: "undefined"}'}"
+    return (
+        """
+            |Column {
+            |   name = '$name',
+            |   type = '$type',
+            |   affinity = '$affinity',
+            |   notNull = '$notNull',
+            |   primaryKeyPosition = '$primaryKeyPosition',
+            |   defaultValue = '${defaultValue ?: "undefined"}'
+            |}
+        """.trimMargin().prependIndent()
+    )
 }
 
 internal fun TableInfo.ForeignKey.equalsCommon(other: Any?): Boolean {
@@ -356,9 +373,17 @@ internal fun TableInfo.ForeignKey.hashCodeCommon(): Int {
 }
 
 internal fun TableInfo.ForeignKey.toStringCommon(): String {
-    return "ForeignKey{referenceTable='$referenceTable', onDelete='$onDelete +', " +
-        "onUpdate='$onUpdate', columnNames=$columnNames, " +
-        "referenceColumnNames=$referenceColumnNames}"
+    return (
+        """
+            |ForeignKey {
+            |   referenceTable = '$referenceTable',
+            |   onDelete = '$onDelete',
+            |   onUpdate = '$onUpdate',
+            |   columnNames = {${columnNames.sorted().joinToStringMiddleWithIndent()}
+            |   referenceColumnNames = {${referenceColumnNames.sorted().joinToStringEndWithIndent()}
+            |}
+        """.trimMargin().prependIndent()
+    )
 }
 
 internal fun TableInfo.Index.equalsCommon(other: Any?): Boolean {
@@ -393,5 +418,32 @@ internal fun TableInfo.Index.hashCodeCommon(): Int {
 }
 
 internal fun TableInfo.Index.toStringCommon(): String {
-    return "Index{name='$name', unique=$unique, columns=$columns, orders=$orders'}"
+    return (
+        """
+            |Index {
+            |   name = '$name',
+            |   unique = '$unique',
+            |   columns = {${columns.joinToStringMiddleWithIndent()}
+            |   orders = {${orders.joinToStringEndWithIndent()}
+            |}
+        """.trimMargin().prependIndent()
+    )
+}
+
+internal fun formatString(collection: Collection<*>): String {
+    return if (collection.isNotEmpty()) {
+        collection.joinToString(
+            separator = ",\n",
+            prefix = "\n",
+            postfix = "\n"
+        ).prependIndent() + "},"
+    } else {
+        " }"
+    }
+}
+private fun Collection<*>.joinToStringMiddleWithIndent() {
+    this.joinToString(",").prependIndent() + "},".prependIndent()
+}
+private fun Collection<*>.joinToStringEndWithIndent() {
+    this.joinToString(",").prependIndent() + " }".prependIndent()
 }

@@ -78,5 +78,13 @@ internal fun FtsTableInfo.hashCodeCommon(): Int {
 }
 
 internal fun FtsTableInfo.toStringCommon(): String {
-    return ("FtsTableInfo{name='$name', columns=$columns, options=$options'}")
+    return (
+        """
+            |FtsTableInfo {
+            |   name = '$name',
+            |   columns = {${formatString(columns.sorted())}
+            |   options = {${formatString(options.sorted())}
+            |}
+        """.trimMargin()
+    )
 }
