@@ -16,27 +16,10 @@
 
 package androidx.compose.foundation.layout.benchmark
 
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.size
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.testutils.ComposeTestCase
-import androidx.compose.testutils.ToggleableTestCase
 import androidx.compose.testutils.benchmark.ComposeBenchmarkRule
+import androidx.compose.testutils.benchmark.benchmarkToFirstPixel
 import androidx.compose.testutils.benchmark.toggleStateBenchmarkComposeMeasureLayout
-import androidx.compose.testutils.benchmark.toggleStateBenchmarkMeasureLayout
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.Layout
-import androidx.compose.ui.unit.Constraints
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import org.junit.Rule
@@ -46,7 +29,12 @@ import org.junit.runner.RunWith
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 /**
- * Simple benchmark for [BoxWithConstraints] / subcomposition behavior.
+ * A suite of benchmarks for [BoxWithConstraints] / subcomposition behavior. In this benchmark
+ * we're comparing simple Box vs BoxWithConstraints. We're also checking the performance of
+ * [BoxWithConstraints] in the context of an app's layout depending on available space compared to
+ * just using a theoretical CompositionLocal that contains screen width.
+ * This allows measuring the performance impact of subcomposition on first composition and
+ * recomposition of a relatively complex screen.
  */
 class BoxWithConstraintsBenchmark {
 
@@ -64,76 +52,22 @@ class BoxWithConstraintsBenchmark {
     }
 
     @Test
-    fun boxwithconstraints_changing_constraints() {
-        benchmarkRule.toggleStateBenchmarkMeasureLayout({ ChangingConstraintsTestCase() })
-    }
-}
-
-private class NoWithConstraintsTestCase : ComposeTestCase, ToggleableTestCase {
-
-    private lateinit var state: MutableState<Dp>
-
-    @Composable
-    override fun Content() {
-        val size = remember { mutableStateOf(200.dp) }
-        this.state = size
-        Box(Modifier.size(300.dp), contentAlignment = Alignment.Center) {
-            Spacer(Modifier.size(width = size.value, height = size.value))
-        }
+    fun boxwithconstraints_app_benchmarkToFirstPixel() {
+        benchmarkRule.benchmarkToFirstPixel { BoxWithConstraintsAppTestCase() }
     }
 
-    override fun toggleState() {
-        state.value = if (state.value == 200.dp) 150.dp else 200.dp
-    }
-}
-
-private class BoxWithConstraintsTestCase : ComposeTestCase, ToggleableTestCase {
-
-    private lateinit var state: MutableState<Dp>
-
-    @Composable
-    override fun Content() {
-        val size = remember { mutableStateOf(200.dp) }
-        this.state = size
-        BoxWithConstraints {
-            Box(Modifier.size(300.dp), contentAlignment = Alignment.Center) {
-                Spacer(Modifier.size(width = size.value, height = size.value))
-            }
-        }
+    @Test
+    fun boxwithconstraints_app_toggleStateBenchmarkComposeMeasureLayout() {
+        benchmarkRule.toggleStateBenchmarkComposeMeasureLayout({ BoxWithConstraintsAppTestCase() })
     }
 
-    override fun toggleState() {
-        state.value = if (state.value == 200.dp) 150.dp else 200.dp
-    }
-}
-
-private class ChangingConstraintsTestCase : ComposeTestCase, ToggleableTestCase {
-
-    private lateinit var state: MutableState<Int>
-
-    @Composable
-    override fun Content() {
-        val size = remember { mutableStateOf(100) }
-        this.state = size
-        ChangingConstraintsLayout(state) {
-            BoxWithConstraints {
-                Box(Modifier.fillMaxSize())
-            }
-        }
+    @Test
+    fun compositionlocal_app_benchmarkToFirstPixel() {
+        benchmarkRule.benchmarkToFirstPixel { CompositionLocalAppTestCase() }
     }
 
-    override fun toggleState() {
-        state.value = if (state.value == 100) 50 else 100
-    }
-}
-
-@Composable
-private fun ChangingConstraintsLayout(size: State<Int>, content: @Composable () -> Unit) {
-    Layout(content) { measurables, _ ->
-        val constraints = Constraints.fixed(size.value, size.value)
-        val placeable = measurables.first().measure(constraints)
-        layout(100, 100) {
-            placeable.placeRelative(0, 0)
-        }
+    @Test
+    fun compositionlocal_app_toggleStateBenchmarkComposeMeasureLayout() {
+        benchmarkRule.toggleStateBenchmarkComposeMeasureLayout({ CompositionLocalAppTestCase() })
     }
 }
