@@ -16,7 +16,10 @@
 
 package androidx.camera.testing.fakes;
 
+import android.graphics.Canvas;
+import android.graphics.Rect;
 import android.text.TextUtils;
+import android.util.Size;
 import android.view.Surface;
 
 import androidx.annotation.IntRange;
@@ -52,6 +55,9 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * A fake camera which will not produce any data, but provides a valid Camera implementation.
@@ -80,6 +86,8 @@ public class FakeCamera implements CameraInternal {
     private SessionConfig mSessionConfig;
 
     private List<DeferrableSurface> mConfiguredDeferrableSurfaces = Collections.emptyList();
+    @Nullable
+    private ListenableFuture<List<Surface>> mSessionConfigurationFuture = null;
 
     private CameraConfig mCameraConfig = CameraConfigs.defaultConfig();
 
@@ -422,12 +430,12 @@ public class FakeCamera implements CameraInternal {
 
             // Since this is a fake camera, it is likely we will get null surfaces. Don't
             // consider them as failed.
-            ListenableFuture<List<Surface>> surfaceListFuture =
+            mSessionConfigurationFuture =
                     DeferrableSurfaces.surfaceListWithTimeout(mConfiguredDeferrableSurfaces, false,
                             TIMEOUT_GET_SURFACE_IN_MS, CameraXExecutors.directExecutor(),
                             CameraXExecutors.myLooperExecutor());
 
-            Futures.addCallback(surfaceListFuture, new FutureCallback<List<Surface>>() {
+            Futures.addCallback(mSessionConfigurationFuture, new FutureCallback<List<Surface>>() {
                 @Override
                 public void onSuccess(@Nullable List<Surface> result) {
                     if (result == null || result.isEmpty()) {
@@ -524,6 +532,66 @@ public class FakeCamera implements CameraInternal {
             default:
                 throw new IllegalStateException(
                         "Unknown internal camera state: " + state);
+        }
+    }
+
+    /**
+     * Waits for session configuration to be completed.
+     *
+     * @param timeoutMillis The waiting timeout in milliseconds.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public void awaitSessionConfiguration(long timeoutMillis) {
+        if (mSessionConfigurationFuture == null) {
+            Logger.e(TAG, "mSessionConfigurationFuture is null!");
+            return;
+        }
+
+        try {
+            mSessionConfigurationFuture.get(timeoutMillis, TimeUnit.MILLISECONDS);
+        } catch (ExecutionException | InterruptedException | TimeoutException e) {
+            Logger.e(TAG, "Session configuration did not complete within " + timeoutMillis + " ms",
+                    e);
+        }
+    }
+
+    /**
+     * Simulates a capture frame being drawn on the session config surfaces to imitate a real
+     * camera.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public void simulateCaptureFrame() {
+        // Since capture session is not configured synchronously and may be dependent on when a
+        // surface can be obtained from DeferrableSurface, we should wait for the session
+        // configuration here just-in-case.
+        awaitSessionConfiguration(1000);
+
+        if (mSessionConfig == null || mState != State.CONFIGURED) {
+            Logger.e(TAG, "Session config not successfully configured yet.");
+            return;
+        }
+
+        for (DeferrableSurface deferrableSurface : mSessionConfig.getSurfaces()) {
+            Size surfaceSize = deferrableSurface.getPrescribedSize();
+            Futures.addCallback(deferrableSurface.getSurface(), new FutureCallback<Surface>() {
+                @Override
+                public void onSuccess(@Nullable Surface surface) {
+                    if (surface == null) {
+                        Logger.e(TAG, "Null surface obtained from " + deferrableSurface);
+                        return;
+                    }
+                    Canvas canvas = surface.lockCanvas(
+                            new Rect(0, 0, surfaceSize.getWidth(), surfaceSize.getHeight()));
+                    // TODO: Draw something on the canvas (e.g. fake image bitmap or
+                    //  alternating color).
+                    surface.unlockCanvasAndPost(canvas);
+                }
+
+                @Override
+                public void onFailure(@NonNull Throwable t) {
+                    Logger.e(TAG, "Could not obtain surface from " + deferrableSurface, t);
+                }
+            }, CameraXExecutors.directExecutor());
         }
     }
 }
