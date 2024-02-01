@@ -16,6 +16,8 @@
 
 package androidx.compose.material3
 
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.text.intl.Locale
 
 /**
@@ -27,4 +29,6 @@ actual typealias CalendarLocale = Locale
 /**
  * Returns the default [CalendarLocale].
  */
+@Composable
+@ReadOnlyComposable
 internal actual fun defaultLocale(): CalendarLocale = Locale.current
